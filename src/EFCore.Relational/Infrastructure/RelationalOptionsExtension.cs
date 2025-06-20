@@ -387,8 +387,8 @@ public abstract class RelationalOptionsExtension : IDbContextOptionsExtension
     /// <summary>
     ///     Configured translation mode for parameterized collections.
     /// </summary>
-    public virtual ParameterizedCollectionTranslationMode? ParameterizedCollectionTranslationMode
-        => _parameterizedCollectionTranslationMode;
+    public virtual ParameterizedCollectionTranslationMode ParameterizedCollectionTranslationMode
+        => _parameterizedCollectionTranslationMode ?? ParameterizedCollectionTranslationMode.ParameterizeExpanded;
 
     /// <summary>
     ///     Creates a new instance with all options the same as for this instance, but with the given option changed.

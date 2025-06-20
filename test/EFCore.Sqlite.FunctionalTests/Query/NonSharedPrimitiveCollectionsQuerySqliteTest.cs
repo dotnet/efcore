@@ -21,6 +21,13 @@ public class NonSharedPrimitiveCollectionsQuerySqliteTest(NonSharedFixture fixtu
         return optionsBuilder;
     }
 
+    protected override DbContextOptionsBuilder SetTranslateParameterizedCollectionsToExpandedParameters(DbContextOptionsBuilder optionsBuilder)
+    {
+        new SqliteDbContextOptionsBuilder(optionsBuilder).TranslateParameterizedCollectionsToExpandedParameters();
+
+        return optionsBuilder;
+    }
+
     #region Support for specific element types
 
     public override async Task Array_of_int()
@@ -351,9 +358,9 @@ WHERE (
 """);
     }
 
-    public override async Task Parameter_collection_of_ints_Contains_int_with_default_constants()
+    public override async Task Parameter_collection_Contains_with_default_constants()
     {
-        await base.Parameter_collection_of_ints_Contains_int_with_default_constants();
+        await base.Parameter_collection_Contains_with_default_constants();
 
         AssertSql(
             """
@@ -380,9 +387,9 @@ WHERE (
 """);
     }
 
-    public override async Task Parameter_collection_of_ints_Contains_int_with_default_constants_EF_Parameter()
+    public override async Task Parameter_collection_Contains_with_default_constants_EF_Parameter()
     {
-        await base.Parameter_collection_of_ints_Contains_int_with_default_constants_EF_Parameter();
+        await base.Parameter_collection_Contains_with_default_constants_EF_Parameter();
 
         AssertSql(
             """
@@ -414,9 +421,9 @@ WHERE (
 """);
     }
 
-    public override async Task Parameter_collection_of_ints_Contains_int_with_default_parameters()
+    public override async Task Parameter_collection_Contains_with_default_parameters()
     {
-        await base.Parameter_collection_of_ints_Contains_int_with_default_parameters();
+        await base.Parameter_collection_Contains_with_default_parameters();
 
         AssertSql(
             """
@@ -446,15 +453,48 @@ WHERE (
 """);
     }
 
-    public override async Task Parameter_collection_of_ints_Contains_int_with_default_parameters_EF_Constant()
+    public override async Task Parameter_collection_Contains_with_default_parameters_EF_Constant()
     {
-        await base.Parameter_collection_of_ints_Contains_int_with_default_parameters_EF_Constant();
+        await base.Parameter_collection_Contains_with_default_parameters_EF_Constant();
 
         AssertSql(
             """
 SELECT "t"."Id"
 FROM "TestEntity" AS "t"
 WHERE "t"."Id" IN (2, 999)
+""");
+    }
+
+    public override async Task Parameter_collection_Count_with_column_predicate_with_default_expanded_parameters()
+    {
+        await base.Parameter_collection_Count_with_column_predicate_with_default_expanded_parameters();
+
+        AssertSql(
+            """
+@ids1='2'
+@ids2='999'
+
+SELECT "t"."Id"
+FROM "TestEntity" AS "t"
+WHERE (
+    SELECT COUNT(*)
+    FROM (SELECT @ids1 AS "Value" UNION ALL VALUES (@ids2)) AS "i"
+    WHERE "i"."Value" > "t"."Id") = 1
+""");
+    }
+
+    public override async Task Parameter_collection_Contains_with_default_expanded_parameters()
+    {
+        await base.Parameter_collection_Contains_with_default_expanded_parameters();
+
+        AssertSql(
+            """
+@ints1='2'
+@ints2='999'
+
+SELECT "t"."Id"
+FROM "TestEntity" AS "t"
+WHERE "t"."Id" IN (@ints1, @ints2)
 """);
     }
 

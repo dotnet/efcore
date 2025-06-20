@@ -899,6 +899,14 @@ WHERE ARRAY_CONTAINS(@ints, c["Int"])
         Assert.Equal(CoreStrings.EFConstantNotSupported, exception.Message);
     }
 
+    // nothing to test here
+    public override Task Parameter_collection_Count_with_huge_number_of_values(bool async)
+        => base.Parameter_collection_Count_with_huge_number_of_values(async);
+
+    // nothing to test here
+    public override Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values(bool async)
+        => base.Parameter_collection_of_ints_Contains_int_with_huge_number_of_values(async);
+
     public override Task Column_collection_of_ints_Contains(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>

@@ -178,25 +178,19 @@ WHERE [c].[CustomerID] = @customerID
 
         AssertSql(
             """
-@args='["ALFKI"]' (Size = 4000)
+@args1='ALFKI' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] IN (
-    SELECT [a].[value]
-    FROM OPENJSON(@args) WITH ([value] nchar(5) '$') AS [a]
-)
+WHERE [c].[CustomerID] = @args1
 """,
             //
             """
-@args='["ANATR"]' (Size = 4000)
+@args1='ANATR' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] IN (
-    SELECT [a].[value]
-    FROM OPENJSON(@args) WITH ([value] nchar(5) '$') AS [a]
-)
+WHERE [c].[CustomerID] = @args1
 """);
     }
 

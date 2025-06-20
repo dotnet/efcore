@@ -3189,7 +3189,8 @@ ORDER BY [l].[Id], [l0].[Id], [l1].[Id]
 
         AssertSql(
             """
-@validIds='["L1 01","L1 02"]' (Size = 4000)
+@validIds1='L1 01' (Size = 4000)
+@validIds2='L1 02' (Size = 4000)
 
 SELECT CASE
     WHEN [l0].[Id] IS NULL THEN 0
@@ -3197,24 +3198,19 @@ SELECT CASE
 END, [l].[Id], [l0].[Id]
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Required_Id]
-WHERE [l].[Name] IN (
-    SELECT [v].[value]
-    FROM OPENJSON(@validIds) WITH ([value] nvarchar(max) '$') AS [v]
-)
+WHERE [l].[Name] IN (@validIds1, @validIds2)
 ORDER BY [l].[Id], [l0].[Id]
 """,
             //
             """
-@validIds='["L1 01","L1 02"]' (Size = 4000)
+@validIds3='L1 01' (Size = 4000)
+@validIds4='L1 02' (Size = 4000)
 
 SELECT [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[Name], [l1].[OneToMany_Optional_Inverse3Id], [l1].[OneToMany_Optional_Self_Inverse3Id], [l1].[OneToMany_Required_Inverse3Id], [l1].[OneToMany_Required_Self_Inverse3Id], [l1].[OneToOne_Optional_PK_Inverse3Id], [l1].[OneToOne_Optional_Self3Id], [l].[Id], [l0].[Id]
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Required_Id]
 INNER JOIN [LevelThree] AS [l1] ON [l0].[Id] = [l1].[OneToMany_Required_Inverse3Id]
-WHERE [l].[Name] IN (
-    SELECT [v].[value]
-    FROM OPENJSON(@validIds) WITH ([value] nvarchar(max) '$') AS [v]
-)
+WHERE [l].[Name] IN (@validIds3, @validIds4)
 ORDER BY [l].[Id], [l0].[Id]
 """);
     }
@@ -3747,38 +3743,31 @@ ORDER BY [l].[Id], [l15].[Date], [l17].[Name], [l17].[Date]
 
         AssertSql(
             """
-@validIds='["L1 01","L1 02"]' (Size = 4000)
+@validIds1='L1 01' (Size = 4000)
+@validIds2='L1 02' (Size = 4000)
 
 SELECT [l].[Date]
 FROM [LevelOne] AS [l]
-WHERE [l].[Name] IN (
-    SELECT [v].[value]
-    FROM OPENJSON(@validIds) WITH ([value] nvarchar(max) '$') AS [v]
-)
+WHERE [l].[Name] IN (@validIds1, @validIds2)
 GROUP BY [l].[Date]
 ORDER BY [l].[Date]
 """,
             //
             """
-@validIds='["L1 01","L1 02"]' (Size = 4000)
+@validIds3='L1 01' (Size = 4000)
+@validIds4='L1 02' (Size = 4000)
 
 SELECT [l5].[Id], [l4].[Date]
 FROM (
     SELECT [l].[Date]
     FROM [LevelOne] AS [l]
-    WHERE [l].[Name] IN (
-        SELECT [v].[value]
-        FROM OPENJSON(@validIds) WITH ([value] nvarchar(max) '$') AS [v]
-    )
+    WHERE [l].[Name] IN (@validIds3, @validIds4)
     GROUP BY [l].[Date]
 ) AS [l4]
 INNER JOIN (
     SELECT [l3].[Id], [l3].[Date]
     FROM [LevelOne] AS [l3]
-    WHERE [l3].[Name] IN (
-        SELECT [v3].[value]
-        FROM OPENJSON(@validIds) WITH ([value] nvarchar(max) '$') AS [v3]
-    )
+    WHERE [l3].[Name] IN (@validIds3, @validIds4)
 ) AS [l5] ON [l4].[Date] = [l5].[Date]
 ORDER BY [l4].[Date]
 """);

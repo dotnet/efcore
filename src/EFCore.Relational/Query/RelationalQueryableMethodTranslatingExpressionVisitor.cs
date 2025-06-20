@@ -21,6 +21,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     private readonly IRelationalTypeMappingSource _typeMappingSource;
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
     private readonly bool _subquery;
+    private readonly ParameterizedCollectionTranslationMode _primitiveCollectionsBehavior;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -63,6 +64,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         _typeMappingSource = relationalDependencies.TypeMappingSource;
         _sqlExpressionFactory = sqlExpressionFactory;
         _subquery = false;
+        _primitiveCollectionsBehavior = RelationalOptionsExtension.Extract(_queryCompilationContext.ContextOptions).ParameterizedCollectionTranslationMode;
     }
 
     /// <summary>
@@ -88,6 +90,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         _typeMappingSource = parentVisitor._typeMappingSource;
         _sqlExpressionFactory = parentVisitor._sqlExpressionFactory;
         _subquery = true;
+        _primitiveCollectionsBehavior = RelationalOptionsExtension.Extract(_queryCompilationContext.ContextOptions).ParameterizedCollectionTranslationMode;
     }
 
     /// <inheritdoc />
@@ -293,13 +296,14 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
 
         Check.DebugAssert(sqlParameterExpression is not null, "sqlParameterExpression is not null");
 
-        var primitiveCollectionsBehavior = RelationalOptionsExtension.Extract(QueryCompilationContext.ContextOptions)
-            .ParameterizedCollectionTranslationMode;
-
         var tableAlias = _sqlAliasManager.GenerateTableAlias(sqlParameterExpression.Name.TrimStart('_'));
-        if (queryParameter.ShouldBeConstantized
-            || (primitiveCollectionsBehavior == ParameterizedCollectionTranslationMode.Constantize
-                && !queryParameter.ShouldNotBeConstantized))
+
+        var constantize = queryParameter.ShouldBeConstantized
+                || (_primitiveCollectionsBehavior is ParameterizedCollectionTranslationMode.Constantize
+                    && !queryParameter.ShouldNotBeConstantized);
+        var parameterizeExpanded = _primitiveCollectionsBehavior is ParameterizedCollectionTranslationMode.ParameterizeExpanded
+                && !queryParameter.ShouldNotBeConstantized;
+        if (constantize || parameterizeExpanded)
         {
             var valuesExpression = new ValuesExpression(
                 tableAlias,
@@ -569,16 +573,22 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             return TranslateAny(source, anyLambda);
         }
 
-        // Pattern-match Contains over ValuesExpression, translating to simplified 'item IN (1, 2, 3)' with constant elements
+        // Pattern-match Contains over ValuesExpression, translating to simplified 'item IN (1, 2, 3)' with constant elements.
         if (TryExtractBareInlineCollectionValues(source, out var values, out var valuesParameter))
         {
-            var inExpression = (values, valuesParameter) switch
+            if (values is not null)
             {
-                (not null, null) => _sqlExpressionFactory.In(translatedItem, values),
-                (null, not null) => _sqlExpressionFactory.In(translatedItem, valuesParameter),
-                _ => throw new UnreachableException(),
-            };
-            return source.Update(new SelectExpression(inExpression, _sqlAliasManager), source.ShaperExpression);
+                var inExpression = _sqlExpressionFactory.In(translatedItem, values);
+                return source.Update(new SelectExpression(inExpression, _sqlAliasManager), source.ShaperExpression);
+            }
+            if (valuesParameter is not null
+                // Expanding parameters will happen in 2nd stage of query pipeline.
+                // We can't translate to IN yet, because we might need to transform into OPENJSON in SqlServerSqlNullabilityProcessor.
+                && _primitiveCollectionsBehavior is not ParameterizedCollectionTranslationMode.ParameterizeExpanded)
+            {
+                var inExpression = _sqlExpressionFactory.In(translatedItem, valuesParameter);
+                return source.Update(new SelectExpression(inExpression, _sqlAliasManager), source.ShaperExpression);
+            }
         }
 
         // Translate to IN with a subquery.
