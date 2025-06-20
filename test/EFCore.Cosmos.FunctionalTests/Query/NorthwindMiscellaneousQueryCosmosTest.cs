@@ -202,56 +202,64 @@ WHERE (c["id"] != null)
         AssertSql();
     }
 
-    public override async Task Default_if_empty_top_level(bool async)
+    public override async Task DefaultIfEmpty_top_level(bool async)
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Default_if_empty_top_level(async));
+        await AssertTranslationFailed(() => base.DefaultIfEmpty_top_level(async));
 
         AssertSql();
     }
 
-    public override async Task Join_with_default_if_empty_on_both_sources(bool async)
+    public override async Task Join_with_DefaultIfEmpty_on_both_sources(bool async)
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Join_with_default_if_empty_on_both_sources(async));
+        await AssertTranslationFailed(() => base.Join_with_DefaultIfEmpty_on_both_sources(async));
 
         AssertSql();
     }
 
-    public override async Task Default_if_empty_top_level_followed_by_projecting_constant(bool async)
+    public override async Task DefaultIfEmpty_top_level_followed_by_constant_Select(bool async)
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Default_if_empty_top_level_followed_by_projecting_constant(async));
+        await AssertTranslationFailed(() => base.DefaultIfEmpty_top_level_followed_by_constant_Select(async));
 
         AssertSql();
     }
 
-    public override async Task Default_if_empty_top_level_positive(bool async)
+    public override async Task DefaultIfEmpty_top_level_preceded_by_constant_Select(bool async)
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Default_if_empty_top_level_positive(async));
+        await AssertTranslationFailed(() => base.DefaultIfEmpty_top_level_preceded_by_constant_Select(async));
 
         AssertSql();
     }
 
-    public override async Task Default_if_empty_top_level_arg(bool async)
-    {
-        await base.Default_if_empty_top_level_arg(async);
-
-        AssertSql();
-    }
-
-    public override async Task Default_if_empty_top_level_arg_followed_by_projecting_constant(bool async)
-    {
-        await base.Default_if_empty_top_level_arg_followed_by_projecting_constant(async);
-
-        AssertSql();
-    }
-
-    public override async Task Default_if_empty_top_level_projection(bool async)
+    public override async Task DefaultIfEmpty_top_level_positive(bool async)
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Default_if_empty_top_level_projection(async));
+        await AssertTranslationFailed(() => base.DefaultIfEmpty_top_level_positive(async));
+
+        AssertSql();
+    }
+
+    public override async Task DefaultIfEmpty_top_level_arg(bool async)
+    {
+        await base.DefaultIfEmpty_top_level_arg(async);
+
+        AssertSql();
+    }
+
+    public override async Task DefaultIfEmpty_top_level_arg_followed_by_projecting_constant(bool async)
+    {
+        await base.DefaultIfEmpty_top_level_arg_followed_by_projecting_constant(async);
+
+        AssertSql();
+    }
+
+    public override async Task DefaultIfEmpty_top_level_projection(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.DefaultIfEmpty_top_level_projection(async));
 
         AssertSql();
     }

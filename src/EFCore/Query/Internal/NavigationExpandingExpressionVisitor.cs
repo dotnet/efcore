@@ -966,23 +966,21 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
 
     private NavigationExpansionExpression ProcessDefaultIfEmpty(NavigationExpansionExpression source)
     {
-        source.UpdateSource(
-            Expression.Call(
-                QueryableMethods.DefaultIfEmptyWithoutArgument.MakeGenericMethod(source.SourceElementType),
-                source.Source));
+        // Apply any pending selector, since previous Selects can't be moved after DefaultIfEmpty (change of meaning, see #36208).
+        // Mark the entity(s) being selected as optional.
+        source = (NavigationExpansionExpression)_pendingSelectorExpandingExpressionVisitor.Visit(source);
+        var newStructure = SnapshotExpression(source.PendingSelector);
+        newStructure = _entityReferenceOptionalMarkingExpressionVisitor.Visit(newStructure);
+        var queryable = Reduce(source);
 
-        var pendingSelector = source.PendingSelector;
-        _entityReferenceOptionalMarkingExpressionVisitor.Visit(pendingSelector);
-        if (!pendingSelector.Type.IsNullableType())
-        {
-            pendingSelector = Expression.Coalesce(
-                Expression.Convert(pendingSelector, pendingSelector.Type.MakeNullable()),
-                pendingSelector.Type.GetDefaultValueConstant());
-        }
+        var result = Expression.Call(
+            QueryableMethods.DefaultIfEmptyWithoutArgument.MakeGenericMethod(queryable.Type.GetSequenceType()),
+            queryable);
 
-        source.ApplySelector(pendingSelector);
+        var navigationTree = new NavigationTreeExpression(newStructure);
+        var parameterName = GetParameterName("e");
 
-        return source;
+        return new NavigationExpansionExpression(result, navigationTree, navigationTree, parameterName);
     }
 
     private NavigationExpansionExpression ProcessDistinct(NavigationExpansionExpression source, MethodInfo genericMethod)
