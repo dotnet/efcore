@@ -1329,6 +1329,23 @@ INNER JOIN (
 """);
     }
 
+    public override async Task SelectMany_with_nested_DefaultIfEmpty(bool async)
+    {
+        await base.SelectMany_with_nested_DefaultIfEmpty(async);
+
+        AssertSql(
+            """
+SELECT [s].[OrderID], [s].[ProductID], [s].[Discount], [s].[Quantity], [s].[UnitPrice]
+FROM [Customers] AS [c]
+INNER JOIN (
+    SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice], [o].[CustomerID]
+    FROM [Orders] AS [o]
+    LEFT JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
+    WHERE 0 = 1
+) AS [s] ON [c].[CustomerID] = [s].[CustomerID]
+""");
+    }
+
     public override async Task Select_with_multiple_Take(bool async)
     {
         await base.Select_with_multiple_Take(async);
