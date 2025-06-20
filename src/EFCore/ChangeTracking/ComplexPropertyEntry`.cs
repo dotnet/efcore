@@ -1,6 +1,7 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Xml.Linq;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 
@@ -84,7 +85,7 @@ public class ComplexPropertyEntry<TEntity, TComplexProperty> : ComplexPropertyEn
     }
 
     /// <summary>
-    ///     Provides access to change tracking information and operations for a given complex type property of this complex type.
+    ///     Provides access to change tracking information and operations for a given nested complex type property of this complex type.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
@@ -100,6 +101,29 @@ public class ComplexPropertyEntry<TEntity, TComplexProperty> : ComplexPropertyEn
         Check.NotNull(propertyExpression);
 
         return new ComplexPropertyEntry<TEntity, TNestedComplexProperty>(
+            InternalEntry,
+            Metadata.ComplexType.GetComplexProperty(propertyExpression.GetMemberAccess().GetSimpleMemberName()));
+    }
+
+    /// <summary>
+    ///     Provides access to change tracking information and operations for a given complex type property of this complex type.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+    ///     examples.
+    /// </remarks>
+    /// <typeparam name="TElement">The element type.</typeparam>
+    /// <param name="propertyExpression">
+    ///     A lambda expression representing the property to access information and operations for.
+    /// </param>
+    /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
+    public virtual ComplexCollectionEntry<TEntity, TElement> ComplexCollection<TElement>(
+        Expression<Func<TEntity, IEnumerable<TElement>?>> propertyExpression)
+        where TElement : notnull
+    {
+        Check.NotNull(propertyExpression, nameof(propertyExpression));
+
+        return new ComplexCollectionEntry<TEntity, TElement>(
             InternalEntry,
             Metadata.ComplexType.GetComplexProperty(propertyExpression.GetMemberAccess().GetSimpleMemberName()));
     }
@@ -124,7 +148,7 @@ public class ComplexPropertyEntry<TEntity, TComplexProperty> : ComplexPropertyEn
     }
 
     /// <summary>
-    ///     Provides access to change tracking information and operations for a given complex type property of this complex type.
+    ///     Provides access to change tracking information and operations for a given nested complex type property of this complex type.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
@@ -144,6 +168,26 @@ public class ComplexPropertyEntry<TEntity, TComplexProperty> : ComplexPropertyEn
     }
 
     /// <summary>
+    ///     Provides access to change tracking information and operations for a given collection property of a complex type on this complex type.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+    ///     examples.
+    /// </remarks>
+    /// <typeparam name="TElement">The element type.</typeparam>
+    /// <param name="property">The property to access information and operations for.</param>
+    /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
+    public virtual ComplexCollectionEntry<TEntity, TElement> ComplexCollection<TElement>(IComplexProperty property)
+        where TElement : notnull
+    {
+        Check.NotNull(property, nameof(property));
+
+        ValidateComplexType<TElement>(property);
+
+        return new ComplexCollectionEntry<TEntity, TElement>(InternalEntry, property);
+    }
+
+    /// <summary>
     ///     Provides access to change tracking information and operations for a given property of this complex type.
     /// </summary>
     /// <remarks>
@@ -157,13 +201,14 @@ public class ComplexPropertyEntry<TEntity, TComplexProperty> : ComplexPropertyEn
     {
         Check.NotEmpty(propertyName);
 
-        ValidateType<TProperty>(Metadata.ComplexType.FindProperty(propertyName));
+        var property = Metadata.ComplexType.GetProperty(propertyName);
+        ValidateType<TProperty>(property);
 
-        return new PropertyEntry<TEntity, TProperty>(InternalEntry, Metadata.ComplexType.GetProperty(propertyName));
+        return new PropertyEntry<TEntity, TProperty>(InternalEntry, property);
     }
 
     /// <summary>
-    ///     Provides access to change tracking information and operations for a given complex type property of this complex type.
+    ///     Provides access to change tracking information and operations for a given nested complex type property of this complex type.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
@@ -176,10 +221,31 @@ public class ComplexPropertyEntry<TEntity, TComplexProperty> : ComplexPropertyEn
     {
         Check.NotEmpty(propertyName);
 
-        ValidateType<TNestedComplexProperty>(Metadata.ComplexType.FindComplexProperty(propertyName));
+        var property = Metadata.ComplexType.GetComplexProperty(propertyName);
+        ValidateType<TNestedComplexProperty>(property);
 
-        return new ComplexPropertyEntry<TEntity, TNestedComplexProperty>(
-            InternalEntry, Metadata.ComplexType.GetComplexProperty(propertyName));
+        return new ComplexPropertyEntry<TEntity, TNestedComplexProperty>(InternalEntry, property);
+    }
+
+    /// <summary>
+    ///     Provides access to change tracking information and operations for a given collection property of a complex type of this complex type.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+    ///     examples.
+    /// </remarks>
+    /// <typeparam name="TElement">The element type.</typeparam>
+    /// <param name="propertyName">The property to access information and operations for.</param>
+    /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
+    public virtual ComplexCollectionEntry<TEntity, TElement> ComplexCollection<TElement>(string propertyName)
+        where TElement : notnull
+    {
+        Check.NotEmpty(propertyName, nameof(propertyName));
+
+        var property = Metadata.ComplexType.GetComplexProperty(propertyName);
+        ValidateComplexType<TElement>(property);
+
+        return new ComplexCollectionEntry<TEntity, TElement>(InternalEntry, property);
     }
 
     private static void ValidateType<TProperty>(IPropertyBase? property)
@@ -193,6 +259,20 @@ public class ComplexPropertyEntry<TEntity, TComplexProperty> : ComplexPropertyEn
                     property.DeclaringType.ClrType.ShortDisplayName(),
                     property.ClrType.ShortDisplayName(),
                     typeof(TProperty).ShortDisplayName()));
+        }
+    }
+
+    private static void ValidateComplexType<TElement>(IComplexProperty complexProperty)
+        where TElement : notnull
+    {
+        if (complexProperty.ComplexType.ClrType != typeof(TElement))
+        {
+            throw new ArgumentException(
+                CoreStrings.WrongGenericPropertyType(
+                    complexProperty.Name,
+                    complexProperty.DeclaringType.DisplayName(),
+                    complexProperty.ComplexType.ClrType.ShortDisplayName(),
+                    typeof(TElement).ShortDisplayName()));
         }
     }
 }

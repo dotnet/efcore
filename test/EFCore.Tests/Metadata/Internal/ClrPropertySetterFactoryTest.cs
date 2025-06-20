@@ -133,6 +133,9 @@ public class ClrPropertySetterFactoryTest
 
         public PropertyAccessMode GetPropertyAccessMode()
             => throw new NotImplementedException();
+
+        public void SetClrValueUsingContainingEntity(object instance, IReadOnlyList<int> indices, object value)
+            => throw new NotImplementedException();
     }
 
     [ConditionalFact]

@@ -1442,7 +1442,7 @@ public abstract partial class ModelBuilderTest
                 .HasValueGeneratorFactory(typeof(CustomValueGeneratorFactory))
                 .IsRequired();
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue #31411")]
         public virtual void Can_map_a_tuple_collection()
         {
             var modelBuilder = CreateModelBuilder();

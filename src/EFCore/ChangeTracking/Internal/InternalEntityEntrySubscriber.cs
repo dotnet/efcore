@@ -25,7 +25,6 @@ public class InternalEntityEntrySubscriber : IInternalEntityEntrySubscriber
     public virtual bool SnapshotAndSubscribe(InternalEntityEntry entry)
     {
         var entityType = entry.EntityType;
-
         if (entityType.UseEagerSnapshots())
         {
             entry.EnsureOriginalValues();
@@ -33,7 +32,6 @@ public class InternalEntityEntrySubscriber : IInternalEntityEntrySubscriber
         }
 
         var changeTrackingStrategy = entityType.GetChangeTrackingStrategy();
-
         if (changeTrackingStrategy == ChangeTrackingStrategy.Snapshot)
         {
             return false;
@@ -65,9 +63,49 @@ public class InternalEntityEntrySubscriber : IInternalEntityEntrySubscriber
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public virtual bool SnapshotAndSubscribe(InternalComplexEntry entry)
+    {
+        var complexType = entry.ComplexType;
+        if (complexType.UseEagerSnapshots())
+        {
+            entry.EnsureOriginalValues();
+        }
+
+        var changeTrackingStrategy = complexType.GetChangeTrackingStrategy();
+        if (changeTrackingStrategy == ChangeTrackingStrategy.Snapshot)
+        {
+            return false;
+        }
+
+        // TODO: Support complex value type collections. Issue #31411
+        // INotifyCollectionChanged
+
+        // TODO: Support complex types with notification change tracking. Issue #36175
+        // INotifyPropertyChanging, INotifyPropertyChanged
+        throw new InvalidOperationException(
+            CoreStrings.ComplexTypeNotificationChangeTracking(complexType.DisplayName(), changeTrackingStrategy));
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public virtual void SubscribeCollectionChanged(InternalEntityEntry entry, INavigationBase navigation)
         => AsINotifyCollectionChanged(entry, navigation, entry.EntityType, entry.EntityType.GetChangeTrackingStrategy()).CollectionChanged
             += entry.HandleINotifyCollectionChanged;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void SubscribeCollectionChanged(InternalEntryBase entry, IComplexProperty complexProperty)
+    {
+        // TODO: Support complex value type collections. Issue #31411
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -98,6 +136,26 @@ public class InternalEntityEntrySubscriber : IInternalEntityEntrySubscriber
             AsINotifyPropertyChanged(entry, entityType, changeTrackingStrategy).PropertyChanged
                 -= entry.HandleINotifyPropertyChanged;
         }
+
+        foreach (var complexEntry in entry.GetFlattenedComplexEntries())
+        {
+            Unsubscribe(complexEntry);
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void Unsubscribe(InternalComplexEntry entry)
+    {
+        // TODO: Support complex value type collections. Issue #31411
+        foreach (var complexEntry in entry.GetFlattenedComplexEntries())
+        {
+            Unsubscribe(complexEntry);
+        }
     }
 
     /// <summary>
@@ -111,6 +169,17 @@ public class InternalEntityEntrySubscriber : IInternalEntityEntrySubscriber
         INavigationBase navigation)
         => AsINotifyCollectionChanged(entry, navigation, entry.EntityType, entry.EntityType.GetChangeTrackingStrategy()).CollectionChanged
             -= entry.HandleINotifyCollectionChanged;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void UnsubscribeCollectionChanged(InternalEntryBase entry, IComplexProperty complexProperty)
+    {
+        // TODO: Support complex value type collections. Issue #31411
+    }
 
     private static INotifyCollectionChanged AsINotifyCollectionChanged(
         InternalEntityEntry entry,

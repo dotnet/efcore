@@ -99,7 +99,10 @@ public class InternalEntryEntrySubscriberTest
             CoreStrings.NonNotifyingCollection(
                 "RelatedCollection", "FullNotificationEntity", "List<ChangedOnlyNotificationEntity>", changeTrackingStrategy),
             Assert.Throws<InvalidOperationException>(
-                () => entry.SetEntityState(EntityState.Unchanged)).Message);
+                () =>
+                {
+                    entry.SetEntityState(EntityState.Unchanged);
+                }).Message);
     }
 
     [ConditionalTheory]
@@ -586,6 +589,8 @@ public class InternalEntryEntrySubscriberTest
         public void ResetState()
         {
         }
+
+        public void DetectChanges(InternalComplexEntry entry) => throw new NotImplementedException();
     }
 
     private class TestNavigationListener : INavigationFixer

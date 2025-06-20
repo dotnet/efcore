@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Linq.Expressions;
 using System.Runtime.ExceptionServices;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -74,7 +75,7 @@ public class ClrPropertySetterFactory : ClrAccessorFactory<IClrPropertySetter>
         out Expression setterExpression)
     {
         var boundMethod = GenericCreateExpression.MakeGenericMethod(
-            propertyBase.DeclaringType.ContainingType.ClrType,
+            propertyBase.DeclaringType.ContainingEntityType.ClrType,
             propertyBase.DeclaringType.ClrType,
             propertyBase.ClrType);
 
@@ -94,15 +95,18 @@ public class ClrPropertySetterFactory : ClrAccessorFactory<IClrPropertySetter>
     private static readonly MethodInfo GenericCreateExpression
         = typeof(ClrPropertySetterFactory).GetMethod(nameof(CreateExpression), BindingFlags.Instance | BindingFlags.NonPublic)!;
 
+    private static readonly MethodInfo ComplexCollectionNullElementSetterException = typeof(CoreStrings).GetMethod(nameof(CoreStrings.ComplexCollectionNullElementSetter))!;
+
     private void CreateExpression<TRoot, TDeclaring, TValue>(
         MemberInfo memberInfo,
         IPropertyBase? propertyBase,
-        out Expression<Action<TRoot, TValue>> setterExpression)
+        out Expression<Action<TRoot, IReadOnlyList<int>, TValue>> setterExpression)
         where TRoot : class
     {
-        var entityClrType = propertyBase?.DeclaringType.ContainingType.ClrType ?? typeof(TRoot);
+        var entityClrType = propertyBase?.DeclaringType.ContainingEntityType.ClrType ?? typeof(TRoot);
         var propertyDeclaringType = propertyBase?.DeclaringType.ClrType ?? typeof(TDeclaring);
         var entityParameter = Expression.Parameter(entityClrType, "entity");
+        var indicesParameter = Expression.Parameter(typeof(IReadOnlyList<int>), "indices");
         var valueParameter = Expression.Parameter(typeof(TValue), "value");
         var memberType = memberInfo.GetMemberType();
         var convertedParameter = (Expression)valueParameter;
@@ -128,7 +132,7 @@ public class ClrPropertySetterFactory : ClrAccessorFactory<IClrPropertySetter>
         Expression writeExpression;
         if (memberInfo.DeclaringType!.IsAssignableFrom(propertyDeclaringType))
         {
-            writeExpression = CreateMemberAssignment(memberInfo, propertyBase, entityParameter, convertedParameter);
+            writeExpression = CreateMemberAssignment(memberInfo, propertyBase, entityParameter, indicesParameter, convertedParameter);
         }
         else
         {
@@ -144,19 +148,21 @@ public class ClrPropertySetterFactory : ClrAccessorFactory<IClrPropertySetter>
                         Expression.TypeAs(entityParameter, memberInfo.DeclaringType)),
                     Expression.IfThen(
                         Expression.ReferenceNotEqual(converted, Expression.Constant(null)),
-                        CreateMemberAssignment(memberInfo, propertyBase, converted, convertedParameter))
+                        CreateMemberAssignment(memberInfo, propertyBase, converted, indicesParameter, convertedParameter))
                 });
         }
 
-        setterExpression = Expression.Lambda<Action<TRoot, TValue>>(
+        setterExpression = Expression.Lambda<Action<TRoot, IReadOnlyList<int>, TValue>>(
             writeExpression,
             entityParameter,
+            indicesParameter,
             valueParameter);
 
         static Expression CreateMemberAssignment(
             MemberInfo memberInfo,
             IPropertyBase? propertyBase,
             Expression instanceParameter,
+            ParameterExpression indicesParameter,
             Expression convertedParameter)
         {
             if (propertyBase?.DeclaringType is not IComplexType complexType)
@@ -180,51 +186,112 @@ public class ClrPropertySetterFactory : ClrAccessorFactory<IClrPropertySetter>
             // $entity.<Culture>k__BackingField = $level1;
             //
             // That is, we create copies of value types, make the assignment, and then copy the value back.
-            // This is necessary for the case without a backing field, because the value type property getter will always return a copy of the value
+            // This is necessary for the case without a backing field, because the value type property getter will return a copy of the value
 
-            var chain = complexType.ComplexProperty.GetChainToComplexProperty();
+            var chain = complexType.ComplexProperty.GetChainToComplexProperty(fromEntity: true);
             var previousLevel = instanceParameter;
 
             var variables = new List<ParameterExpression>();
-            var assignments = new List<Expression>();
+            var statements = new List<Expression>();
             var chainCount = chain.Count;
             for (var i = chainCount; i >= 1; i--)
             {
                 var currentProperty = chain[chainCount - i];
-                var complexMemberInfo = currentProperty.GetMemberInfo(forMaterialization: false, forSet: false);
-                var complexPropertyType = complexMemberInfo.GetMemberType();
-                var currentLevel = Expression.Variable(complexPropertyType, $"level{chainCount + 1 - i}");
-                variables.Add(currentLevel);
-                assignments.Add(
-                    Expression.Assign(
-                        currentLevel, PropertyAccessorsFactory.CreateMemberAccess(
-                            currentProperty,
-                            previousLevel,
-                            complexMemberInfo,
-                            fromDeclaringType: true)));
-                previousLevel = currentLevel;
+                if (currentProperty.IsCollection)
+                {
+                    var complexElementType = currentProperty.ComplexType.ClrType;
+                    var currentLevel = Expression.Variable(complexElementType, $"level{chainCount + 1 - i}");
+                    variables.Add(currentLevel);
+                    statements.Add(
+                        Expression.Assign(
+                            currentLevel,
+                            PropertyAccessorsFactory.CreateComplexCollectionElementAccess(
+                                currentProperty,
+                                previousLevel,
+                                indicesParameter,
+                                fromDeclaringType: true,
+                                fromEntity: false)));
+
+                    var indexExpression = Expression.MakeIndex(
+                        indicesParameter,
+                        indicesParameter.Type.GetProperty("Item"),
+                        [Expression.Constant(((IRuntimeComplexType)currentProperty.ComplexType).CollectionDepth - 1)]);
+
+                    statements.Add(
+                        Expression.IfThen(
+                            Expression.ReferenceEqual(currentLevel, Expression.Constant(null)),
+                            Expression.Throw(
+                                Expression.New(
+                                    PropertyAccessorsFactory.InvalidOperationConstructor!,
+                                    Expression.Call(
+                                        ComplexCollectionNullElementSetterException,
+                                        Expression.Constant(propertyBase.DeclaringType.DisplayName()),
+                                        Expression.Constant(propertyBase.Name),
+                                        Expression.Constant(currentProperty.DeclaringType.DisplayName()),
+                                        Expression.Constant(currentProperty.Name),
+                                        Expression.Convert(indexExpression, typeof(object)))))));
+
+                    previousLevel = currentLevel;
+                }
+                else
+                {
+                    var complexMemberInfo = currentProperty.GetMemberInfo(forMaterialization: false, forSet: false);
+                    var complexPropertyType = complexMemberInfo.GetMemberType();
+                    var currentLevel = Expression.Variable(complexPropertyType, $"level{chainCount + 1 - i}");
+                    variables.Add(currentLevel);
+                    statements.Add(
+                        Expression.Assign(
+                            currentLevel,
+                            PropertyAccessorsFactory.CreateMemberAccess(
+                                currentProperty,
+                                previousLevel,
+                                indicesParameter,
+                                complexMemberInfo,
+                                fromDeclaringType: true,
+                                fromEntity: false)));
+                    previousLevel = currentLevel;
+                }
             }
 
             var propertyMemberInfo = propertyBase.GetMemberInfo(forMaterialization: false, forSet: true);
-            assignments.Add(Expression.MakeMemberAccess(previousLevel, propertyMemberInfo).Assign(convertedParameter));
+            statements.Add(Expression.MakeMemberAccess(previousLevel, propertyMemberInfo).Assign(convertedParameter));
 
             for (var i = 0; i <= chainCount - 1; i++)
             {
                 var currentProperty = chain[chainCount - 1 - i];
-                var complexMemberInfo = currentProperty.GetMemberInfo(forMaterialization: false, forSet: true);
-                if (complexMemberInfo.GetMemberType().IsValueType)
+                if (currentProperty.IsCollection)
                 {
-                    var memberExpression = (MemberExpression)PropertyAccessorsFactory.CreateMemberAccess(
-                        currentProperty,
-                        i == (chainCount - 1) ? instanceParameter : variables[chainCount - 2 - i],
-                        complexMemberInfo,
-                        fromDeclaringType: true);
+                    if (currentProperty.ComplexType.ClrType.IsValueType)
+                    {
+                        var memberExpression = (MemberExpression)PropertyAccessorsFactory.CreateComplexCollectionElementAccess(
+                            currentProperty,
+                            i == (chainCount - 1) ? instanceParameter : variables[chainCount - 2 - i],
+                            indicesParameter,
+                            fromDeclaringType: true,
+                            fromEntity: false);
 
-                    assignments.Add(memberExpression.Assign(variables[chainCount - 1 - i]));
+                        statements.Add(memberExpression.Assign(variables[chainCount - 1 - i]));
+                    }
+                }
+                else
+                {
+                    var complexMemberInfo = currentProperty.GetMemberInfo(forMaterialization: false, forSet: true);
+                    if (complexMemberInfo.GetMemberType().IsValueType)
+                    {
+                        var memberExpression = (MemberExpression)PropertyAccessorsFactory.CreateMemberAccess(
+                            currentProperty,
+                            i == (chainCount - 1) ? instanceParameter : variables[chainCount - 2 - i],
+                            indicesParameter,
+                            complexMemberInfo,
+                            fromDeclaringType: true,
+                            fromEntity: false);
+
+                        statements.Add(memberExpression.Assign(variables[chainCount - 1 - i]));
+                    }
                 }
             }
 
-            return Expression.Block(variables, assignments);
+            return Expression.Block(variables, statements);
         }
     }
 }
