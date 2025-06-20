@@ -700,26 +700,26 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         string tableAlias,
         bool nullable)
         => new(
-            column,
+            column.Name,
             tableAlias,
+            column,
             property.ClrType.UnwrapNullableType(),
             column.PropertyMappings.First(m => m.Property == property).TypeMapping,
-            nullable);
+            nullable || column.IsNullable);
 
     private static ColumnExpression CreateColumnExpression(ProjectionExpression subqueryProjection, string tableAlias)
-        => subqueryProjection.Expression is ColumnExpression { Column: IColumnBase column, TypeMapping: RelationalTypeMapping typeMapping } columnExpression
-            ? new(column, tableAlias, columnExpression.Type, typeMapping, columnExpression.IsNullable)
-            : new(
-                subqueryProjection.Alias,
-                tableAlias,
-                subqueryProjection.Type,
-                subqueryProjection.Expression.TypeMapping!,
-                subqueryProjection.Expression switch
-                {
-                    ColumnExpression c => c.IsNullable,
-                    SqlConstantExpression c => c.Value is null,
-                    _ => true
-                });
+        => new(
+            subqueryProjection.Alias,
+            tableAlias,
+            column: subqueryProjection.Expression is ColumnExpression { Column: IColumnBase column } ? column : null,
+            subqueryProjection.Type,
+            subqueryProjection.Expression.TypeMapping!,
+            subqueryProjection.Expression switch
+            {
+                ColumnExpression c => c.IsNullable,
+                SqlConstantExpression c => c.Value is null,
+                _ => true
+            });
 
     private static ColumnExpression CreateColumnExpression(
         TableExpressionBase tableExpression,
