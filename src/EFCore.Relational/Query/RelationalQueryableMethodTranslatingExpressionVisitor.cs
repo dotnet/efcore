@@ -583,6 +583,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             }
             if (valuesParameter is not null
                 // Expanding parameters will happen in 2nd stage of query pipeline.
+                // We can't translate to IN yet, because we might need to transform into OPENJSON in SqlServerSqlNullabilityProcessor.
                 && _primitiveCollectionsBehavior is not ParameterizedCollectionTranslationMode.ParameterizeExpanded)
             {
                 var inExpression = _sqlExpressionFactory.In(translatedItem, valuesParameter);
