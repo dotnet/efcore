@@ -354,13 +354,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                     Offset: null
                 } selectExpression
                 when TranslateExpression(index) is { } translatedIndex
-                    && ((_sqlServerSingletonOptions.EngineType == SqlServerEngineType.SqlServer
-                            && _sqlServerSingletonOptions.SqlServerCompatibilityLevel >= 130)
-                        ||
-                        (_sqlServerSingletonOptions.EngineType == SqlServerEngineType.AzureSql
-                            && _sqlServerSingletonOptions.AzureSqlCompatibilityLevel >= 130)
-                        ||
-                        (_sqlServerSingletonOptions.EngineType == SqlServerEngineType.AzureSynapse))
+                    && _sqlServerSingletonOptions.SupportsJsonFunctions
                     && TryTranslate(selectExpression, valuesParameter, translatedIndex, out var result):
                     return result;
 
