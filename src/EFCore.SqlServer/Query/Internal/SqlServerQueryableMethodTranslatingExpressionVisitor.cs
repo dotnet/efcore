@@ -392,7 +392,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                     && TranslateExpression(index) is { } translatedIndex
                     && TryTranslate(selectExpression, jsonArrayColumn, translatedIndex, out var result):
                     return result;
-        }
+            }
         }
 
         return base.TranslateElementAtOrDefault(source, index, returnDefault);
