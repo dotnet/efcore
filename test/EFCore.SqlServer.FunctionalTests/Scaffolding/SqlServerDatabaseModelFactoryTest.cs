@@ -1593,8 +1593,8 @@ IF NOT EXISTS (
 
     IF @fg_name IS NULL
         BEGIN
-        SET @fg_name = @db_name + N'_MODFG';
-        EXEC(N'ALTER DATABASE CURRENT ADD FILEGROUP [' + @fg_name + '] CONTAINS MEMORY_OPTIMIZED_DATA;');
+        SET @fg_name = QUOTENAME(@db_name + N'_MODFG');
+        EXEC(N'ALTER DATABASE CURRENT ADD FILEGROUP ' + @fg_name + ' CONTAINS MEMORY_OPTIMIZED_DATA;');
         END
 
     DECLARE @path nvarchar(max);
@@ -1609,7 +1609,7 @@ IF NOT EXISTS (
     EXEC(N'
         ALTER DATABASE CURRENT
         ADD FILE (NAME=''' + @filename + ''', filename=''' + @new_path + ''')
-        TO FILEGROUP [' + @fg_name + '];')
+        TO FILEGROUP ' + @fg_name + ';')
     END
 END
 
