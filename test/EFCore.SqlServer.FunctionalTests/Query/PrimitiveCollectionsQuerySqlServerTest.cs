@@ -860,7 +860,7 @@ SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE EXISTS (
     SELECT 1
-    FROM (VALUES (2), (999), (1000)) AS [i]([Value])
+    FROM (VALUES (CAST(2 AS int)), (999), (1000)) AS [i]([Value])
     WHERE [i].[Value] > 0)
 """);
     }
@@ -875,7 +875,7 @@ SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE (
     SELECT COUNT(*)
-    FROM (VALUES (2), (999), (1000)) AS [i]([Value])
+    FROM (VALUES (CAST(2 AS int)), (999), (1000)) AS [i]([Value])
     WHERE [i].[Value] > [p].[Id]) = 2
 """);
     }
@@ -1123,6 +1123,22 @@ WHERE (
     SELECT [v].[Value]
     FROM (VALUES (0, CAST(1 AS int)), (1, 2), (2, 3)) AS [v]([_ord], [Value])
     ORDER BY [v].[_ord]
+    OFFSET [p].[Int] ROWS FETCH NEXT 1 ROWS ONLY) = 1
+""");
+    }
+
+    public override async Task Inline_collection_index_Column_with_EF_Constant(bool async)
+    {
+        await base.Inline_collection_index_Column_with_EF_Constant(async);
+
+        AssertSql(
+"""
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE (
+    SELECT [i].[Value]
+    FROM (VALUES (0, CAST(1 AS int)), (1, 2), (2, 3)) AS [i]([_ord], [Value])
+    ORDER BY [i].[_ord]
     OFFSET [p].[Int] ROWS FETCH NEXT 1 ROWS ONLY) = 1
 """);
     }

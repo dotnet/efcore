@@ -346,7 +346,7 @@ SELECT "t"."Id"
 FROM "TestEntity" AS "t"
 WHERE (
     SELECT COUNT(*)
-    FROM (SELECT 2 AS "Value" UNION ALL VALUES (999)) AS "i"
+    FROM (SELECT CAST(2 AS INTEGER) AS "Value" UNION ALL VALUES (999)) AS "i"
     WHERE "i"."Value" > "t"."Id") = 1
 """);
     }
@@ -441,7 +441,7 @@ SELECT "t"."Id"
 FROM "TestEntity" AS "t"
 WHERE (
     SELECT COUNT(*)
-    FROM (SELECT 2 AS "Value" UNION ALL VALUES (999)) AS "i"
+    FROM (SELECT CAST(2 AS INTEGER) AS "Value" UNION ALL VALUES (999)) AS "i"
     WHERE "i"."Value" > "t"."Id") = 1
 """);
     }

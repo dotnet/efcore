@@ -802,7 +802,7 @@ SELECT [t].[Id]
 FROM [TestEntity] AS [t]
 WHERE (
     SELECT COUNT(*)
-    FROM (VALUES (2), (999)) AS [i]([Value])
+    FROM (VALUES (CAST(2 AS int)), (999)) AS [i]([Value])
     WHERE [i].[Value] > [t].[Id]) = 1
 """);
     }
@@ -897,7 +897,7 @@ SELECT [t].[Id]
 FROM [TestEntity] AS [t]
 WHERE (
     SELECT COUNT(*)
-    FROM (VALUES (2), (999)) AS [i]([Value])
+    FROM (VALUES (CAST(2 AS int)), (999)) AS [i]([Value])
     WHERE [i].[Value] > [t].[Id]) = 1
 """);
     }
