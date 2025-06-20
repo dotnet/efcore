@@ -50,7 +50,7 @@ public partial class MigrationsSqlServerTest : MigrationsTestBase<MigrationsSqlS
 
         AssertSql(
             """
-DECLARE @historyTableSchema sysname = SCHEMA_NAME()
+DECLARE @historyTableSchema sysname = QUOTENAME(SCHEMA_NAME())
 EXEC(N'CREATE TABLE [Customer] (
     [Id] int NOT NULL IDENTITY,
     [Name] nvarchar(max) NULL,
@@ -58,7 +58,7 @@ EXEC(N'CREATE TABLE [Customer] (
     [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
     CONSTRAINT [PK_Customer] PRIMARY KEY ([Id]),
     PERIOD FOR SYSTEM_TIME([SystemTimeStart], [SystemTimeEnd])
-) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + N'].[CustomerHistory]))');
+) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema + N'.[CustomerHistory]))');
 """);
     }
 
@@ -104,7 +104,7 @@ EXEC(N'CREATE TABLE [Customer] (
 
         AssertSql(
             """
-DECLARE @historyTableSchema sysname = SCHEMA_NAME()
+DECLARE @historyTableSchema sysname = QUOTENAME(SCHEMA_NAME())
 EXEC(N'CREATE TABLE [Customer] (
     [Id] int NOT NULL IDENTITY,
     [Name] nvarchar(max) NULL,
@@ -112,7 +112,7 @@ EXEC(N'CREATE TABLE [Customer] (
     [Start] datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
     CONSTRAINT [PK_Customer] PRIMARY KEY ([Id]),
     PERIOD FOR SYSTEM_TIME([Start], [End])
-) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + N'].[CustomerHistory]))');
+) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema + N'.[CustomerHistory]))');
 """);
     }
 
@@ -159,7 +159,7 @@ EXEC(N'CREATE TABLE [Customer] (
 
         AssertSql(
             """
-DECLARE @historyTableSchema sysname = SCHEMA_NAME()
+DECLARE @historyTableSchema sysname = QUOTENAME(SCHEMA_NAME())
 EXEC(N'CREATE TABLE [Customer] (
     [Id] int NOT NULL IDENTITY,
     [Name] nvarchar(max) NULL,
@@ -167,7 +167,7 @@ EXEC(N'CREATE TABLE [Customer] (
     [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
     CONSTRAINT [PK_Customer] PRIMARY KEY ([Id]),
     PERIOD FOR SYSTEM_TIME([SystemTimeStart], [SystemTimeEnd])
-) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + N'].[HistoryTable]))');
+) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema + N'.[HistoryTable]))');
 """);
     }
 
@@ -1006,7 +1006,7 @@ ALTER TABLE [RenamedCustomers] ADD CONSTRAINT [PK_RenamedCustomers] PRIMARY KEY 
             //
             """
 DECLARE @historyTableSchema1 sysname = SCHEMA_NAME()
-EXEC(N'ALTER TABLE [RenamedCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema1 + '].[HistoryTable]))')
+EXEC(N'ALTER TABLE [RenamedCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema1 + '.[HistoryTable]))')
 """);
     }
 
@@ -1108,7 +1108,7 @@ ALTER TABLE [RenamedCustomers] ADD CONSTRAINT [PK_RenamedCustomers] PRIMARY KEY 
             //
             """
 DECLARE @historyTableSchema1 sysname = SCHEMA_NAME()
-EXEC(N'ALTER TABLE [RenamedCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema1 + '].[HistoryTable]))')
+EXEC(N'ALTER TABLE [RenamedCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema1 + '.[HistoryTable]))')
 """);
     }
 
@@ -1925,47 +1925,47 @@ ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = OFF)
             //
             """
 DECLARE @var2 sysname;
-SELECT @var2 = [d].[name]
+SELECT @var2 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Name');
-IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var2 + '];');
+IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var2 + ';');
 ALTER TABLE [Customers] DROP COLUMN [Name];
 """,
             //
             """
 DECLARE @var3 sysname;
-SELECT @var3 = [d].[name]
+SELECT @var3 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[HistoryTable]') AND [c].[name] = N'Name');
-IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [HistoryTable] DROP CONSTRAINT [' + @var3 + '];');
+IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [HistoryTable] DROP CONSTRAINT ' + @var3 + ';');
 ALTER TABLE [HistoryTable] DROP COLUMN [Name];
 """,
             //
             """
 DECLARE @var4 sysname;
-SELECT @var4 = [d].[name]
+SELECT @var4 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Number');
-IF @var4 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var4 + '];');
+IF @var4 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var4 + ';');
 ALTER TABLE [Customers] DROP COLUMN [Number];
 """,
             //
             """
 DECLARE @var5 sysname;
-SELECT @var5 = [d].[name]
+SELECT @var5 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[HistoryTable]') AND [c].[name] = N'Number');
-IF @var5 IS NOT NULL EXEC(N'ALTER TABLE [HistoryTable] DROP CONSTRAINT [' + @var5 + '];');
+IF @var5 IS NOT NULL EXEC(N'ALTER TABLE [HistoryTable] DROP CONSTRAINT ' + @var5 + ';');
 ALTER TABLE [HistoryTable] DROP COLUMN [Number];
 """,
             //
             """
 DECLARE @historyTableSchema1 sysname = SCHEMA_NAME()
-EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema1 + '].[HistoryTable]))')
+EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema1 + '.[HistoryTable]))')
 """);
     }
 
@@ -2023,41 +2023,41 @@ ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = OFF)
             //
             """
 DECLARE @var sysname;
-SELECT @var = [d].[name]
+SELECT @var = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Name');
-IF @var IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var + '];');
+IF @var IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [Customers] DROP COLUMN [Name];
 """,
             //
             """
 DECLARE @var1 sysname;
-SELECT @var1 = [d].[name]
+SELECT @var1 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[myHistorySchema].[HistoryTable]') AND [c].[name] = N'Name');
-IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [myHistorySchema].[HistoryTable] DROP CONSTRAINT [' + @var1 + '];');
+IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [myHistorySchema].[HistoryTable] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [myHistorySchema].[HistoryTable] DROP COLUMN [Name];
 """,
             //
             """
 DECLARE @var2 sysname;
-SELECT @var2 = [d].[name]
+SELECT @var2 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Number');
-IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var2 + '];');
+IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var2 + ';');
 ALTER TABLE [Customers] DROP COLUMN [Number];
 """,
             //
             """
 DECLARE @var3 sysname;
-SELECT @var3 = [d].[name]
+SELECT @var3 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[myHistorySchema].[HistoryTable]') AND [c].[name] = N'Number');
-IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [myHistorySchema].[HistoryTable] DROP CONSTRAINT [' + @var3 + '];');
+IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [myHistorySchema].[HistoryTable] DROP CONSTRAINT ' + @var3 + ';');
 ALTER TABLE [myHistorySchema].[HistoryTable] DROP COLUMN [Number];
 """,
             //
@@ -2120,41 +2120,41 @@ ALTER TABLE [mySchema].[Customers] SET (SYSTEM_VERSIONING = OFF)
             //
             """
 DECLARE @var sysname;
-SELECT @var = [d].[name]
+SELECT @var = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[mySchema].[Customers]') AND [c].[name] = N'Name');
-IF @var IS NOT NULL EXEC(N'ALTER TABLE [mySchema].[Customers] DROP CONSTRAINT [' + @var + '];');
+IF @var IS NOT NULL EXEC(N'ALTER TABLE [mySchema].[Customers] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [mySchema].[Customers] DROP COLUMN [Name];
 """,
             //
             """
 DECLARE @var1 sysname;
-SELECT @var1 = [d].[name]
+SELECT @var1 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[mySchema].[HistoryTable]') AND [c].[name] = N'Name');
-IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [mySchema].[HistoryTable] DROP CONSTRAINT [' + @var1 + '];');
+IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [mySchema].[HistoryTable] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [mySchema].[HistoryTable] DROP COLUMN [Name];
 """,
             //
             """
 DECLARE @var2 sysname;
-SELECT @var2 = [d].[name]
+SELECT @var2 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[mySchema].[Customers]') AND [c].[name] = N'Number');
-IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [mySchema].[Customers] DROP CONSTRAINT [' + @var2 + '];');
+IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [mySchema].[Customers] DROP CONSTRAINT ' + @var2 + ';');
 ALTER TABLE [mySchema].[Customers] DROP COLUMN [Number];
 """,
             //
             """
 DECLARE @var3 sysname;
-SELECT @var3 = [d].[name]
+SELECT @var3 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[mySchema].[HistoryTable]') AND [c].[name] = N'Number');
-IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [mySchema].[HistoryTable] DROP CONSTRAINT [' + @var3 + '];');
+IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [mySchema].[HistoryTable] DROP CONSTRAINT ' + @var3 + ';');
 ALTER TABLE [mySchema].[HistoryTable] DROP COLUMN [Number];
 """,
             //
@@ -2221,41 +2221,41 @@ ALTER TABLE [mySchema].[Customers] SET (SYSTEM_VERSIONING = OFF)
             //
             """
 DECLARE @var sysname;
-SELECT @var = [d].[name]
+SELECT @var = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[mySchema].[Customers]') AND [c].[name] = N'Name');
-IF @var IS NOT NULL EXEC(N'ALTER TABLE [mySchema].[Customers] DROP CONSTRAINT [' + @var + '];');
+IF @var IS NOT NULL EXEC(N'ALTER TABLE [mySchema].[Customers] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [mySchema].[Customers] DROP COLUMN [Name];
 """,
             //
             """
 DECLARE @var1 sysname;
-SELECT @var1 = [d].[name]
+SELECT @var1 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[mySchema].[HistoryTable]') AND [c].[name] = N'Name');
-IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [mySchema].[HistoryTable] DROP CONSTRAINT [' + @var1 + '];');
+IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [mySchema].[HistoryTable] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [mySchema].[HistoryTable] DROP COLUMN [Name];
 """,
             //
             """
 DECLARE @var2 sysname;
-SELECT @var2 = [d].[name]
+SELECT @var2 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[mySchema].[Customers]') AND [c].[name] = N'Number');
-IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [mySchema].[Customers] DROP CONSTRAINT [' + @var2 + '];');
+IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [mySchema].[Customers] DROP CONSTRAINT ' + @var2 + ';');
 ALTER TABLE [mySchema].[Customers] DROP COLUMN [Number];
 """,
             //
             """
 DECLARE @var3 sysname;
-SELECT @var3 = [d].[name]
+SELECT @var3 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[mySchema].[HistoryTable]') AND [c].[name] = N'Number');
-IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [mySchema].[HistoryTable] DROP CONSTRAINT [' + @var3 + '];');
+IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [mySchema].[HistoryTable] DROP CONSTRAINT ' + @var3 + ';');
 ALTER TABLE [mySchema].[HistoryTable] DROP COLUMN [Number];
 """,
             //
@@ -2322,41 +2322,41 @@ ALTER TABLE [mySchema].[Customers] SET (SYSTEM_VERSIONING = OFF)
             //
             """
 DECLARE @var sysname;
-SELECT @var = [d].[name]
+SELECT @var = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[mySchema].[Customers]') AND [c].[name] = N'Name');
-IF @var IS NOT NULL EXEC(N'ALTER TABLE [mySchema].[Customers] DROP CONSTRAINT [' + @var + '];');
+IF @var IS NOT NULL EXEC(N'ALTER TABLE [mySchema].[Customers] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [mySchema].[Customers] DROP COLUMN [Name];
 """,
             //
             """
 DECLARE @var1 sysname;
-SELECT @var1 = [d].[name]
+SELECT @var1 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[myHistorySchema].[HistoryTable]') AND [c].[name] = N'Name');
-IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [myHistorySchema].[HistoryTable] DROP CONSTRAINT [' + @var1 + '];');
+IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [myHistorySchema].[HistoryTable] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [myHistorySchema].[HistoryTable] DROP COLUMN [Name];
 """,
             //
             """
 DECLARE @var2 sysname;
-SELECT @var2 = [d].[name]
+SELECT @var2 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[mySchema].[Customers]') AND [c].[name] = N'Number');
-IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [mySchema].[Customers] DROP CONSTRAINT [' + @var2 + '];');
+IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [mySchema].[Customers] DROP CONSTRAINT ' + @var2 + ';');
 ALTER TABLE [mySchema].[Customers] DROP COLUMN [Number];
 """,
             //
             """
 DECLARE @var3 sysname;
-SELECT @var3 = [d].[name]
+SELECT @var3 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[myHistorySchema].[HistoryTable]') AND [c].[name] = N'Number');
-IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [myHistorySchema].[HistoryTable] DROP CONSTRAINT [' + @var3 + '];');
+IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [myHistorySchema].[HistoryTable] DROP CONSTRAINT ' + @var3 + ';');
 ALTER TABLE [myHistorySchema].[HistoryTable] DROP COLUMN [Number];
 """,
             //
@@ -2541,21 +2541,21 @@ ALTER TABLE [Customer] DROP PERIOD FOR SYSTEM_TIME
             //
             """
 DECLARE @var1 sysname;
-SELECT @var1 = [d].[name]
+SELECT @var1 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customer]') AND [c].[name] = N'PeriodEnd');
-IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customer] DROP CONSTRAINT [' + @var1 + '];');
+IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customer] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [Customer] DROP COLUMN [PeriodEnd];
 """,
             //
             """
 DECLARE @var2 sysname;
-SELECT @var2 = [d].[name]
+SELECT @var2 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customer]') AND [c].[name] = N'PeriodStart');
-IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customer] DROP CONSTRAINT [' + @var2 + '];');
+IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customer] DROP CONSTRAINT ' + @var2 + ';');
 ALTER TABLE [Customer] DROP COLUMN [PeriodStart];
 """,
             //
@@ -2620,21 +2620,21 @@ ALTER TABLE [Customer] DROP PERIOD FOR SYSTEM_TIME
             //
             """
 DECLARE @var1 sysname;
-SELECT @var1 = [d].[name]
+SELECT @var1 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customer]') AND [c].[name] = N'PeriodEnd');
-IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customer] DROP CONSTRAINT [' + @var1 + '];');
+IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customer] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [Customer] DROP COLUMN [PeriodEnd];
 """,
             //
             """
 DECLARE @var2 sysname;
-SELECT @var2 = [d].[name]
+SELECT @var2 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customer]') AND [c].[name] = N'PeriodStart');
-IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customer] DROP CONSTRAINT [' + @var2 + '];');
+IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customer] DROP CONSTRAINT ' + @var2 + ';');
 ALTER TABLE [Customer] DROP COLUMN [PeriodStart];
 """,
             //
@@ -2963,7 +2963,7 @@ ALTER TABLE [Customer] ALTER COLUMN [PeriodEnd] ADD HIDDEN
             //
             """
 DECLARE @historyTableSchema sysname = SCHEMA_NAME()
-EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[CustomerHistory]))')
+EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema + '.[CustomerHistory]))')
 """);
     }
 
@@ -3031,7 +3031,7 @@ ALTER TABLE [Customer] ALTER COLUMN [PeriodEnd] ADD HIDDEN
             //
             """
 DECLARE @historyTableSchema sysname = SCHEMA_NAME()
-EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[CustomerHistory]))')
+EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema + '.[CustomerHistory]))')
 """);
     }
 
@@ -3097,7 +3097,7 @@ ALTER TABLE [Customer] ALTER COLUMN [End] ADD HIDDEN
             //
             """
 DECLARE @historyTableSchema sysname = SCHEMA_NAME()
-EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[CustomerHistory]))')
+EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema + '.[CustomerHistory]))')
 """);
     }
 
@@ -3166,7 +3166,7 @@ ALTER TABLE [Customer] ALTER COLUMN [End] ADD HIDDEN
             //
             """
 DECLARE @historyTableSchema sysname = SCHEMA_NAME()
-EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[HistoryTable]))')
+EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema + '.[HistoryTable]))')
 """);
     }
 
@@ -3239,7 +3239,7 @@ ALTER TABLE [Customer] ALTER COLUMN [End] ADD HIDDEN
             //
             """
 DECLARE @historyTableSchema sysname = SCHEMA_NAME()
-EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[CustomerHistory]))')
+EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema + '.[CustomerHistory]))')
 """);
     }
 
@@ -3314,7 +3314,7 @@ ALTER TABLE [Customer] ALTER COLUMN [End] ADD HIDDEN
             //
             """
 DECLARE @historyTableSchema sysname = SCHEMA_NAME()
-EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[HistoryTable]))')
+EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema + '.[HistoryTable]))')
 """);
     }
 
@@ -3619,11 +3619,11 @@ ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = OFF)
             //
             """
 DECLARE @var2 sysname;
-SELECT @var2 = [d].[name]
+SELECT @var2 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customer]') AND [c].[name] = N'IsVip');
-IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customer] DROP CONSTRAINT [' + @var2 + '];');
+IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customer] DROP CONSTRAINT ' + @var2 + ';');
 UPDATE [Customer] SET [IsVip] = CAST(0 AS bit) WHERE [IsVip] IS NULL;
 ALTER TABLE [Customer] ALTER COLUMN [IsVip] bit NOT NULL;
 ALTER TABLE [Customer] ADD DEFAULT CAST(0 AS bit) FOR [IsVip];
@@ -3631,11 +3631,11 @@ ALTER TABLE [Customer] ADD DEFAULT CAST(0 AS bit) FOR [IsVip];
             //
             """
 DECLARE @var3 sysname;
-SELECT @var3 = [d].[name]
+SELECT @var3 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[HistoryTable]') AND [c].[name] = N'IsVip');
-IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [HistoryTable] DROP CONSTRAINT [' + @var3 + '];');
+IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [HistoryTable] DROP CONSTRAINT ' + @var3 + ';');
 UPDATE [HistoryTable] SET [IsVip] = CAST(0 AS bit) WHERE [IsVip] IS NULL;
 ALTER TABLE [HistoryTable] ALTER COLUMN [IsVip] bit NOT NULL;
 ALTER TABLE [HistoryTable] ADD DEFAULT CAST(0 AS bit) FOR [IsVip];
@@ -3643,7 +3643,7 @@ ALTER TABLE [HistoryTable] ADD DEFAULT CAST(0 AS bit) FOR [IsVip];
             //
             """
 DECLARE @historyTableSchema1 sysname = SCHEMA_NAME()
-EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema1 + '].[HistoryTable]))')
+EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema1 + '.[HistoryTable]))')
 """);
     }
 
@@ -3710,11 +3710,11 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
         AssertSql(
 """
 DECLARE @var1 sysname;
-SELECT @var1 = [d].[name]
+SELECT @var1 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'IsVip');
-IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var1 + '];');
+IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var1 + ';');
 UPDATE [Customers] SET [IsVip] = CAST(0 AS bit) WHERE [IsVip] IS NULL;
 ALTER TABLE [Customers] ALTER COLUMN [IsVip] bit NOT NULL;
 ALTER TABLE [Customers] ADD DEFAULT CAST(0 AS bit) FOR [IsVip];
@@ -3742,7 +3742,7 @@ ALTER TABLE [Customers] ALTER COLUMN [End] ADD HIDDEN
                 //
                 """
 DECLARE @historyTableSchema sysname = SCHEMA_NAME()
-EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[HistoryTable]))')
+EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema + '.[HistoryTable]))')
 """);
     }
 
@@ -3804,11 +3804,11 @@ EXEC(N'ALTER TABLE [HistoryTable] REBUILD PARTITION = ALL WITH (DATA_COMPRESSION
                 //
                 """
 DECLARE @var1 sysname;
-SELECT @var1 = [d].[name]
+SELECT @var1 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'MyColumn');
-IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var1 + '];');
+IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [Customers] ALTER COLUMN [MyColumn] int SPARSE NULL;
 """,
                 //
@@ -3834,7 +3834,7 @@ ALTER TABLE [Customers] ALTER COLUMN [End] ADD HIDDEN
                 //
                 """
 DECLARE @historyTableSchema sysname = SCHEMA_NAME()
-EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[HistoryTable]))')
+EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema + '.[HistoryTable]))')
 """);
     }
 
@@ -3883,7 +3883,7 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' +
 
         AssertSql(
             """
-DECLARE @historyTableSchema sysname = SCHEMA_NAME()
+DECLARE @historyTableSchema sysname = QUOTENAME(SCHEMA_NAME())
 EXEC(N'CREATE TABLE [Customer] (
     [Id] int NOT NULL IDENTITY,
     [End] datetime2 GENERATED ALWAYS AS ROW END HIDDEN NOT NULL,
@@ -3892,7 +3892,7 @@ EXEC(N'CREATE TABLE [Customer] (
     [Start] datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
     CONSTRAINT [PK_Customer] PRIMARY KEY ([Id]),
     PERIOD FOR SYSTEM_TIME([Start], [End])
-) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + N'].[HistoryTable]))');
+) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema + N'.[HistoryTable]))');
 """);
     }
 
@@ -3956,7 +3956,7 @@ ALTER TABLE [HistoryTable] ADD [IdPlusFive] int NULL;
             //
             """
 DECLARE @historyTableSchema1 sysname = SCHEMA_NAME()
-EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema1 + '].[HistoryTable]))')
+EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema1 + '.[HistoryTable]))')
 """);
     }
 
@@ -4020,7 +4020,7 @@ ALTER TABLE [HistoryTable] ADD [Five] int NOT NULL DEFAULT 0;
             //
             """
 DECLARE @historyTableSchema1 sysname = SCHEMA_NAME()
-EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema1 + '].[HistoryTable]))')
+EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema1 + '.[HistoryTable]))')
 """);
     }
 
@@ -4075,27 +4075,27 @@ ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = OFF)
             //
             """
 DECLARE @var2 sysname;
-SELECT @var2 = [d].[name]
+SELECT @var2 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customer]') AND [c].[name] = N'IdPlusFive');
-IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customer] DROP CONSTRAINT [' + @var2 + '];');
+IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customer] DROP CONSTRAINT ' + @var2 + ';');
 ALTER TABLE [Customer] DROP COLUMN [IdPlusFive];
 """,
             //
             """
 DECLARE @var3 sysname;
-SELECT @var3 = [d].[name]
+SELECT @var3 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[HistoryTable]') AND [c].[name] = N'IdPlusFive');
-IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [HistoryTable] DROP CONSTRAINT [' + @var3 + '];');
+IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [HistoryTable] DROP CONSTRAINT ' + @var3 + ';');
 ALTER TABLE [HistoryTable] DROP COLUMN [IdPlusFive];
 """,
             //
             """
 DECLARE @historyTableSchema1 sysname = SCHEMA_NAME()
-EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema1 + '].[HistoryTable]))')
+EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema1 + '.[HistoryTable]))')
 """);
     }
 
@@ -4266,27 +4266,27 @@ ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = OFF)
             //
             """
 DECLARE @var2 sysname;
-SELECT @var2 = [d].[name]
+SELECT @var2 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customer]') AND [c].[name] = N'Number');
-IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customer] DROP CONSTRAINT [' + @var2 + '];');
+IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customer] DROP CONSTRAINT ' + @var2 + ';');
 ALTER TABLE [Customer] DROP COLUMN [Number];
 """,
             //
             """
 DECLARE @var3 sysname;
-SELECT @var3 = [d].[name]
+SELECT @var3 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[HistoryTable]') AND [c].[name] = N'Number');
-IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [HistoryTable] DROP CONSTRAINT [' + @var3 + '];');
+IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [HistoryTable] DROP CONSTRAINT ' + @var3 + ';');
 ALTER TABLE [HistoryTable] DROP COLUMN [Number];
 """,
             //
             """
 DECLARE @historyTableSchema1 sysname = SCHEMA_NAME()
-EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema1 + '].[HistoryTable]))')
+EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema1 + '.[HistoryTable]))')
 """);
     }
 
@@ -4412,7 +4412,7 @@ ALTER TABLE [HistoryTable] ADD [MyColumn] int SPARSE NULL;
             //
             """
 DECLARE @historyTableSchema1 sysname = SCHEMA_NAME()
-EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema1 + '].[HistoryTable]))')
+EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema1 + '.[HistoryTable]))')
 """);
     }
 
@@ -4553,27 +4553,27 @@ EXEC(N'ALTER TABLE [HistoryTable] REBUILD PARTITION = ALL WITH (DATA_COMPRESSION
             //
             """
 DECLARE @var2 sysname;
-SELECT @var2 = [d].[name]
+SELECT @var2 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customer]') AND [c].[name] = N'MyColumn');
-IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customer] DROP CONSTRAINT [' + @var2 + '];');
+IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customer] DROP CONSTRAINT ' + @var2 + ';');
 ALTER TABLE [Customer] ALTER COLUMN [MyColumn] int SPARSE NULL;
 """,
             //
             """
 DECLARE @var3 sysname;
-SELECT @var3 = [d].[name]
+SELECT @var3 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[HistoryTable]') AND [c].[name] = N'MyColumn');
-IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [HistoryTable] DROP CONSTRAINT [' + @var3 + '];');
+IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [HistoryTable] DROP CONSTRAINT ' + @var3 + ';');
 ALTER TABLE [HistoryTable] ALTER COLUMN [MyColumn] int SPARSE NULL;
 """,
             //
             """
 DECLARE @historyTableSchema1 sysname = SCHEMA_NAME()
-EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema1 + '].[HistoryTable]))')
+EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema1 + '.[HistoryTable]))')
 """);
     }
 
@@ -4634,11 +4634,11 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
         AssertSql(
             """
 DECLARE @var1 sysname;
-SELECT @var1 = [d].[name]
+SELECT @var1 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customer]') AND [c].[name] = N'MyColumn');
-IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customer] DROP CONSTRAINT [' + @var1 + '];');
+IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customer] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [Customer] ALTER COLUMN [MyColumn] int NULL;
 """);
     }
@@ -4720,7 +4720,7 @@ ALTER TABLE [Customers] ALTER COLUMN [End] ADD HIDDEN
             //
             """
 DECLARE @historyTableSchema sysname = SCHEMA_NAME()
-EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[HistoryTable]))')
+EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema + '.[HistoryTable]))')
 """);
     }
 
@@ -4767,7 +4767,7 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' +
 
         AssertSql(
             """
-DECLARE @historyTableSchema sysname = SCHEMA_NAME()
+DECLARE @historyTableSchema sysname = QUOTENAME(SCHEMA_NAME())
 EXEC(N'CREATE TABLE [Customer] (
     [Id] int NOT NULL IDENTITY,
     [Name] nvarchar(max) NULL,
@@ -4775,7 +4775,7 @@ EXEC(N'CREATE TABLE [Customer] (
     [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
     CONSTRAINT [PK_Customer] PRIMARY KEY ([Id]),
     PERIOD FOR SYSTEM_TIME([SystemTimeStart], [SystemTimeEnd])
-) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + N'].[CustomerHistory]))');
+) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema + N'.[CustomerHistory]))');
 DECLARE @defaultSchema1 AS sysname;
 SET @defaultSchema1 = SCHEMA_NAME();
 DECLARE @description1 AS sql_variant;
@@ -4837,11 +4837,11 @@ EXEC sp_addextendedproperty 'MS_Description', @description1, 'SCHEMA', @defaultS
         AssertSql(
             """
 DECLARE @var1 sysname;
-SELECT @var1 = [d].[name]
+SELECT @var1 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customer]') AND [c].[name] = N'Name');
-IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customer] DROP CONSTRAINT [' + @var1 + '];');
+IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customer] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [Customer] ALTER COLUMN [Name] nvarchar(450) NULL;
 DECLARE @defaultSchema2 AS sysname;
 SET @defaultSchema2 = SCHEMA_NAME();
@@ -4876,7 +4876,7 @@ ALTER TABLE [Customer] ALTER COLUMN [End] ADD HIDDEN
             //
             """
 DECLARE @historyTableSchema sysname = SCHEMA_NAME()
-EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[HistoryTable]))')
+EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema + '.[HistoryTable]))')
 """);
     }
 
@@ -5004,11 +5004,11 @@ EXEC sp_addextendedproperty 'MS_Description', @description3, 'SCHEMA', @defaultS
         AssertSql(
             """
 DECLARE @var1 sysname;
-SELECT @var1 = [d].[name]
+SELECT @var1 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Name');
-IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var1 + '];');
+IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [Customers] ALTER COLUMN [Name] nvarchar(450) NULL;
 """,
             //
@@ -5076,11 +5076,11 @@ CREATE UNIQUE INDEX [IX_Customers_Number] ON [Customers] ([Number]);
         AssertSql(
             """
 DECLARE @var1 sysname;
-SELECT @var1 = [d].[name]
+SELECT @var1 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Name');
-IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var1 + '];');
+IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [Customers] ALTER COLUMN [Name] nvarchar(450) NULL;
 """,
             //
@@ -5564,21 +5564,21 @@ ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = OFF)
             //
             """
 DECLARE @var2 sysname;
-SELECT @var2 = [d].[name]
+SELECT @var2 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Number');
-IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var2 + '];');
+IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var2 + ';');
 ALTER TABLE [Customers] DROP COLUMN [Number];
 """,
             //
             """
 DECLARE @var3 sysname;
-SELECT @var3 = [d].[name]
+SELECT @var3 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[HistoryTable]') AND [c].[name] = N'Number');
-IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [HistoryTable] DROP CONSTRAINT [' + @var3 + '];');
+IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [HistoryTable] DROP CONSTRAINT ' + @var3 + ';');
 ALTER TABLE [HistoryTable] DROP COLUMN [Number];
 """,
             //
@@ -5600,7 +5600,7 @@ EXEC sp_rename N'[HistoryTable].[Dob]', N'DateOfBirth', 'COLUMN';
             //
             """
 DECLARE @historyTableSchema1 sysname = SCHEMA_NAME()
-EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema1 + '].[HistoryTable]))')
+EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema1 + '.[HistoryTable]))')
 """);
     }
 
@@ -5676,21 +5676,21 @@ ALTER TABLE [Customers] DROP CONSTRAINT [PK_Customers];
             //
             """
 DECLARE @var2 sysname;
-SELECT @var2 = [d].[name]
+SELECT @var2 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Number');
-IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var2 + '];');
+IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var2 + ';');
 ALTER TABLE [Customers] DROP COLUMN [Number];
 """,
             //
             """
 DECLARE @var3 sysname;
-SELECT @var3 = [d].[name]
+SELECT @var3 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[HistoryTable]') AND [c].[name] = N'Number');
-IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [HistoryTable] DROP CONSTRAINT [' + @var3 + '];');
+IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [HistoryTable] DROP CONSTRAINT ' + @var3 + ';');
 ALTER TABLE [HistoryTable] DROP COLUMN [Number];
 """,
             //
@@ -5712,7 +5712,7 @@ ALTER TABLE [ModifiedCustomers] ADD CONSTRAINT [PK_ModifiedCustomers] PRIMARY KE
             //
             """
 DECLARE @historyTableSchema1 sysname = SCHEMA_NAME()
-EXEC(N'ALTER TABLE [ModifiedCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema1 + '].[HistoryTable]))')
+EXEC(N'ALTER TABLE [ModifiedCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema1 + '.[HistoryTable]))')
 """);
     }
 
@@ -5784,21 +5784,21 @@ ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = OFF)
             //
             """
 DECLARE @var2 sysname;
-SELECT @var2 = [d].[name]
+SELECT @var2 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Number');
-IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var2 + '];');
+IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var2 + ';');
 ALTER TABLE [Customers] DROP COLUMN [Number];
 """,
             //
             """
 DECLARE @var3 sysname;
-SELECT @var3 = [d].[name]
+SELECT @var3 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[HistoryTable]') AND [c].[name] = N'Number');
-IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [HistoryTable] DROP CONSTRAINT [' + @var3 + '];');
+IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [HistoryTable] DROP CONSTRAINT ' + @var3 + ';');
 ALTER TABLE [HistoryTable] DROP COLUMN [Number];
 """,
             //
@@ -5816,7 +5816,7 @@ EXEC sp_rename N'[HistoryTable]', N'ModifiedHistoryTable', 'OBJECT';
             //
             """
 DECLARE @historyTableSchema1 sysname = SCHEMA_NAME()
-EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema1 + '].[ModifiedHistoryTable]))')
+EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema1 + '.[ModifiedHistoryTable]))')
 """);
     }
 
@@ -5879,21 +5879,21 @@ ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = OFF)
             //
             """
 DECLARE @var2 sysname;
-SELECT @var2 = [d].[name]
+SELECT @var2 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Number');
-IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var2 + '];');
+IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var2 + ';');
 ALTER TABLE [Customers] DROP COLUMN [Number];
 """,
             //
             """
 DECLARE @var3 sysname;
-SELECT @var3 = [d].[name]
+SELECT @var3 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[HistoryTable]') AND [c].[name] = N'Number');
-IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [HistoryTable] DROP CONSTRAINT [' + @var3 + '];');
+IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [HistoryTable] DROP CONSTRAINT ' + @var3 + ';');
 ALTER TABLE [HistoryTable] DROP COLUMN [Number];
 """,
             //
@@ -5907,7 +5907,7 @@ ALTER TABLE [HistoryTable] ADD [DateOfBirth] datetime2 NOT NULL DEFAULT '0001-01
             //
             """
 DECLARE @historyTableSchema1 sysname = SCHEMA_NAME()
-EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema1 + '].[HistoryTable]))')
+EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema1 + '.[HistoryTable]))')
 """);
     }
 
@@ -5971,21 +5971,21 @@ ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = OFF)
             //
             """
 DECLARE @var2 sysname;
-SELECT @var2 = [d].[name]
+SELECT @var2 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Number');
-IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var2 + '];');
+IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var2 + ';');
 ALTER TABLE [Customers] DROP COLUMN [Number];
 """,
             //
             """
 DECLARE @var3 sysname;
-SELECT @var3 = [d].[name]
+SELECT @var3 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[HistoryTable]') AND [c].[name] = N'Number');
-IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [HistoryTable] DROP CONSTRAINT [' + @var3 + '];');
+IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [HistoryTable] DROP CONSTRAINT ' + @var3 + ';');
 ALTER TABLE [HistoryTable] DROP COLUMN [Number];
 """,
             //
@@ -6007,7 +6007,7 @@ EXEC sp_addextendedproperty 'MS_Description', @description5, 'SCHEMA', @defaultS
             //
             """
 DECLARE @historyTableSchema1 sysname = SCHEMA_NAME()
-EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema1 + '].[HistoryTable]))')
+EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema1 + '.[HistoryTable]))')
 """);
     }
 
@@ -6145,21 +6145,21 @@ ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = OFF)
             //
             """
 DECLARE @var2 sysname;
-SELECT @var2 = [d].[name]
+SELECT @var2 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'DateOfBirth');
-IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var2 + '];');
+IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var2 + ';');
 ALTER TABLE [Customers] DROP COLUMN [DateOfBirth];
 """,
             //
             """
 DECLARE @var3 sysname;
-SELECT @var3 = [d].[name]
+SELECT @var3 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[HistoryTable]') AND [c].[name] = N'DateOfBirth');
-IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [HistoryTable] DROP CONSTRAINT [' + @var3 + '];');
+IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [HistoryTable] DROP CONSTRAINT ' + @var3 + ';');
 ALTER TABLE [HistoryTable] DROP COLUMN [DateOfBirth];
 """,
             //
@@ -6189,7 +6189,7 @@ EXEC sp_addextendedproperty 'MS_Description', @description5, 'SCHEMA', @defaultS
             //
             """
 DECLARE @historyTableSchema1 sysname = SCHEMA_NAME()
-EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema1 + '].[HistoryTable]))')
+EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema1 + '.[HistoryTable]))')
 """);
     }
 
@@ -6502,7 +6502,7 @@ ALTER TABLE [Customers] ALTER COLUMN [End] ADD HIDDEN
             //
             """
 DECLARE @historyTableSchema sysname = SCHEMA_NAME()
-EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[HistoryTable]))')
+EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema + '.[HistoryTable]))')
 """);
     }
 
@@ -6557,11 +6557,11 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' +
         AssertSql(
             """
 DECLARE @var1 sysname;
-SELECT @var1 = [d].[name]
+SELECT @var1 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Number');
-IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var1 + '];');
+IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [Customers] DROP COLUMN [Number];
 """,
             //
@@ -6587,7 +6587,7 @@ ALTER TABLE [Customers] ALTER COLUMN [End] ADD HIDDEN
             //
             """
 DECLARE @historyTableSchema sysname = SCHEMA_NAME()
-EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[HistoryTable]))')
+EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema + '.[HistoryTable]))')
 """);
     }
 
@@ -6668,7 +6668,7 @@ ALTER TABLE [Customers] ALTER COLUMN [End] ADD HIDDEN
             //
             """
 DECLARE @historyTableSchema sysname = SCHEMA_NAME()
-EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[HistoryTable]))')
+EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema + '.[HistoryTable]))')
 """);
     }
 
@@ -6728,21 +6728,21 @@ ALTER TABLE [Customers] DROP PERIOD FOR SYSTEM_TIME
             //
             """
 DECLARE @var1 sysname;
-SELECT @var1 = [d].[name]
+SELECT @var1 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'End');
-IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var1 + '];');
+IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [Customers] DROP COLUMN [End];
 """,
             //
             """
 DECLARE @var2 sysname;
-SELECT @var2 = [d].[name]
+SELECT @var2 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Start');
-IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var2 + '];');
+IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var2 + ';');
 ALTER TABLE [Customers] DROP COLUMN [Start];
 """,
             //
@@ -6810,41 +6810,41 @@ ALTER TABLE [Customers] DROP PERIOD FOR SYSTEM_TIME
             //
             """
 DECLARE @var1 sysname;
-SELECT @var1 = [d].[name]
+SELECT @var1 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'End');
-IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var1 + '];');
+IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [Customers] DROP COLUMN [End];
 """,
             //
             """
 DECLARE @var2 sysname;
-SELECT @var2 = [d].[name]
+SELECT @var2 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Number');
-IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var2 + '];');
+IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var2 + ';');
 ALTER TABLE [Customers] DROP COLUMN [Number];
 """,
             //
             """
 DECLARE @var3 sysname;
-SELECT @var3 = [d].[name]
+SELECT @var3 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[HistoryTable]') AND [c].[name] = N'Number');
-IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [HistoryTable] DROP CONSTRAINT [' + @var3 + '];');
+IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [HistoryTable] DROP CONSTRAINT ' + @var3 + ';');
 ALTER TABLE [HistoryTable] DROP COLUMN [Number];
 """,
             //
             """
 DECLARE @var4 sysname;
-SELECT @var4 = [d].[name]
+SELECT @var4 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Start');
-IF @var4 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var4 + '];');
+IF @var4 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var4 + ';');
 ALTER TABLE [Customers] DROP COLUMN [Start];
 """,
             //
@@ -6910,21 +6910,21 @@ ALTER TABLE [Customers] DROP PERIOD FOR SYSTEM_TIME
             //
             """
 DECLARE @var1 sysname;
-SELECT @var1 = [d].[name]
+SELECT @var1 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'End');
-IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var1 + '];');
+IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [Customers] DROP COLUMN [End];
 """,
             //
             """
 DECLARE @var2 sysname;
-SELECT @var2 = [d].[name]
+SELECT @var2 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Start');
-IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var2 + '];');
+IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var2 + ';');
 ALTER TABLE [Customers] DROP COLUMN [Start];
 """,
             //
@@ -7025,7 +7025,7 @@ ALTER TABLE [NewCustomers] ALTER COLUMN [End] ADD HIDDEN
             //
             """
 DECLARE @historyTableSchema sysname = SCHEMA_NAME()
-EXEC(N'ALTER TABLE [NewCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[HistoryTable]))')
+EXEC(N'ALTER TABLE [NewCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema + '.[HistoryTable]))')
 """);
     }
 
@@ -7084,11 +7084,11 @@ ALTER TABLE [Customers] DROP CONSTRAINT [PK_Customers];
             //
             """
 DECLARE @var1 sysname;
-SELECT @var1 = [d].[name]
+SELECT @var1 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Number');
-IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var1 + '];');
+IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [Customers] DROP COLUMN [Number];
 """,
             //
@@ -7122,7 +7122,7 @@ ALTER TABLE [NewCustomers] ALTER COLUMN [End] ADD HIDDEN
             //
             """
 DECLARE @historyTableSchema sysname = SCHEMA_NAME()
-EXEC(N'ALTER TABLE [NewCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[HistoryTable]))')
+EXEC(N'ALTER TABLE [NewCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema + '.[HistoryTable]))')
 """);
     }
 
@@ -7215,7 +7215,7 @@ ALTER TABLE [NewCustomers] ALTER COLUMN [End] ADD HIDDEN
             //
             """
 DECLARE @historyTableSchema sysname = SCHEMA_NAME()
-EXEC(N'ALTER TABLE [NewCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[HistoryTable]))')
+EXEC(N'ALTER TABLE [NewCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema + '.[HistoryTable]))')
 """);
     }
 
@@ -7279,21 +7279,21 @@ ALTER TABLE [Customers] DROP PERIOD FOR SYSTEM_TIME
             //
             """
 DECLARE @var1 sysname;
-SELECT @var1 = [d].[name]
+SELECT @var1 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'End');
-IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var1 + '];');
+IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [Customers] DROP COLUMN [End];
 """,
             //
             """
 DECLARE @var2 sysname;
-SELECT @var2 = [d].[name]
+SELECT @var2 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Start');
-IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var2 + '];');
+IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var2 + ';');
 ALTER TABLE [Customers] DROP COLUMN [Start];
 """,
             //
@@ -7401,7 +7401,7 @@ ALTER TABLE [NewCustomers] ADD CONSTRAINT [PK_NewCustomers] PRIMARY KEY ([Id]);
             //
             """
 DECLARE @historyTableSchema1 sysname = SCHEMA_NAME()
-EXEC(N'ALTER TABLE [NewCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema1 + '].[NewHistoryTable]))')
+EXEC(N'ALTER TABLE [NewCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema1 + '.[NewHistoryTable]))')
 """);
     }
 
@@ -7484,21 +7484,21 @@ ALTER TABLE [Customers] DROP PERIOD FOR SYSTEM_TIME
             //
             """
 DECLARE @var1 sysname;
-SELECT @var1 = [d].[name]
+SELECT @var1 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'End');
-IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var1 + '];');
+IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [Customers] DROP COLUMN [End];
 """,
             //
             """
 DECLARE @var2 sysname;
-SELECT @var2 = [d].[name]
+SELECT @var2 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Start');
-IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var2 + '];');
+IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var2 + ';');
 ALTER TABLE [Customers] DROP COLUMN [Start];
 """,
             //
@@ -7595,7 +7595,7 @@ ALTER TABLE [Customers] ALTER COLUMN [End] ADD HIDDEN
                 //
                 """
 DECLARE @historyTableSchema sysname = SCHEMA_NAME()
-EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[HistoryTable]))')
+EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema + '.[HistoryTable]))')
 """);
     }
 
@@ -7667,7 +7667,7 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' +
 
         AssertSql(
 """
-DECLARE @historyTableSchema sysname = SCHEMA_NAME()
+DECLARE @historyTableSchema sysname = QUOTENAME(SCHEMA_NAME())
 EXEC(N'CREATE TABLE [Customers] (
     [Id] int NOT NULL IDENTITY,
     [Name] nvarchar(max) NOT NULL,
@@ -7675,7 +7675,7 @@ EXEC(N'CREATE TABLE [Customers] (
     [PeriodStart] datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
     CONSTRAINT [PK_Customers] PRIMARY KEY ([Id]),
     PERIOD FOR SYSTEM_TIME([PeriodStart], [PeriodEnd])
-) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + N'].[CustomersHistory]))');
+) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema + N'.[CustomersHistory]))');
 """);
     }
 
@@ -7797,7 +7797,7 @@ ALTER TABLE [Customers] ALTER COLUMN [PeriodEnd] ADD HIDDEN
                 //
                 """
 DECLARE @historyTableSchema sysname = SCHEMA_NAME()
-EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[CustomersHistory]))')
+EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema + '.[CustomersHistory]))')
 """);
     }
 
@@ -7934,7 +7934,7 @@ ALTER TABLE [Customers] ALTER COLUMN [PeriodEnd] ADD HIDDEN
                 //
                 """
 DECLARE @historyTableSchema sysname = SCHEMA_NAME()
-EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[CustomersHistory]))')
+EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema + '.[CustomersHistory]))')
 """);
     }
 
@@ -8111,7 +8111,7 @@ ALTER TABLE [RenamedCustomers] ADD CONSTRAINT [PK_RenamedCustomers] PRIMARY KEY 
                 //
                 """
 DECLARE @historyTableSchema1 sysname = SCHEMA_NAME()
-EXEC(N'ALTER TABLE [RenamedCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema1 + '].[RenamedCustomersHistory]))')
+EXEC(N'ALTER TABLE [RenamedCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema1 + '.[RenamedCustomersHistory]))')
 """);
     }
 
@@ -8218,21 +8218,21 @@ ALTER TABLE [Customers] DROP PERIOD FOR SYSTEM_TIME
                 //
                 """
 DECLARE @var1 sysname;
-SELECT @var1 = [d].[name]
+SELECT @var1 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'PeriodEnd');
-IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var1 + '];');
+IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [Customers] DROP COLUMN [PeriodEnd];
 """,
                 //
                 """
 DECLARE @var2 sysname;
-SELECT @var2 = [d].[name]
+SELECT @var2 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'PeriodStart');
-IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var2 + '];');
+IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var2 + ';');
 ALTER TABLE [Customers] DROP COLUMN [PeriodStart];
 """,
                 //
@@ -8242,21 +8242,21 @@ DROP TABLE [CustomersHistory];
                 //
                 """
 DECLARE @var3 sysname;
-SELECT @var3 = [d].[name]
+SELECT @var3 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Name');
-IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var3 + '];');
+IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var3 + ';');
 ALTER TABLE [Customers] ALTER COLUMN [Name] nvarchar(max) NOT NULL;
 """,
                 //
                 """
 DECLARE @var4 sysname;
-SELECT @var4 = [d].[name]
+SELECT @var4 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Id');
-IF @var4 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var4 + '];');
+IF @var4 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var4 + ';');
 ALTER TABLE [Customers] ALTER COLUMN [Id] int NOT NULL;
 """);
     }
@@ -8370,11 +8370,11 @@ ALTER TABLE [Customers] ADD [MyRowVersion] rowversion NOT NULL;
         AssertSql(
 """
 DECLARE @var1 sysname;
-SELECT @var1 = [d].[name]
+SELECT @var1 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'IsVip');
-IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var1 + '];');
+IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [Customers] DROP COLUMN [IsVip];
 """);
     }
@@ -8836,11 +8836,11 @@ ALTER TABLE [RenamedCustomers] ADD CONSTRAINT [PK_RenamedCustomers] PRIMARY KEY 
                 //
                 """
 DECLARE @var sysname;
-SELECT @var = [d].[name]
+SELECT @var = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[RenamedCustomers]') AND [c].[name] = N'Number');
-IF @var IS NOT NULL EXEC(N'ALTER TABLE [RenamedCustomers] DROP CONSTRAINT [' + @var + '];');
+IF @var IS NOT NULL EXEC(N'ALTER TABLE [RenamedCustomers] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [RenamedCustomers] DROP COLUMN [Number];
 """,
                 //
@@ -9188,21 +9188,21 @@ ALTER TABLE [BrandNewCustomers] DROP PERIOD FOR SYSTEM_TIME
                 //
                 """
 DECLARE @var sysname;
-SELECT @var = [d].[name]
+SELECT @var = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[BrandNewCustomers]') AND [c].[name] = N'SystemTimeEnd');
-IF @var IS NOT NULL EXEC(N'ALTER TABLE [BrandNewCustomers] DROP CONSTRAINT [' + @var + '];');
+IF @var IS NOT NULL EXEC(N'ALTER TABLE [BrandNewCustomers] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [BrandNewCustomers] DROP COLUMN [SystemTimeEnd];
 """,
                 //
                 """
 DECLARE @var1 sysname;
-SELECT @var1 = [d].[name]
+SELECT @var1 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[BrandNewCustomers]') AND [c].[name] = N'SystemTimeStart');
-IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [BrandNewCustomers] DROP CONSTRAINT [' + @var1 + '];');
+IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [BrandNewCustomers] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [BrandNewCustomers] DROP COLUMN [SystemTimeStart];
 """,
                 //
@@ -9212,11 +9212,11 @@ DROP TABLE [historySchema].[HistoryTable];
                 //
                 """
 DECLARE @var2 sysname;
-SELECT @var2 = [d].[name]
+SELECT @var2 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[BrandNewCustomers]') AND [c].[name] = N'Extra');
-IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [BrandNewCustomers] DROP CONSTRAINT [' + @var2 + '];');
+IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [BrandNewCustomers] DROP CONSTRAINT ' + @var2 + ';');
 ALTER TABLE [BrandNewCustomers] DROP COLUMN [Extra];
 """,
                 //
@@ -9352,21 +9352,21 @@ ALTER TABLE [CustomersThree] DROP PERIOD FOR SYSTEM_TIME
                 //
                 """
 DECLARE @var sysname;
-SELECT @var = [d].[name]
+SELECT @var = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[CustomersThree]') AND [c].[name] = N'SystemTimeEnd');
-IF @var IS NOT NULL EXEC(N'ALTER TABLE [CustomersThree] DROP CONSTRAINT [' + @var + '];');
+IF @var IS NOT NULL EXEC(N'ALTER TABLE [CustomersThree] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [CustomersThree] DROP COLUMN [SystemTimeEnd];
 """,
                 //
                 """
 DECLARE @var1 sysname;
-SELECT @var1 = [d].[name]
+SELECT @var1 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[CustomersThree]') AND [c].[name] = N'SystemTimeStart');
-IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [CustomersThree] DROP CONSTRAINT [' + @var1 + '];');
+IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [CustomersThree] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [CustomersThree] DROP COLUMN [SystemTimeStart];
 """,
                 //
@@ -9470,21 +9470,21 @@ ALTER TABLE [Customers] DROP PERIOD FOR SYSTEM_TIME
                 //
                 """
 DECLARE @var sysname;
-SELECT @var = [d].[name]
+SELECT @var = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'SystemTimeEnd');
-IF @var IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var + '];');
+IF @var IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [Customers] DROP COLUMN [SystemTimeEnd];
 """,
                 //
                 """
 DECLARE @var1 sysname;
-SELECT @var1 = [d].[name]
+SELECT @var1 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'SystemTimeStart');
-IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var1 + '];');
+IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [Customers] DROP COLUMN [SystemTimeStart];
 """,
                 //
@@ -9571,21 +9571,21 @@ ALTER TABLE [Customers] ADD [SystemTimeStart] datetime2 NOT NULL DEFAULT '0001-0
                 //
                 """
 DECLARE @var sysname;
-SELECT @var = [d].[name]
+SELECT @var = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'SystemTimeEnd');
-IF @var IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var + '];');
+IF @var IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [Customers] DROP COLUMN [SystemTimeEnd];
 """,
                 //
                 """
 DECLARE @var1 sysname;
-SELECT @var1 = [d].[name]
+SELECT @var1 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'SystemTimeStart');
-IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var1 + '];');
+IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [Customers] DROP COLUMN [SystemTimeStart];
 """);
     }
@@ -9672,21 +9672,21 @@ ALTER TABLE [historySchema].[HistoryTable] ADD [MyColumn] int SPARSE NULL;
                 //
                 """
 DECLARE @var sysname;
-SELECT @var = [d].[name]
+SELECT @var = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'MyColumn');
-IF @var IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var + '];');
+IF @var IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [Customers] DROP COLUMN [MyColumn];
 """,
                 //
                 """
 DECLARE @var1 sysname;
-SELECT @var1 = [d].[name]
+SELECT @var1 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[historySchema].[HistoryTable]') AND [c].[name] = N'MyColumn');
-IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [historySchema].[HistoryTable] DROP CONSTRAINT [' + @var1 + '];');
+IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [historySchema].[HistoryTable] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [historySchema].[HistoryTable] DROP COLUMN [MyColumn];
 """,
                 //
@@ -9767,11 +9767,11 @@ ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = OFF)
                 //
                 """
 DECLARE @var sysname;
-SELECT @var = [d].[name]
+SELECT @var = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'MyColumn');
-IF @var IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var + '];');
+IF @var IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var + ';');
 UPDATE [Customers] SET [MyColumn] = 0 WHERE [MyColumn] IS NULL;
 ALTER TABLE [Customers] ALTER COLUMN [MyColumn] int NOT NULL;
 ALTER TABLE [Customers] ADD DEFAULT 0 FOR [MyColumn];
@@ -9779,11 +9779,11 @@ ALTER TABLE [Customers] ADD DEFAULT 0 FOR [MyColumn];
                 //
                 """
 DECLARE @var1 sysname;
-SELECT @var1 = [d].[name]
+SELECT @var1 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[historySchema].[HistoryTable]') AND [c].[name] = N'MyColumn');
-IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [historySchema].[HistoryTable] DROP CONSTRAINT [' + @var1 + '];');
+IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [historySchema].[HistoryTable] DROP CONSTRAINT ' + @var1 + ';');
 UPDATE [historySchema].[HistoryTable] SET [MyColumn] = 0 WHERE [MyColumn] IS NULL;
 ALTER TABLE [historySchema].[HistoryTable] ALTER COLUMN [MyColumn] int NOT NULL;
 ALTER TABLE [historySchema].[HistoryTable] ADD DEFAULT 0 FOR [MyColumn];
@@ -9883,21 +9883,21 @@ ALTER TABLE [historySchema].[HistoryTable] ADD [MyColumn] int SPARSE NULL;
                 //
                 """
 DECLARE @var sysname;
-SELECT @var = [d].[name]
+SELECT @var = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'MyColumn');
-IF @var IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var + '];');
+IF @var IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [Customers] DROP COLUMN [MyColumn];
 """,
                 //
                 """
 DECLARE @var1 sysname;
-SELECT @var1 = [d].[name]
+SELECT @var1 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[historySchema].[HistoryTable]') AND [c].[name] = N'MyColumn');
-IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [historySchema].[HistoryTable] DROP CONSTRAINT [' + @var1 + '];');
+IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [historySchema].[HistoryTable] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [historySchema].[HistoryTable] DROP COLUMN [MyColumn];
 """,
                 //
@@ -9907,21 +9907,21 @@ ALTER TABLE [Customers] DROP PERIOD FOR SYSTEM_TIME
                 //
                 """
 DECLARE @var2 sysname;
-SELECT @var2 = [d].[name]
+SELECT @var2 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'SystemTimeEnd');
-IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var2 + '];');
+IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var2 + ';');
 ALTER TABLE [Customers] DROP COLUMN [SystemTimeEnd];
 """,
                 //
                 """
 DECLARE @var3 sysname;
-SELECT @var3 = [d].[name]
+SELECT @var3 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'SystemTimeStart');
-IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var3 + '];');
+IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var3 + ';');
 ALTER TABLE [Customers] DROP COLUMN [SystemTimeStart];
 """,
                 //
@@ -10075,21 +10075,21 @@ ALTER TABLE [modifiedDefaultSchema].[Customers] ADD [SystemTimeStart] datetime2 
                 //
                 """
 DECLARE @var sysname;
-SELECT @var = [d].[name]
+SELECT @var = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[modifiedDefaultSchema].[Customers]') AND [c].[name] = N'SystemTimeEnd');
-IF @var IS NOT NULL EXEC(N'ALTER TABLE [modifiedDefaultSchema].[Customers] DROP CONSTRAINT [' + @var + '];');
+IF @var IS NOT NULL EXEC(N'ALTER TABLE [modifiedDefaultSchema].[Customers] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [modifiedDefaultSchema].[Customers] DROP COLUMN [SystemTimeEnd];
 """,
                 //
                 """
 DECLARE @var1 sysname;
-SELECT @var1 = [d].[name]
+SELECT @var1 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[modifiedDefaultSchema].[Customers]') AND [c].[name] = N'SystemTimeStart');
-IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [modifiedDefaultSchema].[Customers] DROP CONSTRAINT [' + @var1 + '];');
+IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [modifiedDefaultSchema].[Customers] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [modifiedDefaultSchema].[Customers] DROP COLUMN [SystemTimeStart];
 """);
     }
