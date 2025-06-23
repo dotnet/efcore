@@ -460,7 +460,11 @@ public partial class RelationalModelValidatorTest
             });
 
         VerifyError(
-            RelationalStrings.JsonEntityWithMultiplePropertiesMappedToSameJsonProperty("ValidatorJsonOwnedRoot", "Foo"),
+            RelationalStrings.JsonObjectWithMultiplePropertiesMappedToSameJsonProperty(
+                "Name",
+                "Number", 
+                "ValidatorJsonOwnedRoot",
+                "Foo"),
             modelBuilder);
     }
 
@@ -484,8 +488,11 @@ public partial class RelationalModelValidatorTest
             });
 
         VerifyError(
-            RelationalStrings.JsonEntityWithMultiplePropertiesMappedToSameJsonProperty(
-                nameof(ValidatorJsonOwnedRoot), nameof(ValidatorJsonOwnedRoot.Name)),
+            RelationalStrings.JsonObjectWithMultiplePropertiesMappedToSameJsonProperty(
+                "Name",
+                "NestedReference",
+                "ValidatorJsonOwnedRoot",
+                "Name"),
             modelBuilder);
     }
 
@@ -680,6 +687,170 @@ public partial class RelationalModelValidatorTest
         VerifyError(
             RelationalStrings.HasDataNotSupportedForEntitiesMappedToJson(nameof(ValidatorJsonOwnedRoot)),
             modelBuilder);
+    }
+
+    [ConditionalFact]
+    public void Throws_when_complex_property_has_both_json_column_and_json_property_name()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorComplexEntity>()
+            .ComplexProperty(e => e.ComplexProp, b =>
+            {
+                b.ToJson("complex_data");
+                b.HasJsonPropertyName("ComplexData");
+            });
+
+        VerifyError(
+            RelationalStrings.ComplexPropertyBothJsonColumnAndJsonPropertyName(
+                "ValidatorComplexEntity.ComplexProp", "complex_data", "ComplexData"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public void Throws_when_has_json_property_name_on_non_json_mapped_complex_property()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorComplexEntity>()
+            .ComplexProperty(e => e.ComplexProp, b =>
+            {
+                b.HasJsonPropertyName("ComplexData");
+            });
+
+        VerifyError(
+            RelationalStrings.ComplexPropertyJsonPropertyNameWithoutJsonMapping(
+                "ValidatorComplexEntity.ComplexProp"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public void Throws_when_properties_in_complex_type_have_same_json_property_name()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorComplexEntity>()
+            .ComplexProperty(e => e.ComplexProp, b =>
+            {
+                b.ToJson("complex_data");
+                b.Property(x => x.Name).HasJsonPropertyName("nested");
+                b.Property(x => x.Number).HasJsonPropertyName("nested");
+            });
+
+        VerifyError(
+            RelationalStrings.JsonObjectWithMultiplePropertiesMappedToSameJsonProperty(
+                "Name",
+                "Number",
+                "ValidatorComplexEntity.ComplexProp#ValidatorComplexType",
+                "nested"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public void Throws_when_nested_json_entities_have_same_json_property_name()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorJsonEntityBasic>(
+            b =>
+            {
+                b.ComplexProperty(
+                    x => x.OwnedReference, bb =>
+                    {
+                        bb.ToJson("reference");
+                        bb.ComplexProperty(x => x.NestedReference, bbb => bbb.HasJsonPropertyName("nested"));
+                        bb.ComplexCollection(x => x.NestedCollection, bbb => bbb.HasJsonPropertyName("nested"));
+                    });
+                b.Ignore(x => x.OwnedCollection);
+            });
+
+        VerifyError(
+            RelationalStrings.JsonObjectWithMultiplePropertiesMappedToSameJsonProperty(
+                "NestedCollection",
+                "NestedReference",
+                "ValidatorJsonEntityBasic.OwnedReference#ValidatorJsonOwnedRoot",
+                "nested"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public void Throws_when_owned_entity_and_complex_property_mapped_to_same_json_column()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorJsonEntityBasic>(
+            b =>
+            {
+                b.OwnsOne(x => x.OwnedReference, bb =>
+                {
+                    bb.ToJson("json_data");
+                    bb.Ignore(x => x.NestedReference);
+                    bb.Ignore(x => x.NestedCollection);
+                });
+                b.ComplexCollection(x => x.OwnedCollection, cb =>
+                {
+                    cb.ToJson("json_data");
+                    cb.Ignore(x => x.NestedReference);
+                    cb.Ignore(x => x.NestedCollection);
+                });
+            });
+
+        VerifyError(
+            RelationalStrings.JsonEntityMultipleRootsMappedToTheSameJsonColumn(
+                "json_data", nameof(ValidatorJsonEntityBasic)),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public void Throws_when_owned_entity_property_has_both_column_name_and_json_property_name()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorJsonEntityBasic>(
+            b =>
+            {
+                b.OwnsOne(
+                    x => x.OwnedReference, bb =>
+                    {
+                        bb.ToJson("reference");
+                        bb.Property(x => x.Name).HasColumnName("column_name").HasJsonPropertyName("json_name");
+                        bb.Ignore(x => x.NestedReference);
+                        bb.Ignore(x => x.NestedCollection);
+                    });
+                b.Ignore(x => x.OwnedCollection);
+            });
+
+        VerifyError(
+            RelationalStrings.PropertyBothColumnNameAndJsonPropertyName(
+                "ValidatorJsonOwnedRoot.Name",
+                "column_name",
+                "json_name"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public void Throws_when_complex_property_scalar_has_both_column_name_and_json_property_name()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorComplexEntity>()
+            .ComplexProperty(e => e.ComplexProp, b =>
+            {
+                b.ToJson("complex_data");
+                b.Property(x => x.Name).HasColumnName("column_name").HasJsonPropertyName("json_name");
+            });
+
+        VerifyError(
+            RelationalStrings.PropertyBothColumnNameAndJsonPropertyName(
+                "ValidatorComplexEntity.ComplexProp#ValidatorComplexType.Name",
+                "column_name",
+                "json_name"),
+            modelBuilder);
+    }
+
+    protected class ValidatorComplexEntity
+    {
+        public int Id { get; set; }
+        public ValidatorComplexType ComplexProp { get; set; }
+    }
+
+    protected class ValidatorComplexType
+    {
+        public string Name { get; set; }
+        public int Number { get; set; }
     }
 
     protected class ValidatorJsonEntityBasic

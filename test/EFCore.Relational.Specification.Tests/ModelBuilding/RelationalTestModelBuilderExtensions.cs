@@ -278,6 +278,78 @@ public static class RelationalTestModelBuilderExtensions
         return builder;
     }
 
+    public static ModelBuilderTest.TestComplexCollectionBuilder<TComplex> HasJsonPropertyName<TComplex>(
+        this ModelBuilderTest.TestComplexCollectionBuilder<TComplex> builder,
+        string? name)
+        where TComplex : notnull
+    {
+        switch (builder)
+        {
+            case IInfrastructure<ComplexCollectionBuilder<TComplex>> genericBuilder:
+                genericBuilder.Instance.HasJsonPropertyName(name);
+                break;
+            case IInfrastructure<ComplexCollectionBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.HasJsonPropertyName(name);
+                break;
+        }
+		
+        return builder;
+    }
+
+    public static ModelBuilderTest.TestComplexPropertyBuilder<TComplex> HasJsonPropertyName<TComplex>(
+        this ModelBuilderTest.TestComplexPropertyBuilder<TComplex> builder,
+        string? name)
+        where TComplex : notnull
+    {
+        switch (builder)
+        {
+            case IInfrastructure<ComplexPropertyBuilder<TComplex>> genericBuilder:
+                genericBuilder.Instance.HasJsonPropertyName(name);
+                break;
+            case IInfrastructure<ComplexPropertyBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.HasJsonPropertyName(name);
+                break;
+        }
+
+        return builder;
+    }
+
+    public static ModelBuilderTest.TestComplexPropertyBuilder<TComplex> ToJson<TComplex>(
+        this ModelBuilderTest.TestComplexPropertyBuilder<TComplex> builder,
+        string? jsonColumnName = null)
+        where TComplex : notnull
+    {
+        switch (builder)
+        {
+            case IInfrastructure<ComplexPropertyBuilder<TComplex>> genericBuilder:
+                genericBuilder.Instance.ToJson(jsonColumnName);
+                break;
+            case IInfrastructure<ComplexPropertyBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.ToJson(jsonColumnName);
+                break;
+        }
+
+        return builder;
+    }
+
+    public static ModelBuilderTest.TestComplexCollectionBuilder<TComplex> ToJson<TComplex>(
+        this ModelBuilderTest.TestComplexCollectionBuilder<TComplex> builder,
+        string? jsonColumnName = null)
+        where TComplex : notnull
+    {
+        switch (builder)
+        {
+            case IInfrastructure<ComplexCollectionBuilder<TComplex>> genericBuilder:
+                genericBuilder.Instance.ToJson(jsonColumnName);
+                break;
+            case IInfrastructure<ComplexCollectionBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.ToJson(jsonColumnName);
+                break;
+        }
+
+        return builder;
+    }
+
     public static ModelBuilderTest.TestEntityTypeBuilder<TEntity> UseTpcMappingStrategy<TEntity>(
         this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder)
         where TEntity : class
@@ -1551,6 +1623,40 @@ public static class RelationalTestModelBuilderExtensions
                 break;
             case IInfrastructure<KeyBuilder> nonGenericBuilder:
                 nonGenericBuilder.Instance.HasName(name);
+                break;
+        }
+
+        return builder;
+    }
+
+    public static ModelBuilderTest.TestComplexTypePropertyBuilder<TProperty> HasJsonPropertyName<TProperty>(
+        this ModelBuilderTest.TestComplexTypePropertyBuilder<TProperty> builder,
+        string? name)
+    {
+        switch (builder)
+        {
+            case IInfrastructure<ComplexTypePropertyBuilder<TProperty>> genericBuilder:
+                genericBuilder.Instance.HasJsonPropertyName(name);
+                break;
+            case IInfrastructure<ComplexTypePropertyBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.HasJsonPropertyName(name);
+                break;
+        }
+
+        return builder;
+    }
+
+    public static ModelBuilderTest.TestComplexTypePrimitiveCollectionBuilder<TProperty> HasJsonPropertyName<TProperty>(
+        this ModelBuilderTest.TestComplexTypePrimitiveCollectionBuilder<TProperty> builder,
+        string? name)
+    {
+        switch (builder)
+        {
+            case IInfrastructure<ComplexTypePrimitiveCollectionBuilder<TProperty>> genericBuilder:
+                genericBuilder.Instance.HasJsonPropertyName(name);
+                break;
+            case IInfrastructure<ComplexTypePrimitiveCollectionBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.HasJsonPropertyName(name);
                 break;
         }
 
