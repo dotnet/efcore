@@ -2399,20 +2399,25 @@ public sealed partial class SelectExpression : TableExpressionBase
         _tables.Add(dummySelectExpression);
         _tables.Add(joinTable);
 
+        // Go over all projected columns and make them nullable; for non-nullable value types, add a SQL COALESCE as well.
         var projectionMapping = new Dictionary<ProjectionMember, Expression>();
-        foreach (var projection in _projectionMapping)
+        foreach (var (projectionMember, projection) in _projectionMapping)
         {
-            var projectionToAdd = projection.Value;
-            if (projectionToAdd is StructuralTypeProjectionExpression typeProjection)
+            var newProjection = projection switch
             {
-                projectionToAdd = typeProjection.MakeNullable();
-            }
-            else if (projectionToAdd is ColumnExpression column)
+                StructuralTypeProjectionExpression p => p.MakeNullable(),
+                ColumnExpression column => column.MakeNullable(),
+                var p => p
+            };
+
+            if (newProjection is SqlExpression { Type: var type } newSqlProjection && !type.IsNullableType())
             {
-                projectionToAdd = column.MakeNullable();
+                newProjection = sqlExpressionFactory.Coalesce(
+                    newSqlProjection,
+                    sqlExpressionFactory.Constant(type.GetDefaultValue(), type));
             }
 
-            projectionMapping[projection.Key] = projectionToAdd;
+            projectionMapping[projectionMember] = newProjection;
         }
 
         // ChildIdentifiers shouldn't be required to be updated since during translation they should be empty.

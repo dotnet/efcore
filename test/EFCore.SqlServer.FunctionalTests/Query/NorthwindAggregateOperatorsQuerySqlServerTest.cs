@@ -149,9 +149,9 @@ WHERE [o].[OrderID] = 10248
 """);
     }
 
-    public override async Task Average_after_default_if_empty_does_not_throw(bool async)
+    public override async Task Average_after_DefaultIfEmpty_does_not_throw(bool async)
     {
-        await base.Average_after_default_if_empty_does_not_throw(async);
+        await base.Average_after_DefaultIfEmpty_does_not_throw(async);
 
         AssertSql(
             """
@@ -167,9 +167,9 @@ LEFT JOIN (
 """);
     }
 
-    public override async Task Max_after_default_if_empty_does_not_throw(bool async)
+    public override async Task Max_after_DefaultIfEmpty_does_not_throw(bool async)
     {
-        await base.Max_after_default_if_empty_does_not_throw(async);
+        await base.Max_after_DefaultIfEmpty_does_not_throw(async);
 
         AssertSql(
             """
@@ -185,9 +185,9 @@ LEFT JOIN (
 """);
     }
 
-    public override async Task Min_after_default_if_empty_does_not_throw(bool async)
+    public override async Task Min_after_DefaultIfEmpty_does_not_throw(bool async)
     {
-        await base.Min_after_default_if_empty_does_not_throw(async);
+        await base.Min_after_DefaultIfEmpty_does_not_throw(async);
 
         AssertSql(
             """
