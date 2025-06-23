@@ -26,11 +26,81 @@ public class PropertyValuesInMemoryTest(PropertyValuesInMemoryTest.PropertyValue
         => Assert.ThrowsAnyAsync<Exception>( // In-memory database cannot query complex types
             () => base.Values_can_be_reloaded_from_database_for_entity_in_any_state_with_inheritance(state, async));
 
+    // Complex collection tests - InMemory provider doesn't support complex collections yet
+    public override Task Complex_collection_current_values_can_be_accessed_as_a_property_dictionary()
+        => Assert.ThrowsAsync<InvalidOperationException>(
+            () => base.Complex_collection_current_values_can_be_accessed_as_a_property_dictionary());
+
+    public override Task Complex_collection_original_values_can_be_accessed_as_a_property_dictionary()
+        => Assert.ThrowsAsync<InvalidOperationException>(
+            () => base.Complex_collection_original_values_can_be_accessed_as_a_property_dictionary());
+
+    public override Task Complex_collection_store_values_can_be_accessed_as_a_property_dictionary()
+        => Assert.ThrowsAsync<InvalidOperationException>(
+            () => base.Complex_collection_store_values_can_be_accessed_as_a_property_dictionary());
+
+    public override Task Complex_collection_store_values_can_be_accessed_asynchronously_as_a_property_dictionary()
+        => Assert.ThrowsAsync<InvalidOperationException>(
+            () => base.Complex_collection_store_values_can_be_accessed_asynchronously_as_a_property_dictionary());
+
+    public override void Setting_complex_collection_values_from_object_works()
+        => Assert.Throws<InvalidOperationException>(
+            () => base.Setting_complex_collection_values_from_object_works());
+
+    public override void Setting_complex_collection_original_values_from_object_with_nulls_works()
+        => Assert.Throws<InvalidOperationException>(
+            () => base.Setting_complex_collection_original_values_from_object_with_nulls_works());
+
+    public override void Setting_complex_collection_original_values_from_dictionary_with_nulls_works()
+        => Assert.Throws<InvalidOperationException>(
+            () => base.Setting_complex_collection_original_values_from_dictionary_with_nulls_works());
+
+    public override void Setting_complex_collection_current_values_from_dictionary_works()
+        => Assert.Throws<InvalidOperationException>(
+            () => base.Setting_complex_collection_current_values_from_dictionary_works());
+
+    public override void SetValues_throws_for_nested_complex_collection_with_non_list_value()
+        => Assert.Throws<InvalidOperationException>(
+            () => base.SetValues_throws_for_nested_complex_collection_with_non_list_value());
+
+    public override void SetValues_throws_for_complex_property_with_non_dictionary_value()
+        => Assert.Throws<Xunit.Sdk.ThrowsException>(
+            () => base.SetValues_throws_for_complex_property_with_non_dictionary_value());
+
+    public override void SetValues_throws_for_complex_collection_with_non_list_value()
+        => Assert.Throws<InvalidOperationException>(
+            () => base.SetValues_throws_for_complex_collection_with_non_list_value());
+
+    public override void SetValues_throws_for_complex_collection_with_non_dictionary_item()
+        => Assert.Throws<InvalidOperationException>(
+            () => base.SetValues_throws_for_complex_collection_with_non_dictionary_item());
+
+    public override void SetValues_throws_for_nested_complex_collection_with_non_dictionary_item()
+        => Assert.Throws<InvalidOperationException>(
+            () => base.SetValues_throws_for_nested_complex_collection_with_non_dictionary_item());
+
+    public override void Setting_complex_collection_current_values_from_DTO_with_complex_metadata_access_works()
+        => Assert.Throws<InvalidOperationException>(
+            () => base.Setting_complex_collection_current_values_from_DTO_with_complex_metadata_access_works());
+
+    public override void Setting_complex_collection_values_from_DTO_with_nulls_works()
+        => Assert.Throws<InvalidOperationException>(
+            () => base.Setting_complex_collection_values_from_DTO_with_nulls_works());
+
+    public override void Setting_complex_collection_current_values_from_dictionary_with_nulls_works()
+        => Assert.Throws<InvalidOperationException>(
+            () => base.Setting_complex_collection_current_values_from_dictionary_with_nulls_works());
+
+    public override void Setting_complex_collection_current_values_from_object_with_nulls_works()
+        => Assert.Throws<InvalidOperationException>(
+            () => base.Setting_complex_collection_current_values_from_object_with_nulls_works());
+
     public class PropertyValuesInMemoryFixture : PropertyValuesFixtureBase
     {
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => base.AddOptions(builder)
-                .ConfigureWarnings(w => w.Ignore(CoreEventId.MappedComplexPropertyIgnoredWarning))
+                .ConfigureWarnings(w => w.Ignore(CoreEventId.MappedComplexPropertyIgnoredWarning)
+                    .Ignore(CoreEventId.MappedEntityTypeIgnoredWarning))
                 .EnableSensitiveDataLogging(false);
 
         protected override ITestStoreFactory TestStoreFactory
@@ -47,6 +117,9 @@ public class PropertyValuesInMemoryTest(PropertyValuesInMemoryTest.PropertyValue
                     b.Ignore(e => e.Culture);
                     b.Ignore(e => e.Milk);
                 });
+
+            // In-memory database doesn't support complex collections
+            modelBuilder.Ignore<School>();
         }
     }
 }

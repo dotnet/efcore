@@ -615,6 +615,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 ordinal, declaringType, collection);
 
         /// <summary>
+        ///     The value for complex collection property '{property}' must be a 'List&lt;Dictionary&lt;string, object&gt;&gt;', but it was '{typeName}'.
+        /// </summary>
+        public static string ComplexCollectionValueNotList(object? property, object? typeName)
+            => string.Format(
+                GetString("ComplexCollectionValueNotList", nameof(property), nameof(typeName)),
+                property, typeName);
+
+        /// <summary>
         ///     The collection complex property '{property}' cannot be added to the type '{type}' because its CLR type '{clrType}' does not implement 'IEnumerable&lt;{targetType}&gt;'. Collection complex property must implement IEnumerable&lt;&gt; of the complex type.
         /// </summary>
         public static string ComplexCollectionWrongClrType(object? property, object? type, object? clrType, object? targetType)
@@ -653,6 +661,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("ComplexPropertyShadow", nameof(type), nameof(property)),
                 type, property);
+
+        /// <summary>
+        ///     The value for complex property '{property}' must be a 'Dictionary&lt;string, object&gt;', but it was '{typeName}'.
+        /// </summary>
+        public static string ComplexPropertyValueNotDictionary(object? property, object? typeName)
+            => string.Format(
+                GetString("ComplexPropertyValueNotDictionary", nameof(property), nameof(typeName)),
+                property, typeName);
 
         /// <summary>
         ///     The complex property '{property}' cannot be added to the type '{type}' because its CLR type '{clrType}' does not match the expected CLR type '{targetType}'.

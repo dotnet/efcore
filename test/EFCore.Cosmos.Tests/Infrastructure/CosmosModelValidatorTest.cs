@@ -554,6 +554,33 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
                 typeof(Memory<float>[]).ShortDisplayName()), modelBuilder);
     }
 
+    [ConditionalFact]
+    public virtual void Detects_complex_type_collection()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<EntityWithComplexTypeCollection>(
+            b =>
+            {
+                b.ComplexCollection(e => e.ComplexTypes);
+            });
+
+        VerifyError(
+            CosmosStrings.ComplexTypeCollectionsNotSupported(
+                nameof(ComplexTypeInCollection),
+                nameof(EntityWithComplexTypeCollection.ComplexTypes)), modelBuilder);
+    }
+
+    private class EntityWithComplexTypeCollection
+    {
+        public string Id { get; set; }
+        public List<ComplexTypeInCollection> ComplexTypes { get; set; }
+    }
+
+    private class ComplexTypeInCollection
+    {
+        public string Value { get; set; }
+    }
+
     private class RememberMyName<T>
     {
         public string Id { get; set; }

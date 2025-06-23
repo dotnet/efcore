@@ -795,15 +795,19 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
     public class CosmosGenericComplexCollection(CosmosModelBuilderFixture fixture)
         : ComplexCollectionTestBase(fixture), IClassFixture<CosmosModelBuilderFixture>
     {
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
         public override void Properties_can_have_custom_type_value_converter_type_set()
             => Properties_can_have_custom_type_value_converter_type_set<string>();
 
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
         public override void Properties_can_have_non_generic_value_converter_set()
             => Properties_can_have_non_generic_value_converter_set<string>();
 
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
         public override void Properties_can_have_provider_type_set()
             => Properties_can_have_provider_type_set<string>();
 
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
         public override void Can_set_complex_property_annotation()
         {
             var modelBuilder = CreateModelBuilder();
@@ -836,6 +840,176 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
       Notes (List<string>) Element type: string Required", complexCollection.ToDebugString(), ignoreLineEndingDifferences: true);
         }
 
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Properties_can_be_set_to_generate_values_on_Add()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Access_mode_can_be_overridden_at_entity_and_property_levels()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Can_set_unicode_for_properties()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Can_set_property_annotation()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Properties_can_set_row_version()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Can_set_property_annotation_by_type()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Properties_can_be_ignored()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Value_converter_configured_on_non_nullable_type_is_applied()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Can_set_precision_and_scale_for_properties()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Properties_can_be_ignored_by_type()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Non_nullable_properties_cannot_be_made_optional()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Can_add_shadow_properties_when_they_have_been_ignored()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Properties_can_have_field_set()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Can_set_unicode_for_property_type()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Can_set_custom_value_generator_for_properties()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Properties_can_be_made_optional()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Properties_can_have_value_converter_set_inline()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Properties_are_required_by_default_only_if_CLR_type_is_nullable()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Can_set_precision_and_scale_for_property_type()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Properties_can_be_made_required()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Can_set_sentinel_for_property_type()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Can_set_property_annotation_when_no_clr_property()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Can_ignore_shadow_properties_when_they_have_been_added_explicitly()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Can_set_max_length_for_properties()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Properties_can_be_made_concurrency_tokens()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Properties_specified_by_string_are_shadow_properties_unless_already_known_to_be_CLR_properties()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Can_set_sentinel_for_properties()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Can_set_max_length_for_property_type()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Properties_can_have_provider_type_set_for_type()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Properties_can_have_value_converter_set()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Value_converter_type_is_checked()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Value_converter_configured_on_nullable_type_overrides_non_nullable()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Can_set_unbounded_max_length_for_property_type()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Properties_can_have_access_mode_set()
+        {
+        }
+        
         protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null)
             => new GenericTestModelBuilder(Fixture, configure);
     }
