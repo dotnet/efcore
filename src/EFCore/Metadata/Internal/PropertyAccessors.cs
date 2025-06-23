@@ -100,7 +100,7 @@ public sealed class PropertyAccessors
     /// </summary>
     public TProperty GetOriginalValue<TProperty>(IInternalEntry entry)
         => OriginalValueGetter == null
-            ? throw new InvalidOperationException($"Original values are not stored for the property '{entry.StructuralType.DisplayName()}'.'{Property.Name}'")
+            ? throw new InvalidOperationException(CoreStrings.OriginalValueNotStored(entry.StructuralType.ShortNameChain(), Property.Name))
             : ((Func<IInternalEntry, TProperty>)OriginalValueGetter)(entry);
 
     /// <summary>

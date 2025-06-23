@@ -243,6 +243,9 @@
   <data name="CanOnlyConfigureExistingNavigations" xml:space="preserve">
     <value>Navigation '{1_entityType}.{0_navigationName}' was not found. Please add the navigation to the entity type before configuring it.</value>
   </data>
+  <data name="ChangeTrackingInterfaceMissing" xml:space="preserve">
+    <value>The entity type '{entityType}' is configured to use the '{changeTrackingStrategy}' change tracking strategy, but does not implement the required '{notificationInterface}' interface. Implement '{notificationInterface}' on '{entityType}' or use a different change tracking strategy.</value>
+  </data>
   <data name="CircularDependency" xml:space="preserve">
     <value>Unable to save changes because a circular dependency was detected in the data to be saved: '{cycle}'.</value>
   </data>
@@ -306,6 +309,9 @@
   <data name="ComplexCollectionEntryDeletedEntity" xml:space="preserve">
     <value>The complex entry at ordinal '{ordinal}' for the collection '{declaringType}.{collection}' cannot be accessed as the containing entry is in the deleted state.</value>
   </data>
+  <data name="ComplexCollectionEntryInvalidStateChange" xml:space="preserve">
+    <value>Cannot change the state of an element of the '{property}' complex collection directly from Deleted to Added or vice versa. First mark it as Unchanged.</value>
+  </data>
   <data name="ComplexCollectionEntryOrdinalInvalid" xml:space="preserve">
     <value>Complex entry ordinal '{ordinal}' is invalid for the collection '{declaringType}.{collection}' as it's outside of the collection of length '{count}'.</value>
   </data>
@@ -336,11 +342,17 @@
   <data name="ComplexCollectionOriginalEntryAddedEntity" xml:space="preserve">
     <value>The complex entry at the original ordinal '{ordinal}' for the collection '{declaringType}.{collection}' cannot be accessed as the containing entry is in the added state.</value>
   </data>
+  <data name="ComplexCollectionValueNotDictionaryList" xml:space="preserve">
+    <value>The value for complex collection property '{property}' must be a list of dictionaries, but it was '{typeName}'.</value>
+  </data>
   <data name="ComplexCollectionWrongClrType" xml:space="preserve">
     <value>The collection complex property '{property}' cannot be added to the type '{type}' because its CLR type '{clrType}' does not implement 'IEnumerable&lt;{targetType}&gt;'. Collection complex property must implement IEnumerable&lt;&gt; of the complex type.</value>
   </data>
   <data name="ComplexPropertyIndexer" xml:space="preserve">
     <value>Adding the complex property '{type}.{property}' as an indexer property isn't supported. See https://github.com/dotnet/efcore/issues/31244 for more information.</value>
+  </data>
+  <data name="ComplexPropertyNotCollection" xml:space="preserve">
+    <value>The complex property '{type}.{property}' is not a collection. Only complex collection properties can be used here.</value>
   </data>
   <data name="ComplexPropertyNotFound" xml:space="preserve">
     <value>The complex property '{type}.{property}' could not be found. Ensure that the property exists and has been included in the model as a complex property.</value>
@@ -350,6 +362,12 @@
   </data>
   <data name="ComplexPropertyShadow" xml:space="preserve">
     <value>Configuring the complex property '{type}.{property}' in shadow state isn't supported.  See https://github.com/dotnet/efcore/issues/31243 for more information.</value>
+  </data>
+  <data name="ComplexPropertyValueNotDictionary" xml:space="preserve">
+    <value>The value for complex property '{property}' must be a 'Dictionary&lt;string, object&gt;', but it was '{typeName}'.</value>
+  </data>
+  <data name="ComplexPropertyValueNotList" xml:space="preserve">
+    <value>The value for complex collection property '{property}' must be a '{clrType}', but it was '{typeName}'.</value>
   </data>
   <data name="ComplexPropertyWrongClrType" xml:space="preserve">
     <value>The complex property '{property}' cannot be added to the type '{type}' because its CLR type '{clrType}' does not match the expected CLR type '{targetType}'.</value>
@@ -659,9 +677,6 @@
   </data>
   <data name="HiLoBadBlockSize" xml:space="preserve">
     <value>The block size used for Hi-Lo value generation is not positive. The Hi-Lo generator is usually backed by a SQL sequence and this means that the sequence increment must be positive.</value>
-  </data>
-  <data name="ChangeTrackingInterfaceMissing" xml:space="preserve">
-    <value>The entity type '{entityType}' is configured to use the '{changeTrackingStrategy}' change tracking strategy, but does not implement the required '{notificationInterface}' interface. Implement '{notificationInterface}' on '{entityType}' or use a different change tracking strategy.</value>
   </data>
   <data name="IdentifyingRelationshipCycle" xml:space="preserve">
     <value>A relationship cycle involving the primary keys of the following entity types was detected: '{entityType}'. This would prevent any entity to be inserted without violating the store constraints. Review the foreign keys defined on the primary keys and either remove or use other properties for at least one of them.</value>
@@ -1393,6 +1408,9 @@
   <data name="OptionsExtensionNotFound" xml:space="preserve">
     <value>Options extension of type '{optionsExtension}' not found.</value>
   </data>
+  <data name="OriginalValueNotStored" xml:space="preserve">
+    <value>Original values are not stored for the property '{structuralType}.{property}'.</value>
+  </data>
   <data name="OriginalValueNotTracked" xml:space="preserve">
     <value>The original value for property '{1_entityType}.{0_property}' cannot be accessed because it is not being tracked. Original values are not recorded for most properties of entities when the 'ChangingAndChangedNotifications' strategy is used. To access all original values, use a different change tracking strategy such as 'ChangingAndChangedNotificationsWithOriginalValues'.</value>
   </data>
@@ -1500,6 +1518,9 @@
   </data>
   <data name="QueryInvalidMaterializationType" xml:space="preserve">
     <value>The query contains a projection '{projection}' of type '{queryableType}'. Collections in the final projection must be an 'IEnumerable&lt;T&gt;' type such as 'List&lt;T&gt;'. Consider using 'ToList' or some other mechanism to convert the 'IQueryable&lt;T&gt;' or 'IOrderedEnumerable&lt;T&gt;' into an 'IEnumerable&lt;T&gt;'.</value>
+  </data>
+  <data name="QueryNotPrecompiled" xml:space="preserve">
+    <value>Query wasn't precompiled and dynamic code isn't supported with NativeAOT.</value>
   </data>
   <data name="QueryRootDifferentEntityType" xml:space="preserve">
     <value>The replacement entity type: {entityType} does not have same name and CLR type as entity type this query root represents.</value>

@@ -359,6 +359,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 navigationName, entityType);
 
         /// <summary>
+        ///     The entity type '{entityType}' is configured to use the '{changeTrackingStrategy}' change tracking strategy, but does not implement the required '{notificationInterface}' interface. Implement '{notificationInterface}' on '{entityType}' or use a different change tracking strategy.
+        /// </summary>
+        public static string ChangeTrackingInterfaceMissing(object? entityType, object? changeTrackingStrategy, object? notificationInterface)
+            => string.Format(
+                GetString("ChangeTrackingInterfaceMissing", nameof(entityType), nameof(changeTrackingStrategy), nameof(notificationInterface)),
+                entityType, changeTrackingStrategy, notificationInterface);
+
+        /// <summary>
         ///     Unable to save changes because a circular dependency was detected in the data to be saved: '{cycle}'.
         /// </summary>
         public static string CircularDependency(object? cycle)
@@ -527,6 +535,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 ordinal, declaringType, collection);
 
         /// <summary>
+        ///     Cannot change the state of an element of the '{property}' complex collection directly from Deleted to Added or vice versa. First mark it as Unchanged.
+        /// </summary>
+        public static string ComplexCollectionEntryInvalidStateChange(object? property)
+            => string.Format(
+                GetString("ComplexCollectionEntryInvalidStateChange", nameof(property)),
+                property);
+
+        /// <summary>
         ///     Complex entry ordinal '{ordinal}' is invalid for the collection '{declaringType}.{collection}' as it's outside of the collection of length '{count}'.
         /// </summary>
         public static string ComplexCollectionEntryOrdinalInvalid(object? ordinal, object? declaringType, object? collection, object? count)
@@ -535,7 +551,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 ordinal, declaringType, collection, count);
 
         /// <summary>
-        ///     Cannot change the ordinal of an entry of the  '{collectionDeclaringType}.{collection}'  complex collection unless it's detached or deleted.
+        ///     Cannot change the ordinal of an entry of the  '{collectionDeclaringType}.{collection}' complex collection unless it's detached or deleted.
         /// </summary>
         public static string ComplexCollectionEntryOrdinalReadOnly(object? collectionDeclaringType, object? collection)
             => string.Format(
@@ -607,6 +623,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 ordinal, declaringType, collection);
 
         /// <summary>
+        ///     The value for complex collection property '{property}' must be a list of dictionaries, but it was '{typeName}'.
+        /// </summary>
+        public static string ComplexCollectionValueNotDictionaryList(object? property, object? typeName)
+            => string.Format(
+                GetString("ComplexCollectionValueNotDictionaryList", nameof(property), nameof(typeName)),
+                property, typeName);
+
+        /// <summary>
         ///     The collection complex property '{property}' cannot be added to the type '{type}' because its CLR type '{clrType}' does not implement 'IEnumerable&lt;{targetType}&gt;'. Collection complex property must implement IEnumerable&lt;&gt; of the complex type.
         /// </summary>
         public static string ComplexCollectionWrongClrType(object? property, object? type, object? clrType, object? targetType)
@@ -620,6 +644,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public static string ComplexPropertyIndexer(object? type, object? property)
             => string.Format(
                 GetString("ComplexPropertyIndexer", nameof(type), nameof(property)),
+                type, property);
+
+        /// <summary>
+        ///     The complex property '{type}.{property}' is not a collection. Only complex collection properties can be used here.
+        /// </summary>
+        public static string ComplexPropertyNotCollection(object? type, object? property)
+            => string.Format(
+                GetString("ComplexPropertyNotCollection", nameof(type), nameof(property)),
                 type, property);
 
         /// <summary>
@@ -645,6 +677,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("ComplexPropertyShadow", nameof(type), nameof(property)),
                 type, property);
+
+        /// <summary>
+        ///     The value for complex property '{property}' must be a 'Dictionary&lt;string, object&gt;', but it was '{typeName}'.
+        /// </summary>
+        public static string ComplexPropertyValueNotDictionary(object? property, object? typeName)
+            => string.Format(
+                GetString("ComplexPropertyValueNotDictionary", nameof(property), nameof(typeName)),
+                property, typeName);
+
+        /// <summary>
+        ///     The value for complex collection property '{property}' must be a '{clrType}', but it was '{typeName}'.
+        /// </summary>
+        public static string ComplexPropertyValueNotList(object? property, object? clrType, object? typeName)
+            => string.Format(
+                GetString("ComplexPropertyValueNotList", nameof(property), nameof(clrType), nameof(typeName)),
+                property, clrType, typeName);
 
         /// <summary>
         ///     The complex property '{property}' cannot be added to the type '{type}' because its CLR type '{clrType}' does not match the expected CLR type '{targetType}'.
@@ -1439,14 +1487,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         public static string HiLoBadBlockSize
             => GetString("HiLoBadBlockSize");
-
-        /// <summary>
-        ///     The entity type '{entityType}' is configured to use the '{changeTrackingStrategy}' change tracking strategy, but does not implement the required '{notificationInterface}' interface. Implement '{notificationInterface}' on '{entityType}' or use a different change tracking strategy.
-        /// </summary>
-        public static string ChangeTrackingInterfaceMissing(object? entityType, object? changeTrackingStrategy, object? notificationInterface)
-            => string.Format(
-                GetString("ChangeTrackingInterfaceMissing", nameof(entityType), nameof(changeTrackingStrategy), nameof(notificationInterface)),
-                entityType, changeTrackingStrategy, notificationInterface);
 
         /// <summary>
         ///     A relationship cycle involving the primary keys of the following entity types was detected: '{entityType}'. This would prevent any entity to be inserted without violating the store constraints. Review the foreign keys defined on the primary keys and either remove or use other properties for at least one of them.
@@ -2464,6 +2504,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 optionsExtension);
 
         /// <summary>
+        ///     Original values are not stored for the property '{structuralType}.{property}'.
+        /// </summary>
+        public static string OriginalValueNotStored(object? structuralType, object? property)
+            => string.Format(
+                GetString("OriginalValueNotStored", nameof(structuralType), nameof(property)),
+                structuralType, property);
+
+        /// <summary>
         ///     The original value for property '{1_entityType}.{0_property}' cannot be accessed because it is not being tracked. Original values are not recorded for most properties of entities when the 'ChangingAndChangedNotifications' strategy is used. To access all original values, use a different change tracking strategy such as 'ChangingAndChangedNotificationsWithOriginalValues'.
         /// </summary>
         public static string OriginalValueNotTracked(object? property, object? entityType)
@@ -2742,6 +2790,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("QueryInvalidMaterializationType", nameof(projection), nameof(queryableType)),
                 projection, queryableType);
+
+        /// <summary>
+        ///     Query wasn't precompiled and dynamic code isn't supported with NativeAOT.
+        /// </summary>
+        public static string QueryNotPrecompiled
+            => GetString("QueryNotPrecompiled");
 
         /// <summary>
         ///     The replacement entity type: {entityType} does not have same name and CLR type as entity type this query root represents.

@@ -68,7 +68,7 @@ public interface IEntityMaterializerSource
 
     /// <summary>
     ///     <para>
-    ///         Returns a cached delegate that creates instances of the given entity type.
+    ///         Returns a delegate that creates an instance of the given entity type.
     ///     </para>
     ///     <para>
     ///         This method is typically used by database providers (and other extensions). It is generally
@@ -81,7 +81,20 @@ public interface IEntityMaterializerSource
 
     /// <summary>
     ///     <para>
-    ///         Returns a cached delegate that creates empty instances of the given entity type.
+    ///         Returns a delegate that creates an instance of the given complex type.
+    ///     </para>
+    ///     <para>
+    ///         This method is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
+    /// <param name="complexType">The entity type being materialized.</param>
+    /// <returns>A delegate to create instances.</returns>
+    Func<MaterializationContext, object> GetMaterializer(IComplexType complexType);
+
+    /// <summary>
+    ///     <para>
+    ///         Returns a delegate that creates an empty instance of the given entity type.
     ///     </para>
     ///     <para>
     ///         This method is typically used by database providers (and other extensions). It is generally
@@ -91,4 +104,17 @@ public interface IEntityMaterializerSource
     /// <param name="entityType">The entity type being materialized.</param>
     /// <returns>A delegate to create instances.</returns>
     Func<MaterializationContext, object> GetEmptyMaterializer(IEntityType entityType);
+
+    /// <summary>
+    ///     <para>
+    ///         Returns a delegate that creates an empty instance of the given complex type.
+    ///     </para>
+    ///     <para>
+    ///         This method is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
+    /// <param name="complexType">The entity type being materialized.</param>
+    /// <returns>A delegate to create instances.</returns>
+    Func<MaterializationContext, object> GetEmptyMaterializer(IComplexType complexType);
 }

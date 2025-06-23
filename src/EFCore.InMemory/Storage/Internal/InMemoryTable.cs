@@ -44,7 +44,7 @@ public class InMemoryTable<TKey> : IInMemoryTable
         _sensitiveLoggingEnabled = sensitiveLoggingEnabled;
         _nullabilityCheckEnabled = nullabilityCheckEnabled;
         _rows = new Dictionary<TKey, object?[]>(_keyValueFactory.EqualityComparer);
-        var properties = entityType.GetFlattenedProperties().ToList();
+        var properties = entityType.GetFlattenedProperties().AsList();
         _propertyCount = properties.Count;
 
         foreach (var property in properties)
@@ -163,7 +163,7 @@ public class InMemoryTable<TKey> : IInMemoryTable
     /// </summary>
     public virtual void Create(IUpdateEntry entry, IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger)
     {
-        var properties = entry.EntityType.GetFlattenedProperties().ToList();
+        var properties = entry.EntityType.GetFlattenedProperties().AsList();
         var row = new object?[properties.Count];
         var nullabilityErrors = new List<IProperty>();
 
@@ -197,7 +197,7 @@ public class InMemoryTable<TKey> : IInMemoryTable
 
         if (_rows.TryGetValue(key, out var row))
         {
-            var properties = entry.EntityType.GetFlattenedProperties().ToList();
+            var properties = entry.EntityType.GetFlattenedProperties().AsList();
             var concurrencyConflicts = new Dictionary<IProperty, object?>();
 
             for (var index = 0; index < properties.Count; index++)
@@ -269,7 +269,7 @@ public class InMemoryTable<TKey> : IInMemoryTable
 
         if (_rows.TryGetValue(key, out var row))
         {
-            var properties = entry.EntityType.GetFlattenedProperties().ToList();
+            var properties = entry.EntityType.GetFlattenedProperties().AsList();
             var comparers = GetKeyComparers(properties);
             var valueBuffer = new object?[properties.Count];
             var concurrencyConflicts = new Dictionary<IProperty, object?>();

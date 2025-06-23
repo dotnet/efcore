@@ -371,25 +371,4 @@ public static class EntityTypeExtensions
         string navigationName)
         => entityType.GetDerivedTypes().Select(t => t.FindDeclaredNavigation(navigationName)!)
             .Where(n => n != null);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public static IProperty CheckContains(
-        this IEntityType entityType,
-        IProperty property)
-    {
-        Check.NotNull(property);
-
-        if (!property.DeclaringType.ContainingType.IsAssignableFrom(entityType))
-        {
-            throw new InvalidOperationException(
-                CoreStrings.PropertyDoesNotBelong(property.Name, property.DeclaringType.DisplayName(), entityType.DisplayName()));
-        }
-
-        return property;
-    }
 }

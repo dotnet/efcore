@@ -19,6 +19,8 @@ public class RuntimeComplexType : RuntimeTypeBase, IRuntimeComplexType
     private PropertyCounts? _counts;
     private InstantiationBinding? _constructorBinding;
     private InstantiationBinding? _serviceOnlyConstructorBinding;
+    private Func<MaterializationContext, object>? _materializer;
+    private Func<MaterializationContext, object>? _emptyMaterializer;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -176,6 +178,31 @@ public class RuntimeComplexType : RuntimeTypeBase, IRuntimeComplexType
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual void SetCounts(PropertyCounts value) => _counts = value;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    // TODO: Make this part of the compiled model to make it work with NativeAOT, Issue #32923
+    [EntityFrameworkInternal]
+    public override Func<MaterializationContext, object> GetOrCreateMaterializer(IEntityMaterializerSource source)
+        => NonCapturingLazyInitializer.EnsureInitialized(
+            ref _materializer, this, source,
+            static (e, s) => s.GetMaterializer(e));
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public override Func<MaterializationContext, object> GetOrCreateEmptyMaterializer(IEntityMaterializerSource source)
+        => NonCapturingLazyInitializer.EnsureInitialized(
+            ref _emptyMaterializer, this, source,
+            static (e, s) => s.GetEmptyMaterializer(e));
 
     /// <summary>
     ///     Returns a string that represents the current object.
