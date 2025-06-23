@@ -1456,6 +1456,19 @@ public abstract class NorthwindSelectQueryTestBase<TFixture>(TFixture fixture) :
             async,
             ss => ss.Set<Customer>().SelectMany(c => c.Orders.OrderBy(o => o.OrderID).Take(5).Take(3)));
 
+    [ConditionalTheory] // #33343
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task SelectMany_with_nested_DefaultIfEmpty(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>()
+                .SelectMany(c => c.Orders
+                    // Make sure no orders are actually returned;
+                    // if the DIE below is erroneously lifted as in #3343, that would cause a change in results
+                    .Where(p => false)
+                    .SelectMany(o => o.OrderDetails.DefaultIfEmpty())),
+            assertEmpty: true);
+
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Select_with_multiple_Take(bool async)
