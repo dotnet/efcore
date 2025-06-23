@@ -97,6 +97,7 @@ namespace Microsoft.Data.Sqlite
                 var dateTimeOffset = (DateTimeOffset)value;
                 if (sqliteType == SqliteType.Real)
                 {
+                    // Before .NET 10, handling DateTimeOffset ignored offset and wrote incorrect value into database.
                     var value = Pre10TimeZoneHandling
                         ? ToJulianDate(dateTimeOffset.DateTime)
                         : ToJulianDate(dateTimeOffset.ToUniversalTime().DateTime);
