@@ -126,7 +126,13 @@ internal static class EnumerableExtensions
     }
 
     public static List<TSource> ToList<TSource>(this IEnumerable source)
-        => source.OfType<TSource>().ToList();
+        => [.. source.OfType<TSource>()];
+
+    public static IList<TSource> AsList<TSource>(this IEnumerable<TSource> source) => source switch
+    {
+        IList<TSource> list => list,
+        _ => [.. source]
+    };
 
     public static string Format(this IEnumerable<string> strings)
         => "{"

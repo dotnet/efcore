@@ -205,7 +205,7 @@ public sealed class InternalComplexEntry : InternalEntryBase
         if ((oldState is EntityState.Deleted && newState is EntityState.Added)
             || (oldState is EntityState.Added && newState is EntityState.Deleted))
         {
-            throw new InvalidOperationException($"Cannot change the state of an element of the `{ComplexProperty.Name}` complex collection directly from deleted to added or vice versa. First mark it as Unchanged");
+            throw new InvalidOperationException(CoreStrings.ComplexCollectionEntryInvalidStateChange(ComplexProperty.Name));
         }
 
         base.SetEntityState(oldState, newState, acceptChanges, modifyProperties);
@@ -255,7 +255,8 @@ public sealed class InternalComplexEntry : InternalEntryBase
     /// </summary>
     public override void AcceptChanges()
     {
-        if (EntityState == EntityState.Added)
+        if (EntityState == EntityState.Added
+            || ContainingEntry.GetComplexCollectionEntry(ComplexProperty, Ordinal) == this)
         {
             OriginalOrdinal = Ordinal;
         }

@@ -82,7 +82,7 @@ public class QueryCompiler : IQueryCompiler
                     _compiledQueryCacheKeyGenerator.GenerateCacheKey(queryAfterExtraction, async),
                     () => RuntimeFeature.IsDynamicCodeSupported
                         ? CompileQueryCore<TResult>(_database, queryAfterExtraction, _model, async)
-                        : throw new InvalidOperationException("Query wasn't precompiled and dynamic code isn't supported (NativeAOT)"));
+                        : throw new InvalidOperationException(CoreStrings.QueryNotPrecompiled));
 
         return compiledQuery(queryContext);
     }

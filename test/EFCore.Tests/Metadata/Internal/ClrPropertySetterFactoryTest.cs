@@ -40,7 +40,10 @@ public class ClrPropertySetterFactoryTest
         IReadOnlyTypeBase IReadOnlyPropertyBase.DeclaringType
             => throw new NotImplementedException();
 
-        public void SetClrValueUsingContainingEntity(object instance, object value)
+        public void SetClrValueUsingContainingEntity(object instance, IReadOnlyList<int> indices, object value)
+            => throw new NotImplementedException();
+
+        public object SetClrValue(object instance, object value)
             => throw new NotImplementedException();
 
         public IEnumerable<IForeignKey> GetContainingForeignKeys()
@@ -133,10 +136,6 @@ public class ClrPropertySetterFactoryTest
 
         public PropertyAccessMode GetPropertyAccessMode()
             => throw new NotImplementedException();
-
-        public void SetClrValueUsingContainingEntity(object instance, IReadOnlyList<int> indices, object value)
-            => throw new NotImplementedException();
-        public object SetClrValue(object instance, object value) => throw new NotImplementedException();
     }
 
     [ConditionalFact]

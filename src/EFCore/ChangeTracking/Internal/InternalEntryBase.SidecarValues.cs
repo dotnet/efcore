@@ -34,7 +34,7 @@ public partial class InternalEntryBase
             {
                 throw new InvalidOperationException(
                     CoreStrings.ValueCannotBeNull(
-                        property.Name, property.DeclaringType.DisplayName(), property.ClrType.DisplayName()));
+                        property.Name, property.DeclaringType.DisplayName(), property.ClrType.ShortDisplayName()));
             }
 
             values[index] = SnapshotValue(property, value);

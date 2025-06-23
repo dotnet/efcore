@@ -302,10 +302,20 @@ public abstract partial class InternalEntryBase : IInternalEntry
             if (acceptChanges)
             {
                 _originalValues.AcceptChanges(this);
+
+                foreach (var complexCollection in _complexCollectionEntries)
+                {
+                    complexCollection.AcceptChanges();
+                }
             }
             else
             {
                 _originalValues.RejectChanges(this);
+
+                foreach (var complexCollection in _complexCollectionEntries)
+                {
+                    complexCollection.RejectChanges();
+                }
             }
         }
 
@@ -869,6 +879,14 @@ public abstract partial class InternalEntryBase : IInternalEntry
         Check.DebugAssert(propertyBase.DeclaringType.IsAssignableFrom(StructuralType) || propertyBase.DeclaringType.ContainingType.IsAssignableFrom(StructuralType),
             "Property " + propertyBase.Name + " not contained under " + StructuralType.Name);
 
+        if (value == null
+            && !propertyBase.ClrType.IsNullableType())
+        {
+            throw new InvalidOperationException(
+                CoreStrings.ValueCannotBeNull(
+                    propertyBase.Name, propertyBase.DeclaringType.DisplayName(), propertyBase.ClrType.ShortDisplayName()));
+        }
+
         if (propertyBase.IsShadowProperty())
         {
             _shadowValues[propertyBase.GetShadowIndex()] = value;
@@ -955,17 +973,86 @@ public abstract partial class InternalEntryBase : IInternalEntry
 
         EnsureOriginalValues();
 
+        var complexProperty = propertyBase as IComplexProperty;
+        var isComplexCollection = complexProperty != null && complexProperty.IsCollection;
+        if (isComplexCollection)
+        {
+            ReorderOriginalComplexCollectionEntries(complexProperty!, (IList?)value);
+        }
+
         _originalValues.SetValue(propertyBase, value, index);
 
         if (propertyBase is IProperty property)
         {
-            // If setting the original value results in the current value being different from the
-            // original value, then mark the property as modified.
             if ((EntityState == EntityState.Unchanged
                     || (EntityState == EntityState.Modified && !IsModified(property)))
                 && !_stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.Unknown))
             {
                 ((StateManager as StateManager)?.ChangeDetector as ChangeDetector)?.DetectValueChange(this, property);
+            }
+        }
+        else if (isComplexCollection
+            && EntityState is EntityState.Unchanged or EntityState.Modified)
+        {
+            ((StateManager as StateManager)?.ChangeDetector as ChangeDetector)?.DetectComplexCollectionChanges(this, complexProperty!);
+        }
+    }
+
+    private void ReorderOriginalComplexCollectionEntries(IComplexProperty complexProperty, IList? newOriginalCollection)
+    {
+        Check.DebugAssert(HasOriginalValuesSnapshot, "This should only be called when original values are present");
+
+        var oldOriginalCollection = (IList?)GetOriginalValue(complexProperty);
+        if (oldOriginalCollection == null
+            || newOriginalCollection == null)
+        {
+            return;
+        }
+
+        _complexCollectionEntries[complexProperty.GetIndex()].EnsureCapacity(newOriginalCollection.Count, original: true, trim: false);
+
+        var originalEntries = GetComplexCollectionOriginalEntries(complexProperty);
+        var elementToOriginalEntry = new Dictionary<object, InternalComplexEntry>(ReferenceEqualityComparer.Instance);
+        
+        // Build mapping of existing non-null elements to their entries
+        for (var i = 0; i < originalEntries.Count && i < oldOriginalCollection.Count; i++)
+        {
+            var originalEntry = originalEntries[i];
+            if (originalEntry != null)
+            {
+                var element = oldOriginalCollection[i];
+                if (element != null)
+                {
+                    elementToOriginalEntry[element] = originalEntry;
+                }
+            }
+        }
+
+        var newOrdinal = 0;
+        for (; newOrdinal < newOriginalCollection.Count; newOrdinal++)
+        {
+            var element = newOriginalCollection[newOrdinal];
+            if (element != null && elementToOriginalEntry.TryGetValue(element, out var originalEntry)
+                && originalEntry.OriginalOrdinal != newOrdinal)
+            {
+                if (originalEntry.EntityState is EntityState.Detached or EntityState.Added)
+                {
+                    originalEntry.OriginalOrdinal = newOrdinal;
+                }
+                else
+                {
+                    MoveComplexCollectionEntry(complexProperty, originalEntry.OriginalOrdinal, newOrdinal, original: true);
+                }
+            }
+        }
+
+        for (; newOrdinal < originalEntries.Count; newOrdinal++)
+        {
+            var entry = originalEntries[newOrdinal];
+            if (entry != null
+                && entry.EntityState is not EntityState.Detached)
+            {
+                entry.SetEntityState(EntityState.Detached);
             }
         }
     }
@@ -1343,7 +1430,16 @@ public abstract partial class InternalEntryBase : IInternalEntry
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected virtual void OnPropertyChanged(IPropertyBase propertyBase, object? value, bool setModified)
-        => StateManager.InternalEntityEntryNotifier.PropertyChanged(this, propertyBase, setModified);
+    {
+        StateManager.InternalEntityEntryNotifier.PropertyChanged(this, propertyBase, setModified);
+
+        if (propertyBase is IComplexProperty { IsCollection: true } complexProperty
+            && StateManager is StateManager { ChangeDetector: ChangeDetector changeDetector })
+        {
+            // Trigger change detection for complex collections to ensure InternalComplexEntry states are updated
+            changeDetector.DetectComplexCollectionChanges(this, complexProperty);
+        }
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1421,21 +1517,10 @@ public abstract partial class InternalEntryBase : IInternalEntry
         {
             _originalValues.AcceptChanges(this);
 
-            foreach (var complexCollection in StructuralType.GetFlattenedComplexProperties())
+            foreach (var complexCollection in _complexCollectionEntries)
             {
-                if (!complexCollection.IsCollection)
-                {
-                    continue;
-                }
-
-                var originalCapacity = ((IList?)_originalValues.GetValue(this, complexCollection))?.Count ?? 0;
-                _complexCollectionEntries[complexCollection.GetIndex()].EnsureCapacity(originalCapacity, original: true);
+                complexCollection.AcceptChanges();
             }
-        }
-
-        foreach (var complexEntry in GetFlattenedComplexEntries())
-        {
-            complexEntry.AcceptChanges();
         }
 
         switch (currentState)

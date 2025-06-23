@@ -1166,14 +1166,25 @@ namespace TestNamespace
             AssertComplexTypes,
             async c =>
             {
-                c.Set<PrincipalDerived<DependentBase<byte?>>>().Add(
-                    new PrincipalDerived<DependentBase<byte?>>
+                c.Set<PrincipalBase>().Add(
+                    new PrincipalBase
                     {
                         Id = 1,
                         AlternateId = new Guid(),
-                        Dependent = new DependentBase<byte?>(1),
-                        Owned = new OwnedType(c) { Principal = new PrincipalBase() }
+                        Owned = new OwnedType(c) { Details = "details" }
                     });
+
+                if (c.Model.FindEntityType(typeof(PrincipalDerived<DependentBase<byte?>>)) != null)
+                {
+                    c.Set<PrincipalDerived<DependentBase<byte?>>>().Add(
+                        new PrincipalDerived<DependentBase<byte?>>
+                        {
+                            Id = 2,
+                            AlternateId = new Guid(),
+                            Dependent = new DependentBase<byte?>(1),
+                            Owned = new OwnedType(c)
+                        });
+                }
 
                 await c.SaveChangesAsync();
             },
@@ -1303,7 +1314,11 @@ namespace TestNamespace
 
         Assert.Equal(ExpectedComplexTypeProperties, nestedComplexType.GetProperties().Count());
 
-        var principalDerived = model.FindEntityType(typeof(PrincipalDerived<DependentBase<byte?>>))!;
+        var principalDerived = model.FindEntityType(typeof(PrincipalDerived<DependentBase<byte?>>));
+        if (principalDerived == null)
+        {
+            return;
+        }
         Assert.Equal(principalBase, principalDerived.BaseType);
 
         var complexCollection = principalDerived.GetDeclaredComplexProperties().Single();

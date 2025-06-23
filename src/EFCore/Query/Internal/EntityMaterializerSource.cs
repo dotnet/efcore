@@ -4,6 +4,7 @@
 using System.Collections.Concurrent;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal;
 
@@ -18,8 +19,6 @@ public class EntityMaterializerSource : IEntityMaterializerSource
     private static readonly MethodInfo InjectableServiceInjectedMethod
         = typeof(IInjectableService).GetMethod(nameof(IInjectableService.Injected))!;
 
-    private ConcurrentDictionary<IEntityType, Func<MaterializationContext, object>>? _materializers;
-    private ConcurrentDictionary<IEntityType, Func<MaterializationContext, object>>? _emptyMaterializers;
     private readonly List<IInstantiationBindingInterceptor> _bindingInterceptors;
     private readonly IMaterializationInterceptor? _materializationInterceptor;
 
@@ -157,10 +156,12 @@ public class EntityMaterializerSource : IEntityMaterializerSource
                     => serviceProperty.ParameterBinding.BindToParameter(bindingInfo),
 
                 IComplexProperty complexProperty
-                    => CreateMaterializeExpression(
-                        new EntityMaterializerSourceParameters(
-                            complexProperty.ComplexType, "complexType", QueryTrackingBehavior: null),
-                        bindingInfo.MaterializationContextExpression),
+                    => complexProperty.IsCollection
+                        ? Expression.Default(complexProperty.ClrType) // Initialize collections to null, they'll be populated separately
+                        : CreateMaterializeExpression(
+                            new EntityMaterializerSourceParameters(
+                                complexProperty.ComplexType, "complexType", QueryTrackingBehavior: null),
+                            bindingInfo.MaterializationContextExpression),
 
                 _ => throw new UnreachableException()
             };
@@ -488,11 +489,6 @@ public class EntityMaterializerSource : IEntityMaterializerSource
         }
     }
 
-    private ConcurrentDictionary<IEntityType, Func<MaterializationContext, object>> Materializers
-        => LazyInitializer.EnsureInitialized(
-            ref _materializers,
-            () => new ConcurrentDictionary<IEntityType, Func<MaterializationContext, object>>());
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -512,10 +508,23 @@ public class EntityMaterializerSource : IEntityMaterializerSource
             .Compile();
     }
 
-    private ConcurrentDictionary<IEntityType, Func<MaterializationContext, object>> EmptyMaterializers
-        => LazyInitializer.EnsureInitialized(
-            ref _emptyMaterializers,
-            () => new ConcurrentDictionary<IEntityType, Func<MaterializationContext, object>>());
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual Func<MaterializationContext, object> GetMaterializer(IComplexType complexType)
+    {
+        var materializationContextParameter
+            = Expression.Parameter(typeof(MaterializationContext), "materializationContext");
+
+        return Expression.Lambda<Func<MaterializationContext, object>>(
+                ((IEntityMaterializerSource)this).CreateMaterializeExpression(
+                    new EntityMaterializerSourceParameters(complexType, "instance", null), materializationContextParameter),
+                materializationContextParameter)
+            .Compile();
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -536,6 +545,32 @@ public class EntityMaterializerSource : IEntityMaterializerSource
             }
         }
 
+        return GetEmptyMaterializer(entityType, binding, entityType.GetServiceProperties().ToList());
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual Func<MaterializationContext, object> GetEmptyMaterializer(IComplexType complexType)
+    {
+        var binding = complexType.ConstructorBinding;
+        return binding == null
+            ? throw new InvalidOperationException(CoreStrings.NoParameterlessConstructor(complexType.DisplayName()))
+            : GetEmptyMaterializer(complexType, binding, []);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual Func<MaterializationContext, object> GetEmptyMaterializer(
+        ITypeBase entityType, InstantiationBinding binding, List<IServiceProperty> serviceProperties)
+    {
         binding = ModifyBindings(entityType, binding);
 
         var materializationContextExpression = Expression.Parameter(typeof(MaterializationContext), "mc");
@@ -544,7 +579,6 @@ public class EntityMaterializerSource : IEntityMaterializerSource
 
         var blockExpressions = new List<Expression>();
         var instanceVariable = Expression.Variable(binding.RuntimeType, "instance");
-        var serviceProperties = entityType.GetServiceProperties().ToList();
         bindingInfo.ServiceInstances.Add(instanceVariable);
 
         CreateServiceInstances(binding, bindingInfo, blockExpressions, serviceProperties);
