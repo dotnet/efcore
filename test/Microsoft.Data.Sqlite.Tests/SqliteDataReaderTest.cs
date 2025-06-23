@@ -656,14 +656,14 @@ public class SqliteDataReaderTest
             DateTimeKind.Unspecified);
 
     [Fact]
-    public void GetDateTime_works_with_text_with_tz()
+    public void GetDateTime_works_with_text_with_offset()
         => GetX_works(
             "SELECT '2014-04-15 10:47:16+03:00';",
             r => r.GetDateTime(0),
             new DateTime(2014, 4, 15, 7, 47, 16));
 
     [Fact]
-    public void GetDateTime_works_with_text_with_tz_Kind()
+    public void GetDateTime_works_with_text_with_offset_Kind()
         => GetX_works(
             "SELECT '2014-04-15 10:47:16+03:00';",
             r => r.GetDateTime(0).Kind,
@@ -710,14 +710,14 @@ public class SqliteDataReaderTest
         => X_throws_when_non_query(r => r.GetDateTime(0));
 
     [Fact]
-    public void GetDateTimeOffset_works_with_text_no_tz()
+    public void GetDateTimeOffset_works_with_text_no_offset()
         => GetX_works(
             "SELECT '2014-04-15 10:47:16';",
             r => ((SqliteDataReader)r).GetDateTimeOffset(0),
             new DateTimeOffset(2014, 4, 15, 10, 47, 16, TimeSpan.Zero));
 
     [Fact]
-    public void GetDateTimeOffset_works_with_text_no_tz_Offset()
+    public void GetDateTimeOffset_works_with_text_no_offset_Offset()
         => GetX_works(
             "SELECT '2014-04-15 10:47:16';",
             r => ((SqliteDataReader)r).GetDateTimeOffset(0).Offset,
@@ -738,14 +738,14 @@ public class SqliteDataReaderTest
             TimeSpan.Zero);
 
     [Fact]
-    public void GetDateTimeOffset_works_with_text_with_tz()
+    public void GetDateTimeOffset_works_with_text_with_offset()
         => GetX_works(
             "SELECT '2014-04-15 12:47:16+02:00';",
             r => ((SqliteDataReader)r).GetDateTimeOffset(0),
             new DateTimeOffset(2014, 4, 15, 12, 47, 16, TimeSpan.FromHours(2)));
 
     [Fact]
-    public void GetDateTimeOffset_works_with_text_with_tz_Offset()
+    public void GetDateTimeOffset_works_with_text_with_offset_Offset()
         => GetX_works(
             "SELECT '2014-04-15 12:47:16+02:00';",
             r => ((SqliteDataReader)r).GetDateTimeOffset(0).Offset,
