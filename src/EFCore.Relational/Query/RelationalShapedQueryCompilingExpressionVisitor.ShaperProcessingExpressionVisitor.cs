@@ -592,9 +592,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
                             if (_isTracking)
                             {
-                                throw new InvalidOperationException(
-                                    RelationalStrings.JsonEntityOrCollectionProjectedAtRootLevelInTrackingQuery(
-                                        nameof(EntityFrameworkQueryableExtensions.AsNoTracking)));
+                                throw new InvalidOperationException(CoreStrings.OwnedEntitiesCannotBeTrackedWithoutTheirOwner);
                             }
 
                             // json entity at the root
@@ -625,9 +623,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         {
                             if (_isTracking)
                             {
-                                throw new InvalidOperationException(
-                                    RelationalStrings.JsonEntityOrCollectionProjectedAtRootLevelInTrackingQuery(
-                                        nameof(EntityFrameworkQueryableExtensions.AsNoTracking)));
+                                throw new InvalidOperationException(CoreStrings.OwnedEntitiesCannotBeTrackedWithoutTheirOwner);
                             }
 
                             // json entity converted to query root and projected
@@ -732,9 +728,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 {
                     if (_isTracking)
                     {
-                        throw new InvalidOperationException(
-                            RelationalStrings.JsonEntityOrCollectionProjectedAtRootLevelInTrackingQuery(
-                                nameof(EntityFrameworkQueryableExtensions.AsNoTracking)));
+                        throw new InvalidOperationException(CoreStrings.OwnedEntitiesCannotBeTrackedWithoutTheirOwner);
                     }
 
                     // json entity collection at the root
@@ -2822,7 +2816,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 // UPDATE: instead of guessing the type mapping in case where we don't have IProperty and converter uses non-literal constant,
                 // we just revert to the pre-AOT behavior, i.e. we still use converter.ConvertFromProviderExpression
                 // this will not work for precompiled query (which realistically was already broken for this scenario - type mapping we "guess"
-                // is pretty much always wrong), but regular case (not pre-compiled) will continue to work. 
+                // is pretty much always wrong), but regular case (not pre-compiled) will continue to work.
                 if (property != null)
                 {
                     var typeMappingExpression = Call(

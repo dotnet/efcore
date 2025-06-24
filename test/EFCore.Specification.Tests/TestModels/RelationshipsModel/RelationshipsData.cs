@@ -15,14 +15,14 @@ public class RelationshipsData : ISetSource
         WireUp(RootEntities, TrunkEntities, BranchEntities, LeafEntities, wireUpRootToTrunkOnly: false);
     }
 
-    public IReadOnlyList<RelationshipsRootEntity> RootEntities { get; }
-    public IReadOnlyList<RelationshipsTrunkEntity> TrunkEntities { get; }
-    public IReadOnlyList<RelationshipsBranchEntity> BranchEntities { get; }
-    public IReadOnlyList<RelationshipsLeafEntity> LeafEntities { get; }
+    public IReadOnlyList<RelationshipsRoot> RootEntities { get; }
+    public IReadOnlyList<RelationshipsTrunk> TrunkEntities { get; }
+    public IReadOnlyList<RelationshipsBranch> BranchEntities { get; }
+    public IReadOnlyList<RelationshipsLeaf> LeafEntities { get; }
 
-    public static IReadOnlyList<RelationshipsRootEntity> CreateRootEntitiesWithOwnerships()
+    public static IReadOnlyList<RelationshipsRoot> CreateRootEntitiesWithOwnerships()
     {
-        var roots = new List<RelationshipsRootEntity>();
+        var roots = new List<RelationshipsRoot>();
         for (var i = 0; i < 16; i++)
         {
             roots.Add(BuildRootEntity(i));
@@ -31,9 +31,9 @@ public class RelationshipsData : ISetSource
         return roots;
     }
 
-    public static IReadOnlyList<RelationshipsTrunkEntity> CreateTrunkEntitiesWithOwnerships()
+    public static IReadOnlyList<RelationshipsTrunk> CreateTrunkEntitiesWithOwnerships()
     {
-        var trunks = new List<RelationshipsTrunkEntity>();
+        var trunks = new List<RelationshipsTrunk>();
         for (var i = 0; i < 16; i++)
         {
             trunks.Add(BuildTrunkEntity(i));
@@ -42,16 +42,16 @@ public class RelationshipsData : ISetSource
         return trunks;
     }
 
-    private static RelationshipsRootEntity BuildRootEntity(int i)
+    private static RelationshipsRoot BuildRootEntity(int i)
     {
-        var root = new RelationshipsRootEntity { Id = i + 1, Name = "Root " + (i + 1) };
+        var root = new RelationshipsRoot { Id = i + 1, Name = "Root " + (i + 1) };
         root.RequiredReferenceTrunk = BuildTrunkEntity(15 - i);
         if (i < 8)
         {
             root.OptionalReferenceTrunk = BuildTrunkEntity(i);
         }
 
-        root.CollectionTrunk = new List<RelationshipsTrunkEntity>();
+        root.CollectionTrunk = new List<RelationshipsTrunk>();
         if (i % 4 == 0)
         {
             root.CollectionTrunk.Add(BuildTrunkEntity(i + 1));
@@ -65,9 +65,9 @@ public class RelationshipsData : ISetSource
         return root;
     }
 
-    private static RelationshipsTrunkEntity BuildTrunkEntity(int i)
+    private static RelationshipsTrunk BuildTrunkEntity(int i)
     {
-        var trunk = new RelationshipsTrunkEntity { Id = i + 1, Name = "Trunk " + (i + 1) };
+        var trunk = new RelationshipsTrunk { Id = i + 1, Name = "Trunk " + (i + 1) };
         trunk.RequiredReferenceBranch = BuildBranchEntity(15 - i);
 
         if (i % 8 < 4)
@@ -75,7 +75,7 @@ public class RelationshipsData : ISetSource
             trunk.OptionalReferenceBranch = BuildBranchEntity(i);
         }
 
-        trunk.CollectionBranch = new List<RelationshipsBranchEntity>();
+        trunk.CollectionBranch = new List<RelationshipsBranch>();
         if (i % 4 == 0)
         {
             trunk.CollectionBranch.Add(BuildBranchEntity(i + 1));
@@ -89,9 +89,9 @@ public class RelationshipsData : ISetSource
         return trunk;
     }
 
-    private static RelationshipsBranchEntity BuildBranchEntity(int i)
+    private static RelationshipsBranch BuildBranchEntity(int i)
     {
-        var branch = new RelationshipsBranchEntity { Id = i + 1, Name = "Branch " + (i + 1) };
+        var branch = new RelationshipsBranch { Id = i + 1, Name = "Branch " + (i + 1) };
         branch.RequiredReferenceLeaf = BuildLeafEntity(15 - i);
 
         if (i % 4 < 2)
@@ -99,7 +99,7 @@ public class RelationshipsData : ISetSource
             branch.OptionalReferenceLeaf = BuildLeafEntity(i);
         }
 
-        branch.CollectionLeaf = new List<RelationshipsLeafEntity>();
+        branch.CollectionLeaf = new List<RelationshipsLeaf>();
         if (i % 4 == 0)
         {
             branch.CollectionLeaf.Add(BuildLeafEntity(i + 1));
@@ -113,56 +113,56 @@ public class RelationshipsData : ISetSource
         return branch;
     }
 
-    private static RelationshipsLeafEntity BuildLeafEntity(int i)
-        => new RelationshipsLeafEntity { Id = i + 1, Name = "Leaf " + (i + 1) };
+    private static RelationshipsLeaf BuildLeafEntity(int i)
+        => new RelationshipsLeaf { Id = i + 1, Name = "Leaf " + (i + 1) };
 
-    public static IReadOnlyList<RelationshipsRootEntity> CreateRootEntities()
+    public static IReadOnlyList<RelationshipsRoot> CreateRootEntities()
     {
-        var roots = new List<RelationshipsRootEntity>();
+        var roots = new List<RelationshipsRoot>();
 
         var id = 0;
         for (var i = 0; i < 16; i++)
         {
-            roots.Add(new RelationshipsRootEntity { Id = ++id, Name = "Root " + id });
+            roots.Add(new RelationshipsRoot { Id = ++id, Name = "Root " + id });
         }
 
         return roots;
     }
 
-    public static IReadOnlyList<RelationshipsTrunkEntity> CreateTrunkEntities()
+    public static IReadOnlyList<RelationshipsTrunk> CreateTrunkEntities()
     {
-        var trunks = new List<RelationshipsTrunkEntity>();
+        var trunks = new List<RelationshipsTrunk>();
 
         var id = 0;
         for (var i = 0; i < 16; i++)
         {
-            trunks.Add(new RelationshipsTrunkEntity { Id = ++id, Name = "Trunk " + id });
+            trunks.Add(new RelationshipsTrunk { Id = ++id, Name = "Trunk " + id });
         }
 
         return trunks;
     }
 
-    public static IReadOnlyList<RelationshipsBranchEntity> CreateBranchEntities()
+    public static IReadOnlyList<RelationshipsBranch> CreateBranchEntities()
     {
-        var branches = new List<RelationshipsBranchEntity>();
+        var branches = new List<RelationshipsBranch>();
 
         var id = 0;
         for (var i = 0; i < 16; i++)
         {
-            branches.Add(new RelationshipsBranchEntity { Id = ++id, Name = "Branch " + id });
+            branches.Add(new RelationshipsBranch { Id = ++id, Name = "Branch " + id });
         }
 
         return branches;
     }
 
-    public static IReadOnlyList<RelationshipsLeafEntity> CreateLeafEntities()
+    public static IReadOnlyList<RelationshipsLeaf> CreateLeafEntities()
     {
-        var leaves = new List<RelationshipsLeafEntity>();
+        var leaves = new List<RelationshipsLeaf>();
 
         var id = 0;
         for (var i = 0; i < 16; i++)
         {
-            leaves.Add(new RelationshipsLeafEntity { Id = ++id, Name = "Leaf " + id });
+            leaves.Add(new RelationshipsLeaf { Id = ++id, Name = "Leaf " + id });
         }
 
         return leaves;
@@ -170,10 +170,10 @@ public class RelationshipsData : ISetSource
 
 
     public static void WireUp(
-        IReadOnlyList<RelationshipsRootEntity> rootEntities,
-        IReadOnlyList<RelationshipsTrunkEntity> trunkEntities,
-        IReadOnlyList<RelationshipsBranchEntity> branchEntities,
-        IReadOnlyList<RelationshipsLeafEntity> leafEntities,
+        IReadOnlyList<RelationshipsRoot> rootEntities,
+        IReadOnlyList<RelationshipsTrunk> trunkEntities,
+        IReadOnlyList<RelationshipsBranch> branchEntities,
+        IReadOnlyList<RelationshipsLeaf> leafEntities,
         bool wireUpRootToTrunkOnly)
     {
         for (int i = 0; i < 16; i++)
@@ -193,7 +193,7 @@ public class RelationshipsData : ISetSource
                 leafEntities[15 - i].RequiredReferenceInverseBranch = branchEntities[i];
             }
 
-            rootEntities[i].CollectionTrunk = new List<RelationshipsTrunkEntity>();
+            rootEntities[i].CollectionTrunk = new List<RelationshipsTrunk>();
 
             if (i < 8)
             {
@@ -218,8 +218,8 @@ public class RelationshipsData : ISetSource
                     leafEntities[i].OptionalReferenceInverseBranch = branchEntities[i];
                 }
 
-                trunkEntities[i].CollectionBranch = new List<RelationshipsBranchEntity>();
-                branchEntities[i].CollectionLeaf = new List<RelationshipsLeafEntity>();
+                trunkEntities[i].CollectionBranch = new List<RelationshipsBranch>();
+                branchEntities[i].CollectionLeaf = new List<RelationshipsLeaf>();
             }
 
             if (i % 4 == 0)
@@ -287,22 +287,22 @@ public class RelationshipsData : ISetSource
     public IQueryable<TEntity> Set<TEntity>()
         where TEntity : class
     {
-        if (typeof(TEntity) == typeof(RelationshipsRootEntity))
+        if (typeof(TEntity) == typeof(RelationshipsRoot))
         {
             return (IQueryable<TEntity>)RootEntities.AsQueryable();
         }
 
-        if (typeof(TEntity) == typeof(RelationshipsTrunkEntity))
+        if (typeof(TEntity) == typeof(RelationshipsTrunk))
         {
             return (IQueryable<TEntity>)TrunkEntities.AsQueryable();
         }
 
-        if (typeof(TEntity) == typeof(RelationshipsBranchEntity))
+        if (typeof(TEntity) == typeof(RelationshipsBranch))
         {
             return (IQueryable<TEntity>)BranchEntities.AsQueryable();
         }
 
-        if (typeof(TEntity) == typeof(RelationshipsLeafEntity))
+        if (typeof(TEntity) == typeof(RelationshipsLeaf))
         {
             return (IQueryable<TEntity>)LeafEntities.AsQueryable();
         }
