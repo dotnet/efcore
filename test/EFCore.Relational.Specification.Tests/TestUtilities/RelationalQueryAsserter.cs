@@ -74,6 +74,7 @@ public class RelationalQueryAsserter(
         bool assertOrder,
         bool assertEmpty,
         bool async,
+        QueryTrackingBehavior? queryTrackingBehavior,
         string testMethodName,
         bool filteredQuery = false)
     {
@@ -81,7 +82,7 @@ public class RelationalQueryAsserter(
         try
         {
             await base.AssertQuery(
-                actualQuery, expectedQuery, elementSorter, elementAsserter, assertOrder, assertEmpty, async, testMethodName, filteredQuery);
+                actualQuery, expectedQuery, elementSorter, elementAsserter, assertOrder, assertEmpty, async, queryTrackingBehavior, testMethodName, filteredQuery);
             outputSql = false;
         }
         finally
