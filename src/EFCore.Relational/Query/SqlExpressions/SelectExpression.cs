@@ -925,8 +925,8 @@ public sealed partial class SelectExpression : TableExpressionBase
                             var actualParentIdentifier = _identifier.Take(outerSelectExpression._identifier.Count).ToList();
                             for (var j = 0; j < actualParentIdentifier.Count; j++)
                             {
-                                AppendOrdering(new OrderingExpression(actualParentIdentifier[j].Column, ascending: true));
-                                outerSelectExpression.AppendOrdering(
+                                AppendOrderingInternal(new OrderingExpression(actualParentIdentifier[j].Column, ascending: true));
+                                outerSelectExpression.AppendOrderingInternal(
                                     new OrderingExpression(outerSelectExpression._identifier[j].Column, ascending: true));
                             }
 
@@ -1232,64 +1232,73 @@ public sealed partial class SelectExpression : TableExpressionBase
                 {
                     var constantValue = ((ConstantExpression)innerSelectExpression._clientProjections[j]).Value!;
                     ConstantExpression remappedConstant;
-                    if (constantValue is Dictionary<IProperty, int> entityDictionary)
+                    switch (((ConstantExpression)innerSelectExpression._clientProjections[j]).Value!)
                     {
-                        var newDictionary = new Dictionary<IProperty, int>(entityDictionary.Count);
-                        foreach (var (property, value) in entityDictionary)
+                        case Dictionary<IProperty, int> entityDictionary:
                         {
-                            newDictionary[property] = projectionIndexMap[value];
+                            var newDictionary = new Dictionary<IProperty, int>(entityDictionary.Count);
+                            foreach (var (property, value) in entityDictionary)
+                            {
+                                newDictionary[property] = projectionIndexMap[value];
+                            }
+
+                            remappedConstant = Constant(newDictionary);
+                            break;
                         }
 
-                        remappedConstant = Constant(newDictionary);
-                    }
-                    else if (constantValue is JsonProjectionInfo jsonProjectionInfo)
-                    {
-                        var newKeyAccessInfo = new List<(IProperty?, int?, int?)>();
-                        foreach (var (keyProperty, constantKeyValue, keyProjectionIndex) in jsonProjectionInfo.KeyAccessInfo)
-                        {
-                            newKeyAccessInfo.Add(
-                                (keyProperty, constantKeyValue,
-                                    keyProjectionIndex != null ? projectionIndexMap[keyProjectionIndex.Value] : null));
-                        }
-
-                        remappedConstant = Constant(
-                            new JsonProjectionInfo(
-                                projectionIndexMap[jsonProjectionInfo.JsonColumnIndex],
-                                newKeyAccessInfo));
-                    }
-                    else if (constantValue is QueryableJsonProjectionInfo queryableJsonProjectionInfo)
-                    {
-                        var newPropertyIndexMap = new Dictionary<IProperty, int>(queryableJsonProjectionInfo.PropertyIndexMap.Count);
-                        foreach (var (property, value) in queryableJsonProjectionInfo.PropertyIndexMap)
-                        {
-                            newPropertyIndexMap[property] = projectionIndexMap[value];
-                        }
-
-                        var newChildrenProjectionInfo = new List<(JsonProjectionInfo, INavigation)>();
-                        foreach (var childProjectionInfo in queryableJsonProjectionInfo.ChildrenProjectionInfo)
+                        case JsonProjectionInfo jsonProjectionInfo:
                         {
                             var newKeyAccessInfo = new List<(IProperty?, int?, int?)>();
-                            foreach (var (keyProperty, constantKeyValue, keyProjectionIndex) in childProjectionInfo.JsonProjectionInfo
-                                         .KeyAccessInfo)
+                            foreach (var (keyProperty, constantKeyValue, keyProjectionIndex) in jsonProjectionInfo.KeyAccessInfo)
                             {
                                 newKeyAccessInfo.Add(
                                     (keyProperty, constantKeyValue,
                                         keyProjectionIndex != null ? projectionIndexMap[keyProjectionIndex.Value] : null));
                             }
 
-                            newChildrenProjectionInfo.Add(
-                                (new JsonProjectionInfo(
-                                        projectionIndexMap[childProjectionInfo.JsonProjectionInfo.JsonColumnIndex],
-                                        newKeyAccessInfo),
-                                    childProjectionInfo.Navigation));
+                            remappedConstant = Constant(
+                                new JsonProjectionInfo(
+                                    projectionIndexMap[jsonProjectionInfo.JsonColumnIndex],
+                                    newKeyAccessInfo));
+                            break;
                         }
 
-                        remappedConstant = Constant(
-                            new QueryableJsonProjectionInfo(newPropertyIndexMap, newChildrenProjectionInfo));
-                    }
-                    else
-                    {
-                        remappedConstant = Constant(projectionIndexMap[(int)constantValue]);
+                        case QueryableJsonProjectionInfo queryableJsonProjectionInfo:
+                        {
+                            var newPropertyIndexMap = new Dictionary<IProperty, int>(queryableJsonProjectionInfo.PropertyIndexMap.Count);
+                            foreach (var (property, value) in queryableJsonProjectionInfo.PropertyIndexMap)
+                            {
+                                newPropertyIndexMap[property] = projectionIndexMap[value];
+                            }
+
+                            var newChildrenProjectionInfo = new List<(JsonProjectionInfo, INavigation)>();
+                            foreach (var childProjectionInfo in queryableJsonProjectionInfo.ChildrenProjectionInfo)
+                            {
+                                var newKeyAccessInfo = new List<(IProperty?, int?, int?)>();
+                                foreach (var (keyProperty, constantKeyValue, keyProjectionIndex) in childProjectionInfo.JsonProjectionInfo
+                                            .KeyAccessInfo)
+                                {
+                                    newKeyAccessInfo.Add(
+                                        (keyProperty, constantKeyValue,
+                                            keyProjectionIndex != null ? projectionIndexMap[keyProjectionIndex.Value] : null));
+                                }
+
+                                newChildrenProjectionInfo.Add(
+                                    (new JsonProjectionInfo(
+                                            projectionIndexMap[childProjectionInfo.JsonProjectionInfo.JsonColumnIndex],
+                                            newKeyAccessInfo),
+                                        childProjectionInfo.Navigation));
+                            }
+
+                            remappedConstant = Constant(
+                                new QueryableJsonProjectionInfo(newPropertyIndexMap, newChildrenProjectionInfo));
+
+                            break;
+                        }
+
+                        default:
+                            remappedConstant = Constant(projectionIndexMap[(int)constantValue]);
+                            break;
                     }
 
                     newClientProjections.Add(remappedConstant);
@@ -1865,6 +1874,11 @@ public sealed partial class SelectExpression : TableExpressionBase
     /// <param name="orderingExpression">An ordering expression to use for ordering.</param>
     public void ApplyOrdering(OrderingExpression orderingExpression)
     {
+        if (Limit is SqlConstantExpression { Value: 1 })
+        {
+            return;
+        }
+
         if (IsDistinct
             || Limit != null
             || Offset != null)
@@ -1882,14 +1896,21 @@ public sealed partial class SelectExpression : TableExpressionBase
     /// <param name="orderingExpression">An ordering expression to use for ordering.</param>
     public void AppendOrdering(OrderingExpression orderingExpression)
     {
-        if (!_orderings.Any(o => o.Expression.Equals(orderingExpression.Expression)))
+        if (Limit is SqlConstantExpression { Value: 1 })
         {
-            AppendOrderingInternal(orderingExpression);
+            return;
         }
+
+        AppendOrderingInternal(orderingExpression);
     }
 
     private void AppendOrderingInternal(OrderingExpression orderingExpression)
-        => _orderings.Add(orderingExpression.Update(orderingExpression.Expression));
+    {
+        if (!_orderings.Any(o => o.Expression.Equals(orderingExpression.Expression)))
+        {
+            _orderings.Add(orderingExpression);
+        }
+    }
 
     /// <summary>
     ///     Reverses the existing orderings on the <see cref="SelectExpression" />.
@@ -2378,20 +2399,25 @@ public sealed partial class SelectExpression : TableExpressionBase
         _tables.Add(dummySelectExpression);
         _tables.Add(joinTable);
 
+        // Go over all projected columns and make them nullable; for non-nullable value types, add a SQL COALESCE as well.
         var projectionMapping = new Dictionary<ProjectionMember, Expression>();
-        foreach (var projection in _projectionMapping)
+        foreach (var (projectionMember, projection) in _projectionMapping)
         {
-            var projectionToAdd = projection.Value;
-            if (projectionToAdd is StructuralTypeProjectionExpression typeProjection)
+            var newProjection = projection switch
             {
-                projectionToAdd = typeProjection.MakeNullable();
-            }
-            else if (projectionToAdd is ColumnExpression column)
+                StructuralTypeProjectionExpression p => p.MakeNullable(),
+                ColumnExpression column => column.MakeNullable(),
+                var p => p
+            };
+
+            if (newProjection is SqlExpression { Type: var type } newSqlProjection && !type.IsNullableType())
             {
-                projectionToAdd = column.MakeNullable();
+                newProjection = sqlExpressionFactory.Coalesce(
+                    newSqlProjection,
+                    sqlExpressionFactory.Constant(type.GetDefaultValue(), type));
             }
 
-            projectionMapping[projection.Key] = projectionToAdd;
+            projectionMapping[projectionMember] = newProjection;
         }
 
         // ChildIdentifiers shouldn't be required to be updated since during translation they should be empty.
@@ -4031,26 +4057,26 @@ public sealed partial class SelectExpression : TableExpressionBase
         string tableAlias,
         bool nullable)
         => new(
-            column,
+            column.Name,
             tableAlias,
+            column,
             property.ClrType.UnwrapNullableType(),
             column.PropertyMappings.First(m => m.Property == property).TypeMapping,
-            nullable);
+            nullable || column.IsNullable);
 
     private static ColumnExpression CreateColumnExpression(ProjectionExpression subqueryProjection, string tableAlias)
-        => subqueryProjection.Expression is ColumnExpression { Column: IColumnBase column, TypeMapping: RelationalTypeMapping typeMapping } columnExpression
-            ? new(column, tableAlias, columnExpression.Type, typeMapping, columnExpression.IsNullable)
-            : new(
-                subqueryProjection.Alias,
-                tableAlias,
-                subqueryProjection.Type,
-                subqueryProjection.Expression.TypeMapping!,
-                subqueryProjection.Expression switch
-                {
-                    ColumnExpression c => c.IsNullable,
-                    SqlConstantExpression c => c.Value is null,
-                    _ => true
-                });
+        => new(
+            subqueryProjection.Alias,
+            tableAlias,
+            column: subqueryProjection.Expression is ColumnExpression { Column: IColumnBase column } ? column : null,
+            subqueryProjection.Type,
+            subqueryProjection.Expression.TypeMapping!,
+            subqueryProjection.Expression switch
+            {
+                ColumnExpression c => c.IsNullable,
+                SqlConstantExpression c => c.Value is null,
+                _ => true
+            });
 
     private ColumnExpression GenerateOuterColumn(
         string tableAlias,

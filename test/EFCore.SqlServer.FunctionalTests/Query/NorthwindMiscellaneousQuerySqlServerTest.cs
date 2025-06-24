@@ -378,9 +378,9 @@ ORDER BY (
 """);
     }
 
-    public override async Task Default_if_empty_top_level(bool async)
+    public override async Task DefaultIfEmpty_top_level(bool async)
     {
-        await base.Default_if_empty_top_level(async);
+        await base.DefaultIfEmpty_top_level(async);
 
         AssertSql(
             """
@@ -396,9 +396,9 @@ LEFT JOIN (
 """);
     }
 
-    public override async Task Join_with_default_if_empty_on_both_sources(bool async)
+    public override async Task Join_with_DefaultIfEmpty_on_both_sources(bool async)
     {
-        await base.Join_with_default_if_empty_on_both_sources(async);
+        await base.Join_with_DefaultIfEmpty_on_both_sources(async);
 
         AssertSql(
             """
@@ -425,9 +425,9 @@ INNER JOIN (
 """);
     }
 
-    public override async Task Default_if_empty_top_level_followed_by_projecting_constant(bool async)
+    public override async Task DefaultIfEmpty_top_level_followed_by_constant_Select(bool async)
     {
-        await base.Default_if_empty_top_level_followed_by_projecting_constant(async);
+        await base.DefaultIfEmpty_top_level_followed_by_constant_Select(async);
 
         AssertSql(
             """
@@ -443,9 +443,27 @@ LEFT JOIN (
 """);
     }
 
-    public override async Task Default_if_empty_top_level_positive(bool async)
+    public override async Task DefaultIfEmpty_top_level_preceded_by_constant_Select(bool async)
     {
-        await base.Default_if_empty_top_level_positive(async);
+        await base.DefaultIfEmpty_top_level_preceded_by_constant_Select(async);
+
+        AssertSql(
+            """
+SELECT [e1].[c]
+FROM (
+    SELECT 1 AS empty
+) AS [e0]
+LEFT JOIN (
+    SELECT N'Foo' AS [c]
+    FROM [Employees] AS [e]
+    WHERE [e].[EmployeeID] = -1
+) AS [e1] ON 1 = 1
+""");
+    }
+
+    public override async Task DefaultIfEmpty_top_level_positive(bool async)
+    {
+        await base.DefaultIfEmpty_top_level_positive(async);
 
         AssertSql(
             """
@@ -461,9 +479,9 @@ LEFT JOIN (
 """);
     }
 
-    public override async Task Default_if_empty_top_level_projection(bool async)
+    public override async Task DefaultIfEmpty_top_level_projection(bool async)
     {
-        await base.Default_if_empty_top_level_projection(async);
+        await base.DefaultIfEmpty_top_level_projection(async);
 
         AssertSql(
             """
@@ -6794,16 +6812,16 @@ FROM [Orders] AS [o]
         AssertSql();
     }
 
-    public override async Task Default_if_empty_top_level_arg(bool async)
+    public override async Task DefaultIfEmpty_top_level_arg(bool async)
     {
-        await base.Default_if_empty_top_level_arg(async);
+        await base.DefaultIfEmpty_top_level_arg(async);
 
         AssertSql();
     }
 
-    public override async Task Default_if_empty_top_level_arg_followed_by_projecting_constant(bool async)
+    public override async Task DefaultIfEmpty_top_level_arg_followed_by_projecting_constant(bool async)
     {
-        await base.Default_if_empty_top_level_arg_followed_by_projecting_constant(async);
+        await base.DefaultIfEmpty_top_level_arg_followed_by_projecting_constant(async);
 
         AssertSql();
     }

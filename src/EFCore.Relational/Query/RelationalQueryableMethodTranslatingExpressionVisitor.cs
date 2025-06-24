@@ -1162,6 +1162,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         private ParameterExpression? _outerParameter;
         private bool _correlated;
         private bool _defaultIfEmpty;
+        private bool _canLiftDefaultIfEmpty;
 
         public (LambdaExpression, bool, bool) IsCorrelated(LambdaExpression lambdaExpression)
         {
@@ -1170,6 +1171,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
 
             _correlated = false;
             _defaultIfEmpty = false;
+            _canLiftDefaultIfEmpty = true;
             _outerParameter = lambdaExpression.Parameters[0];
 
             var result = Visit(lambdaExpression.Body);
@@ -1189,14 +1191,83 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
-            if (methodCallExpression.Method.IsGenericMethod
+            if (_canLiftDefaultIfEmpty
+                && methodCallExpression.Method.IsGenericMethod
                 && methodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.DefaultIfEmptyWithoutArgument)
             {
                 _defaultIfEmpty = true;
                 return Visit(methodCallExpression.Arguments[0]);
             }
 
-            return base.VisitMethodCall(methodCallExpression);
+            if (!SupportsLiftingDefaultIfEmpty(methodCallExpression.Method))
+            {
+                // Set state to indicate that any DefaultIfEmpty encountered below this operator cannot be lifted out, since
+                // doing so would change meaning.
+                // For example, with blogs.SelectMany(b => b.Posts.DefaultIfEmpty().Select(p => p.Id)) we can lift
+                // the DIE out, translating the SelectMany as a LEFT JOIN (or OUTER APPLY).
+                // But with blogs.SelectMany(b => b.Posts.DefaultIfEmpty().Where(p => p.Id > 3)), we can't do that since that
+                // what result in different results.
+                _canLiftDefaultIfEmpty = false;
+            }
+
+            if (methodCallExpression.Arguments.Count == 0)
+            {
+                return base.VisitMethodCall(methodCallExpression);
+            }
+
+            // We need to visit the method call as usual, but the first argument - the source (other operators we're composed over) -
+            // needs to be handled differently. For the purpose of lifting DefaultIfEmpty, we can only do so for DIE at the top-level
+            // operator chain, and not some DIE embedded in e.g. the lambda argument of a Where clause. So we visit the source first,
+            // and then set _canLiftDefaultIfEmpty to false to avoid lifting any DIEs encountered there (see e.g. #33343).
+            // Note: we assume that the first argument is the source.
+            var newObject = Visit(methodCallExpression.Object);
+
+            var arguments = methodCallExpression.Arguments;
+            Expression[]? newArguments = null;
+
+            var newSource = Visit(arguments[0]);
+            if (!ReferenceEquals(newSource, arguments[0]))
+            {
+                newArguments = new Expression[arguments.Count];
+                newArguments[0] = newSource;
+            }
+
+            var previousCanLiftDefaultIfEmpty = _canLiftDefaultIfEmpty;
+            _canLiftDefaultIfEmpty = false;
+
+            for (var i = 1; i < arguments.Count; i++)
+            {
+                var newArgument = Visit(arguments[i]);
+
+                if (newArguments is not null)
+                {
+                    newArguments[i] = newArgument;
+                }
+                else if (!ReferenceEquals(newArgument, arguments[i]))
+                {
+                    newArguments = new Expression[arguments.Count];
+                    newArguments[0] = newSource;
+
+                    for (var j = 1; j < i; j++)
+                    {
+                        newArguments[j] = arguments[j];
+                    }
+
+                    newArguments[i] = newArgument;
+                }
+            }
+
+            _canLiftDefaultIfEmpty = previousCanLiftDefaultIfEmpty;
+
+            return methodCallExpression.Update(newObject, newArguments ?? (IEnumerable<Expression>)arguments);
+
+            static bool SupportsLiftingDefaultIfEmpty(MethodInfo methodInfo)
+                => methodInfo.IsGenericMethod
+                   && methodInfo.GetGenericMethodDefinition() is var definition
+                   && (definition == QueryableMethods.Select
+                       || definition == QueryableMethods.OrderBy
+                       || definition == QueryableMethods.OrderByDescending
+                       || definition == QueryableMethods.Reverse);
         }
     }
 
