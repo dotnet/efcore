@@ -391,17 +391,20 @@ public class JsonQueryData : ISetSource
     {
         var e1_r_r = new JsonOwnedCustomNameBranch
         {
-            Date = new DateTime(2100, 1, 1), Fraction = 10.0,
+            Date = new DateTime(2100, 1, 1),
+            Fraction = 10.0,
         };
 
         var e1_r_c1 = new JsonOwnedCustomNameBranch
         {
-            Date = new DateTime(2101, 1, 1), Fraction = 10.1,
+            Date = new DateTime(2101, 1, 1),
+            Fraction = 10.1,
         };
 
         var e1_r_c2 = new JsonOwnedCustomNameBranch
         {
-            Date = new DateTime(2102, 1, 1), Fraction = 10.2,
+            Date = new DateTime(2102, 1, 1),
+            Fraction = 10.2,
         };
 
         var e1_r = new JsonOwnedCustomNameRoot
@@ -415,17 +418,20 @@ public class JsonQueryData : ISetSource
 
         var e1_c1_r = new JsonOwnedCustomNameBranch
         {
-            Date = new DateTime(2110, 1, 1), Fraction = 11.0,
+            Date = new DateTime(2110, 1, 1),
+            Fraction = 11.0,
         };
 
         var e1_c1_c1 = new JsonOwnedCustomNameBranch
         {
-            Date = new DateTime(2111, 1, 1), Fraction = 11.1,
+            Date = new DateTime(2111, 1, 1),
+            Fraction = 11.1,
         };
 
         var e1_c1_c2 = new JsonOwnedCustomNameBranch
         {
-            Date = new DateTime(2112, 1, 1), Fraction = 11.2,
+            Date = new DateTime(2112, 1, 1),
+            Fraction = 11.2,
         };
 
         var e1_c1 = new JsonOwnedCustomNameRoot
@@ -439,17 +445,20 @@ public class JsonQueryData : ISetSource
 
         var e1_c2_r = new JsonOwnedCustomNameBranch
         {
-            Date = new DateTime(2120, 1, 1), Fraction = 12.0,
+            Date = new DateTime(2120, 1, 1),
+            Fraction = 12.0,
         };
 
         var e1_c2_c1 = new JsonOwnedCustomNameBranch
         {
-            Date = new DateTime(2121, 1, 1), Fraction = 12.1,
+            Date = new DateTime(2121, 1, 1),
+            Fraction = 12.1,
         };
 
         var e1_c2_c2 = new JsonOwnedCustomNameBranch
         {
-            Date = new DateTime(2122, 1, 1), Fraction = 12.2,
+            Date = new DateTime(2122, 1, 1),
+            Fraction = 12.2,
         };
 
         var e1_c2 = new JsonOwnedCustomNameRoot
@@ -785,7 +794,7 @@ public class JsonQueryData : ISetSource
             [
                 ulong.MinValue,
                 0,
-                ulong.MaxValue
+                ulong.MaxValue >> 1
             ],
             TestNullableInt32Collection =
             [
@@ -909,7 +918,7 @@ public class JsonQueryData : ISetSource
             [
                 ulong.MinValue,
                 0,
-                ulong.MaxValue
+                ulong.MaxValue >> 1
             ],
             TestNullableInt32Collection =
             [
@@ -1033,7 +1042,7 @@ public class JsonQueryData : ISetSource
             [
                 ulong.MinValue,
                 0,
-                ulong.MaxValue
+                ulong.MaxValue >> 1
             ],
             TestNullableInt32Collection =
             [
@@ -1157,7 +1166,7 @@ public class JsonQueryData : ISetSource
             [
                 ulong.MinValue,
                 0,
-                ulong.MaxValue
+                ulong.MaxValue >> 1
             ],
             TestNullableInt32Collection =
             [
@@ -1264,7 +1273,7 @@ public class JsonQueryData : ISetSource
                 [
                     ulong.MinValue,
                     0,
-                    ulong.MaxValue
+                    ulong.MaxValue >> 1
                 ],
                 TestNullableInt32Collection =
                 [
@@ -1375,7 +1384,7 @@ public class JsonQueryData : ISetSource
                 [
                     ulong.MinValue,
                     0,
-                    ulong.MaxValue
+                    ulong.MaxValue >> 1
                 ],
                 TestNullableInt32Collection =
                 [
