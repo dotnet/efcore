@@ -11,6 +11,9 @@ namespace Microsoft.Data.Sqlite
     // TODO: Make generic
     internal abstract class SqliteValueBinder(object? value, SqliteType? sqliteType)
     {
+        private static readonly bool Pre10TimeZoneHandling =
+            AppContext.TryGetSwitch("Microsoft.Data.Sqlite.Pre10TimeZoneHandling", out var enabled) && enabled;
+
         protected SqliteValueBinder(object? value)
             : this(value, null)
         {
@@ -94,7 +97,10 @@ namespace Microsoft.Data.Sqlite
                 var dateTimeOffset = (DateTimeOffset)value;
                 if (sqliteType == SqliteType.Real)
                 {
-                    var value = ToJulianDate(dateTimeOffset.DateTime);
+                    // Before .NET 10, handling DateTimeOffset ignored offset and wrote incorrect value into database.
+                    var value = Pre10TimeZoneHandling
+                        ? ToJulianDate(dateTimeOffset.DateTime)
+                        : ToJulianDate(dateTimeOffset.ToUniversalTime().DateTime);
                     BindDouble(value);
                 }
                 else

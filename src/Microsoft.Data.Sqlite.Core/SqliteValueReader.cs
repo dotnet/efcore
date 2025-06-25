@@ -11,6 +11,9 @@ namespace Microsoft.Data.Sqlite
 {
     internal abstract class SqliteValueReader
     {
+        private static readonly bool Pre10TimeZoneHandling =
+            AppContext.TryGetSwitch("Microsoft.Data.Sqlite.Pre10TimeZoneHandling", out var enabled) && enabled;
+
         public abstract int FieldCount { get; }
 
         protected abstract int GetSqliteType(int ordinal);
@@ -49,7 +52,18 @@ namespace Microsoft.Data.Sqlite
                     return FromJulianDate(GetDouble(ordinal));
 
                 default:
-                    return DateTime.Parse(GetString(ordinal), CultureInfo.InvariantCulture);
+                {
+                    var value = DateTime.Parse(GetString(ordinal), CultureInfo.InvariantCulture);
+                    return Pre10TimeZoneHandling
+                        ? value
+                        // For .NET 10 and later, when parsing DateTime with offset, Local Kind is set.
+                        // We convert it to Universal, for consistency.
+                        : value.Kind switch
+                        {
+                            DateTimeKind.Local => value.ToUniversalTime(),
+                            _ => value,
+                        };
+                }
             }
         }
 
@@ -60,10 +74,23 @@ namespace Microsoft.Data.Sqlite
             {
                 case SQLITE_FLOAT:
                 case SQLITE_INTEGER:
-                    return new DateTimeOffset(FromJulianDate(GetDouble(ordinal)));
+                {
+                    var value = FromJulianDate(GetDouble(ordinal));
+                    // Before .NET 10, for DateTimeOffset the offset was set incorrectly.
+                    return Pre10TimeZoneHandling
+                        ? new DateTimeOffset(value)
+                        : new DateTimeOffset(value, TimeSpan.Zero);
+                }
 
                 default:
-                    return DateTimeOffset.Parse(GetString(ordinal), CultureInfo.InvariantCulture);
+                {
+                    var value = GetString(ordinal);
+                    // Before .NET 10, DateTimeOffset, when without offset, incorrectly did not assume UTC,
+                    // which is what it is for SQLite.
+                    return Pre10TimeZoneHandling
+                        ? DateTimeOffset.Parse(value, CultureInfo.InvariantCulture)
+                        : DateTimeOffset.Parse(value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
+                }
             }
         }
 
