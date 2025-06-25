@@ -262,8 +262,6 @@ extends:
                   # We need to set this env var to publish helix results to Azure Dev Ops
                   SYSTEM_ACCESSTOKEN: $(System.AccessToken)
                   MSSQL_SA_PASSWORD: "PLACEHOLDER"
-                  # Work-around for https://github.com/dotnet/runtime/issues/70758
-                  COMPlus_EnableWriteXorExecute: 0
                   DotNetBuildsInternalReadSasToken: $(dotnetbuilds-internal-container-read-token)
     - ${{ if notin(variables['Build.Reason'], 'PullRequest') }}:
       - template: /eng/common/templates-official/post-build/post-build.yml@self

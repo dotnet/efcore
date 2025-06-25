@@ -169,5 +169,4 @@ stages:
                   HelixAccessToken: $(_HelixAccessToken)
                   SYSTEM_ACCESSTOKEN: $(System.AccessToken) # We need to set this env var to publish helix results to Azure Dev Ops
                   MSSQL_SA_PASSWORD: "PLACEHOLDER"
-                  COMPlus_EnableWriteXorExecute: 0 # Work-around for https://github.com/dotnet/runtime/issues/70758
                   DotNetBuildsInternalReadSasToken: $(dotnetbuilds-internal-container-read-token)
