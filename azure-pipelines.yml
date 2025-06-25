@@ -230,7 +230,7 @@ extends:
               - name: _HelixBuildConfig
                 value: $(_BuildConfig)
               - name: HelixTargetQueues
-                value: Windows.10.Amd64;OSX.13.Amd64;OSX.13.ARM64;Ubuntu.2204.Amd64@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-20.04-helix-sqlserver-amd64
+                value: Windows.10.Amd64;OSX.13.Amd64;OSX.13.ARM64;Ubuntu.2204.Amd64@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-22.04-helix-sqlserver-amd64
               - name: _HelixAccessToken
                 # Needed for internal queues
                 value: $(HelixApiAccessToken)
@@ -261,7 +261,7 @@ extends:
                   HelixAccessToken: $(_HelixAccessToken)
                   # We need to set this env var to publish helix results to Azure Dev Ops
                   SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-                  MSSQL_SA_PASSWORD: "PLACEHOLDER"
+                  MSSQL_SA_PASSWORD: "Pa$$w0rd"
                   # Work-around for https://github.com/dotnet/runtime/issues/70758
                   COMPlus_EnableWriteXorExecute: 0
                   DotNetBuildsInternalReadSasToken: $(dotnetbuilds-internal-container-read-token)
