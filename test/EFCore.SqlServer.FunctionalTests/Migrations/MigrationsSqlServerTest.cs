@@ -247,7 +247,7 @@ IF SERVERPROPERTY('IsXTPSupported') = 1 AND SERVERPROPERTY('EngineEdition') <> 5
 
         IF @fg_name IS NULL
             BEGIN
-            SET @fg_name = @db_name + N'_MODFG';
+            SET @fg_name = QUOTENAME(@db_name + N'_MODFG');
             EXEC(N'ALTER DATABASE CURRENT ADD FILEGROUP ' + @fg_name + ' CONTAINS MEMORY_OPTIMIZED_DATA;');
             END
 
@@ -313,7 +313,7 @@ IF SERVERPROPERTY('IsXTPSupported') = 1 AND SERVERPROPERTY('EngineEdition') <> 5
 
         IF @fg_name IS NULL
             BEGIN
-            SET @fg_name = @db_name + N'_MODFG';
+            SET @fg_name = QUOTENAME(@db_name + N'_MODFG');
             EXEC(N'ALTER DATABASE CURRENT ADD FILEGROUP ' + @fg_name + ' CONTAINS MEMORY_OPTIMIZED_DATA;');
             END
 
