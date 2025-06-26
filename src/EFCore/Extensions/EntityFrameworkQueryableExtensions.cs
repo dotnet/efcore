@@ -349,14 +349,14 @@ public static class EntityFrameworkQueryableExtensions
     ///     <paramref name="source" /> is <see langword="null" />.
     /// </exception>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
-    public static Task<TSource> ElementAtOrDefaultAsync<TSource>(
+    public static Task<TSource?> ElementAtOrDefaultAsync<TSource>(
         this IQueryable<TSource> source,
         int index,
         CancellationToken cancellationToken = default)
     {
         Check.NotNull(index);
 
-        return ExecuteAsync<TSource, Task<TSource>>(
+        return ExecuteAsync<TSource, Task<TSource?>>(
             QueryableMethods.ElementAtOrDefault, source, Expression.Constant(index), cancellationToken);
     }
 
