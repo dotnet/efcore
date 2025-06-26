@@ -70,7 +70,7 @@ public class RelationalCommandCache : IPrintableExpression
             {
                 if (!_memoryCache.TryGetValue(cacheKey, out relationalCommandTemplate))
                 {
-                    var queryExpression = _relationalParameterBasedSqlProcessor.Optimize(
+                    var queryExpression = _relationalParameterBasedSqlProcessor.Process(
                         _queryExpression, parameters, out var canCache);
                     relationalCommandTemplate = _querySqlGeneratorFactory.Create().GetCommand(queryExpression);
 

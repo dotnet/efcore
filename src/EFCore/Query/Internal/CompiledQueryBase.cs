@@ -67,9 +67,10 @@ public abstract class CompiledQueryBase<TContext, TResult>
 
         queryContext.CancellationToken = cancellationToken;
 
+        var queryParameters = queryContext.Parameters;
         for (var i = 0; i < parameters.Length; i++)
         {
-            queryContext.AddParameter(_queryExpression.Parameters[i + 1].Name!, parameters[i]);
+            queryParameters.Add(_queryExpression.Parameters[i + 1].Name!, parameters[i]);
         }
 
         return _executor.Executor(queryContext);

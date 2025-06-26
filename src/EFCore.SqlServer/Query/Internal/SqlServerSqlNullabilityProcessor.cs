@@ -53,9 +53,9 @@ public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override Expression Process(Expression queryExpression, Dictionary<string, object?> parameterValues, out bool canCache)
+    public override Expression Process(Expression queryExpression, CacheSafeParameterFacade parametersFacade)
     {
-        var result = base.Process(queryExpression, parameterValues, out canCache);
+        var result = base.Process(queryExpression, parametersFacade);
         _openJsonAliasCounter = 0;
         return result;
     }
@@ -291,8 +291,9 @@ public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
         out List<SqlExpression>? constantsResult,
         out bool? containsNulls)
     {
-        DoNotCache();
-        var values = ((IEnumerable?)ParameterValues[valuesParameter.Name])?.Cast<object>().ToList() ?? [];
+        var parameters = ParametersFacade.GetParametersAndDisableSqlCaching();
+        var values = ((IEnumerable?)parameters[valuesParameter.Name])?.Cast<object>().ToList() ?? [];
+
         // SQL Server has limit on number of parameters in a query.
         // If we're over that limit, we switch to using single parameter
         // and processing it through JSON functions.

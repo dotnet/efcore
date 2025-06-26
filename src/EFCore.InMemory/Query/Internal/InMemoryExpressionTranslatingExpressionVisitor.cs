@@ -1216,7 +1216,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
 
     [UsedImplicitly]
     private static T GetParameterValue<T>(QueryContext queryContext, string parameterName)
-        => (T)queryContext.ParameterValues[parameterName]!;
+        => (T)queryContext.Parameters[parameterName]!;
 
     private static bool IsConvertedToNullable(Expression result, Expression original)
         => result.Type.IsNullableType()
@@ -1480,7 +1480,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
 
     private static T? ParameterValueExtractor<T>(QueryContext context, string baseParameterName, IProperty property)
     {
-        var baseParameter = context.ParameterValues[baseParameterName];
+        var baseParameter = context.Parameters[baseParameterName];
         return baseParameter == null ? (T?)(object?)null : (T?)property.GetGetter().GetClrValue(baseParameter);
     }
 
@@ -1489,7 +1489,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
         string baseParameterName,
         IProperty property)
     {
-        if (!(context.ParameterValues[baseParameterName] is IEnumerable<TEntity> baseListParameter))
+        if (!(context.Parameters[baseParameterName] is IEnumerable<TEntity> baseListParameter))
         {
             return null;
         }
