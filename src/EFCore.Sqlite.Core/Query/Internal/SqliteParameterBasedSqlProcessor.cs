@@ -32,7 +32,7 @@ public class SqliteParameterBasedSqlProcessor : RelationalParameterBasedSqlProce
     /// </summary>
     protected override Expression ProcessSqlNullability(
         Expression queryExpression,
-        IReadOnlyDictionary<string, object?> parametersValues,
+        Dictionary<string, object?> parametersValues,
         out bool canCache)
         => new SqliteSqlNullabilityProcessor(Dependencies, Parameters).Process(queryExpression, parametersValues, out canCache);
 }

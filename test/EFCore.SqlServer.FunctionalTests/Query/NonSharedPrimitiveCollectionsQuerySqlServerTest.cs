@@ -10,16 +10,9 @@ using static Expression;
 
 public class NonSharedPrimitiveCollectionsQuerySqlServerTest(NonSharedFixture fixture) : NonSharedPrimitiveCollectionsQueryRelationalTestBase(fixture)
 {
-    protected override DbContextOptionsBuilder SetTranslateParameterizedCollectionsToConstants(DbContextOptionsBuilder optionsBuilder)
+    protected override DbContextOptionsBuilder SetParameterizedCollectionMode(DbContextOptionsBuilder optionsBuilder, ParameterizedCollectionMode parameterizedCollectionMode)
     {
-        new SqlServerDbContextOptionsBuilder(optionsBuilder).TranslateParameterizedCollectionsToConstants();
-
-        return optionsBuilder;
-    }
-
-    protected override DbContextOptionsBuilder SetTranslateParameterizedCollectionsToParameters(DbContextOptionsBuilder optionsBuilder)
-    {
-        new SqlServerDbContextOptionsBuilder(optionsBuilder).TranslateParameterizedCollectionsToParameters();
+        new SqlServerDbContextOptionsBuilder(optionsBuilder).UseParameterizedCollectionMode(parameterizedCollectionMode);
 
         return optionsBuilder;
     }
@@ -807,9 +800,9 @@ WHERE (
 """);
     }
 
-    public override async Task Parameter_collection_of_ints_Contains_int_with_default_constants()
+    public override async Task Parameter_collection_Contains_with_default_constants()
     {
-        await base.Parameter_collection_of_ints_Contains_int_with_default_constants();
+        await base.Parameter_collection_Contains_with_default_constants();
 
         AssertSql(
             """
@@ -836,9 +829,9 @@ WHERE (
 """);
     }
 
-    public override async Task Parameter_collection_of_ints_Contains_int_with_default_constants_EF_Parameter()
+    public override async Task Parameter_collection_Contains_with_default_constants_EF_Parameter()
     {
-        await base.Parameter_collection_of_ints_Contains_int_with_default_constants_EF_Parameter();
+        await base.Parameter_collection_Contains_with_default_constants_EF_Parameter();
 
         AssertSql(
             """
@@ -853,9 +846,9 @@ WHERE [t].[Id] IN (
 """);
     }
 
-    public override async Task Parameter_collection_Count_with_column_predicate_with_default_parameters()
+    public override async Task Parameter_collection_Count_with_column_predicate_with_default_parameter()
     {
-        await base.Parameter_collection_Count_with_column_predicate_with_default_parameters();
+        await base.Parameter_collection_Count_with_column_predicate_with_default_parameter();
 
         AssertSql(
             """
@@ -870,9 +863,9 @@ WHERE (
 """);
     }
 
-    public override async Task Parameter_collection_of_ints_Contains_int_with_default_parameters()
+    public override async Task Parameter_collection_Contains_with_default_parameter()
     {
-        await base.Parameter_collection_of_ints_Contains_int_with_default_parameters();
+        await base.Parameter_collection_Contains_with_default_parameter();
 
         AssertSql(
             """
@@ -887,9 +880,9 @@ WHERE [t].[Id] IN (
 """);
     }
 
-    public override async Task Parameter_collection_Count_with_column_predicate_with_default_parameters_EF_Constant()
+    public override async Task Parameter_collection_Count_with_column_predicate_with_default_parameter_EF_Constant()
     {
-        await base.Parameter_collection_Count_with_column_predicate_with_default_parameters_EF_Constant();
+        await base.Parameter_collection_Count_with_column_predicate_with_default_parameter_EF_Constant();
 
         AssertSql(
             """
@@ -902,15 +895,48 @@ WHERE (
 """);
     }
 
-    public override async Task Parameter_collection_of_ints_Contains_int_with_default_parameters_EF_Constant()
+    public override async Task Parameter_collection_Contains_with_default_parameter_EF_Constant()
     {
-        await base.Parameter_collection_of_ints_Contains_int_with_default_parameters_EF_Constant();
+        await base.Parameter_collection_Contains_with_default_parameter_EF_Constant();
 
         AssertSql(
             """
 SELECT [t].[Id]
 FROM [TestEntity] AS [t]
 WHERE [t].[Id] IN (2, 999)
+""");
+    }
+
+    public override async Task Parameter_collection_Count_with_column_predicate_with_default_multiple_parameters()
+    {
+        await base.Parameter_collection_Count_with_column_predicate_with_default_multiple_parameters();
+
+        AssertSql(
+            """
+@ids1='2'
+@ids2='999'
+
+SELECT [t].[Id]
+FROM [TestEntity] AS [t]
+WHERE (
+    SELECT COUNT(*)
+    FROM (VALUES (@ids1), (@ids2)) AS [i]([Value])
+    WHERE [i].[Value] > [t].[Id]) = 1
+""");
+    }
+
+    public override async Task Parameter_collection_Contains_with_default_multiple_parameters()
+    {
+        await base.Parameter_collection_Contains_with_default_multiple_parameters();
+
+        AssertSql(
+            """
+@ints1='2'
+@ints2='999'
+
+SELECT [t].[Id]
+FROM [TestEntity] AS [t]
+WHERE [t].[Id] IN (@ints1, @ints2)
 """);
     }
 
@@ -938,18 +964,14 @@ WHERE [t].[Id] IN (2, 999)
 
         AssertSql(
             """
-@dateTimes='["2020-01-01T12:30:00","2020-01-02T12:30:00"]' (Size = 4000)
-@dateTimes0='["2020-01-01T12:30:00","2020-01-02T12:30:00"]' (Size = 4000)
+@dateTimes1='2020-01-01T12:30:00.0000000' (DbType = DateTime)
+@dateTimes2='2020-01-02T12:30:00.0000000' (DbType = DateTime)
+@dateTimes3='2020-01-01T12:30:00.0000000'
+@dateTimes4='2020-01-02T12:30:00.0000000'
 
 SELECT [t].[Id], [t].[DateTime], [t].[DateTime2], [t].[Ints]
 FROM [TestEntity] AS [t]
-WHERE [t].[DateTime] IN (
-    SELECT [d].[value]
-    FROM OPENJSON(@dateTimes) WITH ([value] datetime '$') AS [d]
-) AND [t].[DateTime2] IN (
-    SELECT [d0].[value]
-    FROM OPENJSON(@dateTimes0) WITH ([value] datetime2 '$') AS [d0]
-)
+WHERE [t].[DateTime] IN (@dateTimes1, @dateTimes2) AND [t].[DateTime2] IN (@dateTimes3, @dateTimes4)
 """);
     }
 
@@ -969,14 +991,16 @@ WHERE [t].[DateTime] IN (
 
         AssertSql(
             """
-@dateTimes='["2020-01-01T12:30:00","2020-01-02T12:30:00",null]' (Size = 4000)
+@dateTimes1='2020-01-01T12:30:00.0000000'
+@dateTimes2='2020-01-02T12:30:00.0000000'
+@dateTimes3=NULL (DbType = DateTime2)
 
 SELECT [t].[Id], [t].[DateTime], [t].[Ints]
 FROM [TestEntity] AS [t]
 WHERE EXISTS (
     SELECT 1
-    FROM OPENJSON(@dateTimes) WITH ([value] datetime2 '$') AS [d]
-    WHERE [d].[value] = [t].[DateTime] AND [d].[value] IS NOT NULL)
+    FROM (VALUES (@dateTimes1), (@dateTimes2), (@dateTimes3)) AS [d]([Value])
+    WHERE [d].[Value] = [t].[DateTime] AND [d].[Value] IS NOT NULL)
 """);
     }
 
@@ -996,7 +1020,7 @@ WHERE EXISTS (
                 .Where(
                     m => dateTimes.Any(d => d == EF.Property<DateTime>(m, "DateTime") && d != null))
                 .ToArrayAsync());
-        Assert.Equal(RelationalStrings.ConflictingTypeMappingsInferredForColumn("value"), exception.Message);
+        Assert.Equal(RelationalStrings.ConflictingTypeMappingsInferredForColumn("Value"), exception.Message);
     }
 
     [ConditionalFact]
@@ -1020,7 +1044,7 @@ WHERE EXISTS (
                     m => dateTimes
                         .Any(d => d == EF.Property<DateTime>(m, "DateTime") && d == EF.Property<DateTime>(m, "DateTime2")))
                 .ToArrayAsync());
-        Assert.Equal(RelationalStrings.ConflictingTypeMappingsInferredForColumn("value"), exception.Message);
+        Assert.Equal(RelationalStrings.ConflictingTypeMappingsInferredForColumn("Value"), exception.Message);
     }
 
     [ConditionalFact]

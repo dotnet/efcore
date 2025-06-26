@@ -2180,7 +2180,9 @@ ORDER BY [o].[OrderID]
 
         AssertSql(
             """
-@filteredOrderIds='[10248,10249,10250]' (Size = 4000)
+@filteredOrderIds1='10248'
+@filteredOrderIds2='10249'
+@filteredOrderIds3='10250'
 
 SELECT [s].[CustomerID], [o1].[CustomerID], [o1].[OrderID], [o1].[OrderDate]
 FROM (
@@ -2191,10 +2193,7 @@ FROM (
 OUTER APPLY (
     SELECT [s].[CustomerID], [o0].[OrderID], [o0].[OrderDate]
     FROM [Orders] AS [o0]
-    WHERE [s].[CustomerID] IS NOT NULL AND [s].[CustomerID] = [o0].[CustomerID] AND [o0].[OrderID] IN (
-        SELECT [f].[value]
-        FROM OPENJSON(@filteredOrderIds) WITH ([value] int '$') AS [f]
-    )
+    WHERE [s].[CustomerID] IS NOT NULL AND [s].[CustomerID] = [o0].[CustomerID] AND [o0].[OrderID] IN (@filteredOrderIds1, @filteredOrderIds2, @filteredOrderIds3)
 ) AS [o1]
 ORDER BY [s].[CustomerID], [o1].[OrderID]
 """);
@@ -2206,7 +2205,9 @@ ORDER BY [s].[CustomerID], [o1].[OrderID]
 
         AssertSql(
             """
-@filteredOrderIds='[10248,10249,10250]' (Size = 4000)
+@filteredOrderIds1='10248'
+@filteredOrderIds2='10249'
+@filteredOrderIds3='10250'
 
 SELECT [o0].[OrderID], [o0].[Complex], [o2].[Outer], [o2].[Inner], [o2].[OrderDate]
 FROM (
@@ -2216,10 +2217,7 @@ FROM (
 OUTER APPLY (
     SELECT [o0].[OrderID] AS [Outer], [o1].[OrderID] AS [Inner], [o1].[OrderDate]
     FROM [Orders] AS [o1]
-    WHERE [o1].[OrderID] = [o0].[OrderID] AND [o1].[OrderID] IN (
-        SELECT [f].[value]
-        FROM OPENJSON(@filteredOrderIds) WITH ([value] int '$') AS [f]
-    )
+    WHERE [o1].[OrderID] = [o0].[OrderID] AND [o1].[OrderID] IN (@filteredOrderIds1, @filteredOrderIds2, @filteredOrderIds3)
 ) AS [o2]
 ORDER BY [o0].[OrderID]
 """);
@@ -2231,7 +2229,9 @@ ORDER BY [o0].[OrderID]
 
         AssertSql(
             """
-@filteredOrderIds='[10248,10249,10250]' (Size = 4000)
+@filteredOrderIds1='10248'
+@filteredOrderIds2='10249'
+@filteredOrderIds3='10250'
 
 SELECT [o0].[OrderDate], [o0].[CustomerID], [o2].[Outer1], [o2].[Outer2], [o2].[Inner], [o2].[OrderDate]
 FROM (
@@ -2241,10 +2241,7 @@ FROM (
 OUTER APPLY (
     SELECT [o0].[OrderDate] AS [Outer1], [o0].[CustomerID] AS [Outer2], [o1].[OrderID] AS [Inner], [o1].[OrderDate]
     FROM [Orders] AS [o1]
-    WHERE ([o1].[CustomerID] = [o0].[CustomerID] OR ([o1].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL)) AND [o1].[OrderID] IN (
-        SELECT [f].[value]
-        FROM OPENJSON(@filteredOrderIds) WITH ([value] int '$') AS [f]
-    )
+    WHERE ([o1].[CustomerID] = [o0].[CustomerID] OR ([o1].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL)) AND [o1].[OrderID] IN (@filteredOrderIds1, @filteredOrderIds2, @filteredOrderIds3)
 ) AS [o2]
 ORDER BY [o0].[OrderDate], [o0].[CustomerID]
 """);
@@ -2268,7 +2265,9 @@ ORDER BY [o0].[OrderDate], [o0].[CustomerID]
 
         AssertSql(
             """
-@filteredOrderIds='[10248,10249,10250]' (Size = 4000)
+@filteredOrderIds1='10248'
+@filteredOrderIds2='10249'
+@filteredOrderIds3='10250'
 
 SELECT [o2].[OrderID], [o2].[Complex], [o3].[Outer], [o3].[Inner], [o3].[OrderDate]
 FROM (
@@ -2282,10 +2281,7 @@ FROM (
 OUTER APPLY (
     SELECT [o2].[OrderID] AS [Outer], [o1].[OrderID] AS [Inner], [o1].[OrderDate]
     FROM [Orders] AS [o1]
-    WHERE [o1].[OrderID] = [o2].[OrderID] AND [o1].[OrderID] IN (
-        SELECT [f].[value]
-        FROM OPENJSON(@filteredOrderIds) WITH ([value] int '$') AS [f]
-    )
+    WHERE [o1].[OrderID] = [o2].[OrderID] AND [o1].[OrderID] IN (@filteredOrderIds1, @filteredOrderIds2, @filteredOrderIds3)
 ) AS [o3]
 ORDER BY [o2].[OrderID]
 """);
@@ -2708,7 +2704,9 @@ FROM [Customers] AS [c]
 
         AssertSql(
             """
-@filteredOrderIds='[10248,10249,10250]' (Size = 4000)
+@filteredOrderIds1='10248'
+@filteredOrderIds2='10249'
+@filteredOrderIds3='10250'
 
 SELECT [o2].[CustomerID], [o2].[Complex], [o3].[Outer], [o3].[Inner], [o3].[OrderDate]
 FROM (
@@ -2722,10 +2720,7 @@ FROM (
 OUTER APPLY (
     SELECT [o2].[CustomerID] AS [Outer], [o1].[OrderID] AS [Inner], [o1].[OrderDate]
     FROM [Orders] AS [o1]
-    WHERE ([o1].[CustomerID] = [o2].[CustomerID] OR ([o1].[CustomerID] IS NULL AND [o2].[CustomerID] IS NULL)) AND [o1].[OrderID] IN (
-        SELECT [f].[value]
-        FROM OPENJSON(@filteredOrderIds) WITH ([value] int '$') AS [f]
-    )
+    WHERE ([o1].[CustomerID] = [o2].[CustomerID] OR ([o1].[CustomerID] IS NULL AND [o2].[CustomerID] IS NULL)) AND [o1].[OrderID] IN (@filteredOrderIds1, @filteredOrderIds2, @filteredOrderIds3)
 ) AS [o3]
 ORDER BY [o2].[CustomerID], [o2].[Complex]
 """);

@@ -1800,14 +1800,13 @@ WHERE (
 
         AssertSql(
             """
-@ids='[1,2,3]' (Size = 4000)
+@ids1='1'
+@ids2='2'
+@ids3='3'
 
 SELECT [b].[Id], [b].[Name], [b].[Json]
 FROM [Blogs] AS [b]
-WHERE [b].[Id] IN (
-    SELECT [i].[value]
-    FROM OPENJSON(@ids) WITH ([value] int '$') AS [i]
-)
+WHERE [b].[Id] IN (@ids1, @ids2, @ids3)
 """);
     }
 

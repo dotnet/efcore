@@ -334,36 +334,69 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
         Expression index,
         bool returnDefault)
     {
-        // TODO: Make sure we want to actually transform to JSON_VALUE, #30981
-        if (!returnDefault
-            && source.QueryExpression is SelectExpression
-            {
-                Tables: [SqlServerOpenJsonExpression { Arguments: [var jsonArrayColumn] } openJsonExpression],
-                Predicate: null,
-                GroupBy: [],
-                Having: null,
-                IsDistinct: false,
-                Limit: null,
-                Offset: null,
-                // We can only apply the indexing if the JSON array is ordered by its natural ordered, i.e. by the "key" column that
-                // we created in TranslateCollection. For example, if another ordering has been applied (e.g. by the JSON elements
-                // themselves), we can no longer simply index into the original array.
-                Orderings:
-                [
-                    {
-                        Expression: SqlUnaryExpression
-                        {
-                            OperatorType: ExpressionType.Convert,
-                            Operand: ColumnExpression { Name: "key", TableAlias: var orderingTableAlias }
-                        }
-                    }
-                ]
-            } selectExpression
-            && TranslateExpression(index) is { } translatedIndex
-            && orderingTableAlias == openJsonExpression.Alias)
+        if (!returnDefault)
         {
-            // Index on JSON array
+            switch (source.QueryExpression)
+            {
+                // index on parameter using a column
+                // translate via JSON because it is a better translation
+                case SelectExpression
+                {
+                    Tables: [ValuesExpression { ValuesParameter: { } valuesParameter }],
+                    Predicate: null,
+                    GroupBy: [],
+                    Having: null,
+                    IsDistinct: false,
+#pragma warning disable EF1001
+                    Orderings: [{ Expression: ColumnExpression { Name: ValuesOrderingColumnName }, IsAscending: true }],
+#pragma warning restore EF1001
+                    Limit: null,
+                    Offset: null
+                } selectExpression
+                when TranslateExpression(index) is { } translatedIndex
+                    && _sqlServerSingletonOptions.SupportsJsonFunctions
+                    && TryTranslate(selectExpression, valuesParameter, translatedIndex, out var result):
+                    return result;
 
+                // Index on JSON array
+                case SelectExpression
+                {
+                    Tables: [SqlServerOpenJsonExpression { Arguments: [var jsonArrayColumn] } openJsonExpression],
+                    Predicate: null,
+                    GroupBy: [],
+                    Having: null,
+                    IsDistinct: false,
+                    Limit: null,
+                    Offset: null,
+                    // We can only apply the indexing if the JSON array is ordered by its natural ordered, i.e. by the "key" column that
+                    // we created in TranslateCollection. For example, if another ordering has been applied (e.g. by the JSON elements
+                    // themselves), we can no longer simply index into the original array.
+                    Orderings:
+                    [
+                        {
+                            Expression: SqlUnaryExpression
+                            {
+                                OperatorType: ExpressionType.Convert,
+                                Operand: ColumnExpression { Name: "key", TableAlias: var orderingTableAlias }
+                            }
+                        }
+                    ]
+                } selectExpression
+                when orderingTableAlias == openJsonExpression.Alias
+                    && TranslateExpression(index) is { } translatedIndex
+                    && TryTranslate(selectExpression, jsonArrayColumn, translatedIndex, out var result):
+                    return result;
+            }
+        }
+
+        return base.TranslateElementAtOrDefault(source, index, returnDefault);
+
+        bool TryTranslate(
+            SelectExpression selectExpression,
+            SqlExpression jsonArrayColumn,
+            SqlExpression translatedIndex,
+            [NotNullWhen(true)] out ShapedQueryExpression? result)
+        {
             // Extract the column projected out of the source, and simplify the subquery to a simple JsonScalarExpression
             var shaperExpression = source.ShaperExpression;
             if (shaperExpression is UnaryExpression { NodeType: ExpressionType.Convert } unaryExpression
@@ -402,14 +435,15 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                         projectionColumn.IsNullable);
 
 #pragma warning disable EF1001
-                    return source.UpdateQueryExpression(
-                        new SelectExpression(translation, _queryCompilationContext.SqlAliasManager));
+                    result = source.UpdateQueryExpression(new SelectExpression(translation, _queryCompilationContext.SqlAliasManager));
 #pragma warning restore EF1001
+                    return true;
                 }
             }
-        }
 
-        return base.TranslateElementAtOrDefault(source, index, returnDefault);
+            result = default;
+            return false;
+        }
     }
 
     /// <summary>

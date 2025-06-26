@@ -642,6 +642,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, keyValue, table);
 
         /// <summary>
+        ///     The EF.MultipoleParameters&lt;T&gt; method may only be used within Entity Framework LINQ queries.
+        /// </summary>
+        public static string EFMultipleParametersInvoked
+            => GetString("EFMultipleParametersInvoked");
+
+        /// <summary>
         ///     Empty collections are not supported as inline query roots.
         /// </summary>
         public static string EmptyCollectionNotSupportedAsInlineQueryRoot
