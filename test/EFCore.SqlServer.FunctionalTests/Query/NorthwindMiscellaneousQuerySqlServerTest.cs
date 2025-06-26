@@ -485,7 +485,7 @@ LEFT JOIN (
 
         AssertSql(
             """
-SELECT COALESCE([e1].[EmployeeID], 0)
+SELECT ISNULL([e1].[EmployeeID], 0)
 FROM (
     SELECT 1 AS empty
 ) AS [e0]
@@ -1167,7 +1167,7 @@ OFFSET @p ROWS FETCH NEXT @p0 ROWS ONLY
 @p='10'
 @p0='5'
 
-SELECT COALESCE([c].[ContactName], N'') + N' ' + COALESCE([c].[ContactTitle], N'') AS [Contact], [o].[OrderID]
+SELECT ISNULL(CAST([c].[ContactName] AS nvarchar(4000)), N'') + N' ' + ISNULL([c].[ContactTitle], N'') AS [Contact], [o].[OrderID]
 FROM [Customers] AS [c]
 INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 ORDER BY [o].[OrderID]
@@ -2835,7 +2835,7 @@ CROSS JOIN [Customers] AS [c0]
             """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-ORDER BY COALESCE([c].[Region], N'ZZ'), [c].[CustomerID]
+ORDER BY ISNULL(CAST([c].[Region] AS nvarchar(4000)), N'ZZ'), [c].[CustomerID]
 """);
     }
 
@@ -2891,7 +2891,35 @@ FROM [Employees] AS [e]
 
         AssertSql(
             """
-SELECT COALESCE([c].[Region], N'no region specified')
+SELECT ISNULL(CAST([c].[Region] AS nvarchar(4000)), N'no region specified')
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]
+""");
+    }
+
+    public override async Task Coalesce_Correct_TypeMapping_String_Sum(bool async)
+    {
+        await base.Coalesce_Correct_TypeMapping_String_Sum(async);
+
+        AssertSql(
+            """
+SELECT ISNULL(CAST(CASE
+    WHEN [c].[Region] IS NOT NULL THEN N'R' + [c].[Region]
+END AS nvarchar(max)), N'no region specified')
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]
+""");
+    }
+
+    public override async Task Coalesce_Correct_TypeMapping_String_Join(bool async)
+    {
+        await base.Coalesce_Correct_TypeMapping_String_Join(async);
+
+        AssertSql(
+            """
+SELECT ISNULL(CAST(CASE
+    WHEN [c].[Region] IS NOT NULL THEN CONCAT_WS(N'|', N'R', [c].[Region])
+END AS nvarchar(max)), N'no region specified')
 FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID]
 """);
@@ -2955,7 +2983,7 @@ END
 
         AssertSql(
             """
-SELECT [c].[CustomerID], [c].[CompanyName], COALESCE([c].[Region], N'ZZ') AS [Region]
+SELECT [c].[CustomerID], [c].[CompanyName], ISNULL(CAST([c].[Region] AS nvarchar(4000)), N'ZZ') AS [Region]
 FROM [Customers] AS [c]
 """);
     }
@@ -2968,7 +2996,7 @@ FROM [Customers] AS [c]
             """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE COALESCE([c].[ContactName], [c].[CompanyName]) = N'Liz Nixon'
+WHERE ISNULL(CAST([c].[ContactName] AS nvarchar(4000)), [c].[CompanyName]) = N'Liz Nixon'
 """);
     }
 
@@ -2985,9 +3013,9 @@ SELECT DISTINCT [c1].[CustomerID], [c1].[Address], [c1].[City], [c1].[CompanyNam
 FROM (
     SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
     FROM (
-        SELECT TOP(@p) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], COALESCE([c].[Region], N'ZZ') AS [c]
+        SELECT TOP(@p) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], ISNULL(CAST([c].[Region] AS nvarchar(4000)), N'ZZ') AS [c]
         FROM [Customers] AS [c]
-        ORDER BY COALESCE([c].[Region], N'ZZ')
+        ORDER BY ISNULL(CAST([c].[Region] AS nvarchar(4000)), N'ZZ')
     ) AS [c0]
     ORDER BY [c0].[c]
     OFFSET @p0 ROWS
@@ -3013,11 +3041,11 @@ FROM (
 @p='10'
 @p0='5'
 
-SELECT [c0].[CustomerID], [c0].[CompanyName], COALESCE([c0].[Region], N'ZZ') AS [Region]
+SELECT [c0].[CustomerID], [c0].[CompanyName], ISNULL(CAST([c0].[Region] AS nvarchar(4000)), N'ZZ') AS [Region]
 FROM (
-    SELECT TOP(@p) [c].[CustomerID], [c].[CompanyName], [c].[Region], COALESCE([c].[Region], N'ZZ') AS [c]
+    SELECT TOP(@p) [c].[CustomerID], [c].[CompanyName], [c].[Region], ISNULL(CAST([c].[Region] AS nvarchar(4000)), N'ZZ') AS [c]
     FROM [Customers] AS [c]
-    ORDER BY COALESCE([c].[Region], N'ZZ')
+    ORDER BY ISNULL(CAST([c].[Region] AS nvarchar(4000)), N'ZZ')
 ) AS [c0]
 ORDER BY [c0].[c]
 OFFSET @p0 ROWS
@@ -3035,9 +3063,9 @@ OFFSET @p0 ROWS
 
 SELECT [c0].[CustomerID], [c0].[CompanyName], [c0].[Region]
 FROM (
-    SELECT TOP(@p) [c].[CustomerID], [c].[CompanyName], [c].[Region], COALESCE([c].[Region], N'ZZ') AS [c]
+    SELECT TOP(@p) [c].[CustomerID], [c].[CompanyName], [c].[Region], ISNULL(CAST([c].[Region] AS nvarchar(4000)), N'ZZ') AS [c]
     FROM [Customers] AS [c]
-    ORDER BY COALESCE([c].[Region], N'ZZ')
+    ORDER BY ISNULL(CAST([c].[Region] AS nvarchar(4000)), N'ZZ')
 ) AS [c0]
 ORDER BY [c0].[c]
 OFFSET @p0 ROWS
@@ -3055,9 +3083,9 @@ OFFSET @p0 ROWS
 
 SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
 FROM (
-    SELECT TOP(@p) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], COALESCE([c].[Region], N'ZZ') AS [c]
+    SELECT TOP(@p) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], ISNULL(CAST([c].[Region] AS nvarchar(4000)), N'ZZ') AS [c]
     FROM [Customers] AS [c]
-    ORDER BY COALESCE([c].[Region], N'ZZ')
+    ORDER BY ISNULL(CAST([c].[Region] AS nvarchar(4000)), N'ZZ')
 ) AS [c0]
 ORDER BY [c0].[c]
 OFFSET @p0 ROWS
@@ -3072,7 +3100,7 @@ OFFSET @p0 ROWS
             """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-ORDER BY COALESCE([c].[Region], N'ZZ')
+ORDER BY ISNULL(CAST([c].[Region] AS nvarchar(4000)), N'ZZ')
 """);
     }
 
@@ -3097,7 +3125,7 @@ WHERE [c].[CustomerID] LIKE @NewLine_contains ESCAPE N'\'
 
         AssertSql(
             """
-SELECT CAST([o].[OrderID] AS nvarchar(max)) + COALESCE([o].[CustomerID], N'')
+SELECT CAST([o].[OrderID] AS nvarchar(max)) + ISNULL([o].[CustomerID], N'')
 FROM [Orders] AS [o]
 """);
     }
@@ -3108,7 +3136,7 @@ FROM [Orders] AS [o]
 
         AssertSql(
             """
-SELECT COALESCE([o].[CustomerID], N'') + CAST([o].[OrderID] AS nvarchar(max))
+SELECT ISNULL([o].[CustomerID], N'') + CAST([o].[OrderID] AS nvarchar(max))
 FROM [Orders] AS [o]
 """);
     }
@@ -3143,7 +3171,7 @@ FROM [Orders] AS [o]
 
         AssertSql(
             """
-SELECT COALESCE([o].[CustomerID], N'') + N' ' + COALESCE([c].[City], N'')
+SELECT ISNULL([o].[CustomerID], N'') + N' ' + ISNULL(CAST([c].[City] AS nvarchar(4000)), N'')
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 """);
@@ -3155,7 +3183,7 @@ LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 
         AssertSql(
             """
-SELECT COALESCE([c].[City], N'') + N' ' + COALESCE([c].[City], N'')
+SELECT ISNULL(CAST([c].[City] AS nvarchar(4000)), N'') + N' ' + ISNULL(CAST([c].[City] AS nvarchar(4000)), N'')
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 """);
@@ -3293,7 +3321,7 @@ ORDER BY (
             """
 SELECT [o].[CustomerID]
 FROM [Orders] AS [o]
-WHERE [o].[OrderDate] IS NOT NULL AND COALESCE(CONVERT(varchar(10), [o].[EmployeeID]), '') LIKE '%7%'
+WHERE [o].[OrderDate] IS NOT NULL AND ISNULL(CAST(CONVERT(varchar(10), [o].[EmployeeID]) AS varchar(8000)), '') LIKE '%7%'
 """);
     }
 
@@ -3345,7 +3373,7 @@ WHERE [o].[OrderDate] IS NOT NULL
 
         AssertSql(
             """
-SELECT COALESCE(CONVERT(varchar(100), [o].[OrderDate]), '') AS [ShipName]
+SELECT ISNULL(CAST(CONVERT(varchar(100), [o].[OrderDate]) AS varchar(8000)), '') AS [ShipName]
 FROM [Orders] AS [o]
 WHERE [o].[OrderDate] IS NOT NULL
 """);
@@ -3732,7 +3760,7 @@ SELECT DISTINCT [p0].[ProductID], [p0].[Discontinued], [p0].[ProductName], [p0].
 FROM (
     SELECT TOP(@p) [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
     FROM [Products] AS [p]
-    ORDER BY COALESCE([p].[UnitPrice], 0.0)
+    ORDER BY ISNULL([p].[UnitPrice], 0.0)
 ) AS [p0]
 """);
     }
@@ -3750,7 +3778,7 @@ SELECT DISTINCT [p0].[ProductID], [p0].[Discontinued], [p0].[ProductName], [p0].
 FROM (
     SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
     FROM [Products] AS [p]
-    ORDER BY COALESCE([p].[UnitPrice], 0.0)
+    ORDER BY ISNULL([p].[UnitPrice], 0.0)
     OFFSET @p ROWS FETCH NEXT @p0 ROWS ONLY
 ) AS [p0]
 """);
@@ -3769,7 +3797,7 @@ SELECT DISTINCT TOP(@p) [p0].[ProductID], [p0].[Discontinued], [p0].[ProductName
 FROM (
     SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
     FROM [Products] AS [p]
-    ORDER BY COALESCE([p].[UnitPrice], 0.0)
+    ORDER BY ISNULL([p].[UnitPrice], 0.0)
     OFFSET @p ROWS FETCH NEXT @p0 ROWS ONLY
 ) AS [p0]
 """);
@@ -3975,9 +4003,9 @@ FROM (
 
         AssertSql(
             """
-SELECT DISTINCT [c].[CustomerID] + COALESCE([c].[City], N'') AS [A]
+SELECT DISTINCT [c].[CustomerID] + ISNULL(CAST([c].[City] AS nvarchar(4000)), N'') AS [A]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] + COALESCE([c].[City], N'') = N'ALFKIBerlin'
+WHERE [c].[CustomerID] + ISNULL(CAST([c].[City] AS nvarchar(4000)), N'') = N'ALFKIBerlin'
 """);
     }
 
@@ -3989,7 +4017,7 @@ WHERE [c].[CustomerID] + COALESCE([c].[City], N'') = N'ALFKIBerlin'
             """
 SELECT [c0].[A]
 FROM (
-    SELECT DISTINCT [c].[CustomerID] + COALESCE([c].[City], N'') AS [A]
+    SELECT DISTINCT [c].[CustomerID] + ISNULL(CAST([c].[City] AS nvarchar(4000)), N'') AS [A]
     FROM [Customers] AS [c]
 ) AS [c0]
 ORDER BY [c0].[A]
@@ -4004,9 +4032,9 @@ ORDER BY [c0].[A]
             """
 SELECT COUNT(*)
 FROM (
-    SELECT DISTINCT [c].[CustomerID] + COALESCE([c].[City], N'') AS [A]
+    SELECT DISTINCT [c].[CustomerID] + ISNULL(CAST([c].[City] AS nvarchar(4000)), N'') AS [A]
     FROM [Customers] AS [c]
-    WHERE [c].[CustomerID] + COALESCE([c].[City], N'') LIKE N'A%'
+    WHERE [c].[CustomerID] + ISNULL(CAST([c].[City] AS nvarchar(4000)), N'') LIKE N'A%'
 ) AS [c0]
 """);
     }
@@ -4017,9 +4045,9 @@ FROM (
 
         AssertSql(
             """
-SELECT [c].[CustomerID] + COALESCE([c].[City], N'') AS [A]
+SELECT [c].[CustomerID] + ISNULL(CAST([c].[City] AS nvarchar(4000)), N'') AS [A]
 FROM [Customers] AS [c]
-ORDER BY [c].[CustomerID] + COALESCE([c].[City], N'')
+ORDER BY [c].[CustomerID] + ISNULL(CAST([c].[City] AS nvarchar(4000)), N'')
 """);
     }
 
@@ -4095,9 +4123,9 @@ FROM (
 
         AssertSql(
             """
-SELECT DISTINCT [c].[CustomerID] + COALESCE([c].[City], N'') AS [Property]
+SELECT DISTINCT [c].[CustomerID] + ISNULL(CAST([c].[City] AS nvarchar(4000)), N'') AS [Property]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] + COALESCE([c].[City], N'') = N'ALFKIBerlin'
+WHERE [c].[CustomerID] + ISNULL(CAST([c].[City] AS nvarchar(4000)), N'') = N'ALFKIBerlin'
 """);
     }
 
@@ -4109,7 +4137,7 @@ WHERE [c].[CustomerID] + COALESCE([c].[City], N'') = N'ALFKIBerlin'
             """
 SELECT [c0].[Property]
 FROM (
-    SELECT DISTINCT [c].[CustomerID] + COALESCE([c].[City], N'') AS [Property]
+    SELECT DISTINCT [c].[CustomerID] + ISNULL(CAST([c].[City] AS nvarchar(4000)), N'') AS [Property]
     FROM [Customers] AS [c]
 ) AS [c0]
 ORDER BY [c0].[Property]
@@ -4124,9 +4152,9 @@ ORDER BY [c0].[Property]
             """
 SELECT COUNT(*)
 FROM (
-    SELECT DISTINCT [c].[CustomerID] + COALESCE([c].[City], N'') AS [Property]
+    SELECT DISTINCT [c].[CustomerID] + ISNULL(CAST([c].[City] AS nvarchar(4000)), N'') AS [Property]
     FROM [Customers] AS [c]
-    WHERE [c].[CustomerID] + COALESCE([c].[City], N'') LIKE N'A%'
+    WHERE [c].[CustomerID] + ISNULL(CAST([c].[City] AS nvarchar(4000)), N'') LIKE N'A%'
 ) AS [c0]
 """);
     }
@@ -4354,7 +4382,7 @@ FROM (
             """
 @p='10'
 
-SELECT COALESCE(SUM([o0].[OrderID]), 0)
+SELECT ISNULL(SUM([o0].[OrderID]), 0)
 FROM (
     SELECT TOP(@p) [o].[OrderID]
     FROM [Orders] AS [o]
@@ -4497,7 +4525,7 @@ FROM (
             """
 @p='10'
 
-SELECT COALESCE(SUM([o0].[OrderID]), 0)
+SELECT ISNULL(SUM([o0].[OrderID]), 0)
 FROM (
     SELECT [o].[OrderID]
     FROM [Orders] AS [o]
@@ -4577,7 +4605,7 @@ FROM [Orders] AS [o]
 
         AssertSql(
             """
-SELECT COALESCE(SUM([o0].[OrderID]), 0)
+SELECT ISNULL(SUM([o0].[OrderID]), 0)
 FROM (
     SELECT DISTINCT [o].[OrderID]
     FROM [Orders] AS [o]
@@ -5658,7 +5686,7 @@ END, [c0].[City]
         AssertSql(
             """
 SELECT [c].[CustomerID], (
-    SELECT COALESCE(SUM(COALESCE([o0].[OrderID], 0)), 0)
+    SELECT ISNULL(SUM(ISNULL([o0].[OrderID], 0)), 0)
     FROM (
         SELECT 1 AS empty
     ) AS [e]
@@ -7124,7 +7152,7 @@ WHERE [c].[CustomerID] + N'SomeConstant' IN (
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
-WHERE COALESCE([o].[CustomerID], N'') + COALESCE([c].[CustomerID], N'') IN (
+WHERE ISNULL([o].[CustomerID], N'') + ISNULL([c].[CustomerID], N'') IN (
     SELECT [d].[value]
     FROM OPENJSON(@data) WITH ([value] nchar(10) '$') AS [d]
 )

@@ -1336,7 +1336,7 @@ WHERE [b].[String] >= N'Seattle' AND [b].[String] < N'Toronto'
 
         AssertSql(
             """
-SELECT [b].[Int] AS [Key], COALESCE(STRING_AGG([b].[String], N'|'), N'') AS [Strings]
+SELECT [b].[Int] AS [Key], ISNULL(CAST(STRING_AGG([b].[String], N'|') AS nvarchar(max)), N'') AS [Strings]
 FROM [BasicTypesEntities] AS [b]
 GROUP BY [b].[Int]
 """);
@@ -1349,9 +1349,9 @@ GROUP BY [b].[Int]
 
         AssertSql(
             """
-SELECT [n0].[Key], COALESCE(STRING_AGG(COALESCE([n0].[String], N''), N'|'), N'') AS [Regions]
+SELECT [n0].[Key], ISNULL(CAST(STRING_AGG(ISNULL(CAST([n0].[String] AS nvarchar(max)), N''), N'|') AS nvarchar(max)), N'') AS [Regions]
 FROM (
-    SELECT [n].[String], COALESCE([n].[Int], 0) AS [Key]
+    SELECT [n].[String], ISNULL([n].[Int], 0) AS [Key]
     FROM [NullableBasicTypesEntities] AS [n]
 ) AS [n0]
 GROUP BY [n0].[Key]
@@ -1365,9 +1365,9 @@ GROUP BY [n0].[Key]
 
         AssertSql(
             """
-SELECT [b].[Int] AS [Key], COALESCE(STRING_AGG(CASE
+SELECT [b].[Int] AS [Key], ISNULL(CAST(STRING_AGG(CASE
     WHEN CAST(LEN([b].[String]) AS int) > 6 THEN [b].[String]
-END, N'|'), N'') AS [Strings]
+END, N'|') AS nvarchar(max)), N'') AS [Strings]
 FROM [BasicTypesEntities] AS [b]
 GROUP BY [b].[Int]
 """);
@@ -1380,7 +1380,7 @@ GROUP BY [b].[Int]
 
         AssertSql(
             """
-SELECT [b].[Int] AS [Key], COALESCE(STRING_AGG([b].[String], N'|') WITHIN GROUP (ORDER BY [b].[Id] DESC), N'') AS [Strings]
+SELECT [b].[Int] AS [Key], ISNULL(CAST(STRING_AGG([b].[String], N'|') WITHIN GROUP (ORDER BY [b].[Id] DESC) AS nvarchar(max)), N'') AS [Strings]
 FROM [BasicTypesEntities] AS [b]
 GROUP BY [b].[Int]
 """);
@@ -1424,7 +1424,7 @@ WHERE [b].[String] + N'Boston' = N'SeattleBoston'
 
         AssertSql(
             """
-SELECT [b].[Int] AS [Key], COALESCE(STRING_AGG([b].[String], N''), N'') AS [BasicTypesEntitys]
+SELECT [b].[Int] AS [Key], ISNULL(CAST(STRING_AGG([b].[String], N'') AS nvarchar(max)), N'') AS [BasicTypesEntitys]
 FROM [BasicTypesEntities] AS [b]
 GROUP BY [b].[Int]
 """);
