@@ -148,8 +148,20 @@
   <data name="CompiledModelFunctionTranslation" xml:space="preserve">
     <value>The function '{function}' has a custom translation. Compiled model can't be generated, because custom function translations are not supported.</value>
   </data>
+  <data name="ComplexPropertyBothJsonColumnAndJsonPropertyName" xml:space="preserve">
+    <value>Complex property '{complexProperty}' cannot have both a JSON column name ('{columnName}') and a JSON property name ('{propertyName}') configured. Use ToJson() to map to a JSON column or HasJsonPropertyName() to map as a JSON property within a containing JSON column, but not both.</value>
+  </data>
+  <data name="ComplexPropertyJsonPropertyNameConflict" xml:space="preserve">
+    <value>Complex property '{property1}' and '{property2}' are both configured to use the same JSON property name '{jsonPropertyName}'. Each property within a JSON-mapped type must have a unique JSON property name.</value>
+  </data>
+  <data name="ComplexPropertyJsonPropertyNameWithoutJsonMapping" xml:space="preserve">
+    <value>Complex property '{complexProperty}' cannot use 'HasJsonPropertyName()' because it is not contained within a JSON-mapped type. Use 'ToJson()' to map the complex property to a JSON column, or ensure it is contained within a type that is mapped to JSON.</value>
+  </data>
+  <data name="PropertyBothColumnNameAndJsonPropertyName" xml:space="preserve">
+    <value>Property '{property}' cannot have both a column name ('{columnName}') and a JSON property name ('{jsonPropertyName}') configured. Properties in JSON-mapped types should use JSON property names, not column names.</value>
+  </data>
   <data name="ComplexPropertyOptionalTableSharing" xml:space="preserve">
-    <value>The optional complex property '{type}.{property}' is mapped using table sharing, but only contains optional properties. Add a required property or discriminator or map this complex property to a JSON column.</value>
+    <value>The optional complex property '{type}.{property}' is mapped to columns by flattening the contained properties, but it only contains optional properties. Add a required property or discriminator or map this complex property to a JSON column.</value>
   </data>
   <data name="ComputedColumnSqlUnspecified" xml:space="preserve">
     <value>The computed column SQL has not been specified for the column '{table}.{column}'. Specify the SQL before using Entity Framework to create the database schema.</value>
@@ -568,9 +580,6 @@
   <data name="JsonEntityWithIncorrectNumberOfKeyProperties" xml:space="preserve">
     <value>Entity type '{jsonEntity}' has an incorrect number of primary key properties. Expected number is: {expectedCount}, actual number is: {actualCount}.</value>
   </data>
-  <data name="JsonEntityWithMultiplePropertiesMappedToSameJsonProperty" xml:space="preserve">
-    <value>Entity '{jsonEntity}' is mapped to JSON and contains multiple properties or navigations which are mapped to the same JSON property '{property}'. Each property should map to a unique JSON property.</value>
-  </data>
   <data name="JsonEntityWithNonTphInheritanceOnOwner" xml:space="preserve">
     <value>Entity type '{rootType}' references entities mapped to JSON. Only TPH inheritance is supported for those entities.</value>
   </data>
@@ -585,6 +594,9 @@
   </data>
   <data name="JsonNodeMustBeHandledByProviderSpecificVisitor" xml:space="preserve">
     <value>This node should be handled by provider-specific sql generator.</value>
+  </data>
+  <data name="JsonObjectWithMultiplePropertiesMappedToSameJsonProperty" xml:space="preserve">
+    <value>Both '{property1}' and '{property2}' on `{type}` are configured to use the same JSON property name '{jsonPropertyName}'. Each property within a JSON-mapped type must have a unique JSON property name.</value>
   </data>
   <data name="JsonProjectingCollectionElementAccessedUsingParmeterNoTrackingWithIdentityResolution" xml:space="preserve">
     <value>Using a parameter to access the element of a JSON collection '{entityTypeName}' is not supported when using '{asNoTrackingWithIdentityResolution}'. Use a constant, or project the entire JSON entity collection instead.</value>
@@ -701,6 +713,10 @@
     <value>Committing transaction.</value>
     <comment>Debug RelationalEventId.TransactionCommitting</comment>
   </data>
+  <data name="LogConnectionCanceled" xml:space="preserve">
+    <value>A connection open was canceled to database '{database}' on server '{server}'.</value>
+    <comment>Debug RelationalEventId.ConnectionCanceled string string</comment>
+  </data>
   <data name="LogConnectionCreated" xml:space="preserve">
     <value>Created DbConnection. ({elapsed}ms).</value>
     <comment>Debug RelationalEventId.ConnectionCreated int</comment>
@@ -724,10 +740,6 @@
   <data name="LogConnectionErrorAsDebug" xml:space="preserve">
     <value>An error occurred using the connection to database '{database}' on server '{server}'.</value>
     <comment>Debug RelationalEventId.ConnectionError string string</comment>
-  </data>
-  <data name="LogConnectionCanceled" xml:space="preserve">
-    <value>A connection open was canceled to database '{database}' on server '{server}'.</value>
-    <comment>Debug RelationalEventId.ConnectionCanceled string string string</comment>
   </data>
   <data name="LogCreatedTransactionSavepoint" xml:space="preserve">
     <value>Created transaction savepoint.</value>

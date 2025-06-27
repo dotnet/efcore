@@ -132,7 +132,6 @@ public class RelationalApiConsistencyTest(RelationalApiConsistencyTest.Relationa
             typeof(RelationalKeyBuilderExtensions),
             typeof(RelationalEntityTypeBuilderExtensions),
             typeof(RelationalOwnedNavigationBuilderExtensions),
-            typeof(RelationalComplexTypeExtensions),
             typeof(RelationalComplexTypePropertyBuilderExtensions),
             typeof(RelationalPrimitiveCollectionBuilderExtensions),
             typeof(RelationalComplexTypePrimitiveCollectionBuilderExtensions),

@@ -8,8 +8,6 @@ using System.Data;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
-#nullable disable
-
 public class RelationalModelBuilderTest : ModelBuilderTest
 {
     public abstract class RelationalNonRelationshipTestBase(RelationalModelBuilderFixture fixture) : NonRelationshipTestBase(fixture)
@@ -544,6 +542,51 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         }
 
         [ConditionalFact]
+        public virtual void Conflicting_sproc_rows_affected_parameter_and_return_throw()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            Assert.Equal(
+                RelationalStrings.StoredProcedureDuplicateRowsAffectedParameter("BookLabel_Update"),
+                Assert.Throws<InvalidOperationException>(
+                        () => modelBuilder.Entity<BookLabel>()
+                            .UpdateUsingStoredProcedure(
+                                s => s.HasRowsAffectedReturnValue()
+                                    .HasRowsAffectedParameter()))
+                    .Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Conflicting_sproc_rows_affected_result_column_and_return_throw()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            Assert.Equal(
+                RelationalStrings.StoredProcedureDuplicateRowsAffectedResultColumn("BookLabel_Update"),
+                Assert.Throws<InvalidOperationException>(
+                        () => modelBuilder.Entity<BookLabel>()
+                            .UpdateUsingStoredProcedure(
+                                s => s.HasRowsAffectedReturnValue()
+                                    .HasRowsAffectedResultColumn()))
+                    .Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Conflicting_sproc_rows_affected_result_column_and_parameter_throw()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            Assert.Equal(
+                RelationalStrings.StoredProcedureDuplicateRowsAffectedResultColumn("BookLabel_Update"),
+                Assert.Throws<InvalidOperationException>(
+                        () => modelBuilder.Entity<BookLabel>()
+                            .UpdateUsingStoredProcedure(
+                                s => s.HasRowsAffectedParameter()
+                                    .HasRowsAffectedResultColumn()))
+                    .Message);
+        }
+
+        [ConditionalFact]
         public virtual void Duplicate_sproc_rows_affected_result_column_throws()
         {
             var modelBuilder = CreateModelBuilder();
@@ -647,10 +690,188 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                 Assert.Throws<InvalidOperationException>(() => param.Direction = ParameterDirection.Input)
                     .Message);
         }
+
+        [ConditionalFact]
+        public virtual void Complex_property_mapped_to_json_with_nested_complex_properties()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder
+                .Ignore<Order>()
+                .Ignore<IndexedClass>()
+                .Entity<ComplexProperties>()
+                .ComplexProperty(e => e.Customer, b =>
+                {
+                    b.ToJson("customer_data");
+                    b.ComplexProperty(c => c.Details, db =>
+                    {
+                        db.Property(d => d.Id);
+                    });
+                    b.Ignore(c => c.Orders);
+                });
+
+            var model = modelBuilder.FinalizeModel();
+            var complexProperty = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single();
+            var complexType = complexProperty.ComplexType;
+
+            Assert.True(complexType.IsMappedToJson());
+            Assert.Equal("customer_data", complexType.GetContainerColumnName());
+
+            var nestedComplexProperty = complexType.FindComplexProperty(nameof(Customer.Details));
+            Assert.NotNull(nestedComplexProperty);
+            Assert.True(nestedComplexProperty.ComplexType.IsMappedToJson());
+        }
+
+        [ConditionalFact]
+        public virtual void Complex_property_mapped_to_json_uses_property_name_when_column_name_not_specified()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder
+                .Ignore<Order>()
+                .Ignore<IndexedClass>()
+                .Entity<ComplexProperties>()
+                .ComplexProperty(e => e.Customer, b =>
+                {
+                    b.ToJson();
+                    b.Ignore(c => c.Details);
+                    b.Ignore(c => c.Orders);
+                });
+
+            var model = modelBuilder.FinalizeModel();
+            var complexProperty = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single();
+            var complexType = complexProperty.ComplexType;
+
+            Assert.True(complexType.IsMappedToJson());
+            Assert.Equal(nameof(ComplexProperties.Customer), complexType.GetContainerColumnName());
+        }
     }
 
     public abstract class RelationalComplexCollectionTestBase(RelationalModelBuilderFixture fixture) : ComplexCollectionTestBase(fixture)
     {
+        [ConditionalFact]
+        public virtual void Complex_collection_mapped_to_json_uses_property_name_when_column_name_not_specified()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder
+                .Ignore<Order>()
+                .Ignore<IndexedClass>()
+                .Entity<ComplexProperties>()
+                .ComplexCollection(e => e.QuarksCollection, b =>
+                {
+                    b.ToJson(); // No column name specified
+                });
+
+            var model = modelBuilder.FinalizeModel();
+            var complexProperty = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single();
+            var complexType = complexProperty.ComplexType;
+
+            Assert.True(complexType.IsMappedToJson());
+            Assert.Equal(nameof(ComplexProperties.QuarksCollection), complexType.GetContainerColumnName());
+        }
+
+        [ConditionalFact]
+        public virtual void ComplexCollection_can_have_nested_complex_properties_mapped_to_json()
+        {
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.Entity<JsonEntityWithNesting>(
+                b =>
+                {
+                    b.ComplexProperty(e => e.OwnedReference1, cp =>
+                    {
+                        cp.ToJson("CustomOwnedReference1");
+                        cp.Ignore(x => x.Reference2);
+                        cp.Ignore(x => x.Collection2);
+                        cp.ComplexProperty(x => x.Reference1, np =>
+                        {
+                            np.HasJsonPropertyName("CustomNestedReference");
+                        });
+                        cp.ComplexCollection(x => x.Collection1, nc =>
+                        {
+                            nc.HasJsonPropertyName("CustomNestedCollection");
+                        });
+                    });
+                    b.ComplexProperty(e => e.OwnedReference2, cp =>
+                    {
+                        cp.ToJson("CustomOwnedReference2");
+                        cp.Ignore(x => x.Reference1);
+                        cp.Ignore(x => x.Collection1);
+                        cp.ComplexProperty(x => x.Reference2, np =>
+                        {
+                            np.HasJsonPropertyName("CustomNestedReference2");
+                        });
+                        cp.ComplexCollection(x => x.Collection2, nc =>
+                        {
+                            nc.HasJsonPropertyName("CustomNestedCollection2");
+                        });
+                    });
+
+                    b.ComplexCollection(e => e.OwnedCollection1, cp =>
+                    {
+                        cp.ToJson("CustomOwnedCollection1");
+                        cp.Ignore(x => x.Reference2);
+                        cp.Ignore(x => x.Collection2);
+                        cp.ComplexProperty(x => x.Reference1, np =>
+                        {
+                            np.HasJsonPropertyName("CustomNestedReference3");
+                        });
+                        cp.ComplexCollection(x => x.Collection1, nc =>
+                        {
+                            nc.HasJsonPropertyName("CustomNestedCollection3");
+                        });
+                    });
+                    b.ComplexCollection(e => e.OwnedCollection2, cp =>
+                    {
+                        cp.ToJson("CustomOwnedCollection2");
+                        cp.Ignore(x => x.Reference1);
+                        cp.Ignore(x => x.Collection1);
+                        cp.ComplexProperty(x => x.Reference2, np =>
+                        {
+                            np.HasJsonPropertyName("CustomNestedReference4");
+                        });
+                        cp.ComplexCollection(x => x.Collection2, nc =>
+                        {
+                            nc.HasJsonPropertyName("CustomNestedCollection4");
+                        });
+                    });
+                });
+                
+            var model = modelBuilder.FinalizeModel();
+            var entityType = model.FindEntityType(typeof(JsonEntityWithNesting))!;
+
+            var complexProperty1 = entityType.FindComplexProperty("OwnedReference1")!;
+            Assert.True(complexProperty1.ComplexType.IsMappedToJson());
+            Assert.Equal("CustomOwnedReference1", complexProperty1.ComplexType.GetContainerColumnName());
+            Assert.Null(complexProperty1.GetJsonPropertyName());
+            
+            var complexProperty2 = entityType.FindComplexProperty("OwnedReference2")!;
+            Assert.True(complexProperty2.ComplexType.IsMappedToJson());
+            Assert.Equal("CustomOwnedReference2", complexProperty2.ComplexType.GetContainerColumnName());
+            Assert.Null(complexProperty2.GetJsonPropertyName());
+
+            var complexCollectionProperty1 = entityType.FindComplexProperty("OwnedCollection1")!;
+            Assert.True(complexCollectionProperty1.ComplexType.IsMappedToJson());
+            Assert.Equal("CustomOwnedCollection1", complexCollectionProperty1.ComplexType.GetContainerColumnName());
+            Assert.Null(complexCollectionProperty1.GetJsonPropertyName());
+            
+            var complexCollectionProperty2 = entityType.FindComplexProperty("OwnedCollection2")!;
+            Assert.True(complexCollectionProperty2.ComplexType.IsMappedToJson());
+            Assert.Equal("CustomOwnedCollection2", complexCollectionProperty2.ComplexType.GetContainerColumnName());
+            Assert.Null(complexCollectionProperty2.GetJsonPropertyName());
+
+            var nestedRef1 = complexProperty1.ComplexType.FindComplexProperty("Reference1")!;
+            Assert.Equal("CustomNestedReference", nestedRef1.GetJsonPropertyName());
+            
+            var nestedCol1 = complexProperty1.ComplexType.FindComplexProperty("Collection1")!;
+            Assert.Equal("CustomNestedCollection", nestedCol1.GetJsonPropertyName());
+            
+            var nestedRef3 = complexCollectionProperty1.ComplexType.FindComplexProperty("Reference1")!;
+            Assert.Equal("CustomNestedReference3", nestedRef3.GetJsonPropertyName());
+            
+            var nestedCol3 = complexCollectionProperty1.ComplexType.FindComplexProperty("Collection1")!;
+            Assert.Equal("CustomNestedCollection3", nestedCol3.GetJsonPropertyName());
+        }
     }
 
     public abstract class RelationalInheritanceTestBase(RelationalModelBuilderFixture fixture) : InheritanceTestBase(fixture)
@@ -1088,70 +1309,6 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             Assert.Null(bookOwnership2.DeclaringEntityType.GetDeleteStoredProcedure());
         }
 
-        protected class JsonEntity
-        {
-            public int Id { get; set; }
-            public string Name { get; set; }
-
-            public OwnedEntity OwnedReference1 { get; set; }
-            public OwnedEntity OwnedReference2 { get; set; }
-
-            public List<OwnedEntity> OwnedCollection1 { get; set; }
-            public List<OwnedEntity> OwnedCollection2 { get; set; }
-        }
-
-        protected class OwnedEntity
-        {
-            public DateTime Date { get; set; }
-            public double Fraction { get; set; }
-            public MyJsonEnum Enum { get; set; }
-        }
-
-        protected enum MyJsonEnum
-        {
-            One,
-            Two,
-            Three,
-        }
-
-        protected class JsonEntityInheritanceBase
-        {
-            public int Id { get; set; }
-            public OwnedEntity OwnedReferenceOnBase { get; set; }
-            public List<OwnedEntity> OwnedCollectionOnBase { get; set; }
-        }
-
-        protected class JsonEntityInheritanceDerived : JsonEntityInheritanceBase
-        {
-            public string Name { get; set; }
-            public OwnedEntity OwnedReferenceOnDerived { get; set; }
-            public List<OwnedEntity> OwnedCollectionOnDerived { get; set; }
-        }
-
-        protected class OwnedEntityExtraLevel
-        {
-            public DateTime Date { get; set; }
-            public double Fraction { get; set; }
-            public MyJsonEnum Enum { get; set; }
-
-            public OwnedEntity Reference1 { get; set; }
-            public OwnedEntity Reference2 { get; set; }
-            public List<OwnedEntity> Collection1 { get; set; }
-            public List<OwnedEntity> Collection2 { get; set; }
-        }
-
-        protected class JsonEntityWithNesting
-        {
-            public int Id { get; set; }
-            public string Name { get; set; }
-
-            public OwnedEntityExtraLevel OwnedReference1 { get; set; }
-            public OwnedEntityExtraLevel OwnedReference2 { get; set; }
-            public List<OwnedEntityExtraLevel> OwnedCollection1 { get; set; }
-            public List<OwnedEntityExtraLevel> OwnedCollection2 { get; set; }
-        }
-#nullable enable
-
         public override void Can_configure_owned_type()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1235,6 +1392,69 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                 owned.GetProperties().Select(p => p.Name).ToArray());
             Assert.Equal(nameof(CustomerDetails.Id), owned.FindPrimaryKey()!.Properties.Single().Name);
         }
+    }
+
+    protected class JsonEntity
+    {
+        public int Id { get; set; }
+        public string? Name { get; set; }
+
+        public OwnedEntity? OwnedReference1 { get; set; }
+        public OwnedEntity? OwnedReference2 { get; set; }
+
+        public List<OwnedEntity>? OwnedCollection1 { get; set; }
+        public List<OwnedEntity>? OwnedCollection2 { get; set; }
+    }
+    
+    protected class OwnedEntity
+    {
+        public DateTime Date { get; set; }
+        public double Fraction { get; set; }
+        public MyJsonEnum Enum { get; set; }
+    }
+
+    protected enum MyJsonEnum
+    {
+        One,
+        Two,
+        Three,
+    }
+
+    protected class JsonEntityInheritanceBase
+    {
+        public int Id { get; set; }
+        public OwnedEntity? OwnedReferenceOnBase { get; set; }
+        public List<OwnedEntity>? OwnedCollectionOnBase { get; set; }
+    }
+
+    protected class JsonEntityInheritanceDerived : JsonEntityInheritanceBase
+    {
+        public string? Name { get; set; }
+        public OwnedEntity? OwnedReferenceOnDerived { get; set; }
+        public List<OwnedEntity>? OwnedCollectionOnDerived { get; set; }
+    }
+
+    protected class OwnedEntityExtraLevel
+    {
+        public DateTime Date { get; set; }
+        public double Fraction { get; set; }
+        public MyJsonEnum Enum { get; set; }
+
+        public OwnedEntity? Reference1 { get; set; }
+        public OwnedEntity? Reference2 { get; set; }
+        public List<OwnedEntity>? Collection1 { get; set; }
+        public List<OwnedEntity>? Collection2 { get; set; }
+    }
+
+    protected class JsonEntityWithNesting
+    {
+        public int Id { get; set; }
+        public string? Name { get; set; }
+
+        public OwnedEntityExtraLevel? OwnedReference1 { get; set; }
+        public OwnedEntityExtraLevel? OwnedReference2 { get; set; }
+        public List<OwnedEntityExtraLevel>? OwnedCollection1 { get; set; }
+        public List<OwnedEntityExtraLevel>? OwnedCollection2 { get; set; }
     }
 
     public abstract class RelationalModelBuilderFixture : ModelBuilderFixtureBase;
@@ -1557,8 +1777,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             => Wrap(TableBuilder.HasAnnotation(annotation, value));
     }
 
-    public class NonGenericTestOwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity>(
-        OwnedNavigationSplitTableBuilder tableBuilder) :
+    public class NonGenericTestOwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity>(OwnedNavigationSplitTableBuilder tableBuilder) :
         TestOwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity>,
         IInfrastructure<OwnedNavigationSplitTableBuilder>
         where TOwnerEntity : class
@@ -1575,8 +1794,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         OwnedNavigationSplitTableBuilder IInfrastructure<OwnedNavigationSplitTableBuilder>.Instance
             => TableBuilder;
 
-        protected virtual TestOwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity> Wrap(
-            OwnedNavigationSplitTableBuilder tableBuilder)
+        protected virtual TestOwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity> Wrap(OwnedNavigationSplitTableBuilder tableBuilder)
             => new NonGenericTestOwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity>(tableBuilder);
 
         public override TestOwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity> ExcludeFromMigrations(bool excluded = true)
@@ -1899,10 +2117,9 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             => Wrap(ViewBuilder.HasAnnotation(annotation, value));
     }
 
-    public class NonGenericTestOwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity>(OwnedNavigationSplitViewBuilder tableBuilder)
-        :
-            TestOwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity>,
-            IInfrastructure<OwnedNavigationSplitViewBuilder>
+    public class NonGenericTestOwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity>(OwnedNavigationSplitViewBuilder tableBuilder) :
+        TestOwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity>,
+        IInfrastructure<OwnedNavigationSplitViewBuilder>
         where TOwnerEntity : class
         where TDependentEntity : class
     {
