@@ -15,9 +15,7 @@ public abstract class JsonQueryRelationalTestBase<TFixture>(TFixture fixture) : 
         var message = (await Assert.ThrowsAsync<InvalidOperationException>(
             () => base.Project_json_reference_in_tracking_query_fails(async))).Message;
 
-        Assert.Equal(
-            RelationalStrings.JsonEntityOrCollectionProjectedAtRootLevelInTrackingQuery(
-                nameof(EntityFrameworkQueryableExtensions.AsNoTracking)), message);
+        Assert.Equal(CoreStrings.OwnedEntitiesCannotBeTrackedWithoutTheirOwner, message);
     }
 
     [ConditionalTheory]
@@ -27,9 +25,7 @@ public abstract class JsonQueryRelationalTestBase<TFixture>(TFixture fixture) : 
         var message = (await Assert.ThrowsAsync<InvalidOperationException>(
             () => base.Project_json_collection_in_tracking_query_fails(async))).Message;
 
-        Assert.Equal(
-            RelationalStrings.JsonEntityOrCollectionProjectedAtRootLevelInTrackingQuery(
-                nameof(EntityFrameworkQueryableExtensions.AsNoTracking)), message);
+        Assert.Equal(CoreStrings.OwnedEntitiesCannotBeTrackedWithoutTheirOwner, message);
     }
 
     [ConditionalTheory]
@@ -39,9 +35,7 @@ public abstract class JsonQueryRelationalTestBase<TFixture>(TFixture fixture) : 
         var message = (await Assert.ThrowsAsync<InvalidOperationException>(
             () => base.Project_json_entity_in_tracking_query_fails_even_when_owner_is_present(async))).Message;
 
-        Assert.Equal(
-            RelationalStrings.JsonEntityOrCollectionProjectedAtRootLevelInTrackingQuery(
-                nameof(EntityFrameworkQueryableExtensions.AsNoTracking)), message);
+        Assert.Equal(CoreStrings.OwnedEntitiesCannotBeTrackedWithoutTheirOwner, message);
     }
 
     [ConditionalTheory]
