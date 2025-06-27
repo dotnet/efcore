@@ -19,6 +19,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
     private readonly bool _threadSafetyChecksEnabled;
     private readonly bool _detailedErrorsEnabled;
     private readonly bool _useRelationalNulls;
+    private readonly ParameterizedCollectionMode _parameterizedCollectionMode;
     private readonly bool _isPrecompiling;
 
     private readonly RelationalParameterBasedSqlProcessor _relationalParameterBasedSqlProcessor;
@@ -54,7 +55,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
 
         _relationalParameterBasedSqlProcessor =
             relationalDependencies.RelationalParameterBasedSqlProcessorFactory.Create(
-                new RelationalParameterBasedSqlProcessorParameters(_useRelationalNulls));
+                new RelationalParameterBasedSqlProcessorParameters(_useRelationalNulls, _parameterizedCollectionMode));
         _querySqlGeneratorFactory = relationalDependencies.QuerySqlGeneratorFactory;
 
         _contextType = queryCompilationContext.ContextType;
@@ -62,6 +63,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
         _threadSafetyChecksEnabled = dependencies.CoreSingletonOptions.AreThreadSafetyChecksEnabled;
         _detailedErrorsEnabled = dependencies.CoreSingletonOptions.AreDetailedErrorsEnabled;
         _useRelationalNulls = RelationalOptionsExtension.Extract(queryCompilationContext.ContextOptions).UseRelationalNulls;
+        _parameterizedCollectionMode = RelationalOptionsExtension.Extract(queryCompilationContext.ContextOptions).ParameterizedCollectionMode;
         _isPrecompiling = queryCompilationContext.IsPrecompiling;
     }
 
@@ -145,7 +147,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
                     return relationalCommand.ExecuteNonQuery(
                         new RelationalCommandParameterObject(
                             state.relationalQueryContext.Connection,
-                            state.relationalQueryContext.ParameterValues,
+                            state.relationalQueryContext.Parameters,
                             null,
                             state.relationalQueryContext.Context,
                             state.relationalQueryContext.CommandLogger,
@@ -212,7 +214,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
                     return relationalCommand.ExecuteNonQueryAsync(
                         new RelationalCommandParameterObject(
                             state.relationalQueryContext.Connection,
-                            state.relationalQueryContext.ParameterValues,
+                            state.relationalQueryContext.Parameters,
                             null,
                             state.relationalQueryContext.Context,
                             state.relationalQueryContext.CommandLogger,
@@ -497,7 +499,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
             RelationalDependencies.QuerySqlGeneratorFactory,
             RelationalDependencies.RelationalParameterBasedSqlProcessorFactory,
             queryExpression,
-            _useRelationalNulls);
+            _useRelationalNulls,
+            _parameterizedCollectionMode);
 
         var commandLiftableConstant = RelationalDependencies.RelationalLiftableConstantFactory.CreateLiftableConstant(
             relationalCommandCache,
@@ -505,7 +508,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
             "relationalCommandCache",
             typeof(RelationalCommandCache));
 
-        var parametersParameter = Parameter(typeof(IReadOnlyDictionary<string, object?>), "parameters");
+        var parametersParameter = Parameter(typeof(Dictionary<string, object?>), "parameters");
 
         return Lambda<RelationalCommandResolver>(
             Call(
@@ -542,7 +545,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
                 return false;
             }
 
-            var parameterDictionaryParameter = Parameter(typeof(IReadOnlyDictionary<string, object?>), "parameters");
+            var parameterDictionaryParameter = Parameter(typeof(Dictionary<string, object?>), "parameters");
             var resultParameter = Parameter(typeof(IRelationalCommandTemplate), "result");
             Expression resolverBody;
             bool canCache;
@@ -657,9 +660,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
                 }
             }
 
-            Expression GenerateRelationalCommandExpression(IReadOnlyDictionary<string, object?> parameters, out bool canCache)
+            Expression GenerateRelationalCommandExpression(Dictionary<string, object?> parameters, out bool canCache)
             {
-                var queryExpression = _relationalParameterBasedSqlProcessor.Optimize(select, parameters, out canCache);
+                var queryExpression = _relationalParameterBasedSqlProcessor.Process(select, parameters, out canCache);
                 if (!canCache)
                 {
                     return null!;
@@ -747,7 +750,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
                             MakeMemberAccess(contextParameter, _relationalDependenciesProperty),
                             _relationalDependenciesRelationalParameterBasedSqlProcessorFactoryProperty),
                         Constant(queryExpression),
-                        Constant(_useRelationalNulls)),
+                        Constant(_useRelationalNulls),
+                        Constant(_parameterizedCollectionMode, typeof(ParameterizedCollectionMode))),
                     contextParameter);
         }
     }

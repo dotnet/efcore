@@ -661,7 +661,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
     /// </summary>
     public static T GetParameterValue<T>(QueryContext queryContext, string parameterName)
 #pragma warning restore IDE0052 // Remove unread private members
-        => (T)queryContext.ParameterValues[parameterName]!;
+        => (T)queryContext.Parameters[parameterName]!;
 
     private sealed class IncludeFindingExpressionVisitor : ExpressionVisitor
     {

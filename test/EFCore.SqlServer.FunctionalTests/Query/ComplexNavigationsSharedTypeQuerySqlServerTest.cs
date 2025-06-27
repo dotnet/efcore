@@ -5570,7 +5570,8 @@ LEFT JOIN (
 
         AssertSql(
             """
-@names='["Name1","Name2"]' (Size = 4000)
+@names1='Name1' (Size = 4000)
+@names2='Name2' (Size = 4000)
 
 SELECT [l].[Id], [l].[Date], [l].[Name]
 FROM [Level1] AS [l]
@@ -5579,10 +5580,7 @@ LEFT JOIN (
     FROM [Level1] AS [l0]
     WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [l1] ON [l].[Id] = [l1].[Level1_Optional_Id]
-WHERE [l1].[Level2_Name] NOT IN (
-    SELECT [n].[value]
-    FROM OPENJSON(@names) WITH ([value] nvarchar(max) '$') AS [n]
-) OR [l1].[Level2_Name] IS NULL
+WHERE [l1].[Level2_Name] NOT IN (@names1, @names2) OR [l1].[Level2_Name] IS NULL
 """);
     }
 

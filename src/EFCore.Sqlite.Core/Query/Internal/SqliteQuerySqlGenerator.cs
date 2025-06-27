@@ -103,14 +103,19 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
         // however, we can instead wrap the nested set operation in a SELECT * FROM () to achieve the same effect.
         // The following is a copy-paste of the base implementation from QuerySqlGenerator, adding the SELECT.
 
-        // INTERSECT has higher precedence over UNION and EXCEPT, but otherwise evaluation is left-to-right.
-        // To preserve evaluation order, add parentheses whenever a set operation is nested within a different set operation
-        // - including different distinctness.
-        // In addition, EXCEPT is non-commutative (unlike UNION/INTERSECT), so add parentheses for that case too (see #36105).
-        if (TryUnwrapBareSetOperation(operand, out var nestedSetOperation)
-            && (nestedSetOperation is ExceptExpression
-                || nestedSetOperation.GetType() != setOperation.GetType()
-                || nestedSetOperation.IsDistinct != setOperation.IsDistinct))
+        if (
+            // INTERSECT has higher precedence over UNION and EXCEPT, but otherwise evaluation is left-to-right.
+            // To preserve evaluation order, add parentheses whenever a set operation is nested within a different set operation
+            // - including different distinctness.
+            // In addition, EXCEPT is non-commutative (unlike UNION/INTERSECT), so add parentheses for that case too (see #36105).
+            (TryUnwrapBareSetOperation(operand, out var nestedSetOperation)
+                && (nestedSetOperation is ExceptExpression
+                    || nestedSetOperation.GetType() != setOperation.GetType()
+                    || nestedSetOperation.IsDistinct != setOperation.IsDistinct))
+            ||
+            // ValuesExpression with multiple rows uses UNION ALL by default.
+            // We wrap it in a SELECT * FROM () to ensure that the rows are treated as a single set operation.
+            (operand is { Tables: [ValuesExpression { RowValues.Count: > 1 }] }))
         {
             Sql.AppendLine("SELECT * FROM (");
 

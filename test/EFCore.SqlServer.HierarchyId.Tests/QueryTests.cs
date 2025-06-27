@@ -366,14 +366,12 @@ WHERE @isaac.IsDescendantOf([p].[Id]) = CAST(1 AS bit)
 
         Assert.Equal(
             """
-@ids='?' (Size = 4000)
+@ids1='?' (DbType = Object)
+@ids2='?' (DbType = Object)
 
 SELECT TOP(2) [p].[Name]
 FROM [Patriarchy] AS [p]
-WHERE [p].[Id] IN (
-    SELECT CAST([i].[value] AS hierarchyid) AS [value]
-    FROM OPENJSON(@ids) AS [i]
-)
+WHERE [p].[Id] IN (@ids1, @ids2)
 """,
             _db.Sql,
             ignoreLineEndingDifferences: true);

@@ -10,9 +10,9 @@ public class AdHocMiscellaneousQuerySqliteTest(NonSharedFixture fixture) : AdHoc
     protected override ITestStoreFactory TestStoreFactory
         => SqliteTestStoreFactory.Instance;
 
-    protected override DbContextOptionsBuilder SetTranslateParameterizedCollectionsToConstants(DbContextOptionsBuilder optionsBuilder)
+    protected override DbContextOptionsBuilder SetParameterizedCollectionMode(DbContextOptionsBuilder optionsBuilder, ParameterizedCollectionMode parameterizedCollectionMode)
     {
-        new SqliteDbContextOptionsBuilder(optionsBuilder).TranslateParameterizedCollectionsToConstants();
+        new SqliteDbContextOptionsBuilder(optionsBuilder).UseParameterizedCollectionMode(parameterizedCollectionMode);
 
         return optionsBuilder;
     }

@@ -14,10 +14,19 @@ public sealed record RelationalParameterBasedSqlProcessorParameters
     public bool UseRelationalNulls { get; init; }
 
     /// <summary>
+    ///     Which parametrized collection translation mode should be used.
+    /// </summary>
+    public ParameterizedCollectionMode ParameterizedCollectionMode { get; init; }
+
+    /// <summary>
     ///     Creates a new instance of <see cref="RelationalParameterBasedSqlProcessorParameters" />.
     /// </summary>
     /// <param name="useRelationalNulls">A value indicating if relational nulls should be used.</param>
+    /// <param name="parameterizedCollectionMode">Which translation mode should be used.</param>
     [EntityFrameworkInternal]
-    public RelationalParameterBasedSqlProcessorParameters(bool useRelationalNulls)
-        => UseRelationalNulls = useRelationalNulls;
+    public RelationalParameterBasedSqlProcessorParameters(bool useRelationalNulls, ParameterizedCollectionMode parameterizedCollectionMode)
+    {
+        UseRelationalNulls = useRelationalNulls;
+        ParameterizedCollectionMode = parameterizedCollectionMode;
+    }
 }

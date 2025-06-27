@@ -745,5 +745,5 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
 
     [UsedImplicitly]
     private static T GetParameterValue<T>(QueryContext queryContext, string parameterName)
-        => (T)queryContext.ParameterValues[parameterName]!;
+        => (T)queryContext.Parameters[parameterName]!;
 }

@@ -2097,7 +2097,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
         List<IComplexProperty>? complexPropertyChain,
         IProperty property)
     {
-        var baseValue = context.ParameterValues[baseParameterName];
+        var baseValue = context.Parameters[baseParameterName];
 
         if (complexPropertyChain is not null)
         {
@@ -2127,7 +2127,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
         string baseParameterName,
         IProperty property)
     {
-        if (context.ParameterValues[baseParameterName] is not IEnumerable<TEntity> baseListParameter)
+        if (context.Parameters[baseParameterName] is not IEnumerable<TEntity> baseListParameter)
         {
             return null;
         }

@@ -96,7 +96,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
 
     private IQueryProvider? _currentQueryProvider;
     private State _state;
-    private IParameterValues _parameterValues = null!;
+    private Dictionary<string, object?> _parameters = null!;
 
     private readonly IModel _model;
     private readonly ContextParameterReplacer _contextParameterReplacer;
@@ -154,10 +154,10 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     /// </remarks>
     public virtual Expression ExtractParameters(
         Expression expression,
-        IParameterValues parameterValues,
+        Dictionary<string, object?> parameters,
         bool parameterize,
         bool clearParameterizedValues)
-        => ExtractParameters(expression, parameterValues, parameterize, clearParameterizedValues, precompiledQuery: false);
+        => ExtractParameters(expression, parameters, parameterize, clearParameterizedValues, precompiledQuery: false);
 
     /// <summary>
     ///     Processes an expression tree, extracting parameters and evaluating evaluatable fragments as part of the pass.
@@ -172,13 +172,13 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
     public virtual Expression ExtractParameters(
         Expression expression,
-        IParameterValues parameterValues,
+        Dictionary<string, object?> parameters,
         bool parameterize,
         bool clearParameterizedValues,
         bool precompiledQuery)
     {
         Reset(clearParameterizedValues);
-        _parameterValues = parameterValues;
+        _parameters = parameters;
         _parameterize = parameterize;
         _calculatingPath = false;
         _precompiledQuery = precompiledQuery;
@@ -210,7 +210,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
 
         // In precompilation mode we don't actually extract parameter values; but we do need to generate the parameter names, using the
         // same logic (and via the same code) used in parameter extraction, and that logic requires _parameterValues.
-        _parameterValues = new DummyParameterValues();
+        _parameters = new Dictionary<string, object?>();
     }
 
     /// <summary>
@@ -1955,7 +1955,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 };
 
                 // We still maintain _parameterValues since later parameter names are generated based on already-populated names.
-                _parameterValues.AddParameter(parameterName, null);
+                _parameters.Add(parameterName, null);
 
                 return evaluatableRoot;
             }
@@ -1972,7 +1972,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 && !evaluatableRoot.Type.IsValueType
                 && evaluatableRoot is MemberExpression { Member: IParameterNullabilityInfo { IsNonNullableReferenceType: true } };
 
-            _parameterValues.AddParameter(parameterName, value);
+            _parameters.Add(parameterName, value);
 
             return _parameterizedValues[evaluatableRoot] = new QueryParameterExpression(
                 parameterName,
@@ -2329,16 +2329,5 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 && expression?.Type.IsAssignableFrom(contextType) == true
                     ? ContextParameterExpression
                     : base.Visit(expression);
-    }
-
-    private sealed class DummyParameterValues : IParameterValues
-    {
-        private readonly Dictionary<string, object?> _parameterValues = new();
-
-        public IReadOnlyDictionary<string, object?> ParameterValues
-            => _parameterValues;
-
-        public void AddParameter(string name, object? value)
-            => _parameterValues.Add(name, value);
     }
 }

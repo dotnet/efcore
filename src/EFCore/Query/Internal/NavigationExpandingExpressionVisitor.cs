@@ -56,7 +56,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
 
     private readonly Dictionary<QueryFiltersCacheKey, LambdaExpression> _parameterizedQueryFilterPredicateCache = [];
 
-    private readonly Parameters _parameters = new();
+    private readonly Dictionary<string, object?> _parameters = new();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -168,7 +168,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                     QueryContextContextPropertyInfo),
                 _queryCompilationContext.ContextType);
 
-        foreach (var (key, value) in _parameters.ParameterValues)
+        foreach (var (key, value) in _parameters)
         {
             var lambda = (LambdaExpression)value!;
             var remappedLambdaBody = ReplacingExpressionVisitor.Replace(
@@ -2281,35 +2281,15 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
     }
 
     private static EntityReference? UnwrapEntityReference(Expression? expression)
-    {
-        switch (expression)
+        => expression switch
         {
-            case EntityReference entityReference:
-                return entityReference;
+            EntityReference entityReference => entityReference,
+            NavigationTreeExpression navigationTreeExpression => UnwrapEntityReference(navigationTreeExpression.Value),
+            NavigationExpansionExpression navigationExpansionExpression
+                when navigationExpansionExpression.CardinalityReducingGenericMethodInfo is not null
+                => UnwrapEntityReference(navigationExpansionExpression.PendingSelector),
+            OwnedNavigationReference ownedNavigationReference => ownedNavigationReference.EntityReference,
 
-            case NavigationTreeExpression navigationTreeExpression:
-                return UnwrapEntityReference(navigationTreeExpression.Value);
-
-            case NavigationExpansionExpression navigationExpansionExpression
-                when navigationExpansionExpression.CardinalityReducingGenericMethodInfo != null:
-                return UnwrapEntityReference(navigationExpansionExpression.PendingSelector);
-
-            case OwnedNavigationReference ownedNavigationReference:
-                return ownedNavigationReference.EntityReference;
-
-            default:
-                return null;
-        }
-    }
-
-    private sealed class Parameters : IParameterValues
-    {
-        private readonly IDictionary<string, object?> _parameterValues = new Dictionary<string, object?>();
-
-        public IReadOnlyDictionary<string, object?> ParameterValues
-            => (IReadOnlyDictionary<string, object?>)_parameterValues;
-
-        public void AddParameter(string name, object? value)
-            => _parameterValues.Add(name, value);
-    }
+            _ => null,
+        };
 }

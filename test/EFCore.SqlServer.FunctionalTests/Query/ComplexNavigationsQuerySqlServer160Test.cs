@@ -3137,15 +3137,13 @@ WHERE [l0].[Id] IS NOT NULL
 
         AssertSql(
             """
-@names='["Name1","Name2"]' (Size = 4000)
+@names1='Name1' (Size = 4000)
+@names2='Name2' (Size = 4000)
 
 SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id]
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
-WHERE [l0].[Name] NOT IN (
-    SELECT [n].[value]
-    FROM OPENJSON(@names) WITH ([value] nvarchar(max) '$') AS [n]
-) OR [l0].[Name] IS NULL
+WHERE [l0].[Name] NOT IN (@names1, @names2) OR [l0].[Name] IS NULL
 """);
     }
 

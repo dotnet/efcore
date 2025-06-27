@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Text;
-using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
@@ -37,7 +36,7 @@ public abstract class RelationalOptionsExtension : IDbContextOptionsExtension
     private string? _migrationsHistoryTableName;
     private string? _migrationsHistoryTableSchema;
     private Func<ExecutionStrategyDependencies, IExecutionStrategy>? _executionStrategyFactory;
-    private ParameterizedCollectionTranslationMode? _parameterizedCollectionTranslationMode;
+    private ParameterizedCollectionMode? _parameterizedCollectionMode;
 
     /// <summary>
     ///     Creates a new set of options with everything set to default values.
@@ -65,7 +64,7 @@ public abstract class RelationalOptionsExtension : IDbContextOptionsExtension
         _migrationsHistoryTableName = copyFrom._migrationsHistoryTableName;
         _migrationsHistoryTableSchema = copyFrom._migrationsHistoryTableSchema;
         _executionStrategyFactory = copyFrom._executionStrategyFactory;
-        _parameterizedCollectionTranslationMode = copyFrom._parameterizedCollectionTranslationMode;
+        _parameterizedCollectionMode = copyFrom._parameterizedCollectionMode;
     }
 
     /// <summary>
@@ -387,20 +386,20 @@ public abstract class RelationalOptionsExtension : IDbContextOptionsExtension
     /// <summary>
     ///     Configured translation mode for parameterized collections.
     /// </summary>
-    public virtual ParameterizedCollectionTranslationMode? ParameterizedCollectionTranslationMode
-        => _parameterizedCollectionTranslationMode;
+    public virtual ParameterizedCollectionMode ParameterizedCollectionMode
+        => _parameterizedCollectionMode ?? ParameterizedCollectionMode.MultipleParameters;
 
     /// <summary>
     ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
     ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
     /// </summary>
-    /// <param name="parameterizedCollectionTranslationMode">The option to change.</param>
-    public virtual RelationalOptionsExtension WithParameterizedCollectionTranslationMode(
-        ParameterizedCollectionTranslationMode parameterizedCollectionTranslationMode)
+    /// <param name="parameterizedCollectionMode">The option to change.</param>
+    public virtual RelationalOptionsExtension WithUseParameterizedCollectionMode(
+        ParameterizedCollectionMode parameterizedCollectionMode)
     {
         var clone = Clone();
 
-        clone._parameterizedCollectionTranslationMode = parameterizedCollectionTranslationMode;
+        clone._parameterizedCollectionMode = parameterizedCollectionMode;
 
         return clone;
     }
@@ -563,9 +562,9 @@ public abstract class RelationalOptionsExtension : IDbContextOptionsExtension
                         builder.Append(Extension._migrationsHistoryTableName ?? HistoryRepository.DefaultTableName).Append(' ');
                     }
 
-                    if (Extension._parameterizedCollectionTranslationMode != null)
+                    if (Extension._parameterizedCollectionMode != null)
                     {
-                        builder.Append("ParameterizedCollectionTranslationMode=").Append(Extension._parameterizedCollectionTranslationMode)
+                        builder.Append("ParameterizedCollectionTranslationMode=").Append(Extension._parameterizedCollectionMode)
                             .Append(' ');
                     }
 

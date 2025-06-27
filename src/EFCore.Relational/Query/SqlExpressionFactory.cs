@@ -293,7 +293,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
                 break;
 
             case { ValuesParameter: SqlParameterExpression parameter }:
-                valuesTypeMapping = parameter.TypeMapping;
+                valuesTypeMapping = (RelationalTypeMapping?)parameter.TypeMapping?.ElementTypeMapping;
                 break;
 
             case { Values: IReadOnlyList<SqlExpression> values }:
@@ -327,7 +327,8 @@ public class SqlExpressionFactory : ISqlExpressionFactory
                 break;
 
             case { ValuesParameter: SqlParameterExpression parameter }:
-                inExpression = inExpression.Update(item, (SqlParameterExpression)ApplyTypeMapping(parameter, item.TypeMapping));
+                var collectionTypeMapping = Dependencies.TypeMappingSource.FindMapping(parameter.Type, Dependencies.Model, item.TypeMapping);
+                inExpression = inExpression.Update(item, (SqlParameterExpression)ApplyTypeMapping(parameter, collectionTypeMapping));
                 break;
 
             case { Values: IReadOnlyList<SqlExpression> values }:

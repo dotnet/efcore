@@ -11,12 +11,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SkipTakeCollapsingExpressionVisitor : ExpressionVisitor
+public class SqlServerZeroLimitConverter : ExpressionVisitor
 {
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
-    private IReadOnlyDictionary<string, object?> _parameterValues;
-    private bool _canCache;
+    private CacheSafeParameterFacade _parametersFacade;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -24,10 +23,10 @@ public class SkipTakeCollapsingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public SkipTakeCollapsingExpressionVisitor(ISqlExpressionFactory sqlExpressionFactory)
+    public SqlServerZeroLimitConverter(ISqlExpressionFactory sqlExpressionFactory)
     {
         _sqlExpressionFactory = sqlExpressionFactory;
-        _parameterValues = null!;
+        _parametersFacade = null!;
     }
 
     /// <summary>
@@ -36,19 +35,11 @@ public class SkipTakeCollapsingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Expression Process(
-        Expression queryExpression,
-        IReadOnlyDictionary<string, object?> parametersValues,
-        out bool canCache)
+    public virtual Expression Process(Expression queryExpression, CacheSafeParameterFacade parametersFacade)
     {
-        _parameterValues = parametersValues;
-        _canCache = true;
+        _parametersFacade = parametersFacade;
 
-        var result = Visit(queryExpression);
-
-        canCache = _canCache;
-
-        return result;
+        return Visit(queryExpression);
     }
 
     /// <summary>
@@ -59,11 +50,11 @@ public class SkipTakeCollapsingExpressionVisitor : ExpressionVisitor
     /// </summary>
     protected override Expression VisitExtension(Expression extensionExpression)
     {
+        // SQL Server doesn't support 0 in the FETCH NEXT x ROWS ONLY clause. We use this clause when translating LINQ Take(), but
+        // only if there's also a Skip(), otherwise we translate to SQL TOP(x), which does allow 0.
+        // Check for this case, and replace with a false predicate (since no rows should be returned).
         if (extensionExpression is SelectExpression { Offset: not null, Limit: not null } selectExpression)
         {
-            // SQL Server doesn't support 0 in the FETCH NEXT x ROWS ONLY clause. We use this clause when translating LINQ Take(), but
-            // only if there's also a Skip(), otherwise we translate to SQL TOP(x), which does allow 0.
-            // Check for this case, and replace with a false predicate (since no rows should be returned).
             if (IsZero(selectExpression.Limit))
             {
                 return selectExpression.Update(
@@ -72,25 +63,18 @@ public class SkipTakeCollapsingExpressionVisitor : ExpressionVisitor
                     selectExpression.GroupBy,
                     selectExpression.GroupBy.Count > 0 ? _sqlExpressionFactory.Constant(false) : null,
                     selectExpression.Projection,
-                    new List<OrderingExpression>(0),
+                    orderings: [],
                     offset: null,
                     limit: null);
             }
 
             bool IsZero(SqlExpression? sqlExpression)
-            {
-                switch (sqlExpression)
+                => sqlExpression switch
                 {
-                    case SqlConstantExpression { Value: int intValue }:
-                        return intValue == 0;
-                    case SqlParameterExpression parameter:
-                        _canCache = false;
-                        return _parameterValues[parameter.Name] is 0;
-
-                    default:
-                        return false;
-                }
-            }
+                    SqlConstantExpression { Value: int i } => i == 0,
+                    SqlParameterExpression p => _parametersFacade.GetParametersAndDisableSqlCaching()[p.Name] is 0,
+                    _ => false
+                };
         }
 
         return base.VisitExtension(extensionExpression);

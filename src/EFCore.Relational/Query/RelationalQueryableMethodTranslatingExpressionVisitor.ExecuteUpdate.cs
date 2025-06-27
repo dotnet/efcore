@@ -560,7 +560,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         List<IComplexProperty>? complexPropertyChain,
         IProperty property)
     {
-        var baseValue = context.ParameterValues[baseParameterName];
+        var baseValue = context.Parameters[baseParameterName];
 
         if (complexPropertyChain is not null)
         {

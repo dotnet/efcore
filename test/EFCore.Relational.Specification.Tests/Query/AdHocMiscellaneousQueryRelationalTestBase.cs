@@ -268,7 +268,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region Inlined redacting
 
-        protected abstract DbContextOptionsBuilder SetTranslateParameterizedCollectionsToConstants(DbContextOptionsBuilder optionsBuilder);
+        protected abstract DbContextOptionsBuilder SetParameterizedCollectionMode(DbContextOptionsBuilder optionsBuilder, ParameterizedCollectionMode parameterizedCollectionMode);
 
         [ConditionalTheory]
         [MemberData(nameof(InlinedRedactingData))]
@@ -277,7 +277,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var contextFactory = await InitializeAsync<InlinedRedactingContext>(
                 onConfiguring: o =>
                 {
-                    SetTranslateParameterizedCollectionsToConstants(o);
+                    SetParameterizedCollectionMode(o, ParameterizedCollectionMode.Constants);
                     o.EnableSensitiveDataLogging(enableSensitiveDataLogging);
                 });
             using var context = contextFactory.CreateContext();
