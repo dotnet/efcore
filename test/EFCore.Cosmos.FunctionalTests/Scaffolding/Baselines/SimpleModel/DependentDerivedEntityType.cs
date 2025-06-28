@@ -41,14 +41,12 @@ namespace TestNamespace
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 sentinel: 0);
             id.SetGetter(
-                int (CompiledModelTestBase.DependentDerived<int> entity) => DependentBaseUnsafeAccessors<int>.Id(entity),
-                bool (CompiledModelTestBase.DependentDerived<int> entity) => DependentBaseUnsafeAccessors<int>.Id(entity) == 0,
                 int (CompiledModelTestBase.DependentDerived<int> instance) => DependentBaseUnsafeAccessors<int>.Id(instance),
                 bool (CompiledModelTestBase.DependentDerived<int> instance) => DependentBaseUnsafeAccessors<int>.Id(instance) == 0);
             id.SetSetter(
-                (CompiledModelTestBase.DependentDerived<int> entity, int value) => DependentBaseUnsafeAccessors<int>.Id(entity) = value);
+                (CompiledModelTestBase.DependentDerived<int> entity, IReadOnlyList<int> indices, int value) => DependentBaseUnsafeAccessors<int>.Id(entity) = value);
             id.SetMaterializationSetter(
-                (CompiledModelTestBase.DependentDerived<int> entity, int value) => DependentBaseUnsafeAccessors<int>.Id(entity) = value);
+                (CompiledModelTestBase.DependentDerived<int> entity, IReadOnlyList<int> indices, int value) => DependentBaseUnsafeAccessors<int>.Id(entity) = value);
             id.SetAccessors(
                 int (IInternalEntry entry) => DependentBaseUnsafeAccessors<int>.Id(((CompiledModelTestBase.DependentDerived<int>)(entry.Entity))),
                 int (IInternalEntry entry) => DependentBaseUnsafeAccessors<int>.Id(((CompiledModelTestBase.DependentDerived<int>)(entry.Entity))),
@@ -116,14 +114,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.DependentDerived<int>).GetField("<Data>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             data.SetGetter(
-                string (CompiledModelTestBase.DependentDerived<int> entity) => DependentDerivedUnsafeAccessors<int>.Data(entity),
-                bool (CompiledModelTestBase.DependentDerived<int> entity) => DependentDerivedUnsafeAccessors<int>.Data(entity) == null,
                 string (CompiledModelTestBase.DependentDerived<int> instance) => DependentDerivedUnsafeAccessors<int>.Data(instance),
                 bool (CompiledModelTestBase.DependentDerived<int> instance) => DependentDerivedUnsafeAccessors<int>.Data(instance) == null);
             data.SetSetter(
-                (CompiledModelTestBase.DependentDerived<int> entity, string value) => DependentDerivedUnsafeAccessors<int>.Data(entity) = value);
+                (CompiledModelTestBase.DependentDerived<int> entity, IReadOnlyList<int> indices, string value) => DependentDerivedUnsafeAccessors<int>.Data(entity) = value);
             data.SetMaterializationSetter(
-                (CompiledModelTestBase.DependentDerived<int> entity, string value) => DependentDerivedUnsafeAccessors<int>.Data(entity) = value);
+                (CompiledModelTestBase.DependentDerived<int> entity, IReadOnlyList<int> indices, string value) => DependentDerivedUnsafeAccessors<int>.Data(entity) = value);
             data.SetAccessors(
                 string (IInternalEntry entry) => DependentDerivedUnsafeAccessors<int>.Data(((CompiledModelTestBase.DependentDerived<int>)(entry.Entity))),
                 string (IInternalEntry entry) => DependentDerivedUnsafeAccessors<int>.Data(((CompiledModelTestBase.DependentDerived<int>)(entry.Entity))),
@@ -238,7 +234,7 @@ namespace TestNamespace
             runtimeEntityType.SetOriginalValuesFactory(
                 ISnapshot (IInternalEntry source) =>
                 {
-                    var entity = ((CompiledModelTestBase.DependentDerived<int>)(source.Entity));
+                    var structuralType = ((CompiledModelTestBase.DependentDerived<int>)(source.Entity));
                     return ((ISnapshot)(new Snapshot<int, string, string, string, JObject>(((ValueComparer<int>)(((IProperty)id).GetValueComparer())).Snapshot(source.GetCurrentValue<int>(id)), (source.GetCurrentValue<string>(type) == null ? null : ((ValueComparer<string>)(((IProperty)type).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(type))), (source.GetCurrentValue<string>(data) == null ? null : ((ValueComparer<string>)(((IProperty)data).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(data))), (source.GetCurrentValue<string>(__id) == null ? null : ((ValueComparer<string>)(((IProperty)__id).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(__id))), (source.GetCurrentValue<JObject>(__jObject) == null ? null : ((ValueComparer<JObject>)(((IProperty)__jObject).GetValueComparer())).Snapshot(source.GetCurrentValue<JObject>(__jObject))))));
                 });
             runtimeEntityType.SetStoreGeneratedValuesFactory(
@@ -252,7 +248,7 @@ namespace TestNamespace
             runtimeEntityType.SetRelationshipSnapshotFactory(
                 ISnapshot (IInternalEntry source) =>
                 {
-                    var entity = ((CompiledModelTestBase.DependentDerived<int>)(source.Entity));
+                    var structuralType = ((CompiledModelTestBase.DependentDerived<int>)(source.Entity));
                     return ((ISnapshot)(new Snapshot<int>(((ValueComparer<int>)(((IProperty)id).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<int>(id)))));
                 });
             runtimeEntityType.SetCounts(new PropertyCounts(

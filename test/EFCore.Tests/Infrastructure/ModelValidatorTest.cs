@@ -56,13 +56,13 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             modelBuilder);
     }
 
-    private class MyEntity<T>
+    protected class MyEntity<T>
     {
         public int Id { get; set; }
         public List<T> JsonbFields { get; set; }
     }
 
-    private class JsonbField
+    protected class JsonbField
     {
         public required string Key { get; set; }
         public required string Value { get; set; }
@@ -257,7 +257,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     {
         var modelBuilder = CreateConventionModelBuilder();
 
-        modelBuilder.Entity<WithReadOnlyCollection>(
+        modelBuilder.Entity<WithReadOnlyIntCollection>(
             eb =>
             {
                 eb.Property(e => e.Id);
@@ -267,7 +267,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         Validate(modelBuilder);
     }
 
-    protected class WithReadOnlyCollection
+    protected class WithReadOnlyIntCollection
     {
         public int Id { get; set; }
         public IReadOnlyCollection<int> Tags { get; set; }
@@ -1151,6 +1151,53 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     }
 
     [ConditionalFact]
+    public virtual void Detects_value_type_complex_collection()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<WithStructCollection>().ComplexCollection(e => e.Foo);
+
+        VerifyError(
+            CoreStrings.ComplexValueTypeCollection(nameof(WithStructCollection), nameof(WithStructCollection.Foo)),
+            modelBuilder);
+    }
+
+    protected class WithStructCollection
+    {
+        public int Id { get; set; }
+        public List<StructTag> Foo { get; set; }
+    }
+
+    protected struct StructTag
+    {
+        public required string Key { get; set; }
+        public required string Value { get; set; }
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_non_list_complex_collection()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<WithReadOnlyCollection>(
+            eb =>
+            {
+                eb.Property(e => e.Id);
+                eb.ComplexCollection(e => e.Tags);
+            });
+
+        VerifyError(
+            CoreStrings.NonListCollection(nameof(WithReadOnlyCollection), nameof(WithReadOnlyCollection.Tags), "IReadOnlyCollection<JsonbField>", "IList<JsonbField>"),
+            modelBuilder);
+    }
+
+    protected class WithReadOnlyCollection
+    {
+        public int Id { get; set; }
+        public IReadOnlyCollection<JsonbField> Tags { get; set; }
+    }
+
+    [ConditionalFact]
     public virtual void Detects_shadow_complex_properties()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1432,6 +1479,60 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         VerifyError(
             CoreStrings.ChangeTrackingInterfaceMissing("ChangedOnlyEntity", changeTrackingStrategy, "INotifyPropertyChanging"),
             modelBuilder);
+    }
+
+    [ConditionalTheory]
+    [InlineData(ChangeTrackingStrategy.ChangedNotifications)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)]
+    public virtual void Detects_complex_collections_with_notifications(ChangeTrackingStrategy changeTrackingStrategy)
+    {
+        var modelBuilder = CreateConventionlessModelBuilder();
+        var model = modelBuilder.Model;
+
+        var entityType = model.AddEntityType(typeof(WithFullNotificationCollection));
+        var id = entityType.AddProperty("Id");
+        entityType.SetPrimaryKey(id);
+        entityType.AddComplexProperty("Foo");
+
+        model.SetChangeTrackingStrategy(changeTrackingStrategy);
+
+        VerifyError(
+            CoreStrings.ChangeTrackingInterfaceMissing("WithFullNotificationCollection", changeTrackingStrategy, "INotifyPropertyChanged"),
+            modelBuilder);
+    }
+
+    protected class WithFullNotificationCollection
+    {
+        public int Id { get; set; }
+        public List<FullNotificationEntity> Foo { get; set; }
+    }
+
+    [ConditionalTheory]
+    [InlineData(ChangeTrackingStrategy.ChangedNotifications)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)]
+    public virtual void Detects_complex_properties_with_notifications(ChangeTrackingStrategy changeTrackingStrategy)
+    {
+        var modelBuilder = CreateConventionlessModelBuilder();
+        var model = modelBuilder.Model;
+
+        var entityType = model.AddEntityType(typeof(WithFullNotificationProperty));
+        var id = entityType.AddProperty("Id");
+        entityType.SetPrimaryKey(id);
+        entityType.AddComplexProperty("Foo");
+
+        model.SetChangeTrackingStrategy(changeTrackingStrategy);
+
+        VerifyError(
+            CoreStrings.ChangeTrackingInterfaceMissing("WithFullNotificationProperty", changeTrackingStrategy, "INotifyPropertyChanged"),
+            modelBuilder);
+    }
+
+    protected class WithFullNotificationProperty
+    {
+        public int Id { get; set; }
+        public FullNotificationEntity Foo { get; set; }
     }
 
     [ConditionalTheory]

@@ -37,14 +37,12 @@ namespace Scaffolding
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 sentinel: 0L);
             id.SetGetter(
-                long (CompiledModelInMemoryTest.Scaffolding entity) => ScaffoldingUnsafeAccessors.Id(entity),
-                bool (CompiledModelInMemoryTest.Scaffolding entity) => ScaffoldingUnsafeAccessors.Id(entity) == 0L,
                 long (CompiledModelInMemoryTest.Scaffolding instance) => ScaffoldingUnsafeAccessors.Id(instance),
                 bool (CompiledModelInMemoryTest.Scaffolding instance) => ScaffoldingUnsafeAccessors.Id(instance) == 0L);
             id.SetSetter(
-                (CompiledModelInMemoryTest.Scaffolding entity, long value) => ScaffoldingUnsafeAccessors.Id(entity) = value);
+                (CompiledModelInMemoryTest.Scaffolding entity, IReadOnlyList<int> indices, long value) => ScaffoldingUnsafeAccessors.Id(entity) = value);
             id.SetMaterializationSetter(
-                (CompiledModelInMemoryTest.Scaffolding entity, long value) => ScaffoldingUnsafeAccessors.Id(entity) = value);
+                (CompiledModelInMemoryTest.Scaffolding entity, IReadOnlyList<int> indices, long value) => ScaffoldingUnsafeAccessors.Id(entity) = value);
             id.SetAccessors(
                 long (IInternalEntry entry) => (entry.FlaggedAsStoreGenerated(0) ? entry.ReadStoreGeneratedValue<long>(0) : (entry.FlaggedAsTemporary(0) && ScaffoldingUnsafeAccessors.Id(((CompiledModelInMemoryTest.Scaffolding)(entry.Entity))) == 0L ? entry.ReadTemporaryValue<long>(0) : ScaffoldingUnsafeAccessors.Id(((CompiledModelInMemoryTest.Scaffolding)(entry.Entity))))),
                 long (IInternalEntry entry) => ScaffoldingUnsafeAccessors.Id(((CompiledModelInMemoryTest.Scaffolding)(entry.Entity))),
@@ -89,7 +87,7 @@ namespace Scaffolding
             runtimeEntityType.SetOriginalValuesFactory(
                 ISnapshot (IInternalEntry source) =>
                 {
-                    var entity = ((CompiledModelInMemoryTest.Scaffolding)(source.Entity));
+                    var structuralType = ((CompiledModelInMemoryTest.Scaffolding)(source.Entity));
                     return ((ISnapshot)(new Snapshot<long>(((ValueComparer<long>)(((IProperty)id).GetValueComparer())).Snapshot(source.GetCurrentValue<long>(id)))));
                 });
             runtimeEntityType.SetStoreGeneratedValuesFactory(
@@ -103,7 +101,7 @@ namespace Scaffolding
             runtimeEntityType.SetRelationshipSnapshotFactory(
                 ISnapshot (IInternalEntry source) =>
                 {
-                    var entity = ((CompiledModelInMemoryTest.Scaffolding)(source.Entity));
+                    var structuralType = ((CompiledModelInMemoryTest.Scaffolding)(source.Entity));
                     return ((ISnapshot)(new Snapshot<long>(((ValueComparer<long>)(((IProperty)id).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<long>(id)))));
                 });
             runtimeEntityType.SetCounts(new PropertyCounts(

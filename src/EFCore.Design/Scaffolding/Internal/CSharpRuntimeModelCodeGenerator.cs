@@ -1497,40 +1497,45 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         var variableName = parameters.TargetName;
         var mainBuilder = parameters.MainBuilder;
         var unsafeAccessors = new HashSet<string>();
-        var isOnComplexCollection = property.DeclaringType is IReadOnlyComplexType complexType && complexType.ComplexProperty.IsCollection;
 
         if (!property.IsShadowProperty()
-            && !isOnComplexCollection
             && property is not IServiceProperty) // Service properties don't use property accessors
         {
             ClrPropertyGetterFactory.Instance.Create(
                 property,
-                out var getterExpression,
-                out var hasSentinelExpression,
-                out var structuralGetterExpression,
-                out var hasStructuralSentinelExpression);
+                out var getClrValueUsingContainingEntityExpression,
+                out var hasSentinelValueUsingContainingEntityExpression,
+                out var getClrValueExpression,
+                out var hasSentinelValueExpression);
 
             mainBuilder
                 .Append(variableName).AppendLine(".SetGetter(")
-                .IncrementIndent()
+                .IncrementIndent();
+            if (property.DeclaringType is not IEntityType)
+            {
+                mainBuilder
+                    .AppendLines(
+                        _code.Expression(
+                            getClrValueUsingContainingEntityExpression, parameters.Namespaces, unsafeAccessors,
+                            (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements), skipFinalNewline: true)
+                    .AppendLine(",")
+                    .AppendLines(
+                        _code.Expression(
+                            hasSentinelValueUsingContainingEntityExpression, parameters.Namespaces, unsafeAccessors,
+                            (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements), skipFinalNewline: true)
+                    .AppendLine(",");
+            }
+
+            // For properties declared on entity types, use only two parameters
+            mainBuilder
                 .AppendLines(
                     _code.Expression(
-                        getterExpression, parameters.Namespaces, unsafeAccessors,
+                        getClrValueExpression, parameters.Namespaces, unsafeAccessors,
                         (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements), skipFinalNewline: true)
                 .AppendLine(",")
                 .AppendLines(
                     _code.Expression(
-                        hasSentinelExpression, parameters.Namespaces, unsafeAccessors,
-                        (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements), skipFinalNewline: true)
-                .AppendLine(",")
-                .AppendLines(
-                    _code.Expression(
-                        structuralGetterExpression, parameters.Namespaces, unsafeAccessors,
-                        (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements), skipFinalNewline: true)
-                .AppendLine(",")
-                .AppendLines(
-                    _code.Expression(
-                        hasStructuralSentinelExpression, parameters.Namespaces, unsafeAccessors,
+                        hasSentinelValueExpression, parameters.Namespaces, unsafeAccessors,
                         (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements), skipFinalNewline: true)
                 .AppendLine(");")
                 .DecrementIndent();
@@ -1558,10 +1563,38 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                         (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements), skipFinalNewline: true)
                 .AppendLine(");")
                 .DecrementIndent();
+
+            if (property.IsCollection
+                && property is IComplexProperty)
+            {
+                ClrIndexedCollectionAccessorFactory.Instance.Create(
+                    property,
+                    out _, out _, out _,
+                    out var get, out var set, out var setForMaterialization);
+
+                mainBuilder
+                    .Append(variableName).AppendLine(".SetIndexedCollectionAccessor(")
+                    .IncrementIndent()
+                    .AppendLines(
+                        _code.Expression(
+                            get!, parameters.Namespaces, unsafeAccessors,
+                            (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements), skipFinalNewline: true)
+                    .AppendLine(",")
+                    .AppendLines(
+                        _code.Expression(
+                            set!, parameters.Namespaces, unsafeAccessors,
+                            (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements), skipFinalNewline: true)
+                    .AppendLine(",")
+                    .AppendLines(
+                        _code.Expression(
+                            setForMaterialization!, parameters.Namespaces, unsafeAccessors,
+                            (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements), skipFinalNewline: true)
+                    .AppendLine(");")
+                    .DecrementIndent();
+            }
         }
 
-        if (property is not IServiceProperty
-            && !isOnComplexCollection)
+        if (property is not IServiceProperty)
         {
             PropertyAccessorsFactory.Instance.Create(
                 property,

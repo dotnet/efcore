@@ -48,14 +48,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<Id>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 afterSaveBehavior: PropertySaveBehavior.Throw);
             id.SetGetter(
-                long? (CompiledModelTestBase.PrincipalBase entity) => PrincipalBaseUnsafeAccessors.Id(entity),
-                bool (CompiledModelTestBase.PrincipalBase entity) => !(PrincipalBaseUnsafeAccessors.Id(entity).HasValue),
                 long? (CompiledModelTestBase.PrincipalBase instance) => PrincipalBaseUnsafeAccessors.Id(instance),
                 bool (CompiledModelTestBase.PrincipalBase instance) => !(PrincipalBaseUnsafeAccessors.Id(instance).HasValue));
             id.SetSetter(
-                (CompiledModelTestBase.PrincipalBase entity, long? value) => PrincipalBaseUnsafeAccessors.Id(entity) = value);
+                (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, long? value) => PrincipalBaseUnsafeAccessors.Id(entity) = value);
             id.SetMaterializationSetter(
-                (CompiledModelTestBase.PrincipalBase entity, long? value) => PrincipalBaseUnsafeAccessors.Id(entity) = value);
+                (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, long? value) => PrincipalBaseUnsafeAccessors.Id(entity) = value);
             id.SetAccessors(
                 long? (IInternalEntry entry) => PrincipalBaseUnsafeAccessors.Id(((CompiledModelTestBase.PrincipalBase)(entry.Entity))),
                 long? (IInternalEntry entry) => PrincipalBaseUnsafeAccessors.Id(((CompiledModelTestBase.PrincipalBase)(entry.Entity))),
@@ -124,14 +122,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.PrincipalBase).GetProperty("Enum1", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<Enum1>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             enum1.SetGetter(
-                CompiledModelTestBase.AnEnum (CompiledModelTestBase.PrincipalBase entity) => PrincipalBaseUnsafeAccessors.Enum1(entity),
-                bool (CompiledModelTestBase.PrincipalBase entity) => object.Equals(((object)(PrincipalBaseUnsafeAccessors.Enum1(entity))), ((object)((CompiledModelTestBase.AnEnum)0L))),
                 CompiledModelTestBase.AnEnum (CompiledModelTestBase.PrincipalBase instance) => PrincipalBaseUnsafeAccessors.Enum1(instance),
                 bool (CompiledModelTestBase.PrincipalBase instance) => object.Equals(((object)(PrincipalBaseUnsafeAccessors.Enum1(instance))), ((object)((CompiledModelTestBase.AnEnum)0L))));
             enum1.SetSetter(
-                (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.AnEnum value) => PrincipalBaseUnsafeAccessors.Enum1(entity) = value);
+                (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, CompiledModelTestBase.AnEnum value) => PrincipalBaseUnsafeAccessors.Enum1(entity) = value);
             enum1.SetMaterializationSetter(
-                (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.AnEnum value) => PrincipalBaseUnsafeAccessors.Enum1(entity) = value);
+                (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, CompiledModelTestBase.AnEnum value) => PrincipalBaseUnsafeAccessors.Enum1(entity) = value);
             enum1.SetAccessors(
                 CompiledModelTestBase.AnEnum (IInternalEntry entry) => PrincipalBaseUnsafeAccessors.Enum1(((CompiledModelTestBase.PrincipalBase)(entry.Entity))),
                 CompiledModelTestBase.AnEnum (IInternalEntry entry) => PrincipalBaseUnsafeAccessors.Enum1(((CompiledModelTestBase.PrincipalBase)(entry.Entity))),
@@ -173,14 +169,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<Enum2>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             enum2.SetGetter(
-                CompiledModelTestBase.AnEnum? (CompiledModelTestBase.PrincipalBase entity) => PrincipalBaseUnsafeAccessors.Enum2(entity),
-                bool (CompiledModelTestBase.PrincipalBase entity) => !(PrincipalBaseUnsafeAccessors.Enum2(entity).HasValue),
                 CompiledModelTestBase.AnEnum? (CompiledModelTestBase.PrincipalBase instance) => PrincipalBaseUnsafeAccessors.Enum2(instance),
                 bool (CompiledModelTestBase.PrincipalBase instance) => !(PrincipalBaseUnsafeAccessors.Enum2(instance).HasValue));
             enum2.SetSetter(
-                (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.AnEnum? value) => PrincipalBaseUnsafeAccessors.Enum2(entity) = (value == null ? value : ((CompiledModelTestBase.AnEnum? )(((CompiledModelTestBase.AnEnum)(value))))));
+                (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, CompiledModelTestBase.AnEnum? value) => PrincipalBaseUnsafeAccessors.Enum2(entity) = (value == null ? value : ((CompiledModelTestBase.AnEnum? )(((CompiledModelTestBase.AnEnum)(value))))));
             enum2.SetMaterializationSetter(
-                (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.AnEnum? value) => PrincipalBaseUnsafeAccessors.Enum2(entity) = (value == null ? value : ((CompiledModelTestBase.AnEnum? )(((CompiledModelTestBase.AnEnum)(value))))));
+                (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, CompiledModelTestBase.AnEnum? value) => PrincipalBaseUnsafeAccessors.Enum2(entity) = (value == null ? value : ((CompiledModelTestBase.AnEnum? )(((CompiledModelTestBase.AnEnum)(value))))));
             enum2.SetAccessors(
                 CompiledModelTestBase.AnEnum? (IInternalEntry entry) => PrincipalBaseUnsafeAccessors.Enum2(((CompiledModelTestBase.PrincipalBase)(entry.Entity))),
                 CompiledModelTestBase.AnEnum? (IInternalEntry entry) => PrincipalBaseUnsafeAccessors.Enum2(((CompiledModelTestBase.PrincipalBase)(entry.Entity))),
@@ -222,14 +216,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.PrincipalBase).GetProperty("FlagsEnum1", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<FlagsEnum1>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             flagsEnum1.SetGetter(
-                CompiledModelTestBase.AFlagsEnum (CompiledModelTestBase.PrincipalBase entity) => PrincipalBaseUnsafeAccessors.FlagsEnum1(entity),
-                bool (CompiledModelTestBase.PrincipalBase entity) => object.Equals(((object)(PrincipalBaseUnsafeAccessors.FlagsEnum1(entity))), ((object)((CompiledModelTestBase.AFlagsEnum)0L))),
                 CompiledModelTestBase.AFlagsEnum (CompiledModelTestBase.PrincipalBase instance) => PrincipalBaseUnsafeAccessors.FlagsEnum1(instance),
                 bool (CompiledModelTestBase.PrincipalBase instance) => object.Equals(((object)(PrincipalBaseUnsafeAccessors.FlagsEnum1(instance))), ((object)((CompiledModelTestBase.AFlagsEnum)0L))));
             flagsEnum1.SetSetter(
-                (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.AFlagsEnum value) => PrincipalBaseUnsafeAccessors.FlagsEnum1(entity) = value);
+                (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, CompiledModelTestBase.AFlagsEnum value) => PrincipalBaseUnsafeAccessors.FlagsEnum1(entity) = value);
             flagsEnum1.SetMaterializationSetter(
-                (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.AFlagsEnum value) => PrincipalBaseUnsafeAccessors.FlagsEnum1(entity) = value);
+                (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, CompiledModelTestBase.AFlagsEnum value) => PrincipalBaseUnsafeAccessors.FlagsEnum1(entity) = value);
             flagsEnum1.SetAccessors(
                 CompiledModelTestBase.AFlagsEnum (IInternalEntry entry) => PrincipalBaseUnsafeAccessors.FlagsEnum1(((CompiledModelTestBase.PrincipalBase)(entry.Entity))),
                 CompiledModelTestBase.AFlagsEnum (IInternalEntry entry) => PrincipalBaseUnsafeAccessors.FlagsEnum1(((CompiledModelTestBase.PrincipalBase)(entry.Entity))),
@@ -270,14 +262,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.PrincipalBase).GetProperty("FlagsEnum2", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<FlagsEnum2>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             flagsEnum2.SetGetter(
-                CompiledModelTestBase.AFlagsEnum (CompiledModelTestBase.PrincipalBase entity) => PrincipalBaseUnsafeAccessors.FlagsEnum2(entity),
-                bool (CompiledModelTestBase.PrincipalBase entity) => object.Equals(((object)(PrincipalBaseUnsafeAccessors.FlagsEnum2(entity))), ((object)((CompiledModelTestBase.AFlagsEnum)0L))),
                 CompiledModelTestBase.AFlagsEnum (CompiledModelTestBase.PrincipalBase instance) => PrincipalBaseUnsafeAccessors.FlagsEnum2(instance),
                 bool (CompiledModelTestBase.PrincipalBase instance) => object.Equals(((object)(PrincipalBaseUnsafeAccessors.FlagsEnum2(instance))), ((object)((CompiledModelTestBase.AFlagsEnum)0L))));
             flagsEnum2.SetSetter(
-                (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.AFlagsEnum value) => PrincipalBaseUnsafeAccessors.FlagsEnum2(entity) = value);
+                (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, CompiledModelTestBase.AFlagsEnum value) => PrincipalBaseUnsafeAccessors.FlagsEnum2(entity) = value);
             flagsEnum2.SetMaterializationSetter(
-                (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.AFlagsEnum value) => PrincipalBaseUnsafeAccessors.FlagsEnum2(entity) = value);
+                (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, CompiledModelTestBase.AFlagsEnum value) => PrincipalBaseUnsafeAccessors.FlagsEnum2(entity) = value);
             flagsEnum2.SetAccessors(
                 CompiledModelTestBase.AFlagsEnum (IInternalEntry entry) => PrincipalBaseUnsafeAccessors.FlagsEnum2(((CompiledModelTestBase.PrincipalBase)(entry.Entity))),
                 CompiledModelTestBase.AFlagsEnum (IInternalEntry entry) => PrincipalBaseUnsafeAccessors.FlagsEnum2(((CompiledModelTestBase.PrincipalBase)(entry.Entity))),
@@ -353,14 +343,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<RefTypeEnumerable>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             refTypeEnumerable.SetGetter(
-                IEnumerable<string> (CompiledModelTestBase.PrincipalBase entity) => PrincipalBaseUnsafeAccessors.RefTypeEnumerable(entity),
-                bool (CompiledModelTestBase.PrincipalBase entity) => PrincipalBaseUnsafeAccessors.RefTypeEnumerable(entity) == null,
                 IEnumerable<string> (CompiledModelTestBase.PrincipalBase instance) => PrincipalBaseUnsafeAccessors.RefTypeEnumerable(instance),
                 bool (CompiledModelTestBase.PrincipalBase instance) => PrincipalBaseUnsafeAccessors.RefTypeEnumerable(instance) == null);
             refTypeEnumerable.SetSetter(
-                (CompiledModelTestBase.PrincipalBase entity, IEnumerable<string> value) => PrincipalBaseUnsafeAccessors.RefTypeEnumerable(entity) = value);
+                (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, IEnumerable<string> value) => PrincipalBaseUnsafeAccessors.RefTypeEnumerable(entity) = value);
             refTypeEnumerable.SetMaterializationSetter(
-                (CompiledModelTestBase.PrincipalBase entity, IEnumerable<string> value) => PrincipalBaseUnsafeAccessors.RefTypeEnumerable(entity) = value);
+                (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, IEnumerable<string> value) => PrincipalBaseUnsafeAccessors.RefTypeEnumerable(entity) = value);
             refTypeEnumerable.SetAccessors(
                 IEnumerable<string> (IInternalEntry entry) => PrincipalBaseUnsafeAccessors.RefTypeEnumerable(((CompiledModelTestBase.PrincipalBase)(entry.Entity))),
                 IEnumerable<string> (IInternalEntry entry) => PrincipalBaseUnsafeAccessors.RefTypeEnumerable(((CompiledModelTestBase.PrincipalBase)(entry.Entity))),
@@ -413,14 +401,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<RefTypeIList>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             refTypeIList.SetGetter(
-                IList<string> (CompiledModelTestBase.PrincipalBase entity) => PrincipalBaseUnsafeAccessors.RefTypeIList(entity),
-                bool (CompiledModelTestBase.PrincipalBase entity) => PrincipalBaseUnsafeAccessors.RefTypeIList(entity) == null,
                 IList<string> (CompiledModelTestBase.PrincipalBase instance) => PrincipalBaseUnsafeAccessors.RefTypeIList(instance),
                 bool (CompiledModelTestBase.PrincipalBase instance) => PrincipalBaseUnsafeAccessors.RefTypeIList(instance) == null);
             refTypeIList.SetSetter(
-                (CompiledModelTestBase.PrincipalBase entity, IList<string> value) => PrincipalBaseUnsafeAccessors.RefTypeIList(entity) = value);
+                (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, IList<string> value) => PrincipalBaseUnsafeAccessors.RefTypeIList(entity) = value);
             refTypeIList.SetMaterializationSetter(
-                (CompiledModelTestBase.PrincipalBase entity, IList<string> value) => PrincipalBaseUnsafeAccessors.RefTypeIList(entity) = value);
+                (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, IList<string> value) => PrincipalBaseUnsafeAccessors.RefTypeIList(entity) = value);
             refTypeIList.SetAccessors(
                 IList<string> (IInternalEntry entry) => PrincipalBaseUnsafeAccessors.RefTypeIList(((CompiledModelTestBase.PrincipalBase)(entry.Entity))),
                 IList<string> (IInternalEntry entry) => PrincipalBaseUnsafeAccessors.RefTypeIList(((CompiledModelTestBase.PrincipalBase)(entry.Entity))),
@@ -473,14 +459,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<ValueTypeArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             valueTypeArray.SetGetter(
-                DateTime[] (CompiledModelTestBase.PrincipalBase entity) => PrincipalBaseUnsafeAccessors.ValueTypeArray(entity),
-                bool (CompiledModelTestBase.PrincipalBase entity) => PrincipalBaseUnsafeAccessors.ValueTypeArray(entity) == null,
                 DateTime[] (CompiledModelTestBase.PrincipalBase instance) => PrincipalBaseUnsafeAccessors.ValueTypeArray(instance),
                 bool (CompiledModelTestBase.PrincipalBase instance) => PrincipalBaseUnsafeAccessors.ValueTypeArray(instance) == null);
             valueTypeArray.SetSetter(
-                (CompiledModelTestBase.PrincipalBase entity, DateTime[] value) => PrincipalBaseUnsafeAccessors.ValueTypeArray(entity) = value);
+                (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, DateTime[] value) => PrincipalBaseUnsafeAccessors.ValueTypeArray(entity) = value);
             valueTypeArray.SetMaterializationSetter(
-                (CompiledModelTestBase.PrincipalBase entity, DateTime[] value) => PrincipalBaseUnsafeAccessors.ValueTypeArray(entity) = value);
+                (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, DateTime[] value) => PrincipalBaseUnsafeAccessors.ValueTypeArray(entity) = value);
             valueTypeArray.SetAccessors(
                 DateTime[] (IInternalEntry entry) => PrincipalBaseUnsafeAccessors.ValueTypeArray(((CompiledModelTestBase.PrincipalBase)(entry.Entity))),
                 DateTime[] (IInternalEntry entry) => PrincipalBaseUnsafeAccessors.ValueTypeArray(((CompiledModelTestBase.PrincipalBase)(entry.Entity))),
@@ -533,14 +517,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<ValueTypeEnumerable>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             valueTypeEnumerable.SetGetter(
-                IEnumerable<byte> (CompiledModelTestBase.PrincipalBase entity) => PrincipalBaseUnsafeAccessors.ValueTypeEnumerable(entity),
-                bool (CompiledModelTestBase.PrincipalBase entity) => PrincipalBaseUnsafeAccessors.ValueTypeEnumerable(entity) == null,
                 IEnumerable<byte> (CompiledModelTestBase.PrincipalBase instance) => PrincipalBaseUnsafeAccessors.ValueTypeEnumerable(instance),
                 bool (CompiledModelTestBase.PrincipalBase instance) => PrincipalBaseUnsafeAccessors.ValueTypeEnumerable(instance) == null);
             valueTypeEnumerable.SetSetter(
-                (CompiledModelTestBase.PrincipalBase entity, IEnumerable<byte> value) => PrincipalBaseUnsafeAccessors.ValueTypeEnumerable(entity) = value);
+                (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, IEnumerable<byte> value) => PrincipalBaseUnsafeAccessors.ValueTypeEnumerable(entity) = value);
             valueTypeEnumerable.SetMaterializationSetter(
-                (CompiledModelTestBase.PrincipalBase entity, IEnumerable<byte> value) => PrincipalBaseUnsafeAccessors.ValueTypeEnumerable(entity) = value);
+                (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, IEnumerable<byte> value) => PrincipalBaseUnsafeAccessors.ValueTypeEnumerable(entity) = value);
             valueTypeEnumerable.SetAccessors(
                 IEnumerable<byte> (IInternalEntry entry) => PrincipalBaseUnsafeAccessors.ValueTypeEnumerable(((CompiledModelTestBase.PrincipalBase)(entry.Entity))),
                 IEnumerable<byte> (IInternalEntry entry) => PrincipalBaseUnsafeAccessors.ValueTypeEnumerable(((CompiledModelTestBase.PrincipalBase)(entry.Entity))),
@@ -593,14 +575,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<ValueTypeIList>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             valueTypeIList.SetGetter(
-                IList<byte> (CompiledModelTestBase.PrincipalBase entity) => PrincipalBaseUnsafeAccessors.ValueTypeIList(entity),
-                bool (CompiledModelTestBase.PrincipalBase entity) => PrincipalBaseUnsafeAccessors.ValueTypeIList(entity) == null,
                 IList<byte> (CompiledModelTestBase.PrincipalBase instance) => PrincipalBaseUnsafeAccessors.ValueTypeIList(instance),
                 bool (CompiledModelTestBase.PrincipalBase instance) => PrincipalBaseUnsafeAccessors.ValueTypeIList(instance) == null);
             valueTypeIList.SetSetter(
-                (CompiledModelTestBase.PrincipalBase entity, IList<byte> value) => PrincipalBaseUnsafeAccessors.ValueTypeIList(entity) = value);
+                (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, IList<byte> value) => PrincipalBaseUnsafeAccessors.ValueTypeIList(entity) = value);
             valueTypeIList.SetMaterializationSetter(
-                (CompiledModelTestBase.PrincipalBase entity, IList<byte> value) => PrincipalBaseUnsafeAccessors.ValueTypeIList(entity) = value);
+                (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, IList<byte> value) => PrincipalBaseUnsafeAccessors.ValueTypeIList(entity) = value);
             valueTypeIList.SetAccessors(
                 IList<byte> (IInternalEntry entry) => PrincipalBaseUnsafeAccessors.ValueTypeIList(((CompiledModelTestBase.PrincipalBase)(entry.Entity))),
                 IList<byte> (IInternalEntry entry) => PrincipalBaseUnsafeAccessors.ValueTypeIList(((CompiledModelTestBase.PrincipalBase)(entry.Entity))),
@@ -653,14 +633,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<ValueTypeList>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             valueTypeList.SetGetter(
-                List<short> (CompiledModelTestBase.PrincipalBase entity) => PrincipalBaseUnsafeAccessors.ValueTypeList(entity),
-                bool (CompiledModelTestBase.PrincipalBase entity) => PrincipalBaseUnsafeAccessors.ValueTypeList(entity) == null,
                 List<short> (CompiledModelTestBase.PrincipalBase instance) => PrincipalBaseUnsafeAccessors.ValueTypeList(instance),
                 bool (CompiledModelTestBase.PrincipalBase instance) => PrincipalBaseUnsafeAccessors.ValueTypeList(instance) == null);
             valueTypeList.SetSetter(
-                (CompiledModelTestBase.PrincipalBase entity, List<short> value) => PrincipalBaseUnsafeAccessors.ValueTypeList(entity) = value);
+                (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, List<short> value) => PrincipalBaseUnsafeAccessors.ValueTypeList(entity) = value);
             valueTypeList.SetMaterializationSetter(
-                (CompiledModelTestBase.PrincipalBase entity, List<short> value) => PrincipalBaseUnsafeAccessors.ValueTypeList(entity) = value);
+                (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, List<short> value) => PrincipalBaseUnsafeAccessors.ValueTypeList(entity) = value);
             valueTypeList.SetAccessors(
                 List<short> (IInternalEntry entry) => PrincipalBaseUnsafeAccessors.ValueTypeList(((CompiledModelTestBase.PrincipalBase)(entry.Entity))),
                 List<short> (IInternalEntry entry) => PrincipalBaseUnsafeAccessors.ValueTypeList(((CompiledModelTestBase.PrincipalBase)(entry.Entity))),
@@ -795,14 +773,12 @@ namespace TestNamespace
 
                 var complexType = complexProperty.ComplexType;
                 complexProperty.SetGetter(
-                    CompiledModelTestBase.OwnedType (CompiledModelTestBase.PrincipalBase entity) => PrincipalBaseUnsafeAccessors._ownedField(entity),
-                    bool (CompiledModelTestBase.PrincipalBase entity) => PrincipalBaseUnsafeAccessors._ownedField(entity) == null,
                     CompiledModelTestBase.OwnedType (CompiledModelTestBase.PrincipalBase instance) => PrincipalBaseUnsafeAccessors._ownedField(instance),
                     bool (CompiledModelTestBase.PrincipalBase instance) => PrincipalBaseUnsafeAccessors._ownedField(instance) == null);
                 complexProperty.SetSetter(
-                    (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.OwnedType value) => PrincipalBaseUnsafeAccessors._ownedField(entity) = value);
+                    (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, CompiledModelTestBase.OwnedType value) => PrincipalBaseUnsafeAccessors._ownedField(entity) = value);
                 complexProperty.SetMaterializationSetter(
-                    (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.OwnedType value) => PrincipalBaseUnsafeAccessors._ownedField(entity) = value);
+                    (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, CompiledModelTestBase.OwnedType value) => PrincipalBaseUnsafeAccessors._ownedField(entity) = value);
                 complexProperty.SetAccessors(
                     CompiledModelTestBase.OwnedType (IInternalEntry entry) => PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))),
                     CompiledModelTestBase.OwnedType (IInternalEntry entry) => PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))),
@@ -827,18 +803,18 @@ namespace TestNamespace
                     scale: 2,
                     sentinel: "");
                 details.SetGetter(
-                    string (CompiledModelTestBase.PrincipalBase entity) => (PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(string) : PrincipalBaseUnsafeAccessors._ownedField(entity).Details),
-                    bool (CompiledModelTestBase.PrincipalBase entity) => !((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(string) : PrincipalBaseUnsafeAccessors._ownedField(entity).Details) == null) && (PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(string) : PrincipalBaseUnsafeAccessors._ownedField(entity).Details) == "",
+                    string (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices) => (PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(string) : PrincipalBaseUnsafeAccessors._ownedField(entity).Details),
+                    bool (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices) => !((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(string) : PrincipalBaseUnsafeAccessors._ownedField(entity).Details) == null) && (PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(string) : PrincipalBaseUnsafeAccessors._ownedField(entity).Details) == "",
                     string (CompiledModelTestBase.OwnedType instance) => instance.Details,
                     bool (CompiledModelTestBase.OwnedType instance) => !(instance.Details == null) && instance.Details == "");
                 details.SetSetter(
-                    (CompiledModelTestBase.PrincipalBase entity, string value) =>
+                    (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, string value) =>
                     {
                         var level1 = PrincipalBaseUnsafeAccessors._ownedField(entity);
                         level1.Details = value;
                     });
                 details.SetMaterializationSetter(
-                    (CompiledModelTestBase.PrincipalBase entity, string value) =>
+                    (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, string value) =>
                     {
                         var level1 = PrincipalBaseUnsafeAccessors._ownedField(entity);
                         level1.Details = value;
@@ -878,18 +854,18 @@ namespace TestNamespace
                     fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("<Number>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                     sentinel: 0);
                 number.SetGetter(
-                    int (CompiledModelTestBase.PrincipalBase entity) => (PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(int) : OwnedTypeUnsafeAccessors.Number(PrincipalBaseUnsafeAccessors._ownedField(entity))),
-                    bool (CompiledModelTestBase.PrincipalBase entity) => (PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(int) : OwnedTypeUnsafeAccessors.Number(PrincipalBaseUnsafeAccessors._ownedField(entity))) == 0,
+                    int (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices) => (PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(int) : OwnedTypeUnsafeAccessors.Number(PrincipalBaseUnsafeAccessors._ownedField(entity))),
+                    bool (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices) => (PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(int) : OwnedTypeUnsafeAccessors.Number(PrincipalBaseUnsafeAccessors._ownedField(entity))) == 0,
                     int (CompiledModelTestBase.OwnedType instance) => OwnedTypeUnsafeAccessors.Number(instance),
                     bool (CompiledModelTestBase.OwnedType instance) => OwnedTypeUnsafeAccessors.Number(instance) == 0);
                 number.SetSetter(
-                    (CompiledModelTestBase.PrincipalBase entity, int value) =>
+                    (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, int value) =>
                     {
                         var level1 = PrincipalBaseUnsafeAccessors._ownedField(entity);
                         OwnedTypeUnsafeAccessors.Number(level1) = value;
                     });
                 number.SetMaterializationSetter(
-                    (CompiledModelTestBase.PrincipalBase entity, int value) =>
+                    (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, int value) =>
                     {
                         var level1 = PrincipalBaseUnsafeAccessors._ownedField(entity);
                         OwnedTypeUnsafeAccessors.Number(level1) = value;
@@ -928,18 +904,18 @@ namespace TestNamespace
                     fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("_refTypeEnumerable", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                     nullable: true);
                 refTypeEnumerable.SetGetter(
-                    IEnumerable<string> (CompiledModelTestBase.PrincipalBase entity) => (PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(IEnumerable<string>) : OwnedTypeUnsafeAccessors._refTypeEnumerable(PrincipalBaseUnsafeAccessors._ownedField(entity))),
-                    bool (CompiledModelTestBase.PrincipalBase entity) => (PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(IEnumerable<string>) : OwnedTypeUnsafeAccessors._refTypeEnumerable(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null,
+                    IEnumerable<string> (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices) => (PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(IEnumerable<string>) : OwnedTypeUnsafeAccessors._refTypeEnumerable(PrincipalBaseUnsafeAccessors._ownedField(entity))),
+                    bool (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices) => (PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(IEnumerable<string>) : OwnedTypeUnsafeAccessors._refTypeEnumerable(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null,
                     IEnumerable<string> (CompiledModelTestBase.OwnedType instance) => OwnedTypeUnsafeAccessors._refTypeEnumerable(instance),
                     bool (CompiledModelTestBase.OwnedType instance) => OwnedTypeUnsafeAccessors._refTypeEnumerable(instance) == null);
                 refTypeEnumerable.SetSetter(
-                    (CompiledModelTestBase.PrincipalBase entity, IEnumerable<string> value) =>
+                    (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, IEnumerable<string> value) =>
                     {
                         var level1 = PrincipalBaseUnsafeAccessors._ownedField(entity);
                         OwnedTypeUnsafeAccessors._refTypeEnumerable(level1) = value;
                     });
                 refTypeEnumerable.SetMaterializationSetter(
-                    (CompiledModelTestBase.PrincipalBase entity, IEnumerable<string> value) =>
+                    (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, IEnumerable<string> value) =>
                     {
                         var level1 = PrincipalBaseUnsafeAccessors._ownedField(entity);
                         OwnedTypeUnsafeAccessors._refTypeEnumerable(level1) = value;
@@ -996,18 +972,18 @@ namespace TestNamespace
                     fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("_refTypeIList", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                     nullable: true);
                 refTypeIList.SetGetter(
-                    IList<string> (CompiledModelTestBase.PrincipalBase entity) => (PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(IList<string>) : OwnedTypeUnsafeAccessors._refTypeIList(PrincipalBaseUnsafeAccessors._ownedField(entity))),
-                    bool (CompiledModelTestBase.PrincipalBase entity) => (PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(IList<string>) : OwnedTypeUnsafeAccessors._refTypeIList(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null,
+                    IList<string> (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices) => (PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(IList<string>) : OwnedTypeUnsafeAccessors._refTypeIList(PrincipalBaseUnsafeAccessors._ownedField(entity))),
+                    bool (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices) => (PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(IList<string>) : OwnedTypeUnsafeAccessors._refTypeIList(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null,
                     IList<string> (CompiledModelTestBase.OwnedType instance) => OwnedTypeUnsafeAccessors._refTypeIList(instance),
                     bool (CompiledModelTestBase.OwnedType instance) => OwnedTypeUnsafeAccessors._refTypeIList(instance) == null);
                 refTypeIList.SetSetter(
-                    (CompiledModelTestBase.PrincipalBase entity, IList<string> value) =>
+                    (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, IList<string> value) =>
                     {
                         var level1 = PrincipalBaseUnsafeAccessors._ownedField(entity);
                         OwnedTypeUnsafeAccessors._refTypeIList(level1) = value;
                     });
                 refTypeIList.SetMaterializationSetter(
-                    (CompiledModelTestBase.PrincipalBase entity, IList<string> value) =>
+                    (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, IList<string> value) =>
                     {
                         var level1 = PrincipalBaseUnsafeAccessors._ownedField(entity);
                         OwnedTypeUnsafeAccessors._refTypeIList(level1) = value;
@@ -1064,18 +1040,18 @@ namespace TestNamespace
                     fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("_valueTypeArray", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                     nullable: true);
                 valueTypeArray.SetGetter(
-                    DateTime[] (CompiledModelTestBase.PrincipalBase entity) => (PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(DateTime[]) : OwnedTypeUnsafeAccessors._valueTypeArray(PrincipalBaseUnsafeAccessors._ownedField(entity))),
-                    bool (CompiledModelTestBase.PrincipalBase entity) => (PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(DateTime[]) : OwnedTypeUnsafeAccessors._valueTypeArray(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null,
+                    DateTime[] (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices) => (PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(DateTime[]) : OwnedTypeUnsafeAccessors._valueTypeArray(PrincipalBaseUnsafeAccessors._ownedField(entity))),
+                    bool (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices) => (PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(DateTime[]) : OwnedTypeUnsafeAccessors._valueTypeArray(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null,
                     DateTime[] (CompiledModelTestBase.OwnedType instance) => OwnedTypeUnsafeAccessors._valueTypeArray(instance),
                     bool (CompiledModelTestBase.OwnedType instance) => OwnedTypeUnsafeAccessors._valueTypeArray(instance) == null);
                 valueTypeArray.SetSetter(
-                    (CompiledModelTestBase.PrincipalBase entity, DateTime[] value) =>
+                    (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, DateTime[] value) =>
                     {
                         var level1 = PrincipalBaseUnsafeAccessors._ownedField(entity);
                         OwnedTypeUnsafeAccessors._valueTypeArray(level1) = value;
                     });
                 valueTypeArray.SetMaterializationSetter(
-                    (CompiledModelTestBase.PrincipalBase entity, DateTime[] value) =>
+                    (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, DateTime[] value) =>
                     {
                         var level1 = PrincipalBaseUnsafeAccessors._ownedField(entity);
                         OwnedTypeUnsafeAccessors._valueTypeArray(level1) = value;
@@ -1132,18 +1108,18 @@ namespace TestNamespace
                     fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("_valueTypeEnumerable", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                     nullable: true);
                 valueTypeEnumerable.SetGetter(
-                    IEnumerable<byte> (CompiledModelTestBase.PrincipalBase entity) => (PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(IEnumerable<byte>) : OwnedTypeUnsafeAccessors._valueTypeEnumerable(PrincipalBaseUnsafeAccessors._ownedField(entity))),
-                    bool (CompiledModelTestBase.PrincipalBase entity) => (PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(IEnumerable<byte>) : OwnedTypeUnsafeAccessors._valueTypeEnumerable(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null,
+                    IEnumerable<byte> (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices) => (PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(IEnumerable<byte>) : OwnedTypeUnsafeAccessors._valueTypeEnumerable(PrincipalBaseUnsafeAccessors._ownedField(entity))),
+                    bool (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices) => (PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(IEnumerable<byte>) : OwnedTypeUnsafeAccessors._valueTypeEnumerable(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null,
                     IEnumerable<byte> (CompiledModelTestBase.OwnedType instance) => OwnedTypeUnsafeAccessors._valueTypeEnumerable(instance),
                     bool (CompiledModelTestBase.OwnedType instance) => OwnedTypeUnsafeAccessors._valueTypeEnumerable(instance) == null);
                 valueTypeEnumerable.SetSetter(
-                    (CompiledModelTestBase.PrincipalBase entity, IEnumerable<byte> value) =>
+                    (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, IEnumerable<byte> value) =>
                     {
                         var level1 = PrincipalBaseUnsafeAccessors._ownedField(entity);
                         OwnedTypeUnsafeAccessors._valueTypeEnumerable(level1) = value;
                     });
                 valueTypeEnumerable.SetMaterializationSetter(
-                    (CompiledModelTestBase.PrincipalBase entity, IEnumerable<byte> value) =>
+                    (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, IEnumerable<byte> value) =>
                     {
                         var level1 = PrincipalBaseUnsafeAccessors._ownedField(entity);
                         OwnedTypeUnsafeAccessors._valueTypeEnumerable(level1) = value;
@@ -1200,18 +1176,18 @@ namespace TestNamespace
                     fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("<ValueTypeIList>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                     nullable: true);
                 valueTypeIList.SetGetter(
-                    IList<byte> (CompiledModelTestBase.PrincipalBase entity) => (PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(IList<byte>) : OwnedTypeUnsafeAccessors.ValueTypeIList(PrincipalBaseUnsafeAccessors._ownedField(entity))),
-                    bool (CompiledModelTestBase.PrincipalBase entity) => (PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(IList<byte>) : OwnedTypeUnsafeAccessors.ValueTypeIList(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null,
+                    IList<byte> (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices) => (PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(IList<byte>) : OwnedTypeUnsafeAccessors.ValueTypeIList(PrincipalBaseUnsafeAccessors._ownedField(entity))),
+                    bool (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices) => (PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(IList<byte>) : OwnedTypeUnsafeAccessors.ValueTypeIList(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null,
                     IList<byte> (CompiledModelTestBase.OwnedType instance) => OwnedTypeUnsafeAccessors.ValueTypeIList(instance),
                     bool (CompiledModelTestBase.OwnedType instance) => OwnedTypeUnsafeAccessors.ValueTypeIList(instance) == null);
                 valueTypeIList.SetSetter(
-                    (CompiledModelTestBase.PrincipalBase entity, IList<byte> value) =>
+                    (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, IList<byte> value) =>
                     {
                         var level1 = PrincipalBaseUnsafeAccessors._ownedField(entity);
                         OwnedTypeUnsafeAccessors.ValueTypeIList(level1) = value;
                     });
                 valueTypeIList.SetMaterializationSetter(
-                    (CompiledModelTestBase.PrincipalBase entity, IList<byte> value) =>
+                    (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, IList<byte> value) =>
                     {
                         var level1 = PrincipalBaseUnsafeAccessors._ownedField(entity);
                         OwnedTypeUnsafeAccessors.ValueTypeIList(level1) = value;
@@ -1268,18 +1244,18 @@ namespace TestNamespace
                     fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("_valueTypeList", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                     nullable: true);
                 valueTypeList.SetGetter(
-                    List<short> (CompiledModelTestBase.PrincipalBase entity) => (PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(List<short>) : OwnedTypeUnsafeAccessors._valueTypeList(PrincipalBaseUnsafeAccessors._ownedField(entity))),
-                    bool (CompiledModelTestBase.PrincipalBase entity) => (PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(List<short>) : OwnedTypeUnsafeAccessors._valueTypeList(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null,
+                    List<short> (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices) => (PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(List<short>) : OwnedTypeUnsafeAccessors._valueTypeList(PrincipalBaseUnsafeAccessors._ownedField(entity))),
+                    bool (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices) => (PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(List<short>) : OwnedTypeUnsafeAccessors._valueTypeList(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null,
                     List<short> (CompiledModelTestBase.OwnedType instance) => OwnedTypeUnsafeAccessors._valueTypeList(instance),
                     bool (CompiledModelTestBase.OwnedType instance) => OwnedTypeUnsafeAccessors._valueTypeList(instance) == null);
                 valueTypeList.SetSetter(
-                    (CompiledModelTestBase.PrincipalBase entity, List<short> value) =>
+                    (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, List<short> value) =>
                     {
                         var level1 = PrincipalBaseUnsafeAccessors._ownedField(entity);
                         OwnedTypeUnsafeAccessors._valueTypeList(level1) = value;
                     });
                 valueTypeList.SetMaterializationSetter(
-                    (CompiledModelTestBase.PrincipalBase entity, List<short> value) =>
+                    (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, List<short> value) =>
                     {
                         var level1 = PrincipalBaseUnsafeAccessors._ownedField(entity);
                         OwnedTypeUnsafeAccessors._valueTypeList(level1) = value;
@@ -1350,18 +1326,18 @@ namespace TestNamespace
 
                     var complexType = complexProperty.ComplexType;
                     complexProperty.SetGetter(
-                        CompiledModelTestBase.PrincipalBase (CompiledModelTestBase.PrincipalBase entity) => (PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))),
-                        bool (CompiledModelTestBase.PrincipalBase entity) => (PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null,
+                        CompiledModelTestBase.PrincipalBase (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices) => (PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))),
+                        bool (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices) => (PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null,
                         CompiledModelTestBase.PrincipalBase (CompiledModelTestBase.OwnedType instance) => OwnedTypeUnsafeAccessors.Principal(instance),
                         bool (CompiledModelTestBase.OwnedType instance) => OwnedTypeUnsafeAccessors.Principal(instance) == null);
                     complexProperty.SetSetter(
-                        (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.PrincipalBase value) =>
+                        (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, CompiledModelTestBase.PrincipalBase value) =>
                         {
                             var level1 = PrincipalBaseUnsafeAccessors._ownedField(entity);
                             OwnedTypeUnsafeAccessors.Principal(level1) = value;
                         });
                     complexProperty.SetMaterializationSetter(
-                        (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.PrincipalBase value) =>
+                        (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, CompiledModelTestBase.PrincipalBase value) =>
                         {
                             var level1 = PrincipalBaseUnsafeAccessors._ownedField(entity);
                             OwnedTypeUnsafeAccessors.Principal(level1) = value;
@@ -1382,19 +1358,19 @@ namespace TestNamespace
                         typeof(Guid),
                         fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("AlternateId", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly));
                     alternateId.SetGetter(
-                        Guid (CompiledModelTestBase.PrincipalBase entity) => ((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null ? default(Guid) : (PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))).AlternateId),
-                        bool (CompiledModelTestBase.PrincipalBase entity) => ((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null ? default(Guid) : (PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))).AlternateId) == new Guid("00000000-0000-0000-0000-000000000000"),
+                        Guid (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices) => ((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null ? default(Guid) : (PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))).AlternateId),
+                        bool (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices) => ((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null ? default(Guid) : (PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))).AlternateId) == new Guid("00000000-0000-0000-0000-000000000000"),
                         Guid (CompiledModelTestBase.PrincipalBase instance) => instance.AlternateId,
                         bool (CompiledModelTestBase.PrincipalBase instance) => instance.AlternateId == new Guid("00000000-0000-0000-0000-000000000000"));
                     alternateId.SetSetter(
-                        (CompiledModelTestBase.PrincipalBase entity, Guid value) =>
+                        (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, Guid value) =>
                         {
                             var level1 = PrincipalBaseUnsafeAccessors._ownedField(entity);
                             var level2 = OwnedTypeUnsafeAccessors.Principal(level1);
                             level2.AlternateId = value;
                         });
                     alternateId.SetMaterializationSetter(
-                        (CompiledModelTestBase.PrincipalBase entity, Guid value) =>
+                        (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, Guid value) =>
                         {
                             var level1 = PrincipalBaseUnsafeAccessors._ownedField(entity);
                             var level2 = OwnedTypeUnsafeAccessors.Principal(level1);
@@ -1440,19 +1416,19 @@ namespace TestNamespace
                         propertyInfo: typeof(CompiledModelTestBase.PrincipalBase).GetProperty("Enum1", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                         fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<Enum1>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
                     enum1.SetGetter(
-                        CompiledModelTestBase.AnEnum (CompiledModelTestBase.PrincipalBase entity) => ((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null ? default(CompiledModelTestBase.AnEnum) : PrincipalBaseUnsafeAccessors.Enum1((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))))),
-                        bool (CompiledModelTestBase.PrincipalBase entity) => object.Equals(((object)(((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null ? default(CompiledModelTestBase.AnEnum) : PrincipalBaseUnsafeAccessors.Enum1((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))))))), ((object)((CompiledModelTestBase.AnEnum)0L))),
+                        CompiledModelTestBase.AnEnum (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices) => ((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null ? default(CompiledModelTestBase.AnEnum) : PrincipalBaseUnsafeAccessors.Enum1((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))))),
+                        bool (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices) => object.Equals(((object)(((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null ? default(CompiledModelTestBase.AnEnum) : PrincipalBaseUnsafeAccessors.Enum1((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))))))), ((object)((CompiledModelTestBase.AnEnum)0L))),
                         CompiledModelTestBase.AnEnum (CompiledModelTestBase.PrincipalBase instance) => PrincipalBaseUnsafeAccessors.Enum1(instance),
                         bool (CompiledModelTestBase.PrincipalBase instance) => object.Equals(((object)(PrincipalBaseUnsafeAccessors.Enum1(instance))), ((object)((CompiledModelTestBase.AnEnum)0L))));
                     enum1.SetSetter(
-                        (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.AnEnum value) =>
+                        (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, CompiledModelTestBase.AnEnum value) =>
                         {
                             var level1 = PrincipalBaseUnsafeAccessors._ownedField(entity);
                             var level2 = OwnedTypeUnsafeAccessors.Principal(level1);
                             PrincipalBaseUnsafeAccessors.Enum1(level2) = value;
                         });
                     enum1.SetMaterializationSetter(
-                        (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.AnEnum value) =>
+                        (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, CompiledModelTestBase.AnEnum value) =>
                         {
                             var level1 = PrincipalBaseUnsafeAccessors._ownedField(entity);
                             var level2 = OwnedTypeUnsafeAccessors.Principal(level1);
@@ -1499,19 +1475,19 @@ namespace TestNamespace
                         fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<Enum2>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                         nullable: true);
                     enum2.SetGetter(
-                        CompiledModelTestBase.AnEnum? (CompiledModelTestBase.PrincipalBase entity) => ((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null ? default(CompiledModelTestBase.AnEnum? ) : PrincipalBaseUnsafeAccessors.Enum2((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))))),
-                        bool (CompiledModelTestBase.PrincipalBase entity) => !(((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null ? default(CompiledModelTestBase.AnEnum? ) : PrincipalBaseUnsafeAccessors.Enum2((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))))).HasValue),
+                        CompiledModelTestBase.AnEnum? (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices) => ((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null ? default(CompiledModelTestBase.AnEnum? ) : PrincipalBaseUnsafeAccessors.Enum2((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))))),
+                        bool (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices) => !(((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null ? default(CompiledModelTestBase.AnEnum? ) : PrincipalBaseUnsafeAccessors.Enum2((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))))).HasValue),
                         CompiledModelTestBase.AnEnum? (CompiledModelTestBase.PrincipalBase instance) => PrincipalBaseUnsafeAccessors.Enum2(instance),
                         bool (CompiledModelTestBase.PrincipalBase instance) => !(PrincipalBaseUnsafeAccessors.Enum2(instance).HasValue));
                     enum2.SetSetter(
-                        (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.AnEnum? value) =>
+                        (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, CompiledModelTestBase.AnEnum? value) =>
                         {
                             var level1 = PrincipalBaseUnsafeAccessors._ownedField(entity);
                             var level2 = OwnedTypeUnsafeAccessors.Principal(level1);
                             PrincipalBaseUnsafeAccessors.Enum2(level2) = (value == null ? value : ((CompiledModelTestBase.AnEnum? )(((CompiledModelTestBase.AnEnum)(value)))));
                         });
                     enum2.SetMaterializationSetter(
-                        (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.AnEnum? value) =>
+                        (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, CompiledModelTestBase.AnEnum? value) =>
                         {
                             var level1 = PrincipalBaseUnsafeAccessors._ownedField(entity);
                             var level2 = OwnedTypeUnsafeAccessors.Principal(level1);
@@ -1558,19 +1534,19 @@ namespace TestNamespace
                         propertyInfo: typeof(CompiledModelTestBase.PrincipalBase).GetProperty("FlagsEnum1", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                         fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<FlagsEnum1>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
                     flagsEnum1.SetGetter(
-                        CompiledModelTestBase.AFlagsEnum (CompiledModelTestBase.PrincipalBase entity) => ((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null ? default(CompiledModelTestBase.AFlagsEnum) : PrincipalBaseUnsafeAccessors.FlagsEnum1((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))))),
-                        bool (CompiledModelTestBase.PrincipalBase entity) => object.Equals(((object)(((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null ? default(CompiledModelTestBase.AFlagsEnum) : PrincipalBaseUnsafeAccessors.FlagsEnum1((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))))))), ((object)((CompiledModelTestBase.AFlagsEnum)0L))),
+                        CompiledModelTestBase.AFlagsEnum (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices) => ((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null ? default(CompiledModelTestBase.AFlagsEnum) : PrincipalBaseUnsafeAccessors.FlagsEnum1((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))))),
+                        bool (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices) => object.Equals(((object)(((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null ? default(CompiledModelTestBase.AFlagsEnum) : PrincipalBaseUnsafeAccessors.FlagsEnum1((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))))))), ((object)((CompiledModelTestBase.AFlagsEnum)0L))),
                         CompiledModelTestBase.AFlagsEnum (CompiledModelTestBase.PrincipalBase instance) => PrincipalBaseUnsafeAccessors.FlagsEnum1(instance),
                         bool (CompiledModelTestBase.PrincipalBase instance) => object.Equals(((object)(PrincipalBaseUnsafeAccessors.FlagsEnum1(instance))), ((object)((CompiledModelTestBase.AFlagsEnum)0L))));
                     flagsEnum1.SetSetter(
-                        (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.AFlagsEnum value) =>
+                        (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, CompiledModelTestBase.AFlagsEnum value) =>
                         {
                             var level1 = PrincipalBaseUnsafeAccessors._ownedField(entity);
                             var level2 = OwnedTypeUnsafeAccessors.Principal(level1);
                             PrincipalBaseUnsafeAccessors.FlagsEnum1(level2) = value;
                         });
                     flagsEnum1.SetMaterializationSetter(
-                        (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.AFlagsEnum value) =>
+                        (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, CompiledModelTestBase.AFlagsEnum value) =>
                         {
                             var level1 = PrincipalBaseUnsafeAccessors._ownedField(entity);
                             var level2 = OwnedTypeUnsafeAccessors.Principal(level1);
@@ -1616,19 +1592,19 @@ namespace TestNamespace
                         propertyInfo: typeof(CompiledModelTestBase.PrincipalBase).GetProperty("FlagsEnum2", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                         fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<FlagsEnum2>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
                     flagsEnum2.SetGetter(
-                        CompiledModelTestBase.AFlagsEnum (CompiledModelTestBase.PrincipalBase entity) => ((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null ? default(CompiledModelTestBase.AFlagsEnum) : PrincipalBaseUnsafeAccessors.FlagsEnum2((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))))),
-                        bool (CompiledModelTestBase.PrincipalBase entity) => object.Equals(((object)(((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null ? default(CompiledModelTestBase.AFlagsEnum) : PrincipalBaseUnsafeAccessors.FlagsEnum2((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))))))), ((object)((CompiledModelTestBase.AFlagsEnum)0L))),
+                        CompiledModelTestBase.AFlagsEnum (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices) => ((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null ? default(CompiledModelTestBase.AFlagsEnum) : PrincipalBaseUnsafeAccessors.FlagsEnum2((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))))),
+                        bool (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices) => object.Equals(((object)(((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null ? default(CompiledModelTestBase.AFlagsEnum) : PrincipalBaseUnsafeAccessors.FlagsEnum2((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))))))), ((object)((CompiledModelTestBase.AFlagsEnum)0L))),
                         CompiledModelTestBase.AFlagsEnum (CompiledModelTestBase.PrincipalBase instance) => PrincipalBaseUnsafeAccessors.FlagsEnum2(instance),
                         bool (CompiledModelTestBase.PrincipalBase instance) => object.Equals(((object)(PrincipalBaseUnsafeAccessors.FlagsEnum2(instance))), ((object)((CompiledModelTestBase.AFlagsEnum)0L))));
                     flagsEnum2.SetSetter(
-                        (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.AFlagsEnum value) =>
+                        (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, CompiledModelTestBase.AFlagsEnum value) =>
                         {
                             var level1 = PrincipalBaseUnsafeAccessors._ownedField(entity);
                             var level2 = OwnedTypeUnsafeAccessors.Principal(level1);
                             PrincipalBaseUnsafeAccessors.FlagsEnum2(level2) = value;
                         });
                     flagsEnum2.SetMaterializationSetter(
-                        (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.AFlagsEnum value) =>
+                        (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, CompiledModelTestBase.AFlagsEnum value) =>
                         {
                             var level1 = PrincipalBaseUnsafeAccessors._ownedField(entity);
                             var level2 = OwnedTypeUnsafeAccessors.Principal(level1);
@@ -1675,19 +1651,19 @@ namespace TestNamespace
                         fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<Id>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                         nullable: true);
                     id.SetGetter(
-                        long? (CompiledModelTestBase.PrincipalBase entity) => ((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null ? default(long? ) : PrincipalBaseUnsafeAccessors.Id((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))))),
-                        bool (CompiledModelTestBase.PrincipalBase entity) => !(((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null ? default(long? ) : PrincipalBaseUnsafeAccessors.Id((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))))).HasValue),
+                        long? (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices) => ((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null ? default(long? ) : PrincipalBaseUnsafeAccessors.Id((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))))),
+                        bool (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices) => !(((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null ? default(long? ) : PrincipalBaseUnsafeAccessors.Id((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))))).HasValue),
                         long? (CompiledModelTestBase.PrincipalBase instance) => PrincipalBaseUnsafeAccessors.Id(instance),
                         bool (CompiledModelTestBase.PrincipalBase instance) => !(PrincipalBaseUnsafeAccessors.Id(instance).HasValue));
                     id.SetSetter(
-                        (CompiledModelTestBase.PrincipalBase entity, long? value) =>
+                        (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, long? value) =>
                         {
                             var level1 = PrincipalBaseUnsafeAccessors._ownedField(entity);
                             var level2 = OwnedTypeUnsafeAccessors.Principal(level1);
                             PrincipalBaseUnsafeAccessors.Id(level2) = value;
                         });
                     id.SetMaterializationSetter(
-                        (CompiledModelTestBase.PrincipalBase entity, long? value) =>
+                        (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, long? value) =>
                         {
                             var level1 = PrincipalBaseUnsafeAccessors._ownedField(entity);
                             var level2 = OwnedTypeUnsafeAccessors.Principal(level1);
@@ -1729,19 +1705,19 @@ namespace TestNamespace
                         fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<RefTypeEnumerable>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                         nullable: true);
                     refTypeEnumerable.SetGetter(
-                        IEnumerable<string> (CompiledModelTestBase.PrincipalBase entity) => ((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null ? default(IEnumerable<string>) : PrincipalBaseUnsafeAccessors.RefTypeEnumerable((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))))),
-                        bool (CompiledModelTestBase.PrincipalBase entity) => ((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null ? default(IEnumerable<string>) : PrincipalBaseUnsafeAccessors.RefTypeEnumerable((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))))) == null,
+                        IEnumerable<string> (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices) => ((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null ? default(IEnumerable<string>) : PrincipalBaseUnsafeAccessors.RefTypeEnumerable((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))))),
+                        bool (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices) => ((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null ? default(IEnumerable<string>) : PrincipalBaseUnsafeAccessors.RefTypeEnumerable((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))))) == null,
                         IEnumerable<string> (CompiledModelTestBase.PrincipalBase instance) => PrincipalBaseUnsafeAccessors.RefTypeEnumerable(instance),
                         bool (CompiledModelTestBase.PrincipalBase instance) => PrincipalBaseUnsafeAccessors.RefTypeEnumerable(instance) == null);
                     refTypeEnumerable.SetSetter(
-                        (CompiledModelTestBase.PrincipalBase entity, IEnumerable<string> value) =>
+                        (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, IEnumerable<string> value) =>
                         {
                             var level1 = PrincipalBaseUnsafeAccessors._ownedField(entity);
                             var level2 = OwnedTypeUnsafeAccessors.Principal(level1);
                             PrincipalBaseUnsafeAccessors.RefTypeEnumerable(level2) = value;
                         });
                     refTypeEnumerable.SetMaterializationSetter(
-                        (CompiledModelTestBase.PrincipalBase entity, IEnumerable<string> value) =>
+                        (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, IEnumerable<string> value) =>
                         {
                             var level1 = PrincipalBaseUnsafeAccessors._ownedField(entity);
                             var level2 = OwnedTypeUnsafeAccessors.Principal(level1);
@@ -1799,19 +1775,19 @@ namespace TestNamespace
                         fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<RefTypeIList>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                         nullable: true);
                     refTypeIList.SetGetter(
-                        IList<string> (CompiledModelTestBase.PrincipalBase entity) => ((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null ? default(IList<string>) : PrincipalBaseUnsafeAccessors.RefTypeIList((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))))),
-                        bool (CompiledModelTestBase.PrincipalBase entity) => ((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null ? default(IList<string>) : PrincipalBaseUnsafeAccessors.RefTypeIList((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))))) == null,
+                        IList<string> (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices) => ((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null ? default(IList<string>) : PrincipalBaseUnsafeAccessors.RefTypeIList((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))))),
+                        bool (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices) => ((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null ? default(IList<string>) : PrincipalBaseUnsafeAccessors.RefTypeIList((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))))) == null,
                         IList<string> (CompiledModelTestBase.PrincipalBase instance) => PrincipalBaseUnsafeAccessors.RefTypeIList(instance),
                         bool (CompiledModelTestBase.PrincipalBase instance) => PrincipalBaseUnsafeAccessors.RefTypeIList(instance) == null);
                     refTypeIList.SetSetter(
-                        (CompiledModelTestBase.PrincipalBase entity, IList<string> value) =>
+                        (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, IList<string> value) =>
                         {
                             var level1 = PrincipalBaseUnsafeAccessors._ownedField(entity);
                             var level2 = OwnedTypeUnsafeAccessors.Principal(level1);
                             PrincipalBaseUnsafeAccessors.RefTypeIList(level2) = value;
                         });
                     refTypeIList.SetMaterializationSetter(
-                        (CompiledModelTestBase.PrincipalBase entity, IList<string> value) =>
+                        (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, IList<string> value) =>
                         {
                             var level1 = PrincipalBaseUnsafeAccessors._ownedField(entity);
                             var level2 = OwnedTypeUnsafeAccessors.Principal(level1);
@@ -1869,19 +1845,19 @@ namespace TestNamespace
                         fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<ValueTypeArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                         nullable: true);
                     valueTypeArray.SetGetter(
-                        DateTime[] (CompiledModelTestBase.PrincipalBase entity) => ((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null ? default(DateTime[]) : PrincipalBaseUnsafeAccessors.ValueTypeArray((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))))),
-                        bool (CompiledModelTestBase.PrincipalBase entity) => ((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null ? default(DateTime[]) : PrincipalBaseUnsafeAccessors.ValueTypeArray((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))))) == null,
+                        DateTime[] (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices) => ((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null ? default(DateTime[]) : PrincipalBaseUnsafeAccessors.ValueTypeArray((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))))),
+                        bool (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices) => ((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null ? default(DateTime[]) : PrincipalBaseUnsafeAccessors.ValueTypeArray((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))))) == null,
                         DateTime[] (CompiledModelTestBase.PrincipalBase instance) => PrincipalBaseUnsafeAccessors.ValueTypeArray(instance),
                         bool (CompiledModelTestBase.PrincipalBase instance) => PrincipalBaseUnsafeAccessors.ValueTypeArray(instance) == null);
                     valueTypeArray.SetSetter(
-                        (CompiledModelTestBase.PrincipalBase entity, DateTime[] value) =>
+                        (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, DateTime[] value) =>
                         {
                             var level1 = PrincipalBaseUnsafeAccessors._ownedField(entity);
                             var level2 = OwnedTypeUnsafeAccessors.Principal(level1);
                             PrincipalBaseUnsafeAccessors.ValueTypeArray(level2) = value;
                         });
                     valueTypeArray.SetMaterializationSetter(
-                        (CompiledModelTestBase.PrincipalBase entity, DateTime[] value) =>
+                        (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, DateTime[] value) =>
                         {
                             var level1 = PrincipalBaseUnsafeAccessors._ownedField(entity);
                             var level2 = OwnedTypeUnsafeAccessors.Principal(level1);
@@ -1939,19 +1915,19 @@ namespace TestNamespace
                         fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<ValueTypeEnumerable>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                         nullable: true);
                     valueTypeEnumerable.SetGetter(
-                        IEnumerable<byte> (CompiledModelTestBase.PrincipalBase entity) => ((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null ? default(IEnumerable<byte>) : PrincipalBaseUnsafeAccessors.ValueTypeEnumerable((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))))),
-                        bool (CompiledModelTestBase.PrincipalBase entity) => ((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null ? default(IEnumerable<byte>) : PrincipalBaseUnsafeAccessors.ValueTypeEnumerable((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))))) == null,
+                        IEnumerable<byte> (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices) => ((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null ? default(IEnumerable<byte>) : PrincipalBaseUnsafeAccessors.ValueTypeEnumerable((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))))),
+                        bool (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices) => ((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null ? default(IEnumerable<byte>) : PrincipalBaseUnsafeAccessors.ValueTypeEnumerable((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))))) == null,
                         IEnumerable<byte> (CompiledModelTestBase.PrincipalBase instance) => PrincipalBaseUnsafeAccessors.ValueTypeEnumerable(instance),
                         bool (CompiledModelTestBase.PrincipalBase instance) => PrincipalBaseUnsafeAccessors.ValueTypeEnumerable(instance) == null);
                     valueTypeEnumerable.SetSetter(
-                        (CompiledModelTestBase.PrincipalBase entity, IEnumerable<byte> value) =>
+                        (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, IEnumerable<byte> value) =>
                         {
                             var level1 = PrincipalBaseUnsafeAccessors._ownedField(entity);
                             var level2 = OwnedTypeUnsafeAccessors.Principal(level1);
                             PrincipalBaseUnsafeAccessors.ValueTypeEnumerable(level2) = value;
                         });
                     valueTypeEnumerable.SetMaterializationSetter(
-                        (CompiledModelTestBase.PrincipalBase entity, IEnumerable<byte> value) =>
+                        (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, IEnumerable<byte> value) =>
                         {
                             var level1 = PrincipalBaseUnsafeAccessors._ownedField(entity);
                             var level2 = OwnedTypeUnsafeAccessors.Principal(level1);
@@ -2009,19 +1985,19 @@ namespace TestNamespace
                         fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<ValueTypeIList>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                         nullable: true);
                     valueTypeIList.SetGetter(
-                        IList<byte> (CompiledModelTestBase.PrincipalBase entity) => ((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null ? default(IList<byte>) : PrincipalBaseUnsafeAccessors.ValueTypeIList((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))))),
-                        bool (CompiledModelTestBase.PrincipalBase entity) => ((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null ? default(IList<byte>) : PrincipalBaseUnsafeAccessors.ValueTypeIList((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))))) == null,
+                        IList<byte> (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices) => ((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null ? default(IList<byte>) : PrincipalBaseUnsafeAccessors.ValueTypeIList((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))))),
+                        bool (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices) => ((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null ? default(IList<byte>) : PrincipalBaseUnsafeAccessors.ValueTypeIList((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))))) == null,
                         IList<byte> (CompiledModelTestBase.PrincipalBase instance) => PrincipalBaseUnsafeAccessors.ValueTypeIList(instance),
                         bool (CompiledModelTestBase.PrincipalBase instance) => PrincipalBaseUnsafeAccessors.ValueTypeIList(instance) == null);
                     valueTypeIList.SetSetter(
-                        (CompiledModelTestBase.PrincipalBase entity, IList<byte> value) =>
+                        (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, IList<byte> value) =>
                         {
                             var level1 = PrincipalBaseUnsafeAccessors._ownedField(entity);
                             var level2 = OwnedTypeUnsafeAccessors.Principal(level1);
                             PrincipalBaseUnsafeAccessors.ValueTypeIList(level2) = value;
                         });
                     valueTypeIList.SetMaterializationSetter(
-                        (CompiledModelTestBase.PrincipalBase entity, IList<byte> value) =>
+                        (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, IList<byte> value) =>
                         {
                             var level1 = PrincipalBaseUnsafeAccessors._ownedField(entity);
                             var level2 = OwnedTypeUnsafeAccessors.Principal(level1);
@@ -2079,19 +2055,19 @@ namespace TestNamespace
                         fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<ValueTypeList>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                         nullable: true);
                     valueTypeList.SetGetter(
-                        List<short> (CompiledModelTestBase.PrincipalBase entity) => ((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null ? default(List<short>) : PrincipalBaseUnsafeAccessors.ValueTypeList((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))))),
-                        bool (CompiledModelTestBase.PrincipalBase entity) => ((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null ? default(List<short>) : PrincipalBaseUnsafeAccessors.ValueTypeList((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))))) == null,
+                        List<short> (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices) => ((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null ? default(List<short>) : PrincipalBaseUnsafeAccessors.ValueTypeList((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))))),
+                        bool (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices) => ((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))) == null ? default(List<short>) : PrincipalBaseUnsafeAccessors.ValueTypeList((PrincipalBaseUnsafeAccessors._ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(entity))))) == null,
                         List<short> (CompiledModelTestBase.PrincipalBase instance) => PrincipalBaseUnsafeAccessors.ValueTypeList(instance),
                         bool (CompiledModelTestBase.PrincipalBase instance) => PrincipalBaseUnsafeAccessors.ValueTypeList(instance) == null);
                     valueTypeList.SetSetter(
-                        (CompiledModelTestBase.PrincipalBase entity, List<short> value) =>
+                        (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, List<short> value) =>
                         {
                             var level1 = PrincipalBaseUnsafeAccessors._ownedField(entity);
                             var level2 = OwnedTypeUnsafeAccessors.Principal(level1);
                             PrincipalBaseUnsafeAccessors.ValueTypeList(level2) = value;
                         });
                     valueTypeList.SetMaterializationSetter(
-                        (CompiledModelTestBase.PrincipalBase entity, List<short> value) =>
+                        (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, List<short> value) =>
                         {
                             var level1 = PrincipalBaseUnsafeAccessors._ownedField(entity);
                             var level2 = OwnedTypeUnsafeAccessors.Principal(level1);
@@ -2161,14 +2137,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<Deriveds>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
 
             deriveds.SetGetter(
-                ICollection<CompiledModelTestBase.PrincipalBase> (CompiledModelTestBase.PrincipalBase entity) => PrincipalBaseUnsafeAccessors.Deriveds(entity),
-                bool (CompiledModelTestBase.PrincipalBase entity) => PrincipalBaseUnsafeAccessors.Deriveds(entity) == null,
                 ICollection<CompiledModelTestBase.PrincipalBase> (CompiledModelTestBase.PrincipalBase instance) => PrincipalBaseUnsafeAccessors.Deriveds(instance),
                 bool (CompiledModelTestBase.PrincipalBase instance) => PrincipalBaseUnsafeAccessors.Deriveds(instance) == null);
             deriveds.SetSetter(
-                (CompiledModelTestBase.PrincipalBase entity, ICollection<CompiledModelTestBase.PrincipalBase> value) => PrincipalBaseUnsafeAccessors.Deriveds(entity) = value);
+                (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, ICollection<CompiledModelTestBase.PrincipalBase> value) => PrincipalBaseUnsafeAccessors.Deriveds(entity) = value);
             deriveds.SetMaterializationSetter(
-                (CompiledModelTestBase.PrincipalBase entity, ICollection<CompiledModelTestBase.PrincipalBase> value) => PrincipalBaseUnsafeAccessors.Deriveds(entity) = value);
+                (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, ICollection<CompiledModelTestBase.PrincipalBase> value) => PrincipalBaseUnsafeAccessors.Deriveds(entity) = value);
             deriveds.SetAccessors(
                 ICollection<CompiledModelTestBase.PrincipalBase> (IInternalEntry entry) => PrincipalBaseUnsafeAccessors.Deriveds(((CompiledModelTestBase.PrincipalBase)(entry.Entity))),
                 ICollection<CompiledModelTestBase.PrincipalBase> (IInternalEntry entry) => PrincipalBaseUnsafeAccessors.Deriveds(((CompiledModelTestBase.PrincipalBase)(entry.Entity))),
@@ -2237,9 +2211,9 @@ namespace TestNamespace
             runtimeEntityType.SetOriginalValuesFactory(
                 ISnapshot (IInternalEntry source) =>
                 {
-                    var entity = ((CompiledModelTestBase.PrincipalBase)(source.Entity));
+                    var structuralType = ((CompiledModelTestBase.PrincipalBase)(source.Entity));
                     var liftedArg = ((ISnapshot)(new Snapshot<long?, string, CompiledModelTestBase.AnEnum, CompiledModelTestBase.AnEnum?, CompiledModelTestBase.AFlagsEnum, CompiledModelTestBase.AFlagsEnum, long?, IEnumerable<string>, IList<string>, DateTime[], IEnumerable<byte>, IList<byte>, List<short>, string, JObject, string, int, IEnumerable<string>, IList<string>, DateTime[], IEnumerable<byte>, IList<byte>, List<short>, Guid, CompiledModelTestBase.AnEnum, CompiledModelTestBase.AnEnum?, CompiledModelTestBase.AFlagsEnum, CompiledModelTestBase.AFlagsEnum, long?, IEnumerable<string>>((source.GetCurrentValue<long?>(id) == null ? null : ((ValueComparer<long?>)(((IProperty)id).GetValueComparer())).Snapshot(source.GetCurrentValue<long?>(id))), (source.GetCurrentValue<string>(type) == null ? null : ((ValueComparer<string>)(((IProperty)type).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(type))), ((ValueComparer<CompiledModelTestBase.AnEnum>)(((IProperty)enum1).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AnEnum>(enum1)), (source.GetCurrentValue<CompiledModelTestBase.AnEnum?>(enum2) == null ? null : ((ValueComparer<CompiledModelTestBase.AnEnum?>)(((IProperty)enum2).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AnEnum?>(enum2))), ((ValueComparer<CompiledModelTestBase.AFlagsEnum>)(((IProperty)flagsEnum1).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum1)), ((ValueComparer<CompiledModelTestBase.AFlagsEnum>)(((IProperty)flagsEnum2).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum2)), (source.GetCurrentValue<long?>(principalBaseId) == null ? null : ((ValueComparer<long?>)(((IProperty)principalBaseId).GetValueComparer())).Snapshot(source.GetCurrentValue<long?>(principalBaseId))), (((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable))) == null ? null : ((IEnumerable<string>)(((ValueComparer<object>)(((IProperty)refTypeEnumerable).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable))))))), (((object)(source.GetCurrentValue<IList<string>>(refTypeIList))) == null ? null : ((IList<string>)(((ValueComparer<object>)(((IProperty)refTypeIList).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IList<string>>(refTypeIList))))))), (((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray))) == null ? null : ((DateTime[])(((ValueComparer<IEnumerable<DateTime>>)(((IProperty)valueTypeArray).GetValueComparer())).Snapshot(((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray))))))), (source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable) == null ? null : ((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeEnumerable).GetValueComparer())).Snapshot(source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable))), (((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList))) == null ? null : ((IList<byte>)(((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeIList).GetValueComparer())).Snapshot(((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList))))))), (((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList))) == null ? null : ((List<short>)(((ValueComparer<IEnumerable<short>>)(((IProperty)valueTypeList).GetValueComparer())).Snapshot(((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList))))))), (source.GetCurrentValue<string>(__id) == null ? null : ((ValueComparer<string>)(((IProperty)__id).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(__id))), (source.GetCurrentValue<JObject>(__jObject) == null ? null : ((ValueComparer<JObject>)(((IProperty)__jObject).GetValueComparer())).Snapshot(source.GetCurrentValue<JObject>(__jObject))), (source.GetCurrentValue<string>(details) == null ? null : ((ValueComparer<string>)(((IProperty)details).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(details))), ((ValueComparer<int>)(((IProperty)number).GetValueComparer())).Snapshot(source.GetCurrentValue<int>(number)), (((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable0))) == null ? null : ((IEnumerable<string>)(((ValueComparer<object>)(((IProperty)refTypeEnumerable0).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable0))))))), (((object)(source.GetCurrentValue<IList<string>>(refTypeIList0))) == null ? null : ((IList<string>)(((ValueComparer<object>)(((IProperty)refTypeIList0).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IList<string>>(refTypeIList0))))))), (((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray0))) == null ? null : ((DateTime[])(((ValueComparer<IEnumerable<DateTime>>)(((IProperty)valueTypeArray0).GetValueComparer())).Snapshot(((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray0))))))), (source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable0) == null ? null : ((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeEnumerable0).GetValueComparer())).Snapshot(source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable0))), (((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList0))) == null ? null : ((IList<byte>)(((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeIList0).GetValueComparer())).Snapshot(((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList0))))))), (((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList0))) == null ? null : ((List<short>)(((ValueComparer<IEnumerable<short>>)(((IProperty)valueTypeList0).GetValueComparer())).Snapshot(((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList0))))))), ((ValueComparer<Guid>)(((IProperty)alternateId).GetValueComparer())).Snapshot(source.GetCurrentValue<Guid>(alternateId)), ((ValueComparer<CompiledModelTestBase.AnEnum>)(((IProperty)enum10).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AnEnum>(enum10)), (source.GetCurrentValue<CompiledModelTestBase.AnEnum?>(enum20) == null ? null : ((ValueComparer<CompiledModelTestBase.AnEnum?>)(((IProperty)enum20).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AnEnum?>(enum20))), ((ValueComparer<CompiledModelTestBase.AFlagsEnum>)(((IProperty)flagsEnum10).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum10)), ((ValueComparer<CompiledModelTestBase.AFlagsEnum>)(((IProperty)flagsEnum20).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum20)), (source.GetCurrentValue<long?>(id0) == null ? null : ((ValueComparer<long?>)(((IProperty)id0).GetValueComparer())).Snapshot(source.GetCurrentValue<long?>(id0))), (((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable1))) == null ? null : ((IEnumerable<string>)(((ValueComparer<object>)(((IProperty)refTypeEnumerable1).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable1))))))))));
-                    var entity0 = ((CompiledModelTestBase.PrincipalBase)(source.Entity));
+                    var structuralType0 = ((CompiledModelTestBase.PrincipalBase)(source.Entity));
                     return ((ISnapshot)(new MultiSnapshot(new ISnapshot[] { liftedArg, ((ISnapshot)(new Snapshot<IList<string>, DateTime[], IEnumerable<byte>, IList<byte>, List<short>>((((object)(source.GetCurrentValue<IList<string>>(refTypeIList1))) == null ? null : ((IList<string>)(((ValueComparer<object>)(((IProperty)refTypeIList1).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IList<string>>(refTypeIList1))))))), (((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray1))) == null ? null : ((DateTime[])(((ValueComparer<IEnumerable<DateTime>>)(((IProperty)valueTypeArray1).GetValueComparer())).Snapshot(((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray1))))))), (source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable1) == null ? null : ((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeEnumerable1).GetValueComparer())).Snapshot(source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable1))), (((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList1))) == null ? null : ((IList<byte>)(((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeIList1).GetValueComparer())).Snapshot(((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList1))))))), (((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList1))) == null ? null : ((List<short>)(((ValueComparer<IEnumerable<short>>)(((IProperty)valueTypeList1).GetValueComparer())).Snapshot(((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList1)))))))))) })));
                 });
             runtimeEntityType.SetStoreGeneratedValuesFactory(
@@ -2253,7 +2227,7 @@ namespace TestNamespace
             runtimeEntityType.SetRelationshipSnapshotFactory(
                 ISnapshot (IInternalEntry source) =>
                 {
-                    var entity1 = ((CompiledModelTestBase.PrincipalBase)(source.Entity));
+                    var structuralType1 = ((CompiledModelTestBase.PrincipalBase)(source.Entity));
                     return ((ISnapshot)(new Snapshot<long?, long?, object>((source.GetCurrentValue<long?>(id) == null ? null : ((ValueComparer<long?>)(((IProperty)id).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<long?>(id))), (source.GetCurrentValue<long?>(principalBaseId) == null ? null : ((ValueComparer<long?>)(((IProperty)principalBaseId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<long?>(principalBaseId))), SnapshotFactoryFactory.SnapshotCollection(((IEnumerable)(source.GetCurrentValue<ICollection<CompiledModelTestBase.PrincipalBase>>(deriveds)))))));
                 });
             runtimeEntityType.SetCounts(new PropertyCounts(

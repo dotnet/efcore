@@ -39,14 +39,12 @@ namespace TestNamespace
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 sentinel: 0);
             id.SetGetter(
-                int (CompiledModelInMemoryTest.LazyProxiesEntity3 entity) => LazyProxiesEntity3UnsafeAccessors.Id(entity),
-                bool (CompiledModelInMemoryTest.LazyProxiesEntity3 entity) => LazyProxiesEntity3UnsafeAccessors.Id(entity) == 0,
                 int (CompiledModelInMemoryTest.LazyProxiesEntity3 instance) => LazyProxiesEntity3UnsafeAccessors.Id(instance),
                 bool (CompiledModelInMemoryTest.LazyProxiesEntity3 instance) => LazyProxiesEntity3UnsafeAccessors.Id(instance) == 0);
             id.SetSetter(
-                (CompiledModelInMemoryTest.LazyProxiesEntity3 entity, int value) => LazyProxiesEntity3UnsafeAccessors.Id(entity) = value);
+                (CompiledModelInMemoryTest.LazyProxiesEntity3 entity, IReadOnlyList<int> indices, int value) => LazyProxiesEntity3UnsafeAccessors.Id(entity) = value);
             id.SetMaterializationSetter(
-                (CompiledModelInMemoryTest.LazyProxiesEntity3 entity, int value) => LazyProxiesEntity3UnsafeAccessors.Id(entity) = value);
+                (CompiledModelInMemoryTest.LazyProxiesEntity3 entity, IReadOnlyList<int> indices, int value) => LazyProxiesEntity3UnsafeAccessors.Id(entity) = value);
             id.SetAccessors(
                 int (IInternalEntry entry) => LazyProxiesEntity3UnsafeAccessors.Id(((CompiledModelInMemoryTest.LazyProxiesEntity3)(entry.Entity))),
                 int (IInternalEntry entry) => LazyProxiesEntity3UnsafeAccessors.Id(((CompiledModelInMemoryTest.LazyProxiesEntity3)(entry.Entity))),
@@ -82,14 +80,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelInMemoryTest.LazyProxiesEntity3).GetField("<Name>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             name.SetGetter(
-                string (CompiledModelInMemoryTest.LazyProxiesEntity3 entity) => LazyProxiesEntity3UnsafeAccessors.Name(entity),
-                bool (CompiledModelInMemoryTest.LazyProxiesEntity3 entity) => LazyProxiesEntity3UnsafeAccessors.Name(entity) == null,
                 string (CompiledModelInMemoryTest.LazyProxiesEntity3 instance) => LazyProxiesEntity3UnsafeAccessors.Name(instance),
                 bool (CompiledModelInMemoryTest.LazyProxiesEntity3 instance) => LazyProxiesEntity3UnsafeAccessors.Name(instance) == null);
             name.SetSetter(
-                (CompiledModelInMemoryTest.LazyProxiesEntity3 entity, string value) => LazyProxiesEntity3UnsafeAccessors.Name(entity) = value);
+                (CompiledModelInMemoryTest.LazyProxiesEntity3 entity, IReadOnlyList<int> indices, string value) => LazyProxiesEntity3UnsafeAccessors.Name(entity) = value);
             name.SetMaterializationSetter(
-                (CompiledModelInMemoryTest.LazyProxiesEntity3 entity, string value) => LazyProxiesEntity3UnsafeAccessors.Name(entity) = value);
+                (CompiledModelInMemoryTest.LazyProxiesEntity3 entity, IReadOnlyList<int> indices, string value) => LazyProxiesEntity3UnsafeAccessors.Name(entity) = value);
             name.SetAccessors(
                 string (IInternalEntry entry) => LazyProxiesEntity3UnsafeAccessors.Name(((CompiledModelInMemoryTest.LazyProxiesEntity3)(entry.Entity))),
                 string (IInternalEntry entry) => LazyProxiesEntity3UnsafeAccessors.Name(((CompiledModelInMemoryTest.LazyProxiesEntity3)(entry.Entity))),
@@ -146,7 +142,7 @@ namespace TestNamespace
             runtimeEntityType.SetOriginalValuesFactory(
                 ISnapshot (IInternalEntry source) =>
                 {
-                    var entity = ((CompiledModelInMemoryTest.LazyProxiesEntity3)(source.Entity));
+                    var structuralType = ((CompiledModelInMemoryTest.LazyProxiesEntity3)(source.Entity));
                     return ((ISnapshot)(new Snapshot<int, string>(((ValueComparer<int>)(((IProperty)id).GetValueComparer())).Snapshot(source.GetCurrentValue<int>(id)), (source.GetCurrentValue<string>(name) == null ? null : ((ValueComparer<string>)(((IProperty)name).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(name))))));
                 });
             runtimeEntityType.SetStoreGeneratedValuesFactory(
@@ -160,7 +156,7 @@ namespace TestNamespace
             runtimeEntityType.SetRelationshipSnapshotFactory(
                 ISnapshot (IInternalEntry source) =>
                 {
-                    var entity = ((CompiledModelInMemoryTest.LazyProxiesEntity3)(source.Entity));
+                    var structuralType = ((CompiledModelInMemoryTest.LazyProxiesEntity3)(source.Entity));
                     return ((ISnapshot)(new Snapshot<int, object>(((ValueComparer<int>)(((IProperty)id).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<int>(id)), SnapshotFactoryFactory.SnapshotCollection(((IEnumerable)(source.GetCurrentValue<ICollection<CompiledModelInMemoryTest.LazyProxiesEntity4>>(collectionNavigation)))))));
                 });
             runtimeEntityType.SetCounts(new PropertyCounts(

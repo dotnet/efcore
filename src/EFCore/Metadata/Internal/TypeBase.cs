@@ -1634,7 +1634,7 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
 
             if (complexProperty.IsCollection)
             {
-                break;
+                continue;
             }
 
             foreach (var nestedComplexProperty in complexProperty.ComplexType.GetFlattenedComplexProperties())

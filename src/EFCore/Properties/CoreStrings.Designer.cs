@@ -527,6 +527,94 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 queryExpression);
 
         /// <summary>
+        ///     The complex entry at ordinal '{ordinal}' for the collection '{declaringType}.{collection}' cannot be accessed as the containing entry is in the deleted state.
+        /// </summary>
+        public static string ComplexCollectionEntryDeletedEntity(object? ordinal, object? declaringType, object? collection)
+            => string.Format(
+                GetString("ComplexCollectionEntryDeletedEntity", nameof(ordinal), nameof(declaringType), nameof(collection)),
+                ordinal, declaringType, collection);
+
+        /// <summary>
+        ///     Complex entry ordinal '{ordinal}' is invalid for the collection '{declaringType}.{collection}' as it's outside of the collection of length '{count}'.
+        /// </summary>
+        public static string ComplexCollectionEntryOrdinalInvalid(object? ordinal, object? declaringType, object? collection, object? count)
+            => string.Format(
+                GetString("ComplexCollectionEntryOrdinalInvalid", nameof(ordinal), nameof(declaringType), nameof(collection), nameof(count)),
+                ordinal, declaringType, collection, count);
+
+        /// <summary>
+        ///     Cannot change the ordinal of an entry of the  '{collectionDeclaringType}.{collection}'  complex collection unless it's detached or deleted.
+        /// </summary>
+        public static string ComplexCollectionEntryOrdinalReadOnly(object? collectionDeclaringType, object? collection)
+            => string.Format(
+                GetString("ComplexCollectionEntryOrdinalReadOnly", nameof(collectionDeclaringType), nameof(collection)),
+                collectionDeclaringType, collection);
+
+        /// <summary>
+        ///     The original entries cannot be accessed for the complex type collection '{declaringType}.{collection}' as it was originally 'null'.
+        /// </summary>
+        public static string ComplexCollectionEntryOriginalNull(object? declaringType, object? collection)
+            => string.Format(
+                GetString("ComplexCollectionEntryOriginalNull", nameof(declaringType), nameof(collection)),
+                declaringType, collection);
+
+        /// <summary>
+        ///     Complex entry original ordinal '{ordinal}' is invalid for property '{declaringType}.{collection}' as it's outside of the collection of length '{count}'.
+        /// </summary>
+        public static string ComplexCollectionEntryOriginalOrdinalInvalid(object? ordinal, object? declaringType, object? collection, object? count)
+            => string.Format(
+                GetString("ComplexCollectionEntryOriginalOrdinalInvalid", nameof(ordinal), nameof(declaringType), nameof(collection), nameof(count)),
+                ordinal, declaringType, collection, count);
+
+        /// <summary>
+        ///     Cannot change the original ordinal of an entry of the '{collectionDeclaringType}.{collection}' complex collection unless it's detached or added.
+        /// </summary>
+        public static string ComplexCollectionEntryOriginalOrdinalReadOnly(object? collectionDeclaringType, object? collection)
+            => string.Format(
+                GetString("ComplexCollectionEntryOriginalOrdinalReadOnly", nameof(collectionDeclaringType), nameof(collection)),
+                collectionDeclaringType, collection);
+
+        /// <summary>
+        ///     The property '{entityType}.{property}' is being accessed using '{collectionMethod}', but is defined in the model as a non-collection complex property. Use '{referenceMethod}' to access non-collection complex properties.
+        /// </summary>
+        public static string ComplexCollectionIsReference(object? entityType, object? property, object? collectionMethod, object? referenceMethod)
+            => string.Format(
+                GetString("ComplexCollectionIsReference", nameof(entityType), nameof(property), nameof(collectionMethod), nameof(referenceMethod)),
+                entityType, property, collectionMethod, referenceMethod);
+
+        /// <summary>
+        ///     The ordinals specified for the move operation are invalid: from '{fromOrdinal}' to '{toOrdinal}'. The collection only has '{count}' entries.
+        /// </summary>
+        public static string ComplexCollectionMoveInvalidOrdinals(object? fromOrdinal, object? toOrdinal, object? count)
+            => string.Format(
+                GetString("ComplexCollectionMoveInvalidOrdinals", nameof(fromOrdinal), nameof(toOrdinal), nameof(count)),
+                fromOrdinal, toOrdinal, count);
+
+        /// <summary>
+        ///     The complex type collection '{entityType}.{collection}' must be initialized to a non-null value before the elements can be accessed.
+        /// </summary>
+        public static string ComplexCollectionNotInitialized(object? entityType, object? collection)
+            => string.Format(
+                GetString("ComplexCollectionNotInitialized", nameof(entityType), nameof(collection)),
+                entityType, collection);
+
+        /// <summary>
+        ///     The value for the property '{complexType}.{property}' cannot be set, because it's on the complex type collection element '{collectionDeclaringType}.{collection}[{ordinal}]' that contains a null value.
+        /// </summary>
+        public static string ComplexCollectionNullElementSetter(object? complexType, object? property, object? collectionDeclaringType, object? collection, object? ordinal)
+            => string.Format(
+                GetString("ComplexCollectionNullElementSetter", nameof(complexType), nameof(property), nameof(collectionDeclaringType), nameof(collection), nameof(ordinal)),
+                complexType, property, collectionDeclaringType, collection, ordinal);
+
+        /// <summary>
+        ///     The complex entry at the original ordinal '{ordinal}' for the collection '{declaringType}.{collection}' cannot be accessed as the containing entry is in the added state.
+        /// </summary>
+        public static string ComplexCollectionOriginalEntryAddedEntity(object? ordinal, object? declaringType, object? collection)
+            => string.Format(
+                GetString("ComplexCollectionOriginalEntryAddedEntity", nameof(ordinal), nameof(declaringType), nameof(collection)),
+                ordinal, declaringType, collection);
+
+        /// <summary>
         ///     The collection complex property '{property}' cannot be added to the type '{type}' because its CLR type '{clrType}' does not implement 'IEnumerable&lt;{targetType}&gt;'. Collection complex property must implement IEnumerable&lt;&gt; of the complex type.
         /// </summary>
         public static string ComplexCollectionWrongClrType(object? property, object? type, object? clrType, object? targetType)
@@ -575,12 +663,36 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, type, clrType, targetType);
 
         /// <summary>
+        ///     The property '{entityType}.{property}' is being accessed using the '{referenceMethod}' method, but is defined in the model as a collection complex property. Use the '{collectionMethod}' method to access collection complex properties.
+        /// </summary>
+        public static string ComplexReferenceIsCollection(object? entityType, object? property, object? referenceMethod, object? collectionMethod)
+            => string.Format(
+                GetString("ComplexReferenceIsCollection", nameof(entityType), nameof(property), nameof(referenceMethod), nameof(collectionMethod)),
+                entityType, property, referenceMethod, collectionMethod);
+
+        /// <summary>
+        ///     Complex type '{complexType}' uses change tracking strategy '{changeTrackingStrategy}', but complex types with notification change tracking are not supported. See https://github.com/dotnet/efcore/issues/36175 for more information.
+        /// </summary>
+        public static string ComplexTypeNotificationChangeTracking(object? complexType, object? changeTrackingStrategy)
+            => string.Format(
+                GetString("ComplexTypeNotificationChangeTracking", nameof(complexType), nameof(changeTrackingStrategy)),
+                complexType, changeTrackingStrategy);
+
+        /// <summary>
         ///     '{service}' doesn't currently support complex types.
         /// </summary>
         public static string ComplexTypesNotSupported(object? service)
             => string.Format(
                 GetString("ComplexTypesNotSupported", nameof(service)),
                 service);
+
+        /// <summary>
+        ///     The complex type collection '{type}.{property}' cannot be configured because complex value type collections are not supported. See https://github.com/dotnet/efcore/issues/31411 for more information.
+        /// </summary>
+        public static string ComplexValueTypeCollection(object? type, object? property)
+            => string.Format(
+                GetString("ComplexValueTypeCollection", nameof(type), nameof(property)),
+                type, property);
 
         /// <summary>
         ///     There are multiple properties with the [ForeignKey] attribute pointing to navigation '{1_entityType}.{0_navigation}'. To define a composite foreign key using data annotations, use the [ForeignKey] attribute on the navigation.
@@ -677,12 +789,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 firstConstructor, secondConstructor);
 
         /// <summary>
-        ///     No suitable constructor was found for entity type '{entityType}'. The following constructors had parameters that could not be bound to properties of the entity type: {constructors}Note that only mapped properties can be bound to constructor parameters. Navigations to related entities, including references to owned types, cannot be bound.
+        ///     No suitable constructor was found for the type '{type}'. The following constructors had parameters that could not be bound to properties of the type: {constructors}Note that only mapped properties can be bound to constructor parameters. Navigations to related entities, including references to owned types, cannot be bound.
         /// </summary>
-        public static string ConstructorNotFound(object? entityType, object? constructors)
+        public static string ConstructorNotFound(object? type, object? constructors)
             => string.Format(
-                GetString("ConstructorNotFound", nameof(entityType), nameof(constructors)),
-                entityType, constructors);
+                GetString("ConstructorNotFound", nameof(type), nameof(constructors)),
+                type, constructors);
 
         /// <summary>
         ///     Cannot access a disposed context instance. A common cause of this error is disposing a context instance that was resolved from dependency injection and then later trying to use the same context instance elsewhere in your application. This may occur if you are calling 'Dispose' on the context instance, or wrapping it in a using statement. If you are using dependency injection, you should let the dependency injection container take care of disposing context instances.
@@ -3528,6 +3640,56 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             return (EventDefinition<string, string>)definition;
+        }
+
+        /// <summary>
+        ///     The unchanged property '{typePath}.{property}' was detected as changed and will be marked as modified. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see property values.
+        /// </summary>
+        public static EventDefinition<string, string> LogComplexTypePropertyChangeDetected(IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogComplexTypePropertyChangeDetected;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((LoggingDefinitions)logger.Definitions).LogComplexTypePropertyChangeDetected,
+                    logger,
+                    static logger => new EventDefinition<string, string>(
+                        logger.Options,
+                        CoreEventId.ComplexTypePropertyChangeDetected,
+                        LogLevel.Debug,
+                        "CoreEventId.ComplexTypePropertyChangeDetected",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            CoreEventId.ComplexTypePropertyChangeDetected,
+                            _resourceManager.GetString("LogComplexTypePropertyChangeDetected")!)));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
+
+        /// <summary>
+        ///     The unchanged property '{typePath}.{property}' was detected as changed from '{oldValue}' to '{newValue}' and will be marked as modified for entity with key '{keyValues}'.
+        /// </summary>
+        public static EventDefinition<string, string, object?, object?, string> LogComplexTypePropertyChangeDetectedSensitive(IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogComplexTypePropertyChangeDetectedSensitive;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((LoggingDefinitions)logger.Definitions).LogComplexTypePropertyChangeDetectedSensitive,
+                    logger,
+                    static logger => new EventDefinition<string, string, object?, object?, string>(
+                        logger.Options,
+                        CoreEventId.ComplexTypePropertyChangeDetected,
+                        LogLevel.Debug,
+                        "CoreEventId.ComplexTypePropertyChangeDetected",
+                        level => LoggerMessage.Define<string, string, object?, object?, string>(
+                            level,
+                            CoreEventId.ComplexTypePropertyChangeDetected,
+                            _resourceManager.GetString("LogComplexTypePropertyChangeDetectedSensitive")!)));
+            }
+
+            return (EventDefinition<string, string, object?, object?, string>)definition;
         }
 
         /// <summary>

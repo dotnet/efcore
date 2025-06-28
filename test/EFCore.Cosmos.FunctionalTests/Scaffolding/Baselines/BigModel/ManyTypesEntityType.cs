@@ -49,14 +49,12 @@ namespace TestNamespace
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 valueConverter: new CompiledModelTestBase.ManyTypesIdConverter());
             id.SetGetter(
-                CompiledModelTestBase.ManyTypesId (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.Id(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.Id(entity).Equals(default(CompiledModelTestBase.ManyTypesId)),
                 CompiledModelTestBase.ManyTypesId (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.Id(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.Id(instance).Equals(default(CompiledModelTestBase.ManyTypesId)));
             id.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.ManyTypesId value) => ManyTypesUnsafeAccessors.Id(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.ManyTypesId value) => ManyTypesUnsafeAccessors.Id(entity) = value);
             id.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.ManyTypesId value) => ManyTypesUnsafeAccessors.Id(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.ManyTypesId value) => ManyTypesUnsafeAccessors.Id(entity) = value);
             id.SetAccessors(
                 CompiledModelTestBase.ManyTypesId (IInternalEntry entry) => ManyTypesUnsafeAccessors.Id(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 CompiledModelTestBase.ManyTypesId (IInternalEntry entry) => ManyTypesUnsafeAccessors.Id(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -131,14 +129,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Bool>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: false);
             @bool.SetGetter(
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.Bool(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.Bool(entity) == false,
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.Bool(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.Bool(instance) == false);
             @bool.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, bool value) => ManyTypesUnsafeAccessors.Bool(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, bool value) => ManyTypesUnsafeAccessors.Bool(entity) = value);
             @bool.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, bool value) => ManyTypesUnsafeAccessors.Bool(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, bool value) => ManyTypesUnsafeAccessors.Bool(entity) = value);
             @bool.SetAccessors(
                 bool (IInternalEntry entry) => ManyTypesUnsafeAccessors.Bool(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 bool (IInternalEntry entry) => ManyTypesUnsafeAccessors.Bool(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -172,14 +168,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("BoolArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<BoolArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             boolArray.SetGetter(
-                bool[] (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.BoolArray(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.BoolArray(entity) == null,
                 bool[] (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.BoolArray(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.BoolArray(instance) == null);
             boolArray.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, bool[] value) => ManyTypesUnsafeAccessors.BoolArray(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, bool[] value) => ManyTypesUnsafeAccessors.BoolArray(entity) = value);
             boolArray.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, bool[] value) => ManyTypesUnsafeAccessors.BoolArray(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, bool[] value) => ManyTypesUnsafeAccessors.BoolArray(entity) = value);
             boolArray.SetAccessors(
                 bool[] (IInternalEntry entry) => ManyTypesUnsafeAccessors.BoolArray(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 bool[] (IInternalEntry entry) => ManyTypesUnsafeAccessors.BoolArray(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -231,14 +225,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("BoolNestedCollection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<BoolNestedCollection>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             boolNestedCollection.SetGetter(
-                bool[][] (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.BoolNestedCollection(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.BoolNestedCollection(entity) == null,
                 bool[][] (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.BoolNestedCollection(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.BoolNestedCollection(instance) == null);
             boolNestedCollection.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, bool[][] value) => ManyTypesUnsafeAccessors.BoolNestedCollection(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, bool[][] value) => ManyTypesUnsafeAccessors.BoolNestedCollection(entity) = value);
             boolNestedCollection.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, bool[][] value) => ManyTypesUnsafeAccessors.BoolNestedCollection(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, bool[][] value) => ManyTypesUnsafeAccessors.BoolNestedCollection(entity) = value);
             boolNestedCollection.SetAccessors(
                 bool[][] (IInternalEntry entry) => ManyTypesUnsafeAccessors.BoolNestedCollection(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 bool[][] (IInternalEntry entry) => ManyTypesUnsafeAccessors.BoolNestedCollection(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -307,14 +299,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("BoolReadOnlyCollection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("_boolReadOnlyCollection", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             boolReadOnlyCollection.SetGetter(
-                IReadOnlyCollection<bool> (CompiledModelTestBase.ManyTypes entity) => (ManyTypesUnsafeAccessors._boolReadOnlyCollection(entity) == null ? null : ((IReadOnlyCollection<bool>)(ManyTypesUnsafeAccessors._boolReadOnlyCollection(entity)))),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors._boolReadOnlyCollection(entity) == null,
                 IReadOnlyCollection<bool> (CompiledModelTestBase.ManyTypes instance) => (ManyTypesUnsafeAccessors._boolReadOnlyCollection(instance) == null ? null : ((IReadOnlyCollection<bool>)(ManyTypesUnsafeAccessors._boolReadOnlyCollection(instance)))),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors._boolReadOnlyCollection(instance) == null);
             boolReadOnlyCollection.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, IReadOnlyCollection<bool> value) => ManyTypesUnsafeAccessors._boolReadOnlyCollection(entity) = ((List<bool>)(value)));
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, IReadOnlyCollection<bool> value) => ManyTypesUnsafeAccessors._boolReadOnlyCollection(entity) = ((List<bool>)(value)));
             boolReadOnlyCollection.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, IReadOnlyCollection<bool> value) => ManyTypesUnsafeAccessors._boolReadOnlyCollection(entity) = ((List<bool>)(value)));
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, IReadOnlyCollection<bool> value) => ManyTypesUnsafeAccessors._boolReadOnlyCollection(entity) = ((List<bool>)(value)));
             boolReadOnlyCollection.SetAccessors(
                 IReadOnlyCollection<bool> (IInternalEntry entry) => ((IReadOnlyCollection<bool>)(ManyTypesUnsafeAccessors._boolReadOnlyCollection(((CompiledModelTestBase.ManyTypes)(entry.Entity))))),
                 IReadOnlyCollection<bool> (IInternalEntry entry) => ((IReadOnlyCollection<bool>)(ManyTypesUnsafeAccessors._boolReadOnlyCollection(((CompiledModelTestBase.ManyTypes)(entry.Entity))))),
@@ -366,14 +356,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("BoolToStringConverterProperty", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<BoolToStringConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             boolToStringConverterProperty.SetGetter(
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.BoolToStringConverterProperty(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.BoolToStringConverterProperty(entity) == false,
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.BoolToStringConverterProperty(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.BoolToStringConverterProperty(instance) == false);
             boolToStringConverterProperty.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, bool value) => ManyTypesUnsafeAccessors.BoolToStringConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, bool value) => ManyTypesUnsafeAccessors.BoolToStringConverterProperty(entity) = value);
             boolToStringConverterProperty.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, bool value) => ManyTypesUnsafeAccessors.BoolToStringConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, bool value) => ManyTypesUnsafeAccessors.BoolToStringConverterProperty(entity) = value);
             boolToStringConverterProperty.SetAccessors(
                 bool (IInternalEntry entry) => ManyTypesUnsafeAccessors.BoolToStringConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 bool (IInternalEntry entry) => ManyTypesUnsafeAccessors.BoolToStringConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -414,14 +402,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("BoolToTwoValuesConverterProperty", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<BoolToTwoValuesConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             boolToTwoValuesConverterProperty.SetGetter(
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.BoolToTwoValuesConverterProperty(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.BoolToTwoValuesConverterProperty(entity) == false,
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.BoolToTwoValuesConverterProperty(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.BoolToTwoValuesConverterProperty(instance) == false);
             boolToTwoValuesConverterProperty.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, bool value) => ManyTypesUnsafeAccessors.BoolToTwoValuesConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, bool value) => ManyTypesUnsafeAccessors.BoolToTwoValuesConverterProperty(entity) = value);
             boolToTwoValuesConverterProperty.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, bool value) => ManyTypesUnsafeAccessors.BoolToTwoValuesConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, bool value) => ManyTypesUnsafeAccessors.BoolToTwoValuesConverterProperty(entity) = value);
             boolToTwoValuesConverterProperty.SetAccessors(
                 bool (IInternalEntry entry) => ManyTypesUnsafeAccessors.BoolToTwoValuesConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 bool (IInternalEntry entry) => ManyTypesUnsafeAccessors.BoolToTwoValuesConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -463,14 +449,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<BoolToZeroOneConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new BoolToZeroOneConverter<short>());
             boolToZeroOneConverterProperty.SetGetter(
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.BoolToZeroOneConverterProperty(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.BoolToZeroOneConverterProperty(entity) == false,
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.BoolToZeroOneConverterProperty(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.BoolToZeroOneConverterProperty(instance) == false);
             boolToZeroOneConverterProperty.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, bool value) => ManyTypesUnsafeAccessors.BoolToZeroOneConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, bool value) => ManyTypesUnsafeAccessors.BoolToZeroOneConverterProperty(entity) = value);
             boolToZeroOneConverterProperty.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, bool value) => ManyTypesUnsafeAccessors.BoolToZeroOneConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, bool value) => ManyTypesUnsafeAccessors.BoolToZeroOneConverterProperty(entity) = value);
             boolToZeroOneConverterProperty.SetAccessors(
                 bool (IInternalEntry entry) => ManyTypesUnsafeAccessors.BoolToZeroOneConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 bool (IInternalEntry entry) => ManyTypesUnsafeAccessors.BoolToZeroOneConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -511,14 +495,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Bytes", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Bytes>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             bytes.SetGetter(
-                byte[] (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.Bytes(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.Bytes(entity) == null,
                 byte[] (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.Bytes(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.Bytes(instance) == null);
             bytes.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, byte[] value) => ManyTypesUnsafeAccessors.Bytes(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, byte[] value) => ManyTypesUnsafeAccessors.Bytes(entity) = value);
             bytes.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, byte[] value) => ManyTypesUnsafeAccessors.Bytes(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, byte[] value) => ManyTypesUnsafeAccessors.Bytes(entity) = value);
             bytes.SetAccessors(
                 byte[] (IInternalEntry entry) => ManyTypesUnsafeAccessors.Bytes(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 byte[] (IInternalEntry entry) => ManyTypesUnsafeAccessors.Bytes(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -560,14 +542,12 @@ namespace TestNamespace
                 valueConverter: new BytesToStringConverter(),
                 valueComparer: new ArrayStructuralComparer<byte>());
             bytesToStringConverterProperty.SetGetter(
-                byte[] (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.BytesToStringConverterProperty(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.BytesToStringConverterProperty(entity) == null,
                 byte[] (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.BytesToStringConverterProperty(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.BytesToStringConverterProperty(instance) == null);
             bytesToStringConverterProperty.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, byte[] value) => ManyTypesUnsafeAccessors.BytesToStringConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, byte[] value) => ManyTypesUnsafeAccessors.BytesToStringConverterProperty(entity) = value);
             bytesToStringConverterProperty.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, byte[] value) => ManyTypesUnsafeAccessors.BytesToStringConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, byte[] value) => ManyTypesUnsafeAccessors.BytesToStringConverterProperty(entity) = value);
             bytesToStringConverterProperty.SetAccessors(
                 byte[] (IInternalEntry entry) => ManyTypesUnsafeAccessors.BytesToStringConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 byte[] (IInternalEntry entry) => ManyTypesUnsafeAccessors.BytesToStringConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -608,14 +588,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<CastingConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new CastingConverter<int, decimal>());
             castingConverterProperty.SetGetter(
-                int (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.CastingConverterProperty(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.CastingConverterProperty(entity) == 0,
                 int (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.CastingConverterProperty(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.CastingConverterProperty(instance) == 0);
             castingConverterProperty.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, int value) => ManyTypesUnsafeAccessors.CastingConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, int value) => ManyTypesUnsafeAccessors.CastingConverterProperty(entity) = value);
             castingConverterProperty.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, int value) => ManyTypesUnsafeAccessors.CastingConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, int value) => ManyTypesUnsafeAccessors.CastingConverterProperty(entity) = value);
             castingConverterProperty.SetAccessors(
                 int (IInternalEntry entry) => ManyTypesUnsafeAccessors.CastingConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 int (IInternalEntry entry) => ManyTypesUnsafeAccessors.CastingConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -657,14 +635,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Char>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: '\0');
             @char.SetGetter(
-                char (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.Char(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.Char(entity) == '\0',
                 char (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.Char(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.Char(instance) == '\0');
             @char.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, char value) => ManyTypesUnsafeAccessors.Char(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, char value) => ManyTypesUnsafeAccessors.Char(entity) = value);
             @char.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, char value) => ManyTypesUnsafeAccessors.Char(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, char value) => ManyTypesUnsafeAccessors.Char(entity) = value);
             @char.SetAccessors(
                 char (IInternalEntry entry) => ManyTypesUnsafeAccessors.Char(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 char (IInternalEntry entry) => ManyTypesUnsafeAccessors.Char(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -698,14 +674,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("CharArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<CharArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             charArray.SetGetter(
-                char[] (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.CharArray(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.CharArray(entity) == null,
                 char[] (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.CharArray(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.CharArray(instance) == null);
             charArray.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, char[] value) => ManyTypesUnsafeAccessors.CharArray(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, char[] value) => ManyTypesUnsafeAccessors.CharArray(entity) = value);
             charArray.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, char[] value) => ManyTypesUnsafeAccessors.CharArray(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, char[] value) => ManyTypesUnsafeAccessors.CharArray(entity) = value);
             charArray.SetAccessors(
                 char[] (IInternalEntry entry) => ManyTypesUnsafeAccessors.CharArray(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 char[] (IInternalEntry entry) => ManyTypesUnsafeAccessors.CharArray(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -757,14 +731,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("CharNestedCollection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<CharNestedCollection>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             charNestedCollection.SetGetter(
-                char[][] (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.CharNestedCollection(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.CharNestedCollection(entity) == null,
                 char[][] (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.CharNestedCollection(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.CharNestedCollection(instance) == null);
             charNestedCollection.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, char[][] value) => ManyTypesUnsafeAccessors.CharNestedCollection(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, char[][] value) => ManyTypesUnsafeAccessors.CharNestedCollection(entity) = value);
             charNestedCollection.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, char[][] value) => ManyTypesUnsafeAccessors.CharNestedCollection(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, char[][] value) => ManyTypesUnsafeAccessors.CharNestedCollection(entity) = value);
             charNestedCollection.SetAccessors(
                 char[][] (IInternalEntry entry) => ManyTypesUnsafeAccessors.CharNestedCollection(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 char[][] (IInternalEntry entry) => ManyTypesUnsafeAccessors.CharNestedCollection(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -834,14 +806,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<CharToStringConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new CharToStringConverter());
             charToStringConverterProperty.SetGetter(
-                char (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.CharToStringConverterProperty(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.CharToStringConverterProperty(entity) == '\0',
                 char (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.CharToStringConverterProperty(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.CharToStringConverterProperty(instance) == '\0');
             charToStringConverterProperty.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, char value) => ManyTypesUnsafeAccessors.CharToStringConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, char value) => ManyTypesUnsafeAccessors.CharToStringConverterProperty(entity) = value);
             charToStringConverterProperty.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, char value) => ManyTypesUnsafeAccessors.CharToStringConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, char value) => ManyTypesUnsafeAccessors.CharToStringConverterProperty(entity) = value);
             charToStringConverterProperty.SetAccessors(
                 char (IInternalEntry entry) => ManyTypesUnsafeAccessors.CharToStringConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 char (IInternalEntry entry) => ManyTypesUnsafeAccessors.CharToStringConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -883,14 +853,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<DateOnly>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: new DateOnly(1, 1, 1));
             dateOnly.SetGetter(
-                DateOnly (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.DateOnly(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.DateOnly(entity) == default(DateOnly),
                 DateOnly (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.DateOnly(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.DateOnly(instance) == default(DateOnly));
             dateOnly.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, DateOnly value) => ManyTypesUnsafeAccessors.DateOnly(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, DateOnly value) => ManyTypesUnsafeAccessors.DateOnly(entity) = value);
             dateOnly.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, DateOnly value) => ManyTypesUnsafeAccessors.DateOnly(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, DateOnly value) => ManyTypesUnsafeAccessors.DateOnly(entity) = value);
             dateOnly.SetAccessors(
                 DateOnly (IInternalEntry entry) => ManyTypesUnsafeAccessors.DateOnly(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 DateOnly (IInternalEntry entry) => ManyTypesUnsafeAccessors.DateOnly(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -925,14 +893,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<DateOnlyToStringConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new DateOnlyToStringConverter());
             dateOnlyToStringConverterProperty.SetGetter(
-                DateOnly (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.DateOnlyToStringConverterProperty(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.DateOnlyToStringConverterProperty(entity) == default(DateOnly),
                 DateOnly (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.DateOnlyToStringConverterProperty(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.DateOnlyToStringConverterProperty(instance) == default(DateOnly));
             dateOnlyToStringConverterProperty.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, DateOnly value) => ManyTypesUnsafeAccessors.DateOnlyToStringConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, DateOnly value) => ManyTypesUnsafeAccessors.DateOnlyToStringConverterProperty(entity) = value);
             dateOnlyToStringConverterProperty.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, DateOnly value) => ManyTypesUnsafeAccessors.DateOnlyToStringConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, DateOnly value) => ManyTypesUnsafeAccessors.DateOnlyToStringConverterProperty(entity) = value);
             dateOnlyToStringConverterProperty.SetAccessors(
                 DateOnly (IInternalEntry entry) => ManyTypesUnsafeAccessors.DateOnlyToStringConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 DateOnly (IInternalEntry entry) => ManyTypesUnsafeAccessors.DateOnlyToStringConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -974,14 +940,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<DateTime>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
             dateTime.SetGetter(
-                DateTime (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.DateTime(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.DateTime(entity) == default(DateTime),
                 DateTime (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.DateTime(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.DateTime(instance) == default(DateTime));
             dateTime.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, DateTime value) => ManyTypesUnsafeAccessors.DateTime(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, DateTime value) => ManyTypesUnsafeAccessors.DateTime(entity) = value);
             dateTime.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, DateTime value) => ManyTypesUnsafeAccessors.DateTime(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, DateTime value) => ManyTypesUnsafeAccessors.DateTime(entity) = value);
             dateTime.SetAccessors(
                 DateTime (IInternalEntry entry) => ManyTypesUnsafeAccessors.DateTime(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 DateTime (IInternalEntry entry) => ManyTypesUnsafeAccessors.DateTime(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -1016,14 +980,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<DateTimeOffsetToBinaryConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new DateTimeOffsetToBinaryConverter());
             dateTimeOffsetToBinaryConverterProperty.SetGetter(
-                DateTimeOffset (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.DateTimeOffsetToBinaryConverterProperty(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.DateTimeOffsetToBinaryConverterProperty(entity).EqualsExact(default(DateTimeOffset)),
                 DateTimeOffset (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.DateTimeOffsetToBinaryConverterProperty(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.DateTimeOffsetToBinaryConverterProperty(instance).EqualsExact(default(DateTimeOffset)));
             dateTimeOffsetToBinaryConverterProperty.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, DateTimeOffset value) => ManyTypesUnsafeAccessors.DateTimeOffsetToBinaryConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, DateTimeOffset value) => ManyTypesUnsafeAccessors.DateTimeOffsetToBinaryConverterProperty(entity) = value);
             dateTimeOffsetToBinaryConverterProperty.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, DateTimeOffset value) => ManyTypesUnsafeAccessors.DateTimeOffsetToBinaryConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, DateTimeOffset value) => ManyTypesUnsafeAccessors.DateTimeOffsetToBinaryConverterProperty(entity) = value);
             dateTimeOffsetToBinaryConverterProperty.SetAccessors(
                 DateTimeOffset (IInternalEntry entry) => ManyTypesUnsafeAccessors.DateTimeOffsetToBinaryConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 DateTimeOffset (IInternalEntry entry) => ManyTypesUnsafeAccessors.DateTimeOffsetToBinaryConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -1065,14 +1027,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<DateTimeOffsetToBytesConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new DateTimeOffsetToBytesConverter());
             dateTimeOffsetToBytesConverterProperty.SetGetter(
-                DateTimeOffset (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.DateTimeOffsetToBytesConverterProperty(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.DateTimeOffsetToBytesConverterProperty(entity).EqualsExact(default(DateTimeOffset)),
                 DateTimeOffset (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.DateTimeOffsetToBytesConverterProperty(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.DateTimeOffsetToBytesConverterProperty(instance).EqualsExact(default(DateTimeOffset)));
             dateTimeOffsetToBytesConverterProperty.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, DateTimeOffset value) => ManyTypesUnsafeAccessors.DateTimeOffsetToBytesConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, DateTimeOffset value) => ManyTypesUnsafeAccessors.DateTimeOffsetToBytesConverterProperty(entity) = value);
             dateTimeOffsetToBytesConverterProperty.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, DateTimeOffset value) => ManyTypesUnsafeAccessors.DateTimeOffsetToBytesConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, DateTimeOffset value) => ManyTypesUnsafeAccessors.DateTimeOffsetToBytesConverterProperty(entity) = value);
             dateTimeOffsetToBytesConverterProperty.SetAccessors(
                 DateTimeOffset (IInternalEntry entry) => ManyTypesUnsafeAccessors.DateTimeOffsetToBytesConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 DateTimeOffset (IInternalEntry entry) => ManyTypesUnsafeAccessors.DateTimeOffsetToBytesConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -1114,14 +1074,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<DateTimeOffsetToStringConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new DateTimeOffsetToStringConverter());
             dateTimeOffsetToStringConverterProperty.SetGetter(
-                DateTimeOffset (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.DateTimeOffsetToStringConverterProperty(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.DateTimeOffsetToStringConverterProperty(entity).EqualsExact(default(DateTimeOffset)),
                 DateTimeOffset (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.DateTimeOffsetToStringConverterProperty(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.DateTimeOffsetToStringConverterProperty(instance).EqualsExact(default(DateTimeOffset)));
             dateTimeOffsetToStringConverterProperty.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, DateTimeOffset value) => ManyTypesUnsafeAccessors.DateTimeOffsetToStringConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, DateTimeOffset value) => ManyTypesUnsafeAccessors.DateTimeOffsetToStringConverterProperty(entity) = value);
             dateTimeOffsetToStringConverterProperty.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, DateTimeOffset value) => ManyTypesUnsafeAccessors.DateTimeOffsetToStringConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, DateTimeOffset value) => ManyTypesUnsafeAccessors.DateTimeOffsetToStringConverterProperty(entity) = value);
             dateTimeOffsetToStringConverterProperty.SetAccessors(
                 DateTimeOffset (IInternalEntry entry) => ManyTypesUnsafeAccessors.DateTimeOffsetToStringConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 DateTimeOffset (IInternalEntry entry) => ManyTypesUnsafeAccessors.DateTimeOffsetToStringConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -1163,14 +1121,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<DateTimeToBinaryConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new DateTimeToBinaryConverter());
             dateTimeToBinaryConverterProperty.SetGetter(
-                DateTime (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.DateTimeToBinaryConverterProperty(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.DateTimeToBinaryConverterProperty(entity) == default(DateTime),
                 DateTime (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.DateTimeToBinaryConverterProperty(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.DateTimeToBinaryConverterProperty(instance) == default(DateTime));
             dateTimeToBinaryConverterProperty.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, DateTime value) => ManyTypesUnsafeAccessors.DateTimeToBinaryConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, DateTime value) => ManyTypesUnsafeAccessors.DateTimeToBinaryConverterProperty(entity) = value);
             dateTimeToBinaryConverterProperty.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, DateTime value) => ManyTypesUnsafeAccessors.DateTimeToBinaryConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, DateTime value) => ManyTypesUnsafeAccessors.DateTimeToBinaryConverterProperty(entity) = value);
             dateTimeToBinaryConverterProperty.SetAccessors(
                 DateTime (IInternalEntry entry) => ManyTypesUnsafeAccessors.DateTimeToBinaryConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 DateTime (IInternalEntry entry) => ManyTypesUnsafeAccessors.DateTimeToBinaryConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -1212,14 +1168,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<DateTimeToStringConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new DateTimeToStringConverter());
             dateTimeToStringConverterProperty.SetGetter(
-                DateTime (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.DateTimeToStringConverterProperty(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.DateTimeToStringConverterProperty(entity) == default(DateTime),
                 DateTime (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.DateTimeToStringConverterProperty(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.DateTimeToStringConverterProperty(instance) == default(DateTime));
             dateTimeToStringConverterProperty.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, DateTime value) => ManyTypesUnsafeAccessors.DateTimeToStringConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, DateTime value) => ManyTypesUnsafeAccessors.DateTimeToStringConverterProperty(entity) = value);
             dateTimeToStringConverterProperty.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, DateTime value) => ManyTypesUnsafeAccessors.DateTimeToStringConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, DateTime value) => ManyTypesUnsafeAccessors.DateTimeToStringConverterProperty(entity) = value);
             dateTimeToStringConverterProperty.SetAccessors(
                 DateTime (IInternalEntry entry) => ManyTypesUnsafeAccessors.DateTimeToStringConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 DateTime (IInternalEntry entry) => ManyTypesUnsafeAccessors.DateTimeToStringConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -1261,14 +1215,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<DateTimeToTicksConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
             dateTimeToTicksConverterProperty.SetGetter(
-                DateTime (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.DateTimeToTicksConverterProperty(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.DateTimeToTicksConverterProperty(entity) == default(DateTime),
                 DateTime (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.DateTimeToTicksConverterProperty(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.DateTimeToTicksConverterProperty(instance) == default(DateTime));
             dateTimeToTicksConverterProperty.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, DateTime value) => ManyTypesUnsafeAccessors.DateTimeToTicksConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, DateTime value) => ManyTypesUnsafeAccessors.DateTimeToTicksConverterProperty(entity) = value);
             dateTimeToTicksConverterProperty.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, DateTime value) => ManyTypesUnsafeAccessors.DateTimeToTicksConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, DateTime value) => ManyTypesUnsafeAccessors.DateTimeToTicksConverterProperty(entity) = value);
             dateTimeToTicksConverterProperty.SetAccessors(
                 DateTime (IInternalEntry entry) => ManyTypesUnsafeAccessors.DateTimeToTicksConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 DateTime (IInternalEntry entry) => ManyTypesUnsafeAccessors.DateTimeToTicksConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -1303,14 +1255,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Decimal>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: 0m);
             @decimal.SetGetter(
-                decimal (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.Decimal(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.Decimal(entity) == 0M,
                 decimal (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.Decimal(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.Decimal(instance) == 0M);
             @decimal.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, decimal value) => ManyTypesUnsafeAccessors.Decimal(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, decimal value) => ManyTypesUnsafeAccessors.Decimal(entity) = value);
             @decimal.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, decimal value) => ManyTypesUnsafeAccessors.Decimal(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, decimal value) => ManyTypesUnsafeAccessors.Decimal(entity) = value);
             @decimal.SetAccessors(
                 decimal (IInternalEntry entry) => ManyTypesUnsafeAccessors.Decimal(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 decimal (IInternalEntry entry) => ManyTypesUnsafeAccessors.Decimal(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -1344,14 +1294,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("DecimalArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<DecimalArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             decimalArray.SetGetter(
-                decimal[] (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.DecimalArray(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.DecimalArray(entity) == null,
                 decimal[] (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.DecimalArray(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.DecimalArray(instance) == null);
             decimalArray.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, decimal[] value) => ManyTypesUnsafeAccessors.DecimalArray(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, decimal[] value) => ManyTypesUnsafeAccessors.DecimalArray(entity) = value);
             decimalArray.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, decimal[] value) => ManyTypesUnsafeAccessors.DecimalArray(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, decimal[] value) => ManyTypesUnsafeAccessors.DecimalArray(entity) = value);
             decimalArray.SetAccessors(
                 decimal[] (IInternalEntry entry) => ManyTypesUnsafeAccessors.DecimalArray(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 decimal[] (IInternalEntry entry) => ManyTypesUnsafeAccessors.DecimalArray(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -1404,14 +1352,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<DecimalNumberToBytesConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new NumberToBytesConverter<decimal>());
             decimalNumberToBytesConverterProperty.SetGetter(
-                decimal (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.DecimalNumberToBytesConverterProperty(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.DecimalNumberToBytesConverterProperty(entity) == 0M,
                 decimal (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.DecimalNumberToBytesConverterProperty(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.DecimalNumberToBytesConverterProperty(instance) == 0M);
             decimalNumberToBytesConverterProperty.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, decimal value) => ManyTypesUnsafeAccessors.DecimalNumberToBytesConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, decimal value) => ManyTypesUnsafeAccessors.DecimalNumberToBytesConverterProperty(entity) = value);
             decimalNumberToBytesConverterProperty.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, decimal value) => ManyTypesUnsafeAccessors.DecimalNumberToBytesConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, decimal value) => ManyTypesUnsafeAccessors.DecimalNumberToBytesConverterProperty(entity) = value);
             decimalNumberToBytesConverterProperty.SetAccessors(
                 decimal (IInternalEntry entry) => ManyTypesUnsafeAccessors.DecimalNumberToBytesConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 decimal (IInternalEntry entry) => ManyTypesUnsafeAccessors.DecimalNumberToBytesConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -1453,14 +1399,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<DecimalNumberToStringConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new NumberToStringConverter<decimal>());
             decimalNumberToStringConverterProperty.SetGetter(
-                decimal (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.DecimalNumberToStringConverterProperty(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.DecimalNumberToStringConverterProperty(entity) == 0M,
                 decimal (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.DecimalNumberToStringConverterProperty(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.DecimalNumberToStringConverterProperty(instance) == 0M);
             decimalNumberToStringConverterProperty.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, decimal value) => ManyTypesUnsafeAccessors.DecimalNumberToStringConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, decimal value) => ManyTypesUnsafeAccessors.DecimalNumberToStringConverterProperty(entity) = value);
             decimalNumberToStringConverterProperty.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, decimal value) => ManyTypesUnsafeAccessors.DecimalNumberToStringConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, decimal value) => ManyTypesUnsafeAccessors.DecimalNumberToStringConverterProperty(entity) = value);
             decimalNumberToStringConverterProperty.SetAccessors(
                 decimal (IInternalEntry entry) => ManyTypesUnsafeAccessors.DecimalNumberToStringConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 decimal (IInternalEntry entry) => ManyTypesUnsafeAccessors.DecimalNumberToStringConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -1502,14 +1446,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Double>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: 0.0);
             @double.SetGetter(
-                double (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.Double(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.Double(entity).Equals(0D),
                 double (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.Double(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.Double(instance).Equals(0D));
             @double.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, double value) => ManyTypesUnsafeAccessors.Double(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, double value) => ManyTypesUnsafeAccessors.Double(entity) = value);
             @double.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, double value) => ManyTypesUnsafeAccessors.Double(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, double value) => ManyTypesUnsafeAccessors.Double(entity) = value);
             @double.SetAccessors(
                 double (IInternalEntry entry) => ManyTypesUnsafeAccessors.Double(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 double (IInternalEntry entry) => ManyTypesUnsafeAccessors.Double(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -1543,14 +1485,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("DoubleArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<DoubleArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             doubleArray.SetGetter(
-                double[] (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.DoubleArray(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.DoubleArray(entity) == null,
                 double[] (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.DoubleArray(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.DoubleArray(instance) == null);
             doubleArray.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, double[] value) => ManyTypesUnsafeAccessors.DoubleArray(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, double[] value) => ManyTypesUnsafeAccessors.DoubleArray(entity) = value);
             doubleArray.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, double[] value) => ManyTypesUnsafeAccessors.DoubleArray(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, double[] value) => ManyTypesUnsafeAccessors.DoubleArray(entity) = value);
             doubleArray.SetAccessors(
                 double[] (IInternalEntry entry) => ManyTypesUnsafeAccessors.DoubleArray(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 double[] (IInternalEntry entry) => ManyTypesUnsafeAccessors.DoubleArray(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -1603,14 +1543,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<DoubleNumberToBytesConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new NumberToBytesConverter<double>());
             doubleNumberToBytesConverterProperty.SetGetter(
-                double (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.DoubleNumberToBytesConverterProperty(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.DoubleNumberToBytesConverterProperty(entity).Equals(0D),
                 double (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.DoubleNumberToBytesConverterProperty(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.DoubleNumberToBytesConverterProperty(instance).Equals(0D));
             doubleNumberToBytesConverterProperty.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, double value) => ManyTypesUnsafeAccessors.DoubleNumberToBytesConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, double value) => ManyTypesUnsafeAccessors.DoubleNumberToBytesConverterProperty(entity) = value);
             doubleNumberToBytesConverterProperty.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, double value) => ManyTypesUnsafeAccessors.DoubleNumberToBytesConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, double value) => ManyTypesUnsafeAccessors.DoubleNumberToBytesConverterProperty(entity) = value);
             doubleNumberToBytesConverterProperty.SetAccessors(
                 double (IInternalEntry entry) => ManyTypesUnsafeAccessors.DoubleNumberToBytesConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 double (IInternalEntry entry) => ManyTypesUnsafeAccessors.DoubleNumberToBytesConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -1652,14 +1590,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<DoubleNumberToStringConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new NumberToStringConverter<double>());
             doubleNumberToStringConverterProperty.SetGetter(
-                double (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.DoubleNumberToStringConverterProperty(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.DoubleNumberToStringConverterProperty(entity).Equals(0D),
                 double (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.DoubleNumberToStringConverterProperty(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.DoubleNumberToStringConverterProperty(instance).Equals(0D));
             doubleNumberToStringConverterProperty.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, double value) => ManyTypesUnsafeAccessors.DoubleNumberToStringConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, double value) => ManyTypesUnsafeAccessors.DoubleNumberToStringConverterProperty(entity) = value);
             doubleNumberToStringConverterProperty.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, double value) => ManyTypesUnsafeAccessors.DoubleNumberToStringConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, double value) => ManyTypesUnsafeAccessors.DoubleNumberToStringConverterProperty(entity) = value);
             doubleNumberToStringConverterProperty.SetAccessors(
                 double (IInternalEntry entry) => ManyTypesUnsafeAccessors.DoubleNumberToStringConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 double (IInternalEntry entry) => ManyTypesUnsafeAccessors.DoubleNumberToStringConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -1700,14 +1636,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Enum16", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Enum16>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             enum16.SetGetter(
-                CompiledModelTestBase.Enum16 (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.Enum16(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => object.Equals(((object)(ManyTypesUnsafeAccessors.Enum16(entity))), ((object)(CompiledModelTestBase.Enum16.Default))),
                 CompiledModelTestBase.Enum16 (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.Enum16(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => object.Equals(((object)(ManyTypesUnsafeAccessors.Enum16(instance))), ((object)(CompiledModelTestBase.Enum16.Default))));
             enum16.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum16 value) => ManyTypesUnsafeAccessors.Enum16(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.Enum16 value) => ManyTypesUnsafeAccessors.Enum16(entity) = value);
             enum16.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum16 value) => ManyTypesUnsafeAccessors.Enum16(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.Enum16 value) => ManyTypesUnsafeAccessors.Enum16(entity) = value);
             enum16.SetAccessors(
                 CompiledModelTestBase.Enum16 (IInternalEntry entry) => ManyTypesUnsafeAccessors.Enum16(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 CompiledModelTestBase.Enum16 (IInternalEntry entry) => ManyTypesUnsafeAccessors.Enum16(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -1749,14 +1683,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Enum16AsString>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 providerPropertyType: typeof(string));
             enum16AsString.SetGetter(
-                CompiledModelTestBase.Enum16 (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.Enum16AsString(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => object.Equals(((object)(ManyTypesUnsafeAccessors.Enum16AsString(entity))), ((object)(CompiledModelTestBase.Enum16.Default))),
                 CompiledModelTestBase.Enum16 (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.Enum16AsString(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => object.Equals(((object)(ManyTypesUnsafeAccessors.Enum16AsString(instance))), ((object)(CompiledModelTestBase.Enum16.Default))));
             enum16AsString.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum16 value) => ManyTypesUnsafeAccessors.Enum16AsString(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.Enum16 value) => ManyTypesUnsafeAccessors.Enum16AsString(entity) = value);
             enum16AsString.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum16 value) => ManyTypesUnsafeAccessors.Enum16AsString(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.Enum16 value) => ManyTypesUnsafeAccessors.Enum16AsString(entity) = value);
             enum16AsString.SetAccessors(
                 CompiledModelTestBase.Enum16 (IInternalEntry entry) => ManyTypesUnsafeAccessors.Enum16AsString(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 CompiledModelTestBase.Enum16 (IInternalEntry entry) => ManyTypesUnsafeAccessors.Enum16AsString(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -1797,14 +1729,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Enum32", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Enum32>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             enum32.SetGetter(
-                CompiledModelTestBase.Enum32 (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.Enum32(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => object.Equals(((object)(ManyTypesUnsafeAccessors.Enum32(entity))), ((object)(CompiledModelTestBase.Enum32.Default))),
                 CompiledModelTestBase.Enum32 (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.Enum32(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => object.Equals(((object)(ManyTypesUnsafeAccessors.Enum32(instance))), ((object)(CompiledModelTestBase.Enum32.Default))));
             enum32.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum32 value) => ManyTypesUnsafeAccessors.Enum32(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.Enum32 value) => ManyTypesUnsafeAccessors.Enum32(entity) = value);
             enum32.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum32 value) => ManyTypesUnsafeAccessors.Enum32(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.Enum32 value) => ManyTypesUnsafeAccessors.Enum32(entity) = value);
             enum32.SetAccessors(
                 CompiledModelTestBase.Enum32 (IInternalEntry entry) => ManyTypesUnsafeAccessors.Enum32(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 CompiledModelTestBase.Enum32 (IInternalEntry entry) => ManyTypesUnsafeAccessors.Enum32(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -1846,14 +1776,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Enum32AsString>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 providerPropertyType: typeof(string));
             enum32AsString.SetGetter(
-                CompiledModelTestBase.Enum32 (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.Enum32AsString(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => object.Equals(((object)(ManyTypesUnsafeAccessors.Enum32AsString(entity))), ((object)(CompiledModelTestBase.Enum32.Default))),
                 CompiledModelTestBase.Enum32 (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.Enum32AsString(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => object.Equals(((object)(ManyTypesUnsafeAccessors.Enum32AsString(instance))), ((object)(CompiledModelTestBase.Enum32.Default))));
             enum32AsString.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum32 value) => ManyTypesUnsafeAccessors.Enum32AsString(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.Enum32 value) => ManyTypesUnsafeAccessors.Enum32AsString(entity) = value);
             enum32AsString.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum32 value) => ManyTypesUnsafeAccessors.Enum32AsString(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.Enum32 value) => ManyTypesUnsafeAccessors.Enum32AsString(entity) = value);
             enum32AsString.SetAccessors(
                 CompiledModelTestBase.Enum32 (IInternalEntry entry) => ManyTypesUnsafeAccessors.Enum32AsString(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 CompiledModelTestBase.Enum32 (IInternalEntry entry) => ManyTypesUnsafeAccessors.Enum32AsString(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -1894,14 +1822,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Enum64", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Enum64>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             enum64.SetGetter(
-                CompiledModelTestBase.Enum64 (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.Enum64(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => object.Equals(((object)(ManyTypesUnsafeAccessors.Enum64(entity))), ((object)(CompiledModelTestBase.Enum64.Default))),
                 CompiledModelTestBase.Enum64 (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.Enum64(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => object.Equals(((object)(ManyTypesUnsafeAccessors.Enum64(instance))), ((object)(CompiledModelTestBase.Enum64.Default))));
             enum64.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum64 value) => ManyTypesUnsafeAccessors.Enum64(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.Enum64 value) => ManyTypesUnsafeAccessors.Enum64(entity) = value);
             enum64.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum64 value) => ManyTypesUnsafeAccessors.Enum64(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.Enum64 value) => ManyTypesUnsafeAccessors.Enum64(entity) = value);
             enum64.SetAccessors(
                 CompiledModelTestBase.Enum64 (IInternalEntry entry) => ManyTypesUnsafeAccessors.Enum64(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 CompiledModelTestBase.Enum64 (IInternalEntry entry) => ManyTypesUnsafeAccessors.Enum64(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -1943,14 +1869,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Enum64AsString>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 providerPropertyType: typeof(string));
             enum64AsString.SetGetter(
-                CompiledModelTestBase.Enum64 (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.Enum64AsString(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => object.Equals(((object)(ManyTypesUnsafeAccessors.Enum64AsString(entity))), ((object)(CompiledModelTestBase.Enum64.Default))),
                 CompiledModelTestBase.Enum64 (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.Enum64AsString(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => object.Equals(((object)(ManyTypesUnsafeAccessors.Enum64AsString(instance))), ((object)(CompiledModelTestBase.Enum64.Default))));
             enum64AsString.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum64 value) => ManyTypesUnsafeAccessors.Enum64AsString(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.Enum64 value) => ManyTypesUnsafeAccessors.Enum64AsString(entity) = value);
             enum64AsString.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum64 value) => ManyTypesUnsafeAccessors.Enum64AsString(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.Enum64 value) => ManyTypesUnsafeAccessors.Enum64AsString(entity) = value);
             enum64AsString.SetAccessors(
                 CompiledModelTestBase.Enum64 (IInternalEntry entry) => ManyTypesUnsafeAccessors.Enum64AsString(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 CompiledModelTestBase.Enum64 (IInternalEntry entry) => ManyTypesUnsafeAccessors.Enum64AsString(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -1991,14 +1915,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Enum8", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Enum8>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             enum8.SetGetter(
-                CompiledModelTestBase.Enum8 (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.Enum8(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => object.Equals(((object)(ManyTypesUnsafeAccessors.Enum8(entity))), ((object)(CompiledModelTestBase.Enum8.Default))),
                 CompiledModelTestBase.Enum8 (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.Enum8(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => object.Equals(((object)(ManyTypesUnsafeAccessors.Enum8(instance))), ((object)(CompiledModelTestBase.Enum8.Default))));
             enum8.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum8 value) => ManyTypesUnsafeAccessors.Enum8(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.Enum8 value) => ManyTypesUnsafeAccessors.Enum8(entity) = value);
             enum8.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum8 value) => ManyTypesUnsafeAccessors.Enum8(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.Enum8 value) => ManyTypesUnsafeAccessors.Enum8(entity) = value);
             enum8.SetAccessors(
                 CompiledModelTestBase.Enum8 (IInternalEntry entry) => ManyTypesUnsafeAccessors.Enum8(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 CompiledModelTestBase.Enum8 (IInternalEntry entry) => ManyTypesUnsafeAccessors.Enum8(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -2040,14 +1962,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Enum8AsString>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 providerPropertyType: typeof(string));
             enum8AsString.SetGetter(
-                CompiledModelTestBase.Enum8 (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.Enum8AsString(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => object.Equals(((object)(ManyTypesUnsafeAccessors.Enum8AsString(entity))), ((object)(CompiledModelTestBase.Enum8.Default))),
                 CompiledModelTestBase.Enum8 (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.Enum8AsString(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => object.Equals(((object)(ManyTypesUnsafeAccessors.Enum8AsString(instance))), ((object)(CompiledModelTestBase.Enum8.Default))));
             enum8AsString.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum8 value) => ManyTypesUnsafeAccessors.Enum8AsString(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.Enum8 value) => ManyTypesUnsafeAccessors.Enum8AsString(entity) = value);
             enum8AsString.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum8 value) => ManyTypesUnsafeAccessors.Enum8AsString(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.Enum8 value) => ManyTypesUnsafeAccessors.Enum8AsString(entity) = value);
             enum8AsString.SetAccessors(
                 CompiledModelTestBase.Enum8 (IInternalEntry entry) => ManyTypesUnsafeAccessors.Enum8AsString(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 CompiledModelTestBase.Enum8 (IInternalEntry entry) => ManyTypesUnsafeAccessors.Enum8AsString(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -2089,14 +2009,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<EnumToNumberConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new EnumToNumberConverter<CompiledModelTestBase.Enum32, int>());
             enumToNumberConverterProperty.SetGetter(
-                CompiledModelTestBase.Enum32 (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.EnumToNumberConverterProperty(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => object.Equals(((object)(ManyTypesUnsafeAccessors.EnumToNumberConverterProperty(entity))), ((object)(CompiledModelTestBase.Enum32.Default))),
                 CompiledModelTestBase.Enum32 (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.EnumToNumberConverterProperty(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => object.Equals(((object)(ManyTypesUnsafeAccessors.EnumToNumberConverterProperty(instance))), ((object)(CompiledModelTestBase.Enum32.Default))));
             enumToNumberConverterProperty.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum32 value) => ManyTypesUnsafeAccessors.EnumToNumberConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.Enum32 value) => ManyTypesUnsafeAccessors.EnumToNumberConverterProperty(entity) = value);
             enumToNumberConverterProperty.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum32 value) => ManyTypesUnsafeAccessors.EnumToNumberConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.Enum32 value) => ManyTypesUnsafeAccessors.EnumToNumberConverterProperty(entity) = value);
             enumToNumberConverterProperty.SetAccessors(
                 CompiledModelTestBase.Enum32 (IInternalEntry entry) => ManyTypesUnsafeAccessors.EnumToNumberConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 CompiledModelTestBase.Enum32 (IInternalEntry entry) => ManyTypesUnsafeAccessors.EnumToNumberConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -2138,14 +2056,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<EnumToStringConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new EnumToStringConverter<CompiledModelTestBase.Enum32>());
             enumToStringConverterProperty.SetGetter(
-                CompiledModelTestBase.Enum32 (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.EnumToStringConverterProperty(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => object.Equals(((object)(ManyTypesUnsafeAccessors.EnumToStringConverterProperty(entity))), ((object)(CompiledModelTestBase.Enum32.Default))),
                 CompiledModelTestBase.Enum32 (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.EnumToStringConverterProperty(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => object.Equals(((object)(ManyTypesUnsafeAccessors.EnumToStringConverterProperty(instance))), ((object)(CompiledModelTestBase.Enum32.Default))));
             enumToStringConverterProperty.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum32 value) => ManyTypesUnsafeAccessors.EnumToStringConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.Enum32 value) => ManyTypesUnsafeAccessors.EnumToStringConverterProperty(entity) = value);
             enumToStringConverterProperty.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum32 value) => ManyTypesUnsafeAccessors.EnumToStringConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.Enum32 value) => ManyTypesUnsafeAccessors.EnumToStringConverterProperty(entity) = value);
             enumToStringConverterProperty.SetAccessors(
                 CompiledModelTestBase.Enum32 (IInternalEntry entry) => ManyTypesUnsafeAccessors.EnumToStringConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 CompiledModelTestBase.Enum32 (IInternalEntry entry) => ManyTypesUnsafeAccessors.EnumToStringConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -2186,14 +2102,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("EnumU16", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<EnumU16>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             enumU16.SetGetter(
-                CompiledModelTestBase.EnumU16 (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.EnumU16(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => object.Equals(((object)(ManyTypesUnsafeAccessors.EnumU16(entity))), ((object)(CompiledModelTestBase.EnumU16.Min))),
                 CompiledModelTestBase.EnumU16 (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.EnumU16(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => object.Equals(((object)(ManyTypesUnsafeAccessors.EnumU16(instance))), ((object)(CompiledModelTestBase.EnumU16.Min))));
             enumU16.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU16 value) => ManyTypesUnsafeAccessors.EnumU16(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.EnumU16 value) => ManyTypesUnsafeAccessors.EnumU16(entity) = value);
             enumU16.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU16 value) => ManyTypesUnsafeAccessors.EnumU16(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.EnumU16 value) => ManyTypesUnsafeAccessors.EnumU16(entity) = value);
             enumU16.SetAccessors(
                 CompiledModelTestBase.EnumU16 (IInternalEntry entry) => ManyTypesUnsafeAccessors.EnumU16(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 CompiledModelTestBase.EnumU16 (IInternalEntry entry) => ManyTypesUnsafeAccessors.EnumU16(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -2235,14 +2149,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<EnumU16AsString>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 providerPropertyType: typeof(string));
             enumU16AsString.SetGetter(
-                CompiledModelTestBase.EnumU16 (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.EnumU16AsString(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => object.Equals(((object)(ManyTypesUnsafeAccessors.EnumU16AsString(entity))), ((object)(CompiledModelTestBase.EnumU16.Min))),
                 CompiledModelTestBase.EnumU16 (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.EnumU16AsString(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => object.Equals(((object)(ManyTypesUnsafeAccessors.EnumU16AsString(instance))), ((object)(CompiledModelTestBase.EnumU16.Min))));
             enumU16AsString.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU16 value) => ManyTypesUnsafeAccessors.EnumU16AsString(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.EnumU16 value) => ManyTypesUnsafeAccessors.EnumU16AsString(entity) = value);
             enumU16AsString.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU16 value) => ManyTypesUnsafeAccessors.EnumU16AsString(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.EnumU16 value) => ManyTypesUnsafeAccessors.EnumU16AsString(entity) = value);
             enumU16AsString.SetAccessors(
                 CompiledModelTestBase.EnumU16 (IInternalEntry entry) => ManyTypesUnsafeAccessors.EnumU16AsString(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 CompiledModelTestBase.EnumU16 (IInternalEntry entry) => ManyTypesUnsafeAccessors.EnumU16AsString(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -2283,14 +2195,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("EnumU32", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<EnumU32>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             enumU32.SetGetter(
-                CompiledModelTestBase.EnumU32 (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.EnumU32(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => object.Equals(((object)(ManyTypesUnsafeAccessors.EnumU32(entity))), ((object)(CompiledModelTestBase.EnumU32.Min))),
                 CompiledModelTestBase.EnumU32 (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.EnumU32(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => object.Equals(((object)(ManyTypesUnsafeAccessors.EnumU32(instance))), ((object)(CompiledModelTestBase.EnumU32.Min))));
             enumU32.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU32 value) => ManyTypesUnsafeAccessors.EnumU32(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.EnumU32 value) => ManyTypesUnsafeAccessors.EnumU32(entity) = value);
             enumU32.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU32 value) => ManyTypesUnsafeAccessors.EnumU32(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.EnumU32 value) => ManyTypesUnsafeAccessors.EnumU32(entity) = value);
             enumU32.SetAccessors(
                 CompiledModelTestBase.EnumU32 (IInternalEntry entry) => ManyTypesUnsafeAccessors.EnumU32(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 CompiledModelTestBase.EnumU32 (IInternalEntry entry) => ManyTypesUnsafeAccessors.EnumU32(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -2332,14 +2242,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<EnumU32AsString>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 providerPropertyType: typeof(string));
             enumU32AsString.SetGetter(
-                CompiledModelTestBase.EnumU32 (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.EnumU32AsString(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => object.Equals(((object)(ManyTypesUnsafeAccessors.EnumU32AsString(entity))), ((object)(CompiledModelTestBase.EnumU32.Min))),
                 CompiledModelTestBase.EnumU32 (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.EnumU32AsString(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => object.Equals(((object)(ManyTypesUnsafeAccessors.EnumU32AsString(instance))), ((object)(CompiledModelTestBase.EnumU32.Min))));
             enumU32AsString.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU32 value) => ManyTypesUnsafeAccessors.EnumU32AsString(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.EnumU32 value) => ManyTypesUnsafeAccessors.EnumU32AsString(entity) = value);
             enumU32AsString.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU32 value) => ManyTypesUnsafeAccessors.EnumU32AsString(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.EnumU32 value) => ManyTypesUnsafeAccessors.EnumU32AsString(entity) = value);
             enumU32AsString.SetAccessors(
                 CompiledModelTestBase.EnumU32 (IInternalEntry entry) => ManyTypesUnsafeAccessors.EnumU32AsString(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 CompiledModelTestBase.EnumU32 (IInternalEntry entry) => ManyTypesUnsafeAccessors.EnumU32AsString(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -2380,14 +2288,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("EnumU64", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<EnumU64>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             enumU64.SetGetter(
-                CompiledModelTestBase.EnumU64 (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.EnumU64(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => object.Equals(((object)(ManyTypesUnsafeAccessors.EnumU64(entity))), ((object)(CompiledModelTestBase.EnumU64.Min))),
                 CompiledModelTestBase.EnumU64 (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.EnumU64(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => object.Equals(((object)(ManyTypesUnsafeAccessors.EnumU64(instance))), ((object)(CompiledModelTestBase.EnumU64.Min))));
             enumU64.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU64 value) => ManyTypesUnsafeAccessors.EnumU64(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.EnumU64 value) => ManyTypesUnsafeAccessors.EnumU64(entity) = value);
             enumU64.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU64 value) => ManyTypesUnsafeAccessors.EnumU64(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.EnumU64 value) => ManyTypesUnsafeAccessors.EnumU64(entity) = value);
             enumU64.SetAccessors(
                 CompiledModelTestBase.EnumU64 (IInternalEntry entry) => ManyTypesUnsafeAccessors.EnumU64(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 CompiledModelTestBase.EnumU64 (IInternalEntry entry) => ManyTypesUnsafeAccessors.EnumU64(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -2429,14 +2335,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<EnumU64AsString>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 providerPropertyType: typeof(string));
             enumU64AsString.SetGetter(
-                CompiledModelTestBase.EnumU64 (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.EnumU64AsString(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => object.Equals(((object)(ManyTypesUnsafeAccessors.EnumU64AsString(entity))), ((object)(CompiledModelTestBase.EnumU64.Min))),
                 CompiledModelTestBase.EnumU64 (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.EnumU64AsString(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => object.Equals(((object)(ManyTypesUnsafeAccessors.EnumU64AsString(instance))), ((object)(CompiledModelTestBase.EnumU64.Min))));
             enumU64AsString.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU64 value) => ManyTypesUnsafeAccessors.EnumU64AsString(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.EnumU64 value) => ManyTypesUnsafeAccessors.EnumU64AsString(entity) = value);
             enumU64AsString.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU64 value) => ManyTypesUnsafeAccessors.EnumU64AsString(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.EnumU64 value) => ManyTypesUnsafeAccessors.EnumU64AsString(entity) = value);
             enumU64AsString.SetAccessors(
                 CompiledModelTestBase.EnumU64 (IInternalEntry entry) => ManyTypesUnsafeAccessors.EnumU64AsString(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 CompiledModelTestBase.EnumU64 (IInternalEntry entry) => ManyTypesUnsafeAccessors.EnumU64AsString(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -2477,14 +2381,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("EnumU8", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<EnumU8>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             enumU8.SetGetter(
-                CompiledModelTestBase.EnumU8 (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.EnumU8(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => object.Equals(((object)(ManyTypesUnsafeAccessors.EnumU8(entity))), ((object)(CompiledModelTestBase.EnumU8.Min))),
                 CompiledModelTestBase.EnumU8 (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.EnumU8(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => object.Equals(((object)(ManyTypesUnsafeAccessors.EnumU8(instance))), ((object)(CompiledModelTestBase.EnumU8.Min))));
             enumU8.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU8 value) => ManyTypesUnsafeAccessors.EnumU8(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.EnumU8 value) => ManyTypesUnsafeAccessors.EnumU8(entity) = value);
             enumU8.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU8 value) => ManyTypesUnsafeAccessors.EnumU8(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.EnumU8 value) => ManyTypesUnsafeAccessors.EnumU8(entity) = value);
             enumU8.SetAccessors(
                 CompiledModelTestBase.EnumU8 (IInternalEntry entry) => ManyTypesUnsafeAccessors.EnumU8(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 CompiledModelTestBase.EnumU8 (IInternalEntry entry) => ManyTypesUnsafeAccessors.EnumU8(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -2526,14 +2428,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<EnumU8AsString>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 providerPropertyType: typeof(string));
             enumU8AsString.SetGetter(
-                CompiledModelTestBase.EnumU8 (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.EnumU8AsString(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => object.Equals(((object)(ManyTypesUnsafeAccessors.EnumU8AsString(entity))), ((object)(CompiledModelTestBase.EnumU8.Min))),
                 CompiledModelTestBase.EnumU8 (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.EnumU8AsString(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => object.Equals(((object)(ManyTypesUnsafeAccessors.EnumU8AsString(instance))), ((object)(CompiledModelTestBase.EnumU8.Min))));
             enumU8AsString.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU8 value) => ManyTypesUnsafeAccessors.EnumU8AsString(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.EnumU8 value) => ManyTypesUnsafeAccessors.EnumU8AsString(entity) = value);
             enumU8AsString.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU8 value) => ManyTypesUnsafeAccessors.EnumU8AsString(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.EnumU8 value) => ManyTypesUnsafeAccessors.EnumU8AsString(entity) = value);
             enumU8AsString.SetAccessors(
                 CompiledModelTestBase.EnumU8 (IInternalEntry entry) => ManyTypesUnsafeAccessors.EnumU8AsString(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 CompiledModelTestBase.EnumU8 (IInternalEntry entry) => ManyTypesUnsafeAccessors.EnumU8AsString(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -2575,14 +2475,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Float>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: 0f);
             @float.SetGetter(
-                float (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.Float(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.Float(entity).Equals(0F),
                 float (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.Float(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.Float(instance).Equals(0F));
             @float.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, float value) => ManyTypesUnsafeAccessors.Float(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, float value) => ManyTypesUnsafeAccessors.Float(entity) = value);
             @float.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, float value) => ManyTypesUnsafeAccessors.Float(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, float value) => ManyTypesUnsafeAccessors.Float(entity) = value);
             @float.SetAccessors(
                 float (IInternalEntry entry) => ManyTypesUnsafeAccessors.Float(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 float (IInternalEntry entry) => ManyTypesUnsafeAccessors.Float(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -2616,14 +2514,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("FloatArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<FloatArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             floatArray.SetGetter(
-                float[] (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.FloatArray(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.FloatArray(entity) == null,
                 float[] (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.FloatArray(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.FloatArray(instance) == null);
             floatArray.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, float[] value) => ManyTypesUnsafeAccessors.FloatArray(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, float[] value) => ManyTypesUnsafeAccessors.FloatArray(entity) = value);
             floatArray.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, float[] value) => ManyTypesUnsafeAccessors.FloatArray(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, float[] value) => ManyTypesUnsafeAccessors.FloatArray(entity) = value);
             floatArray.SetAccessors(
                 float[] (IInternalEntry entry) => ManyTypesUnsafeAccessors.FloatArray(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 float[] (IInternalEntry entry) => ManyTypesUnsafeAccessors.FloatArray(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -2675,14 +2571,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Guid", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Guid>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             guid.SetGetter(
-                Guid (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.Guid(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.Guid(entity) == new Guid("00000000-0000-0000-0000-000000000000"),
                 Guid (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.Guid(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.Guid(instance) == new Guid("00000000-0000-0000-0000-000000000000"));
             guid.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, Guid value) => ManyTypesUnsafeAccessors.Guid(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, Guid value) => ManyTypesUnsafeAccessors.Guid(entity) = value);
             guid.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, Guid value) => ManyTypesUnsafeAccessors.Guid(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, Guid value) => ManyTypesUnsafeAccessors.Guid(entity) = value);
             guid.SetAccessors(
                 Guid (IInternalEntry entry) => ManyTypesUnsafeAccessors.Guid(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 Guid (IInternalEntry entry) => ManyTypesUnsafeAccessors.Guid(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -2724,14 +2618,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<GuidToBytesConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new GuidToBytesConverter());
             guidToBytesConverterProperty.SetGetter(
-                Guid (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.GuidToBytesConverterProperty(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.GuidToBytesConverterProperty(entity) == new Guid("00000000-0000-0000-0000-000000000000"),
                 Guid (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.GuidToBytesConverterProperty(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.GuidToBytesConverterProperty(instance) == new Guid("00000000-0000-0000-0000-000000000000"));
             guidToBytesConverterProperty.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, Guid value) => ManyTypesUnsafeAccessors.GuidToBytesConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, Guid value) => ManyTypesUnsafeAccessors.GuidToBytesConverterProperty(entity) = value);
             guidToBytesConverterProperty.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, Guid value) => ManyTypesUnsafeAccessors.GuidToBytesConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, Guid value) => ManyTypesUnsafeAccessors.GuidToBytesConverterProperty(entity) = value);
             guidToBytesConverterProperty.SetAccessors(
                 Guid (IInternalEntry entry) => ManyTypesUnsafeAccessors.GuidToBytesConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 Guid (IInternalEntry entry) => ManyTypesUnsafeAccessors.GuidToBytesConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -2773,14 +2665,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<GuidToStringConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new GuidToStringConverter());
             guidToStringConverterProperty.SetGetter(
-                Guid (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.GuidToStringConverterProperty(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.GuidToStringConverterProperty(entity) == new Guid("00000000-0000-0000-0000-000000000000"),
                 Guid (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.GuidToStringConverterProperty(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.GuidToStringConverterProperty(instance) == new Guid("00000000-0000-0000-0000-000000000000"));
             guidToStringConverterProperty.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, Guid value) => ManyTypesUnsafeAccessors.GuidToStringConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, Guid value) => ManyTypesUnsafeAccessors.GuidToStringConverterProperty(entity) = value);
             guidToStringConverterProperty.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, Guid value) => ManyTypesUnsafeAccessors.GuidToStringConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, Guid value) => ManyTypesUnsafeAccessors.GuidToStringConverterProperty(entity) = value);
             guidToStringConverterProperty.SetAccessors(
                 Guid (IInternalEntry entry) => ManyTypesUnsafeAccessors.GuidToStringConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 Guid (IInternalEntry entry) => ManyTypesUnsafeAccessors.GuidToStringConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -2821,14 +2711,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("IPAddress", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<IPAddress>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             iPAddress.SetGetter(
-                IPAddress (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.IPAddress(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.IPAddress(entity) == null,
                 IPAddress (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.IPAddress(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.IPAddress(instance) == null);
             iPAddress.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, IPAddress value) => ManyTypesUnsafeAccessors.IPAddress(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, IPAddress value) => ManyTypesUnsafeAccessors.IPAddress(entity) = value);
             iPAddress.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, IPAddress value) => ManyTypesUnsafeAccessors.IPAddress(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, IPAddress value) => ManyTypesUnsafeAccessors.IPAddress(entity) = value);
             iPAddress.SetAccessors(
                 IPAddress (IInternalEntry entry) => ManyTypesUnsafeAccessors.IPAddress(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 IPAddress (IInternalEntry entry) => ManyTypesUnsafeAccessors.IPAddress(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -2869,14 +2757,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<IPAddressToBytesConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new IPAddressToBytesConverter());
             iPAddressToBytesConverterProperty.SetGetter(
-                IPAddress (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.IPAddressToBytesConverterProperty(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.IPAddressToBytesConverterProperty(entity) == null,
                 IPAddress (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.IPAddressToBytesConverterProperty(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.IPAddressToBytesConverterProperty(instance) == null);
             iPAddressToBytesConverterProperty.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, IPAddress value) => ManyTypesUnsafeAccessors.IPAddressToBytesConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, IPAddress value) => ManyTypesUnsafeAccessors.IPAddressToBytesConverterProperty(entity) = value);
             iPAddressToBytesConverterProperty.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, IPAddress value) => ManyTypesUnsafeAccessors.IPAddressToBytesConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, IPAddress value) => ManyTypesUnsafeAccessors.IPAddressToBytesConverterProperty(entity) = value);
             iPAddressToBytesConverterProperty.SetAccessors(
                 IPAddress (IInternalEntry entry) => ManyTypesUnsafeAccessors.IPAddressToBytesConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 IPAddress (IInternalEntry entry) => ManyTypesUnsafeAccessors.IPAddressToBytesConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -2917,14 +2803,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<IPAddressToStringConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new IPAddressToStringConverter());
             iPAddressToStringConverterProperty.SetGetter(
-                IPAddress (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.IPAddressToStringConverterProperty(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.IPAddressToStringConverterProperty(entity) == null,
                 IPAddress (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.IPAddressToStringConverterProperty(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.IPAddressToStringConverterProperty(instance) == null);
             iPAddressToStringConverterProperty.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, IPAddress value) => ManyTypesUnsafeAccessors.IPAddressToStringConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, IPAddress value) => ManyTypesUnsafeAccessors.IPAddressToStringConverterProperty(entity) = value);
             iPAddressToStringConverterProperty.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, IPAddress value) => ManyTypesUnsafeAccessors.IPAddressToStringConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, IPAddress value) => ManyTypesUnsafeAccessors.IPAddressToStringConverterProperty(entity) = value);
             iPAddressToStringConverterProperty.SetAccessors(
                 IPAddress (IInternalEntry entry) => ManyTypesUnsafeAccessors.IPAddressToStringConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 IPAddress (IInternalEntry entry) => ManyTypesUnsafeAccessors.IPAddressToStringConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -2965,14 +2849,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Int16>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: (short)0);
             int16.SetGetter(
-                short (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.Int16(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.Int16(entity) == 0,
                 short (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.Int16(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.Int16(instance) == 0);
             int16.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, short value) => ManyTypesUnsafeAccessors.Int16(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, short value) => ManyTypesUnsafeAccessors.Int16(entity) = value);
             int16.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, short value) => ManyTypesUnsafeAccessors.Int16(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, short value) => ManyTypesUnsafeAccessors.Int16(entity) = value);
             int16.SetAccessors(
                 short (IInternalEntry entry) => ManyTypesUnsafeAccessors.Int16(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 short (IInternalEntry entry) => ManyTypesUnsafeAccessors.Int16(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -3006,14 +2888,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Int16Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Int16Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             int16Array.SetGetter(
-                short[] (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.Int16Array(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.Int16Array(entity) == null,
                 short[] (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.Int16Array(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.Int16Array(instance) == null);
             int16Array.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, short[] value) => ManyTypesUnsafeAccessors.Int16Array(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, short[] value) => ManyTypesUnsafeAccessors.Int16Array(entity) = value);
             int16Array.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, short[] value) => ManyTypesUnsafeAccessors.Int16Array(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, short[] value) => ManyTypesUnsafeAccessors.Int16Array(entity) = value);
             int16Array.SetAccessors(
                 short[] (IInternalEntry entry) => ManyTypesUnsafeAccessors.Int16Array(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 short[] (IInternalEntry entry) => ManyTypesUnsafeAccessors.Int16Array(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -3066,14 +2946,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Int32>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: 0);
             int32.SetGetter(
-                int (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.Int32(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.Int32(entity) == 0,
                 int (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.Int32(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.Int32(instance) == 0);
             int32.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, int value) => ManyTypesUnsafeAccessors.Int32(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, int value) => ManyTypesUnsafeAccessors.Int32(entity) = value);
             int32.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, int value) => ManyTypesUnsafeAccessors.Int32(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, int value) => ManyTypesUnsafeAccessors.Int32(entity) = value);
             int32.SetAccessors(
                 int (IInternalEntry entry) => ManyTypesUnsafeAccessors.Int32(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 int (IInternalEntry entry) => ManyTypesUnsafeAccessors.Int32(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -3107,14 +2985,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Int32Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Int32Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             int32Array.SetGetter(
-                int[] (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.Int32Array(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.Int32Array(entity) == null,
                 int[] (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.Int32Array(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.Int32Array(instance) == null);
             int32Array.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, int[] value) => ManyTypesUnsafeAccessors.Int32Array(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, int[] value) => ManyTypesUnsafeAccessors.Int32Array(entity) = value);
             int32Array.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, int[] value) => ManyTypesUnsafeAccessors.Int32Array(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, int[] value) => ManyTypesUnsafeAccessors.Int32Array(entity) = value);
             int32Array.SetAccessors(
                 int[] (IInternalEntry entry) => ManyTypesUnsafeAccessors.Int32Array(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 int[] (IInternalEntry entry) => ManyTypesUnsafeAccessors.Int32Array(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -3166,14 +3042,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Int32NestedCollection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Int32NestedCollection>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             int32NestedCollection.SetGetter(
-                int[][] (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.Int32NestedCollection(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.Int32NestedCollection(entity) == null,
                 int[][] (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.Int32NestedCollection(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.Int32NestedCollection(instance) == null);
             int32NestedCollection.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, int[][] value) => ManyTypesUnsafeAccessors.Int32NestedCollection(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, int[][] value) => ManyTypesUnsafeAccessors.Int32NestedCollection(entity) = value);
             int32NestedCollection.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, int[][] value) => ManyTypesUnsafeAccessors.Int32NestedCollection(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, int[][] value) => ManyTypesUnsafeAccessors.Int32NestedCollection(entity) = value);
             int32NestedCollection.SetAccessors(
                 int[][] (IInternalEntry entry) => ManyTypesUnsafeAccessors.Int32NestedCollection(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 int[][] (IInternalEntry entry) => ManyTypesUnsafeAccessors.Int32NestedCollection(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -3242,14 +3116,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Int32ReadOnlyCollection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("_int32ReadOnlyCollection", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             int32ReadOnlyCollection.SetGetter(
-                IReadOnlyCollection<int> (CompiledModelTestBase.ManyTypes entity) => (ManyTypesUnsafeAccessors._int32ReadOnlyCollection(entity) == null ? null : ((IReadOnlyCollection<int>)(ManyTypesUnsafeAccessors._int32ReadOnlyCollection(entity)))),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors._int32ReadOnlyCollection(entity) == null,
                 IReadOnlyCollection<int> (CompiledModelTestBase.ManyTypes instance) => (ManyTypesUnsafeAccessors._int32ReadOnlyCollection(instance) == null ? null : ((IReadOnlyCollection<int>)(ManyTypesUnsafeAccessors._int32ReadOnlyCollection(instance)))),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors._int32ReadOnlyCollection(instance) == null);
             int32ReadOnlyCollection.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, IReadOnlyCollection<int> value) => ManyTypesUnsafeAccessors._int32ReadOnlyCollection(entity) = ((List<int>)(value)));
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, IReadOnlyCollection<int> value) => ManyTypesUnsafeAccessors._int32ReadOnlyCollection(entity) = ((List<int>)(value)));
             int32ReadOnlyCollection.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, IReadOnlyCollection<int> value) => ManyTypesUnsafeAccessors._int32ReadOnlyCollection(entity) = ((List<int>)(value)));
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, IReadOnlyCollection<int> value) => ManyTypesUnsafeAccessors._int32ReadOnlyCollection(entity) = ((List<int>)(value)));
             int32ReadOnlyCollection.SetAccessors(
                 IReadOnlyCollection<int> (IInternalEntry entry) => ((IReadOnlyCollection<int>)(ManyTypesUnsafeAccessors._int32ReadOnlyCollection(((CompiledModelTestBase.ManyTypes)(entry.Entity))))),
                 IReadOnlyCollection<int> (IInternalEntry entry) => ((IReadOnlyCollection<int>)(ManyTypesUnsafeAccessors._int32ReadOnlyCollection(((CompiledModelTestBase.ManyTypes)(entry.Entity))))),
@@ -3302,14 +3174,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Int64>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: 0L);
             int64.SetGetter(
-                long (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.Int64(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.Int64(entity) == 0L,
                 long (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.Int64(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.Int64(instance) == 0L);
             int64.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, long value) => ManyTypesUnsafeAccessors.Int64(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, long value) => ManyTypesUnsafeAccessors.Int64(entity) = value);
             int64.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, long value) => ManyTypesUnsafeAccessors.Int64(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, long value) => ManyTypesUnsafeAccessors.Int64(entity) = value);
             int64.SetAccessors(
                 long (IInternalEntry entry) => ManyTypesUnsafeAccessors.Int64(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 long (IInternalEntry entry) => ManyTypesUnsafeAccessors.Int64(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -3343,14 +3213,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Int64Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Int64Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             int64Array.SetGetter(
-                long[] (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.Int64Array(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.Int64Array(entity) == null,
                 long[] (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.Int64Array(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.Int64Array(instance) == null);
             int64Array.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, long[] value) => ManyTypesUnsafeAccessors.Int64Array(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, long[] value) => ManyTypesUnsafeAccessors.Int64Array(entity) = value);
             int64Array.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, long[] value) => ManyTypesUnsafeAccessors.Int64Array(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, long[] value) => ManyTypesUnsafeAccessors.Int64Array(entity) = value);
             int64Array.SetAccessors(
                 long[] (IInternalEntry entry) => ManyTypesUnsafeAccessors.Int64Array(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 long[] (IInternalEntry entry) => ManyTypesUnsafeAccessors.Int64Array(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -3402,14 +3270,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Int64NestedCollection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Int64NestedCollection>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             int64NestedCollection.SetGetter(
-                IList<long[]>[] (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.Int64NestedCollection(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.Int64NestedCollection(entity) == null,
                 IList<long[]>[] (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.Int64NestedCollection(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.Int64NestedCollection(instance) == null);
             int64NestedCollection.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, IList<long[]>[] value) => ManyTypesUnsafeAccessors.Int64NestedCollection(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, IList<long[]>[] value) => ManyTypesUnsafeAccessors.Int64NestedCollection(entity) = value);
             int64NestedCollection.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, IList<long[]>[] value) => ManyTypesUnsafeAccessors.Int64NestedCollection(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, IList<long[]>[] value) => ManyTypesUnsafeAccessors.Int64NestedCollection(entity) = value);
             int64NestedCollection.SetAccessors(
                 IList<long[]>[] (IInternalEntry entry) => ManyTypesUnsafeAccessors.Int64NestedCollection(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 IList<long[]>[] (IInternalEntry entry) => ManyTypesUnsafeAccessors.Int64NestedCollection(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -3497,14 +3363,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Int8>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: (sbyte)0);
             int8.SetGetter(
-                sbyte (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.Int8(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.Int8(entity) == 0,
                 sbyte (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.Int8(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.Int8(instance) == 0);
             int8.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, sbyte value) => ManyTypesUnsafeAccessors.Int8(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, sbyte value) => ManyTypesUnsafeAccessors.Int8(entity) = value);
             int8.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, sbyte value) => ManyTypesUnsafeAccessors.Int8(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, sbyte value) => ManyTypesUnsafeAccessors.Int8(entity) = value);
             int8.SetAccessors(
                 sbyte (IInternalEntry entry) => ManyTypesUnsafeAccessors.Int8(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 sbyte (IInternalEntry entry) => ManyTypesUnsafeAccessors.Int8(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -3538,14 +3402,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Int8Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Int8Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             int8Array.SetGetter(
-                sbyte[] (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.Int8Array(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.Int8Array(entity) == null,
                 sbyte[] (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.Int8Array(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.Int8Array(instance) == null);
             int8Array.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, sbyte[] value) => ManyTypesUnsafeAccessors.Int8Array(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, sbyte[] value) => ManyTypesUnsafeAccessors.Int8Array(entity) = value);
             int8Array.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, sbyte[] value) => ManyTypesUnsafeAccessors.Int8Array(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, sbyte[] value) => ManyTypesUnsafeAccessors.Int8Array(entity) = value);
             int8Array.SetAccessors(
                 sbyte[] (IInternalEntry entry) => ManyTypesUnsafeAccessors.Int8Array(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 sbyte[] (IInternalEntry entry) => ManyTypesUnsafeAccessors.Int8Array(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -3597,14 +3459,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Int8NestedCollection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Int8NestedCollection>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             int8NestedCollection.SetGetter(
-                sbyte[][][] (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.Int8NestedCollection(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.Int8NestedCollection(entity) == null,
                 sbyte[][][] (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.Int8NestedCollection(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.Int8NestedCollection(instance) == null);
             int8NestedCollection.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, sbyte[][][] value) => ManyTypesUnsafeAccessors.Int8NestedCollection(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, sbyte[][][] value) => ManyTypesUnsafeAccessors.Int8NestedCollection(entity) = value);
             int8NestedCollection.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, sbyte[][][] value) => ManyTypesUnsafeAccessors.Int8NestedCollection(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, sbyte[][][] value) => ManyTypesUnsafeAccessors.Int8NestedCollection(entity) = value);
             int8NestedCollection.SetAccessors(
                 sbyte[][][] (IInternalEntry entry) => ManyTypesUnsafeAccessors.Int8NestedCollection(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 sbyte[][][] (IInternalEntry entry) => ManyTypesUnsafeAccessors.Int8NestedCollection(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -3692,14 +3552,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<IntNumberToBytesConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new NumberToBytesConverter<int>());
             intNumberToBytesConverterProperty.SetGetter(
-                int (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.IntNumberToBytesConverterProperty(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.IntNumberToBytesConverterProperty(entity) == 0,
                 int (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.IntNumberToBytesConverterProperty(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.IntNumberToBytesConverterProperty(instance) == 0);
             intNumberToBytesConverterProperty.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, int value) => ManyTypesUnsafeAccessors.IntNumberToBytesConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, int value) => ManyTypesUnsafeAccessors.IntNumberToBytesConverterProperty(entity) = value);
             intNumberToBytesConverterProperty.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, int value) => ManyTypesUnsafeAccessors.IntNumberToBytesConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, int value) => ManyTypesUnsafeAccessors.IntNumberToBytesConverterProperty(entity) = value);
             intNumberToBytesConverterProperty.SetAccessors(
                 int (IInternalEntry entry) => ManyTypesUnsafeAccessors.IntNumberToBytesConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 int (IInternalEntry entry) => ManyTypesUnsafeAccessors.IntNumberToBytesConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -3741,14 +3599,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<IntNumberToStringConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new NumberToStringConverter<int>());
             intNumberToStringConverterProperty.SetGetter(
-                int (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.IntNumberToStringConverterProperty(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.IntNumberToStringConverterProperty(entity) == 0,
                 int (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.IntNumberToStringConverterProperty(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.IntNumberToStringConverterProperty(instance) == 0);
             intNumberToStringConverterProperty.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, int value) => ManyTypesUnsafeAccessors.IntNumberToStringConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, int value) => ManyTypesUnsafeAccessors.IntNumberToStringConverterProperty(entity) = value);
             intNumberToStringConverterProperty.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, int value) => ManyTypesUnsafeAccessors.IntNumberToStringConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, int value) => ManyTypesUnsafeAccessors.IntNumberToStringConverterProperty(entity) = value);
             intNumberToStringConverterProperty.SetAccessors(
                 int (IInternalEntry entry) => ManyTypesUnsafeAccessors.IntNumberToStringConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 int (IInternalEntry entry) => ManyTypesUnsafeAccessors.IntNumberToStringConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -3791,14 +3647,12 @@ namespace TestNamespace
                 nullable: true,
                 valueConverter: new CompiledModelTestBase.NullIntToNullStringConverter());
             nullIntToNullStringConverterProperty.SetGetter(
-                int? (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullIntToNullStringConverterProperty(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => !(ManyTypesUnsafeAccessors.NullIntToNullStringConverterProperty(entity).HasValue),
                 int? (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullIntToNullStringConverterProperty(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => !(ManyTypesUnsafeAccessors.NullIntToNullStringConverterProperty(instance).HasValue));
             nullIntToNullStringConverterProperty.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, int? value) => ManyTypesUnsafeAccessors.NullIntToNullStringConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, int? value) => ManyTypesUnsafeAccessors.NullIntToNullStringConverterProperty(entity) = value);
             nullIntToNullStringConverterProperty.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, int? value) => ManyTypesUnsafeAccessors.NullIntToNullStringConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, int? value) => ManyTypesUnsafeAccessors.NullIntToNullStringConverterProperty(entity) = value);
             nullIntToNullStringConverterProperty.SetAccessors(
                 int? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullIntToNullStringConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 int? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullIntToNullStringConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -3841,14 +3695,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableBool>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             nullableBool.SetGetter(
-                bool? (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableBool(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => !(ManyTypesUnsafeAccessors.NullableBool(entity).HasValue),
                 bool? (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableBool(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => !(ManyTypesUnsafeAccessors.NullableBool(instance).HasValue));
             nullableBool.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, bool? value) => ManyTypesUnsafeAccessors.NullableBool(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, bool? value) => ManyTypesUnsafeAccessors.NullableBool(entity) = value);
             nullableBool.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, bool? value) => ManyTypesUnsafeAccessors.NullableBool(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, bool? value) => ManyTypesUnsafeAccessors.NullableBool(entity) = value);
             nullableBool.SetAccessors(
                 bool? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableBool(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 bool? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableBool(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -3884,14 +3736,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableBoolArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableBoolArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             nullableBoolArray.SetGetter(
-                bool? [] (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableBoolArray(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableBoolArray(entity) == null,
                 bool? [] (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableBoolArray(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableBoolArray(instance) == null);
             nullableBoolArray.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, bool? [] value) => ManyTypesUnsafeAccessors.NullableBoolArray(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, bool? [] value) => ManyTypesUnsafeAccessors.NullableBoolArray(entity) = value);
             nullableBoolArray.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, bool? [] value) => ManyTypesUnsafeAccessors.NullableBoolArray(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, bool? [] value) => ManyTypesUnsafeAccessors.NullableBoolArray(entity) = value);
             nullableBoolArray.SetAccessors(
                 bool? [] (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableBoolArray(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 bool? [] (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableBoolArray(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -3946,14 +3796,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableBytes>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             nullableBytes.SetGetter(
-                byte[] (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableBytes(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableBytes(entity) == null,
                 byte[] (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableBytes(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableBytes(instance) == null);
             nullableBytes.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, byte[] value) => ManyTypesUnsafeAccessors.NullableBytes(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, byte[] value) => ManyTypesUnsafeAccessors.NullableBytes(entity) = value);
             nullableBytes.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, byte[] value) => ManyTypesUnsafeAccessors.NullableBytes(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, byte[] value) => ManyTypesUnsafeAccessors.NullableBytes(entity) = value);
             nullableBytes.SetAccessors(
                 byte[] (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableBytes(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 byte[] (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableBytes(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -3994,14 +3842,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableChar>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             nullableChar.SetGetter(
-                char? (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableChar(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => !(ManyTypesUnsafeAccessors.NullableChar(entity).HasValue),
                 char? (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableChar(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => !(ManyTypesUnsafeAccessors.NullableChar(instance).HasValue));
             nullableChar.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, char? value) => ManyTypesUnsafeAccessors.NullableChar(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, char? value) => ManyTypesUnsafeAccessors.NullableChar(entity) = value);
             nullableChar.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, char? value) => ManyTypesUnsafeAccessors.NullableChar(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, char? value) => ManyTypesUnsafeAccessors.NullableChar(entity) = value);
             nullableChar.SetAccessors(
                 char? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableChar(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 char? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableChar(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -4037,14 +3883,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableCharArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableCharArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             nullableCharArray.SetGetter(
-                char? [] (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableCharArray(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableCharArray(entity) == null,
                 char? [] (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableCharArray(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableCharArray(instance) == null);
             nullableCharArray.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, char? [] value) => ManyTypesUnsafeAccessors.NullableCharArray(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, char? [] value) => ManyTypesUnsafeAccessors.NullableCharArray(entity) = value);
             nullableCharArray.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, char? [] value) => ManyTypesUnsafeAccessors.NullableCharArray(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, char? [] value) => ManyTypesUnsafeAccessors.NullableCharArray(entity) = value);
             nullableCharArray.SetAccessors(
                 char? [] (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableCharArray(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 char? [] (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableCharArray(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -4099,14 +3943,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableDateOnly>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             nullableDateOnly.SetGetter(
-                DateOnly? (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableDateOnly(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => !(ManyTypesUnsafeAccessors.NullableDateOnly(entity).HasValue),
                 DateOnly? (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableDateOnly(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => !(ManyTypesUnsafeAccessors.NullableDateOnly(instance).HasValue));
             nullableDateOnly.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, DateOnly? value) => ManyTypesUnsafeAccessors.NullableDateOnly(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, DateOnly? value) => ManyTypesUnsafeAccessors.NullableDateOnly(entity) = value);
             nullableDateOnly.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, DateOnly? value) => ManyTypesUnsafeAccessors.NullableDateOnly(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, DateOnly? value) => ManyTypesUnsafeAccessors.NullableDateOnly(entity) = value);
             nullableDateOnly.SetAccessors(
                 DateOnly? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableDateOnly(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 DateOnly? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableDateOnly(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -4143,14 +3985,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableDateTime>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             nullableDateTime.SetGetter(
-                DateTime? (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableDateTime(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => !(ManyTypesUnsafeAccessors.NullableDateTime(entity).HasValue),
                 DateTime? (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableDateTime(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => !(ManyTypesUnsafeAccessors.NullableDateTime(instance).HasValue));
             nullableDateTime.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, DateTime? value) => ManyTypesUnsafeAccessors.NullableDateTime(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, DateTime? value) => ManyTypesUnsafeAccessors.NullableDateTime(entity) = value);
             nullableDateTime.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, DateTime? value) => ManyTypesUnsafeAccessors.NullableDateTime(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, DateTime? value) => ManyTypesUnsafeAccessors.NullableDateTime(entity) = value);
             nullableDateTime.SetAccessors(
                 DateTime? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableDateTime(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 DateTime? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableDateTime(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -4187,14 +4027,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableDecimal>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             nullableDecimal.SetGetter(
-                decimal? (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableDecimal(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => !(ManyTypesUnsafeAccessors.NullableDecimal(entity).HasValue),
                 decimal? (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableDecimal(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => !(ManyTypesUnsafeAccessors.NullableDecimal(instance).HasValue));
             nullableDecimal.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, decimal? value) => ManyTypesUnsafeAccessors.NullableDecimal(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, decimal? value) => ManyTypesUnsafeAccessors.NullableDecimal(entity) = value);
             nullableDecimal.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, decimal? value) => ManyTypesUnsafeAccessors.NullableDecimal(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, decimal? value) => ManyTypesUnsafeAccessors.NullableDecimal(entity) = value);
             nullableDecimal.SetAccessors(
                 decimal? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableDecimal(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 decimal? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableDecimal(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -4230,14 +4068,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableDecimalArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableDecimalArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             nullableDecimalArray.SetGetter(
-                decimal? [] (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableDecimalArray(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableDecimalArray(entity) == null,
                 decimal? [] (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableDecimalArray(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableDecimalArray(instance) == null);
             nullableDecimalArray.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, decimal? [] value) => ManyTypesUnsafeAccessors.NullableDecimalArray(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, decimal? [] value) => ManyTypesUnsafeAccessors.NullableDecimalArray(entity) = value);
             nullableDecimalArray.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, decimal? [] value) => ManyTypesUnsafeAccessors.NullableDecimalArray(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, decimal? [] value) => ManyTypesUnsafeAccessors.NullableDecimalArray(entity) = value);
             nullableDecimalArray.SetAccessors(
                 decimal? [] (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableDecimalArray(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 decimal? [] (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableDecimalArray(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -4292,14 +4128,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableDouble>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             nullableDouble.SetGetter(
-                double? (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableDouble(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => !(ManyTypesUnsafeAccessors.NullableDouble(entity).HasValue),
                 double? (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableDouble(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => !(ManyTypesUnsafeAccessors.NullableDouble(instance).HasValue));
             nullableDouble.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, double? value) => ManyTypesUnsafeAccessors.NullableDouble(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, double? value) => ManyTypesUnsafeAccessors.NullableDouble(entity) = value);
             nullableDouble.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, double? value) => ManyTypesUnsafeAccessors.NullableDouble(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, double? value) => ManyTypesUnsafeAccessors.NullableDouble(entity) = value);
             nullableDouble.SetAccessors(
                 double? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableDouble(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 double? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableDouble(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -4335,14 +4169,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableDoubleArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableDoubleArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             nullableDoubleArray.SetGetter(
-                double? [] (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableDoubleArray(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableDoubleArray(entity) == null,
                 double? [] (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableDoubleArray(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableDoubleArray(instance) == null);
             nullableDoubleArray.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, double? [] value) => ManyTypesUnsafeAccessors.NullableDoubleArray(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, double? [] value) => ManyTypesUnsafeAccessors.NullableDoubleArray(entity) = value);
             nullableDoubleArray.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, double? [] value) => ManyTypesUnsafeAccessors.NullableDoubleArray(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, double? [] value) => ManyTypesUnsafeAccessors.NullableDoubleArray(entity) = value);
             nullableDoubleArray.SetAccessors(
                 double? [] (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableDoubleArray(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 double? [] (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableDoubleArray(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -4397,14 +4229,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnum16>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             nullableEnum16.SetGetter(
-                CompiledModelTestBase.Enum16? (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableEnum16(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => !(ManyTypesUnsafeAccessors.NullableEnum16(entity).HasValue),
                 CompiledModelTestBase.Enum16? (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableEnum16(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => !(ManyTypesUnsafeAccessors.NullableEnum16(instance).HasValue));
             nullableEnum16.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum16? value) => ManyTypesUnsafeAccessors.NullableEnum16(entity) = (value == null ? value : ((CompiledModelTestBase.Enum16? )(((CompiledModelTestBase.Enum16)(value))))));
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.Enum16? value) => ManyTypesUnsafeAccessors.NullableEnum16(entity) = (value == null ? value : ((CompiledModelTestBase.Enum16? )(((CompiledModelTestBase.Enum16)(value))))));
             nullableEnum16.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum16? value) => ManyTypesUnsafeAccessors.NullableEnum16(entity) = (value == null ? value : ((CompiledModelTestBase.Enum16? )(((CompiledModelTestBase.Enum16)(value))))));
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.Enum16? value) => ManyTypesUnsafeAccessors.NullableEnum16(entity) = (value == null ? value : ((CompiledModelTestBase.Enum16? )(((CompiledModelTestBase.Enum16)(value))))));
             nullableEnum16.SetAccessors(
                 CompiledModelTestBase.Enum16? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableEnum16(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 CompiledModelTestBase.Enum16? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableEnum16(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -4447,14 +4277,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnum16AsString>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             nullableEnum16AsString.SetGetter(
-                CompiledModelTestBase.Enum16? (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableEnum16AsString(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => !(ManyTypesUnsafeAccessors.NullableEnum16AsString(entity).HasValue),
                 CompiledModelTestBase.Enum16? (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableEnum16AsString(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => !(ManyTypesUnsafeAccessors.NullableEnum16AsString(instance).HasValue));
             nullableEnum16AsString.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum16? value) => ManyTypesUnsafeAccessors.NullableEnum16AsString(entity) = (value == null ? value : ((CompiledModelTestBase.Enum16? )(((CompiledModelTestBase.Enum16)(value))))));
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.Enum16? value) => ManyTypesUnsafeAccessors.NullableEnum16AsString(entity) = (value == null ? value : ((CompiledModelTestBase.Enum16? )(((CompiledModelTestBase.Enum16)(value))))));
             nullableEnum16AsString.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum16? value) => ManyTypesUnsafeAccessors.NullableEnum16AsString(entity) = (value == null ? value : ((CompiledModelTestBase.Enum16? )(((CompiledModelTestBase.Enum16)(value))))));
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.Enum16? value) => ManyTypesUnsafeAccessors.NullableEnum16AsString(entity) = (value == null ? value : ((CompiledModelTestBase.Enum16? )(((CompiledModelTestBase.Enum16)(value))))));
             nullableEnum16AsString.SetAccessors(
                 CompiledModelTestBase.Enum16? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableEnum16AsString(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 CompiledModelTestBase.Enum16? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableEnum16AsString(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -4497,14 +4325,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnum32>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             nullableEnum32.SetGetter(
-                CompiledModelTestBase.Enum32? (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableEnum32(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => !(ManyTypesUnsafeAccessors.NullableEnum32(entity).HasValue),
                 CompiledModelTestBase.Enum32? (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableEnum32(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => !(ManyTypesUnsafeAccessors.NullableEnum32(instance).HasValue));
             nullableEnum32.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum32? value) => ManyTypesUnsafeAccessors.NullableEnum32(entity) = (value == null ? value : ((CompiledModelTestBase.Enum32? )(((CompiledModelTestBase.Enum32)(value))))));
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.Enum32? value) => ManyTypesUnsafeAccessors.NullableEnum32(entity) = (value == null ? value : ((CompiledModelTestBase.Enum32? )(((CompiledModelTestBase.Enum32)(value))))));
             nullableEnum32.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum32? value) => ManyTypesUnsafeAccessors.NullableEnum32(entity) = (value == null ? value : ((CompiledModelTestBase.Enum32? )(((CompiledModelTestBase.Enum32)(value))))));
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.Enum32? value) => ManyTypesUnsafeAccessors.NullableEnum32(entity) = (value == null ? value : ((CompiledModelTestBase.Enum32? )(((CompiledModelTestBase.Enum32)(value))))));
             nullableEnum32.SetAccessors(
                 CompiledModelTestBase.Enum32? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableEnum32(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 CompiledModelTestBase.Enum32? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableEnum32(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -4547,14 +4373,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnum32AsString>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             nullableEnum32AsString.SetGetter(
-                CompiledModelTestBase.Enum32? (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableEnum32AsString(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => !(ManyTypesUnsafeAccessors.NullableEnum32AsString(entity).HasValue),
                 CompiledModelTestBase.Enum32? (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableEnum32AsString(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => !(ManyTypesUnsafeAccessors.NullableEnum32AsString(instance).HasValue));
             nullableEnum32AsString.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum32? value) => ManyTypesUnsafeAccessors.NullableEnum32AsString(entity) = (value == null ? value : ((CompiledModelTestBase.Enum32? )(((CompiledModelTestBase.Enum32)(value))))));
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.Enum32? value) => ManyTypesUnsafeAccessors.NullableEnum32AsString(entity) = (value == null ? value : ((CompiledModelTestBase.Enum32? )(((CompiledModelTestBase.Enum32)(value))))));
             nullableEnum32AsString.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum32? value) => ManyTypesUnsafeAccessors.NullableEnum32AsString(entity) = (value == null ? value : ((CompiledModelTestBase.Enum32? )(((CompiledModelTestBase.Enum32)(value))))));
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.Enum32? value) => ManyTypesUnsafeAccessors.NullableEnum32AsString(entity) = (value == null ? value : ((CompiledModelTestBase.Enum32? )(((CompiledModelTestBase.Enum32)(value))))));
             nullableEnum32AsString.SetAccessors(
                 CompiledModelTestBase.Enum32? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableEnum32AsString(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 CompiledModelTestBase.Enum32? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableEnum32AsString(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -4597,14 +4421,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnum64>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             nullableEnum64.SetGetter(
-                CompiledModelTestBase.Enum64? (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableEnum64(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => !(ManyTypesUnsafeAccessors.NullableEnum64(entity).HasValue),
                 CompiledModelTestBase.Enum64? (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableEnum64(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => !(ManyTypesUnsafeAccessors.NullableEnum64(instance).HasValue));
             nullableEnum64.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum64? value) => ManyTypesUnsafeAccessors.NullableEnum64(entity) = (value == null ? value : ((CompiledModelTestBase.Enum64? )(((CompiledModelTestBase.Enum64)(value))))));
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.Enum64? value) => ManyTypesUnsafeAccessors.NullableEnum64(entity) = (value == null ? value : ((CompiledModelTestBase.Enum64? )(((CompiledModelTestBase.Enum64)(value))))));
             nullableEnum64.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum64? value) => ManyTypesUnsafeAccessors.NullableEnum64(entity) = (value == null ? value : ((CompiledModelTestBase.Enum64? )(((CompiledModelTestBase.Enum64)(value))))));
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.Enum64? value) => ManyTypesUnsafeAccessors.NullableEnum64(entity) = (value == null ? value : ((CompiledModelTestBase.Enum64? )(((CompiledModelTestBase.Enum64)(value))))));
             nullableEnum64.SetAccessors(
                 CompiledModelTestBase.Enum64? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableEnum64(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 CompiledModelTestBase.Enum64? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableEnum64(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -4647,14 +4469,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnum64AsString>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             nullableEnum64AsString.SetGetter(
-                CompiledModelTestBase.Enum64? (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableEnum64AsString(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => !(ManyTypesUnsafeAccessors.NullableEnum64AsString(entity).HasValue),
                 CompiledModelTestBase.Enum64? (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableEnum64AsString(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => !(ManyTypesUnsafeAccessors.NullableEnum64AsString(instance).HasValue));
             nullableEnum64AsString.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum64? value) => ManyTypesUnsafeAccessors.NullableEnum64AsString(entity) = (value == null ? value : ((CompiledModelTestBase.Enum64? )(((CompiledModelTestBase.Enum64)(value))))));
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.Enum64? value) => ManyTypesUnsafeAccessors.NullableEnum64AsString(entity) = (value == null ? value : ((CompiledModelTestBase.Enum64? )(((CompiledModelTestBase.Enum64)(value))))));
             nullableEnum64AsString.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum64? value) => ManyTypesUnsafeAccessors.NullableEnum64AsString(entity) = (value == null ? value : ((CompiledModelTestBase.Enum64? )(((CompiledModelTestBase.Enum64)(value))))));
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.Enum64? value) => ManyTypesUnsafeAccessors.NullableEnum64AsString(entity) = (value == null ? value : ((CompiledModelTestBase.Enum64? )(((CompiledModelTestBase.Enum64)(value))))));
             nullableEnum64AsString.SetAccessors(
                 CompiledModelTestBase.Enum64? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableEnum64AsString(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 CompiledModelTestBase.Enum64? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableEnum64AsString(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -4697,14 +4517,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnum8>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             nullableEnum8.SetGetter(
-                CompiledModelTestBase.Enum8? (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableEnum8(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => !(ManyTypesUnsafeAccessors.NullableEnum8(entity).HasValue),
                 CompiledModelTestBase.Enum8? (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableEnum8(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => !(ManyTypesUnsafeAccessors.NullableEnum8(instance).HasValue));
             nullableEnum8.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum8? value) => ManyTypesUnsafeAccessors.NullableEnum8(entity) = (value == null ? value : ((CompiledModelTestBase.Enum8? )(((CompiledModelTestBase.Enum8)(value))))));
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.Enum8? value) => ManyTypesUnsafeAccessors.NullableEnum8(entity) = (value == null ? value : ((CompiledModelTestBase.Enum8? )(((CompiledModelTestBase.Enum8)(value))))));
             nullableEnum8.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum8? value) => ManyTypesUnsafeAccessors.NullableEnum8(entity) = (value == null ? value : ((CompiledModelTestBase.Enum8? )(((CompiledModelTestBase.Enum8)(value))))));
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.Enum8? value) => ManyTypesUnsafeAccessors.NullableEnum8(entity) = (value == null ? value : ((CompiledModelTestBase.Enum8? )(((CompiledModelTestBase.Enum8)(value))))));
             nullableEnum8.SetAccessors(
                 CompiledModelTestBase.Enum8? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableEnum8(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 CompiledModelTestBase.Enum8? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableEnum8(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -4747,14 +4565,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnum8AsString>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             nullableEnum8AsString.SetGetter(
-                CompiledModelTestBase.Enum8? (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableEnum8AsString(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => !(ManyTypesUnsafeAccessors.NullableEnum8AsString(entity).HasValue),
                 CompiledModelTestBase.Enum8? (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableEnum8AsString(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => !(ManyTypesUnsafeAccessors.NullableEnum8AsString(instance).HasValue));
             nullableEnum8AsString.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum8? value) => ManyTypesUnsafeAccessors.NullableEnum8AsString(entity) = (value == null ? value : ((CompiledModelTestBase.Enum8? )(((CompiledModelTestBase.Enum8)(value))))));
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.Enum8? value) => ManyTypesUnsafeAccessors.NullableEnum8AsString(entity) = (value == null ? value : ((CompiledModelTestBase.Enum8? )(((CompiledModelTestBase.Enum8)(value))))));
             nullableEnum8AsString.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum8? value) => ManyTypesUnsafeAccessors.NullableEnum8AsString(entity) = (value == null ? value : ((CompiledModelTestBase.Enum8? )(((CompiledModelTestBase.Enum8)(value))))));
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.Enum8? value) => ManyTypesUnsafeAccessors.NullableEnum8AsString(entity) = (value == null ? value : ((CompiledModelTestBase.Enum8? )(((CompiledModelTestBase.Enum8)(value))))));
             nullableEnum8AsString.SetAccessors(
                 CompiledModelTestBase.Enum8? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableEnum8AsString(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 CompiledModelTestBase.Enum8? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableEnum8AsString(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -4797,14 +4613,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnumU16>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             nullableEnumU16.SetGetter(
-                CompiledModelTestBase.EnumU16? (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableEnumU16(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => !(ManyTypesUnsafeAccessors.NullableEnumU16(entity).HasValue),
                 CompiledModelTestBase.EnumU16? (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableEnumU16(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => !(ManyTypesUnsafeAccessors.NullableEnumU16(instance).HasValue));
             nullableEnumU16.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU16? value) => ManyTypesUnsafeAccessors.NullableEnumU16(entity) = (value == null ? value : ((CompiledModelTestBase.EnumU16? )(((CompiledModelTestBase.EnumU16)(value))))));
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.EnumU16? value) => ManyTypesUnsafeAccessors.NullableEnumU16(entity) = (value == null ? value : ((CompiledModelTestBase.EnumU16? )(((CompiledModelTestBase.EnumU16)(value))))));
             nullableEnumU16.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU16? value) => ManyTypesUnsafeAccessors.NullableEnumU16(entity) = (value == null ? value : ((CompiledModelTestBase.EnumU16? )(((CompiledModelTestBase.EnumU16)(value))))));
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.EnumU16? value) => ManyTypesUnsafeAccessors.NullableEnumU16(entity) = (value == null ? value : ((CompiledModelTestBase.EnumU16? )(((CompiledModelTestBase.EnumU16)(value))))));
             nullableEnumU16.SetAccessors(
                 CompiledModelTestBase.EnumU16? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableEnumU16(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 CompiledModelTestBase.EnumU16? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableEnumU16(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -4847,14 +4661,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnumU16AsString>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             nullableEnumU16AsString.SetGetter(
-                CompiledModelTestBase.EnumU16? (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableEnumU16AsString(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => !(ManyTypesUnsafeAccessors.NullableEnumU16AsString(entity).HasValue),
                 CompiledModelTestBase.EnumU16? (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableEnumU16AsString(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => !(ManyTypesUnsafeAccessors.NullableEnumU16AsString(instance).HasValue));
             nullableEnumU16AsString.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU16? value) => ManyTypesUnsafeAccessors.NullableEnumU16AsString(entity) = (value == null ? value : ((CompiledModelTestBase.EnumU16? )(((CompiledModelTestBase.EnumU16)(value))))));
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.EnumU16? value) => ManyTypesUnsafeAccessors.NullableEnumU16AsString(entity) = (value == null ? value : ((CompiledModelTestBase.EnumU16? )(((CompiledModelTestBase.EnumU16)(value))))));
             nullableEnumU16AsString.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU16? value) => ManyTypesUnsafeAccessors.NullableEnumU16AsString(entity) = (value == null ? value : ((CompiledModelTestBase.EnumU16? )(((CompiledModelTestBase.EnumU16)(value))))));
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.EnumU16? value) => ManyTypesUnsafeAccessors.NullableEnumU16AsString(entity) = (value == null ? value : ((CompiledModelTestBase.EnumU16? )(((CompiledModelTestBase.EnumU16)(value))))));
             nullableEnumU16AsString.SetAccessors(
                 CompiledModelTestBase.EnumU16? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableEnumU16AsString(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 CompiledModelTestBase.EnumU16? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableEnumU16AsString(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -4897,14 +4709,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnumU32>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             nullableEnumU32.SetGetter(
-                CompiledModelTestBase.EnumU32? (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableEnumU32(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => !(ManyTypesUnsafeAccessors.NullableEnumU32(entity).HasValue),
                 CompiledModelTestBase.EnumU32? (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableEnumU32(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => !(ManyTypesUnsafeAccessors.NullableEnumU32(instance).HasValue));
             nullableEnumU32.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU32? value) => ManyTypesUnsafeAccessors.NullableEnumU32(entity) = (value == null ? value : ((CompiledModelTestBase.EnumU32? )(((CompiledModelTestBase.EnumU32)(value))))));
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.EnumU32? value) => ManyTypesUnsafeAccessors.NullableEnumU32(entity) = (value == null ? value : ((CompiledModelTestBase.EnumU32? )(((CompiledModelTestBase.EnumU32)(value))))));
             nullableEnumU32.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU32? value) => ManyTypesUnsafeAccessors.NullableEnumU32(entity) = (value == null ? value : ((CompiledModelTestBase.EnumU32? )(((CompiledModelTestBase.EnumU32)(value))))));
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.EnumU32? value) => ManyTypesUnsafeAccessors.NullableEnumU32(entity) = (value == null ? value : ((CompiledModelTestBase.EnumU32? )(((CompiledModelTestBase.EnumU32)(value))))));
             nullableEnumU32.SetAccessors(
                 CompiledModelTestBase.EnumU32? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableEnumU32(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 CompiledModelTestBase.EnumU32? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableEnumU32(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -4947,14 +4757,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnumU32AsString>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             nullableEnumU32AsString.SetGetter(
-                CompiledModelTestBase.EnumU32? (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableEnumU32AsString(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => !(ManyTypesUnsafeAccessors.NullableEnumU32AsString(entity).HasValue),
                 CompiledModelTestBase.EnumU32? (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableEnumU32AsString(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => !(ManyTypesUnsafeAccessors.NullableEnumU32AsString(instance).HasValue));
             nullableEnumU32AsString.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU32? value) => ManyTypesUnsafeAccessors.NullableEnumU32AsString(entity) = (value == null ? value : ((CompiledModelTestBase.EnumU32? )(((CompiledModelTestBase.EnumU32)(value))))));
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.EnumU32? value) => ManyTypesUnsafeAccessors.NullableEnumU32AsString(entity) = (value == null ? value : ((CompiledModelTestBase.EnumU32? )(((CompiledModelTestBase.EnumU32)(value))))));
             nullableEnumU32AsString.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU32? value) => ManyTypesUnsafeAccessors.NullableEnumU32AsString(entity) = (value == null ? value : ((CompiledModelTestBase.EnumU32? )(((CompiledModelTestBase.EnumU32)(value))))));
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.EnumU32? value) => ManyTypesUnsafeAccessors.NullableEnumU32AsString(entity) = (value == null ? value : ((CompiledModelTestBase.EnumU32? )(((CompiledModelTestBase.EnumU32)(value))))));
             nullableEnumU32AsString.SetAccessors(
                 CompiledModelTestBase.EnumU32? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableEnumU32AsString(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 CompiledModelTestBase.EnumU32? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableEnumU32AsString(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -4997,14 +4805,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnumU64>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             nullableEnumU64.SetGetter(
-                CompiledModelTestBase.EnumU64? (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableEnumU64(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => !(ManyTypesUnsafeAccessors.NullableEnumU64(entity).HasValue),
                 CompiledModelTestBase.EnumU64? (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableEnumU64(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => !(ManyTypesUnsafeAccessors.NullableEnumU64(instance).HasValue));
             nullableEnumU64.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU64? value) => ManyTypesUnsafeAccessors.NullableEnumU64(entity) = (value == null ? value : ((CompiledModelTestBase.EnumU64? )(((CompiledModelTestBase.EnumU64)(value))))));
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.EnumU64? value) => ManyTypesUnsafeAccessors.NullableEnumU64(entity) = (value == null ? value : ((CompiledModelTestBase.EnumU64? )(((CompiledModelTestBase.EnumU64)(value))))));
             nullableEnumU64.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU64? value) => ManyTypesUnsafeAccessors.NullableEnumU64(entity) = (value == null ? value : ((CompiledModelTestBase.EnumU64? )(((CompiledModelTestBase.EnumU64)(value))))));
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.EnumU64? value) => ManyTypesUnsafeAccessors.NullableEnumU64(entity) = (value == null ? value : ((CompiledModelTestBase.EnumU64? )(((CompiledModelTestBase.EnumU64)(value))))));
             nullableEnumU64.SetAccessors(
                 CompiledModelTestBase.EnumU64? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableEnumU64(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 CompiledModelTestBase.EnumU64? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableEnumU64(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -5047,14 +4853,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnumU64AsString>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             nullableEnumU64AsString.SetGetter(
-                CompiledModelTestBase.EnumU64? (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableEnumU64AsString(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => !(ManyTypesUnsafeAccessors.NullableEnumU64AsString(entity).HasValue),
                 CompiledModelTestBase.EnumU64? (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableEnumU64AsString(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => !(ManyTypesUnsafeAccessors.NullableEnumU64AsString(instance).HasValue));
             nullableEnumU64AsString.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU64? value) => ManyTypesUnsafeAccessors.NullableEnumU64AsString(entity) = (value == null ? value : ((CompiledModelTestBase.EnumU64? )(((CompiledModelTestBase.EnumU64)(value))))));
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.EnumU64? value) => ManyTypesUnsafeAccessors.NullableEnumU64AsString(entity) = (value == null ? value : ((CompiledModelTestBase.EnumU64? )(((CompiledModelTestBase.EnumU64)(value))))));
             nullableEnumU64AsString.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU64? value) => ManyTypesUnsafeAccessors.NullableEnumU64AsString(entity) = (value == null ? value : ((CompiledModelTestBase.EnumU64? )(((CompiledModelTestBase.EnumU64)(value))))));
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.EnumU64? value) => ManyTypesUnsafeAccessors.NullableEnumU64AsString(entity) = (value == null ? value : ((CompiledModelTestBase.EnumU64? )(((CompiledModelTestBase.EnumU64)(value))))));
             nullableEnumU64AsString.SetAccessors(
                 CompiledModelTestBase.EnumU64? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableEnumU64AsString(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 CompiledModelTestBase.EnumU64? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableEnumU64AsString(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -5097,14 +4901,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnumU8>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             nullableEnumU8.SetGetter(
-                CompiledModelTestBase.EnumU8? (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableEnumU8(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => !(ManyTypesUnsafeAccessors.NullableEnumU8(entity).HasValue),
                 CompiledModelTestBase.EnumU8? (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableEnumU8(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => !(ManyTypesUnsafeAccessors.NullableEnumU8(instance).HasValue));
             nullableEnumU8.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU8? value) => ManyTypesUnsafeAccessors.NullableEnumU8(entity) = (value == null ? value : ((CompiledModelTestBase.EnumU8? )(((CompiledModelTestBase.EnumU8)(value))))));
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.EnumU8? value) => ManyTypesUnsafeAccessors.NullableEnumU8(entity) = (value == null ? value : ((CompiledModelTestBase.EnumU8? )(((CompiledModelTestBase.EnumU8)(value))))));
             nullableEnumU8.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU8? value) => ManyTypesUnsafeAccessors.NullableEnumU8(entity) = (value == null ? value : ((CompiledModelTestBase.EnumU8? )(((CompiledModelTestBase.EnumU8)(value))))));
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.EnumU8? value) => ManyTypesUnsafeAccessors.NullableEnumU8(entity) = (value == null ? value : ((CompiledModelTestBase.EnumU8? )(((CompiledModelTestBase.EnumU8)(value))))));
             nullableEnumU8.SetAccessors(
                 CompiledModelTestBase.EnumU8? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableEnumU8(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 CompiledModelTestBase.EnumU8? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableEnumU8(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -5147,14 +4949,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnumU8AsString>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             nullableEnumU8AsString.SetGetter(
-                CompiledModelTestBase.EnumU8? (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableEnumU8AsString(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => !(ManyTypesUnsafeAccessors.NullableEnumU8AsString(entity).HasValue),
                 CompiledModelTestBase.EnumU8? (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableEnumU8AsString(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => !(ManyTypesUnsafeAccessors.NullableEnumU8AsString(instance).HasValue));
             nullableEnumU8AsString.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU8? value) => ManyTypesUnsafeAccessors.NullableEnumU8AsString(entity) = (value == null ? value : ((CompiledModelTestBase.EnumU8? )(((CompiledModelTestBase.EnumU8)(value))))));
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.EnumU8? value) => ManyTypesUnsafeAccessors.NullableEnumU8AsString(entity) = (value == null ? value : ((CompiledModelTestBase.EnumU8? )(((CompiledModelTestBase.EnumU8)(value))))));
             nullableEnumU8AsString.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU8? value) => ManyTypesUnsafeAccessors.NullableEnumU8AsString(entity) = (value == null ? value : ((CompiledModelTestBase.EnumU8? )(((CompiledModelTestBase.EnumU8)(value))))));
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, CompiledModelTestBase.EnumU8? value) => ManyTypesUnsafeAccessors.NullableEnumU8AsString(entity) = (value == null ? value : ((CompiledModelTestBase.EnumU8? )(((CompiledModelTestBase.EnumU8)(value))))));
             nullableEnumU8AsString.SetAccessors(
                 CompiledModelTestBase.EnumU8? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableEnumU8AsString(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 CompiledModelTestBase.EnumU8? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableEnumU8AsString(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -5197,14 +4997,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableFloat>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             nullableFloat.SetGetter(
-                float? (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableFloat(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => !(ManyTypesUnsafeAccessors.NullableFloat(entity).HasValue),
                 float? (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableFloat(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => !(ManyTypesUnsafeAccessors.NullableFloat(instance).HasValue));
             nullableFloat.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, float? value) => ManyTypesUnsafeAccessors.NullableFloat(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, float? value) => ManyTypesUnsafeAccessors.NullableFloat(entity) = value);
             nullableFloat.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, float? value) => ManyTypesUnsafeAccessors.NullableFloat(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, float? value) => ManyTypesUnsafeAccessors.NullableFloat(entity) = value);
             nullableFloat.SetAccessors(
                 float? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableFloat(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 float? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableFloat(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -5240,14 +5038,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableFloatArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableFloatArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             nullableFloatArray.SetGetter(
-                float? [] (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableFloatArray(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableFloatArray(entity) == null,
                 float? [] (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableFloatArray(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableFloatArray(instance) == null);
             nullableFloatArray.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, float? [] value) => ManyTypesUnsafeAccessors.NullableFloatArray(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, float? [] value) => ManyTypesUnsafeAccessors.NullableFloatArray(entity) = value);
             nullableFloatArray.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, float? [] value) => ManyTypesUnsafeAccessors.NullableFloatArray(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, float? [] value) => ManyTypesUnsafeAccessors.NullableFloatArray(entity) = value);
             nullableFloatArray.SetAccessors(
                 float? [] (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableFloatArray(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 float? [] (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableFloatArray(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -5302,14 +5098,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableGuid>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             nullableGuid.SetGetter(
-                Guid? (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableGuid(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => !(ManyTypesUnsafeAccessors.NullableGuid(entity).HasValue),
                 Guid? (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableGuid(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => !(ManyTypesUnsafeAccessors.NullableGuid(instance).HasValue));
             nullableGuid.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, Guid? value) => ManyTypesUnsafeAccessors.NullableGuid(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, Guid? value) => ManyTypesUnsafeAccessors.NullableGuid(entity) = value);
             nullableGuid.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, Guid? value) => ManyTypesUnsafeAccessors.NullableGuid(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, Guid? value) => ManyTypesUnsafeAccessors.NullableGuid(entity) = value);
             nullableGuid.SetAccessors(
                 Guid? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableGuid(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 Guid? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableGuid(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -5352,14 +5146,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableIPAddress>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             nullableIPAddress.SetGetter(
-                IPAddress (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableIPAddress(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableIPAddress(entity) == null,
                 IPAddress (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableIPAddress(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableIPAddress(instance) == null);
             nullableIPAddress.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, IPAddress value) => ManyTypesUnsafeAccessors.NullableIPAddress(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, IPAddress value) => ManyTypesUnsafeAccessors.NullableIPAddress(entity) = value);
             nullableIPAddress.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, IPAddress value) => ManyTypesUnsafeAccessors.NullableIPAddress(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, IPAddress value) => ManyTypesUnsafeAccessors.NullableIPAddress(entity) = value);
             nullableIPAddress.SetAccessors(
                 IPAddress (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableIPAddress(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 IPAddress (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableIPAddress(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -5400,14 +5192,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableInt16>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             nullableInt16.SetGetter(
-                short? (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableInt16(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => !(ManyTypesUnsafeAccessors.NullableInt16(entity).HasValue),
                 short? (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableInt16(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => !(ManyTypesUnsafeAccessors.NullableInt16(instance).HasValue));
             nullableInt16.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, short? value) => ManyTypesUnsafeAccessors.NullableInt16(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, short? value) => ManyTypesUnsafeAccessors.NullableInt16(entity) = value);
             nullableInt16.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, short? value) => ManyTypesUnsafeAccessors.NullableInt16(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, short? value) => ManyTypesUnsafeAccessors.NullableInt16(entity) = value);
             nullableInt16.SetAccessors(
                 short? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableInt16(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 short? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableInt16(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -5443,14 +5233,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableInt16Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableInt16Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             nullableInt16Array.SetGetter(
-                short? [] (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableInt16Array(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableInt16Array(entity) == null,
                 short? [] (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableInt16Array(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableInt16Array(instance) == null);
             nullableInt16Array.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, short? [] value) => ManyTypesUnsafeAccessors.NullableInt16Array(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, short? [] value) => ManyTypesUnsafeAccessors.NullableInt16Array(entity) = value);
             nullableInt16Array.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, short? [] value) => ManyTypesUnsafeAccessors.NullableInt16Array(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, short? [] value) => ManyTypesUnsafeAccessors.NullableInt16Array(entity) = value);
             nullableInt16Array.SetAccessors(
                 short? [] (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableInt16Array(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 short? [] (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableInt16Array(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -5505,14 +5293,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableInt32>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             nullableInt32.SetGetter(
-                int? (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableInt32(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => !(ManyTypesUnsafeAccessors.NullableInt32(entity).HasValue),
                 int? (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableInt32(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => !(ManyTypesUnsafeAccessors.NullableInt32(instance).HasValue));
             nullableInt32.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, int? value) => ManyTypesUnsafeAccessors.NullableInt32(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, int? value) => ManyTypesUnsafeAccessors.NullableInt32(entity) = value);
             nullableInt32.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, int? value) => ManyTypesUnsafeAccessors.NullableInt32(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, int? value) => ManyTypesUnsafeAccessors.NullableInt32(entity) = value);
             nullableInt32.SetAccessors(
                 int? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableInt32(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 int? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableInt32(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -5548,14 +5334,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableInt32Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableInt32Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             nullableInt32Array.SetGetter(
-                int? [] (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableInt32Array(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableInt32Array(entity) == null,
                 int? [] (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableInt32Array(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableInt32Array(instance) == null);
             nullableInt32Array.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, int? [] value) => ManyTypesUnsafeAccessors.NullableInt32Array(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, int? [] value) => ManyTypesUnsafeAccessors.NullableInt32Array(entity) = value);
             nullableInt32Array.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, int? [] value) => ManyTypesUnsafeAccessors.NullableInt32Array(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, int? [] value) => ManyTypesUnsafeAccessors.NullableInt32Array(entity) = value);
             nullableInt32Array.SetAccessors(
                 int? [] (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableInt32Array(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 int? [] (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableInt32Array(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -5609,14 +5393,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableInt32NestedCollection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableInt32NestedCollection>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             nullableInt32NestedCollection.SetGetter(
-                int? [][] (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableInt32NestedCollection(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableInt32NestedCollection(entity) == null,
                 int? [][] (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableInt32NestedCollection(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableInt32NestedCollection(instance) == null);
             nullableInt32NestedCollection.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, int? [][] value) => ManyTypesUnsafeAccessors.NullableInt32NestedCollection(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, int? [][] value) => ManyTypesUnsafeAccessors.NullableInt32NestedCollection(entity) = value);
             nullableInt32NestedCollection.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, int? [][] value) => ManyTypesUnsafeAccessors.NullableInt32NestedCollection(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, int? [][] value) => ManyTypesUnsafeAccessors.NullableInt32NestedCollection(entity) = value);
             nullableInt32NestedCollection.SetAccessors(
                 int? [][] (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableInt32NestedCollection(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 int? [][] (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableInt32NestedCollection(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -5686,14 +5468,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableInt64>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             nullableInt64.SetGetter(
-                long? (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableInt64(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => !(ManyTypesUnsafeAccessors.NullableInt64(entity).HasValue),
                 long? (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableInt64(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => !(ManyTypesUnsafeAccessors.NullableInt64(instance).HasValue));
             nullableInt64.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, long? value) => ManyTypesUnsafeAccessors.NullableInt64(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, long? value) => ManyTypesUnsafeAccessors.NullableInt64(entity) = value);
             nullableInt64.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, long? value) => ManyTypesUnsafeAccessors.NullableInt64(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, long? value) => ManyTypesUnsafeAccessors.NullableInt64(entity) = value);
             nullableInt64.SetAccessors(
                 long? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableInt64(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 long? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableInt64(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -5729,14 +5509,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableInt64Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableInt64Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             nullableInt64Array.SetGetter(
-                long? [] (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableInt64Array(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableInt64Array(entity) == null,
                 long? [] (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableInt64Array(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableInt64Array(instance) == null);
             nullableInt64Array.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, long? [] value) => ManyTypesUnsafeAccessors.NullableInt64Array(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, long? [] value) => ManyTypesUnsafeAccessors.NullableInt64Array(entity) = value);
             nullableInt64Array.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, long? [] value) => ManyTypesUnsafeAccessors.NullableInt64Array(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, long? [] value) => ManyTypesUnsafeAccessors.NullableInt64Array(entity) = value);
             nullableInt64Array.SetAccessors(
                 long? [] (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableInt64Array(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 long? [] (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableInt64Array(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -5790,14 +5568,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableInt64NestedCollection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableInt64NestedCollection>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             nullableInt64NestedCollection.SetGetter(
-                List<long? [][]> (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableInt64NestedCollection(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableInt64NestedCollection(entity) == null,
                 List<long? [][]> (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableInt64NestedCollection(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableInt64NestedCollection(instance) == null);
             nullableInt64NestedCollection.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, List<long? [][]> value) => ManyTypesUnsafeAccessors.NullableInt64NestedCollection(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, List<long? [][]> value) => ManyTypesUnsafeAccessors.NullableInt64NestedCollection(entity) = value);
             nullableInt64NestedCollection.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, List<long? [][]> value) => ManyTypesUnsafeAccessors.NullableInt64NestedCollection(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, List<long? [][]> value) => ManyTypesUnsafeAccessors.NullableInt64NestedCollection(entity) = value);
             nullableInt64NestedCollection.SetAccessors(
                 List<long? [][]> (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableInt64NestedCollection(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 List<long? [][]> (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableInt64NestedCollection(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -5885,14 +5661,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableInt8>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             nullableInt8.SetGetter(
-                sbyte? (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableInt8(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => !(ManyTypesUnsafeAccessors.NullableInt8(entity).HasValue),
                 sbyte? (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableInt8(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => !(ManyTypesUnsafeAccessors.NullableInt8(instance).HasValue));
             nullableInt8.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, sbyte? value) => ManyTypesUnsafeAccessors.NullableInt8(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, sbyte? value) => ManyTypesUnsafeAccessors.NullableInt8(entity) = value);
             nullableInt8.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, sbyte? value) => ManyTypesUnsafeAccessors.NullableInt8(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, sbyte? value) => ManyTypesUnsafeAccessors.NullableInt8(entity) = value);
             nullableInt8.SetAccessors(
                 sbyte? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableInt8(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 sbyte? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableInt8(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -5928,14 +5702,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableInt8Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableInt8Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             nullableInt8Array.SetGetter(
-                sbyte? [] (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableInt8Array(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableInt8Array(entity) == null,
                 sbyte? [] (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableInt8Array(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableInt8Array(instance) == null);
             nullableInt8Array.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, sbyte? [] value) => ManyTypesUnsafeAccessors.NullableInt8Array(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, sbyte? [] value) => ManyTypesUnsafeAccessors.NullableInt8Array(entity) = value);
             nullableInt8Array.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, sbyte? [] value) => ManyTypesUnsafeAccessors.NullableInt8Array(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, sbyte? [] value) => ManyTypesUnsafeAccessors.NullableInt8Array(entity) = value);
             nullableInt8Array.SetAccessors(
                 sbyte? [] (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableInt8Array(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 sbyte? [] (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableInt8Array(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -5990,14 +5762,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullablePhysicalAddress>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             nullablePhysicalAddress.SetGetter(
-                PhysicalAddress (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullablePhysicalAddress(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullablePhysicalAddress(entity) == null,
                 PhysicalAddress (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullablePhysicalAddress(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullablePhysicalAddress(instance) == null);
             nullablePhysicalAddress.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, PhysicalAddress value) => ManyTypesUnsafeAccessors.NullablePhysicalAddress(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, PhysicalAddress value) => ManyTypesUnsafeAccessors.NullablePhysicalAddress(entity) = value);
             nullablePhysicalAddress.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, PhysicalAddress value) => ManyTypesUnsafeAccessors.NullablePhysicalAddress(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, PhysicalAddress value) => ManyTypesUnsafeAccessors.NullablePhysicalAddress(entity) = value);
             nullablePhysicalAddress.SetAccessors(
                 PhysicalAddress (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullablePhysicalAddress(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 PhysicalAddress (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullablePhysicalAddress(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -6038,14 +5808,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableString>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             nullableString.SetGetter(
-                string (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableString(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableString(entity) == null,
                 string (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableString(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableString(instance) == null);
             nullableString.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, string value) => ManyTypesUnsafeAccessors.NullableString(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, string value) => ManyTypesUnsafeAccessors.NullableString(entity) = value);
             nullableString.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, string value) => ManyTypesUnsafeAccessors.NullableString(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, string value) => ManyTypesUnsafeAccessors.NullableString(entity) = value);
             nullableString.SetAccessors(
                 string (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableString(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 string (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableString(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -6079,14 +5847,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableStringArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableStringArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             nullableStringArray.SetGetter(
-                string[] (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableStringArray(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableStringArray(entity) == null,
                 string[] (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableStringArray(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableStringArray(instance) == null);
             nullableStringArray.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, string[] value) => ManyTypesUnsafeAccessors.NullableStringArray(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, string[] value) => ManyTypesUnsafeAccessors.NullableStringArray(entity) = value);
             nullableStringArray.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, string[] value) => ManyTypesUnsafeAccessors.NullableStringArray(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, string[] value) => ManyTypesUnsafeAccessors.NullableStringArray(entity) = value);
             nullableStringArray.SetAccessors(
                 string[] (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableStringArray(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 string[] (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableStringArray(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -6139,14 +5905,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableStringNestedCollection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableStringNestedCollection>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             nullableStringNestedCollection.SetGetter(
-                string[][] (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableStringNestedCollection(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableStringNestedCollection(entity) == null,
                 string[][] (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableStringNestedCollection(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableStringNestedCollection(instance) == null);
             nullableStringNestedCollection.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, string[][] value) => ManyTypesUnsafeAccessors.NullableStringNestedCollection(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, string[][] value) => ManyTypesUnsafeAccessors.NullableStringNestedCollection(entity) = value);
             nullableStringNestedCollection.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, string[][] value) => ManyTypesUnsafeAccessors.NullableStringNestedCollection(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, string[][] value) => ManyTypesUnsafeAccessors.NullableStringNestedCollection(entity) = value);
             nullableStringNestedCollection.SetAccessors(
                 string[][] (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableStringNestedCollection(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 string[][] (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableStringNestedCollection(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -6216,14 +5980,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableTimeOnly>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             nullableTimeOnly.SetGetter(
-                TimeOnly? (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableTimeOnly(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => !(ManyTypesUnsafeAccessors.NullableTimeOnly(entity).HasValue),
                 TimeOnly? (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableTimeOnly(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => !(ManyTypesUnsafeAccessors.NullableTimeOnly(instance).HasValue));
             nullableTimeOnly.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, TimeOnly? value) => ManyTypesUnsafeAccessors.NullableTimeOnly(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, TimeOnly? value) => ManyTypesUnsafeAccessors.NullableTimeOnly(entity) = value);
             nullableTimeOnly.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, TimeOnly? value) => ManyTypesUnsafeAccessors.NullableTimeOnly(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, TimeOnly? value) => ManyTypesUnsafeAccessors.NullableTimeOnly(entity) = value);
             nullableTimeOnly.SetAccessors(
                 TimeOnly? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableTimeOnly(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 TimeOnly? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableTimeOnly(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -6260,14 +6022,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableTimeSpan>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             nullableTimeSpan.SetGetter(
-                TimeSpan? (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableTimeSpan(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => !(ManyTypesUnsafeAccessors.NullableTimeSpan(entity).HasValue),
                 TimeSpan? (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableTimeSpan(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => !(ManyTypesUnsafeAccessors.NullableTimeSpan(instance).HasValue));
             nullableTimeSpan.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, TimeSpan? value) => ManyTypesUnsafeAccessors.NullableTimeSpan(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, TimeSpan? value) => ManyTypesUnsafeAccessors.NullableTimeSpan(entity) = value);
             nullableTimeSpan.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, TimeSpan? value) => ManyTypesUnsafeAccessors.NullableTimeSpan(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, TimeSpan? value) => ManyTypesUnsafeAccessors.NullableTimeSpan(entity) = value);
             nullableTimeSpan.SetAccessors(
                 TimeSpan? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableTimeSpan(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 TimeSpan? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableTimeSpan(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -6304,14 +6064,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableUInt16>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             nullableUInt16.SetGetter(
-                ushort? (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableUInt16(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => !(ManyTypesUnsafeAccessors.NullableUInt16(entity).HasValue),
                 ushort? (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableUInt16(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => !(ManyTypesUnsafeAccessors.NullableUInt16(instance).HasValue));
             nullableUInt16.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, ushort? value) => ManyTypesUnsafeAccessors.NullableUInt16(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, ushort? value) => ManyTypesUnsafeAccessors.NullableUInt16(entity) = value);
             nullableUInt16.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, ushort? value) => ManyTypesUnsafeAccessors.NullableUInt16(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, ushort? value) => ManyTypesUnsafeAccessors.NullableUInt16(entity) = value);
             nullableUInt16.SetAccessors(
                 ushort? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableUInt16(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 ushort? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableUInt16(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -6347,14 +6105,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableUInt16Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableUInt16Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             nullableUInt16Array.SetGetter(
-                ushort? [] (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableUInt16Array(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableUInt16Array(entity) == null,
                 ushort? [] (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableUInt16Array(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableUInt16Array(instance) == null);
             nullableUInt16Array.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, ushort? [] value) => ManyTypesUnsafeAccessors.NullableUInt16Array(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, ushort? [] value) => ManyTypesUnsafeAccessors.NullableUInt16Array(entity) = value);
             nullableUInt16Array.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, ushort? [] value) => ManyTypesUnsafeAccessors.NullableUInt16Array(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, ushort? [] value) => ManyTypesUnsafeAccessors.NullableUInt16Array(entity) = value);
             nullableUInt16Array.SetAccessors(
                 ushort? [] (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableUInt16Array(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 ushort? [] (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableUInt16Array(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -6409,14 +6165,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableUInt32>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             nullableUInt32.SetGetter(
-                uint? (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableUInt32(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => !(ManyTypesUnsafeAccessors.NullableUInt32(entity).HasValue),
                 uint? (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableUInt32(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => !(ManyTypesUnsafeAccessors.NullableUInt32(instance).HasValue));
             nullableUInt32.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, uint? value) => ManyTypesUnsafeAccessors.NullableUInt32(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, uint? value) => ManyTypesUnsafeAccessors.NullableUInt32(entity) = value);
             nullableUInt32.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, uint? value) => ManyTypesUnsafeAccessors.NullableUInt32(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, uint? value) => ManyTypesUnsafeAccessors.NullableUInt32(entity) = value);
             nullableUInt32.SetAccessors(
                 uint? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableUInt32(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 uint? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableUInt32(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -6452,14 +6206,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableUInt32Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableUInt32Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             nullableUInt32Array.SetGetter(
-                uint? [] (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableUInt32Array(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableUInt32Array(entity) == null,
                 uint? [] (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableUInt32Array(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableUInt32Array(instance) == null);
             nullableUInt32Array.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, uint? [] value) => ManyTypesUnsafeAccessors.NullableUInt32Array(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, uint? [] value) => ManyTypesUnsafeAccessors.NullableUInt32Array(entity) = value);
             nullableUInt32Array.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, uint? [] value) => ManyTypesUnsafeAccessors.NullableUInt32Array(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, uint? [] value) => ManyTypesUnsafeAccessors.NullableUInt32Array(entity) = value);
             nullableUInt32Array.SetAccessors(
                 uint? [] (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableUInt32Array(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 uint? [] (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableUInt32Array(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -6514,14 +6266,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableUInt64>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             nullableUInt64.SetGetter(
-                ulong? (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableUInt64(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => !(ManyTypesUnsafeAccessors.NullableUInt64(entity).HasValue),
                 ulong? (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableUInt64(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => !(ManyTypesUnsafeAccessors.NullableUInt64(instance).HasValue));
             nullableUInt64.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, ulong? value) => ManyTypesUnsafeAccessors.NullableUInt64(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, ulong? value) => ManyTypesUnsafeAccessors.NullableUInt64(entity) = value);
             nullableUInt64.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, ulong? value) => ManyTypesUnsafeAccessors.NullableUInt64(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, ulong? value) => ManyTypesUnsafeAccessors.NullableUInt64(entity) = value);
             nullableUInt64.SetAccessors(
                 ulong? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableUInt64(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 ulong? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableUInt64(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -6557,14 +6307,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableUInt64Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableUInt64Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             nullableUInt64Array.SetGetter(
-                ulong? [] (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableUInt64Array(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableUInt64Array(entity) == null,
                 ulong? [] (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableUInt64Array(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableUInt64Array(instance) == null);
             nullableUInt64Array.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, ulong? [] value) => ManyTypesUnsafeAccessors.NullableUInt64Array(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, ulong? [] value) => ManyTypesUnsafeAccessors.NullableUInt64Array(entity) = value);
             nullableUInt64Array.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, ulong? [] value) => ManyTypesUnsafeAccessors.NullableUInt64Array(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, ulong? [] value) => ManyTypesUnsafeAccessors.NullableUInt64Array(entity) = value);
             nullableUInt64Array.SetAccessors(
                 ulong? [] (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableUInt64Array(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 ulong? [] (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableUInt64Array(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -6619,14 +6367,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableUInt8>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             nullableUInt8.SetGetter(
-                byte? (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableUInt8(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => !(ManyTypesUnsafeAccessors.NullableUInt8(entity).HasValue),
                 byte? (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableUInt8(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => !(ManyTypesUnsafeAccessors.NullableUInt8(instance).HasValue));
             nullableUInt8.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, byte? value) => ManyTypesUnsafeAccessors.NullableUInt8(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, byte? value) => ManyTypesUnsafeAccessors.NullableUInt8(entity) = value);
             nullableUInt8.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, byte? value) => ManyTypesUnsafeAccessors.NullableUInt8(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, byte? value) => ManyTypesUnsafeAccessors.NullableUInt8(entity) = value);
             nullableUInt8.SetAccessors(
                 byte? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableUInt8(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 byte? (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableUInt8(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -6662,14 +6408,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableUInt8Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableUInt8Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             nullableUInt8Array.SetGetter(
-                byte? [] (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableUInt8Array(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableUInt8Array(entity) == null,
                 byte? [] (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableUInt8Array(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableUInt8Array(instance) == null);
             nullableUInt8Array.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, byte? [] value) => ManyTypesUnsafeAccessors.NullableUInt8Array(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, byte? [] value) => ManyTypesUnsafeAccessors.NullableUInt8Array(entity) = value);
             nullableUInt8Array.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, byte? [] value) => ManyTypesUnsafeAccessors.NullableUInt8Array(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, byte? [] value) => ManyTypesUnsafeAccessors.NullableUInt8Array(entity) = value);
             nullableUInt8Array.SetAccessors(
                 byte? [] (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableUInt8Array(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 byte? [] (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableUInt8Array(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -6724,14 +6468,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableUri>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             nullableUri.SetGetter(
-                Uri (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableUri(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.NullableUri(entity) == null,
                 Uri (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableUri(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableUri(instance) == null);
             nullableUri.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, Uri value) => ManyTypesUnsafeAccessors.NullableUri(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, Uri value) => ManyTypesUnsafeAccessors.NullableUri(entity) = value);
             nullableUri.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, Uri value) => ManyTypesUnsafeAccessors.NullableUri(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, Uri value) => ManyTypesUnsafeAccessors.NullableUri(entity) = value);
             nullableUri.SetAccessors(
                 Uri (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableUri(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 Uri (IInternalEntry entry) => ManyTypesUnsafeAccessors.NullableUri(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -6771,14 +6513,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("PhysicalAddress", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<PhysicalAddress>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             physicalAddress.SetGetter(
-                PhysicalAddress (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.PhysicalAddress(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.PhysicalAddress(entity) == null,
                 PhysicalAddress (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.PhysicalAddress(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.PhysicalAddress(instance) == null);
             physicalAddress.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, PhysicalAddress value) => ManyTypesUnsafeAccessors.PhysicalAddress(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, PhysicalAddress value) => ManyTypesUnsafeAccessors.PhysicalAddress(entity) = value);
             physicalAddress.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, PhysicalAddress value) => ManyTypesUnsafeAccessors.PhysicalAddress(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, PhysicalAddress value) => ManyTypesUnsafeAccessors.PhysicalAddress(entity) = value);
             physicalAddress.SetAccessors(
                 PhysicalAddress (IInternalEntry entry) => ManyTypesUnsafeAccessors.PhysicalAddress(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 PhysicalAddress (IInternalEntry entry) => ManyTypesUnsafeAccessors.PhysicalAddress(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -6819,14 +6559,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<PhysicalAddressToBytesConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new PhysicalAddressToBytesConverter());
             physicalAddressToBytesConverterProperty.SetGetter(
-                PhysicalAddress (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.PhysicalAddressToBytesConverterProperty(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.PhysicalAddressToBytesConverterProperty(entity) == null,
                 PhysicalAddress (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.PhysicalAddressToBytesConverterProperty(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.PhysicalAddressToBytesConverterProperty(instance) == null);
             physicalAddressToBytesConverterProperty.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, PhysicalAddress value) => ManyTypesUnsafeAccessors.PhysicalAddressToBytesConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, PhysicalAddress value) => ManyTypesUnsafeAccessors.PhysicalAddressToBytesConverterProperty(entity) = value);
             physicalAddressToBytesConverterProperty.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, PhysicalAddress value) => ManyTypesUnsafeAccessors.PhysicalAddressToBytesConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, PhysicalAddress value) => ManyTypesUnsafeAccessors.PhysicalAddressToBytesConverterProperty(entity) = value);
             physicalAddressToBytesConverterProperty.SetAccessors(
                 PhysicalAddress (IInternalEntry entry) => ManyTypesUnsafeAccessors.PhysicalAddressToBytesConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 PhysicalAddress (IInternalEntry entry) => ManyTypesUnsafeAccessors.PhysicalAddressToBytesConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -6867,14 +6605,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<PhysicalAddressToStringConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new PhysicalAddressToStringConverter());
             physicalAddressToStringConverterProperty.SetGetter(
-                PhysicalAddress (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.PhysicalAddressToStringConverterProperty(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.PhysicalAddressToStringConverterProperty(entity) == null,
                 PhysicalAddress (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.PhysicalAddressToStringConverterProperty(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.PhysicalAddressToStringConverterProperty(instance) == null);
             physicalAddressToStringConverterProperty.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, PhysicalAddress value) => ManyTypesUnsafeAccessors.PhysicalAddressToStringConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, PhysicalAddress value) => ManyTypesUnsafeAccessors.PhysicalAddressToStringConverterProperty(entity) = value);
             physicalAddressToStringConverterProperty.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, PhysicalAddress value) => ManyTypesUnsafeAccessors.PhysicalAddressToStringConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, PhysicalAddress value) => ManyTypesUnsafeAccessors.PhysicalAddressToStringConverterProperty(entity) = value);
             physicalAddressToStringConverterProperty.SetAccessors(
                 PhysicalAddress (IInternalEntry entry) => ManyTypesUnsafeAccessors.PhysicalAddressToStringConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 PhysicalAddress (IInternalEntry entry) => ManyTypesUnsafeAccessors.PhysicalAddressToStringConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -6914,14 +6650,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("String", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<String>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             @string.SetGetter(
-                string (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.String(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.String(entity) == null,
                 string (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.String(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.String(instance) == null);
             @string.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, string value) => ManyTypesUnsafeAccessors.String(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, string value) => ManyTypesUnsafeAccessors.String(entity) = value);
             @string.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, string value) => ManyTypesUnsafeAccessors.String(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, string value) => ManyTypesUnsafeAccessors.String(entity) = value);
             @string.SetAccessors(
                 string (IInternalEntry entry) => ManyTypesUnsafeAccessors.String(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 string (IInternalEntry entry) => ManyTypesUnsafeAccessors.String(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -6955,14 +6689,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("StringArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<StringArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             stringArray.SetGetter(
-                string[] (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.StringArray(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.StringArray(entity) == null,
                 string[] (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.StringArray(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.StringArray(instance) == null);
             stringArray.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, string[] value) => ManyTypesUnsafeAccessors.StringArray(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, string[] value) => ManyTypesUnsafeAccessors.StringArray(entity) = value);
             stringArray.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, string[] value) => ManyTypesUnsafeAccessors.StringArray(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, string[] value) => ManyTypesUnsafeAccessors.StringArray(entity) = value);
             stringArray.SetAccessors(
                 string[] (IInternalEntry entry) => ManyTypesUnsafeAccessors.StringArray(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 string[] (IInternalEntry entry) => ManyTypesUnsafeAccessors.StringArray(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -7014,14 +6746,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("StringNestedCollection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<StringNestedCollection>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             stringNestedCollection.SetGetter(
-                string[][] (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.StringNestedCollection(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.StringNestedCollection(entity) == null,
                 string[][] (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.StringNestedCollection(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.StringNestedCollection(instance) == null);
             stringNestedCollection.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, string[][] value) => ManyTypesUnsafeAccessors.StringNestedCollection(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, string[][] value) => ManyTypesUnsafeAccessors.StringNestedCollection(entity) = value);
             stringNestedCollection.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, string[][] value) => ManyTypesUnsafeAccessors.StringNestedCollection(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, string[][] value) => ManyTypesUnsafeAccessors.StringNestedCollection(entity) = value);
             stringNestedCollection.SetAccessors(
                 string[][] (IInternalEntry entry) => ManyTypesUnsafeAccessors.StringNestedCollection(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 string[][] (IInternalEntry entry) => ManyTypesUnsafeAccessors.StringNestedCollection(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -7090,14 +6820,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("StringReadOnlyCollection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("_stringReadOnlyCollection", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             stringReadOnlyCollection.SetGetter(
-                IReadOnlyCollection<string> (CompiledModelTestBase.ManyTypes entity) => (ManyTypesUnsafeAccessors._stringReadOnlyCollection(entity) == null ? null : ((IReadOnlyCollection<string>)(ManyTypesUnsafeAccessors._stringReadOnlyCollection(entity)))),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors._stringReadOnlyCollection(entity) == null,
                 IReadOnlyCollection<string> (CompiledModelTestBase.ManyTypes instance) => (ManyTypesUnsafeAccessors._stringReadOnlyCollection(instance) == null ? null : ((IReadOnlyCollection<string>)(ManyTypesUnsafeAccessors._stringReadOnlyCollection(instance)))),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors._stringReadOnlyCollection(instance) == null);
             stringReadOnlyCollection.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, IReadOnlyCollection<string> value) => ManyTypesUnsafeAccessors._stringReadOnlyCollection(entity) = ((List<string>)(value)));
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, IReadOnlyCollection<string> value) => ManyTypesUnsafeAccessors._stringReadOnlyCollection(entity) = ((List<string>)(value)));
             stringReadOnlyCollection.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, IReadOnlyCollection<string> value) => ManyTypesUnsafeAccessors._stringReadOnlyCollection(entity) = ((List<string>)(value)));
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, IReadOnlyCollection<string> value) => ManyTypesUnsafeAccessors._stringReadOnlyCollection(entity) = ((List<string>)(value)));
             stringReadOnlyCollection.SetAccessors(
                 IReadOnlyCollection<string> (IInternalEntry entry) => ((IReadOnlyCollection<string>)(ManyTypesUnsafeAccessors._stringReadOnlyCollection(((CompiledModelTestBase.ManyTypes)(entry.Entity))))),
                 IReadOnlyCollection<string> (IInternalEntry entry) => ((IReadOnlyCollection<string>)(ManyTypesUnsafeAccessors._stringReadOnlyCollection(((CompiledModelTestBase.ManyTypes)(entry.Entity))))),
@@ -7150,14 +6878,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<StringToBoolConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new StringToBoolConverter());
             stringToBoolConverterProperty.SetGetter(
-                string (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.StringToBoolConverterProperty(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.StringToBoolConverterProperty(entity) == null,
                 string (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.StringToBoolConverterProperty(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.StringToBoolConverterProperty(instance) == null);
             stringToBoolConverterProperty.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, string value) => ManyTypesUnsafeAccessors.StringToBoolConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, string value) => ManyTypesUnsafeAccessors.StringToBoolConverterProperty(entity) = value);
             stringToBoolConverterProperty.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, string value) => ManyTypesUnsafeAccessors.StringToBoolConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, string value) => ManyTypesUnsafeAccessors.StringToBoolConverterProperty(entity) = value);
             stringToBoolConverterProperty.SetAccessors(
                 string (IInternalEntry entry) => ManyTypesUnsafeAccessors.StringToBoolConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 string (IInternalEntry entry) => ManyTypesUnsafeAccessors.StringToBoolConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -7198,14 +6924,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<StringToBytesConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             stringToBytesConverterProperty.SetGetter(
-                string (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.StringToBytesConverterProperty(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.StringToBytesConverterProperty(entity) == null,
                 string (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.StringToBytesConverterProperty(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.StringToBytesConverterProperty(instance) == null);
             stringToBytesConverterProperty.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, string value) => ManyTypesUnsafeAccessors.StringToBytesConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, string value) => ManyTypesUnsafeAccessors.StringToBytesConverterProperty(entity) = value);
             stringToBytesConverterProperty.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, string value) => ManyTypesUnsafeAccessors.StringToBytesConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, string value) => ManyTypesUnsafeAccessors.StringToBytesConverterProperty(entity) = value);
             stringToBytesConverterProperty.SetAccessors(
                 string (IInternalEntry entry) => ManyTypesUnsafeAccessors.StringToBytesConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 string (IInternalEntry entry) => ManyTypesUnsafeAccessors.StringToBytesConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -7246,14 +6970,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<StringToCharConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new StringToCharConverter());
             stringToCharConverterProperty.SetGetter(
-                string (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.StringToCharConverterProperty(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.StringToCharConverterProperty(entity) == null,
                 string (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.StringToCharConverterProperty(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.StringToCharConverterProperty(instance) == null);
             stringToCharConverterProperty.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, string value) => ManyTypesUnsafeAccessors.StringToCharConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, string value) => ManyTypesUnsafeAccessors.StringToCharConverterProperty(entity) = value);
             stringToCharConverterProperty.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, string value) => ManyTypesUnsafeAccessors.StringToCharConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, string value) => ManyTypesUnsafeAccessors.StringToCharConverterProperty(entity) = value);
             stringToCharConverterProperty.SetAccessors(
                 string (IInternalEntry entry) => ManyTypesUnsafeAccessors.StringToCharConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 string (IInternalEntry entry) => ManyTypesUnsafeAccessors.StringToCharConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -7294,14 +7016,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<StringToDateOnlyConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new StringToDateOnlyConverter());
             stringToDateOnlyConverterProperty.SetGetter(
-                string (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.StringToDateOnlyConverterProperty(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.StringToDateOnlyConverterProperty(entity) == null,
                 string (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.StringToDateOnlyConverterProperty(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.StringToDateOnlyConverterProperty(instance) == null);
             stringToDateOnlyConverterProperty.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, string value) => ManyTypesUnsafeAccessors.StringToDateOnlyConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, string value) => ManyTypesUnsafeAccessors.StringToDateOnlyConverterProperty(entity) = value);
             stringToDateOnlyConverterProperty.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, string value) => ManyTypesUnsafeAccessors.StringToDateOnlyConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, string value) => ManyTypesUnsafeAccessors.StringToDateOnlyConverterProperty(entity) = value);
             stringToDateOnlyConverterProperty.SetAccessors(
                 string (IInternalEntry entry) => ManyTypesUnsafeAccessors.StringToDateOnlyConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 string (IInternalEntry entry) => ManyTypesUnsafeAccessors.StringToDateOnlyConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -7342,14 +7062,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<StringToDateTimeConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new StringToDateTimeConverter());
             stringToDateTimeConverterProperty.SetGetter(
-                string (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.StringToDateTimeConverterProperty(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.StringToDateTimeConverterProperty(entity) == null,
                 string (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.StringToDateTimeConverterProperty(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.StringToDateTimeConverterProperty(instance) == null);
             stringToDateTimeConverterProperty.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, string value) => ManyTypesUnsafeAccessors.StringToDateTimeConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, string value) => ManyTypesUnsafeAccessors.StringToDateTimeConverterProperty(entity) = value);
             stringToDateTimeConverterProperty.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, string value) => ManyTypesUnsafeAccessors.StringToDateTimeConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, string value) => ManyTypesUnsafeAccessors.StringToDateTimeConverterProperty(entity) = value);
             stringToDateTimeConverterProperty.SetAccessors(
                 string (IInternalEntry entry) => ManyTypesUnsafeAccessors.StringToDateTimeConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 string (IInternalEntry entry) => ManyTypesUnsafeAccessors.StringToDateTimeConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -7390,14 +7108,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<StringToDateTimeOffsetConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new StringToDateTimeOffsetConverter());
             stringToDateTimeOffsetConverterProperty.SetGetter(
-                string (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.StringToDateTimeOffsetConverterProperty(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.StringToDateTimeOffsetConverterProperty(entity) == null,
                 string (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.StringToDateTimeOffsetConverterProperty(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.StringToDateTimeOffsetConverterProperty(instance) == null);
             stringToDateTimeOffsetConverterProperty.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, string value) => ManyTypesUnsafeAccessors.StringToDateTimeOffsetConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, string value) => ManyTypesUnsafeAccessors.StringToDateTimeOffsetConverterProperty(entity) = value);
             stringToDateTimeOffsetConverterProperty.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, string value) => ManyTypesUnsafeAccessors.StringToDateTimeOffsetConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, string value) => ManyTypesUnsafeAccessors.StringToDateTimeOffsetConverterProperty(entity) = value);
             stringToDateTimeOffsetConverterProperty.SetAccessors(
                 string (IInternalEntry entry) => ManyTypesUnsafeAccessors.StringToDateTimeOffsetConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 string (IInternalEntry entry) => ManyTypesUnsafeAccessors.StringToDateTimeOffsetConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -7438,14 +7154,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<StringToDecimalNumberConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new StringToNumberConverter<decimal>());
             stringToDecimalNumberConverterProperty.SetGetter(
-                string (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.StringToDecimalNumberConverterProperty(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.StringToDecimalNumberConverterProperty(entity) == null,
                 string (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.StringToDecimalNumberConverterProperty(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.StringToDecimalNumberConverterProperty(instance) == null);
             stringToDecimalNumberConverterProperty.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, string value) => ManyTypesUnsafeAccessors.StringToDecimalNumberConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, string value) => ManyTypesUnsafeAccessors.StringToDecimalNumberConverterProperty(entity) = value);
             stringToDecimalNumberConverterProperty.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, string value) => ManyTypesUnsafeAccessors.StringToDecimalNumberConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, string value) => ManyTypesUnsafeAccessors.StringToDecimalNumberConverterProperty(entity) = value);
             stringToDecimalNumberConverterProperty.SetAccessors(
                 string (IInternalEntry entry) => ManyTypesUnsafeAccessors.StringToDecimalNumberConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 string (IInternalEntry entry) => ManyTypesUnsafeAccessors.StringToDecimalNumberConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -7486,14 +7200,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<StringToDoubleNumberConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new StringToNumberConverter<double>());
             stringToDoubleNumberConverterProperty.SetGetter(
-                string (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.StringToDoubleNumberConverterProperty(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.StringToDoubleNumberConverterProperty(entity) == null,
                 string (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.StringToDoubleNumberConverterProperty(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.StringToDoubleNumberConverterProperty(instance) == null);
             stringToDoubleNumberConverterProperty.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, string value) => ManyTypesUnsafeAccessors.StringToDoubleNumberConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, string value) => ManyTypesUnsafeAccessors.StringToDoubleNumberConverterProperty(entity) = value);
             stringToDoubleNumberConverterProperty.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, string value) => ManyTypesUnsafeAccessors.StringToDoubleNumberConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, string value) => ManyTypesUnsafeAccessors.StringToDoubleNumberConverterProperty(entity) = value);
             stringToDoubleNumberConverterProperty.SetAccessors(
                 string (IInternalEntry entry) => ManyTypesUnsafeAccessors.StringToDoubleNumberConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 string (IInternalEntry entry) => ManyTypesUnsafeAccessors.StringToDoubleNumberConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -7534,14 +7246,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<StringToEnumConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new StringToEnumConverter<CompiledModelTestBase.EnumU32>());
             stringToEnumConverterProperty.SetGetter(
-                string (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.StringToEnumConverterProperty(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.StringToEnumConverterProperty(entity) == null,
                 string (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.StringToEnumConverterProperty(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.StringToEnumConverterProperty(instance) == null);
             stringToEnumConverterProperty.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, string value) => ManyTypesUnsafeAccessors.StringToEnumConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, string value) => ManyTypesUnsafeAccessors.StringToEnumConverterProperty(entity) = value);
             stringToEnumConverterProperty.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, string value) => ManyTypesUnsafeAccessors.StringToEnumConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, string value) => ManyTypesUnsafeAccessors.StringToEnumConverterProperty(entity) = value);
             stringToEnumConverterProperty.SetAccessors(
                 string (IInternalEntry entry) => ManyTypesUnsafeAccessors.StringToEnumConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 string (IInternalEntry entry) => ManyTypesUnsafeAccessors.StringToEnumConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -7581,14 +7291,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("StringToGuidConverterProperty", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<StringToGuidConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             stringToGuidConverterProperty.SetGetter(
-                string (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.StringToGuidConverterProperty(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.StringToGuidConverterProperty(entity) == null,
                 string (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.StringToGuidConverterProperty(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.StringToGuidConverterProperty(instance) == null);
             stringToGuidConverterProperty.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, string value) => ManyTypesUnsafeAccessors.StringToGuidConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, string value) => ManyTypesUnsafeAccessors.StringToGuidConverterProperty(entity) = value);
             stringToGuidConverterProperty.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, string value) => ManyTypesUnsafeAccessors.StringToGuidConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, string value) => ManyTypesUnsafeAccessors.StringToGuidConverterProperty(entity) = value);
             stringToGuidConverterProperty.SetAccessors(
                 string (IInternalEntry entry) => ManyTypesUnsafeAccessors.StringToGuidConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 string (IInternalEntry entry) => ManyTypesUnsafeAccessors.StringToGuidConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -7623,14 +7331,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<StringToIntNumberConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new StringToNumberConverter<int>());
             stringToIntNumberConverterProperty.SetGetter(
-                string (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.StringToIntNumberConverterProperty(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.StringToIntNumberConverterProperty(entity) == null,
                 string (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.StringToIntNumberConverterProperty(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.StringToIntNumberConverterProperty(instance) == null);
             stringToIntNumberConverterProperty.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, string value) => ManyTypesUnsafeAccessors.StringToIntNumberConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, string value) => ManyTypesUnsafeAccessors.StringToIntNumberConverterProperty(entity) = value);
             stringToIntNumberConverterProperty.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, string value) => ManyTypesUnsafeAccessors.StringToIntNumberConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, string value) => ManyTypesUnsafeAccessors.StringToIntNumberConverterProperty(entity) = value);
             stringToIntNumberConverterProperty.SetAccessors(
                 string (IInternalEntry entry) => ManyTypesUnsafeAccessors.StringToIntNumberConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 string (IInternalEntry entry) => ManyTypesUnsafeAccessors.StringToIntNumberConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -7671,14 +7377,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<StringToTimeOnlyConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new StringToTimeOnlyConverter());
             stringToTimeOnlyConverterProperty.SetGetter(
-                string (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.StringToTimeOnlyConverterProperty(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.StringToTimeOnlyConverterProperty(entity) == null,
                 string (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.StringToTimeOnlyConverterProperty(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.StringToTimeOnlyConverterProperty(instance) == null);
             stringToTimeOnlyConverterProperty.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, string value) => ManyTypesUnsafeAccessors.StringToTimeOnlyConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, string value) => ManyTypesUnsafeAccessors.StringToTimeOnlyConverterProperty(entity) = value);
             stringToTimeOnlyConverterProperty.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, string value) => ManyTypesUnsafeAccessors.StringToTimeOnlyConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, string value) => ManyTypesUnsafeAccessors.StringToTimeOnlyConverterProperty(entity) = value);
             stringToTimeOnlyConverterProperty.SetAccessors(
                 string (IInternalEntry entry) => ManyTypesUnsafeAccessors.StringToTimeOnlyConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 string (IInternalEntry entry) => ManyTypesUnsafeAccessors.StringToTimeOnlyConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -7719,14 +7423,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<StringToTimeSpanConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new StringToTimeSpanConverter());
             stringToTimeSpanConverterProperty.SetGetter(
-                string (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.StringToTimeSpanConverterProperty(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.StringToTimeSpanConverterProperty(entity) == null,
                 string (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.StringToTimeSpanConverterProperty(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.StringToTimeSpanConverterProperty(instance) == null);
             stringToTimeSpanConverterProperty.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, string value) => ManyTypesUnsafeAccessors.StringToTimeSpanConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, string value) => ManyTypesUnsafeAccessors.StringToTimeSpanConverterProperty(entity) = value);
             stringToTimeSpanConverterProperty.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, string value) => ManyTypesUnsafeAccessors.StringToTimeSpanConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, string value) => ManyTypesUnsafeAccessors.StringToTimeSpanConverterProperty(entity) = value);
             stringToTimeSpanConverterProperty.SetAccessors(
                 string (IInternalEntry entry) => ManyTypesUnsafeAccessors.StringToTimeSpanConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 string (IInternalEntry entry) => ManyTypesUnsafeAccessors.StringToTimeSpanConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -7767,14 +7469,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<StringToUriConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new StringToUriConverter());
             stringToUriConverterProperty.SetGetter(
-                string (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.StringToUriConverterProperty(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.StringToUriConverterProperty(entity) == null,
                 string (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.StringToUriConverterProperty(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.StringToUriConverterProperty(instance) == null);
             stringToUriConverterProperty.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, string value) => ManyTypesUnsafeAccessors.StringToUriConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, string value) => ManyTypesUnsafeAccessors.StringToUriConverterProperty(entity) = value);
             stringToUriConverterProperty.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, string value) => ManyTypesUnsafeAccessors.StringToUriConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, string value) => ManyTypesUnsafeAccessors.StringToUriConverterProperty(entity) = value);
             stringToUriConverterProperty.SetAccessors(
                 string (IInternalEntry entry) => ManyTypesUnsafeAccessors.StringToUriConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 string (IInternalEntry entry) => ManyTypesUnsafeAccessors.StringToUriConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -7815,14 +7515,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<TimeOnly>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: new TimeOnly(0, 0, 0));
             timeOnly.SetGetter(
-                TimeOnly (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.TimeOnly(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.TimeOnly(entity) == default(TimeOnly),
                 TimeOnly (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.TimeOnly(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.TimeOnly(instance) == default(TimeOnly));
             timeOnly.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, TimeOnly value) => ManyTypesUnsafeAccessors.TimeOnly(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, TimeOnly value) => ManyTypesUnsafeAccessors.TimeOnly(entity) = value);
             timeOnly.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, TimeOnly value) => ManyTypesUnsafeAccessors.TimeOnly(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, TimeOnly value) => ManyTypesUnsafeAccessors.TimeOnly(entity) = value);
             timeOnly.SetAccessors(
                 TimeOnly (IInternalEntry entry) => ManyTypesUnsafeAccessors.TimeOnly(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 TimeOnly (IInternalEntry entry) => ManyTypesUnsafeAccessors.TimeOnly(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -7857,14 +7555,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<TimeOnlyToStringConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new TimeOnlyToStringConverter());
             timeOnlyToStringConverterProperty.SetGetter(
-                TimeOnly (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.TimeOnlyToStringConverterProperty(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.TimeOnlyToStringConverterProperty(entity) == default(TimeOnly),
                 TimeOnly (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.TimeOnlyToStringConverterProperty(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.TimeOnlyToStringConverterProperty(instance) == default(TimeOnly));
             timeOnlyToStringConverterProperty.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, TimeOnly value) => ManyTypesUnsafeAccessors.TimeOnlyToStringConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, TimeOnly value) => ManyTypesUnsafeAccessors.TimeOnlyToStringConverterProperty(entity) = value);
             timeOnlyToStringConverterProperty.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, TimeOnly value) => ManyTypesUnsafeAccessors.TimeOnlyToStringConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, TimeOnly value) => ManyTypesUnsafeAccessors.TimeOnlyToStringConverterProperty(entity) = value);
             timeOnlyToStringConverterProperty.SetAccessors(
                 TimeOnly (IInternalEntry entry) => ManyTypesUnsafeAccessors.TimeOnlyToStringConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 TimeOnly (IInternalEntry entry) => ManyTypesUnsafeAccessors.TimeOnlyToStringConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -7906,14 +7602,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<TimeOnlyToTicksConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new TimeOnlyToTicksConverter());
             timeOnlyToTicksConverterProperty.SetGetter(
-                TimeOnly (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.TimeOnlyToTicksConverterProperty(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.TimeOnlyToTicksConverterProperty(entity) == default(TimeOnly),
                 TimeOnly (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.TimeOnlyToTicksConverterProperty(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.TimeOnlyToTicksConverterProperty(instance) == default(TimeOnly));
             timeOnlyToTicksConverterProperty.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, TimeOnly value) => ManyTypesUnsafeAccessors.TimeOnlyToTicksConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, TimeOnly value) => ManyTypesUnsafeAccessors.TimeOnlyToTicksConverterProperty(entity) = value);
             timeOnlyToTicksConverterProperty.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, TimeOnly value) => ManyTypesUnsafeAccessors.TimeOnlyToTicksConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, TimeOnly value) => ManyTypesUnsafeAccessors.TimeOnlyToTicksConverterProperty(entity) = value);
             timeOnlyToTicksConverterProperty.SetAccessors(
                 TimeOnly (IInternalEntry entry) => ManyTypesUnsafeAccessors.TimeOnlyToTicksConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 TimeOnly (IInternalEntry entry) => ManyTypesUnsafeAccessors.TimeOnlyToTicksConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -7955,14 +7649,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<TimeSpan>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: new TimeSpan(0, 0, 0, 0, 0));
             timeSpan.SetGetter(
-                TimeSpan (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.TimeSpan(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.TimeSpan(entity) == default(TimeSpan),
                 TimeSpan (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.TimeSpan(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.TimeSpan(instance) == default(TimeSpan));
             timeSpan.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, TimeSpan value) => ManyTypesUnsafeAccessors.TimeSpan(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, TimeSpan value) => ManyTypesUnsafeAccessors.TimeSpan(entity) = value);
             timeSpan.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, TimeSpan value) => ManyTypesUnsafeAccessors.TimeSpan(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, TimeSpan value) => ManyTypesUnsafeAccessors.TimeSpan(entity) = value);
             timeSpan.SetAccessors(
                 TimeSpan (IInternalEntry entry) => ManyTypesUnsafeAccessors.TimeSpan(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 TimeSpan (IInternalEntry entry) => ManyTypesUnsafeAccessors.TimeSpan(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -7997,14 +7689,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<TimeSpanToStringConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new TimeSpanToStringConverter());
             timeSpanToStringConverterProperty.SetGetter(
-                TimeSpan (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.TimeSpanToStringConverterProperty(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.TimeSpanToStringConverterProperty(entity) == default(TimeSpan),
                 TimeSpan (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.TimeSpanToStringConverterProperty(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.TimeSpanToStringConverterProperty(instance) == default(TimeSpan));
             timeSpanToStringConverterProperty.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, TimeSpan value) => ManyTypesUnsafeAccessors.TimeSpanToStringConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, TimeSpan value) => ManyTypesUnsafeAccessors.TimeSpanToStringConverterProperty(entity) = value);
             timeSpanToStringConverterProperty.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, TimeSpan value) => ManyTypesUnsafeAccessors.TimeSpanToStringConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, TimeSpan value) => ManyTypesUnsafeAccessors.TimeSpanToStringConverterProperty(entity) = value);
             timeSpanToStringConverterProperty.SetAccessors(
                 TimeSpan (IInternalEntry entry) => ManyTypesUnsafeAccessors.TimeSpanToStringConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 TimeSpan (IInternalEntry entry) => ManyTypesUnsafeAccessors.TimeSpanToStringConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -8046,14 +7736,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<TimeSpanToTicksConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new TimeSpanToTicksConverter());
             timeSpanToTicksConverterProperty.SetGetter(
-                TimeSpan (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.TimeSpanToTicksConverterProperty(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.TimeSpanToTicksConverterProperty(entity) == default(TimeSpan),
                 TimeSpan (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.TimeSpanToTicksConverterProperty(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.TimeSpanToTicksConverterProperty(instance) == default(TimeSpan));
             timeSpanToTicksConverterProperty.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, TimeSpan value) => ManyTypesUnsafeAccessors.TimeSpanToTicksConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, TimeSpan value) => ManyTypesUnsafeAccessors.TimeSpanToTicksConverterProperty(entity) = value);
             timeSpanToTicksConverterProperty.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, TimeSpan value) => ManyTypesUnsafeAccessors.TimeSpanToTicksConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, TimeSpan value) => ManyTypesUnsafeAccessors.TimeSpanToTicksConverterProperty(entity) = value);
             timeSpanToTicksConverterProperty.SetAccessors(
                 TimeSpan (IInternalEntry entry) => ManyTypesUnsafeAccessors.TimeSpanToTicksConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 TimeSpan (IInternalEntry entry) => ManyTypesUnsafeAccessors.TimeSpanToTicksConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -8095,14 +7783,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<UInt16>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: (ushort)0);
             uInt16.SetGetter(
-                ushort (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.UInt16(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.UInt16(entity) == 0,
                 ushort (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.UInt16(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.UInt16(instance) == 0);
             uInt16.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, ushort value) => ManyTypesUnsafeAccessors.UInt16(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, ushort value) => ManyTypesUnsafeAccessors.UInt16(entity) = value);
             uInt16.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, ushort value) => ManyTypesUnsafeAccessors.UInt16(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, ushort value) => ManyTypesUnsafeAccessors.UInt16(entity) = value);
             uInt16.SetAccessors(
                 ushort (IInternalEntry entry) => ManyTypesUnsafeAccessors.UInt16(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 ushort (IInternalEntry entry) => ManyTypesUnsafeAccessors.UInt16(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -8136,14 +7822,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("UInt16Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<UInt16Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             uInt16Array.SetGetter(
-                ushort[] (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.UInt16Array(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.UInt16Array(entity) == null,
                 ushort[] (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.UInt16Array(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.UInt16Array(instance) == null);
             uInt16Array.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, ushort[] value) => ManyTypesUnsafeAccessors.UInt16Array(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, ushort[] value) => ManyTypesUnsafeAccessors.UInt16Array(entity) = value);
             uInt16Array.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, ushort[] value) => ManyTypesUnsafeAccessors.UInt16Array(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, ushort[] value) => ManyTypesUnsafeAccessors.UInt16Array(entity) = value);
             uInt16Array.SetAccessors(
                 ushort[] (IInternalEntry entry) => ManyTypesUnsafeAccessors.UInt16Array(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 ushort[] (IInternalEntry entry) => ManyTypesUnsafeAccessors.UInt16Array(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -8196,14 +7880,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<UInt32>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: 0u);
             uInt32.SetGetter(
-                uint (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.UInt32(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.UInt32(entity) == 0U,
                 uint (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.UInt32(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.UInt32(instance) == 0U);
             uInt32.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, uint value) => ManyTypesUnsafeAccessors.UInt32(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, uint value) => ManyTypesUnsafeAccessors.UInt32(entity) = value);
             uInt32.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, uint value) => ManyTypesUnsafeAccessors.UInt32(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, uint value) => ManyTypesUnsafeAccessors.UInt32(entity) = value);
             uInt32.SetAccessors(
                 uint (IInternalEntry entry) => ManyTypesUnsafeAccessors.UInt32(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 uint (IInternalEntry entry) => ManyTypesUnsafeAccessors.UInt32(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -8237,14 +7919,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("UInt32Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<UInt32Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             uInt32Array.SetGetter(
-                uint[] (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.UInt32Array(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.UInt32Array(entity) == null,
                 uint[] (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.UInt32Array(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.UInt32Array(instance) == null);
             uInt32Array.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, uint[] value) => ManyTypesUnsafeAccessors.UInt32Array(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, uint[] value) => ManyTypesUnsafeAccessors.UInt32Array(entity) = value);
             uInt32Array.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, uint[] value) => ManyTypesUnsafeAccessors.UInt32Array(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, uint[] value) => ManyTypesUnsafeAccessors.UInt32Array(entity) = value);
             uInt32Array.SetAccessors(
                 uint[] (IInternalEntry entry) => ManyTypesUnsafeAccessors.UInt32Array(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 uint[] (IInternalEntry entry) => ManyTypesUnsafeAccessors.UInt32Array(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -8297,14 +7977,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<UInt64>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: 0ul);
             uInt64.SetGetter(
-                ulong (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.UInt64(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.UInt64(entity) == 0UL,
                 ulong (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.UInt64(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.UInt64(instance) == 0UL);
             uInt64.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, ulong value) => ManyTypesUnsafeAccessors.UInt64(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, ulong value) => ManyTypesUnsafeAccessors.UInt64(entity) = value);
             uInt64.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, ulong value) => ManyTypesUnsafeAccessors.UInt64(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, ulong value) => ManyTypesUnsafeAccessors.UInt64(entity) = value);
             uInt64.SetAccessors(
                 ulong (IInternalEntry entry) => ManyTypesUnsafeAccessors.UInt64(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 ulong (IInternalEntry entry) => ManyTypesUnsafeAccessors.UInt64(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -8338,14 +8016,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("UInt64Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<UInt64Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             uInt64Array.SetGetter(
-                ulong[] (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.UInt64Array(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.UInt64Array(entity) == null,
                 ulong[] (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.UInt64Array(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.UInt64Array(instance) == null);
             uInt64Array.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, ulong[] value) => ManyTypesUnsafeAccessors.UInt64Array(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, ulong[] value) => ManyTypesUnsafeAccessors.UInt64Array(entity) = value);
             uInt64Array.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, ulong[] value) => ManyTypesUnsafeAccessors.UInt64Array(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, ulong[] value) => ManyTypesUnsafeAccessors.UInt64Array(entity) = value);
             uInt64Array.SetAccessors(
                 ulong[] (IInternalEntry entry) => ManyTypesUnsafeAccessors.UInt64Array(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 ulong[] (IInternalEntry entry) => ManyTypesUnsafeAccessors.UInt64Array(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -8398,14 +8074,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<UInt8>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: (byte)0);
             uInt8.SetGetter(
-                byte (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.UInt8(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.UInt8(entity) == 0,
                 byte (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.UInt8(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.UInt8(instance) == 0);
             uInt8.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, byte value) => ManyTypesUnsafeAccessors.UInt8(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, byte value) => ManyTypesUnsafeAccessors.UInt8(entity) = value);
             uInt8.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, byte value) => ManyTypesUnsafeAccessors.UInt8(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, byte value) => ManyTypesUnsafeAccessors.UInt8(entity) = value);
             uInt8.SetAccessors(
                 byte (IInternalEntry entry) => ManyTypesUnsafeAccessors.UInt8(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 byte (IInternalEntry entry) => ManyTypesUnsafeAccessors.UInt8(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -8439,14 +8113,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("UInt8Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<UInt8Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             uInt8Array.SetGetter(
-                byte[] (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.UInt8Array(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.UInt8Array(entity) == null,
                 byte[] (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.UInt8Array(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.UInt8Array(instance) == null);
             uInt8Array.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, byte[] value) => ManyTypesUnsafeAccessors.UInt8Array(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, byte[] value) => ManyTypesUnsafeAccessors.UInt8Array(entity) = value);
             uInt8Array.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, byte[] value) => ManyTypesUnsafeAccessors.UInt8Array(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, byte[] value) => ManyTypesUnsafeAccessors.UInt8Array(entity) = value);
             uInt8Array.SetAccessors(
                 byte[] (IInternalEntry entry) => ManyTypesUnsafeAccessors.UInt8Array(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 byte[] (IInternalEntry entry) => ManyTypesUnsafeAccessors.UInt8Array(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -8486,14 +8158,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("UInt8ReadOnlyCollection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("_uInt8ReadOnlyCollection", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             uInt8ReadOnlyCollection.SetGetter(
-                IReadOnlyCollection<byte> (CompiledModelTestBase.ManyTypes entity) => (ManyTypesUnsafeAccessors._uInt8ReadOnlyCollection(entity) == null ? null : ((IReadOnlyCollection<byte>)(ManyTypesUnsafeAccessors._uInt8ReadOnlyCollection(entity)))),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors._uInt8ReadOnlyCollection(entity) == null,
                 IReadOnlyCollection<byte> (CompiledModelTestBase.ManyTypes instance) => (ManyTypesUnsafeAccessors._uInt8ReadOnlyCollection(instance) == null ? null : ((IReadOnlyCollection<byte>)(ManyTypesUnsafeAccessors._uInt8ReadOnlyCollection(instance)))),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors._uInt8ReadOnlyCollection(instance) == null);
             uInt8ReadOnlyCollection.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, IReadOnlyCollection<byte> value) => ManyTypesUnsafeAccessors._uInt8ReadOnlyCollection(entity) = ((List<byte>)(value)));
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, IReadOnlyCollection<byte> value) => ManyTypesUnsafeAccessors._uInt8ReadOnlyCollection(entity) = ((List<byte>)(value)));
             uInt8ReadOnlyCollection.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, IReadOnlyCollection<byte> value) => ManyTypesUnsafeAccessors._uInt8ReadOnlyCollection(entity) = ((List<byte>)(value)));
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, IReadOnlyCollection<byte> value) => ManyTypesUnsafeAccessors._uInt8ReadOnlyCollection(entity) = ((List<byte>)(value)));
             uInt8ReadOnlyCollection.SetAccessors(
                 IReadOnlyCollection<byte> (IInternalEntry entry) => ((IReadOnlyCollection<byte>)(ManyTypesUnsafeAccessors._uInt8ReadOnlyCollection(((CompiledModelTestBase.ManyTypes)(entry.Entity))))),
                 IReadOnlyCollection<byte> (IInternalEntry entry) => ((IReadOnlyCollection<byte>)(ManyTypesUnsafeAccessors._uInt8ReadOnlyCollection(((CompiledModelTestBase.ManyTypes)(entry.Entity))))),
@@ -8545,14 +8215,12 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Uri", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Uri>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             uri.SetGetter(
-                Uri (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.Uri(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.Uri(entity) == null,
                 Uri (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.Uri(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.Uri(instance) == null);
             uri.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, Uri value) => ManyTypesUnsafeAccessors.Uri(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, Uri value) => ManyTypesUnsafeAccessors.Uri(entity) = value);
             uri.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, Uri value) => ManyTypesUnsafeAccessors.Uri(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, Uri value) => ManyTypesUnsafeAccessors.Uri(entity) = value);
             uri.SetAccessors(
                 Uri (IInternalEntry entry) => ManyTypesUnsafeAccessors.Uri(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 Uri (IInternalEntry entry) => ManyTypesUnsafeAccessors.Uri(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -8593,14 +8261,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<UriToStringConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new UriToStringConverter());
             uriToStringConverterProperty.SetGetter(
-                Uri (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.UriToStringConverterProperty(entity),
-                bool (CompiledModelTestBase.ManyTypes entity) => ManyTypesUnsafeAccessors.UriToStringConverterProperty(entity) == null,
                 Uri (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.UriToStringConverterProperty(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.UriToStringConverterProperty(instance) == null);
             uriToStringConverterProperty.SetSetter(
-                (CompiledModelTestBase.ManyTypes entity, Uri value) => ManyTypesUnsafeAccessors.UriToStringConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, Uri value) => ManyTypesUnsafeAccessors.UriToStringConverterProperty(entity) = value);
             uriToStringConverterProperty.SetMaterializationSetter(
-                (CompiledModelTestBase.ManyTypes entity, Uri value) => ManyTypesUnsafeAccessors.UriToStringConverterProperty(entity) = value);
+                (CompiledModelTestBase.ManyTypes entity, IReadOnlyList<int> indices, Uri value) => ManyTypesUnsafeAccessors.UriToStringConverterProperty(entity) = value);
             uriToStringConverterProperty.SetAccessors(
                 Uri (IInternalEntry entry) => ManyTypesUnsafeAccessors.UriToStringConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 Uri (IInternalEntry entry) => ManyTypesUnsafeAccessors.UriToStringConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
@@ -8886,17 +8552,17 @@ namespace TestNamespace
             runtimeEntityType.SetOriginalValuesFactory(
                 ISnapshot (IInternalEntry source) =>
                 {
-                    var entity = ((CompiledModelTestBase.ManyTypes)(source.Entity));
+                    var structuralType = ((CompiledModelTestBase.ManyTypes)(source.Entity));
                     var liftedArg = ((ISnapshot)(new Snapshot<CompiledModelTestBase.ManyTypesId, string, bool, bool[], bool[][], IReadOnlyCollection<bool>, bool, bool, bool, byte[], byte[], int, char, char[], char[][], char, DateOnly, DateOnly, DateTime, DateTimeOffset, DateTimeOffset, DateTimeOffset, DateTime, DateTime, DateTime, decimal, decimal[], decimal, decimal, double>(((ValueComparer<CompiledModelTestBase.ManyTypesId>)(((IProperty)id).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.ManyTypesId>(id)), (source.GetCurrentValue<string>(type) == null ? null : ((ValueComparer<string>)(((IProperty)type).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(type))), ((ValueComparer<bool>)(((IProperty)@bool).GetValueComparer())).Snapshot(source.GetCurrentValue<bool>(@bool)), (((IEnumerable<bool>)(source.GetCurrentValue<bool[]>(boolArray))) == null ? null : ((bool[])(((ValueComparer<IEnumerable<bool>>)(((IProperty)boolArray).GetValueComparer())).Snapshot(((IEnumerable<bool>)(source.GetCurrentValue<bool[]>(boolArray))))))), (((object)(source.GetCurrentValue<bool[][]>(boolNestedCollection))) == null ? null : ((bool[][])(((ValueComparer<object>)(((IProperty)boolNestedCollection).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<bool[][]>(boolNestedCollection))))))), (((IEnumerable<bool>)(source.GetCurrentValue<IReadOnlyCollection<bool>>(boolReadOnlyCollection))) == null ? null : ((IReadOnlyCollection<bool>)(((ValueComparer<IEnumerable<bool>>)(((IProperty)boolReadOnlyCollection).GetValueComparer())).Snapshot(((IEnumerable<bool>)(source.GetCurrentValue<IReadOnlyCollection<bool>>(boolReadOnlyCollection))))))), ((ValueComparer<bool>)(((IProperty)boolToStringConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<bool>(boolToStringConverterProperty)), ((ValueComparer<bool>)(((IProperty)boolToTwoValuesConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<bool>(boolToTwoValuesConverterProperty)), ((ValueComparer<bool>)(((IProperty)boolToZeroOneConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<bool>(boolToZeroOneConverterProperty)), (source.GetCurrentValue<byte[]>(bytes) == null ? null : ((ValueComparer<byte[]>)(((IProperty)bytes).GetValueComparer())).Snapshot(source.GetCurrentValue<byte[]>(bytes))), (source.GetCurrentValue<byte[]>(bytesToStringConverterProperty) == null ? null : ((ValueComparer<byte[]>)(((IProperty)bytesToStringConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<byte[]>(bytesToStringConverterProperty))), ((ValueComparer<int>)(((IProperty)castingConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<int>(castingConverterProperty)), ((ValueComparer<char>)(((IProperty)@char).GetValueComparer())).Snapshot(source.GetCurrentValue<char>(@char)), (((IEnumerable<char>)(source.GetCurrentValue<char[]>(charArray))) == null ? null : ((char[])(((ValueComparer<IEnumerable<char>>)(((IProperty)charArray).GetValueComparer())).Snapshot(((IEnumerable<char>)(source.GetCurrentValue<char[]>(charArray))))))), (((object)(source.GetCurrentValue<char[][]>(charNestedCollection))) == null ? null : ((char[][])(((ValueComparer<object>)(((IProperty)charNestedCollection).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<char[][]>(charNestedCollection))))))), ((ValueComparer<char>)(((IProperty)charToStringConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<char>(charToStringConverterProperty)), ((ValueComparer<DateOnly>)(((IProperty)dateOnly).GetValueComparer())).Snapshot(source.GetCurrentValue<DateOnly>(dateOnly)), ((ValueComparer<DateOnly>)(((IProperty)dateOnlyToStringConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<DateOnly>(dateOnlyToStringConverterProperty)), ((ValueComparer<DateTime>)(((IProperty)dateTime).GetValueComparer())).Snapshot(source.GetCurrentValue<DateTime>(dateTime)), ((ValueComparer<DateTimeOffset>)(((IProperty)dateTimeOffsetToBinaryConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<DateTimeOffset>(dateTimeOffsetToBinaryConverterProperty)), ((ValueComparer<DateTimeOffset>)(((IProperty)dateTimeOffsetToBytesConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<DateTimeOffset>(dateTimeOffsetToBytesConverterProperty)), ((ValueComparer<DateTimeOffset>)(((IProperty)dateTimeOffsetToStringConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<DateTimeOffset>(dateTimeOffsetToStringConverterProperty)), ((ValueComparer<DateTime>)(((IProperty)dateTimeToBinaryConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<DateTime>(dateTimeToBinaryConverterProperty)), ((ValueComparer<DateTime>)(((IProperty)dateTimeToStringConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<DateTime>(dateTimeToStringConverterProperty)), ((ValueComparer<DateTime>)(((IProperty)dateTimeToTicksConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<DateTime>(dateTimeToTicksConverterProperty)), ((ValueComparer<decimal>)(((IProperty)@decimal).GetValueComparer())).Snapshot(source.GetCurrentValue<decimal>(@decimal)), (((IEnumerable<decimal>)(source.GetCurrentValue<decimal[]>(decimalArray))) == null ? null : ((decimal[])(((ValueComparer<IEnumerable<decimal>>)(((IProperty)decimalArray).GetValueComparer())).Snapshot(((IEnumerable<decimal>)(source.GetCurrentValue<decimal[]>(decimalArray))))))), ((ValueComparer<decimal>)(((IProperty)decimalNumberToBytesConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<decimal>(decimalNumberToBytesConverterProperty)), ((ValueComparer<decimal>)(((IProperty)decimalNumberToStringConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<decimal>(decimalNumberToStringConverterProperty)), ((ValueComparer<double>)(((IProperty)@double).GetValueComparer())).Snapshot(source.GetCurrentValue<double>(@double)))));
-                    var entity0 = ((CompiledModelTestBase.ManyTypes)(source.Entity));
+                    var structuralType0 = ((CompiledModelTestBase.ManyTypes)(source.Entity));
                     var liftedArg0 = ((ISnapshot)(new Snapshot<double[], double, double, CompiledModelTestBase.Enum16, CompiledModelTestBase.Enum16, CompiledModelTestBase.Enum32, CompiledModelTestBase.Enum32, CompiledModelTestBase.Enum64, CompiledModelTestBase.Enum64, CompiledModelTestBase.Enum8, CompiledModelTestBase.Enum8, CompiledModelTestBase.Enum32, CompiledModelTestBase.Enum32, CompiledModelTestBase.EnumU16, CompiledModelTestBase.EnumU16, CompiledModelTestBase.EnumU32, CompiledModelTestBase.EnumU32, CompiledModelTestBase.EnumU64, CompiledModelTestBase.EnumU64, CompiledModelTestBase.EnumU8, CompiledModelTestBase.EnumU8, float, float[], Guid, Guid, Guid, IPAddress, IPAddress, IPAddress, short>((((IEnumerable<double>)(source.GetCurrentValue<double[]>(doubleArray))) == null ? null : ((double[])(((ValueComparer<IEnumerable<double>>)(((IProperty)doubleArray).GetValueComparer())).Snapshot(((IEnumerable<double>)(source.GetCurrentValue<double[]>(doubleArray))))))), ((ValueComparer<double>)(((IProperty)doubleNumberToBytesConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<double>(doubleNumberToBytesConverterProperty)), ((ValueComparer<double>)(((IProperty)doubleNumberToStringConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<double>(doubleNumberToStringConverterProperty)), ((ValueComparer<CompiledModelTestBase.Enum16>)(((IProperty)enum16).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.Enum16>(enum16)), ((ValueComparer<CompiledModelTestBase.Enum16>)(((IProperty)enum16AsString).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.Enum16>(enum16AsString)), ((ValueComparer<CompiledModelTestBase.Enum32>)(((IProperty)enum32).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.Enum32>(enum32)), ((ValueComparer<CompiledModelTestBase.Enum32>)(((IProperty)enum32AsString).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.Enum32>(enum32AsString)), ((ValueComparer<CompiledModelTestBase.Enum64>)(((IProperty)enum64).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.Enum64>(enum64)), ((ValueComparer<CompiledModelTestBase.Enum64>)(((IProperty)enum64AsString).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.Enum64>(enum64AsString)), ((ValueComparer<CompiledModelTestBase.Enum8>)(((IProperty)enum8).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.Enum8>(enum8)), ((ValueComparer<CompiledModelTestBase.Enum8>)(((IProperty)enum8AsString).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.Enum8>(enum8AsString)), ((ValueComparer<CompiledModelTestBase.Enum32>)(((IProperty)enumToNumberConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.Enum32>(enumToNumberConverterProperty)), ((ValueComparer<CompiledModelTestBase.Enum32>)(((IProperty)enumToStringConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.Enum32>(enumToStringConverterProperty)), ((ValueComparer<CompiledModelTestBase.EnumU16>)(((IProperty)enumU16).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.EnumU16>(enumU16)), ((ValueComparer<CompiledModelTestBase.EnumU16>)(((IProperty)enumU16AsString).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.EnumU16>(enumU16AsString)), ((ValueComparer<CompiledModelTestBase.EnumU32>)(((IProperty)enumU32).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.EnumU32>(enumU32)), ((ValueComparer<CompiledModelTestBase.EnumU32>)(((IProperty)enumU32AsString).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.EnumU32>(enumU32AsString)), ((ValueComparer<CompiledModelTestBase.EnumU64>)(((IProperty)enumU64).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.EnumU64>(enumU64)), ((ValueComparer<CompiledModelTestBase.EnumU64>)(((IProperty)enumU64AsString).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.EnumU64>(enumU64AsString)), ((ValueComparer<CompiledModelTestBase.EnumU8>)(((IProperty)enumU8).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.EnumU8>(enumU8)), ((ValueComparer<CompiledModelTestBase.EnumU8>)(((IProperty)enumU8AsString).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.EnumU8>(enumU8AsString)), ((ValueComparer<float>)(((IProperty)@float).GetValueComparer())).Snapshot(source.GetCurrentValue<float>(@float)), (((IEnumerable<float>)(source.GetCurrentValue<float[]>(floatArray))) == null ? null : ((float[])(((ValueComparer<IEnumerable<float>>)(((IProperty)floatArray).GetValueComparer())).Snapshot(((IEnumerable<float>)(source.GetCurrentValue<float[]>(floatArray))))))), ((ValueComparer<Guid>)(((IProperty)guid).GetValueComparer())).Snapshot(source.GetCurrentValue<Guid>(guid)), ((ValueComparer<Guid>)(((IProperty)guidToBytesConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<Guid>(guidToBytesConverterProperty)), ((ValueComparer<Guid>)(((IProperty)guidToStringConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<Guid>(guidToStringConverterProperty)), (source.GetCurrentValue<IPAddress>(iPAddress) == null ? null : ((ValueComparer<IPAddress>)(((IProperty)iPAddress).GetValueComparer())).Snapshot(source.GetCurrentValue<IPAddress>(iPAddress))), (source.GetCurrentValue<IPAddress>(iPAddressToBytesConverterProperty) == null ? null : ((ValueComparer<IPAddress>)(((IProperty)iPAddressToBytesConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<IPAddress>(iPAddressToBytesConverterProperty))), (source.GetCurrentValue<IPAddress>(iPAddressToStringConverterProperty) == null ? null : ((ValueComparer<IPAddress>)(((IProperty)iPAddressToStringConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<IPAddress>(iPAddressToStringConverterProperty))), ((ValueComparer<short>)(((IProperty)int16).GetValueComparer())).Snapshot(source.GetCurrentValue<short>(int16)))));
-                    var entity1 = ((CompiledModelTestBase.ManyTypes)(source.Entity));
+                    var structuralType1 = ((CompiledModelTestBase.ManyTypes)(source.Entity));
                     var liftedArg1 = ((ISnapshot)(new Snapshot<short[], int, int[], int[][], IReadOnlyCollection<int>, long, long[], IList<long[]>[], sbyte, sbyte[], sbyte[][][], int, int, int?, bool?, bool? [], byte[], char?, char? [], DateOnly?, DateTime?, decimal?, decimal? [], double?, double? [], CompiledModelTestBase.Enum16?, CompiledModelTestBase.Enum16?, CompiledModelTestBase.Enum32?, CompiledModelTestBase.Enum32?, CompiledModelTestBase.Enum64?>((((IEnumerable<short>)(source.GetCurrentValue<short[]>(int16Array))) == null ? null : ((short[])(((ValueComparer<IEnumerable<short>>)(((IProperty)int16Array).GetValueComparer())).Snapshot(((IEnumerable<short>)(source.GetCurrentValue<short[]>(int16Array))))))), ((ValueComparer<int>)(((IProperty)int32).GetValueComparer())).Snapshot(source.GetCurrentValue<int>(int32)), (((IEnumerable<int>)(source.GetCurrentValue<int[]>(int32Array))) == null ? null : ((int[])(((ValueComparer<IEnumerable<int>>)(((IProperty)int32Array).GetValueComparer())).Snapshot(((IEnumerable<int>)(source.GetCurrentValue<int[]>(int32Array))))))), (((object)(source.GetCurrentValue<int[][]>(int32NestedCollection))) == null ? null : ((int[][])(((ValueComparer<object>)(((IProperty)int32NestedCollection).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<int[][]>(int32NestedCollection))))))), (((IEnumerable<int>)(source.GetCurrentValue<IReadOnlyCollection<int>>(int32ReadOnlyCollection))) == null ? null : ((IReadOnlyCollection<int>)(((ValueComparer<IEnumerable<int>>)(((IProperty)int32ReadOnlyCollection).GetValueComparer())).Snapshot(((IEnumerable<int>)(source.GetCurrentValue<IReadOnlyCollection<int>>(int32ReadOnlyCollection))))))), ((ValueComparer<long>)(((IProperty)int64).GetValueComparer())).Snapshot(source.GetCurrentValue<long>(int64)), (((IEnumerable<long>)(source.GetCurrentValue<long[]>(int64Array))) == null ? null : ((long[])(((ValueComparer<IEnumerable<long>>)(((IProperty)int64Array).GetValueComparer())).Snapshot(((IEnumerable<long>)(source.GetCurrentValue<long[]>(int64Array))))))), (((object)(source.GetCurrentValue<IList<long[]>[]>(int64NestedCollection))) == null ? null : ((IList<long[]>[])(((ValueComparer<object>)(((IProperty)int64NestedCollection).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IList<long[]>[]>(int64NestedCollection))))))), ((ValueComparer<sbyte>)(((IProperty)int8).GetValueComparer())).Snapshot(source.GetCurrentValue<sbyte>(int8)), (((IEnumerable<sbyte>)(source.GetCurrentValue<sbyte[]>(int8Array))) == null ? null : ((sbyte[])(((ValueComparer<IEnumerable<sbyte>>)(((IProperty)int8Array).GetValueComparer())).Snapshot(((IEnumerable<sbyte>)(source.GetCurrentValue<sbyte[]>(int8Array))))))), (((object)(source.GetCurrentValue<sbyte[][][]>(int8NestedCollection))) == null ? null : ((sbyte[][][])(((ValueComparer<object>)(((IProperty)int8NestedCollection).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<sbyte[][][]>(int8NestedCollection))))))), ((ValueComparer<int>)(((IProperty)intNumberToBytesConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<int>(intNumberToBytesConverterProperty)), ((ValueComparer<int>)(((IProperty)intNumberToStringConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<int>(intNumberToStringConverterProperty)), (source.GetCurrentValue<int?>(nullIntToNullStringConverterProperty) == null ? null : ((ValueComparer<int?>)(((IProperty)nullIntToNullStringConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<int?>(nullIntToNullStringConverterProperty))), (source.GetCurrentValue<bool?>(nullableBool) == null ? null : ((ValueComparer<bool?>)(((IProperty)nullableBool).GetValueComparer())).Snapshot(source.GetCurrentValue<bool?>(nullableBool))), (((IEnumerable<bool?>)(source.GetCurrentValue<bool? []>(nullableBoolArray))) == null ? null : ((bool? [])(((ValueComparer<IEnumerable<bool?>>)(((IProperty)nullableBoolArray).GetValueComparer())).Snapshot(((IEnumerable<bool?>)(source.GetCurrentValue<bool? []>(nullableBoolArray))))))), (source.GetCurrentValue<byte[]>(nullableBytes) == null ? null : ((ValueComparer<byte[]>)(((IProperty)nullableBytes).GetValueComparer())).Snapshot(source.GetCurrentValue<byte[]>(nullableBytes))), (source.GetCurrentValue<char?>(nullableChar) == null ? null : ((ValueComparer<char?>)(((IProperty)nullableChar).GetValueComparer())).Snapshot(source.GetCurrentValue<char?>(nullableChar))), (((IEnumerable<char?>)(source.GetCurrentValue<char? []>(nullableCharArray))) == null ? null : ((char? [])(((ValueComparer<IEnumerable<char?>>)(((IProperty)nullableCharArray).GetValueComparer())).Snapshot(((IEnumerable<char?>)(source.GetCurrentValue<char? []>(nullableCharArray))))))), (source.GetCurrentValue<DateOnly?>(nullableDateOnly) == null ? null : ((ValueComparer<DateOnly?>)(((IProperty)nullableDateOnly).GetValueComparer())).Snapshot(source.GetCurrentValue<DateOnly?>(nullableDateOnly))), (source.GetCurrentValue<DateTime?>(nullableDateTime) == null ? null : ((ValueComparer<DateTime?>)(((IProperty)nullableDateTime).GetValueComparer())).Snapshot(source.GetCurrentValue<DateTime?>(nullableDateTime))), (source.GetCurrentValue<decimal?>(nullableDecimal) == null ? null : ((ValueComparer<decimal?>)(((IProperty)nullableDecimal).GetValueComparer())).Snapshot(source.GetCurrentValue<decimal?>(nullableDecimal))), (((IEnumerable<decimal?>)(source.GetCurrentValue<decimal? []>(nullableDecimalArray))) == null ? null : ((decimal? [])(((ValueComparer<IEnumerable<decimal?>>)(((IProperty)nullableDecimalArray).GetValueComparer())).Snapshot(((IEnumerable<decimal?>)(source.GetCurrentValue<decimal? []>(nullableDecimalArray))))))), (source.GetCurrentValue<double?>(nullableDouble) == null ? null : ((ValueComparer<double?>)(((IProperty)nullableDouble).GetValueComparer())).Snapshot(source.GetCurrentValue<double?>(nullableDouble))), (((IEnumerable<double?>)(source.GetCurrentValue<double? []>(nullableDoubleArray))) == null ? null : ((double? [])(((ValueComparer<IEnumerable<double?>>)(((IProperty)nullableDoubleArray).GetValueComparer())).Snapshot(((IEnumerable<double?>)(source.GetCurrentValue<double? []>(nullableDoubleArray))))))), (source.GetCurrentValue<CompiledModelTestBase.Enum16?>(nullableEnum16) == null ? null : ((ValueComparer<CompiledModelTestBase.Enum16?>)(((IProperty)nullableEnum16).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.Enum16?>(nullableEnum16))), (source.GetCurrentValue<CompiledModelTestBase.Enum16?>(nullableEnum16AsString) == null ? null : ((ValueComparer<CompiledModelTestBase.Enum16?>)(((IProperty)nullableEnum16AsString).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.Enum16?>(nullableEnum16AsString))), (source.GetCurrentValue<CompiledModelTestBase.Enum32?>(nullableEnum32) == null ? null : ((ValueComparer<CompiledModelTestBase.Enum32?>)(((IProperty)nullableEnum32).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.Enum32?>(nullableEnum32))), (source.GetCurrentValue<CompiledModelTestBase.Enum32?>(nullableEnum32AsString) == null ? null : ((ValueComparer<CompiledModelTestBase.Enum32?>)(((IProperty)nullableEnum32AsString).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.Enum32?>(nullableEnum32AsString))), (source.GetCurrentValue<CompiledModelTestBase.Enum64?>(nullableEnum64) == null ? null : ((ValueComparer<CompiledModelTestBase.Enum64?>)(((IProperty)nullableEnum64).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.Enum64?>(nullableEnum64))))));
-                    var entity2 = ((CompiledModelTestBase.ManyTypes)(source.Entity));
+                    var structuralType2 = ((CompiledModelTestBase.ManyTypes)(source.Entity));
                     var liftedArg2 = ((ISnapshot)(new Snapshot<CompiledModelTestBase.Enum64?, CompiledModelTestBase.Enum8?, CompiledModelTestBase.Enum8?, CompiledModelTestBase.EnumU16?, CompiledModelTestBase.EnumU16?, CompiledModelTestBase.EnumU32?, CompiledModelTestBase.EnumU32?, CompiledModelTestBase.EnumU64?, CompiledModelTestBase.EnumU64?, CompiledModelTestBase.EnumU8?, CompiledModelTestBase.EnumU8?, float?, float? [], Guid?, IPAddress, short?, short? [], int?, int? [], int? [][], long?, long? [], List<long? [][]>, sbyte?, sbyte? [], PhysicalAddress, string, string[], string[][], TimeOnly?>((source.GetCurrentValue<CompiledModelTestBase.Enum64?>(nullableEnum64AsString) == null ? null : ((ValueComparer<CompiledModelTestBase.Enum64?>)(((IProperty)nullableEnum64AsString).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.Enum64?>(nullableEnum64AsString))), (source.GetCurrentValue<CompiledModelTestBase.Enum8?>(nullableEnum8) == null ? null : ((ValueComparer<CompiledModelTestBase.Enum8?>)(((IProperty)nullableEnum8).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.Enum8?>(nullableEnum8))), (source.GetCurrentValue<CompiledModelTestBase.Enum8?>(nullableEnum8AsString) == null ? null : ((ValueComparer<CompiledModelTestBase.Enum8?>)(((IProperty)nullableEnum8AsString).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.Enum8?>(nullableEnum8AsString))), (source.GetCurrentValue<CompiledModelTestBase.EnumU16?>(nullableEnumU16) == null ? null : ((ValueComparer<CompiledModelTestBase.EnumU16?>)(((IProperty)nullableEnumU16).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.EnumU16?>(nullableEnumU16))), (source.GetCurrentValue<CompiledModelTestBase.EnumU16?>(nullableEnumU16AsString) == null ? null : ((ValueComparer<CompiledModelTestBase.EnumU16?>)(((IProperty)nullableEnumU16AsString).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.EnumU16?>(nullableEnumU16AsString))), (source.GetCurrentValue<CompiledModelTestBase.EnumU32?>(nullableEnumU32) == null ? null : ((ValueComparer<CompiledModelTestBase.EnumU32?>)(((IProperty)nullableEnumU32).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.EnumU32?>(nullableEnumU32))), (source.GetCurrentValue<CompiledModelTestBase.EnumU32?>(nullableEnumU32AsString) == null ? null : ((ValueComparer<CompiledModelTestBase.EnumU32?>)(((IProperty)nullableEnumU32AsString).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.EnumU32?>(nullableEnumU32AsString))), (source.GetCurrentValue<CompiledModelTestBase.EnumU64?>(nullableEnumU64) == null ? null : ((ValueComparer<CompiledModelTestBase.EnumU64?>)(((IProperty)nullableEnumU64).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.EnumU64?>(nullableEnumU64))), (source.GetCurrentValue<CompiledModelTestBase.EnumU64?>(nullableEnumU64AsString) == null ? null : ((ValueComparer<CompiledModelTestBase.EnumU64?>)(((IProperty)nullableEnumU64AsString).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.EnumU64?>(nullableEnumU64AsString))), (source.GetCurrentValue<CompiledModelTestBase.EnumU8?>(nullableEnumU8) == null ? null : ((ValueComparer<CompiledModelTestBase.EnumU8?>)(((IProperty)nullableEnumU8).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.EnumU8?>(nullableEnumU8))), (source.GetCurrentValue<CompiledModelTestBase.EnumU8?>(nullableEnumU8AsString) == null ? null : ((ValueComparer<CompiledModelTestBase.EnumU8?>)(((IProperty)nullableEnumU8AsString).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.EnumU8?>(nullableEnumU8AsString))), (source.GetCurrentValue<float?>(nullableFloat) == null ? null : ((ValueComparer<float?>)(((IProperty)nullableFloat).GetValueComparer())).Snapshot(source.GetCurrentValue<float?>(nullableFloat))), (((IEnumerable<float?>)(source.GetCurrentValue<float? []>(nullableFloatArray))) == null ? null : ((float? [])(((ValueComparer<IEnumerable<float?>>)(((IProperty)nullableFloatArray).GetValueComparer())).Snapshot(((IEnumerable<float?>)(source.GetCurrentValue<float? []>(nullableFloatArray))))))), (source.GetCurrentValue<Guid?>(nullableGuid) == null ? null : ((ValueComparer<Guid?>)(((IProperty)nullableGuid).GetValueComparer())).Snapshot(source.GetCurrentValue<Guid?>(nullableGuid))), (source.GetCurrentValue<IPAddress>(nullableIPAddress) == null ? null : ((ValueComparer<IPAddress>)(((IProperty)nullableIPAddress).GetValueComparer())).Snapshot(source.GetCurrentValue<IPAddress>(nullableIPAddress))), (source.GetCurrentValue<short?>(nullableInt16) == null ? null : ((ValueComparer<short?>)(((IProperty)nullableInt16).GetValueComparer())).Snapshot(source.GetCurrentValue<short?>(nullableInt16))), (((IEnumerable<short?>)(source.GetCurrentValue<short? []>(nullableInt16Array))) == null ? null : ((short? [])(((ValueComparer<IEnumerable<short?>>)(((IProperty)nullableInt16Array).GetValueComparer())).Snapshot(((IEnumerable<short?>)(source.GetCurrentValue<short? []>(nullableInt16Array))))))), (source.GetCurrentValue<int?>(nullableInt32) == null ? null : ((ValueComparer<int?>)(((IProperty)nullableInt32).GetValueComparer())).Snapshot(source.GetCurrentValue<int?>(nullableInt32))), (((IEnumerable<int?>)(source.GetCurrentValue<int? []>(nullableInt32Array))) == null ? null : ((int? [])(((ValueComparer<IEnumerable<int?>>)(((IProperty)nullableInt32Array).GetValueComparer())).Snapshot(((IEnumerable<int?>)(source.GetCurrentValue<int? []>(nullableInt32Array))))))), (((object)(source.GetCurrentValue<int? [][]>(nullableInt32NestedCollection))) == null ? null : ((int? [][])(((ValueComparer<object>)(((IProperty)nullableInt32NestedCollection).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<int? [][]>(nullableInt32NestedCollection))))))), (source.GetCurrentValue<long?>(nullableInt64) == null ? null : ((ValueComparer<long?>)(((IProperty)nullableInt64).GetValueComparer())).Snapshot(source.GetCurrentValue<long?>(nullableInt64))), (((IEnumerable<long?>)(source.GetCurrentValue<long? []>(nullableInt64Array))) == null ? null : ((long? [])(((ValueComparer<IEnumerable<long?>>)(((IProperty)nullableInt64Array).GetValueComparer())).Snapshot(((IEnumerable<long?>)(source.GetCurrentValue<long? []>(nullableInt64Array))))))), (((object)(source.GetCurrentValue<List<long? [][]>>(nullableInt64NestedCollection))) == null ? null : ((List<long? [][]>)(((ValueComparer<object>)(((IProperty)nullableInt64NestedCollection).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<List<long? [][]>>(nullableInt64NestedCollection))))))), (source.GetCurrentValue<sbyte?>(nullableInt8) == null ? null : ((ValueComparer<sbyte?>)(((IProperty)nullableInt8).GetValueComparer())).Snapshot(source.GetCurrentValue<sbyte?>(nullableInt8))), (((IEnumerable<sbyte?>)(source.GetCurrentValue<sbyte? []>(nullableInt8Array))) == null ? null : ((sbyte? [])(((ValueComparer<IEnumerable<sbyte?>>)(((IProperty)nullableInt8Array).GetValueComparer())).Snapshot(((IEnumerable<sbyte?>)(source.GetCurrentValue<sbyte? []>(nullableInt8Array))))))), (source.GetCurrentValue<PhysicalAddress>(nullablePhysicalAddress) == null ? null : ((ValueComparer<PhysicalAddress>)(((IProperty)nullablePhysicalAddress).GetValueComparer())).Snapshot(source.GetCurrentValue<PhysicalAddress>(nullablePhysicalAddress))), (source.GetCurrentValue<string>(nullableString) == null ? null : ((ValueComparer<string>)(((IProperty)nullableString).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(nullableString))), (((object)(source.GetCurrentValue<string[]>(nullableStringArray))) == null ? null : ((string[])(((ValueComparer<object>)(((IProperty)nullableStringArray).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<string[]>(nullableStringArray))))))), (((object)(source.GetCurrentValue<string[][]>(nullableStringNestedCollection))) == null ? null : ((string[][])(((ValueComparer<object>)(((IProperty)nullableStringNestedCollection).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<string[][]>(nullableStringNestedCollection))))))), (source.GetCurrentValue<TimeOnly?>(nullableTimeOnly) == null ? null : ((ValueComparer<TimeOnly?>)(((IProperty)nullableTimeOnly).GetValueComparer())).Snapshot(source.GetCurrentValue<TimeOnly?>(nullableTimeOnly))))));
-                    var entity3 = ((CompiledModelTestBase.ManyTypes)(source.Entity));
+                    var structuralType3 = ((CompiledModelTestBase.ManyTypes)(source.Entity));
                     var liftedArg3 = ((ISnapshot)(new Snapshot<TimeSpan?, ushort?, ushort? [], uint?, uint? [], ulong?, ulong? [], byte?, byte? [], Uri, PhysicalAddress, PhysicalAddress, PhysicalAddress, string, string[], string[][], IReadOnlyCollection<string>, string, string, string, string, string, string, string, string, string, string, string, string, string>((source.GetCurrentValue<TimeSpan?>(nullableTimeSpan) == null ? null : ((ValueComparer<TimeSpan?>)(((IProperty)nullableTimeSpan).GetValueComparer())).Snapshot(source.GetCurrentValue<TimeSpan?>(nullableTimeSpan))), (source.GetCurrentValue<ushort?>(nullableUInt16) == null ? null : ((ValueComparer<ushort?>)(((IProperty)nullableUInt16).GetValueComparer())).Snapshot(source.GetCurrentValue<ushort?>(nullableUInt16))), (((IEnumerable<ushort?>)(source.GetCurrentValue<ushort? []>(nullableUInt16Array))) == null ? null : ((ushort? [])(((ValueComparer<IEnumerable<ushort?>>)(((IProperty)nullableUInt16Array).GetValueComparer())).Snapshot(((IEnumerable<ushort?>)(source.GetCurrentValue<ushort? []>(nullableUInt16Array))))))), (source.GetCurrentValue<uint?>(nullableUInt32) == null ? null : ((ValueComparer<uint?>)(((IProperty)nullableUInt32).GetValueComparer())).Snapshot(source.GetCurrentValue<uint?>(nullableUInt32))), (((IEnumerable<uint?>)(source.GetCurrentValue<uint? []>(nullableUInt32Array))) == null ? null : ((uint? [])(((ValueComparer<IEnumerable<uint?>>)(((IProperty)nullableUInt32Array).GetValueComparer())).Snapshot(((IEnumerable<uint?>)(source.GetCurrentValue<uint? []>(nullableUInt32Array))))))), (source.GetCurrentValue<ulong?>(nullableUInt64) == null ? null : ((ValueComparer<ulong?>)(((IProperty)nullableUInt64).GetValueComparer())).Snapshot(source.GetCurrentValue<ulong?>(nullableUInt64))), (((IEnumerable<ulong?>)(source.GetCurrentValue<ulong? []>(nullableUInt64Array))) == null ? null : ((ulong? [])(((ValueComparer<IEnumerable<ulong?>>)(((IProperty)nullableUInt64Array).GetValueComparer())).Snapshot(((IEnumerable<ulong?>)(source.GetCurrentValue<ulong? []>(nullableUInt64Array))))))), (source.GetCurrentValue<byte?>(nullableUInt8) == null ? null : ((ValueComparer<byte?>)(((IProperty)nullableUInt8).GetValueComparer())).Snapshot(source.GetCurrentValue<byte?>(nullableUInt8))), (((IEnumerable<byte?>)(source.GetCurrentValue<byte? []>(nullableUInt8Array))) == null ? null : ((byte? [])(((ValueComparer<IEnumerable<byte?>>)(((IProperty)nullableUInt8Array).GetValueComparer())).Snapshot(((IEnumerable<byte?>)(source.GetCurrentValue<byte? []>(nullableUInt8Array))))))), (source.GetCurrentValue<Uri>(nullableUri) == null ? null : ((ValueComparer<Uri>)(((IProperty)nullableUri).GetValueComparer())).Snapshot(source.GetCurrentValue<Uri>(nullableUri))), (source.GetCurrentValue<PhysicalAddress>(physicalAddress) == null ? null : ((ValueComparer<PhysicalAddress>)(((IProperty)physicalAddress).GetValueComparer())).Snapshot(source.GetCurrentValue<PhysicalAddress>(physicalAddress))), (source.GetCurrentValue<PhysicalAddress>(physicalAddressToBytesConverterProperty) == null ? null : ((ValueComparer<PhysicalAddress>)(((IProperty)physicalAddressToBytesConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<PhysicalAddress>(physicalAddressToBytesConverterProperty))), (source.GetCurrentValue<PhysicalAddress>(physicalAddressToStringConverterProperty) == null ? null : ((ValueComparer<PhysicalAddress>)(((IProperty)physicalAddressToStringConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<PhysicalAddress>(physicalAddressToStringConverterProperty))), (source.GetCurrentValue<string>(@string) == null ? null : ((ValueComparer<string>)(((IProperty)@string).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(@string))), (((object)(source.GetCurrentValue<string[]>(stringArray))) == null ? null : ((string[])(((ValueComparer<object>)(((IProperty)stringArray).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<string[]>(stringArray))))))), (((object)(source.GetCurrentValue<string[][]>(stringNestedCollection))) == null ? null : ((string[][])(((ValueComparer<object>)(((IProperty)stringNestedCollection).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<string[][]>(stringNestedCollection))))))), (((object)(source.GetCurrentValue<IReadOnlyCollection<string>>(stringReadOnlyCollection))) == null ? null : ((IReadOnlyCollection<string>)(((ValueComparer<object>)(((IProperty)stringReadOnlyCollection).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IReadOnlyCollection<string>>(stringReadOnlyCollection))))))), (source.GetCurrentValue<string>(stringToBoolConverterProperty) == null ? null : ((ValueComparer<string>)(((IProperty)stringToBoolConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(stringToBoolConverterProperty))), (source.GetCurrentValue<string>(stringToBytesConverterProperty) == null ? null : ((ValueComparer<string>)(((IProperty)stringToBytesConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(stringToBytesConverterProperty))), (source.GetCurrentValue<string>(stringToCharConverterProperty) == null ? null : ((ValueComparer<string>)(((IProperty)stringToCharConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(stringToCharConverterProperty))), (source.GetCurrentValue<string>(stringToDateOnlyConverterProperty) == null ? null : ((ValueComparer<string>)(((IProperty)stringToDateOnlyConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(stringToDateOnlyConverterProperty))), (source.GetCurrentValue<string>(stringToDateTimeConverterProperty) == null ? null : ((ValueComparer<string>)(((IProperty)stringToDateTimeConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(stringToDateTimeConverterProperty))), (source.GetCurrentValue<string>(stringToDateTimeOffsetConverterProperty) == null ? null : ((ValueComparer<string>)(((IProperty)stringToDateTimeOffsetConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(stringToDateTimeOffsetConverterProperty))), (source.GetCurrentValue<string>(stringToDecimalNumberConverterProperty) == null ? null : ((ValueComparer<string>)(((IProperty)stringToDecimalNumberConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(stringToDecimalNumberConverterProperty))), (source.GetCurrentValue<string>(stringToDoubleNumberConverterProperty) == null ? null : ((ValueComparer<string>)(((IProperty)stringToDoubleNumberConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(stringToDoubleNumberConverterProperty))), (source.GetCurrentValue<string>(stringToEnumConverterProperty) == null ? null : ((ValueComparer<string>)(((IProperty)stringToEnumConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(stringToEnumConverterProperty))), (source.GetCurrentValue<string>(stringToGuidConverterProperty) == null ? null : ((ValueComparer<string>)(((IProperty)stringToGuidConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(stringToGuidConverterProperty))), (source.GetCurrentValue<string>(stringToIntNumberConverterProperty) == null ? null : ((ValueComparer<string>)(((IProperty)stringToIntNumberConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(stringToIntNumberConverterProperty))), (source.GetCurrentValue<string>(stringToTimeOnlyConverterProperty) == null ? null : ((ValueComparer<string>)(((IProperty)stringToTimeOnlyConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(stringToTimeOnlyConverterProperty))), (source.GetCurrentValue<string>(stringToTimeSpanConverterProperty) == null ? null : ((ValueComparer<string>)(((IProperty)stringToTimeSpanConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(stringToTimeSpanConverterProperty))))));
-                    var entity4 = ((CompiledModelTestBase.ManyTypes)(source.Entity));
+                    var structuralType4 = ((CompiledModelTestBase.ManyTypes)(source.Entity));
                     return ((ISnapshot)(new MultiSnapshot(new ISnapshot[] { liftedArg, liftedArg0, liftedArg1, liftedArg2, liftedArg3, ((ISnapshot)(new Snapshot<string, TimeOnly, TimeOnly, TimeOnly, TimeSpan, TimeSpan, TimeSpan, ushort, ushort[], uint, uint[], ulong, ulong[], byte, byte[], IReadOnlyCollection<byte>, Uri, Uri, string, JObject>((source.GetCurrentValue<string>(stringToUriConverterProperty) == null ? null : ((ValueComparer<string>)(((IProperty)stringToUriConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(stringToUriConverterProperty))), ((ValueComparer<TimeOnly>)(((IProperty)timeOnly).GetValueComparer())).Snapshot(source.GetCurrentValue<TimeOnly>(timeOnly)), ((ValueComparer<TimeOnly>)(((IProperty)timeOnlyToStringConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<TimeOnly>(timeOnlyToStringConverterProperty)), ((ValueComparer<TimeOnly>)(((IProperty)timeOnlyToTicksConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<TimeOnly>(timeOnlyToTicksConverterProperty)), ((ValueComparer<TimeSpan>)(((IProperty)timeSpan).GetValueComparer())).Snapshot(source.GetCurrentValue<TimeSpan>(timeSpan)), ((ValueComparer<TimeSpan>)(((IProperty)timeSpanToStringConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<TimeSpan>(timeSpanToStringConverterProperty)), ((ValueComparer<TimeSpan>)(((IProperty)timeSpanToTicksConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<TimeSpan>(timeSpanToTicksConverterProperty)), ((ValueComparer<ushort>)(((IProperty)uInt16).GetValueComparer())).Snapshot(source.GetCurrentValue<ushort>(uInt16)), (((IEnumerable<ushort>)(source.GetCurrentValue<ushort[]>(uInt16Array))) == null ? null : ((ushort[])(((ValueComparer<IEnumerable<ushort>>)(((IProperty)uInt16Array).GetValueComparer())).Snapshot(((IEnumerable<ushort>)(source.GetCurrentValue<ushort[]>(uInt16Array))))))), ((ValueComparer<uint>)(((IProperty)uInt32).GetValueComparer())).Snapshot(source.GetCurrentValue<uint>(uInt32)), (((IEnumerable<uint>)(source.GetCurrentValue<uint[]>(uInt32Array))) == null ? null : ((uint[])(((ValueComparer<IEnumerable<uint>>)(((IProperty)uInt32Array).GetValueComparer())).Snapshot(((IEnumerable<uint>)(source.GetCurrentValue<uint[]>(uInt32Array))))))), ((ValueComparer<ulong>)(((IProperty)uInt64).GetValueComparer())).Snapshot(source.GetCurrentValue<ulong>(uInt64)), (((IEnumerable<ulong>)(source.GetCurrentValue<ulong[]>(uInt64Array))) == null ? null : ((ulong[])(((ValueComparer<IEnumerable<ulong>>)(((IProperty)uInt64Array).GetValueComparer())).Snapshot(((IEnumerable<ulong>)(source.GetCurrentValue<ulong[]>(uInt64Array))))))), ((ValueComparer<byte>)(((IProperty)uInt8).GetValueComparer())).Snapshot(source.GetCurrentValue<byte>(uInt8)), (source.GetCurrentValue<byte[]>(uInt8Array) == null ? null : ((ValueComparer<byte[]>)(((IProperty)uInt8Array).GetValueComparer())).Snapshot(source.GetCurrentValue<byte[]>(uInt8Array))), (((IEnumerable<byte>)(source.GetCurrentValue<IReadOnlyCollection<byte>>(uInt8ReadOnlyCollection))) == null ? null : ((IReadOnlyCollection<byte>)(((ValueComparer<IEnumerable<byte>>)(((IProperty)uInt8ReadOnlyCollection).GetValueComparer())).Snapshot(((IEnumerable<byte>)(source.GetCurrentValue<IReadOnlyCollection<byte>>(uInt8ReadOnlyCollection))))))), (source.GetCurrentValue<Uri>(uri) == null ? null : ((ValueComparer<Uri>)(((IProperty)uri).GetValueComparer())).Snapshot(source.GetCurrentValue<Uri>(uri))), (source.GetCurrentValue<Uri>(uriToStringConverterProperty) == null ? null : ((ValueComparer<Uri>)(((IProperty)uriToStringConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<Uri>(uriToStringConverterProperty))), (source.GetCurrentValue<string>(__id) == null ? null : ((ValueComparer<string>)(((IProperty)__id).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(__id))), (source.GetCurrentValue<JObject>(__jObject) == null ? null : ((ValueComparer<JObject>)(((IProperty)__jObject).GetValueComparer())).Snapshot(source.GetCurrentValue<JObject>(__jObject)))))) })));
                 });
             runtimeEntityType.SetStoreGeneratedValuesFactory(
@@ -8910,7 +8576,7 @@ namespace TestNamespace
             runtimeEntityType.SetRelationshipSnapshotFactory(
                 ISnapshot (IInternalEntry source) =>
                 {
-                    var entity5 = ((CompiledModelTestBase.ManyTypes)(source.Entity));
+                    var structuralType5 = ((CompiledModelTestBase.ManyTypes)(source.Entity));
                     return ((ISnapshot)(new Snapshot<CompiledModelTestBase.ManyTypesId>(((ValueComparer<CompiledModelTestBase.ManyTypesId>)(((IProperty)id).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.ManyTypesId>(id)))));
                 });
             runtimeEntityType.SetCounts(new PropertyCounts(

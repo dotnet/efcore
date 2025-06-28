@@ -2170,7 +2170,7 @@ public static class CoreLoggerExtensions
 
         if (diagnostics.ShouldLog(definition))
         {
-            definition.Log(diagnostics, property.DeclaringType.ShortName(), property.Name);
+            definition.Log(diagnostics, property.DeclaringType.ShortNameChain(), property.Name);
         }
 
         if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -2192,7 +2192,7 @@ public static class CoreLoggerExtensions
         var d = (EventDefinition<string, string>)definition;
         var p = (PropertyChangedEventData)payload;
         return d.GenerateMessage(
-            p.Property.DeclaringType.ShortName(),
+            p.Property.DeclaringType.ShortNameChain(),
             p.Property.Name);
     }
 
@@ -2217,7 +2217,7 @@ public static class CoreLoggerExtensions
         {
             definition.Log(
                 diagnostics,
-                property.DeclaringType.ShortName(),
+                property.DeclaringType.ShortNameChain(),
                 property.Name,
                 oldValue,
                 newValue,
@@ -2243,11 +2243,111 @@ public static class CoreLoggerExtensions
         var d = (EventDefinition<string, string, object?, object?, string>)definition;
         var p = (PropertyChangedEventData)payload;
         return d.GenerateMessage(
-            p.Property.DeclaringType.ShortName(),
+            p.Property.DeclaringType.ShortNameChain(),
             p.Property.Name,
             p.OldValue,
             p.NewValue,
             p.EntityEntry.GetInfrastructure().BuildCurrentValuesString(
+                p.Property.DeclaringType.ContainingEntityType.FindPrimaryKey()!.Properties));
+    }
+
+    /// <summary>
+    ///     Logs for the <see cref="CoreEventId.ComplexTypePropertyChangeDetected" /> event.
+    /// </summary>
+    /// <param name="diagnostics">The diagnostics logger to use.</param>
+    /// <param name="internalComplexEntry">The internal complex entry.</param>
+    /// <param name="property">The property.</param>
+    /// <param name="oldValue">The old value.</param>
+    /// <param name="newValue">The new value.</param>
+    public static void ComplexTypePropertyChangeDetected(
+        this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
+        InternalComplexEntry internalComplexEntry,
+        IProperty property,
+        object? oldValue,
+        object? newValue)
+    {
+        var definition = CoreResources.LogComplexTypePropertyChangeDetected(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            definition.Log(diagnostics, internalComplexEntry.GetPropertyPath(property), property.Name);
+        }
+
+        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = new ComplexTypePropertyChangedEventData(
+                definition,
+                ComplexTypePropertyChangeDetected,
+                new ComplexEntry(internalComplexEntry),
+                property,
+                oldValue,
+                newValue);
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+        }
+    }
+
+    private static string ComplexTypePropertyChangeDetected(EventDefinitionBase definition, EventData payload)
+    {
+        var d = (EventDefinition<string, string>)definition;
+        var p = (ComplexTypePropertyChangedEventData)payload;
+        return d.GenerateMessage(
+            p.ComplexEntry.GetInfrastructure().GetPropertyPath(p.Property),
+            p.Property.Name);
+    }
+
+    /// <summary>
+    ///     Logs for the <see cref="CoreEventId.ComplexTypePropertyChangeDetected" /> event.
+    /// </summary>
+    /// <param name="diagnostics">The diagnostics logger to use.</param>
+    /// <param name="internalComplexEntry">The internal complex entry.</param>
+    /// <param name="property">The property.</param>
+    /// <param name="oldValue">The old value.</param>
+    /// <param name="newValue">The new value.</param>
+    public static void ComplexTypePropertyChangeDetectedSensitive(
+        this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
+        InternalComplexEntry internalComplexEntry,
+        IProperty property,
+        object? oldValue,
+        object? newValue)
+    {
+        var definition = CoreResources.LogComplexTypePropertyChangeDetectedSensitive(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            definition.Log(
+                diagnostics,
+                internalComplexEntry.GetPropertyPath(property),
+                property.Name,
+                oldValue,
+                newValue,
+                internalComplexEntry.EntityEntry.BuildCurrentValuesString(property.DeclaringType.ContainingEntityType.FindPrimaryKey()!.Properties));
+        }
+
+        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = new ComplexTypePropertyChangedEventData(
+                definition,
+                ComplexTypePropertyChangeDetectedSensitive,
+                new ComplexEntry(internalComplexEntry),
+                property,
+                oldValue,
+                newValue);
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+        }
+    }
+
+    private static string ComplexTypePropertyChangeDetectedSensitive(EventDefinitionBase definition, EventData payload)
+    {
+        var d = (EventDefinition<string, string, object?, object?, string>)definition;
+        var p = (ComplexTypePropertyChangedEventData)payload;
+        return d.GenerateMessage(
+            p.ComplexEntry.GetInfrastructure().GetPropertyPath(p.Property),
+            p.Property.Name,
+            p.OldValue,
+            p.NewValue,
+            p.ComplexEntry.GetInfrastructure().EntityEntry.BuildCurrentValuesString(
                 p.Property.DeclaringType.ContainingEntityType.FindPrimaryKey()!.Properties));
     }
 

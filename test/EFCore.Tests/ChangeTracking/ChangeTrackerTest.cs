@@ -534,9 +534,9 @@ public class ChangeTrackerTest
         Assert.Equal(
             sensitive
                 ? CoreResources.LogPropertyChangeDetectedSensitive(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
-                    nameof(Pocket), nameof(Pocket.Contents), "Handsies", "Fishies", "{Id: 1}")
+                    nameof(Wocket) + "." + nameof(Pocket), nameof(Pocket.Contents), "Handsies", "Fishies", "{Id: 1}")
                 : CoreResources.LogPropertyChangeDetected(new TestLogger<TestLoggingDefinitions>())
-                    .GenerateMessage(nameof(Pocket), nameof(Pocket.Contents)),
+                    .GenerateMessage(nameof(Wocket) + "." + nameof(Pocket), nameof(Pocket.Contents)),
             message);
 
         _loggerFactory.Log.Clear();
