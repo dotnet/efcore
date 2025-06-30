@@ -237,9 +237,9 @@ public class ClrCollectionAccessor<TEntity, TCollection, TElement> : IClrCollect
         switch (collection)
         {
             case List<TElement> list:
-                foreach (var element in list)
+                for (var i = 0; i < list.Count; i++)
                 {
-                    if (ReferenceEquals(element, value))
+                    if (ReferenceEquals(list[i], value))
                     {
                         return true;
                     }
