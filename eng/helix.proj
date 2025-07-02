@@ -60,7 +60,7 @@
   </ItemGroup>
 
   <!-- Start SqlServer instance for test projects which uses SqlServer on docker. Also remove other projects as they will be run outside of docker. -->
-  <ItemGroup Condition = "'$(HelixTargetQueue.Contains(`ubuntu-18.04-helix-sqlserver-amd64`))'">
+  <ItemGroup Condition = "'$(HelixTargetQueue.Contains(`ubuntu-22.04-helix-sqlserver-amd64`))'">
     <XUnitProject Remove="$(RepoRoot)/test/**/*.csproj"/>
     <XUnitProject Include="$(SqlServerTests);$(RepoRoot)/test/EFCore.CrossStore.FunctionalTests/*.csproj">
       <PreCommands>$(PreCommands); export MSSQL_SA_PASSWORD=$(MSSQL_SA_PASSWORD); export Test__SqlServer__DefaultConnection="Server=localhost;;Database=master;;User=sa;;Password=$(MSSQL_SA_PASSWORD);;Connect Timeout=60;;ConnectRetryCount=0;;TrustServerCertificate=True"; /opt/mssql/bin/sqlservr --accept-eula &amp;; sleep 120; </PreCommands>
