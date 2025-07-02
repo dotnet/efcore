@@ -23,6 +23,7 @@ public abstract class PropertyBase : ConventionAnnotatable, IMutablePropertyBase
     private IClrPropertyGetter? _getter;
     private IClrPropertySetter? _setter;
     private IClrPropertySetter? _materializationSetter;
+    private IClrIndexedCollectionAccessor? _clrIndexedCollectionAccessor;
     private PropertyAccessors? _accessors;
     private PropertyIndexes? _indexes;
     private IComparer<IUpdateEntry>? _currentValueComparer;
@@ -393,6 +394,22 @@ public abstract class PropertyBase : ConventionAnnotatable, IMutablePropertyBase
                 property.EnsureReadOnly();
                 return ClrPropertyMaterializationSetterFactory.Instance.Create(property);
             });
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public IClrIndexedCollectionAccessor? GetIndexedCollectionAccessor()
+        => IsCollection
+            ? NonCapturingLazyInitializer.EnsureInitialized(
+                ref _clrIndexedCollectionAccessor, this, static property =>
+                {
+                    property.EnsureReadOnly();
+                    return ClrIndexedCollectionAccessorFactory.Instance.Create(property)!;
+                })
+            : null;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -94,6 +94,15 @@ public class PropertyAccessorsFactory
     private static readonly MethodInfo GenericCreateExpressions
         = typeof(PropertyAccessorsFactory).GetMethod(nameof(CreateExpressions), BindingFlags.Static | BindingFlags.NonPublic)!;
 
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static readonly MethodInfo GetOrdinalsMethod
+        = typeof(IInternalEntry).GetMethod(nameof(IInternalEntry.GetOrdinals), Type.EmptyTypes)!;
+
     private static void CreateExpressions<TProperty>(
         IPropertyBase propertyBase,
         out Expression<Func<IInternalEntry, TProperty>> currentValueGetter,
@@ -111,7 +120,7 @@ public class PropertyAccessorsFactory
         IPropertyBase propertyBase,
         bool useStoreGeneratedValues)
     {
-        var entityClrType = propertyBase.DeclaringType.ContainingType.ClrType;
+        var entityClrType = propertyBase.DeclaringType.ContainingEntityType.ClrType;
         var entryParameter = Expression.Parameter(typeof(IInternalEntry), "entry");
         var propertyIndex = propertyBase.GetIndex();
         var shadowIndex = propertyBase.GetShadowIndex();
@@ -125,7 +134,6 @@ public class PropertyAccessorsFactory
                 entryParameter,
                 InternalEntryBase.MakeReadShadowValueMethod(typeof(TProperty)),
                 Expression.Constant(shadowIndex));
-
             hasSentinelValueExpression = currentValueExpression.MakeHasSentinel(propertyBase);
         }
         else
@@ -133,11 +141,11 @@ public class PropertyAccessorsFactory
             var convertedExpression = Expression.Convert(
                 Expression.Property(entryParameter, nameof(IInternalEntry.Entity)),
                 entityClrType);
-
+            var indicesExpression = Expression.Call(entryParameter, GetOrdinalsMethod);
             var memberInfo = propertyBase.GetMemberInfo(forMaterialization: false, forSet: false);
 
             currentValueExpression = CreateMemberAccess(
-                propertyBase, convertedExpression, memberInfo, fromDeclaringType: false);
+                propertyBase, convertedExpression, indicesExpression, memberInfo, fromDeclaringType: false, fromEntity: true);
             hasSentinelValueExpression = currentValueExpression.MakeHasSentinel(propertyBase);
 
             if (currentValueExpression.Type != typeof(TProperty))
@@ -262,9 +270,13 @@ public class PropertyAccessorsFactory
     public static Expression CreateMemberAccess(
         IPropertyBase? property,
         Expression instanceExpression,
+        Expression indicesExpression,
         MemberInfo memberInfo,
-        bool fromDeclaringType)
+        bool fromDeclaringType,
+        bool fromEntity)
     {
+        Check.DebugAssert(!fromEntity || !fromDeclaringType, "fromEntity and fromDeclaringType can't both be true");
+
         if (property?.IsIndexerProperty() == true)
         {
             Expression expression = Expression.MakeIndex(
@@ -283,14 +295,28 @@ public class PropertyAccessorsFactory
         }
 
         if (!fromDeclaringType
-            && property?.DeclaringType is IRuntimeComplexType complexType
-            && !complexType.ComplexProperty.IsCollection)
+            && property?.DeclaringType is IRuntimeComplexType complexType)
         {
-            instanceExpression = CreateMemberAccess(
-                complexType.ComplexProperty,
-                instanceExpression,
-                complexType.ComplexProperty.GetMemberInfo(forMaterialization: false, forSet: false),
-                fromDeclaringType);
+            var complexProperty = complexType.ComplexProperty;
+            if (complexProperty.IsCollection
+                && fromEntity)
+            {
+                instanceExpression = CreateComplexCollectionElementAccess(complexProperty, instanceExpression, indicesExpression, fromDeclaringType, fromEntity);
+            }
+            else if (!complexProperty.IsCollection)
+            {
+                instanceExpression = CreateMemberAccess(
+                    complexProperty,
+                    instanceExpression,
+                    indicesExpression,
+                    complexProperty.GetMemberInfo(forMaterialization: false, forSet: false),
+                    fromDeclaringType,
+                    fromEntity);
+            }
+            else
+            {
+                return instanceExpression.MakeMemberAccess(memberInfo);
+            }
 
             if (!instanceExpression.Type.IsValueType
                 || instanceExpression.Type.IsNullableValueType())
@@ -298,10 +324,71 @@ public class PropertyAccessorsFactory
                 return Expression.Condition(
                     Expression.Equal(instanceExpression, Expression.Constant(null)),
                     Expression.Default(memberInfo.GetMemberType()),
-                    Expression.MakeMemberAccess(instanceExpression, memberInfo));
+                    instanceExpression.MakeMemberAccess(memberInfo));
             }
         }
 
-        return Expression.MakeMemberAccess(instanceExpression, memberInfo);
+        return instanceExpression.MakeMemberAccess(memberInfo);
+    }
+
+    private static readonly MethodInfo ComplexCollectionNotInitializedMethod
+        = typeof(CoreStrings).GetMethod(nameof(CoreStrings.ComplexCollectionNotInitialized), BindingFlags.Static | BindingFlags.Public)!;
+
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static readonly ConstructorInfo InvalidOperationConstructor = typeof(InvalidOperationException).GetConstructor([typeof(string)])!;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static Expression CreateComplexCollectionElementAccess(
+        IComplexProperty complexProperty,
+        Expression instanceExpression,
+        Expression indicesExpression,
+        bool fromDeclaringType,
+        bool fromEntity)
+    {
+        instanceExpression = CreateMemberAccess(
+            complexProperty,
+            instanceExpression,
+            indicesExpression,
+            complexProperty.GetMemberInfo(forMaterialization: false, forSet: false),
+            fromDeclaringType,
+            fromEntity);
+
+        var throwExceptionExpression = Expression.Throw(
+            Expression.New(
+                InvalidOperationConstructor,
+                Expression.Call(
+                    ComplexCollectionNotInitializedMethod,
+                    Expression.Constant(complexProperty.DeclaringType.ShortNameChain()),
+                    Expression.Constant(complexProperty.Name))),
+            instanceExpression.Type);
+
+        instanceExpression = Expression.Condition(
+            Expression.Equal(instanceExpression, Expression.Constant(null, instanceExpression.Type)),
+            throwExceptionExpression,
+            instanceExpression);
+
+        var collectionDepth = ((IRuntimeComplexType)complexProperty.ComplexType).CollectionDepth - 1;
+        var indexExpression = Expression.MakeIndex(
+            indicesExpression,
+            indicesExpression.Type.GetProperty("Item"),
+            [Expression.Constant(collectionDepth)]);
+
+        instanceExpression = Expression.MakeIndex(
+            instanceExpression,
+            instanceExpression.Type.GetProperty("Item"),
+            [indexExpression]);
+
+        return instanceExpression;
     }
 }

@@ -112,14 +112,12 @@ namespace TestNamespace
                 propertyAccessMode: PropertyAccessMode.Field,
                 nullable: true);
             details.SetGetter(
-                string (CompiledModelTestBase.OwnedType entity) => OwnedTypeUnsafeAccessors._details(entity),
-                bool (CompiledModelTestBase.OwnedType entity) => OwnedTypeUnsafeAccessors._details(entity) == null,
                 string (CompiledModelTestBase.OwnedType instance) => OwnedTypeUnsafeAccessors._details(instance),
                 bool (CompiledModelTestBase.OwnedType instance) => OwnedTypeUnsafeAccessors._details(instance) == null);
             details.SetSetter(
-                (CompiledModelTestBase.OwnedType entity, string value) => OwnedTypeUnsafeAccessors._details(entity) = value);
+                (CompiledModelTestBase.OwnedType entity, IReadOnlyList<int> indices, string value) => OwnedTypeUnsafeAccessors._details(entity) = value);
             details.SetMaterializationSetter(
-                (CompiledModelTestBase.OwnedType entity, string value) => OwnedTypeUnsafeAccessors._details(entity) = value);
+                (CompiledModelTestBase.OwnedType entity, IReadOnlyList<int> indices, string value) => OwnedTypeUnsafeAccessors._details(entity) = value);
             details.SetAccessors(
                 string (IInternalEntry entry) => OwnedTypeUnsafeAccessors._details(((CompiledModelTestBase.OwnedType)(entry.Entity))),
                 string (IInternalEntry entry) => OwnedTypeUnsafeAccessors._details(((CompiledModelTestBase.OwnedType)(entry.Entity))),
@@ -159,14 +157,12 @@ namespace TestNamespace
                 propertyAccessMode: PropertyAccessMode.Field,
                 sentinel: 0);
             number.SetGetter(
-                int (CompiledModelTestBase.OwnedType entity) => OwnedTypeUnsafeAccessors.Number(entity),
-                bool (CompiledModelTestBase.OwnedType entity) => OwnedTypeUnsafeAccessors.Number(entity) == 0,
                 int (CompiledModelTestBase.OwnedType instance) => OwnedTypeUnsafeAccessors.Number(instance),
                 bool (CompiledModelTestBase.OwnedType instance) => OwnedTypeUnsafeAccessors.Number(instance) == 0);
             number.SetSetter(
-                (CompiledModelTestBase.OwnedType entity, int value) => OwnedTypeUnsafeAccessors.Number(entity) = value);
+                (CompiledModelTestBase.OwnedType entity, IReadOnlyList<int> indices, int value) => OwnedTypeUnsafeAccessors.Number(entity) = value);
             number.SetMaterializationSetter(
-                (CompiledModelTestBase.OwnedType entity, int value) => OwnedTypeUnsafeAccessors.Number(entity) = value);
+                (CompiledModelTestBase.OwnedType entity, IReadOnlyList<int> indices, int value) => OwnedTypeUnsafeAccessors.Number(entity) = value);
             number.SetAccessors(
                 int (IInternalEntry entry) => OwnedTypeUnsafeAccessors.Number(((CompiledModelTestBase.OwnedType)(entry.Entity))),
                 int (IInternalEntry entry) => OwnedTypeUnsafeAccessors.Number(((CompiledModelTestBase.OwnedType)(entry.Entity))),
@@ -201,14 +197,12 @@ namespace TestNamespace
                 propertyAccessMode: PropertyAccessMode.Field,
                 nullable: true);
             refTypeArray.SetGetter(
-                IPAddress[] (CompiledModelTestBase.OwnedType entity) => OwnedTypeUnsafeAccessors._refTypeArray(entity),
-                bool (CompiledModelTestBase.OwnedType entity) => OwnedTypeUnsafeAccessors._refTypeArray(entity) == null,
                 IPAddress[] (CompiledModelTestBase.OwnedType instance) => OwnedTypeUnsafeAccessors._refTypeArray(instance),
                 bool (CompiledModelTestBase.OwnedType instance) => OwnedTypeUnsafeAccessors._refTypeArray(instance) == null);
             refTypeArray.SetSetter(
-                (CompiledModelTestBase.OwnedType entity, IPAddress[] value) => OwnedTypeUnsafeAccessors._refTypeArray(entity) = value);
+                (CompiledModelTestBase.OwnedType entity, IReadOnlyList<int> indices, IPAddress[] value) => OwnedTypeUnsafeAccessors._refTypeArray(entity) = value);
             refTypeArray.SetMaterializationSetter(
-                (CompiledModelTestBase.OwnedType entity, IPAddress[] value) => OwnedTypeUnsafeAccessors._refTypeArray(entity) = value);
+                (CompiledModelTestBase.OwnedType entity, IReadOnlyList<int> indices, IPAddress[] value) => OwnedTypeUnsafeAccessors._refTypeArray(entity) = value);
             refTypeArray.SetAccessors(
                 IPAddress[] (IInternalEntry entry) => OwnedTypeUnsafeAccessors._refTypeArray(((CompiledModelTestBase.OwnedType)(entry.Entity))),
                 IPAddress[] (IInternalEntry entry) => OwnedTypeUnsafeAccessors._refTypeArray(((CompiledModelTestBase.OwnedType)(entry.Entity))),
@@ -288,14 +282,12 @@ namespace TestNamespace
                 propertyAccessMode: PropertyAccessMode.Field,
                 nullable: true);
             refTypeEnumerable.SetGetter(
-                IEnumerable<string> (CompiledModelTestBase.OwnedType entity) => OwnedTypeUnsafeAccessors._refTypeEnumerable(entity),
-                bool (CompiledModelTestBase.OwnedType entity) => OwnedTypeUnsafeAccessors._refTypeEnumerable(entity) == null,
                 IEnumerable<string> (CompiledModelTestBase.OwnedType instance) => OwnedTypeUnsafeAccessors._refTypeEnumerable(instance),
                 bool (CompiledModelTestBase.OwnedType instance) => OwnedTypeUnsafeAccessors._refTypeEnumerable(instance) == null);
             refTypeEnumerable.SetSetter(
-                (CompiledModelTestBase.OwnedType entity, IEnumerable<string> value) => OwnedTypeUnsafeAccessors._refTypeEnumerable(entity) = value);
+                (CompiledModelTestBase.OwnedType entity, IReadOnlyList<int> indices, IEnumerable<string> value) => OwnedTypeUnsafeAccessors._refTypeEnumerable(entity) = value);
             refTypeEnumerable.SetMaterializationSetter(
-                (CompiledModelTestBase.OwnedType entity, IEnumerable<string> value) => OwnedTypeUnsafeAccessors._refTypeEnumerable(entity) = value);
+                (CompiledModelTestBase.OwnedType entity, IReadOnlyList<int> indices, IEnumerable<string> value) => OwnedTypeUnsafeAccessors._refTypeEnumerable(entity) = value);
             refTypeEnumerable.SetAccessors(
                 IEnumerable<string> (IInternalEntry entry) => OwnedTypeUnsafeAccessors._refTypeEnumerable(((CompiledModelTestBase.OwnedType)(entry.Entity))),
                 IEnumerable<string> (IInternalEntry entry) => OwnedTypeUnsafeAccessors._refTypeEnumerable(((CompiledModelTestBase.OwnedType)(entry.Entity))),
@@ -359,14 +351,12 @@ namespace TestNamespace
                 propertyAccessMode: PropertyAccessMode.Field,
                 nullable: true);
             refTypeIList.SetGetter(
-                IList<string> (CompiledModelTestBase.OwnedType entity) => OwnedTypeUnsafeAccessors._refTypeIList(entity),
-                bool (CompiledModelTestBase.OwnedType entity) => OwnedTypeUnsafeAccessors._refTypeIList(entity) == null,
                 IList<string> (CompiledModelTestBase.OwnedType instance) => OwnedTypeUnsafeAccessors._refTypeIList(instance),
                 bool (CompiledModelTestBase.OwnedType instance) => OwnedTypeUnsafeAccessors._refTypeIList(instance) == null);
             refTypeIList.SetSetter(
-                (CompiledModelTestBase.OwnedType entity, IList<string> value) => OwnedTypeUnsafeAccessors._refTypeIList(entity) = value);
+                (CompiledModelTestBase.OwnedType entity, IReadOnlyList<int> indices, IList<string> value) => OwnedTypeUnsafeAccessors._refTypeIList(entity) = value);
             refTypeIList.SetMaterializationSetter(
-                (CompiledModelTestBase.OwnedType entity, IList<string> value) => OwnedTypeUnsafeAccessors._refTypeIList(entity) = value);
+                (CompiledModelTestBase.OwnedType entity, IReadOnlyList<int> indices, IList<string> value) => OwnedTypeUnsafeAccessors._refTypeIList(entity) = value);
             refTypeIList.SetAccessors(
                 IList<string> (IInternalEntry entry) => OwnedTypeUnsafeAccessors._refTypeIList(((CompiledModelTestBase.OwnedType)(entry.Entity))),
                 IList<string> (IInternalEntry entry) => OwnedTypeUnsafeAccessors._refTypeIList(((CompiledModelTestBase.OwnedType)(entry.Entity))),
@@ -430,14 +420,12 @@ namespace TestNamespace
                 propertyAccessMode: PropertyAccessMode.Field,
                 nullable: true);
             refTypeList.SetGetter(
-                List<IPAddress> (CompiledModelTestBase.OwnedType entity) => OwnedTypeUnsafeAccessors._refTypeList(entity),
-                bool (CompiledModelTestBase.OwnedType entity) => OwnedTypeUnsafeAccessors._refTypeList(entity) == null,
                 List<IPAddress> (CompiledModelTestBase.OwnedType instance) => OwnedTypeUnsafeAccessors._refTypeList(instance),
                 bool (CompiledModelTestBase.OwnedType instance) => OwnedTypeUnsafeAccessors._refTypeList(instance) == null);
             refTypeList.SetSetter(
-                (CompiledModelTestBase.OwnedType entity, List<IPAddress> value) => OwnedTypeUnsafeAccessors._refTypeList(entity) = value);
+                (CompiledModelTestBase.OwnedType entity, IReadOnlyList<int> indices, List<IPAddress> value) => OwnedTypeUnsafeAccessors._refTypeList(entity) = value);
             refTypeList.SetMaterializationSetter(
-                (CompiledModelTestBase.OwnedType entity, List<IPAddress> value) => OwnedTypeUnsafeAccessors._refTypeList(entity) = value);
+                (CompiledModelTestBase.OwnedType entity, IReadOnlyList<int> indices, List<IPAddress> value) => OwnedTypeUnsafeAccessors._refTypeList(entity) = value);
             refTypeList.SetAccessors(
                 List<IPAddress> (IInternalEntry entry) => OwnedTypeUnsafeAccessors._refTypeList(((CompiledModelTestBase.OwnedType)(entry.Entity))),
                 List<IPAddress> (IInternalEntry entry) => OwnedTypeUnsafeAccessors._refTypeList(((CompiledModelTestBase.OwnedType)(entry.Entity))),
@@ -517,14 +505,12 @@ namespace TestNamespace
                 propertyAccessMode: PropertyAccessMode.Field,
                 nullable: true);
             valueTypeArray.SetGetter(
-                DateTime[] (CompiledModelTestBase.OwnedType entity) => OwnedTypeUnsafeAccessors._valueTypeArray(entity),
-                bool (CompiledModelTestBase.OwnedType entity) => OwnedTypeUnsafeAccessors._valueTypeArray(entity) == null,
                 DateTime[] (CompiledModelTestBase.OwnedType instance) => OwnedTypeUnsafeAccessors._valueTypeArray(instance),
                 bool (CompiledModelTestBase.OwnedType instance) => OwnedTypeUnsafeAccessors._valueTypeArray(instance) == null);
             valueTypeArray.SetSetter(
-                (CompiledModelTestBase.OwnedType entity, DateTime[] value) => OwnedTypeUnsafeAccessors._valueTypeArray(entity) = value);
+                (CompiledModelTestBase.OwnedType entity, IReadOnlyList<int> indices, DateTime[] value) => OwnedTypeUnsafeAccessors._valueTypeArray(entity) = value);
             valueTypeArray.SetMaterializationSetter(
-                (CompiledModelTestBase.OwnedType entity, DateTime[] value) => OwnedTypeUnsafeAccessors._valueTypeArray(entity) = value);
+                (CompiledModelTestBase.OwnedType entity, IReadOnlyList<int> indices, DateTime[] value) => OwnedTypeUnsafeAccessors._valueTypeArray(entity) = value);
             valueTypeArray.SetAccessors(
                 DateTime[] (IInternalEntry entry) => OwnedTypeUnsafeAccessors._valueTypeArray(((CompiledModelTestBase.OwnedType)(entry.Entity))),
                 DateTime[] (IInternalEntry entry) => OwnedTypeUnsafeAccessors._valueTypeArray(((CompiledModelTestBase.OwnedType)(entry.Entity))),
@@ -583,14 +569,12 @@ namespace TestNamespace
                 propertyAccessMode: PropertyAccessMode.Field,
                 nullable: true);
             valueTypeEnumerable.SetGetter(
-                IEnumerable<byte> (CompiledModelTestBase.OwnedType entity) => OwnedTypeUnsafeAccessors._valueTypeEnumerable(entity),
-                bool (CompiledModelTestBase.OwnedType entity) => OwnedTypeUnsafeAccessors._valueTypeEnumerable(entity) == null,
                 IEnumerable<byte> (CompiledModelTestBase.OwnedType instance) => OwnedTypeUnsafeAccessors._valueTypeEnumerable(instance),
                 bool (CompiledModelTestBase.OwnedType instance) => OwnedTypeUnsafeAccessors._valueTypeEnumerable(instance) == null);
             valueTypeEnumerable.SetSetter(
-                (CompiledModelTestBase.OwnedType entity, IEnumerable<byte> value) => OwnedTypeUnsafeAccessors._valueTypeEnumerable(entity) = value);
+                (CompiledModelTestBase.OwnedType entity, IReadOnlyList<int> indices, IEnumerable<byte> value) => OwnedTypeUnsafeAccessors._valueTypeEnumerable(entity) = value);
             valueTypeEnumerable.SetMaterializationSetter(
-                (CompiledModelTestBase.OwnedType entity, IEnumerable<byte> value) => OwnedTypeUnsafeAccessors._valueTypeEnumerable(entity) = value);
+                (CompiledModelTestBase.OwnedType entity, IReadOnlyList<int> indices, IEnumerable<byte> value) => OwnedTypeUnsafeAccessors._valueTypeEnumerable(entity) = value);
             valueTypeEnumerable.SetAccessors(
                 IEnumerable<byte> (IInternalEntry entry) => OwnedTypeUnsafeAccessors._valueTypeEnumerable(((CompiledModelTestBase.OwnedType)(entry.Entity))),
                 IEnumerable<byte> (IInternalEntry entry) => OwnedTypeUnsafeAccessors._valueTypeEnumerable(((CompiledModelTestBase.OwnedType)(entry.Entity))),
@@ -649,14 +633,12 @@ namespace TestNamespace
                 propertyAccessMode: PropertyAccessMode.Field,
                 nullable: true);
             valueTypeIList.SetGetter(
-                IList<byte> (CompiledModelTestBase.OwnedType entity) => OwnedTypeUnsafeAccessors.ValueTypeIList(entity),
-                bool (CompiledModelTestBase.OwnedType entity) => OwnedTypeUnsafeAccessors.ValueTypeIList(entity) == null,
                 IList<byte> (CompiledModelTestBase.OwnedType instance) => OwnedTypeUnsafeAccessors.ValueTypeIList(instance),
                 bool (CompiledModelTestBase.OwnedType instance) => OwnedTypeUnsafeAccessors.ValueTypeIList(instance) == null);
             valueTypeIList.SetSetter(
-                (CompiledModelTestBase.OwnedType entity, IList<byte> value) => OwnedTypeUnsafeAccessors.ValueTypeIList(entity) = value);
+                (CompiledModelTestBase.OwnedType entity, IReadOnlyList<int> indices, IList<byte> value) => OwnedTypeUnsafeAccessors.ValueTypeIList(entity) = value);
             valueTypeIList.SetMaterializationSetter(
-                (CompiledModelTestBase.OwnedType entity, IList<byte> value) => OwnedTypeUnsafeAccessors.ValueTypeIList(entity) = value);
+                (CompiledModelTestBase.OwnedType entity, IReadOnlyList<int> indices, IList<byte> value) => OwnedTypeUnsafeAccessors.ValueTypeIList(entity) = value);
             valueTypeIList.SetAccessors(
                 IList<byte> (IInternalEntry entry) => OwnedTypeUnsafeAccessors.ValueTypeIList(((CompiledModelTestBase.OwnedType)(entry.Entity))),
                 IList<byte> (IInternalEntry entry) => OwnedTypeUnsafeAccessors.ValueTypeIList(((CompiledModelTestBase.OwnedType)(entry.Entity))),
@@ -715,14 +697,12 @@ namespace TestNamespace
                 propertyAccessMode: PropertyAccessMode.Field,
                 nullable: true);
             valueTypeList.SetGetter(
-                List<short> (CompiledModelTestBase.OwnedType entity) => OwnedTypeUnsafeAccessors._valueTypeList(entity),
-                bool (CompiledModelTestBase.OwnedType entity) => OwnedTypeUnsafeAccessors._valueTypeList(entity) == null,
                 List<short> (CompiledModelTestBase.OwnedType instance) => OwnedTypeUnsafeAccessors._valueTypeList(instance),
                 bool (CompiledModelTestBase.OwnedType instance) => OwnedTypeUnsafeAccessors._valueTypeList(instance) == null);
             valueTypeList.SetSetter(
-                (CompiledModelTestBase.OwnedType entity, List<short> value) => OwnedTypeUnsafeAccessors._valueTypeList(entity) = value);
+                (CompiledModelTestBase.OwnedType entity, IReadOnlyList<int> indices, List<short> value) => OwnedTypeUnsafeAccessors._valueTypeList(entity) = value);
             valueTypeList.SetMaterializationSetter(
-                (CompiledModelTestBase.OwnedType entity, List<short> value) => OwnedTypeUnsafeAccessors._valueTypeList(entity) = value);
+                (CompiledModelTestBase.OwnedType entity, IReadOnlyList<int> indices, List<short> value) => OwnedTypeUnsafeAccessors._valueTypeList(entity) = value);
             valueTypeList.SetAccessors(
                 List<short> (IInternalEntry entry) => OwnedTypeUnsafeAccessors._valueTypeList(((CompiledModelTestBase.OwnedType)(entry.Entity))),
                 List<short> (IInternalEntry entry) => OwnedTypeUnsafeAccessors._valueTypeList(((CompiledModelTestBase.OwnedType)(entry.Entity))),
@@ -812,14 +792,12 @@ namespace TestNamespace
                 eagerLoaded: true);
 
             owned.SetGetter(
-                CompiledModelTestBase.OwnedType (CompiledModelTestBase.PrincipalBase entity) => PrincipalBaseUnsafeAccessors._ownedField(entity),
-                bool (CompiledModelTestBase.PrincipalBase entity) => PrincipalBaseUnsafeAccessors._ownedField(entity) == null,
                 CompiledModelTestBase.OwnedType (CompiledModelTestBase.PrincipalBase instance) => PrincipalBaseUnsafeAccessors._ownedField(instance),
                 bool (CompiledModelTestBase.PrincipalBase instance) => PrincipalBaseUnsafeAccessors._ownedField(instance) == null);
             owned.SetSetter(
-                (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.OwnedType value) => PrincipalBaseUnsafeAccessors._ownedField(entity) = value);
+                (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, CompiledModelTestBase.OwnedType value) => PrincipalBaseUnsafeAccessors._ownedField(entity) = value);
             owned.SetMaterializationSetter(
-                (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.OwnedType value) => PrincipalBaseUnsafeAccessors._ownedField(entity) = value);
+                (CompiledModelTestBase.PrincipalBase entity, IReadOnlyList<int> indices, CompiledModelTestBase.OwnedType value) => PrincipalBaseUnsafeAccessors._ownedField(entity) = value);
             owned.SetAccessors(
                 CompiledModelTestBase.OwnedType (IInternalEntry entry) => PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))),
                 CompiledModelTestBase.OwnedType (IInternalEntry entry) => PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))),
@@ -854,7 +832,7 @@ namespace TestNamespace
             runtimeEntityType.SetOriginalValuesFactory(
                 ISnapshot (IInternalEntry source) =>
                 {
-                    var entity8 = ((CompiledModelTestBase.OwnedType)(source.Entity));
+                    var structuralType8 = ((CompiledModelTestBase.OwnedType)(source.Entity));
                     return ((ISnapshot)(new Snapshot<long, Guid, string, int, IPAddress[], IEnumerable<string>, IList<string>, List<IPAddress>, DateTime[], IEnumerable<byte>, IList<byte>, List<short>>(((ValueComparer<long>)(((IProperty)principalBaseId).GetValueComparer())).Snapshot(source.GetCurrentValue<long>(principalBaseId)), ((ValueComparer<Guid>)(((IProperty)principalBaseAlternateId).GetValueComparer())).Snapshot(source.GetCurrentValue<Guid>(principalBaseAlternateId)), (source.GetCurrentValue<string>(details) == null ? null : ((ValueComparer<string>)(((IProperty)details).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(details))), ((ValueComparer<int>)(((IProperty)number).GetValueComparer())).Snapshot(source.GetCurrentValue<int>(number)), (((object)(source.GetCurrentValue<IPAddress[]>(refTypeArray))) == null ? null : ((IPAddress[])(((ValueComparer<object>)(((IProperty)refTypeArray).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IPAddress[]>(refTypeArray))))))), (((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable))) == null ? null : ((IEnumerable<string>)(((ValueComparer<object>)(((IProperty)refTypeEnumerable).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable))))))), (((object)(source.GetCurrentValue<IList<string>>(refTypeIList))) == null ? null : ((IList<string>)(((ValueComparer<object>)(((IProperty)refTypeIList).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IList<string>>(refTypeIList))))))), (((object)(source.GetCurrentValue<List<IPAddress>>(refTypeList))) == null ? null : ((List<IPAddress>)(((ValueComparer<object>)(((IProperty)refTypeList).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<List<IPAddress>>(refTypeList))))))), (((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray))) == null ? null : ((DateTime[])(((ValueComparer<IEnumerable<DateTime>>)(((IProperty)valueTypeArray).GetValueComparer())).Snapshot(((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray))))))), (source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable) == null ? null : ((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeEnumerable).GetValueComparer())).Snapshot(source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable))), (((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList))) == null ? null : ((IList<byte>)(((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeIList).GetValueComparer())).Snapshot(((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList))))))), (((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList))) == null ? null : ((List<short>)(((ValueComparer<IEnumerable<short>>)(((IProperty)valueTypeList).GetValueComparer())).Snapshot(((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList))))))))));
                 });
             runtimeEntityType.SetStoreGeneratedValuesFactory(
@@ -868,7 +846,7 @@ namespace TestNamespace
             runtimeEntityType.SetRelationshipSnapshotFactory(
                 ISnapshot (IInternalEntry source) =>
                 {
-                    var entity8 = ((CompiledModelTestBase.OwnedType)(source.Entity));
+                    var structuralType8 = ((CompiledModelTestBase.OwnedType)(source.Entity));
                     return ((ISnapshot)(new Snapshot<long, Guid>(((ValueComparer<long>)(((IProperty)principalBaseId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<long>(principalBaseId)), ((ValueComparer<Guid>)(((IProperty)principalBaseAlternateId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<Guid>(principalBaseAlternateId)))));
                 });
             runtimeEntityType.SetCounts(new PropertyCounts(

@@ -120,6 +120,12 @@ public class ClrPropertyGetterFactoryTest
         public PropertyAccessMode GetPropertyAccessMode()
             => throw new NotImplementedException();
 
+        public object GetClrValueUsingContainingEntity(object entity, IReadOnlyList<int> indices)
+            => throw new NotImplementedException();
+
+        public bool HasSentinelValueUsingContainingEntity(object entity, IReadOnlyList<int> indices)
+            => throw new NotImplementedException();
+
         public string Name { get; }
         public ITypeBase DeclaringType { get; }
         public Type ClrType { get; }

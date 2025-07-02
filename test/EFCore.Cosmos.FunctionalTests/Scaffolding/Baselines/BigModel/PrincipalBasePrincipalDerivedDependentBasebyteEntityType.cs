@@ -46,14 +46,12 @@ namespace TestNamespace
                 propertyInfo: runtimeEntityType.FindIndexerPropertyInfo(),
                 afterSaveBehavior: PropertySaveBehavior.Throw);
             derivedsId.SetGetter(
-                long (Dictionary<string, object> entity) => ((((IDictionary<string, object>)entity).ContainsKey("DerivedsId") ? entity["DerivedsId"] : null) == null ? 0L : ((long)((((IDictionary<string, object>)entity).ContainsKey("DerivedsId") ? entity["DerivedsId"] : null)))),
-                bool (Dictionary<string, object> entity) => (((IDictionary<string, object>)entity).ContainsKey("DerivedsId") ? entity["DerivedsId"] : null) == null,
                 long (Dictionary<string, object> instance) => ((((IDictionary<string, object>)instance).ContainsKey("DerivedsId") ? instance["DerivedsId"] : null) == null ? 0L : ((long)((((IDictionary<string, object>)instance).ContainsKey("DerivedsId") ? instance["DerivedsId"] : null)))),
                 bool (Dictionary<string, object> instance) => (((IDictionary<string, object>)instance).ContainsKey("DerivedsId") ? instance["DerivedsId"] : null) == null);
             derivedsId.SetSetter(
-                (Dictionary<string, object> entity, long value) => entity["DerivedsId"] = ((object)(value)));
+                (Dictionary<string, object> entity, IReadOnlyList<int> indices, long value) => entity["DerivedsId"] = ((object)(value)));
             derivedsId.SetMaterializationSetter(
-                (Dictionary<string, object> entity, long value) => entity["DerivedsId"] = ((object)(value)));
+                (Dictionary<string, object> entity, IReadOnlyList<int> indices, long value) => entity["DerivedsId"] = ((object)(value)));
             derivedsId.SetAccessors(
                 long (IInternalEntry entry) =>
                 {
@@ -112,14 +110,12 @@ namespace TestNamespace
                 propertyInfo: runtimeEntityType.FindIndexerPropertyInfo(),
                 afterSaveBehavior: PropertySaveBehavior.Throw);
             derivedsAlternateId.SetGetter(
-                Guid (Dictionary<string, object> entity) => ((((IDictionary<string, object>)entity).ContainsKey("DerivedsAlternateId") ? entity["DerivedsAlternateId"] : null) == null ? new Guid("00000000-0000-0000-0000-000000000000") : ((Guid)((((IDictionary<string, object>)entity).ContainsKey("DerivedsAlternateId") ? entity["DerivedsAlternateId"] : null)))),
-                bool (Dictionary<string, object> entity) => (((IDictionary<string, object>)entity).ContainsKey("DerivedsAlternateId") ? entity["DerivedsAlternateId"] : null) == null,
                 Guid (Dictionary<string, object> instance) => ((((IDictionary<string, object>)instance).ContainsKey("DerivedsAlternateId") ? instance["DerivedsAlternateId"] : null) == null ? new Guid("00000000-0000-0000-0000-000000000000") : ((Guid)((((IDictionary<string, object>)instance).ContainsKey("DerivedsAlternateId") ? instance["DerivedsAlternateId"] : null)))),
                 bool (Dictionary<string, object> instance) => (((IDictionary<string, object>)instance).ContainsKey("DerivedsAlternateId") ? instance["DerivedsAlternateId"] : null) == null);
             derivedsAlternateId.SetSetter(
-                (Dictionary<string, object> entity, Guid value) => entity["DerivedsAlternateId"] = ((object)(value)));
+                (Dictionary<string, object> entity, IReadOnlyList<int> indices, Guid value) => entity["DerivedsAlternateId"] = ((object)(value)));
             derivedsAlternateId.SetMaterializationSetter(
-                (Dictionary<string, object> entity, Guid value) => entity["DerivedsAlternateId"] = ((object)(value)));
+                (Dictionary<string, object> entity, IReadOnlyList<int> indices, Guid value) => entity["DerivedsAlternateId"] = ((object)(value)));
             derivedsAlternateId.SetAccessors(
                 Guid (IInternalEntry entry) =>
                 {
@@ -184,14 +180,12 @@ namespace TestNamespace
                 propertyInfo: runtimeEntityType.FindIndexerPropertyInfo(),
                 afterSaveBehavior: PropertySaveBehavior.Throw);
             principalsId.SetGetter(
-                long (Dictionary<string, object> entity) => ((((IDictionary<string, object>)entity).ContainsKey("PrincipalsId") ? entity["PrincipalsId"] : null) == null ? 0L : ((long)((((IDictionary<string, object>)entity).ContainsKey("PrincipalsId") ? entity["PrincipalsId"] : null)))),
-                bool (Dictionary<string, object> entity) => (((IDictionary<string, object>)entity).ContainsKey("PrincipalsId") ? entity["PrincipalsId"] : null) == null,
                 long (Dictionary<string, object> instance) => ((((IDictionary<string, object>)instance).ContainsKey("PrincipalsId") ? instance["PrincipalsId"] : null) == null ? 0L : ((long)((((IDictionary<string, object>)instance).ContainsKey("PrincipalsId") ? instance["PrincipalsId"] : null)))),
                 bool (Dictionary<string, object> instance) => (((IDictionary<string, object>)instance).ContainsKey("PrincipalsId") ? instance["PrincipalsId"] : null) == null);
             principalsId.SetSetter(
-                (Dictionary<string, object> entity, long value) => entity["PrincipalsId"] = ((object)(value)));
+                (Dictionary<string, object> entity, IReadOnlyList<int> indices, long value) => entity["PrincipalsId"] = ((object)(value)));
             principalsId.SetMaterializationSetter(
-                (Dictionary<string, object> entity, long value) => entity["PrincipalsId"] = ((object)(value)));
+                (Dictionary<string, object> entity, IReadOnlyList<int> indices, long value) => entity["PrincipalsId"] = ((object)(value)));
             principalsId.SetAccessors(
                 long (IInternalEntry entry) =>
                 {
@@ -250,14 +244,12 @@ namespace TestNamespace
                 propertyInfo: runtimeEntityType.FindIndexerPropertyInfo(),
                 afterSaveBehavior: PropertySaveBehavior.Throw);
             principalsAlternateId.SetGetter(
-                Guid (Dictionary<string, object> entity) => ((((IDictionary<string, object>)entity).ContainsKey("PrincipalsAlternateId") ? entity["PrincipalsAlternateId"] : null) == null ? new Guid("00000000-0000-0000-0000-000000000000") : ((Guid)((((IDictionary<string, object>)entity).ContainsKey("PrincipalsAlternateId") ? entity["PrincipalsAlternateId"] : null)))),
-                bool (Dictionary<string, object> entity) => (((IDictionary<string, object>)entity).ContainsKey("PrincipalsAlternateId") ? entity["PrincipalsAlternateId"] : null) == null,
                 Guid (Dictionary<string, object> instance) => ((((IDictionary<string, object>)instance).ContainsKey("PrincipalsAlternateId") ? instance["PrincipalsAlternateId"] : null) == null ? new Guid("00000000-0000-0000-0000-000000000000") : ((Guid)((((IDictionary<string, object>)instance).ContainsKey("PrincipalsAlternateId") ? instance["PrincipalsAlternateId"] : null)))),
                 bool (Dictionary<string, object> instance) => (((IDictionary<string, object>)instance).ContainsKey("PrincipalsAlternateId") ? instance["PrincipalsAlternateId"] : null) == null);
             principalsAlternateId.SetSetter(
-                (Dictionary<string, object> entity, Guid value) => entity["PrincipalsAlternateId"] = ((object)(value)));
+                (Dictionary<string, object> entity, IReadOnlyList<int> indices, Guid value) => entity["PrincipalsAlternateId"] = ((object)(value)));
             principalsAlternateId.SetMaterializationSetter(
-                (Dictionary<string, object> entity, Guid value) => entity["PrincipalsAlternateId"] = ((object)(value)));
+                (Dictionary<string, object> entity, IReadOnlyList<int> indices, Guid value) => entity["PrincipalsAlternateId"] = ((object)(value)));
             principalsAlternateId.SetAccessors(
                 Guid (IInternalEntry entry) =>
                 {
@@ -323,14 +315,12 @@ namespace TestNamespace
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 valueGeneratorFactory: new DiscriminatorValueGeneratorFactory().Create);
             type.SetGetter(
-                string (Dictionary<string, object> entity) => ((((IDictionary<string, object>)entity).ContainsKey("$type") ? entity["$type"] : null) == null ? null : ((string)((((IDictionary<string, object>)entity).ContainsKey("$type") ? entity["$type"] : null)))),
-                bool (Dictionary<string, object> entity) => (((IDictionary<string, object>)entity).ContainsKey("$type") ? entity["$type"] : null) == null,
                 string (Dictionary<string, object> instance) => ((((IDictionary<string, object>)instance).ContainsKey("$type") ? instance["$type"] : null) == null ? null : ((string)((((IDictionary<string, object>)instance).ContainsKey("$type") ? instance["$type"] : null)))),
                 bool (Dictionary<string, object> instance) => (((IDictionary<string, object>)instance).ContainsKey("$type") ? instance["$type"] : null) == null);
             type.SetSetter(
-                (Dictionary<string, object> entity, string value) => entity["$type"] = ((object)(value)));
+                (Dictionary<string, object> entity, IReadOnlyList<int> indices, string value) => entity["$type"] = ((object)(value)));
             type.SetMaterializationSetter(
-                (Dictionary<string, object> entity, string value) => entity["$type"] = ((object)(value)));
+                (Dictionary<string, object> entity, IReadOnlyList<int> indices, string value) => entity["$type"] = ((object)(value)));
             type.SetAccessors(
                 string (IInternalEntry entry) => ((string)((((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("$type") ? ((Dictionary<string, object>)(entry.Entity))["$type"] : null))),
                 string (IInternalEntry entry) => ((string)((((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("$type") ? ((Dictionary<string, object>)(entry.Entity))["$type"] : null))),
@@ -365,14 +355,12 @@ namespace TestNamespace
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 valueGeneratorFactory: new IdValueGeneratorFactory().Create);
             __id.SetGetter(
-                string (Dictionary<string, object> entity) => ((((IDictionary<string, object>)entity).ContainsKey("__id") ? entity["__id"] : null) == null ? null : ((string)((((IDictionary<string, object>)entity).ContainsKey("__id") ? entity["__id"] : null)))),
-                bool (Dictionary<string, object> entity) => (((IDictionary<string, object>)entity).ContainsKey("__id") ? entity["__id"] : null) == null,
                 string (Dictionary<string, object> instance) => ((((IDictionary<string, object>)instance).ContainsKey("__id") ? instance["__id"] : null) == null ? null : ((string)((((IDictionary<string, object>)instance).ContainsKey("__id") ? instance["__id"] : null)))),
                 bool (Dictionary<string, object> instance) => (((IDictionary<string, object>)instance).ContainsKey("__id") ? instance["__id"] : null) == null);
             __id.SetSetter(
-                (Dictionary<string, object> entity, string value) => entity["__id"] = ((object)(value)));
+                (Dictionary<string, object> entity, IReadOnlyList<int> indices, string value) => entity["__id"] = ((object)(value)));
             __id.SetMaterializationSetter(
-                (Dictionary<string, object> entity, string value) => entity["__id"] = ((object)(value)));
+                (Dictionary<string, object> entity, IReadOnlyList<int> indices, string value) => entity["__id"] = ((object)(value)));
             __id.SetAccessors(
                 string (IInternalEntry entry) => ((string)((((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("__id") ? ((Dictionary<string, object>)(entry.Entity))["__id"] : null))),
                 string (IInternalEntry entry) => ((string)((((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("__id") ? ((Dictionary<string, object>)(entry.Entity))["__id"] : null))),
@@ -410,14 +398,12 @@ namespace TestNamespace
                 beforeSaveBehavior: PropertySaveBehavior.Ignore,
                 afterSaveBehavior: PropertySaveBehavior.Ignore);
             __jObject.SetGetter(
-                JObject (Dictionary<string, object> entity) => ((((IDictionary<string, object>)entity).ContainsKey("__jObject") ? entity["__jObject"] : null) == null ? null : ((JObject)((((IDictionary<string, object>)entity).ContainsKey("__jObject") ? entity["__jObject"] : null)))),
-                bool (Dictionary<string, object> entity) => (((IDictionary<string, object>)entity).ContainsKey("__jObject") ? entity["__jObject"] : null) == null,
                 JObject (Dictionary<string, object> instance) => ((((IDictionary<string, object>)instance).ContainsKey("__jObject") ? instance["__jObject"] : null) == null ? null : ((JObject)((((IDictionary<string, object>)instance).ContainsKey("__jObject") ? instance["__jObject"] : null)))),
                 bool (Dictionary<string, object> instance) => (((IDictionary<string, object>)instance).ContainsKey("__jObject") ? instance["__jObject"] : null) == null);
             __jObject.SetSetter(
-                (Dictionary<string, object> entity, JObject value) => entity["__jObject"] = ((object)(value)));
+                (Dictionary<string, object> entity, IReadOnlyList<int> indices, JObject value) => entity["__jObject"] = ((object)(value)));
             __jObject.SetMaterializationSetter(
-                (Dictionary<string, object> entity, JObject value) => entity["__jObject"] = ((object)(value)));
+                (Dictionary<string, object> entity, IReadOnlyList<int> indices, JObject value) => entity["__jObject"] = ((object)(value)));
             __jObject.SetAccessors(
                 JObject (IInternalEntry entry) => (entry.FlaggedAsStoreGenerated(6) ? entry.ReadStoreGeneratedValue<JObject>(4) : (entry.FlaggedAsTemporary(6) && (((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("__jObject") ? ((Dictionary<string, object>)(entry.Entity))["__jObject"] : null) == null ? entry.ReadTemporaryValue<JObject>(4) : ((JObject)((((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("__jObject") ? ((Dictionary<string, object>)(entry.Entity))["__jObject"] : null))))),
                 JObject (IInternalEntry entry) => ((JObject)((((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("__jObject") ? ((Dictionary<string, object>)(entry.Entity))["__jObject"] : null))),
@@ -451,14 +437,12 @@ namespace TestNamespace
                 propertyInfo: runtimeEntityType.FindIndexerPropertyInfo(),
                 nullable: true);
             rowid.SetGetter(
-                byte[] (Dictionary<string, object> entity) => ((((IDictionary<string, object>)entity).ContainsKey("rowid") ? entity["rowid"] : null) == null ? null : ((byte[])((((IDictionary<string, object>)entity).ContainsKey("rowid") ? entity["rowid"] : null)))),
-                bool (Dictionary<string, object> entity) => (((IDictionary<string, object>)entity).ContainsKey("rowid") ? entity["rowid"] : null) == null,
                 byte[] (Dictionary<string, object> instance) => ((((IDictionary<string, object>)instance).ContainsKey("rowid") ? instance["rowid"] : null) == null ? null : ((byte[])((((IDictionary<string, object>)instance).ContainsKey("rowid") ? instance["rowid"] : null)))),
                 bool (Dictionary<string, object> instance) => (((IDictionary<string, object>)instance).ContainsKey("rowid") ? instance["rowid"] : null) == null);
             rowid.SetSetter(
-                (Dictionary<string, object> entity, byte[] value) => entity["rowid"] = ((object)(value)));
+                (Dictionary<string, object> entity, IReadOnlyList<int> indices, byte[] value) => entity["rowid"] = ((object)(value)));
             rowid.SetMaterializationSetter(
-                (Dictionary<string, object> entity, byte[] value) => entity["rowid"] = ((object)(value)));
+                (Dictionary<string, object> entity, IReadOnlyList<int> indices, byte[] value) => entity["rowid"] = ((object)(value)));
             rowid.SetAccessors(
                 byte[] (IInternalEntry entry) => ((byte[])((((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("rowid") ? ((Dictionary<string, object>)(entry.Entity))["rowid"] : null))),
                 byte[] (IInternalEntry entry) => ((byte[])((((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("rowid") ? ((Dictionary<string, object>)(entry.Entity))["rowid"] : null))),
@@ -537,7 +521,7 @@ namespace TestNamespace
             runtimeEntityType.SetOriginalValuesFactory(
                 ISnapshot (IInternalEntry source) =>
                 {
-                    var entity5 = ((Dictionary<string, object>)(source.Entity));
+                    var structuralType5 = ((Dictionary<string, object>)(source.Entity));
                     return ((ISnapshot)(new Snapshot<long, Guid, long, Guid, string, string, JObject, byte[]>(((ValueComparer<long>)(((IProperty)derivedsId).GetValueComparer())).Snapshot(source.GetCurrentValue<long>(derivedsId)), ((ValueComparer<Guid>)(((IProperty)derivedsAlternateId).GetValueComparer())).Snapshot(source.GetCurrentValue<Guid>(derivedsAlternateId)), ((ValueComparer<long>)(((IProperty)principalsId).GetValueComparer())).Snapshot(source.GetCurrentValue<long>(principalsId)), ((ValueComparer<Guid>)(((IProperty)principalsAlternateId).GetValueComparer())).Snapshot(source.GetCurrentValue<Guid>(principalsAlternateId)), (source.GetCurrentValue<string>(type) == null ? null : ((ValueComparer<string>)(((IProperty)type).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(type))), (source.GetCurrentValue<string>(__id) == null ? null : ((ValueComparer<string>)(((IProperty)__id).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(__id))), (source.GetCurrentValue<JObject>(__jObject) == null ? null : ((ValueComparer<JObject>)(((IProperty)__jObject).GetValueComparer())).Snapshot(source.GetCurrentValue<JObject>(__jObject))), (source.GetCurrentValue<byte[]>(rowid) == null ? null : ((ValueComparer<byte[]>)(((IProperty)rowid).GetValueComparer())).Snapshot(source.GetCurrentValue<byte[]>(rowid))))));
                 });
             runtimeEntityType.SetStoreGeneratedValuesFactory(
@@ -551,7 +535,7 @@ namespace TestNamespace
             runtimeEntityType.SetRelationshipSnapshotFactory(
                 ISnapshot (IInternalEntry source) =>
                 {
-                    var entity5 = ((Dictionary<string, object>)(source.Entity));
+                    var structuralType5 = ((Dictionary<string, object>)(source.Entity));
                     return ((ISnapshot)(new Snapshot<long, Guid, long, Guid>(((ValueComparer<long>)(((IProperty)derivedsId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<long>(derivedsId)), ((ValueComparer<Guid>)(((IProperty)derivedsAlternateId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<Guid>(derivedsAlternateId)), ((ValueComparer<long>)(((IProperty)principalsId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<long>(principalsId)), ((ValueComparer<Guid>)(((IProperty)principalsAlternateId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<Guid>(principalsAlternateId)))));
                 });
             runtimeEntityType.SetCounts(new PropertyCounts(

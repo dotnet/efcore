@@ -72,14 +72,12 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.Data).GetField("<Blob>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             blob.SetGetter(
-                byte[] (CompiledModelTestBase.Data entity) => DataUnsafeAccessors.Blob(entity),
-                bool (CompiledModelTestBase.Data entity) => DataUnsafeAccessors.Blob(entity) == null,
                 byte[] (CompiledModelTestBase.Data instance) => DataUnsafeAccessors.Blob(instance),
                 bool (CompiledModelTestBase.Data instance) => DataUnsafeAccessors.Blob(instance) == null);
             blob.SetSetter(
-                (CompiledModelTestBase.Data entity, byte[] value) => DataUnsafeAccessors.Blob(entity) = value);
+                (CompiledModelTestBase.Data entity, IReadOnlyList<int> indices, byte[] value) => DataUnsafeAccessors.Blob(entity) = value);
             blob.SetMaterializationSetter(
-                (CompiledModelTestBase.Data entity, byte[] value) => DataUnsafeAccessors.Blob(entity) = value);
+                (CompiledModelTestBase.Data entity, IReadOnlyList<int> indices, byte[] value) => DataUnsafeAccessors.Blob(entity) = value);
             blob.SetAccessors(
                 byte[] (IInternalEntry entry) => DataUnsafeAccessors.Blob(((CompiledModelTestBase.Data)(entry.Entity))),
                 byte[] (IInternalEntry entry) => DataUnsafeAccessors.Blob(((CompiledModelTestBase.Data)(entry.Entity))),
@@ -126,7 +124,7 @@ namespace TestNamespace
             runtimeEntityType.SetOriginalValuesFactory(
                 ISnapshot (IInternalEntry source) =>
                 {
-                    var entity = ((CompiledModelTestBase.Data)(source.Entity));
+                    var structuralType = ((CompiledModelTestBase.Data)(source.Entity));
                     return ((ISnapshot)(new Snapshot<int, byte[]>(((ValueComparer<int>)(((IProperty)id).GetValueComparer())).Snapshot(source.GetCurrentValue<int>(id)), (source.GetCurrentValue<byte[]>(blob) == null ? null : ((ValueComparer<byte[]>)(((IProperty)blob).GetValueComparer())).Snapshot(source.GetCurrentValue<byte[]>(blob))))));
                 });
             runtimeEntityType.SetStoreGeneratedValuesFactory(
@@ -140,7 +138,7 @@ namespace TestNamespace
             runtimeEntityType.SetRelationshipSnapshotFactory(
                 ISnapshot (IInternalEntry source) =>
                 {
-                    var entity = ((CompiledModelTestBase.Data)(source.Entity));
+                    var structuralType = ((CompiledModelTestBase.Data)(source.Entity));
                     return ((ISnapshot)(new Snapshot<int>(((ValueComparer<int>)(((IProperty)id).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<int>(id)))));
                 });
             runtimeEntityType.SetCounts(new PropertyCounts(

@@ -38,14 +38,12 @@ namespace TestNamespace
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 providerPropertyType: typeof(int));
             id.SetGetter(
-                int (Dictionary<string, object> entity) => ((((IDictionary<string, object>)entity).ContainsKey("Id") ? entity["Id"] : null) == null ? 0 : ((int)((((IDictionary<string, object>)entity).ContainsKey("Id") ? entity["Id"] : null)))),
-                bool (Dictionary<string, object> entity) => (((IDictionary<string, object>)entity).ContainsKey("Id") ? entity["Id"] : null) == null,
                 int (Dictionary<string, object> instance) => ((((IDictionary<string, object>)instance).ContainsKey("Id") ? instance["Id"] : null) == null ? 0 : ((int)((((IDictionary<string, object>)instance).ContainsKey("Id") ? instance["Id"] : null)))),
                 bool (Dictionary<string, object> instance) => (((IDictionary<string, object>)instance).ContainsKey("Id") ? instance["Id"] : null) == null);
             id.SetSetter(
-                (Dictionary<string, object> entity, int value) => entity["Id"] = ((object)(value)));
+                (Dictionary<string, object> entity, IReadOnlyList<int> indices, int value) => entity["Id"] = ((object)(value)));
             id.SetMaterializationSetter(
-                (Dictionary<string, object> entity, int value) => entity["Id"] = ((object)(value)));
+                (Dictionary<string, object> entity, IReadOnlyList<int> indices, int value) => entity["Id"] = ((object)(value)));
             id.SetAccessors(
                 int (IInternalEntry entry) =>
                 {
@@ -118,7 +116,7 @@ namespace TestNamespace
             runtimeEntityType.SetOriginalValuesFactory(
                 ISnapshot (IInternalEntry source) =>
                 {
-                    var entity = ((Dictionary<string, object>)(source.Entity));
+                    var structuralType = ((Dictionary<string, object>)(source.Entity));
                     return ((ISnapshot)(new Snapshot<int>(((ValueComparer<int>)(((IProperty)id).GetValueComparer())).Snapshot(source.GetCurrentValue<int>(id)))));
                 });
             runtimeEntityType.SetStoreGeneratedValuesFactory(
@@ -132,7 +130,7 @@ namespace TestNamespace
             runtimeEntityType.SetRelationshipSnapshotFactory(
                 ISnapshot (IInternalEntry source) =>
                 {
-                    var entity = ((Dictionary<string, object>)(source.Entity));
+                    var structuralType = ((Dictionary<string, object>)(source.Entity));
                     return ((ISnapshot)(new Snapshot<int>(((ValueComparer<int>)(((IProperty)id).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<int>(id)))));
                 });
             runtimeEntityType.SetCounts(new PropertyCounts(

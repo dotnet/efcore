@@ -135,7 +135,7 @@ public abstract class EventIdTestBase
                     testDiagnostics.EnableFor = enableFor;
 
                     var logged = false;
-                    foreach (LogLevel logLevel in Enum.GetValues(typeof(LogLevel)))
+                    foreach (var logLevel in Enum.GetValues<LogLevel>())
                     {
                         testLogger.EnabledFor = logLevel;
                         testLogger.LoggedAt = null;

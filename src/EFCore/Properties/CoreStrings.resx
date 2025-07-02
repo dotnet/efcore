@@ -306,6 +306,39 @@
   <data name="CompiledQueryDifferentModel" xml:space="preserve">
     <value>The compiled query '{queryExpression}' was executed with a different model than it was compiled against. Compiled queries can only be used with a single model.</value>
   </data>
+  <data name="ComplexCollectionEntryDeletedEntity" xml:space="preserve">
+    <value>The complex entry at ordinal '{ordinal}' for the collection '{declaringType}.{collection}' cannot be accessed as the containing entry is in the deleted state.</value>
+  </data>
+  <data name="ComplexCollectionEntryOrdinalInvalid" xml:space="preserve">
+    <value>Complex entry ordinal '{ordinal}' is invalid for the collection '{declaringType}.{collection}' as it's outside of the collection of length '{count}'.</value>
+  </data>
+  <data name="ComplexCollectionEntryOrdinalReadOnly" xml:space="preserve">
+    <value>Cannot change the ordinal of an entry of the  '{collectionDeclaringType}.{collection}'  complex collection unless it's detached or deleted.</value>
+  </data>
+  <data name="ComplexCollectionEntryOriginalNull" xml:space="preserve">
+    <value>The original entries cannot be accessed for the complex type collection '{declaringType}.{collection}' as it was originally 'null'.</value>
+  </data>
+  <data name="ComplexCollectionEntryOriginalOrdinalInvalid" xml:space="preserve">
+    <value>Complex entry original ordinal '{ordinal}' is invalid for property '{declaringType}.{collection}' as it's outside of the collection of length '{count}'.</value>
+  </data>
+  <data name="ComplexCollectionEntryOriginalOrdinalReadOnly" xml:space="preserve">
+    <value>Cannot change the original ordinal of an entry of the '{collectionDeclaringType}.{collection}' complex collection unless it's detached or added.</value>
+  </data>
+  <data name="ComplexCollectionIsReference" xml:space="preserve">
+    <value>The property '{entityType}.{property}' is being accessed using '{collectionMethod}', but is defined in the model as a non-collection complex property. Use '{referenceMethod}' to access non-collection complex properties.</value>
+  </data>
+  <data name="ComplexCollectionMoveInvalidOrdinals" xml:space="preserve">
+    <value>The ordinals specified for the move operation are invalid: from '{fromOrdinal}' to '{toOrdinal}'. The collection only has '{count}' entries.</value>
+  </data>
+  <data name="ComplexCollectionNotInitialized" xml:space="preserve">
+    <value>The complex type collection '{entityType}.{collection}' must be initialized to a non-null value before the elements can be accessed.</value>
+  </data>
+  <data name="ComplexCollectionNullElementSetter" xml:space="preserve">
+    <value>The value for the property '{complexType}.{property}' cannot be set, because it's on the complex type collection element '{collectionDeclaringType}.{collection}[{ordinal}]' that contains a null value.</value>
+  </data>
+  <data name="ComplexCollectionOriginalEntryAddedEntity" xml:space="preserve">
+    <value>The complex entry at the original ordinal '{ordinal}' for the collection '{declaringType}.{collection}' cannot be accessed as the containing entry is in the added state.</value>
+  </data>
   <data name="ComplexCollectionWrongClrType" xml:space="preserve">
     <value>The collection complex property '{property}' cannot be added to the type '{type}' because its CLR type '{clrType}' does not implement 'IEnumerable&lt;{targetType}&gt;'. Collection complex property must implement IEnumerable&lt;&gt; of the complex type.</value>
   </data>
@@ -324,8 +357,17 @@
   <data name="ComplexPropertyWrongClrType" xml:space="preserve">
     <value>The complex property '{property}' cannot be added to the type '{type}' because its CLR type '{clrType}' does not match the expected CLR type '{targetType}'.</value>
   </data>
+  <data name="ComplexReferenceIsCollection" xml:space="preserve">
+    <value>The property '{entityType}.{property}' is being accessed using the '{referenceMethod}' method, but is defined in the model as a collection complex property. Use the '{collectionMethod}' method to access collection complex properties.</value>
+  </data>
+  <data name="ComplexTypeNotificationChangeTracking" xml:space="preserve">
+    <value>Complex type '{complexType}' uses change tracking strategy '{changeTrackingStrategy}', but complex types with notification change tracking are not supported. See https://github.com/dotnet/efcore/issues/36175 for more information.</value>
+  </data>
   <data name="ComplexTypesNotSupported" xml:space="preserve">
     <value>'{service}' doesn't currently support complex types.</value>
+  </data>
+  <data name="ComplexValueTypeCollection" xml:space="preserve">
+    <value>The complex type collection '{type}.{property}' cannot be configured because complex value type collections are not supported. See https://github.com/dotnet/efcore/issues/31411 for more information.</value>
   </data>
   <data name="CompositeFkOnProperty" xml:space="preserve">
     <value>There are multiple properties with the [ForeignKey] attribute pointing to navigation '{1_entityType}.{0_navigation}'. To define a composite foreign key using data annotations, use the [ForeignKey] attribute on the navigation.</value>
@@ -364,7 +406,7 @@
     <value>The constructors '{firstConstructor}' and '{secondConstructor}' have the same number of parameters, and can both be used by Entity Framework. The constructor to be used must be configured in 'OnModelCreating'.</value>
   </data>
   <data name="ConstructorNotFound" xml:space="preserve">
-    <value>No suitable constructor was found for entity type '{entityType}'. The following constructors had parameters that could not be bound to properties of the entity type: {constructors}Note that only mapped properties can be bound to constructor parameters. Navigations to related entities, including references to owned types, cannot be bound.</value>
+    <value>No suitable constructor was found for the type '{type}'. The following constructors had parameters that could not be bound to properties of the type: {constructors}Note that only mapped properties can be bound to constructor parameters. Navigations to related entities, including references to owned types, cannot be bound.</value>
   </data>
   <data name="ContextDisposed" xml:space="preserve">
     <value>Cannot access a disposed context instance. A common cause of this error is disposing a context instance that was resolved from dependency injection and then later trying to use the same context instance elsewhere in your application. This may occur if you are calling 'Dispose' on the context instance, or wrapping it in a using statement. If you are using dependency injection, you should let the dependency injection container take care of disposing context instances.</value>
@@ -837,6 +879,14 @@
   <data name="LogCollectionWithoutComparer" xml:space="preserve">
     <value>The property '{entityType}.{property}' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.</value>
     <comment>Warning CoreEventId.CollectionWithoutComparer string string</comment>
+  </data>
+  <data name="LogComplexTypePropertyChangeDetected" xml:space="preserve">
+    <value>The unchanged property '{typePath}.{property}' was detected as changed and will be marked as modified. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see property values.</value>
+    <comment>Debug CoreEventId.ComplexTypePropertyChangeDetected string string</comment>
+  </data>
+  <data name="LogComplexTypePropertyChangeDetectedSensitive" xml:space="preserve">
+    <value>The unchanged property '{typePath}.{property}' was detected as changed from '{oldValue}' to '{newValue}' and will be marked as modified for entity with key '{keyValues}'.</value>
+    <comment>Debug CoreEventId.ComplexTypePropertyChangeDetected string string object? object? string</comment>
   </data>
   <data name="LogConflictingForeignKeyAttributesOnNavigationAndProperty" xml:space="preserve">
     <value>The relationship was separated into two relationships because the [ForeignKey] attribute specified on the navigation '{navigationEntityType}.{navigation}' doesn't match the [ForeignKey] attribute specified on the property '{propertyEntityType}.{property}'.</value>
