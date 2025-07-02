@@ -96,7 +96,39 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 function);
 
         /// <summary>
-        ///     The optional complex property '{type}.{property}' is mapped using table sharing, but only contains optional properties. Add a required property or discriminator or map this complex property to a JSON column.
+        ///     Complex property '{complexProperty}' cannot have both a JSON column name ('{columnName}') and a JSON property name ('{propertyName}') configured. Use ToJson() to map to a JSON column or HasJsonPropertyName() to map as a JSON property within a containing JSON column, but not both.
+        /// </summary>
+        public static string ComplexPropertyBothJsonColumnAndJsonPropertyName(object? complexProperty, object? columnName, object? propertyName)
+            => string.Format(
+                GetString("ComplexPropertyBothJsonColumnAndJsonPropertyName", nameof(complexProperty), nameof(columnName), nameof(propertyName)),
+                complexProperty, columnName, propertyName);
+
+        /// <summary>
+        ///     Complex property '{property1}' and '{property2}' are both configured to use the same JSON property name '{jsonPropertyName}'. Each property within a JSON-mapped type must have a unique JSON property name.
+        /// </summary>
+        public static string ComplexPropertyJsonPropertyNameConflict(object? property1, object? property2, object? jsonPropertyName)
+            => string.Format(
+                GetString("ComplexPropertyJsonPropertyNameConflict", nameof(property1), nameof(property2), nameof(jsonPropertyName)),
+                property1, property2, jsonPropertyName);
+
+        /// <summary>
+        ///     Complex property '{complexProperty}' cannot use 'HasJsonPropertyName()' because it is not contained within a JSON-mapped type. Use 'ToJson()' to map the complex property to a JSON column, or ensure it is contained within a type that is mapped to JSON.
+        /// </summary>
+        public static string ComplexPropertyJsonPropertyNameWithoutJsonMapping(object? complexProperty)
+            => string.Format(
+                GetString("ComplexPropertyJsonPropertyNameWithoutJsonMapping", nameof(complexProperty)),
+                complexProperty);
+
+        /// <summary>
+        ///     Property '{property}' cannot have both a column name ('{columnName}') and a JSON property name ('{jsonPropertyName}') configured. Properties in JSON-mapped types should use JSON property names, not column names.
+        /// </summary>
+        public static string PropertyBothColumnNameAndJsonPropertyName(object? property, object? columnName, object? jsonPropertyName)
+            => string.Format(
+                GetString("PropertyBothColumnNameAndJsonPropertyName", nameof(property), nameof(columnName), nameof(jsonPropertyName)),
+                property, columnName, jsonPropertyName);
+
+        /// <summary>
+        ///     The optional complex property '{type}.{property}' is mapped to columns by flattening the contained properties, but it only contains optional properties. Add a required property or discriminator or map this complex property to a JSON column.
         /// </summary>
         public static string ComplexPropertyOptionalTableSharing(object? type, object? property)
             => string.Format(
@@ -654,7 +686,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("EmptyCollectionNotSupportedAsInlineQueryRoot");
 
         /// <summary>
-        ///     The short name for '{entityType1}' is '{discriminatorValue}' which is the same for '{entityType2}'. Every concrete entity type in the hierarchy must have a unique short name. Either rename one of the types or call modelBuilder.Entity&lt;TRoot&gt;().Metadata.SetDiscriminatorValue("NewShortName").
+        ///     The short name for '{entityType1}' is '{discriminatorValue}' which is the same for '{entityType2}'. Every concrete entity type in the hierarchy must have a unique short name. Either rename one of the types or call modelBuilder.Entity&lt;TEntity&gt;().Metadata.SetDiscriminatorValue("NewShortName").
         /// </summary>
         public static string EntityShortNameNotUnique(object? entityType1, object? discriminatorValue, object? entityType2)
             => string.Format(
@@ -1194,14 +1226,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 jsonEntity, expectedCount, actualCount);
 
         /// <summary>
-        ///     Entity '{jsonEntity}' is mapped to JSON and contains multiple properties or navigations which are mapped to the same JSON property '{property}'. Each property should map to a unique JSON property.
-        /// </summary>
-        public static string JsonEntityWithMultiplePropertiesMappedToSameJsonProperty(object? jsonEntity, object? property)
-            => string.Format(
-                GetString("JsonEntityWithMultiplePropertiesMappedToSameJsonProperty", nameof(jsonEntity), nameof(property)),
-                jsonEntity, property);
-
-        /// <summary>
         ///     Entity type '{rootType}' references entities mapped to JSON. Only TPH inheritance is supported for those entities.
         /// </summary>
         public static string JsonEntityWithNonTphInheritanceOnOwner(object? rootType)
@@ -1236,6 +1260,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         public static string JsonNodeMustBeHandledByProviderSpecificVisitor
             => GetString("JsonNodeMustBeHandledByProviderSpecificVisitor");
+
+        /// <summary>
+        ///     Both '{property1}' and '{property2}' on `{type}` are configured to use the same JSON property name '{jsonPropertyName}'. Each property within a JSON-mapped type must have a unique JSON property name.
+        /// </summary>
+        public static string JsonObjectWithMultiplePropertiesMappedToSameJsonProperty(object? property1, object? property2, object? type, object? jsonPropertyName)
+            => string.Format(
+                GetString("JsonObjectWithMultiplePropertiesMappedToSameJsonProperty", nameof(property1), nameof(property2), nameof(type), nameof(jsonPropertyName)),
+                property1, property2, type, jsonPropertyName);
 
         /// <summary>
         ///     Using a parameter to access the element of a JSON collection '{entityTypeName}' is not supported when using '{asNoTrackingWithIdentityResolution}'. Use a constant, or project the entire JSON entity collection instead.
@@ -2168,7 +2200,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 nodeType, expressionType);
 
         /// <summary>
-        ///     No relational type mapping can be found for property '{entity}.{property}' and the current provider doesn't specify a default store type for the properties of type '{clrType}'.
+        ///     No relational type mapping can be found for property '{entity}.{property}' and the current provider doesn't specify a default store type for the properties of type '{clrType}'. 
         /// </summary>
         public static string UnsupportedPropertyType(object? entity, object? property, object? clrType)
             => string.Format(
@@ -2844,6 +2876,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
+        ///     A connection open was canceled to database '{database}' on server '{server}'.
+        /// </summary>
+        public static EventDefinition<string, string> LogConnectionCanceled(IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogConnectionCanceled;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogConnectionCanceled,
+                    logger,
+                    static logger => new EventDefinition<string, string>(
+                        logger.Options,
+                        RelationalEventId.ConnectionCanceled,
+                        LogLevel.Debug,
+                        "RelationalEventId.ConnectionCanceled",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            RelationalEventId.ConnectionCanceled,
+                            _resourceManager.GetString("LogConnectionCanceled")!)));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
+
+        /// <summary>
         ///     Created DbConnection. ({elapsed}ms).
         /// </summary>
         public static EventDefinition<int> LogConnectionCreated(IDiagnosticsLogger logger)
@@ -2988,31 +3045,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                             level,
                             RelationalEventId.ConnectionError,
                             _resourceManager.GetString("LogConnectionErrorAsDebug")!)));
-            }
-
-            return (EventDefinition<string, string>)definition;
-        }
-
-        /// <summary>
-        ///     A connection open was canceled to database '{database}' on server '{server}'.
-        /// </summary>
-        public static EventDefinition<string, string> LogConnectionCanceled(IDiagnosticsLogger logger)
-        {
-            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogConnectionCanceled;
-            if (definition == null)
-            {
-                definition = NonCapturingLazyInitializer.EnsureInitialized(
-                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogConnectionCanceled,
-                    logger,
-                    static logger => new EventDefinition<string, string>(
-                        logger.Options,
-                        RelationalEventId.ConnectionCanceled,
-                        LogLevel.Debug,
-                        "RelationalEventId.ConnectionCanceled",
-                        level => LoggerMessage.Define<string, string>(
-                            level,
-                            RelationalEventId.ConnectionCanceled,
-                            _resourceManager.GetString("LogConnectionCanceled")!)));
             }
 
             return (EventDefinition<string, string>)definition;

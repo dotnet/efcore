@@ -309,7 +309,7 @@ public class RelationalModel : Annotatable, IRelationalModel
             }
             else
             {
-                CreateDefaultColumnMapping(entityType, mappedType, defaultTable, tableMapping, isTph, isTpc);
+                CreateDefaultColumnMapping(entityType, mappedType, defaultTable, tableMapping, isTph, isTpc, relationalTypeMappingSource);
             }
 
             if (((ITableMappingBase)tableMapping).ColumnMappings.Any()
@@ -336,7 +336,8 @@ public class RelationalModel : Annotatable, IRelationalModel
         TableBase defaultTable,
         TableMappingBase<ColumnMappingBase> tableMapping,
         bool isTph,
-        bool isTpc)
+        bool isTpc,
+        IRelationalTypeMappingSource relationalTypeMappingSource)
     {
         foreach (var property in typeBase.GetProperties())
         {
@@ -371,7 +372,7 @@ public class RelationalModel : Annotatable, IRelationalModel
             var complexType = complexProperty.ComplexType;
             tableMapping = new TableMappingBase<ColumnMappingBase>(complexType, defaultTable, includesDerivedTypes: null);
 
-            CreateDefaultColumnMapping(complexType, complexType, defaultTable, tableMapping, isTph, isTpc);
+            CreateDefaultColumnMapping(complexType, complexType, defaultTable, tableMapping, isTph, isTpc, relationalTypeMappingSource);
 
             var tableMappings = (List<TableMappingBase<ColumnMappingBase>>?)complexType
                 .FindRuntimeAnnotationValue(RelationalAnnotationNames.DefaultMappings);
@@ -511,7 +512,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         if (!string.IsNullOrEmpty(containerColumnName))
         {
             CreateContainerColumn(
-                table, containerColumnName, containerColumnType, (IEntityType)mappedType, relationalTypeMappingSource,
+                table, containerColumnName, containerColumnType, mappedType, relationalTypeMappingSource,
                 static (colName, colType, table, mapping) => new JsonColumn(colName, colType ?? mapping.StoreType, (Table)table, mapping));
         }
         else
@@ -542,6 +543,8 @@ public class RelationalModel : Annotatable, IRelationalModel
                 CreateColumnMapping(column, property, tableMapping);
             }
 
+            // TODO: Change this to call GetComplexProperties()
+            // Issue #31248
             foreach (var complexProperty in mappedType.GetDeclaredComplexProperties())
             {
                 var complexType = complexProperty.ComplexType;
@@ -585,19 +588,32 @@ public class RelationalModel : Annotatable, IRelationalModel
         TableBase tableBase,
         string containerColumnName,
         string? containerColumnType,
-        IEntityType mappedType,
+        ITypeBase mappedType,
         IRelationalTypeMappingSource relationalTypeMappingSource,
         Func<string, string?, TableBase, RelationalTypeMapping, ColumnBase<TColumnMappingBase>> createColumn)
         where TColumnMappingBase : class, IColumnMappingBase
     {
-        var ownership = mappedType.GetForeignKeys().Single(fk => fk.IsOwnership);
-        if (!ownership.PrincipalEntityType.IsMappedToJson())
+        IForeignKey? ownership = null;
+        if (mappedType is IEntityType entityType)
         {
-            Check.DebugAssert(tableBase.FindColumn(containerColumnName) == null, $"Table does not have column '{containerColumnName}'.");
+            ownership = entityType.GetForeignKeys().SingleOrDefault(fk => fk.IsOwnership);
+        }
 
-            var jsonColumnTypeMapping = relationalTypeMappingSource.FindMapping(typeof(JsonTypePlaceholder), storeTypeName: containerColumnType)!;
-            var jsonColumn = createColumn(containerColumnName, containerColumnType, tableBase, jsonColumnTypeMapping);
-            tableBase.Columns.Add(containerColumnName, jsonColumn);
+        var shouldCreateJsonColumn = (ownership != null && !ownership.PrincipalEntityType.IsMappedToJson())
+            || (mappedType is IComplexType complexType && !complexType.ComplexProperty.DeclaringType.IsMappedToJson());
+        if (!shouldCreateJsonColumn)
+        {
+            return;
+        }
+
+        Check.DebugAssert(tableBase.FindColumn(containerColumnName) == null, $"Table '{tableBase.Name}' already has a '{containerColumnName}' column.");
+
+        var jsonColumnTypeMapping = relationalTypeMappingSource.FindMapping(typeof(JsonTypePlaceholder), storeTypeName: containerColumnType)!;
+        var jsonColumn = createColumn(containerColumnName, containerColumnType, tableBase, jsonColumnTypeMapping);
+        tableBase.Columns.Add(containerColumnName, jsonColumn);
+
+        if (ownership != null)
+        {
             jsonColumn.IsNullable = !ownership.IsRequiredDependent || !ownership.IsUnique;
 
             if (ownership.PrincipalEntityType.BaseType != null)
@@ -605,6 +621,13 @@ public class RelationalModel : Annotatable, IRelationalModel
                 // if navigation is defined on a derived type, the column must be made nullable
                 jsonColumn.IsNullable = true;
             }
+        }
+        else
+        {
+            complexType = ((IComplexType)mappedType);
+#pragma warning disable EF1001 // Internal EF Core API usage.
+            jsonColumn.IsNullable = complexType.ComplexProperty.IsNullable || complexType.ComplexProperty.GetChainToComplexProperty().Any(p => p.IsNullable);
+#pragma warning restore EF1001 // Internal EF Core API usage.
         }
     }
 
