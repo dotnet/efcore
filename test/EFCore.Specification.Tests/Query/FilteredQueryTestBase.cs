@@ -32,7 +32,7 @@ public abstract class FilteredQueryTestBase<TFixture>(TFixture fixture) : QueryT
         [CallerMemberName] string testMethodName = null)
         where TResult : class
         => QueryAsserter.AssertQuery(
-            actualQuery, expectedQuery, elementSorter, elementAsserter, assertOrder, assertEmpty, async, testMethodName,
+            actualQuery, expectedQuery, elementSorter, elementAsserter, assertOrder, assertEmpty, async, queryTrackingBehavior: null, testMethodName,
             filteredQuery: true);
 
     public Task AssertFilteredQueryScalar<TResult>(
