@@ -2,8 +2,9 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.BulkUpdates;
-using Microsoft.EntityFrameworkCore.Query.Relationships.Include;
-using Microsoft.EntityFrameworkCore.Query.Relationships.Projection;
+using Microsoft.EntityFrameworkCore.Query.Relationships;
+using Microsoft.EntityFrameworkCore.Query.Relationships.Navigations;
+using Microsoft.EntityFrameworkCore.Query.Relationships.OwnedNavigations;
 
 namespace Microsoft.EntityFrameworkCore;
 
@@ -29,25 +30,11 @@ public class InMemoryComplianceTest : ComplianceTestBase
         typeof(JsonQueryTestBase<>),
         typeof(AdHocJsonQueryTestBase),
 
-        // TODO: implement later once things are baked
-        typeof(NavigationNoTrackingProjectionTestBase<>),
-        typeof(NavigationProjectionTestBase<>),
-        typeof(OwnedJsonNoTrackingProjectionTestBase<>),
-        typeof(OwnedJsonProjectionTestBase<>),
-        typeof(OwnedNoTrackingProjectionTestBase<>),
-        typeof(OwnedProjectionTestBase<>),
-        typeof(ProjectionTestBase<>),
-        typeof(NavigationIncludeTestBase<>),
-
-        typeof(ComplexNoTrackingProjectionTestBase<>),
-        typeof(ComplexProjectionTestBase<>),
-        typeof(NavigationReferenceNoTrackingProjectionTestBase<>),
-        typeof(NavigationReferenceProjectionTestBase<>),
-        typeof(OwnedJsonReferenceNoTrackingProjectionTestBase<>),
-        typeof(OwnedJsonReferenceProjectionTestBase<>),
-        typeof(OwnedReferenceNoTrackingProjectionTestBase<>),
-        typeof(OwnedReferenceProjectionTestBase<>),
-        typeof(ReferenceProjectionTestBase<>),
+        // TODO: implement later once things are baked (#33985)
+        typeof(RelationshipsProjectionTestBase<>),
+        typeof(OwnedNavigationsProjectionTestBase<>),
+        typeof(NavigationsIncludeTestBase<>),
+        typeof(NavigationsProjectionTestBase<>)
     };
 
     protected override Assembly TargetAssembly { get; } = typeof(InMemoryComplianceTest).Assembly;

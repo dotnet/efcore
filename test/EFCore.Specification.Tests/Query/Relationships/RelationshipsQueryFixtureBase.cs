@@ -26,6 +26,6 @@ public abstract class RelationshipsQueryFixtureBase : SharedStoreFixtureBase<Rel
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
-        modelBuilder.Entity<RelationshipsRootEntity>().Property(x => x.Id).ValueGeneratedNever();
+        modelBuilder.Entity<RelationshipsRoot>().Property(x => x.Id).ValueGeneratedNever();
     }
 }
