@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
@@ -11,10 +12,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
 /// </remarks>
-public class RuntimeComplexProperty : RuntimePropertyBase, IComplexProperty
+public class RuntimeComplexProperty : RuntimePropertyBase, IRuntimeComplexProperty
 {
     private readonly bool _isNullable;
-    private readonly bool _isCollection;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -37,6 +37,8 @@ public class RuntimeComplexProperty : RuntimePropertyBase, IComplexProperty
         ChangeTrackingStrategy changeTrackingStrategy,
         PropertyInfo? indexerPropertyInfo,
         bool propertyBag,
+        string? discriminatorProperty,
+        object? discriminatorValue,
         int propertyCount,
         int complexPropertyCount)
         : base(name, propertyInfo, fieldInfo, propertyAccessMode)
@@ -44,9 +46,10 @@ public class RuntimeComplexProperty : RuntimePropertyBase, IComplexProperty
         DeclaringType = declaringType;
         ClrType = clrType;
         _isNullable = nullable;
-        _isCollection = collection;
+        IsCollection = collection;
         ComplexType = new RuntimeComplexType(
             targetTypeName, targetType, this, changeTrackingStrategy, indexerPropertyInfo, propertyBag,
+            discriminatorProperty, discriminatorValue,
             propertyCount: propertyCount,
             complexPropertyCount: complexPropertyCount);
     }
@@ -66,6 +69,9 @@ public class RuntimeComplexProperty : RuntimePropertyBase, IComplexProperty
     ///     Gets the type of value that this property-like object holds.
     /// </summary>
     public virtual RuntimeComplexType ComplexType { get; }
+
+    /// <inheritdoc />
+    public override bool IsCollection { get; }
 
     /// <inheritdoc />
     public override object? Sentinel
@@ -124,12 +130,5 @@ public class RuntimeComplexProperty : RuntimePropertyBase, IComplexProperty
     {
         [DebuggerStepThrough]
         get => _isNullable;
-    }
-
-    /// <inheritdoc />
-    bool IReadOnlyComplexProperty.IsCollection
-    {
-        [DebuggerStepThrough]
-        get => _isCollection;
     }
 }

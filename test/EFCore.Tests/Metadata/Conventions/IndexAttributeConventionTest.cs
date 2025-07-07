@@ -78,7 +78,7 @@ public class IndexAttributeConventionTest
         var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
 
         Assert.Equal(
-            AbstractionsStrings.CollectionArgumentIsEmpty("propertyNames"),
+            $"{AbstractionsStrings.CollectionArgumentIsEmpty} (Parameter 'propertyNames')",
             Assert.Throws<ArgumentException>(
                 () => modelBuilder.Entity<EntityWithInvalidEmptyIndex>()).Message);
     }
@@ -92,7 +92,7 @@ public class IndexAttributeConventionTest
         var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
 
         Assert.Equal(
-            AbstractionsStrings.CollectionArgumentHasEmptyElements("additionalPropertyNames"),
+            $"{AbstractionsStrings.CollectionArgumentHasEmptyElements} (Parameter 'additionalPropertyNames')",
             Assert.Throws<ArgumentException>(
                 () => modelBuilder.Entity(entityTypeWithInvalidIndex)).Message);
     }

@@ -8,14 +8,20 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
     where TFixture : class, IQueryFixtureBase, new()
 {
+    private readonly Lazy<QueryAsserter> _queryAsserterCache;
+
     protected QueryTestBase(TFixture fixture)
     {
         Fixture = fixture;
-        QueryAsserter = CreateQueryAsserter(fixture);
+
+        _queryAsserterCache = new Lazy<QueryAsserter>(CreateQueryAsserter);
     }
 
     protected TFixture Fixture { get; }
-    protected QueryAsserter QueryAsserter { get; }
+    protected QueryAsserter QueryAsserter => _queryAsserterCache.Value;
+
+    private QueryAsserter CreateQueryAsserter()
+        => CreateQueryAsserter(Fixture);
 
     protected virtual QueryAsserter CreateQueryAsserter(TFixture fixture)
         => new(
@@ -33,7 +39,7 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
     protected virtual Expression RewriteExpectedQueryExpression(Expression expectedQueryExpression)
         => new ExpectedQueryRewritingVisitor().Visit(expectedQueryExpression);
 
-    public static IEnumerable<object[]> IsAsyncData = new object[][] { [false], [true] };
+    public static readonly IEnumerable<object[]> IsAsyncData = [[false], [true]];
 
     public Task AssertQuery<TResult>(
         bool async,

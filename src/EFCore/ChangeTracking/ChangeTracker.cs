@@ -361,8 +361,8 @@ public class ChangeTracker : IResettableService
         TState state,
         Func<EntityEntryGraphNode<TState>, bool> callback)
     {
-        Check.NotNull(rootEntity, nameof(rootEntity));
-        Check.NotNull(callback, nameof(callback));
+        Check.NotNull(rootEntity);
+        Check.NotNull(callback);
 
         var rootEntry = StateManager.GetOrCreateEntry(rootEntity);
 

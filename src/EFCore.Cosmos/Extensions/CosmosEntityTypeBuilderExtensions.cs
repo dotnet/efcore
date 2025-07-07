@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 
 // ReSharper disable once CheckNamespace
@@ -29,7 +30,7 @@ public static class CosmosEntityTypeBuilderExtensions
         this EntityTypeBuilder entityTypeBuilder,
         string? name)
     {
-        Check.NullButNotEmpty(name, nameof(name));
+        Check.NullButNotEmpty(name);
 
         entityTypeBuilder.Metadata.SetContainer(name);
 
@@ -99,7 +100,7 @@ public static class CosmosEntityTypeBuilderExtensions
         string? name,
         bool fromDataAnnotation = false)
     {
-        Check.NullButNotEmpty(name, nameof(name));
+        Check.NullButNotEmpty(name);
 
         return entityTypeBuilder.CanSetAnnotation(CosmosAnnotationNames.ContainerName, name, fromDataAnnotation);
     }
@@ -190,7 +191,7 @@ public static class CosmosEntityTypeBuilderExtensions
         string? name,
         bool fromDataAnnotation = false)
     {
-        Check.NullButNotEmpty(name, nameof(name));
+        Check.NullButNotEmpty(name);
 
         return entityTypeBuilder.CanSetAnnotation(CosmosAnnotationNames.PropertyName, name, fromDataAnnotation);
     }
@@ -212,8 +213,8 @@ public static class CosmosEntityTypeBuilderExtensions
         string? name,
         params string[]? additionalPropertyNames)
     {
-        Check.NullButNotEmpty(name, nameof(name));
-        Check.HasNoEmptyElements(additionalPropertyNames, nameof(additionalPropertyNames));
+        Check.NullButNotEmpty(name);
+        Check.HasNoEmptyElements(additionalPropertyNames);
 
         if (name is null)
         {
@@ -264,7 +265,7 @@ public static class CosmosEntityTypeBuilderExtensions
         Expression<Func<TEntity, TProperty>> propertyExpression)
         where TEntity : class
     {
-        Check.NotNull(propertyExpression, nameof(propertyExpression));
+        Check.NotNull(propertyExpression);
 
         entityTypeBuilder.Metadata.SetPartitionKeyPropertyNames(
             propertyExpression.GetMemberAccessList().Select(e => e.GetSimpleMemberName()).ToList());
@@ -357,7 +358,7 @@ public static class CosmosEntityTypeBuilderExtensions
         bool fromDataAnnotation = false)
         => entityTypeBuilder.CanSetAnnotation(
             CosmosAnnotationNames.PartitionKeyNames,
-            names is null ? names : Check.HasNoEmptyElements(names, nameof(names)),
+            names is null ? names : Check.HasNoEmptyElements(names),
             fromDataAnnotation);
 
     /// <summary>
@@ -485,7 +486,7 @@ public static class CosmosEntityTypeBuilderExtensions
         bool? alwaysCreate,
         bool fromDataAnnotation = false)
     {
-        Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
+        Check.NotNull(entityTypeBuilder);
 
         return entityTypeBuilder.CanSetAnnotation(CosmosAnnotationNames.HasShadowId, alwaysCreate, fromDataAnnotation);
     }
@@ -673,7 +674,7 @@ public static class CosmosEntityTypeBuilderExtensions
         bool? includeDiscriminator,
         bool fromDataAnnotation = false)
     {
-        Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
+        Check.NotNull(entityTypeBuilder);
 
         return entityTypeBuilder.CanSetAnnotation(
             CosmosAnnotationNames.DiscriminatorInKey,
@@ -704,7 +705,7 @@ public static class CosmosEntityTypeBuilderExtensions
         bool? includeDiscriminator,
         bool fromDataAnnotation = false)
     {
-        Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
+        Check.NotNull(entityTypeBuilder);
 
         return entityTypeBuilder.CanSetAnnotation(
             CosmosAnnotationNames.DiscriminatorInKey,
@@ -796,7 +797,7 @@ public static class CosmosEntityTypeBuilderExtensions
         int? seconds,
         bool fromDataAnnotation = false)
     {
-        Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
+        Check.NotNull(entityTypeBuilder);
 
         return entityTypeBuilder.CanSetAnnotation(CosmosAnnotationNames.AnalyticalStoreTimeToLive, seconds, fromDataAnnotation);
     }
@@ -882,6 +883,88 @@ public static class CosmosEntityTypeBuilderExtensions
         int? seconds,
         bool fromDataAnnotation = false)
         => entityTypeBuilder.CanSetAnnotation(CosmosAnnotationNames.DefaultTimeToLive, seconds, fromDataAnnotation);
+
+    /// <summary>
+    ///     Configures a default language to use for full-text search at container scope.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
+    /// </remarks>
+    /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+    /// <param name="language">The default language.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public static EntityTypeBuilder HasDefaultFullTextLanguage(
+        this EntityTypeBuilder entityTypeBuilder,
+        string? language)
+    {
+        entityTypeBuilder.Metadata.SetDefaultFullTextSearchLanguage(language);
+
+        return entityTypeBuilder;
+    }
+
+    /// <summary>
+    ///     Configures a default language to use for full-text search at container scope.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
+    /// </remarks>
+    /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+    /// <param name="language">The default language.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public static EntityTypeBuilder<TEntity> HasDefaultFullTextLanguage<TEntity>(
+        this EntityTypeBuilder<TEntity> entityTypeBuilder,
+        string? language)
+        where TEntity : class
+        => (EntityTypeBuilder<TEntity>)HasDefaultFullTextLanguage((EntityTypeBuilder)entityTypeBuilder, language);
+
+    /// <summary>
+    ///     Configures a default language to use for full-text search at container scope.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
+    /// </remarks>
+    /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+    /// <param name="language">The default language.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>
+    ///     The same builder instance if the configuration was applied,
+    ///     <see langword="null" /> otherwise.
+    /// </returns>
+    public static IConventionEntityTypeBuilder? HasDefaultFullTextLanguage(
+        this IConventionEntityTypeBuilder entityTypeBuilder,
+        string? language,
+        bool fromDataAnnotation = false)
+    {
+        if (!entityTypeBuilder.CanSetDefaultFullTextLanguage(language, fromDataAnnotation))
+        {
+            return null;
+        }
+
+        entityTypeBuilder.Metadata.SetDefaultFullTextSearchLanguage(language, fromDataAnnotation);
+
+        return entityTypeBuilder;
+    }
+
+    /// <summary>
+    ///     Returns a value indicating whether the default full-text language can be set
+    ///     from the current configuration source
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
+    /// </remarks>
+    /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+    /// <param name="language">The default language.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns><see langword="true" /> if the configuration can be applied.</returns>
+    public static bool CanSetDefaultFullTextLanguage(
+        this IConventionEntityTypeBuilder entityTypeBuilder,
+        string? language,
+        bool fromDataAnnotation = false)
+        => entityTypeBuilder.CanSetAnnotation(CosmosAnnotationNames.DefaultFullTextSearchLanguage, language, fromDataAnnotation);
 
     /// <summary>
     ///     Configures the manual provisioned throughput offering.

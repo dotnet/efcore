@@ -42,6 +42,7 @@ public abstract class RelationalConnection : IRelationalConnection, ITransaction
     private readonly ConcurrentStack<Transaction> _ambientTransactions = new();
     private DbConnection? _connection;
     private readonly IRelationalCommandBuilder _relationalCommandBuilder;
+    private readonly IExceptionDetector _exceptionDetector;
     private IRelationalCommand? _cachedRelationalCommand;
 
     /// <summary>
@@ -74,6 +75,8 @@ public abstract class RelationalConnection : IRelationalConnection, ITransaction
         {
             _connectionOwned = true;
         }
+
+        _exceptionDetector = dependencies.ExceptionDetector;
     }
 
     /// <summary>
@@ -726,7 +729,14 @@ public abstract class RelationalConnection : IRelationalConnection, ITransaction
         }
         catch (Exception e)
         {
-            logger.ConnectionError(this, e, startTime, stopwatch.Elapsed, errorsExpected);
+            if (_exceptionDetector.IsCancellation(e, CancellationToken.None))
+            {
+                logger.ConnectionCanceled(this, startTime, stopwatch.Elapsed);
+            }
+            else
+            {
+                logger.ConnectionError(this, e, startTime, stopwatch.Elapsed, errorsExpected);
+            }
 
             throw;
         }
@@ -773,14 +783,16 @@ public abstract class RelationalConnection : IRelationalConnection, ITransaction
         }
         catch (Exception e)
         {
-            await logger.ConnectionErrorAsync(
-                    this,
-                    e,
-                    startTime,
-                    stopwatch.Elapsed,
-                    errorsExpected,
-                    cancellationToken)
-                .ConfigureAwait(false);
+            if (_exceptionDetector.IsCancellation(e, CancellationToken.None))
+            {
+                await logger.ConnectionCanceledAsync(this, startTime, stopwatch.Elapsed, cancellationToken)
+                    .ConfigureAwait(false);
+            }
+            else
+            {
+                await logger.ConnectionErrorAsync(this, e, startTime, stopwatch.Elapsed, errorsExpected, cancellationToken)
+                    .ConfigureAwait(false);
+            }
 
             throw;
         }

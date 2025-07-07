@@ -2132,7 +2132,7 @@ public abstract partial class ModelBuilderTest
 
             var model = modelBuilder.FinalizeModel();
             var entity = model.FindEntityType(typeof(EntityWithFields))!;
-            var property = Assert.Single(entity.GetProperties().Where(p => !p.IsShadowProperty()));
+            var property = Assert.Single(entity.GetProperties(), p => !p.IsShadowProperty());
             Assert.Equal(nameof(EntityWithFields.Id), property.Name);
         }
 
@@ -2148,7 +2148,7 @@ public abstract partial class ModelBuilderTest
 
             var model = modelBuilder.FinalizeModel();
             var entity = model.FindEntityType(typeof(KeylessEntityWithFields))!;
-            var property = Assert.Single(entity.GetProperties().Where(p => !p.IsShadowProperty()));
+            var property = Assert.Single(entity.GetProperties(), p => !p.IsShadowProperty());
             Assert.Equal(nameof(KeylessEntityWithFields.LastName), property.Name);
         }
 
@@ -3037,7 +3037,7 @@ public abstract partial class ModelBuilderTest
             Assert.NotNull(property.FieldInfo);
             Assert.NotNull(property.GetElementType());
             var keys = entity.GetKeys();
-            Assert.Single(keys.Where(k => k.Properties.All(p => p == property)));
+            Assert.Single(keys, k => k.Properties.All(p => p == property));
         }
 
         [ConditionalFact]

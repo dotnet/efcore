@@ -71,6 +71,14 @@ public class SqliteConnectionStringBuilderTest
     }
 
     [Fact]
+    public void Ctor_parses_Vfs()
+    {
+        var builder = new SqliteConnectionStringBuilder("Vfs=win32-longpath");
+
+        Assert.Equal("win32-longpath", builder.Vfs);
+    }
+
+    [Fact]
     public void ConnectionString_defaults_to_empty()
     {
         var builder = new SqliteConnectionStringBuilder();
@@ -148,7 +156,7 @@ public class SqliteConnectionStringBuilderTest
         var keys = (ICollection<string>)new SqliteConnectionStringBuilder().Keys;
 
         Assert.True(keys.IsReadOnly);
-        Assert.Equal(8, keys.Count);
+        Assert.Equal(9, keys.Count);
         Assert.Contains("Data Source", keys);
         Assert.Contains("Mode", keys);
         Assert.Contains("Cache", keys);
@@ -157,6 +165,7 @@ public class SqliteConnectionStringBuilderTest
         Assert.Contains("Recursive Triggers", keys);
         Assert.Contains("Default Timeout", keys);
         Assert.Contains("Pooling", keys);
+        Assert.Contains("Vfs", keys);
     }
 
     [Fact]
@@ -165,7 +174,7 @@ public class SqliteConnectionStringBuilderTest
         var values = (ICollection<object>)new SqliteConnectionStringBuilder().Values;
 
         Assert.True(values.IsReadOnly);
-        Assert.Equal(8, values.Count);
+        Assert.Equal(9, values.Count);
     }
 
     [Fact]

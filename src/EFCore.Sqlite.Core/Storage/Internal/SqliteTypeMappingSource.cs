@@ -83,7 +83,7 @@ public class SqliteTypeMappingSource : RelationalTypeMappingSource
         { typeof(double), Real },
         { typeof(float), new FloatTypeMapping(RealTypeName) },
         { typeof(Guid), SqliteGuidTypeMapping.Default },
-        { typeof(JsonElement), SqliteJsonTypeMapping.Default }
+        { typeof(JsonTypePlaceholder), SqliteJsonTypeMapping.Default }
     };
 
     private readonly Dictionary<string, RelationalTypeMapping> _storeTypeMappings = new(StringComparer.OrdinalIgnoreCase)

@@ -365,6 +365,23 @@ public class SqliteConnectionTest
     }
 
     [Fact]
+    public void Open_works_when_vfs()
+    {
+        var vfs = Environment.OSVersion.Platform == PlatformID.Win32NT
+            ? "win32-longpath"
+            : "unix-dotfile";
+        using var connection = new SqliteConnection($"Data Source=:memory:;Vfs={vfs}");
+        connection.Open();
+    }
+
+    [Fact]
+    public void Open_throws_when_vfs_invalid()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:;Vfs=invalidvfs");
+        Assert.Throws<SqliteException>(connection.Open);
+    }
+
+    [Fact]
     public void BackupDatabase_works()
     {
         using var connection1 = new SqliteConnection("Data Source=:memory:");
@@ -1266,5 +1283,47 @@ public class SqliteConnectionTest
         Assert.Contains(
             dataTable.Rows.Cast<DataRow>(),
             r => (string)r[DbMetaDataColumnNames.ReservedWord] == "SELECT");
+    }
+
+    [Fact]
+    public void Open_releases_handle_when_constructor_fails()
+    {
+        var dbPath = Path.GetTempFileName();
+
+        // Create a file with invalid database content.
+        File.WriteAllText(dbPath, "this is not a database file but should still open with sqlite3_open_v2");
+
+        // Use password to trigger the encryption path in SqliteConnectionInternal ctor.
+        // This should fail during password verification when trying to decrypt the invalid file.
+        var connectionString = $"Data Source={dbPath};Password=test;Mode=ReadOnly;Pooling=False";
+
+        using (var connection = new SqliteConnection(connectionString))
+        {
+
+#if E_SQLITE3 || WINSQLITE3
+            var ex = Assert.Throws<InvalidOperationException>(connection.Open);
+            Assert.Equal(Resources.EncryptionNotSupported(GetNativeLibraryName()), ex.Message);
+            Assert.Equal(ConnectionState.Closed, connection.State);
+#elif E_SQLCIPHER || E_SQLITE3MC || SQLCIPHER
+            var ex = Assert.Throws<SqliteException>(connection.Open);
+            Assert.Equal(SQLITE_NOTADB, ex.SqliteErrorCode);
+            Assert.Equal(ConnectionState.Closed, connection.State);
+#else
+            // No code path in SqliteConnectionInternal ctor that would trigger exception
+            // and leave the handle open.
+#endif
+        }
+
+        if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+        {
+            // On Windows, this will fail if there's a file handle leak.
+            File.Delete(dbPath);
+        }
+        else
+        {
+            // On Unix-like systems, we can still delete the file but cannot 
+            // reliably detect handle leaks this way.
+            File.Delete(dbPath);
+        }
     }
 }

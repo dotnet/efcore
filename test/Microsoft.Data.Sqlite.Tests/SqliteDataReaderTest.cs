@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.IO;
+using System.Reflection.PortableExecutable;
 using Microsoft.Data.Sqlite.Properties;
 using Xunit;
 
@@ -646,21 +647,32 @@ public class SqliteDataReaderTest
         => GetX_works(
             "SELECT '2014-04-15 10:47:16';",
             r => r.GetDateTime(0),
-            new DateTime(2014, 4, 15, 10, 47, 16));
+            new DateTime(2014, 4, 15, 10, 47, 16),
+            a => Assert.Equal(DateTimeKind.Unspecified, a.Kind));
+
+    [Fact]
+    public void GetDateTime_works_with_text_with_offset()
+        => GetX_works(
+            "SELECT '2014-04-15 10:47:16+03:00';",
+            r => r.GetDateTime(0),
+            new DateTime(2014, 4, 15, 7, 47, 16),
+            a => Assert.Equal(DateTimeKind.Utc, a.Kind));
 
     [Fact]
     public void GetDateTime_works_with_real()
         => GetX_works(
             "SELECT julianday('2013-10-07 08:23:19.120');",
             r => r.GetDateTime(0),
-            new DateTime(2013, 10, 7, 8, 23, 19, 120));
+            new DateTime(2013, 10, 7, 8, 23, 19, 120),
+            a => Assert.Equal(DateTimeKind.Unspecified, a.Kind));
 
     [Fact]
     public void GetDateTime_works_with_integer()
         => GetX_works(
             "SELECT CAST(julianday('2013-10-07 12:00') AS INTEGER);",
             r => r.GetDateTime(0),
-            new DateTime(2013, 10, 7, 12, 0, 0));
+            new DateTime(2013, 10, 7, 12, 0, 0),
+            a => Assert.Equal(DateTimeKind.Unspecified, a.Kind));
 
     [Fact]
     public void GetDateTime_throws_when_null()
@@ -675,25 +687,44 @@ public class SqliteDataReaderTest
         => X_throws_when_non_query(r => r.GetDateTime(0));
 
     [Fact]
-    public void GetDateTimeOffset_works_with_text()
+    public void GetDateTimeOffset_works_with_text_no_offset()
         => GetX_works(
             "SELECT '2014-04-15 10:47:16';",
             r => ((SqliteDataReader)r).GetDateTimeOffset(0),
-            new DateTimeOffset(new DateTime(2014, 4, 15, 10, 47, 16)));
+            new DateTimeOffset(2014, 4, 15, 10, 47, 16, TimeSpan.Zero),
+            a => Assert.Equal(TimeSpan.Zero, a.Offset));
+
+    [Fact]
+    public void GetDateTimeOffset_works_with_text_zulu()
+        => GetX_works(
+            "SELECT '2014-04-15 10:47:16Z';",
+            r => ((SqliteDataReader)r).GetDateTimeOffset(0),
+            new DateTimeOffset(2014, 4, 15, 10, 47, 16, TimeSpan.Zero),
+            a => Assert.Equal(TimeSpan.Zero, a.Offset));
+
+    [Fact]
+    public void GetDateTimeOffset_works_with_text_with_offset()
+        => GetX_works(
+            "SELECT '2014-04-15 12:47:16+02:00';",
+            r => ((SqliteDataReader)r).GetDateTimeOffset(0),
+            new DateTimeOffset(2014, 4, 15, 12, 47, 16, TimeSpan.FromHours(2)),
+            a => Assert.Equal(TimeSpan.FromHours(2), a.Offset));
 
     [Fact]
     public void GetDateTimeOffset_works_with_real()
         => GetX_works(
             "SELECT julianday('2013-10-07 08:23:19.120');",
             r => ((SqliteDataReader)r).GetDateTimeOffset(0),
-            new DateTimeOffset(new DateTime(2013, 10, 7, 8, 23, 19, 120)));
+            new DateTimeOffset(2013, 10, 7, 8, 23, 19, 120, TimeSpan.Zero),
+            a => Assert.Equal(TimeSpan.Zero, a.Offset));
 
     [Fact]
     public void GetDateTimeOffset_works_with_integer()
         => GetX_works(
             "SELECT CAST(julianday('2013-10-07 12:00') AS INTEGER);",
             r => ((SqliteDataReader)r).GetDateTimeOffset(0),
-            new DateTimeOffset(new DateTime(2013, 10, 7, 12, 0, 0)));
+            new DateTimeOffset(2013, 10, 7, 12, 0, 0, TimeSpan.Zero),
+            a => Assert.Equal(TimeSpan.Zero, a.Offset));
 
     [Fact]
     public void GetDateTimeOffset_throws_when_closed()
@@ -2366,7 +2397,7 @@ public class SqliteDataReaderTest
         }
     }
 
-    private static void GetX_works<T>(string sql, Func<DbDataReader, T> action, T expected)
+    private static void GetX_works<T>(string sql, Func<DbDataReader, T> action, T expected, Action<T>? extraAssertions = null)
     {
         using (var connection = new SqliteConnection("Data Source=:memory:"))
         {
@@ -2377,7 +2408,9 @@ public class SqliteDataReaderTest
                 var hasData = reader.Read();
 
                 Assert.True(hasData);
-                Assert.Equal(expected, action(reader));
+                var value = action(reader);
+                Assert.Equal(expected, value);
+                extraAssertions?.Invoke(value);
             }
         }
     }

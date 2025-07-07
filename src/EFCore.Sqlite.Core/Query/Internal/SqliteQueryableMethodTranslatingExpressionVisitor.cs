@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
@@ -110,7 +111,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                         "json_array_length",
                         new[] { array },
                         nullable: true,
-                        argumentsPropagateNullability: new[] { true },
+                        argumentsPropagateNullability: Statics.TrueArrays[1],
                         typeof(int)),
                     _sqlExpressionFactory.Constant(0));
 
@@ -133,24 +134,28 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         LambdaExpression keySelector,
         bool ascending)
     {
-        var translation = base.TranslateOrderBy(source, keySelector, ascending);
+        var translation = TranslateLambdaExpression(source, keySelector);
         if (translation == null)
         {
             return null;
         }
 
-        var orderingExpression = ((SelectExpression)translation.QueryExpression).Orderings.Last();
-        var orderingExpressionType = GetProviderType(orderingExpression.Expression);
+        var orderingExpressionType = GetProviderType(translation);
         if (orderingExpressionType == typeof(DateTimeOffset)
-            || orderingExpressionType == typeof(decimal)
             || orderingExpressionType == typeof(TimeSpan)
             || orderingExpressionType == typeof(ulong))
         {
             throw new NotSupportedException(
                 SqliteStrings.OrderByNotSupported(orderingExpressionType.ShortDisplayName()));
         }
+        else if (orderingExpressionType == typeof(decimal))
+        {
+            translation = new CollateExpression(translation, "EF_DECIMAL");
+        }
 
-        return translation;
+        ((SelectExpression)source.QueryExpression).ApplyOrdering(new OrderingExpression(translation, ascending));
+
+        return source;
     }
 
     /// <summary>
@@ -164,24 +169,28 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         LambdaExpression keySelector,
         bool ascending)
     {
-        var translation = base.TranslateThenBy(source, keySelector, ascending);
+        var translation = TranslateLambdaExpression(source, keySelector);
         if (translation == null)
         {
             return null;
         }
 
-        var orderingExpression = ((SelectExpression)translation.QueryExpression).Orderings.Last();
-        var orderingExpressionType = GetProviderType(orderingExpression.Expression);
+        var orderingExpressionType = GetProviderType(translation);
         if (orderingExpressionType == typeof(DateTimeOffset)
-            || orderingExpressionType == typeof(decimal)
             || orderingExpressionType == typeof(TimeSpan)
             || orderingExpressionType == typeof(ulong))
         {
             throw new NotSupportedException(
                 SqliteStrings.OrderByNotSupported(orderingExpressionType.ShortDisplayName()));
         }
+        else if (orderingExpressionType == typeof(decimal))
+        {
+            translation = new CollateExpression(translation, "EF_DECIMAL");
+        }
 
-        return translation;
+        ((SelectExpression)source.QueryExpression).AppendOrdering(new OrderingExpression(translation, ascending));
+
+        return source;
     }
 
     /// <summary>
@@ -209,7 +218,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                 "json_array_length",
                 new[] { array },
                 nullable: true,
-                argumentsPropagateNullability: new[] { true },
+                argumentsPropagateNullability: Statics.TrueArrays[1],
                 typeof(int));
 
 #pragma warning disable EF1001
@@ -461,29 +470,59 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         Expression index,
         bool returnDefault)
     {
-        if (!returnDefault
-            && source.QueryExpression is SelectExpression
+        if (!returnDefault)
+        {
+            switch (source.QueryExpression)
             {
-                Tables:
-                [
-                    TableValuedFunctionExpression
+                // index on parameter using a column
+                // translate via JSON because it is a better translation
+                case SelectExpression
+                {
+                    Tables: [ValuesExpression { ValuesParameter: { } valuesParameter }],
+                    Predicate: null,
+                    GroupBy: [],
+                    Having: null,
+                    IsDistinct: false,
+#pragma warning disable EF1001
+                    Orderings: [{ Expression: ColumnExpression { Name: ValuesOrderingColumnName }, IsAscending: true }],
+#pragma warning restore EF1001
+                    Limit: null,
+                    Offset: null
+                } selectExpression
+                when TranslateExpression(index) is { } translatedIndex
+                    && TryTranslate(selectExpression, valuesParameter, translatedIndex, out var result):
+                    return result;
+
+                // Index on JSON array
+                case SelectExpression
+                {
+                    Tables: [TableValuedFunctionExpression
                     {
                         Name: "json_each", Schema: null, IsBuiltIn: true, Arguments: [var jsonArrayColumn]
-                    } jsonEachExpression
-                ],
-                Predicate: null,
-                GroupBy: [],
-                Having: null,
-                IsDistinct: false,
-                Orderings: [{ Expression: ColumnExpression { Name: JsonEachKeyColumnName } orderingColumn, IsAscending: true }],
-                Limit: null,
-                Offset: null
-            } selectExpression
-            && orderingColumn.TableAlias == jsonEachExpression.Alias
-            && TranslateExpression(index) is { } translatedIndex)
-        {
-            // Index on JSON array
+                    } jsonEachExpression],
+                    Predicate: null,
+                    GroupBy: [],
+                    Having: null,
+                    IsDistinct: false,
+                    Orderings: [{ Expression: ColumnExpression { Name: JsonEachKeyColumnName } orderingColumn, IsAscending: true }],
+                    Limit: null,
+                    Offset: null
+                } selectExpression
+                when orderingColumn.TableAlias == jsonEachExpression.Alias
+                    && TranslateExpression(index) is { } translatedIndex
+                    && TryTranslate(selectExpression, jsonArrayColumn, translatedIndex, out var result):
+                    return result;
+            }
+        }
 
+        return base.TranslateElementAtOrDefault(source, index, returnDefault);
+
+        bool TryTranslate(
+            SelectExpression selectExpression,
+            SqlExpression jsonArrayColumn,
+            SqlExpression translatedIndex,
+            [NotNullWhen(true)]out ShapedQueryExpression? result)
+        {
             // Extract the column projected out of the source, and simplify the subquery to a simple JsonScalarExpression
             var shaperExpression = source.ShaperExpression;
             if (shaperExpression is UnaryExpression { NodeType: ExpressionType.Convert } unaryExpression
@@ -512,12 +551,14 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                 }
 
 #pragma warning disable EF1001
-                return source.UpdateQueryExpression(new SelectExpression(translation, _sqlAliasManager));
+                result = source.UpdateQueryExpression(new SelectExpression(translation, _sqlAliasManager));
 #pragma warning restore EF1001
+                return true;
             }
-        }
 
-        return base.TranslateElementAtOrDefault(source, index, returnDefault);
+            result = default;
+            return false;
+        }
     }
 
     /// <summary>
@@ -529,16 +570,16 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
     protected override bool IsNaturallyOrdered(SelectExpression selectExpression)
     {
         return selectExpression is
-            {
-                Tables: [var mainTable, ..],
-                Orderings:
+        {
+            Tables: [var mainTable, ..],
+            Orderings:
                 [
-                    {
-                        Expression: ColumnExpression { Name: JsonEachKeyColumnName } orderingColumn,
-                        IsAscending: true
-                    }
+                {
+                    Expression: ColumnExpression { Name: JsonEachKeyColumnName } orderingColumn,
+                    IsAscending: true
+                }
                 ]
-            }
+        }
             && orderingColumn.TableAlias == mainTable.Alias
             && IsJsonEachKeyColumn(selectExpression, orderingColumn);
 
@@ -586,7 +627,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                     "unhex",
                     new[] { expression },
                     nullable: true,
-                    argumentsPropagateNullability: new[] { true },
+                    argumentsPropagateNullability: Statics.TrueArrays[1],
                     typeof(byte[]),
                     typeMapping),
 

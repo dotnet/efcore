@@ -19,9 +19,8 @@ namespace Microsoft.EntityFrameworkCore.Query;
 ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
 ///     and <see href="https://aka.ms/efcore-docs-how-query-works">How EF Core queries work</see> for more information and examples.
 /// </remarks>
-public abstract class QueryContext : IParameterValues
+public abstract class QueryContext
 {
-    private readonly IDictionary<string, object?> _parameterValues = new Dictionary<string, object?>();
     private IStateManager? _stateManager;
 
     /// <summary>
@@ -41,9 +40,14 @@ public abstract class QueryContext : IParameterValues
     }
 
     /// <summary>
-    ///     The current DbContext in using while executing the query.
+    ///     The current <see cref="DbContext" /> in using while executing the query.
     /// </summary>
     public virtual DbContext Context { get; }
+
+    /// <summary>
+    ///     The query parameter used in the query query.
+    /// </summary>
+    public virtual Dictionary<string, object?> Parameters { get; } = new();
 
     /// <summary>
     ///     Dependencies for this service.
@@ -93,20 +97,6 @@ public abstract class QueryContext : IParameterValues
     /// </summary>
     public virtual IDiagnosticsLogger<DbLoggerCategory.Query> QueryLogger
         => Dependencies.QueryLogger;
-
-    /// <summary>
-    ///     The parameter values to use while executing the query.
-    /// </summary>
-    public virtual IReadOnlyDictionary<string, object?> ParameterValues
-        => (IReadOnlyDictionary<string, object?>)_parameterValues;
-
-    /// <summary>
-    ///     Adds a parameter to <see cref="ParameterValues" /> for this query.
-    /// </summary>
-    /// <param name="name">The name.</param>
-    /// <param name="value">The value.</param>
-    public virtual void AddParameter(string name, object? value)
-        => _parameterValues.Add(name, value);
 
     /// <summary>
     ///     Initializes the <see cref="IStateManager" /> to be used with this QueryContext.

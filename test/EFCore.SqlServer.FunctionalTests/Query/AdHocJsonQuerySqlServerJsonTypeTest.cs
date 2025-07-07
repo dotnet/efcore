@@ -7,7 +7,7 @@ using Microsoft.Data.SqlClient;
 namespace Microsoft.EntityFrameworkCore.Query;
 
 [SqlServerCondition(SqlServerCondition.SupportsJsonType)]
-public class AdHocJsonQuerySqlServerJsonTypeTest : AdHocJsonQuerySqlServerTestBase
+public class AdHocJsonQuerySqlServerJsonTypeTest(NonSharedFixture fixture) : AdHocJsonQuerySqlServerTestBase(fixture)
 {
     public override async Task Missing_navigation_works_with_deduplication(bool async)
     {
@@ -27,12 +27,12 @@ public class AdHocJsonQuerySqlServerJsonTypeTest : AdHocJsonQuerySqlServerTestBa
         }
     }
 
-    public override async Task Contains_on_nested_collection_with_init_only_navigation(bool async)
+    public override async Task Contains_on_nested_collection_with_init_only_navigation()
         // TODO:SQLJSON (See JsonTypeToFunction.cs)
         => Assert.Equal(
             "OpenJson support not yet supported for JSON native data type.",
             (await Assert.ThrowsAsync<SqlException>(
-                () => base.Contains_on_nested_collection_with_init_only_navigation(async))).Message);
+                () => base.Contains_on_nested_collection_with_init_only_navigation())).Message);
 
     protected override string StoreName
         => "AdHocJsonQueryJsonTypeTest";

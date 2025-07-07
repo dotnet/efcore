@@ -46,12 +46,12 @@ public class ClrPropertySetterFactory : ClrAccessorFactory<IClrPropertySetter>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override IClrPropertySetter CreateGeneric<TEntity, TStructuralType, TValue>(
+    protected override IClrPropertySetter CreateGeneric<TRoot, TDeclaring, TValue>(
         MemberInfo memberInfo,
         IPropertyBase? propertyBase)
     {
-        CreateExpression<TEntity, TValue>(memberInfo, propertyBase, out var setter);
-        return new ClrPropertySetter<TEntity, TValue>(setter.Compile());
+        CreateExpression<TRoot, TDeclaring, TValue>(memberInfo, propertyBase, out var setter);
+        return new ClrPropertySetter<TRoot, TValue>(setter.Compile());
     }
 
     /// <summary>
@@ -74,7 +74,8 @@ public class ClrPropertySetterFactory : ClrAccessorFactory<IClrPropertySetter>
         out Expression setterExpression)
     {
         var boundMethod = GenericCreateExpression.MakeGenericMethod(
-            propertyBase.DeclaringType.ContainingEntityType.ClrType,
+            propertyBase.DeclaringType.ContainingType.ClrType,
+            propertyBase.DeclaringType.ClrType,
             propertyBase.ClrType);
 
         try
@@ -93,15 +94,15 @@ public class ClrPropertySetterFactory : ClrAccessorFactory<IClrPropertySetter>
     private static readonly MethodInfo GenericCreateExpression
         = typeof(ClrPropertySetterFactory).GetMethod(nameof(CreateExpression), BindingFlags.Instance | BindingFlags.NonPublic)!;
 
-    private void CreateExpression<TEntity, TValue>(
+    private void CreateExpression<TRoot, TDeclaring, TValue>(
         MemberInfo memberInfo,
         IPropertyBase? propertyBase,
-        out Expression<Action<TEntity, TValue>> setter)
-        where TEntity : class
+        out Expression<Action<TRoot, TValue>> setterExpression)
+        where TRoot : class
     {
-        var entityClrType = propertyBase?.DeclaringType.ContainingEntityType.ClrType ?? typeof(TEntity);
+        var entityClrType = propertyBase?.DeclaringType.ContainingType.ClrType ?? typeof(TRoot);
+        var propertyDeclaringType = propertyBase?.DeclaringType.ClrType ?? typeof(TDeclaring);
         var entityParameter = Expression.Parameter(entityClrType, "entity");
-        var propertyDeclaringType = propertyBase?.DeclaringType.ClrType ?? typeof(TEntity);
         var valueParameter = Expression.Parameter(typeof(TValue), "value");
         var memberType = memberInfo.GetMemberType();
         var convertedParameter = (Expression)valueParameter;
@@ -135,7 +136,7 @@ public class ClrPropertySetterFactory : ClrAccessorFactory<IClrPropertySetter>
             var converted = Expression.Variable(memberInfo.DeclaringType, "converted");
 
             writeExpression = Expression.Block(
-                new[] { converted },
+                [converted],
                 new List<Expression>
                 {
                     Expression.Assign(
@@ -147,7 +148,7 @@ public class ClrPropertySetterFactory : ClrAccessorFactory<IClrPropertySetter>
                 });
         }
 
-        setter = Expression.Lambda<Action<TEntity, TValue>>(
+        setterExpression = Expression.Lambda<Action<TRoot, TValue>>(
             writeExpression,
             entityParameter,
             valueParameter);
@@ -163,7 +164,7 @@ public class ClrPropertySetterFactory : ClrAccessorFactory<IClrPropertySetter>
                 return propertyBase?.IsIndexerProperty() == true
                     ? Expression.Assign(
                         Expression.MakeIndex(
-                            instanceParameter, (PropertyInfo)memberInfo, new List<Expression> { Expression.Constant(propertyBase.Name) }),
+                            instanceParameter, (PropertyInfo)memberInfo, [Expression.Constant(propertyBase.Name)]),
                         convertedParameter)
                     : Expression.MakeMemberAccess(instanceParameter, memberInfo).Assign(convertedParameter);
             }
@@ -179,6 +180,7 @@ public class ClrPropertySetterFactory : ClrAccessorFactory<IClrPropertySetter>
             // $entity.<Culture>k__BackingField = $level1;
             //
             // That is, we create copies of value types, make the assignment, and then copy the value back.
+            // This is necessary for the case without a backing field, because the value type property getter will always return a copy of the value
 
             var chain = complexType.ComplexProperty.GetChainToComplexProperty();
             var previousLevel = instanceParameter;
@@ -199,7 +201,7 @@ public class ClrPropertySetterFactory : ClrAccessorFactory<IClrPropertySetter>
                             currentProperty,
                             previousLevel,
                             complexMemberInfo,
-                            fromContainingType: true)));
+                            fromDeclaringType: true)));
                 previousLevel = currentLevel;
             }
 
@@ -216,7 +218,7 @@ public class ClrPropertySetterFactory : ClrAccessorFactory<IClrPropertySetter>
                         currentProperty,
                         i == (chainCount - 1) ? instanceParameter : variables[chainCount - 2 - i],
                         complexMemberInfo,
-                        fromContainingType: true);
+                        fromDeclaringType: true);
 
                     assignments.Add(memberExpression.Assign(variables[chainCount - 1 - i]));
                 }

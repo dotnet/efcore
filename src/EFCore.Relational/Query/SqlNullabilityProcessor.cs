@@ -4,6 +4,7 @@
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -17,15 +18,16 @@ namespace Microsoft.EntityFrameworkCore.Query;
 ///         not used in application code.
 ///     </para>
 /// </summary>
-public class SqlNullabilityProcessor
+public class SqlNullabilityProcessor : ExpressionVisitor
 {
-    private static readonly bool UseOldBehavior35393 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue35393", out var enabled35393) && enabled35393;
-
     private readonly List<ColumnExpression> _nonNullableColumns;
     private readonly List<ColumnExpression> _nullValueColumns;
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
-    private bool _canCache;
+
+    /// <summary>
+    /// Tracks parameters for collection expansion, allowing reuse.
+    /// </summary>
+    private readonly Dictionary<SqlParameterExpression, List<SqlParameterExpression>> _collectionParameterExpansionMap;
 
     /// <summary>
     ///     Creates a new instance of the <see cref="SqlNullabilityProcessor" /> class.
@@ -38,12 +40,13 @@ public class SqlNullabilityProcessor
     {
         Dependencies = dependencies;
         UseRelationalNulls = parameters.UseRelationalNulls;
-        ParametersToConstantize = parameters.ParametersToConstantize;
+        ParameterizedCollectionMode = parameters.ParameterizedCollectionMode;
 
         _sqlExpressionFactory = dependencies.SqlExpressionFactory;
         _nonNullableColumns = [];
         _nullValueColumns = [];
-        ParameterValues = null!;
+        _collectionParameterExpansionMap = [];
+        ParametersFacade = null!;
     }
 
     /// <summary>
@@ -57,80 +60,32 @@ public class SqlNullabilityProcessor
     protected virtual bool UseRelationalNulls { get; }
 
     /// <summary>
-    ///     A collection of parameter names to constantize.
+    ///     A value indicating what translation mode to use.
     /// </summary>
-    protected virtual IReadOnlySet<string> ParametersToConstantize { get; }
+    public virtual ParameterizedCollectionMode ParameterizedCollectionMode { get; }
 
     /// <summary>
     ///     Dictionary of current parameter values in use.
     /// </summary>
-    protected virtual IReadOnlyDictionary<string, object?> ParameterValues { get; private set; }
+    protected virtual CacheSafeParameterFacade ParametersFacade { get; private set; }
 
     /// <summary>
     ///     Processes a query expression to apply null semantics and optimize it.
     /// </summary>
     /// <param name="queryExpression">A query expression to process.</param>
-    /// <param name="parameterValues">A dictionary of parameter values in use.</param>
-    /// <param name="canCache">A bool value indicating whether the query expression can be cached.</param>
+    /// <param name="parametersFacade">A facade allowing access to parameters in a cache-safe way.</param>
     /// <returns>An optimized query expression.</returns>
-    public virtual Expression Process(
-        Expression queryExpression,
-        IReadOnlyDictionary<string, object?> parameterValues,
-        out bool canCache)
+    public virtual Expression Process(Expression queryExpression, CacheSafeParameterFacade parametersFacade)
     {
-        _canCache = true;
         _nonNullableColumns.Clear();
         _nullValueColumns.Clear();
-        ParameterValues = parameterValues;
+        _collectionParameterExpansionMap.Clear();
+        ParametersFacade = parametersFacade;
 
-        var result = queryExpression switch
-        {
-            SelectExpression selectExpression => (Expression)Visit(selectExpression),
-            DeleteExpression deleteExpression => deleteExpression.Update(deleteExpression.Table, Visit(deleteExpression.SelectExpression)),
-            UpdateExpression updateExpression => VisitUpdate(updateExpression),
-            _ => throw new InvalidOperationException(),
-        };
-
-        canCache = _canCache;
+        var result = Visit(queryExpression);
 
         return result;
     }
-
-    private UpdateExpression VisitUpdate(UpdateExpression updateExpression)
-    {
-        var selectExpression = Visit(updateExpression.SelectExpression);
-        List<ColumnValueSetter>? columnValueSetters = null;
-        for (var (i, n) = (0, updateExpression.ColumnValueSetters.Count); i < n; i++)
-        {
-            var columnValueSetter = updateExpression.ColumnValueSetters[i];
-            var newValue = Visit(columnValueSetter.Value, out _);
-            if (columnValueSetters != null)
-            {
-                columnValueSetters.Add(new ColumnValueSetter(columnValueSetter.Column, newValue));
-            }
-            else if (!ReferenceEquals(newValue, columnValueSetter.Value))
-            {
-                columnValueSetters = new List<ColumnValueSetter>(n);
-                for (var j = 0; j < i; j++)
-                {
-                    columnValueSetters.Add(updateExpression.ColumnValueSetters[j]);
-                }
-
-                columnValueSetters.Add(new ColumnValueSetter(columnValueSetter.Column, newValue));
-            }
-        }
-
-        return selectExpression != updateExpression.SelectExpression
-            || columnValueSetters != null
-                ? updateExpression.Update(selectExpression, columnValueSetters ?? updateExpression.ColumnValueSetters)
-                : updateExpression;
-    }
-
-    /// <summary>
-    ///     Marks the select expression being processed as cannot be cached.
-    /// </summary>
-    protected virtual void DoNotCache()
-        => _canCache = false;
 
     /// <summary>
     ///     Adds a column to non nullable columns list to further optimizations can take the column as non-nullable.
@@ -139,158 +94,150 @@ public class SqlNullabilityProcessor
     protected virtual void AddNonNullableColumn(ColumnExpression columnExpression)
         => _nonNullableColumns.Add(columnExpression);
 
-    /// <summary>
-    ///     Visits a <see cref="TableExpressionBase" />.
-    /// </summary>
-    /// <param name="tableExpressionBase">A table expression base to visit.</param>
-    /// <returns>An optimized table expression base.</returns>
-    protected virtual TableExpressionBase Visit(TableExpressionBase tableExpressionBase)
+    /// <inheritdoc />
+    protected override Expression VisitExtension(Expression node)
     {
-        switch (tableExpressionBase)
+        switch (node)
         {
-            case CrossApplyExpression crossApplyExpression:
-                return crossApplyExpression.Update(Visit(crossApplyExpression.Table));
+            case SqlExpression sqlExpression:
+                return Visit(sqlExpression, allowOptimizedExpansion: false, out _);
 
-            case CrossJoinExpression crossJoinExpression:
-                return crossJoinExpression.Update(Visit(crossJoinExpression.Table));
+            case SelectExpression select:
+                return Visit(select);
 
-            case ExceptExpression exceptExpression:
+            case PredicateJoinExpressionBase join:
             {
-                var source1 = Visit(exceptExpression.Source1);
-                var source2 = Visit(exceptExpression.Source2);
+                var newTable = VisitAndConvert(join.Table, nameof(VisitExtension));
+                var newJoinPredicate = ProcessJoinPredicate(join.JoinPredicate);
 
-                return exceptExpression.Update(source1, source2);
+                return join.Update(newTable, newJoinPredicate);
             }
 
-            case FromSqlExpression fromSqlExpression:
-                return fromSqlExpression;
-
-            case InnerJoinExpression innerJoinExpression:
+            case ValuesExpression { ValuesParameter: SqlParameterExpression valuesParameter } valuesExpression:
             {
-                var newTable = Visit(innerJoinExpression.Table);
-                var newJoinPredicate = ProcessJoinPredicate(innerJoinExpression.JoinPredicate);
+                Check.DebugAssert(valuesParameter.TypeMapping is not null);
+                Check.DebugAssert(valuesParameter.TypeMapping.ElementTypeMapping is not null);
+                var elementTypeMapping = (RelationalTypeMapping)valuesParameter.TypeMapping.ElementTypeMapping;
+                var queryParameters = ParametersFacade.GetParametersAndDisableSqlCaching();
+                var values = ((IEnumerable?)queryParameters[valuesParameter.Name])?.Cast<object>().ToList() ?? [];
 
-                return IsTrue(newJoinPredicate)
-                    ? new CrossJoinExpression(newTable)
-                    : innerJoinExpression.Update(newTable, newJoinPredicate);
-            }
+                var intTypeMapping = (IntTypeMapping?)Dependencies.TypeMappingSource.FindMapping(typeof(int));
+                Check.DebugAssert(intTypeMapping is not null);
+                var valuesOrderingCounter = 1;
 
-            case IntersectExpression intersectExpression:
-            {
-                var source1 = Visit(intersectExpression.Source1);
-                var source2 = Visit(intersectExpression.Source2);
+                var processedValues = new List<RowValueExpression>();
 
-                return intersectExpression.Update(source1, source2);
-            }
-
-            case LeftJoinExpression leftJoinExpression:
-            {
-                var newTable = Visit(leftJoinExpression.Table);
-                var newJoinPredicate = ProcessJoinPredicate(leftJoinExpression.JoinPredicate);
-
-                return leftJoinExpression.Update(newTable, newJoinPredicate);
-            }
-
-            case OuterApplyExpression outerApplyExpression:
-                return outerApplyExpression.Update(Visit(outerApplyExpression.Table));
-
-            case ValuesExpression valuesExpression:
-            {
-                switch (valuesExpression)
+                switch (ParameterizedCollectionMode)
                 {
-                    case { RowValues: not null }:
-                        RowValueExpression[]? newRowValues = null;
-                        for (var i = 0; i < valuesExpression.RowValues.Count; i++)
+                    case ParameterizedCollectionMode.MultipleParameters
+                        when !valuesParameter.ShouldBeConstantized:
+                    {
+                        var expandedParameters = _collectionParameterExpansionMap.GetOrAddNew(valuesParameter);
+                        for (var i = 0; i < values.Count; i++)
                         {
-                            var rowValue = valuesExpression.RowValues[i];
-                            var newRowValue = (RowValueExpression)VisitRowValue(rowValue, allowOptimizedExpansion: false, out _);
-
-                            if (newRowValue != rowValue && newRowValues is null)
+                            // Create parameter for value if we didn't create it yet,
+                            // otherwise reuse it.
+                            if (expandedParameters.Count <= i)
                             {
-                                newRowValues = new RowValueExpression[valuesExpression.RowValues.Count];
-                                for (var j = 0; j < i; j++)
-                                {
-                                    newRowValues[j] = valuesExpression.RowValues[j];
-                                }
+                                var parameterName = Uniquifier.Uniquify(valuesParameter.Name, queryParameters, int.MaxValue);
+                                queryParameters.Add(parameterName, values[i]);
+                                var parameterExpression = new SqlParameterExpression(parameterName, values[i]?.GetType() ?? typeof(object), elementTypeMapping);
+                                expandedParameters.Add(parameterExpression);
                             }
 
-                            if (newRowValues is not null)
-                            {
-                                newRowValues[i] = newRowValue;
-                            }
+                            processedValues.Add(
+                                new RowValueExpression(
+                                    ProcessValuesOrderingColumn(
+                                        valuesExpression,
+                                        [expandedParameters[i]],
+                                        intTypeMapping,
+                                        ref valuesOrderingCounter)));
                         }
+                        break;
+                    }
 
-                        return newRowValues is not null
-                            ? valuesExpression.Update(newRowValues)
-                            : valuesExpression;
-
-                    case { ValuesParameter: SqlParameterExpression valuesParameter }:
-                        DoNotCache();
-                        Check.DebugAssert(valuesParameter.TypeMapping is not null, "valuesParameter.TypeMapping is not null");
-                        Check.DebugAssert(
-                            valuesParameter.TypeMapping.ElementTypeMapping is not null,
-                            "valuesParameter.TypeMapping.ElementTypeMapping is not null");
-                        var typeMapping = (RelationalTypeMapping)valuesParameter.TypeMapping.ElementTypeMapping;
-                        var values = (IEnumerable?)ParameterValues[valuesParameter.Name] ?? Array.Empty<object>();
-
-                        var processedValues = new List<RowValueExpression>();
+                    case ParameterizedCollectionMode.Constants:
+                    case ParameterizedCollectionMode.Parameter
+                        when valuesParameter.ShouldBeConstantized:
+                    case ParameterizedCollectionMode.MultipleParameters
+                        when valuesParameter.ShouldBeConstantized:
+                    {
                         foreach (var value in values)
                         {
                             processedValues.Add(
                                 new RowValueExpression(
-                                [
-                                    _sqlExpressionFactory.Constant(value, value?.GetType() ?? typeof(object), typeMapping)
-                                ]));
+                                    ProcessValuesOrderingColumn(
+                                        valuesExpression,
+                                        [_sqlExpressionFactory.Constant(value, value?.GetType() ?? typeof(object), sensitive: true, elementTypeMapping)],
+                                        intTypeMapping,
+                                        ref valuesOrderingCounter)));
                         }
-
-                        return processedValues is not []
-                            ? valuesExpression.Update(processedValues)
-                            : valuesExpression;
+                        break;
+                    }
 
                     default:
                         throw new UnreachableException();
                 }
-            }
 
-            case SelectExpression selectExpression:
-                return Visit(selectExpression);
-
-            case TableValuedFunctionExpression tableValuedFunctionExpression:
-            {
-                var arguments = new List<SqlExpression>();
-                foreach (var argument in tableValuedFunctionExpression.Arguments)
-                {
-                    arguments.Add(Visit(argument, out _));
-                }
-
-                return tableValuedFunctionExpression.Update(arguments);
-            }
-
-            case TableExpression tableExpression:
-                return tableExpression;
-
-            case UnionExpression unionExpression:
-            {
-                var source1 = Visit(unionExpression.Source1);
-                var source2 = Visit(unionExpression.Source2);
-
-                return unionExpression.Update(source1, source2);
+                return valuesExpression.Update(processedValues);
             }
 
             default:
-                throw new InvalidOperationException(
-                    RelationalStrings.UnhandledExpressionInVisitor(
-                        tableExpressionBase, tableExpressionBase.GetType(), nameof(SqlNullabilityProcessor)));
+                return base.VisitExtension(node);
+        }
+
+        SqlExpression ProcessJoinPredicate(SqlExpression predicate)
+        {
+            switch (predicate)
+            {
+                case SqlBinaryExpression { OperatorType: ExpressionType.Equal } binary:
+                    var left = Visit(binary.Left, allowOptimizedExpansion: true, out var leftNullable);
+                    var right = Visit(binary.Right, allowOptimizedExpansion: true, out var rightNullable);
+
+                    var result = OptimizeComparison(
+                        binary.Update(left, right),
+                        left,
+                        right,
+                        leftNullable,
+                        rightNullable,
+                        out _);
+
+                    return result;
+
+                case SqlBinaryExpression { OperatorType:
+                    ExpressionType.AndAlso
+                    or ExpressionType.NotEqual
+                    or ExpressionType.GreaterThan
+                    or ExpressionType.GreaterThanOrEqual
+                    or ExpressionType.LessThan
+                    or ExpressionType.LessThanOrEqual } binary:
+                    return Visit(binary, allowOptimizedExpansion: true, out _);
+
+                default:
+                    throw new InvalidOperationException(
+                        RelationalStrings.UnhandledExpressionInVisitor(predicate, predicate.GetType(), nameof(SqlNullabilityProcessor)));
+            }
         }
     }
 
     /// <summary>
-    ///     Visits a <see cref="SelectExpression" />.
+    ///     If we still have _ord column here (it was not removed by other optimizations),
+    ///     we need to add value for it.
     /// </summary>
-    /// <param name="selectExpression">A select expression to visit.</param>
-    /// <returns>An optimized select expression.</returns>
-    protected virtual SelectExpression Visit(SelectExpression selectExpression)
-        => Visit(selectExpression, visitProjection: true);
+    /// <param name="valuesExpression">Expression where to look for ordering column.</param>
+    /// <param name="expressions">Expressions for <see cref="RowValueExpression"/>.</param>
+    /// <param name="intTypeMapping">Type mapping for integer.</param>
+    /// <param name="counter">Counter for constants for ordering column.</param>
+    /// <returns>Row value with ordering, if needed.</returns>
+    [EntityFrameworkInternal]
+    protected virtual IReadOnlyList<SqlExpression> ProcessValuesOrderingColumn(
+        ValuesExpression valuesExpression,
+        IReadOnlyList<SqlExpression> expressions,
+        IntTypeMapping intTypeMapping,
+        ref int counter)
+        => RelationalQueryableMethodTranslatingExpressionVisitor.ValuesOrderingColumnName.Equals(valuesExpression.ColumnNames[0], StringComparison.Ordinal)
+            ? [_sqlExpressionFactory.Constant(counter++, intTypeMapping), .. expressions]
+            : expressions;
 
     /// <summary>
     ///     Visits a <see cref="SelectExpression" />.
@@ -298,111 +245,15 @@ public class SqlNullabilityProcessor
     /// <param name="selectExpression">A select expression to visit.</param>
     /// <param name="visitProjection">Allows skipping visiting the projection, for when it will be visited outside.</param>
     /// <returns>An optimized select expression.</returns>
-    protected virtual SelectExpression Visit(SelectExpression selectExpression, bool visitProjection)
+    protected virtual SelectExpression Visit(SelectExpression selectExpression, bool visitProjection = true)
     {
-        var projections = (List<ProjectionExpression>)selectExpression.Projection;
-        if (visitProjection)
-        {
-            for (var i = 0; i < selectExpression.Projection.Count; i++)
-            {
-                var item = selectExpression.Projection[i];
-                var projection = item.Update(Visit(item.Expression, out _));
-                if (projection != item
-                    && projections == selectExpression.Projection)
-                {
-                    projections = [];
-                    for (var j = 0; j < i; j++)
-                    {
-                        projections.Add(selectExpression.Projection[j]);
-                    }
-                }
-
-                if (projections != selectExpression.Projection)
-                {
-                    projections.Add(projection);
-                }
-            }
-        }
-
-        var tables = (List<TableExpressionBase>)selectExpression.Tables;
-        for (var i = 0; i < selectExpression.Tables.Count; i++)
-        {
-            var item = selectExpression.Tables[i];
-            var table = Visit(item);
-            if (table != item
-                && tables == selectExpression.Tables)
-            {
-                tables = [];
-                for (var j = 0; j < i; j++)
-                {
-                    tables.Add(selectExpression.Tables[j]);
-                }
-            }
-
-            if (tables != selectExpression.Tables)
-            {
-                tables.Add(table);
-            }
-        }
-
+        var tables = this.VisitAndConvert(selectExpression.Tables);
         var predicate = Visit(selectExpression.Predicate, allowOptimizedExpansion: true, out _);
-
-        if (IsTrue(predicate))
-        {
-            predicate = null;
-        }
-
-        var groupBy = (List<SqlExpression>)selectExpression.GroupBy;
-        for (var i = 0; i < selectExpression.GroupBy.Count; i++)
-        {
-            var item = selectExpression.GroupBy[i];
-            var groupingKey = Visit(item, out _);
-            if (groupingKey != item
-                && groupBy == selectExpression.GroupBy)
-            {
-                groupBy = [];
-                for (var j = 0; j < i; j++)
-                {
-                    groupBy.Add(selectExpression.GroupBy[j]);
-                }
-            }
-
-            if (groupBy != selectExpression.GroupBy)
-            {
-                groupBy.Add(groupingKey);
-            }
-        }
-
+        var groupBy = this.VisitAndConvert(selectExpression.GroupBy);
         var having = Visit(selectExpression.Having, allowOptimizedExpansion: true, out _);
-
-        if (IsTrue(having))
-        {
-            having = null;
-        }
-
-        var orderings = (List<OrderingExpression>)selectExpression.Orderings;
-        for (var i = 0; i < selectExpression.Orderings.Count; i++)
-        {
-            var item = selectExpression.Orderings[i];
-            var ordering = item.Update(Visit(item.Expression, out _));
-            if (ordering != item
-                && orderings == selectExpression.Orderings)
-            {
-                orderings = [];
-                for (var j = 0; j < i; j++)
-                {
-                    orderings.Add(selectExpression.Orderings[j]);
-                }
-            }
-
-            if (orderings != selectExpression.Orderings)
-            {
-                orderings.Add(ordering);
-            }
-        }
-
+        var projections = visitProjection ? this.VisitAndConvert(selectExpression.Projection) : selectExpression.Projection;
+        var orderings = this.VisitAndConvert(selectExpression.Orderings);
         var offset = Visit(selectExpression.Offset, out _);
-
         var limit = Visit(selectExpression.Limit, out _);
 
         return selectExpression.Update(tables, predicate, groupBy, having, projections, orderings, offset, limit);
@@ -760,7 +611,7 @@ public class SqlNullabilityProcessor
 
                 case (false, true):
                 {
-                    // If the item is non-nullable but the projection is nullable, NULL will only be returned if the item wasn't found
+                    // If the item is non-nullable but the subquery projection is nullable, NULL will only be returned if the item wasn't found
                     // (as with the above case).
                     // Use as-is in optimized expansion (NULL is interpreted as false anyway), or compensate by coalescing NULL to false:
                     // WHERE NonNullable IN (SELECT Nullable FROM foo) -> WHERE COALESCE(NonNullable IN (SELECT Nullable FROM foo), false)
@@ -963,26 +814,67 @@ public class SqlNullabilityProcessor
             {
                 // The InExpression has a values parameter. Expand it out, embedding its values as constants into the SQL; disable SQL
                 // caching.
-                DoNotCache();
-                var typeMapping = inExpression.ValuesParameter.TypeMapping;
-                var values = (IEnumerable?)ParameterValues[valuesParameter.Name] ?? Array.Empty<object>();
+                var elementTypeMapping = (RelationalTypeMapping)inExpression.ValuesParameter.TypeMapping!.ElementTypeMapping!;
+                var parameters = ParametersFacade.GetParametersAndDisableSqlCaching();
+                var values = ((IEnumerable?)parameters[valuesParameter.Name])?.Cast<object>().ToList() ?? [];
 
                 processedValues = [];
 
-                foreach (var value in values)
+                var useParameters = ParameterizedCollectionMode is ParameterizedCollectionMode.MultipleParameters
+                    && !valuesParameter.ShouldBeConstantized;
+                var useConstants =
+                    ParameterizedCollectionMode is ParameterizedCollectionMode.Constants
+                    ||
+                    (ParameterizedCollectionMode is ParameterizedCollectionMode.Parameter
+                        && valuesParameter.ShouldBeConstantized)
+                    ||
+                    (ParameterizedCollectionMode is ParameterizedCollectionMode.MultipleParameters
+                        && valuesParameter.ShouldBeConstantized);
+                var expandedParameters = _collectionParameterExpansionMap.GetOrAddNew(valuesParameter);
+                var expandedParametersCounter = 0;
+                for (var i = 0; i < values.Count; i++)
                 {
-                    if (value is null && removeNulls)
+                    if (values[i] is null && removeNulls)
                     {
                         hasNull = true;
                         continue;
                     }
 
-                    processedValues.Add(_sqlExpressionFactory.Constant(value, value?.GetType() ?? typeof(object), typeMapping));
+                    switch (useParameters, useConstants)
+                    {
+                        case (true, false):
+                        {
+                            // Create parameter for value if we didn't create it yet,
+                            // otherwise reuse it.
+                            if (expandedParameters.Count <= i)
+                            {
+                                var parameterName = Uniquifier.Uniquify(valuesParameter.Name, parameters, int.MaxValue);
+                                parameters.Add(parameterName, values[i]);
+                                var parameterExpression = new SqlParameterExpression(parameterName, values[i]?.GetType() ?? typeof(object), elementTypeMapping);
+                                expandedParameters.Add(parameterExpression);
+                            }
+
+                            // Use separate counter, because we may skip nulls.
+                            processedValues.Add(expandedParameters[expandedParametersCounter++]);
+
+                            break;
+                        }
+
+                        case (false, true):
+                        {
+                            processedValues.Add(_sqlExpressionFactory.Constant(values[i], values[i]?.GetType() ?? typeof(object), sensitive: true, elementTypeMapping));
+
+                            break;
+                        }
+
+                        default:
+                            throw new UnreachableException();
+                    };
                 }
             }
             else
             {
-                Check.DebugAssert(inExpression.Values is not null, "inExpression.Values is not null");
+                Check.DebugAssert(inExpression.Values is not null);
 
                 for (var i = 0; i < inExpression.Values.Count; i++)
                 {
@@ -1159,33 +1051,13 @@ public class SqlNullabilityProcessor
         bool allowOptimizedExpansion,
         out bool nullable)
     {
-        SqlExpression[]? newValues = null;
-
-        for (var i = 0; i < rowValueExpression.Values.Count; i++)
-        {
-            var value = rowValueExpression.Values[i];
-
-            // Note that we disallow optimized expansion, since the null vs. false distinction does matter inside the row's values
-            var newValue = Visit(value, allowOptimizedExpansion: false, out _);
-            if (newValue != value && newValues is null)
-            {
-                newValues = new SqlExpression[rowValueExpression.Values.Count];
-                for (var j = 0; j < i; j++)
-                {
-                    newValues[j] = rowValueExpression.Values[j];
-                }
-            }
-
-            if (newValues is not null)
-            {
-                newValues[i] = newValue;
-            }
-        }
+        // Note that we disallow optimized expansion, since the null vs. false distinction does matter inside the row's values
+        var newValues = this.VisitAndConvert(rowValueExpression.Values);
 
         // The row value expression itself can never be null
         nullable = false;
 
-        return rowValueExpression.Update(newValues ?? rowValueExpression.Values);
+        return rowValueExpression.Update(newValues);
     }
 
     /// <summary>
@@ -1538,23 +1410,26 @@ public class SqlNullabilityProcessor
         bool allowOptimizedExpansion,
         out bool nullable)
     {
-        var parameterValue = ParameterValues[sqlParameterExpression.Name];
-        nullable = parameterValue == null;
-
-        if (nullable)
+        if (ParametersFacade.IsParameterNull(sqlParameterExpression.Name))
         {
+            nullable = true;
+
             return _sqlExpressionFactory.Constant(
                 null,
                 sqlParameterExpression.Type,
                 sqlParameterExpression.TypeMapping);
         }
 
-        if (ParametersToConstantize.Contains(sqlParameterExpression.Name))
+        nullable = false;
+
+        if (sqlParameterExpression.ShouldBeConstantized)
         {
-            DoNotCache();
+            var parameters = ParametersFacade.GetParametersAndDisableSqlCaching();
+
             return _sqlExpressionFactory.Constant(
-                parameterValue,
+                parameters[sqlParameterExpression.Name],
                 sqlParameterExpression.Type,
+                sensitive: true,
                 sqlParameterExpression.TypeMapping);
         }
 
@@ -1630,7 +1505,7 @@ public class SqlNullabilityProcessor
     // Note that we can check parameter values for null since we cache by the parameter nullability; but we cannot do the same for bool.
     private bool IsNull(SqlExpression? expression)
         => expression is SqlConstantExpression { Value: null }
-            || expression is SqlParameterExpression { Name: string parameterName } && ParameterValues[parameterName] is null;
+            || expression is SqlParameterExpression { Name: string parameterName } && ParametersFacade.IsParameterNull(parameterName);
 
     private bool IsTrue(SqlExpression? expression)
         => expression is SqlConstantExpression { Value: true };
@@ -1664,41 +1539,6 @@ public class SqlNullabilityProcessor
         {
             _nullValueColumns.RemoveRange(counter, _nullValueColumns.Count - counter);
         }
-    }
-
-    private SqlExpression ProcessJoinPredicate(SqlExpression predicate)
-    {
-        if (predicate is SqlBinaryExpression sqlBinaryExpression)
-        {
-            if (sqlBinaryExpression.OperatorType == ExpressionType.Equal)
-            {
-                var left = Visit(sqlBinaryExpression.Left, allowOptimizedExpansion: true, out var leftNullable);
-                var right = Visit(sqlBinaryExpression.Right, allowOptimizedExpansion: true, out var rightNullable);
-
-                var result = OptimizeComparison(
-                    sqlBinaryExpression.Update(left, right),
-                    left,
-                    right,
-                    leftNullable,
-                    rightNullable,
-                    out _);
-
-                return result;
-            }
-
-            if (sqlBinaryExpression.OperatorType is ExpressionType.AndAlso
-                or ExpressionType.NotEqual
-                or ExpressionType.GreaterThan
-                or ExpressionType.GreaterThanOrEqual
-                or ExpressionType.LessThan
-                or ExpressionType.LessThanOrEqual)
-            {
-                return Visit(sqlBinaryExpression, allowOptimizedExpansion: true, out _);
-            }
-        }
-
-        throw new InvalidOperationException(
-            RelationalStrings.UnhandledExpressionInVisitor(predicate, predicate.GetType(), nameof(SqlNullabilityProcessor)));
     }
 
     private SqlExpression OptimizeComparison(
@@ -1963,11 +1803,14 @@ public class SqlNullabilityProcessor
             }
             && projectedColumn.TableAlias == collectionTable.Alias
             && IsCollectionTable(collectionTable, out var collection)
-            && collection is SqlParameterExpression collectionParameter
-            && ParameterValues[collectionParameter.Name] is IList values)
+            && collection is SqlParameterExpression collectionParameter)
         {
-            // We're looking at a parameter beyond its simple nullability, so we can't use the 2nd-level cache for this query.
-            DoNotCache();
+            // We're looking at a parameter beyond its simple nullability, so we can't use the SQL cache for this query.
+            var parameters = ParametersFacade.GetParametersAndDisableSqlCaching();
+            if (parameters[collectionParameter.Name] is not IList values)
+            {
+                throw new UnreachableException($"Parameter '{collectionParameter.Name}' is not an IList.");
+            }
 
             IList? processedValues = null;
 
@@ -2005,20 +1848,9 @@ public class SqlNullabilityProcessor
 
             foundNull = true;
 
-            // TODO: We currently only have read-only access to the parameter values in the nullability processor (and in all of the
-            // 2nd-level query pipeline); to need to flow the mutable dictionary in. Note that any modification of parameter values (as
-            // here) must immediately entail DoNotCache().
-            Check.DebugAssert(ParameterValues is Dictionary<string, object?>, "ParameterValues isn't a Dictionary");
-            if (ParameterValues is not Dictionary<string, object?> mutableParameterValues)
-            {
-                rewrittenSelectExpression = null;
-                foundNull = null;
-                return false;
-            }
-
             var rewrittenParameter = new SqlParameterExpression(
                 collectionParameter.Name + "_without_nulls", collectionParameter.Type, collectionParameter.TypeMapping);
-            mutableParameterValues[rewrittenParameter.Name] = processedValues;
+            parameters[rewrittenParameter.Name] = processedValues;
             var rewrittenCollectionTable = UpdateParameterCollection(collectionTable, rewrittenParameter);
 
             // We clone the select expression since Update below doesn't create a pure copy, mutating the original as well (because of
@@ -2100,7 +1932,7 @@ public class SqlNullabilityProcessor
                 // not_null_value_parameter is null -> false
                 // not_null_value_parameter is not null -> true
                 return _sqlExpressionFactory.Constant(
-                    ParameterValues[sqlParameterOperand.Name] == null ^ sqlUnaryExpression.OperatorType == ExpressionType.NotEqual,
+                    ParametersFacade.IsParameterNull(sqlParameterOperand.Name) ^ sqlUnaryExpression.OperatorType == ExpressionType.NotEqual,
                     sqlUnaryExpression.TypeMapping);
 
             case ColumnExpression columnOperand

@@ -10,9 +10,4 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public class ManyToManySplitQuerySqliteTest(ManyToManySplitQuerySqliteFixture fixture)
     : ManyToManyQueryRelationalTestBase<ManyToManySplitQuerySqliteFixture>(fixture)
 {
-    public override async Task Skip_navigation_order_by_single_or_default(bool async)
-        => Assert.Equal(
-            SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Skip_navigation_order_by_single_or_default(async))).Message);
 }

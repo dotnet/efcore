@@ -14,10 +14,17 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public class AdHocMiscellaneousQuerySqlServerTest : AdHocMiscellaneousQueryRelationalTestBase
+public class AdHocMiscellaneousQuerySqlServerTest(NonSharedFixture fixture) : AdHocMiscellaneousQueryRelationalTestBase(fixture)
 {
     protected override ITestStoreFactory TestStoreFactory
         => SqlServerTestStoreFactory.Instance;
+
+    protected override DbContextOptionsBuilder SetParameterizedCollectionMode(DbContextOptionsBuilder optionsBuilder, ParameterizedCollectionMode parameterizedCollectionMode)
+    {
+        new SqlServerDbContextOptionsBuilder(optionsBuilder).UseParameterizedCollectionMode(parameterizedCollectionMode);
+
+        return optionsBuilder;
+    }
 
     protected override Task Seed2951(Context2951 context)
         => context.Database.ExecuteSqlRawAsync(
@@ -33,7 +40,7 @@ INSERT ZeroKey VALUES (NULL)
     {
         var contextFactory = await InitializeAsync<Context5456>(
             seed: c => c.SeedAsync(),
-            createTestStore: async () => await SqlServerTestStore.CreateInitializedAsync(StoreName, multipleActiveResultSets: true));
+            createTestStore: () => SqlServerTestStore.Create(StoreName, multipleActiveResultSets: true));
 
         Parallel.For(
             0, 10, i =>
@@ -68,7 +75,7 @@ INSERT ZeroKey VALUES (NULL)
     {
         var contextFactory = await InitializeAsync<Context5456>(
             seed: c => c.SeedAsync(),
-            createTestStore: async () => await SqlServerTestStore.CreateInitializedAsync(StoreName, multipleActiveResultSets: true));
+            createTestStore: () => SqlServerTestStore.Create(StoreName, multipleActiveResultSets: true));
 
         await Parallel.ForAsync(
             0, 10, async (i, ct) =>
@@ -176,19 +183,19 @@ FROM [Customers] AS [c]
 """,
             //
             """
-@__id_0='1'
+@id='1'
 
 SELECT TOP(2) [c].[Id], [c].[Name]
 FROM [Customers] AS [c]
-WHERE [c].[Id] = @__id_0
+WHERE [c].[Id] = @id
 """,
             //
             """
-@__id_0='2'
+@id='2'
 
 SELECT TOP(2) [c].[Id], [c].[Name]
 FROM [Customers] AS [c]
-WHERE [c].[Id] = @__id_0
+WHERE [c].[Id] = @id
 """);
     }
 
@@ -541,14 +548,11 @@ ORDER BY [p].[Id]
 
         AssertSql(
             """
-@__testDateList_0='["2018-10-07T00:00:00"]' (Size = 4000)
+@testDateList1='2018-10-07T00:00:00.0000000' (DbType = DateTime)
 
 SELECT [r].[Id], [r].[MyTime]
 FROM [ReproEntity] AS [r]
-WHERE [r].[MyTime] IN (
-    SELECT [t].[value]
-    FROM OPENJSON(@__testDateList_0) WITH ([value] smalldatetime '$') AS [t]
-)
+WHERE [r].[MyTime] = @testDateList1
 """);
     }
 
@@ -715,54 +719,131 @@ WHERE [d].[SmallDateTime] = '1970-09-03T12:00:00' AND [d].[DateTime] = '1971-09-
 
         AssertSql(
             """
-@__dateTimes_0='["1970-09-03T12:00:00","1971-09-03T12:00:10.22","1972-09-03T12:00:10.333","1973-09-03T12:00:10","1974-09-03T12:00:10.5","1975-09-03T12:00:10.66","1976-09-03T12:00:10.777","1977-09-03T12:00:10.888","1978-09-03T12:00:10.999","1979-09-03T12:00:10.111","1980-09-03T12:00:10.222"]' (Size = 4000)
-@__dateTimes_0_1='["1970-09-03T12:00:00","1971-09-03T12:00:10.22","1972-09-03T12:00:10.333","1973-09-03T12:00:10","1974-09-03T12:00:10.5","1975-09-03T12:00:10.66","1976-09-03T12:00:10.777","1977-09-03T12:00:10.888","1978-09-03T12:00:10.999","1979-09-03T12:00:10.111","1980-09-03T12:00:10.222"]' (Size = 4000)
-@__dateTimes_0_2='["1970-09-03T12:00:00","1971-09-03T12:00:10.22","1972-09-03T12:00:10.333","1973-09-03T12:00:10","1974-09-03T12:00:10.5","1975-09-03T12:00:10.66","1976-09-03T12:00:10.777","1977-09-03T12:00:10.888","1978-09-03T12:00:10.999","1979-09-03T12:00:10.111","1980-09-03T12:00:10.222"]' (Size = 4000)
-@__dateTimes_0_3='["1970-09-03T12:00:00","1971-09-03T12:00:10.22","1972-09-03T12:00:10.333","1973-09-03T12:00:10","1974-09-03T12:00:10.5","1975-09-03T12:00:10.66","1976-09-03T12:00:10.777","1977-09-03T12:00:10.888","1978-09-03T12:00:10.999","1979-09-03T12:00:10.111","1980-09-03T12:00:10.222"]' (Size = 4000)
-@__dateTimes_0_4='["1970-09-03T12:00:00","1971-09-03T12:00:10.22","1972-09-03T12:00:10.333","1973-09-03T12:00:10","1974-09-03T12:00:10.5","1975-09-03T12:00:10.66","1976-09-03T12:00:10.777","1977-09-03T12:00:10.888","1978-09-03T12:00:10.999","1979-09-03T12:00:10.111","1980-09-03T12:00:10.222"]' (Size = 4000)
-@__dateTimes_0_5='["1970-09-03T12:00:00","1971-09-03T12:00:10.22","1972-09-03T12:00:10.333","1973-09-03T12:00:10","1974-09-03T12:00:10.5","1975-09-03T12:00:10.66","1976-09-03T12:00:10.777","1977-09-03T12:00:10.888","1978-09-03T12:00:10.999","1979-09-03T12:00:10.111","1980-09-03T12:00:10.222"]' (Size = 4000)
-@__dateTimes_0_6='["1970-09-03T12:00:00","1971-09-03T12:00:10.22","1972-09-03T12:00:10.333","1973-09-03T12:00:10","1974-09-03T12:00:10.5","1975-09-03T12:00:10.66","1976-09-03T12:00:10.777","1977-09-03T12:00:10.888","1978-09-03T12:00:10.999","1979-09-03T12:00:10.111","1980-09-03T12:00:10.222"]' (Size = 4000)
-@__dateTimes_0_7='["1970-09-03T12:00:00","1971-09-03T12:00:10.22","1972-09-03T12:00:10.333","1973-09-03T12:00:10","1974-09-03T12:00:10.5","1975-09-03T12:00:10.66","1976-09-03T12:00:10.777","1977-09-03T12:00:10.888","1978-09-03T12:00:10.999","1979-09-03T12:00:10.111","1980-09-03T12:00:10.222"]' (Size = 4000)
-@__dateTimes_0_8='["1970-09-03T12:00:00","1971-09-03T12:00:10.22","1972-09-03T12:00:10.333","1973-09-03T12:00:10","1974-09-03T12:00:10.5","1975-09-03T12:00:10.66","1976-09-03T12:00:10.777","1977-09-03T12:00:10.888","1978-09-03T12:00:10.999","1979-09-03T12:00:10.111","1980-09-03T12:00:10.222"]' (Size = 4000)
-@__dateTimes_0_9='["1970-09-03T12:00:00","1971-09-03T12:00:10.22","1972-09-03T12:00:10.333","1973-09-03T12:00:10","1974-09-03T12:00:10.5","1975-09-03T12:00:10.66","1976-09-03T12:00:10.777","1977-09-03T12:00:10.888","1978-09-03T12:00:10.999","1979-09-03T12:00:10.111","1980-09-03T12:00:10.222"]' (Size = 4000)
-@__dateTimes_0_10='["1970-09-03T12:00:00","1971-09-03T12:00:10.22","1972-09-03T12:00:10.333","1973-09-03T12:00:10","1974-09-03T12:00:10.5","1975-09-03T12:00:10.66","1976-09-03T12:00:10.777","1977-09-03T12:00:10.888","1978-09-03T12:00:10.999","1979-09-03T12:00:10.111","1980-09-03T12:00:10.222"]' (Size = 4000)
+@dateTimes1='1970-09-03T12:00:00.0000000' (DbType = DateTime)
+@dateTimes2='1971-09-03T12:00:10.2200000' (DbType = DateTime)
+@dateTimes3='1972-09-03T12:00:10.3330000' (DbType = DateTime)
+@dateTimes4='1973-09-03T12:00:10.0000000' (DbType = DateTime)
+@dateTimes5='1974-09-03T12:00:10.5000000' (DbType = DateTime)
+@dateTimes6='1975-09-03T12:00:10.6600000' (DbType = DateTime)
+@dateTimes7='1976-09-03T12:00:10.7770000' (DbType = DateTime)
+@dateTimes8='1977-09-03T12:00:10.8880000' (DbType = DateTime)
+@dateTimes9='1978-09-03T12:00:10.9990000' (DbType = DateTime)
+@dateTimes10='1979-09-03T12:00:10.1110000' (DbType = DateTime)
+@dateTimes11='1980-09-03T12:00:10.2220000' (DbType = DateTime)
+@dateTimes12='1970-09-03T12:00:00.0000000' (DbType = DateTime)
+@dateTimes13='1971-09-03T12:00:10.2200000' (DbType = DateTime)
+@dateTimes14='1972-09-03T12:00:10.3330000' (DbType = DateTime)
+@dateTimes15='1973-09-03T12:00:10.0000000' (DbType = DateTime)
+@dateTimes16='1974-09-03T12:00:10.5000000' (DbType = DateTime)
+@dateTimes17='1975-09-03T12:00:10.6600000' (DbType = DateTime)
+@dateTimes18='1976-09-03T12:00:10.7770000' (DbType = DateTime)
+@dateTimes19='1977-09-03T12:00:10.8880000' (DbType = DateTime)
+@dateTimes20='1978-09-03T12:00:10.9990000' (DbType = DateTime)
+@dateTimes21='1979-09-03T12:00:10.1110000' (DbType = DateTime)
+@dateTimes22='1980-09-03T12:00:10.2220000' (DbType = DateTime)
+@dateTimes23='1970-09-03T12:00:00.0000000'
+@dateTimes24='1971-09-03T12:00:10.2200000'
+@dateTimes25='1972-09-03T12:00:10.3330000'
+@dateTimes26='1973-09-03T12:00:10.0000000'
+@dateTimes27='1974-09-03T12:00:10.5000000'
+@dateTimes28='1975-09-03T12:00:10.6600000'
+@dateTimes29='1976-09-03T12:00:10.7770000'
+@dateTimes30='1977-09-03T12:00:10.8880000'
+@dateTimes31='1978-09-03T12:00:10.9990000'
+@dateTimes32='1979-09-03T12:00:10.1110000'
+@dateTimes33='1980-09-03T12:00:10.2220000'
+@dateTimes34='1970-09-03T12:00:00.0000000'
+@dateTimes35='1971-09-03T12:00:10.2200000'
+@dateTimes36='1972-09-03T12:00:10.3330000'
+@dateTimes37='1973-09-03T12:00:10.0000000'
+@dateTimes38='1974-09-03T12:00:10.5000000'
+@dateTimes39='1975-09-03T12:00:10.6600000'
+@dateTimes40='1976-09-03T12:00:10.7770000'
+@dateTimes41='1977-09-03T12:00:10.8880000'
+@dateTimes42='1978-09-03T12:00:10.9990000'
+@dateTimes43='1979-09-03T12:00:10.1110000'
+@dateTimes44='1980-09-03T12:00:10.2220000'
+@dateTimes45='1970-09-03T12:00:00.0000000' (Scale = 1)
+@dateTimes46='1971-09-03T12:00:10.2200000' (Scale = 1)
+@dateTimes47='1972-09-03T12:00:10.3330000' (Scale = 1)
+@dateTimes48='1973-09-03T12:00:10.0000000' (Scale = 1)
+@dateTimes49='1974-09-03T12:00:10.5000000' (Scale = 1)
+@dateTimes50='1975-09-03T12:00:10.6600000' (Scale = 1)
+@dateTimes51='1976-09-03T12:00:10.7770000' (Scale = 1)
+@dateTimes52='1977-09-03T12:00:10.8880000' (Scale = 1)
+@dateTimes53='1978-09-03T12:00:10.9990000' (Scale = 1)
+@dateTimes54='1979-09-03T12:00:10.1110000' (Scale = 1)
+@dateTimes55='1980-09-03T12:00:10.2220000' (Scale = 1)
+@dateTimes56='1970-09-03T12:00:00.0000000' (Scale = 2)
+@dateTimes57='1971-09-03T12:00:10.2200000' (Scale = 2)
+@dateTimes58='1972-09-03T12:00:10.3330000' (Scale = 2)
+@dateTimes59='1973-09-03T12:00:10.0000000' (Scale = 2)
+@dateTimes60='1974-09-03T12:00:10.5000000' (Scale = 2)
+@dateTimes61='1975-09-03T12:00:10.6600000' (Scale = 2)
+@dateTimes62='1976-09-03T12:00:10.7770000' (Scale = 2)
+@dateTimes63='1977-09-03T12:00:10.8880000' (Scale = 2)
+@dateTimes64='1978-09-03T12:00:10.9990000' (Scale = 2)
+@dateTimes65='1979-09-03T12:00:10.1110000' (Scale = 2)
+@dateTimes66='1980-09-03T12:00:10.2220000' (Scale = 2)
+@dateTimes67='1970-09-03T12:00:00.0000000' (Scale = 3)
+@dateTimes68='1971-09-03T12:00:10.2200000' (Scale = 3)
+@dateTimes69='1972-09-03T12:00:10.3330000' (Scale = 3)
+@dateTimes70='1973-09-03T12:00:10.0000000' (Scale = 3)
+@dateTimes71='1974-09-03T12:00:10.5000000' (Scale = 3)
+@dateTimes72='1975-09-03T12:00:10.6600000' (Scale = 3)
+@dateTimes73='1976-09-03T12:00:10.7770000' (Scale = 3)
+@dateTimes74='1977-09-03T12:00:10.8880000' (Scale = 3)
+@dateTimes75='1978-09-03T12:00:10.9990000' (Scale = 3)
+@dateTimes76='1979-09-03T12:00:10.1110000' (Scale = 3)
+@dateTimes77='1980-09-03T12:00:10.2220000' (Scale = 3)
+@dateTimes78='1970-09-03T12:00:00.0000000' (Scale = 4)
+@dateTimes79='1971-09-03T12:00:10.2200000' (Scale = 4)
+@dateTimes80='1972-09-03T12:00:10.3330000' (Scale = 4)
+@dateTimes81='1973-09-03T12:00:10.0000000' (Scale = 4)
+@dateTimes82='1974-09-03T12:00:10.5000000' (Scale = 4)
+@dateTimes83='1975-09-03T12:00:10.6600000' (Scale = 4)
+@dateTimes84='1976-09-03T12:00:10.7770000' (Scale = 4)
+@dateTimes85='1977-09-03T12:00:10.8880000' (Scale = 4)
+@dateTimes86='1978-09-03T12:00:10.9990000' (Scale = 4)
+@dateTimes87='1979-09-03T12:00:10.1110000' (Scale = 4)
+@dateTimes88='1980-09-03T12:00:10.2220000' (Scale = 4)
+@dateTimes89='1970-09-03T12:00:00.0000000' (Scale = 5)
+@dateTimes90='1971-09-03T12:00:10.2200000' (Scale = 5)
+@dateTimes91='1972-09-03T12:00:10.3330000' (Scale = 5)
+@dateTimes92='1973-09-03T12:00:10.0000000' (Scale = 5)
+@dateTimes93='1974-09-03T12:00:10.5000000' (Scale = 5)
+@dateTimes94='1975-09-03T12:00:10.6600000' (Scale = 5)
+@dateTimes95='1976-09-03T12:00:10.7770000' (Scale = 5)
+@dateTimes96='1977-09-03T12:00:10.8880000' (Scale = 5)
+@dateTimes97='1978-09-03T12:00:10.9990000' (Scale = 5)
+@dateTimes98='1979-09-03T12:00:10.1110000' (Scale = 5)
+@dateTimes99='1980-09-03T12:00:10.2220000' (Scale = 5)
+@dateTimes100='1970-09-03T12:00:00.0000000' (Scale = 6)
+@dateTimes101='1971-09-03T12:00:10.2200000' (Scale = 6)
+@dateTimes102='1972-09-03T12:00:10.3330000' (Scale = 6)
+@dateTimes103='1973-09-03T12:00:10.0000000' (Scale = 6)
+@dateTimes104='1974-09-03T12:00:10.5000000' (Scale = 6)
+@dateTimes105='1975-09-03T12:00:10.6600000' (Scale = 6)
+@dateTimes106='1976-09-03T12:00:10.7770000' (Scale = 6)
+@dateTimes107='1977-09-03T12:00:10.8880000' (Scale = 6)
+@dateTimes108='1978-09-03T12:00:10.9990000' (Scale = 6)
+@dateTimes109='1979-09-03T12:00:10.1110000' (Scale = 6)
+@dateTimes110='1980-09-03T12:00:10.2220000' (Scale = 6)
+@dateTimes111='1970-09-03T12:00:00.0000000' (Scale = 7)
+@dateTimes112='1971-09-03T12:00:10.2200000' (Scale = 7)
+@dateTimes113='1972-09-03T12:00:10.3330000' (Scale = 7)
+@dateTimes114='1973-09-03T12:00:10.0000000' (Scale = 7)
+@dateTimes115='1974-09-03T12:00:10.5000000' (Scale = 7)
+@dateTimes116='1975-09-03T12:00:10.6600000' (Scale = 7)
+@dateTimes117='1976-09-03T12:00:10.7770000' (Scale = 7)
+@dateTimes118='1977-09-03T12:00:10.8880000' (Scale = 7)
+@dateTimes119='1978-09-03T12:00:10.9990000' (Scale = 7)
+@dateTimes120='1979-09-03T12:00:10.1110000' (Scale = 7)
+@dateTimes121='1980-09-03T12:00:10.2220000' (Scale = 7)
 
 SELECT [d].[Id], [d].[DateTime], [d].[DateTime2], [d].[DateTime2_0], [d].[DateTime2_1], [d].[DateTime2_2], [d].[DateTime2_3], [d].[DateTime2_4], [d].[DateTime2_5], [d].[DateTime2_6], [d].[DateTime2_7], [d].[SmallDateTime]
 FROM [Dates] AS [d]
-WHERE [d].[SmallDateTime] IN (
-    SELECT [d0].[value]
-    FROM OPENJSON(@__dateTimes_0) WITH ([value] smalldatetime '$') AS [d0]
-) AND [d].[DateTime] IN (
-    SELECT [d1].[value]
-    FROM OPENJSON(@__dateTimes_0_1) WITH ([value] datetime '$') AS [d1]
-) AND [d].[DateTime2] IN (
-    SELECT [d2].[value]
-    FROM OPENJSON(@__dateTimes_0_2) WITH ([value] datetime2 '$') AS [d2]
-) AND [d].[DateTime2_0] IN (
-    SELECT [d3].[value]
-    FROM OPENJSON(@__dateTimes_0_3) WITH ([value] datetime2(0) '$') AS [d3]
-) AND [d].[DateTime2_1] IN (
-    SELECT [d4].[value]
-    FROM OPENJSON(@__dateTimes_0_4) WITH ([value] datetime2(1) '$') AS [d4]
-) AND [d].[DateTime2_2] IN (
-    SELECT [d5].[value]
-    FROM OPENJSON(@__dateTimes_0_5) WITH ([value] datetime2(2) '$') AS [d5]
-) AND [d].[DateTime2_3] IN (
-    SELECT [d6].[value]
-    FROM OPENJSON(@__dateTimes_0_6) WITH ([value] datetime2(3) '$') AS [d6]
-) AND [d].[DateTime2_4] IN (
-    SELECT [d7].[value]
-    FROM OPENJSON(@__dateTimes_0_7) WITH ([value] datetime2(4) '$') AS [d7]
-) AND [d].[DateTime2_5] IN (
-    SELECT [d8].[value]
-    FROM OPENJSON(@__dateTimes_0_8) WITH ([value] datetime2(5) '$') AS [d8]
-) AND [d].[DateTime2_6] IN (
-    SELECT [d9].[value]
-    FROM OPENJSON(@__dateTimes_0_9) WITH ([value] datetime2(6) '$') AS [d9]
-) AND [d].[DateTime2_7] IN (
-    SELECT [d10].[value]
-    FROM OPENJSON(@__dateTimes_0_10) WITH ([value] datetime2(7) '$') AS [d10]
-)
+WHERE [d].[SmallDateTime] IN (@dateTimes1, @dateTimes2, @dateTimes3, @dateTimes4, @dateTimes5, @dateTimes6, @dateTimes7, @dateTimes8, @dateTimes9, @dateTimes10, @dateTimes11) AND [d].[DateTime] IN (@dateTimes12, @dateTimes13, @dateTimes14, @dateTimes15, @dateTimes16, @dateTimes17, @dateTimes18, @dateTimes19, @dateTimes20, @dateTimes21, @dateTimes22) AND [d].[DateTime2] IN (@dateTimes23, @dateTimes24, @dateTimes25, @dateTimes26, @dateTimes27, @dateTimes28, @dateTimes29, @dateTimes30, @dateTimes31, @dateTimes32, @dateTimes33) AND [d].[DateTime2_0] IN (@dateTimes34, @dateTimes35, @dateTimes36, @dateTimes37, @dateTimes38, @dateTimes39, @dateTimes40, @dateTimes41, @dateTimes42, @dateTimes43, @dateTimes44) AND [d].[DateTime2_1] IN (@dateTimes45, @dateTimes46, @dateTimes47, @dateTimes48, @dateTimes49, @dateTimes50, @dateTimes51, @dateTimes52, @dateTimes53, @dateTimes54, @dateTimes55) AND [d].[DateTime2_2] IN (@dateTimes56, @dateTimes57, @dateTimes58, @dateTimes59, @dateTimes60, @dateTimes61, @dateTimes62, @dateTimes63, @dateTimes64, @dateTimes65, @dateTimes66) AND [d].[DateTime2_3] IN (@dateTimes67, @dateTimes68, @dateTimes69, @dateTimes70, @dateTimes71, @dateTimes72, @dateTimes73, @dateTimes74, @dateTimes75, @dateTimes76, @dateTimes77) AND [d].[DateTime2_4] IN (@dateTimes78, @dateTimes79, @dateTimes80, @dateTimes81, @dateTimes82, @dateTimes83, @dateTimes84, @dateTimes85, @dateTimes86, @dateTimes87, @dateTimes88) AND [d].[DateTime2_5] IN (@dateTimes89, @dateTimes90, @dateTimes91, @dateTimes92, @dateTimes93, @dateTimes94, @dateTimes95, @dateTimes96, @dateTimes97, @dateTimes98, @dateTimes99) AND [d].[DateTime2_6] IN (@dateTimes100, @dateTimes101, @dateTimes102, @dateTimes103, @dateTimes104, @dateTimes105, @dateTimes106, @dateTimes107, @dateTimes108, @dateTimes109, @dateTimes110) AND [d].[DateTime2_7] IN (@dateTimes111, @dateTimes112, @dateTimes113, @dateTimes114, @dateTimes115, @dateTimes116, @dateTimes117, @dateTimes118, @dateTimes119, @dateTimes120, @dateTimes121)
 """);
     }
 
@@ -1157,14 +1238,14 @@ end
 
         AssertSql(
             """
-@__p_0='10'
+@p='10'
 
 SELECT (
     SELECT TOP(1) [g0].[Description]
     FROM [Gender] AS [g0]
     WHERE [g0].[Id] = [g].[GenderId]) AS [Gender]
 FROM (
-    SELECT TOP(@__p_0) [m].[Id], [m].[PersonId], [m].[Timestamp]
+    SELECT TOP(@p) [m].[Id], [m].[PersonId], [m].[Timestamp]
     FROM [Message] AS [m]
     ORDER BY [m].[Id]
 ) AS [m0]
@@ -1579,58 +1660,58 @@ WHERE [e].[PermissionByte] & [e].[PermissionByte] = [e].[PermissionByte]
 
         AssertSql(
             """
-@__id_0='1'
+@id='1'
 
 SELECT [e].[Id], [e].[Name]
 FROM [Entities] AS [e]
-WHERE [e].[Id] = @__id_0
+WHERE [e].[Id] = @id
 """,
             //
             """
-@__id_0='2'
+@id='2'
 
 SELECT [e].[Id], [e].[Name]
 FROM [Entities] AS [e]
-WHERE [e].[Id] = @__id_0
+WHERE [e].[Id] = @id
 """,
             //
             """
-@__id_0='1'
+@id='1'
 
 SELECT [e].[Id], [e].[Name]
 FROM [Entities] AS [e]
-WHERE [e].[Id] = @__id_0
+WHERE [e].[Id] = @id
 """,
             //
             """
-@__id_0='2'
+@id='2'
 
 SELECT [e].[Id], [e].[Name]
 FROM [Entities] AS [e]
-WHERE [e].[Id] = @__id_0
+WHERE [e].[Id] = @id
 """,
             //
             """
-@__id_0='1'
+@id='1'
 
 SELECT [e].[Id], [e].[Name]
 FROM [Entities] AS [e]
 WHERE [e].[Id] IN (
     SELECT [e0].[Id]
     FROM [Entities] AS [e0]
-    WHERE [e0].[Id] = @__id_0
+    WHERE [e0].[Id] = @id
 )
 """,
             //
             """
-@__id_0='2'
+@id='2'
 
 SELECT [e].[Id], [e].[Name]
 FROM [Entities] AS [e]
 WHERE [e].[Id] IN (
     SELECT [e0].[Id]
     FROM [Entities] AS [e0]
-    WHERE [e0].[Id] = @__id_0
+    WHERE [e0].[Id] = @id
 )
 """);
     }
@@ -1641,11 +1722,11 @@ WHERE [e].[Id] IN (
 
         AssertSql(
             """
-@__name_0='A' (Size = 4000)
+@name='A' (Size = 4000)
 
 SELECT [e].[Id], [e].[Name]
 FROM [Entities] AS [e]
-WHERE [e].[Name] = @__name_0
+WHERE [e].[Name] = @name
 """,
             //
             """
@@ -1782,16 +1863,16 @@ FROM [Entities] AS [e]
 
         AssertSql(
             """
-@__id1_0='1'
-@__id2_1='2'
+@id1='1'
+@id2='2'
 
 SELECT [t].[Id]
 FROM [Tables1] AS [t]
-WHERE [t].[Id] = @__id1_0
+WHERE [t].[Id] = @id1
 UNION
 SELECT [t0].[Id]
 FROM [Tables2] AS [t0]
-WHERE [t0].[Id] = @__id2_1
+WHERE [t0].[Id] = @id2
 """,
             //
             """
@@ -1817,30 +1898,30 @@ DEFAULT VALUES;
 
         AssertSql(
             """
-@__k_0='1'
+@k='1'
 
 SELECT TOP(1) [a].[Id], [a].[Name]
 FROM [Autos] AS [a]
-WHERE [a].[Id] = @__k_0
+WHERE [a].[Id] = @k
 """,
             //
             """
-@__p_0='2'
+@p='2'
 
 SELECT TOP(1) [a].[Id], [a].[Name]
 FROM [Autos] AS [a]
-WHERE [a].[Id] = @__p_0
+WHERE [a].[Id] = @p
 """,
             //
             """
-@__entity_equality_a_0_Id='1' (Nullable = true)
-@__entity_equality_b_1_Id='2' (Nullable = true)
+@entity_equality_a_Id='1' (Nullable = true)
+@entity_equality_b_Id='2' (Nullable = true)
 
 SELECT [e].[Id], [e].[AnotherAutoId], [e].[AutoId]
 FROM [EqualAutos] AS [e]
 LEFT JOIN [Autos] AS [a] ON [e].[AutoId] = [a].[Id]
 LEFT JOIN [Autos] AS [a0] ON [e].[AnotherAutoId] = [a0].[Id]
-WHERE ([a].[Id] = @__entity_equality_a_0_Id AND [a0].[Id] = @__entity_equality_b_1_Id) OR ([a].[Id] = @__entity_equality_b_1_Id AND [a0].[Id] = @__entity_equality_a_0_Id)
+WHERE ([a].[Id] = @entity_equality_a_Id AND [a0].[Id] = @entity_equality_b_Id) OR ([a].[Id] = @entity_equality_b_Id AND [a0].[Id] = @entity_equality_a_Id)
 """);
     }
 
@@ -1986,9 +2067,9 @@ GROUP BY [t1].[AnotherEntity11818_Name], [t3].[MaumarEntity11818_Name]
 """);
     }
 
-    public override async Task Left_join_with_missing_key_values_on_both_sides(bool async)
+    public override async Task LeftJoin_with_missing_key_values_on_both_sides(bool async)
     {
-        await base.Left_join_with_missing_key_values_on_both_sides(async);
+        await base.LeftJoin_with_missing_key_values_on_both_sides(async);
 
         AssertSql(
             """
@@ -2010,11 +2091,11 @@ LEFT JOIN [Postcodes] AS [p] ON [c].[PostcodeID] = [p].[PostcodeID]
 
         AssertSql(
             """
-@__bitterTaste_0='1'
+@bitterTaste='1'
 
 SELECT [i].[IceCreamId], [i].[Name], [i].[Taste]
 FROM [IceCreams] AS [i]
-WHERE [i].[Taste] = @__bitterTaste_0
+WHERE [i].[Taste] = @bitterTaste
 """);
     }
 
@@ -2095,7 +2176,7 @@ SELECT cast(null as int) AS MyValue
 
         AssertSql(
             """
-@__currentUserId_0='1'
+@currentUserId='1'
 
 SELECT CASE
     WHEN [u].[Id] IN (
@@ -2105,7 +2186,7 @@ SELECT CASE
         WHERE [m].[GroupId] IN (
             SELECT [m0].[GroupId]
             FROM [Memberships] AS [m0]
-            WHERE [m0].[UserId] = @__currentUserId_0
+            WHERE [m0].[UserId] = @currentUserId
         )
     ) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
@@ -2120,7 +2201,7 @@ FROM [Users] AS [u]
 
         AssertSql(
             """
-@__currentUserId_0='1'
+@currentUserId='1'
 
 SELECT CASE
     WHEN [u].[Id] IN (
@@ -2132,7 +2213,7 @@ SELECT CASE
             SELECT [g0].[Id]
             FROM [Memberships] AS [m0]
             INNER JOIN [Groups] AS [g0] ON [m0].[GroupId] = [g0].[Id]
-            WHERE [m0].[UserId] = @__currentUserId_0
+            WHERE [m0].[UserId] = @currentUserId
         )
     ) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
@@ -2147,7 +2228,7 @@ FROM [Users] AS [u]
 
         AssertSql(
             """
-@__currentUserId_0='1'
+@currentUserId='1'
 
 SELECT CASE
     WHEN EXISTS (
@@ -2157,7 +2238,7 @@ SELECT CASE
         WHERE [m].[GroupId] IN (
             SELECT [m0].[GroupId]
             FROM [Memberships] AS [m0]
-            WHERE [m0].[UserId] = @__currentUserId_0
+            WHERE [m0].[UserId] = @currentUserId
         ) AND [u0].[Id] = [u].[Id]) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [HasAccess]
@@ -2171,17 +2252,17 @@ FROM [Users] AS [u]
 
         AssertSql(
             """
-@__orderId_0='123456'
+@orderId='123456'
 
 SELECT [o].[Id], [o].[CancellationDate], [o].[OrderId], [o].[ShippingDate]
 FROM [OrderItems] AS [o]
 INNER JOIN (
     SELECT [o0].[OrderId] AS [Key]
     FROM [OrderItems] AS [o0]
-    WHERE [o0].[OrderId] = @__orderId_0
+    WHERE [o0].[OrderId] = @orderId
     GROUP BY [o0].[OrderId]
 ) AS [o1] ON [o].[OrderId] = [o1].[Key]
-WHERE [o].[OrderId] = @__orderId_0
+WHERE [o].[OrderId] = @orderId
 ORDER BY [o].[OrderId]
 """);
     }
@@ -2192,15 +2273,15 @@ ORDER BY [o].[OrderId]
 
         AssertSql(
             """
-@__orderItemType_1='MyType1' (Nullable = false) (Size = 4000)
-@__p_0='1'
+@orderItemType='MyType1' (Nullable = false) (Size = 4000)
+@p='1'
 
 SELECT [o1].[Id], COALESCE((
     SELECT TOP(1) [o3].[Price]
     FROM [OrderItems] AS [o3]
-    WHERE [o1].[Id] = [o3].[OrderId] AND [o3].[Type] = @__orderItemType_1), 0.0E0) AS [SpecialSum]
+    WHERE [o1].[Id] = [o3].[OrderId] AND [o3].[Type] = @orderItemType), 0.0E0) AS [SpecialSum]
 FROM (
-    SELECT TOP(@__p_0) [o].[Id]
+    SELECT TOP(@p) [o].[Id]
     FROM [Orders] AS [o]
     WHERE EXISTS (
         SELECT 1
@@ -2349,19 +2430,19 @@ LEFT JOIN [Child] AS [c] ON [p].[Id] = [c].[Id]
 
         AssertSql(
             """
-@__date_0='2012-12-12T00:00:00.0000000' (DbType = DateTime)
+@date='2012-12-12T00:00:00.0000000' (DbType = DateTime)
 
 SELECT [m].[Id], [m].[SomeDate]
 FROM [MyEntities] AS [m]
-WHERE [m].[SomeDate] = @__date_0
+WHERE [m].[SomeDate] = @date
 """,
             //
             """
-@__date_0='2012-12-12T00:00:00.0000000' (DbType = DateTime)
+@date='2012-12-12T00:00:00.0000000' (DbType = DateTime)
 
 SELECT [m].[Id], [m].[SomeDate]
 FROM [MyEntities] AS [m]
-WHERE [dbo].[ModifyDate]([m].[SomeDate]) = @__date_0
+WHERE [dbo].[ModifyDate]([m].[SomeDate]) = @date
 """);
     }
 
@@ -2371,9 +2452,9 @@ WHERE [dbo].[ModifyDate]([m].[SomeDate]) = @__date_0
 
         AssertSql(
             """
-@__p_0='123456'
+@p='123456'
 
-SELECT TOP(@__p_0) [t].[JSON]
+SELECT TOP(@p) [t].[JSON]
 FROM [TableDatas] AS [t]
 INNER JOIN (
     SELECT DISTINCT [i].[Parcel]
@@ -2404,5 +2485,59 @@ WHERE CASE
     WHEN [c0].[Id] IS NOT NULL THEN [c1].[CountryName]
 END = N'COUNTRY'
 """);
+    }
+
+    public override async Task Check_inlined_constants_redacting(bool async, bool enableSensitiveDataLogging)
+    {
+        await base.Check_inlined_constants_redacting(async, enableSensitiveDataLogging);
+
+        if (!enableSensitiveDataLogging)
+        {
+            AssertSql(
+                """
+SELECT [t].[Id], [t].[Name]
+FROM [TestEntities] AS [t]
+WHERE [t].[Id] IN (?, ?, ?)
+""",
+                //
+                """
+SELECT [t].[Id], [t].[Name]
+FROM [TestEntities] AS [t]
+WHERE EXISTS (
+    SELECT 1
+    FROM (VALUES (?), (?), (?)) AS [i]([Value])
+    WHERE [i].[Value] = [t].[Id])
+""",
+                //
+                """
+SELECT [t].[Id], [t].[Name]
+FROM [TestEntities] AS [t]
+WHERE ? = [t].[Id]
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
+SELECT [t].[Id], [t].[Name]
+FROM [TestEntities] AS [t]
+WHERE [t].[Id] IN (1, 2, 3)
+""",
+                //
+                """
+SELECT [t].[Id], [t].[Name]
+FROM [TestEntities] AS [t]
+WHERE EXISTS (
+    SELECT 1
+    FROM (VALUES (1), (2), (3)) AS [i]([Value])
+    WHERE [i].[Value] = [t].[Id])
+""",
+            //
+            """
+SELECT [t].[Id], [t].[Name]
+FROM [TestEntities] AS [t]
+WHERE 1 = [t].[Id]
+""");
+        }
     }
 }

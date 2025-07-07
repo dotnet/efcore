@@ -121,7 +121,7 @@ public static class PropertyBaseExtensions
         var setterProperty = propertyInfo?.FindSetterProperty();
         var getterProperty = propertyInfo?.FindGetterProperty();
 
-        var isCollectionNav = (propertyBase as IReadOnlyNavigationBase)?.IsCollection == true;
+        var isCollection = propertyBase.IsCollection;
         var hasField = fieldInfo != null;
         var hasSetter = setterProperty != null;
         var hasGetter = getterProperty != null;
@@ -141,7 +141,7 @@ public static class PropertyBaseExtensions
                         return true;
                     }
 
-                    if (isCollectionNav)
+                    if (isCollection)
                     {
                         return true;
                     }
@@ -152,7 +152,7 @@ public static class PropertyBaseExtensions
                 case PropertyAccessMode.Property when hasSetter:
                     memberInfo = setterProperty;
                     return true;
-                case PropertyAccessMode.Property when isCollectionNav:
+                case PropertyAccessMode.Property when isCollection:
                     return true;
                 case PropertyAccessMode.Property:
                     errorMessage = hasGetter
@@ -185,7 +185,7 @@ public static class PropertyBaseExtensions
                     return true;
             }
 
-            if (isCollectionNav)
+            if (isCollection)
             {
                 return true;
             }
@@ -204,7 +204,7 @@ public static class PropertyBaseExtensions
                     return true;
                 }
 
-                if (isCollectionNav)
+                if (isCollection)
                 {
                     return true;
                 }
@@ -221,7 +221,7 @@ public static class PropertyBaseExtensions
                     return true;
                 }
 
-                if (isCollectionNav)
+                if (isCollection)
                 {
                     return true;
                 }
@@ -265,7 +265,7 @@ public static class PropertyBaseExtensions
                 }
             }
 
-            if (isCollectionNav)
+            if (isCollection)
             {
                 return true;
             }
@@ -339,14 +339,16 @@ public static class PropertyBaseExtensions
     }
 
     private static string GetNoFieldErrorMessage(IPropertyBase propertyBase)
-        => ((EntityType)propertyBase.DeclaringType).GetServiceProperties()
-            .Any(p => typeof(ILazyLoader).IsAssignableFrom(p.ClrType))
-            || ((EntityType)propertyBase.DeclaringType).ConstructorBinding?.ParameterBindings
-            .OfType<ServiceParameterBinding>()
-            .Any(b => b.ServiceType == typeof(ILazyLoader))
-            == true
-                ? CoreStrings.NoBackingFieldLazyLoading(
-                    propertyBase.Name, propertyBase.DeclaringType.DisplayName())
-                : CoreStrings.NoBackingField(
-                    propertyBase.Name, propertyBase.DeclaringType.DisplayName(), nameof(PropertyAccessMode));
+        => propertyBase.DeclaringType switch
+        {
+            EntityType entityType
+            when entityType.GetServiceProperties().Any(p => typeof(ILazyLoader).IsAssignableFrom(p.ClrType))
+                || entityType.ConstructorBinding?.ParameterBindings
+                    .OfType<ServiceParameterBinding>()
+                    .Any(b => b.ServiceType == typeof(ILazyLoader)) == true
+                => CoreStrings.NoBackingFieldLazyLoading(
+                    propertyBase.Name, propertyBase.DeclaringType.DisplayName()),
+            _ => CoreStrings.NoBackingField(
+                propertyBase.Name, propertyBase.DeclaringType.DisplayName(), nameof(PropertyAccessMode)),
+        };
 }

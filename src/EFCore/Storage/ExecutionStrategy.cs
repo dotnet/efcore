@@ -190,7 +190,7 @@ public abstract class ExecutionStrategy : IExecutionStrategy
         Func<DbContext, TState, TResult> operation,
         Func<DbContext, TState, ExecutionResult<TResult>>? verifySucceeded)
     {
-        Check.NotNull(operation, nameof(operation));
+        Check.NotNull(operation);
 
         if (Current != null)
         {
@@ -293,7 +293,7 @@ public abstract class ExecutionStrategy : IExecutionStrategy
         Func<DbContext, TState, CancellationToken, Task<ExecutionResult<TResult>>>? verifySucceeded,
         CancellationToken cancellationToken = default)
     {
-        Check.NotNull(operation, nameof(operation));
+        Check.NotNull(operation);
 
         if (Current != null)
         {

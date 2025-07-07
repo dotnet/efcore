@@ -67,7 +67,7 @@ public interface IModel : IReadOnlyModel, IAnnotatable
     /// <returns>The entity type, or <see langword="null" /> if none is found.</returns>
     IEntityType? FindRuntimeEntityType(Type? type)
     {
-        Check.NotNull(type, nameof(type));
+        Check.NotNull(type);
 
         while (type != null)
         {
@@ -99,7 +99,7 @@ public interface IModel : IReadOnlyModel, IAnnotatable
     RuntimeModelDependencies? ModelDependencies
     {
         get => (RuntimeModelDependencies?)FindRuntimeAnnotationValue(CoreAnnotationNames.ModelDependencies);
-        set => SetRuntimeAnnotation(CoreAnnotationNames.ModelDependencies, Check.NotNull(value, nameof(value)));
+        set => SetRuntimeAnnotation(CoreAnnotationNames.ModelDependencies, Check.NotNull(value));
     }
 
     /// <summary>

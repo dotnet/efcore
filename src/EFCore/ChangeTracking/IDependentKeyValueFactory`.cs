@@ -23,16 +23,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 public interface IDependentKeyValueFactory<TKey> : IDependentKeyValueFactory
 {
     /// <summary>
-    ///     Attempts to create a key instance using foreign key values from the given <see cref="ValueBuffer" />.
-    /// </summary>
-    /// <param name="valueBuffer">The value buffer representing the entity instance.</param>
-    /// <param name="key">The key instance.</param>
-    /// <returns><see langword="true" /> if the key instance was created; <see langword="false" /> otherwise.</returns>
-    [ContractAnnotation("=>true, key:notnull; =>false, key:null")]
-    [Obsolete]
-    bool TryCreateFromBuffer(in ValueBuffer valueBuffer, [NotNullWhen(true)] out TKey? key);
-
-    /// <summary>
     ///     Attempts to create a key instance using foreign key values from the given <see cref="IUpdateEntry" />.
     /// </summary>
     /// <param name="entry">The entry tracking an entity instance.</param>

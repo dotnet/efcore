@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
+public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase, IClassFixture<NonSharedFixture>
 {
     private static readonly MethodInfo LikeMethodInfo
         = typeof(DbFunctionsExtensions).GetRuntimeMethod(
@@ -27,7 +27,8 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
 
     protected ExpectedQueryRewritingVisitor ExpectedQueryRewriter { get; init; }
 
-    protected OperatorsProceduralQueryTestBase()
+    protected OperatorsProceduralQueryTestBase(NonSharedFixture fixture)
+        : base(fixture)
     {
         Binaries =
         [

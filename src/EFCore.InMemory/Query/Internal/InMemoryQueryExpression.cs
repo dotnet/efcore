@@ -464,24 +464,24 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
             throw new InvalidOperationException(InMemoryStrings.DefaultIfEmptyAppliedAfterProjection);
         }
 
-        var projectionMapping = new Dictionary<ProjectionMember, Expression>();
-        foreach (var (projectionMember, expression) in _projectionMapping)
-        {
-            projectionMapping[projectionMember] = expression is EntityProjectionExpression entityProjectionExpression
-                ? MakeEntityProjectionNullable(entityProjectionExpression)
-                : MakeReadValueNullable(expression);
-        }
-
-        _projectionMapping = projectionMapping;
-        var projectionMappingExpressions = _projectionMappingExpressions.Select(e => MakeReadValueNullable(e)).ToList();
-        _projectionMappingExpressions.Clear();
-        _projectionMappingExpressions.AddRange(projectionMappingExpressions);
-        _groupingParameter = null;
-
         ServerQueryExpression = Call(
             EnumerableMethods.DefaultIfEmptyWithArgument.MakeGenericMethod(typeof(ValueBuffer)),
             ServerQueryExpression,
             Constant(new ValueBuffer(Enumerable.Repeat((object?)null, _projectionMappingExpressions.Count).ToArray())));
+
+        ReplaceProjection(_projectionMapping.ToDictionary(
+            kv => kv.Key,
+            kv => kv.Value switch
+            {
+                EntityProjectionExpression p => MakeEntityProjectionNullable(p),
+
+                var p when !p.Type.IsNullableType()
+                    => Coalesce(
+                        MakeReadValueNullable(p),
+                        p.Type.GetDefaultValueConstant()),
+
+                var p => p
+            }));
     }
 
     /// <summary>

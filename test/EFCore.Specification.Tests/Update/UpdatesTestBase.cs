@@ -14,7 +14,7 @@ public abstract class UpdatesTestBase<TFixture>(TFixture fixture) : IClassFixtur
 {
     protected TFixture Fixture { get; } = fixture;
 
-    public static IEnumerable<object[]> IsAsyncData = new object[][] { [false], [true] };
+    public static readonly IEnumerable<object[]> IsAsyncData = [[false], [true]];
 
     [ConditionalTheory] // Issue #25905
     [InlineData(false)]

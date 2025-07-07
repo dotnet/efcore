@@ -46,7 +46,7 @@ public class ArrayPropertyValues : PropertyValues
     /// </summary>
     public override void SetValues(object obj)
     {
-        Check.NotNull(obj, nameof(obj));
+        Check.NotNull(obj);
 
         if (obj.GetType() == EntityType.ClrType)
         {
@@ -93,7 +93,7 @@ public class ArrayPropertyValues : PropertyValues
     /// </summary>
     public override void SetValues(PropertyValues propertyValues)
     {
-        Check.NotNull(propertyValues, nameof(propertyValues));
+        Check.NotNull(propertyValues);
 
         for (var i = 0; i < _values.Length; i++)
         {

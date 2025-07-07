@@ -7,7 +7,7 @@ Call the `UseSqlite` method to choose the SQLite database provider for your `DbC
 ```csharp
 protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 {
-    optionsBuilder.UseSqlite("Data Source=databse.dat");
+    optionsBuilder.UseSqlite("Data Source=database.db");
 }
 ```
 

@@ -1354,10 +1354,10 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Equal(11, buildingValues["Shadow1"]);
         Assert.Equal("Meadow Drive", buildingValues["Shadow2"]);
 
-        ValidateBuildingPropereties(context.Entry(building), getValue, 11, "Meadow Drive");
+        ValidateBuildingProperties(context.Entry(building), getValue, 11, "Meadow Drive");
     }
 
-    private static void ValidateBuildingPropereties(
+    private static void ValidateBuildingProperties(
         EntityEntry buildingEntry,
         Func<EntityEntry, string, object> getValue,
         int shadow1,
@@ -1405,7 +1405,7 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Equal(11, buildingValues["Shadow1"]);
         Assert.Equal("Meadow Drive", buildingValues["Shadow2"]);
 
-        ValidateBuildingPropereties(context.Entry(building), getValue, 11, "Meadow Drive");
+        ValidateBuildingProperties(context.Entry(building), getValue, 11, "Meadow Drive");
     }
 
     [ConditionalFact]
@@ -1441,7 +1441,7 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Equal(777, buildingValues["Shadow1"]);
         Assert.Equal("Meadow Drive", buildingValues["Shadow2"]);
 
-        ValidateBuildingPropereties(context.Entry(building), getValue, 777, "Meadow Drive");
+        ValidateBuildingProperties(context.Entry(building), getValue, 777, "Meadow Drive");
     }
 
     [ConditionalFact]
@@ -1475,7 +1475,7 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Equal(1500000m, buildingValues["Value"]);
         Assert.Equal("Cheese", buildingValues["Shadow2"]);
 
-        ValidateBuildingPropereties(context.Entry(building), getValue, 11, "Cheese");
+        ValidateBuildingProperties(context.Entry(building), getValue, 11, "Cheese");
     }
 
     [ConditionalFact]
@@ -1513,7 +1513,7 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Equal(13, buildingValues["Shadow1"]);
         Assert.Equal("Pine Walk", buildingValues["Shadow2"]);
 
-        ValidateBuildingPropereties(context.Entry(building), getValue, 13, "Pine Walk");
+        ValidateBuildingProperties(context.Entry(building), getValue, 13, "Pine Walk");
     }
 
     [ConditionalFact]
@@ -1626,7 +1626,7 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Equal(777, buildingValues["Shadow1"]);
         Assert.Equal("Meadow Drive", buildingValues["Shadow2"]);
 
-        ValidateBuildingPropereties(context.Entry(building), getValue, 777, "Meadow Drive");
+        ValidateBuildingProperties(context.Entry(building), getValue, 777, "Meadow Drive");
     }
 
     [ConditionalFact]
@@ -1662,7 +1662,7 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Equal(13, clonedBuildingValues["Shadow1"]);
         Assert.Equal("Pine Walk", clonedBuildingValues["Shadow2"]);
 
-        ValidateBuildingPropereties(context.Entry(building), getValue, 13, "Pine Walk");
+        ValidateBuildingProperties(context.Entry(building), getValue, 13, "Pine Walk");
     }
 
     [ConditionalFact]
@@ -1698,7 +1698,7 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Equal(13, buildingValues["Shadow1"]);
         Assert.Equal("Pine Walk", buildingValues["Shadow2"]);
 
-        ValidateBuildingPropereties(context.Entry(building), getValue, 13, "Pine Walk");
+        ValidateBuildingProperties(context.Entry(building), getValue, 13, "Pine Walk");
     }
 
     [ConditionalFact]

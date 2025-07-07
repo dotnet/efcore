@@ -28,7 +28,7 @@ public class ComplexPropertyEntry : MemberEntry
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public ComplexPropertyEntry(InternalEntityEntry internalEntry, IComplexProperty complexProperty)
+    public ComplexPropertyEntry(IInternalEntry internalEntry, IComplexProperty complexProperty)
         : base(internalEntry, complexProperty)
     {
     }
@@ -48,7 +48,7 @@ public class ComplexPropertyEntry : MemberEntry
     /// </remarks>
     public override bool IsModified
     {
-        get => Metadata.ComplexType.GetFlattenedProperties().Any(property => InternalEntry.IsModified(property));
+        get => Metadata.ComplexType.GetFlattenedProperties().Any(InternalEntry.IsModified);
         set
         {
             foreach (var property in Metadata.ComplexType.GetFlattenedProperties())
@@ -75,7 +75,7 @@ public class ComplexPropertyEntry : MemberEntry
     /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
     public virtual PropertyEntry Property(IProperty property)
     {
-        Check.NotNull(property, nameof(property));
+        Check.NotNull(property);
 
         return new PropertyEntry(InternalEntry, property);
     }
@@ -91,7 +91,7 @@ public class ComplexPropertyEntry : MemberEntry
     /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
     public virtual PropertyEntry Property(string propertyName)
     {
-        Check.NotEmpty(propertyName, nameof(propertyName));
+        Check.NotEmpty(propertyName);
 
         return new PropertyEntry(InternalEntry, Metadata.ComplexType.GetProperty(propertyName));
     }
@@ -118,7 +118,7 @@ public class ComplexPropertyEntry : MemberEntry
     /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
     public virtual ComplexPropertyEntry ComplexProperty(IComplexProperty property)
     {
-        Check.NotNull(property, nameof(property));
+        Check.NotNull(property);
 
         return new ComplexPropertyEntry(InternalEntry, property);
     }
@@ -135,7 +135,7 @@ public class ComplexPropertyEntry : MemberEntry
     /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
     public virtual ComplexPropertyEntry ComplexProperty(string propertyName)
     {
-        Check.NotEmpty(propertyName, nameof(propertyName));
+        Check.NotEmpty(propertyName);
 
         return new ComplexPropertyEntry(InternalEntry, Metadata.ComplexType.GetComplexProperty(propertyName));
     }

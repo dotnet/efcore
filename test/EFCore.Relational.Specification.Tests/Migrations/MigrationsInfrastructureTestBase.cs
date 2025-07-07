@@ -24,7 +24,7 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
 
     protected string ActiveProvider { get; private set; }
 
-    public static IEnumerable<object[]> IsAsyncData = [[false], [true]];
+    public static readonly IEnumerable<object[]> IsAsyncData = [[false], [true]];
 
     // Database deletion can happen as async file operation and SQLClient
     // doesn't account for this, so give some time for it to happen on slow C.I. machines
@@ -375,6 +375,7 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
 
         await db.Database.EnsureDeletedAsync();
         await GiveMeSomeTimeAsync(db);
+
         await db.GetService<IRelationalDatabaseCreator>().CreateAsync();
 
         await SetAndExecuteSqlAsync(migrator.GenerateScript());
@@ -393,6 +394,7 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
 
         await db.Database.EnsureDeletedAsync();
         await GiveMeSomeTimeAsync(db);
+
         await db.GetService<IRelationalDatabaseCreator>().CreateAsync();
 
         await SetAndExecuteSqlAsync(migrator.GenerateScript(options: MigrationsSqlGenerationOptions.NoTransactions));
@@ -412,6 +414,7 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
 
         await db.Database.EnsureDeletedAsync();
         await GiveMeSomeTimeAsync(db);
+
         await db.GetService<IRelationalDatabaseCreator>().CreateAsync();
 
         await ExecuteSqlAsync(migrator.GenerateScript(
@@ -435,6 +438,7 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
 
         await db.Database.EnsureDeletedAsync();
         await GiveMeSomeTimeAsync(db);
+
         await db.GetService<IRelationalDatabaseCreator>().CreateAsync();
 
         await ExecuteSqlAsync(migrator.GenerateScript(
@@ -458,6 +462,7 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
 
         await db.Database.EnsureDeletedAsync();
         await GiveMeSomeTimeAsync(db);
+
         await db.GetService<IRelationalDatabaseCreator>().CreateAsync();
 
         await SetAndExecuteSqlAsync(migrator.GenerateScript(
@@ -479,6 +484,7 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
 
         await db.Database.EnsureDeletedAsync();
         await GiveMeSomeTimeAsync(db);
+
         await db.GetService<IRelationalDatabaseCreator>().CreateAsync();
 
         await SetAndExecuteSqlAsync(migrator.GenerateScript(

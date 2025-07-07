@@ -7,29 +7,34 @@ namespace Microsoft.EntityFrameworkCore;
 
 public abstract class NonSharedModelTestBase : IAsyncLifetime
 {
-    public static IEnumerable<object[]> IsAsyncData = [[false], [true]];
+    public static readonly IEnumerable<object[]> IsAsyncData = [[false], [true]];
 
     protected abstract string StoreName { get; }
     protected abstract ITestStoreFactory TestStoreFactory { get; }
+    protected NonSharedFixture? Fixture { get; set; }
+    protected virtual ITestOutputHelper? TestOutputHelper { get; set; }
 
     private ServiceProvider? _serviceProvider;
-
     protected IServiceProvider ServiceProvider
         => _serviceProvider
             ?? throw new InvalidOperationException(
                 $"You must call `await {nameof(InitializeAsync)}(\"DatabaseName\");` at the beginning of the test.");
 
     private TestStore? _testStore;
-
     protected TestStore TestStore
         => _testStore
             ?? throw new InvalidOperationException(
                 $"You must call `await {nameof(InitializeAsync)}(\"DatabaseName\");` at the beginning of the test.");
 
     private ListLoggerFactory? _listLoggerFactory;
-
     protected ListLoggerFactory ListLoggerFactory
         => _listLoggerFactory ??= (ListLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
+
+    protected NonSharedModelTestBase()
+    { }
+
+    protected NonSharedModelTestBase(NonSharedFixture fixture)
+        => Fixture = fixture;
 
     public virtual Task InitializeAsync()
         => Task.CompletedTask;
@@ -41,13 +46,25 @@ public abstract class NonSharedModelTestBase : IAsyncLifetime
         Action<ModelConfigurationBuilder>? configureConventions = null,
         Func<TContext, Task>? seed = null,
         Func<string, bool>? shouldLogCategory = null,
-        Func<Task<TestStore>>? createTestStore = null,
+        Func<TestStore>? createTestStore = null,
         bool usePooling = true,
         bool useServiceProvider = true)
         where TContext : DbContext
     {
-        var contextFactory = await CreateContextFactory<TContext>(
-            onModelCreating, onConfiguring, addServices, configureConventions, shouldLogCategory, createTestStore, usePooling,
+        if (Fixture == null && _testStore != null)
+        {
+            await _testStore.DisposeAsync();
+            _serviceProvider?.Dispose();
+        }
+
+        var contextFactory = CreateContextFactory<TContext>(
+            onModelCreating,
+            onConfiguring,
+            addServices,
+            configureConventions,
+            shouldLogCategory,
+            createTestStore,
+            usePooling,
             useServiceProvider);
 
         await TestStore.InitializeAsync(_serviceProvider, contextFactory.CreateContext, seed == null ? null : c => seed((TContext)c));
@@ -57,20 +74,28 @@ public abstract class NonSharedModelTestBase : IAsyncLifetime
         return contextFactory;
     }
 
-    protected async Task<ContextFactory<TContext>> CreateContextFactory<TContext>(
+    protected virtual ContextFactory<TContext> CreateContextFactory<TContext>(
         Action<ModelBuilder>? onModelCreating = null,
         Action<DbContextOptionsBuilder>? onConfiguring = null,
         Func<IServiceCollection, IServiceCollection>? addServices = null,
         Action<ModelConfigurationBuilder>? configureConventions = null,
         Func<string, bool>? shouldLogCategory = null,
-        Func<Task<TestStore>>? createTestStore = null,
+        Func<TestStore>? createTestStore = null,
         bool usePooling = true,
         bool useServiceProvider = true)
         where TContext : DbContext
     {
-        _testStore = createTestStore != null
-            ? await createTestStore()
-            : CreateTestStore();
+        if (createTestStore != null)
+        {
+            _testStore = createTestStore();
+            Fixture = null;
+        }
+        else
+        {
+            _testStore = Fixture != null
+                ? Fixture.GetOrCreateTestStore(CreateTestStore)
+                : CreateTestStore();
+        }
 
         shouldLogCategory ??= _ => false;
         var services = AddServices(
@@ -144,7 +169,7 @@ public abstract class NonSharedModelTestBase : IAsyncLifetime
 
     public virtual async Task DisposeAsync()
     {
-        if (_testStore != null)
+        if (Fixture == null && _testStore != null)
         {
             await _testStore.DisposeAsync();
             _testStore = null;

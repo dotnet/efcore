@@ -305,6 +305,9 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
     public abstract class SqlServerComplexType(SqlServerModelBuilderFixture fixture)
         : RelationalComplexTypeTestBase(fixture), IClassFixture<SqlServerModelBuilderFixture>;
 
+    public abstract class SqlServerComplexCollection(SqlServerModelBuilderFixture fixture)
+        : RelationalComplexCollectionTestBase(fixture), IClassFixture<SqlServerModelBuilderFixture>;
+
     public abstract class SqlServerInheritance(SqlServerModelBuilderFixture fixture)
         : RelationalInheritanceTestBase(fixture), IClassFixture<SqlServerModelBuilderFixture>
     {
@@ -1219,6 +1222,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.True(entity.IsTemporal());
             Assert.Equal("CustomerHistory", entity.GetHistoryTableName());
             Assert.Null(entity.GetHistoryTableSchema());
+            Assert.Equal("CustomerHistory", entity.GetSchemaQualifiedHistoryTableName());
 
             var periodStart = entity.GetProperty(entity.GetPeriodStartPropertyName()!);
             var periodEnd = entity.GetProperty(entity.GetPeriodEndPropertyName()!);
@@ -1257,6 +1261,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
 
             Assert.Equal("HistoryTable", entity.GetHistoryTableName());
             Assert.Equal("historySchema", entity.GetHistoryTableSchema());
+            Assert.Equal("historySchema.HistoryTable", entity.GetSchemaQualifiedHistoryTableName());
 
             var periodStart = entity.GetProperty(entity.GetPeriodStartPropertyName()!);
             var periodEnd = entity.GetProperty(entity.GetPeriodEndPropertyName()!);
@@ -1306,6 +1311,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
 
             Assert.Equal("ChangedHistoryTable", entity.GetHistoryTableName());
             Assert.Equal("changedHistorySchema", entity.GetHistoryTableSchema());
+            Assert.Equal("changedHistorySchema.ChangedHistoryTable", entity.GetSchemaQualifiedHistoryTableName());
 
             var periodStart = entity.GetProperty(entity.GetPeriodStartPropertyName()!);
             var periodEnd = entity.GetProperty(entity.GetPeriodEndPropertyName()!);
@@ -1355,6 +1361,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
 
             Assert.Equal("ChangedHistoryTable", entity.GetHistoryTableName());
             Assert.Equal("changedHistorySchema", entity.GetHistoryTableSchema());
+            Assert.Equal("changedHistorySchema.ChangedHistoryTable", entity.GetSchemaQualifiedHistoryTableName());
 
             var periodStart = entity.GetProperty(entity.GetPeriodStartPropertyName()!);
             var periodEnd = entity.GetProperty(entity.GetPeriodEndPropertyName()!);
@@ -1404,6 +1411,8 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.Equal(7, entity.GetProperties().Count());
 
             Assert.Equal("HistoryTable", entity.GetHistoryTableName());
+            Assert.Null(entity.GetHistoryTableSchema());
+            Assert.Equal("HistoryTable", entity.GetSchemaQualifiedHistoryTableName());
 
             var periodStart = entity.GetProperty(entity.GetPeriodStartPropertyName()!);
             var periodEnd = entity.GetProperty(entity.GetPeriodEndPropertyName()!);
@@ -1452,6 +1461,8 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.Equal(9, entity.GetProperties().Count());
 
             Assert.Equal("HistoryTable", entity.GetHistoryTableName());
+            Assert.Null(entity.GetHistoryTableSchema());
+            Assert.Equal("HistoryTable", entity.GetSchemaQualifiedHistoryTableName());
 
             var periodStart = entity.GetProperty(entity.GetPeriodStartPropertyName()!);
             var periodEnd = entity.GetProperty(entity.GetPeriodEndPropertyName()!);

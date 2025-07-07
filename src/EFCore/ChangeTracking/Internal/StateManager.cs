@@ -1128,7 +1128,7 @@ public class StateManager : IStateManager
 
         foreach (var entry in GetEntriesForState(added: true, modified: true, deleted: true))
         {
-            toSave.Add(entry.PrepareToSave());
+            toSave.Add((IUpdateEntry)entry.PrepareToSave());
         }
 
         return toSave;

@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
 #nullable disable
 
-public class NonSharedModelBulkUpdatesSqliteTest : NonSharedModelBulkUpdatesRelationalTestBase
+public class NonSharedModelBulkUpdatesSqliteTest(NonSharedFixture fixture) : NonSharedModelBulkUpdatesRelationalTestBase(fixture)
 {
     protected override ITestStoreFactory TestStoreFactory
         => SqliteTestStoreFactory.Instance;
@@ -32,14 +32,14 @@ DELETE FROM "Owner" AS "o"
 
         AssertSql(
             """
-@__p_0='1'
+@p='1'
 
 DELETE FROM "Owner" AS "o"
 WHERE "o"."Id" IN (
     SELECT "o0"."Id"
     FROM "Owner" AS "o0"
     ORDER BY "o0"."Title"
-    LIMIT -1 OFFSET @__p_0
+    LIMIT -1 OFFSET @p
 )
 """);
     }
@@ -63,15 +63,16 @@ DELETE FROM "Owner" AS "o"
 
     public override async Task Replace_ColumnExpression_in_column_setter(bool async)
     {
-        // #33947
-        await Assert.ThrowsAsync<SqliteException>(() => base.Replace_ColumnExpression_in_column_setter(async));
+        await base.Replace_ColumnExpression_in_column_setter(async);
 
         AssertSql(
             """
+@p='SomeValue' (Size = 9)
+
 UPDATE "OwnedCollection" AS "o0"
-SET "Value" = 'SomeValue'
+SET "Value" = @p
 FROM "Owner" AS "o"
-INNER JOIN "OwnedCollection" AS "o0" ON "o"."Id" = "o0"."OwnerId"
+WHERE "o"."Id" = "o0"."OwnerId"
 """);
     }
 
@@ -81,8 +82,10 @@ INNER JOIN "OwnedCollection" AS "o0" ON "o"."Id" = "o0"."OwnerId"
 
         AssertSql(
             """
+@p='SomeValue' (Size = 9)
+
 UPDATE "Owner" AS "o"
-SET "Title" = 'SomeValue'
+SET "Title" = @p
 """);
     }
 
@@ -103,8 +106,10 @@ SET "Title" = COALESCE("o"."Title", '') || '_Suffix'
 
         AssertSql(
             """
+@p='NewValue' (Size = 8)
+
 UPDATE "Owner" AS "o"
-SET "Title" = 'NewValue'
+SET "Title" = @p
 FROM "Owner" AS "o0"
 WHERE "o"."Id" = "o0"."Id"
 """);
@@ -117,8 +122,8 @@ WHERE "o"."Id" = "o0"."Id"
         AssertSql(
             """
 UPDATE "Owner" AS "o"
-SET "OwnedReference_Number" = length("o"."Title"),
-    "Title" = COALESCE(CAST("o"."OwnedReference_Number" AS TEXT), '')
+SET "Title" = COALESCE(CAST("o"."OwnedReference_Number" AS TEXT), ''),
+    "OwnedReference_Number" = length("o"."Title")
 """);
     }
 
@@ -140,8 +145,8 @@ SET "CreationTimestamp" = '2020-01-01 00:00:00'
         AssertSql(
             """
 UPDATE "BlogsPart1" AS "b0"
-SET "Rating" = length("b0"."Title"),
-    "Title" = CAST("b0"."Rating" AS TEXT)
+SET "Title" = CAST("b0"."Rating" AS TEXT),
+    "Rating" = length("b0"."Title")
 FROM "Blogs" AS "b"
 WHERE "b"."Id" = "b0"."Id"
 """);
@@ -191,6 +196,37 @@ SET "Total" = (
     WHERE "o"."Id" = "o0"."OrderId")
 WHERE "o"."Id" = 1
 """);
+    }
+
+    public override async Task Delete_with_view_mapping(bool async)
+    {
+        await base.Delete_with_view_mapping(async);
+
+        AssertSql(
+            """
+DELETE FROM "Blogs" AS "b"
+""");
+    }
+
+    public override async Task Update_with_view_mapping(bool async)
+    {
+        await base.Update_with_view_mapping(async);
+
+        AssertSql(
+            """
+@p='Updated' (Size = 7)
+
+UPDATE "Blogs" AS "b"
+SET "Data" = @p
+""");
+    }
+
+    public override async Task Update_complex_type_with_view_mapping(bool async)
+    {
+        await base.Update_complex_type_with_view_mapping(async);
+
+        // #34706
+        AssertSql();
     }
 
     protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)

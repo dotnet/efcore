@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
@@ -23,6 +24,18 @@ public interface IReadOnlyTypeBase : IReadOnlyAnnotatable
     /// </summary>
     IReadOnlyEntityType ContainingEntityType
         => (IReadOnlyEntityType)this;
+
+    /// <summary>
+    ///     Gets this entity type or the closest collection property in the complex property chain.
+    /// </summary>
+    IReadOnlyTypeBase ContainingType
+        => this;
+
+    /// <summary>
+    ///     Gets the base type of this type. Returns <see langword="null" /> if this is not a
+    ///     derived type in an inheritance hierarchy.
+    /// </summary>
+    IReadOnlyTypeBase? BaseType { get; }
 
     /// <summary>
     ///     Gets the name of this type.
@@ -175,7 +188,73 @@ public interface IReadOnlyTypeBase : IReadOnlyAnnotatable
     ///     otherwise <see langword="false" />.
     /// </returns>
     bool IsStrictlyDerivedFrom(IReadOnlyTypeBase baseType)
-        => this != Check.NotNull(baseType, nameof(baseType)) && baseType.IsAssignableFrom(this);
+        => this != Check.NotNull(baseType) && baseType.IsAssignableFrom(this);
+
+    /// <summary>
+    ///     Gets all types in the model that derive from this type.
+    /// </summary>
+    /// <returns>The derived types.</returns>
+    IEnumerable<IReadOnlyTypeBase> GetDerivedTypes();
+
+    /// <summary>
+    ///     Returns all derived types of this type, including the type itself.
+    /// </summary>
+    /// <returns>Derived types.</returns>
+    IEnumerable<IReadOnlyTypeBase> GetDerivedTypesInclusive()
+        => new[] { this }.Concat(GetDerivedTypes());
+
+    /// <summary>
+    ///     Gets all types in the model that directly derive from this type.
+    /// </summary>
+    /// <returns>The derived types.</returns>
+    IEnumerable<IReadOnlyTypeBase> GetDirectlyDerivedTypes();
+
+    /// <summary>
+    ///     Gets the root base type for a given entity type.
+    /// </summary>
+    /// <returns>
+    ///     The root base type. If the given entity type is not a derived type, then the same entity type is returned.
+    /// </returns>
+    IReadOnlyTypeBase GetRootType()
+        => BaseType?.GetRootType() ?? this;
+
+    /// <summary>
+    ///     Returns the property that will be used for storing a discriminator value.
+    /// </summary>
+    /// <returns>The property that will be used for storing a discriminator value.</returns>
+    IReadOnlyProperty? FindDiscriminatorProperty()
+    {
+        var propertyName = GetDiscriminatorPropertyName();
+        return propertyName == null ? null : FindProperty(propertyName);
+    }
+
+    /// <summary>
+    ///     Returns the name of the property that will be used for storing a discriminator value.
+    /// </summary>
+    /// <returns>The name of the property that will be used for storing a discriminator value.</returns>
+    string? GetDiscriminatorPropertyName();
+
+    /// <summary>
+    ///     Returns the discriminator value for this type.
+    /// </summary>
+    /// <returns>The discriminator value for this type.</returns>
+    object? GetDiscriminatorValue()
+    {
+        var annotation = FindAnnotation(CoreAnnotationNames.DiscriminatorValue);
+        return annotation != null
+            ? annotation.Value
+            : !ClrType.IsInstantiable()
+            || (BaseType == null && GetDirectlyDerivedTypes().Count() == 0)
+                ? null
+                : (object?)GetDefaultDiscriminatorValue();
+    }
+
+    /// <summary>
+    ///     Returns the default discriminator value that would be used for this type.
+    /// </summary>
+    /// <returns>The default discriminator value for this type.</returns>
+    string GetDefaultDiscriminatorValue()
+        => !HasSharedClrType ? ClrType.ShortDisplayName() : ShortName();
 
     /// <summary>
     ///     Gets the property with the given name. Returns <see langword="null" /> if no property with the given name is defined.
@@ -196,7 +275,7 @@ public interface IReadOnlyTypeBase : IReadOnlyAnnotatable
     /// <param name="memberInfo">The member on the class.</param>
     /// <returns>The property, or <see langword="null" /> if none is found.</returns>
     IReadOnlyProperty? FindProperty(MemberInfo memberInfo)
-        => (Check.NotNull(memberInfo, nameof(memberInfo)) as PropertyInfo)?.IsIndexerProperty() == true
+        => (Check.NotNull(memberInfo) as PropertyInfo)?.IsIndexerProperty() == true
             ? null
             : FindProperty(memberInfo.GetSimpleMemberName());
 
@@ -228,7 +307,7 @@ public interface IReadOnlyTypeBase : IReadOnlyAnnotatable
     /// <returns>The property.</returns>
     IReadOnlyProperty GetProperty(string name)
     {
-        Check.NotEmpty(name, nameof(name));
+        Check.NotEmpty(name);
 
         var property = FindProperty(name);
         return property == null
@@ -286,7 +365,7 @@ public interface IReadOnlyTypeBase : IReadOnlyAnnotatable
     /// <param name="memberInfo">The member on the class.</param>
     /// <returns>The property, or <see langword="null" /> if none is found.</returns>
     IReadOnlyComplexProperty? FindComplexProperty(MemberInfo memberInfo)
-        => (Check.NotNull(memberInfo, nameof(memberInfo)) as PropertyInfo)?.IsIndexerProperty() == true
+        => (Check.NotNull(memberInfo) as PropertyInfo)?.IsIndexerProperty() == true
             ? null
             : FindComplexProperty(memberInfo.GetSimpleMemberName());
 

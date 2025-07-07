@@ -21,6 +21,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     private readonly IRelationalTypeMappingSource _typeMappingSource;
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
     private readonly bool _subquery;
+    private readonly ParameterizedCollectionMode _parameterizedCollectionMode;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -63,6 +64,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         _typeMappingSource = relationalDependencies.TypeMappingSource;
         _sqlExpressionFactory = sqlExpressionFactory;
         _subquery = false;
+        _parameterizedCollectionMode = RelationalOptionsExtension.Extract(queryCompilationContext.ContextOptions).ParameterizedCollectionMode;
     }
 
     /// <summary>
@@ -88,6 +90,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         _typeMappingSource = parentVisitor._typeMappingSource;
         _sqlExpressionFactory = parentVisitor._sqlExpressionFactory;
         _subquery = true;
+        _parameterizedCollectionMode = RelationalOptionsExtension.Extract(parentVisitor._queryCompilationContext.ContextOptions).ParameterizedCollectionMode;
     }
 
     /// <inheritdoc />
@@ -240,8 +243,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             && method.GetGenericMethodDefinition() == QueryableMethods.Contains
             && methodCallExpression.Arguments[0] is ParameterQueryRootExpression parameterSource
             && TranslateExpression(methodCallExpression.Arguments[1]) is SqlExpression item
-            && _sqlTranslator.Visit(parameterSource.ParameterExpression) is SqlParameterExpression sqlParameterExpression
-            && !QueryCompilationContext.ParametersToNotConstantize.Contains(sqlParameterExpression.Name))
+            && _sqlTranslator.Visit(parameterSource.QueryParameterExpression) is SqlParameterExpression sqlParameterExpression
+            && !parameterSource.QueryParameterExpression.ShouldNotBeConstantized)
         {
             var inExpression = _sqlExpressionFactory.In(item, sqlParameterExpression);
             var selectExpression = new SelectExpression(inExpression, _sqlAliasManager);
@@ -288,18 +291,19 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     /// <inheritdoc />
     protected override ShapedQueryExpression? TranslateParameterQueryRoot(ParameterQueryRootExpression parameterQueryRootExpression)
     {
-        var sqlParameterExpression =
-            _sqlTranslator.Visit(parameterQueryRootExpression.ParameterExpression) as SqlParameterExpression;
+        var queryParameter = parameterQueryRootExpression.QueryParameterExpression;
+        var sqlParameterExpression = _sqlTranslator.Visit(queryParameter) as SqlParameterExpression;
 
         Check.DebugAssert(sqlParameterExpression is not null, "sqlParameterExpression is not null");
 
-        var primitiveCollectionsBehavior = RelationalOptionsExtension.Extract(QueryCompilationContext.ContextOptions)
-            .ParameterizedCollectionTranslationMode;
-
         var tableAlias = _sqlAliasManager.GenerateTableAlias(sqlParameterExpression.Name.TrimStart('_'));
-        if (QueryCompilationContext.ParametersToConstantize.Contains(sqlParameterExpression.Name)
-            || (primitiveCollectionsBehavior == ParameterizedCollectionTranslationMode.Constantize
-                && !QueryCompilationContext.ParametersToNotConstantize.Contains(sqlParameterExpression.Name)))
+
+        var constants = queryParameter.ShouldBeConstantized
+                || (_parameterizedCollectionMode is ParameterizedCollectionMode.Constants
+                    && !queryParameter.ShouldNotBeConstantized);
+        var multipleParameters = _parameterizedCollectionMode is ParameterizedCollectionMode.MultipleParameters
+                && !queryParameter.ShouldNotBeConstantized;
+        if (constants || multipleParameters)
         {
             var valuesExpression = new ValuesExpression(
                 tableAlias,
@@ -518,7 +522,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         ShapedQueryExpression source,
         LambdaExpression? selector,
         Type resultType)
-        => TranslateAggregateWithSelector(source, selector, QueryableMethods.GetAverageWithoutSelector, throwWhenEmpty: true, resultType);
+        => TranslateAggregateWithSelector(source, selector, QueryableMethods.GetAverageWithoutSelector, resultType);
 
     /// <inheritdoc />
     protected override ShapedQueryExpression TranslateCast(ShapedQueryExpression source, Type resultType)
@@ -569,7 +573,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             return TranslateAny(source, anyLambda);
         }
 
-        // Pattern-match Contains over ValuesExpression, translating to simplified 'item IN (1, 2, 3)' with constant elements
+        // Pattern-match Contains over ValuesExpression, translating to simplified 'item IN (1, 2, 3)' with constant elements.
         if (TryExtractBareInlineCollectionValues(source, out var values, out var valuesParameter))
         {
             var inExpression = (values, valuesParameter) switch
@@ -654,7 +658,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         }
 
         selectExpression.ApplyOffset(translation);
-        selectExpression.ApplyLimit(TranslateExpression(Expression.Constant(1))!);
+        ApplyLimit(selectExpression, TranslateExpression(Expression.Constant(1))!);
 
         return source;
     }
@@ -693,7 +697,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             _queryCompilationContext.Logger.FirstWithoutOrderByAndFilterWarning();
         }
 
-        selectExpression.ApplyLimit(TranslateExpression(Expression.Constant(1))!);
+        ApplyLimit(selectExpression, TranslateExpression(Expression.Constant(1))!);
 
         return source.ShaperExpression.Type != returnType
             ? source.UpdateShaperExpression(Expression.Convert(source.ShaperExpression, returnType))
@@ -876,6 +880,27 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         return null;
     }
 
+    /// <inheritdoc />
+    protected override ShapedQueryExpression? TranslateRightJoin(
+        ShapedQueryExpression outer,
+        ShapedQueryExpression inner,
+        LambdaExpression outerKeySelector,
+        LambdaExpression innerKeySelector,
+        LambdaExpression resultSelector)
+    {
+        var joinPredicate = CreateJoinPredicate(outer, outerKeySelector, inner, innerKeySelector);
+        if (joinPredicate != null)
+        {
+            var outerSelectExpression = (SelectExpression)outer.QueryExpression;
+            var outerShaperExpression = outerSelectExpression.AddRightJoin(inner, joinPredicate, outer.ShaperExpression);
+            outer = outer.UpdateShaperExpression(outerShaperExpression);
+
+            return TranslateTwoParameterSelector(outer, resultSelector);
+        }
+
+        return null;
+    }
+
     private SqlExpression CreateJoinPredicate(
         ShapedQueryExpression outer,
         LambdaExpression outerKeySelector,
@@ -940,7 +965,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         }
 
         selectExpression.ReverseOrderings();
-        selectExpression.ApplyLimit(TranslateExpression(Expression.Constant(1))!);
+        ApplyLimit(selectExpression, TranslateExpression(Expression.Constant(1))!);
 
         return source.ShaperExpression.Type != returnType
             ? source.UpdateShaperExpression(Expression.Convert(source.ShaperExpression, returnType))
@@ -954,6 +979,9 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     /// <inheritdoc />
     protected override ShapedQueryExpression? TranslateMax(ShapedQueryExpression source, LambdaExpression? selector, Type resultType)
     {
+        var selectExpression = (SelectExpression)source.QueryExpression;
+        selectExpression.IsDistinct = false;
+
         // For Max() over an inline array, translate to GREATEST() if possible; otherwise use the default translation of aggregate SQL
         // MAX().
         // Note that some providers propagate NULL arguments (SQLite, MySQL), while others only return NULL if all arguments evaluate to
@@ -968,12 +996,15 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         }
 
         return TranslateAggregateWithSelector(
-            source, selector, t => QueryableMethods.MaxWithoutSelector.MakeGenericMethod(t), throwWhenEmpty: true, resultType);
+            source, selector, t => QueryableMethods.MaxWithoutSelector.MakeGenericMethod(t), resultType);
     }
 
     /// <inheritdoc />
     protected override ShapedQueryExpression? TranslateMin(ShapedQueryExpression source, LambdaExpression? selector, Type resultType)
     {
+        var selectExpression = (SelectExpression)source.QueryExpression;
+        selectExpression.IsDistinct = false;
+
         // See comments above in TranslateMax()
         if (TryExtractBareInlineCollectionValues(source, out var values)
             && _sqlTranslator.GenerateLeast(values, resultType.UnwrapNullableType()) is SqlFunctionExpression leastExpression
@@ -984,7 +1015,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         }
 
         return TranslateAggregateWithSelector(
-            source, selector, t => QueryableMethods.MinWithoutSelector.MakeGenericMethod(t), throwWhenEmpty: true, resultType);
+            source, selector, t => QueryableMethods.MinWithoutSelector.MakeGenericMethod(t), resultType);
     }
 
     /// <inheritdoc />
@@ -1135,6 +1166,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         private ParameterExpression? _outerParameter;
         private bool _correlated;
         private bool _defaultIfEmpty;
+        private bool _canLiftDefaultIfEmpty;
 
         public (LambdaExpression, bool, bool) IsCorrelated(LambdaExpression lambdaExpression)
         {
@@ -1143,6 +1175,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
 
             _correlated = false;
             _defaultIfEmpty = false;
+            _canLiftDefaultIfEmpty = true;
             _outerParameter = lambdaExpression.Parameters[0];
 
             var result = Visit(lambdaExpression.Body);
@@ -1162,14 +1195,83 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
-            if (methodCallExpression.Method.IsGenericMethod
+            if (_canLiftDefaultIfEmpty
+                && methodCallExpression.Method.IsGenericMethod
                 && methodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.DefaultIfEmptyWithoutArgument)
             {
                 _defaultIfEmpty = true;
                 return Visit(methodCallExpression.Arguments[0]);
             }
 
-            return base.VisitMethodCall(methodCallExpression);
+            if (!SupportsLiftingDefaultIfEmpty(methodCallExpression.Method))
+            {
+                // Set state to indicate that any DefaultIfEmpty encountered below this operator cannot be lifted out, since
+                // doing so would change meaning.
+                // For example, with blogs.SelectMany(b => b.Posts.DefaultIfEmpty().Select(p => p.Id)) we can lift
+                // the DIE out, translating the SelectMany as a LEFT JOIN (or OUTER APPLY).
+                // But with blogs.SelectMany(b => b.Posts.DefaultIfEmpty().Where(p => p.Id > 3)), we can't do that since that
+                // what result in different results.
+                _canLiftDefaultIfEmpty = false;
+            }
+
+            if (methodCallExpression.Arguments.Count == 0)
+            {
+                return base.VisitMethodCall(methodCallExpression);
+            }
+
+            // We need to visit the method call as usual, but the first argument - the source (other operators we're composed over) -
+            // needs to be handled differently. For the purpose of lifting DefaultIfEmpty, we can only do so for DIE at the top-level
+            // operator chain, and not some DIE embedded in e.g. the lambda argument of a Where clause. So we visit the source first,
+            // and then set _canLiftDefaultIfEmpty to false to avoid lifting any DIEs encountered there (see e.g. #33343).
+            // Note: we assume that the first argument is the source.
+            var newObject = Visit(methodCallExpression.Object);
+
+            var arguments = methodCallExpression.Arguments;
+            Expression[]? newArguments = null;
+
+            var newSource = Visit(arguments[0]);
+            if (!ReferenceEquals(newSource, arguments[0]))
+            {
+                newArguments = new Expression[arguments.Count];
+                newArguments[0] = newSource;
+            }
+
+            var previousCanLiftDefaultIfEmpty = _canLiftDefaultIfEmpty;
+            _canLiftDefaultIfEmpty = false;
+
+            for (var i = 1; i < arguments.Count; i++)
+            {
+                var newArgument = Visit(arguments[i]);
+
+                if (newArguments is not null)
+                {
+                    newArguments[i] = newArgument;
+                }
+                else if (!ReferenceEquals(newArgument, arguments[i]))
+                {
+                    newArguments = new Expression[arguments.Count];
+                    newArguments[0] = newSource;
+
+                    for (var j = 1; j < i; j++)
+                    {
+                        newArguments[j] = arguments[j];
+                    }
+
+                    newArguments[i] = newArgument;
+                }
+            }
+
+            _canLiftDefaultIfEmpty = previousCanLiftDefaultIfEmpty;
+
+            return methodCallExpression.Update(newObject, newArguments ?? (IEnumerable<Expression>)arguments);
+
+            static bool SupportsLiftingDefaultIfEmpty(MethodInfo methodInfo)
+                => methodInfo.IsGenericMethod
+                   && methodInfo.GetGenericMethodDefinition() is var definition
+                   && (definition == QueryableMethods.Select
+                       || definition == QueryableMethods.OrderBy
+                       || definition == QueryableMethods.OrderByDescending
+                       || definition == QueryableMethods.Reverse);
         }
     }
 
@@ -1202,7 +1304,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         }
 
         var selectExpression = (SelectExpression)source.QueryExpression;
-        selectExpression.ApplyLimit(TranslateExpression(Expression.Constant(_subquery ? 1 : 2))!);
+        ApplyLimit(selectExpression, TranslateExpression(Expression.Constant(_subquery ? 1 : 2))!);
 
         return source.ShaperExpression.Type != returnType
             ? source.UpdateShaperExpression(Expression.Convert(source.ShaperExpression, returnType))
@@ -1235,7 +1337,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
 
     /// <inheritdoc />
     protected override ShapedQueryExpression? TranslateSum(ShapedQueryExpression source, LambdaExpression? selector, Type resultType)
-        => TranslateAggregateWithSelector(source, selector, QueryableMethods.GetSumWithoutSelector, throwWhenEmpty: false, resultType);
+        => TranslateAggregateWithSelector(source, selector, QueryableMethods.GetSumWithoutSelector, resultType);
 
     /// <inheritdoc />
     protected override ShapedQueryExpression? TranslateTake(ShapedQueryExpression source, Expression count)
@@ -1252,9 +1354,47 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             _queryCompilationContext.Logger.RowLimitingOperationWithoutOrderByWarning();
         }
 
-        selectExpression.ApplyLimit(translation);
+        ApplyLimit(selectExpression, translation);
 
         return source;
+    }
+
+    private void ApplyLimit(SelectExpression selectExpression, SqlExpression limit)
+    {
+        var oldLimit = selectExpression.Limit;
+
+        if (oldLimit is null)
+        {
+            selectExpression.SetLimit(limit);
+            return;
+        }
+
+        if (oldLimit is SqlConstantExpression { Value: int oldConst } && limit is SqlConstantExpression { Value: int newConst })
+        {
+            // if both the old and new limit are constants, use the smaller one
+            // (aka constant-fold LEAST(constA, constB))
+            if (oldConst > newConst)
+            {
+                selectExpression.SetLimit(limit);
+            }
+
+            return;
+        }
+
+        if (oldLimit.Equals(limit))
+        {
+            return;
+        }
+
+        // if possible, use LEAST(oldLimit, limit); otherwise, use nested queries
+        if (_sqlTranslator.GenerateLeast([oldLimit, limit], limit.Type) is { } newLimit)
+        {
+            selectExpression.SetLimit(newLimit);
+        }
+        else
+        {
+            selectExpression.ApplyLimit(limit);
+        }
     }
 
     /// <inheritdoc />
@@ -1644,12 +1784,14 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
                 {
                     var newJsonQueryExpression = jsonQueryExpression.BindNavigation(navigation);
 
+                    Debug.Assert(!navigation.IsOnDependent, "JSON navigations should always be from principal do dependent");
+
                     return navigation.IsCollection
                         ? newJsonQueryExpression
                         : new RelationalStructuralTypeShaperExpression(
                             navigation.TargetEntityType,
                             newJsonQueryExpression,
-                            nullable: shaper.IsNullable || !navigation.ForeignKey.IsRequired);
+                            nullable: shaper.IsNullable || !navigation.ForeignKey.IsRequiredDependent);
                 }
 
                 var entityProjectionExpression = GetEntityProjectionExpression(shaper);
@@ -1958,7 +2100,6 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         ShapedQueryExpression source,
         LambdaExpression? selectorLambda,
         Func<Type, MethodInfo> methodGenerator,
-        bool throwWhenEmpty,
         Type resultType)
     {
         var selectExpression = (SelectExpression)source.QueryExpression;
@@ -2004,48 +2145,13 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             new Dictionary<ProjectionMember, Expression> { { new ProjectionMember(), translation } });
 
         selectExpression.ClearOrdering();
-        Expression shaper;
 
-        if (throwWhenEmpty)
+        // Sum case. Projection is always non-null. We read nullable value.
+        Expression shaper = new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), translation.Type.MakeNullable());
+
+        if (resultType != shaper.Type)
         {
-            // Avg/Max/Min case.
-            // We always read nullable value
-            // If resultType is nullable then we always return null. Only non-null result shows throwing behavior.
-            // otherwise, if projection.Type is nullable then server result is passed through DefaultIfEmpty, hence we return default
-            // otherwise, server would return null only if it is empty, and we throw
-            var nullableResultType = resultType.MakeNullable();
-            shaper = new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), nullableResultType);
-            var resultVariable = Expression.Variable(nullableResultType, "result");
-            var returnValueForNull = resultType.IsNullableType()
-                ? (Expression)Expression.Default(resultType)
-                : translation.Type.IsNullableType()
-                    ? Expression.Default(resultType)
-                    : Expression.Throw(
-                        Expression.New(
-                            typeof(InvalidOperationException).GetConstructors()
-                                .Single(ci => ci.GetParameters().Length == 1),
-                            Expression.Constant(CoreStrings.SequenceContainsNoElements)),
-                        resultType);
-
-            shaper = Expression.Block(
-                new[] { resultVariable },
-                Expression.Assign(resultVariable, shaper),
-                Expression.Condition(
-                    Expression.Equal(resultVariable, Expression.Default(nullableResultType)),
-                    returnValueForNull,
-                    resultType != resultVariable.Type
-                        ? Expression.Convert(resultVariable, resultType)
-                        : resultVariable));
-        }
-        else
-        {
-            // Sum case. Projection is always non-null. We read nullable value.
-            shaper = new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), translation.Type.MakeNullable());
-
-            if (resultType != shaper.Type)
-            {
-                shaper = Expression.Convert(shaper, resultType);
-            }
+            shaper = Expression.Convert(shaper, resultType);
         }
 
         return source.UpdateShaperExpression(shaper);

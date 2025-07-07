@@ -5,8 +5,8 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public class MaterializationInterceptionCosmosTest :
-    MaterializationInterceptionTestBase<MaterializationInterceptionCosmosTest.CosmosLibraryContext>
+public class MaterializationInterceptionCosmosTest(NonSharedFixture fixture) :
+    MaterializationInterceptionTestBase<MaterializationInterceptionCosmosTest.CosmosLibraryContext>(fixture)
 {
     public override Task Intercept_query_materialization_with_owned_types_projecting_collection(bool async, bool usePooling)
         => Task.CompletedTask;

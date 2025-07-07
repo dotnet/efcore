@@ -73,7 +73,7 @@ public abstract class ClrAccessorFactory<TAccessor>
 
         try
         {
-            return (TAccessor)boundMethod.Invoke(this, new object?[] { GetMemberInfo(propertyBase), propertyBase })!;
+            return (TAccessor)boundMethod.Invoke(this, [GetMemberInfo(propertyBase), propertyBase])!;
         }
         catch (TargetInvocationException e) when (e.InnerException != null)
         {
@@ -88,7 +88,7 @@ public abstract class ClrAccessorFactory<TAccessor>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected abstract TAccessor CreateGeneric<TEntity, TStructuralType, TValue>(
+    protected abstract TAccessor CreateGeneric<TEntity, TDeclaring, TValue>(
         MemberInfo memberInfo,
         IPropertyBase? propertyBase)
         where TEntity : class;

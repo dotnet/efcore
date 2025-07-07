@@ -29,11 +29,6 @@ public interface IReadOnlyNavigationBase : IReadOnlyPropertyBase
     IReadOnlyNavigationBase? Inverse { get; }
 
     /// <summary>
-    ///     Gets a value indicating whether the navigation property is a collection property.
-    /// </summary>
-    bool IsCollection { get; }
-
-    /// <summary>
     ///     Gets a value indicating whether this navigation should be eager loaded by default.
     /// </summary>
     bool IsEagerLoaded

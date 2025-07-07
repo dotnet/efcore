@@ -174,7 +174,7 @@ public abstract class AspNetIdentityCustomTypesDefaultTestBase<TFixture>(TFixtur
                 },
                 Navigations =
                 {
-                    "Navigation: CustomRoleClaimString.Role (CustomRoleString) ToPrincipal CustomRoleString Inverse: RoleClaims PropertyAccessMode.Field",
+                    "Navigation: CustomRoleClaimString.Role (CustomRoleString) Required ToPrincipal CustomRoleString Inverse: RoleClaims PropertyAccessMode.Field",
                 },
             },
             new EntityTypeMapping
@@ -219,7 +219,7 @@ public abstract class AspNetIdentityCustomTypesDefaultTestBase<TFixture>(TFixtur
                 },
                 Navigations =
                 {
-                    "Navigation: CustomUserClaimString.User (CustomUserString) ToPrincipal CustomUserString Inverse: Claims PropertyAccessMode.Field",
+                    "Navigation: CustomUserClaimString.User (CustomUserString) Required ToPrincipal CustomUserString Inverse: Claims PropertyAccessMode.Field",
                 },
             },
             new EntityTypeMapping
@@ -241,7 +241,7 @@ public abstract class AspNetIdentityCustomTypesDefaultTestBase<TFixture>(TFixtur
                 },
                 Navigations =
                 {
-                    "Navigation: CustomUserLoginString.User (CustomUserString) ToPrincipal CustomUserString Inverse: Logins PropertyAccessMode.Field",
+                    "Navigation: CustomUserLoginString.User (CustomUserString) Required ToPrincipal CustomUserString Inverse: Logins PropertyAccessMode.Field",
                 },
             },
             new EntityTypeMapping
@@ -262,8 +262,8 @@ public abstract class AspNetIdentityCustomTypesDefaultTestBase<TFixture>(TFixtur
                 },
                 Navigations =
                 {
-                    "Navigation: CustomUserRoleString.Role (CustomRoleString) ToPrincipal CustomRoleString Inverse: UserRoles PropertyAccessMode.Field",
-                    "Navigation: CustomUserRoleString.User (CustomUserString) ToPrincipal CustomUserString Inverse: UserRoles PropertyAccessMode.Field",
+                    "Navigation: CustomUserRoleString.Role (CustomRoleString) Required ToPrincipal CustomRoleString Inverse: UserRoles PropertyAccessMode.Field",
+                    "Navigation: CustomUserRoleString.User (CustomUserString) Required ToPrincipal CustomUserString Inverse: UserRoles PropertyAccessMode.Field",
                 }
             },
             new EntityTypeMapping
@@ -324,7 +324,7 @@ public abstract class AspNetIdentityCustomTypesDefaultTestBase<TFixture>(TFixtur
                 },
                 Navigations =
                 {
-                    "Navigation: CustomUserTokenString.User (CustomUserString) ToPrincipal CustomUserString Inverse: Tokens PropertyAccessMode.Field",
+                    "Navigation: CustomUserTokenString.User (CustomUserString) Required ToPrincipal CustomUserString Inverse: Tokens PropertyAccessMode.Field",
                 },
             }
         ];
