@@ -128,6 +128,7 @@ jobs:
       parameters:
         enableMicrobuild: ${{ parameters.enableMicrobuild }}
         enableMicrobuildForMacAndLinux: ${{ parameters.enableMicrobuildForMacAndLinux }}
+        continueOnError: ${{ parameters.continueOnError }}
 
   - ${{ if and(eq(parameters.runAsPublic, 'false'), eq(variables['System.TeamProject'], 'internal')) }}:
     - task: NuGetAuthenticate@1
