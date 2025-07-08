@@ -316,6 +316,45 @@ namespace Microsoft.EntityFrameworkCore.Query
         public static readonly IEnumerable<object[]> InlinedRedactingData = [[true, true], [true, false], [false, true], [false, false]];
 
         #endregion
+
+        #region 36311
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public async Task Entity_equality_with_Contains_and_Parameter(bool async)
+        {
+            var contextFactory = await InitializeAsync<Context36311>(
+                onConfiguring: o => SetParameterizedCollectionMode(o, ParameterizedCollectionMode.Parameter));
+            using var context = contextFactory.CreateContext();
+
+            List<Context36311.BlogDetails> details = [new Context36311.BlogDetails { Id = 1 }, new Context36311.BlogDetails { Id = 2 }];
+            var query = context.Blogs.Where(b => details.Contains(b.Details));
+
+            var result = async
+                ? await query.ToListAsync()
+                : query.ToList();
+        }
+
+        protected class Context36311(DbContextOptions options) : DbContext(options)
+        {
+            public DbSet<Blog> Blogs { get; set; }
+
+            public class Blog
+            {
+                public int Id { get; set; }
+                public string Name { get; set; }
+
+                public BlogDetails Details { get; set; }
+            }
+
+            public class BlogDetails
+            {
+                public int Id { get; set; }
+                public string Name { get; set; }
+            }
+        }
+
+        #endregion
     }
 }
 
