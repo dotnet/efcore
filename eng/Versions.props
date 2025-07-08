@@ -16,24 +16,24 @@
     <UsingToolXliff>False</UsingToolXliff>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/runtime">
-    <MicrosoftExtensionsCachingMemoryVersion>10.0.0-preview.6.25326.107</MicrosoftExtensionsCachingMemoryVersion>
-    <MicrosoftExtensionsConfigurationVersion>10.0.0-preview.6.25326.107</MicrosoftExtensionsConfigurationVersion>
-    <MicrosoftExtensionsConfigurationAbstractionsVersion>10.0.0-preview.6.25326.107</MicrosoftExtensionsConfigurationAbstractionsVersion>
-    <MicrosoftExtensionsConfigurationEnvironmentVariablesVersion>10.0.0-preview.6.25326.107</MicrosoftExtensionsConfigurationEnvironmentVariablesVersion>
-    <MicrosoftExtensionsConfigurationJsonVersion>10.0.0-preview.6.25326.107</MicrosoftExtensionsConfigurationJsonVersion>
-    <MicrosoftExtensionsDependencyInjectionVersion>10.0.0-preview.6.25326.107</MicrosoftExtensionsDependencyInjectionVersion>
-    <MicrosoftExtensionsDependencyModelVersion>10.0.0-preview.6.25326.107</MicrosoftExtensionsDependencyModelVersion>
-    <MicrosoftExtensionsHostFactoryResolverSourcesVersion>10.0.0-preview.6.25326.107</MicrosoftExtensionsHostFactoryResolverSourcesVersion>
-    <MicrosoftExtensionsLoggingVersion>10.0.0-preview.6.25326.107</MicrosoftExtensionsLoggingVersion>
-    <MicrosoftNETCoreAppRefVersion>10.0.0-preview.6.25326.107</MicrosoftNETCoreAppRefVersion>
-    <MicrosoftNETCorePlatformsVersion>10.0.0-preview.6.25326.107</MicrosoftNETCorePlatformsVersion>
-    <SystemTextEncodingsWebVersion>10.0.0-preview.6.25326.107</SystemTextEncodingsWebVersion>
-    <SystemTextJsonVersion>10.0.0-preview.6.25326.107</SystemTextJsonVersion>
-    <SystemFormatsAsn1Version>10.0.0-preview.6.25326.107</SystemFormatsAsn1Version>
-    <SystemRuntimeCachingVersion>10.0.0-preview.6.25326.107</SystemRuntimeCachingVersion>
+    <MicrosoftExtensionsCachingMemoryVersion>10.0.0-preview.6.25358.103</MicrosoftExtensionsCachingMemoryVersion>
+    <MicrosoftExtensionsConfigurationVersion>10.0.0-preview.6.25358.103</MicrosoftExtensionsConfigurationVersion>
+    <MicrosoftExtensionsConfigurationAbstractionsVersion>10.0.0-preview.6.25358.103</MicrosoftExtensionsConfigurationAbstractionsVersion>
+    <MicrosoftExtensionsConfigurationEnvironmentVariablesVersion>10.0.0-preview.6.25358.103</MicrosoftExtensionsConfigurationEnvironmentVariablesVersion>
+    <MicrosoftExtensionsConfigurationJsonVersion>10.0.0-preview.6.25358.103</MicrosoftExtensionsConfigurationJsonVersion>
+    <MicrosoftExtensionsDependencyInjectionVersion>10.0.0-preview.6.25358.103</MicrosoftExtensionsDependencyInjectionVersion>
+    <MicrosoftExtensionsDependencyModelVersion>10.0.0-preview.6.25358.103</MicrosoftExtensionsDependencyModelVersion>
+    <MicrosoftExtensionsHostFactoryResolverSourcesVersion>10.0.0-preview.6.25358.103</MicrosoftExtensionsHostFactoryResolverSourcesVersion>
+    <MicrosoftExtensionsLoggingVersion>10.0.0-preview.6.25358.103</MicrosoftExtensionsLoggingVersion>
+    <MicrosoftNETCoreAppRefVersion>10.0.0-preview.6.25358.103</MicrosoftNETCoreAppRefVersion>
+    <MicrosoftNETCorePlatformsVersion>10.0.0-preview.6.25358.103</MicrosoftNETCorePlatformsVersion>
+    <SystemTextEncodingsWebVersion>10.0.0-preview.6.25358.103</SystemTextEncodingsWebVersion>
+    <SystemTextJsonVersion>10.0.0-preview.6.25358.103</SystemTextJsonVersion>
+    <SystemFormatsAsn1Version>10.0.0-preview.6.25358.103</SystemFormatsAsn1Version>
+    <SystemRuntimeCachingVersion>10.0.0-preview.6.25358.103</SystemRuntimeCachingVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/arcade">
-    <MicrosoftDotNetBuildTasksTemplatingVersion>10.0.0-beta.25326.107</MicrosoftDotNetBuildTasksTemplatingVersion>
+    <MicrosoftDotNetBuildTasksTemplatingVersion>10.0.0-beta.25358.103</MicrosoftDotNetBuildTasksTemplatingVersion>
   </PropertyGroup>
   <PropertyGroup Label="Other dependencies">
     <MicrosoftBuildFrameworkVersion>17.14.8</MicrosoftBuildFrameworkVersion>
