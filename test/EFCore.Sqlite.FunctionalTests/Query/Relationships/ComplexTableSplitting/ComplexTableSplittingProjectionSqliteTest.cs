@@ -3,13 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore.Query.Relationships.ComplexTableSplitting;
 
-public class ComplexTableSplittingProjectionSqliteTest
-    : ComplexTableSplittingProjectionRelationalTestBase<ComplexTableSplittingSqliteFixture>
+public class ComplexTableSplittingProjectionSqliteTest(ComplexTableSplittingSqliteFixture fixture, ITestOutputHelper testOutputHelper)
+    : ComplexTableSplittingProjectionRelationalTestBase<ComplexTableSplittingSqliteFixture>(fixture, testOutputHelper)
 {
-    public ComplexTableSplittingProjectionSqliteTest(ComplexTableSplittingSqliteFixture fixture, ITestOutputHelper testOutputHelper)
-        : base(fixture)
-    {
-        Fixture.TestSqlLoggerFactory.Clear();
-        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
-    }
 }

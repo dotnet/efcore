@@ -2,11 +2,14 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Query.Relationships.OwnedNavigations;
-using Microsoft.EntityFrameworkCore.TestModels.RelationshipsModel;
 
 namespace Microsoft.EntityFrameworkCore.Query.Relationships.OwnedTableSplitting;
 
-public abstract class OwnedTableSplittingRelationalFixtureBase : OwnedNavigationsFixtureBase
+/// <summary>
+///     Base fixture for tests exercising table splitting via owned entities, where the entity and its owned entity are mapped to the same
+///     table, and the complex type's properties are mapped to columns in that table. Collections are mapped to separate tables.
+/// </summary>
+public abstract class OwnedTableSplittingRelationalFixtureBase : OwnedNavigationsFixtureBase, ITestSqlLoggerFactory
 {
     protected override string StoreName => "OwnedTableSplittingQueryTest";
 
@@ -14,78 +17,64 @@ public abstract class OwnedTableSplittingRelationalFixtureBase : OwnedNavigation
     {
         base.OnModelCreating(modelBuilder, context);
 
-        modelBuilder.Entity<RelationshipsRoot>()
-            .OwnsOne(x => x.OptionalReferenceTrunk, b =>
+        modelBuilder.Entity<RootEntity>(b =>
+        {
+            b.OwnsOne(e => e.RequiredRelated, rrb =>
             {
-                b.ToTable("Root_OptionalReferenceTrunk");
-                b.OwnsOne(x => x.OptionalReferenceBranch, bb =>
-                {
-                    bb.ToTable("Root_OptionalReferenceTrunk_OptionalReferenceBranch");
-                    bb.OwnsOne(x => x.RequiredReferenceLeaf).ToTable("Root_OptionalReferenceTrunk_OptionalReferenceBranch_RequiredReferenceLeaf");
-                    bb.OwnsOne(x => x.OptionalReferenceLeaf).ToTable("Root_OptionalReferenceTrunk_OptionalReferenceBranch_OptionalReferenceLeaf");
-                });
+                rrb.Property(x => x.Id).ValueGeneratedNever();
 
-                b.OwnsOne(x => x.RequiredReferenceBranch, bb =>
-                {
-                    bb.ToTable("Root_OptionalReferenceTrunk_RequiredReferenceBranch");
-                    bb.OwnsOne(x => x.RequiredReferenceLeaf).ToTable("Root_OptionalReferenceTrunk_RequiredReferenceBranch_RequiredReferenceLeaf");
-                    bb.OwnsOne(x => x.OptionalReferenceLeaf).ToTable("Root_OptionalReferenceTrunk_RequiredReferenceBranch_OptionalReferenceLeaf");
-                });
+                rrb.OwnsOne(r => r.RequiredNested, rnb => rnb.Property(x => x.Id).ValueGeneratedNever());
+                rrb.Navigation(x => x.RequiredNested).IsRequired(true);
 
-                b.OwnsMany(x => x.CollectionBranch, bb =>
+                rrb.OwnsOne(r => r.OptionalNested, rnb => rnb.Property(x => x.Id).ValueGeneratedNever());
+                rrb.Navigation(x => x.RequiredNested).IsRequired(false);
+
+                rrb.OwnsMany(r => r.NestedCollection, rcb =>
                 {
-                    bb.OwnsOne(x => x.RequiredReferenceLeaf).ToTable("Root_OptionalReferenceTrunk_CollectionBranch_RequiredReferenceLeaf");
-                    bb.OwnsOne(x => x.OptionalReferenceLeaf).ToTable("Root_OptionalReferenceTrunk_CollectionBranch_OptionalReferenceLeaf");
+                    rcb.Property(x => x.Id).ValueGeneratedNever();
+                    rcb.ToTable("RequiredRelated_NestedCollection");
                 });
             });
+            b.Navigation(x => x.RequiredRelated).IsRequired(true);
 
-        modelBuilder.Entity<RelationshipsRoot>()
-            .OwnsOne(x => x.RequiredReferenceTrunk, b =>
+            b.OwnsOne(e => e.OptionalRelated, orb =>
             {
-                b.ToTable("Root_RequiredReferenceTrunk");
-                b.OwnsOne(x => x.OptionalReferenceBranch, bb =>
-                {
-                    bb.ToTable("Root_RequiredReferenceTrunk_OptionalReferenceBranch");
-                    bb.OwnsOne(x => x.RequiredReferenceLeaf).ToTable("Root_RequiredReferenceTrunk_OptionalReferenceBranch_RequiredReferenceLeaf");
-                    bb.OwnsOne(x => x.OptionalReferenceLeaf).ToTable("Root_RequiredReferenceTrunk_OptionalReferenceBranch_OptionalReferenceLeaf");
-                });
+                orb.Property(x => x.Id).ValueGeneratedNever();
 
-                b.OwnsOne(x => x.RequiredReferenceBranch, bb =>
-                {
-                    bb.ToTable("Root_RequiredReferenceTrunk_RequiredReferenceBranch");
-                    bb.OwnsOne(x => x.RequiredReferenceLeaf).ToTable("Root_RequiredReferenceTrunk_RequiredReferenceBranch_RequiredReferenceLeaf");
-                    bb.OwnsOne(x => x.OptionalReferenceLeaf).ToTable("Root_RequiredReferenceTrunk_RequiredReferenceBranch_OptionalReferenceLeaf");
-                });
+                orb.OwnsOne(r => r.RequiredNested, rnb => rnb.Property(x => x.Id).ValueGeneratedNever());
+                orb.Navigation(x => x.RequiredNested).IsRequired(true);
 
-                b.OwnsMany(x => x.CollectionBranch, bb =>
+                orb.OwnsOne(r => r.OptionalNested, rnb => rnb.Property(x => x.Id).ValueGeneratedNever());
+                orb.Navigation(x => x.RequiredNested).IsRequired(false);
+
+                orb.OwnsMany(r => r.NestedCollection, rcb =>
                 {
-                    bb.OwnsOne(x => x.RequiredReferenceLeaf).ToTable("Root_RequiredReferenceTrunk_CollectionBranch_RequiredReferenceLeaf");
-                    bb.OwnsOne(x => x.OptionalReferenceLeaf).ToTable("Root_RequiredReferenceTrunk_CollectionBranch_OptionalReferenceLeaf");
+                    rcb.Property(x => x.Id).ValueGeneratedNever();
+                    rcb.ToTable("OptionalRelated_NestedCollection");
                 });
             });
+            b.Navigation(x => x.OptionalRelated).IsRequired(false);
 
-        modelBuilder.Entity<RelationshipsRoot>()
-            .OwnsMany(x => x.CollectionTrunk, b =>
+            b.OwnsMany(e => e.RelatedCollection, rcb =>
             {
-                b.OwnsOne(x => x.OptionalReferenceBranch, bb =>
-                {
-                    bb.ToTable("Root_CollectionTrunk_OptionalReferenceBranch");
-                    bb.OwnsOne(x => x.RequiredReferenceLeaf).ToTable("Root_CollectionTrunk_OptionalReferenceBranch_RequiredReferenceLeaf");
-                    bb.OwnsOne(x => x.OptionalReferenceLeaf).ToTable("Root_CollectionTrunk_OptionalReferenceBranch_OptionalReferenceLeaf");
-                });
+                rcb.Property(x => x.Id).ValueGeneratedNever();
+                rcb.ToTable("RelatedCollection");
 
-                b.OwnsOne(x => x.RequiredReferenceBranch, bb =>
-                {
-                    bb.ToTable("Root_CollectionTrunk_RequiredReferenceBranch");
-                    bb.OwnsOne(x => x.RequiredReferenceLeaf).ToTable("Root_CollectionTrunk_RequiredReferenceBranch_RequiredReferenceLeaf");
-                    bb.OwnsOne(x => x.OptionalReferenceLeaf).ToTable("Root_CollectionTrunk_RequiredReferenceBranch_OptionalReferenceLeaf");
-                });
+                rcb.OwnsOne(r => r.RequiredNested, rnb => rnb.Property(x => x.Id).ValueGeneratedNever());
+                rcb.Navigation(x => x.RequiredNested).IsRequired(true);
 
-                b.OwnsMany(x => x.CollectionBranch, bb =>
+                rcb.OwnsOne(r => r.OptionalNested, rnb => rnb.Property(x => x.Id).ValueGeneratedNever());
+                rcb.Navigation(x => x.RequiredNested).IsRequired(false);
+
+                rcb.OwnsMany(r => r.NestedCollection, rcb =>
                 {
-                    bb.OwnsOne(x => x.RequiredReferenceLeaf).ToTable("Root_CollectionTrunk_CollectionBranch_RequiredReferenceLeaf");
-                    bb.OwnsOne(x => x.OptionalReferenceLeaf).ToTable("Root_CollectionTrunk_CollectionBranch_OptionalReferenceLeaf");
+                    rcb.Property(x => x.Id).ValueGeneratedNever();
+                    rcb.ToTable("RelatedCollection_NestedCollection");
                 });
             });
+        });
     }
+
+    public TestSqlLoggerFactory TestSqlLoggerFactory
+        => (TestSqlLoggerFactory)ListLoggerFactory;
 }

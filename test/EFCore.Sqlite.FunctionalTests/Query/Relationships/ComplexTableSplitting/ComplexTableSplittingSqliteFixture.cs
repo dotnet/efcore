@@ -3,11 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query.Relationships.ComplexTableSplitting;
 
-public class ComplexTableSplittingSqliteFixture : ComplexTableSplittingRelationalFixtureBase, ITestSqlLoggerFactory
+public class ComplexTableSplittingSqliteFixture : ComplexTableSplittingRelationalFixtureBase
 {
     protected override ITestStoreFactory TestStoreFactory
         => SqliteTestStoreFactory.Instance;
-
-    public TestSqlLoggerFactory TestSqlLoggerFactory
-        => (TestSqlLoggerFactory)ListLoggerFactory;
 }
