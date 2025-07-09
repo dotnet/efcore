@@ -113,6 +113,16 @@ public partial class NavigationExpandingExpressionVisitor
                     return ExpandSkipNavigation(root, entityReference, skipNavigation, convertedType is not null);
                 }
 
+                var complexProperty = memberIdentity.MemberInfo != null
+                    ? entityType.FindComplexProperty(memberIdentity.MemberInfo)
+                    : memberIdentity.Name is not null
+                        ? entityType.FindComplexProperty(memberIdentity.Name)
+                        : null;
+                if (complexProperty is not null)
+                {
+                    return new ComplexCollectionReference(root, complexProperty);
+                }
+
                 var property = memberIdentity.MemberInfo != null
                     ? entityType.FindProperty(memberIdentity.MemberInfo)
                     : memberIdentity.Name is not null
@@ -548,6 +558,7 @@ public partial class NavigationExpandingExpressionVisitor
                 case MaterializeCollectionNavigationExpression:
                 case IncludeExpression:
                 case PrimitiveCollectionReference:
+                case ComplexCollectionReference:
                     return extensionExpression;
             }
 
@@ -1001,6 +1012,9 @@ public partial class NavigationExpandingExpressionVisitor
 
                 case PrimitiveCollectionReference queryablePropertyReference:
                     return Visit(queryablePropertyReference.Parent).CreateEFPropertyExpression(queryablePropertyReference.Property);
+
+                case ComplexCollectionReference complexCollectionReference:
+                    return Visit(complexCollectionReference.Parent).CreateEFPropertyExpression(complexCollectionReference.Property);
 
                 case IncludeExpression includeExpression:
                     var entityExpression = Visit(includeExpression.EntityExpression);

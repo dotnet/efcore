@@ -37,7 +37,7 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
         = typeof(QueryContext).GetTypeInfo().GetProperty(nameof(QueryContext.CancellationToken))!;
 
     private readonly Expression _cancellationTokenParameter;
-    private readonly EntityMaterializerInjectingExpressionVisitor _entityMaterializerInjectingExpressionVisitor;
+    private readonly StructuralTypeMaterializerInjector _structuralTypeMaterializerInjector;
     private readonly ConstantVerifyingExpressionVisitor _constantVerifyingExpressionVisitor;
     private readonly MaterializationConditionConstantLifter _materializationConditionConstantLifter;
 
@@ -53,8 +53,8 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
         Dependencies = dependencies;
         QueryCompilationContext = queryCompilationContext;
 
-        _entityMaterializerInjectingExpressionVisitor =
-            new EntityMaterializerInjectingExpressionVisitor(
+        _structuralTypeMaterializerInjector =
+            new StructuralTypeMaterializerInjector(
                 dependencies.EntityMaterializerSource,
                 dependencies.LiftableConstantFactory,
                 queryCompilationContext.QueryTrackingBehavior,
@@ -198,16 +198,23 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
     protected abstract Expression VisitShapedQuery(ShapedQueryExpression shapedQueryExpression);
 
     /// <summary>
+    /// This method has been obsoleted, see <see cref="InjectStructuralTypeMaterializers" />.
+    /// </summary>
+    [Obsolete("Use InjectStructuralTypeMaterializers instead.", error: true)]
+    protected virtual Expression InjectEntityMaterializers(Expression expression)
+        => throw new UnreachableException();
+
+    /// <summary>
     ///     Inject entity materializers in given shaper expression. <see cref="StructuralTypeShaperExpression" /> is replaced with materializer
     ///     expression for given entity.
     /// </summary>
     /// <param name="expression">The expression to inject entity materializers.</param>
     /// <returns>A expression with entity materializers injected.</returns>
-    protected virtual Expression InjectEntityMaterializers(Expression expression)
+    protected virtual Expression InjectStructuralTypeMaterializers(Expression expression)
     {
         VerifyNoClientConstant(expression);
 
-        var materializerExpression = _entityMaterializerInjectingExpressionVisitor.Inject(expression);
+        var materializerExpression = _structuralTypeMaterializerInjector.Inject(expression);
         if (QueryCompilationContext.SupportsPrecompiledQuery)
         {
             materializerExpression = _materializationConditionConstantLifter.Visit(materializerExpression);
@@ -354,8 +361,8 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
         }
     }
 
-    private sealed class EntityMaterializerInjectingExpressionVisitor(
-        IEntityMaterializerSource entityMaterializerSource,
+    private sealed class StructuralTypeMaterializerInjector(
+        IStructuralTypeMaterializerSource entityMaterializerSource,
         ILiftableConstantFactory liftableConstantFactory,
         QueryTrackingBehavior queryTrackingBehavior,
         bool supportsPrecompiledQuery)
@@ -704,7 +711,7 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
 
             var materializer = entityMaterializerSource
                 .CreateMaterializeExpression(
-                    new EntityMaterializerSourceParameters(
+                    new StructuralTypeMaterializerSourceParameters(
                         concreteTypeBase, "instance", queryTrackingBehavior), materializationContextVariable);
 
             // TODO: Properly support shadow properties for complex types #35613

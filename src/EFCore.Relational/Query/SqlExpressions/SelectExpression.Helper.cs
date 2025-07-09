@@ -278,9 +278,11 @@ public sealed partial class SelectExpression
                     };
                 }
 
-                case CollectionResultExpression collectionResultExpression:
+                case CollectionResultExpression {
+                    Relationship: INavigation navigation,
+                    QueryExpression: ProjectionBindingExpression innerProjectionBindingExpression
+                }  collectionResultExpression:
                 {
-                    var innerProjectionBindingExpression = collectionResultExpression.ProjectionBindingExpression;
                     var value = clientProjectionIndexMap[innerProjectionBindingExpression.Index!.Value];
                     return value switch
                     {
@@ -289,18 +291,18 @@ public sealed partial class SelectExpression
                                 singleCollectionInfo.ParentIdentifier, singleCollectionInfo.OuterIdentifier,
                                 singleCollectionInfo.SelfIdentifier, singleCollectionInfo.ParentIdentifierValueComparers,
                                 singleCollectionInfo.OuterIdentifierValueComparers, singleCollectionInfo.SelfIdentifierValueComparers,
-                                singleCollectionInfo.ShaperExpression, collectionResultExpression.Navigation,
+                                singleCollectionInfo.ShaperExpression, navigation,
                                 collectionResultExpression.ElementType),
 
                         SplitCollectionInfo splitCollectionInfo
                             => new RelationalSplitCollectionShaperExpression(
                                 splitCollectionInfo.ParentIdentifier, splitCollectionInfo.ChildIdentifier,
                                 splitCollectionInfo.IdentifierValueComparers, splitCollectionInfo.SelectExpression,
-                                splitCollectionInfo.ShaperExpression, collectionResultExpression.Navigation,
+                                splitCollectionInfo.ShaperExpression, navigation,
                                 collectionResultExpression.ElementType),
 
                         int => collectionResultExpression.Update(
-                            (ProjectionBindingExpression)Visit(collectionResultExpression.ProjectionBindingExpression)),
+                            (ProjectionBindingExpression)Visit(innerProjectionBindingExpression)),
 
                         _ => throw new InvalidOperationException()
                     };

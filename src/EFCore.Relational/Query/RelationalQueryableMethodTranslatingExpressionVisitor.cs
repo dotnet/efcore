@@ -261,15 +261,41 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     /// <inheritdoc />
     protected override ShapedQueryExpression? TranslateMemberAccess(Expression source, MemberIdentity member)
     {
-        // Attempt to translate access into a primitive collection property (i.e. array column)
-        if (_sqlTranslator.TryBindMember(_sqlTranslator.Visit(source), member, out var translatedExpression, out var property)
-            && property is IProperty { IsPrimitiveCollection: true } regularProperty
-            && translatedExpression is SqlExpression sqlExpression
-            && TranslatePrimitiveCollection(
-                    sqlExpression, regularProperty, _sqlAliasManager.GenerateTableAlias(GenerateTableAlias(sqlExpression))) is
-                { } primitiveCollectionTranslation)
+        // Attempt to translate access into a primitive or complex collection property (i.e. array column)
+        if (_sqlTranslator.TryBindMember(_sqlTranslator.Visit(source), member, out var translatedExpression, out var property))
         {
-            return primitiveCollectionTranslation;
+            switch (property)
+            {
+                case IProperty { IsPrimitiveCollection: true } regularProperty
+                    when translatedExpression is SqlExpression sqlExpression
+                        && TranslatePrimitiveCollection(
+                            sqlExpression,
+                            regularProperty,
+                            _sqlAliasManager.GenerateTableAlias(GenerateTableAlias(sqlExpression))) is { } primitiveCollectionTranslation:
+                {
+                    return primitiveCollectionTranslation;
+                }
+
+                case IComplexProperty { IsCollection: true, ComplexType: var complexType } complexProperty:
+                    Check.DebugAssert(complexType.IsMappedToJson());
+
+                    if (translatedExpression is not CollectionResultExpression { QueryExpression: JsonQueryExpression jsonQuery })
+                    {
+                        throw new UnreachableException();
+                    }
+
+                    // TODO: Not quite sure about this yet.
+                    // We most likely need to return a ShapedQueryExpression, but over CollectionResultExpression. Don't use
+                    // TransformJsonQueryToTable (which does OPENJSON): the moment we do that, we're in provider-specific
+                    // territory and can't do any logic on top in relational.
+
+                    // return new CollectionResultExpression(jsonQuery, complexProperty, elementType: complexType.ClrType);
+                    // return new ShapedQueryExpression(selectExpression, shaperExpression);
+                    // throw new NotImplementedException();
+                    // return TransformJsonQueryToTable(jsonQuery);
+
+                    throw new NotImplementedException();
+            }
         }
 
         return null;
@@ -1606,7 +1632,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
                     var newJsonQuery = jsonQueryExpression.BindCollectionElement(collectionIndexExpression);
 
                     var entityShaper = new RelationalStructuralTypeShaperExpression(
-                        jsonQueryExpression.EntityType,
+                        jsonQueryExpression.StructuralType,
                         newJsonQuery,
                         nullable: true);
 
@@ -1782,7 +1808,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
 
                 if (TryGetJsonQueryExpression(shaper, out var jsonQueryExpression))
                 {
-                    var newJsonQueryExpression = jsonQueryExpression.BindNavigation(navigation);
+                    var newJsonQueryExpression = jsonQueryExpression.BindRelationship(navigation);
 
                     Debug.Assert(!navigation.IsOnDependent, "JSON navigations should always be from principal do dependent");
 

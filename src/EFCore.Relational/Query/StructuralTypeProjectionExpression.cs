@@ -18,7 +18,7 @@ public class StructuralTypeProjectionExpression : Expression
 {
     private readonly IReadOnlyDictionary<IProperty, ColumnExpression> _propertyExpressionMap;
     private readonly Dictionary<INavigation, StructuralTypeShaperExpression> _ownedNavigationMap;
-    private Dictionary<IComplexProperty, StructuralTypeShaperExpression>? _complexPropertyCache;
+    private Dictionary<IComplexProperty, Expression>? _complexPropertyCache;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -54,7 +54,7 @@ public class StructuralTypeProjectionExpression : Expression
     public StructuralTypeProjectionExpression(
         ITypeBase type,
         IReadOnlyDictionary<IProperty, ColumnExpression> propertyExpressionMap,
-        Dictionary<IComplexProperty, StructuralTypeShaperExpression> complexPropertyCache,
+        Dictionary<IComplexProperty, Expression> complexPropertyCache,
         IReadOnlyDictionary<ITableBase, string> tableMap,
         bool nullable = false,
         SqlExpression? discriminatorExpression = null)
@@ -73,7 +73,7 @@ public class StructuralTypeProjectionExpression : Expression
         ITypeBase type,
         IReadOnlyDictionary<IProperty, ColumnExpression> propertyExpressionMap,
         Dictionary<INavigation, StructuralTypeShaperExpression> ownedNavigationMap,
-        Dictionary<IComplexProperty, StructuralTypeShaperExpression>? complexPropertyCache,
+        Dictionary<IComplexProperty, Expression>? complexPropertyCache,
         IReadOnlyDictionary<ITableBase, string> tableMap,
         bool nullable,
         SqlExpression? discriminatorExpression = null)
@@ -151,13 +151,13 @@ public class StructuralTypeProjectionExpression : Expression
             propertyExpressionMap[property] = newExpression;
         }
 
-        var complexPropertyCache = default(Dictionary<IComplexProperty, StructuralTypeShaperExpression>);
+        var complexPropertyCache = default(Dictionary<IComplexProperty, Expression>);
         if (_complexPropertyCache != null)
         {
-            complexPropertyCache = new Dictionary<IComplexProperty, StructuralTypeShaperExpression>();
+            complexPropertyCache = new Dictionary<IComplexProperty, Expression>();
             foreach (var (complexProperty, complexShaper) in _complexPropertyCache)
             {
-                var newComplexShaper = (StructuralTypeShaperExpression)visitor.Visit(complexShaper);
+                var newComplexShaper = visitor.Visit(complexShaper);
                 changed |= complexShaper != newComplexShaper;
                 complexPropertyCache[complexProperty] = newComplexShaper;
             }
@@ -193,13 +193,16 @@ public class StructuralTypeProjectionExpression : Expression
             propertyExpressionMap[property] = columnExpression.MakeNullable();
         }
 
-        var complexPropertyCache = default(Dictionary<IComplexProperty, StructuralTypeShaperExpression>);
+        var complexPropertyCache = default(Dictionary<IComplexProperty, Expression>);
         if (_complexPropertyCache != null)
         {
-            complexPropertyCache = new Dictionary<IComplexProperty, StructuralTypeShaperExpression>();
+            complexPropertyCache = new Dictionary<IComplexProperty, Expression>();
             foreach (var (complexProperty, complexShaper) in _complexPropertyCache)
             {
-                complexPropertyCache[complexProperty] = complexShaper.MakeNullable();
+                if (complexShaper is StructuralTypeShaperExpression nonCollectionComplexShaper)
+                {
+                    complexPropertyCache[complexProperty] = nonCollectionComplexShaper.MakeNullable();
+                }
             }
         }
 
@@ -264,10 +267,10 @@ public class StructuralTypeProjectionExpression : Expression
             }
         }
 
-        var complexPropertyCache = default(Dictionary<IComplexProperty, StructuralTypeShaperExpression>);
+        var complexPropertyCache = default(Dictionary<IComplexProperty, Expression>);
         if (_complexPropertyCache != null)
         {
-            complexPropertyCache = new Dictionary<IComplexProperty, StructuralTypeShaperExpression>();
+            complexPropertyCache = new Dictionary<IComplexProperty, Expression>();
             foreach (var (complexProperty, complexShaper) in _complexPropertyCache)
             {
                 if (derivedType.IsAssignableFrom(complexProperty.DeclaringType)
@@ -367,11 +370,11 @@ public class StructuralTypeProjectionExpression : Expression
     /// </summary>
     /// <param name="complexProperty">A complex property to bind.</param>
     /// <returns>A shaper expression for the target complex type.</returns>
-    public virtual StructuralTypeShaperExpression BindComplexProperty(IComplexProperty complexProperty)
+    public virtual Expression BindComplexProperty(IComplexProperty complexProperty)
     {
         if (_complexPropertyCache is null || !_complexPropertyCache.TryGetValue(complexProperty, out var resultShaper))
         {
-            _complexPropertyCache ??= new Dictionary<IComplexProperty, StructuralTypeShaperExpression>();
+            _complexPropertyCache ??= new Dictionary<IComplexProperty, Expression>();
             resultShaper = _complexPropertyCache[complexProperty] =
                 SelectExpression.GenerateComplexPropertyShaperExpression(this, complexProperty);
         }

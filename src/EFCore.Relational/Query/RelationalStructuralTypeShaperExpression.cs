@@ -24,7 +24,7 @@ public class RelationalStructuralTypeShaperExpression : StructuralTypeShaperExpr
     /// <param name="valueBufferExpression">An expression of ValueBuffer to get values for properties of the entity.</param>
     /// <param name="nullable">A bool value indicating whether this entity instance can be null.</param>
     public RelationalStructuralTypeShaperExpression(ITypeBase structuralType, Expression valueBufferExpression, bool nullable)
-        : base(structuralType, valueBufferExpression, nullable, null)
+        : base(structuralType, valueBufferExpression, nullable, materializationCondition: null)
     {
     }
 

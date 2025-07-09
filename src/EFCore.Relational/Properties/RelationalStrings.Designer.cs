@@ -866,6 +866,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 complexType);
 
         /// <summary>
+        ///     ExecuteUpdate is being used over type '{structuralType}' which is mapped to JSON; ExecuteUpdate on JSON is not supported.
+        /// </summary>
+        public static string ExecuteUpdateOverJsonIsNotSupported(object? structuralType)
+            => string.Format(
+                GetString("ExecuteUpdateOverJsonIsNotSupported", nameof(structuralType)),
+                structuralType);
+
+        /// <summary>
         ///     Can't use explicitly named default constraints with TPC inheritance or entity splitting. Constraint name: '{explicitDefaultConstraintName}'.
         /// </summary>
         public static string ExplicitDefaultConstraintNamesNotSupportedForTpc(object? explicitDefaultConstraintName)
@@ -2192,7 +2200,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 nodeType, expressionType);
 
         /// <summary>
-        ///     No relational type mapping can be found for property '{entity}.{property}' and the current provider doesn't specify a default store type for the properties of type '{clrType}'. 
+        ///     No relational type mapping can be found for property '{entity}.{property}' and the current provider doesn't specify a default store type for the properties of type '{clrType}'.
         /// </summary>
         public static string UnsupportedPropertyType(object? entity, object? property, object? clrType)
             => string.Format(

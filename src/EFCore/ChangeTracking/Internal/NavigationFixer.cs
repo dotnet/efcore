@@ -22,7 +22,7 @@ public class NavigationFixer : INavigationFixer
         bool SetModified)>? _danglingJoinEntities;
 
     private readonly IEntityGraphAttacher _attacher;
-    private readonly IEntityMaterializerSource _entityMaterializerSource;
+    private readonly IStructuralTypeMaterializerSource _entityMaterializerSource;
     private bool _inFixup;
     private bool _inAttachGraph;
 
@@ -34,7 +34,7 @@ public class NavigationFixer : INavigationFixer
     /// </summary>
     public NavigationFixer(
         IEntityGraphAttacher attacher,
-        IEntityMaterializerSource entityMaterializerSource)
+        IStructuralTypeMaterializerSource entityMaterializerSource)
     {
         _attacher = attacher;
         _entityMaterializerSource = entityMaterializerSource;

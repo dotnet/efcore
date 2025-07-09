@@ -19,14 +19,14 @@ public class EntityMaterializerSourceTest
     public void Throws_for_abstract_types()
     {
         var entityType = CreateConventionalModelBuilder().Model.AddEntityType(typeof(SomeAbstractEntity));
-        var source = (IEntityMaterializerSource)new EntityMaterializerSource(
+        var source = (IStructuralTypeMaterializerSource)new EntityMaterializerSource(
             new EntityMaterializerSourceDependencies([]));
 
         Assert.Equal(
             CoreStrings.CannotMaterializeAbstractType(nameof(SomeAbstractEntity)),
             Assert.Throws<InvalidOperationException>(
                     () => source.CreateMaterializeExpression(
-                        new EntityMaterializerSourceParameters((IEntityType)entityType, "", null), null!))
+                        new StructuralTypeMaterializerSourceParameters((IEntityType)entityType, "", null), null!))
                 .Message);
     }
 
@@ -578,13 +578,13 @@ public class EntityMaterializerSourceTest
         = Expression.Parameter(typeof(MaterializationContext), "materializationContext");
 
     public virtual Func<MaterializationContext, object> GetMaterializer(
-        IEntityMaterializerSource source,
+        IStructuralTypeMaterializerSource source,
         IReadOnlyEntityType entityType,
         bool useParameters)
         => Expression.Lambda<Func<MaterializationContext, object>>(
                 useParameters
                     ? source.CreateMaterializeExpression(
-                        new EntityMaterializerSourceParameters((IEntityType)entityType, "instance", null), _contextParameter)
+                        new StructuralTypeMaterializerSourceParameters((IEntityType)entityType, "instance", null), _contextParameter)
 #pragma warning disable CS0618
                     : source.CreateMaterializeExpression((IEntityType)entityType, "instance", _contextParameter),
 #pragma warning restore CS0618
