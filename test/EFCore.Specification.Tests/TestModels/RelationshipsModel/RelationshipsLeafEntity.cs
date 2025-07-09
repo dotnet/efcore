@@ -3,16 +3,16 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.RelationshipsModel;
 
-public class RelationshipsLeafEntity
+public class RelationshipsLeaf
 {
     public int Id { get; set; }
 
     public string Name { get; set; } = null!;
 
-    public RelationshipsBranchEntity OptionalReferenceInverseBranch { get; set; } = null!;
+    public RelationshipsBranch OptionalReferenceInverseBranch { get; set; } = null!;
 
-    public RelationshipsBranchEntity RequiredReferenceInverseBranch { get; set; } = null!;
+    public RelationshipsBranch RequiredReferenceInverseBranch { get; set; } = null!;
 
     public int? CollectionBranchId { get; set; }
-    public RelationshipsBranchEntity CollectionInverseBranch { get; set; } = null!;
+    public RelationshipsBranch CollectionInverseBranch { get; set; } = null!;
 }
