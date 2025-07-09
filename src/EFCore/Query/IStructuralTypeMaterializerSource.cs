@@ -6,7 +6,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 /// <summary>
 ///     <para>
 ///         Defines a source for generating <see cref="Expression" /> trees that read values from
-///         a <see cref="ValueBuffer" /> or creates entity instances.
+///         a <see cref="ValueBuffer" /> or creates structural type instances.
 ///     </para>
 ///     <para>
 ///         This type is typically used by database providers (and other extensions). It is generally
@@ -24,27 +24,8 @@ namespace Microsoft.EntityFrameworkCore.Query;
 ///         and <see href="https://aka.ms/efcore-docs-how-query-works">How EF Core queries work</see> for more information and examples.
 ///     </para>
 /// </remarks>
-public interface IEntityMaterializerSource
+public interface IStructuralTypeMaterializerSource
 {
-    /// <summary>
-    ///     <para>
-    ///         Creates an <see cref="Expression" /> tree representing creating an entity instance.
-    ///     </para>
-    ///     <para>
-    ///         This method is typically used by database providers (and other extensions). It is generally
-    ///         not used in application code.
-    ///     </para>
-    /// </summary>
-    /// <param name="entityType">The entity type being materialized.</param>
-    /// <param name="entityInstanceName">The name of the instance being materialized.</param>
-    /// <param name="materializationExpression">The materialization expression to build on.</param>
-    /// <returns>An expression to read the value.</returns>
-    [Obsolete("Use the overload that accepts an EntityMaterializerSourceParameters object.")]
-    Expression CreateMaterializeExpression(
-        IEntityType entityType,
-        string entityInstanceName,
-        Expression materializationExpression);
-
     /// <summary>
     ///     <para>
     ///         Creates an <see cref="Expression" /> tree representing creating an entity instance.
@@ -57,14 +38,7 @@ public interface IEntityMaterializerSource
     /// <param name="parameters">Parameters for the entity being materialized.</param>
     /// <param name="materializationExpression">The materialization expression to build on.</param>
     /// <returns>An expression to read the value.</returns>
-#pragma warning disable CS0618
-    Expression CreateMaterializeExpression(
-        EntityMaterializerSourceParameters parameters,
-        Expression materializationExpression)
-        => parameters.StructuralType is IEntityType entityType
-            ? CreateMaterializeExpression(entityType, parameters.InstanceName, materializationExpression)
-            : throw new NotImplementedException(CoreStrings.ComplexTypesNotSupported(GetType().Name));
-#pragma warning restore CS0618
+    Expression CreateMaterializeExpression(StructuralTypeMaterializerSourceParameters parameters, Expression materializationExpression);
 
     /// <summary>
     ///     <para>
@@ -118,3 +92,10 @@ public interface IEntityMaterializerSource
     /// <returns>A delegate to create instances.</returns>
     Func<MaterializationContext, object> GetEmptyMaterializer(IComplexType complexType);
 }
+
+/// <summary>
+///     This interface has been obsoleted, use <see cref="IEntityMaterializerSource" /> instead.
+/// </summary>
+[Obsolete("This interface has been obsoleted, use IEntityMaterializerSource instead.", error: true)]
+public interface IEntityMaterializerSource;
+

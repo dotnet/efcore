@@ -26,12 +26,10 @@ public class OwnedNavigationsCosmosFixture : OwnedNavigationsFixtureBase
     {
         base.OnModelCreating(modelBuilder, context);
 
-        modelBuilder.Entity<RootEntity>()
-            .ToContainer("RootEntities")
-            .HasDiscriminatorInJsonId()
-            .HasDiscriminator<string>("Discriminator").HasValue("Root");
+        modelBuilder.Ignore<RootReferencingEntity>();
 
         modelBuilder.Entity<RootEntity>()
-            .ToContainer("RootEntities");
+            .ToContainer("RootEntities")
+            .HasNoDiscriminator();
     }
 }

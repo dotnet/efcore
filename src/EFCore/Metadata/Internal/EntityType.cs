@@ -2892,7 +2892,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public override Func<MaterializationContext, object> GetOrCreateMaterializer(IEntityMaterializerSource source)
+    public override Func<MaterializationContext, object> GetOrCreateMaterializer(IStructuralTypeMaterializerSource source)
         => source.GetMaterializer(this);
 
     /// <summary>
@@ -2902,7 +2902,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public override Func<MaterializationContext, object> GetOrCreateEmptyMaterializer(IEntityMaterializerSource source)
+    public override Func<MaterializationContext, object> GetOrCreateEmptyMaterializer(IStructuralTypeMaterializerSource source)
         => source.GetEmptyMaterializer(this);
 
     #endregion

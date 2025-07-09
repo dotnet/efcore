@@ -14,4 +14,7 @@ public abstract class OwnedJsonProjectionRelationalTestBase<TFixture> : OwnedNav
         fixture.TestSqlLoggerFactory.Clear();
         fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
+
+    protected void AssertSql(params string[] expected)
+        => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 }

@@ -1,6 +1,8 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Xunit.Sdk;
+
 namespace Microsoft.EntityFrameworkCore.Query.Relationships.ComplexTableSplitting;
 
 public abstract class ComplexTableSplittingProjectionRelationalTestBase<TFixture>
@@ -14,99 +16,38 @@ public abstract class ComplexTableSplittingProjectionRelationalTestBase<TFixture
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    // [ConditionalTheory]
-    // [MemberData(nameof(AsyncAndTrackingData))]
-    // public virtual Task Select_everything(bool async, QueryTrackingBehavior queryTrackingBehavior)
-    //     => AssertQuery(
-    //         async,
-    //         ss => from r in ss.Set<RootEntity>()
-    //               join t in ss.Set<Trunk>() on r.Id equals t.Id
-    //               select new { r, t },
-    //         elementSorter: e => e.r.Id,
-    //         elementAsserter: (e, a) =>
-    //         {
-    //             AssertEqual(e.r, a.r);
-    //             AssertEqual(e.t, a.t);
-    //         },
-    //         queryTrackingBehavior: queryTrackingBehavior);
+    // Optional complex types, #31376
+    public override Task Select_optional_related_property_value_type(bool async, QueryTrackingBehavior queryTrackingBehavior)
+        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Select_optional_related_property_value_type(async, queryTrackingBehavior));
 
-    // [ConditionalTheory(Skip = "Complex collections not yet supported, #31237")]
-    // public override Task Select_trunk_collection(bool async, QueryTrackingBehavior queryTrackingBehavior)
-    //     => base.Select_trunk_collection(async, queryTrackingBehavior);
+    // Complex JSON collections, update pipeline not yet supported so no seeding, #31237
+    public override Task Select_related_collection(bool async, QueryTrackingBehavior queryTrackingBehavior)
+        => Assert.ThrowsAsync<FailException>(() => base.Select_related_collection(async, queryTrackingBehavior));
 
-    // [ConditionalTheory(Skip = "Complex types projected via optional navigations, #31412")]
-    // public override Task Select_branch_required_optional(bool async, QueryTrackingBehavior queryTrackingBehavior)
-    //     => base.Select_branch_required_optional(async, queryTrackingBehavior);
+    // Complex JSON collections, update pipeline not yet supported so no seeding, #31237
+    public override Task Select_required_related_nested_collection(bool async, QueryTrackingBehavior queryTrackingBehavior)
+        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Select_required_related_nested_collection(async, queryTrackingBehavior));
 
-    // [ConditionalTheory(Skip = "Complex types projected via optional navigations, #31412")]
-    // public override Task Select_branch_optional_optional(bool async, QueryTrackingBehavior queryTrackingBehavior)
-    //     => base.Select_branch_optional_optional(async, queryTrackingBehavior);
+    // Optional complex types, #31376
+    public override Task Select_required_related_optional_nested(bool async, QueryTrackingBehavior queryTrackingBehavior)
+        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Select_required_related_optional_nested(async, queryTrackingBehavior));
 
-    // [ConditionalTheory(Skip = "Complex collections not yet supported, #31237")]
-    // public override Task Select_branch_required_collection(bool async, QueryTrackingBehavior queryTrackingBehavior)
-    //     => base.Select_branch_required_collection(async, queryTrackingBehavior);
+    // Optional complex types, #31376
+    public override Task Select_subquery_required_related_FirstOrDefault(bool async, QueryTrackingBehavior queryTrackingBehavior)
+        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Select_subquery_required_related_FirstOrDefault(async, queryTrackingBehavior));
 
-    // [ConditionalTheory(Skip = "Complex collections not yet supported, #31237")]
-    // public override Task Select_branch_optional_collection(bool async, QueryTrackingBehavior queryTrackingBehavior)
-    //     => base.Select_branch_optional_collection(async, queryTrackingBehavior);
+    // Complex JSON collections, update pipeline not yet supported so no seeding, #31237
+    public override Task SelectMany_related_collection(bool async, QueryTrackingBehavior queryTrackingBehavior)
+        => Assert.ThrowsAsync<InvalidOperationException>(() => base.SelectMany_related_collection(async, queryTrackingBehavior));
 
-    // [ConditionalTheory(Skip = "Complex types projected via optional navigations, #31412")]
-    // public override Task Select_branch_optional_required(bool async, QueryTrackingBehavior queryTrackingBehavior)
-    //     => base.Select_branch_optional_required(async, queryTrackingBehavior);
+    // Optional complex types, #31376
+    public override Task SelectMany_required_related_nested_collection(bool async, QueryTrackingBehavior queryTrackingBehavior)
+        => Assert.ThrowsAsync<InvalidOperationException>(() => base.SelectMany_required_related_nested_collection(async, queryTrackingBehavior));
 
-    // #region Multiple
+    // Optional complex types, #31376
+    public override Task SelectMany_optional_related_nested_collection(bool async, QueryTrackingBehavior queryTrackingBehavior)
+        => Assert.ThrowsAsync<InvalidOperationException>(() => base.SelectMany_optional_related_nested_collection(async, queryTrackingBehavior));
 
-    // [ConditionalTheory(Skip = "Complex types projected via optional navigations, #31412")]
-    // public override Task Select_trunk_and_branch_duplicated(bool async, QueryTrackingBehavior queryTrackingBehavior)
-    //     => base.Select_trunk_and_branch_duplicated(async, queryTrackingBehavior);
-
-    // [ConditionalTheory(Skip = "Complex types projected via optional navigations, #31412")]
-    // public override Task Select_trunk_and_trunk_duplicated(bool async, QueryTrackingBehavior queryTrackingBehavior)
-    //     => base.Select_trunk_and_trunk_duplicated(async, queryTrackingBehavior);
-
-    // [ConditionalTheory(Skip = "Complex collections not yet supported, #31237")]
-    // public override Task Select_multiple_branch_leaf(bool async, QueryTrackingBehavior queryTrackingBehavior)
-    //     => base.Select_multiple_branch_leaf(async, queryTrackingBehavior);
-
-    // #endregion Multiple
-
-    // #region Subquery
-
-    // [ConditionalTheory(Skip = "Complex types projected via optional navigations, #31412")]
-    // public override Task Select_subquery_root_set_required_trunk_FirstOrDefault_branch(bool async, QueryTrackingBehavior queryTrackingBehavior)
-    //     => base.Select_subquery_root_set_required_trunk_FirstOrDefault_branch(async, queryTrackingBehavior);
-
-    // [ConditionalTheory(Skip = "Complex types projected via optional navigations, #31412")]
-    // public override Task Select_subquery_root_set_optional_trunk_FirstOrDefault_branch(bool async, QueryTrackingBehavior queryTrackingBehavior)
-    //     => base.Select_subquery_root_set_optional_trunk_FirstOrDefault_branch(async, queryTrackingBehavior);
-
-    // [ConditionalTheory(Skip = "Complex collections not yet supported, #31237")]
-    // public override Task Select_subquery_root_set_trunk_FirstOrDefault_collection(bool async, QueryTrackingBehavior queryTrackingBehavior)
-    //     => base.Select_subquery_root_set_trunk_FirstOrDefault_collection(async, queryTrackingBehavior);
-
-    // [ConditionalTheory(Skip = "Complex collections not yet supported, #31237")]
-    // public override Task Select_subquery_root_set_complex_projection_including_references_to_outer_FirstOrDefault(bool async, QueryTrackingBehavior queryTrackingBehavior)
-    //     => base.Select_subquery_root_set_complex_projection_including_references_to_outer_FirstOrDefault(async, queryTrackingBehavior);
-
-    // [ConditionalTheory(Skip = "Complex collections not yet supported, #31237")]
-    // public override Task Select_subquery_root_set_complex_projection_FirstOrDefault_project_reference_to_outer(bool async, QueryTrackingBehavior queryTrackingBehavior)
-    //     => base.Select_subquery_root_set_complex_projection_FirstOrDefault_project_reference_to_outer(async, queryTrackingBehavior);
-
-    // #endregion Subquery
-
-    // #region SelectMany
-
-    // [ConditionalTheory(Skip = "Complex collections not yet supported, #31237")]
-    // public override Task SelectMany_trunk_collection(bool async, QueryTrackingBehavior queryTrackingBehavior)
-    //     => base.SelectMany_trunk_collection(async, queryTrackingBehavior);
-
-    // [ConditionalTheory(Skip = "Complex collections not yet supported, #31237")]
-    // public override Task SelectMany_required_trunk_reference_branch_collection(bool async, QueryTrackingBehavior queryTrackingBehavior)
-    //     => base.SelectMany_required_trunk_reference_branch_collection(async, queryTrackingBehavior);
-
-    // [ConditionalTheory(Skip = "Complex collections not yet supported, #31237")]
-    // public override Task SelectMany_optional_trunk_reference_branch_collection(bool async, QueryTrackingBehavior queryTrackingBehavior)
-    //     => base.SelectMany_optional_trunk_reference_branch_collection(async, queryTrackingBehavior);
-
-    // #endregion SelectMany
+    protected void AssertSql(params string[] expected)
+        => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 }

@@ -3,7 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore.Query.Relationships.OwnedTableSplitting;
 
-public class OwnedTableSplittingRelationshipsSqlServerFixture : OwnedTableSplittingRelationalFixtureBase
+public class OwnedTableSplittingSqlServerFixture : OwnedTableSplittingRelationalFixtureBase
 {
     protected override ITestStoreFactory TestStoreFactory
         => SqlServerTestStoreFactory.Instance;

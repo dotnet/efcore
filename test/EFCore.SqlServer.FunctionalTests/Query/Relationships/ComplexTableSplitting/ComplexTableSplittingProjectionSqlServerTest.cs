@@ -3,242 +3,231 @@
 
 namespace Microsoft.EntityFrameworkCore.Query.Relationships.ComplexTableSplitting;
 
-// public class ComplexTableSplittingProjectionSqlServerTest
-//     : ComplexTableSplittingProjectionRelationalTestBase<ComplexTableSplittingSqlServerFixture>
-// {
-//     public ComplexTableSplittingProjectionSqlServerTest(ComplexTableSplittingSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
-//         : base(fixture)
-//     {
-//         Fixture.TestSqlLoggerFactory.Clear();
-//         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
-//     }
+public class ComplexTableSplittingProjectionSqlServerTest(
+    ComplexTableSplittingSqlServerFixture fixture,
+    ITestOutputHelper testOutputHelper)
+    : ComplexTableSplittingProjectionRelationalTestBase<ComplexTableSplittingSqlServerFixture>(fixture, testOutputHelper)
+{
+    public override async Task Select_root(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Select_root(async, queryTrackingBehavior);
 
-//     public override async Task Select_root(bool async, QueryTrackingBehavior queryTrackingBehavior)
-//     {
-//         await base.Select_root(async, queryTrackingBehavior);
+        AssertSql(
+            """
+SELECT [r].[Id], [r].[Name], [r].[RequiredRelated_Id], [r].[RequiredRelated_Int], [r].[RequiredRelated_Name], [r].[RequiredRelated_String], [r].[RequiredRelated_RequiredNested_Id], [r].[RequiredRelated_RequiredNested_Int], [r].[RequiredRelated_RequiredNested_Name], [r].[RequiredRelated_RequiredNested_String]
+FROM [RootEntity] AS [r]
+""");
+    }
 
-//         AssertSql(
-//             """
-// SELECT [r].[Id], [r].[Name], [r].[OptionalReferenceTrunkId], [r].[RequiredReferenceTrunkId]
-// FROM [RootEntities] AS [r]
-// """);
-//     }
+    #region Simple properties
 
-//     public override async Task Select_trunk_optional(bool async, QueryTrackingBehavior queryTrackingBehavior)
-//     {
-//         await base.Select_trunk_optional(async, queryTrackingBehavior);
+    public override async Task Select_related_property(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Select_related_property(async, queryTrackingBehavior);
 
-//         AssertSql(
-//             """
-// SELECT [t].[Id], [t].[CollectionRootId], [t].[Name], [t].[OptionalReferenceBranchId], [t].[RequiredReferenceBranchId], [t].[RequiredReferenceBranch_Name], [t].[RequiredReferenceBranch_RequiredReferenceLeaf_Name]
-// FROM [RootEntities] AS [r]
-// LEFT JOIN [TrunkEntities] AS [t] ON [r].[OptionalReferenceTrunkId] = [t].[Id]
-// ORDER BY [r].[Id]
-// """);
-//     }
+        AssertSql(
+            """
+SELECT [r].[RequiredRelated_String]
+FROM [RootEntity] AS [r]
+""");
+    }
 
-//     public override async Task Select_trunk_required(bool async, QueryTrackingBehavior queryTrackingBehavior)
-//     {
-//         await base.Select_trunk_required(async, queryTrackingBehavior);
+    public override async Task Select_optional_related_property(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Select_optional_related_property(async, queryTrackingBehavior);
 
-//         AssertSql(
-//             """
-// SELECT [t].[Id], [t].[CollectionRootId], [t].[Name], [t].[OptionalReferenceBranchId], [t].[RequiredReferenceBranchId], [t].[RequiredReferenceBranch_Name], [t].[RequiredReferenceBranch_RequiredReferenceLeaf_Name]
-// FROM [RootEntities] AS [r]
-// INNER JOIN [TrunkEntities] AS [t] ON [r].[RequiredReferenceTrunkId] = [t].[Id]
-// ORDER BY [r].[Id]
-// """);
-//     }
+        AssertSql(
+            """
+SELECT [r].[Id], [r].[Name], [r].[RequiredRelated_Id], [r].[RequiredRelated_Int], [r].[RequiredRelated_Name], [r].[RequiredRelated_String], [r].[RequiredRelated_RequiredNested_Id], [r].[RequiredRelated_RequiredNested_Int], [r].[RequiredRelated_RequiredNested_Name], [r].[RequiredRelated_RequiredNested_String]
+FROM [RootEntity] AS [r]
+""");
+    }
 
-//     public override async Task Select_trunk_collection(bool async, QueryTrackingBehavior queryTrackingBehavior)
-//     {
-//         await base.Select_trunk_collection(async, queryTrackingBehavior);
+    public override async Task Select_optional_related_property_value_type(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Select_optional_related_property_value_type(async, queryTrackingBehavior);
 
-//         AssertSql(
-//             """
-// SELECT [r].[Id], [t].[Id], [t].[CollectionRootId], [t].[Name], [t].[OptionalReferenceBranchId], [t].[RequiredReferenceBranchId], [t].[RequiredReferenceBranch_Name], [t].[RequiredReferenceBranch_RequiredReferenceLeaf_Name]
-// FROM [RootEntities] AS [r]
-// LEFT JOIN [TrunkEntities] AS [t] ON [r].[Id] = [t].[CollectionRootId]
-// ORDER BY [r].[Id]
-// """);
-//     }
+        AssertSql(
+            """
+SELECT [r].[Id], [r].[Name], [r].[RequiredRelated_Id], [r].[RequiredRelated_Int], [r].[RequiredRelated_Name], [r].[RequiredRelated_String], [r].[RequiredRelated_RequiredNested_Id], [r].[RequiredRelated_RequiredNested_Int], [r].[RequiredRelated_RequiredNested_Name], [r].[RequiredRelated_RequiredNested_String]
+FROM [RootEntity] AS [r]
+""");
+    }
 
-//     public override async Task Select_branch_required_required(bool async, QueryTrackingBehavior queryTrackingBehavior)
-//     {
-//         await base.Select_branch_required_required(async, queryTrackingBehavior);
+    #endregion Simple properties
 
-//         AssertSql(
-//             """
-// SELECT [t].[RequiredReferenceBranch_Name], [t].[RequiredReferenceBranch_RequiredReferenceLeaf_Name]
-// FROM [RootEntities] AS [r]
-// INNER JOIN [TrunkEntities] AS [t] ON [r].[RequiredReferenceTrunkId] = [t].[Id]
-// ORDER BY [r].[Id]
-// """);
-//     }
+    #region Non-collection
 
-//     public override async Task Select_branch_required_optional(bool async, QueryTrackingBehavior queryTrackingBehavior)
-//     {
-//         await base.Select_branch_required_optional(async, queryTrackingBehavior);
+    public override async Task Select_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Select_related(async, queryTrackingBehavior);
 
-//         AssertSql();
-//     }
+        AssertSql(
+            """
+SELECT [r].[RequiredRelated_Id], [r].[RequiredRelated_Int], [r].[RequiredRelated_Name], [r].[RequiredRelated_String], [r].[RequiredRelated_RequiredNested_Id], [r].[RequiredRelated_RequiredNested_Int], [r].[RequiredRelated_RequiredNested_Name], [r].[RequiredRelated_RequiredNested_String]
+FROM [RootEntity] AS [r]
+""");
+    }
 
-//     public override async Task Select_branch_optional_required(bool async, QueryTrackingBehavior queryTrackingBehavior)
-//     {
-//         await base.Select_branch_optional_required(async, queryTrackingBehavior);
+    public override async Task Select_optional_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Select_optional_related(async, queryTrackingBehavior);
 
-//         AssertSql();
-//     }
+        AssertSql(
+            """
+SELECT [r].[Id], [r].[Name], [r].[RequiredRelated_Id], [r].[RequiredRelated_Int], [r].[RequiredRelated_Name], [r].[RequiredRelated_String], [r].[RequiredRelated_RequiredNested_Id], [r].[RequiredRelated_RequiredNested_Int], [r].[RequiredRelated_RequiredNested_Name], [r].[RequiredRelated_RequiredNested_String]
+FROM [RootEntity] AS [r]
+""");
+    }
 
-//     public override async Task Select_branch_optional_optional(bool async, QueryTrackingBehavior queryTrackingBehavior)
-//     {
-//         await base.Select_branch_optional_optional(async, queryTrackingBehavior);
+    public override async Task Select_required_related_required_nested(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Select_required_related_required_nested(async, queryTrackingBehavior);
 
-//         AssertSql();
-//     }
+        AssertSql(
+            """
+SELECT [r].[RequiredRelated_RequiredNested_Id], [r].[RequiredRelated_RequiredNested_Int], [r].[RequiredRelated_RequiredNested_Name], [r].[RequiredRelated_RequiredNested_String]
+FROM [RootEntity] AS [r]
+""");
+    }
 
-//     public override async Task Select_branch_required_collection(bool async, QueryTrackingBehavior queryTrackingBehavior)
-//     {
-//         await base.Select_branch_required_collection(async, queryTrackingBehavior);
+    public override async Task Select_required_related_optional_nested(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Select_required_related_optional_nested(async, queryTrackingBehavior);
 
-//         AssertSql();
-//     }
+        AssertSql(
+            """
+SELECT [r].[Id], [r].[Name], [r].[RequiredRelated_Id], [r].[RequiredRelated_Int], [r].[RequiredRelated_Name], [r].[RequiredRelated_String], [r].[RequiredRelated_RequiredNested_Id], [r].[RequiredRelated_RequiredNested_Int], [r].[RequiredRelated_RequiredNested_Name], [r].[RequiredRelated_RequiredNested_String]
+FROM [RootEntity] AS [r]
+""");
+    }
 
-//     public override async Task Select_branch_optional_collection(bool async, QueryTrackingBehavior queryTrackingBehavior)
-//     {
-//         await base.Select_branch_optional_collection(async, queryTrackingBehavior);
+    public override async Task Select_optional_related_required_nested(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Select_optional_related_required_nested(async, queryTrackingBehavior);
 
-//         AssertSql();
-//     }
+        AssertSql(
+            """
+SELECT [r].[Id], [r].[Name], [r].[RequiredRelated_Id], [r].[RequiredRelated_Int], [r].[RequiredRelated_Name], [r].[RequiredRelated_String], [r].[RequiredRelated_RequiredNested_Id], [r].[RequiredRelated_RequiredNested_Int], [r].[RequiredRelated_RequiredNested_Name], [r].[RequiredRelated_RequiredNested_String]
+FROM [RootEntity] AS [r]
+""");
+    }
 
-//     #region Multiple
+    public override async Task Select_optional_related_optional_nested(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Select_optional_related_optional_nested(async, queryTrackingBehavior);
 
-//     public override async Task Select_root_duplicated(bool async, QueryTrackingBehavior queryTrackingBehavior)
-//     {
-//         await base.Select_root_duplicated(async, queryTrackingBehavior);
+        AssertSql(
+            """
+SELECT [r].[Id], [r].[Name], [r].[RequiredRelated_Id], [r].[RequiredRelated_Int], [r].[RequiredRelated_Name], [r].[RequiredRelated_String], [r].[RequiredRelated_RequiredNested_Id], [r].[RequiredRelated_RequiredNested_Int], [r].[RequiredRelated_RequiredNested_Name], [r].[RequiredRelated_RequiredNested_String]
+FROM [RootEntity] AS [r]
+""");
+    }
 
-//         AssertSql(
-//             """
-// SELECT [r].[Id], [r].[Name], [r].[OptionalReferenceTrunkId], [r].[RequiredReferenceTrunkId]
-// FROM [RootEntities] AS [r]
-// """);
-//     }
+    #endregion Non-collection
 
-//     public override async Task Select_trunk_and_branch_duplicated(bool async, QueryTrackingBehavior queryTrackingBehavior)
-//     {
-//         await base.Select_trunk_and_branch_duplicated(async, queryTrackingBehavior);
+    #region Collection
 
-//         AssertSql();
-//     }
+    public override async Task Select_related_collection(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Select_related_collection(async, queryTrackingBehavior);
 
-//     public override async Task Select_trunk_and_trunk_duplicated(bool async, QueryTrackingBehavior queryTrackingBehavior)
-//     {
-//         await base.Select_trunk_and_trunk_duplicated(async, queryTrackingBehavior);
+        AssertSql(
+            """
+SELECT [r].[Id], [r].[Name], [r].[RequiredRelated_Id], [r].[RequiredRelated_Int], [r].[RequiredRelated_Name], [r].[RequiredRelated_String], [r].[RequiredRelated_RequiredNested_Id], [r].[RequiredRelated_RequiredNested_Int], [r].[RequiredRelated_RequiredNested_Name], [r].[RequiredRelated_RequiredNested_String]
+FROM [RootEntity] AS [r]
+ORDER BY [r].[Id]
+""");
+    }
 
-//         AssertSql();
-//     }
+    public override async Task Select_required_related_nested_collection(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Select_required_related_nested_collection(async, queryTrackingBehavior);
 
-//     public override async Task Select_leaf_trunk_root(bool async, QueryTrackingBehavior queryTrackingBehavior)
-//     {
-//         await base.Select_leaf_trunk_root(async, queryTrackingBehavior);
+        AssertSql(
+            """
+SELECT [r].[Id], [r].[Name], [r].[RequiredRelated_Id], [r].[RequiredRelated_Int], [r].[RequiredRelated_Name], [r].[RequiredRelated_String], [r].[RequiredRelated_RequiredNested_Id], [r].[RequiredRelated_RequiredNested_Int], [r].[RequiredRelated_RequiredNested_Name], [r].[RequiredRelated_RequiredNested_String]
+FROM [RootEntity] AS [r]
+""");
+    }
 
-//         AssertSql(
-//             """
-// SELECT [t].[RequiredReferenceBranch_RequiredReferenceLeaf_Name], [t].[Id], [t].[CollectionRootId], [t].[Name], [t].[OptionalReferenceBranchId], [t].[RequiredReferenceBranchId], [t].[RequiredReferenceBranch_Name], [r].[Id], [r].[Name], [r].[OptionalReferenceTrunkId], [r].[RequiredReferenceTrunkId]
-// FROM [RootEntities] AS [r]
-// INNER JOIN [TrunkEntities] AS [t] ON [r].[RequiredReferenceTrunkId] = [t].[Id]
-// """);
-//     }
+    public override async Task Select_optional_related_nested_collection(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Select_optional_related_nested_collection(async, queryTrackingBehavior);
 
-//     public override async Task Select_multiple_branch_leaf(bool async, QueryTrackingBehavior queryTrackingBehavior)
-//     {
-//         await base.Select_multiple_branch_leaf(async, queryTrackingBehavior);
+        AssertSql(
+            """
+SELECT [r].[Id], [r].[Name], [r].[RequiredRelated_Id], [r].[RequiredRelated_Int], [r].[RequiredRelated_Name], [r].[RequiredRelated_String], [r].[RequiredRelated_RequiredNested_Id], [r].[RequiredRelated_RequiredNested_Int], [r].[RequiredRelated_RequiredNested_Name], [r].[RequiredRelated_RequiredNested_String]
+FROM [RootEntity] AS [r]
+""");
+    }
 
-//         AssertSql();
-//     }
+    public override async Task SelectMany_related_collection(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.SelectMany_related_collection(async, queryTrackingBehavior);
 
-//     #endregion Multiple
+        AssertSql();
+    }
 
-//     #region Subquery
+    public override async Task SelectMany_required_related_nested_collection(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.SelectMany_required_related_nested_collection(async, queryTrackingBehavior);
 
-//     public override async Task Select_subquery_root_set_required_trunk_FirstOrDefault_branch(bool async, QueryTrackingBehavior queryTrackingBehavior)
-//     {
-//         await base.Select_subquery_root_set_required_trunk_FirstOrDefault_branch(async, queryTrackingBehavior);
+        AssertSql();
+    }
 
-//         AssertSql();
-//     }
+    public override async Task SelectMany_optional_related_nested_collection(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.SelectMany_optional_related_nested_collection(async, queryTrackingBehavior);
 
-//     public override async Task Select_subquery_root_set_optional_trunk_FirstOrDefault_branch(bool async, QueryTrackingBehavior queryTrackingBehavior)
-//     {
-//         await base.Select_subquery_root_set_optional_trunk_FirstOrDefault_branch(async, queryTrackingBehavior);
+        AssertSql();
+    }
 
-//         AssertSql();
-//     }
+    #endregion Collection
 
-//     public override async Task Select_everything(bool async, QueryTrackingBehavior queryTrackingBehavior)
-//     {
-//         await base.Select_everything(async, queryTrackingBehavior);
+    #region Multiple
 
-//         AssertSql(
-// """
-// SELECT [r].[Id], [r].[Name], [r].[OptionalReferenceTrunkId], [r].[RequiredReferenceTrunkId], [t].[Id], [t].[CollectionRootId], [t].[Name], [t].[OptionalReferenceBranchId], [t].[RequiredReferenceBranchId], [t].[RequiredReferenceBranch_Name], [t].[RequiredReferenceBranch_RequiredReferenceLeaf_Name]
-// FROM [RootEntities] AS [r]
-// INNER JOIN [TrunkEntities] AS [t] ON [r].[Id] = [t].[Id]
-// """);
-//     }
+    public override async Task Select_root_duplicated(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Select_root_duplicated(async, queryTrackingBehavior);
 
-//     public override async Task Select_subquery_root_set_trunk_FirstOrDefault_collection(bool async, QueryTrackingBehavior queryTrackingBehavior)
-//     {
-//         await base.Select_subquery_root_set_trunk_FirstOrDefault_collection(async, queryTrackingBehavior);
+        AssertSql(
+            """
+SELECT [r].[Id], [r].[Name], [r].[RequiredRelated_Id], [r].[RequiredRelated_Int], [r].[RequiredRelated_Name], [r].[RequiredRelated_String], [r].[RequiredRelated_RequiredNested_Id], [r].[RequiredRelated_RequiredNested_Int], [r].[RequiredRelated_RequiredNested_Name], [r].[RequiredRelated_RequiredNested_String]
+FROM [RootEntity] AS [r]
+""");
+    }
 
-//         AssertSql();
-//     }
+    #endregion Multiple
 
-//     public override async Task Select_subquery_root_set_complex_projection_including_references_to_outer_FirstOrDefault(bool async, QueryTrackingBehavior queryTrackingBehavior)
-//     {
-//         await base.Select_subquery_root_set_complex_projection_including_references_to_outer_FirstOrDefault(async, queryTrackingBehavior);
+    #region Subquery
 
-//         AssertSql();
-//     }
+    public override async Task Select_subquery_required_related_FirstOrDefault(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Select_subquery_required_related_FirstOrDefault(async, queryTrackingBehavior);
 
-//     public override async Task Select_subquery_root_set_complex_projection_FirstOrDefault_project_reference_to_outer(bool async, QueryTrackingBehavior queryTrackingBehavior)
-//     {
-//         await base.Select_subquery_root_set_complex_projection_FirstOrDefault_project_reference_to_outer(async, queryTrackingBehavior);
+        AssertSql();
+    }
 
-//         AssertSql();
-//     }
+    public override async Task Select_subquery_optional_related_FirstOrDefault(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Select_subquery_optional_related_FirstOrDefault(async, queryTrackingBehavior);
 
-//     #endregion Subquery
+        AssertSql(
+            """
+SELECT [r1].[Id], [r1].[Name], [r1].[RequiredRelated_Id], [r1].[RequiredRelated_Int], [r1].[RequiredRelated_Name], [r1].[RequiredRelated_String], [r1].[RequiredRelated_RequiredNested_Id], [r1].[RequiredRelated_RequiredNested_Int], [r1].[RequiredRelated_RequiredNested_Name], [r1].[RequiredRelated_RequiredNested_String], [r1].[c]
+FROM [RootEntity] AS [r]
+OUTER APPLY (
+    SELECT TOP(1) [r0].[Id], [r0].[Name], [r0].[RequiredRelated_Id], [r0].[RequiredRelated_Int], [r0].[RequiredRelated_Name], [r0].[RequiredRelated_String], [r0].[RequiredRelated_RequiredNested_Id], [r0].[RequiredRelated_RequiredNested_Int], [r0].[RequiredRelated_RequiredNested_Name], [r0].[RequiredRelated_RequiredNested_String], 1 AS [c]
+    FROM [RootEntity] AS [r0]
+    ORDER BY [r0].[Id]
+) AS [r1]
+""");
+    }
 
-//     #region SelectMany
+    #endregion Subquery
 
-//     public override async Task SelectMany_trunk_collection(bool async, QueryTrackingBehavior queryTrackingBehavior)
-//     {
-//         await base.SelectMany_trunk_collection(async, queryTrackingBehavior);
-
-//         AssertSql();
-//     }
-
-//     public override async Task SelectMany_required_trunk_reference_branch_collection(bool async, QueryTrackingBehavior queryTrackingBehavior)
-//     {
-//         await base.SelectMany_required_trunk_reference_branch_collection(async, queryTrackingBehavior);
-
-//         AssertSql();
-//     }
-
-//     public override async Task SelectMany_optional_trunk_reference_branch_collection(bool async, QueryTrackingBehavior queryTrackingBehavior)
-//     {
-//         await base.SelectMany_optional_trunk_reference_branch_collection(async, queryTrackingBehavior);
-
-//         AssertSql();
-//     }
-
-//     #endregion SelectMany
-
-//     [ConditionalFact]
-//     public virtual void Check_all_tests_overridden()
-//         => TestHelpers.AssertAllMethodsOverridden(GetType());
-
-//     private void AssertSql(params string[] expected)
-//         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
-// }
+    [ConditionalFact]
+    public virtual void Check_all_tests_overridden()
+        => TestHelpers.AssertAllMethodsOverridden(GetType());
+}

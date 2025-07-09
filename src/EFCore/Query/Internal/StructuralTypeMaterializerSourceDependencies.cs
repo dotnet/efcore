@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 
 /// <summary>
 ///     <para>
-///         Service dependencies parameter class for <see cref="EntityMaterializerSource" />
+///         Service dependencies parameter class for <see cref="StructuralTypeMaterializerSource" />
 ///     </para>
 ///     <para>
 ///         This type is typically used by database providers (and other extensions). It is generally
@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
 ///     </para>
 /// </remarks>
-public sealed record EntityMaterializerSourceDependencies
+public sealed record StructuralTypeMaterializerSourceDependencies
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -44,7 +44,7 @@ public sealed record EntityMaterializerSourceDependencies
     ///     the constructor at any point in this process.
     /// </remarks>
     [EntityFrameworkInternal]
-    public EntityMaterializerSourceDependencies(IEnumerable<ISingletonInterceptor> singletonInterceptors)
+    public StructuralTypeMaterializerSourceDependencies(IEnumerable<ISingletonInterceptor> singletonInterceptors)
         => SingletonInterceptors = singletonInterceptors;
 
     /// <summary>

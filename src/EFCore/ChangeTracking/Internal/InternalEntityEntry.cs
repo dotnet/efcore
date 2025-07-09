@@ -62,7 +62,7 @@ public sealed partial class InternalEntityEntry : InternalEntryBase, IUpdateEntr
         IStateManager stateManager,
         IEntityType entityType,
         IDictionary<string, object?> values,
-        IEntityMaterializerSource entityMaterializerSource)
+        IStructuralTypeMaterializerSource entityMaterializerSource)
         : base((IRuntimeTypeBase)entityType, values)
     {
         StateManager = stateManager;

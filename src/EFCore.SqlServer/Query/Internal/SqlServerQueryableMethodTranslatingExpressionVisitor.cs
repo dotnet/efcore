@@ -251,7 +251,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
         var columnInfos = new List<SqlServerOpenJsonExpression.ColumnInfo>();
 
         // We're only interested in properties which actually exist in the JSON, filter out uninteresting shadow keys
-        foreach (var property in jsonQueryExpression.EntityType.GetPropertiesInHierarchy())
+        foreach (var property in jsonQueryExpression.StructuralType.GetPropertiesInHierarchy())
         {
             if (property.GetJsonPropertyName() is string jsonPropertyName)
             {
@@ -260,30 +260,51 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                     {
                         Name = jsonPropertyName,
                         TypeMapping = property.GetRelationalTypeMapping(),
-                        Path = new PathSegment[] { new(jsonPropertyName) },
+                        Path = [new(jsonPropertyName)],
                         AsJson = property.GetRelationalTypeMapping().ElementTypeMapping is not null
                     });
             }
         }
 
-        // Navigations represent nested JSON owned entities, which we also add to the OPENJSON WITH clause, but with AS JSON.
-        foreach (var navigation in jsonQueryExpression.EntityType.GetNavigationsInHierarchy()
-                     .Where(
-                         n => n.ForeignKey.IsOwnership
-                             && n.TargetEntityType.IsMappedToJson()
-                             && n.ForeignKey.PrincipalToDependent == n))
+        switch (jsonQueryExpression.StructuralType)
         {
-            var jsonNavigationName = navigation.TargetEntityType.GetJsonPropertyName();
-            Check.DebugAssert(jsonNavigationName is not null, $"No JSON property name for navigation {navigation.Name}");
-
-            columnInfos.Add(
-                new SqlServerOpenJsonExpression.ColumnInfo
+            case IEntityType entityType:
+                // Navigations represent nested JSON owned entities, which we also add to the OPENJSON WITH clause, but with AS JSON.
+                foreach (var navigation in entityType.GetNavigationsInHierarchy()
+                            .Where(
+                                n => n.ForeignKey.IsOwnership
+                                    && n.TargetEntityType.IsMappedToJson()
+                                    && n.ForeignKey.PrincipalToDependent == n))
                 {
-                    Name = jsonNavigationName,
-                    TypeMapping = _nvarcharMaxTypeMapping ??= _typeMappingSource.FindMapping("nvarchar(max)")!,
-                    Path = new PathSegment[] { new(jsonNavigationName) },
-                    AsJson = true
-                });
+                    var jsonPropertyName = navigation.TargetEntityType.GetJsonPropertyName();
+                    Check.DebugAssert(jsonPropertyName is not null, $"No JSON property name for navigation {navigation.Name}");
+
+                    AddStructuralColumnInfo(jsonPropertyName);
+                }
+                break;
+
+            case IComplexType complexType:
+                foreach (var complexProperty in complexType.GetComplexProperties())
+                {
+                    var jsonPropertyName = complexProperty.ComplexType.GetJsonPropertyName();
+                    Check.DebugAssert(jsonPropertyName is not null, $"No JSON property name for complex property {complexProperty.Name}");
+
+                    AddStructuralColumnInfo(jsonPropertyName);
+                }
+                break;
+
+            default:
+                throw new UnreachableException();
+
+                void AddStructuralColumnInfo(string jsonPropertyName)
+                    => columnInfos.Add(
+                        new SqlServerOpenJsonExpression.ColumnInfo
+                        {
+                            Name = jsonPropertyName,
+                            TypeMapping = _nvarcharMaxTypeMapping ??= _typeMappingSource.FindMapping("nvarchar(max)")!,
+                            Path = [new(jsonPropertyName)],
+                            AsJson = true
+                        });
         }
 
         var openJsonExpression = new SqlServerOpenJsonExpression(
@@ -315,7 +336,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
         return new ShapedQueryExpression(
             selectExpression,
             new RelationalStructuralTypeShaperExpression(
-                jsonQueryExpression.EntityType,
+                jsonQueryExpression.StructuralType,
                 new ProjectionBindingExpression(
                     selectExpression,
                     new ProjectionMember(),

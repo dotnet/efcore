@@ -143,7 +143,7 @@ public class RuntimeNavigation : RuntimePropertyBase, IRuntimeNavigation
 
     /// <inheritdoc />
     [DebuggerStepThrough]
-    IClrCollectionAccessor? INavigationBase.GetCollectionAccessor()
+    IClrCollectionAccessor? IPropertyBase.GetCollectionAccessor()
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref _collectionAccessor,
             ref _collectionAccessorInitialized,
