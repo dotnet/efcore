@@ -159,7 +159,7 @@ public class CustomValueGeneratorTest
     }
 
     private readonly string[] _names =
-    {
+    [
         "Jamie Vardy",
         "Danny Drinkwater",
         "Andy King",
@@ -168,7 +168,7 @@ public class CustomValueGeneratorTest
         "Wes Morgan",
         "Robert Huth",
         "Leonardo Ulloa"
-    };
+    ];
 
     private static long ToCounter(Guid guid)
     {
@@ -192,25 +192,23 @@ public class CustomValueGeneratorTest
         return BitConverter.ToInt64(counterBytes, 0);
     }
 
-    private class CustomInMemoryValueGeneratorSelector : InMemoryValueGeneratorSelector
+    private class CustomInMemoryValueGeneratorSelector(
+        ValueGeneratorSelectorDependencies dependencies,
+        IInMemoryDatabase inMemoryDatabase) : InMemoryValueGeneratorSelector(dependencies, inMemoryDatabase)
     {
         private readonly ValueGeneratorFactory _factory = new CustomValueGeneratorFactory();
 
-        public CustomInMemoryValueGeneratorSelector(
-            ValueGeneratorSelectorDependencies dependencies,
-            IInMemoryDatabase inMemoryDatabase)
-            : base(dependencies, inMemoryDatabase)
+        public override bool TryCreate(IProperty property, ITypeBase typeBase, out ValueGenerator valueGenerator)
         {
+            valueGenerator = _factory.Create(property, typeBase);
+            return true;
         }
-
-        public override ValueGenerator Create(IProperty property, ITypeBase typeBase)
-            => _factory.Create(property, typeBase);
     }
 
     private class CustomGuidValueGenerator : ValueGenerator<Guid>
     {
         public static Guid[] SpecialGuids { get; } =
-        {
+        [
             Guid.NewGuid(),
             Guid.NewGuid(),
             Guid.NewGuid(),
@@ -219,7 +217,7 @@ public class CustomValueGeneratorTest
             Guid.NewGuid(),
             Guid.NewGuid(),
             Guid.NewGuid()
-        };
+        ];
 
         private int _counter = -1;
 

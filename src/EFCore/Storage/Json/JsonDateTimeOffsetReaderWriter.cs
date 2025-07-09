@@ -10,6 +10,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Json;
 /// </summary>
 public sealed class JsonDateTimeOffsetReaderWriter : JsonValueReaderWriter<DateTimeOffset>
 {
+    private static readonly PropertyInfo InstanceProperty = typeof(JsonDateTimeOffsetReaderWriter).GetProperty(nameof(Instance))!;
+
     /// <summary>
     ///     The singleton instance of this stateless reader/writer.
     /// </summary>
@@ -26,4 +28,8 @@ public sealed class JsonDateTimeOffsetReaderWriter : JsonValueReaderWriter<DateT
     /// <inheritdoc />
     public override void ToJsonTyped(Utf8JsonWriter writer, DateTimeOffset value)
         => writer.WriteStringValue(value);
+
+    /// <inheritdoc />
+    public override Expression ConstructorExpression
+        => Expression.Property(null, InstanceProperty);
 }

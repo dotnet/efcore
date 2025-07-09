@@ -13,7 +13,9 @@ namespace SQLitePCL
         {
             { "e_sqlcipher", true },
             { "e_sqlite3", false },
+            { "e_sqlite3mc", true },
             { "sqlcipher", true },
+            { "sqlite3mc", true },
             { "winsqlite3", false }
         };
 

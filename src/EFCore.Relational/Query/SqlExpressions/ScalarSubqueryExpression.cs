@@ -14,35 +14,28 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 /// </summary>
 public class ScalarSubqueryExpression : SqlExpression
 {
+    private static ConstructorInfo? _quotingConstructor;
+
     /// <summary>
     ///     Creates a new instance of the <see cref="ScalarSubqueryExpression" /> class.
     /// </summary>
     /// <param name="subquery">A subquery projecting single row with a single scalar projection.</param>
     public ScalarSubqueryExpression(SelectExpression subquery)
         : this(subquery, subquery.Projection[0].Expression.TypeMapping)
-    {
-        Subquery = subquery;
-    }
+        => Subquery = subquery;
 
     private ScalarSubqueryExpression(SelectExpression subquery, RelationalTypeMapping? typeMapping)
         : base(Verify(subquery).Projection[0].Type, typeMapping)
-    {
-        Subquery = subquery;
-    }
+        => Subquery = subquery;
 
     private static SelectExpression Verify(SelectExpression selectExpression)
     {
+        Check.DebugAssert(!selectExpression.IsMutable, "Mutable subquery provided to ExistsExpression");
+
         if (selectExpression.Projection.Count != 1)
         {
             throw new InvalidOperationException(CoreStrings.TranslationFailed(selectExpression.Print()));
         }
-
-#if DEBUG
-        if (selectExpression.IsMutable())
-        {
-            throw new InvalidOperationException();
-        }
-#endif
 
         return selectExpression;
     }
@@ -74,6 +67,12 @@ public class ScalarSubqueryExpression : SqlExpression
         => subquery != Subquery
             ? new ScalarSubqueryExpression(subquery)
             : this;
+
+    /// <inheritdoc />
+    public override Expression Quote()
+        => New(
+            _quotingConstructor ??= typeof(ScalarSubqueryExpression).GetConstructor([typeof(SelectExpression)])!,
+            Subquery.Quote());
 
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)
