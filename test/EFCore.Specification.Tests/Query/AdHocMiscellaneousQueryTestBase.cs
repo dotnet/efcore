@@ -2168,7 +2168,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture) 
         var contextFactory = await InitializeAsync<Context31961>();
         using var context = contextFactory.CreateContext();
 
-        var query = await context.Customers
+        var query = context.Customers
             .Select(
                 m => new Context31961.CustomerDto
                 {
@@ -2187,8 +2187,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture) 
                         }
                         : null,
                 })
-            .Where(m => m.Company.Country.CountryName == "COUNTRY")
-            .ToListAsync();
+            .Where(m => m.Company.Country.CountryName == "COUNTRY");
+
+        var result = async
+            ? await query.ToListAsync()
+            : query.ToList();
     }
 
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
