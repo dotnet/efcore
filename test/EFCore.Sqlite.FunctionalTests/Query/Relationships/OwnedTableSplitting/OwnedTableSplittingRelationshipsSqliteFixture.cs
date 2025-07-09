@@ -3,13 +3,10 @@
 
 namespace Microsoft.EntityFrameworkCore.Query.Relationships.OwnedTableSplitting;
 
-public class OwnedTableSplittingSqliteFixture : OwnedTableSplittingRelationalFixtureBase, ITestSqlLoggerFactory
+public class OwnedTableSplittingSqliteFixture : OwnedTableSplittingRelationalFixtureBase
 {
     protected override ITestStoreFactory TestStoreFactory
         => SqliteTestStoreFactory.Instance;
-
-    public TestSqlLoggerFactory TestSqlLoggerFactory
-        => (TestSqlLoggerFactory)ListLoggerFactory;
 
     public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
         => base.AddOptions(builder.ConfigureWarnings(b => b.Ignore(SqliteEventId.CompositeKeyWithValueGeneration)));

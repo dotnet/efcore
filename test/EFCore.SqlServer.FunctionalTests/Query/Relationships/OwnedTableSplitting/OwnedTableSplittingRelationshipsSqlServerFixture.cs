@@ -3,11 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query.Relationships.OwnedTableSplitting;
 
-public class OwnedTableSplittingRelationshipsSqlServerFixture : OwnedTableSplittingRelationalFixtureBase, ITestSqlLoggerFactory
+public class OwnedTableSplittingRelationshipsSqlServerFixture : OwnedTableSplittingRelationalFixtureBase
 {
     protected override ITestStoreFactory TestStoreFactory
         => SqlServerTestStoreFactory.Instance;
-
-    public TestSqlLoggerFactory TestSqlLoggerFactory
-        => (TestSqlLoggerFactory)ListLoggerFactory;
 }
