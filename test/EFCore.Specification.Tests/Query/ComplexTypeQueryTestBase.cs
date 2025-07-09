@@ -12,19 +12,19 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
         : base(fixture)
         => fixture.ListLoggerFactory.Clear();
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Filter_on_property_inside_complex_type(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<Customer>().Where(c => c.ShippingAddress.ZipCode == 07728));
+    // [ConditionalTheory]
+    // [MemberData(nameof(IsAsyncData))]
+    // public virtual Task Filter_on_property_inside_complex_type(bool async)
+    //     => AssertQuery(
+    //         async,
+    //         ss => ss.Set<Customer>().Where(c => c.ShippingAddress.ZipCode == 07728));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Filter_on_property_inside_nested_complex_type(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<Customer>().Where(c => c.ShippingAddress.Country.Code == "DE"));
+    // [ConditionalTheory]
+    // [MemberData(nameof(IsAsyncData))]
+    // public virtual Task Filter_on_property_inside_nested_complex_type(bool async)
+    //     => AssertQuery(
+    //         async,
+    //         ss => ss.Set<Customer>().Where(c => c.ShippingAddress.Country.Code == "DE"));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

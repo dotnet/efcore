@@ -1,0 +1,11 @@
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
+namespace Microsoft.EntityFrameworkCore.Query.Relationships.Navigations;
+
+public class NavigationsMiscellaneousSqlServerTest(
+    NavigationsSqlServerFixture fixture,
+    ITestOutputHelper testOutputHelper)
+    : NavigationsMiscellaneousRelationalTestBase<NavigationsSqlServerFixture>(fixture, testOutputHelper)
+{
+}

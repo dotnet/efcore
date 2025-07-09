@@ -3,11 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query.Relationships.OwnedNavigations;
 
-public class OwnedNavigationsSqlServerFixture : OwnedNavigationsRelationalFixtureBase, ITestSqlLoggerFactory
+public class OwnedNavigationsSqlServerFixture : OwnedNavigationsRelationalFixtureBase
 {
     protected override ITestStoreFactory TestStoreFactory
         => SqlServerTestStoreFactory.Instance;
-
-    public TestSqlLoggerFactory TestSqlLoggerFactory
-        => (TestSqlLoggerFactory)ListLoggerFactory;
 }

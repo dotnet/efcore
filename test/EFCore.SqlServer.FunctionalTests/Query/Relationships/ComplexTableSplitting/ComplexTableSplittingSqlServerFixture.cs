@@ -7,7 +7,4 @@ public class ComplexTableSplittingSqlServerFixture : ComplexTableSplittingRelati
 {
     protected override ITestStoreFactory TestStoreFactory
         => SqlServerTestStoreFactory.Instance;
-
-    public TestSqlLoggerFactory TestSqlLoggerFactory
-        => (TestSqlLoggerFactory)ListLoggerFactory;
 }
