@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 
 // ReSharper disable once CheckNamespace
@@ -40,7 +41,7 @@ public static class CosmosEntityTypeExtensions
     public static void SetContainer(this IMutableEntityType entityType, string? name)
         => entityType.SetOrRemoveAnnotation(
             CosmosAnnotationNames.ContainerName,
-            Check.NullButNotEmpty(name, nameof(name)));
+            Check.NullButNotEmpty(name));
 
     /// <summary>
     ///     Sets the name of the container to which the entity type is mapped.
@@ -54,7 +55,7 @@ public static class CosmosEntityTypeExtensions
         bool fromDataAnnotation = false)
         => (string?)entityType.SetOrRemoveAnnotation(
             CosmosAnnotationNames.ContainerName,
-            Check.NullButNotEmpty(name, nameof(name)),
+            Check.NullButNotEmpty(name),
             fromDataAnnotation)?.Value;
 
     /// <summary>
@@ -92,7 +93,7 @@ public static class CosmosEntityTypeExtensions
     public static void SetContainingPropertyName(this IMutableEntityType entityType, string? name)
         => entityType.SetOrRemoveAnnotation(
             CosmosAnnotationNames.PropertyName,
-            Check.NullButNotEmpty(name, nameof(name)));
+            Check.NullButNotEmpty(name));
 
     /// <summary>
     ///     Sets the name of the parent property to which the entity type is mapped.
@@ -106,7 +107,7 @@ public static class CosmosEntityTypeExtensions
         bool fromDataAnnotation = false)
         => (string?)entityType.SetOrRemoveAnnotation(
             CosmosAnnotationNames.PropertyName,
-            Check.NullButNotEmpty(name, nameof(name)),
+            Check.NullButNotEmpty(name),
             fromDataAnnotation)?.Value;
 
     /// <summary>
@@ -211,7 +212,7 @@ public static class CosmosEntityTypeExtensions
     /// <param name="names">The names to set, or <see langword="null" /> to clear all names.</param>
     public static void SetPartitionKeyPropertyNames(this IMutableEntityType entityType, IReadOnlyList<string>? names)
         => entityType.SetOrRemoveAnnotation(
-            CosmosAnnotationNames.PartitionKeyNames, names is null ? names : Check.HasNoEmptyElements(names, nameof(names)));
+            CosmosAnnotationNames.PartitionKeyNames, names is null ? names : Check.HasNoEmptyElements(names));
 
     /// <summary>
     ///     Sets the names of the properties that are used to store the hierarchical partition key.
@@ -226,7 +227,7 @@ public static class CosmosEntityTypeExtensions
         => (IReadOnlyList<string>?)entityType
             .SetOrRemoveAnnotation(
                 CosmosAnnotationNames.PartitionKeyNames,
-                names is null ? names : Check.HasNoEmptyElements(names, nameof(names)),
+                names is null ? names : Check.HasNoEmptyElements(names),
                 fromDataAnnotation)?.Value;
 
     /// <summary>
@@ -276,7 +277,9 @@ public static class CosmosEntityTypeExtensions
     /// <param name="entityType">The entity type to get the etag property name for.</param>
     /// <returns>The name of the etag property.</returns>
     public static string? GetETagPropertyName(this IReadOnlyEntityType entityType)
-        => entityType[CosmosAnnotationNames.ETagName] as string;
+        => entityType[CosmosAnnotationNames.ETagName] as string
+            ?? entityType.BaseType?.GetETagPropertyName()
+            ?? null;
 
     /// <summary>
     ///     Sets the name of the property that is used to store the ETag key.
@@ -286,7 +289,7 @@ public static class CosmosEntityTypeExtensions
     public static void SetETagPropertyName(this IMutableEntityType entityType, string? name)
         => entityType.SetOrRemoveAnnotation(
             CosmosAnnotationNames.ETagName,
-            Check.NullButNotEmpty(name, nameof(name)));
+            Check.NullButNotEmpty(name));
 
     /// <summary>
     ///     Sets the name of the property that is used to store the ETag.
@@ -300,7 +303,7 @@ public static class CosmosEntityTypeExtensions
         bool fromDataAnnotation = false)
         => (string?)entityType.SetOrRemoveAnnotation(
             CosmosAnnotationNames.ETagName,
-            Check.NullButNotEmpty(name, nameof(name)),
+            Check.NullButNotEmpty(name),
             fromDataAnnotation)?.Value;
 
     /// <summary>
@@ -583,5 +586,49 @@ public static class CosmosEntityTypeExtensions
     /// <returns>The <see cref="ConfigurationSource" /> for the throughput.</returns>
     public static ConfigurationSource? GetThroughputConfigurationSource(this IConventionEntityType entityType)
         => entityType.FindAnnotation(CosmosAnnotationNames.Throughput)
+            ?.GetConfigurationSource();
+
+    /// <summary>
+    ///     Returns the default language for the full-text search at container scope.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>The default language for the full-text search.</returns>
+    public static string? GetDefaultFullTextSearchLanguage(this IReadOnlyEntityType entityType)
+        => entityType.BaseType != null
+            ? entityType.GetRootType().GetDefaultFullTextSearchLanguage()
+            : (string?)entityType[CosmosAnnotationNames.DefaultFullTextSearchLanguage];
+
+    /// <summary>
+    ///     Sets the default language for the full-text search at container scope.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="language">The default language for the full-text search.</param>
+    public static void SetDefaultFullTextSearchLanguage(this IMutableEntityType entityType, string? language)
+        => entityType.SetOrRemoveAnnotation(
+            CosmosAnnotationNames.DefaultFullTextSearchLanguage,
+            language);
+
+    /// <summary>
+    ///     Sets the default language for the full-text search at container scope.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="language">The default language for the full-text search.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    public static string? SetDefaultFullTextSearchLanguage(
+        this IConventionEntityType entityType,
+        string? language,
+        bool fromDataAnnotation = false)
+        => (string?)entityType.SetOrRemoveAnnotation(
+            CosmosAnnotationNames.DefaultFullTextSearchLanguage,
+            language,
+            fromDataAnnotation)?.Value;
+
+    /// <summary>
+    ///     Gets the <see cref="ConfigurationSource" /> for the default full-text search language at container scope.
+    /// </summary>
+    /// <param name="entityType">The entity type to find configuration source for.</param>
+    /// <returns>The <see cref="ConfigurationSource" /> for the default full-text search language.</returns>
+    public static ConfigurationSource? GetDefaultFullTextSearchLanguageConfigurationSource(this IConventionEntityType entityType)
+        => entityType.FindAnnotation(CosmosAnnotationNames.DefaultFullTextSearchLanguage)
             ?.GetConfigurationSource();
 }

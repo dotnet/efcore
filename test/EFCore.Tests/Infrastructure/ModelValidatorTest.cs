@@ -401,7 +401,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         entityTypeD.SetQueryFilter((Expression<Func<D, bool>>)(_ => true));
 
         VerifyError(
-            CoreStrings.BadFilterDerivedType(entityTypeD.GetQueryFilter(), entityTypeD.DisplayName(), entityTypeA.DisplayName()),
+            CoreStrings.BadFilterDerivedType(entityTypeD.FindDeclaredQueryFilter(null).Expression, entityTypeD.DisplayName(), entityTypeA.DisplayName()),
             modelBuilder);
     }
 
@@ -1136,18 +1136,18 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     }
 
     [ConditionalFact]
-    public virtual void Detects_collection_complex_properties()
+    public virtual void Detects_optional_collection_complex_properties()
     {
         var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Ignore(typeof(Order));
 
         var model = modelBuilder.Model;
         var customerEntity = model.AddEntityType(typeof(Customer));
-        customerEntity.AddComplexProperty(nameof(Customer.Orders), collection: true);
+        var collection = customerEntity.AddComplexProperty(nameof(Customer.Orders), collection: true);
 
-        VerifyError(
-            CoreStrings.ComplexPropertyCollection(nameof(Customer), nameof(Customer.Orders)),
-            modelBuilder);
+        Assert.Equal(
+            CoreStrings.ComplexPropertyOptional("Customer", "Orders"),
+            Assert.Throws<InvalidOperationException>(() => collection.IsNullable = true).Message);
     }
 
     [ConditionalFact]
@@ -1902,6 +1902,28 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             .HasValue<D>(1);
 
         VerifyError(CoreStrings.NoDiscriminatorValue(typeof(C).Name), modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_missing_complex_type_discriminator_values()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<B>().ComplexProperty(b => b.A)
+            .HasDiscriminator<byte>("Type");
+
+        VerifyError(CoreStrings.NoDiscriminatorValue("B.A#A"), modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_incompatible_complex_type_discriminator_value()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        var complexPropertyBuilder = modelBuilder.Entity<B>().ComplexProperty(b => b.A);
+        complexPropertyBuilder.HasDiscriminator<byte>("Type");
+
+        complexPropertyBuilder.Metadata.ComplexType.SetDiscriminatorValue("1");
+
+        VerifyError(CoreStrings.DiscriminatorValueIncompatible("1", "B.A#A", "byte"), modelBuilder);
     }
 
     [ConditionalFact]

@@ -720,8 +720,8 @@ OFFSET 0 LIMIT 1
         public Task InitializeAsync()
             => Task.CompletedTask;
 
-        public Task DisposeAsync()
-            => TestStore.DisposeAsync();
+        public async Task DisposeAsync()
+            => await TestStore.DisposeAsync();
     }
 
     public record class EmbeddedTransportationContextOptions(DbContextOptions Options, Action<ModelBuilder> OnModelCreating);

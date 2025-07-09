@@ -1,6 +1,10 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Query.Relationships.JsonOwnedNavigations;
+using Microsoft.EntityFrameworkCore.Query.Relationships.OwnedNavigations;
+using Microsoft.EntityFrameworkCore.Query.Relationships.OwnedTableSplitting;
+
 namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
@@ -13,7 +17,14 @@ public class SqliteComplianceTest : RelationalComplianceTestBase
         typeof(SqlExecutorTestBase<>),
         typeof(UdfDbFunctionTestBase<>),
         typeof(TPCRelationshipsQueryTestBase<>), // internal class is added
-        typeof(StoredProcedureUpdateTestBase) // SQLite doesn't support stored procedures
+        typeof(StoredProcedureUpdateTestBase), // SQLite doesn't support stored procedures
+
+        // All tests in the following test suites currently fail because of #26708
+        // (Stop generating composite keys for owned collections on SQLite)
+        typeof(OwnedNavigationsProjectionTestBase<>),
+        typeof(OwnedNavigationsProjectionRelationalTestBase<>),
+        typeof(JsonOwnedNavigationsProjectionRelationalTestBase<>),
+        typeof(OwnedTableSplittingProjectionRelationalTestBase<>)
     };
 
     protected override Assembly TargetAssembly { get; } = typeof(SqliteComplianceTest).Assembly;

@@ -291,6 +291,19 @@ public class IndentedStringBuilder
         => new IndentSuspender(this);
 
     /// <summary>
+    ///    Clones this <see cref="IndentedStringBuilder" />, copying the built string and current indent level.
+    /// </summary>
+    /// <returns>New instance of <see cref="IndentedStringBuilder" />.</returns>
+    public virtual IndentedStringBuilder Clone()
+    {
+        var result = new IndentedStringBuilder();
+        result._stringBuilder.Append(_stringBuilder);
+        result._indent = _indent;
+        result._indentPending = _indentPending;
+        return result;
+    }
+
+    /// <summary>
     ///     Returns the built string.
     /// </summary>
     /// <returns>The built string.</returns>

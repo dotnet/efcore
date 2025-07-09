@@ -7,6 +7,36 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
 public static class CosmosTestModelBuilderExtensions
 {
+    public static ModelBuilderTest.TestModelBuilder HasShadowIds(
+        this ModelBuilderTest.TestModelBuilder builder,
+        bool? alwaysCreate = true)
+    {
+        if (builder is IInfrastructure<ModelBuilder> nonGenericBuilder)
+        {
+            nonGenericBuilder.Instance.HasShadowIds(alwaysCreate);
+        }
+
+        return builder;
+    }
+
+    public static ModelBuilderTest.TestEntityTypeBuilder<TEntity> HasShadowId<TEntity>(
+        this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder,
+        bool? alwaysCreate = true)
+        where TEntity : class
+    {
+        switch (builder)
+        {
+            case IInfrastructure<EntityTypeBuilder<TEntity>> genericBuilder:
+                genericBuilder.Instance.HasShadowId(alwaysCreate);
+                break;
+            case IInfrastructure<EntityTypeBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.HasShadowId(alwaysCreate);
+                break;
+        }
+
+        return builder;
+    }
+
     public static ModelBuilderTest.TestEntityTypeBuilder<TEntity> HasPartitionKey<TEntity, TProperty>(
         this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder,
         Expression<Func<TEntity, TProperty>> propertyExpression)
@@ -26,24 +56,6 @@ public static class CosmosTestModelBuilderExtensions
         return builder;
     }
 
-    public static ModelBuilderTest.TestEntityTypeBuilder<TEntity> AlwaysHasShadowId<TEntity>(
-        this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder,
-        bool? alwaysCreate = true)
-        where TEntity : class
-    {
-        switch (builder)
-        {
-            case IInfrastructure<EntityTypeBuilder<TEntity>> genericBuilder:
-                genericBuilder.Instance.HasShadowId(alwaysCreate);
-                break;
-            case IInfrastructure<EntityTypeBuilder> nonGenericBuilder:
-                nonGenericBuilder.Instance.HasShadowId(alwaysCreate);
-                break;
-        }
-
-        return builder;
-    }
-
     public static ModelBuilderTest.TestEntityTypeBuilder<TEntity> HasPartitionKey<TEntity>(
         this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder,
         string name,
@@ -57,6 +69,40 @@ public static class CosmosTestModelBuilderExtensions
                 break;
             case IInfrastructure<EntityTypeBuilder> nonGenericBuilder:
                 nonGenericBuilder.Instance.HasPartitionKey(name, additionalPropertyNames);
+                break;
+        }
+
+        return builder;
+    }
+
+    public static ModelBuilderTest.TestEntityTypeBuilder<TEntity> ToContainer<TEntity>(
+        this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder,
+        string name)
+        where TEntity : class
+    {
+        switch (builder)
+        {
+            case IInfrastructure<EntityTypeBuilder<TEntity>> genericBuilder:
+                genericBuilder.Instance.ToContainer(name);
+                break;
+            case IInfrastructure<EntityTypeBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.ToContainer(name);
+                break;
+        }
+
+        return builder;
+    }
+    public static ModelBuilderTest.TestEntityTypeBuilder<TEntity> UseETagConcurrency<TEntity>(
+        this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder)
+        where TEntity : class
+    {
+        switch (builder)
+        {
+            case IInfrastructure<EntityTypeBuilder<TEntity>> genericBuilder:
+                genericBuilder.Instance.UseETagConcurrency();
+                break;
+            case IInfrastructure<EntityTypeBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.UseETagConcurrency();
                 break;
         }
 

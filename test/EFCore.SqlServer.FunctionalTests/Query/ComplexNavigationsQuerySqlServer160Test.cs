@@ -67,12 +67,8 @@ WHERE [l].[Id] < 3
         AssertSql(
             """
 SELECT (
-    SELECT TOP(1) [l1].[Name]
-    FROM (
-        SELECT DISTINCT TOP(1) [l0].[Id], [l0].[Level2_Optional_Id], [l0].[Level2_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_Inverse3Id], [l0].[OneToMany_Optional_Self_Inverse3Id], [l0].[OneToMany_Required_Inverse3Id], [l0].[OneToMany_Required_Self_Inverse3Id], [l0].[OneToOne_Optional_PK_Inverse3Id], [l0].[OneToOne_Optional_Self3Id]
-        FROM [LevelThree] AS [l0]
-    ) AS [l1]
-    ORDER BY [l1].[Id])
+    SELECT TOP(1) [l0].[Name]
+    FROM [LevelThree] AS [l0])
 FROM [LevelOne] AS [l]
 WHERE [l].[Id] < 3
 """);
@@ -1369,10 +1365,10 @@ ORDER BY [m].[Id], [l].[Id], [l0].[Id], [s].[Id]
 SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id]
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Required_Id]
-WHERE (
-    SELECT COUNT(*)
+WHERE EXISTS (
+    SELECT 1
     FROM [LevelThree] AS [l1]
-    WHERE [l0].[Id] IS NOT NULL AND [l0].[Id] = [l1].[OneToMany_Optional_Inverse3Id]) > 0
+    WHERE [l0].[Id] IS NOT NULL AND [l0].[Id] = [l1].[OneToMany_Optional_Inverse3Id])
 """);
     }
 
@@ -1385,10 +1381,10 @@ WHERE (
 SELECT [l].[Id], [l].[Level2_Optional_Id], [l].[Level2_Required_Id], [l].[Name], [l].[OneToMany_Optional_Inverse3Id], [l].[OneToMany_Optional_Self_Inverse3Id], [l].[OneToMany_Required_Inverse3Id], [l].[OneToMany_Required_Self_Inverse3Id], [l].[OneToOne_Optional_PK_Inverse3Id], [l].[OneToOne_Optional_Self3Id]
 FROM [LevelThree] AS [l]
 INNER JOIN [LevelTwo] AS [l0] ON [l].[Level2_Required_Id] = [l0].[Id]
-WHERE (
-    SELECT COUNT(*)
+WHERE EXISTS (
+    SELECT 1
     FROM [LevelThree] AS [l1]
-    WHERE [l0].[Id] = [l1].[OneToMany_Optional_Inverse3Id]) > 0
+    WHERE [l0].[Id] = [l1].[OneToMany_Optional_Inverse3Id])
 """);
     }
 
@@ -1552,11 +1548,11 @@ ORDER BY [l0].[Id]
 
         AssertSql(
             """
-@__p_0='10'
+@p='10'
 
 SELECT [l1].[Name]
 FROM (
-    SELECT TOP(@__p_0) [l0].[Id] AS [Id0], [l0].[Level1_Required_Id]
+    SELECT TOP(@p) [l0].[Id] AS [Id0], [l0].[Level1_Required_Id]
     FROM [LevelThree] AS [l]
     INNER JOIN [LevelTwo] AS [l0] ON [l].[Level2_Required_Id] = [l0].[Id]
     ORDER BY [l0].[Id]
@@ -1573,9 +1569,9 @@ ORDER BY [s].[Id0]
 
         AssertSql(
             """
-@__p_0='10'
+@p='10'
 
-SELECT TOP(@__p_0) [l0].[Name]
+SELECT TOP(@p) [l0].[Name]
 FROM [LevelThree] AS [l]
 INNER JOIN [LevelTwo] AS [l0] ON [l].[Level2_Required_Id] = [l0].[Id]
 ORDER BY [l0].[Id]
@@ -1588,11 +1584,11 @@ ORDER BY [l0].[Id]
 
         AssertSql(
             """
-@__p_0='10'
+@p='10'
 
 SELECT [l1].[Name]
 FROM (
-    SELECT TOP(@__p_0) [l0].[Id] AS [Id0]
+    SELECT TOP(@p) [l0].[Id] AS [Id0]
     FROM [LevelOne] AS [l]
     LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
     ORDER BY [l0].[Id]
@@ -1608,9 +1604,9 @@ ORDER BY [s].[Id0]
 
         AssertSql(
             """
-@__p_0='3'
+@p='3'
 
-SELECT TOP(@__p_0) [l].[Name]
+SELECT TOP(@p) [l].[Name]
 FROM [LevelTwo] AS [l]
 INNER JOIN [LevelOne] AS [l0] ON [l].[Level1_Required_Id] = [l0].[Id]
 WHERE [l0].[Name] = N'L1 03'
@@ -1624,9 +1620,9 @@ ORDER BY [l].[Id]
 
         AssertSql(
             """
-@__p_0='3'
+@p='3'
 
-SELECT TOP(@__p_0) [l].[Name]
+SELECT TOP(@p) [l].[Name]
 FROM [LevelTwo] AS [l]
 INNER JOIN [LevelOne] AS [l0] ON [l].[Level1_Required_Id] = [l0].[Id]
 INNER JOIN [LevelThree] AS [l1] ON [l0].[Id] = [l1].[Level2_Required_Id]
@@ -1641,9 +1637,9 @@ ORDER BY [l0].[Id]
 
         AssertSql(
             """
-@__p_0='3'
+@p='3'
 
-SELECT TOP(@__p_0) [l0].[Name]
+SELECT TOP(@p) [l0].[Name]
 FROM [LevelTwo] AS [l]
 INNER JOIN [LevelOne] AS [l0] ON [l].[Level1_Required_Id] = [l0].[Id]
 INNER JOIN [LevelThree] AS [l1] ON [l0].[Id] = [l1].[Level2_Required_Id]
@@ -1657,9 +1653,9 @@ ORDER BY [l0].[Id]
 
         AssertSql(
             """
-@__p_0='3'
+@p='3'
 
-SELECT TOP(@__p_0) [l].[Name]
+SELECT TOP(@p) [l].[Name]
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Required_Id]
 WHERE [l0].[Name] = N'L2 03'
@@ -2273,11 +2269,11 @@ LEFT JOIN (
 
         AssertSql(
             """
-@__p_0='2'
+@p='2'
 
 SELECT [l1].[Name]
 FROM (
-    SELECT TOP(@__p_0) [l].[Id]
+    SELECT TOP(@p) [l].[Id]
     FROM [LevelOne] AS [l]
     LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
     ORDER BY [l].[Id]
@@ -2300,11 +2296,11 @@ ORDER BY [s].[Id]
 
         AssertSql(
             """
-@__p_0='2'
+@p='2'
 
 SELECT [l1].[Name]
 FROM (
-    SELECT TOP(@__p_0) [l].[Id], [l0].[Level1_Optional_Id]
+    SELECT TOP(@p) [l].[Id], [l0].[Level1_Optional_Id]
     FROM [LevelOne] AS [l]
     LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
     ORDER BY [l].[Id]
@@ -2321,11 +2317,11 @@ ORDER BY [s].[Id]
 
         AssertSql(
             """
-@__p_0='2'
+@p='2'
 
 SELECT [l1].[Name]
 FROM (
-    SELECT TOP(@__p_0) [l].[Id], [l0].[Level1_Optional_Id]
+    SELECT TOP(@p) [l].[Id], [l0].[Level1_Optional_Id]
     FROM [LevelOne] AS [l]
     LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
     ORDER BY [l].[Id]
@@ -2341,9 +2337,9 @@ ORDER BY [s].[Id]
 
         AssertSql(
             """
-@__p_0='2'
+@p='2'
 
-SELECT TOP(@__p_0) [l].[Id], [l0].[Name] AS [Brand]
+SELECT TOP(@p) [l].[Id], [l0].[Name] AS [Brand]
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
 ORDER BY [l0].[Name], [l].[Id]
@@ -2356,12 +2352,12 @@ ORDER BY [l0].[Name], [l].[Id]
 
         AssertSql(
             """
-@__p_0='2'
+@p='2'
 
 SELECT [l].[Id], [s].[Name]
 FROM [LevelTwo] AS [l]
 LEFT JOIN (
-    SELECT TOP(@__p_0) [l0].[Id], [l0].[Name]
+    SELECT TOP(@p) [l0].[Id], [l0].[Name]
     FROM [LevelOne] AS [l0]
     LEFT JOIN [LevelTwo] AS [l1] ON [l0].[Id] = [l1].[Level1_Optional_Id]
     ORDER BY [l1].[Name]
@@ -2525,9 +2521,9 @@ INNER JOIN (
 
         AssertSql(
             """
-@__p_0='15'
+@p='15'
 
-SELECT TOP(@__p_0) [l].[Id]
+SELECT TOP(@p) [l].[Id]
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
 WHERE [l0].[Name] <> N'Foo' OR [l0].[Name] IS NULL
@@ -2541,9 +2537,9 @@ ORDER BY [l].[Id]
 
         AssertSql(
             """
-@__p_0='15'
+@p='15'
 
-SELECT TOP(@__p_0) [l].[Id]
+SELECT TOP(@p) [l].[Id]
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
 WHERE [l0].[Name] <> N'Foo' OR [l0].[Name] IS NULL
@@ -2586,9 +2582,9 @@ WHERE [l0].[Name] <> N'Foo' OR [l0].[Name] IS NULL
 
         AssertSql(
             """
-@__p_0='20'
+@p='20'
 
-SELECT TOP(@__p_0) [s].[Id]
+SELECT TOP(@p) [s].[Id]
 FROM (
     SELECT DISTINCT [l].[Id]
     FROM [LevelOne] AS [l]
@@ -2639,8 +2635,8 @@ WHERE (
 
         AssertSql(
             """
-@__p_0='0'
-@__p_1='10'
+@p='0'
+@p0='10'
 
 SELECT [l].[Name]
 FROM [LevelThree] AS [l]
@@ -2648,7 +2644,7 @@ INNER JOIN [LevelTwo] AS [l0] ON [l].[OneToMany_Required_Inverse3Id] = [l0].[Id]
 INNER JOIN [LevelOne] AS [l1] ON [l0].[Level1_Required_Id] = [l1].[Id]
 WHERE [l1].[Name] IN (N'L1 10', N'L1 01')
 ORDER BY [l].[Level2_Required_Id]
-OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+OFFSET @p ROWS FETCH NEXT @p0 ROWS ONLY
 """);
     }
 
@@ -2682,11 +2678,11 @@ INNER JOIN [LevelTwo] AS [l0] ON ([l].[OneToMany_Optional_Self_Inverse1Id] = [l0
 
         AssertSql(
             """
-@__p_0='2'
+@p='2'
 
 SELECT [l1].[Name]
 FROM (
-    SELECT TOP(@__p_0) [l].[Id], [l0].[Id] AS [Id0]
+    SELECT TOP(@p) [l].[Id], [l0].[Id] AS [Id0]
     FROM [LevelOne] AS [l]
     LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
     ORDER BY [l].[Id]
@@ -3141,15 +3137,13 @@ WHERE [l0].[Id] IS NOT NULL
 
         AssertSql(
             """
-@__names_0='["Name1","Name2"]' (Size = 4000)
+@names1='Name1' (Size = 4000)
+@names2='Name2' (Size = 4000)
 
 SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id]
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
-WHERE [l0].[Name] NOT IN (
-    SELECT [n].[value]
-    FROM OPENJSON(@__names_0) WITH ([value] nvarchar(max) '$') AS [n]
-) OR [l0].[Name] IS NULL
+WHERE [l0].[Name] NOT IN (@names1, @names2) OR [l0].[Name] IS NULL
 """);
     }
 
@@ -3369,11 +3363,11 @@ LEFT JOIN [LevelTwo] AS [l0] ON [l1].[Id] = [l0].[Level1_Optional_Id]
 
         AssertSql(
             """
-@__p_0='10'
+@p='10'
 
 SELECT [s].[Id], [s].[Date], [s].[Name], [s].[OneToMany_Optional_Self_Inverse1Id], [s].[OneToMany_Required_Self_Inverse1Id], [s].[OneToOne_Optional_Self1Id], [l1].[Id], [l1].[Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Name], [l1].[OneToMany_Optional_Inverse2Id], [l1].[OneToMany_Optional_Self_Inverse2Id], [l1].[OneToMany_Required_Inverse2Id], [l1].[OneToMany_Required_Self_Inverse2Id], [l1].[OneToOne_Optional_PK_Inverse2Id], [l1].[OneToOne_Optional_Self2Id]
 FROM (
-    SELECT TOP(@__p_0) [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id], [l0].[Name] AS [Name0]
+    SELECT TOP(@p) [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id], [l0].[Name] AS [Name0]
     FROM [LevelOne] AS [l]
     LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Required_Id]
     ORDER BY [l0].[Name]
@@ -3406,11 +3400,11 @@ LEFT JOIN [LevelTwo] AS [l1] ON [s].[Id] = [l1].[Level1_Optional_Id]
 
         AssertSql(
             """
-@__p_0='10'
+@p='10'
 
 SELECT [s].[Id], [s].[Date], [s].[Name], [s].[OneToMany_Optional_Self_Inverse1Id], [s].[OneToMany_Required_Self_Inverse1Id], [s].[OneToOne_Optional_Self1Id], [l1].[Id], [l1].[Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Name], [l1].[OneToMany_Optional_Inverse2Id], [l1].[OneToMany_Optional_Self_Inverse2Id], [l1].[OneToMany_Required_Inverse2Id], [l1].[OneToMany_Required_Self_Inverse2Id], [l1].[OneToOne_Optional_PK_Inverse2Id], [l1].[OneToOne_Optional_Self2Id]
 FROM (
-    SELECT TOP(@__p_0) [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id], [l0].[Name] AS [Name0]
+    SELECT TOP(@p) [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id], [l0].[Name] AS [Name0]
     FROM [LevelOne] AS [l]
     LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Required_Id]
     ORDER BY [l0].[Name]
@@ -3427,11 +3421,11 @@ ORDER BY [s].[Name0]
         // issue #15783
         AssertSql(
             """
-@__p_0='10'
+@p='10'
 
 SELECT [s].[Id], [s].[Date], [s].[Name], [s].[OneToMany_Optional_Self_Inverse1Id], [s].[OneToMany_Required_Self_Inverse1Id], [s].[OneToOne_Optional_Self1Id], [l1].[Id], [l1].[Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Name], [l1].[OneToMany_Optional_Inverse2Id], [l1].[OneToMany_Optional_Self_Inverse2Id], [l1].[OneToMany_Required_Inverse2Id], [l1].[OneToMany_Required_Self_Inverse2Id], [l1].[OneToOne_Optional_PK_Inverse2Id], [l1].[OneToOne_Optional_Self2Id]
 FROM (
-    SELECT TOP(@__p_0) [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id], [l0].[Name] AS [Name0]
+    SELECT TOP(@p) [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id], [l0].[Name] AS [Name0]
     FROM [LevelOne] AS [l]
     LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Required_Id]
     ORDER BY [l0].[Name]
@@ -3448,11 +3442,11 @@ ORDER BY [s].[Name0]
         // issue #15783
         AssertSql(
             """
-@__p_0='10'
+@p='10'
 
 SELECT [s].[Id], [s].[Date], [s].[Name], [s].[OneToMany_Optional_Self_Inverse1Id], [s].[OneToMany_Required_Self_Inverse1Id], [s].[OneToOne_Optional_Self1Id], [l1].[Id], [l1].[Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Name], [l1].[OneToMany_Optional_Inverse2Id], [l1].[OneToMany_Optional_Self_Inverse2Id], [l1].[OneToMany_Required_Inverse2Id], [l1].[OneToMany_Required_Self_Inverse2Id], [l1].[OneToOne_Optional_PK_Inverse2Id], [l1].[OneToOne_Optional_Self2Id]
 FROM (
-    SELECT TOP(@__p_0) [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id], [l0].[Name] AS [Name0]
+    SELECT TOP(@p) [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id], [l0].[Name] AS [Name0]
     FROM [LevelOne] AS [l]
     LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Required_Id]
     ORDER BY [l0].[Name]
@@ -3501,11 +3495,11 @@ LEFT JOIN [LevelTwo] AS [l2] ON [l1].[Id] = [l2].[Level1_Optional_Id]
 
         AssertSql(
             """
-@__p_0='10'
+@p='10'
 
 SELECT [l1].[Id], [l1].[Date], [l1].[Name], [l1].[OneToMany_Optional_Self_Inverse1Id], [l1].[OneToMany_Required_Self_Inverse1Id], [l1].[OneToOne_Optional_Self1Id], [l2].[Id], [l2].[Date], [l2].[Level1_Optional_Id], [l2].[Level1_Required_Id], [l2].[Name], [l2].[OneToMany_Optional_Inverse2Id], [l2].[OneToMany_Optional_Self_Inverse2Id], [l2].[OneToMany_Required_Inverse2Id], [l2].[OneToMany_Required_Self_Inverse2Id], [l2].[OneToOne_Optional_PK_Inverse2Id], [l2].[OneToOne_Optional_Self2Id], [l0].[Id], [l0].[Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Optional_Self_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToMany_Required_Self_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id], [l0].[OneToOne_Optional_Self2Id]
 FROM (
-    SELECT TOP(@__p_0) [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id]
+    SELECT TOP(@p) [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id]
     FROM [LevelOne] AS [l]
     ORDER BY [l].[Id]
 ) AS [l1]
@@ -3857,25 +3851,35 @@ LEFT JOIN [LevelOne] AS [l3] ON [l0].[Id] >= [l3].[Id] AND ([l2].[Name] = [l3].[
 
     public override async Task Nested_SelectMany_correlated_with_join_table_correctly_translated_to_apply(bool async)
     {
-        // DefaultIfEmpty on child collection. Issue #19095.
-        await Assert.ThrowsAsync<EqualException>(
-            async () => await base.Nested_SelectMany_correlated_with_join_table_correctly_translated_to_apply(async));
+        await base.Nested_SelectMany_correlated_with_join_table_correctly_translated_to_apply(async);
 
         AssertSql(
             """
 SELECT [s0].[l1Name], [s0].[l2Name], [s0].[l3Name]
 FROM [LevelOne] AS [l]
-OUTER APPLY (
+CROSS APPLY (
     SELECT [s].[l1Name], [s].[l2Name], [s].[l3Name]
-    FROM [LevelTwo] AS [l0]
-    LEFT JOIN [LevelThree] AS [l1] ON [l0].[Id] = [l1].[Id]
+    FROM (
+        SELECT 1 AS empty
+    ) AS [e]
+    LEFT JOIN (
+        SELECT [l0].[Id]
+        FROM [LevelTwo] AS [l0]
+        WHERE [l].[Id] = [l0].[OneToMany_Optional_Inverse2Id]
+    ) AS [l1] ON 1 = 1
+    LEFT JOIN [LevelThree] AS [l2] ON [l1].[Id] = [l2].[Id]
     CROSS APPLY (
-        SELECT [l].[Name] AS [l1Name], [l1].[Name] AS [l2Name], [l3].[Name] AS [l3Name]
-        FROM [LevelFour] AS [l2]
-        LEFT JOIN [LevelThree] AS [l3] ON [l2].[OneToOne_Optional_PK_Inverse4Id] = [l3].[Id]
-        WHERE [l1].[Id] IS NOT NULL AND [l1].[Id] = [l2].[OneToMany_Optional_Inverse4Id]
+        SELECT [l].[Name] AS [l1Name], [l2].[Name] AS [l2Name], [l5].[Name] AS [l3Name]
+        FROM (
+            SELECT 1 AS empty
+        ) AS [e0]
+        LEFT JOIN (
+            SELECT [l3].[OneToOne_Optional_PK_Inverse4Id]
+            FROM [LevelFour] AS [l3]
+            WHERE [l2].[Id] IS NOT NULL AND [l2].[Id] = [l3].[OneToMany_Optional_Inverse4Id]
+        ) AS [l4] ON 1 = 1
+        LEFT JOIN [LevelThree] AS [l5] ON [l4].[OneToOne_Optional_PK_Inverse4Id] = [l5].[Id]
     ) AS [s]
-    WHERE [l].[Id] = [l0].[OneToMany_Optional_Inverse2Id]
 ) AS [s0]
 """);
     }
@@ -3980,7 +3984,7 @@ HAVING (
 
         AssertSql(
             """
-SELECT [l].[Id], [l].[Name], [l].[Date], [l0].[Id], [l1].[Name], [l0].[Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], COALESCE(SUM(CAST(LEN([l].[Name]) AS int)), 0) AS [Aggregate]
+SELECT [l].[Id], [l].[Name], [l].[Date], [l0].[Id], [l1].[Name], [l0].[Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], ISNULL(SUM(CAST(LEN([l].[Name]) AS int)), 0) AS [Aggregate]
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
 LEFT JOIN [LevelTwo] AS [l1] ON [l].[Id] = [l1].[Level1_Required_Id]
@@ -4251,11 +4255,11 @@ WHERE [l].[Id] < 2
 
         AssertSql(
             """
-@__p_0='10'
+@p='10'
 
 SELECT [s].[Id1] AS [Foo], [s].[Id2] AS [Bar], [s].[Id3] AS [Baz]
 FROM (
-    SELECT DISTINCT TOP(@__p_0) [l].[Id] AS [Id1], [l0].[Id] AS [Id2], [l1].[Id] AS [Id3], [l].[Name] AS [Name1], [l0].[Name] AS [Name2]
+    SELECT DISTINCT TOP(@p) [l].[Id] AS [Id1], [l0].[Id] AS [Id2], [l1].[Id] AS [Id3], [l].[Name] AS [Name1], [l0].[Name] AS [Name2]
     FROM [LevelOne] AS [l]
     INNER JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
     INNER JOIN [LevelThree] AS [l1] ON [l0].[Id] = [l1].[Level2_Optional_Id]
@@ -4364,9 +4368,9 @@ ORDER BY [l].[Id]
 
         AssertSql(
             """
-@__p_0='1'
+@p='1'
 
-SELECT TOP(@__p_0) [l0].[Name]
+SELECT TOP(@p) [l0].[Name]
 FROM [LevelOne] AS [l]
 INNER JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[OneToMany_Optional_Inverse2Id]
 ORDER BY [l].[Id]
@@ -4631,14 +4635,14 @@ LEFT JOIN [LevelFour] AS [l2] ON [l1].[Id] = [l2].[Level3_Required_Id]
 
         AssertSql(
             """
-@__prm_0='10'
+@prm='10'
 
 SELECT [l].[Id] AS [Id1], [l1].[Id] AS [Id2]
 FROM [LevelOne] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[Level1_Optional_Id]
     FROM [LevelTwo] AS [l0]
-    WHERE [l0].[Id] <> @__prm_0
+    WHERE [l0].[Id] <> @prm
 ) AS [l1] ON [l].[Id] = [l1].[Level1_Optional_Id]
 """);
     }
@@ -4649,14 +4653,14 @@ LEFT JOIN (
 
         AssertSql(
             """
-@__prm_0='10'
+@prm='10'
 
 SELECT [l].[Id] AS [Id1], [l1].[Id] AS [Id2]
 FROM [LevelOne] AS [l]
 INNER JOIN (
     SELECT [l0].[Id], [l0].[Level1_Optional_Id]
     FROM [LevelTwo] AS [l0]
-    WHERE [l0].[Id] <> @__prm_0
+    WHERE [l0].[Id] <> @prm
 ) AS [l1] ON [l].[Id] = [l1].[Level1_Optional_Id]
 """);
     }
@@ -4667,20 +4671,20 @@ INNER JOIN (
 
         AssertSql(
             """
-@__prm1_0='10'
-@__prm2_1='20'
+@prm1='10'
+@prm2='20'
 
 SELECT [l].[Id] AS [Id1], [l1].[Id] AS [Id2], [l3].[Id] AS [Id3]
 FROM [LevelOne] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[Level1_Optional_Id]
     FROM [LevelTwo] AS [l0]
-    WHERE [l0].[Id] <> @__prm1_0
+    WHERE [l0].[Id] <> @prm1
 ) AS [l1] ON [l].[Id] = [l1].[Level1_Optional_Id]
 LEFT JOIN (
     SELECT [l2].[Id], [l2].[Level2_Optional_Id]
     FROM [LevelThree] AS [l2]
-    WHERE [l2].[Id] <> @__prm2_1
+    WHERE [l2].[Id] <> @prm2
 ) AS [l3] ON [l1].[Id] = [l3].[Level2_Optional_Id]
 """);
     }
@@ -4691,20 +4695,20 @@ LEFT JOIN (
 
         AssertSql(
             """
-@__prm1_0='10'
-@__prm2_1='20'
+@prm1='10'
+@prm2='20'
 
 SELECT [l].[Id] AS [Id1], [l1].[Id] AS [Id2], [l3].[Id] AS [Id3]
 FROM [LevelOne] AS [l]
 INNER JOIN (
     SELECT [l0].[Id], [l0].[Level1_Optional_Id]
     FROM [LevelTwo] AS [l0]
-    WHERE [l0].[Id] <> @__prm1_0
+    WHERE [l0].[Id] <> @prm1
 ) AS [l1] ON [l].[Id] = [l1].[Level1_Optional_Id]
 INNER JOIN (
     SELECT [l2].[Id], [l2].[Level2_Optional_Id]
     FROM [LevelThree] AS [l2]
-    WHERE [l2].[Id] <> @__prm2_1
+    WHERE [l2].[Id] <> @prm2
 ) AS [l3] ON [l1].[Id] = [l3].[Level2_Optional_Id]
 """);
     }
@@ -4715,19 +4719,19 @@ INNER JOIN (
 
         AssertSql(
             """
-@__prm_0='10'
+@prm='10'
 
 SELECT [l].[Id] AS [Id1], [l1].[Id] AS [Id2], [l3].[Id] AS [Id3]
 FROM [LevelOne] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[Level1_Optional_Id]
     FROM [LevelTwo] AS [l0]
-    WHERE [l0].[Id] <> @__prm_0
+    WHERE [l0].[Id] <> @prm
 ) AS [l1] ON [l].[Id] = [l1].[Level1_Optional_Id]
 LEFT JOIN (
     SELECT [l2].[Id], [l2].[Level2_Optional_Id]
     FROM [LevelThree] AS [l2]
-    WHERE [l2].[Id] <> @__prm_0
+    WHERE [l2].[Id] <> @prm
 ) AS [l3] ON [l1].[Id] = [l3].[Level2_Optional_Id]
 """);
     }
@@ -4738,19 +4742,19 @@ LEFT JOIN (
 
         AssertSql(
             """
-@__prm_0='10'
+@prm='10'
 
 SELECT [l].[Id] AS [Id1], [l1].[Id] AS [Id2], [l3].[Id] AS [Id3]
 FROM [LevelOne] AS [l]
 INNER JOIN (
     SELECT [l0].[Id], [l0].[Level1_Optional_Id]
     FROM [LevelTwo] AS [l0]
-    WHERE [l0].[Id] <> @__prm_0
+    WHERE [l0].[Id] <> @prm
 ) AS [l1] ON [l].[Id] = [l1].[Level1_Optional_Id]
 INNER JOIN (
     SELECT [l2].[Id], [l2].[Level2_Optional_Id]
     FROM [LevelThree] AS [l2]
-    WHERE [l2].[Id] <> @__prm_0
+    WHERE [l2].[Id] <> @prm
 ) AS [l3] ON [l1].[Id] = [l3].[Level2_Optional_Id]
 """);
     }
@@ -4821,11 +4825,11 @@ ORDER BY [l].[Id], [s].[Id0]
 
         AssertSql(
             """
-@__p_0='2'
+@p='2'
 
 SELECT [l4].[Id], [s].[Id], [s].[Id0], [s].[Id1], [s].[Result]
 FROM (
-    SELECT TOP(@__p_0) [l].[Id]
+    SELECT TOP(@p) [l].[Id]
     FROM [LevelOne] AS [l]
     ORDER BY [l].[Id]
 ) AS [l4]

@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class NonSharedPrimitiveCollectionsQueryCosmosTest : NonSharedPrimitiveCollectionsQueryTestBase
+public class NonSharedPrimitiveCollectionsQueryCosmosTest(NonSharedFixture fixture) : NonSharedPrimitiveCollectionsQueryTestBase(fixture)
 {
     #region Support for specific element types
 
@@ -310,11 +310,11 @@ OFFSET 0 LIMIT 2
 
         AssertSql(
             """
-@__ints_0='1,2,3'
+@ints='1,2,3'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["Ints"] = @__ints_0)
+WHERE (c["Ints"] = @ints)
 OFFSET 0 LIMIT 2
 """);
     }

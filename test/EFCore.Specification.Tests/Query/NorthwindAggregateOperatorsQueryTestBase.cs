@@ -447,7 +447,7 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
         => AssertMin(
             async,
             ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(3),
-            selector: c => c.Orders.Min(o => 5 + o.OrderDetails.Min(od => od.ProductID)));
+            selector: c => c.Orders.Min(o => 5 + Enumerable.Min(o.OrderDetails, od => od.ProductID)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -494,7 +494,7 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
         => AssertMax(
             async,
             ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(3),
-            selector: c => c.Orders.Max(o => 5 + o.OrderDetails.Max(od => od.ProductID)));
+            selector: c => c.Orders.Max(o => 5 + Enumerable.Max(o.OrderDetails, od => od.ProductID)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1893,21 +1893,21 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Average_after_default_if_empty_does_not_throw(bool async)
+    public virtual Task Average_after_DefaultIfEmpty_does_not_throw(bool async)
         => AssertAverage(
             async,
             ss => ss.Set<Order>().Where(o => o.OrderID == 10243).Select(o => o.OrderID).DefaultIfEmpty());
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Max_after_default_if_empty_does_not_throw(bool async)
+    public virtual Task Max_after_DefaultIfEmpty_does_not_throw(bool async)
         => AssertMax(
             async,
             ss => ss.Set<Order>().Where(o => o.OrderID == 10243).Select(o => o.OrderID).DefaultIfEmpty());
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Min_after_default_if_empty_does_not_throw(bool async)
+    public virtual Task Min_after_DefaultIfEmpty_does_not_throw(bool async)
         => AssertMin(
             async,
             ss => ss.Set<Order>().Where(o => o.OrderID == 10243).Select(o => o.OrderID).DefaultIfEmpty());

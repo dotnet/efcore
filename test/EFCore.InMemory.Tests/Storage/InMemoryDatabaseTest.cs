@@ -36,6 +36,24 @@ public class InMemoryDatabaseTest
     }
 
     [ConditionalFact]
+    public void Uses_different_stores_for_different_database_roots()
+    {
+        const string databaseName = nameof(Uses_different_stores_for_different_database_roots);
+
+        var serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider();
+
+        var options1 = new DbContextOptionsBuilder().UseInMemoryDatabase(databaseName, new InMemoryDatabaseRoot()).Options;
+        var options2 = new DbContextOptionsBuilder().UseInMemoryDatabase(databaseName, new InMemoryDatabaseRoot()).Options;
+
+        var store1 = InMemoryTestHelpers.Instance.CreateContextServices(serviceProvider, options1)
+            .GetRequiredService<IInMemoryDatabase>();
+        var store2 = InMemoryTestHelpers.Instance.CreateContextServices(serviceProvider, options2)
+            .GetRequiredService<IInMemoryDatabase>();
+
+        Assert.NotSame(store1.Store, store2.Store);
+    }
+
+    [ConditionalFact]
     public void EnsureDatabaseCreated_returns_true_for_first_use_of_persistent_database_and_false_thereafter()
     {
         var serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider();

@@ -54,6 +54,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => GetString("CanConnectNotSupported");
 
         /// <summary>
+        ///     A full-text index on '{entityType}' is defined over multiple properties (`{properties}`). A full-text index can only target a single property.
+        /// </summary>
+        public static string CompositeFullTextIndex(object? entityType, object? properties)
+            => string.Format(
+                GetString("CompositeFullTextIndex", nameof(entityType), nameof(properties)),
+                entityType, properties);
+
+        /// <summary>
         ///     A vector index on '{entityType}' is defined over properties `{properties}`. A vector index can only target a single property.
         /// </summary>
         public static string CompositeVectorIndex(object? entityType, object? properties)
@@ -94,6 +102,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
         /// </summary>
         public static string CosmosNotInUse
             => GetString("CosmosNotInUse");
+
+        /// <summary>
+        ///     Creating a container with full-text search or vector properties inside a collection navigation is currently not supported using EF Core; path: '{path}'. Create the container using other means (e.g. Microsoft.Azure.Cosmos SDK).
+        /// </summary>
+        public static string CreatingContainerWithFullTextOrVectorOnCollectionNotSupported(object? path)
+            => string.Format(
+                GetString("CreatingContainerWithFullTextOrVectorOnCollectionNotSupported", nameof(path)),
+                path);
 
         /// <summary>
         ///     Joins across documents aren't supported in Cosmos; consider modeling your data differently so that related data is in the same document. Alternatively, perform two separate queries to query the two documents.
@@ -146,6 +162,30 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
         /// </summary>
         public static string ExceptNotSupported
             => GetString("ExceptNotSupported");
+
+        /// <summary>
+        ///     A full-text index is defined for `{entityType}.{property}`, but full-text search was not enabled for this property. Use '{enableFullText}' method in 'OnModelCreating' to enable full-text search for this property.
+        /// </summary>
+        public static string FullTextIndexOnNonFullTextProperty(object? entityType, object? property, object? enableFullText)
+            => string.Format(
+                GetString("FullTextIndexOnNonFullTextProperty", nameof(entityType), nameof(property), nameof(enableFullText)),
+                entityType, property, enableFullText);
+
+        /// <summary>
+        ///     Property '{entityType}.{property}' was configured for full-text search, but has type '{clrType}'; only string properties can be configured for full-text search.
+        /// </summary>
+        public static string FullTextSearchConfiguredForUnsupportedPropertyType(object? entityType, object? property, object? clrType)
+            => string.Format(
+                GetString("FullTextSearchConfiguredForUnsupportedPropertyType", nameof(entityType), nameof(property), nameof(clrType)),
+                entityType, property, clrType);
+
+        /// <summary>
+        ///     The default full-text search language was configured to '{defaultLanguage1}' on '{entityType1}', but on '{entityType2}' it was configured to '{defaultLanguage2}'. All entity types mapped to the same container '{container}' must be configured with the same default full-text search language.
+        /// </summary>
+        public static string FullTextSearchDefaultLanguageMismatch(object? defaultLanguage1, object? entityType1, object? entityType2, object? defaultLanguage2, object? container)
+            => string.Format(
+                GetString("FullTextSearchDefaultLanguageMismatch", nameof(defaultLanguage1), nameof(entityType1), nameof(entityType2), nameof(defaultLanguage2), nameof(container)),
+                defaultLanguage1, entityType1, entityType2, defaultLanguage2, container);
 
         /// <summary>
         ///     'HasShadowId' was called on a non-root entity type '{entityType}'. JSON 'id' configuration can only be made on the document root.
@@ -500,7 +540,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 itemId);
 
         /// <summary>
-        ///     A vector index is defined for `{entityType}.{property}`, but this property has not been configured as a vector. Use 'IsVector()' in 'OnModelCreating' to configure the property as a vector.
+        ///     A vector index is defined for `{entityType}.{property}`, but this property has not been configured as a vector. Use 'IsVectorProperty()' in 'OnModelCreating' to configure the property as a vector.
         /// </summary>
         public static string VectorIndexOnNonVector(object? entityType, object? property)
             => string.Format(
@@ -508,7 +548,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 entityType, property);
 
         /// <summary>
-        ///     The 'VectorDistance' function can only be used with a property mapped as a vector. Use 'IsVector()' in 'OnModelCreating' to configure the property as a vector.
+        ///     The 'VectorDistance' function can only be used with a property mapped as a vector. Use 'IsVectorProperty()' in 'OnModelCreating' to configure the property as a vector.
         /// </summary>
         public static string VectorSearchRequiresVector
             => GetString("VectorSearchRequiresVector");

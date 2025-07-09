@@ -687,7 +687,7 @@ public abstract class NorthwindNavigationsQueryTestBase<TFixture>(TFixture fixtu
                         "City")),
             ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("A"))
                 .Select(
-                    c => ss.Set<Order>().FirstOrDefault(o => o.CustomerID == "ALFKI").Customer != null
+                    c => Queryable.FirstOrDefault(ss.Set<Order>(), o => o.CustomerID == "ALFKI").Customer != null
                         ? ss.Set<Order>().FirstOrDefault(o => o.CustomerID == "ALFKI").Customer.City
                         : null)
         );

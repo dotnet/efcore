@@ -74,7 +74,7 @@ public class SqliteSqlNullabilityProcessor : SqlNullabilityProcessor
         bool allowOptimizedExpansion,
         out bool nullable)
     {
-        Check.NotNull(regexpExpression, nameof(regexpExpression));
+        Check.NotNull(regexpExpression);
 
         var match = Visit(regexpExpression.Match, out var matchNullable);
         var pattern = Visit(regexpExpression.Pattern, out var patternNullable);

@@ -18,9 +18,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 public class CosmosVectorSearchTranslator(ISqlExpressionFactory sqlExpressionFactory, ITypeMappingSource typeMappingSource)
     : IMethodCallTranslator
 {
-    private static readonly bool UseOldBehavior35853 =
-          AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue35853", out var enabled35853) && enabled35853;
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -33,16 +30,8 @@ public class CosmosVectorSearchTranslator(ISqlExpressionFactory sqlExpressionFac
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
-        if (!UseOldBehavior35853)
-        {
-            if (method.DeclaringType != typeof(CosmosDbFunctionsExtensions)
-                || method.Name != nameof(CosmosDbFunctionsExtensions.VectorDistance))
-            {
-                return null;
-            }
-        }
-        else if (method.DeclaringType != typeof(CosmosDbFunctionsExtensions)
-            && method.Name != nameof(CosmosDbFunctionsExtensions.VectorDistance))
+        if (method.DeclaringType != typeof(CosmosDbFunctionsExtensions)
+            || method.Name != nameof(CosmosDbFunctionsExtensions.VectorDistance))
         {
             return null;
         }

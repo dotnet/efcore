@@ -62,7 +62,7 @@ public class QueryableAggregateMethodTranslator : IAggregateMethodCallTranslator
                                 "AVG",
                                 new[] { averageSqlExpression },
                                 nullable: true,
-                                argumentsPropagateNullability: new[] { false },
+                                argumentsPropagateNullability: Statics.FalseArrays[1],
                                 typeof(double)),
                             averageSqlExpression.Type,
                             averageSqlExpression.TypeMapping)
@@ -70,7 +70,7 @@ public class QueryableAggregateMethodTranslator : IAggregateMethodCallTranslator
                             "AVG",
                             new[] { averageSqlExpression },
                             nullable: true,
-                            argumentsPropagateNullability: new[] { false },
+                            argumentsPropagateNullability: Statics.FalseArrays[1],
                             averageSqlExpression.Type,
                             averageSqlExpression.TypeMapping);
 
@@ -85,7 +85,7 @@ public class QueryableAggregateMethodTranslator : IAggregateMethodCallTranslator
                         "COUNT",
                         new[] { countSqlExpression },
                         nullable: false,
-                        argumentsPropagateNullability: new[] { false },
+                        argumentsPropagateNullability: Statics.FalseArrays[1],
                         typeof(int));
 
                 case nameof(Queryable.LongCount)
@@ -97,7 +97,7 @@ public class QueryableAggregateMethodTranslator : IAggregateMethodCallTranslator
                         "COUNT",
                         new[] { longCountSqlExpression },
                         nullable: false,
-                        argumentsPropagateNullability: new[] { false },
+                        argumentsPropagateNullability: Statics.FalseArrays[1],
                         typeof(long));
 
                 case nameof(Queryable.Max)
@@ -109,7 +109,7 @@ public class QueryableAggregateMethodTranslator : IAggregateMethodCallTranslator
                         "MAX",
                         new[] { maxSqlExpression },
                         nullable: true,
-                        argumentsPropagateNullability: new[] { false },
+                        argumentsPropagateNullability: Statics.FalseArrays[1],
                         maxSqlExpression.Type,
                         maxSqlExpression.TypeMapping);
 
@@ -122,7 +122,7 @@ public class QueryableAggregateMethodTranslator : IAggregateMethodCallTranslator
                         "MIN",
                         new[] { minSqlExpression },
                         nullable: true,
-                        argumentsPropagateNullability: new[] { false },
+                        argumentsPropagateNullability: Statics.FalseArrays[1],
                         minSqlExpression.Type,
                         minSqlExpression.TypeMapping);
 
@@ -138,7 +138,7 @@ public class QueryableAggregateMethodTranslator : IAggregateMethodCallTranslator
                                 "SUM",
                                 new[] { sumSqlExpression },
                                 nullable: true,
-                                argumentsPropagateNullability: new[] { false },
+                                argumentsPropagateNullability: Statics.FalseArrays[1],
                                 typeof(double)),
                             sumInputType,
                             sumSqlExpression.TypeMapping)
@@ -146,7 +146,7 @@ public class QueryableAggregateMethodTranslator : IAggregateMethodCallTranslator
                             "SUM",
                             new[] { sumSqlExpression },
                             nullable: true,
-                            argumentsPropagateNullability: new[] { false },
+                            argumentsPropagateNullability: Statics.FalseArrays[1],
                             sumInputType,
                             sumSqlExpression.TypeMapping);
             }

@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class Navigation : PropertyBase, IMutableNavigation, IConventionNavigation, INavigation
+public class Navigation : PropertyBase, IMutableNavigation, IConventionNavigation, IRuntimeNavigation
 {
     private InternalNavigationBuilder? _builder;
 
@@ -146,6 +146,14 @@ public class Navigation : PropertyBase, IMutableNavigation, IConventionNavigatio
         [DebuggerStepThrough]
         get => ForeignKey.DependentToPrincipal == this;
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override bool IsCollection => !IsOnDependent && !ForeignKey.IsUnique;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

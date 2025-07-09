@@ -467,13 +467,13 @@ FROM (
                 AssertSql(
                     """
 @p0='London'
-@__contactTitle_1='Sales Representative'
+@contactTitle='Sales Representative'
 
 SELECT VALUE s
 FROM (
     SELECT * FROM root c WHERE c["$type"] = "Customer" AND c["City"] = @p0
 ) s
-WHERE (s["ContactTitle"] = @__contactTitle_1)
+WHERE (s["ContactTitle"] = @contactTitle)
 """);
             });
 

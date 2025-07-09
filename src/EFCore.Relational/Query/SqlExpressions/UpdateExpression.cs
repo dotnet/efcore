@@ -12,6 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 ///         not used in application code.
 ///     </para>
 /// </summary>
+[DebuggerDisplay("{Microsoft.EntityFrameworkCore.Query.ExpressionPrinter.Print(this), nq}")]
 public sealed class UpdateExpression : Expression, IRelationalQuotableExpression, IPrintableExpression
 {
     private static ConstructorInfo? _quotingConstructor;
@@ -79,7 +80,7 @@ public sealed class UpdateExpression : Expression, IRelationalQuotableExpression
 
     /// <inheritdoc />
     public override Type Type
-        => typeof(object);
+        => typeof(void);
 
     /// <inheritdoc />
     public override ExpressionType NodeType
@@ -154,12 +155,16 @@ public sealed class UpdateExpression : Expression, IRelationalQuotableExpression
     /// <inheritdoc />
     public void Print(ExpressionPrinter expressionPrinter)
     {
-        foreach (var tag in Tags)
+        if (Tags.Count > 0)
         {
-            expressionPrinter.Append($"-- {tag}");
+            foreach (var tag in Tags)
+            {
+                expressionPrinter.Append($"-- {tag}");
+            }
+
+            expressionPrinter.AppendLine();
         }
 
-        expressionPrinter.AppendLine();
         expressionPrinter.AppendLine($"UPDATE {Table.Name} AS {Table.Alias}");
         expressionPrinter.AppendLine("SET ");
         expressionPrinter.Visit(ColumnValueSetters[0].Column);

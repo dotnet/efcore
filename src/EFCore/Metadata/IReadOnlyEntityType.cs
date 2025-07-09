@@ -18,7 +18,7 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     ///     Gets the base type of this entity type. Returns <see langword="null" /> if this is not a
     ///     derived type in an inheritance hierarchy.
     /// </summary>
-    IReadOnlyEntityType? BaseType { get; }
+    new IReadOnlyEntityType? BaseType { get; }
 
     /// <summary>
     ///     Gets the data stored in the model for the given entity type.
@@ -30,26 +30,24 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     IEnumerable<IDictionary<string, object?>> GetSeedData(bool providerValues = false);
 
     /// <summary>
+    ///     Gets the query filters automatically applied to queries for this entity type.
+    /// </summary>
+    /// <returns>The query filters.</returns>
+    IReadOnlyCollection<IQueryFilter> GetDeclaredQueryFilters();
+
+    /// <summary>
     ///     Gets the LINQ expression filter automatically applied to queries for this entity type.
     /// </summary>
     /// <returns>The LINQ expression filter.</returns>
+    [Obsolete("Use GetDeclaredQueryFilters() instead.")]
     LambdaExpression? GetQueryFilter();
 
     /// <summary>
-    ///     Returns the property that will be used for storing a discriminator value.
+    /// Retrieves the query filter associated with the specified key.
     /// </summary>
-    /// <returns>The property that will be used for storing a discriminator value.</returns>
-    IReadOnlyProperty? FindDiscriminatorProperty()
-    {
-        var propertyName = GetDiscriminatorPropertyName();
-        return propertyName == null ? null : FindProperty(propertyName);
-    }
-
-    /// <summary>
-    ///     Returns the name of the property that will be used for storing a discriminator value.
-    /// </summary>
-    /// <returns>The name of the property that will be used for storing a discriminator value.</returns>
-    string? GetDiscriminatorPropertyName();
+    /// <param name="filterKey">The key identifying the query filter to retrieve.</param>
+    /// <returns>The <see cref="IQueryFilter"/> associated with the specified key.</returns>
+    IQueryFilter? FindDeclaredQueryFilter(string? filterKey);
 
     /// <summary>
     ///     Returns the value indicating whether the discriminator mapping is complete for this entity type.
@@ -57,28 +55,6 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     bool GetIsDiscriminatorMappingComplete()
         => (bool?)this[CoreAnnotationNames.DiscriminatorMappingComplete]
             ?? true;
-
-    /// <summary>
-    ///     Returns the discriminator value for this entity type.
-    /// </summary>
-    /// <returns>The discriminator value for this entity type.</returns>
-    object? GetDiscriminatorValue()
-    {
-        var annotation = FindAnnotation(CoreAnnotationNames.DiscriminatorValue);
-        return annotation != null
-            ? annotation.Value
-            : !ClrType.IsInstantiable()
-            || (BaseType == null && GetDirectlyDerivedTypes().Count() == 0)
-                ? null
-                : (object?)GetDefaultDiscriminatorValue();
-    }
-
-    /// <summary>
-    ///     Returns the default discriminator value that would be used for this entity type.
-    /// </summary>
-    /// <returns>The default discriminator value for this entity type.</returns>
-    string GetDefaultDiscriminatorValue()
-        => !HasSharedClrType ? ClrType.ShortDisplayName() : ShortName();
 
     /// <summary>
     ///     Gets all types in the model from which this entity type derives, starting with the root.
@@ -123,20 +99,22 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     ///     Gets all types in the model that derive from this entity type.
     /// </summary>
     /// <returns>The derived types.</returns>
-    IEnumerable<IReadOnlyEntityType> GetDerivedTypes();
+    new IEnumerable<IReadOnlyEntityType> GetDerivedTypes()
+        => ((IReadOnlyTypeBase)this).GetDerivedTypes().Cast<IMutableEntityType>();
 
     /// <summary>
     ///     Returns all derived types of this entity type, including the type itself.
     /// </summary>
     /// <returns>Derived types.</returns>
-    IEnumerable<IReadOnlyEntityType> GetDerivedTypesInclusive()
-        => new[] { this }.Concat(GetDerivedTypes());
+    new IEnumerable<IReadOnlyEntityType> GetDerivedTypesInclusive()
+        => ((IReadOnlyTypeBase)this).GetDerivedTypesInclusive().Cast<IMutableEntityType>();
 
     /// <summary>
     ///     Gets all types in the model that directly derive from this entity type.
     /// </summary>
     /// <returns>The derived types.</returns>
-    IEnumerable<IReadOnlyEntityType> GetDirectlyDerivedTypes();
+    new IEnumerable<IReadOnlyEntityType> GetDirectlyDerivedTypes()
+        => ((IReadOnlyTypeBase)this).GetDirectlyDerivedTypes().Cast<IMutableEntityType>();
 
     /// <summary>
     ///     Returns all the derived types of this entity type, including the type itself,
@@ -152,7 +130,7 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     /// <returns>
     ///     The root base type. If the given entity type is not a derived type, then the same entity type is returned.
     /// </returns>
-    IReadOnlyEntityType GetRootType()
+    new IReadOnlyEntityType GetRootType()
         => BaseType?.GetRootType() ?? this;
 
     /// <summary>
@@ -176,7 +154,7 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     /// </returns>
     bool IsAssignableFrom(IReadOnlyEntityType derivedType)
     {
-        Check.NotNull(derivedType, nameof(derivedType));
+        Check.NotNull(derivedType);
 
         if (derivedType == this)
         {
@@ -214,7 +192,7 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     /// </returns>
     IReadOnlyEntityType? FindClosestCommonParent(IReadOnlyEntityType otherEntityType)
     {
-        Check.NotNull(otherEntityType, nameof(otherEntityType));
+        Check.NotNull(otherEntityType);
 
         var leastDerived = LeastDerivedType(otherEntityType);
         if (leastDerived != null)
@@ -235,7 +213,7 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     ///     If the given entity types are not related, then <see langword="null" /> is returned.
     /// </returns>
     IReadOnlyEntityType? LeastDerivedType(IReadOnlyEntityType otherEntityType)
-        => IsAssignableFrom(Check.NotNull(otherEntityType, nameof(otherEntityType)))
+        => IsAssignableFrom(Check.NotNull(otherEntityType))
             ? this
             : otherEntityType.IsAssignableFrom(this)
                 ? otherEntityType
@@ -440,7 +418,7 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     /// <param name="memberInfo">The navigation property on the entity class.</param>
     /// <returns>The navigation property, or <see langword="null" /> if none is found.</returns>
     IReadOnlyNavigation? FindNavigation(MemberInfo memberInfo)
-        => FindNavigation(Check.NotNull(memberInfo, nameof(memberInfo)).GetSimpleMemberName());
+        => FindNavigation(Check.NotNull(memberInfo).GetSimpleMemberName());
 
     /// <summary>
     ///     Gets a navigation property on the given entity type. Returns <see langword="null" /> if no navigation property is found.
@@ -448,7 +426,7 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     /// <param name="name">The name of the navigation property on the entity class.</param>
     /// <returns>The navigation property, or <see langword="null" /> if none is found.</returns>
     IReadOnlyNavigation? FindNavigation(string name)
-        => FindDeclaredNavigation(Check.NotEmpty(name, nameof(name))) ?? BaseType?.FindNavigation(name);
+        => FindDeclaredNavigation(Check.NotEmpty(name)) ?? BaseType?.FindNavigation(name);
 
     /// <summary>
     ///     Gets a navigation property on the given entity type. Does not return navigation properties defined on a base type.
@@ -492,7 +470,7 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     /// <param name="memberInfo">The navigation property on the entity class.</param>
     /// <returns>The navigation property, or <see langword="null" /> if none is found.</returns>
     IReadOnlySkipNavigation? FindSkipNavigation(MemberInfo memberInfo)
-        => FindSkipNavigation(Check.NotNull(memberInfo, nameof(memberInfo)).GetSimpleMemberName());
+        => FindSkipNavigation(Check.NotNull(memberInfo).GetSimpleMemberName());
 
     /// <summary>
     ///     Gets a skip navigation property on this entity type. Returns <see langword="null" /> if no skip navigation property is found.

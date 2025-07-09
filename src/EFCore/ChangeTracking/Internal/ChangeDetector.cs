@@ -38,9 +38,9 @@ public class ChangeDetector : IChangeDetector
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void PropertyChanged(InternalEntityEntry entry, IPropertyBase propertyBase, bool setModified)
+    public virtual void PropertyChanged(IInternalEntry entry, IPropertyBase propertyBase, bool setModified)
     {
-        if (entry.EntityState == EntityState.Detached
+        if (entry.EntityState is EntityState.Detached
             || propertyBase is IServiceProperty)
         {
             return;
@@ -48,7 +48,7 @@ public class ChangeDetector : IChangeDetector
 
         if (propertyBase is IProperty property)
         {
-            if (entry.EntityState != EntityState.Deleted)
+            if (entry.EntityState is not EntityState.Deleted)
             {
                 entry.SetPropertyModified(property, setModified);
             }
@@ -62,16 +62,16 @@ public class ChangeDetector : IChangeDetector
         else if (propertyBase.GetRelationshipIndex() != -1
                  && propertyBase is INavigationBase navigation)
         {
-            DetectNavigationChange(entry, navigation);
+            DetectNavigationChange(entry as InternalEntityEntry ?? throw new UnreachableException("Complex type entry with a navigation"), navigation);
         }
     }
 
-    private static void ThrowIfKeyChanged(InternalEntityEntry entry, IProperty property)
+    private static void ThrowIfKeyChanged(IInternalEntry entry, IProperty property)
     {
         if (property.IsKey()
             && property.GetAfterSaveBehavior() == PropertySaveBehavior.Throw)
         {
-            throw new InvalidOperationException(CoreStrings.KeyReadOnly(property.Name, entry.EntityType.DisplayName()));
+            throw new InvalidOperationException(CoreStrings.KeyReadOnly(property.Name, entry.StructuralType.DisplayName()));
         }
     }
 
@@ -81,7 +81,7 @@ public class ChangeDetector : IChangeDetector
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void PropertyChanging(InternalEntityEntry entry, IPropertyBase propertyBase)
+    public virtual void PropertyChanging(IInternalEntry entry, IPropertyBase propertyBase)
     {
         if (entry.EntityState == EntityState.Detached
             || propertyBase is IServiceProperty)
@@ -89,7 +89,7 @@ public class ChangeDetector : IChangeDetector
             return;
         }
 
-        if (!entry.EntityType.UseEagerSnapshots())
+        if (!entry.StructuralType.UseEagerSnapshots())
         {
             if (propertyBase is IProperty asProperty
                 && asProperty.GetOriginalValueIndex() != -1)
@@ -99,7 +99,8 @@ public class ChangeDetector : IChangeDetector
 
             if (propertyBase.GetRelationshipIndex() != -1)
             {
-                entry.EnsureRelationshipSnapshot();
+                var entityEntry = entry as InternalEntityEntry ?? throw new UnreachableException("Complex type entry with a navigation");
+                entityEntry.EnsureRelationshipSnapshot();
             }
         }
     }
@@ -183,35 +184,27 @@ public class ChangeDetector : IChangeDetector
         }
     }
 
-    private bool DetectChanges(InternalEntityEntry entry, HashSet<InternalEntityEntry> visited)
+    private void DetectChanges(InternalEntityEntry entry, HashSet<InternalEntityEntry> visited)
     {
-        var changesFound = false;
-
-        if (entry.EntityState != EntityState.Detached)
+        if (entry.EntityState == EntityState.Detached)
         {
-            foreach (var foreignKey in entry.EntityType.GetForeignKeys())
+            return;
+        }
+
+        foreach (var foreignKey in entry.EntityType.GetForeignKeys())
+        {
+            var principalEntry = entry.StateManager.FindPrincipal(entry, foreignKey);
+
+            if (principalEntry != null
+                && !visited.Contains(principalEntry))
             {
-                var principalEntry = entry.StateManager.FindPrincipal(entry, foreignKey);
+                visited.Add(principalEntry);
 
-                if (principalEntry != null
-                    && !visited.Contains(principalEntry))
-                {
-                    visited.Add(principalEntry);
-
-                    if (DetectChanges(principalEntry, visited))
-                    {
-                        changesFound = true;
-                    }
-                }
-            }
-
-            if (LocalDetectChanges(entry))
-            {
-                changesFound = true;
+                DetectChanges(principalEntry, visited);
             }
         }
 
-        return changesFound;
+        LocalDetectChanges(entry);
     }
 
     private bool LocalDetectChanges(InternalEntityEntry entry)
@@ -274,7 +267,7 @@ public class ChangeDetector : IChangeDetector
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public bool DetectValueChange(InternalEntityEntry entry, IProperty property)
+    public bool DetectValueChange(IInternalEntry entry, IProperty property)
     {
         var current = entry[property];
         var original = entry.GetOriginalValue(property);
@@ -296,26 +289,33 @@ public class ChangeDetector : IChangeDetector
         return false;
     }
 
-    private void LogChangeDetected(InternalEntityEntry entry, IProperty property, object? original, object? current)
+    private void LogChangeDetected(IInternalEntry entry, IProperty property, object? original, object? current)
     {
         if (_loggingOptions.IsSensitiveDataLoggingEnabled)
         {
-            _logger.PropertyChangeDetectedSensitive(entry, property, original, current);
+            if (entry is InternalEntityEntry entityEntry)
+            {
+                _logger.PropertyChangeDetectedSensitive(entityEntry, property, original, current);
+            }
         }
         else
         {
-            _logger.PropertyChangeDetected(entry, property, original, current);
+            if (entry is InternalEntityEntry entityEntry)
+            {
+                _logger.PropertyChangeDetected(entityEntry, property, original, current);
+            }
         }
     }
 
-    private bool DetectKeyChange(InternalEntityEntry entry, IProperty property)
+    private bool DetectKeyChange(IInternalEntry entry, IProperty property)
     {
         if (property.GetRelationshipIndex() < 0)
         {
             return false;
         }
 
-        var snapshotValue = entry.GetRelationshipSnapshotValue(property);
+        var entityEntry = entry as InternalEntityEntry ?? throw new UnreachableException("Complex type entry with a navigation");
+        var snapshotValue = entityEntry.GetRelationshipSnapshotValue(property);
         var currentValue = entry[property];
 
         var comparer = property.GetKeyValueComparer();
@@ -326,19 +326,19 @@ public class ChangeDetector : IChangeDetector
         {
             var keys = property.GetContainingKeys();
             var foreignKeys = property.GetContainingForeignKeys()
-                .Where(fk => fk.DeclaringEntityType.IsAssignableFrom(entry.EntityType));
+                .Where(fk => fk.DeclaringEntityType.IsAssignableFrom(entityEntry.EntityType));
 
             if (_loggingOptions.IsSensitiveDataLoggingEnabled)
             {
-                _logger.ForeignKeyChangeDetectedSensitive(entry, property, snapshotValue, currentValue);
+                _logger.ForeignKeyChangeDetectedSensitive(entityEntry, property, snapshotValue, currentValue);
             }
             else
             {
-                _logger.ForeignKeyChangeDetected(entry, property, snapshotValue, currentValue);
+                _logger.ForeignKeyChangeDetected(entityEntry, property, snapshotValue, currentValue);
             }
 
-            entry.StateManager.InternalEntityEntryNotifier.KeyPropertyChanged(
-                entry, property, keys, foreignKeys, snapshotValue, currentValue);
+            entityEntry.StateManager.InternalEntityEntryNotifier.KeyPropertyChanged(
+                entityEntry, property, keys, foreignKeys, snapshotValue, currentValue);
 
             return true;
         }
@@ -487,7 +487,6 @@ public class ChangeDetector : IChangeDetector
     public virtual void OnDetectingEntityChanges(InternalEntityEntry internalEntityEntry)
     {
         var @event = DetectingEntityChanges;
-
         if (@event != null)
         {
             var changeTracker = internalEntityEntry.StateManager.Context.ChangeTracker;

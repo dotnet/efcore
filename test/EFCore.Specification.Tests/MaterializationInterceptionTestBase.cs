@@ -3,7 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class MaterializationInterceptionTestBase<TContext> : SingletonInterceptorsTestBase<TContext>
+public abstract class MaterializationInterceptionTestBase<TContext>(NonSharedFixture fixture) : SingletonInterceptorsTestBase<TContext>(fixture)
     where TContext : SingletonInterceptorsTestBase<TContext>.LibraryContext
 {
     protected override string StoreName

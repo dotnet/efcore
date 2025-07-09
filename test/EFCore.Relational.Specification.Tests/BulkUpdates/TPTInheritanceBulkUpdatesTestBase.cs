@@ -49,7 +49,7 @@ public abstract class TPTInheritanceBulkUpdatesTestBase<TFixture> : InheritanceB
 
     public override Task Update_base_and_derived_types(bool async)
         => AssertTranslationFailed(
-            RelationalStrings.MultipleTablesInExecuteUpdate("e => e.Name", "e => e.FoundOn"),
+            RelationalStrings.MultipleTablesInExecuteUpdate("e => e.FoundOn", "e => e.Name"),
             () => base.Update_base_and_derived_types(async));
 
     // Keyless entities are mapped as TPH only

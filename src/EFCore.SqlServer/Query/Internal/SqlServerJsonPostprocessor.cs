@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 public sealed class SqlServerJsonPostprocessor(
     IRelationalTypeMappingSource typeMappingSource,
     ISqlExpressionFactory sqlExpressionFactory,
-    SqlAliasManager sqlAliasManager)
+    SqlAliasManager? sqlAliasManager)
     : ExpressionVisitor
 {
     private readonly List<OuterApplyExpression> _openjsonOuterAppliesToAdd = new();
@@ -229,6 +229,11 @@ public sealed class SqlServerJsonPostprocessor(
                     ?? (jsonScalar.Json as ColumnExpression)?.Name
                     ?? "Json";
 
+                // We need to generate an alias here; we always have a manager except
+                // when called from SqlNullabilityProcessor (where there's no manager),
+                // but in that scenario we never have to deal with JsonScalarExpression,
+                // only OpenJsonExpression.
+                Check.DebugAssert(sqlAliasManager is not null);
                 var tableAlias = sqlAliasManager.GenerateTableAlias(name);
                 var join =
                     new OuterApplyExpression(

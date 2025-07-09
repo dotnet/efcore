@@ -4,6 +4,7 @@
 using System.Collections;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 // ReSharper disable UnusedMember.Global
 // ReSharper disable InconsistentNaming
@@ -2067,7 +2068,7 @@ public class InternalEntityTypeBuilderTest
 
         Assert.Null(dependentEntityBuilder.Ignore(Order.CustomerIdProperty.Name, ConfigurationSource.Convention));
 
-        Assert.NotEmpty(dependentEntityBuilder.Metadata.GetProperties().Where(p => p.Name == Order.CustomerIdProperty.Name));
+        Assert.Contains(dependentEntityBuilder.Metadata.GetProperties(), p => p.Name == Order.CustomerIdProperty.Name);
         Assert.NotEmpty(dependentEntityBuilder.Metadata.GetForeignKeys());
     }
 
@@ -2207,7 +2208,7 @@ public class InternalEntityTypeBuilderTest
 
         Assert.Null(entityBuilder.Ignore(Order.CustomerIdProperty.Name, ConfigurationSource.DataAnnotation));
 
-        Assert.NotEmpty(entityBuilder.Metadata.GetProperties().Where(p => p.Name == Order.CustomerIdProperty.Name));
+        Assert.Contains(entityBuilder.Metadata.GetProperties(), p => p.Name == Order.CustomerIdProperty.Name);
         Assert.NotEmpty(entityBuilder.Metadata.GetIndexes());
     }
 
@@ -2279,7 +2280,7 @@ public class InternalEntityTypeBuilderTest
 
         Assert.Null(entityBuilder.Ignore(Order.CustomerIdProperty.Name, ConfigurationSource.DataAnnotation));
 
-        Assert.NotEmpty(entityBuilder.Metadata.GetProperties().Where(p => p.Name == Order.CustomerIdProperty.Name));
+        Assert.Contains(entityBuilder.Metadata.GetProperties(), p => p.Name == Order.CustomerIdProperty.Name);
         Assert.NotEmpty(entityBuilder.Metadata.GetKeys());
     }
 
@@ -3356,6 +3357,75 @@ public class InternalEntityTypeBuilderTest
             CoreStrings.DiscriminatorEntityTypeNotDerived("Splow (Dictionary<string, object>)", "Splot (Dictionary<string, object>)"),
             Assert.Throws<InvalidOperationException>(
                 () => discriminatorBuilder.HasValue(nonDerivedTypeBuilder.Metadata, "1")).Message);
+    }
+
+    [ConditionalFact]
+    public void Can_replace_query_filter_only_with_lower_or_equal_source()
+    {
+        var modelBuilder = CreateModelBuilder();
+        var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+
+        LambdaExpression filterExpression = (Order o) => o.Id == 1;
+        LambdaExpression filterExpression2 = (Order o) => o.Id == 2;
+        LambdaExpression filterExpression3 = (Order o) => o.Id == 3;
+        LambdaExpression filterExpression4 = (Order o) => o.Id == 4;
+        
+        entityBuilder.HasQueryFilter(new QueryFilter(filterExpression, ConfigurationSource.Explicit));
+        entityBuilder.HasQueryFilter(new QueryFilter(filterExpression2, ConfigurationSource.Explicit));
+        Assert.NotEqual(filterExpression, entityBuilder.Metadata.FindDeclaredQueryFilter(null).Expression);
+
+        entityBuilder.HasQueryFilter(new QueryFilter(filterExpression3, ConfigurationSource.DataAnnotation));
+        Assert.Same(filterExpression2, entityBuilder.Metadata.FindDeclaredQueryFilter(null).Expression);
+
+        entityBuilder.HasQueryFilter(new QueryFilter(filterExpression4, ConfigurationSource.Convention));
+        Assert.Same(filterExpression2, entityBuilder.Metadata.FindDeclaredQueryFilter(null).Expression);
+
+        modelBuilder = CreateModelBuilder();
+        entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Convention);
+        entityBuilder.HasQueryFilter(new QueryFilter(filterExpression4, ConfigurationSource.Convention));
+        entityBuilder.HasQueryFilter(new QueryFilter(filterExpression3, ConfigurationSource.Convention));
+        Assert.NotEqual(filterExpression4, entityBuilder.Metadata.FindDeclaredQueryFilter(null).Expression);
+
+        entityBuilder.HasQueryFilter(new QueryFilter(filterExpression2, ConfigurationSource.DataAnnotation));
+        Assert.NotEqual(filterExpression3, entityBuilder.Metadata.FindDeclaredQueryFilter(null).Expression);
+
+        entityBuilder.HasQueryFilter(new QueryFilter(filterExpression, ConfigurationSource.Explicit));
+        Assert.NotEqual(filterExpression2, entityBuilder.Metadata.FindDeclaredQueryFilter(null).Expression);
+    }
+
+    [ConditionalFact]
+    public void Can_replace_named_query_filter_only_with_lower_or_equal_source()
+    {
+        var modelBuilder = CreateModelBuilder();
+        var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+
+        LambdaExpression filterExpression = (Order o) => o.Id == 1;
+        LambdaExpression filterExpression2 = (Order o) => o.Id == 2;
+        LambdaExpression filterExpression3 = (Order o) => o.Id == 3;
+        LambdaExpression filterExpression4 = (Order o) => o.Id == 4;
+        const string filterKey = "idFilter";
+
+        entityBuilder.HasQueryFilter(new QueryFilter(filterKey, filterExpression, ConfigurationSource.Explicit));
+        entityBuilder.HasQueryFilter(new QueryFilter(filterKey, filterExpression2, ConfigurationSource.Explicit));
+        Assert.NotEqual(filterExpression, entityBuilder.Metadata.FindDeclaredQueryFilter(filterKey).Expression);
+
+        entityBuilder.HasQueryFilter(new QueryFilter(filterKey, filterExpression3, ConfigurationSource.DataAnnotation));
+        Assert.Same(filterExpression2, entityBuilder.Metadata.FindDeclaredQueryFilter(filterKey).Expression);
+
+        entityBuilder.HasQueryFilter(new QueryFilter(filterKey, filterExpression4, ConfigurationSource.Convention));
+        Assert.Same(filterExpression2, entityBuilder.Metadata.FindDeclaredQueryFilter(filterKey).Expression);
+
+        modelBuilder = CreateModelBuilder();
+        entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Convention);
+        entityBuilder.HasQueryFilter(new QueryFilter(filterKey, filterExpression4, ConfigurationSource.Convention));
+        entityBuilder.HasQueryFilter(new QueryFilter(filterKey, filterExpression3, ConfigurationSource.Convention));
+        Assert.NotEqual(filterExpression4, entityBuilder.Metadata.FindDeclaredQueryFilter(filterKey).Expression);
+
+        entityBuilder.HasQueryFilter(new QueryFilter(filterKey, filterExpression2, ConfigurationSource.DataAnnotation));
+        Assert.NotEqual(filterExpression3, entityBuilder.Metadata.FindDeclaredQueryFilter(filterKey).Expression);
+
+        entityBuilder.HasQueryFilter(new QueryFilter(filterKey, filterExpression, ConfigurationSource.Explicit));
+        Assert.NotEqual(filterExpression2, entityBuilder.Metadata.FindDeclaredQueryFilter(filterKey).Expression);
     }
 
     private static TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions> CreateTestLogger()
