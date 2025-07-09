@@ -2131,8 +2131,8 @@ public class ChangeDetectorTest
     }
 
     private class TestRelationshipListener(IEntityGraphAttacher attacher) : NavigationFixer(
-        attacher, new EntityMaterializerSource(
-            new EntityMaterializerSourceDependencies(Enumerable.Empty<ISingletonInterceptor>())))
+        attacher, new StructuralTypeMaterializerSource(
+            new StructuralTypeMaterializerSourceDependencies(Enumerable.Empty<ISingletonInterceptor>())))
     {
         public Tuple<InternalEntityEntry, IProperty, IEnumerable<IKey>, IEnumerable<IForeignKey>, object, object> KeyChange
         {

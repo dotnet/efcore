@@ -8,4 +8,51 @@ public class NavigationsMiscellaneousSqlServerTest(
     ITestOutputHelper testOutputHelper)
     : NavigationsMiscellaneousRelationalTestBase<NavigationsSqlServerFixture>(fixture, testOutputHelper)
 {
+    #region Simple filters
+
+    public override async Task Where_related_property(bool async)
+    {
+        await base.Where_related_property(async);
+
+        AssertSql(
+            """
+SELECT [r].[Id], [r].[Name], [r].[OptionalRelatedId], [r].[RequiredRelatedId]
+FROM [RootEntity] AS [r]
+INNER JOIN [RelatedType] AS [r0] ON [r].[RequiredRelatedId] = [r0].[Id]
+WHERE [r0].[Int] = 8
+""");
+    }
+
+    public override async Task Where_optional_related_property(bool async)
+    {
+        await base.Where_optional_related_property(async);
+
+        AssertSql(
+            """
+SELECT [r].[Id], [r].[Name], [r].[OptionalRelatedId], [r].[RequiredRelatedId]
+FROM [RootEntity] AS [r]
+LEFT JOIN [RelatedType] AS [r0] ON [r].[OptionalRelatedId] = [r0].[Id]
+WHERE [r0].[Int] = 9
+""");
+    }
+
+    public override async Task Where_nested_related_property(bool async)
+    {
+        await base.Where_nested_related_property(async);
+
+        AssertSql(
+            """
+SELECT [r].[Id], [r].[Name], [r].[OptionalRelatedId], [r].[RequiredRelatedId]
+FROM [RootEntity] AS [r]
+INNER JOIN [RelatedType] AS [r0] ON [r].[RequiredRelatedId] = [r0].[Id]
+INNER JOIN [NestedType] AS [n] ON [r0].[RequiredNestedId] = [n].[Id]
+WHERE [n].[Int] = 50
+""");
+    }
+
+    #endregion Simple filters
+
+    [ConditionalFact]
+    public virtual void Check_all_tests_overridden()
+        => TestHelpers.AssertAllMethodsOverridden(GetType());
 }

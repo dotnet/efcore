@@ -24,4 +24,7 @@ public abstract class OwnedTableSplittingProjectionRelationalTestBase<TFixture>
 
     // public override Task Select_optional_related_nested_collection(bool async, QueryTrackingBehavior queryTrackingBehavior)
     //     => Assert.ThrowsAsync<FailException>(() => base.Select_optional_related_nested_collection(async, queryTrackingBehavior));
+
+    protected void AssertSql(params string[] expected)
+        => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 }

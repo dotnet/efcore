@@ -16,16 +16,12 @@ public abstract class RelationshipsCollectionTestBase<TFixture>(TFixture fixture
             async,
             ss => ss.Set<RootEntity>().Where(e => e.RelatedCollection.Count == 2));
 
-    // Possibly split to a separate RelationshipsOrderedCollectionTestBase.
-
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Index_constant(bool async)
-        => AssertOrderedCollectionQuery(
-            () => AssertQuery(
-                async,
-                ss => ss.Set<RootEntity>().Where(e => e.RelatedCollection[0].Int == 21),
-                ss => ss.Set<RootEntity>().Where(e => e.RelatedCollection.Count > 0 && e.RelatedCollection[0].Int == 21)));
+    public virtual Task Where(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<RootEntity>().Where(e => e.RelatedCollection.Where(r => r.Int != 50).Count() == 2));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -36,6 +32,15 @@ public abstract class RelationshipsCollectionTestBase<TFixture>(TFixture fixture
                 e => e.RelatedCollection.OrderBy(r => r.Id).ElementAt(0).Int == 21),
             ss => ss.Set<RootEntity>().Where(e => e.RelatedCollection.Count > 0
                 && e.RelatedCollection.OrderBy(r => r.Id).ElementAt(0).Int == 21));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Index_constant(bool async)
+        => AssertOrderedCollectionQuery(
+            () => AssertQuery(
+                async,
+                ss => ss.Set<RootEntity>().Where(e => e.RelatedCollection[0].Int == 21),
+                ss => ss.Set<RootEntity>().Where(e => e.RelatedCollection.Count > 0 && e.RelatedCollection[0].Int == 21)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -65,7 +70,7 @@ public abstract class RelationshipsCollectionTestBase<TFixture>(TFixture fixture
         => AssertOrderedCollectionQuery(
             () => AssertQuery(
                 async,
-                ss => ss.Set<RootEntity>().Where(e => e.RelatedCollection[e.Id].Int == 50),
+                ss => ss.Set<RootEntity>().Where(e => e.RelatedCollection[9999].Int == 50),
                 ss => ss.Set<RootEntity>().Where(e => false),
                 assertEmpty: true));
 

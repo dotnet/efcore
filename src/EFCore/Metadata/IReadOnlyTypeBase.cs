@@ -461,7 +461,7 @@ public interface IReadOnlyTypeBase : IReadOnlyAnnotatable
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    Func<MaterializationContext, object> GetOrCreateMaterializer(IEntityMaterializerSource source);
+    Func<MaterializationContext, object> GetOrCreateMaterializer(IStructuralTypeMaterializerSource source);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -470,5 +470,5 @@ public interface IReadOnlyTypeBase : IReadOnlyAnnotatable
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    Func<MaterializationContext, object> GetOrCreateEmptyMaterializer(IEntityMaterializerSource source);
+    Func<MaterializationContext, object> GetOrCreateEmptyMaterializer(IStructuralTypeMaterializerSource source);
 }

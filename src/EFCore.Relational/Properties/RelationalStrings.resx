@@ -442,6 +442,9 @@
   <data name="ExecuteUpdateSubqueryNotSupportedOverComplexTypes" xml:space="preserve">
     <value>ExecuteUpdate is being used over a LINQ operator which isn't natively supported by the database; this cannot be translated because complex type '{complexType}' is projected out. Rewrite your query to project out the containing entity type instead.</value>
   </data>
+  <data name="ExecuteUpdateOverJsonIsNotSupported" xml:space="preserve">
+    <value>ExecuteUpdate is being used over type '{structuralType}' which is mapped to JSON; ExecuteUpdate on JSON is not supported.</value>
+  </data>
   <data name="ExplicitDefaultConstraintNamesNotSupportedForTpc" xml:space="preserve">
     <value>Can't use explicitly named default constraints with TPC inheritance or entity splitting. Constraint name: '{explicitDefaultConstraintName}'.</value>
   </data>

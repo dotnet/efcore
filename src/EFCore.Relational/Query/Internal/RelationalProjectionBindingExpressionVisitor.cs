@@ -198,7 +198,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                             // expression.Type here will be List<T>
                             return new CollectionResultExpression(
                                 new ProjectionBindingExpression(_selectExpression, _clientProjections.Count - 1, expression.Type),
-                                navigation: null,
+                                relationship: null,
                                 methodCallExpression.Method.GetGenericArguments()[0]);
                         }
                     }
@@ -219,7 +219,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                                 _selectExpression, _clientProjections.Count - 1, type);
                             return subquery.ResultCardinality == ResultCardinality.Enumerable
                                 ? new CollectionResultExpression(
-                                    projectionBindingExpression, navigation: null, subquery.ShaperExpression.Type)
+                                    projectionBindingExpression, relationship: null, subquery.ShaperExpression.Type)
                                 : projectionBindingExpression;
                         }
                     }
@@ -241,6 +241,9 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                     // Note that an entity type being projected is (currently) handled differently
                     case RelationalStructuralTypeShaperExpression { StructuralType: IComplexType } shaper:
                         return base.Visit(shaper);
+
+                    case CollectionResultExpression collectionResult:
+                        return base.Visit(collectionResult);
 
                     case null or RelationalStructuralTypeShaperExpression { StructuralType: IEntityType }:
                         return QueryCompilationContext.NotTranslatedExpression;
@@ -386,16 +389,16 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                 return QueryCompilationContext.NotTranslatedExpression;
             }
 
-            case CollectionResultExpression collectionResultExpression:
+            case CollectionResultExpression { QueryExpression: ProjectionBindingExpression projectionBindingExpression } collectionResultExpression:
             {
-                // TODO this should not be needed at some point, we shouldn't be revisit same projection.
+                // TODO this should not be needed at some point, we shouldn't be revisiting same projection.
                 // This happens because we don't process result selector for Join/SelectMany directly.
                 if (_indexBasedBinding)
                 {
                     Check.DebugAssert(
-                        ReferenceEquals(_selectExpression, collectionResultExpression.ProjectionBindingExpression.QueryExpression),
+                        ReferenceEquals(_selectExpression, projectionBindingExpression.QueryExpression),
                         "The projection should belong to same select expression.");
-                    var mappedProjection = _selectExpression.GetProjection(collectionResultExpression.ProjectionBindingExpression);
+                    var mappedProjection = _selectExpression.GetProjection(projectionBindingExpression);
                     _clientProjections!.Add(mappedProjection);
 
                     return collectionResultExpression.Update(
@@ -404,6 +407,21 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                 }
 
                 return QueryCompilationContext.NotTranslatedExpression;
+            }
+
+            case CollectionResultExpression { QueryExpression: JsonQueryExpression jsonQuery } collectionResult:
+            {
+                if (_indexBasedBinding)
+                {
+                    _clientProjections!.Add(jsonQuery);
+                }
+                else
+                {
+                    _projectionMapping[_projectionMembers.Peek()] = jsonQuery;
+                }
+
+                return collectionResult.Update(
+                    new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), collectionResult.Type));
             }
 
             default:
@@ -633,7 +651,9 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
         if (targetType != expression.Type
             && targetType.TryGetElementType(typeof(IQueryable<>)) == null)
         {
-            Check.DebugAssert(targetType.MakeNullable() == expression.Type, "expression.Type must be nullable of targetType");
+            Check.DebugAssert(
+                targetType.MakeNullable() == expression.Type,
+                $"expression has type {expression.Type.Name}, but must be nullable over {targetType.Name}");
 
             expression = Expression.Convert(expression, targetType);
         }

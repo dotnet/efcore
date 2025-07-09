@@ -17,6 +17,10 @@ public class ComplexProperty : PropertyBase, IMutableComplexProperty, IConventio
     private InternalComplexPropertyBuilder? _builder;
     private bool? _isNullable;
 
+    // Warning: Never access these fields directly as access needs to be thread-safe
+    private IClrCollectionAccessor? _collectionAccessor;
+    private bool _collectionAccessorInitialized;
+
     private ConfigurationSource? _isNullableConfigurationSource;
 
     /// <summary>
@@ -253,6 +257,19 @@ public class ComplexProperty : PropertyBase, IMutableComplexProperty, IConventio
     }
 
     /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual IClrCollectionAccessor? CollectionAccessor
+        => NonCapturingLazyInitializer.EnsureInitialized(
+            ref _collectionAccessor,
+            ref _collectionAccessorInitialized,
+            this,
+            static complexProperty => ClrCollectionAccessorFactory.Instance.Create(complexProperty));
+
+    /// <summary>
     ///     Runs the conventions when an annotation was set or removed.
     /// </summary>
     /// <param name="name">The key of the set annotation.</param>
@@ -354,4 +371,13 @@ public class ComplexProperty : PropertyBase, IMutableComplexProperty, IConventio
     bool? IConventionComplexProperty.SetIsNullable(bool? nullable, bool fromDataAnnotation)
         => SetIsNullable(
             nullable, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    IClrCollectionAccessor? IPropertyBase.GetCollectionAccessor()
+        => CollectionAccessor;
 }

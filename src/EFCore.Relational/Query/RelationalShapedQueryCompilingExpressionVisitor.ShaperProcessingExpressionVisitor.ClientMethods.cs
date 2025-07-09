@@ -962,10 +962,10 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
         [EntityFrameworkInternal]
         public static TEntity? MaterializeJsonEntity<TEntity>(
             QueryContext queryContext,
-            object[] keyPropertyValues,
+            object[]? keyPropertyValues,
             JsonReaderData? jsonReaderData,
             bool nullable,
-            Func<QueryContext, object[], JsonReaderData, TEntity> shaper)
+            Func<QueryContext, object[]?, JsonReaderData, TEntity> shaper)
             where TEntity : class
         {
             if (jsonReaderData == null)
@@ -1007,10 +1007,10 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
         [EntityFrameworkInternal]
         public static TResult? MaterializeJsonEntityCollection<TEntity, TResult>(
             QueryContext queryContext,
-            object[] keyPropertyValues,
+            object[]? keyPropertyValues,
             JsonReaderData? jsonReaderData,
-            INavigationBase navigation,
-            Func<QueryContext, object[], JsonReaderData, TEntity> innerShaper)
+            IPropertyBase relationship,
+            Func<QueryContext, object[]?, JsonReaderData, TEntity> innerShaper)
             where TEntity : class
         {
             if (jsonReaderData == null)
@@ -1033,18 +1033,23 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     break;
             }
 
-            var collectionAccessor = navigation.GetCollectionAccessor();
+            var collectionAccessor = relationship.GetCollectionAccessor();
             var result = (TResult)collectionAccessor!.Create();
 
-            var newKeyPropertyValues = new object[keyPropertyValues.Length + 1];
-            Array.Copy(keyPropertyValues, newKeyPropertyValues, keyPropertyValues.Length);
+            object[]? newKeyPropertyValues = null;
+
+            if (keyPropertyValues is not null)
+            {
+                newKeyPropertyValues = new object[keyPropertyValues.Length + 1];
+                Array.Copy(keyPropertyValues, newKeyPropertyValues, keyPropertyValues.Length);
+            }
 
             tokenType = manager.MoveNext();
 
             var i = 0;
             while (tokenType != JsonTokenType.EndArray)
             {
-                newKeyPropertyValues[^1] = ++i;
+                newKeyPropertyValues?[^1] = ++i;
 
                 if (tokenType == JsonTokenType.StartObject)
                 {
@@ -1082,10 +1087,10 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
         [EntityFrameworkInternal]
         public static void IncludeJsonEntityReference<TIncludingEntity, TIncludedEntity>(
             QueryContext queryContext,
-            object[] keyPropertyValues,
+            object[]? keyPropertyValues,
             JsonReaderData? jsonReaderData,
             TIncludingEntity entity,
-            Func<QueryContext, object[], JsonReaderData, TIncludedEntity> innerShaper,
+            Func<QueryContext, object[]?, JsonReaderData, TIncludedEntity> innerShaper,
             Action<TIncludingEntity, TIncludedEntity> fixup,
             bool trackingQuery)
             where TIncludingEntity : class
@@ -1126,10 +1131,10 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
         [EntityFrameworkInternal]
         public static void IncludeJsonEntityCollection<TIncludingEntity, TIncludedCollectionElement>(
             QueryContext queryContext,
-            object[] keyPropertyValues,
+            object[]? keyPropertyValues,
             JsonReaderData? jsonReaderData,
             TIncludingEntity entity,
-            Func<QueryContext, object[], JsonReaderData, TIncludedCollectionElement> innerShaper,
+            Func<QueryContext, object[]?, JsonReaderData, TIncludedCollectionElement> innerShaper,
             Action<TIncludingEntity> getOrCreateCollectionObject,
             Action<TIncludingEntity, TIncludedCollectionElement> fixup,
             bool trackingQuery)
@@ -1156,15 +1161,20 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
             getOrCreateCollectionObject(entity);
 
-            var newKeyPropertyValues = new object[keyPropertyValues.Length + 1];
-            Array.Copy(keyPropertyValues, newKeyPropertyValues, keyPropertyValues.Length);
+            object[]? newKeyPropertyValues = null;
+
+            if (keyPropertyValues is not null)
+            {
+                newKeyPropertyValues = new object[keyPropertyValues.Length + 1];
+                Array.Copy(keyPropertyValues, newKeyPropertyValues, keyPropertyValues.Length);
+            }
 
             tokenType = manager.MoveNext();
 
             var i = 0;
             while (tokenType != JsonTokenType.EndArray)
             {
-                newKeyPropertyValues[^1] = ++i;
+                newKeyPropertyValues?[^1] = ++i;
 
                 if (tokenType == JsonTokenType.StartObject)
                 {

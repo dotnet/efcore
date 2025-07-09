@@ -139,6 +139,10 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             StructuralTypeReferenceExpression { Parameter: StructuralTypeShaperExpression shaper }
                 => shaper,
 
+            // Complex JSON collection getting projected out via Select
+            CollectionResultExpression c
+                => c,
+
             StructuralTypeReferenceExpression { Subquery: not null }
                 => null, // TODO: think about this - probably unsupported (if so, message)
 
@@ -1335,21 +1339,42 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
         }
     }
 
-    private StructuralTypeReferenceExpression BindComplexProperty(
-        StructuralTypeReferenceExpression typeReference,
-        IComplexProperty complexProperty)
+    private Expression BindComplexProperty(StructuralTypeReferenceExpression typeReference, IComplexProperty complexProperty)
     {
         switch (typeReference)
         {
             case { Parameter: StructuralTypeShaperExpression shaper }:
-                var projection = (StructuralTypeProjectionExpression)Visit(shaper.ValueBufferExpression);
+                switch (Visit(shaper.ValueBufferExpression))
+                {
+                    case StructuralTypeProjectionExpression structuralTypeProjection:
+                        // TODO: Move all this logic into StructuralTypeProjectionExpression, #31376
+                        Check.DebugAssert(structuralTypeProjection.IsNullable == shaper.IsNullable, "Nullability mismatch");
 
-                // TODO: Move all this logic into StructuralTypeProjectionExpression, #31376
-                Check.DebugAssert(projection.IsNullable == shaper.IsNullable, "Nullability mismatch");
-                return new StructuralTypeReferenceExpression(projection.BindComplexProperty(complexProperty));
+                        return structuralTypeProjection.BindComplexProperty(complexProperty) switch
+                        {
+                            StructuralTypeShaperExpression s => new StructuralTypeReferenceExpression(s),
+                            CollectionResultExpression c => c,
+
+                            _ => throw new UnreachableException()
+                        };
+
+                    case JsonQueryExpression jsonQuery:
+                        var nestedJsonQuery = jsonQuery.BindRelationship(complexProperty);
+
+                        return complexProperty.IsCollection
+                            ? new CollectionResultExpression(nestedJsonQuery, complexProperty, elementType: complexProperty.ComplexType.ClrType)
+                            : new StructuralTypeReferenceExpression(
+                                new RelationalStructuralTypeShaperExpression(
+                                    complexProperty.ComplexType,
+                                    nestedJsonQuery,
+                                    nestedJsonQuery.IsNullable));
+
+                    default:
+                        throw new UnreachableException();
+                }
 
             case { Subquery: ShapedQueryExpression }:
-                throw new InvalidOperationException(); // TODO: Figure this out; do we support it?
+                throw new InvalidOperationException("Complex property binding over a subquery"); // TODO: #36296
 
             default:
                 throw new UnreachableException();
@@ -1951,6 +1976,11 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
 
             void GenerateComparisons(IComplexType type, Expression left, Expression right)
             {
+                if (type.IsMappedToJson())
+                {
+                    throw new NotImplementedException("Issue #36296");
+                }
+
                 foreach (var property in type.GetProperties())
                 {
                     var comparison = Infrastructure.ExpressionExtensions.CreateEqualsExpression(

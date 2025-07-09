@@ -192,7 +192,7 @@ public class RuntimeSkipNavigation : RuntimePropertyBase, IRuntimeSkipNavigation
     }
 
     /// <inheritdoc />
-    IClrCollectionAccessor? INavigationBase.GetCollectionAccessor()
+    IClrCollectionAccessor? IPropertyBase.GetCollectionAccessor()
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref _collectionAccessor,
             ref _collectionAccessorInitialized,

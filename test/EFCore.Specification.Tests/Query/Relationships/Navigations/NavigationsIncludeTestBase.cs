@@ -6,104 +6,104 @@ namespace Microsoft.EntityFrameworkCore.Query.Relationships.Navigations;
 public abstract class NavigationsIncludeTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : NavigationsFixtureBase, new()
 {
-    // [ConditionalTheory]
-    // [MemberData(nameof(IsAsyncData))]
-    // public virtual Task Include_trunk_required(bool async)
-    //     => AssertQuery(
-    //         async,
-    //         ss => ss.Set<RootEntity>().Include(x => x.RequiredTrunk),
-    //         elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<RootEntity>(x => x.RequiredTrunk)));
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Include_required(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<RootEntity>().Include(x => x.RequiredRelated),
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<RootEntity>(x => x.RequiredRelated)));
 
-    // [ConditionalTheory]
-    // [MemberData(nameof(IsAsyncData))]
-    // public virtual Task Include_trunk_optional(bool async)
-    //     => AssertQuery(
-    //         async,
-    //         ss => ss.Set<RootEntity>().Include(x => x.OptionalTrunk),
-    //         elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<RootEntity>(x => x.OptionalTrunk!)));
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Include_optional(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<RootEntity>().Include(x => x.OptionalRelated),
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<RootEntity>(x => x.OptionalRelated!)));
 
-    // [ConditionalTheory]
-    // [MemberData(nameof(IsAsyncData))]
-    // public virtual Task Include_trunk_collection(bool async)
-    //     => AssertQuery(
-    //         async,
-    //         ss => ss.Set<RootEntity>().Include(x => x.CollectionTrunk),
-    //         elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<RootEntity>(x => x.CollectionTrunk)));
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Include_collection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<RootEntity>().Include(x => x.RelatedCollection),
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<RootEntity>(x => x.RelatedCollection)));
 
-    // [ConditionalTheory]
-    // [MemberData(nameof(IsAsyncData))]
-    // public virtual Task Include_trunk_required_optional_and_collection(bool async)
-    //     => AssertQuery(
-    //         async,
-    //         ss => ss.Set<RootEntity>()
-    //             .Include(x => x.RequiredTrunk)
-    //             .Include(x => x.OptionalTrunk)
-    //             .Include(x => x.CollectionTrunk),
-    //         assertOrder: true,
-    //         elementAsserter: (e, a) => AssertInclude(
-    //             e,
-    //             a,
-    //             new ExpectedInclude<RootEntity>(x => x.RequiredTrunk),
-    //             new ExpectedInclude<RootEntity>(x => x.OptionalTrunk!),
-    //             new ExpectedInclude<RootEntity>(x => x.CollectionTrunk)));
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Include_required_optional_and_collection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<RootEntity>()
+                .Include(x => x.RequiredRelated)
+                .Include(x => x.OptionalRelated)
+                .Include(x => x.RelatedCollection),
+            assertOrder: true,
+            elementAsserter: (e, a) => AssertInclude(
+                e,
+                a,
+                new ExpectedInclude<RootEntity>(x => x.RequiredRelated),
+                new ExpectedInclude<RootEntity>(x => x.OptionalRelated!),
+                new ExpectedInclude<RootEntity>(x => x.RelatedCollection)));
 
-    // [ConditionalTheory]
-    // [MemberData(nameof(IsAsyncData))]
-    // public virtual Task Include_branch_required_required(bool async)
-    //     => AssertQuery(
-    //         async,
-    //         ss => ss.Set<RootEntity>().Include(x => x.RequiredTrunk.RequiredBranch),
-    //         elementAsserter: (e, a) => AssertInclude(
-    //             e,
-    //             a,
-    //             new ExpectedInclude<RootEntity>(x => x.RequiredTrunk),
-    //             new ExpectedInclude<Trunk>(x => x.RequiredBranch, "RequiredReferenceTrunk")));
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Include_nested(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<RootEntity>().Include(x => x.RequiredRelated.RequiredNested),
+            elementAsserter: (e, a) => AssertInclude(
+                e,
+                a,
+                new ExpectedInclude<RootEntity>(x => x.RequiredRelated),
+                new ExpectedInclude<RelatedType>(x => x.RequiredNested, "RequiredRelated")));
 
-    // [ConditionalTheory]
-    // [MemberData(nameof(IsAsyncData))]
-    // public virtual Task Include_branch_required_collection(bool async)
-    //     => AssertQuery(
-    //         async,
-    //         ss => ss.Set<RootEntity>().Include(x => x.RequiredTrunk.Branches),
-    //         elementAsserter: (e, a) => AssertInclude(
-    //             e,
-    //             a,
-    //             new ExpectedInclude<RootEntity>(x => x.RequiredTrunk),
-    //             new ExpectedInclude<Trunk>(x => x.Branches, "RequiredReferenceTrunk")));
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Include_nested_optional(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<RootEntity>().Include(x => x.OptionalRelated!.OptionalNested),
+            elementAsserter: (e, a) => AssertInclude(
+                e,
+                a,
+                new ExpectedInclude<RootEntity>(x => x.OptionalRelated!),
+                new ExpectedInclude<RelatedType>(x => x.OptionalNested!, "OptionalRelated")));
 
-    // [ConditionalTheory]
-    // [MemberData(nameof(IsAsyncData))]
-    // public virtual Task Include_branch_optional_optional(bool async)
-    //     => AssertQuery(
-    //         async,
-    //         ss => ss.Set<RootEntity>().Include(x => x.OptionalTrunk!.OptionalBranch),
-    //         elementAsserter: (e, a) => AssertInclude(
-    //             e,
-    //             a,
-    //             new ExpectedInclude<RootEntity>(x => x.OptionalTrunk!),
-    //             new ExpectedInclude<Trunk>(x => x.OptionalBranch!, "OptionalReferenceTrunk")));
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Include_nested_collection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<RootEntity>().Include(x => x.RequiredRelated.NestedCollection),
+            elementAsserter: (e, a) => AssertInclude(
+                e,
+                a,
+                new ExpectedInclude<RootEntity>(x => x.RequiredRelated),
+                new ExpectedInclude<RelatedType>(x => x.NestedCollection, "RequiredRelated")));
 
-    // [ConditionalTheory]
-    // [MemberData(nameof(IsAsyncData))]
-    // public virtual Task Include_branch_optional_collection(bool async)
-    //     => AssertQuery(
-    //         async,
-    //         ss => ss.Set<RootEntity>().Include(x => x.OptionalTrunk!.Branches),
-    //         elementAsserter: (e, a) => AssertInclude(
-    //             e,
-    //             a,
-    //             new ExpectedInclude<RootEntity>(x => x.OptionalTrunk!),
-    //             new ExpectedInclude<Trunk>(x => x.Branches, "OptionalReferenceTrunk")));
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Include_nested_collection_on_optional(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<RootEntity>().Include(x => x.OptionalRelated!.NestedCollection),
+            elementAsserter: (e, a) => AssertInclude(
+                e,
+                a,
+                new ExpectedInclude<RootEntity>(x => x.OptionalRelated!),
+                new ExpectedInclude<RelatedType>(x => x.NestedCollection, "OptionalRelated")));
 
-    // [ConditionalTheory]
-    // [MemberData(nameof(IsAsyncData))]
-    // public virtual Task Include_branch_collection_collection(bool async)
-    //     => AssertQuery(
-    //         async,
-    //         ss => ss.Set<RootEntity>().Include(x => x.CollectionTrunk).ThenInclude(x => x.Branches),
-    //         elementAsserter: (e, a) => AssertInclude(
-    //             e,
-    //             a,
-    //             new ExpectedInclude<RootEntity>(x => x.CollectionTrunk!),
-    //             new ExpectedInclude<Trunk>(x => x.Branches, "CollectionTrunk")));
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Include_nested_collection_on_collection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<RootEntity>().Include(x => x.RelatedCollection).ThenInclude(x => x.NestedCollection),
+            elementAsserter: (e, a) => AssertInclude(
+                e,
+                a,
+                new ExpectedInclude<RootEntity>(x => x.RelatedCollection),
+                new ExpectedInclude<RelatedType>(x => x.NestedCollection, "RelatedCollection")));
 }

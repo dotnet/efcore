@@ -24,7 +24,7 @@ public class SqliteComplianceTest : RelationalComplianceTestBase
         typeof(OwnedNavigationsProjectionTestBase<>),
         typeof(OwnedNavigationsProjectionRelationalTestBase<>),
         typeof(OwnedJsonProjectionRelationalTestBase<>),
-        typeof(OwnedTableSplittingProjectionRelationalTestBase<>)
+        typeof(OwnedTableSplittingProjectionRelationalTestBase<>),
         typeof(ComplexCollectionJsonUpdateTestBase<>) // issue #31252
     };
 

@@ -43,4 +43,7 @@ public abstract class OwnedNavigationsRelationalFixtureBase : OwnedTableSplittin
             });
         });
     }
+
+    public void AssertSql(params string[] expected)
+        => TestSqlLoggerFactory.AssertBaseline(expected);
 }
