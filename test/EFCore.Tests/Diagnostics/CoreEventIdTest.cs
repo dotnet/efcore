@@ -20,13 +20,13 @@ public class CoreEventIdTest : EventIdTestBase
         var otherProperty = otherEntityType.AddProperty(
             "A", typeof(int), ConfigurationSource.Convention, ConfigurationSource.Convention);
         var otherKey = otherEntityType.AddKey(otherProperty, ConfigurationSource.Convention);
-        var foreignKey = new ForeignKey(new[] { property }, otherKey, entityType, otherEntityType, ConfigurationSource.Convention);
+        var foreignKey = new ForeignKey([property], otherKey, entityType, otherEntityType, ConfigurationSource.Convention);
         var navigation = new Navigation("N", propertyInfo, null, foreignKey);
         var skipNavigation = new SkipNavigation(
             "SN", null, propertyInfo, null, entityType, otherEntityType, true, false, ConfigurationSource.Convention);
         var navigationBase = new FakeNavigationBase("FNB", ConfigurationSource.Convention, entityType);
         var complexProperty = entityType.AddComplexProperty(
-            "C", typeof(object), typeof(object), false, ConfigurationSource.Convention);
+            "C", typeof(object), typeof(object), true, ConfigurationSource.Convention);
 
         entityType.Model.FinalizeModel();
         var options = new DbContextOptionsBuilder()
@@ -44,7 +44,7 @@ public class CoreEventIdTest : EventIdTestBase
             { typeof(IEntityType), () => entityType },
             { typeof(IReadOnlyEntityType), () => entityType },
             { typeof(IConventionEntityType), () => entityType },
-            { typeof(IKey), () => new Key(new[] { property }, ConfigurationSource.Convention) },
+            { typeof(IKey), () => new Key([property], ConfigurationSource.Convention) },
             { typeof(IPropertyBase), () => property },
             { typeof(IProperty), () => property },
             { typeof(IReadOnlyProperty), () => property },
@@ -70,6 +70,8 @@ public class CoreEventIdTest : EventIdTestBase
             { typeof(IForeignKey), () => foreignKey },
             { typeof(IReadOnlyForeignKey), () => foreignKey },
             { typeof(InternalEntityEntry), () => new InternalEntityEntry(new FakeStateManager(), entityType, null!) },
+            { typeof(InternalComplexEntry), () => new InternalComplexEntry(complexProperty.ComplexType,
+                new InternalEntityEntry(new FakeStateManager(), entityType, null!), 0) },
             { typeof(ISet<object>), () => new HashSet<object>() },
             {
                 typeof(IList<IDictionary<string, string>>),

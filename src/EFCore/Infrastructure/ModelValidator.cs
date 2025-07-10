@@ -321,6 +321,13 @@ public class ModelValidator : IModelValidator
             throw new InvalidOperationException(
                 CoreStrings.EmptyComplexType(complexProperty.ComplexType.DisplayName()));
         }
+
+        // Issue #31411: Complex value type collections are not supported
+        if (complexProperty.IsCollection && complexProperty.ComplexType.ClrType.IsValueType)
+        {
+            throw new InvalidOperationException(
+                CoreStrings.ComplexValueTypeCollection(structuralType.DisplayName(), complexProperty.Name));
+        }
     }
 
     /// <summary>

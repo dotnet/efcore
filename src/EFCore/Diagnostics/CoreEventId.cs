@@ -137,7 +137,8 @@ public static class CoreEventId
         StartedTracking,
         StateChanged,
         ValueGenerated,
-        SkipCollectionChangeDetected
+        SkipCollectionChangeDetected,
+        ComplexTypePropertyChangeDetected
     }
 
     private static readonly string _updatePrefix = DbLoggerCategory.Update.Name + ".";
@@ -958,6 +959,20 @@ public static class CoreEventId
     ///     </para>
     /// </remarks>
     public static readonly EventId PropertyChangeDetected = MakeChangeTrackingId(Id.PropertyChangeDetected);
+
+    /// <summary>
+    ///     DetectChanges has detected a change in a property value.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This event is in the <see cref="DbLoggerCategory.ChangeTracking" /> category.
+    ///     </para>
+    ///     <para>
+    ///         This event uses the <see cref="ComplexTypePropertyChangedEventData" /> payload when used with a
+    ///         <see cref="DiagnosticSource" />.
+    ///     </para>
+    /// </remarks>
+    public static readonly EventId ComplexTypePropertyChangeDetected = MakeChangeTrackingId(Id.ComplexTypePropertyChangeDetected);
 
     /// <summary>
     ///     DetectChanges has detected a change in a foreign key property value.

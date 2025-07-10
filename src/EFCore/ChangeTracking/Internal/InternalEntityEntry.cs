@@ -198,6 +198,8 @@ public sealed partial class InternalEntityEntry : InternalEntryBase, IUpdateEntr
     /// </summary>
     protected override void OnStateChanging(EntityState newState)
     {
+        base.OnStateChanging(newState);
+
         FireStateChanging(newState);
 
         if (EntityState == EntityState.Detached)
@@ -214,6 +216,8 @@ public sealed partial class InternalEntityEntry : InternalEntryBase, IUpdateEntr
     /// </summary>
     protected override void OnStateChanged(EntityState oldState)
     {
+        base.OnStateChanged(oldState);
+
         // Save shared identity entity before it's detached
         var sharedIdentityEntry = SharedIdentityEntry;
         if (EntityState == EntityState.Detached)

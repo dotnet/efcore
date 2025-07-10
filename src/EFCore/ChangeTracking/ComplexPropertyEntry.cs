@@ -31,6 +31,13 @@ public class ComplexPropertyEntry : MemberEntry
     public ComplexPropertyEntry(IInternalEntry internalEntry, IComplexProperty complexProperty)
         : base(internalEntry, complexProperty)
     {
+        if (complexProperty.IsCollection)
+        {
+            throw new InvalidOperationException(
+                CoreStrings.ComplexReferenceIsCollection(
+                    internalEntry.StructuralType.DisplayName(), complexProperty.Name,
+                    nameof(ChangeTracking.EntityEntry.ComplexProperty), nameof(ChangeTracking.EntityEntry.ComplexCollection)));
+        }
     }
 
     /// <summary>
@@ -48,12 +55,23 @@ public class ComplexPropertyEntry : MemberEntry
     /// </remarks>
     public override bool IsModified
     {
-        get => Metadata.ComplexType.GetFlattenedProperties().Any(InternalEntry.IsModified);
+        get => Metadata.ComplexType.GetFlattenedProperties().Any(InternalEntry.IsModified)
+            || Metadata.ComplexType.GetFlattenedComplexProperties().Any(c => c.IsCollection && InternalEntry.IsModified(c));
         set
         {
             foreach (var property in Metadata.ComplexType.GetFlattenedProperties())
             {
                 InternalEntry.SetPropertyModified(property, isModified: value);
+            }
+
+            foreach (var complexProperty in Metadata.ComplexType.GetFlattenedComplexProperties())
+            {
+                if (!complexProperty.IsCollection)
+                {
+                    continue;
+                }
+
+                InternalEntry.SetPropertyModified(complexProperty, isModified: value);
             }
         }
     }
@@ -148,5 +166,47 @@ public class ComplexPropertyEntry : MemberEntry
     ///     examples.
     /// </remarks>
     public virtual IEnumerable<ComplexPropertyEntry> ComplexProperties
-        => Metadata.ComplexType.GetComplexProperties().Select(property => new ComplexPropertyEntry(InternalEntry, property));
+        => Metadata.ComplexType.GetComplexProperties().Where(p => !p.IsCollection).Select(property => new ComplexPropertyEntry(InternalEntry, property));
+
+    /// <summary>
+    ///     Provides access to change tracking information and operations for a given collection property of a complex type on this complex type.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+    ///     examples.
+    /// </remarks>
+    /// <param name="property">The property to access information and operations for.</param>
+    /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
+    public virtual ComplexCollectionEntry ComplexCollection(IComplexProperty property)
+    {
+        Check.NotNull(property, nameof(property));
+
+        return new ComplexCollectionEntry(InternalEntry, property);
+    }
+
+    /// <summary>
+    ///     Provides access to change tracking information and operations for a given collection property of a complex type on this complex type.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+    ///     examples.
+    /// </remarks>
+    /// <param name="propertyName">The property to access information and operations for.</param>
+    /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
+    public virtual ComplexCollectionEntry ComplexCollection(string propertyName)
+    {
+        Check.NotEmpty(propertyName, nameof(propertyName));
+
+        return new ComplexCollectionEntry(InternalEntry, Metadata.ComplexType.GetComplexProperty(propertyName));
+    }
+
+    /// <summary>
+    ///     Provides access to change tracking information and operations for all collection properties of complex type on this complex type.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+    ///     examples.
+    /// </remarks>
+    public virtual IEnumerable<ComplexCollectionEntry> ComplexCollections
+        => Metadata.ComplexType.GetComplexProperties().Where(p => p.IsCollection).Select(property => new ComplexCollectionEntry(InternalEntry, property));
 }

@@ -626,7 +626,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         {
             complexType = ((IComplexType)mappedType);
 #pragma warning disable EF1001 // Internal EF Core API usage.
-            jsonColumn.IsNullable = complexType.ComplexProperty.IsNullable || complexType.ComplexProperty.GetChainToComplexProperty().Any(p => p.IsNullable);
+            jsonColumn.IsNullable = complexType.ComplexProperty.IsNullable || complexType.ComplexProperty.GetChainToComplexProperty(fromEntity: true).Any(p => p.IsNullable);
 #pragma warning restore EF1001 // Internal EF Core API usage.
         }
     }

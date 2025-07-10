@@ -38,14 +38,20 @@ namespace TestNamespace
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 sentinel: 0);
             id.SetGetter(
-                int (CompiledModelRelationalTestBase.SpatialTypes entity) => AbstractBaseUnsafeAccessors.Id(entity),
-                bool (CompiledModelRelationalTestBase.SpatialTypes entity) => AbstractBaseUnsafeAccessors.Id(entity) == 0,
                 int (CompiledModelRelationalTestBase.SpatialTypes instance) => AbstractBaseUnsafeAccessors.Id(instance),
                 bool (CompiledModelRelationalTestBase.SpatialTypes instance) => AbstractBaseUnsafeAccessors.Id(instance) == 0);
             id.SetSetter(
-                (CompiledModelRelationalTestBase.SpatialTypes entity, int value) => AbstractBaseUnsafeAccessors.Id(entity) = value);
+                CompiledModelRelationalTestBase.SpatialTypes (CompiledModelRelationalTestBase.SpatialTypes instance, int value) =>
+                {
+                    AbstractBaseUnsafeAccessors.Id(instance) = value;
+                    return instance;
+                });
             id.SetMaterializationSetter(
-                (CompiledModelRelationalTestBase.SpatialTypes entity, int value) => AbstractBaseUnsafeAccessors.Id(entity) = value);
+                CompiledModelRelationalTestBase.SpatialTypes (CompiledModelRelationalTestBase.SpatialTypes instance, int value) =>
+                {
+                    AbstractBaseUnsafeAccessors.Id(instance) = value;
+                    return instance;
+                });
             id.SetAccessors(
                 int (IInternalEntry entry) => (entry.FlaggedAsStoreGenerated(0) ? entry.ReadStoreGeneratedValue<int>(0) : (entry.FlaggedAsTemporary(0) && AbstractBaseUnsafeAccessors.Id(((CompiledModelRelationalTestBase.SpatialTypes)(entry.Entity))) == 0 ? entry.ReadTemporaryValue<int>(0) : AbstractBaseUnsafeAccessors.Id(((CompiledModelRelationalTestBase.SpatialTypes)(entry.Entity))))),
                 int (IInternalEntry entry) => AbstractBaseUnsafeAccessors.Id(((CompiledModelRelationalTestBase.SpatialTypes)(entry.Entity))),
@@ -114,7 +120,7 @@ namespace TestNamespace
             runtimeEntityType.SetOriginalValuesFactory(
                 ISnapshot (IInternalEntry source) =>
                 {
-                    var entity = ((CompiledModelRelationalTestBase.SpatialTypes)(source.Entity));
+                    var structuralType = ((CompiledModelRelationalTestBase.SpatialTypes)(source.Entity));
                     return ((ISnapshot)(new Snapshot<int, Point>(((ValueComparer<int>)(((IProperty)id).GetValueComparer())).Snapshot(source.GetCurrentValue<int>(id)), (source.GetCurrentValue<Point>(point) == null ? null : ((ValueComparer<Point>)(((IProperty)point).GetValueComparer())).Snapshot(source.GetCurrentValue<Point>(point))))));
                 });
             runtimeEntityType.SetStoreGeneratedValuesFactory(
@@ -128,7 +134,7 @@ namespace TestNamespace
             runtimeEntityType.SetRelationshipSnapshotFactory(
                 ISnapshot (IInternalEntry source) =>
                 {
-                    var entity = ((CompiledModelRelationalTestBase.SpatialTypes)(source.Entity));
+                    var structuralType = ((CompiledModelRelationalTestBase.SpatialTypes)(source.Entity));
                     return ((ISnapshot)(new Snapshot<int>(((ValueComparer<int>)(((IProperty)id).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<int>(id)))));
                 });
             runtimeEntityType.SetCounts(new PropertyCounts(
