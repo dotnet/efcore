@@ -329,9 +329,119 @@ LIMIT 2
 """);
     }
 
-    public override async Task Parameter_collection_Count_with_column_predicate_with_default_constants()
+    public override async Task Parameter_collection_Count_with_column_predicate_with_default_mode(ParameterizedCollectionMode mode)
     {
-        await base.Parameter_collection_Count_with_column_predicate_with_default_constants();
+        await base.Parameter_collection_Count_with_column_predicate_with_default_mode(mode);
+
+        switch (mode)
+        {
+            case ParameterizedCollectionMode.Constants:
+            {
+                AssertSql(
+                    """
+SELECT "t"."Id"
+FROM "TestEntity" AS "t"
+WHERE (
+    SELECT COUNT(*)
+    FROM (SELECT 2 AS "Value" UNION ALL VALUES (999)) AS "i"
+    WHERE "i"."Value" > "t"."Id") = 1
+""");
+                break;
+            }
+
+            case ParameterizedCollectionMode.Parameter:
+            {
+                AssertSql(
+                    """
+@ids='[2,999]' (Size = 7)
+
+SELECT "t"."Id"
+FROM "TestEntity" AS "t"
+WHERE (
+    SELECT COUNT(*)
+    FROM json_each(@ids) AS "i"
+    WHERE "i"."value" > "t"."Id") = 1
+""");
+                break;
+            }
+
+            case ParameterizedCollectionMode.MultipleParameters:
+            {
+                AssertSql(
+                    """
+@ids1='2'
+@ids2='999'
+
+SELECT "t"."Id"
+FROM "TestEntity" AS "t"
+WHERE (
+    SELECT COUNT(*)
+    FROM (SELECT @ids1 AS "Value" UNION ALL VALUES (@ids2)) AS "i"
+    WHERE "i"."Value" > "t"."Id") = 1
+""");
+                break;
+            }
+
+            default:
+                throw new NotImplementedException();
+        }
+    }
+
+    public override async Task Parameter_collection_Contains_with_default_mode(ParameterizedCollectionMode mode)
+    {
+        await base.Parameter_collection_Contains_with_default_mode(mode);
+
+        switch (mode)
+        {
+            case ParameterizedCollectionMode.Constants:
+            {
+                AssertSql(
+                    """
+SELECT "t"."Id"
+FROM "TestEntity" AS "t"
+WHERE "t"."Id" IN (2, 999)
+""");
+                break;
+            }
+
+            case ParameterizedCollectionMode.Parameter:
+            {
+                AssertSql(
+                    """
+@ints='[2,999]' (Size = 7)
+
+SELECT "t"."Id"
+FROM "TestEntity" AS "t"
+WHERE "t"."Id" IN (
+    SELECT "i"."value"
+    FROM json_each(@ints) AS "i"
+)
+""");
+                break;
+            }
+
+            case ParameterizedCollectionMode.MultipleParameters:
+            {
+                AssertSql(
+                    """
+@ints1='2'
+@ints2='999'
+
+SELECT "t"."Id"
+FROM "TestEntity" AS "t"
+WHERE "t"."Id" IN (@ints1, @ints2)
+""");
+                break;
+            }
+
+            default:
+                throw new NotImplementedException();
+        }
+    }
+
+    public override async Task Parameter_collection_Count_with_column_predicate_with_default_mode_EF_Constant(ParameterizedCollectionMode mode)
+    {
+        await base.Parameter_collection_Count_with_column_predicate_with_default_mode_EF_Constant(mode);
 
         AssertSql(
             """
@@ -344,9 +454,9 @@ WHERE (
 """);
     }
 
-    public override async Task Parameter_collection_Contains_with_default_constants()
+    public override async Task Parameter_collection_Contains_with_default_mode_EF_Constant(ParameterizedCollectionMode mode)
     {
-        await base.Parameter_collection_Contains_with_default_constants();
+        await base.Parameter_collection_Contains_with_default_mode_EF_Constant(mode);
 
         AssertSql(
             """
@@ -356,9 +466,9 @@ WHERE "t"."Id" IN (2, 999)
 """);
     }
 
-    public override async Task Parameter_collection_Count_with_column_predicate_with_default_constants_EF_Parameter()
+    public override async Task Parameter_collection_Count_with_column_predicate_with_default_mode_EF_Parameter(ParameterizedCollectionMode mode)
     {
-        await base.Parameter_collection_Count_with_column_predicate_with_default_constants_EF_Parameter();
+        await base.Parameter_collection_Count_with_column_predicate_with_default_mode_EF_Parameter(mode);
 
         AssertSql(
             """
@@ -373,9 +483,9 @@ WHERE (
 """);
     }
 
-    public override async Task Parameter_collection_Contains_with_default_constants_EF_Parameter()
+    public override async Task Parameter_collection_Contains_with_default_mode_EF_Parameter(ParameterizedCollectionMode mode)
     {
-        await base.Parameter_collection_Contains_with_default_constants_EF_Parameter();
+        await base.Parameter_collection_Contains_with_default_mode_EF_Parameter(mode);
 
         AssertSql(
             """
@@ -390,70 +500,9 @@ WHERE "t"."Id" IN (
 """);
     }
 
-    public override async Task Parameter_collection_Count_with_column_predicate_with_default_parameter()
+    public override async Task Parameter_collection_Count_with_column_predicate_with_default_mode_EF_MultipleParameters(ParameterizedCollectionMode mode)
     {
-        await base.Parameter_collection_Count_with_column_predicate_with_default_parameter();
-
-        AssertSql(
-            """
-@ids='[2,999]' (Size = 7)
-
-SELECT "t"."Id"
-FROM "TestEntity" AS "t"
-WHERE (
-    SELECT COUNT(*)
-    FROM json_each(@ids) AS "i"
-    WHERE "i"."value" > "t"."Id") = 1
-""");
-    }
-
-    public override async Task Parameter_collection_Contains_with_default_parameter()
-    {
-        await base.Parameter_collection_Contains_with_default_parameter();
-
-        AssertSql(
-            """
-@ints='[2,999]' (Size = 7)
-
-SELECT "t"."Id"
-FROM "TestEntity" AS "t"
-WHERE "t"."Id" IN (
-    SELECT "i"."value"
-    FROM json_each(@ints) AS "i"
-)
-""");
-    }
-
-    public override async Task Parameter_collection_Count_with_column_predicate_with_default_parameter_EF_Constant()
-    {
-        await base.Parameter_collection_Count_with_column_predicate_with_default_parameter_EF_Constant();
-
-        AssertSql(
-            """
-SELECT "t"."Id"
-FROM "TestEntity" AS "t"
-WHERE (
-    SELECT COUNT(*)
-    FROM (SELECT 2 AS "Value" UNION ALL VALUES (999)) AS "i"
-    WHERE "i"."Value" > "t"."Id") = 1
-""");
-    }
-
-    public override async Task Parameter_collection_Contains_with_default_parameter_EF_Constant()
-    {
-        await base.Parameter_collection_Contains_with_default_parameter_EF_Constant();
-
-        AssertSql(
-            """
-SELECT "t"."Id"
-FROM "TestEntity" AS "t"
-WHERE "t"."Id" IN (2, 999)
-""");
-    }
-
-    public override async Task Parameter_collection_Count_with_column_predicate_with_default_multiple_parameters()
-    {
-        await base.Parameter_collection_Count_with_column_predicate_with_default_multiple_parameters();
+        await base.Parameter_collection_Count_with_column_predicate_with_default_mode_EF_MultipleParameters(mode);
 
         AssertSql(
             """
@@ -469,9 +518,9 @@ WHERE (
 """);
     }
 
-    public override async Task Parameter_collection_Contains_with_default_multiple_parameters()
+    public override async Task Parameter_collection_Contains_with_default_mode_EF_MultipleParameters(ParameterizedCollectionMode mode)
     {
-        await base.Parameter_collection_Contains_with_default_multiple_parameters();
+        await base.Parameter_collection_Contains_with_default_mode_EF_MultipleParameters(mode);
 
         AssertSql(
             """

@@ -128,7 +128,7 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
 
                     var queryParameter = (QueryParameterExpression)Visit(methodCallExpression.Arguments[0]);
                     return new QueryParameterExpression(
-                        queryParameter.Name, queryParameter.Type, shouldBeConstantized: true, shouldNotBeConstantized: false,
+                        queryParameter.Name, queryParameter.Type, parameterExpressionMode: ParameterExpressionMode.Constants,
                         queryParameter.IsNonNullableReferenceType);
                 }
 
@@ -136,10 +136,19 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
                 {
                     var queryParameter = (QueryParameterExpression)Visit(methodCallExpression.Arguments[0]);
                     return new QueryParameterExpression(
-                        queryParameter.Name, queryParameter.Type, shouldBeConstantized: false, shouldNotBeConstantized: true,
+                        queryParameter.Name, queryParameter.Type, parameterExpressionMode: ParameterExpressionMode.Parameter,
                         queryParameter.IsNonNullableReferenceType);
                 }
             }
+        }
+
+        // EF.MultipleParameters is defined in Relational, hence the hardcoded values here.
+        if (method.DeclaringType?.FullName == "Microsoft.EntityFrameworkCore.EFExtensions" && method.Name == "MultipleParameters")
+        {
+            var queryParameter = (QueryParameterExpression)Visit(methodCallExpression.Arguments[0]);
+            return new QueryParameterExpression(
+                queryParameter.Name, queryParameter.Type, parameterExpressionMode: ParameterExpressionMode.MultipleParameters,
+                queryParameter.IsNonNullableReferenceType);
         }
 
         // Normalize list[x] to list.ElementAt(x)

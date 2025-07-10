@@ -127,10 +127,10 @@ public class SqlNullabilityProcessor : ExpressionVisitor
 
                 var processedValues = new List<RowValueExpression>();
 
-                switch (ParameterizedCollectionMode)
+                switch (ParameterizedCollectionMode, valuesParameter.ParameterExpressionMode)
                 {
-                    case ParameterizedCollectionMode.MultipleParameters
-                        when !valuesParameter.ShouldBeConstantized:
+                    case (ParameterizedCollectionMode.MultipleParameters, null):
+                    case (_, ParameterExpressionMode.MultipleParameters):
                     {
                         var expandedParameters = _collectionParameterExpansionMap.GetOrAddNew(valuesParameter);
                         for (var i = 0; i < values.Count; i++)
@@ -156,11 +156,8 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                         break;
                     }
 
-                    case ParameterizedCollectionMode.Constants:
-                    case ParameterizedCollectionMode.Parameter
-                        when valuesParameter.ShouldBeConstantized:
-                    case ParameterizedCollectionMode.MultipleParameters
-                        when valuesParameter.ShouldBeConstantized:
+                    case (ParameterizedCollectionMode.Constants, null):
+                    case (_, ParameterExpressionMode.Constants):
                     {
                         foreach (var value in values)
                         {
@@ -820,18 +817,15 @@ public class SqlNullabilityProcessor : ExpressionVisitor
 
                 processedValues = [];
 
-                var useParameters = ParameterizedCollectionMode is ParameterizedCollectionMode.MultipleParameters
-                    && !valuesParameter.ShouldBeConstantized;
-                var useConstants =
-                    ParameterizedCollectionMode is ParameterizedCollectionMode.Constants
-                    ||
-                    (ParameterizedCollectionMode is ParameterizedCollectionMode.Parameter
-                        && valuesParameter.ShouldBeConstantized)
-                    ||
-                    (ParameterizedCollectionMode is ParameterizedCollectionMode.MultipleParameters
-                        && valuesParameter.ShouldBeConstantized);
-                var useParameter = ParameterizedCollectionMode is ParameterizedCollectionMode.Parameter
-                    && !valuesParameter.ShouldBeConstantized;
+                var useMultipleParameters = valuesParameter.ParameterExpressionMode is ParameterExpressionMode.MultipleParameters
+                    || (ParameterizedCollectionMode is ParameterizedCollectionMode.MultipleParameters
+                        && valuesParameter.ParameterExpressionMode is null);
+                var useConstants = valuesParameter.ParameterExpressionMode is ParameterExpressionMode.Constants
+                    || (ParameterizedCollectionMode is ParameterizedCollectionMode.Constants
+                        && valuesParameter.ParameterExpressionMode is null);
+                var useParameter = valuesParameter.ParameterExpressionMode is ParameterExpressionMode.Parameter
+                    || (ParameterizedCollectionMode is ParameterizedCollectionMode.Parameter
+                        && valuesParameter.ParameterExpressionMode is null);
                 var expandedParameters = _collectionParameterExpansionMap.GetOrAddNew(valuesParameter);
                 var expandedParametersCounter = 0;
                 for (var i = 0; i < values.Count; i++)
@@ -842,7 +836,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                         continue;
                     }
 
-                    switch (useParameters, useConstants, useParameter)
+                    switch (useMultipleParameters, useConstants, useParameter)
                     {
                         case (true, false, false):
                         // see #36311 for more info
@@ -1426,7 +1420,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
 
         nullable = false;
 
-        if (sqlParameterExpression.ShouldBeConstantized)
+        if (sqlParameterExpression.ParameterExpressionMode is ParameterExpressionMode.Constants)
         {
             var parameters = ParametersFacade.GetParametersAndDisableSqlCaching();
 
