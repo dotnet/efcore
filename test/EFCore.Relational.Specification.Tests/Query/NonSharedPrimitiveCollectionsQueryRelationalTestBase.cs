@@ -215,6 +215,27 @@ public abstract class NonSharedPrimitiveCollectionsQueryRelationalTestBase(NonSh
         Assert.Equivalent(new[] { 2 }, result);
     }
 
+    [ConditionalFact]
+    public virtual async Task Parameter_collection_Contains_parameter_bucketization()
+    {
+        var contextFactory = await InitializeAsync<TestContext>(
+            onConfiguring: b => SetParameterizedCollectionMode(b, ParameterTranslationMode.MultipleParameters),
+            seed: context =>
+            {
+                context.AddRange(
+                    new TestEntity { Id = 1 },
+                    new TestEntity { Id = 2 },
+                    new TestEntity { Id = 100 });
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateContext();
+
+        var ints = new[] { 2, 999, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2 };
+        var result = await context.Set<TestEntity>().Where(c => ints.Contains(c.Id)).Select(c => c.Id).ToListAsync();
+        Assert.Equivalent(new[] { 2 }, result);
+    }
+
     protected class TestOwner
     {
         public int Id { get; set; }

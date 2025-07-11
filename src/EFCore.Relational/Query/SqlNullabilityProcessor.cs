@@ -135,13 +135,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                         {
                             // Create parameter for value if we didn't create it yet,
                             // otherwise reuse it.
-                            if (expandedParameters.Count <= i)
-                            {
-                                var parameterName = Uniquifier.Uniquify(valuesParameter.Name, queryParameters, int.MaxValue);
-                                queryParameters.Add(parameterName, values[i]);
-                                var parameterExpression = new SqlParameterExpression(parameterName, values[i]?.GetType() ?? typeof(object), elementTypeMapping);
-                                expandedParameters.Add(parameterExpression);
-                            }
+                            ExpandParameterIfNeeded(valuesParameter.Name, expandedParameters, queryParameters, i, values[i], elementTypeMapping);
 
                             processedValues.Add(
                                 new RowValueExpression(
@@ -832,13 +826,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                         {
                             // Create parameter for value if we didn't create it yet,
                             // otherwise reuse it.
-                            if (expandedParameters.Count <= i)
-                            {
-                                var parameterName = Uniquifier.Uniquify(valuesParameter.Name, parameters, int.MaxValue);
-                                parameters.Add(parameterName, values[i]);
-                                var parameterExpression = new SqlParameterExpression(parameterName, values[i]?.GetType() ?? typeof(object), elementTypeMapping);
-                                expandedParameters.Add(parameterExpression);
-                            }
+                            ExpandParameterIfNeeded(valuesParameter.Name, expandedParameters, parameters, i, values[i], elementTypeMapping);
 
                             // Use separate counter, because we may skip nulls.
                             processedValues.Add(expandedParameters[expandedParametersCounter++]);
@@ -855,6 +843,23 @@ public class SqlNullabilityProcessor : ExpressionVisitor
 
                         default:
                             throw new UnreachableException();
+                    }
+                }
+
+                // Bucketization.
+                if ((valuesParameter.TranslationMode ?? CollectionParameterTranslationMode) is ParameterTranslationMode.MultipleParameters)
+                {
+                    // For provider to effectively disable bucketization, return always 1 from ParametersPadFactor.
+                    var padFactor = ParametersPadFactor(values.Count);
+                    var padding = (padFactor - (values.Count % padFactor)) % padFactor;
+                    for (var i = 0; i < padding; i++)
+                    {
+                        // Create parameter for value if we didn't create it yet,
+                        // otherwise reuse it.
+                        ExpandParameterIfNeeded(valuesParameter.Name, expandedParameters, parameters, values.Count + i, values[^1], elementTypeMapping);
+
+                        // Use separate counter, because we may skip nulls.
+                        processedValues.Add(expandedParameters[expandedParametersCounter++]);
                     }
                 }
             }
@@ -1487,6 +1492,21 @@ public class SqlNullabilityProcessor : ExpressionVisitor
     /// </summary>
     protected virtual bool PreferExistsToInWithCoalesce
         => false;
+
+    /// <summary>
+    /// Gets the factor by which the parameters are padded when generating a parameterized collection
+    /// when using multiple parameters. This helps with query plan bloat.
+    /// </summary>
+    /// <param name="count">Number of value parameters are generated for.</param>
+    protected virtual int ParametersPadFactor(int count)
+        => count switch
+        {
+            <= 5 => 1,
+            <= 150 => 10,
+            <= 750 => 50,
+            <= 2000 => 100,
+            _ => 200,
+        };
 
     // Note that we can check parameter values for null since we cache by the parameter nullability; but we cannot do the same for bool.
     private bool IsNull(SqlExpression? expression)
@@ -2121,4 +2141,21 @@ public class SqlNullabilityProcessor : ExpressionVisitor
 
     private static bool IsLogicalNot(SqlUnaryExpression? sqlUnaryExpression)
         => sqlUnaryExpression is { OperatorType: ExpressionType.Not } && sqlUnaryExpression.Type == typeof(bool);
+
+    private static void ExpandParameterIfNeeded(
+        string valuesParameterName,
+        List<SqlParameterExpression> expandedParameters,
+        Dictionary<string, object?> parameters,
+        int index,
+        object? value,
+        RelationalTypeMapping typeMapping)
+    {
+        if (expandedParameters.Count <= index)
+        {
+            var parameterName = Uniquifier.Uniquify(valuesParameterName, parameters, int.MaxValue);
+            parameters.Add(parameterName, value);
+            var parameterExpression = new SqlParameterExpression(parameterName, value?.GetType() ?? typeof(object), typeMapping);
+            expandedParameters.Add(parameterExpression);
+        }
+    }
 }

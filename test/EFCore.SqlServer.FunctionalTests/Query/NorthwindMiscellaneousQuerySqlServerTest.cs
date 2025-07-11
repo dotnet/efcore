@@ -6078,11 +6078,15 @@ WHERE [c].[CustomerID] = N'ALFKI'
 @orderIds4='10835'
 @orderIds5='10952'
 @orderIds6='11011'
+@orderIds7='11011'
+@orderIds8='11011'
+@orderIds9='11011'
+@orderIds10='11011'
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
-WHERE [o].[OrderID] IN (@orderIds1, @orderIds2, @orderIds3, @orderIds4, @orderIds5, @orderIds6)
+WHERE [o].[OrderID] IN (@orderIds1, @orderIds2, @orderIds3, @orderIds4, @orderIds5, @orderIds6, @orderIds7, @orderIds8, @orderIds9, @orderIds10)
 """);
     }
 
