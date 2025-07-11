@@ -14,31 +14,30 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public class QueryParameterExpression : Expression, IPrintableExpression
 {
     /// <summary>
-    ///     Creates a new instance of the <see cref="QueryRootExpression" /> class with associated query provider.
+    ///     Creates a new instance of the <see cref="QueryParameterExpression" /> class with associated query provider.
     /// </summary>
     public QueryParameterExpression(string name, Type type)
-        : this(name, type, shouldBeConstantized: false, shouldNotBeConstantized: false, isNonNullableReferenceType: false)
+        : this(name, type, parameterExpressionMode: null, isNonNullableReferenceType: false)
     {
     }
 
     /// <summary>
-    ///     Creates a new instance of the <see cref="QueryRootExpression" /> class with associated query provider.
+    ///     Creates a new instance of the <see cref="QueryParameterExpression" /> class with associated query provider.
     /// </summary>
-    public QueryParameterExpression(string name, Type type, bool shouldBeConstantized, bool shouldNotBeConstantized)
-        : this(name, type, shouldBeConstantized, shouldNotBeConstantized, isNonNullableReferenceType: false)
+    public QueryParameterExpression(string name, Type type, ParameterExpressionMode parameterExpressionMode)
+        : this(name, type, parameterExpressionMode, isNonNullableReferenceType: false)
     {
     }
 
     /// <summary>
-    ///     Creates a new instance of the <see cref="QueryRootExpression" /> class with associated query provider.
+    ///     Creates a new instance of the <see cref="QueryParameterExpression" /> class with associated query provider.
     /// </summary>
     [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
-    public QueryParameterExpression(string name, Type type, bool shouldBeConstantized, bool shouldNotBeConstantized, bool isNonNullableReferenceType)
+    public QueryParameterExpression(string name, Type type, ParameterExpressionMode? parameterExpressionMode, bool isNonNullableReferenceType)
     {
         Name = name;
         Type = type;
-        ShouldBeConstantized = shouldBeConstantized;
-        ShouldNotBeConstantized = shouldNotBeConstantized;
+        ParameterExpressionMode = parameterExpressionMode;
         IsNonNullableReferenceType = isNonNullableReferenceType;
     }
 
@@ -61,14 +60,9 @@ public class QueryParameterExpression : Expression, IPrintableExpression
     public virtual bool IsNonNullableReferenceType { get; }
 
     /// <summary>
-    ///     Whether the user has indicated that this query parameter should be inlined as a constant.
+    ///     How should the parameter be handled.
     /// </summary>
-    public virtual bool ShouldBeConstantized { get; }
-
-    /// <summary>
-    ///     Whether the user has indicated that this query parameter shouldn't be inlined as a constant.
-    /// </summary>
-    public virtual bool ShouldNotBeConstantized { get; }
+    public virtual ParameterExpressionMode? ParameterExpressionMode { get; }
 
     /// <inheritdoc />
     public override ExpressionType NodeType
@@ -92,11 +86,10 @@ public class QueryParameterExpression : Expression, IPrintableExpression
     private bool Equals(QueryParameterExpression queryParameterExpression)
         => Name == queryParameterExpression.Name
             && Type == queryParameterExpression.Type
-            && ShouldBeConstantized == queryParameterExpression.ShouldBeConstantized
-            && ShouldNotBeConstantized == queryParameterExpression.ShouldNotBeConstantized
+            && ParameterExpressionMode == queryParameterExpression.ParameterExpressionMode
             && IsNonNullableReferenceType == queryParameterExpression.IsNonNullableReferenceType;
 
     /// <inheritdoc />
     public override int GetHashCode()
-        => HashCode.Combine(Name, Type, ShouldBeConstantized, ShouldNotBeConstantized, IsNonNullableReferenceType);
+        => HashCode.Combine(Name, Type, ParameterExpressionMode, IsNonNullableReferenceType);
 }

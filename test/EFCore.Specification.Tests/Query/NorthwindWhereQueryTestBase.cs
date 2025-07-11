@@ -2082,7 +2082,7 @@ public abstract class NorthwindWhereQueryTestBase<TFixture>(TFixture fixture) : 
                 async,
                 ss => ss.Set<Customer>().Where(c => c.CustomerID == EF.Constant(c.CustomerID))));
 
-        Assert.Equal(CoreStrings.EFConstantWithNonEvaluatableArgument, exception.Message);
+        Assert.Equal(CoreStrings.EFMethodWithNonEvaluatableArgument("EF.Constant<T>"), exception.Message);
     }
 
     [ConditionalTheory]
@@ -2129,7 +2129,7 @@ public abstract class NorthwindWhereQueryTestBase<TFixture>(TFixture fixture) : 
                 async,
                 ss => ss.Set<Customer>().Where(c => c.CustomerID == EF.Parameter(c.CustomerID))));
 
-        Assert.Equal(CoreStrings.EFParameterWithNonEvaluatableArgument, exception.Message);
+        Assert.Equal(CoreStrings.EFMethodWithNonEvaluatableArgument("EF.Parameter<T>"), exception.Message);
     }
 
     private class EntityWithImplicitCast(int value)

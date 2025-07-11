@@ -244,7 +244,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             && methodCallExpression.Arguments[0] is ParameterQueryRootExpression parameterSource
             && TranslateExpression(methodCallExpression.Arguments[1]) is SqlExpression item
             && _sqlTranslator.Visit(parameterSource.QueryParameterExpression) is SqlParameterExpression sqlParameterExpression
-            && !parameterSource.QueryParameterExpression.ShouldNotBeConstantized)
+            && (parameterSource.QueryParameterExpression.ParameterExpressionMode is not ParameterExpressionMode.Parameter
+                && parameterSource.QueryParameterExpression.ParameterExpressionMode is not ParameterExpressionMode.MultipleParameters))
         {
             var inExpression = _sqlExpressionFactory.In(item, sqlParameterExpression);
             var selectExpression = new SelectExpression(inExpression, _sqlAliasManager);
@@ -298,11 +299,12 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
 
         var tableAlias = _sqlAliasManager.GenerateTableAlias(sqlParameterExpression.Name.TrimStart('_'));
 
-        var constants = queryParameter.ShouldBeConstantized
+        var constants = queryParameter.ParameterExpressionMode is ParameterExpressionMode.Constants
                 || (_parameterizedCollectionMode is ParameterizedCollectionMode.Constants
-                    && !queryParameter.ShouldNotBeConstantized);
-        var multipleParameters = _parameterizedCollectionMode is ParameterizedCollectionMode.MultipleParameters
-                && !queryParameter.ShouldNotBeConstantized;
+                    && queryParameter.ParameterExpressionMode is null);
+        var multipleParameters = queryParameter.ParameterExpressionMode is ParameterExpressionMode.MultipleParameters
+            || (_parameterizedCollectionMode is ParameterizedCollectionMode.MultipleParameters
+                && queryParameter.ParameterExpressionMode is null);
         if (constants || multipleParameters)
         {
             var valuesExpression = new ValuesExpression(

@@ -939,7 +939,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
 
                     if (!argumentState.IsEvaluatable)
                     {
-                        throw new InvalidOperationException(CoreStrings.EFConstantWithNonEvaluatableArgument);
+                        throw new InvalidOperationException(CoreStrings.EFMethodWithNonEvaluatableArgument("EF.Constant<T>"));
                     }
 
                     // Even EF.Constant will be parameter here.
@@ -956,7 +956,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
 
                     if (!argumentState.IsEvaluatable)
                     {
-                        throw new InvalidOperationException(CoreStrings.EFParameterWithNonEvaluatableArgument);
+                        throw new InvalidOperationException(CoreStrings.EFMethodWithNonEvaluatableArgument("EF.Parameter<T>"));
                     }
 
                     argumentState = argumentState with { StateType = StateType.EvaluatableWithCapturedVariable };
@@ -965,6 +965,22 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                     return Call(method, evaluatedArgument);
                 }
             }
+        }
+
+        // EF.MultipleParameters is defined in Relational, hence the hardcoded values here.
+        if (method.DeclaringType?.FullName == "Microsoft.EntityFrameworkCore.EFExtensions" && method.Name == "MultipleParameters")
+        {
+            var argument = Visit(methodCall.Arguments[0], out var argumentState);
+
+            if (!argumentState.IsEvaluatable)
+            {
+                throw new InvalidOperationException(CoreStrings.EFMethodWithNonEvaluatableArgument("EF.MultipleParameters<T>"));
+            }
+
+            argumentState = argumentState with { StateType = StateType.EvaluatableWithCapturedVariable };
+            var evaluatedArgument = ProcessEvaluatableRoot(argument, ref argumentState, forceEvaluation: true);
+            _state = argumentState;
+            return Call(method, evaluatedArgument);
         }
 
         // .NET 10 made changes to overload resolution to prefer Span-based overloads when those exist ("first-class spans").
@@ -1977,8 +1993,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
             return _parameterizedValues[evaluatableRoot] = new QueryParameterExpression(
                 parameterName,
                 evaluatableRoot.Type,
-                shouldBeConstantized: false,
-                shouldNotBeConstantized: false,
+                parameterExpressionMode: null,
                 isNonNullableReferenceType);
         }
 

@@ -2970,6 +2970,13 @@ WHERE [o].[OrderID] = @p
 """);
     }
 
+    public override async Task EF_MultipleParameters_with_non_evaluatable_argument_throws(bool async)
+    {
+        await base.EF_MultipleParameters_with_non_evaluatable_argument_throws(async);
+
+        AssertSql();
+    }
+
     #region Evaluation order of operators
 
     public override async Task Take_and_Where_evaluation_order(bool async)

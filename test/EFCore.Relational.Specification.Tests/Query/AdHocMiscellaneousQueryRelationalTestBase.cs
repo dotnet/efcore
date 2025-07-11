@@ -20,6 +20,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected void AssertSql(params string[] expected)
             => TestSqlLoggerFactory.AssertBaseline(expected);
 
+        protected abstract DbContextOptionsBuilder SetParameterizedCollectionMode(DbContextOptionsBuilder optionsBuilder, ParameterizedCollectionMode parameterizedCollectionMode);
+
         #region 2951
 
         [ConditionalFact]
@@ -267,8 +269,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         #endregion
 
         #region Inlined redacting
-
-        protected abstract DbContextOptionsBuilder SetParameterizedCollectionMode(DbContextOptionsBuilder optionsBuilder, ParameterizedCollectionMode parameterizedCollectionMode);
 
         [ConditionalTheory]
         [MemberData(nameof(InlinedRedactingData))]
