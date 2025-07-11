@@ -1,8 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata;
+using System.Collections;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
@@ -106,21 +105,23 @@ public abstract class SnapshotFactoryFactory
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected virtual Expression CreateSnapshotExpression(
-        Type? entityType,
+        Type? clrType,
         Expression? parameter,
         Type[] types,
         IList<IPropertyBase?> propertyBases)
     {
         var count = types.Length;
-
         var arguments = new Expression[count];
 
-        var entityVariable = entityType == null
+        var structuralTypeVariable = clrType == null
             ? null
-            : Expression.Variable(entityType, "entity");
+            : Expression.Variable(clrType, "structuralType");
 
-        Check.DebugAssert(entityVariable != null || count == 0,
+        Check.DebugAssert(structuralTypeVariable != null || count == 0,
             "If there are any properties then the entity parameter must be used");
+        var indicesExpression = parameter == null || !parameter.Type.IsAssignableTo(typeof(IInternalEntry))
+            ? (Expression)Expression.Property(null, typeof(ReadOnlySpan<int>), nameof(ReadOnlySpan<>.Empty))
+            : Expression.Call(parameter, PropertyAccessorsFactory.GetOrdinalsMethod);
 
         for (var i = 0; i < count; i++)
         {
@@ -135,10 +136,6 @@ public abstract class SnapshotFactoryFactory
 
                 case IProperty property:
                     arguments[i] = CreateSnapshotValueExpression(CreateReadValueExpression(parameter, property), property);
-                    continue;
-
-                case IComplexProperty complexProperty:
-                    arguments[i] = CreateSnapshotValueExpression(CreateReadValueExpression(parameter, complexProperty), complexProperty);
                     continue;
 
                 case var _ when propertyBase.IsShadowProperty():
@@ -156,20 +153,42 @@ public abstract class SnapshotFactoryFactory
             typeof(ISnapshot));
 
         Check.DebugAssert(
-            !UseEntityVariable || entityVariable == null || parameter != null,
+            !UseEntityVariable || structuralTypeVariable == null || parameter != null,
             "Parameter can only be null when not using entity variable.");
 
         return UseEntityVariable
-            && entityVariable != null
+            && structuralTypeVariable != null
                 ? Expression.Block(
-                    new List<ParameterExpression> { entityVariable },
+                    new List<ParameterExpression> { structuralTypeVariable },
                     new List<Expression>
                     {
                         Expression.Assign(
-                            entityVariable,
-                            Expression.Convert(
-                                Expression.Property(parameter!, nameof(IInternalEntry.Entity)),
-                                entityType!)),
+                            structuralTypeVariable,
+                            propertyBases[0]!.DeclaringType switch
+                            {
+                                IComplexType declaringComplexType when declaringComplexType.ComplexProperty.IsCollection
+                                    => PropertyAccessorsFactory.CreateComplexCollectionElementAccess(
+                                        declaringComplexType.ComplexProperty,
+                                        Expression.Convert(
+                                            Expression.Property(parameter!, nameof(IInternalEntry.Entity)),
+                                            declaringComplexType.ComplexProperty.DeclaringType.ContainingEntityType.ClrType),
+                                        indicesExpression,
+                                        fromDeclaringType: false,
+                                        fromEntity: true),
+                                { ContainingType: IComplexType collectionComplexType }
+                                    => PropertyAccessorsFactory.CreateComplexCollectionElementAccess(
+                                        collectionComplexType.ComplexProperty,
+                                        Expression.Convert(
+                                            Expression.Property(parameter!, nameof(IInternalEntry.Entity)),
+                                            collectionComplexType.ComplexProperty.DeclaringType.ContainingEntityType.ClrType),
+                                        indicesExpression,
+                                        fromDeclaringType: false,
+                                        fromEntity: true),
+                                _
+                                    => Expression.Convert(
+                                        Expression.Property(parameter!, nameof(IInternalEntry.Entity)),
+                                        structuralTypeVariable.Type)
+                            }),
                         constructorExpression
                     })
                 : constructorExpression;
@@ -181,15 +200,21 @@ public abstract class SnapshotFactoryFactory
         {
             if (propertyBase.IsCollection)
             {
-                if (expression.Type != typeof(System.Collections.IEnumerable))
-                {
-                    expression = Expression.Convert(expression, typeof(System.Collections.IEnumerable));
-                }
+                expression = propertyBase is IComplexProperty complexProperty
+                    ? Expression.Call(
+                        null,
+                        SnapshotComplexCollectionMethod,
 
-                expression = Expression.Call(
+                        expression.Type.IsAssignableTo(typeof(IList))
+                            ? expression
+                            : Expression.Convert(expression, typeof(IList)),
+                        Expression.Constant(complexProperty))
+                    : Expression.Call(
                         null,
                         SnapshotCollectionMethod,
-                        expression);
+                        expression.Type.IsAssignableTo(typeof(IEnumerable))
+                            ? expression
+                            : Expression.Convert(expression, typeof(IEnumerable)));
             }
             return expression;
         }
@@ -308,15 +333,38 @@ public abstract class SnapshotFactoryFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static HashSet<object>? SnapshotCollection(System.Collections.IEnumerable? collection)
+    public static HashSet<object>? SnapshotCollection(IEnumerable? collection)
     {
         if (collection is null)
         {
             return null;
         }
-
         var snapshot = new HashSet<object>(ReferenceEqualityComparer.Instance);
         foreach (var item in collection)
+        {
+            snapshot.Add(item);
+        }
+        return snapshot;
+    }
+
+    private static readonly MethodInfo SnapshotComplexCollectionMethod
+        = typeof(SnapshotFactoryFactory).GetTypeInfo().GetDeclaredMethod(nameof(SnapshotComplexCollection))!;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static IList? SnapshotComplexCollection(IList? list, IRuntimeComplexProperty complexProperty)
+    {
+        if (list == null)
+        {
+            return null;
+        }
+
+        var snapshot = (IList)complexProperty.GetIndexedCollectionAccessor().Create(list.Count);
+        foreach (var item in list)
         {
             snapshot.Add(item);
         }

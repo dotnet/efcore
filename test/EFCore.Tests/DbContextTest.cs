@@ -272,6 +272,9 @@ public partial class DbContextTest
         public void ResetState()
         {
         }
+
+        public void DetectChanges(InternalComplexEntry entry) => throw new NotImplementedException();
+        public bool DetectComplexCollectionChanges(InternalEntryBase entry, IComplexProperty complexProperty) => throw new NotImplementedException();
     }
 
     [ConditionalTheory]

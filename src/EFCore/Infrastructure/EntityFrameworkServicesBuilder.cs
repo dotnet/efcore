@@ -66,7 +66,7 @@ public class EntityFrameworkServicesBuilder
             { typeof(IModelCacheKeyFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
             { typeof(IModelSource), new ServiceCharacteristics(ServiceLifetime.Singleton) },
             { typeof(IModelRuntimeInitializer), new ServiceCharacteristics(ServiceLifetime.Singleton) },
-            { typeof(IInternalEntityEntrySubscriber), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+            { typeof(IInternalEntrySubscriber), new ServiceCharacteristics(ServiceLifetime.Singleton) },
             { typeof(IEntityEntryGraphIterator), new ServiceCharacteristics(ServiceLifetime.Singleton) },
             { typeof(IValueGeneratorCache), new ServiceCharacteristics(ServiceLifetime.Singleton) },
             { typeof(ISingletonOptionsInitializer), new ServiceCharacteristics(ServiceLifetime.Singleton) },
@@ -248,7 +248,7 @@ public class EntityFrameworkServicesBuilder
         TryAdd<ILoggerFactory>(p => ScopedLoggerFactory.Create(p, null));
         TryAdd<IModelSource, ModelSource>();
         TryAdd<IModelRuntimeInitializer, ModelRuntimeInitializer>();
-        TryAdd<IInternalEntityEntrySubscriber, InternalEntityEntrySubscriber>();
+        TryAdd<IInternalEntrySubscriber, InternalEntrySubscriber>();
         TryAdd<IEntityEntryGraphIterator, EntityEntryGraphIterator>();
         TryAdd<IEntityGraphAttacher, EntityGraphAttacher>();
         TryAdd<IValueGeneratorCache, ValueGeneratorCache>();

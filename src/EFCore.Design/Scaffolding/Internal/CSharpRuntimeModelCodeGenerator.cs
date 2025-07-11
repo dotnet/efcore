@@ -1497,49 +1497,62 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         var variableName = parameters.TargetName;
         var mainBuilder = parameters.MainBuilder;
         var unsafeAccessors = new HashSet<string>();
-        var isOnComplexCollection = property.DeclaringType is IReadOnlyComplexType complexType && complexType.ComplexProperty.IsCollection;
 
         if (!property.IsShadowProperty()
-            && !isOnComplexCollection
             && property is not IServiceProperty) // Service properties don't use property accessors
         {
             ClrPropertyGetterFactory.Instance.Create(
                 property,
-                out var getterExpression,
-                out var hasSentinelExpression,
-                out var structuralGetterExpression,
-                out var hasStructuralSentinelExpression);
+                out var getClrValueUsingContainingEntityExpression,
+                out var hasSentinelValueUsingContainingEntityExpression,
+                out var getClrValueExpression,
+                out var hasSentinelValueExpression);
 
             mainBuilder
                 .Append(variableName).AppendLine(".SetGetter(")
-                .IncrementIndent()
+                .IncrementIndent();
+            if (property.DeclaringType is not IEntityType)
+            {
+                mainBuilder
+                    .AppendLines(
+                        _code.Expression(
+                            getClrValueUsingContainingEntityExpression, parameters.Namespaces, unsafeAccessors,
+                            (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements), skipFinalNewline: true)
+                    .AppendLine(",")
+                    .AppendLines(
+                        _code.Expression(
+                            hasSentinelValueUsingContainingEntityExpression, parameters.Namespaces, unsafeAccessors,
+                            (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements), skipFinalNewline: true)
+                    .AppendLine(",");
+            }
+            mainBuilder
                 .AppendLines(
                     _code.Expression(
-                        getterExpression, parameters.Namespaces, unsafeAccessors,
+                        getClrValueExpression, parameters.Namespaces, unsafeAccessors,
                         (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements), skipFinalNewline: true)
                 .AppendLine(",")
                 .AppendLines(
                     _code.Expression(
-                        hasSentinelExpression, parameters.Namespaces, unsafeAccessors,
-                        (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements), skipFinalNewline: true)
-                .AppendLine(",")
-                .AppendLines(
-                    _code.Expression(
-                        structuralGetterExpression, parameters.Namespaces, unsafeAccessors,
-                        (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements), skipFinalNewline: true)
-                .AppendLine(",")
-                .AppendLines(
-                    _code.Expression(
-                        hasStructuralSentinelExpression, parameters.Namespaces, unsafeAccessors,
+                        hasSentinelValueExpression, parameters.Namespaces, unsafeAccessors,
                         (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements), skipFinalNewline: true)
                 .AppendLine(");")
                 .DecrementIndent();
 
-            ClrPropertySetterFactory.Instance.Create(property, out var setterExpression);
+            ClrPropertySetterFactory.Instance.Create(property, out var setterUsingContainingEntityExpression, out var setterExpression);
 
             mainBuilder
                 .Append(variableName).AppendLine(".SetSetter(")
-                .IncrementIndent()
+                .IncrementIndent();
+            if (property.DeclaringType is not IEntityType)
+            {
+                mainBuilder
+                    .AppendLines(
+                        _code.Expression(
+                            setterUsingContainingEntityExpression, parameters.Namespaces, unsafeAccessors,
+                            (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements), skipFinalNewline: true)
+                    .AppendLine(",");
+            }
+            mainBuilder
                 .AppendLines(
                     _code.Expression(
                         setterExpression, parameters.Namespaces, unsafeAccessors,
@@ -1547,21 +1560,64 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 .AppendLine(");")
                 .DecrementIndent();
 
-            ClrPropertyMaterializationSetterFactory.Instance.Create(property, out var materializationSetterExpression);
+            ClrPropertyMaterializationSetterFactory.Instance.Create(property, out var materializationSetterUsingContainingEntityExpression, out var materializationSetterExpression);
 
             mainBuilder
                 .Append(variableName).AppendLine(".SetMaterializationSetter(")
-                .IncrementIndent()
+                .IncrementIndent();
+            if (property.DeclaringType is not IEntityType)
+            {
+                mainBuilder
+                    .AppendLines(
+                        _code.Expression(
+                            materializationSetterUsingContainingEntityExpression, parameters.Namespaces, unsafeAccessors,
+                            (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements), skipFinalNewline: true)
+                    .AppendLine(",");
+            }
+            mainBuilder
                 .AppendLines(
                     _code.Expression(
                         materializationSetterExpression, parameters.Namespaces, unsafeAccessors,
                         (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements), skipFinalNewline: true)
                 .AppendLine(");")
                 .DecrementIndent();
+
+            if (property.IsCollection
+                && property is IComplexProperty)
+            {
+                ClrIndexedCollectionAccessorFactory.Instance.Create(
+                    property,
+                    out _, out _, out _,
+                    out var get, out var set, out var setForMaterialization, out var createCollection);
+
+                mainBuilder
+                    .Append(variableName).AppendLine(".SetIndexedCollectionAccessor(")
+                    .IncrementIndent()
+                    .AppendLines(
+                        _code.Expression(
+                            get!, parameters.Namespaces, unsafeAccessors,
+                            (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements), skipFinalNewline: true)
+                    .AppendLine(",")
+                    .AppendLines(
+                        _code.Expression(
+                            set!, parameters.Namespaces, unsafeAccessors,
+                            (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements), skipFinalNewline: true)
+                    .AppendLine(",")
+                    .AppendLines(
+                        _code.Expression(
+                            setForMaterialization!, parameters.Namespaces, unsafeAccessors,
+                            (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements), skipFinalNewline: true)
+                    .AppendLine(",")
+                    .AppendLines(
+                        _code.Expression(
+                            createCollection!, parameters.Namespaces, unsafeAccessors,
+                            (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements), skipFinalNewline: true)
+                    .AppendLine(");")
+                    .DecrementIndent();
+            }
         }
 
-        if (property is not IServiceProperty
-            && !isOnComplexCollection)
+        if (property is not IServiceProperty)
         {
             PropertyAccessorsFactory.Instance.Create(
                 property,
@@ -2967,7 +3023,8 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             annotatable,
             parameters with
             {
-                Annotations = annotatable.GetRuntimeAnnotations().ToDictionary(a => a.Name, a => a.Value), IsRuntime = true
+                Annotations = annotatable.GetRuntimeAnnotations().ToDictionary(a => a.Name, a => a.Value),
+                IsRuntime = true
             });
     }
 

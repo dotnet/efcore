@@ -7,7 +7,6 @@ using Identity30.Data;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.AspNetIdentity;
-using Newtonsoft.Json.Linq;
 using static Microsoft.EntityFrameworkCore.Migrations.MigrationsInfrastructureFixtureBase;
 
 // ReSharper disable InconsistentNaming

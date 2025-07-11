@@ -4,7 +4,6 @@
 using System.Collections;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 // ReSharper disable UnusedMember.Global
 // ReSharper disable InconsistentNaming

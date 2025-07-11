@@ -3,8 +3,6 @@
 
 // ReSharper disable once CheckNamespace
 
-using System.Diagnostics.CodeAnalysis;
-
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
 /// <summary>
