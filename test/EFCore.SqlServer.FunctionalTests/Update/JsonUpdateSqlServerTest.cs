@@ -2535,6 +2535,46 @@ WHERE [j].[Id] = 7624
     public override Task Edit_single_property_collection_of_collection_of_single()
         => Assert.ThrowsAsync<ArgumentOutOfRangeException>(base.Edit_single_property_collection_of_collection_of_single);
 
+    public override async Task Edit_single_property_with_chinese_characters()
+    {
+        await base.Edit_single_property_with_chinese_characters();
+
+        AssertSql(
+            """
+@p0='{"Name":"Root","Number":7,"OwnedCollectionBranch":[],"OwnedReferenceBranch":{"Date":"2101-01-01T00:00:00","Enum":2,"Enums":[-1,-1,2],"Fraction":10.1,"Id":10,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_r_r_c1"},{"SomethingSomething":"e1_r_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"测试1"}}}' (Nullable = false) (Size = 386)
+@p1='1'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = @p0
+OUTPUT 1
+WHERE [Id] = @p1;
+""",
+            //
+            """
+SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
+WHERE [j].[Id] = 1
+""",
+            //
+            """
+@p0='{"Name":"Root","Number":7,"OwnedCollectionBranch":[],"OwnedReferenceBranch":{"Date":"2101-01-01T00:00:00","Enum":2,"Enums":[-1,-1,2],"Fraction":10.1,"Id":10,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_r_r_c1"},{"SomethingSomething":"e1_r_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"测试2"}}}' (Nullable = false) (Size = 386)
+@p1='1'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = @p0
+OUTPUT 1
+WHERE [Id] = @p1;
+""",
+            //
+            """
+SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
+WHERE [j].[Id] = 1
+""");
+    }
+
     protected override void ClearLog()
         => Fixture.TestSqlLoggerFactory.Clear();
 
