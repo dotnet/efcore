@@ -366,6 +366,7 @@ public abstract class SnapshotFactoryFactory
         var snapshot = (IList)complexProperty.GetIndexedCollectionAccessor().Create(list.Count);
         foreach (var item in list)
         {
+            // We need to preserve the original reference, these are only used to find moved items, not modified properties on them
             snapshot.Add(item);
         }
         return snapshot;

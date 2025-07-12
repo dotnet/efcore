@@ -453,4 +453,22 @@ public interface IReadOnlyTypeBase : IReadOnlyAnnotatable
     /// </summary>
     /// <returns>The <see cref="PropertyInfo" /> for the indexer on the associated CLR type if one exists.</returns>
     PropertyInfo? FindIndexerPropertyInfo();
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    Func<MaterializationContext, object> GetOrCreateMaterializer(IEntityMaterializerSource source);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    Func<MaterializationContext, object> GetOrCreateEmptyMaterializer(IEntityMaterializerSource source);
 }

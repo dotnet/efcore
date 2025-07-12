@@ -54,6 +54,20 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => GetString("CanConnectNotSupported");
 
         /// <summary>
+        ///     Complex projections in subqueries are currently unsupported.
+        /// </summary>
+        public static string ComplexProjectionInSubqueryNotSupported
+            => GetString("ComplexProjectionInSubqueryNotSupported");
+
+        /// <summary>
+        ///     Complex type collections are currently not supported in Cosmos. Consider using owned type collections. Complex type: '{complexType}', property: '{property}'. See https://github.com/dotnet/efcore/issues/31253 for more details.
+        /// </summary>
+        public static string ComplexTypeCollectionsNotSupported(object? complexType, object? property)
+            => string.Format(
+                GetString("ComplexTypeCollectionsNotSupported", nameof(complexType), nameof(property)),
+                complexType, property);
+
+        /// <summary>
         ///     A full-text index on '{entityType}' is defined over multiple properties (`{properties}`). A full-text index can only target a single property.
         /// </summary>
         public static string CompositeFullTextIndex(object? entityType, object? properties)
@@ -68,12 +82,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => string.Format(
                 GetString("CompositeVectorIndex", nameof(entityType), nameof(properties)),
                 entityType, properties);
-
-        /// <summary>
-        ///     Complex projections in subqueries are currently unsupported.
-        /// </summary>
-        public static string ComplexProjectionInSubqueryNotSupported
-            => GetString("ComplexProjectionInSubqueryNotSupported");
 
         /// <summary>
         ///     None of connection string, CredentialToken, account key or account endpoint were specified. Specify a set of connection details.
@@ -438,14 +446,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 propertyType, entityType, property, valueType);
 
         /// <summary>
-        ///     A partition key is defined on entity type '{entityType}', which inherits from '{baseEntityType}'. Partition keys must be defined on the root entity type of a hierarchy.
-        /// </summary>
-        public static string PartitionKeyNotOnRoot(object? entityType, object? baseEntityType)
-            => string.Format(
-                GetString("PartitionKeyNotOnRoot", nameof(entityType), nameof(baseEntityType)),
-                entityType, baseEntityType);
-
-        /// <summary>
         ///     Unable to execute a 'ReadItem' query since the partition key value is missing. Consider using the 'WithPartitionKey' method on the query to specify partition key to use.
         /// </summary>
         public static string PartitionKeyMissing
@@ -458,6 +458,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => string.Format(
                 GetString("PartitionKeyMissingProperty", nameof(entityType), nameof(property)),
                 entityType, property);
+
+        /// <summary>
+        ///     A partition key is defined on entity type '{entityType}', which inherits from '{baseEntityType}'. Partition keys must be defined on the root entity type of a hierarchy.
+        /// </summary>
+        public static string PartitionKeyNotOnRoot(object? entityType, object? baseEntityType)
+            => string.Format(
+                GetString("PartitionKeyNotOnRoot", nameof(entityType), nameof(baseEntityType)),
+                entityType, baseEntityType);
 
         /// <summary>
         ///     The partition key property '{property1}' on '{entityType1}' is mapped as '{storeName1}', but the partition key property '{property2}' on '{entityType2}' is mapped as '{storeName2}'. All partition key properties need to be mapped to the same store property for entity types mapped to the same container.
@@ -480,6 +488,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => GetString("ReverseAfterSkipTakeNotSupported");
 
         /// <summary>
+        ///     SingleOrDefault and FirstOrDefault cannot be used Cosmos SQL does not allow Offset without Limit. Consider specifying a 'Take' operation on the query.
+        /// </summary>
+        public static string SingleFirstOrDefaultNotSupportedOnNonNullableQueries
+            => GetString("SingleFirstOrDefaultNotSupportedOnNonNullableQueries");
+
+        /// <summary>
         ///     The provisioned throughput was configured to '{throughput1}' on '{entityType1}', but on '{entityType2}' it was configured to '{throughput2}'. All entity types mapped to the same container '{container}' must be configured with the same provisioned throughput.
         /// </summary>
         public static string ThroughputMismatch(object? throughput1, object? entityType1, object? entityType2, object? throughput2, object? container)
@@ -488,18 +502,18 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 throughput1, entityType1, entityType2, throughput2, container);
 
         /// <summary>
-        ///     'ToPageAsync' can only be used as the terminating operator of the top-level query.
-        /// </summary>
-        public static string ToPageAsyncAtTopLevelOnly
-            => GetString("ToPageAsyncAtTopLevelOnly");
-
-        /// <summary>
         ///     The provisioned throughput was configured as manual on '{manualEntityType}', but on '{autoscaleEntityType}' it was configured as autoscale. All entity types mapped to the same container '{container}' must be configured with the same provisioned throughput type.
         /// </summary>
         public static string ThroughputTypeMismatch(object? manualEntityType, object? autoscaleEntityType, object? container)
             => string.Format(
                 GetString("ThroughputTypeMismatch", nameof(manualEntityType), nameof(autoscaleEntityType), nameof(container)),
                 manualEntityType, autoscaleEntityType, container);
+
+        /// <summary>
+        ///     'ToPageAsync' can only be used as the terminating operator of the top-level query.
+        /// </summary>
+        public static string ToPageAsyncAtTopLevelOnly
+            => GetString("ToPageAsyncAtTopLevelOnly");
 
         /// <summary>
         ///     The Cosmos database provider does not support transactions.

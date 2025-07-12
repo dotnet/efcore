@@ -255,7 +255,8 @@ public sealed class InternalComplexEntry : InternalEntryBase
     /// </summary>
     public override void AcceptChanges()
     {
-        if (EntityState == EntityState.Added)
+        if (EntityState == EntityState.Added
+            || ContainingEntry.GetComplexCollectionEntry(ComplexProperty, Ordinal) == this)
         {
             OriginalOrdinal = Ordinal;
         }

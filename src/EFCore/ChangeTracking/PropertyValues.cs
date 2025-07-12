@@ -1,8 +1,10 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections;
 using System.ComponentModel;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 
@@ -31,7 +33,7 @@ public abstract class PropertyValues
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    protected PropertyValues(InternalEntityEntry internalEntry)
+    protected PropertyValues(InternalEntryBase internalEntry)
         => InternalEntry = internalEntry;
 
     /// <summary>
@@ -41,7 +43,7 @@ public abstract class PropertyValues
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    protected virtual InternalEntityEntry InternalEntry { [DebuggerStepThrough] get; }
+    protected virtual InternalEntryBase InternalEntry { [DebuggerStepThrough] get; }
 
     /// <summary>
     ///     Creates an instance of the entity type and sets all its properties using the
@@ -114,18 +116,7 @@ public abstract class PropertyValues
     ///     </para>
     /// </remarks>
     /// <param name="values">The dictionary to read values from.</param>
-    public virtual void SetValues<TProperty>(IDictionary<string, TProperty> values)
-    {
-        Check.NotNull(values);
-
-        foreach (var property in Properties)
-        {
-            if (values.TryGetValue(property.Name, out var value))
-            {
-                this[property] = value;
-            }
-        }
-    }
+    public abstract void SetValues<TProperty>(IDictionary<string, TProperty> values);
 
     /// <summary>
     ///     Gets the properties for which this object is storing values.
@@ -138,12 +129,22 @@ public abstract class PropertyValues
     public abstract IReadOnlyList<IProperty> Properties { get; }
 
     /// <summary>
-    ///     Gets the underlying entity type for which this object is storing values.
+    ///     Gets the complex type collection for which this object is storing values.
     /// </summary>
-    public virtual IEntityType EntityType
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+    ///     examples.
+    /// </remarks>
+    /// <value> The complex type collections. </value>
+    public abstract IReadOnlyList<IComplexProperty> ComplexCollectionProperties { get; }
+
+    /// <summary>
+    ///     Gets the underlying structural type for which this object is storing values.
+    /// </summary>
+    public virtual ITypeBase StructuralType
     {
         [DebuggerStepThrough]
-        get => InternalEntry.EntityType;
+        get => InternalEntry.StructuralType;
     }
 
     /// <summary>
@@ -159,6 +160,30 @@ public abstract class PropertyValues
     /// <param name="property">The property.</param>
     /// <returns>The value of the property.</returns>
     public abstract object? this[IProperty property] { get; set; }
+
+    /// <summary>
+    ///     Gets or sets the value of the complex collection.
+    /// </summary>
+    /// <param name="complexProperty">The complex collection property.</param>
+    /// <returns>A list of complex objects, not PropertyValues.</returns>
+    public abstract IList? this[IComplexProperty complexProperty] { get; set; }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    internal virtual IComplexProperty CheckCollection(IComplexProperty complexProperty)
+    {
+        Check.NotNull(complexProperty);
+
+        return !complexProperty.IsCollection
+            ? throw new InvalidOperationException(
+                $"The complex property '{complexProperty.Name}' on '{StructuralType.DisplayName()}' is not a collection. Only complex collection properties can be used with this indexer.")
+            : StructuralType.CheckContains(complexProperty);
+    }
 
     /// <summary>
     ///     Gets the value of the property just like using the indexed property getter but
