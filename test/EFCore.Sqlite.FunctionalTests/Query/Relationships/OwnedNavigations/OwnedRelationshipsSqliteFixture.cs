@@ -3,13 +3,10 @@
 
 namespace Microsoft.EntityFrameworkCore.Query.Relationships.OwnedNavigations;
 
-public class OwnedNavigationsSqliteFixture : OwnedNavigationsRelationalFixtureBase, ITestSqlLoggerFactory
+public class OwnedNavigationsSqliteFixture : OwnedNavigationsRelationalFixtureBase
 {
     protected override ITestStoreFactory TestStoreFactory
         => SqliteTestStoreFactory.Instance;
-
-    public TestSqlLoggerFactory TestSqlLoggerFactory
-        => (TestSqlLoggerFactory)ListLoggerFactory;
 
     public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
         => base.AddOptions(builder.ConfigureWarnings(b => b.Ignore(SqliteEventId.CompositeKeyWithValueGeneration)));

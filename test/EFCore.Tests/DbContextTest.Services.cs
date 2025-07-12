@@ -829,11 +829,11 @@ namespace Microsoft.EntityFrameworkCore
         {
             var provider = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
-                .AddSingleton<IEntityMaterializerSource, FakeEntityMaterializerSource>()
+                .AddSingleton<IStructuralTypeMaterializerSource, FakeEntityMaterializerSource>()
                 .BuildServiceProvider(validateScopes: true);
 
             using var context = new EarlyLearningCenter(provider);
-            Assert.IsType<FakeEntityMaterializerSource>(context.GetService<IEntityMaterializerSource>());
+            Assert.IsType<FakeEntityMaterializerSource>(context.GetService<IStructuralTypeMaterializerSource>());
         }
 
         [ComplexType]

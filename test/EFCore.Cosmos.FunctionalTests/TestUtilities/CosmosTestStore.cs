@@ -409,7 +409,7 @@ public class CosmosTestStore : TestStore
 
             // TODO: see issue #35854
             // once Azure.ResourceManager.CosmosDB package supports vectors and FTS, those need to be added here
-            
+
             await database.Value.GetCosmosDBSqlContainers().CreateOrUpdateAsync(
                 WaitUntil.Completed, container.Id, content).ConfigureAwait(false);
         }
@@ -850,10 +850,10 @@ public class CosmosTestStore : TestStore
         public IEnumerable<IServiceProperty> GetServiceProperties()
             => throw new NotImplementedException();
 
-        public Func<MaterializationContext, object> GetOrCreateMaterializer(IEntityMaterializerSource source)
+        public Func<MaterializationContext, object> GetOrCreateMaterializer(IStructuralTypeMaterializerSource source)
             => throw new NotImplementedException();
 
-        public Func<MaterializationContext, object> GetOrCreateEmptyMaterializer(IEntityMaterializerSource source)
+        public Func<MaterializationContext, object> GetOrCreateEmptyMaterializer(IStructuralTypeMaterializerSource source)
             => throw new NotImplementedException();
 
         public IEnumerable<ISkipNavigation> GetSkipNavigations()

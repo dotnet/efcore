@@ -13,42 +13,33 @@ namespace Microsoft.EntityFrameworkCore.Query;
 ///         not used in application code.
 ///     </para>
 /// </summary>
-public class CollectionResultExpression : Expression, IPrintableExpression
+/// <param name="queryExpression">Represents the server-side query expression for the collection.</param>
+/// <param name="relationship">A navigation associated with this collection, if any.</param>
+/// <param name="elementType">The clr type of individual elements in the collection.</param>
+public class CollectionResultExpression(
+    Expression queryExpression,
+    IPropertyBase? relationship,
+    Type elementType)
+    : Expression, IPrintableExpression
 {
-    /// <summary>
-    ///     Creates a new instance of the <see cref="CollectionResultExpression" /> class.
-    /// </summary>
-    /// <param name="projectionBindingExpression">An expression representing how to get the subquery from SelectExpression to get the elements.</param>
-    /// <param name="navigation">A navigation associated with this collection, if any.</param>
-    /// <param name="elementType">The clr type of individual elements in the collection.</param>
-    public CollectionResultExpression(
-        ProjectionBindingExpression projectionBindingExpression,
-        INavigationBase? navigation,
-        Type elementType)
-    {
-        ProjectionBindingExpression = projectionBindingExpression;
-        Navigation = navigation;
-        ElementType = elementType;
-    }
-
     /// <summary>
     ///     The expression to get the subquery for this collection.
     /// </summary>
-    public virtual ProjectionBindingExpression ProjectionBindingExpression { get; }
+    public virtual Expression QueryExpression { get; } = queryExpression;
 
     /// <summary>
-    ///     The navigation if associated with the collection.
+    ///     The relationship associated with the collection, if any.
     /// </summary>
-    public virtual INavigationBase? Navigation { get; }
+    public virtual IPropertyBase? Relationship { get; } = relationship;
 
     /// <summary>
     ///     The clr type of elements of the collection.
     /// </summary>
-    public virtual Type ElementType { get; }
+    public virtual Type ElementType { get; } = elementType;
 
     /// <inheritdoc />
     public override Type Type
-        => ProjectionBindingExpression.Type;
+        => QueryExpression.Type;
 
     /// <inheritdoc />
     public override ExpressionType NodeType
@@ -56,22 +47,18 @@ public class CollectionResultExpression : Expression, IPrintableExpression
 
     /// <inheritdoc />
     protected override Expression VisitChildren(ExpressionVisitor visitor)
-    {
-        var projectionBindingExpression = (ProjectionBindingExpression)visitor.Visit(ProjectionBindingExpression);
-
-        return Update(projectionBindingExpression);
-    }
+        => Update(visitor.Visit(QueryExpression));
 
     /// <summary>
     ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
     ///     return this expression.
     /// </summary>
-    /// <param name="projectionBindingExpression">The <see cref="ProjectionBindingExpression" /> property of the result.</param>
+    /// <param name="queryExpression">The <see cref="ProjectionBindingExpression" /> property of the result.</param>
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
-    public virtual CollectionResultExpression Update(ProjectionBindingExpression projectionBindingExpression)
-        => projectionBindingExpression != ProjectionBindingExpression
-            ? new CollectionResultExpression(projectionBindingExpression, Navigation, ElementType)
-            : this;
+    public virtual CollectionResultExpression Update(Expression queryExpression)
+        => queryExpression == QueryExpression
+            ? this
+            : new CollectionResultExpression(queryExpression, Relationship, ElementType);
 
     /// <inheritdoc />
     public virtual void Print(ExpressionPrinter expressionPrinter)
@@ -79,15 +66,28 @@ public class CollectionResultExpression : Expression, IPrintableExpression
         expressionPrinter.AppendLine("CollectionResultExpression:");
         using (expressionPrinter.Indent())
         {
-            expressionPrinter.Append("ProjectionBindingExpression:");
-            expressionPrinter.Visit(ProjectionBindingExpression);
+            expressionPrinter.Append("QueryExpression:");
+            expressionPrinter.Visit(QueryExpression);
             expressionPrinter.AppendLine();
-            if (Navigation != null)
+
+            if (Relationship is not null)
             {
-                expressionPrinter.Append("Navigation:").AppendLine(Navigation.ToString()!);
+                expressionPrinter.Append("Relationship:").AppendLine(Relationship.ToString()!);
             }
 
             expressionPrinter.Append("ElementType:").AppendLine(ElementType.ShortDisplayName());
         }
     }
+
+    /// <summary>
+    ///     The expression to get the subquery for this collection.
+    /// </summary>
+    [Obsolete("Use QueryExpression instead.", error: true)]
+    public virtual ProjectionBindingExpression ProjectionBindingExpression { get; } = null!;
+
+    /// <summary>
+    ///     The navigation if associated with the collection.
+    /// </summary>
+    [Obsolete("Use Relationship instead.", error: true)]
+    public virtual INavigationBase? Navigation { get; }
 }

@@ -59,7 +59,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
         }
 
         shaperBody = new JObjectInjectingExpressionVisitor().Visit(shaperBody);
-        shaperBody = InjectEntityMaterializers(shaperBody);
+        shaperBody = InjectStructuralTypeMaterializers(shaperBody);
 
         if (shapedQueryExpression.QueryExpression is not SelectExpression selectExpression)
         {

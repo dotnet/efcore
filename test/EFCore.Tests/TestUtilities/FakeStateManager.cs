@@ -164,7 +164,7 @@ public class FakeStateManager : IStateManager
     public IValueGenerationManager ValueGenerationManager
         => throw new NotImplementedException();
 
-    public IEntityMaterializerSource EntityMaterializerSource { get; }
+    public IStructuralTypeMaterializerSource EntityMaterializerSource { get; }
 
     public InternalEntityEntry StartTracking(InternalEntityEntry entry)
         => throw new NotImplementedException();

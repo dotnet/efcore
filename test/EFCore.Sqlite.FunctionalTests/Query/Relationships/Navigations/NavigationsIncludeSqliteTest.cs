@@ -3,13 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore.Query.Relationships.Navigations;
 
-public class NavigationsIncludeSqliteTest
-    : NavigationsIncludeRelationalTestBase<NavigationsSqliteFixture>
+public class NavigationsIncludeSqliteTest(NavigationsSqliteFixture fixture, ITestOutputHelper testOutputHelper)
+    : NavigationsIncludeRelationalTestBase<NavigationsSqliteFixture>(fixture, testOutputHelper)
 {
-    public NavigationsIncludeSqliteTest(NavigationsSqliteFixture fixture, ITestOutputHelper testOutputHelper)
-        : base(fixture)
-    {
-        Fixture.TestSqlLoggerFactory.Clear();
-        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
-    }
 }

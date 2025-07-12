@@ -49,7 +49,7 @@ public abstract class MaterializationInterceptionTestBase<TContext>(NonSharedFix
 
         using var context = await CreateContext(interceptors, inject, usePooling);
 
-        var materializer = context.GetService<IEntityMaterializerSource>();
+        var materializer = context.GetService<IStructuralTypeMaterializerSource>();
         var book = (Book)materializer.GetEmptyMaterializer(context.Model.FindEntityType(typeof(Book))!)(
             new MaterializationContext(ValueBuffer.Empty, context));
 

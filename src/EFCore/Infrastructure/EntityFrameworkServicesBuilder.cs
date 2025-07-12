@@ -60,7 +60,7 @@ public class EntityFrameworkServicesBuilder
             { typeof(IDbSetInitializer), new ServiceCharacteristics(ServiceLifetime.Singleton) },
             { typeof(IDbSetSource), new ServiceCharacteristics(ServiceLifetime.Singleton) },
             { typeof(IEntityFinderSource), new ServiceCharacteristics(ServiceLifetime.Singleton) },
-            { typeof(IEntityMaterializerSource), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+            { typeof(IStructuralTypeMaterializerSource), new ServiceCharacteristics(ServiceLifetime.Singleton) },
             { typeof(ITypeMappingSource), new ServiceCharacteristics(ServiceLifetime.Singleton) },
             { typeof(IModelCustomizer), new ServiceCharacteristics(ServiceLifetime.Singleton) },
             { typeof(IModelCacheKeyFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
@@ -240,7 +240,7 @@ public class EntityFrameworkServicesBuilder
         TryAdd<IDbSetInitializer, DbSetInitializer>();
         TryAdd<IDbSetSource, DbSetSource>();
         TryAdd<IEntityFinderSource, EntityFinderSource>();
-        TryAdd<IEntityMaterializerSource, EntityMaterializerSource>();
+        TryAdd<IStructuralTypeMaterializerSource, EntityMaterializerSource>();
         TryAdd<IProviderConventionSetBuilder, ProviderConventionSetBuilder>();
         TryAdd<IConventionSetBuilder, RuntimeConventionSetBuilder>();
         TryAdd<IModelCustomizer, ModelCustomizer>();
