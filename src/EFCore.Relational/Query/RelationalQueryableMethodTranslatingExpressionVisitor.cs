@@ -299,27 +299,32 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
 
         var tableAlias = _sqlAliasManager.GenerateTableAlias(sqlParameterExpression.Name.TrimStart('_'));
 
-        var constants = queryParameter.ParameterExpressionMode is ParameterExpressionMode.Constants
-                || (_parameterizedCollectionMode is ParameterizedCollectionMode.Constants
-                    && queryParameter.ParameterExpressionMode is null);
-        var multipleParameters = queryParameter.ParameterExpressionMode is ParameterExpressionMode.MultipleParameters
-            || (_parameterizedCollectionMode is ParameterizedCollectionMode.MultipleParameters
-                && queryParameter.ParameterExpressionMode is null);
-        if (constants || multipleParameters)
+        var parameterMode = queryParameter.ParameterExpressionMode
+            ?? _parameterizedCollectionMode switch
+            {
+                ParameterizedCollectionMode.MultipleParameters => ParameterExpressionMode.MultipleParameters,
+                ParameterizedCollectionMode.Constants => ParameterExpressionMode.Constants,
+                ParameterizedCollectionMode.Parameter => ParameterExpressionMode.Parameter,
+                _ => throw new UnreachableException()
+            };
+        return parameterMode switch
         {
-            var valuesExpression = new ValuesExpression(
-                tableAlias,
-                sqlParameterExpression,
-                [ValuesOrderingColumnName, ValuesValueColumnName]);
-            return CreateShapedQueryExpressionForValuesExpression(
-                valuesExpression,
-                tableAlias,
-                parameterQueryRootExpression.ElementType,
-                sqlParameterExpression.TypeMapping,
-                sqlParameterExpression.IsNullable);
-        }
+            ParameterExpressionMode.Constants or ParameterExpressionMode.MultipleParameters
+                => CreateShapedQueryExpressionForValuesExpression(
+                    new ValuesExpression(
+                        tableAlias,
+                        sqlParameterExpression,
+                        [ValuesOrderingColumnName, ValuesValueColumnName]),
+                    tableAlias,
+                    parameterQueryRootExpression.ElementType,
+                    sqlParameterExpression.TypeMapping,
+                    sqlParameterExpression.IsNullable),
 
-        return TranslatePrimitiveCollection(sqlParameterExpression, property: null, tableAlias);
+            ParameterExpressionMode.Parameter
+                => TranslatePrimitiveCollection(sqlParameterExpression, property: null, tableAlias),
+
+            _ => throw new UnreachableException()
+        };
     }
 
     /// <summary>

@@ -9,6 +9,19 @@ namespace Microsoft.EntityFrameworkCore;
 public enum ParameterizedCollectionMode
 {
     /// <summary>
+    ///     Instructs EF to translate the collection to a set of parameters:
+    ///     <c>WHERE [x].[Id] IN (@ids1, @ids2, @ids3)</c>.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         Note that it's possible to cause EF to translate a specific collection in a specific query to parameter by wrapping the
+    ///         parameterized collection in <see cref="EFExtensions.MultipleParameters{T}" />: <c>Where(x => EF.MultipleParameters(ids).Contains(x.Id)</c>. This overrides
+    ///         the default.
+    ///     </para>
+    /// </remarks>
+    MultipleParameters = 0,
+
+    /// <summary>
     ///     Instructs EF to translate the collection to a set of constants:
     ///     <c>WHERE [x].[Id] IN (1, 2, 3)</c>.
     /// </summary>
@@ -23,7 +36,7 @@ public enum ParameterizedCollectionMode
     ///         the default.
     ///     </para>
     /// </remarks>
-    Constants,
+    Constants = 1,
 
     /// <summary>
     ///     Instructs EF to translate the collection to a single array-like parameter:
@@ -39,18 +52,5 @@ public enum ParameterizedCollectionMode
     ///         the default.
     ///     </para>
     /// </remarks>
-    Parameter,
-
-    /// <summary>
-    ///     Instructs EF to translate the collection to a set of parameters:
-    ///     <c>WHERE [x].[Id] IN (@ids1, @ids2, @ids3)</c>.
-    /// </summary>
-    /// <remarks>
-    ///     <para>
-    ///         Note that it's possible to cause EF to translate a specific collection in a specific query to parameter by wrapping the
-    ///         parameterized collection in <see cref="EFExtensions.MultipleParameters{T}" />: <c>Where(x => EF.MultipleParameters(ids).Contains(x.Id)</c>. This overrides
-    ///         the default.
-    ///     </para>
-    /// </remarks>
-    MultipleParameters,
+    Parameter = 2,
 }

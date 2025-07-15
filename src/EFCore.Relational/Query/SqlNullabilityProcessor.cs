@@ -822,15 +822,6 @@ public class SqlNullabilityProcessor : ExpressionVisitor
 
                 processedValues = [];
 
-                var useMultipleParameters = valuesParameter.ParameterExpressionMode is ParameterExpressionMode.MultipleParameters
-                    || (ParameterizedCollectionMode is ParameterizedCollectionMode.MultipleParameters
-                        && valuesParameter.ParameterExpressionMode is null);
-                var useConstants = valuesParameter.ParameterExpressionMode is ParameterExpressionMode.Constants
-                    || (ParameterizedCollectionMode is ParameterizedCollectionMode.Constants
-                        && valuesParameter.ParameterExpressionMode is null);
-                var useParameter = valuesParameter.ParameterExpressionMode is ParameterExpressionMode.Parameter
-                    || (ParameterizedCollectionMode is ParameterizedCollectionMode.Parameter
-                        && valuesParameter.ParameterExpressionMode is null);
                 var parameterMode = valuesParameter.ParameterExpressionMode
                     ?? ParameterizedCollectionMode switch
                     {
