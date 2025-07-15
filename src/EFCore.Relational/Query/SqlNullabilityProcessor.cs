@@ -826,6 +826,14 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                 var useParameter = valuesParameter.ParameterExpressionMode is ParameterExpressionMode.Parameter
                     || (ParameterizedCollectionMode is ParameterizedCollectionMode.Parameter
                         && valuesParameter.ParameterExpressionMode is null);
+                var parameterMode = valuesParameter.ParameterExpressionMode
+                    ?? ParameterizedCollectionMode switch
+                    {
+                        ParameterizedCollectionMode.MultipleParameters => ParameterExpressionMode.MultipleParameters,
+                        ParameterizedCollectionMode.Constants => ParameterExpressionMode.Constants,
+                        ParameterizedCollectionMode.Parameter => ParameterExpressionMode.Parameter,
+                        _ => throw new UnreachableException()
+                    };
                 var expandedParameters = _collectionParameterExpansionMap.GetOrAddNew(valuesParameter);
                 var expandedParametersCounter = 0;
                 for (var i = 0; i < values.Count; i++)
@@ -836,11 +844,11 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                         continue;
                     }
 
-                    switch (useMultipleParameters, useConstants, useParameter)
+                    switch (parameterMode)
                     {
-                        case (true, false, false):
+                        case ParameterExpressionMode.MultipleParameters:
                         // see #36311 for more info
-                        case (false, false, true):
+                        case ParameterExpressionMode.Parameter:
                         {
                             // Create parameter for value if we didn't create it yet,
                             // otherwise reuse it.
@@ -858,7 +866,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                             break;
                         }
 
-                        case (false, true, false):
+                        case ParameterExpressionMode.Constants:
                         {
                             processedValues.Add(_sqlExpressionFactory.Constant(values[i], values[i]?.GetType() ?? typeof(object), sensitive: true, elementTypeMapping));
 
