@@ -127,10 +127,16 @@ public class SqlNullabilityProcessor : ExpressionVisitor
 
                 var processedValues = new List<RowValueExpression>();
 
-                switch (ParameterizedCollectionMode, valuesParameter.ParameterExpressionMode)
+                var parameterMode = valuesParameter.ParameterExpressionMode
+                    ?? ParameterizedCollectionMode switch
+                    {
+                        ParameterizedCollectionMode.MultipleParameters => ParameterExpressionMode.MultipleParameters,
+                        ParameterizedCollectionMode.Constants => ParameterExpressionMode.Constants,
+                        _ => throw new UnreachableException()
+                    };
+                switch (parameterMode)
                 {
-                    case (ParameterizedCollectionMode.MultipleParameters, null):
-                    case (_, ParameterExpressionMode.MultipleParameters):
+                    case ParameterExpressionMode.MultipleParameters:
                     {
                         var expandedParameters = _collectionParameterExpansionMap.GetOrAddNew(valuesParameter);
                         for (var i = 0; i < values.Count; i++)
@@ -156,8 +162,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                         break;
                     }
 
-                    case (ParameterizedCollectionMode.Constants, null):
-                    case (_, ParameterExpressionMode.Constants):
+                    case ParameterExpressionMode.Constants:
                     {
                         foreach (var value in values)
                         {
