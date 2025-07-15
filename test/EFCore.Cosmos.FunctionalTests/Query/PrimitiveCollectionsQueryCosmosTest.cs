@@ -1158,6 +1158,17 @@ WHERE ([1, 2, 3][c["Int"]] = 1)
         }
     }
 
+    public override async Task Inline_collection_index_Column_with_EF_Constant(bool async)
+    {
+        // Always throws for sync.
+        if (async)
+        {
+            var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.Inline_collection_index_Column_with_EF_Constant(async));
+
+            Assert.Equal(CoreStrings.EFConstantNotSupported, exception.Message);
+        }
+    }
+
     public override async Task Inline_collection_value_index_Column(bool async)
     {
         // Always throws for sync.
