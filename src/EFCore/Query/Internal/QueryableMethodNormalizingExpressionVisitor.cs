@@ -134,21 +134,15 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
 
                 case nameof(EF.Parameter):
                 {
-                    var queryParameter = (QueryParameterExpression)Visit(methodCallExpression.Arguments[0]);
-                    return new QueryParameterExpression(
-                        queryParameter.Name, queryParameter.Type, parameterExpressionMode: ParameterExpressionMode.Parameter,
-                        queryParameter.IsNonNullableReferenceType);
+                    return HandleParameter(methodCallExpression, ParameterExpressionMode.Parameter);
                 }
             }
         }
 
         // EF.MultipleParameters is defined in Relational, hence the hardcoded values here.
-        if (method.DeclaringType?.FullName == "Microsoft.EntityFrameworkCore.EFExtensions" && method.Name == "MultipleParameters")
+        if (method is { Name: "MultipleParameters", DeclaringType.FullName: "Microsoft.EntityFrameworkCore.EFExtensions" })
         {
-            var queryParameter = (QueryParameterExpression)Visit(methodCallExpression.Arguments[0]);
-            return new QueryParameterExpression(
-                queryParameter.Name, queryParameter.Type, parameterExpressionMode: ParameterExpressionMode.MultipleParameters,
-                queryParameter.IsNonNullableReferenceType);
+            return HandleParameter(methodCallExpression, ParameterExpressionMode.MultipleParameters);
         }
 
         // Normalize list[x] to list.ElementAt(x)
@@ -246,6 +240,14 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
         }
 
         return visitedExpression;
+
+        Expression HandleParameter(MethodCallExpression methodCallExpression, ParameterExpressionMode parameterExpressionMode)
+        {
+            var queryParameter = (QueryParameterExpression)Visit(methodCallExpression.Arguments[0]);
+            return new QueryParameterExpression(
+                queryParameter.Name, queryParameter.Type, parameterExpressionMode,
+                queryParameter.IsNonNullableReferenceType);
+        }
     }
 
     private static void VerifyReturnType(Expression expression, ParameterExpression lambdaParameter)
