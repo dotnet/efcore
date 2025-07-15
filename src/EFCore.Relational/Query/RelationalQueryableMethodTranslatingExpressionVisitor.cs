@@ -244,8 +244,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             && methodCallExpression.Arguments[0] is ParameterQueryRootExpression parameterSource
             && TranslateExpression(methodCallExpression.Arguments[1]) is SqlExpression item
             && _sqlTranslator.Visit(parameterSource.QueryParameterExpression) is SqlParameterExpression sqlParameterExpression
-            && (parameterSource.QueryParameterExpression.ParameterExpressionMode is not ParameterExpressionMode.Parameter
-                && parameterSource.QueryParameterExpression.ParameterExpressionMode is not ParameterExpressionMode.MultipleParameters))
+            && (parameterSource.QueryParameterExpression.ParameterExpressionMode is ParameterExpressionMode.Constants
+                or null))
         {
             var inExpression = _sqlExpressionFactory.In(item, sqlParameterExpression);
             var selectExpression = new SelectExpression(inExpression, _sqlAliasManager);
