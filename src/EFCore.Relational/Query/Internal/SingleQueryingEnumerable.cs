@@ -129,7 +129,7 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
                     _relationalQueryContext.Connection,
                     _relationalQueryContext.Parameters,
                     null,
-                    null,
+                    _relationalQueryContext.Context,
                     null, CommandSource.LinqQuery),
                 Guid.Empty,
                 (DbCommandMethod)(-1));
