@@ -516,7 +516,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                         name: queryParameter.Name,
                         queryParameter.Type,
                         nullable: false,
-                        queryParameter.ParameterExpressionMode,
+                        queryParameter.ParameterTranslationMode,
                         typeMapping: null);
                 }
 
@@ -525,7 +525,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                     name: queryParameter.Name,
                     queryParameter.Type,
                     queryParameter.Type.IsNullableType(),
-                    queryParameter.ParameterExpressionMode,
+                    queryParameter.ParameterTranslationMode,
                     typeMapping: null);
 
             case StructuralTypeShaperExpression shaper:

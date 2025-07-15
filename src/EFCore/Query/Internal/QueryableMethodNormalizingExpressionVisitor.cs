@@ -128,13 +128,13 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
 
                     var queryParameter = (QueryParameterExpression)Visit(methodCallExpression.Arguments[0]);
                     return new QueryParameterExpression(
-                        queryParameter.Name, queryParameter.Type, parameterExpressionMode: ParameterExpressionMode.Constants,
+                        queryParameter.Name, queryParameter.Type, parameterTranslationMode: ParameterTranslationMode.Constant,
                         queryParameter.IsNonNullableReferenceType);
                 }
 
                 case nameof(EF.Parameter):
                 {
-                    return HandleParameter(methodCallExpression, ParameterExpressionMode.Parameter);
+                    return HandleParameter(methodCallExpression, ParameterTranslationMode.Parameter);
                 }
             }
         }
@@ -142,7 +142,7 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
         // EF.MultipleParameters is defined in Relational, hence the hardcoded values here.
         if (method is { Name: "MultipleParameters", DeclaringType.FullName: "Microsoft.EntityFrameworkCore.EFExtensions" })
         {
-            return HandleParameter(methodCallExpression, ParameterExpressionMode.MultipleParameters);
+            return HandleParameter(methodCallExpression, ParameterTranslationMode.MultipleParameters);
         }
 
         // Normalize list[x] to list.ElementAt(x)
@@ -241,11 +241,11 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
 
         return visitedExpression;
 
-        Expression HandleParameter(MethodCallExpression methodCallExpression, ParameterExpressionMode parameterExpressionMode)
+        Expression HandleParameter(MethodCallExpression methodCallExpression, ParameterTranslationMode parameterTranslationMode)
         {
             var queryParameter = (QueryParameterExpression)Visit(methodCallExpression.Arguments[0]);
             return new QueryParameterExpression(
-                queryParameter.Name, queryParameter.Type, parameterExpressionMode,
+                queryParameter.Name, queryParameter.Type, parameterTranslationMode,
                 queryParameter.IsNonNullableReferenceType);
         }
     }

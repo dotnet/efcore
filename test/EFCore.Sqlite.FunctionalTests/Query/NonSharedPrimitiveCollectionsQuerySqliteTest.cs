@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public class NonSharedPrimitiveCollectionsQuerySqliteTest(NonSharedFixture fixture) : NonSharedPrimitiveCollectionsQueryRelationalTestBase(fixture)
 {
-    protected override DbContextOptionsBuilder SetParameterizedCollectionMode(DbContextOptionsBuilder optionsBuilder, ParameterizedCollectionMode parameterizedCollectionMode)
+    protected override DbContextOptionsBuilder SetParameterizedCollectionMode(DbContextOptionsBuilder optionsBuilder, ParameterTranslationMode parameterizedCollectionMode)
     {
         new SqliteDbContextOptionsBuilder(optionsBuilder).UseParameterizedCollectionMode(parameterizedCollectionMode);
 
@@ -329,13 +329,13 @@ LIMIT 2
 """);
     }
 
-    public override async Task Parameter_collection_Count_with_column_predicate_with_default_mode(ParameterizedCollectionMode mode)
+    public override async Task Parameter_collection_Count_with_column_predicate_with_default_mode(ParameterTranslationMode mode)
     {
         await base.Parameter_collection_Count_with_column_predicate_with_default_mode(mode);
 
         switch (mode)
         {
-            case ParameterizedCollectionMode.Constants:
+            case ParameterTranslationMode.Constant:
             {
                 AssertSql(
                     """
@@ -349,7 +349,7 @@ WHERE (
                 break;
             }
 
-            case ParameterizedCollectionMode.Parameter:
+            case ParameterTranslationMode.Parameter:
             {
                 AssertSql(
                     """
@@ -365,7 +365,7 @@ WHERE (
                 break;
             }
 
-            case ParameterizedCollectionMode.MultipleParameters:
+            case ParameterTranslationMode.MultipleParameters:
             {
                 AssertSql(
                     """
@@ -387,13 +387,13 @@ WHERE (
         }
     }
 
-    public override async Task Parameter_collection_Contains_with_default_mode(ParameterizedCollectionMode mode)
+    public override async Task Parameter_collection_Contains_with_default_mode(ParameterTranslationMode mode)
     {
         await base.Parameter_collection_Contains_with_default_mode(mode);
 
         switch (mode)
         {
-            case ParameterizedCollectionMode.Constants:
+            case ParameterTranslationMode.Constant:
             {
                 AssertSql(
                     """
@@ -404,7 +404,7 @@ WHERE "t"."Id" IN (2, 999)
                 break;
             }
 
-            case ParameterizedCollectionMode.Parameter:
+            case ParameterTranslationMode.Parameter:
             {
                 AssertSql(
                     """
@@ -420,7 +420,7 @@ WHERE "t"."Id" IN (
                 break;
             }
 
-            case ParameterizedCollectionMode.MultipleParameters:
+            case ParameterTranslationMode.MultipleParameters:
             {
                 AssertSql(
                     """
@@ -439,7 +439,7 @@ WHERE "t"."Id" IN (@ints1, @ints2)
         }
     }
 
-    public override async Task Parameter_collection_Count_with_column_predicate_with_default_mode_EF_Constant(ParameterizedCollectionMode mode)
+    public override async Task Parameter_collection_Count_with_column_predicate_with_default_mode_EF_Constant(ParameterTranslationMode mode)
     {
         await base.Parameter_collection_Count_with_column_predicate_with_default_mode_EF_Constant(mode);
 
@@ -454,7 +454,7 @@ WHERE (
 """);
     }
 
-    public override async Task Parameter_collection_Contains_with_default_mode_EF_Constant(ParameterizedCollectionMode mode)
+    public override async Task Parameter_collection_Contains_with_default_mode_EF_Constant(ParameterTranslationMode mode)
     {
         await base.Parameter_collection_Contains_with_default_mode_EF_Constant(mode);
 
@@ -466,7 +466,7 @@ WHERE "t"."Id" IN (2, 999)
 """);
     }
 
-    public override async Task Parameter_collection_Count_with_column_predicate_with_default_mode_EF_Parameter(ParameterizedCollectionMode mode)
+    public override async Task Parameter_collection_Count_with_column_predicate_with_default_mode_EF_Parameter(ParameterTranslationMode mode)
     {
         await base.Parameter_collection_Count_with_column_predicate_with_default_mode_EF_Parameter(mode);
 
@@ -483,7 +483,7 @@ WHERE (
 """);
     }
 
-    public override async Task Parameter_collection_Contains_with_default_mode_EF_Parameter(ParameterizedCollectionMode mode)
+    public override async Task Parameter_collection_Contains_with_default_mode_EF_Parameter(ParameterTranslationMode mode)
     {
         await base.Parameter_collection_Contains_with_default_mode_EF_Parameter(mode);
 
@@ -500,7 +500,7 @@ WHERE "t"."Id" IN (
 """);
     }
 
-    public override async Task Parameter_collection_Count_with_column_predicate_with_default_mode_EF_MultipleParameters(ParameterizedCollectionMode mode)
+    public override async Task Parameter_collection_Count_with_column_predicate_with_default_mode_EF_MultipleParameters(ParameterTranslationMode mode)
     {
         await base.Parameter_collection_Count_with_column_predicate_with_default_mode_EF_MultipleParameters(mode);
 
@@ -518,7 +518,7 @@ WHERE (
 """);
     }
 
-    public override async Task Parameter_collection_Contains_with_default_mode_EF_MultipleParameters(ParameterizedCollectionMode mode)
+    public override async Task Parameter_collection_Contains_with_default_mode_EF_MultipleParameters(ParameterTranslationMode mode)
     {
         await base.Parameter_collection_Contains_with_default_mode_EF_MultipleParameters(mode);
 

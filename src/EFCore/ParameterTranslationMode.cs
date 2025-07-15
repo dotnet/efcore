@@ -6,7 +6,7 @@ namespace Microsoft.EntityFrameworkCore;
 /// <summary>
 ///     Indicates how parameterized collections are translated into SQL.
 /// </summary>
-public enum ParameterizedCollectionMode
+public enum ParameterTranslationMode
 {
     /// <summary>
     ///     Instructs EF to translate the collection to a set of parameters:
@@ -15,7 +15,7 @@ public enum ParameterizedCollectionMode
     /// <remarks>
     ///     <para>
     ///         Note that it's possible to cause EF to translate a specific collection in a specific query to parameter by wrapping the
-    ///         parameterized collection in <see cref="EFExtensions.MultipleParameters{T}" />: <c>Where(x => EF.MultipleParameters(ids).Contains(x.Id)</c>. This overrides
+    ///         parameterized collection in EF.MultipleParameters: <c>Where(x => EF.MultipleParameters(ids).Contains(x.Id)</c>. This overrides
     ///         the default.
     ///     </para>
     /// </remarks>
@@ -36,7 +36,7 @@ public enum ParameterizedCollectionMode
     ///         the default.
     ///     </para>
     /// </remarks>
-    Constants = 1,
+    Constant = 1,
 
     /// <summary>
     ///     Instructs EF to translate the collection to a single array-like parameter:

@@ -19,7 +19,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
     private readonly bool _threadSafetyChecksEnabled;
     private readonly bool _detailedErrorsEnabled;
     private readonly bool _useRelationalNulls;
-    private readonly ParameterizedCollectionMode _parameterizedCollectionMode;
+    private readonly ParameterTranslationMode _parameterizedCollectionMode;
     private readonly bool _isPrecompiling;
 
     private readonly RelationalParameterBasedSqlProcessor _relationalParameterBasedSqlProcessor;
@@ -751,7 +751,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
                             _relationalDependenciesRelationalParameterBasedSqlProcessorFactoryProperty),
                         Constant(queryExpression),
                         Constant(_useRelationalNulls),
-                        Constant(_parameterizedCollectionMode, typeof(ParameterizedCollectionMode))),
+                        Constant(_parameterizedCollectionMode, typeof(ParameterTranslationMode))),
                     contextParameter);
         }
     }

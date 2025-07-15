@@ -21,7 +21,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     private readonly IRelationalTypeMappingSource _typeMappingSource;
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
     private readonly bool _subquery;
-    private readonly ParameterizedCollectionMode _parameterizedCollectionMode;
+    private readonly ParameterTranslationMode _parameterizedCollectionMode;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -244,7 +244,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             && methodCallExpression.Arguments[0] is ParameterQueryRootExpression parameterSource
             && TranslateExpression(methodCallExpression.Arguments[1]) is SqlExpression item
             && _sqlTranslator.Visit(parameterSource.QueryParameterExpression) is SqlParameterExpression sqlParameterExpression
-            && (parameterSource.QueryParameterExpression.ParameterExpressionMode is ParameterExpressionMode.Constants
+            && (parameterSource.QueryParameterExpression.ParameterTranslationMode is ParameterTranslationMode.Constant
                 or null))
         {
             var inExpression = _sqlExpressionFactory.In(item, sqlParameterExpression);
@@ -299,17 +299,10 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
 
         var tableAlias = _sqlAliasManager.GenerateTableAlias(sqlParameterExpression.Name.TrimStart('_'));
 
-        var parameterMode = queryParameter.ParameterExpressionMode
-            ?? _parameterizedCollectionMode switch
-            {
-                ParameterizedCollectionMode.MultipleParameters => ParameterExpressionMode.MultipleParameters,
-                ParameterizedCollectionMode.Constants => ParameterExpressionMode.Constants,
-                ParameterizedCollectionMode.Parameter => ParameterExpressionMode.Parameter,
-                _ => throw new UnreachableException()
-            };
+        var parameterMode = queryParameter.ParameterTranslationMode ?? _parameterizedCollectionMode;
         return parameterMode switch
         {
-            ParameterExpressionMode.Constants or ParameterExpressionMode.MultipleParameters
+            ParameterTranslationMode.Constant or ParameterTranslationMode.MultipleParameters
                 => CreateShapedQueryExpressionForValuesExpression(
                     new ValuesExpression(
                         tableAlias,
@@ -320,7 +313,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
                     sqlParameterExpression.TypeMapping,
                     sqlParameterExpression.IsNullable),
 
-            ParameterExpressionMode.Parameter
+            ParameterTranslationMode.Parameter
                 => TranslatePrimitiveCollection(sqlParameterExpression, property: null, tableAlias),
 
             _ => throw new UnreachableException()

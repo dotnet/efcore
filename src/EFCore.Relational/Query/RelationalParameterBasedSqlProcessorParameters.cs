@@ -16,7 +16,7 @@ public sealed record RelationalParameterBasedSqlProcessorParameters
     /// <summary>
     ///     Which parametrized collection translation mode should be used.
     /// </summary>
-    public ParameterizedCollectionMode ParameterizedCollectionMode { get; init; }
+    public ParameterTranslationMode ParameterizedCollectionMode { get; init; }
 
     /// <summary>
     ///     Creates a new instance of <see cref="RelationalParameterBasedSqlProcessorParameters" />.
@@ -24,7 +24,7 @@ public sealed record RelationalParameterBasedSqlProcessorParameters
     /// <param name="useRelationalNulls">A value indicating if relational nulls should be used.</param>
     /// <param name="parameterizedCollectionMode">Which translation mode should be used.</param>
     [EntityFrameworkInternal]
-    public RelationalParameterBasedSqlProcessorParameters(bool useRelationalNulls, ParameterizedCollectionMode parameterizedCollectionMode)
+    public RelationalParameterBasedSqlProcessorParameters(bool useRelationalNulls, ParameterTranslationMode parameterizedCollectionMode)
     {
         UseRelationalNulls = useRelationalNulls;
         ParameterizedCollectionMode = parameterizedCollectionMode;

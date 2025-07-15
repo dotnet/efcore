@@ -36,7 +36,7 @@ public abstract class RelationalOptionsExtension : IDbContextOptionsExtension
     private string? _migrationsHistoryTableName;
     private string? _migrationsHistoryTableSchema;
     private Func<ExecutionStrategyDependencies, IExecutionStrategy>? _executionStrategyFactory;
-    private ParameterizedCollectionMode? _parameterizedCollectionMode;
+    private ParameterTranslationMode? _parameterizedCollectionMode;
 
     /// <summary>
     ///     Creates a new set of options with everything set to default values.
@@ -386,8 +386,8 @@ public abstract class RelationalOptionsExtension : IDbContextOptionsExtension
     /// <summary>
     ///     Configured translation mode for parameterized collections.
     /// </summary>
-    public virtual ParameterizedCollectionMode ParameterizedCollectionMode
-        => _parameterizedCollectionMode ?? ParameterizedCollectionMode.MultipleParameters;
+    public virtual ParameterTranslationMode ParameterizedCollectionMode
+        => _parameterizedCollectionMode ?? ParameterTranslationMode.MultipleParameters;
 
     /// <summary>
     ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
@@ -395,7 +395,7 @@ public abstract class RelationalOptionsExtension : IDbContextOptionsExtension
     /// </summary>
     /// <param name="parameterizedCollectionMode">The option to change.</param>
     public virtual RelationalOptionsExtension WithUseParameterizedCollectionMode(
-        ParameterizedCollectionMode parameterizedCollectionMode)
+        ParameterTranslationMode parameterizedCollectionMode)
     {
         var clone = Clone();
 

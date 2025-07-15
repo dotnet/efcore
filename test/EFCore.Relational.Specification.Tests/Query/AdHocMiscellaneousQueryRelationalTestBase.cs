@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected void AssertSql(params string[] expected)
             => TestSqlLoggerFactory.AssertBaseline(expected);
 
-        protected abstract DbContextOptionsBuilder SetParameterizedCollectionMode(DbContextOptionsBuilder optionsBuilder, ParameterizedCollectionMode parameterizedCollectionMode);
+        protected abstract DbContextOptionsBuilder SetParameterizedCollectionMode(DbContextOptionsBuilder optionsBuilder, ParameterTranslationMode parameterizedCollectionMode);
 
         #region 2951
 
@@ -277,7 +277,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var contextFactory = await InitializeAsync<InlinedRedactingContext>(
                 onConfiguring: o =>
                 {
-                    SetParameterizedCollectionMode(o, ParameterizedCollectionMode.Constants);
+                    SetParameterizedCollectionMode(o, ParameterTranslationMode.Constant);
                     o.EnableSensitiveDataLogging(enableSensitiveDataLogging);
                 });
             using var context = contextFactory.CreateContext();
@@ -324,7 +324,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public async Task Entity_equality_with_Contains_and_Parameter(bool async)
         {
             var contextFactory = await InitializeAsync<Context36311>(
-                onConfiguring: o => SetParameterizedCollectionMode(o, ParameterizedCollectionMode.Parameter));
+                onConfiguring: o => SetParameterizedCollectionMode(o, ParameterTranslationMode.Parameter));
             using var context = contextFactory.CreateContext();
 
             List<Context36311.BlogDetails> details = [new Context36311.BlogDetails { Id = 1 }, new Context36311.BlogDetails { Id = 2 }];
