@@ -190,7 +190,7 @@ public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
         switch (node)
         {
             case ValuesExpression { ValuesParameter: SqlParameterExpression valuesParameter } valuesExpression
-                when (valuesParameter.ParameterTranslationMode ?? ParameterizedCollectionMode) is ParameterTranslationMode.MultipleParameters:
+                when (valuesParameter.TranslationMode ?? CollectionParameterTranslationMode) is ParameterTranslationMode.MultipleParameters:
             {
                 Check.DebugAssert(valuesParameter.TypeMapping is not null);
                 Check.DebugAssert(valuesParameter.TypeMapping.ElementTypeMapping is not null);
@@ -236,7 +236,7 @@ public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
         switch (inExpression.ValuesParameter)
         {
             case SqlParameterExpression valuesParameter
-                when (valuesParameter.ParameterTranslationMode ?? ParameterizedCollectionMode) is ParameterTranslationMode.MultipleParameters:
+                when (valuesParameter.TranslationMode ?? CollectionParameterTranslationMode) is ParameterTranslationMode.MultipleParameters:
             {
                 Check.DebugAssert(valuesParameter.TypeMapping is not null);
                 Check.DebugAssert(valuesParameter.TypeMapping.ElementTypeMapping is not null);

@@ -17,7 +17,7 @@ public sealed class SqlParameterExpression : SqlExpression
     /// <param name="type">The <see cref="Type" /> of the expression.</param>
     /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
     public SqlParameterExpression(string name, Type type, RelationalTypeMapping? typeMapping)
-        : this(invariantName: name, name: name, type.UnwrapNullableType(), type.IsNullableType(), parameterTranslationMode: null, typeMapping)
+        : this(invariantName: name, name: name, type.UnwrapNullableType(), type.IsNullableType(), translationMode: null, typeMapping)
     {
     }
 
@@ -31,21 +31,21 @@ public sealed class SqlParameterExpression : SqlExpression
     /// </param>
     /// <param name="type">The <see cref="Type" /> of the expression.</param>
     /// <param name="nullable">Whether this parameter can have null values.</param>
-    /// <param name="parameterTranslationMode">How the parameter should be handled.</param>
+    /// <param name="translationMode">How the parameter should be handled.</param>
     /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
     public SqlParameterExpression(
         string invariantName,
         string name,
         Type type,
         bool nullable,
-        ParameterTranslationMode? parameterTranslationMode,
+        ParameterTranslationMode? translationMode,
         RelationalTypeMapping? typeMapping)
         : base(type.UnwrapNullableType(), typeMapping)
     {
         InvariantName = invariantName;
         Name = name;
         IsNullable = nullable;
-        ParameterTranslationMode = parameterTranslationMode;
+        TranslationMode = translationMode;
     }
 
     /// <summary>
@@ -67,7 +67,7 @@ public sealed class SqlParameterExpression : SqlExpression
     /// <summary>
     ///     How the parameter should be handled.
     /// </summary>
-    public ParameterTranslationMode? ParameterTranslationMode { get; }
+    public ParameterTranslationMode? TranslationMode { get; }
 
     /// <summary>
     ///     Applies supplied type mapping to this expression.
@@ -75,7 +75,7 @@ public sealed class SqlParameterExpression : SqlExpression
     /// <param name="typeMapping">A relational type mapping to apply.</param>
     /// <returns>A new expression which has supplied type mapping.</returns>
     public SqlExpression ApplyTypeMapping(RelationalTypeMapping? typeMapping)
-        => new SqlParameterExpression(InvariantName, Name, Type, IsNullable, ParameterTranslationMode, typeMapping);
+        => new SqlParameterExpression(InvariantName, Name, Type, IsNullable, TranslationMode, typeMapping);
 
     /// <inheritdoc />
     protected override Expression VisitChildren(ExpressionVisitor visitor)

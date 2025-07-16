@@ -1988,7 +1988,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
             return _parameterizedValues[evaluatableRoot] = new QueryParameterExpression(
                 parameterName,
                 evaluatableRoot.Type,
-                parameterTranslationMode: null,
+                translationMode: null,
                 isNonNullableReferenceType);
         }
 

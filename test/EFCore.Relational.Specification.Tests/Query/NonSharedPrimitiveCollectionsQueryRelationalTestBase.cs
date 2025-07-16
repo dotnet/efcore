@@ -38,11 +38,11 @@ public abstract class NonSharedPrimitiveCollectionsQueryRelationalTestBase(NonSh
         Assert.Equivalent(new[] { "foo", "bar" }, result.Owned.Strings);
     }
 
-    protected static IEnumerable<object[]> ParameterizedCollectionModeValues()
+    protected static IEnumerable<object[]> ParameterTranslationModeValues()
         => Enum.GetValues<ParameterTranslationMode>().Select<ParameterTranslationMode, object[]>(x => [x]);
 
     [ConditionalTheory]
-    [MemberData(nameof(ParameterizedCollectionModeValues))]
+    [MemberData(nameof(ParameterTranslationModeValues))]
     public virtual async Task Parameter_collection_Count_with_column_predicate_with_default_mode(ParameterTranslationMode mode)
     {
         var contextFactory = await InitializeAsync<TestContext>(
@@ -63,7 +63,7 @@ public abstract class NonSharedPrimitiveCollectionsQueryRelationalTestBase(NonSh
     }
 
     [ConditionalTheory]
-    [MemberData(nameof(ParameterizedCollectionModeValues))]
+    [MemberData(nameof(ParameterTranslationModeValues))]
     public virtual async Task Parameter_collection_Contains_with_default_mode(ParameterTranslationMode mode)
     {
         var contextFactory = await InitializeAsync<TestContext>(
@@ -85,7 +85,7 @@ public abstract class NonSharedPrimitiveCollectionsQueryRelationalTestBase(NonSh
     }
 
     [ConditionalTheory]
-    [MemberData(nameof(ParameterizedCollectionModeValues))]
+    [MemberData(nameof(ParameterTranslationModeValues))]
     public virtual async Task Parameter_collection_Count_with_column_predicate_with_default_mode_EF_Constant(ParameterTranslationMode mode)
     {
         var contextFactory = await InitializeAsync<TestContext>(
@@ -106,7 +106,7 @@ public abstract class NonSharedPrimitiveCollectionsQueryRelationalTestBase(NonSh
     }
 
     [ConditionalTheory]
-    [MemberData(nameof(ParameterizedCollectionModeValues))]
+    [MemberData(nameof(ParameterTranslationModeValues))]
     public virtual async Task Parameter_collection_Contains_with_default_mode_EF_Constant(ParameterTranslationMode mode)
     {
         var contextFactory = await InitializeAsync<TestContext>(
@@ -128,7 +128,7 @@ public abstract class NonSharedPrimitiveCollectionsQueryRelationalTestBase(NonSh
     }
 
     [ConditionalTheory]
-    [MemberData(nameof(ParameterizedCollectionModeValues))]
+    [MemberData(nameof(ParameterTranslationModeValues))]
     public virtual async Task Parameter_collection_Count_with_column_predicate_with_default_mode_EF_Parameter(ParameterTranslationMode mode)
     {
         var contextFactory = await InitializeAsync<TestContext>(
@@ -150,7 +150,7 @@ public abstract class NonSharedPrimitiveCollectionsQueryRelationalTestBase(NonSh
     }
 
     [ConditionalTheory]
-    [MemberData(nameof(ParameterizedCollectionModeValues))]
+    [MemberData(nameof(ParameterTranslationModeValues))]
     public virtual async Task Parameter_collection_Contains_with_default_mode_EF_Parameter(ParameterTranslationMode mode)
     {
         var contextFactory = await InitializeAsync<TestContext>(
@@ -172,7 +172,7 @@ public abstract class NonSharedPrimitiveCollectionsQueryRelationalTestBase(NonSh
     }
 
     [ConditionalTheory]
-    [MemberData(nameof(ParameterizedCollectionModeValues))]
+    [MemberData(nameof(ParameterTranslationModeValues))]
     public virtual async Task Parameter_collection_Count_with_column_predicate_with_default_mode_EF_MultipleParameters(ParameterTranslationMode mode)
     {
         var contextFactory = await InitializeAsync<TestContext>(
@@ -194,7 +194,7 @@ public abstract class NonSharedPrimitiveCollectionsQueryRelationalTestBase(NonSh
     }
 
     [ConditionalTheory]
-    [MemberData(nameof(ParameterizedCollectionModeValues))]
+    [MemberData(nameof(ParameterTranslationModeValues))]
     public virtual async Task Parameter_collection_Contains_with_default_mode_EF_MultipleParameters(ParameterTranslationMode mode)
     {
         var contextFactory = await InitializeAsync<TestContext>(

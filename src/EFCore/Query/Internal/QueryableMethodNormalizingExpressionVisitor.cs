@@ -128,7 +128,7 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
 
                     var queryParameter = (QueryParameterExpression)Visit(methodCallExpression.Arguments[0]);
                     return new QueryParameterExpression(
-                        queryParameter.Name, queryParameter.Type, parameterTranslationMode: ParameterTranslationMode.Constant,
+                        queryParameter.Name, queryParameter.Type, translationMode: ParameterTranslationMode.Constant,
                         queryParameter.IsNonNullableReferenceType);
                 }
 

@@ -205,7 +205,7 @@ public abstract class RelationalDbContextOptionsBuilder<TBuilder, TExtension> : 
         => UseParameterizedCollectionMode(ParameterTranslationMode.Parameter);
 
     /// <summary>
-    ///     Configures mode to use when translating parameterized collections.
+    ///     Configures the mode to use when translating parameterized collections.
     /// </summary>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public virtual TBuilder UseParameterizedCollectionMode(ParameterTranslationMode parameterizedCollectionMode)

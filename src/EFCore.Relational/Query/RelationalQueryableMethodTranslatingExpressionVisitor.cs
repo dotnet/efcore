@@ -21,7 +21,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     private readonly IRelationalTypeMappingSource _typeMappingSource;
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
     private readonly bool _subquery;
-    private readonly ParameterTranslationMode _parameterizedCollectionMode;
+    private readonly ParameterTranslationMode _collectionParameterTranslationMode;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -64,7 +64,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         _typeMappingSource = relationalDependencies.TypeMappingSource;
         _sqlExpressionFactory = sqlExpressionFactory;
         _subquery = false;
-        _parameterizedCollectionMode = RelationalOptionsExtension.Extract(queryCompilationContext.ContextOptions).ParameterizedCollectionMode;
+        _collectionParameterTranslationMode = RelationalOptionsExtension.Extract(queryCompilationContext.ContextOptions).ParameterizedCollectionMode;
     }
 
     /// <summary>
@@ -90,7 +90,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         _typeMappingSource = parentVisitor._typeMappingSource;
         _sqlExpressionFactory = parentVisitor._sqlExpressionFactory;
         _subquery = true;
-        _parameterizedCollectionMode = RelationalOptionsExtension.Extract(parentVisitor._queryCompilationContext.ContextOptions).ParameterizedCollectionMode;
+        _collectionParameterTranslationMode = RelationalOptionsExtension.Extract(parentVisitor._queryCompilationContext.ContextOptions).ParameterizedCollectionMode;
     }
 
     /// <inheritdoc />
@@ -244,7 +244,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             && methodCallExpression.Arguments[0] is ParameterQueryRootExpression parameterSource
             && TranslateExpression(methodCallExpression.Arguments[1]) is SqlExpression item
             && _sqlTranslator.Visit(parameterSource.QueryParameterExpression) is SqlParameterExpression sqlParameterExpression
-            && (parameterSource.QueryParameterExpression.ParameterTranslationMode is ParameterTranslationMode.Constant
+            && (parameterSource.QueryParameterExpression.TranslationMode is ParameterTranslationMode.Constant
                 or null))
         {
             var inExpression = _sqlExpressionFactory.In(item, sqlParameterExpression);
@@ -299,8 +299,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
 
         var tableAlias = _sqlAliasManager.GenerateTableAlias(sqlParameterExpression.Name.TrimStart('_'));
 
-        var parameterMode = queryParameter.ParameterTranslationMode ?? _parameterizedCollectionMode;
-        return parameterMode switch
+        return (queryParameter.TranslationMode ?? _collectionParameterTranslationMode) switch
         {
             ParameterTranslationMode.Constant or ParameterTranslationMode.MultipleParameters
                 => CreateShapedQueryExpressionForValuesExpression(

@@ -128,7 +128,7 @@ public class RelationalParameterProcessor : ExpressionVisitor
                 uniquifiedName,
                 parameter.Type,
                 parameter.IsNullable,
-                parameter.ParameterTranslationMode,
+                parameter.TranslationMode,
                 parameter.TypeMapping);
 
         return _sqlParameters[newParameter.InvariantName] = newParameter;
