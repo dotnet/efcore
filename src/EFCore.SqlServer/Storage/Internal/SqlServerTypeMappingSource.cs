@@ -3,6 +3,8 @@
 
 using System.Collections;
 using System.Data;
+using Microsoft.Data.SqlTypes;
+using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
@@ -205,6 +207,7 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
                 { "varbinary(max)", [VariableLengthMaxBinary] },
                 { "varchar", [SqlServerStringTypeMapping.Default] },
                 { "varchar(max)", [VariableLengthMaxAnsiString] },
+                { "vector", [SqlServerVectorTypeMapping.Default] },
                 { "xml", [Xml] }
             };
         // ReSharper restore CoVariantArrayConversion
@@ -304,62 +307,54 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
                 return mapping;
             }
 
-            if (clrType == typeof(ulong) && mappingInfo.IsRowVersion == true)
+            switch (clrType)
             {
-                return UlongRowversion;
-            }
+                case Type t when t == typeof(ulong) && mappingInfo.IsRowVersion is true:
+                    return UlongRowversion;
 
-            if (clrType == typeof(long) && mappingInfo.IsRowVersion == true)
-            {
-                return LongRowversion;
-            }
+                case Type t when t == typeof(long) && mappingInfo.IsRowVersion is true:
+                    return LongRowversion;
 
-            if (clrType == typeof(string))
-            {
-                if (storeTypeName == "json")
-                {
-                    return SqlServerStringTypeMapping.JsonTypeDefault;
-                }
-
-                var isAnsi = mappingInfo.IsUnicode == false;
-                var isFixedLength = mappingInfo.IsFixedLength == true;
-                var maxSize = isAnsi ? 8000 : 4000;
-
-                var size = mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ? isAnsi ? 900 : 450 : null);
-                if (size < 0 || size > maxSize)
-                {
-                    size = isFixedLength ? maxSize : null;
-                }
-
-                if (size == null
-                    && storeTypeName == null
-                    && !mappingInfo.IsKeyOrIndex)
-                {
-                    return isAnsi
-                        ? isFixedLength
-                            ? FixedLengthAnsiString
-                            : VariableLengthMaxAnsiString
-                        : isFixedLength
-                            ? FixedLengthUnicodeString
-                            : VariableLengthMaxUnicodeString;
-                }
-
-                return new SqlServerStringTypeMapping(
-                    unicode: !isAnsi,
-                    size: size,
-                    fixedLength: isFixedLength,
-                    storeTypePostfix: storeTypeName == null ? StoreTypePostfix.Size : StoreTypePostfix.None,
-                    useKeyComparison: mappingInfo.IsKey);
-            }
-
-            if (clrType == typeof(byte[]))
-            {
-                if (mappingInfo.IsRowVersion == true)
-                {
+                case Type t when t == typeof(byte[]) && mappingInfo.IsRowVersion is true:
                     return Rowversion;
+
+                case Type t when t == typeof(string) && storeTypeName == "json":
+                    return SqlServerStringTypeMapping.JsonTypeDefault;
+
+                case Type t when t == typeof(string):
+                {
+                    var isAnsi = mappingInfo.IsUnicode == false;
+                    var isFixedLength = mappingInfo.IsFixedLength == true;
+                    var maxSize = isAnsi ? 8000 : 4000;
+
+                    var size = mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ? isAnsi ? 900 : 450 : null);
+                    if (size < 0 || size > maxSize)
+                    {
+                        size = isFixedLength ? maxSize : null;
+                    }
+
+                    if (size == null
+                        && storeTypeName == null
+                        && !mappingInfo.IsKeyOrIndex)
+                    {
+                        return isAnsi
+                            ? isFixedLength
+                                ? FixedLengthAnsiString
+                                : VariableLengthMaxAnsiString
+                            : isFixedLength
+                                ? FixedLengthUnicodeString
+                                : VariableLengthMaxUnicodeString;
+                    }
+
+                    return new SqlServerStringTypeMapping(
+                        unicode: !isAnsi,
+                        size: size,
+                        fixedLength: isFixedLength,
+                        storeTypePostfix: storeTypeName == null ? StoreTypePostfix.Size : StoreTypePostfix.None,
+                        useKeyComparison: mappingInfo.IsKey);
                 }
 
-                if (mappingInfo.ElementTypeMapping == null)
+                case Type t when t == typeof(byte[]) && mappingInfo.ElementTypeMapping is null:
                 {
                     var isFixedLength = mappingInfo.IsFixedLength == true;
 
@@ -376,6 +371,9 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
                             fixedLength: isFixedLength,
                             storeTypePostfix: storeTypeName == null ? StoreTypePostfix.Size : StoreTypePostfix.None);
                 }
+
+                case Type t when t == typeof(SqlVector<float>):
+                    return new SqlServerVectorTypeMapping(mappingInfo.Size);
             }
         }
 

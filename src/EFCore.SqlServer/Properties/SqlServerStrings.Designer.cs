@@ -417,6 +417,28 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         public static string TransientExceptionDetected
             => GetString("TransientExceptionDetected");
 
+        /// <summary>
+        ///     Vector properties require a positive size (number of dimensions).
+        /// </summary>
+        public static string VectorDimensionsInvalid
+            => GetString("VectorDimensionsInvalid");
+
+        /// <summary>
+        ///     Vector property '{structuralType}.{propertyName}' was not configured with the number of dimensions. Set the column type to 'vector(x)' with the desired number of dimensions, or use the 'MaxLength' APIs.
+        /// </summary>
+        public static string VectorDimensionsMissing(object? structuralType, object? propertyName)
+            => string.Format(
+                GetString("VectorDimensionsMissing", nameof(structuralType), nameof(propertyName)),
+                structuralType, propertyName);
+
+        /// <summary>
+        ///     Vector property '{propertyName}' is on '{structuralType}' which is mapped to JSON. Vector properties are not supported within JSON documents.
+        /// </summary>
+        public static string VectorPropertiesNotSupportedInJson(object? structuralType, object? propertyName)
+            => string.Format(
+                GetString("VectorPropertiesNotSupportedInJson", nameof(structuralType), nameof(propertyName)),
+                structuralType, propertyName);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name)!;

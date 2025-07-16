@@ -395,7 +395,7 @@ WHERE [t].[is_user_defined] = 1 OR [t].[system_type_id] <> [t].[user_type_id];
             var precision = reader.GetValueOrDefault<int>("precision");
             var scale = reader.GetValueOrDefault<int>("scale");
 
-            var storeType = GetStoreType(systemType, maxLength, precision, scale);
+            var storeType = GetStoreType(systemType, maxLength, precision, scale, vectorDimensions: 0);
 
             _logger.TypeAliasFound(DisplayName(schema, userType), storeType);
 
@@ -472,7 +472,7 @@ WHERE "
                 storeType = value.storeType;
             }
 
-            storeType = GetStoreType(storeType, maxLength: 0, precision: precision, scale: scale);
+            storeType = GetStoreType(storeType, maxLength: 0, precision, scale, vectorDimensions: 0);
 
             _logger.SequenceFound(DisplayName(schema, name), storeType, cyclic, incrementBy, startValue, minValue, maxValue);
 
@@ -730,6 +730,7 @@ SELECT
     CAST([c].[max_length] AS int) AS [max_length],
     CAST([c].[precision] AS int) AS [precision],
     CAST([c].[scale] AS int) AS [scale],
+    {(_compatibilityLevel is >= 170 ? "[c].[vector_dimensions]" : "NULL as [vector_dimensions]")},
     [c].[is_nullable],
     [c].[is_identity],
     [dc].[definition] AS [default_sql],
@@ -801,6 +802,7 @@ LEFT JOIN [sys].[default_constraints] AS [dc] ON [c].[object_id] = [dc].[parent_
                 var maxLength = dataRecord.GetValueOrDefault<int>("max_length");
                 var precision = dataRecord.GetValueOrDefault<int>("precision");
                 var scale = dataRecord.GetValueOrDefault<int>("scale");
+                var vectorDimensions = dataRecord.GetValueOrDefault<int>("vector_dimensions");
                 var nullable = dataRecord.GetValueOrDefault<bool>("is_nullable");
                 var isIdentity = dataRecord.GetValueOrDefault<bool>("is_identity");
                 var defaultValueSql = dataRecord.GetValueOrDefault<string>("default_sql");
@@ -835,15 +837,19 @@ LEFT JOIN [sys].[default_constraints] AS [dc] ON [c].[object_id] = [dc].[parent_
                 string storeType;
                 string systemTypeName;
 
-                // Swap store type if type alias is used
-                if (typeAliases.TryGetValue($"[{dataTypeSchemaName}].[{dataTypeName}]", out var value))
+                // If the store type is in our loaded aliases dictionary, resolve to the canonical type.
+                // Note that the vector type is implemented as an alias for varbinary, but we do not want
+                // to scaffold vectors as varbinary.
+                var fullQualifiedTypeName = $"[{dataTypeSchemaName}].[{dataTypeName}]";
+                if (fullQualifiedTypeName is not "[sys].[vector]"
+                    && typeAliases.TryGetValue(fullQualifiedTypeName, out var value))
                 {
                     storeType = value.storeType;
                     systemTypeName = value.typeName;
                 }
                 else
                 {
-                    storeType = GetStoreType(dataTypeName, maxLength, precision, scale);
+                    storeType = GetStoreType(dataTypeName, maxLength, precision, scale, vectorDimensions);
                     systemTypeName = dataTypeName;
                 }
 
@@ -995,16 +1001,16 @@ LEFT JOIN [sys].[default_constraints] AS [dc] ON [c].[object_id] = [dc].[parent_
         }
     }
 
-    private static string GetStoreType(string dataTypeName, int maxLength, int precision, int scale)
+    private static string GetStoreType(string dataTypeName, int maxLength, int precision, int scale, int vectorDimensions)
     {
-        if (dataTypeName == "timestamp")
+        switch (dataTypeName)
         {
-            return "rowversion";
-        }
-
-        if (dataTypeName is "decimal" or "numeric")
-        {
-            return $"{dataTypeName}({precision}, {scale})";
+            case "timestamp":
+                return "rowversion";
+            case "decimal" or "numeric":
+                return $"{dataTypeName}({precision}, {scale})";
+            case "vector":
+                return $"vector({vectorDimensions})";
         }
 
         if (DateTimePrecisionTypes.Contains(dataTypeName)
