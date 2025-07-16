@@ -19,7 +19,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
     private readonly bool _threadSafetyChecksEnabled;
     private readonly bool _detailedErrorsEnabled;
     private readonly bool _useRelationalNulls;
-    private readonly ParameterizedCollectionMode _parameterizedCollectionMode;
+    private readonly ParameterTranslationMode _collectionParameterTranslationMode;
     private readonly bool _isPrecompiling;
 
     private readonly RelationalParameterBasedSqlProcessor _relationalParameterBasedSqlProcessor;
@@ -55,7 +55,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
 
         _relationalParameterBasedSqlProcessor =
             relationalDependencies.RelationalParameterBasedSqlProcessorFactory.Create(
-                new RelationalParameterBasedSqlProcessorParameters(_useRelationalNulls, _parameterizedCollectionMode));
+                new RelationalParameterBasedSqlProcessorParameters(_useRelationalNulls, _collectionParameterTranslationMode));
         _querySqlGeneratorFactory = relationalDependencies.QuerySqlGeneratorFactory;
 
         _contextType = queryCompilationContext.ContextType;
@@ -63,7 +63,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
         _threadSafetyChecksEnabled = dependencies.CoreSingletonOptions.AreThreadSafetyChecksEnabled;
         _detailedErrorsEnabled = dependencies.CoreSingletonOptions.AreDetailedErrorsEnabled;
         _useRelationalNulls = RelationalOptionsExtension.Extract(queryCompilationContext.ContextOptions).UseRelationalNulls;
-        _parameterizedCollectionMode = RelationalOptionsExtension.Extract(queryCompilationContext.ContextOptions).ParameterizedCollectionMode;
+        _collectionParameterTranslationMode = RelationalOptionsExtension.Extract(queryCompilationContext.ContextOptions).ParameterizedCollectionMode;
         _isPrecompiling = queryCompilationContext.IsPrecompiling;
     }
 
@@ -500,7 +500,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
             RelationalDependencies.RelationalParameterBasedSqlProcessorFactory,
             queryExpression,
             _useRelationalNulls,
-            _parameterizedCollectionMode);
+            _collectionParameterTranslationMode);
 
         var commandLiftableConstant = RelationalDependencies.RelationalLiftableConstantFactory.CreateLiftableConstant(
             relationalCommandCache,
@@ -751,7 +751,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
                             _relationalDependenciesRelationalParameterBasedSqlProcessorFactoryProperty),
                         Constant(queryExpression),
                         Constant(_useRelationalNulls),
-                        Constant(_parameterizedCollectionMode, typeof(ParameterizedCollectionMode))),
+                        Constant(_collectionParameterTranslationMode, typeof(ParameterTranslationMode))),
                     contextParameter);
         }
     }

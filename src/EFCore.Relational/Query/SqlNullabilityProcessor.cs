@@ -39,7 +39,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
     {
         Dependencies = dependencies;
         UseRelationalNulls = parameters.UseRelationalNulls;
-        ParameterizedCollectionMode = parameters.ParameterizedCollectionMode;
+        CollectionParameterTranslationMode = parameters.CollectionParameterTranslationMode;
 
         _sqlExpressionFactory = dependencies.SqlExpressionFactory;
         _nonNullableColumns = [];
@@ -61,7 +61,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
     /// <summary>
     ///     A value indicating what translation mode to use.
     /// </summary>
-    public virtual ParameterizedCollectionMode ParameterizedCollectionMode { get; }
+    public virtual ParameterTranslationMode CollectionParameterTranslationMode { get; }
 
     /// <summary>
     ///     Dictionary of current parameter values in use.
@@ -126,10 +126,9 @@ public class SqlNullabilityProcessor : ExpressionVisitor
 
                 var processedValues = new List<RowValueExpression>();
 
-                switch (ParameterizedCollectionMode)
+                switch (valuesParameter.TranslationMode ?? CollectionParameterTranslationMode)
                 {
-                    case ParameterizedCollectionMode.MultipleParameters
-                        when !valuesParameter.ShouldBeConstantized:
+                    case ParameterTranslationMode.MultipleParameters:
                     {
                         var expandedParameters = _collectionParameterExpansionMap.GetOrAddNew(valuesParameter);
                         for (var i = 0; i < values.Count; i++)
@@ -155,11 +154,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                         break;
                     }
 
-                    case ParameterizedCollectionMode.Constants:
-                    case ParameterizedCollectionMode.Parameter
-                        when valuesParameter.ShouldBeConstantized:
-                    case ParameterizedCollectionMode.MultipleParameters
-                        when valuesParameter.ShouldBeConstantized:
+                    case ParameterTranslationMode.Constant:
                     {
                         foreach (var value in values)
                         {
@@ -819,18 +814,6 @@ public class SqlNullabilityProcessor : ExpressionVisitor
 
                 processedValues = [];
 
-                var useParameters = ParameterizedCollectionMode is ParameterizedCollectionMode.MultipleParameters
-                    && !valuesParameter.ShouldBeConstantized;
-                var useConstants =
-                    ParameterizedCollectionMode is ParameterizedCollectionMode.Constants
-                    ||
-                    (ParameterizedCollectionMode is ParameterizedCollectionMode.Parameter
-                        && valuesParameter.ShouldBeConstantized)
-                    ||
-                    (ParameterizedCollectionMode is ParameterizedCollectionMode.MultipleParameters
-                        && valuesParameter.ShouldBeConstantized);
-                var useParameter = ParameterizedCollectionMode is ParameterizedCollectionMode.Parameter
-                    && !valuesParameter.ShouldBeConstantized;
                 var expandedParameters = _collectionParameterExpansionMap.GetOrAddNew(valuesParameter);
                 var expandedParametersCounter = 0;
                 for (var i = 0; i < values.Count; i++)
@@ -841,11 +824,11 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                         continue;
                     }
 
-                    switch (useParameters, useConstants, useParameter)
+                    switch (valuesParameter.TranslationMode ?? CollectionParameterTranslationMode)
                     {
-                        case (true, false, false):
+                        case ParameterTranslationMode.MultipleParameters:
                         // see #36311 for more info
-                        case (false, false, true):
+                        case ParameterTranslationMode.Parameter:
                         {
                             // Create parameter for value if we didn't create it yet,
                             // otherwise reuse it.
@@ -863,7 +846,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                             break;
                         }
 
-                        case (false, true, false):
+                        case ParameterTranslationMode.Constant:
                         {
                             processedValues.Add(_sqlExpressionFactory.Constant(values[i], values[i]?.GetType() ?? typeof(object), sensitive: true, elementTypeMapping));
 
@@ -1425,7 +1408,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
 
         nullable = false;
 
-        if (sqlParameterExpression.ShouldBeConstantized)
+        if (sqlParameterExpression.TranslationMode is ParameterTranslationMode.Constant)
         {
             var parameters = ParametersFacade.GetParametersAndDisableSqlCaching();
 

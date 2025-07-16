@@ -359,14 +359,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 navigationName, entityType);
 
         /// <summary>
-        ///     The entity type '{entityType}' is configured to use the '{changeTrackingStrategy}' change tracking strategy, but does not implement the required '{notificationInterface}' interface. Implement '{notificationInterface}' on '{entityType}' or use a different change tracking strategy.
-        /// </summary>
-        public static string ChangeTrackingInterfaceMissing(object? entityType, object? changeTrackingStrategy, object? notificationInterface)
-            => string.Format(
-                GetString("ChangeTrackingInterfaceMissing", nameof(entityType), nameof(changeTrackingStrategy), nameof(notificationInterface)),
-                entityType, changeTrackingStrategy, notificationInterface);
-
-        /// <summary>
         ///     Unable to save changes because a circular dependency was detected in the data to be saved: '{cycle}'.
         /// </summary>
         public static string CircularDependency(object? cycle)
@@ -1125,22 +1117,18 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("EFConstantNotSupportedInPrecompiledQueries");
 
         /// <summary>
-        ///     The EF.Constant&lt;T&gt; method may only be used with an argument that can be evaluated client-side and does not contain any reference to database-side entities.
+        ///     The {methodName} method may only be used with an argument that can be evaluated client-side and does not contain any reference to database-side entities.
         /// </summary>
-        public static string EFConstantWithNonEvaluatableArgument
-            => GetString("EFConstantWithNonEvaluatableArgument");
+        public static string EFMethodWithNonEvaluatableArgument(object? methodName)
+            => string.Format(
+                GetString("EFMethodWithNonEvaluatableArgument", nameof(methodName)),
+                methodName);
 
         /// <summary>
         ///     The EF.Parameter&lt;T&gt; method may only be used within Entity Framework LINQ queries.
         /// </summary>
         public static string EFParameterInvoked
             => GetString("EFParameterInvoked");
-
-        /// <summary>
-        ///     The EF.Parameter&lt;T&gt; method may only be used with an argument that can be evaluated client-side and does not contain any reference to database-side entities.
-        /// </summary>
-        public static string EFParameterWithNonEvaluatableArgument
-            => GetString("EFParameterWithNonEvaluatableArgument");
 
         /// <summary>
         ///     Complex type '{complexType}' has no properties defines. Configure at least one property or don't include this type in the model.
@@ -1451,6 +1439,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         public static string HiLoBadBlockSize
             => GetString("HiLoBadBlockSize");
+
+        /// <summary>
+        ///     The entity type '{entityType}' is configured to use the '{changeTrackingStrategy}' change tracking strategy, but does not implement the required '{notificationInterface}' interface. Implement '{notificationInterface}' on '{entityType}' or use a different change tracking strategy.
+        /// </summary>
+        public static string ChangeTrackingInterfaceMissing(object? entityType, object? changeTrackingStrategy, object? notificationInterface)
+            => string.Format(
+                GetString("ChangeTrackingInterfaceMissing", nameof(entityType), nameof(changeTrackingStrategy), nameof(notificationInterface)),
+                entityType, changeTrackingStrategy, notificationInterface);
 
         /// <summary>
         ///     A relationship cycle involving the primary keys of the following entity types was detected: '{entityType}'. This would prevent any entity to be inserted without violating the store constraints. Review the foreign keys defined on the primary keys and either remove or use other properties for at least one of them.

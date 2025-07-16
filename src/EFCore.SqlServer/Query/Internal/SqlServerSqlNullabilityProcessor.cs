@@ -187,8 +187,7 @@ public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
         switch (node)
         {
             case ValuesExpression { ValuesParameter: SqlParameterExpression valuesParameter } valuesExpression
-                when ParameterizedCollectionMode is ParameterizedCollectionMode.MultipleParameters
-                    && !valuesParameter.ShouldBeConstantized:
+                when (valuesParameter.TranslationMode ?? CollectionParameterTranslationMode) is ParameterTranslationMode.MultipleParameters:
             {
                 Check.DebugAssert(valuesParameter.TypeMapping is not null);
                 Check.DebugAssert(valuesParameter.TypeMapping.ElementTypeMapping is not null);
@@ -234,8 +233,7 @@ public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
         switch (inExpression.ValuesParameter)
         {
             case SqlParameterExpression valuesParameter
-                when ParameterizedCollectionMode is ParameterizedCollectionMode.MultipleParameters
-                    && !valuesParameter.ShouldBeConstantized:
+                when (valuesParameter.TranslationMode ?? CollectionParameterTranslationMode) is ParameterTranslationMode.MultipleParameters:
             {
                 Check.DebugAssert(valuesParameter.TypeMapping is not null);
                 Check.DebugAssert(valuesParameter.TypeMapping.ElementTypeMapping is not null);
