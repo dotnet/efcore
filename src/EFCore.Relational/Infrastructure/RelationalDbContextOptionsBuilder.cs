@@ -179,7 +179,7 @@ public abstract class RelationalDbContextOptionsBuilder<TBuilder, TExtension> : 
     /// </remarks>
     [Obsolete("Use UseParameterizedCollectionMode instead.")]
     public virtual TBuilder TranslateParameterizedCollectionsToConstants()
-        => UseParameterizedCollectionMode(ParameterizedCollectionMode.Constants);
+        => UseParameterizedCollectionMode(ParameterTranslationMode.Constant);
 
     /// <summary>
     ///     Configures the context to translate parameterized collections to a single array-like parameter.
@@ -202,13 +202,13 @@ public abstract class RelationalDbContextOptionsBuilder<TBuilder, TExtension> : 
     /// </remarks>
     [Obsolete("Use UseParameterizedCollectionMode instead.")]
     public virtual TBuilder TranslateParameterizedCollectionsToParameters()
-        => UseParameterizedCollectionMode(ParameterizedCollectionMode.Parameter);
+        => UseParameterizedCollectionMode(ParameterTranslationMode.Parameter);
 
     /// <summary>
-    ///     Configures the <see cref="ParameterizedCollectionMode" /> to use when translating parameterized collections.
+    ///     Configures the mode to use when translating parameterized collections.
     /// </summary>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-    public virtual TBuilder UseParameterizedCollectionMode(ParameterizedCollectionMode parameterizedCollectionMode)
+    public virtual TBuilder UseParameterizedCollectionMode(ParameterTranslationMode parameterizedCollectionMode)
         => WithOption(e => (TExtension)e.WithUseParameterizedCollectionMode(parameterizedCollectionMode));
 
     /// <summary>

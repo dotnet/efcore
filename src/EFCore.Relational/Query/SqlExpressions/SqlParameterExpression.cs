@@ -17,7 +17,7 @@ public sealed class SqlParameterExpression : SqlExpression
     /// <param name="type">The <see cref="Type" /> of the expression.</param>
     /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
     public SqlParameterExpression(string name, Type type, RelationalTypeMapping? typeMapping)
-        : this(invariantName: name, name: name, type.UnwrapNullableType(), type.IsNullableType(), shouldBeConstantized: false, typeMapping)
+        : this(invariantName: name, name: name, type.UnwrapNullableType(), type.IsNullableType(), translationMode: null, typeMapping)
     {
     }
 
@@ -31,21 +31,21 @@ public sealed class SqlParameterExpression : SqlExpression
     /// </param>
     /// <param name="type">The <see cref="Type" /> of the expression.</param>
     /// <param name="nullable">Whether this parameter can have null values.</param>
-    /// <param name="shouldBeConstantized">Whether the user has indicated that this query parameter should be inlined as a constant.</param>
+    /// <param name="translationMode">How the parameter should be handled.</param>
     /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
     public SqlParameterExpression(
         string invariantName,
         string name,
         Type type,
         bool nullable,
-        bool shouldBeConstantized,
+        ParameterTranslationMode? translationMode,
         RelationalTypeMapping? typeMapping)
         : base(type.UnwrapNullableType(), typeMapping)
     {
         InvariantName = invariantName;
         Name = name;
         IsNullable = nullable;
-        ShouldBeConstantized = shouldBeConstantized;
+        TranslationMode = translationMode;
     }
 
     /// <summary>
@@ -65,9 +65,9 @@ public sealed class SqlParameterExpression : SqlExpression
     public bool IsNullable { get; }
 
     /// <summary>
-    ///     Whether the user has indicated that this query parameter should be inlined as a constant.
+    ///     How the parameter should be handled.
     /// </summary>
-    public bool ShouldBeConstantized { get; }
+    public ParameterTranslationMode? TranslationMode { get; }
 
     /// <summary>
     ///     Applies supplied type mapping to this expression.
@@ -75,7 +75,7 @@ public sealed class SqlParameterExpression : SqlExpression
     /// <param name="typeMapping">A relational type mapping to apply.</param>
     /// <returns>A new expression which has supplied type mapping.</returns>
     public SqlExpression ApplyTypeMapping(RelationalTypeMapping? typeMapping)
-        => new SqlParameterExpression(InvariantName, Name, Type, IsNullable, ShouldBeConstantized, typeMapping);
+        => new SqlParameterExpression(InvariantName, Name, Type, IsNullable, TranslationMode, typeMapping);
 
     /// <inheritdoc />
     protected override Expression VisitChildren(ExpressionVisitor visitor)
