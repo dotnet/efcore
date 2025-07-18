@@ -58,8 +58,6 @@ ORDER BY LENGTH(c["id"]), c["id"]
         // Cosmos client evaluation. Issue #17246.
         await AssertTranslationFailed(
             () => base.Order_by_length_twice_followed_by_projection_of_naked_collection_navigation(async));
-
-        AssertSql();
     }
 
     public override Task Sum_over_round_works_correctly_in_projection(bool async)
@@ -74,13 +72,19 @@ ORDER BY LENGTH(c["id"]), c["id"]
     public override Task Sum_over_truncate_works_correctly_in_projection_2(bool async)
         => AssertTranslationFailed(() => base.Sum_over_truncate_works_correctly_in_projection_2(async));
 
-    public override async Task Where_functions_nested(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_functions_nested(async));
+    public override Task Where_functions_nested(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Where_functions_nested(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE (POWER(LENGTH(c["id"]), 2.0) = 25.0)
+""");
+            });
 
     public override Task Static_equals_nullable_datetime_compared_to_non_nullable(bool async)
         => Fixture.NoSyncTest(

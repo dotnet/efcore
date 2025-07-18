@@ -2221,7 +2221,9 @@ WHERE ((c["$type"] = "Order") AND (c["OrderDate"] != null))
 
                 AssertSql(
                     """
-SELECT c["OrderDate"], DateTimePart("ms", c["OrderDate"]) AS c
+@millisecondsPerDay='86400000'
+
+SELECT VALUE DateTimeAdd("ms", (DateTimePart("ms", c["OrderDate"]) % @millisecondsPerDay), DateTimeAdd("dd", (DateTimePart("ms", c["OrderDate"]) / @millisecondsPerDay), c["OrderDate"]))
 FROM root c
 WHERE ((c["$type"] = "Order") AND (c["OrderDate"] != null))
 """);
@@ -2235,7 +2237,7 @@ WHERE ((c["$type"] = "Order") AND (c["OrderDate"] != null))
 
                 AssertSql(
                     """
-SELECT VALUE (c["OrderID"] % 25)
+SELECT VALUE DateTimeAdd("mi", (c["OrderID"] % 25), "1900-01-01T00:00:00")
 FROM root c
 WHERE ((c["$type"] = "Order") AND (c["OrderID"] < 10500))
 ORDER BY c["OrderID"]
@@ -3961,7 +3963,7 @@ FROM root c
 
                 AssertSql(
                     """
-SELECT c["CustomerID"], c["OrderID"]
+SELECT VALUE (c["CustomerID"] || ToString(c["OrderID"]))
 FROM root c
 WHERE (c["$type"] = "Order")
 """);
@@ -4016,7 +4018,7 @@ WHERE (c["id"] = null)
 
                 AssertSql(
                     """
-SELECT VALUE c["OrderID"]
+SELECT VALUE ("-" || ToString(c["OrderID"]))
 FROM root c
 WHERE (c["$type"] = "Order")
 """);
@@ -4066,7 +4068,7 @@ ORDER BY c["id"]
 
                 AssertSql(
                     """
-SELECT c["OrderID"], c["CustomerID"]
+SELECT VALUE (ToString(c["OrderID"]) || c["CustomerID"])
 FROM root c
 WHERE (c["$type"] = "Order")
 """);
@@ -4289,7 +4291,9 @@ WHERE ((c["$type"] = "OrderDetail") AND ((c["OrderID"] = null) OR (c["ProductID"
 
                 AssertSql(
                     """
-SELECT VALUE c["OrderID"]
+@parameter='-'
+
+SELECT VALUE (@parameter || ToString(c["OrderID"]))
 FROM root c
 WHERE (c["$type"] = "Order")
 """);
@@ -4987,33 +4991,69 @@ WHERE (c["id"] = "ALFKI")
 
     #endregion ToPageAsync
 
-    public override async Task Ternary_Not_Null_Contains(bool async)
-    {
-        await AssertTranslationFailed(() => base.Ternary_Not_Null_Contains(async));
+    public override Task Ternary_Not_Null_Contains(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Ternary_Not_Null_Contains(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT VALUE ((c["OrderID"] != null) ? (ToString(c["OrderID"]) || "") : null)
+FROM root c
+WHERE ((c["$type"] = "Order") AND CONTAINS(((c["OrderID"] != null) ? (ToString(c["OrderID"]) || "") : null), "1"))
+ORDER BY c["OrderID"]
+OFFSET 0 LIMIT 1
+""");
+            });
 
-    public override async Task Ternary_Not_Null_endsWith_Non_Numeric_First_Part(bool async)
-    {
-        await AssertTranslationFailed(() => base.Ternary_Not_Null_endsWith_Non_Numeric_First_Part(async));
+    public override Task Ternary_Not_Null_endsWith_Non_Numeric_First_Part(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Ternary_Not_Null_endsWith_Non_Numeric_First_Part(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT VALUE ((c["OrderID"] != null) ? (("" || ToString(c["OrderID"])) || "") : null)
+FROM root c
+WHERE ((c["$type"] = "Order") AND ENDSWITH(((c["OrderID"] != null) ? (("" || ToString(c["OrderID"])) || "") : null), "1"))
+ORDER BY c["OrderID"]
+OFFSET 0 LIMIT 1
+""");
+            });
 
-    public override async Task Ternary_Null_Equals_Non_Numeric_First_Part(bool async)
-    {
-        await AssertTranslationFailed(() => base.Ternary_Null_Equals_Non_Numeric_First_Part(async));
+    public override Task Ternary_Null_Equals_Non_Numeric_First_Part(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Ternary_Null_Equals_Non_Numeric_First_Part(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT VALUE ((c["OrderID"] = null) ? null : (("" || ToString(c["OrderID"])) || ""))
+FROM root c
+WHERE ((c["$type"] = "Order") AND (((c["OrderID"] = null) ? null : (("" || ToString(c["OrderID"])) || "")) = "1"))
+ORDER BY c["OrderID"]
+OFFSET 0 LIMIT 1
+""");
+            });
 
-    public override async Task Ternary_Null_StartsWith(bool async)
-    {
-        await AssertTranslationFailed(() => base.Ternary_Null_StartsWith(async));
+    public override Task Ternary_Null_StartsWith(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Ternary_Null_StartsWith(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT VALUE ((c["OrderID"] = null) ? null : (ToString(c["OrderID"]) || ""))
+FROM root c
+WHERE ((c["$type"] = "Order") AND STARTSWITH(((c["OrderID"] = null) ? null : (ToString(c["OrderID"]) || "")), "1"))
+ORDER BY c["OrderID"]
+OFFSET 0 LIMIT 1
+""");
+            });
 
     public override async Task Column_access_inside_subquery_predicate(bool async)
     {
