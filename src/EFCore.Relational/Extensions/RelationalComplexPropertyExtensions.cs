@@ -24,7 +24,7 @@ public static class RelationalComplexPropertyExtensions
     /// </returns>
     public static string? GetJsonPropertyName(this IReadOnlyComplexProperty complexProperty)
         => (string?)complexProperty.FindAnnotation(RelationalAnnotationNames.JsonPropertyName)?.Value
-            ?? (!complexProperty.DeclaringType.IsMappedToJson() ? null : complexProperty.Name);
+            ?? (complexProperty.DeclaringType.IsMappedToJson() ? complexProperty.Name : null);
 
     /// <summary>
     ///     Sets the value of JSON property name used for the given complex property of an entity mapped to a JSON column.

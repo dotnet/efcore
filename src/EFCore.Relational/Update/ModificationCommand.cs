@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using IColumnMapping = Microsoft.EntityFrameworkCore.Metadata.IColumnMapping;
 using ITableMapping = Microsoft.EntityFrameworkCore.Metadata.ITableMapping;
@@ -243,7 +244,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
         public object? PropertyValue { get; set; }
     }
 
-    private record struct JsonPartialUpdatePathEntry(string PropertyName, int? Ordinal, IUpdateEntry ParentEntry, INavigation Navigation);
+    private record struct JsonPartialUpdatePathEntry(string PropertyName, int? Ordinal, IUpdateEntry ParentEntry, INavigation? Navigation, IComplexProperty? ComplexProperty = null);
 
     private List<IColumnModification> GenerateColumnModifications()
     {
@@ -263,7 +264,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
         {
             Check.DebugAssert(StoreStoredProcedure is null, "Multiple entries/shared identity not supported with stored procedures");
 
-            sharedTableColumnMap = new Dictionary<string, ColumnValuePropagator>();
+            sharedTableColumnMap = [];
 
             if (_comparer != null
                 && _entries.Count > 1)
@@ -297,6 +298,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                 if (!jsonEntry)
                 {
                     if (entry.EntityType.IsMappedToJson()
+                        || entry.EntityType.GetFlattenedComplexProperties().Any(cp => cp.ComplexType.IsMappedToJson())
                         || entry.EntityType.GetNavigations().Any(e => e.IsCollection && e.TargetEntityType.IsMappedToJson()))
                     {
                         jsonEntry = true;
@@ -654,7 +656,8 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                         first.Path[i].PropertyName,
                         null,
                         first.Path[i].ParentEntry,
-                        first.Path[i].Navigation);
+                        Navigation: first.Path[i].Navigation,
+                        ComplexProperty: first.Path[i].ComplexProperty);
 
                     result.Path.Add(common);
 
@@ -671,11 +674,15 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
         {
             var jsonColumnsUpdateMap = new Dictionary<IColumn, JsonPartialUpdateInfo>();
             var processedEntries = new List<IUpdateEntry>();
-            foreach (var entry in _entries.Where(e => e.EntityType.IsMappedToJson()))
+            foreach (var entry in _entries)
             {
+                if (!entry.EntityType.IsMappedToJson())
+                {
+                    continue;
+                }
+
                 var jsonColumn = GetTableMapping(entry.EntityType)!.Table.FindColumn(entry.EntityType.GetContainerColumnName()!)!;
                 var jsonPartialUpdateInfo = FindJsonPartialUpdateInfo(entry, processedEntries);
-
                 if (jsonPartialUpdateInfo == null)
                 {
                     continue;
@@ -691,8 +698,13 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                 jsonColumnsUpdateMap[jsonColumn] = jsonPartialUpdateInfo;
             }
 
-            foreach (var entry in _entries.Where(e => !e.EntityType.IsMappedToJson()))
+            foreach (var entry in _entries)
             {
+                if (entry.EntityType.IsMappedToJson())
+                {
+                    continue;
+                }
+
                 foreach (var jsonCollectionNavigation in entry.EntityType.GetNavigations()
                              .Where(
                                  n => n.IsCollection
@@ -712,14 +724,32 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                         jsonColumnsUpdateMap[jsonCollectionColumn] = jsonPartialUpdateInfo;
                     }
                 }
+
+                foreach (var complexProperty in entry.EntityType.GetFlattenedComplexProperties()
+                             .Where(cp => cp.ComplexType.IsMappedToJson() && !cp.DeclaringType.IsMappedToJson()))
+                {
+                    var complexType = complexProperty.ComplexType;
+                    var jsonColumn = GetTableMapping(entry.EntityType)!.Table.FindColumn(complexType.GetContainerColumnName()!)!;
+
+                    if (!jsonColumnsUpdateMap.ContainsKey(jsonColumn))
+                    {
+                        var jsonPartialUpdateInfo = new JsonPartialUpdateInfo();
+                        jsonPartialUpdateInfo.Path.Insert(0, new JsonPartialUpdatePathEntry("$", null, entry, Navigation: null, ComplexProperty: complexProperty));
+                        jsonPartialUpdateInfo.PropertyValue = entry.GetCurrentValue(complexProperty);
+                        jsonColumnsUpdateMap[jsonColumn] = jsonPartialUpdateInfo;
+                    }
+                }
             }
 
             foreach (var (jsonColumn, updateInfo) in jsonColumnsUpdateMap)
             {
                 var finalUpdatePathElement = updateInfo.Path.Last();
                 var navigation = finalUpdatePathElement.Navigation;
+                var complexProperty = finalUpdatePathElement.ComplexProperty;
                 var jsonColumnTypeMapping = jsonColumn.StoreTypeMapping;
-                var navigationValue = finalUpdatePathElement.ParentEntry.GetCurrentValue(navigation);
+                var jsonContainerProperty = (IPropertyBase?)navigation ?? complexProperty;
+                var navigationValue = finalUpdatePathElement.ParentEntry.GetCurrentValue(jsonContainerProperty!);
+
                 var jsonPathString = string.Join(
                     ".", updateInfo.Path.Select(x => x.PropertyName + (x.Ordinal != null ? "[" + x.Ordinal + "]" : "")));
                 if (updateInfo.Property is IProperty property)
@@ -755,8 +785,8 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                                 WriteJson(
                                     writer,
                                     navigationValueElement,
-                                    finalUpdatePathElement.ParentEntry,
-                                    navigation.TargetEntityType,
+                                    (IInternalEntry)finalUpdatePathElement.ParentEntry,
+                                    ((IPropertyBase?)navigation) ?? complexProperty!,
                                     ordinal: null,
                                     isCollection: false,
                                     isTopLevel: true);
@@ -769,13 +799,14 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                     }
                     else
                     {
+                        var propertyBase = ((IPropertyBase?)navigation) ?? complexProperty!;
                         WriteJson(
                             writer,
                             navigationValue,
-                            finalUpdatePathElement.ParentEntry,
-                            navigation.TargetEntityType,
+                            (IInternalEntry)finalUpdatePathElement.ParentEntry,
+                            ((IPropertyBase?)navigation) ?? complexProperty!,
                             ordinal: null,
-                            isCollection: navigation.IsCollection,
+                            isCollection: propertyBase.IsCollection,
                             isTopLevel: true);
                     }
 
@@ -840,16 +871,20 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
         }
     }
 
+#pragma warning disable EF1001 // Internal EF Core API usage.
     private void WriteJson(
         Utf8JsonWriter writer,
-        object? navigationValue,
-        IUpdateEntry parentEntry,
-        IEntityType entityType,
+        object? value,
+        IInternalEntry parentEntry,
+        IPropertyBase property,
         int? ordinal,
         bool isCollection,
         bool isTopLevel)
     {
-        if (navigationValue == null)
+        var structuralType = property is INavigation navigation
+            ? (ITypeBase)navigation.TargetEntityType
+            : ((IComplexProperty)property).ComplexType;
+        if (value is null)
         {
             if (!isTopLevel)
             {
@@ -861,15 +896,15 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
 
         if (isCollection)
         {
-            var i = 1;
+            var i = 0;
             writer.WriteStartArray();
-            foreach (var collectionElement in (IEnumerable)navigationValue)
+            foreach (var collectionElement in (IEnumerable)value)
             {
                 WriteJson(
                     writer,
                     collectionElement,
                     parentEntry,
-                    entityType,
+                    property,
                     i++,
                     isCollection: false,
                     isTopLevel: false);
@@ -879,18 +914,27 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
             return;
         }
 
-#pragma warning disable EF1001 // Internal EF Core API usage.
-        var entry = (IUpdateEntry)((InternalEntityEntry)parentEntry).StateManager.TryGetEntry(navigationValue, entityType)!;
-#pragma warning restore EF1001 // Internal EF Core API usage.
-
         writer.WriteStartObject();
-        foreach (var property in entityType.GetFlattenedProperties())
+
+        var entry = structuralType is IComplexType complexType
+            ? complexType.ComplexProperty.IsCollection
+                ? parentEntry.GetComplexCollectionEntry(complexType.ComplexProperty, ordinal!.Value)
+                : parentEntry
+            : ((InternalEntityEntry)parentEntry).StateManager.TryGetEntry(value, (IEntityType)structuralType)!;
+        WriteJsonObject(writer, parentEntry, entry, structuralType, ordinal);
+
+        writer.WriteEndObject();
+    }
+
+    private void WriteJsonObject(Utf8JsonWriter writer, IInternalEntry parentEntry, IInternalEntry entry, ITypeBase structuralType, int? ordinal)
+    {
+        foreach (var property in structuralType.GetProperties())
         {
             if (property.IsKey())
             {
                 if (property.IsOrdinalKeyProperty() && ordinal != null)
                 {
-                    entry.SetStoreGeneratedValue(property, ordinal.Value, setModified: false);
+                    entry.SetStoreGeneratedValue(property, ordinal.Value + 1, setModified: false);
                 }
 
                 continue;
@@ -898,14 +942,14 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
 
             // jsonPropertyName can only be null for key properties
             var jsonPropertyName = property.GetJsonPropertyName()!;
-            var value = entry.GetCurrentValue(property);
+            var propertyValue = entry.GetCurrentValue(property);
             writer.WritePropertyName(jsonPropertyName);
 
-            if (value is not null)
+            if (propertyValue is not null)
             {
                 var jsonValueReaderWriter = property.GetJsonValueReaderWriter() ?? property.GetTypeMapping().JsonValueReaderWriter;
                 Check.DebugAssert(jsonValueReaderWriter is not null, "Missing JsonValueReaderWriter on JSON property");
-                jsonValueReaderWriter.ToJson(writer, value);
+                jsonValueReaderWriter.ToJson(writer, propertyValue);
             }
             else
             {
@@ -913,29 +957,46 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
             }
         }
 
-        foreach (var navigation in entityType.GetNavigations())
+        foreach (var complexProperty in structuralType.GetComplexProperties())
         {
-            // skip back-references to the parent
-            if (navigation.IsOnDependent)
-            {
-                continue;
-            }
-
-            var jsonPropertyName = navigation.TargetEntityType.GetJsonPropertyName()!;
-            var ownedNavigationValue = entry.GetCurrentValue(navigation)!;
-
+            var jsonPropertyName = complexProperty.GetJsonPropertyName()!;
+            var complexPropertyValue = entry.GetCurrentValue(complexProperty);
             writer.WritePropertyName(jsonPropertyName);
+
             WriteJson(
                 writer,
-                ownedNavigationValue,
+                complexPropertyValue,
                 entry,
-                navigation.TargetEntityType,
+                complexProperty,
                 ordinal: null,
-                isCollection: navigation.IsCollection,
+                isCollection: complexProperty.IsCollection,
                 isTopLevel: false);
         }
 
-        writer.WriteEndObject();
+        if (structuralType is IEntityType entityType)
+        {
+            foreach (var navigation in entityType.GetNavigations())
+            {
+                // skip back-references to the parent
+                if (navigation.IsOnDependent)
+                {
+                    continue;
+                }
+
+                var jsonPropertyName = navigation.TargetEntityType.GetJsonPropertyName()!;
+                var ownedNavigationValue = entry.GetCurrentValue(navigation)!;
+
+                writer.WritePropertyName(jsonPropertyName);
+                WriteJson(
+                    writer,
+                    ownedNavigationValue,
+                    entry,
+                    navigation,
+                    ordinal: null,
+                    isCollection: navigation.IsCollection,
+                    isTopLevel: false);
+            }
+        }
     }
 
     private ITableMapping? GetTableMapping(ITypeBase structuralType)
