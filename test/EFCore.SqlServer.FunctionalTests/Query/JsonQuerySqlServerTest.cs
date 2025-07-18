@@ -1,6 +1,7 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Text.Json.Nodes;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
 
@@ -229,6 +230,71 @@ SELECT [j].[Name]
 FROM [JsonEntitiesBasic] AS [j]
 WHERE CAST(LEN(JSON_VALUE([j].[OwnedReferenceRoot], '$.Name')) AS int) > 2
 """);
+    }
+
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public async Task JsonValue_combined_with_JsonQuery_Query_Select_And_Where(bool async)
+    { 
+        var context = base.Fixture.CreateContext();
+
+        var actual = context.JsonEntitiesBasicString.Select(x => new { JName = EF.Functions.JsonValue(x.OwnedReferenceRoot, "$.Name"), x.OwnedReferenceRoot, Branch = EF.Functions.JsonQuery(x.OwnedReferenceRoot,"$.OwnedCollectionBranch") })
+                                                    .Where(c => EF.Functions.JsonValue(c.OwnedReferenceRoot, "$.Name") == "e1_r")
+                                                    .Select(x => new { x.JName, x.Branch });
+        var query = actual.ToQueryString();
+
+        var actualEntity = async ? await actual.ToListAsync() : actual.ToList();
+
+        //Some ugly parsing to test if things went okay from JSON_QUERY-selected property.
+        var jsonAsObject = JsonNode.Parse(actualEntity.FirstOrDefault()?.Branch);
+        Assert.Equal("2101-01-01T00:00:00", ((string)jsonAsObject[0]["Date"]));
+
+        Assert.Equal("e1_r", actualEntity.FirstOrDefault()?.JName);
+
+        AssertSql("SELECT JSON_VALUE([j].[OwnedReferenceRoot], N'$.Name') AS [JName], JSON_QUERY([j].[OwnedReferenceRoot], N'$.OwnedCollectionBranch') AS [Branch]\r\nFROM [JsonEntitiesBasicString] AS [j]\r\nWHERE JSON_VALUE([j].[OwnedReferenceRoot], N'$.Name') = N'e1_r'");
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public async Task JsonValue_Query_Where(bool async)
+    {
+        var context = base.Fixture.CreateContext();
+
+        var actual = context.JsonEntitiesBasicString.Where(c => EF.Functions.JsonValue(c.OwnedReferenceRoot, "$.Name") == "e1_r");
+        var query = actual.ToQueryString();
+
+        var actualEntity = async ? await actual.ToListAsync() : actual.ToList();
+
+        AssertSql("SELECT [j].[Id], [j].[Name], [j].[OwnedReferenceRoot]\r\nFROM [JsonEntitiesBasicString] AS [j]\r\nWHERE JSON_VALUE([j].[OwnedReferenceRoot], N'$.Name') = N'e1_r'");
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public async Task JsonValue_Query_Select(bool async)
+    {
+        var context = base.Fixture.CreateContext();
+
+        var actual = context.JsonEntitiesBasicString.Select(c => new { Name = EF.Functions.JsonValue(c.OwnedReferenceRoot, "$.Name")});
+        var query = actual.ToQueryString();
+
+        var actualEntity = async ? await actual.ToListAsync() : actual.ToList();
+
+        AssertSql("SELECT JSON_VALUE([j].[OwnedReferenceRoot], N'$.Name') AS [Name]\r\nFROM [JsonEntitiesBasicString] AS [j]");
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public async Task JsonQuery_Query_Select(bool async)
+    {
+        var context = base.Fixture.CreateContext();
+
+        var actual = context.JsonEntitiesBasicString.Select(c => new { Data = EF.Functions.JsonQuery(c.OwnedReferenceRoot, "$.OwnedCollectionBranch") });
+        var query = actual.ToQueryString();
+
+        var actualEntity = async ? await actual.ToListAsync() : actual.ToList();
+
+        AssertSql("SELECT JSON_QUERY([j].[OwnedReferenceRoot], N'$.OwnedCollectionBranch') AS [Data]\r\nFROM [JsonEntitiesBasicString] AS [j]");
     }
 
     public override async Task Basic_json_projection_enum_inside_json_entity(bool async)
