@@ -18,7 +18,7 @@ public abstract class RelationshipsProjectionTestBase<TFixture>(TFixture fixture
 
     [ConditionalTheory]
     [MemberData(nameof(AsyncAndTrackingData))]
-    public virtual Task Select_related_property(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    public virtual Task Select_property_on_required_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             async,
             ss => ss.Set<RootEntity>().Select(x => x.RequiredRelated.String),
@@ -26,7 +26,7 @@ public abstract class RelationshipsProjectionTestBase<TFixture>(TFixture fixture
 
     [ConditionalTheory]
     [MemberData(nameof(AsyncAndTrackingData))]
-    public virtual Task Select_optional_related_property(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    public virtual Task Select_property_on_optional_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             async,
             ss => ss.Set<RootEntity>().Select(x => x.OptionalRelated!.String),
@@ -34,10 +34,21 @@ public abstract class RelationshipsProjectionTestBase<TFixture>(TFixture fixture
 
     [ConditionalTheory]
     [MemberData(nameof(AsyncAndTrackingData))]
-    public virtual Task Select_optional_related_property_value_type(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    public virtual Task Select_value_type_property_on_null_related_throws(bool async, QueryTrackingBehavior queryTrackingBehavior)
+        // We have an entity with OptionalRelated null, so projecting a value type property from that throws
+        // "Nullable object must have a value"
+        => Assert.ThrowsAsync<InvalidOperationException>(() =>
+            AssertQuery(
+                async,
+                ss => ss.Set<RootEntity>().Select(x => x.OptionalRelated!.Int),
+                queryTrackingBehavior: queryTrackingBehavior));
+
+    [ConditionalTheory]
+    [MemberData(nameof(AsyncAndTrackingData))]
+    public virtual Task Select_nullable_value_type_property_on_null_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             async,
-            ss => ss.Set<RootEntity>().Select(x => x.OptionalRelated!.Int),
+            ss => ss.Set<RootEntity>().Select(x => (int?)x.OptionalRelated!.Int),
             queryTrackingBehavior: queryTrackingBehavior);
 
     #endregion Simple properties
@@ -62,7 +73,7 @@ public abstract class RelationshipsProjectionTestBase<TFixture>(TFixture fixture
 
     [ConditionalTheory]
     [MemberData(nameof(AsyncAndTrackingData))]
-    public virtual Task Select_required_related_required_nested(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    public virtual Task Select_required_nested_on_required_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             async,
             ss => ss.Set<RootEntity>().Select(x => x.RequiredRelated.RequiredNested),
@@ -70,7 +81,7 @@ public abstract class RelationshipsProjectionTestBase<TFixture>(TFixture fixture
 
     [ConditionalTheory]
     [MemberData(nameof(AsyncAndTrackingData))]
-    public virtual Task Select_required_related_optional_nested(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    public virtual Task Select_optional_nested_on_required_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             async,
             ss => ss.Set<RootEntity>().Select(x => x.RequiredRelated.OptionalNested),
@@ -78,7 +89,7 @@ public abstract class RelationshipsProjectionTestBase<TFixture>(TFixture fixture
 
     [ConditionalTheory]
     [MemberData(nameof(AsyncAndTrackingData))]
-    public virtual Task Select_optional_related_required_nested(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    public virtual Task Select_required_nested_on_optional_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             async,
             ss => ss.Set<RootEntity>().Select(x => x.OptionalRelated!.RequiredNested),
@@ -86,7 +97,7 @@ public abstract class RelationshipsProjectionTestBase<TFixture>(TFixture fixture
 
     [ConditionalTheory]
     [MemberData(nameof(AsyncAndTrackingData))]
-    public virtual Task Select_optional_related_optional_nested(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    public virtual Task Select_optional_nested_on_optional_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             async,
             ss => ss.Set<RootEntity>().Select(x => x.OptionalRelated!.OptionalNested),
@@ -111,20 +122,20 @@ public abstract class RelationshipsProjectionTestBase<TFixture>(TFixture fixture
 
     [ConditionalTheory]
     [MemberData(nameof(AsyncAndTrackingData))]
-    public virtual Task Select_required_related_nested_collection(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    public virtual Task Select_nested_collection_on_required_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             async,
-            ss => ss.Set<RootEntity>().Select(x => x.RequiredRelated.NestedCollection),
+            ss => ss.Set<RootEntity>().OrderBy(e => e.Id).Select(x => x.RequiredRelated.NestedCollection),
             assertOrder: true,
             elementAsserter: (e, a) => AssertCollection(e, a, elementSorter: r => r.Id),
             queryTrackingBehavior: queryTrackingBehavior);
 
     [ConditionalTheory]
     [MemberData(nameof(AsyncAndTrackingData))]
-    public virtual Task Select_optional_related_nested_collection(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    public virtual Task Select_nested_collection_on_optional_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             async,
-            ss => ss.Set<RootEntity>().Select(x => x.OptionalRelated!.NestedCollection),
+            ss => ss.Set<RootEntity>().OrderBy(e => e.Id).Select(x => x.OptionalRelated!.NestedCollection),
             assertOrder: true,
             elementAsserter: (e, a) => AssertCollection(e, a, elementSorter: r => r.Id),
             queryTrackingBehavior: queryTrackingBehavior);
@@ -139,7 +150,7 @@ public abstract class RelationshipsProjectionTestBase<TFixture>(TFixture fixture
 
     [ConditionalTheory]
     [MemberData(nameof(AsyncAndTrackingData))]
-    public virtual Task SelectMany_required_related_nested_collection(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    public virtual Task SelectMany_nested_collection_on_required_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             async,
             ss => ss.Set<RootEntity>().SelectMany(x => x.RequiredRelated.NestedCollection),
@@ -147,7 +158,7 @@ public abstract class RelationshipsProjectionTestBase<TFixture>(TFixture fixture
 
     [ConditionalTheory]
     [MemberData(nameof(AsyncAndTrackingData))]
-    public virtual Task SelectMany_optional_related_nested_collection(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    public virtual Task SelectMany_nested_collection_on_optional_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             async,
             ss => ss.Set<RootEntity>()

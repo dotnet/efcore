@@ -19,8 +19,7 @@ public abstract class ComplexTableSplittingRelationalFixtureBase : ComplexProper
 
     protected override RelationshipsData CreateData()
     {
-        // Collections are not supported with table splitting, only with JSON
-        var data = new RelationshipsData(withCollections: false);
+        var data = new RelationshipsData();
 
         // TODO: Optional complex properties not yet supported (#31376), remove them from the seeding data
         foreach (var rootEntity in data.RootEntities)

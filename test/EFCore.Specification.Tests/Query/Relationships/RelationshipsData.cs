@@ -5,114 +5,197 @@ namespace Microsoft.EntityFrameworkCore.Query.Relationships;
 
 public class RelationshipsData : ISetSource
 {
-    public RelationshipsData(bool withCollections = true)
+    public RelationshipsData()
     {
-        RootEntities = CreateRootEntities(withCollections);
-        MainTypes = [];
+        RootEntities = CreateRootEntities();
+        RelatedTypes = [];
         NestedTypes = [];
         PreRootEntities = [];
     }
 
-    // TODO: Remove? Relevant only for non-owned navigations
     public List<RootEntity> RootEntities { get; }
-    public List<RelatedType> MainTypes { get; }
+
+    // TODO: Remove? Relevant only for non-owned navigations
+    public List<RelatedType> RelatedTypes { get; }
     public List<NestedType> NestedTypes { get; }
+
     public List<RootReferencingEntity> PreRootEntities { get; }
 
-    public static List<RootEntity> CreateRootEntities(bool withCollections = true)
+    public static List<RootEntity> CreateRootEntities()
     {
+        var id = 1;
+
         List<RootEntity> rootEntities =
         [
-            new RootEntity
+            // First basic entity with all properties set
+            CreateRootEntity(id++, description: null),
+
+            // Second basic entity with all properties set to something different
+            CreateRootEntity(id++, description: "With_different_values", e =>
             {
-                Id = 1,
-                Name = "Root1",
+                SetRelatedValues(e.RequiredRelated);
+
+                if (e.OptionalRelated is not null)
+                {
+                    SetRelatedValues(e.OptionalRelated);
+                }
+
+                foreach (var related in e.RelatedCollection)
+                {
+                    SetRelatedValues(related);
+                }
+
+                void SetRelatedValues(RelatedType related)
+                {
+                    related.Int = 9;
+                    related.String = "bar";
+                    related.RequiredNested.Int = 9;
+                    related.RequiredNested.String = "bar";
+                    related.OptionalNested?.Int = 9;
+                    related.OptionalNested?.String = "bar";
+                    foreach (var nested in related.NestedCollection)
+                    {
+                        nested.Int = 9;
+                        nested.String = "bar";
+                    }
+                }
+            }),
+
+            // Entity where values are referentially identical to each other across required/optional, to test various equality sceanarios.
+            // Note that this gets overridden for owned navigations .
+            CreateRootEntity(id++, description: "With_referential_identity", e =>
+            {
+                e.OptionalRelated = e.RequiredRelated;
+                e.RequiredRelated.OptionalNested = e.RequiredRelated.RequiredNested;
+                e.OptionalRelated.OptionalNested = e.RequiredRelated.RequiredNested;
+
+                e.RelatedCollection.Clear();
+                e.RequiredRelated.NestedCollection.Clear();
+                e.OptionalRelated.NestedCollection.Clear();
+            }),
+
+            // Entity where everything optional is null
+            CreateRootEntity(id++, description: "All_optionals_null", e =>
+            {
+                e.RequiredRelated.OptionalNested = null;
+                e.OptionalRelated = null;
+
+                foreach (var related in e.RelatedCollection)
+                {
+                    related.OptionalNested = null;
+                }
+            }),
+
+            // Entity where all collections are empty
+            CreateRootEntity(id++, description: "All_collections_empty", e =>
+            {
+                e.RelatedCollection.Clear();
+                e.RequiredRelated.NestedCollection.Clear();
+                e.OptionalRelated!.NestedCollection.Clear();
+            })
+        ];
+
+        return rootEntities;
+
+        RootEntity CreateRootEntity(int id, string? description, Action<RootEntity>? customizer = null)
+        {
+            var shortName = $"Root{id}";
+            var relatedId = id * 100;
+            var nestedId = id * 1000;
+
+            const int intValue = 8;
+            const string stringValue = "foo";
+
+            var rootEntity = new RootEntity
+            {
+                Id = id,
+                Name = description is null ? shortName : $"{shortName}_{description}",
 
                 RequiredRelated = new RelatedType
                 {
-                    Id = 100,
-                    Name = "Root1_RequiredRelated",
+                    Id = relatedId++,
+                    Name = $"{shortName}_RequiredRelated",
 
-                    Int = 8,
-                    String = "foo",
+                    Int = intValue,
+                    String = stringValue,
 
                     RequiredNested = new NestedType
                     {
-                        Id = 1000,
-                        Name = "Root1_RequiredRelated_RequiredNested",
+                        Id = nestedId++,
+                        Name = $"{shortName}_RequiredRelated_RequiredNested",
 
-                        Int = 50,
-                        String = "foo_foo"
+                        Int = intValue,
+                        String = stringValue
                     },
                     OptionalNested = new NestedType
                     {
-                        Id = 1001,
-                        Name = "Root1_RequiredRelated_OptionalNested",
+                        Id = nestedId++,
+                        Name = $"{shortName}_RequiredRelated_OptionalNested",
 
-                        Int = 51,
-                        String = "foo_bar"
+                        Int = intValue,
+                        String = stringValue
                     },
                     NestedCollection =
                     [
                         new NestedType
                         {
-                            Id = 1002,
-                            Name = "Root1_RequiredRelated_NestedCollection_1",
+                            Id = nestedId++,
+                            Name = $"{shortName}_RequiredRelated_NestedCollection_1",
 
-                            Int = 52,
-                            String = "foo_baz1"
+                            Int = intValue,
+                            String = stringValue
                         },
                         new NestedType
                         {
-                            Id = 1003,
-                            Name = "Root1_RequiredRelated_NestedCollection_2",
+                            Id = nestedId++,
+                            Name = $"{shortName}_RequiredRelated_NestedCollection_2",
 
-                            Int = 53,
-                            String = "foo_baz2"
+                            Int = intValue,
+                            String = stringValue
                         }
                     ]
                 },
                 OptionalRelated = new RelatedType
                 {
-                    Id = 101,
-                    Name = "Root1_OptionalRelated",
+                    Id = relatedId++,
+                    Name = $"{shortName}_OptionalRelated",
 
-                    Int = 9,
-                    String = "bar",
+                    Int = intValue,
+                    String = stringValue,
 
                     RequiredNested = new NestedType
                     {
-                        Id = 1010,
-                        Name = "Root1_OptionalRelated_RequiredNested",
+                        Id = nestedId++,
+                        Name = $"{shortName}_OptionalRelated_RequiredNested",
 
-                        Int = 52,
-                        String = "bar_foo"
+                        Int = intValue,
+                        String = stringValue
                     },
                     OptionalNested = new NestedType
                     {
-                        Id = 1011,
-                        Name = "Root1_OptionalRelated_OptionalNested",
+                        Id = nestedId++,
+                        Name = $"{shortName}_OptionalRelated_OptionalNested",
 
-                        Int = 53,
-                        String = "bar_bar"
+                        Int = intValue,
+                        String = stringValue
                     },
                     NestedCollection =
                     [
                         new NestedType
                         {
-                            Id = 1012,
-                            Name = "Root1_OptionalRelated_NestedCollection_1",
+                            Id = nestedId++,
+                            Name = $"{shortName}_OptionalRelated_NestedCollection_1",
 
-                            Int = 54,
-                            String = "bar_baz1"
+                            Int = intValue,
+                            String = stringValue
                         },
                         new NestedType
                         {
-                            Id = 1013,
-                            Name = "Root1_OptionalRelated_NestedCollection_2",
+                            Id = nestedId++,
+                            Name = $"{shortName}_OptionalRelated_NestedCollection_2",
 
-                            Int = 55,
-                            String = "bar_baz2"
+                            Int = intValue,
+                            String = stringValue
                         }
                     ]
                 },
@@ -120,174 +203,99 @@ public class RelationshipsData : ISetSource
                 [
                     new RelatedType
                     {
-                        Id = 102,
-                        Name = "Root1_RelatedCollection_1",
+                        Id = relatedId++,
+                        Name = $"{shortName}_RelatedCollection_1",
 
-                        Int = 21,
-                        String = "foo",
+                        Int = intValue,
+                        String = stringValue,
 
                         RequiredNested = new NestedType
                         {
-                            Id = 1020,
-                            Name = "Root1_RelatedCollection_1_RequiredNested",
+                            Id = nestedId++,
+                            Name = $"{shortName}_RelatedCollection_1_RequiredNested",
 
-                            Int = 50,
-                            String = "foo_foo"
+                            Int = intValue,
+                            String = stringValue
                         },
                         OptionalNested = new NestedType
                         {
-                            Id = 1021,
-                            Name = "Root1_RelatedCollection_1_OptionalNested",
+                            Id = nestedId++,
+                            Name = $"{shortName}_RelatedCollection_1_OptionalNested",
 
-                            Int = 51,
-                            String = "foo_bar"
+                            Int = intValue,
+                            String = stringValue
                         },
                         NestedCollection =
                         [
                             new NestedType
                             {
-                                Id = 1022,
-                                Name = "Root1_RelatedCollection_1_NestedCollection_1",
+                                Id = nestedId++,
+                                Name = $"{shortName}_RelatedCollection_1_NestedCollection_1",
 
-                                Int = 53,
-                                String = "foo_bar"
+                                Int = intValue,
+                                String = stringValue
                             },
                             new NestedType
                             {
-                                Id = 1023,
-                                Name = "Root1_RelatedCollection_1_NestedCollection_2",
+                                Id = nestedId++,
+                                Name = $"{shortName}_RelatedCollection_1_NestedCollection_2",
 
-                                Int = 51,
-                                String = "foo_bar"
+                                Int = intValue,
+                                String = stringValue
                             }
                         ]
                     },
                     new RelatedType
                     {
-                        Id = 103,
-                        Name = "Root1_RelatedCollection_2",
+                        Id = relatedId++,
+                        Name = $"{shortName}_RelatedCollection_2",
 
-                        Int = 22,
-                        String = "foo",
+                        Int = intValue,
+                        String = stringValue,
 
                         RequiredNested = new NestedType
                         {
-                            Id = 1030,
-                            Name = "Root1_RelatedCollection_2_RequiredNested",
+                            Id = nestedId++,
+                            Name = $"{shortName}_RelatedCollection_2_RequiredNested",
 
-                            Int = 50,
-                            String = "foo_foo"
+                            Int = intValue,
+                            String = stringValue
                         },
                         OptionalNested = new NestedType
                         {
-                            Id = 1031,
-                            Name = "Root1_RelatedCollection_2_OptionalNested",
+                            Id = nestedId++,
+                            Name = $"{shortName}_RelatedCollection_2_OptionalNested",
 
-                            Int = 51,
-                            String = "foo_bar"
+                            Int = intValue,
+                            String = stringValue
                         },
                         NestedCollection =
                         [
                             new NestedType
                             {
-                                Id = 1032,
-                                Name = "Root1_RelatedCollection_2_NestedCollection_1",
+                                Id = nestedId++,
+                                Name = $"{shortName}_RelatedCollection_2_NestedCollection_1",
 
-                                Int = 53,
-                                String = "foo_bar"
+                                Int = intValue,
+                                String = stringValue
                             },
                             new NestedType
                             {
-                                Id = 1033,
-                                Name = "Root1_RelatedCollection_2_NestedCollection_2",
+                                Id = nestedId++,
+                                Name = $"{shortName}_Root1_RelatedCollection_2_NestedCollection_2",
 
-                                Int = 51,
-                                String = "foo_bar"
+                                Int = intValue,
+                                String = stringValue
                             }
                         ]
                     }
                 ]
-            },
-            new RootEntity
-            {
-                Id = 2,
-                Name = "Root2",
+            };
 
-                RequiredRelated = new RelatedType
-                {
-                    Id = 200,
-                    Name = "Root2_RequiredRelated",
+            customizer?.Invoke(rootEntity);
 
-                    Int = 10,
-                    String = "aaa",
-
-                    RequiredNested = new NestedType
-                    {
-                        Id = 2000,
-                        Name = "Root2_RequiredRelated_RequiredNested",
-
-                        Int = 54,
-                        String = "aaa_xxx"
-                    },
-                    OptionalNested = new NestedType
-                    {
-                        Id = 2001,
-                        Name = "Root2_RequiredRelated_OptionalNested",
-
-                        Int = 55,
-                        String = "aaa_yyy"
-                    },
-                    NestedCollection =
-                    [
-                        // TODO
-                    ]
-                },
-                OptionalRelated = new RelatedType
-                {
-                    Id = 201,
-                    Name = "Root2_OptionalRelated",
-
-                    Int = 11,
-                    String = "bbb",
-
-                    RequiredNested = new NestedType
-                    {
-                        Id = 2010,
-                        Name = "Root2_OptionalRelated_RequiredNested",
-
-                        Int = 56,
-                        String = "bbb_xxx"
-                    },
-                    OptionalNested = new NestedType
-                    {
-                        Id = 2011,
-                        Name = "Root2_OptionalRelated_OptionalNested",
-
-                        Int = 57,
-                        String = "bbb_yyy"
-                    },
-                    NestedCollection =
-                    [
-                        // TODO
-                    ]
-                },
-                RelatedCollection =
-                [
-                ]
-            }
-        ];
-
-        if (!withCollections)
-        {
-            foreach (var rootEntity in rootEntities)
-            {
-                rootEntity.RelatedCollection = [];
-                rootEntity.RequiredRelated.NestedCollection = [];
-                rootEntity.OptionalRelated?.NestedCollection = [];
-            }
+            return rootEntity;
         }
-
-        return rootEntities;
     }
 
     public IQueryable<TEntity> Set<TEntity>()
@@ -295,7 +303,7 @@ public class RelationshipsData : ISetSource
         => typeof(TEntity) switch
         {
             var t when t == typeof(RootEntity) => (IQueryable<TEntity>)RootEntities.AsQueryable(),
-            var t when t == typeof(RelatedType) => (IQueryable<TEntity>)MainTypes.AsQueryable(),
+            var t when t == typeof(RelatedType) => (IQueryable<TEntity>)RelatedTypes.AsQueryable(),
             var t when t == typeof(NestedType) => (IQueryable<TEntity>)NestedTypes.AsQueryable(),
             var t when t == typeof(RootReferencingEntity) => (IQueryable<TEntity>)PreRootEntities.AsQueryable(),
 

@@ -41,7 +41,7 @@ FROM root c
 WHERE ((
     SELECT VALUE COUNT(1)
     FROM r IN c["RelatedCollection"]
-    WHERE (r["Int"] != 50)) = 2)
+    WHERE (r["Int"] != 8)) = 2)
 """);
             });
 
@@ -59,7 +59,7 @@ FROM root c
 WHERE (ARRAY(
     SELECT VALUE r["Int"]
     FROM r IN c["RelatedCollection"]
-    ORDER BY r["Id"])[0] = 21)
+    ORDER BY r["Id"])[0] = 8)
 """);
         }
     }
@@ -74,7 +74,7 @@ WHERE (ARRAY(
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["RelatedCollection"][0]["Int"] = 21)
+WHERE (c["RelatedCollection"][0]["Int"] = 8)
 """);
             });
 
@@ -90,7 +90,7 @@ WHERE (c["RelatedCollection"][0]["Int"] = 21)
 
 SELECT VALUE c
 FROM root c
-WHERE (c["RelatedCollection"][@i]["Int"] = 21)
+WHERE (c["RelatedCollection"][@i]["Int"] = 8)
 """);
             });
 
@@ -105,7 +105,7 @@ WHERE (c["RelatedCollection"][@i]["Int"] = 21)
                 """
 SELECT VALUE c
 FROM root c
-WHERE (c["RelatedCollection"][(c["Id"] - 1)]["Int"] = 21)
+WHERE (c["RelatedCollection"][(c["Id"] - 1)]["Int"] = 8)
 """);
         }
     }
@@ -120,7 +120,7 @@ WHERE (c["RelatedCollection"][(c["Id"] - 1)]["Int"] = 21)
                 """
 SELECT VALUE c
 FROM root c
-WHERE (c["RelatedCollection"][9999]["Int"] = 50)
+WHERE (c["RelatedCollection"][9999]["Int"] = 8)
 """);
         }
     }

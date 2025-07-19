@@ -15,9 +15,31 @@ public abstract class ComplexJsonRelationalFixtureBase : ComplexPropertiesFixtur
 
         modelBuilder.Entity<RootEntity>(b =>
         {
-            b.ComplexProperty(e => e.RequiredRelated, rrb => rrb.ToJson());
-            b.ComplexProperty(e => e.OptionalRelated, orb => orb.ToJson());
-            b.ComplexCollection(e => e.RelatedCollection, rcb => rcb.ToJson());
+            b.ComplexProperty(e => e.RequiredRelated, rrb =>
+            {
+                rrb.ToJson();
+
+                rrb.ComplexProperty(r => r.OptionalNested).IsRequired(false);
+            });
+
+            b.ComplexProperty(e => e.OptionalRelated, orb =>
+            {
+                orb.ToJson();
+                orb.IsRequired(false);
+
+                orb.ComplexProperty(r => r.OptionalNested).IsRequired(false);
+
+                // TODO: Currently everything within an optional complex type must be configured as optional - seems wrong.
+                // #36402
+                orb.ComplexProperty(r => r.RequiredNested).IsRequired(false);
+            });
+
+            b.ComplexCollection(e => e.RelatedCollection,rcb =>
+            {
+                rcb.ToJson();
+
+                rcb.ComplexProperty(r => r.OptionalNested).IsRequired(false);
+            });
         });
     }
 

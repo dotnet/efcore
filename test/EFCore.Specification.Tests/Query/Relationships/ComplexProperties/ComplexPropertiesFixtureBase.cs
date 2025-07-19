@@ -7,14 +7,6 @@ public abstract class ComplexPropertiesFixtureBase : RelationshipsQueryFixtureBa
 {
     protected override string StoreName => "ComplexRelationshipsQueryTest";
 
-    protected override Task SeedAsync(PoolableDbContext context)
-    {
-        var rootEntities = RelationshipsData.CreateRootEntities();
-        context.Set<RootEntity>().AddRange(rootEntities);
-
-        return context.SaveChangesAsync();
-    }
-
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
         base.OnModelCreating(modelBuilder, context);

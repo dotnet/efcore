@@ -35,16 +35,20 @@ public class InMemoryComplianceTest : ComplianceTestBase
         typeof(RelationshipsProjectionTestBase<>),
         typeof(RelationshipsCollectionTestBase<>),
         typeof(RelationshipsMiscellaneousTestBase<>),
+        typeof(RelationshipsStructuralEqualityTestBase<>),
         typeof(NavigationsIncludeTestBase<>),
         typeof(NavigationsProjectionTestBase<>),
         typeof(NavigationsCollectionTestBase<>),
         typeof(NavigationsMiscellaneousTestBase<>),
+        typeof(NavigationsStructuralEqualityTestBase<>),
         typeof(OwnedNavigationsProjectionTestBase<>),
         typeof(OwnedNavigationsCollectionTestBase<>),
         typeof(OwnedNavigationsMiscellaneousTestBase<>),
+        typeof(OwnedNavigationsStructuralEqualityTestBase<>),
         typeof(ComplexPropertiesProjectionTestBase<>),
         typeof(ComplexPropertiesCollectionTestBase<>),
-        typeof(ComplexPropertiesMiscellaneousTestBase<>)
+        typeof(ComplexPropertiesMiscellaneousTestBase<>),
+        typeof(ComplexPropertiesStructuralEqualityTestBase<>)
     };
 
     protected override Assembly TargetAssembly { get; } = typeof(InMemoryComplianceTest).Assembly;
