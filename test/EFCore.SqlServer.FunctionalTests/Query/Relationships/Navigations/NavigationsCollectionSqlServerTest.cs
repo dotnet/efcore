@@ -32,7 +32,7 @@ FROM [RootEntity] AS [r]
 WHERE (
     SELECT COUNT(*)
     FROM [RelatedType] AS [r0]
-    WHERE [r].[Id] = [r0].[CollectionRootId] AND [r0].[Int] <> 50) = 2
+    WHERE [r].[Id] = [r0].[CollectionRootId] AND [r0].[Int] <> 8) = 2
 """);
     }
 
@@ -49,7 +49,7 @@ WHERE (
     FROM [RelatedType] AS [r0]
     WHERE [r].[Id] = [r0].[CollectionRootId]
     ORDER BY [r0].[Id]
-    OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY) = 21
+    OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY) = 8
 """);
     }
 

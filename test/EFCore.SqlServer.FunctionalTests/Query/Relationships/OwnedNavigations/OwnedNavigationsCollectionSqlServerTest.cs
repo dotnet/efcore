@@ -63,7 +63,7 @@ LEFT JOIN [RequiredRelated_NestedCollection] AS [r8] ON [r1].[RootEntityId] = [r
 WHERE (
     SELECT COUNT(*)
     FROM [RelatedCollection] AS [r0]
-    WHERE [r].[Id] = [r0].[RootEntityId] AND [r0].[Int] <> 50) = 2
+    WHERE [r].[Id] = [r0].[RootEntityId] AND [r0].[Int] <> 8) = 2
 ORDER BY [r].[Id], [o].[RootEntityId], [o0].[RelatedTypeRootEntityId], [o1].[RelatedTypeRootEntityId], [r1].[RootEntityId], [r2].[RelatedTypeRootEntityId], [r3].[RelatedTypeRootEntityId], [o2].[RelatedTypeRootEntityId], [o2].[Id], [s].[RootEntityId], [s].[Id], [s].[RelatedTypeRootEntityId], [s].[RelatedTypeId], [s].[RelatedTypeRootEntityId0], [s].[RelatedTypeId0], [s].[RelatedTypeRootEntityId1], [s].[RelatedTypeId1], [s].[Id0], [r8].[RelatedTypeRootEntityId]
 """);
     }
@@ -96,7 +96,7 @@ WHERE (
     FROM [RelatedCollection] AS [r0]
     WHERE [r].[Id] = [r0].[RootEntityId]
     ORDER BY [r0].[Id]
-    OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY) = 21
+    OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY) = 8
 ORDER BY [r].[Id], [o].[RootEntityId], [o0].[RelatedTypeRootEntityId], [o1].[RelatedTypeRootEntityId], [r1].[RootEntityId], [r2].[RelatedTypeRootEntityId], [r3].[RelatedTypeRootEntityId], [o2].[RelatedTypeRootEntityId], [o2].[Id], [s].[RootEntityId], [s].[Id], [s].[RelatedTypeRootEntityId], [s].[RelatedTypeId], [s].[RelatedTypeRootEntityId0], [s].[RelatedTypeId0], [s].[RelatedTypeRootEntityId1], [s].[RelatedTypeId1], [s].[Id0], [r8].[RelatedTypeRootEntityId]
 """);
     }
@@ -129,7 +129,7 @@ WHERE (
     FROM [RelatedCollection] AS [r0]
     WHERE [r].[Id] = [r0].[RootEntityId]
     ORDER BY (SELECT 1)
-    OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY) = 21
+    OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY) = 8
 ORDER BY [r].[Id], [o].[RootEntityId], [o0].[RelatedTypeRootEntityId], [o1].[RelatedTypeRootEntityId], [r1].[RootEntityId], [r2].[RelatedTypeRootEntityId], [r3].[RelatedTypeRootEntityId], [o2].[RelatedTypeRootEntityId], [o2].[Id], [s].[RootEntityId], [s].[Id], [s].[RelatedTypeRootEntityId], [s].[RelatedTypeId], [s].[RelatedTypeRootEntityId0], [s].[RelatedTypeId0], [s].[RelatedTypeRootEntityId1], [s].[RelatedTypeId1], [s].[Id0], [r8].[RelatedTypeRootEntityId]
 """);
     }
@@ -164,7 +164,7 @@ WHERE (
     FROM [RelatedCollection] AS [r0]
     WHERE [r].[Id] = [r0].[RootEntityId]
     ORDER BY (SELECT 1)
-    OFFSET @i ROWS FETCH NEXT 1 ROWS ONLY) = 21
+    OFFSET @i ROWS FETCH NEXT 1 ROWS ONLY) = 8
 ORDER BY [r].[Id], [o].[RootEntityId], [o0].[RelatedTypeRootEntityId], [o1].[RelatedTypeRootEntityId], [r1].[RootEntityId], [r2].[RelatedTypeRootEntityId], [r3].[RelatedTypeRootEntityId], [o2].[RelatedTypeRootEntityId], [o2].[Id], [s].[RootEntityId], [s].[Id], [s].[RelatedTypeRootEntityId], [s].[RelatedTypeId], [s].[RelatedTypeRootEntityId0], [s].[RelatedTypeId0], [s].[RelatedTypeRootEntityId1], [s].[RelatedTypeId1], [s].[Id0], [r8].[RelatedTypeRootEntityId]
 """);
     }
@@ -197,7 +197,7 @@ WHERE (
     FROM [RelatedCollection] AS [r0]
     WHERE [r].[Id] = [r0].[RootEntityId]
     ORDER BY (SELECT 1)
-    OFFSET [r].[Id] - 1 ROWS FETCH NEXT 1 ROWS ONLY) = 21
+    OFFSET [r].[Id] - 1 ROWS FETCH NEXT 1 ROWS ONLY) = 8
 ORDER BY [r].[Id], [o].[RootEntityId], [o0].[RelatedTypeRootEntityId], [o1].[RelatedTypeRootEntityId], [r1].[RootEntityId], [r2].[RelatedTypeRootEntityId], [r3].[RelatedTypeRootEntityId], [o2].[RelatedTypeRootEntityId], [o2].[Id], [s].[RootEntityId], [s].[Id], [s].[RelatedTypeRootEntityId], [s].[RelatedTypeId], [s].[RelatedTypeRootEntityId0], [s].[RelatedTypeId0], [s].[RelatedTypeRootEntityId1], [s].[RelatedTypeId1], [s].[Id0], [r8].[RelatedTypeRootEntityId]
 """);
     }
@@ -230,7 +230,7 @@ WHERE (
     FROM [RelatedCollection] AS [r0]
     WHERE [r].[Id] = [r0].[RootEntityId]
     ORDER BY (SELECT 1)
-    OFFSET 9999 ROWS FETCH NEXT 1 ROWS ONLY) = 50
+    OFFSET 9999 ROWS FETCH NEXT 1 ROWS ONLY) = 8
 ORDER BY [r].[Id], [o].[RootEntityId], [o0].[RelatedTypeRootEntityId], [o1].[RelatedTypeRootEntityId], [r1].[RootEntityId], [r2].[RelatedTypeRootEntityId], [r3].[RelatedTypeRootEntityId], [o2].[RelatedTypeRootEntityId], [o2].[Id], [s].[RootEntityId], [s].[Id], [s].[RelatedTypeRootEntityId], [s].[RelatedTypeId], [s].[RelatedTypeRootEntityId0], [s].[RelatedTypeId0], [s].[RelatedTypeRootEntityId1], [s].[RelatedTypeId1], [s].[Id0], [r8].[RelatedTypeRootEntityId]
 """);
     }

@@ -21,7 +21,7 @@ public abstract class RelationshipsCollectionTestBase<TFixture>(TFixture fixture
     public virtual Task Where(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<RootEntity>().Where(e => e.RelatedCollection.Where(r => r.Int != 50).Count() == 2));
+            ss => ss.Set<RootEntity>().Where(e => e.RelatedCollection.Where(r => r.Int != 8).Count() == 2));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -29,9 +29,11 @@ public abstract class RelationshipsCollectionTestBase<TFixture>(TFixture fixture
         => AssertQuery(
             async,
             ss => ss.Set<RootEntity>().Where(
-                e => e.RelatedCollection.OrderBy(r => r.Id).ElementAt(0).Int == 21),
+                e => e.RelatedCollection.OrderBy(r => r.Id).ElementAt(0).Int == 8),
             ss => ss.Set<RootEntity>().Where(e => e.RelatedCollection.Count > 0
-                && e.RelatedCollection.OrderBy(r => r.Id).ElementAt(0).Int == 21));
+                && e.RelatedCollection.OrderBy(r => r.Id).ElementAt(0).Int == 8));
+
+    #region Index
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -39,8 +41,8 @@ public abstract class RelationshipsCollectionTestBase<TFixture>(TFixture fixture
         => AssertOrderedCollectionQuery(
             () => AssertQuery(
                 async,
-                ss => ss.Set<RootEntity>().Where(e => e.RelatedCollection[0].Int == 21),
-                ss => ss.Set<RootEntity>().Where(e => e.RelatedCollection.Count > 0 && e.RelatedCollection[0].Int == 21)));
+                ss => ss.Set<RootEntity>().Where(e => e.RelatedCollection[0].Int == 8),
+                ss => ss.Set<RootEntity>().Where(e => e.RelatedCollection.Count > 0 && e.RelatedCollection[0].Int == 8)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -51,8 +53,8 @@ public abstract class RelationshipsCollectionTestBase<TFixture>(TFixture fixture
 
                 return AssertQuery(
                     async,
-                    ss => ss.Set<RootEntity>().Where(e => e.RelatedCollection[i].Int == 21),
-                    ss => ss.Set<RootEntity>().Where(e => e.RelatedCollection.Count > 0 && e.RelatedCollection[i].Int == 21));
+                    ss => ss.Set<RootEntity>().Where(e => e.RelatedCollection[i].Int == 8),
+                    ss => ss.Set<RootEntity>().Where(e => e.RelatedCollection.Count > 0 && e.RelatedCollection[i].Int == 8));
             });
 
     [ConditionalTheory]
@@ -61,8 +63,8 @@ public abstract class RelationshipsCollectionTestBase<TFixture>(TFixture fixture
         => AssertOrderedCollectionQuery(
             () => AssertQuery(
                 async,
-                ss => ss.Set<RootEntity>().Where(e => e.RelatedCollection[e.Id - 1].Int == 21),
-                ss => ss.Set<RootEntity>().Where(e => e.RelatedCollection.Count > e.Id - 1 && e.RelatedCollection[e.Id - 1].Int == 21)));
+                ss => ss.Set<RootEntity>().Where(e => e.RelatedCollection[e.Id - 1].Int == 8),
+                ss => ss.Set<RootEntity>().Where(e => e.RelatedCollection.Count > e.Id - 1 && e.RelatedCollection[e.Id - 1].Int == 8)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -70,9 +72,11 @@ public abstract class RelationshipsCollectionTestBase<TFixture>(TFixture fixture
         => AssertOrderedCollectionQuery(
             () => AssertQuery(
                 async,
-                ss => ss.Set<RootEntity>().Where(e => e.RelatedCollection[9999].Int == 50),
+                ss => ss.Set<RootEntity>().Where(e => e.RelatedCollection[9999].Int == 8),
                 ss => ss.Set<RootEntity>().Where(e => false),
                 assertEmpty: true));
+
+    #endregion Index
 
     /// <summary>
     ///     Utility for tests that depend on the collection being naturally ordered

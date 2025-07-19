@@ -13,15 +13,15 @@ public class OwnedJsonProjectionSqliteTest(OwnedJsonSqliteFixture fixture, ITest
             ? Task.CompletedTask // Base test expects "can't track owned entities" exception, but with SQLite we get "no CROSS APPLY"
             : AssertApplyNotSupported(() => base.SelectMany_related_collection(async, queryTrackingBehavior));
 
-    public override Task SelectMany_required_related_nested_collection(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    public override Task SelectMany_nested_collection_on_required_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
         => queryTrackingBehavior is QueryTrackingBehavior.TrackAll
             ? Task.CompletedTask // Base test expects "can't track owned entities" exception, but with SQLite we get "no CROSS APPLY"
-            : AssertApplyNotSupported(() => base.SelectMany_required_related_nested_collection(async, queryTrackingBehavior));
+            : AssertApplyNotSupported(() => base.SelectMany_nested_collection_on_required_related(async, queryTrackingBehavior));
 
-    public override Task SelectMany_optional_related_nested_collection(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    public override Task SelectMany_nested_collection_on_optional_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
         => queryTrackingBehavior is QueryTrackingBehavior.TrackAll
             ? Task.CompletedTask // Base test expects "can't track owned entities" exception, but with SQLite we get "no CROSS APPLY"
-            : AssertApplyNotSupported(() => base.SelectMany_optional_related_nested_collection(async, queryTrackingBehavior));
+            : AssertApplyNotSupported(() => base.SelectMany_nested_collection_on_optional_related(async, queryTrackingBehavior));
 
     public override Task Select_subquery_required_related_FirstOrDefault(bool async, QueryTrackingBehavior queryTrackingBehavior)
         => queryTrackingBehavior is QueryTrackingBehavior.TrackAll

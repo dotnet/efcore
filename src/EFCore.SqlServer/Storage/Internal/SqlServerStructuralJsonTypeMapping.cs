@@ -14,10 +14,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqlServerOwnedJsonTypeMapping : JsonTypeMapping
+public class SqlServerStructuralJsonTypeMapping : JsonTypeMapping
 {
     private static readonly MethodInfo CreateUtf8StreamMethod
-        = typeof(SqlServerOwnedJsonTypeMapping).GetMethod(nameof(CreateUtf8Stream), [typeof(string)])!;
+        = typeof(SqlServerStructuralJsonTypeMapping).GetMethod(nameof(CreateUtf8Stream), [typeof(string)])!;
 
     private static readonly MethodInfo GetStringMethod
         = typeof(DbDataReader).GetRuntimeMethod(nameof(DbDataReader.GetString), [typeof(int)])!;
@@ -28,7 +28,7 @@ public class SqlServerOwnedJsonTypeMapping : JsonTypeMapping
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static SqlServerOwnedJsonTypeMapping Default { get; } = new("nvarchar(max)");
+    public static SqlServerStructuralJsonTypeMapping Default { get; } = new("nvarchar(max)");
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -36,7 +36,7 @@ public class SqlServerOwnedJsonTypeMapping : JsonTypeMapping
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static SqlServerOwnedJsonTypeMapping OwnedJsonTypeDefault { get; } = new("json");
+    public static SqlServerStructuralJsonTypeMapping JsonTypeDefault { get; } = new("json");
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -44,7 +44,7 @@ public class SqlServerOwnedJsonTypeMapping : JsonTypeMapping
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public SqlServerOwnedJsonTypeMapping(string storeType)
+    public SqlServerStructuralJsonTypeMapping(string storeType)
         : base(storeType, typeof(JsonTypePlaceholder), System.Data.DbType.String)
     {
     }
@@ -84,7 +84,7 @@ public class SqlServerOwnedJsonTypeMapping : JsonTypeMapping
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected SqlServerOwnedJsonTypeMapping(RelationalTypeMappingParameters parameters)
+    protected SqlServerStructuralJsonTypeMapping(RelationalTypeMappingParameters parameters)
         : base(parameters)
     {
     }
@@ -105,7 +105,7 @@ public class SqlServerOwnedJsonTypeMapping : JsonTypeMapping
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override string GenerateNonNullSqlLiteral(object value)
-        => $"'{EscapeSqlLiteral(JsonSerializer.Serialize(value))}'";
+        => $"'{EscapeSqlLiteral((string)value)}'";
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -114,7 +114,7 @@ public class SqlServerOwnedJsonTypeMapping : JsonTypeMapping
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
-        => new SqlServerOwnedJsonTypeMapping(parameters);
+        => new SqlServerStructuralJsonTypeMapping(parameters);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

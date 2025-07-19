@@ -4,6 +4,7 @@
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
@@ -20,7 +21,10 @@ public partial class RelationalSqlTranslatingExpressionVisitor
     private static readonly MethodInfo ParameterListValueExtractorMethod =
         typeof(RelationalSqlTranslatingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(ParameterListValueExtractor))!;
 
-    private bool TryRewriteContainsEntity(Expression source, Expression item, [NotNullWhen(true)] out Expression? result)
+    private static readonly MethodInfo SerializeComplexTypeToJsonMethod =
+        typeof(RelationalSqlTranslatingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(SerializeComplexTypeToJson))!;
+
+    private bool TryRewriteContainsEntity(Expression source, Expression item, [NotNullWhen(true)] out SqlExpression? result)
     {
         result = null;
 
@@ -80,7 +84,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor
                 return false;
         }
 
-        result = Visit(
+        result = (SqlExpression)Visit(
             Expression.Call(
                 EnumerableMethods.Contains.MakeGenericMethod(property.ClrType.MakeNullable()),
                 rewrittenSource,
@@ -94,28 +98,32 @@ public partial class RelationalSqlTranslatingExpressionVisitor
         Expression left,
         Expression right,
         bool equalsMethod,
-        [NotNullWhen(true)] out Expression? result)
+        [NotNullWhen(true)] out SqlExpression? result)
     {
-        var leftReference = left as StructuralTypeReferenceExpression;
-        var rightReference = right as StructuralTypeReferenceExpression;
-
-        switch ((leftEntityReference: leftReference, rightEntityReference: rightReference))
+        switch ((left, right))
         {
-            case ({ StructuralType: IEntityType }, { StructuralType: IEntityType } or null):
-            case ({ StructuralType: IEntityType } or null, { StructuralType: IEntityType }):
+            case (StructuralTypeReferenceExpression { StructuralType: IEntityType }, _):
+            case (_, StructuralTypeReferenceExpression { StructuralType: IEntityType }):
                 return TryRewriteEntityEquality(out result);
 
-            case ({ StructuralType: IComplexType }, { StructuralType: IComplexType } or null):
-            case ({ StructuralType: IComplexType } or null, { StructuralType: IComplexType }):
-                return TryRewriteComplexTypeEquality(out result);
+            case (StructuralTypeReferenceExpression { StructuralType: IComplexType }, _):
+            case (_, StructuralTypeReferenceExpression { StructuralType: IComplexType }):
+                return TryRewriteComplexTypeEquality(collection: false, out result);
+
+            case (CollectionResultExpression { Relationship: IComplexProperty }, _):
+            case (_, CollectionResultExpression { Relationship: IComplexProperty }):
+                return TryRewriteComplexTypeEquality(collection: true, out result);
 
             default:
                 result = null;
                 return false;
         }
 
-        bool TryRewriteEntityEquality([NotNullWhen(true)] out Expression? result)
+        bool TryRewriteEntityEquality([NotNullWhen(true)] out SqlExpression? result)
         {
+            var leftReference = left as StructuralTypeReferenceExpression;
+            var rightReference = right as StructuralTypeReferenceExpression;
+
             if (IsNullSqlConstantExpression(left)
                 || IsNullSqlConstantExpression(right))
             {
@@ -144,9 +152,9 @@ public partial class RelationalSqlTranslatingExpressionVisitor
                     throw new InvalidOperationException(
                         CoreStrings.EntityEqualityOnKeylessEntityNotSupported(
                             nodeType == ExpressionType.Equal
-                                ? equalsMethod ? nameof(object.Equals) : "=="
+                                ? equalsMethod ? nameof(Equals) : "=="
                                 : equalsMethod
-                                    ? "!" + nameof(object.Equals)
+                                    ? "!" + nameof(Equals)
                                     : "!=",
                             nullComparedEntityType.DisplayName()));
                 }
@@ -198,7 +206,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor
 
                         if (condition != null)
                         {
-                            result = Visit(condition);
+                            result = (SqlExpression)Visit(condition);
                             return true;
                         }
 
@@ -207,7 +215,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor
                     }
                 }
 
-                result = Visit(
+                result = (SqlExpression)Visit(
                     nullComparedEntityTypePrimaryKeyProperties.Select(
                             p => Infrastructure.ExpressionExtensions.CreateEqualsExpression(
                                 CreatePropertyAccessExpression(nonNullEntityReference, p),
@@ -259,7 +267,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor
                         entityType.DisplayName()));
             }
 
-            result = Visit(
+            result = (SqlExpression)Visit(
                 primaryKeyProperties.Select(
                         p => Infrastructure.ExpressionExtensions.CreateEqualsExpression(
                             CreatePropertyAccessExpression(left, p),
@@ -273,64 +281,159 @@ public partial class RelationalSqlTranslatingExpressionVisitor
             return true;
         }
 
-        bool TryRewriteComplexTypeEquality([NotNullWhen(true)] out Expression? result)
+        bool TryRewriteComplexTypeEquality(bool collection, [NotNullWhen(true)] out SqlExpression? result)
         {
-            if (IsNullSqlConstantExpression(left)
-                || IsNullSqlConstantExpression(right))
+            var leftComplexType = left switch
             {
-                // TODO: when we support optional complex types - or projecting required complex types via optional navigations - we'll
-                // be able to translate this, #31376
-                throw new InvalidOperationException(RelationalStrings.CannotCompareComplexTypeToNull);
+                StructuralTypeReferenceExpression { StructuralType: IComplexType t } => t,
+                CollectionResultExpression { Relationship: IComplexProperty { ComplexType: var t } } => t,
+                _ => null
+            };
+
+            var rightComplexType = right switch
+            {
+                StructuralTypeReferenceExpression { StructuralType: IComplexType t } => t,
+                CollectionResultExpression { Relationship: IComplexProperty { ComplexType: var t } } => t,
+                _ => null
+            };
+
+            if (leftComplexType is not null
+                && rightComplexType is not null
+                && leftComplexType.ClrType != rightComplexType.ClrType)
+            {
+                // Currently only support comparing complex types of the same CLR type.
+                // We could allow any case where the complex types have the same properties (some may be shadow).
+                result = null;
+                return false;
             }
 
-            var leftComplexType = leftReference?.StructuralType as IComplexType;
-            var rightComplexType = rightReference?.StructuralType as IComplexType;
             var complexType = leftComplexType ?? rightComplexType;
 
             Check.DebugAssert(complexType != null, "We checked that at least one side is a complex type before calling this function");
 
+            // Comparison to null needs to be handled in a special way for table splitting, but for JSON mapping is handled via
+            // the regular JSON flow below.
+            if ((IsNullSqlConstantExpression(left) || IsNullSqlConstantExpression(right)) && !complexType.IsMappedToJson())
+            {
+                // TODO: when we support optional complex types with table splitting - or projecting required complex types via optional
+                // navigations - we'll be able to translate this, #31376
+                throw new InvalidOperationException(RelationalStrings.CannotCompareComplexTypeToNull);
+            }
+
             // If a complex type is the result of a subquery, then comparing its columns would mean duplicating the subquery, which would
             // be potentially very inefficient.
             // TODO: Enable this by extracting the subquery out to a common table expressions (WITH), #31237
-            if (leftReference is { Subquery: not null } || rightReference is { Subquery: not null })
+            if (left is StructuralTypeReferenceExpression { Subquery: not null }
+                || right is StructuralTypeReferenceExpression { Subquery: not null })
             {
                 throw new InvalidOperationException(RelationalStrings.SubqueryOverComplexTypesNotSupported(complexType.DisplayName()));
             }
 
             // Generate an expression that compares each property on the left to the same property on the right; this needs to recursively
             // include all properties in nested complex types.
-            Expression? comparisons = null;
-            GenerateComparisons(complexType, left, right);
+            var boolTypeMapping = Dependencies.TypeMappingSource.FindMapping(typeof(bool))!;
+            SqlExpression? comparisons = null;
 
-            // Indicates failure to bind to a complex property while generating the comparisons
-            if (comparisons is null)
+            if (!TryGenerateComparisons(complexType, left, right, ref comparisons))
             {
                 result = null;
                 return false;
             }
 
-            result = Visit(comparisons);
+            result = comparisons;
             return true;
 
-            void GenerateComparisons(IComplexType type, Expression left, Expression right)
+            // For table splitting, we simply go over all properties and generate an equality for each one; we recurse
+            // into complex properties to generate a flattened list of comparisons.
+            // The moment we reach a a complex property that's mapped to JSON, we stop and generate a single comparison
+            // for the whole complex type.
+            bool TryGenerateComparisons(IComplexType type, Expression left, Expression right, [NotNullWhen(true)] ref SqlExpression? comparisons)
             {
                 if (type.IsMappedToJson())
                 {
-                    throw new NotImplementedException("Issue #36296");
-                }
+                    var leftScalar = Process(left);
+                    var rightScalar = Process(right);
 
-                foreach (var property in type.GetProperties())
-                {
-                    var comparison = Infrastructure.ExpressionExtensions.CreateEqualsExpression(
-                        CreatePropertyAccessExpression(left, property),
-                        CreatePropertyAccessExpression(right, property),
-                        nodeType != ExpressionType.Equal);
+                    var comparison = _sqlExpressionFactory.MakeBinary(nodeType, leftScalar, rightScalar, boolTypeMapping)!;
 
                     comparisons = comparisons is null
                         ? comparison
                         : nodeType == ExpressionType.Equal
-                            ? Expression.AndAlso(comparisons, comparison)
-                            : Expression.OrElse(comparisons, comparison);
+                            ? _sqlExpressionFactory.AndAlso(comparisons, comparison)
+                            : _sqlExpressionFactory.OrElse(comparisons, comparison);
+
+                    return true;
+
+                    SqlExpression Process(Expression expression)
+                        => expression switch
+                        {
+                            // When a non-collection JSON column - or a nested complex property within a JSON column - is compared,
+                            // we get a StructuralTypeReferenceExpression over a JsonQueryExpression. Convert this to a
+                            // JsonScalarExpression, which is our current representation for a complex JSON in the SQL tree
+                            // (as opposed to in the shaper) - see #36392.
+                            StructuralTypeReferenceExpression
+                            { Parameter: StructuralTypeShaperExpression { ValueBufferExpression: JsonQueryExpression jsonQuery } }
+                                => new JsonScalarExpression(
+                                    jsonQuery.JsonColumn,
+                                    jsonQuery.Path,
+                                    jsonQuery.Type,
+                                    jsonQuery.JsonColumn.TypeMapping,
+                                    jsonQuery.IsNullable),
+
+                            // As above, but for a complex JSON collectio
+                            CollectionResultExpression { QueryExpression: JsonQueryExpression jsonQuery }
+                                => new JsonScalarExpression(
+                                    jsonQuery.JsonColumn,
+                                    jsonQuery.Path,
+                                    jsonQuery.Type,
+                                    jsonQuery.JsonColumn.TypeMapping,
+                                    jsonQuery.IsNullable),
+
+                            // When an object is instantiated inline (e.g. Where(c => c.ShippingAddress == new Address { ... })), we get a SqlConstantExpression
+                            // with the .NET instance. Serialize it to JSON and replace the constant (note that the type mapping will be inferred from the
+                            // JSON column on other side above - important for e.g. nvarchar vs. json columns)
+                            SqlConstantExpression constant
+                                => new SqlConstantExpression(
+                                    SerializeComplexTypeToJson(complexType, constant.Value, collection),
+                                    typeof(string),
+                                    typeMapping: null),
+
+                            SqlParameterExpression parameter
+                                => (SqlParameterExpression)Visit(_queryCompilationContext.RegisterRuntimeParameter(
+                                    $"{RuntimeParameterPrefix}{parameter.Name}",
+                                    Expression.Lambda(
+                                        Expression.Call(
+                                            SerializeComplexTypeToJsonMethod,
+                                            Expression.Constant(complexType),
+                                            Expression.MakeIndex(
+                                                Expression.Property(QueryCompilationContext.QueryContextParameter, nameof(QueryContext.Parameters)),
+                                                indexer: typeof(Dictionary<string, object>).GetProperty("Item", [typeof(string)]),
+                                                [Expression.Constant(parameter.Name, typeof(string))]),
+                                            Expression.Constant(collection)),
+                                        QueryCompilationContext.QueryContextParameter))),
+
+                            _ => throw new UnreachableException()
+                        };
+                }
+
+                // We handled complex JSON above, from here we handle table splitting
+                foreach (var property in type.GetProperties())
+                {
+                    if (TryTranslatePropertyAccess(left, property, out var leftTranslation)
+                        && TryTranslatePropertyAccess(right, property, out var rightTranslation))
+                    {
+                        var comparison = _sqlExpressionFactory.MakeBinary(nodeType, leftTranslation, rightTranslation, boolTypeMapping)!;
+
+                        comparisons = comparisons is null
+                            ? comparison
+                            : nodeType == ExpressionType.Equal
+                                ? _sqlExpressionFactory.AndAlso(comparisons, comparison)
+                                : _sqlExpressionFactory.OrElse(comparisons, comparison);
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 }
 
                 foreach (var complexProperty in type.GetComplexProperties())
@@ -348,19 +451,27 @@ public partial class RelationalSqlTranslatingExpressionVisitor
                         ? BindComplexProperty(rightReference, complexProperty)
                         : CreateComplexPropertyAccessExpression(right, complexProperty);
 
-                    if (nestedLeft is null || nestedRight is null)
+                    if (nestedLeft is null
+                        || nestedRight is null
+                        || !TryGenerateComparisons(complexProperty.ComplexType, nestedLeft, nestedRight, ref comparisons))
                     {
-                        comparisons = null;
-                        return;
+                        return false;
                     }
-
-                    GenerateComparisons(complexProperty.ComplexType, nestedLeft, nestedRight);
                 }
+
+                return comparisons is not null;
             }
         }
     }
 
-    private Expression CreatePropertyAccessExpression(Expression target, IProperty property)
+    private bool TryTranslatePropertyAccess(Expression target, IPropertyBase property, [NotNullWhen(true)] out SqlExpression? translation)
+    {
+        var expression = CreatePropertyAccessExpression(target, property);
+        translation = Translate(expression);
+        return translation is not null;
+    }
+
+    Expression CreatePropertyAccessExpression(Expression target, IPropertyBase property)
     {
         switch (target)
         {
@@ -393,7 +504,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor
                 var newParameterName =
                     $"{RuntimeParameterPrefix}{sqlParameterExpression.Name}_{property.Name}";
 
-                return _queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda);
+                return _queryCompilationContext.RegisterRuntimeParameter($"{RuntimeParameterPrefix}{sqlParameterExpression.Name}_{property.Name}", lambda);
             }
 
             case ParameterBasedComplexPropertyChainExpression chainExpression:
@@ -511,5 +622,99 @@ public partial class RelationalSqlTranslatingExpressionVisitor
     {
         public SqlParameterExpression ParameterExpression { get; } = parameterExpression;
         public List<IComplexProperty> ComplexPropertyChain { get; } = [firstComplexProperty];
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public static string? SerializeComplexTypeToJson(IComplexType complexType, object? value, bool collection)
+    {
+        // Note that we treat toplevel null differently: we return a relational NULL for that case. For nested nulls,
+        // we return JSON null string (so you get { "foo": null })
+        if (value is null)
+        {
+            return null;
+        }
+
+        var stream = new MemoryStream();
+        var writer = new Utf8JsonWriter(stream, new JsonWriterOptions { Indented = false });
+
+        WriteJson(writer, complexType, value, collection);
+
+        writer.Flush();
+
+        return Encoding.UTF8.GetString(stream.ToArray());
+
+        void WriteJson(Utf8JsonWriter writer, IComplexType complexType, object? value, bool collection)
+        {
+            if (collection)
+            {
+                if (value is null)
+                {
+                    writer.WriteNullValue();
+
+                    return;
+                }
+
+                writer.WriteStartArray();
+
+                foreach (var element in (IEnumerable)value)
+                {
+                    WriteJsonObject(writer, complexType, element);
+                }
+
+                writer.WriteEndArray();
+                return;
+            }
+
+            WriteJsonObject(writer, complexType, value);
+        }
+
+        void WriteJsonObject(Utf8JsonWriter writer, IComplexType complexType, object? objectValue)
+        {
+            if (objectValue is null)
+            {
+                writer.WriteNullValue();
+                return;
+            }
+
+            writer.WriteStartObject();
+
+            foreach (var property in complexType.GetProperties())
+            {
+                var jsonPropertyName = property.GetJsonPropertyName();
+                Check.DebugAssert(jsonPropertyName is not null);
+                writer.WritePropertyName(jsonPropertyName);
+
+                var propertyValue = property.GetGetter().GetClrValue(objectValue);
+                if (propertyValue is null)
+                {
+                    writer.WriteNullValue();
+                }
+                else
+                {
+                    var jsonValueReaderWriter = property.GetJsonValueReaderWriter() ?? property.GetTypeMapping().JsonValueReaderWriter;
+                    Check.DebugAssert(jsonValueReaderWriter is not null, "Missing JsonValueReaderWriter on JSON property");
+                    jsonValueReaderWriter.ToJson(writer, propertyValue);
+                }
+            }
+
+            foreach (var complexProperty in complexType.GetComplexProperties())
+            {
+                var jsonPropertyName = complexProperty.GetJsonPropertyName();
+                Check.DebugAssert(jsonPropertyName is not null);
+                writer.WritePropertyName(jsonPropertyName);
+
+                var propertyValue = complexProperty.GetGetter().GetClrValue(objectValue);
+
+                WriteJson(writer, complexProperty.ComplexType, propertyValue, complexProperty.IsCollection);
+            }
+
+            writer.WriteEndObject();
+        }
     }
 }

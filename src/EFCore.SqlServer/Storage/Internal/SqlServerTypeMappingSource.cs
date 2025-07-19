@@ -244,8 +244,8 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
         if (clrType == typeof(JsonTypePlaceholder))
         {
             return storeTypeName == "json"
-                ? SqlServerOwnedJsonTypeMapping.OwnedJsonTypeDefault
-                : SqlServerOwnedJsonTypeMapping.Default;
+                ? SqlServerStructuralJsonTypeMapping.JsonTypeDefault
+                : SqlServerStructuralJsonTypeMapping.Default;
         }
 
         if (storeTypeName != null)

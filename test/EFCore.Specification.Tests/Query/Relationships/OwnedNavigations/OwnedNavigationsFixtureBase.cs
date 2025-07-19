@@ -7,14 +7,6 @@ public abstract class OwnedNavigationsFixtureBase : RelationshipsQueryFixtureBas
 {
     protected override string StoreName => "OwnedNavigationsQueryTest";
 
-    protected override Task SeedAsync(PoolableDbContext context)
-    {
-        var rootEntities = RelationshipsData.CreateRootEntities();
-        context.Set<RootEntity>().AddRange(rootEntities);
-
-        return context.SaveChangesAsync();
-    }
-
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
         base.OnModelCreating(modelBuilder, context);
@@ -64,6 +56,20 @@ public abstract class OwnedNavigationsFixtureBase : RelationshipsQueryFixtureBas
                 rcb.OwnsMany(r => r.NestedCollection, rcb => rcb.Property(x => x.Id).ValueGeneratedNever());
             });
         });
+    }
+
+    protected override RelationshipsData CreateData()
+    {
+        var data = base.CreateData();
+
+        // Owned mapping does not support the same instance being referenced multiple times;
+        // go over the referential identity entity and clone.
+        var rootEntity = data.RootEntities.Single(e => e.Name.EndsWith("With_referential_identity"));
+        rootEntity.RequiredRelated.OptionalNested = rootEntity.RequiredRelated.RequiredNested.DeepClone();
+        rootEntity.OptionalRelated = rootEntity.RequiredRelated.DeepClone();
+        rootEntity.RelatedCollection = rootEntity.RelatedCollection.Select(r => r.DeepClone()).ToList();
+
+        return data;
     }
 
     // Derived fixtures may need to ignore some owned navigations that are mapped in this fixture.

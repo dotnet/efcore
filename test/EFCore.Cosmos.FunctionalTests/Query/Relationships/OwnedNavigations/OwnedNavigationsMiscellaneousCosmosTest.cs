@@ -36,7 +36,7 @@ WHERE (c["RequiredRelated"]["Int"] = 8)
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["OptionalRelated"]["Int"] = 9)
+WHERE (c["OptionalRelated"]["Int"] = 8)
 """);
             });
 
@@ -50,7 +50,7 @@ WHERE (c["OptionalRelated"]["Int"] = 9)
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["RequiredRelated"]["RequiredNested"]["Int"] = 50)
+WHERE (c["RequiredRelated"]["RequiredNested"]["Int"] = 8)
 """);
             });
 

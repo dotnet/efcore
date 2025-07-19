@@ -36,7 +36,7 @@ WHERE (
         [Name] nvarchar(max) '$.Name',
         [String] nvarchar(max) '$.String'
     ) AS [r0]
-    WHERE [r0].[Int] <> 50) = 2
+    WHERE [r0].[Int] <> 8) = 2
 """);
     }
 
@@ -48,7 +48,7 @@ WHERE (
             """
 SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
 FROM [RootEntity] AS [r]
-WHERE CAST(JSON_VALUE([r].[RelatedCollection], '$[0].Int') AS int) = 21
+WHERE CAST(JSON_VALUE([r].[RelatedCollection], '$[0].Int') AS int) = 8
 """);
     }
 
@@ -69,7 +69,7 @@ WHERE (
         [String] nvarchar(max) '$.String'
     ) AS [r0]
     ORDER BY [r0].[Id]
-    OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY) = 21
+    OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY) = 8
 """);
     }
 
@@ -83,7 +83,7 @@ WHERE (
 
 SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
 FROM [RootEntity] AS [r]
-WHERE CAST(JSON_VALUE([r].[RelatedCollection], '$[' + CAST(@i AS nvarchar(max)) + '].Int') AS int) = 21
+WHERE CAST(JSON_VALUE([r].[RelatedCollection], '$[' + CAST(@i AS nvarchar(max)) + '].Int') AS int) = 8
 """);
     }
 
@@ -95,7 +95,7 @@ WHERE CAST(JSON_VALUE([r].[RelatedCollection], '$[' + CAST(@i AS nvarchar(max)) 
             """
 SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
 FROM [RootEntity] AS [r]
-WHERE CAST(JSON_VALUE([r].[RelatedCollection], '$[' + CAST([r].[Id] - 1 AS nvarchar(max)) + '].Int') AS int) = 21
+WHERE CAST(JSON_VALUE([r].[RelatedCollection], '$[' + CAST([r].[Id] - 1 AS nvarchar(max)) + '].Int') AS int) = 8
 """);
     }
 
@@ -107,7 +107,7 @@ WHERE CAST(JSON_VALUE([r].[RelatedCollection], '$[' + CAST([r].[Id] - 1 AS nvarc
             """
 SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
 FROM [RootEntity] AS [r]
-WHERE CAST(JSON_VALUE([r].[RelatedCollection], '$[9999].Int') AS int) = 50
+WHERE CAST(JSON_VALUE([r].[RelatedCollection], '$[9999].Int') AS int) = 8
 """);
     }
 

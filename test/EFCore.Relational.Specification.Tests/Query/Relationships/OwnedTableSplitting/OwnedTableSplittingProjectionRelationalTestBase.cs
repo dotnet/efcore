@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Query.Relationships.OwnedNavigations;
-using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Query.Relationships.OwnedTableSplitting;
 
@@ -17,13 +16,19 @@ public abstract class OwnedTableSplittingProjectionRelationalTestBase<TFixture>
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    // // The following are tests projecting out collections, which aren't supported with table splitting.
-    // // Collection properties are ignored in the model, and since these tests project we client-eval and get an assertion failure.
-    // public override Task Select_related_collection(bool async, QueryTrackingBehavior queryTrackingBehavior)
-    //     => Assert.ThrowsAsync<FailException>(() => base.Select_related_collection(async, queryTrackingBehavior));
-
-    // public override Task Select_optional_related_nested_collection(bool async, QueryTrackingBehavior queryTrackingBehavior)
-    //     => Assert.ThrowsAsync<FailException>(() => base.Select_optional_related_nested_collection(async, queryTrackingBehavior));
+    // Traditional relational collections navigations can't be compared reliably.
+    // The failure below is because collections on from null instances are returned as empty collections rather than null; but
+    // even disregarding that, elements in the collection don't preserve ordering and so can't be compared reliably.
+    public override Task Select_nested_collection_on_optional_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
+        => AssertOwnedTrackingQuery(
+            queryTrackingBehavior,
+            () => AssertQuery(
+                async,
+                ss => ss.Set<RootEntity>().OrderBy(e => e.Id).Select(x => x.OptionalRelated!.NestedCollection),
+                ss => ss.Set<RootEntity>().OrderBy(e => e.Id).Select(x => x.OptionalRelated!.NestedCollection ?? new List<NestedType>()),
+                assertOrder: true,
+                elementAsserter: (e, a) => AssertCollection(e, a, elementSorter: r => r.Id),
+                queryTrackingBehavior: queryTrackingBehavior));
 
     protected void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

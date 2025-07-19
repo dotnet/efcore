@@ -20,14 +20,14 @@ public abstract class RelationshipsMiscellaneousTestBase<TFixture>(TFixture fixt
     public virtual Task Where_optional_related_property(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<RootEntity>().Where(e => e.OptionalRelated!.Int == 9));
+            ss => ss.Set<RootEntity>().Where(e => e.OptionalRelated!.Int == 8));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Where_nested_related_property(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<RootEntity>().Where(e => e.RequiredRelated.RequiredNested.Int == 50));
+            ss => ss.Set<RootEntity>().Where(e => e.RequiredRelated.RequiredNested.Int == 8));
 
     #endregion Simple filters
 }

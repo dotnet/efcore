@@ -37,7 +37,7 @@ WHERE [r].[RequiredRelated_Int] = 8
             """
 SELECT [r].[Id], [r].[Name], [r].[RequiredRelated_Id], [r].[RequiredRelated_Int], [r].[RequiredRelated_Name], [r].[RequiredRelated_String], [r].[RequiredRelated_RequiredNested_Id], [r].[RequiredRelated_RequiredNested_Int], [r].[RequiredRelated_RequiredNested_Name], [r].[RequiredRelated_RequiredNested_String]
 FROM [RootEntity] AS [r]
-WHERE [r].[RequiredRelated_RequiredNested_Int] = 50
+WHERE [r].[RequiredRelated_RequiredNested_Int] = 8
 """);
     }
 

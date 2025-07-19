@@ -14,17 +14,17 @@ public abstract class OwnedNavigationsProjectionTestBase<TFixture>(TFixture fixt
     public override Task Select_optional_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
         => AssertOwnedTrackingQuery(queryTrackingBehavior, () => base.Select_optional_related(async, queryTrackingBehavior));
 
-    public override Task Select_required_related_required_nested(bool async, QueryTrackingBehavior queryTrackingBehavior)
-        => AssertOwnedTrackingQuery(queryTrackingBehavior, () => base.Select_required_related_required_nested(async, queryTrackingBehavior));
+    public override Task Select_required_nested_on_required_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
+        => AssertOwnedTrackingQuery(queryTrackingBehavior, () => base.Select_required_nested_on_required_related(async, queryTrackingBehavior));
 
-    public override Task Select_required_related_optional_nested(bool async, QueryTrackingBehavior queryTrackingBehavior)
-        => AssertOwnedTrackingQuery(queryTrackingBehavior, () => base.Select_required_related_optional_nested(async, queryTrackingBehavior));
+    public override Task Select_optional_nested_on_required_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
+        => AssertOwnedTrackingQuery(queryTrackingBehavior, () => base.Select_optional_nested_on_required_related(async, queryTrackingBehavior));
 
-    public override Task Select_optional_related_required_nested(bool async, QueryTrackingBehavior queryTrackingBehavior)
-        => AssertOwnedTrackingQuery(queryTrackingBehavior, () => base.Select_optional_related_required_nested(async, queryTrackingBehavior));
+    public override Task Select_required_nested_on_optional_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
+        => AssertOwnedTrackingQuery(queryTrackingBehavior, () => base.Select_required_nested_on_optional_related(async, queryTrackingBehavior));
 
-    public override Task Select_optional_related_optional_nested(bool async, QueryTrackingBehavior queryTrackingBehavior)
-        => AssertOwnedTrackingQuery(queryTrackingBehavior, () => base.Select_optional_related_optional_nested(async, queryTrackingBehavior));
+    public override Task Select_optional_nested_on_optional_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
+        => AssertOwnedTrackingQuery(queryTrackingBehavior, () => base.Select_optional_nested_on_optional_related(async, queryTrackingBehavior));
 
     #endregion Non-collection
 
@@ -33,20 +33,20 @@ public abstract class OwnedNavigationsProjectionTestBase<TFixture>(TFixture fixt
     public override Task Select_related_collection(bool async, QueryTrackingBehavior queryTrackingBehavior)
         => AssertOwnedTrackingQuery(queryTrackingBehavior, () => base.Select_related_collection(async, queryTrackingBehavior));
 
-    public override Task Select_required_related_nested_collection(bool async, QueryTrackingBehavior queryTrackingBehavior)
-        => AssertOwnedTrackingQuery(queryTrackingBehavior, () => base.Select_required_related_nested_collection(async, queryTrackingBehavior));
+    public override Task Select_nested_collection_on_required_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
+        => AssertOwnedTrackingQuery(queryTrackingBehavior, () => base.Select_nested_collection_on_required_related(async, queryTrackingBehavior));
 
-    public override Task Select_optional_related_nested_collection(bool async, QueryTrackingBehavior queryTrackingBehavior)
-        => AssertOwnedTrackingQuery(queryTrackingBehavior, () => base.Select_optional_related_nested_collection(async, queryTrackingBehavior));
+    public override Task Select_nested_collection_on_optional_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
+        => AssertOwnedTrackingQuery(queryTrackingBehavior, () => base.Select_nested_collection_on_optional_related(async, queryTrackingBehavior));
 
     public override Task SelectMany_related_collection(bool async, QueryTrackingBehavior queryTrackingBehavior)
         => AssertOwnedTrackingQuery(queryTrackingBehavior, () => base.SelectMany_related_collection(async, queryTrackingBehavior));
 
-    public override Task SelectMany_required_related_nested_collection(bool async, QueryTrackingBehavior queryTrackingBehavior)
-        => AssertOwnedTrackingQuery(queryTrackingBehavior, () => base.SelectMany_required_related_nested_collection(async, queryTrackingBehavior));
+    public override Task SelectMany_nested_collection_on_required_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
+        => AssertOwnedTrackingQuery(queryTrackingBehavior, () => base.SelectMany_nested_collection_on_required_related(async, queryTrackingBehavior));
 
-    public override Task SelectMany_optional_related_nested_collection(bool async, QueryTrackingBehavior queryTrackingBehavior)
-        => AssertOwnedTrackingQuery(queryTrackingBehavior, () => base.SelectMany_optional_related_nested_collection(async, queryTrackingBehavior));
+    public override Task SelectMany_nested_collection_on_optional_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
+        => AssertOwnedTrackingQuery(queryTrackingBehavior, () => base.SelectMany_nested_collection_on_optional_related(async, queryTrackingBehavior));
 
     #endregion Collection
 

@@ -1013,7 +1013,7 @@ public abstract partial class InternalEntryBase : IInternalEntry
 
         var originalEntries = GetComplexCollectionOriginalEntries(complexProperty);
         var elementToOriginalEntry = new Dictionary<object, InternalComplexEntry>(ReferenceEqualityComparer.Instance);
-        
+
         // Build mapping of existing non-null elements to their entries
         for (var i = 0; i < originalEntries.Count && i < oldOriginalCollection.Count; i++)
         {

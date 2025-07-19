@@ -32,7 +32,7 @@ WHERE [r0].[Int] = 8
 SELECT [r].[Id], [r].[Name], [r].[OptionalRelatedId], [r].[RequiredRelatedId]
 FROM [RootEntity] AS [r]
 LEFT JOIN [RelatedType] AS [r0] ON [r].[OptionalRelatedId] = [r0].[Id]
-WHERE [r0].[Int] = 9
+WHERE [r0].[Int] = 8
 """);
     }
 
@@ -46,7 +46,7 @@ SELECT [r].[Id], [r].[Name], [r].[OptionalRelatedId], [r].[RequiredRelatedId]
 FROM [RootEntity] AS [r]
 INNER JOIN [RelatedType] AS [r0] ON [r].[RequiredRelatedId] = [r0].[Id]
 INNER JOIN [NestedType] AS [n] ON [r0].[RequiredNestedId] = [n].[Id]
-WHERE [n].[Int] = 50
+WHERE [n].[Int] = 8
 """);
     }
 

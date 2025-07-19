@@ -25,14 +25,16 @@ public class RootEntity
     [NotMapped] // Explicitly mapped via Fluent API for navigation tests only
     public int RequiredRelatedId { get; set; }
     [NotMapped] // Explicitly mapped via Fluent API for navigation tests only
-    public int OptionalRelatedId { get; set; }
+    public int? OptionalRelatedId { get; set; }
+
+    public override string ToString() => Name;
 }
 
 /// <summary>
 /// The main type to be tested; mapped differently (entity type, complex type...) across
 /// different test variations.
 /// </summary>
-public class RelatedType
+public class RelatedType : IEquatable<RelatedType>
 {
     public int Id { get; set; }
     public required string Name { get; set; }
@@ -59,13 +61,39 @@ public class RelatedType
     public RootEntity RelatedCollectionInverse { get; set; } = null!;
     [NotMapped]
     public int? CollectionRootId { get; set; }
+
+    public bool Equals(RelatedType? other)
+        => other is not null
+           && Id == other.Id
+           && Name == other.Name
+           && Int == other.Int
+           && String == other.String
+           && RequiredNested.Equals(other.RequiredNested)
+           && (OptionalNested is null && other.OptionalNested is null || OptionalNested?.Equals(other.RequiredNested) == true)
+           && NestedCollection.SequenceEqual(other.NestedCollection);
+
+    public RelatedType DeepClone()
+        => new()
+        {
+            Id = Id,
+            Name = Name,
+            Int = Int,
+            String = String,
+
+            RequiredNested = RequiredNested.DeepClone(),
+            OptionalNested = OptionalNested?.DeepClone(),
+
+            NestedCollection = NestedCollection.Select(n => n.DeepClone()).ToList()
+        };
+
+    public override string ToString() => Name;
 }
 
 /// <summary>
 /// An additional nested type contained within <see cref="RelatedType" />, for tests which exercise
 /// nested relationships.
 /// </summary>
-public class NestedType
+public class NestedType : IEquatable<NestedType>
 {
     public int Id { get; set; }
     public required string Name { get; set; }
@@ -83,6 +111,24 @@ public class NestedType
     public RelatedType NestedCollectionInverse { get; set; } = null!;
     [NotMapped]
     public int? CollectionRelatedId { get; set; }
+
+    public bool Equals(NestedType? other)
+        => other is not null
+           && Id == other.Id
+           && Name == other.Name
+           && Int == other.Int
+           && String == other.String;
+
+    public NestedType DeepClone()
+        => new()
+        {
+            Id = Id,
+            Name = Name,
+            Int = Int,
+            String = String
+        };
+
+    public override string ToString() => Name;
 }
 
 /// <summary>

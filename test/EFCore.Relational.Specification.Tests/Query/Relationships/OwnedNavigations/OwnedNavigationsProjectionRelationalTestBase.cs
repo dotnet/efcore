@@ -14,6 +14,19 @@ public abstract class OwnedNavigationsProjectionRelationalTestBase<TFixture>
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
+    // Traditional relational collections navigations projected from null instances are returned as empty collections rather than null.
+    // This is in contrast to client evaluation behavior - and also the JSON collection behavior - where we get null instance (coalescing).
+    public override Task Select_nested_collection_on_optional_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
+        => queryTrackingBehavior is QueryTrackingBehavior.TrackAll
+            ? base.Select_nested_collection_on_optional_related(async, queryTrackingBehavior)
+            : AssertQuery(
+                async,
+                ss => ss.Set<RootEntity>().OrderBy(e => e.Id).Select(x => x.OptionalRelated!.NestedCollection),
+                ss => ss.Set<RootEntity>().OrderBy(e => e.Id).Select(x => x.OptionalRelated!.NestedCollection ?? new List<NestedType>()),
+                assertOrder: true,
+                elementAsserter: (e, a) => AssertCollection(e, a, elementSorter: r => r.Id),
+                queryTrackingBehavior: queryTrackingBehavior);
+
     public void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 }

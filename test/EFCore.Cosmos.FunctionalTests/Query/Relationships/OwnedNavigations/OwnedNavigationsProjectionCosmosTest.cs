@@ -29,11 +29,11 @@ FROM root c
 
     #region Simple properties
 
-    public override Task Select_related_property(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    public override Task Select_property_on_required_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
         => Fixture.NoSyncTest(
             async, async a =>
             {
-                await base.Select_related_property(a, queryTrackingBehavior);
+                await base.Select_property_on_required_related(a, queryTrackingBehavior);
 
                 AssertSql(
                     """
@@ -42,11 +42,17 @@ FROM root c
 """);
             });
 
-    public override Task Select_optional_related_property(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    public override Task Select_property_on_optional_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
         => Fixture.NoSyncTest(
             async, async a =>
             {
-                await base.Select_optional_related_property(a, queryTrackingBehavior);
+                // When OptionalRelated is null, the property access on it evaluates to undefined in Cosmos, causing the
+                // result to be filtered out entirely.
+                await AssertQuery(
+                    async,
+                    ss => ss.Set<RootEntity>().Select(x => x.OptionalRelated!.String),
+                    ss => ss.Set<RootEntity>().Where(x => x.OptionalRelated != null).Select(x => x.OptionalRelated!.String),
+                    queryTrackingBehavior: queryTrackingBehavior);
 
                 AssertSql(
                     """
@@ -55,11 +61,36 @@ FROM root c
 """);
             });
 
-    public override Task Select_optional_related_property_value_type(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    public override Task Select_value_type_property_on_null_related_throws(bool async, QueryTrackingBehavior queryTrackingBehavior)
         => Fixture.NoSyncTest(
             async, async a =>
             {
-                await base.Select_optional_related_property_value_type(a, queryTrackingBehavior);
+                // When OptionalRelated is null, the property access on it evaluates to undefined in Cosmos, causing the
+                // result to be filtered out entirely.
+                await AssertQuery(
+                    async,
+                    ss => ss.Set<RootEntity>().Select(x => x.OptionalRelated!.Int),
+                    ss => ss.Set<RootEntity>().Where(x => x.OptionalRelated != null).Select(x => x.OptionalRelated!.Int),
+                    queryTrackingBehavior: queryTrackingBehavior);
+
+               AssertSql(
+                   """
+SELECT VALUE c["OptionalRelated"]["Int"]
+FROM root c
+""");
+            });
+
+    public override Task Select_nullable_value_type_property_on_null_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                // When OptionalRelated is null, the property access on it evaluates to undefined in Cosmos, causing the
+                // result to be filtered out entirely.
+                await AssertQuery(
+                    async,
+                    ss => ss.Set<RootEntity>().Select(x => (int?)x.OptionalRelated!.Int),
+                    ss => ss.Set<RootEntity>().Where(x => x.OptionalRelated != null).Select(x => (int?)x.OptionalRelated!.Int),
+                    queryTrackingBehavior: queryTrackingBehavior);
 
                 AssertSql(
                     """
@@ -106,11 +137,11 @@ FROM root c
         }
     }
 
-    public override async Task Select_required_related_required_nested(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    public override async Task Select_required_nested_on_required_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
     {
         if (async)
         {
-            await base.Select_required_related_required_nested(async, queryTrackingBehavior);
+            await base.Select_required_nested_on_required_related(async, queryTrackingBehavior);
 
             if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
             {
@@ -123,11 +154,11 @@ FROM root c
         }
     }
 
-    public override async Task Select_required_related_optional_nested(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    public override async Task Select_optional_nested_on_required_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
     {
         if (async)
         {
-            await base.Select_required_related_optional_nested(async, queryTrackingBehavior);
+            await base.Select_optional_nested_on_required_related(async, queryTrackingBehavior);
 
             if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
             {
@@ -140,11 +171,18 @@ FROM root c
         }
     }
 
-    public override async Task Select_optional_related_required_nested(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    public override async Task Select_required_nested_on_optional_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
     {
-        if (async)
+        if (async && queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
         {
-            await base.Select_optional_related_required_nested(async, queryTrackingBehavior);
+            // When OptionalRelated is null, the property access on it evaluates to undefined in Cosmos, causing the
+            // result to be filtered out entirely.
+            await Assert.ThrowsAsync<NullReferenceException>(() => // #36403
+                AssertQuery(
+                    async,
+                    ss => ss.Set<RootEntity>().Select(x => x.OptionalRelated!.OptionalNested),
+                    ss => ss.Set<RootEntity>().Where(x => x.OptionalRelated != null).Select(x => x.OptionalRelated!.OptionalNested),
+                    queryTrackingBehavior: queryTrackingBehavior));
 
             if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
             {
@@ -157,11 +195,18 @@ FROM root c
         }
     }
 
-    public override async Task Select_optional_related_optional_nested(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    public override async Task Select_optional_nested_on_optional_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
     {
-        if (async)
+        if (async && queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
         {
-            await base.Select_optional_related_optional_nested(async, queryTrackingBehavior);
+            // When OptionalRelated is null, the property access on it evaluates to undefined in Cosmos, causing the
+            // result to be filtered out entirely.
+            await Assert.ThrowsAsync<NullReferenceException>(() => // #36403
+                AssertQuery(
+                    async,
+                    ss => ss.Set<RootEntity>().Select(x => x.OptionalRelated!.RequiredNested),
+                    ss => ss.Set<RootEntity>().Where(x => x.OptionalRelated != null).Select(x => x.OptionalRelated!.RequiredNested),
+                    queryTrackingBehavior: queryTrackingBehavior));
 
             if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
             {
@@ -196,30 +241,32 @@ ORDER BY c["Id"]
         }
     }
 
-    public override async Task Select_required_related_nested_collection(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    public override async Task Select_nested_collection_on_required_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
     {
         if (async && queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
         {
-            await Assert.ThrowsAsync<NullReferenceException>(() => base.Select_required_related_nested_collection(async, queryTrackingBehavior));
+            await Assert.ThrowsAsync<NullReferenceException>(() => base.Select_nested_collection_on_required_related(async, queryTrackingBehavior));
 
             AssertSql(
                 """
 SELECT VALUE c
 FROM root c
+ORDER BY c["Id"]
 """);
         }
     }
 
-    public override async Task Select_optional_related_nested_collection(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    public override async Task Select_nested_collection_on_optional_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
     {
         if (async && queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
         {
-            await Assert.ThrowsAsync<NullReferenceException>(() => base.Select_optional_related_nested_collection(async, queryTrackingBehavior));
+            await Assert.ThrowsAsync<NullReferenceException>(() => base.Select_nested_collection_on_optional_related(async, queryTrackingBehavior));
 
             AssertSql(
                 """
 SELECT VALUE c
 FROM root c
+ORDER BY c["Id"]
 """);
         }
     }
@@ -235,23 +282,23 @@ FROM root c
         }
     }
 
-    public override async Task SelectMany_required_related_nested_collection(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    public override async Task SelectMany_nested_collection_on_required_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
     {
         if (async && queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
         {
             // The given key 'n' was not present in the dictionary
-            await Assert.ThrowsAsync<KeyNotFoundException>(() => base.SelectMany_required_related_nested_collection(async, queryTrackingBehavior));
+            await Assert.ThrowsAsync<KeyNotFoundException>(() => base.SelectMany_nested_collection_on_required_related(async, queryTrackingBehavior));
 
             AssertSql();
         }
     }
 
-    public override async Task SelectMany_optional_related_nested_collection(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    public override async Task SelectMany_nested_collection_on_optional_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
     {
         if (async && queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
         {
             // The given key 'n' was not present in the dictionary
-            await Assert.ThrowsAsync<KeyNotFoundException>(() => base.SelectMany_optional_related_nested_collection(async, queryTrackingBehavior));
+            await Assert.ThrowsAsync<KeyNotFoundException>(() => base.SelectMany_nested_collection_on_optional_related(async, queryTrackingBehavior));
 
             AssertSql();
         }

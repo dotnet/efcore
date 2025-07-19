@@ -28,7 +28,7 @@ WHERE CAST(JSON_VALUE([r].[RequiredRelated], '$.Int') AS int) = 8
             """
 SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
 FROM [RootEntity] AS [r]
-WHERE CAST(JSON_VALUE([r].[OptionalRelated], '$.Int') AS int) = 9
+WHERE CAST(JSON_VALUE([r].[OptionalRelated], '$.Int') AS int) = 8
 """);
     }
 
@@ -40,7 +40,7 @@ WHERE CAST(JSON_VALUE([r].[OptionalRelated], '$.Int') AS int) = 9
             """
 SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
 FROM [RootEntity] AS [r]
-WHERE CAST(JSON_VALUE([r].[RequiredRelated], '$.RequiredNested.Int') AS int) = 50
+WHERE CAST(JSON_VALUE([r].[RequiredRelated], '$.RequiredNested.Int') AS int) = 8
 """);
     }
 

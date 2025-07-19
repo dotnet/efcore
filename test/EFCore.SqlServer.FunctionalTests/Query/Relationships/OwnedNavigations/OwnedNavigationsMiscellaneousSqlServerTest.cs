@@ -63,7 +63,7 @@ LEFT JOIN (
     LEFT JOIN [RelatedCollection_NestedCollection] AS [r6] ON [r3].[RootEntityId] = [r6].[RelatedTypeRootEntityId] AND [r3].[Id] = [r6].[RelatedTypeId]
 ) AS [s] ON [r].[Id] = [s].[RootEntityId]
 LEFT JOIN [RequiredRelated_NestedCollection] AS [r7] ON [r0].[RootEntityId] = [r7].[RelatedTypeRootEntityId]
-WHERE [o].[Int] = 9
+WHERE [o].[Int] = 8
 ORDER BY [r].[Id], [o].[RootEntityId], [o0].[RelatedTypeRootEntityId], [o1].[RelatedTypeRootEntityId], [r0].[RootEntityId], [r1].[RelatedTypeRootEntityId], [r2].[RelatedTypeRootEntityId], [o2].[RelatedTypeRootEntityId], [o2].[Id], [s].[RootEntityId], [s].[Id], [s].[RelatedTypeRootEntityId], [s].[RelatedTypeId], [s].[RelatedTypeRootEntityId0], [s].[RelatedTypeId0], [s].[RelatedTypeRootEntityId1], [s].[RelatedTypeId1], [s].[Id0], [r7].[RelatedTypeRootEntityId]
 """);
     }
@@ -91,7 +91,7 @@ LEFT JOIN (
     LEFT JOIN [RelatedCollection_NestedCollection] AS [r6] ON [r3].[RootEntityId] = [r6].[RelatedTypeRootEntityId] AND [r3].[Id] = [r6].[RelatedTypeId]
 ) AS [s] ON [r].[Id] = [s].[RootEntityId]
 LEFT JOIN [RequiredRelated_NestedCollection] AS [r7] ON [r0].[RootEntityId] = [r7].[RelatedTypeRootEntityId]
-WHERE [r1].[Int] = 50
+WHERE [r1].[Int] = 8
 ORDER BY [r].[Id], [r0].[RootEntityId], [r1].[RelatedTypeRootEntityId], [o].[RootEntityId], [o0].[RelatedTypeRootEntityId], [o1].[RelatedTypeRootEntityId], [r2].[RelatedTypeRootEntityId], [o2].[RelatedTypeRootEntityId], [o2].[Id], [s].[RootEntityId], [s].[Id], [s].[RelatedTypeRootEntityId], [s].[RelatedTypeId], [s].[RelatedTypeRootEntityId0], [s].[RelatedTypeId0], [s].[RelatedTypeRootEntityId1], [s].[RelatedTypeId1], [s].[Id0], [r7].[RelatedTypeRootEntityId]
 """);
     }

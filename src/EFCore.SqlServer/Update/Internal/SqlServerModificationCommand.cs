@@ -84,7 +84,7 @@ public class SqlServerModificationCommand : ModificationCommand
             parameters = parameters with
             {
                 Value = value,
-                TypeMapping = parameters.TypeMapping is SqlServerOwnedJsonTypeMapping
+                TypeMapping = parameters.TypeMapping is SqlServerStructuralJsonTypeMapping
                     ? SqlServerStringTypeMapping.UnicodeDefault
                     : parameters.TypeMapping
             };
