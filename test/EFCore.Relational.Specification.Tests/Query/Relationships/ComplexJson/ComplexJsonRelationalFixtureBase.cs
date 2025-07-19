@@ -9,10 +9,6 @@ public abstract class ComplexJsonRelationalFixtureBase : ComplexPropertiesFixtur
 {
     protected override string StoreName => "ComplexJsonQueryTest";
 
-    // TODO: Temporary, until we have update pipeline support for complex JSON
-    protected override Task SeedAsync(PoolableDbContext context)
-        => throw new NotImplementedException("Must be implemented in derived provider implementations using SQL, since the update pipeline does not yet support complex JSON.");
-
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
         base.OnModelCreating(modelBuilder, context);
