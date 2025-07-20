@@ -1,6 +1,8 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.Data.SqlTypes;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
@@ -965,6 +967,8 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
+    #region Temporal tables
+
     [ConditionalFact]
     public void Temporal_can_only_be_specified_on_root_entities()
     {
@@ -1157,6 +1161,57 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         Assert.Equal(2, ownedEntity.FindProperty("Start").GetPrecision());
         Assert.Equal(2, ownedEntity.FindProperty("End").GetPrecision());
     }
+
+    #endregion Temporal tables
+
+    #region Vector
+
+    [ConditionalFact]
+    public virtual void Throws_for_vector_property_without_dimensions()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<VectorWithoutDimensionsEntity>();
+
+        VerifyError(
+            SqlServerStrings.VectorDimensionsMissing(nameof(VectorWithoutDimensionsEntity), nameof(VectorWithoutDimensionsEntity.Vector)),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Throws_for_vector_property_inside_JSON()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<VectorInsideJsonEntity>().OwnsOne(v => v.VectorContainer, n =>
+        {
+            n.ToJson();
+            n.Property(v => v.Vector).HasMaxLength(3);
+        });
+
+        VerifyError(
+            SqlServerStrings.VectorPropertiesNotSupportedInJson(nameof(VectorContainer), nameof(VectorContainer.Vector)),
+            modelBuilder);
+    }
+
+    public class VectorWithoutDimensionsEntity
+    {
+        public int Id { get; set; }
+        public SqlVector<float> Vector { get; set; }
+    }
+
+    public class VectorInsideJsonEntity
+    {
+        public int Id { get; set; }
+        public VectorContainer VectorContainer { get; set; }
+    }
+
+    public class VectorContainer
+    {
+        public SqlVector<float> Vector { get; set; }
+    }
+
+    #endregion Vector
 
     public class Human
     {

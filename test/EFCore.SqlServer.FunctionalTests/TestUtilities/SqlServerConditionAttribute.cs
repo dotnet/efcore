@@ -97,6 +97,11 @@ public sealed class SqlServerConditionAttribute(SqlServerCondition conditions) :
             isMet &= TestEnvironment.IsJsonTypeSupported;
         }
 
+        if (Conditions.HasFlag(SqlServerCondition.SupportsVectorType))
+        {
+            isMet &= TestEnvironment.IsVectorTypeSupported;
+        }
+
         return ValueTask.FromResult(isMet);
     }
 

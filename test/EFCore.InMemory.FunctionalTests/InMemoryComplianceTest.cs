@@ -3,6 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.BulkUpdates;
 using Microsoft.EntityFrameworkCore.Query.Relationships;
+using Microsoft.EntityFrameworkCore.Query.Relationships.ComplexProperties;
 using Microsoft.EntityFrameworkCore.Query.Relationships.Navigations;
 using Microsoft.EntityFrameworkCore.Query.Relationships.OwnedNavigations;
 
@@ -30,11 +31,20 @@ public class InMemoryComplianceTest : ComplianceTestBase
         typeof(JsonQueryTestBase<>),
         typeof(AdHocJsonQueryTestBase),
 
-        // TODO: implement later once things are baked (#33985)
+        // Relationships tests - not implemented for InMemory
         typeof(RelationshipsProjectionTestBase<>),
-        typeof(OwnedNavigationsProjectionTestBase<>),
+        typeof(RelationshipsCollectionTestBase<>),
+        typeof(RelationshipsMiscellaneousTestBase<>),
         typeof(NavigationsIncludeTestBase<>),
-        typeof(NavigationsProjectionTestBase<>)
+        typeof(NavigationsProjectionTestBase<>),
+        typeof(NavigationsCollectionTestBase<>),
+        typeof(NavigationsMiscellaneousTestBase<>),
+        typeof(OwnedNavigationsProjectionTestBase<>),
+        typeof(OwnedNavigationsCollectionTestBase<>),
+        typeof(OwnedNavigationsMiscellaneousTestBase<>),
+        typeof(ComplexPropertiesProjectionTestBase<>),
+        typeof(ComplexPropertiesCollectionTestBase<>),
+        typeof(ComplexPropertiesMiscellaneousTestBase<>)
     };
 
     protected override Assembly TargetAssembly { get; } = typeof(InMemoryComplianceTest).Assembly;

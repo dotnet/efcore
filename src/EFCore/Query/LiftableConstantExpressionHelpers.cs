@@ -39,8 +39,8 @@ public static class LiftableConstantExpressionHelpers
     private static readonly MethodInfo EntityTypeFindSkipNavigationMethod =
         typeof(IEntityType).GetRuntimeMethod(nameof(IEntityType.FindSkipNavigation), [typeof(string)])!;
 
-    private static readonly MethodInfo NavigationBaseClrCollectionAccessorMethod =
-        typeof(INavigationBase).GetRuntimeMethod(nameof(INavigationBase.GetCollectionAccessor), [])!;
+    private static readonly MethodInfo PropertyBaseClrCollectionAccessorMethod =
+        typeof(IPropertyBase).GetRuntimeMethod(nameof(IPropertyBase.GetCollectionAccessor), [])!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -201,20 +201,27 @@ public static class LiftableConstantExpressionHelpers
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static Expression BuildNavigationAccess(INavigationBase? navigation, ParameterExpression liftableConstantContextParameter)
+    public static Expression BuildRelationshipAccess(IPropertyBase? relationship, ParameterExpression liftableConstantContextParameter)
     {
-        if (navigation == null)
+        if (relationship is null)
         {
             return Default(typeof(INavigationBase));
         }
 
-        var declaringType = navigation.DeclaringType;
+        var declaringType = relationship.DeclaringType;
         var declaringTypeExpression = BuildMemberAccessForEntityOrComplexType(declaringType, liftableConstantContextParameter);
 
         var result = Call(
             declaringTypeExpression,
-            navigation is ISkipNavigation ? EntityTypeFindSkipNavigationMethod : EntityTypeFindNavigationMethod,
-            Constant(navigation.Name));
+            relationship switch
+            {
+                ISkipNavigation => EntityTypeFindSkipNavigationMethod,
+                INavigation => EntityTypeFindNavigationMethod,
+                IComplexProperty => TypeBaseFindComplexPropertyMethod,
+
+                _ => throw new UnreachableException()
+            },
+            Constant(relationship.Name));
 
         return result;
     }
@@ -225,10 +232,10 @@ public static class LiftableConstantExpressionHelpers
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static Expression<Func<MaterializerLiftableConstantContext, object>> BuildNavigationAccessLambda(INavigationBase? navigation)
+    public static Expression<Func<MaterializerLiftableConstantContext, object>> BuildRelationshipAccessLambda(IPropertyBase? relationship)
     {
         var prm = Parameter(typeof(MaterializerLiftableConstantContext));
-        var body = BuildNavigationAccess(navigation, prm);
+        var body = BuildRelationshipAccess(relationship, prm);
 
         return Lambda<Func<MaterializerLiftableConstantContext, object>>(body, prm);
     }
@@ -239,15 +246,15 @@ public static class LiftableConstantExpressionHelpers
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static Expression BuildClrCollectionAccessor(INavigationBase? navigation, ParameterExpression liftableConstantContextParameter)
+    public static Expression BuildClrCollectionAccessor(IPropertyBase? relationship, ParameterExpression liftableConstantContextParameter)
     {
-        if (navigation == null)
+        if (relationship is null)
         {
             return Default(typeof(IClrCollectionAccessor));
         }
 
-        var navigationAccessExpression = BuildNavigationAccess(navigation, liftableConstantContextParameter);
-        var result = Call(navigationAccessExpression, NavigationBaseClrCollectionAccessorMethod);
+        var relationshipAccessExpression = BuildRelationshipAccess(relationship, liftableConstantContextParameter);
+        var result = Call(relationshipAccessExpression, PropertyBaseClrCollectionAccessorMethod);
 
         return result;
     }
@@ -259,10 +266,10 @@ public static class LiftableConstantExpressionHelpers
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public static Expression<Func<MaterializerLiftableConstantContext, object>> BuildClrCollectionAccessorLambda(
-        INavigationBase? navigation)
+        IPropertyBase? relationship)
     {
         var prm = Parameter(typeof(MaterializerLiftableConstantContext));
-        var body = BuildClrCollectionAccessor(navigation, prm);
+        var body = BuildClrCollectionAccessor(relationship, prm);
 
         return Lambda<Func<MaterializerLiftableConstantContext, object>>(body, prm);
     }

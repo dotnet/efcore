@@ -829,11 +829,11 @@ namespace Microsoft.EntityFrameworkCore
         {
             var provider = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
-                .AddSingleton<IEntityMaterializerSource, FakeEntityMaterializerSource>()
+                .AddSingleton<IStructuralTypeMaterializerSource, FakeEntityMaterializerSource>()
                 .BuildServiceProvider(validateScopes: true);
 
             using var context = new EarlyLearningCenter(provider);
-            Assert.IsType<FakeEntityMaterializerSource>(context.GetService<IEntityMaterializerSource>());
+            Assert.IsType<FakeEntityMaterializerSource>(context.GetService<IStructuralTypeMaterializerSource>());
         }
 
         [ComplexType]
@@ -950,8 +950,8 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        private class FakeEntityMaterializerSource(EntityMaterializerSourceDependencies dependencies)
-            : EntityMaterializerSource(dependencies);
+        private class FakeEntityMaterializerSource(StructuralTypeMaterializerSourceDependencies dependencies)
+            : StructuralTypeMaterializerSource(dependencies);
 
         private class FakeModelSource : IModelSource
         {

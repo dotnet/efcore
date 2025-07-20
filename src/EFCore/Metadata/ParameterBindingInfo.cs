@@ -34,7 +34,7 @@ public readonly struct ParameterBindingInfo
     /// <param name="materializerSourceParameters">Parameters for the materialization that is happening.</param>
     /// <param name="materializationContextExpression">The expression tree from which the parameter value will come.</param>
     public ParameterBindingInfo(
-        EntityMaterializerSourceParameters materializerSourceParameters,
+        StructuralTypeMaterializerSourceParameters materializerSourceParameters,
         Expression materializationContextExpression)
     {
         StructuralType = materializerSourceParameters.StructuralType;

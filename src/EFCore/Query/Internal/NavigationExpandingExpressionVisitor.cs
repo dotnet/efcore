@@ -2079,6 +2079,19 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                     GetParameterName("o"));
             }
 
+            case ComplexPropertyReference complexCollectionReference:
+            {
+                var currentTree = new NavigationTreeExpression(Expression.Default(complexCollectionReference.Type.GetSequenceType()));
+
+                return new NavigationExpansionExpression(
+                    Expression.Call(
+                        QueryableMethods.AsQueryable.MakeGenericMethod(complexCollectionReference.Type.GetSequenceType()),
+                        complexCollectionReference),
+                    currentTree,
+                    currentTree,
+                    GetParameterName("c"));
+            }
+
             case PrimitiveCollectionReference primitiveCollectionReference:
             {
                 var currentTree = new NavigationTreeExpression(Expression.Default(primitiveCollectionReference.Type.GetSequenceType()));

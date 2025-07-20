@@ -875,7 +875,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public override Func<MaterializationContext, object> GetOrCreateMaterializer(IEntityMaterializerSource source)
+    public override Func<MaterializationContext, object> GetOrCreateMaterializer(IStructuralTypeMaterializerSource source)
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref _materializer, this, source,
             static (e, s) => s.GetMaterializer(e));
@@ -887,7 +887,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public override Func<MaterializationContext, object> GetOrCreateEmptyMaterializer(IEntityMaterializerSource source)
+    public override Func<MaterializationContext, object> GetOrCreateEmptyMaterializer(IStructuralTypeMaterializerSource source)
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref _emptyMaterializer, this, source,
             static (e, s) => s.GetEmptyMaterializer(e));

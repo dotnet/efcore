@@ -50,6 +50,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Data.SqlClient" />
+    <PackageReference Include="Microsoft.SqlServer.Types" />
   </ItemGroup>
 
   <ItemGroup>

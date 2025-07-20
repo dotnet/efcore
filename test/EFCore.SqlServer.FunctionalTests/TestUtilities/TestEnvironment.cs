@@ -43,6 +43,8 @@ public static class TestEnvironment
 
     private static bool? _supportsJsonPathExpressions;
 
+    private static bool? _isVectorTypeSupported;
+
     private static bool? _supportsFunctions2017;
 
     private static bool? _supportsFunctions2019;
@@ -401,6 +403,33 @@ public static class TestEnvironment
     // TODO:SQLJSON Issue #34414
     public static bool IsJsonTypeSupported
         => false;
+
+    public static bool IsVectorTypeSupported
+    {
+        get
+        {
+            if (!IsConfigured)
+            {
+                return false;
+            }
+
+            if (_isVectorTypeSupported.HasValue)
+            {
+                return _isVectorTypeSupported.Value;
+            }
+
+            try
+            {
+                _isVectorTypeSupported = GetProductMajorVersion() >= 17 || IsSqlAzure;
+            }
+            catch (PlatformNotSupportedException)
+            {
+                _isVectorTypeSupported = false;
+            }
+
+            return _isVectorTypeSupported.Value;
+        }
+    }
 
     public static byte SqlServerMajorVersion
         => GetProductMajorVersion();

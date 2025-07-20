@@ -156,7 +156,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                         break;
                     }
 
-                    // TODO: This is for column flattening; implement JSON complex type support as well.
+                    // TODO: This is for column flattening; implement JSON complex type support as well (#28766)
                     case StructuralTypeShaperExpression
                     {
                         StructuralType: IComplexType complexType,
@@ -166,6 +166,11 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                         Check.DebugAssert(
                             propertyBase is IComplexProperty complexProperty && complexProperty.ComplexType == complexType,
                             "PropertyBase should be a complex property referring to the correct complex type");
+
+                        if (complexType.IsMappedToJson())
+                        {
+                            throw new InvalidOperationException(RelationalStrings.ExecuteUpdateOverJsonIsNotSupported(complexType.DisplayName()));
+                        }
 
                         if (TranslateSetterValueSelector(source, valueSelector, shaper.Type) is not Expression translatedValueSelector
                             || !TryProcessComplexType(shaper, translatedValueSelector))
@@ -208,6 +213,9 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                 return true;
             }
 
+            // Recursively processes the complex types and all complex types referenced by it, adding setters fo all (non-complex)
+            // properties.
+            // Note that this only supports table splitting (where all columns are flattened to the table), but not JSON complex types (#28766).
             bool TryProcessComplexType(StructuralTypeShaperExpression shaperExpression, Expression valueExpression)
             {
                 if (shaperExpression.StructuralType is not IComplexType complexType
@@ -241,7 +249,12 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                     // duplicated for every property on the complex type.
                     // TODO: Make this work by using a common table expression (CTE)
 
-                    var nestedShaperExpression = projection.BindComplexProperty(complexProperty);
+                    if (complexProperty.ComplexType.IsMappedToJson())
+                    {
+                        throw new InvalidOperationException(RelationalStrings.ExecuteUpdateOverJsonIsNotSupported(complexProperty.ComplexType.DisplayName()));
+                    }
+
+                    var nestedShaperExpression = (StructuralTypeShaperExpression)projection.BindComplexProperty(complexProperty);
                     var nestedValueExpression = CreateComplexPropertyAccessExpression(valueExpression, complexProperty);
                     if (!TryProcessComplexType(nestedShaperExpression, nestedValueExpression))
                     {

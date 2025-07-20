@@ -3,8 +3,17 @@
 
 namespace Microsoft.EntityFrameworkCore.Query.Relationships.Navigations;
 
-public abstract class NavigationsProjectionRelationalTestBase<TFixture>(TFixture fixture)
-    : NavigationsProjectionTestBase<TFixture>(fixture)
+public abstract class NavigationsProjectionRelationalTestBase<TFixture>
+    : NavigationsProjectionTestBase<TFixture>
         where TFixture : NavigationsRelationalFixtureBase, new()
 {
+    public NavigationsProjectionRelationalTestBase(TFixture fixture, ITestOutputHelper testOutputHelper)
+        : base(fixture)
+    {
+        Fixture.TestSqlLoggerFactory.Clear();
+        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+    }
+
+    protected void AssertSql(params string[] expected)
+        => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 }

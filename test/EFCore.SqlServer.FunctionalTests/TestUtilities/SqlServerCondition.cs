@@ -22,4 +22,5 @@ public enum SqlServerCondition
     SupportsFunctions2019 = 1 << 13,
     SupportsFunctions2022 = 1 << 14,
     SupportsJsonType = 1 << 15,
+    SupportsVectorType = 1 << 15,
 }
