@@ -127,8 +127,7 @@ public class SqlServerOwnedJsonTypeMapping : JsonTypeMapping
         if (StoreType == "json"
             && parameter is SqlParameter sqlParameter) // To avoid crashing wrapping providers
         {
-            // TODO:SQLJSON Issue #34414
-            sqlParameter.SqlDbType = ((SqlDbType)35);
+            sqlParameter.SqlDbType = SqlDbType.Json;
         }
 
         base.ConfigureParameter(parameter);
