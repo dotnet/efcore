@@ -1629,7 +1629,9 @@ public abstract partial class InternalEntryBase : IInternalEntry
         {
             if (property.GetElementType() != null
                 && !property.IsNullable
-                && GetCurrentValue(property) == null)
+                && GetCurrentValue(property) == null
+                && (property.DeclaringType is not IComplexType complexType
+                    || GetCurrentValue(complexType.ComplexProperty) != null))
             {
                 throw new InvalidOperationException(
                     CoreStrings.NullRequiredPrimitiveCollection(structuralType.DisplayName(), property.Name));
@@ -1643,7 +1645,9 @@ public abstract partial class InternalEntryBase : IInternalEntry
                 if (!complexProperty.IsNullable
                     && !complexProperty.IsCollection
                     && this[complexProperty] == null
-                    && complexProperty.ComplexType.GetProperties().Any(p => !p.IsNullable))
+                    && complexProperty.ComplexType.GetProperties().Any(p => !p.IsNullable)
+                    && (complexProperty.DeclaringType is not IComplexType complexType
+                        || GetCurrentValue(complexType.ComplexProperty) != null))
                 {
                     throw new InvalidOperationException(
                         CoreStrings.NullRequiredComplexProperty(
