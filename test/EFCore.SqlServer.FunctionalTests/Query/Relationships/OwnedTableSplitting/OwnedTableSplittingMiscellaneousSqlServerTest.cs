@@ -12,9 +12,9 @@ public class OwnedTableSplittingMiscellaneousSqlServerTest(
 {
     #region Simple filters
 
-    public override async Task Where_related_property(bool async)
+    public override async Task Where_related_property()
     {
-        await base.Where_related_property(async);
+        await base.Where_related_property();
 
         AssertSql(
             """
@@ -34,9 +34,9 @@ ORDER BY [r].[Id], [o].[RelatedTypeRootEntityId], [o].[Id], [s].[RootEntityId], 
 """);
     }
 
-    public override async Task Where_optional_related_property(bool async)
+    public override async Task Where_optional_related_property()
     {
-        await base.Where_optional_related_property(async);
+        await base.Where_optional_related_property();
 
         AssertSql(
             """
@@ -56,9 +56,9 @@ ORDER BY [r].[Id], [o].[RelatedTypeRootEntityId], [o].[Id], [s].[RootEntityId], 
 """);
     }
 
-    public override async Task Where_nested_related_property(bool async)
+    public override async Task Where_nested_related_property()
     {
-        await base.Where_nested_related_property(async);
+        await base.Where_nested_related_property();
 
         AssertSql(
             """

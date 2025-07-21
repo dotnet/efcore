@@ -9,25 +9,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Relationships;
 public abstract class RelationshipsCollectionTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : RelationshipsQueryFixtureBase, new()
 {
-    [ConditionalTheory]
+    [ConditionalFact]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Count(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<RootEntity>().Where(e => e.RelatedCollection.Count == 2));
+    public virtual Task Count()
+        => AssertQuery(ss => ss.Set<RootEntity>().Where(e => e.RelatedCollection.Count == 2));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<RootEntity>().Where(e => e.RelatedCollection.Where(r => r.Int != 8).Count() == 2));
+    [ConditionalFact]
+    public virtual Task Where()
+        => AssertQuery(ss => ss.Set<RootEntity>().Where(e => e.RelatedCollection.Where(r => r.Int != 8).Count() == 2));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task OrderBy_ElementAt(bool async)
+    [ConditionalFact]
+    public virtual Task OrderBy_ElementAt()
         => AssertQuery(
-            async,
             ss => ss.Set<RootEntity>().Where(
                 e => e.RelatedCollection.OrderBy(r => r.Id).ElementAt(0).Int == 8),
             ss => ss.Set<RootEntity>().Where(e => e.RelatedCollection.Count > 0
@@ -35,43 +28,35 @@ public abstract class RelationshipsCollectionTestBase<TFixture>(TFixture fixture
 
     #region Index
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Index_constant(bool async)
+    [ConditionalFact]
+    public virtual Task Index_constant()
         => AssertOrderedCollectionQuery(
             () => AssertQuery(
-                async,
                 ss => ss.Set<RootEntity>().Where(e => e.RelatedCollection[0].Int == 8),
                 ss => ss.Set<RootEntity>().Where(e => e.RelatedCollection.Count > 0 && e.RelatedCollection[0].Int == 8)));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Index_parameter(bool async)
+    [ConditionalFact]
+    public virtual Task Index_parameter()
         => AssertOrderedCollectionQuery(() =>
             {
                 var i = 0;
 
                 return AssertQuery(
-                    async,
                     ss => ss.Set<RootEntity>().Where(e => e.RelatedCollection[i].Int == 8),
                     ss => ss.Set<RootEntity>().Where(e => e.RelatedCollection.Count > 0 && e.RelatedCollection[i].Int == 8));
             });
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Index_column(bool async)
+    [ConditionalFact]
+    public virtual Task Index_column()
         => AssertOrderedCollectionQuery(
             () => AssertQuery(
-                async,
                 ss => ss.Set<RootEntity>().Where(e => e.RelatedCollection[e.Id - 1].Int == 8),
                 ss => ss.Set<RootEntity>().Where(e => e.RelatedCollection.Count > e.Id - 1 && e.RelatedCollection[e.Id - 1].Int == 8)));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Index_out_of_bounds(bool async)
+    [ConditionalFact]
+    public virtual Task Index_out_of_bounds()
         => AssertOrderedCollectionQuery(
             () => AssertQuery(
-                async,
                 ss => ss.Set<RootEntity>().Where(e => e.RelatedCollection[9999].Int == 8),
                 ss => ss.Set<RootEntity>().Where(e => false),
                 assertEmpty: true));

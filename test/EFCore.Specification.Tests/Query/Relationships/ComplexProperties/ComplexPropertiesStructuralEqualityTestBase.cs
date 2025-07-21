@@ -11,51 +11,44 @@ public abstract class ComplexPropertiesStructuralEqualityTestBase<TFixture>(TFix
     // by-value server-side behavior of complex properties.
     // TODO: Ideally do this rewriting automatically via a visitor
 
-    public override Task Two_related(bool async)
+    public override Task Two_related()
         => AssertQuery(
-            async,
             ss => ss.Set<RootEntity>().Where(e => e.RequiredRelated == e.OptionalRelated),
             ss => ss.Set<RootEntity>().Where(e => e.RequiredRelated.Equals(e.OptionalRelated)));
 
-    public override Task Two_nested(bool async)
+    public override Task Two_nested()
         => AssertQuery(
-            async,
             ss => ss.Set<RootEntity>().Where(e => e.RequiredRelated.RequiredNested == e.OptionalRelated!.RequiredNested),
             ss => ss.Set<RootEntity>().Where(e => e.RequiredRelated.RequiredNested.Equals(e.OptionalRelated!.RequiredNested)));
 
-    public override Task Not_equals(bool async)
+    public override Task Not_equals()
         => AssertQuery(
-            async,
             ss => ss.Set<RootEntity>().Where(e => e.RequiredRelated != e.OptionalRelated),
             ss => ss.Set<RootEntity>().Where(e => !e.RequiredRelated.Equals(e.OptionalRelated)));
 
-    public override Task Nested_with_inline(bool async)
+    public override Task Nested_with_inline()
         => AssertQuery(
-            async,
             ss => ss.Set<RootEntity>()
                 .Where(e => e.RequiredRelated.RequiredNested == new NestedType { Id = 1000, Name = "Root1_RequiredRelated_RequiredNested", Int = 8, String = "foo" }),
             ss => ss.Set<RootEntity>()
                 .Where(e => e.RequiredRelated.RequiredNested.Equals(new NestedType { Id = 1000, Name = "Root1_RequiredRelated_RequiredNested", Int = 8, String = "foo" })));
 
-    public override async Task Nested_with_parameter(bool async)
+    public override async Task Nested_with_parameter()
     {
         var nested = new NestedType { Id = 1000, Name = "Root1_RequiredRelated_RequiredNested", Int = 8, String = "foo" };
 
         await AssertQuery(
-            async,
             ss => ss.Set<RootEntity>().Where(e => e.RequiredRelated.RequiredNested == nested),
             ss => ss.Set<RootEntity>().Where(e => e.RequiredRelated.RequiredNested.Equals(nested)));
     }
 
-    public override Task Two_nested_collections(bool async)
+    public override Task Two_nested_collections()
         => AssertQuery(
-            async,
             ss => ss.Set<RootEntity>().Where(e => e.RequiredRelated.NestedCollection == e.OptionalRelated!.NestedCollection),
             ss => ss.Set<RootEntity>().Where(e => e.OptionalRelated != null && e.RequiredRelated.NestedCollection.SequenceEqual(e.OptionalRelated!.NestedCollection)));
 
-    public override Task Nested_collection_with_inline(bool async)
+    public override Task Nested_collection_with_inline()
         => AssertQuery(
-            async,
             ss => ss.Set<RootEntity>()
                 .Where(e => e.RequiredRelated.NestedCollection == new List<NestedType>
                 {
@@ -69,7 +62,7 @@ public abstract class ComplexPropertiesStructuralEqualityTestBase<TFixture>(TFix
                     new() { Id = 1003, Name = "Root1_RequiredRelated_NestedCollection_2", Int = 8, String = "foo" }
                 })));
 
-    public override async Task Nested_collection_with_parameter(bool async)
+    public override async Task Nested_collection_with_parameter()
     {
         var nestedCollection = new List<NestedType>
         {
@@ -78,7 +71,6 @@ public abstract class ComplexPropertiesStructuralEqualityTestBase<TFixture>(TFix
         };
 
         await AssertQuery(
-            async,
             ss => ss.Set<RootEntity>().Where(e => e.RequiredRelated.NestedCollection == nestedCollection),
             ss => ss.Set<RootEntity>().Where(e => e.RequiredRelated.NestedCollection.SequenceEqual(nestedCollection)));
     }

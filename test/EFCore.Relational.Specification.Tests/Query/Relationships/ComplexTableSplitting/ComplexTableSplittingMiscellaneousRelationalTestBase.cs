@@ -16,8 +16,8 @@ public abstract class ComplexTableSplittingMiscellaneousRelationalTestBase<TFixt
     }
 
     // TODO: Optional complex properties not yet supported (#31376)
-    public override Task Where_optional_related_property(bool async)
-        => AssertTranslationFailed(() => base.Where_optional_related_property(async));
+    public override Task Where_optional_related_property()
+        => AssertTranslationFailed(() => base.Where_optional_related_property());
 
     protected void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

@@ -14,115 +14,98 @@ public class OwnedNavigationsCollectionCosmosTest : OwnedNavigationsCollectionTe
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    public override Task Count(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Count(a);
+    public override async Task Count()
+    {
+        await base.Count();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (ARRAY_LENGTH(c["RelatedCollection"]) = 2)
 """);
-            });
+    }
 
-    public override Task Where(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where(a);
+    public override async Task Where()
+    {
+        await base.Where();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ((
-    SELECT VALUE COUNT(1)
-    FROM r IN c["RelatedCollection"]
-    WHERE (r["Int"] != 8)) = 2)
+SELECT VALUE COUNT(1)
+FROM r IN c["RelatedCollection"]
+WHERE (r["Int"] != 8)) = 2)
 """);
-            });
+    }
 
-    public override async Task OrderBy_ElementAt(bool async)
+    public override async Task OrderBy_ElementAt()
     {
-        if (async)
-        {
-            // 'ORDER BY' is not supported in subqueries.
-            await Assert.ThrowsAsync<CosmosException>(() => base.OrderBy_ElementAt(async));
+        // 'ORDER BY' is not supported in subqueries.
+        await Assert.ThrowsAsync<CosmosException>(() => base.OrderBy_ElementAt());
 
-            AssertSql(
-                """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (ARRAY(
-    SELECT VALUE r["Int"]
-    FROM r IN c["RelatedCollection"]
-    ORDER BY r["Id"])[0] = 8)
+SELECT VALUE r["Int"]
+FROM r IN c["RelatedCollection"]
+ORDER BY r["Id"])[0] = 8)
 """);
-        }
     }
 
-    public override Task Index_constant(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Index_constant(a);
+    public override async Task Index_constant()
+    {
+        await base.Index_constant();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (c["RelatedCollection"][0]["Int"] = 8)
 """);
-            });
+    }
 
-    public override Task Index_parameter(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Index_parameter(a);
+    public override async Task Index_parameter()
+    {
+        await base.Index_parameter();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 @i=?
 
 SELECT VALUE c
 FROM root c
 WHERE (c["RelatedCollection"][@i]["Int"] = 8)
 """);
-            });
+    }
 
-    public override async Task Index_column(bool async)
+    public override async Task Index_column()
     {
-        if (async)
-        {
-            // The specified query includes 'member indexer' which is currently not supported
-            await Assert.ThrowsAsync<CosmosException>(() => base.Index_column(async));
+        // The specified query includes 'member indexer' which is currently not supported
+        await Assert.ThrowsAsync<CosmosException>(() => base.Index_column());
 
-            AssertSql(
-                """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (c["RelatedCollection"][(c["Id"] - 1)]["Int"] = 8)
 """);
-        }
     }
 
-    public override async Task Index_out_of_bounds(bool async)
+    public override async Task Index_out_of_bounds()
     {
-        if (async)
-        {
-            await base.Index_out_of_bounds(async);
+        await base.Index_out_of_bounds();
 
-            AssertSql(
-                """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (c["RelatedCollection"][9999]["Int"] = 8)
 """);
-        }
     }
 
     [ConditionalFact]

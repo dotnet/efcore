@@ -41,13 +41,34 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
 
     public static readonly IEnumerable<object[]> IsAsyncData = [[false], [true]];
 
-    public static readonly IEnumerable<object[]> AsyncAndTrackingData =
+    public static readonly IEnumerable<object[]> TrackingData =
     [
-        [false, QueryTrackingBehavior.TrackAll],
-        [false, QueryTrackingBehavior.NoTracking],
-        [true, QueryTrackingBehavior.TrackAll],
-        [true, QueryTrackingBehavior.NoTracking]
+        [QueryTrackingBehavior.TrackAll],
+        [QueryTrackingBehavior.NoTracking]
     ];
+
+    public Task AssertQuery<TResult>(
+        Func<ISetSource, IQueryable<TResult>> query,
+        Func<TResult, object>? elementSorter = null,
+        Action<TResult, TResult>? elementAsserter = null,
+        bool assertOrder = false,
+        bool assertEmpty = false,
+        QueryTrackingBehavior? queryTrackingBehavior = null,
+        [CallerMemberName] string testMethodName = "")
+        => AssertQuery(async: true, query, query, elementSorter, elementAsserter, assertOrder, assertEmpty, queryTrackingBehavior, testMethodName);
+
+    public Task AssertQuery<TResult>(
+        Func<ISetSource, IQueryable<TResult>> actualQuery,
+        Func<ISetSource, IQueryable<TResult>> expectedQuery,
+        Func<TResult, object>? elementSorter = null,
+        Action<TResult, TResult>? elementAsserter = null,
+        bool assertOrder = false,
+        bool assertEmpty = false,
+        QueryTrackingBehavior? queryTrackingBehavior = null,
+        [CallerMemberName] string testMethodName = "")
+        => TestOutputWrapper(
+            () => QueryAsserter.AssertQuery(
+                actualQuery, expectedQuery, elementSorter, elementAsserter, assertOrder, assertEmpty, async: true, queryTrackingBehavior, testMethodName));
 
     public Task AssertQuery<TResult>(
         bool async,

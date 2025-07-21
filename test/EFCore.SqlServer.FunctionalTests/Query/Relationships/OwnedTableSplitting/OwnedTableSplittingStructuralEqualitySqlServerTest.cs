@@ -8,9 +8,9 @@ public class OwnedTableSplittingStructuralEqualitySqlServerTest(
     ITestOutputHelper testOutputHelper)
     : OwnedTableSplittingStructuralEqualityRelationalTestBase<OwnedTableSplittingSqlServerFixture>(fixture, testOutputHelper)
 {
-    public override async Task Two_related(bool async)
+    public override async Task Two_related()
     {
-        await base.Two_related(async);
+        await base.Two_related();
 
         AssertSql(
             """
@@ -30,9 +30,9 @@ ORDER BY [r].[Id], [o].[RelatedTypeRootEntityId], [o].[Id], [s].[RootEntityId], 
 """);
     }
 
-    public override async Task Two_nested(bool async)
+    public override async Task Two_nested()
     {
-        await base.Two_nested(async);
+        await base.Two_nested();
 
         AssertSql(
             """
@@ -52,9 +52,9 @@ ORDER BY [r].[Id], [o].[RelatedTypeRootEntityId], [o].[Id], [s].[RootEntityId], 
 """);
     }
 
-    public override async Task Not_equals(bool async)
+    public override async Task Not_equals()
     {
-        await base.Not_equals(async);
+        await base.Not_equals();
 
         AssertSql(
             """
@@ -74,9 +74,9 @@ ORDER BY [r].[Id], [o].[RelatedTypeRootEntityId], [o].[Id], [s].[RootEntityId], 
 """);
     }
 
-    public override async Task Related_with_inline_null(bool async)
+    public override async Task Related_with_inline_null()
     {
-        await base.Related_with_inline_null(async);
+        await base.Related_with_inline_null();
 
         AssertSql(
             """
@@ -96,9 +96,9 @@ ORDER BY [r].[Id], [o].[RelatedTypeRootEntityId], [o].[Id], [s].[RootEntityId], 
 """);
     }
 
-    public override async Task Related_with_parameter_null(bool async)
+    public override async Task Related_with_parameter_null()
     {
-        await base.Related_with_parameter_null(async);
+        await base.Related_with_parameter_null();
 
         AssertSql(
             """
@@ -120,9 +120,9 @@ ORDER BY [r].[Id], [o].[RelatedTypeRootEntityId], [o].[Id], [s].[RootEntityId], 
 """);
     }
 
-    public override async Task Nested_with_inline_null(bool async)
+    public override async Task Nested_with_inline_null()
     {
-        await base.Nested_with_inline_null(async);
+        await base.Nested_with_inline_null();
 
         AssertSql(
             """
@@ -142,25 +142,25 @@ ORDER BY [r].[Id], [o].[RelatedTypeRootEntityId], [o].[Id], [s].[RootEntityId], 
 """);
     }
 
-    public override async Task Nested_with_inline(bool async)
+    public override async Task Nested_with_inline()
     {
-        await base.Nested_with_inline(async);
+        await base.Nested_with_inline();
 
         AssertSql(
 );
     }
 
-    public override async Task Nested_with_parameter(bool async)
+    public override async Task Nested_with_parameter()
     {
-        await base.Nested_with_parameter(async);
+        await base.Nested_with_parameter();
 
         AssertSql(
 );
     }
 
-    public override async Task Two_nested_collections(bool async)
+    public override async Task Two_nested_collections()
     {
-        await base.Two_nested_collections(async);
+        await base.Two_nested_collections();
 
         AssertSql(
             """
@@ -180,17 +180,17 @@ ORDER BY [r].[Id], [o].[RelatedTypeRootEntityId], [o].[Id], [s].[RootEntityId], 
 """);
     }
 
-    public override async Task Nested_collection_with_inline(bool async)
+    public override async Task Nested_collection_with_inline()
     {
-        await base.Nested_collection_with_inline(async);
+        await base.Nested_collection_with_inline();
 
         AssertSql(
 );
     }
 
-    public override async Task Nested_collection_with_parameter(bool async)
+    public override async Task Nested_collection_with_parameter()
     {
-        await base.Nested_collection_with_parameter(async);
+        await base.Nested_collection_with_parameter();
 
         AssertSql(
 );

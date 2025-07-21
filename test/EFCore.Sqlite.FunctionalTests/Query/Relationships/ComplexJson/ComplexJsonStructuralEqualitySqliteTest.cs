@@ -6,9 +6,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Relationships.ComplexJson;
 public class ComplexJsonStructuralEqualitySqliteTest(ComplexJsonSqliteFixture fixture, ITestOutputHelper testOutputHelper)
     : ComplexJsonStructuralEqualityRelationalTestBase<ComplexJsonSqliteFixture>(fixture, testOutputHelper)
 {
-    public override async Task Two_related(bool async)
+    public override async Task Two_related()
     {
-        await base.Two_related(async);
+        await base.Two_related();
 
         AssertSql(
             """
@@ -18,9 +18,9 @@ WHERE "r"."RequiredRelated" = "r"."OptionalRelated"
 """);
     }
 
-    public override async Task Two_nested(bool async)
+    public override async Task Two_nested()
     {
-        await base.Two_nested(async);
+        await base.Two_nested();
 
         AssertSql(
             """
@@ -30,9 +30,9 @@ WHERE "r"."RequiredRelated" ->> 'RequiredNested' = "r"."OptionalRelated" ->> 'Re
 """);
     }
 
-    public override async Task Not_equals(bool async)
+    public override async Task Not_equals()
     {
-        await base.Not_equals(async);
+        await base.Not_equals();
 
         AssertSql(
             """
@@ -42,9 +42,9 @@ WHERE "r"."RequiredRelated" <> "r"."OptionalRelated" OR "r"."OptionalRelated" IS
 """);
     }
 
-    public override async Task Related_with_inline_null(bool async)
+    public override async Task Related_with_inline_null()
     {
-        await base.Related_with_inline_null(async);
+        await base.Related_with_inline_null();
 
         AssertSql(
             """
@@ -54,9 +54,9 @@ WHERE "r"."OptionalRelated" IS NULL
 """);
     }
 
-    public override async Task Related_with_parameter_null(bool async)
+    public override async Task Related_with_parameter_null()
     {
-        await base.Related_with_parameter_null(async);
+        await base.Related_with_parameter_null();
 
         AssertSql(
             """
@@ -66,9 +66,9 @@ WHERE "r"."OptionalRelated" IS NULL
 """);
     }
 
-    public override async Task Nested_with_inline_null(bool async)
+    public override async Task Nested_with_inline_null()
     {
-        await base.Nested_with_inline_null(async);
+        await base.Nested_with_inline_null();
 
         AssertSql(
             """
@@ -78,9 +78,9 @@ WHERE "r"."RequiredRelated" ->> 'OptionalNested' IS NULL
 """);
     }
 
-    public override async Task Nested_with_inline(bool async)
+    public override async Task Nested_with_inline()
     {
-        await base.Nested_with_inline(async);
+        await base.Nested_with_inline();
 
         AssertSql(
             """
@@ -90,9 +90,9 @@ WHERE "r"."RequiredRelated" ->> 'RequiredNested' = '{"Id":1000,"Int":8,"Name":"R
 """);
     }
 
-    public override async Task Nested_with_parameter(bool async)
+    public override async Task Nested_with_parameter()
     {
-        await base.Nested_with_parameter(async);
+        await base.Nested_with_parameter();
 
         AssertSql(
             """
@@ -104,9 +104,9 @@ WHERE "r"."RequiredRelated" ->> 'RequiredNested' = @entity_equality_nested
 """);
     }
 
-    public override async Task Two_nested_collections(bool async)
+    public override async Task Two_nested_collections()
     {
-        await base.Two_nested_collections(async);
+        await base.Two_nested_collections();
 
         AssertSql(
             """
@@ -116,9 +116,9 @@ WHERE "r"."RequiredRelated" ->> 'NestedCollection' = "r"."OptionalRelated" ->> '
 """);
     }
 
-    public override async Task Nested_collection_with_inline(bool async)
+    public override async Task Nested_collection_with_inline()
     {
-        await base.Nested_collection_with_inline(async);
+        await base.Nested_collection_with_inline();
 
         AssertSql(
             """
@@ -128,9 +128,9 @@ WHERE "r"."RequiredRelated" ->> 'NestedCollection' = '[{"Id":1002,"Int":8,"Name"
 """);
     }
 
-    public override async Task Nested_collection_with_parameter(bool async)
+    public override async Task Nested_collection_with_parameter()
     {
-        await base.Nested_collection_with_parameter(async);
+        await base.Nested_collection_with_parameter();
 
         AssertSql(
             """

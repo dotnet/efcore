@@ -6,9 +6,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Relationships.Navigations;
 public class NavigationsCollectionSqlServerTest(NavigationsSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
     : NavigationsCollectionRelationalTestBase<NavigationsSqlServerFixture>(fixture, testOutputHelper)
 {
-    public override async Task Count(bool async)
+    public override async Task Count()
     {
-        await base.Count(async);
+        await base.Count();
 
         AssertSql(
             """
@@ -21,9 +21,9 @@ WHERE (
 """);
     }
 
-    public override async Task Where(bool async)
+    public override async Task Where()
     {
-        await base.Where(async);
+        await base.Where();
 
         AssertSql(
             """
@@ -36,9 +36,9 @@ WHERE (
 """);
     }
 
-    public override async Task OrderBy_ElementAt(bool async)
+    public override async Task OrderBy_ElementAt()
     {
-        await base.OrderBy_ElementAt(async);
+        await base.OrderBy_ElementAt();
 
         AssertSql(
             """
@@ -53,30 +53,30 @@ WHERE (
 """);
     }
 
-    public override async Task Index_constant(bool async)
+    public override async Task Index_constant()
     {
-        await base.Index_constant(async);
+        await base.Index_constant();
 
         AssertSql();
     }
 
-    public override async Task Index_parameter(bool async)
+    public override async Task Index_parameter()
     {
-        await base.Index_parameter(async);
+        await base.Index_parameter();
 
         AssertSql();
     }
 
-    public override async Task Index_column(bool async)
+    public override async Task Index_column()
     {
-        await base.Index_column(async);
+        await base.Index_column();
 
         AssertSql();
     }
 
-    public override async Task Index_out_of_bounds(bool async)
+    public override async Task Index_out_of_bounds()
     {
-        await base.Index_out_of_bounds(async);
+        await base.Index_out_of_bounds();
 
         AssertSql();
     }

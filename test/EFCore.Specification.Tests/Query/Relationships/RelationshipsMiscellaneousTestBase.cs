@@ -8,26 +8,17 @@ public abstract class RelationshipsMiscellaneousTestBase<TFixture>(TFixture fixt
 {
     #region Simple filters
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_related_property(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<RootEntity>().Where(e => e.RequiredRelated.Int == 8));
+    [ConditionalFact]
+    public virtual Task Where_related_property()
+        => AssertQuery(ss => ss.Set<RootEntity>().Where(e => e.RequiredRelated.Int == 8));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_optional_related_property(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<RootEntity>().Where(e => e.OptionalRelated!.Int == 8));
+    [ConditionalFact]
+    public virtual Task Where_optional_related_property()
+        => AssertQuery(ss => ss.Set<RootEntity>().Where(e => e.OptionalRelated!.Int == 8));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_nested_related_property(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<RootEntity>().Where(e => e.RequiredRelated.RequiredNested.Int == 8));
+    [ConditionalFact]
+    public virtual Task Where_nested_related_property()
+        => AssertQuery(ss => ss.Set<RootEntity>().Where(e => e.RequiredRelated.RequiredNested.Int == 8));
 
     #endregion Simple filters
 }
