@@ -29,9 +29,7 @@ public abstract class ComplexJsonRelationalFixtureBase : ComplexPropertiesFixtur
 
                 orb.ComplexProperty(r => r.OptionalNested).IsRequired(false);
 
-                // TODO: Currently everything within an optional complex type must be configured as optional - seems wrong.
-                // #36402
-                orb.ComplexProperty(r => r.RequiredNested).IsRequired(false);
+                orb.ComplexProperty(r => r.RequiredNested);
             });
 
             b.ComplexCollection(e => e.RelatedCollection,rcb =>
