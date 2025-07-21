@@ -3,6 +3,7 @@
 
 using System.Numerics;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
@@ -822,7 +823,8 @@ public class CSharpHelperTest
         params IRelationalTypeMappingSourcePlugin[] plugins)
         => new(
             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-            new RelationalTypeMappingSourceDependencies(plugins));
+            new RelationalTypeMappingSourceDependencies(plugins),
+            new SqlServerSingletonOptions());
 
     private class TestTypeMappingPlugin<T>(Func<T, Expression>? literalExpressionFunc) : IRelationalTypeMappingSourcePlugin
     {

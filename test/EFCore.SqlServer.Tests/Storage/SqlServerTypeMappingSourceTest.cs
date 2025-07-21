@@ -6,6 +6,7 @@ using Microsoft.Data.SqlTypes;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Storage;
@@ -1797,6 +1798,61 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMappingSourceTestBas
 
     #endregion Vector
 
+    #region Json
+
+    [ConditionalFact]
+    public void Json_is_mapped_to_nvarchar_with_UseSqlServer_by_default()
+    {
+        var typeMappingSource = CreateTypeMappingSource(o => o.UseSqlServer(null));
+
+        Assert.Equal("nvarchar(max)", typeMappingSource.GetMapping(typeof(JsonTypePlaceholder)).StoreType);
+        Assert.Equal("nvarchar(max)", typeMappingSource.GetMapping(typeof(int[])).StoreType);
+    }
+
+    [ConditionalFact]
+    public void Json_is_mapped_to_nvarchar_with_UseSqlServer_with_compatibility_level_170()
+    {
+        var typeMappingSource = CreateTypeMappingSource(o =>
+            o.UseSqlServer((string)null, o => o.UseCompatibilityLevel(170)));
+
+        Assert.Equal("json", typeMappingSource.GetMapping(typeof(JsonTypePlaceholder)).StoreType);
+        Assert.Equal("json", typeMappingSource.GetMapping(typeof(int[])).StoreType);
+    }
+
+    [ConditionalFact]
+    public void Json_is_mapped_to_json_type_with_UseAzureSql_by_default()
+    {
+        var typeMappingSource = CreateTypeMappingSource(o => o.UseAzureSql(null));
+
+        Assert.Equal("json", typeMappingSource.GetMapping(typeof(JsonTypePlaceholder)).StoreType);
+        Assert.Equal("json", typeMappingSource.GetMapping(typeof(int[])).StoreType);
+    }
+
+    [ConditionalFact]
+    public void Json_is_mapped_to_nvarchar_with_compatibility_level_170_when_explicitly_specified()
+    {
+        var typeMappingSource = CreateTypeMappingSource(o =>
+            o.UseSqlServer((string)null, o => o.UseCompatibilityLevel(170)));
+
+        Assert.Equal("nvarchar(max)", typeMappingSource.FindMapping(typeof(JsonTypePlaceholder), "nvarchar(max)").StoreType);
+        Assert.Equal("nvarchar(max)", typeMappingSource.FindMapping(typeof(int[]), "nvarchar(max)").StoreType);
+    }
+
+    private SqlServerTypeMappingSource CreateTypeMappingSource(Action<DbContextOptionsBuilder> optionsAction = null)
+    {
+        var optionsBuilder = new DbContextOptionsBuilder();
+        optionsAction(optionsBuilder);
+        var singletonOptions = new SqlServerSingletonOptions();
+        singletonOptions.Initialize(optionsBuilder.Options);
+
+        return new SqlServerTypeMappingSource(
+            TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
+            singletonOptions);
+    }
+
+    #endregion Json
+
     [ConditionalFact]
     public void Plugins_can_override_builtin_mappings()
     {
@@ -1805,7 +1861,8 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMappingSourceTestBas
             TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>() with
             {
                 Plugins = [new FakeTypeMappingSourcePlugin()]
-            });
+            },
+            TestServiceFactory.Instance.Create<SqlServerSingletonOptions>());
 
         Assert.Equal("String", typeMappingSource.GetMapping("datetime2").ClrType.Name);
     }
@@ -1820,7 +1877,8 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMappingSourceTestBas
     {
         var typeMappingSource = new SqlServerTypeMappingSource(
             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
+            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
+            TestServiceFactory.Instance.Create<SqlServerSingletonOptions>());
 
         model.ModelDependencies = new RuntimeModelDependencies(typeMappingSource, null!, null!);
 
