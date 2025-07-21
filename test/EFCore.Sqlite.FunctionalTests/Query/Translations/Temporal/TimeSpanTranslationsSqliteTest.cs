@@ -13,48 +13,48 @@ public class TimeSpanTranslationsSqliteTest : TimeSpanTranslationsTestBase<Basic
     }
 
     // Translate TimeSpan members, #18844
-    public override async Task Hours(bool async)
+    public override async Task Hours()
     {
-        await AssertTranslationFailed(() => base.Hours(async));
+        await AssertTranslationFailed(() => base.Hours());
 
         AssertSql();
     }
 
     // Translate TimeSpan members, #18844
-    public override async Task Minutes(bool async)
+    public override async Task Minutes()
     {
-        await AssertTranslationFailed(() => base.Minutes(async));
+        await AssertTranslationFailed(() => base.Minutes());
 
         AssertSql();
     }
 
-    public override async Task Seconds(bool async)
+    public override async Task Seconds()
     {
-        await AssertTranslationFailed(() => base.Seconds(async));
-
-        AssertSql();
-    }
-
-    // Translate TimeSpan members, #18844
-    public override async Task Milliseconds(bool async)
-    {
-        await AssertTranslationFailed(() => base.Milliseconds(async));
+        await AssertTranslationFailed(() => base.Seconds());
 
         AssertSql();
     }
 
     // Translate TimeSpan members, #18844
-    public override async Task Microseconds(bool async)
+    public override async Task Milliseconds()
     {
-        await AssertTranslationFailed(() => base.Microseconds(async));
+        await AssertTranslationFailed(() => base.Milliseconds());
 
         AssertSql();
     }
 
     // Translate TimeSpan members, #18844
-    public override async Task Nanoseconds(bool async)
+    public override async Task Microseconds()
     {
-        await AssertTranslationFailed(() => base.Nanoseconds(async));
+        await AssertTranslationFailed(() => base.Microseconds());
+
+        AssertSql();
+    }
+
+    // Translate TimeSpan members, #18844
+    public override async Task Nanoseconds()
+    {
+        await AssertTranslationFailed(() => base.Nanoseconds());
 
         AssertSql();
     }

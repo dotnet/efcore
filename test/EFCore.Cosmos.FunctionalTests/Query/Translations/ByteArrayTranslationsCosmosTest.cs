@@ -11,26 +11,26 @@ public class ByteArrayTranslationsCosmosTest : ByteArrayTranslationsTestBase<Bas
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    public override Task Length(bool async)
-        => AssertTranslationFailed(() => base.Length(async));
+    public override Task Length()
+        => AssertTranslationFailed(() => base.Length());
 
-    public override Task Index(bool async)
-        => AssertTranslationFailed(() => base.Index(async));
+    public override Task Index()
+        => AssertTranslationFailed(() => base.Index());
 
-    public override Task First(bool async)
-        => AssertTranslationFailed(() => base.First(async));
+    public override Task First()
+        => AssertTranslationFailed(() => base.First());
 
-    public override Task Contains_with_constant(bool async)
-        => AssertTranslationFailed(() => base.Contains_with_constant(async));
+    public override Task Contains_with_constant()
+        => AssertTranslationFailed(() => base.Contains_with_constant());
 
-    public override Task Contains_with_parameter(bool async)
-        => AssertTranslationFailed(() => base.Contains_with_parameter(async));
+    public override Task Contains_with_parameter()
+        => AssertTranslationFailed(() => base.Contains_with_parameter());
 
-    public override Task Contains_with_column(bool async)
-        => AssertTranslationFailed(() => base.Contains_with_column(async));
+    public override Task Contains_with_column()
+        => AssertTranslationFailed(() => base.Contains_with_column());
 
-    public override Task SequenceEqual(bool async)
-        => AssertTranslationFailed(() => base.SequenceEqual(async));
+    public override Task SequenceEqual()
+        => AssertTranslationFailed(() => base.SequenceEqual());
 
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()

@@ -13,340 +13,298 @@ public class StringTranslationsCosmosTest : StringTranslationsTestBase<BasicType
 
     #region Equals
 
-    public override Task Equals(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Equals(a);
+    public override async Task Equals()
+    {
+        await base.Equals();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (c["String"] = "Seattle")
 """);
-            });
+    }
 
-    public override Task Equals_with_OrdinalIgnoreCase(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Equals_with_OrdinalIgnoreCase(a);
+    public override async Task Equals_with_OrdinalIgnoreCase()
+    {
+        await base.Equals_with_OrdinalIgnoreCase();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE STRINGEQUALS(c["String"], "seattle", true)
 """);
-            });
+    }
 
-    public override Task Equals_with_Ordinal(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Equals_with_Ordinal(a);
+    public override async Task Equals_with_Ordinal()
+    {
+        await base.Equals_with_Ordinal();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE STRINGEQUALS(c["String"], "Seattle")
 """);
-            });
+    }
 
-    public override Task Static_Equals(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Static_Equals(a);
+    public override async Task Static_Equals()
+    {
+        await base.Static_Equals();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (c["String"] = "Seattle")
 """);
-            });
+    }
 
-    public override Task Static_Equals_with_OrdinalIgnoreCase(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Static_Equals_with_OrdinalIgnoreCase(a);
+    public override async Task Static_Equals_with_OrdinalIgnoreCase()
+    {
+        await base.Static_Equals_with_OrdinalIgnoreCase();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE STRINGEQUALS(c["String"], "seattle", true)
 """);
-            });
+    }
 
-    public override Task Static_Equals_with_Ordinal(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Static_Equals_with_Ordinal(a);
+    public override async Task Static_Equals_with_Ordinal()
+    {
+        await base.Static_Equals_with_Ordinal();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE STRINGEQUALS(c["String"], "Seattle")
 """);
-            });
+    }
 
     #endregion Equals
 
     #region Miscellaneous
 
-    public override Task Length(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Length(a);
+    public override async Task Length()
+    {
+        await base.Length();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (LENGTH(c["String"]) = 7)
 """);
-            });
+    }
 
-    public override Task ToUpper(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.ToUpper(a);
+    public override async Task ToUpper()
+    {
+        await base.ToUpper();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (UPPER(c["String"]) = "SEATTLE")
 """,
-                    //
-                    """
+            //
+            """
 SELECT VALUE UPPER(c["String"])
 FROM root c
 """);
-            });
+    }
 
-    public override Task ToLower(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.ToLower(a);
+    public override async Task ToLower()
+    {
+        await base.ToLower();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (LOWER(c["String"]) = "seattle")
 """,
-                    //
-                    """
+            //
+            """
 SELECT VALUE LOWER(c["String"])
 FROM root c
 """);
-            });
+    }
 
     #endregion Miscellaneous
 
     #region IndexOf
 
-    public override Task IndexOf(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.IndexOf(a);
+    public override async Task IndexOf()
+    {
+        await base.IndexOf();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (INDEX_OF(c["String"], "eattl") != -1)
 """);
-            });
+    }
 
-    public override Task IndexOf_Char(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.IndexOf_Char(a);
+    public override async Task IndexOf_Char()
+    {
+        await base.IndexOf_Char();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (INDEX_OF(c["String"], "e") != -1)
 """);
-            });
+    }
 
-    public override Task IndexOf_with_empty_string(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.IndexOf_with_empty_string(a);
+    public override async Task IndexOf_with_empty_string()
+    {
+        await base.IndexOf_with_empty_string();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (INDEX_OF(c["String"], "") = 0)
 """);
-            });
+    }
 
-    public override Task IndexOf_with_one_parameter_arg(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.IndexOf_with_one_parameter_arg(a);
+    public override async Task IndexOf_with_one_parameter_arg()
+    {
+        await base.IndexOf_with_one_parameter_arg();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 @pattern=?
 
 SELECT VALUE c
 FROM root c
 WHERE (INDEX_OF(c["String"], @pattern) = 1)
 """);
-            });
+    }
 
-    public override Task IndexOf_with_one_parameter_arg_char(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.IndexOf_with_one_parameter_arg_char(a);
+    public override async Task IndexOf_with_one_parameter_arg_char()
+    {
+        await base.IndexOf_with_one_parameter_arg_char();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 @pattern=?
 
 SELECT VALUE c
 FROM root c
 WHERE (INDEX_OF(c["String"], @pattern) = 1)
 """);
-            });
+    }
 
-    public override Task IndexOf_with_constant_starting_position(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.IndexOf_with_constant_starting_position(a);
+    public override async Task IndexOf_with_constant_starting_position()
+    {
+        await base.IndexOf_with_constant_starting_position();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ((LENGTH(c["String"]) > 2) AND (INDEX_OF(c["String"], "e", 2) = 6))
 """);
-            });
+    }
 
-    public override Task IndexOf_with_constant_starting_position_char(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.IndexOf_with_constant_starting_position_char(a);
+    public override async Task IndexOf_with_constant_starting_position_char()
+    {
+        await base.IndexOf_with_constant_starting_position_char();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ((LENGTH(c["String"]) > 2) AND (INDEX_OF(c["String"], "e", 2) = 6))
 """);
-            });
+    }
 
-    public override Task IndexOf_with_parameter_starting_position(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.IndexOf_with_parameter_starting_position(a);
+    public override async Task IndexOf_with_parameter_starting_position()
+    {
+        await base.IndexOf_with_parameter_starting_position();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 @start=?
 
 SELECT VALUE c
 FROM root c
 WHERE ((LENGTH(c["String"]) > 2) AND (INDEX_OF(c["String"], "e", @start) = 6))
 """);
-            });
+    }
 
-    public override Task IndexOf_with_parameter_starting_position_char(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.IndexOf_with_parameter_starting_position_char(a);
+    public override async Task IndexOf_with_parameter_starting_position_char()
+    {
+        await base.IndexOf_with_parameter_starting_position_char();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 @start=?
 
 SELECT VALUE c
 FROM root c
 WHERE ((LENGTH(c["String"]) > 2) AND (INDEX_OF(c["String"], "e", @start) = 6))
 """);
-            });
+    }
 
-    public override Task IndexOf_after_ToString(bool async)
-        => AssertTranslationFailed(() => base.IndexOf_after_ToString(async));
+    public override Task IndexOf_after_ToString()
+        => AssertTranslationFailed(() => base.IndexOf_after_ToString());
 
-    public override Task IndexOf_over_ToString(bool async)
-        => AssertTranslationFailed(() => base.IndexOf_over_ToString(async));
+    public override Task IndexOf_over_ToString()
+        => AssertTranslationFailed(() => base.IndexOf_over_ToString());
 
     #endregion IndexOf
 
     #region Replace
 
-    public override Task Replace(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Replace(a);
+    public override async Task Replace()
+    {
+        await base.Replace();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (REPLACE(c["String"], "Sea", "Rea") = "Reattle")
 """);
-            });
+    }
 
-    public override Task Replace_Char(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Replace_Char(a);
+    public override async Task Replace_Char()
+    {
+        await base.Replace_Char();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (REPLACE(c["String"], "S", "R") = "Reattle")
 """);
-            });
+    }
 
-    public override Task Replace_with_empty_string(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Replace_with_empty_string(a);
+    public override async Task Replace_with_empty_string()
+    {
+        await base.Replace_with_empty_string();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ((c["String"] != "") AND (REPLACE(c["String"], c["String"], "") = ""))
 """);
-            });
+    }
 
-    public override async Task Replace_using_property_arguments(bool async)
+    public override async Task Replace_using_property_arguments()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Replace_using_property_arguments(async));
+        await AssertTranslationFailed(() => base.Replace_using_property_arguments());
 
         AssertSql();
     }
@@ -355,146 +313,130 @@ WHERE ((c["String"] != "") AND (REPLACE(c["String"], c["String"], "") = ""))
 
     #region Substring
 
-    public override Task Substring(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Substring(a);
+    public override async Task Substring()
+    {
+        await base.Substring();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ((LENGTH(c["String"]) >= 3) AND (SUBSTRING(c["String"], 1, 2) = "ea"))
 """);
-            });
+    }
 
-    public override Task Substring_with_one_arg_with_zero_startIndex(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Substring_with_one_arg_with_zero_startIndex(a);
+    public override async Task Substring_with_one_arg_with_zero_startIndex()
+    {
+        await base.Substring_with_one_arg_with_zero_startIndex();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (SUBSTRING(c["String"], 0, LENGTH(c["String"])) = "Seattle")
 """);
-            });
+    }
 
-    public override Task Substring_with_one_arg_with_constant(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Substring_with_one_arg_with_constant(a);
+    public override async Task Substring_with_one_arg_with_constant()
+    {
+        await base.Substring_with_one_arg_with_constant();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ((LENGTH(c["String"]) >= 1) AND (SUBSTRING(c["String"], 1, LENGTH(c["String"])) = "eattle"))
 """);
-            });
+    }
 
-    public override Task Substring_with_one_arg_with_parameter(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Substring_with_one_arg_with_parameter(a);
+    public override async Task Substring_with_one_arg_with_parameter()
+    {
+        await base.Substring_with_one_arg_with_parameter();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 @start=?
 
 SELECT VALUE c
 FROM root c
 WHERE ((LENGTH(c["String"]) >= 2) AND (SUBSTRING(c["String"], @start, LENGTH(c["String"])) = "attle"))
 """);
-            });
+    }
 
-    public override Task Substring_with_two_args_with_zero_startIndex(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Substring_with_two_args_with_zero_startIndex(a);
+    public override async Task Substring_with_two_args_with_zero_startIndex()
+    {
+        await base.Substring_with_two_args_with_zero_startIndex();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ((LENGTH(c["String"]) >= 3) AND (LEFT(c["String"], 3) = "Sea"))
 """);
-            });
+    }
 
-    public override Task Substring_with_two_args_with_zero_length(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Substring_with_two_args_with_zero_length(a);
+    public override async Task Substring_with_two_args_with_zero_length()
+    {
+        await base.Substring_with_two_args_with_zero_length();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ((LENGTH(c["String"]) >= 2) AND (SUBSTRING(c["String"], 2, 0) = ""))
 """);
-            });
+    }
 
-    public override Task Substring_with_two_args_with_parameter(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Substring_with_two_args_with_parameter(a);
+    public override async Task Substring_with_two_args_with_parameter()
+    {
+        await base.Substring_with_two_args_with_parameter();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 @start=?
 
 SELECT VALUE c
 FROM root c
 WHERE ((LENGTH(c["String"]) >= 5) AND (SUBSTRING(c["String"], @start, 3) = "att"))
 """);
-            });
+    }
 
-    public override Task Substring_with_two_args_with_IndexOf(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Substring_with_two_args_with_IndexOf(a);
+    public override async Task Substring_with_two_args_with_IndexOf()
+    {
+        await base.Substring_with_two_args_with_IndexOf();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (CONTAINS(c["String"], "a") AND (SUBSTRING(c["String"], INDEX_OF(c["String"], "a"), 3) = "att"))
 """);
-            });
+    }
 
     #endregion Substring
 
     #region IsNullOrEmpty/Whitespace
 
-    public override async Task IsNullOrEmpty(bool async)
+    public override async Task IsNullOrEmpty()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.IsNullOrEmpty(async));
+        await AssertTranslationFailed(() => base.IsNullOrEmpty());
 
         AssertSql();
     }
 
-    public override async Task IsNullOrEmpty_negated(bool async)
+    public override async Task IsNullOrEmpty_negated()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.IsNullOrEmpty_negated(async));
+        await AssertTranslationFailed(() => base.IsNullOrEmpty_negated());
 
         AssertSql();
     }
 
-    public override async Task IsNullOrWhiteSpace(bool async)
+    public override async Task IsNullOrWhiteSpace()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.IsNullOrWhiteSpace(async));
+        await AssertTranslationFailed(() => base.IsNullOrWhiteSpace());
 
         AssertSql();
     }
@@ -503,399 +445,347 @@ WHERE (CONTAINS(c["String"], "a") AND (SUBSTRING(c["String"], INDEX_OF(c["String
 
     #region StartsWith
 
-    public override Task StartsWith_Literal(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.StartsWith_Literal(a);
+    public override async Task StartsWith_Literal()
+    {
+        await base.StartsWith_Literal();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE STARTSWITH(c["String"], "Se")
 """);
-            });
+    }
 
-    public override Task StartsWith_Literal_Char(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.StartsWith_Literal_Char(a);
+    public override async Task StartsWith_Literal_Char()
+    {
+        await base.StartsWith_Literal_Char();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE STARTSWITH(c["String"], "S")
 """);
-            });
+    }
 
-    public override Task StartsWith_Parameter(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.StartsWith_Parameter(a);
+    public override async Task StartsWith_Parameter()
+    {
+        await base.StartsWith_Parameter();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 @pattern=?
 
 SELECT VALUE c
 FROM root c
 WHERE STARTSWITH(c["String"], @pattern)
 """);
-            });
+    }
 
-    public override Task StartsWith_Parameter_Char(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.StartsWith_Parameter_Char(a);
+    public override async Task StartsWith_Parameter_Char()
+    {
+        await base.StartsWith_Parameter_Char();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 @pattern=?
 
 SELECT VALUE c
 FROM root c
 WHERE STARTSWITH(c["String"], @pattern)
 """);
-            });
+    }
 
-    public override Task StartsWith_Column(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.StartsWith_Column(a);
+    public override async Task StartsWith_Column()
+    {
+        await base.StartsWith_Column();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE STARTSWITH(c["String"], c["String"])
 """);
-            });
+    }
 
-    public override Task StartsWith_with_StringComparison_Ordinal(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.StartsWith_with_StringComparison_Ordinal(a);
+    public override async Task StartsWith_with_StringComparison_Ordinal()
+    {
+        await base.StartsWith_with_StringComparison_Ordinal();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE STARTSWITH(c["String"], "Se", false)
 """);
-            });
+    }
 
-    public override Task StartsWith_with_StringComparison_OrdinalIgnoreCase(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.StartsWith_with_StringComparison_OrdinalIgnoreCase(a);
+    public override async Task StartsWith_with_StringComparison_OrdinalIgnoreCase()
+    {
+        await base.StartsWith_with_StringComparison_OrdinalIgnoreCase();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE STARTSWITH(c["String"], "Se", true)
 """);
-            });
+    }
 
-    public override async Task StartsWith_with_StringComparison_unsupported(bool async)
+    public override async Task StartsWith_with_StringComparison_unsupported()
     {
-        // Always throws for sync.
-        if (async)
-        {
-            await base.StartsWith_with_StringComparison_unsupported(async);
-        }
+        await base.StartsWith_with_StringComparison_unsupported();
+
+        AssertSql();
     }
 
     #endregion StartsWith
 
     #region EndsWith
 
-    public override Task EndsWith_Literal(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.EndsWith_Literal(a);
+    public override async Task EndsWith_Literal()
+    {
+        await base.EndsWith_Literal();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ENDSWITH(c["String"], "le")
 """);
-            });
+    }
 
-    public override Task EndsWith_Literal_Char(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.EndsWith_Literal_Char(a);
+    public override async Task EndsWith_Literal_Char()
+    {
+        await base.EndsWith_Literal_Char();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ENDSWITH(c["String"], "e")
 """);
-            });
+    }
 
-    public override Task EndsWith_Parameter(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.EndsWith_Parameter(a);
+    public override async Task EndsWith_Parameter()
+    {
+        await base.EndsWith_Parameter();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 @pattern=?
 
 SELECT VALUE c
 FROM root c
 WHERE ENDSWITH(c["String"], @pattern)
 """);
-            });
+    }
 
-    public override Task EndsWith_Parameter_Char(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.EndsWith_Parameter_Char(a);
+    public override async Task EndsWith_Parameter_Char()
+    {
+        await base.EndsWith_Parameter_Char();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 @pattern=?
 
 SELECT VALUE c
 FROM root c
 WHERE ENDSWITH(c["String"], @pattern)
 """);
-            });
+    }
 
-    public override Task EndsWith_Column(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.EndsWith_Column(a);
+    public override async Task EndsWith_Column()
+    {
+        await base.EndsWith_Column();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ENDSWITH(c["String"], c["String"])
 """);
-            });
+    }
 
-    public override Task EndsWith_with_StringComparison_Ordinal(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.EndsWith_with_StringComparison_Ordinal(a);
+    public override async Task EndsWith_with_StringComparison_Ordinal()
+    {
+        await base.EndsWith_with_StringComparison_Ordinal();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ENDSWITH(c["String"], "le", false)
 """);
-            });
+    }
 
-    public override Task EndsWith_with_StringComparison_OrdinalIgnoreCase(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.EndsWith_with_StringComparison_OrdinalIgnoreCase(a);
+    public override async Task EndsWith_with_StringComparison_OrdinalIgnoreCase()
+    {
+        await base.EndsWith_with_StringComparison_OrdinalIgnoreCase();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ENDSWITH(c["String"], "LE", true)
 """);
-            });
+    }
 
-    public override async Task EndsWith_with_StringComparison_unsupported(bool async)
+    public override async Task EndsWith_with_StringComparison_unsupported()
     {
-        // Always throws for sync.
-        if (async)
-        {
-            await base.EndsWith_with_StringComparison_unsupported(async);
-        }
+        await base.EndsWith_with_StringComparison_unsupported();
+
+        AssertSql();
     }
 
     #endregion EndsWith
 
     #region Contains
 
-    public override Task Contains_Literal(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Contains_Literal(a);
+    public override async Task Contains_Literal()
+    {
+        await base.Contains_Literal();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE CONTAINS(c["String"], "eattl")
 """);
-            });
+    }
 
-    public override Task Contains_Literal_Char(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Contains_Literal_Char(a);
+    public override async Task Contains_Literal_Char()
+    {
+        await base.Contains_Literal_Char();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
     SELECT VALUE c
     FROM root c
     WHERE CONTAINS(c["String"], "e")
     """);
-            });
+    }
 
-    public override Task Contains_Column(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Contains_Column(a);
+    public override async Task Contains_Column()
+    {
+        await base.Contains_Column();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE CONTAINS(c["String"], c["String"])
 """,
-                    //
-                    """
+            //
+            """
 SELECT VALUE CONTAINS(c["String"], c["String"])
 FROM root c
 """);
-            });
+    }
 
-    public override Task Contains_negated(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Contains_negated(a);
+    public override async Task Contains_negated()
+    {
+        await base.Contains_negated();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE NOT(CONTAINS(c["String"], "eattle"))
 """,
-                    //
-                    """
+            //
+            """
 SELECT VALUE NOT(CONTAINS(c["String"], "eattle"))
 FROM root c
 """);
-            });
+    }
 
-    public override Task Contains_with_StringComparison_Ordinal(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Contains_with_StringComparison_Ordinal(a);
+    public override async Task Contains_with_StringComparison_Ordinal()
+    {
+        await base.Contains_with_StringComparison_Ordinal();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE CONTAINS(c["String"], "eattl", false)
 """);
-            });
+    }
 
-    public override Task Contains_with_StringComparison_OrdinalIgnoreCase(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Contains_with_StringComparison_OrdinalIgnoreCase(a);
+    public override async Task Contains_with_StringComparison_OrdinalIgnoreCase()
+    {
+        await base.Contains_with_StringComparison_OrdinalIgnoreCase();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE CONTAINS(c["String"], "EATTL", true)
 """);
-            });
-
-    public override async Task Contains_with_StringComparison_unsupported(bool async)
-    {
-        // Always throws for sync.
-        if (async)
-        {
-            await base.Contains_with_StringComparison_unsupported(async);
-        }
     }
 
-    public override Task Contains_constant_with_whitespace(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Contains_constant_with_whitespace(a);
+    public override async Task Contains_with_StringComparison_unsupported()
+    {
+        await base.Contains_with_StringComparison_unsupported();
 
-                AssertSql(
-                    """
+        AssertSql();
+    }
+
+    public override async Task Contains_constant_with_whitespace()
+    {
+        await base.Contains_constant_with_whitespace();
+
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE CONTAINS(c["String"], "     ")
 """);
-            });
+    }
 
-    public override Task Contains_parameter_with_whitespace(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Contains_parameter_with_whitespace(a);
+    public override async Task Contains_parameter_with_whitespace()
+    {
+        await base.Contains_parameter_with_whitespace();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 @pattern=?
 
 SELECT VALUE c
 FROM root c
 WHERE CONTAINS(c["String"], @pattern)
 """);
-            });
+    }
 
     #endregion Contains
 
     #region TrimStart
 
-    public override Task TrimStart_without_arguments(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.TrimStart_without_arguments(a);
+    public override async Task TrimStart_without_arguments()
+    {
+        await base.TrimStart_without_arguments();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (LTRIM(c["String"]) = "Boston  ")
 """);
-            });
+    }
 
-    public override async Task TrimStart_with_char_argument(bool async)
+    public override async Task TrimStart_with_char_argument()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.TrimStart_with_char_argument(async));
+        await AssertTranslationFailed(() => base.TrimStart_with_char_argument());
 
         AssertSql();
     }
 
-    public override async Task TrimStart_with_char_array_argument(bool async)
+    public override async Task TrimStart_with_char_array_argument()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.TrimStart_with_char_array_argument(async));
+        await AssertTranslationFailed(() => base.TrimStart_with_char_array_argument());
 
         AssertSql();
     }
@@ -904,32 +794,30 @@ WHERE (LTRIM(c["String"]) = "Boston  ")
 
     #region TrimEnd
 
-    public override Task TrimEnd_without_arguments(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.TrimEnd_without_arguments(a);
+    public override async Task TrimEnd_without_arguments()
+    {
+        await base.TrimEnd_without_arguments();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (RTRIM(c["String"]) = "  Boston")
 """);
-            });
+    }
 
-    public override async Task TrimEnd_with_char_argument(bool async)
+    public override async Task TrimEnd_with_char_argument()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.TrimEnd_with_char_argument(async));
+        await AssertTranslationFailed(() => base.TrimEnd_with_char_argument());
 
         AssertSql();
     }
 
-    public override async Task TrimEnd_with_char_array_argument(bool async)
+    public override async Task TrimEnd_with_char_array_argument()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.TrimEnd_with_char_array_argument(async));
+        await AssertTranslationFailed(() => base.TrimEnd_with_char_array_argument());
 
         AssertSql();
     }
@@ -938,32 +826,30 @@ WHERE (RTRIM(c["String"]) = "  Boston")
 
     #region Trim
 
-    public override Task Trim_without_argument_in_predicate(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Trim_without_argument_in_predicate(a);
+    public override async Task Trim_without_argument_in_predicate()
+    {
+        await base.Trim_without_argument_in_predicate();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (TRIM(c["String"]) = "Boston")
 """);
-            });
+    }
 
-    public override async Task Trim_with_char_argument_in_predicate(bool async)
+    public override async Task Trim_with_char_argument_in_predicate()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Trim_with_char_argument_in_predicate(async));
+        await AssertTranslationFailed(() => base.Trim_with_char_argument_in_predicate());
 
         AssertSql();
     }
 
-    public override async Task Trim_with_char_array_argument_in_predicate(bool async)
+    public override async Task Trim_with_char_array_argument_in_predicate()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Trim_with_char_array_argument_in_predicate(async));
+        await AssertTranslationFailed(() => base.Trim_with_char_array_argument_in_predicate());
 
         AssertSql();
     }
@@ -972,26 +858,26 @@ WHERE (TRIM(c["String"]) = "Boston")
 
     #region Compare
 
-    public override async Task Compare_simple_zero(bool async)
+    public override async Task Compare_simple_zero()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Compare_simple_zero(async));
+        await AssertTranslationFailed(() => base.Compare_simple_zero());
 
         AssertSql();
     }
 
-    public override async Task Compare_simple_one(bool async)
+    public override async Task Compare_simple_one()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Compare_simple_one(async));
+        await AssertTranslationFailed(() => base.Compare_simple_one());
 
         AssertSql();
     }
 
-    public override async Task Compare_with_parameter(bool async)
+    public override async Task Compare_with_parameter()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Compare_with_parameter(async));
+        await AssertTranslationFailed(() => base.Compare_with_parameter());
 
         AssertSql(
             """
@@ -999,50 +885,50 @@ ReadItem(?, ?)
 """);
     }
 
-    public override async Task Compare_simple_more_than_one(bool async)
+    public override async Task Compare_simple_more_than_one()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Compare_simple_more_than_one(async));
+        await AssertTranslationFailed(() => base.Compare_simple_more_than_one());
 
         AssertSql();
     }
 
-    public override async Task Compare_nested(bool async)
+    public override async Task Compare_nested()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Compare_nested(async));
+        await AssertTranslationFailed(() => base.Compare_nested());
 
         AssertSql();
     }
 
-    public override async Task Compare_multi_predicate(bool async)
+    public override async Task Compare_multi_predicate()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Compare_multi_predicate(async));
+        await AssertTranslationFailed(() => base.Compare_multi_predicate());
 
         AssertSql();
     }
 
-    public override async Task CompareTo_simple_zero(bool async)
+    public override async Task CompareTo_simple_zero()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.CompareTo_simple_zero(async));
+        await AssertTranslationFailed(() => base.CompareTo_simple_zero());
 
         AssertSql();
     }
 
-    public override async Task CompareTo_simple_one(bool async)
+    public override async Task CompareTo_simple_one()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.CompareTo_simple_one(async));
+        await AssertTranslationFailed(() => base.CompareTo_simple_one());
 
         AssertSql();
     }
 
-    public override async Task CompareTo_with_parameter(bool async)
+    public override async Task CompareTo_with_parameter()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.CompareTo_with_parameter(async));
+        await AssertTranslationFailed(() => base.CompareTo_with_parameter());
 
         AssertSql(
             """
@@ -1050,26 +936,26 @@ ReadItem(?, ?)
 """);
     }
 
-    public override async Task CompareTo_simple_more_than_one(bool async)
+    public override async Task CompareTo_simple_more_than_one()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.CompareTo_simple_more_than_one(async));
+        await AssertTranslationFailed(() => base.CompareTo_simple_more_than_one());
 
         AssertSql();
     }
 
-    public override async Task CompareTo_nested(bool async)
+    public override async Task CompareTo_nested()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.CompareTo_nested(async));
+        await AssertTranslationFailed(() => base.CompareTo_nested());
 
         AssertSql();
     }
 
-    public override async Task Compare_to_multi_predicate(bool async)
+    public override async Task Compare_to_multi_predicate()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Compare_to_multi_predicate(async));
+        await AssertTranslationFailed(() => base.Compare_to_multi_predicate());
 
         AssertSql();
     }
@@ -1078,115 +964,107 @@ ReadItem(?, ?)
 
     #region Join
 
-    public override Task Join_over_non_nullable_column(bool async)
-        => AssertTranslationFailed(() => base.Join_over_non_nullable_column(async));
+    public override Task Join_over_non_nullable_column()
+        => AssertTranslationFailed(() => base.Join_over_non_nullable_column());
 
-    public override Task Join_with_predicate(bool async)
-        => AssertTranslationFailed(() => base.Join_with_predicate(async));
+    public override Task Join_with_predicate()
+        => AssertTranslationFailed(() => base.Join_with_predicate());
 
-    public override Task Join_with_ordering(bool async)
-        => AssertTranslationFailed(() => base.Join_with_ordering(async));
+    public override Task Join_with_ordering()
+        => AssertTranslationFailed(() => base.Join_with_ordering());
 
-    public override Task Join_over_nullable_column(bool async)
-        => AssertTranslationFailed(() => base.Join_over_nullable_column(async));
+    public override Task Join_over_nullable_column()
+        => AssertTranslationFailed(() => base.Join_over_nullable_column());
 
-    public override Task Join_non_aggregate(bool async)
-        => AssertTranslationFailed(() => base.Join_non_aggregate(async));
+    public override Task Join_non_aggregate()
+        => AssertTranslationFailed(() => base.Join_non_aggregate());
 
     #endregion Join
 
     #region Concatenation
 
-    public override Task Concat_operator(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Concat_operator(a);
+    public override async Task Concat_operator()
+    {
+        await base.Concat_operator();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ((c["String"] || "Boston") = "SeattleBoston")
 """);
-            });
+    }
 
-    public override Task Concat_aggregate(bool async)
-        => AssertTranslationFailed(() => base.Concat_aggregate(async));
+    public override Task Concat_aggregate()
+        => AssertTranslationFailed(() => base.Concat_aggregate());
 
-    public override Task Concat_string_string_comparison(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Concat_string_string_comparison(a);
+    public override async Task Concat_string_string_comparison()
+    {
+        await base.Concat_string_string_comparison();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 @i=?
 
 SELECT VALUE c
 FROM root c
 WHERE ((@i || c["String"]) = "ASeattle")
 """);
-            });
+    }
 
-    public override async Task Concat_string_int_comparison1(bool async)
+    public override async Task Concat_string_int_comparison1()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Concat_string_int_comparison1(async));
+        await AssertTranslationFailed(() => base.Concat_string_int_comparison1());
 
         AssertSql();
     }
 
-    public override async Task Concat_string_int_comparison2(bool async)
+    public override async Task Concat_string_int_comparison2()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Concat_string_int_comparison2(async));
+        await AssertTranslationFailed(() => base.Concat_string_int_comparison2());
 
         AssertSql();
     }
 
-    public override async Task Concat_string_int_comparison3(bool async)
+    public override async Task Concat_string_int_comparison3()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Concat_string_int_comparison3(async));
+        await AssertTranslationFailed(() => base.Concat_string_int_comparison3());
 
         AssertSql();
     }
 
-    public override async Task Concat_string_int_comparison4(bool async)
+    public override async Task Concat_string_int_comparison4()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Concat_string_int_comparison4(async));
+        await AssertTranslationFailed(() => base.Concat_string_int_comparison4());
 
         AssertSql(
         );
     }
 
-    public override Task Concat_method_comparison(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Concat_method_comparison(a);
+    public override async Task Concat_method_comparison()
+    {
+        await base.Concat_method_comparison();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 @i=?
 
 SELECT VALUE c
 FROM root c
 WHERE ((@i || c["String"]) = "ASeattle")
 """);
-            });
+    }
 
-    public override Task Concat_method_comparison_2(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Concat_method_comparison_2(a);
+    public override async Task Concat_method_comparison_2()
+    {
+        await base.Concat_method_comparison_2();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 @i=?
 @j=?
 
@@ -1194,16 +1072,14 @@ SELECT VALUE c
 FROM root c
 WHERE ((@i || (@j || c["String"])) = "ABSeattle")
 """);
-            });
+    }
 
-    public override Task Concat_method_comparison_3(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Concat_method_comparison_3(a);
+    public override async Task Concat_method_comparison_3()
+    {
+        await base.Concat_method_comparison_3();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 @i=?
 @j=?
 @k=?
@@ -1212,197 +1088,189 @@ SELECT VALUE c
 FROM root c
 WHERE ((@i || (@j || (@k || c["String"]))) = "ABCSeattle")
 """);
-            });
+    }
 
     #endregion Concatenation
 
     #region LINQ Operators
 
-    public override Task FirstOrDefault(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.FirstOrDefault(a);
+    public override async Task FirstOrDefault()
+    {
+        await base.FirstOrDefault();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (LEFT(c["String"], 1) = "S")
 """);
-            });
+    }
 
-    public override Task LastOrDefault(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.LastOrDefault(a);
+    public override async Task LastOrDefault()
+    {
+        await base.LastOrDefault();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (RIGHT(c["String"], 1) = "e")
 """);
-            });
+    }
 
     #endregion LINQ Operators
 
     #region Regex
 
-    public override Task Regex_IsMatch(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Regex_IsMatch(a);
+    public override async Task Regex_IsMatch()
+    {
+        await base.Regex_IsMatch();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE RegexMatch(c["String"], "^S")
 """);
-            });
+    }
 
-    public override Task Regex_IsMatch_constant_input(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Regex_IsMatch_constant_input(a);
+    public override async Task Regex_IsMatch_constant_input()
+    {
+        await base.Regex_IsMatch_constant_input();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE RegexMatch("Seattle", c["String"])
 """);
-            });
+    }
 
-//     [ConditionalTheory]
-//     [MemberData(nameof(IsAsyncData))]
-//     public virtual Task Regex_IsMatch_with_RegexOptions_None(bool async)
-//         => Fixture.NoSyncTest(
-//             async, async a =>
-//             {
-//                 await AssertQuery(
-//                     async,
-//                     ss => ss.Set<Customer>().Where(o => Regex.IsMatch(o.CustomerID, "^T", RegexOptions.None)));
-//
-//                 AssertSql(
-//                     """
-// SELECT VALUE c
-// FROM root c
-// WHERE RegexMatch(c["id"], "^T")
-// """);
-//             });
-//
-//     [ConditionalTheory]
-//     [MemberData(nameof(IsAsyncData))]
-//     public virtual Task Regex_IsMatch_with_RegexOptions_IgnoreCase(bool async)
-//         => Fixture.NoSyncTest(
-//             async, async a =>
-//             {
-//                 await AssertQuery(
-//                     async,
-//                     ss => ss.Set<Customer>().Where(o => Regex.IsMatch(o.CustomerID, "^T", RegexOptions.IgnoreCase)));
-//
-//                 AssertSql(
-//                     """
-// SELECT VALUE c
-// FROM root c
-// WHERE RegexMatch(c["id"], "^T", "i")
-// """);
-//             });
-//
-//     [ConditionalTheory]
-//     [MemberData(nameof(IsAsyncData))]
-//     public virtual Task Regex_IsMatch_with_RegexOptions_Multiline(bool async)
-//         => Fixture.NoSyncTest(
-//             async, async a =>
-//             {
-//                 await AssertQuery(
-//                     async,
-//                     ss => ss.Set<Customer>().Where(o => Regex.IsMatch(o.CustomerID, "^T", RegexOptions.Multiline)));
-//
-//                 AssertSql(
-//                     """
-// SELECT VALUE c
-// FROM root c
-// WHERE RegexMatch(c["id"], "^T", "m")
-// """);
-//             });
-//
-//     [ConditionalTheory]
-//     [MemberData(nameof(IsAsyncData))]
-//     public virtual Task Regex_IsMatch_with_RegexOptions_Singleline(bool async)
-//         => Fixture.NoSyncTest(
-//             async, async a =>
-//             {
-//                 await AssertQuery(
-//                     async,
-//                     ss => ss.Set<Customer>().Where(o => Regex.IsMatch(o.CustomerID, "^T", RegexOptions.Singleline)));
-//
-//                 AssertSql(
-//                     """
-// SELECT VALUE c
-// FROM root c
-// WHERE RegexMatch(c["id"], "^T", "s")
-// """);
-//             });
-//
-//     [ConditionalTheory]
-//     [MemberData(nameof(IsAsyncData))]
-//     public virtual Task Regex_IsMatch_with_RegexOptions_IgnorePatternWhitespace(bool async)
-//         => Fixture.NoSyncTest(
-//             async, async a =>
-//             {
-//                 await AssertQuery(
-//                     async,
-//                     ss => ss.Set<Customer>().Where(o => Regex.IsMatch(o.CustomerID, "^T", RegexOptions.IgnorePatternWhitespace)));
-//
-//                 AssertSql(
-//                     """
-// SELECT VALUE c
-// FROM root c
-// WHERE RegexMatch(c["id"], "^T", "x")
-// """);
-//             });
-//
-//     [ConditionalTheory]
-//     [MemberData(nameof(IsAsyncData))]
-//     public virtual Task Regex_IsMatch_with_RegexOptions_IgnoreCase_and_IgnorePatternWhitespace(bool async)
-//         => Fixture.NoSyncTest(
-//             async, async a =>
-//             {
-//                 await AssertQuery(
-//                     async,
-//                     ss => ss.Set<Customer>().Where(
-//                         o => Regex.IsMatch(o.CustomerID, "^T", RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace)));
-//
-//                 AssertSql(
-//                     """
-// SELECT VALUE c
-// FROM root c
-// WHERE RegexMatch(c["id"], "^T", "ix")
-// """);
-//             });
-//
-//     [ConditionalTheory]
-//     [MemberData(nameof(IsAsyncData))]
-//     public virtual Task Regex_IsMatch_with_RegexOptions_RightToLeft(bool async)
-//         => AssertTranslationFailed(
-//             () => AssertQuery(
-//                 async,
-//                 ss => ss.Set<Customer>().Where(o => Regex.IsMatch(o.CustomerID, "^T", RegexOptions.RightToLeft))));
-//
-//     [ConditionalTheory]
-//     [MemberData(nameof(IsAsyncData))]
-//     public virtual Task Regex_IsMatch_with_RegexOptions_IgnoreCase_and_RightToLeft(bool async)
-//         => AssertTranslationFailed(
-//             () => AssertQuery(
-//                 async,
-//                 ss => ss.Set<Customer>()
-//                     .Where(o => Regex.IsMatch(o.CustomerID, "^T", RegexOptions.IgnoreCase | RegexOptions.RightToLeft))));
+    //     [ConditionalTheory]
+    //     [MemberData(nameof(IsAsyncData))]
+    //     public virtual Task Regex_IsMatch_with_RegexOptions_None()
+    //         => Fixture.NoSyncTest(
+    //             async, async a =>
+    //             {
+    //                 await AssertQuery(
+    //                     async,
+    //                     ss => ss.Set<Customer>().Where(o => Regex.IsMatch(o.CustomerID, "^T", RegexOptions.None)));
+    //
+    //                 AssertSql(
+    //                     """
+    // SELECT VALUE c
+    // FROM root c
+    // WHERE RegexMatch(c["id"], "^T")
+    // """);
+    //             }
+    //
+    //     [ConditionalTheory]
+    //     [MemberData(nameof(IsAsyncData))]
+    //     public virtual Task Regex_IsMatch_with_RegexOptions_IgnoreCase()
+    //         => Fixture.NoSyncTest(
+    //             async, async a =>
+    //             {
+    //                 await AssertQuery(
+    //                     async,
+    //                     ss => ss.Set<Customer>().Where(o => Regex.IsMatch(o.CustomerID, "^T", RegexOptions.IgnoreCase)));
+    //
+    //                 AssertSql(
+    //                     """
+    // SELECT VALUE c
+    // FROM root c
+    // WHERE RegexMatch(c["id"], "^T", "i")
+    // """);
+    //             }
+    //
+    //     [ConditionalTheory]
+    //     [MemberData(nameof(IsAsyncData))]
+    //     public virtual Task Regex_IsMatch_with_RegexOptions_Multiline()
+    //         => Fixture.NoSyncTest(
+    //             async, async a =>
+    //             {
+    //                 await AssertQuery(
+    //                     async,
+    //                     ss => ss.Set<Customer>().Where(o => Regex.IsMatch(o.CustomerID, "^T", RegexOptions.Multiline)));
+    //
+    //                 AssertSql(
+    //                     """
+    // SELECT VALUE c
+    // FROM root c
+    // WHERE RegexMatch(c["id"], "^T", "m")
+    // """);
+    //             }
+    //
+    //     [ConditionalTheory]
+    //     [MemberData(nameof(IsAsyncData))]
+    //     public virtual Task Regex_IsMatch_with_RegexOptions_Singleline()
+    //         => Fixture.NoSyncTest(
+    //             async, async a =>
+    //             {
+    //                 await AssertQuery(
+    //                     async,
+    //                     ss => ss.Set<Customer>().Where(o => Regex.IsMatch(o.CustomerID, "^T", RegexOptions.Singleline)));
+    //
+    //                 AssertSql(
+    //                     """
+    // SELECT VALUE c
+    // FROM root c
+    // WHERE RegexMatch(c["id"], "^T", "s")
+    // """);
+    //             }
+    //
+    //     [ConditionalTheory]
+    //     [MemberData(nameof(IsAsyncData))]
+    //     public virtual Task Regex_IsMatch_with_RegexOptions_IgnorePatternWhitespace()
+    //         => Fixture.NoSyncTest(
+    //             async, async a =>
+    //             {
+    //                 await AssertQuery(
+    //                     async,
+    //                     ss => ss.Set<Customer>().Where(o => Regex.IsMatch(o.CustomerID, "^T", RegexOptions.IgnorePatternWhitespace)));
+    //
+    //                 AssertSql(
+    //                     """
+    // SELECT VALUE c
+    // FROM root c
+    // WHERE RegexMatch(c["id"], "^T", "x")
+    // """);
+    //             }
+    //
+    //     [ConditionalTheory]
+    //     [MemberData(nameof(IsAsyncData))]
+    //     public virtual Task Regex_IsMatch_with_RegexOptions_IgnoreCase_and_IgnorePatternWhitespace()
+    //         => Fixture.NoSyncTest(
+    //             async, async a =>
+    //             {
+    //                 await AssertQuery(
+    //                     async,
+    //                     ss => ss.Set<Customer>().Where(
+    //                         o => Regex.IsMatch(o.CustomerID, "^T", RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace)));
+    //
+    //                 AssertSql(
+    //                     """
+    // SELECT VALUE c
+    // FROM root c
+    // WHERE RegexMatch(c["id"], "^T", "ix")
+    // """);
+    //             }
+    //
+    //     [ConditionalTheory]
+    //     [MemberData(nameof(IsAsyncData))]
+    //     public virtual Task Regex_IsMatch_with_RegexOptions_RightToLeft()
+    //         => AssertTranslationFailed(
+    //             () => AssertQuery(
+    //                 async,
+    //                 ss => ss.Set<Customer>().Where(o => Regex.IsMatch(o.CustomerID, "^T", RegexOptions.RightToLeft))));
+    //
+    //     [ConditionalTheory]
+    //     [MemberData(nameof(IsAsyncData))]
+    //     public virtual Task Regex_IsMatch_with_RegexOptions_IgnoreCase_and_RightToLeft()
+    //         => AssertTranslationFailed(
+    //             () => AssertQuery(
+    //                 async,
+    //                 ss => ss.Set<Customer>()
+    //                     .Where(o => Regex.IsMatch(o.CustomerID, "^T", RegexOptions.IgnoreCase | RegexOptions.RightToLeft))));
 
     #endregion Regex
 
