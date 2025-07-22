@@ -1130,38 +1130,68 @@ WHERE ((@i || c["String"]) = "ASeattle")
 """);
             });
 
-    public override async Task Concat_string_int_comparison1(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Concat_string_int_comparison1(async));
+    public override Task Concat_string_int_comparison1(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Concat_string_int_comparison1(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+@i=?
 
-    public override async Task Concat_string_int_comparison2(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Concat_string_int_comparison2(async));
+SELECT VALUE c
+FROM root c
+WHERE ((c["String"] || ToString(@i)) = "Seattle10")
+""");
+            });
 
-        AssertSql();
-    }
+    public override Task Concat_string_int_comparison2(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Concat_string_int_comparison2(a);
 
-    public override async Task Concat_string_int_comparison3(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Concat_string_int_comparison3(async));
+                AssertSql(
+                    """
+@i=?
 
-        AssertSql();
-    }
+SELECT VALUE c
+FROM root c
+WHERE ((ToString(@i) || c["String"]) = "10Seattle")
+""");
+            });
 
-    public override async Task Concat_string_int_comparison4(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Concat_string_int_comparison4(async));
+    public override Task Concat_string_int_comparison3(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Concat_string_int_comparison3(a);
 
-        AssertSql(
-        );
-    }
+                AssertSql(
+                    """
+@p=?
+@j=?
+
+SELECT VALUE c
+FROM root c
+WHERE ((((ToString(@p) || c["String"]) || ToString(@j)) || ToString(42)) = "30Seattle2142")
+""");
+            });
+
+    public override Task Concat_string_int_comparison4(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Concat_string_int_comparison4(a);
+
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE ((ToString(c["Int"]) || c["String"]) = "8Seattle")
+""");
+            });
 
     public override Task Concat_method_comparison(bool async)
         => Fixture.NoSyncTest(

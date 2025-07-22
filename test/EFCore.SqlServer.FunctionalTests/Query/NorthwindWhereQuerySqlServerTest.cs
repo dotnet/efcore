@@ -1,6 +1,8 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.TestModels.Northwind;
+
 namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
@@ -20,6 +22,17 @@ public class NorthwindWhereQuerySqlServerTest : NorthwindWhereQueryRelationalTes
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Equality_operator_int_to_long(bool async)
+    {
+        long arg = 10248;
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Order>().Where(o => o.OrderID == arg));
+    }
 
     public override async Task Where_simple(bool async)
     {

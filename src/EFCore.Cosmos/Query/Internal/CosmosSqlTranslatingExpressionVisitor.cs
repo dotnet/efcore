@@ -91,6 +91,12 @@ public class CosmosSqlTranslatingExpressionVisitor(
 
         if (result is SqlExpression translation)
         {
+            if (translation is SqlUnaryExpression { OperatorType: ExpressionType.Convert } sqlUnaryExpression
+                && sqlUnaryExpression.Type == typeof(object))
+            {
+                translation = sqlUnaryExpression.Operand;
+            }
+
             if (applyDefaultTypeMapping)
             {
                 translation = sqlExpressionFactory.ApplyDefaultTypeMapping(translation);
@@ -185,10 +191,6 @@ public class CosmosSqlTranslatingExpressionVisitor(
                     equalsMethod: false,
                     out var result):
                 return result;
-
-            case { Method: var method } when method == ConcatMethodInfo:
-                return QueryCompilationContext.NotTranslatedExpression;
-
             default:
                 var uncheckedNodeTypeVariant = binaryExpression.NodeType switch
                 {
@@ -625,7 +627,7 @@ public class CosmosSqlTranslatingExpressionVisitor(
                 arguments = new SqlExpression[methodCallExpression.Arguments.Count];
                 for (var i = 0; i < arguments.Length; i++)
                 {
-                    var argument = methodCallExpression.Arguments[i];
+                    var argument = RemoveObjectConvert(methodCallExpression.Arguments[i]);
                     if (TranslationFailed(argument, Visit(argument), out var sqlArgument))
                     {
                         return TranslateAsSubquery(methodCallExpression);
@@ -813,32 +815,46 @@ public class CosmosSqlTranslatingExpressionVisitor(
             return QueryCompilationContext.NotTranslatedExpression;
         }
 
-        return unaryExpression.NodeType switch
+        switch (unaryExpression.NodeType)
         {
-            ExpressionType.Not
-                => sqlExpressionFactory.Not(sqlOperand!),
+            case ExpressionType.Not:
+                return sqlExpressionFactory.Not(sqlOperand!);
 
-            ExpressionType.Negate or ExpressionType.NegateChecked
-                => sqlExpressionFactory.Negate(sqlOperand!),
+            case ExpressionType.Negate:
+            case ExpressionType.NegateChecked:
+                return sqlExpressionFactory.Negate(sqlOperand!);
 
-            // Convert nodes can be an explicit user gesture in the query, or they may get introduced by the compiler (e.g. when a Child is
-            // passed as an argument for a parameter of type Parent). The latter type should generally get stripped out as a pure C#/LINQ
-            // artifact that shouldn't affect translation, but the latter may be an indication from the user that they want to apply a
-            // type change.
-            ExpressionType.Convert or ExpressionType.ConvertChecked or ExpressionType.TypeAs
-                when operand.Type.IsInterface && unaryExpression.Type.GetInterfaces().Any(e => e == operand.Type)
-                // We strip out implicit conversions, e.g. float[] -> ReadOnlyMemory<float> (for vector search)
-                || (unaryExpression.Method is { IsSpecialName: true, Name: "op_Implicit" }
-                    && IsReadOnlyMemory(unaryExpression.Type.UnwrapNullableType()))
-                || unaryExpression.Type.UnwrapNullableType() == operand.Type
-                || unaryExpression.Type.UnwrapNullableType() == typeof(Enum)
+            case ExpressionType.Convert:
+            case ExpressionType.ConvertChecked:
+            case ExpressionType.TypeAs:
                 // Object convert needs to be converted to explicit cast when mismatching types
-                // But we let it pass here since we don't have explicit cast mechanism here and in some cases object convert is due to value types
-                || unaryExpression.Type == typeof(object)
-                => sqlOperand!,
+                if (operand.Type.IsInterface
+                    && unaryExpression.Type.GetInterfaces().Any(e => e == operand.Type)
+                    // We strip out implicit conversions, e.g. float[] -> ReadOnlyMemory<float> (for vector search)
+                    || (unaryExpression.Method is { IsSpecialName: true, Name: "op_Implicit" }
+                        && IsReadOnlyMemory(unaryExpression.Type.UnwrapNullableType()))
+                    || unaryExpression.Type.UnwrapNullableType() == operand.Type.UnwrapNullableType()
+                    || unaryExpression.Type.UnwrapNullableType() == typeof(Enum))
+                {
+                    return sqlOperand!;
+                }
 
-            _ => QueryCompilationContext.NotTranslatedExpression
-        };
+                // Introduce explicit cast only if the target type is mapped else we need to client eval
+                if (unaryExpression.Type == typeof(object)
+                    || typeMappingSource.FindMapping(unaryExpression.Type, queryCompilationContext.Model) != null)
+                {
+                    sqlOperand = sqlExpressionFactory.ApplyDefaultTypeMapping(sqlOperand);
+
+                    return sqlExpressionFactory.Convert(sqlOperand!, unaryExpression.Type);
+                }
+
+                break;
+
+            case ExpressionType.Quote:
+                return operand;
+        }
+
+        return QueryCompilationContext.NotTranslatedExpression;
 
         static bool IsReadOnlyMemory(Type type)
             => type is { IsGenericType: true, IsGenericTypeDefinition: false }

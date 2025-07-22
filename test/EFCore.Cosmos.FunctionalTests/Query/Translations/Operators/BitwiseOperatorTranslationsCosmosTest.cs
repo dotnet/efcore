@@ -15,7 +15,23 @@ public class BitwiseOperatorTranslationsCosmosTest : BitwiseOperatorTranslations
     }
 
     public override Task Or(bool async)
-        => AssertTranslationFailed(() => base.Or(async));
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Or(a);
+
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE ((c["Int"] | c["Long"]) = 7)
+""",
+                    //
+                    """
+SELECT VALUE (c["Int"] | c["Long"])
+FROM root c
+""");
+            });
 
     public override async Task Or_over_boolean(bool async)
     {
@@ -34,17 +50,19 @@ WHERE ((c["Int"] = 12) | (c["String"] = "Seattle"))
         }
     }
 
-    public override async Task Or_multiple(bool async)
-    {
-        // Always throws for sync.
-        if (async)
-        {
-            // Bitwise operators on booleans. Issue #13168.
-            await Assert.ThrowsAsync<InvalidOperationException>(() => base.Or_multiple(async));
+    public override Task Or_multiple(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Or_multiple(a);
 
-            AssertSql();
-        }
-    }
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE (((c["Int"] | c["Short"]) | c["Long"]) = 7)
+""");
+            });
 
     public override Task And(bool async)
         => Fixture.NoSyncTest(
