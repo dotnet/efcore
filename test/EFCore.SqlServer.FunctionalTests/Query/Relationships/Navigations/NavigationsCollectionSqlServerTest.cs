@@ -81,6 +81,25 @@ WHERE (
         AssertSql();
     }
 
+    public override async Task Select_within_Select_within_Select_with_aggregates()
+    {
+        await base.Select_within_Select_within_Select_with_aggregates();
+
+        AssertSql(
+            """
+SELECT (
+    SELECT COALESCE(SUM([s].[value]), 0)
+    FROM [RelatedType] AS [r0]
+    OUTER APPLY (
+        SELECT MAX([n].[Int]) AS [value]
+        FROM [NestedType] AS [n]
+        WHERE [r0].[Id] = [n].[CollectionRelatedId]
+    ) AS [s]
+    WHERE [r].[Id] = [r0].[CollectionRootId])
+FROM [RootEntity] AS [r]
+""");
+    }
+
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());

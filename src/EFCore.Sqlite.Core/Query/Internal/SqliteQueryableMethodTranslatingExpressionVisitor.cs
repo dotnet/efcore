@@ -393,14 +393,14 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
 
                 propertyJsonScalarExpression[projectionMember] = new JsonScalarExpression(
                     jsonColumn,
-                    new[] { new PathSegment(property.GetJsonPropertyName()!) },
+                    [new PathSegment(property.GetJsonPropertyName()!)],
                     property.ClrType.UnwrapNullableType(),
                     property.GetRelationalTypeMapping(),
                     property.IsNullable);
             }
         }
 
-        if (jsonQueryExpression.StructuralType is IEntityType entityType)
+        if (structuralType is IEntityType entityType)
         {
             foreach (var navigation in entityType.GetNavigationsInHierarchy()
                          .Where(
@@ -422,7 +422,20 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
             }
         }
 
-        // TODO: also add JsonScalarExpressions for complex properties, not just owned entities. #36296.
+        foreach (var complexProperty in structuralType.GetComplexProperties())
+        {
+            var jsonNavigationName = complexProperty.ComplexType.GetJsonPropertyName();
+            Check.DebugAssert(jsonNavigationName is not null, "Invalid complex property found on JSON-mapped structural type");
+
+            var projectionMember = new ProjectionMember().Append(new FakeMemberInfo(jsonNavigationName));
+
+            propertyJsonScalarExpression[projectionMember] = new JsonScalarExpression(
+                jsonColumn,
+                [new PathSegment(jsonNavigationName)],
+                typeof(string),
+                textTypeMapping,
+                jsonQueryExpression.IsNullable || complexProperty.IsNullable);
+        }
 
         selectExpression.ReplaceProjection(propertyJsonScalarExpression);
 

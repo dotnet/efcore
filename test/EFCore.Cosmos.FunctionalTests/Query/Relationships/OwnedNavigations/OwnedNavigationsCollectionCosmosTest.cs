@@ -108,6 +108,21 @@ WHERE (c["RelatedCollection"][9999]["Int"] = 8)
 """);
     }
 
+    public override async Task Select_within_Select_within_Select_with_aggregates()
+    {
+        await base.Select_within_Select_within_Select_with_aggregates();
+
+        AssertSql(
+            """
+SELECT VALUE (
+    SELECT VALUE SUM((
+        SELECT VALUE MAX(n["Int"])
+        FROM n IN r["NestedCollection"]))
+    FROM r IN c["RelatedCollection"])
+FROM root c
+""");
+    }
+
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());

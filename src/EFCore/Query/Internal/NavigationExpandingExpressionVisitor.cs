@@ -251,6 +251,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
 
             case NavigationExpansionExpression:
             case OwnedNavigationReference:
+            case ComplexPropertyReference:
                 return extensionExpression;
 
             default:
@@ -267,6 +268,13 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
     protected override Expression VisitMember(MemberExpression memberExpression)
     {
         var innerExpression = Visit(memberExpression.Expression);
+
+        // Handler access of a complex collection property over a complex non-collection property
+        if (memberExpression.Expression is ComplexPropertyReference { Property: { IsCollection: false } complexProperty } complexPropertyReference
+            && complexProperty.ComplexType.FindComplexProperty(memberExpression.Member) is IComplexProperty nestedComplexProperty)
+        {
+            return new ComplexPropertyReference(complexPropertyReference, nestedComplexProperty);
+        }
 
         // Convert ICollection<T>.Count to Count<T>()
         if (memberExpression.Expression != null
@@ -2079,9 +2087,9 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                     GetParameterName("o"));
             }
 
-            case ComplexPropertyReference complexCollectionReference:
+            case ComplexPropertyReference { Property.IsCollection: true } complexCollectionReference:
             {
-                var currentTree = new NavigationTreeExpression(Expression.Default(complexCollectionReference.Type.GetSequenceType()));
+                var currentTree = new NavigationTreeExpression(complexCollectionReference.ComplexTypeReference);
 
                 return new NavigationExpansionExpression(
                     Expression.Call(
@@ -2267,6 +2275,9 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             case EntityReference entityReference:
                 return entityReference.Snapshot();
 
+            case ComplexTypeReference complexTypeReference:
+                return complexTypeReference;
+
             case NavigationTreeExpression navigationTreeExpression:
                 return SnapshotExpression(navigationTreeExpression.Value);
 
@@ -2294,13 +2305,17 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
     }
 
     private static EntityReference? UnwrapEntityReference(Expression? expression)
+        => UnwrapStructuralTypeReference(expression) as EntityReference;
+
+    private static Expression? UnwrapStructuralTypeReference(Expression? expression)
         => expression switch
         {
             EntityReference entityReference => entityReference,
-            NavigationTreeExpression navigationTreeExpression => UnwrapEntityReference(navigationTreeExpression.Value),
+            ComplexTypeReference complexTypeReference => complexTypeReference,
+            NavigationTreeExpression navigationTreeExpression => UnwrapStructuralTypeReference(navigationTreeExpression.Value),
             NavigationExpansionExpression navigationExpansionExpression
                 when navigationExpansionExpression.CardinalityReducingGenericMethodInfo is not null
-                => UnwrapEntityReference(navigationExpansionExpression.PendingSelector),
+                => UnwrapStructuralTypeReference(navigationExpansionExpression.PendingSelector),
             OwnedNavigationReference ownedNavigationReference => ownedNavigationReference.EntityReference,
 
             _ => null,

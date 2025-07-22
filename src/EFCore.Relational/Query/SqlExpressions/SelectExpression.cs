@@ -2086,7 +2086,7 @@ public sealed partial class SelectExpression : TableExpressionBase
 
         var outerIdentifiers = select1._identifier.Count == select2._identifier.Count
             ? new ColumnExpression?[select1._identifier.Count]
-            : Array.Empty<ColumnExpression?>();
+            : [];
         var entityProjectionIdentifiers = new List<ColumnExpression>();
         var entityProjectionValueComparers = new List<ValueComparer>();
         var otherExpressions = new List<(SqlExpression Expression, ValueComparer Comparer)>();
@@ -2333,22 +2333,92 @@ public sealed partial class SelectExpression : TableExpressionBase
                     var complexPropertyShaper1 = structuralProjection1.BindComplexProperty(complexProperty);
                     var complexPropertyShaper2 = structuralProjection2.BindComplexProperty(complexProperty);
 
-                    if (complexPropertyShaper1 is not StructuralTypeShaperExpression nonCollectionShaper1
-                        || complexPropertyShaper2 is not StructuralTypeShaperExpression nonCollectionShaper2)
+                    switch ((complexPropertyShaper1, complexPropertyShaper2))
                     {
-                        throw new NotImplementedException("Set operation over collection complex properties");
+                        // Set operation over type that contains a structural type mapped to table splitting -
+                        // recurse to continue processing all the properties of the structural type
+                        case
+                        (
+                            StructuralTypeShaperExpression { ValueBufferExpression: StructuralTypeProjectionExpression projection1 },
+                            StructuralTypeShaperExpression { ValueBufferExpression: StructuralTypeProjectionExpression projection2 }
+                        ):
+                            var resultComplexProjection = ProcessStructuralType(projection1, projection2);
+
+                            var outerShaper = new RelationalStructuralTypeShaperExpression(
+                                complexProperty.ComplexType,
+                                resultComplexProjection,
+                                resultComplexProjection.IsNullable);
+
+                            complexPropertyCache[complexProperty] = outerShaper;
+                            break;
+
+                        // Set operation over type that contains a JSON-mapped complex type (non-collection)
+                        case
+                        (
+                            StructuralTypeShaperExpression { ValueBufferExpression: JsonQueryExpression jsonQuery1 } shaper1,
+                            StructuralTypeShaperExpression { ValueBufferExpression: JsonQueryExpression jsonQuery2 } shaper2
+                        ):
+                            ProcessJson(jsonQuery1, jsonQuery2);
+                            continue;
+
+                        // Set operation over type that contains a JSON-mapped complex type (collection)
+                        case
+                        (
+                            CollectionResultExpression { QueryExpression: JsonQueryExpression jsonQuery1 } collection1,
+                            CollectionResultExpression { QueryExpression: JsonQueryExpression jsonQuery2 } collection2
+                        ):
+                            ProcessJson(jsonQuery1, jsonQuery2);
+                            continue;
+
+                        default:
+                            throw new UnreachableException();
                     }
 
-                    var resultComplexProjection = ProcessStructuralType(
-                        (StructuralTypeProjectionExpression)nonCollectionShaper1.ValueBufferExpression,
-                        (StructuralTypeProjectionExpression)nonCollectionShaper2.ValueBufferExpression);
+                    void ProcessJson(JsonQueryExpression jsonQuery1, JsonQueryExpression jsonQuery2)
+                    {
+                        Check.DebugAssert(jsonQuery1.StructuralType == jsonQuery2.StructuralType);
+                        Check.DebugAssert(jsonQuery1.Type == jsonQuery2.Type);
+                        Check.DebugAssert(jsonQuery1.IsNullable == jsonQuery2.IsNullable);
 
-                    var resultComplexShaper = new RelationalStructuralTypeShaperExpression(
-                        complexProperty.ComplexType,
-                        resultComplexProjection,
-                        resultComplexProjection.IsNullable);
+                        // Convert the JsonQueryExpression to a JsonScalarExpression, which is our current representation for a complex
+                        // JSON in the SQL tree (as opposed to in the shaper) - see #36392.
+                        var jsonScalar1 = new JsonScalarExpression(
+                                jsonQuery1.JsonColumn,
+                                jsonQuery1.Path,
+                                jsonQuery1.Type,
+                                jsonQuery1.JsonColumn.TypeMapping,
+                                jsonQuery1.IsNullable);
+                        var jsonScalar2 = new JsonScalarExpression(
+                                jsonQuery2.JsonColumn,
+                                jsonQuery2.Path,
+                                jsonQuery2.Type,
+                                jsonQuery2.JsonColumn.TypeMapping,
+                                jsonQuery2.IsNullable);
 
-                    complexPropertyCache[complexProperty] = resultComplexShaper;
+                        var alias = GenerateUniqueColumnAlias(complexProperty.Name.ToString());
+                        var innerProjection = new ProjectionExpression(jsonScalar1, alias);
+                        select1._projection.Add(innerProjection);
+                        select2._projection.Add(new ProjectionExpression(jsonScalar2, alias));
+
+                        var outerColumn = CreateColumnExpression(innerProjection, setOperationAlias);
+                        if (jsonScalar1.IsNullable || jsonScalar2.IsNullable)
+                        {
+                            outerColumn = outerColumn.MakeNullable();
+                        }
+
+                        var outerJsonQuery = new JsonQueryExpression(
+                            jsonQuery1.StructuralType,
+                            outerColumn,
+                            keyPropertyMap: null, // For owned entities only, here we're processing a complex type
+                            jsonQuery1.Path,
+                            jsonQuery1.Type,
+                            collection: jsonQuery1.IsCollection,
+                            jsonQuery1.IsNullable);
+
+                        var outerShaper = new CollectionResultExpression(outerJsonQuery, complexProperty, complexProperty.ComplexType.ClrType);
+
+                        complexPropertyCache[complexProperty] = outerShaper;
+                    }
                 }
 
                 Check.DebugAssert(
@@ -4167,10 +4237,11 @@ public sealed partial class SelectExpression : TableExpressionBase
             column: subqueryProjection.Expression is ColumnExpression { Column: IColumnBase column } ? column : null,
             subqueryProjection.Type,
             subqueryProjection.Expression.TypeMapping!,
-            subqueryProjection.Expression switch
+            nullable: subqueryProjection.Expression switch
             {
                 ColumnExpression c => c.IsNullable,
                 SqlConstantExpression c => c.Value is null,
+                JsonScalarExpression j => j.IsNullable,
                 _ => true
             });
 
