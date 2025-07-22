@@ -1,6 +1,7 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
 // ReSharper disable CheckNamespace
@@ -402,5 +403,6 @@ public class ScaffoldingTypeMapperSqlServerTest
         => new(
             new SqlServerTypeMappingSource(
                 TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()));
+                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
+                TestServiceFactory.Instance.Create<SqlServerSingletonOptions>()));
 }

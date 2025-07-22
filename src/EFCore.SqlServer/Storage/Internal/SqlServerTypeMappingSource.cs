@@ -4,7 +4,7 @@
 using System.Collections;
 using System.Data;
 using Microsoft.Data.SqlTypes;
-using Microsoft.EntityFrameworkCore.SqlServer.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
@@ -14,7 +14,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqlServerTypeMappingSource : RelationalTypeMappingSource
+public class SqlServerTypeMappingSource(
+    TypeMappingSourceDependencies dependencies,
+    RelationalTypeMappingSourceDependencies relationalDependencies,
+    ISqlServerSingletonOptions sqlServerSingletonOptions)
+    : RelationalTypeMappingSource(dependencies, relationalDependencies)
 {
     private static readonly SqlServerFloatTypeMapping RealAlias
         = new("placeholder", storeTypePostfix: StoreTypePostfix.None);
@@ -213,18 +217,13 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
         // ReSharper restore CoVariantArrayConversion
     }
 
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public SqlServerTypeMappingSource(
-        TypeMappingSourceDependencies dependencies,
-        RelationalTypeMappingSourceDependencies relationalDependencies)
-        : base(dependencies, relationalDependencies)
+    private readonly bool _isJsonTypeSupported = sqlServerSingletonOptions.EngineType switch
     {
-    }
+        SqlServerEngineType.SqlServer => sqlServerSingletonOptions.SqlServerCompatibilityLevel >= 170,
+        SqlServerEngineType.AzureSql => sqlServerSingletonOptions.AzureSqlCompatibilityLevel >= 170,
+        SqlServerEngineType.AzureSynapse => false,
+        _ => false
+    };
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -243,9 +242,17 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
 
         if (clrType == typeof(JsonTypePlaceholder))
         {
-            return storeTypeName == "json"
-                ? SqlServerStructuralJsonTypeMapping.JsonTypeDefault
-                : SqlServerStructuralJsonTypeMapping.Default;
+            // We get here when a structural type (complex type or owned entity) is mapped to JSON.
+            return storeTypeName switch
+            {
+                "json" => SqlServerStructuralJsonTypeMapping.JsonTypeDefault,
+                "nvarchar(max)" => SqlServerStructuralJsonTypeMapping.NvarcharMaxDefault,
+
+                null when _isJsonTypeSupported => SqlServerStructuralJsonTypeMapping.JsonTypeDefault,
+                null => SqlServerStructuralJsonTypeMapping.NvarcharMaxDefault,
+
+                _ => null
+            };
         }
 
         if (storeTypeName != null)
@@ -379,6 +386,64 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
 
         return null;
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override RelationalTypeMapping? FindCollectionMapping(
+        RelationalTypeMappingInfo info,
+        Type modelType,
+        Type? providerType,
+        CoreTypeMapping? elementMapping)
+    {
+        // If the user hasn't explicitly specified a store type and we're on a compatibility level that supports the 'json' type,
+        // map the collection to 'json' rather than 'nvarchar(max)' (which is the default).
+        if (info.StoreTypeName is null
+            && _isJsonTypeSupported
+            && TryFindJsonCollectionMapping(
+                info.CoreTypeMappingInfo, modelType, providerType, ref elementMapping, out var comparer, out var collectionReaderWriter))
+        {
+            var jsonTypeMappingInfo = new RelationalTypeMappingInfo(
+                info.CoreTypeMappingInfo.ClrType,
+                (RelationalTypeMapping?)info.CoreTypeMappingInfo.ElementTypeMapping,
+                storeTypeName: "json",
+                storeTypeNameBase: "json")
+                // Note that the converter info is only used temporarily here and never creates an instance.
+                .WithConverter(new ValueConverterInfo(modelType, typeof(string), _ => null!));
+
+            return (RelationalTypeMapping)FindMapping(jsonTypeMappingInfo)!
+                .WithComposedConverter(
+                    (ValueConverter)Activator.CreateInstance(
+                        typeof(CollectionToJsonStringConverter<>).MakeGenericType(
+                            modelType.TryGetElementType(typeof(IEnumerable<>))!), collectionReaderWriter!)!,
+                    comparer,
+                    comparer,
+                    elementMapping,
+                    collectionReaderWriter);
+        }
+
+#pragma warning disable EF1001 // Internal EF Core API usage.
+        return base.FindCollectionMapping(info, modelType, providerType, elementMapping);
+#pragma warning restore EF1001
+    }
+    // => TryFindJsonCollectionMapping(
+    //         info.CoreTypeMappingInfo, modelType, providerType, ref elementMapping, out var comparer, out var collectionReaderWriter)
+    //         ? (RelationalTypeMapping)FindMapping(
+    //                 info.WithConverter(
+    //                     // Note that the converter info is only used temporarily here and never creates an instance.
+    //                     new ValueConverterInfo(modelType, typeof(string), _ => null!)))!
+    //             .WithComposedConverter(
+    //                 (ValueConverter)Activator.CreateInstance(
+    //                     typeof(CollectionToJsonStringConverter<>).MakeGenericType(
+    //                         modelType.TryGetElementType(typeof(IEnumerable<>))!), collectionReaderWriter!)!,
+    //                 comparer,
+    //                 comparer,
+    //                 elementMapping,
+    //                 collectionReaderWriter)
+    //         : null;
 
     private static readonly List<string> NameBasesUsingPrecision =
     [

@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
@@ -12,8 +13,9 @@ public class JsonTypesCustomMappingSqlServerTest(NonSharedFixture fixture) : Jso
 
     private class TestSqlServerTypeMappingSource(
         TypeMappingSourceDependencies dependencies,
-        RelationalTypeMappingSourceDependencies relationalDependencies)
-        : SqlServerTypeMappingSource(dependencies, relationalDependencies)
+        RelationalTypeMappingSourceDependencies relationalDependencies,
+        ISqlServerSingletonOptions sqlServerSingletonOptions)
+        : SqlServerTypeMappingSource(dependencies, relationalDependencies, sqlServerSingletonOptions)
     {
         protected override RelationalTypeMapping? FindMapping(in RelationalTypeMappingInfo mappingInfo)
         {
