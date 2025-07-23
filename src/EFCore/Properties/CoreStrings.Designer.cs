@@ -359,14 +359,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 navigationName, entityType);
 
         /// <summary>
-        ///     The entity type '{entityType}' is configured to use the '{changeTrackingStrategy}' change tracking strategy, but does not implement the required '{notificationInterface}' interface. Implement '{notificationInterface}' on '{entityType}' or use a different change tracking strategy.
-        /// </summary>
-        public static string ChangeTrackingInterfaceMissing(object? entityType, object? changeTrackingStrategy, object? notificationInterface)
-            => string.Format(
-                GetString("ChangeTrackingInterfaceMissing", nameof(entityType), nameof(changeTrackingStrategy), nameof(notificationInterface)),
-                entityType, changeTrackingStrategy, notificationInterface);
-
-        /// <summary>
         ///     Unable to save changes because a circular dependency was detected in the data to be saved: '{cycle}'.
         /// </summary>
         public static string CircularDependency(object? cycle)
@@ -1487,6 +1479,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         public static string HiLoBadBlockSize
             => GetString("HiLoBadBlockSize");
+
+        /// <summary>
+        ///     The entity type '{entityType}' is configured to use the '{changeTrackingStrategy}' change tracking strategy, but does not implement the required '{notificationInterface}' interface. Implement '{notificationInterface}' on '{entityType}' or use a different change tracking strategy.
+        /// </summary>
+        public static string ChangeTrackingInterfaceMissing(object? entityType, object? changeTrackingStrategy, object? notificationInterface)
+            => string.Format(
+                GetString("ChangeTrackingInterfaceMissing", nameof(entityType), nameof(changeTrackingStrategy), nameof(notificationInterface)),
+                entityType, changeTrackingStrategy, notificationInterface);
 
         /// <summary>
         ///     A relationship cycle involving the primary keys of the following entity types was detected: '{entityType}'. This would prevent any entity to be inserted without violating the store constraints. Review the foreign keys defined on the primary keys and either remove or use other properties for at least one of them.
