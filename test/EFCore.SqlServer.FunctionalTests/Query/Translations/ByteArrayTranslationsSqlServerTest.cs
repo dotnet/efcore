@@ -12,9 +12,9 @@ public class ByteArrayTranslationsSqlServerTest : ByteArrayTranslationsTestBase<
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    public override async Task Length(bool async)
+    public override async Task Length()
     {
-        await base.Length(async);
+        await base.Length();
 
         AssertSql(
             """
@@ -24,9 +24,9 @@ WHERE CAST(DATALENGTH([b].[ByteArray]) AS int) = 4
 """);
     }
 
-    public override async Task Index(bool async)
+    public override async Task Index()
     {
-        await base.Index(async);
+        await base.Index();
 
         AssertSql(
             """
@@ -36,9 +36,9 @@ WHERE CAST(DATALENGTH([b].[ByteArray]) AS int) >= 3 AND CAST(SUBSTRING([b].[Byte
 """);
     }
 
-    public override async Task First(bool async)
+    public override async Task First()
     {
-        await base.First(async);
+        await base.First();
 
         AssertSql(
             """
@@ -48,9 +48,9 @@ WHERE CAST(DATALENGTH([b].[ByteArray]) AS int) >= 1 AND CAST(SUBSTRING([b].[Byte
 """);
     }
 
-    public override async Task Contains_with_constant(bool async)
+    public override async Task Contains_with_constant()
     {
-        await base.Contains_with_constant(async);
+        await base.Contains_with_constant();
 
         AssertSql(
             """
@@ -60,9 +60,9 @@ WHERE CHARINDEX(0x01, [b].[ByteArray]) > 0
 """);
     }
 
-    public override async Task Contains_with_parameter(bool async)
+    public override async Task Contains_with_parameter()
     {
-        await base.Contains_with_parameter(async);
+        await base.Contains_with_parameter();
 
         AssertSql(
             """
@@ -74,9 +74,9 @@ WHERE CHARINDEX(CAST(@someByte AS varbinary(max)), [b].[ByteArray]) > 0
 """);
     }
 
-    public override async Task Contains_with_column(bool async)
+    public override async Task Contains_with_column()
     {
-        await base.Contains_with_column(async);
+        await base.Contains_with_column();
 
         AssertSql(
             """
@@ -86,9 +86,9 @@ WHERE CHARINDEX(CAST([b].[Byte] AS varbinary(max)), [b].[ByteArray]) > 0
 """);
     }
 
-    public override async Task SequenceEqual(bool async)
+    public override async Task SequenceEqual()
     {
-        await base.SequenceEqual(async);
+        await base.SequenceEqual();
 
         AssertSql(
             """

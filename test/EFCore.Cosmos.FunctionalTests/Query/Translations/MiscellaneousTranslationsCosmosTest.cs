@@ -13,58 +13,56 @@ public class MiscellaneousTranslationsCosmosTest : MiscellaneousTranslationsTest
 
     #region Random
 
-    public override Task Random_on_EF_Functions(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Random_on_EF_Functions(a);
+    public override async Task Random_on_EF_Functions()
+    {
+        await base.Random_on_EF_Functions();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE COUNT(1)
 FROM root c
 WHERE ((RAND() >= 0.0) AND (RAND() < 1.0))
 """);
-            });
+    }
 
-    public override async Task Random_Shared_Next_with_no_args(bool async)
+    public override async Task Random_Shared_Next_with_no_args()
     {
-        await AssertTranslationFailed(() => base.Random_Shared_Next_with_no_args(async));
+        await AssertTranslationFailed(() => base.Random_Shared_Next_with_no_args());
 
         AssertSql();
     }
 
-    public override async Task Random_Shared_Next_with_one_arg(bool async)
+    public override async Task Random_Shared_Next_with_one_arg()
     {
-        await AssertTranslationFailed(() => base.Random_Shared_Next_with_one_arg(async));
+        await AssertTranslationFailed(() => base.Random_Shared_Next_with_one_arg());
 
         AssertSql();
     }
 
-    public override async Task Random_Shared_Next_with_two_args(bool async)
+    public override async Task Random_Shared_Next_with_two_args()
     {
-        await AssertTranslationFailed(() => base.Random_Shared_Next_with_two_args(async));
+        await AssertTranslationFailed(() => base.Random_Shared_Next_with_two_args());
 
         AssertSql();
     }
 
-    public override async Task Random_new_Next_with_no_args(bool async)
+    public override async Task Random_new_Next_with_no_args()
     {
-        await AssertTranslationFailed(() => base.Random_new_Next_with_no_args(async));
+        await AssertTranslationFailed(() => base.Random_new_Next_with_no_args());
 
         AssertSql();
     }
 
-    public override async Task Random_new_Next_with_one_arg(bool async)
+    public override async Task Random_new_Next_with_one_arg()
     {
-        await AssertTranslationFailed(() => base.Random_new_Next_with_one_arg(async));
+        await AssertTranslationFailed(() => base.Random_new_Next_with_one_arg());
 
         AssertSql();
     }
 
-    public override async Task Random_new_Next_with_two_args(bool async)
+    public override async Task Random_new_Next_with_two_args()
     {
-        await AssertTranslationFailed(() => base.Random_new_Next_with_two_args(async));
+        await AssertTranslationFailed(() => base.Random_new_Next_with_two_args());
 
         AssertSql();
     }
@@ -73,66 +71,66 @@ WHERE ((RAND() >= 0.0) AND (RAND() < 1.0))
 
     #region Convert
 
-    public override async Task Convert_ToBoolean(bool async)
+    public override async Task Convert_ToBoolean()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Convert_ToBoolean(async));
+        await AssertTranslationFailed(() => base.Convert_ToBoolean());
 
         AssertSql();
     }
 
-    public override async Task Convert_ToByte(bool async)
+    public override async Task Convert_ToByte()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Convert_ToByte(async));
+        await AssertTranslationFailed(() => base.Convert_ToByte());
 
         AssertSql();
     }
 
-    public override async Task Convert_ToDecimal(bool async)
+    public override async Task Convert_ToDecimal()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Convert_ToDecimal(async));
+        await AssertTranslationFailed(() => base.Convert_ToDecimal());
 
         AssertSql();
     }
 
-    public override async Task Convert_ToDouble(bool async)
+    public override async Task Convert_ToDouble()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Convert_ToDouble(async));
+        await AssertTranslationFailed(() => base.Convert_ToDouble());
 
         AssertSql();
     }
 
-    public override async Task Convert_ToInt16(bool async)
+    public override async Task Convert_ToInt16()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Convert_ToInt16(async));
+        await AssertTranslationFailed(() => base.Convert_ToInt16());
 
         AssertSql();
     }
 
-    public override async Task Convert_ToInt32(bool async)
+    public override async Task Convert_ToInt32()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Convert_ToInt32(async));
+        await AssertTranslationFailed(() => base.Convert_ToInt32());
 
         AssertSql();
     }
 
-    public override async Task Convert_ToInt64(bool async)
+    public override async Task Convert_ToInt64()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Convert_ToInt64(async));
+        await AssertTranslationFailed(() => base.Convert_ToInt64());
 
         AssertSql();
     }
 
-    public override async Task Convert_ToString(bool async)
+    public override async Task Convert_ToString()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Convert_ToString(async));
+        await AssertTranslationFailed(() => base.Convert_ToString());
 
         AssertSql();
     }
@@ -141,26 +139,26 @@ WHERE ((RAND() >= 0.0) AND (RAND() < 1.0))
 
     #region Compare
 
-    public override async Task Int_Compare_to_simple_zero(bool async)
+    public override async Task Int_Compare_to_simple_zero()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Int_Compare_to_simple_zero(async));
+        await AssertTranslationFailed(() => base.Int_Compare_to_simple_zero());
 
         AssertSql();
     }
 
-    public override async Task DateTime_Compare_to_simple_zero(bool async, bool compareTo)
+    public override async Task DateTime_Compare_to_simple_zero(bool compareTo)
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.DateTime_Compare_to_simple_zero(async, compareTo));
+        await AssertTranslationFailed(() => base.DateTime_Compare_to_simple_zero(compareTo));
 
         AssertSql();
     }
 
-    public override async Task TimeSpan_Compare_to_simple_zero(bool async, bool compareTo)
+    public override async Task TimeSpan_Compare_to_simple_zero(bool compareTo)
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.TimeSpan_Compare_to_simple_zero(async, compareTo));
+        await AssertTranslationFailed(() => base.TimeSpan_Compare_to_simple_zero(compareTo));
 
         AssertSql();
     }

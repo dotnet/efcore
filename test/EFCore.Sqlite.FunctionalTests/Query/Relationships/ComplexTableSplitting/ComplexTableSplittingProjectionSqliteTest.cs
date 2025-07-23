@@ -8,8 +8,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Relationships.ComplexTableSplittin
 public class ComplexTableSplittingProjectionSqliteTest(ComplexTableSplittingSqliteFixture fixture, ITestOutputHelper testOutputHelper)
     : ComplexTableSplittingProjectionRelationalTestBase<ComplexTableSplittingSqliteFixture>(fixture, testOutputHelper)
 {
-    public override Task Select_subquery_optional_related_FirstOrDefault(bool async, QueryTrackingBehavior queryTrackingBehavior)
-        => AssertApplyNotSupported(() => base.Select_subquery_optional_related_FirstOrDefault(async, queryTrackingBehavior));
+    public override Task Select_subquery_optional_related_FirstOrDefault(QueryTrackingBehavior queryTrackingBehavior)
+        => AssertApplyNotSupported(() => base.Select_subquery_optional_related_FirstOrDefault(queryTrackingBehavior));
 
     private static async Task AssertApplyNotSupported(Func<Task> query)
         => Assert.Equal(

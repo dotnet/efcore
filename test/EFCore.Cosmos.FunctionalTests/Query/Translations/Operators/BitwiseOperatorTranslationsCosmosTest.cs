@@ -14,43 +14,33 @@ public class BitwiseOperatorTranslationsCosmosTest : BitwiseOperatorTranslations
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    public override Task Or(bool async)
-        => AssertTranslationFailed(() => base.Or(async));
+    public override Task Or()
+        => AssertTranslationFailed(() => base.Or());
 
-    public override async Task Or_over_boolean(bool async)
+    public override async Task Or_over_boolean()
     {
-        // Always throws for sync.
-        if (async)
-        {
-            // Bitwise operators on booleans. Issue #13168.
-            await Assert.ThrowsAsync<EqualException>(() => base.Or_over_boolean(async));
+        // Bitwise operators on booleans. Issue #13168.
+        await Assert.ThrowsAsync<EqualException>(() => base.Or_over_boolean());
 
-            AssertSql(
-                """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Int"] = 12) | (c["String"] = "Seattle"))
 """);
-        }
     }
 
-    public override async Task Or_multiple(bool async)
+    public override async Task Or_multiple()
     {
-        // Always throws for sync.
-        if (async)
-        {
-            // Bitwise operators on booleans. Issue #13168.
-            await Assert.ThrowsAsync<InvalidOperationException>(() => base.Or_multiple(async));
+        // Bitwise operators on booleans. Issue #13168.
+        await Assert.ThrowsAsync<InvalidOperationException>(() => base.Or_multiple());
 
-            AssertSql();
-        }
+        AssertSql();
     }
 
-    public override Task And(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
+    public override async Task And()
             {
-                await base.And(a);
+                await base.And();
 
                 AssertSql(
                     """
@@ -63,184 +53,150 @@ WHERE ((c["Int"] & c["Short"]) = 2)
 SELECT VALUE (c["Int"] & c["Short"])
 FROM root c
 """);
-            });
+            }
 
-    public override async Task And_over_boolean(bool async)
+    public override async Task And_over_boolean()
     {
-        // Always throws for sync.
-        if (async)
-        {
-            // Bitwise operators on booleans. Issue #13168.
-            await Assert.ThrowsAsync<EqualException>(() => base.And_over_boolean(async));
+        // Bitwise operators on booleans. Issue #13168.
+        await Assert.ThrowsAsync<EqualException>(() => base.And_over_boolean());
 
-            AssertSql(
-                """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Int"] = 8) & (c["String"] = "Seattle"))
 """);
-        }
     }
 
-    public override Task Xor(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Xor(a);
+    public override async Task Xor()
+    {
+        await base.Xor();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Int"] ^ c["Short"]) = 1)
 """,
-                    //
-                    """
+            //
+            """
 SELECT VALUE (c["Int"] ^ c["Short"])
 FROM root c
 """);
-            });
+    }
 
-    public override Task Xor_over_boolean(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Xor_over_boolean(a);
+    public override async Task Xor_over_boolean()
+    {
+        await base.Xor_over_boolean();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Int"] = c["Short"]) != (c["String"] = "Seattle"))
 """);
-            });
+    }
 
-    public override Task Complement(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Complement(a);
+    public override async Task Complement()
+    {
+        await base.Complement();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (~(c["Int"]) = -9)
 """);
-            });
+    }
 
-    public override async Task And_or_over_boolean(bool async)
+    public override async Task And_or_over_boolean()
     {
-        // Always throws for sync.
-        if (async)
-        {
-            // Bitwise operators on booleans. Issue #13168.
-            await Assert.ThrowsAsync<EqualException>(() => base.And_or_over_boolean(async));
+        // Bitwise operators on booleans. Issue #13168.
+        await Assert.ThrowsAsync<EqualException>(() => base.And_or_over_boolean());
 
-            AssertSql(
-                """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (((c["Int"] = 12) & (c["Short"] = 12)) | (c["String"] = "Seattle"))
 """);
-        }
     }
 
-    public override async Task Or_with_logical_or(bool async)
+    public override async Task Or_with_logical_or()
     {
-        // Always throws for sync.
-        if (async)
-        {
-            // Bitwise operators on booleans. Issue #13168.
-            await Assert.ThrowsAsync<EqualException>(() => base.Or_with_logical_or(async));
+        // Bitwise operators on booleans. Issue #13168.
+        await Assert.ThrowsAsync<EqualException>(() => base.Or_with_logical_or());
 
-            AssertSql(
-                """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (((c["Int"] = 12) | (c["Short"] = 12)) OR (c["String"] = "Seattle"))
 """);
-        }
     }
 
-    public override async Task And_with_logical_and(bool async)
+    public override async Task And_with_logical_and()
     {
-        // Always throws for sync.
-        if (async)
-        {
-            // Bitwise operators on booleans. Issue #13168.
-            await Assert.ThrowsAsync<EqualException>(() => base.And_with_logical_and(async));
+        // Bitwise operators on booleans. Issue #13168.
+        await Assert.ThrowsAsync<EqualException>(() => base.And_with_logical_and());
 
-            AssertSql(
-                """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (((c["Int"] = 8) & (c["Short"] = 8)) AND (c["String"] = "Seattle"))
 """);
-        }
     }
 
-    public override async Task Or_with_logical_and(bool async)
+    public override async Task Or_with_logical_and()
     {
-        // Always throws for sync.
-        if (async)
-        {
-            // Bitwise operators on booleans. Issue #13168.
-            await Assert.ThrowsAsync<EqualException>(() => base.Or_with_logical_and(async));
+        // Bitwise operators on booleans. Issue #13168.
+        await Assert.ThrowsAsync<EqualException>(() => base.Or_with_logical_and());
 
-            AssertSql(
-                """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (((c["Int"] = 8) | (c["Short"] = 9)) AND (c["String"] = "Seattle"))
 """);
-        }
     }
 
-    public override async Task And_with_logical_or(bool async)
+    public override async Task And_with_logical_or()
     {
-        // Always throws for sync.
-        if (async)
-        {
-            // Bitwise operators on booleans. Issue #13168.
-            await Assert.ThrowsAsync<EqualException>(() => base.And_with_logical_or(async));
+        // Bitwise operators on booleans. Issue #13168.
+        await Assert.ThrowsAsync<EqualException>(() => base.And_with_logical_or());
 
-            AssertSql(
-                """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (((c["Int"] = 12) & (c["Short"] = 12)) OR (c["String"] = "Seattle"))
 """);
-        }
     }
 
-    public override Task Left_shift(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Left_shift(a);
+    public override async Task Left_shift()
+    {
+        await base.Left_shift();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Int"] << 1) = 16)
 """);
-            });
+    }
 
-    public override Task Right_shift(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Right_shift(a);
+    public override async Task Right_shift()
+    {
+        await base.Right_shift();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Int"] >> 1) = 4)
 """);
-            });
+    }
 
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()

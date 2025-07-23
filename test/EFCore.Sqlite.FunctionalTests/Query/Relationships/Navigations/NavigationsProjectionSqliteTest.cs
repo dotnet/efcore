@@ -8,11 +8,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Relationships.Navigations;
 public class NavigationsProjectionSqliteTest(NavigationsSqliteFixture fixture, ITestOutputHelper testOutputHelper)
     : NavigationsProjectionRelationalTestBase<NavigationsSqliteFixture>(fixture, testOutputHelper)
 {
-    public override Task Select_subquery_required_related_FirstOrDefault(bool async, QueryTrackingBehavior queryTrackingBehavior)
-        => AssertApplyNotSupported(() => base.Select_subquery_required_related_FirstOrDefault(async, queryTrackingBehavior));
+    public override Task Select_subquery_required_related_FirstOrDefault(QueryTrackingBehavior queryTrackingBehavior)
+        => AssertApplyNotSupported(() => base.Select_subquery_required_related_FirstOrDefault(queryTrackingBehavior));
 
-    public override Task Select_subquery_optional_related_FirstOrDefault(bool async, QueryTrackingBehavior queryTrackingBehavior)
-        => AssertApplyNotSupported(() => base.Select_subquery_optional_related_FirstOrDefault(async, queryTrackingBehavior));
+    public override Task Select_subquery_optional_related_FirstOrDefault(QueryTrackingBehavior queryTrackingBehavior)
+        => AssertApplyNotSupported(() => base.Select_subquery_optional_related_FirstOrDefault(queryTrackingBehavior));
 
     private static async Task AssertApplyNotSupported(Func<Task> query)
         => Assert.Equal(

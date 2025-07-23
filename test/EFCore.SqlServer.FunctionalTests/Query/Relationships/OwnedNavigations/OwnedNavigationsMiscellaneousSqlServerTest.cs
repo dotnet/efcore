@@ -12,9 +12,9 @@ public class OwnedNavigationsMiscellaneousSqlServerTest(
 {
     #region Simple filters
 
-    public override async Task Where_related_property(bool async)
+    public override async Task Where_related_property()
     {
-        await base.Where_related_property(async);
+        await base.Where_related_property();
 
         AssertSql(
             """
@@ -40,9 +40,9 @@ ORDER BY [r].[Id], [r0].[RootEntityId], [o].[RootEntityId], [o0].[RelatedTypeRoo
 """);
     }
 
-    public override async Task Where_optional_related_property(bool async)
+    public override async Task Where_optional_related_property()
     {
-        await base.Where_optional_related_property(async);
+        await base.Where_optional_related_property();
 
         AssertSql(
             """
@@ -68,9 +68,9 @@ ORDER BY [r].[Id], [o].[RootEntityId], [o0].[RelatedTypeRootEntityId], [o1].[Rel
 """);
     }
 
-    public override async Task Where_nested_related_property(bool async)
+    public override async Task Where_nested_related_property()
     {
-        await base.Where_nested_related_property(async);
+        await base.Where_nested_related_property();
 
         AssertSql(
             """

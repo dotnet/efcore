@@ -8,180 +8,133 @@ namespace Microsoft.EntityFrameworkCore.Query.Translations.Temporal;
 public abstract class DateTimeOffsetTranslationsTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : BasicTypesQueryFixtureBase, new()
 {
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Now(bool async)
+    [ConditionalFact]
+    public virtual Task Now()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => b.DateTimeOffset != DateTimeOffset.Now));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task UtcNow(bool async)
+    [ConditionalFact]
+    public virtual Task UtcNow()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => b.DateTimeOffset != DateTimeOffset.UtcNow));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Date(bool async)
+    [ConditionalFact]
+    public virtual Task Date()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => b.DateTimeOffset.Date > new DateTimeOffset().Date));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Year(bool async)
+    [ConditionalFact]
+    public virtual Task Year()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => b.DateTimeOffset.Year == 1998));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Month(bool async)
+    [ConditionalFact]
+    public virtual Task Month()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => b.DateTimeOffset.Month == 5));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task DayOfYear(bool async)
+    [ConditionalFact]
+    public virtual Task DayOfYear()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => b.DateTimeOffset.DayOfYear == 124));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Day(bool async)
+    [ConditionalFact]
+    public virtual Task Day()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => b.DateTimeOffset.Day == 4));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Hour(bool async)
+    [ConditionalFact]
+    public virtual Task Hour()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => b.DateTimeOffset.Hour == 15));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Minute(bool async)
+    [ConditionalFact]
+    public virtual Task Minute()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => b.DateTimeOffset.Minute == 30));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Second(bool async)
+    [ConditionalFact]
+    public virtual Task Second()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => b.DateTimeOffset.Second == 10));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Millisecond(bool async)
+    [ConditionalFact]
+    public virtual Task Millisecond()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => b.DateTimeOffset.Millisecond == 123));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Microsecond(bool async)
+    [ConditionalFact]
+    public virtual Task Microsecond()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(e => e.DateTimeOffset.Microsecond == 456));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Nanosecond(bool async)
+    [ConditionalFact]
+    public virtual Task Nanosecond()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(e => e.DateTimeOffset.Nanosecond == 400));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task TimeOfDay(bool async)
+    [ConditionalFact]
+    public virtual Task TimeOfDay()
         => AssertQueryScalar(
-            async,
             ss => ss.Set<BasicTypesEntity>().Select(b => b.DateTimeOffset.TimeOfDay));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task AddYears(bool async)
+    [ConditionalFact]
+    public virtual Task AddYears()
         => AssertQueryScalar(
-            async,
             ss => ss.Set<BasicTypesEntity>().Select(b => b.DateTimeOffset.AddYears(1)));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task AddMonths(bool async)
+    [ConditionalFact]
+    public virtual Task AddMonths()
         => AssertQueryScalar(
-            async,
             ss => ss.Set<BasicTypesEntity>().Select(b => b.DateTimeOffset.AddMonths(1)));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task AddDays(bool async)
+    [ConditionalFact]
+    public virtual Task AddDays()
         => AssertQueryScalar(
-            async,
             ss => ss.Set<BasicTypesEntity>().Select(b => b.DateTimeOffset.AddDays(1)));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task AddHours(bool async)
+    [ConditionalFact]
+    public virtual Task AddHours()
         => AssertQueryScalar(
-            async,
             ss => ss.Set<BasicTypesEntity>().Select(b => b.DateTimeOffset.AddHours(1)));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task AddMinutes(bool async)
+    [ConditionalFact]
+    public virtual Task AddMinutes()
         => AssertQueryScalar(
-            async,
             ss => ss.Set<BasicTypesEntity>().Select(b => b.DateTimeOffset.AddMinutes(1)));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task AddSeconds(bool async)
+    [ConditionalFact]
+    public virtual Task AddSeconds()
         => AssertQueryScalar(
-            async,
             ss => ss.Set<BasicTypesEntity>().Select(b => b.DateTimeOffset.AddSeconds(1)));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task AddMilliseconds(bool async)
+    [ConditionalFact]
+    public virtual Task AddMilliseconds()
         => AssertQueryScalar(
-            async,
             ss => ss.Set<BasicTypesEntity>().Select(b => b.DateTimeOffset.AddMilliseconds(300)));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task ToUnixTimeMilliseconds(bool async)
+    [ConditionalFact]
+    public virtual Task ToUnixTimeMilliseconds()
     {
         var unixEpochMilliseconds = new DateTimeOffset(1998, 5, 4, 15, 30, 10, TimeSpan.Zero).ToUnixTimeMilliseconds();
 
         return AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>()
                 .Where(b => b.DateTimeOffset.ToUnixTimeMilliseconds() == unixEpochMilliseconds));
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task ToUnixTimeSecond(bool async)
+    [ConditionalFact]
+    public virtual Task ToUnixTimeSecond()
     {
         var unixEpochSeconds = new DateTimeOffset(1998, 5, 4, 15, 30, 10, TimeSpan.Zero).ToUnixTimeSeconds();
 
         return AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>()
                 .Where(b => b.DateTimeOffset.ToUnixTimeSeconds() == unixEpochSeconds));
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Milliseconds_parameter_and_constant(bool async)
+    [ConditionalFact]
+    public virtual Task Milliseconds_parameter_and_constant()
     {
         var dateTimeOffset = new DateTimeOffset(599898024001234567, new TimeSpan(1, 30, 0));
 
@@ -194,7 +147,6 @@ public abstract class DateTimeOffsetTranslationsTestBase<TFixture>(TFixture fixt
             ), p);
 
         return AssertCount(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(dynamicWhere),
             ss => ss.Set<BasicTypesEntity>().Where(m => m.DateTimeOffset == dateTimeOffset));
     }

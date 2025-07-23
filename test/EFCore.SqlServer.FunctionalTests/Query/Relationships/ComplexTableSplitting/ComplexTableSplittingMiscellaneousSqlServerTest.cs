@@ -10,9 +10,9 @@ public class ComplexTableSplittingMiscellaneousSqlServerTest(
 {
     #region Simple filters
 
-    public override async Task Where_related_property(bool async)
+    public override async Task Where_related_property()
     {
-        await base.Where_related_property(async);
+        await base.Where_related_property();
 
         AssertSql(
             """
@@ -22,16 +22,16 @@ WHERE [r].[RequiredRelated_Int] = 8
 """);
     }
 
-    public override async Task Where_optional_related_property(bool async)
+    public override async Task Where_optional_related_property()
     {
-        await base.Where_optional_related_property(async);
+        await base.Where_optional_related_property();
 
         AssertSql();
     }
 
-    public override async Task Where_nested_related_property(bool async)
+    public override async Task Where_nested_related_property()
     {
-        await base.Where_nested_related_property(async);
+        await base.Where_nested_related_property();
 
         AssertSql(
             """

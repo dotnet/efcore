@@ -6,9 +6,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Relationships.OwnedNavigations;
 public class OwnedNavigationsCollectionSqlServerTest(OwnedNavigationsSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
     : OwnedNavigationsCollectionRelationalTestBase<OwnedNavigationsSqlServerFixture>(fixture, testOutputHelper)
 {
-    public override async Task Count(bool async)
+    public override async Task Count()
     {
-        await base.Count(async);
+        await base.Count();
 
         AssertSql(
             """
@@ -37,9 +37,9 @@ ORDER BY [r].[Id], [o].[RootEntityId], [o0].[RelatedTypeRootEntityId], [o1].[Rel
 """);
     }
 
-    public override async Task Where(bool async)
+    public override async Task Where()
     {
-        await base.Where(async);
+        await base.Where();
 
         AssertSql(
             """
@@ -68,9 +68,9 @@ ORDER BY [r].[Id], [o].[RootEntityId], [o0].[RelatedTypeRootEntityId], [o1].[Rel
 """);
     }
 
-    public override async Task OrderBy_ElementAt(bool async)
+    public override async Task OrderBy_ElementAt()
     {
-        await base.OrderBy_ElementAt(async);
+        await base.OrderBy_ElementAt();
 
         AssertSql(
             """
@@ -101,9 +101,9 @@ ORDER BY [r].[Id], [o].[RootEntityId], [o0].[RelatedTypeRootEntityId], [o1].[Rel
 """);
     }
 
-    public override async Task Index_constant(bool async)
+    public override async Task Index_constant()
     {
-        await base.Index_constant(async);
+        await base.Index_constant();
 
         AssertSql(
             """
@@ -134,9 +134,9 @@ ORDER BY [r].[Id], [o].[RootEntityId], [o0].[RelatedTypeRootEntityId], [o1].[Rel
 """);
     }
 
-    public override async Task Index_parameter(bool async)
+    public override async Task Index_parameter()
     {
-        await base.Index_parameter(async);
+        await base.Index_parameter();
 
         AssertSql(
             """
@@ -169,9 +169,9 @@ ORDER BY [r].[Id], [o].[RootEntityId], [o0].[RelatedTypeRootEntityId], [o1].[Rel
 """);
     }
 
-    public override async Task Index_column(bool async)
+    public override async Task Index_column()
     {
-        await base.Index_column(async);
+        await base.Index_column();
 
         AssertSql(
             """
@@ -202,9 +202,9 @@ ORDER BY [r].[Id], [o].[RootEntityId], [o0].[RelatedTypeRootEntityId], [o1].[Rel
 """);
     }
 
-    public override async Task Index_out_of_bounds(bool async)
+    public override async Task Index_out_of_bounds()
     {
-        await base.Index_out_of_bounds(async);
+        await base.Index_out_of_bounds();
 
         AssertSql(
             """

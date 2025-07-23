@@ -8,20 +8,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Relationships.ComplexJson;
 public class ComplexJsonProjectionSqliteTest(ComplexJsonSqliteFixture fixture, ITestOutputHelper testOutputHelper)
     : ComplexJsonProjectionRelationalTestBase<ComplexJsonSqliteFixture>(fixture, testOutputHelper)
 {
-    public override Task SelectMany_related_collection(bool async, QueryTrackingBehavior queryTrackingBehavior)
-        => AssertApplyNotSupported(() => base.SelectMany_related_collection(async, queryTrackingBehavior));
+    public override Task SelectMany_related_collection(QueryTrackingBehavior queryTrackingBehavior)
+        => AssertApplyNotSupported(() => base.SelectMany_related_collection(queryTrackingBehavior));
 
-    public override Task SelectMany_nested_collection_on_required_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
-        => AssertApplyNotSupported(() => base.SelectMany_nested_collection_on_required_related(async, queryTrackingBehavior));
+    public override Task SelectMany_nested_collection_on_required_related(QueryTrackingBehavior queryTrackingBehavior)
+        => AssertApplyNotSupported(() => base.SelectMany_nested_collection_on_required_related(queryTrackingBehavior));
 
-    public override Task SelectMany_nested_collection_on_optional_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
-        => AssertApplyNotSupported(() => base.SelectMany_nested_collection_on_optional_related(async, queryTrackingBehavior));
+    public override Task SelectMany_nested_collection_on_optional_related(QueryTrackingBehavior queryTrackingBehavior)
+        => AssertApplyNotSupported(() => base.SelectMany_nested_collection_on_optional_related(queryTrackingBehavior));
 
-    public override Task Select_subquery_required_related_FirstOrDefault(bool async, QueryTrackingBehavior queryTrackingBehavior)
-        => AssertApplyNotSupported(() => base.Select_subquery_required_related_FirstOrDefault(async, queryTrackingBehavior));
+    public override Task Select_subquery_required_related_FirstOrDefault(QueryTrackingBehavior queryTrackingBehavior)
+        => AssertApplyNotSupported(() => base.Select_subquery_required_related_FirstOrDefault(queryTrackingBehavior));
 
-    public override Task Select_subquery_optional_related_FirstOrDefault(bool async, QueryTrackingBehavior queryTrackingBehavior)
-        => AssertApplyNotSupported(() => base.Select_subquery_optional_related_FirstOrDefault(async, queryTrackingBehavior));
+    public override Task Select_subquery_optional_related_FirstOrDefault(QueryTrackingBehavior queryTrackingBehavior)
+        => AssertApplyNotSupported(() => base.Select_subquery_optional_related_FirstOrDefault(queryTrackingBehavior));
 
     private static async Task AssertApplyNotSupported(Func<Task> query)
         => Assert.Equal(

@@ -17,34 +17,34 @@ public abstract class ComplexTableSplittingStructuralEqualityRelationalTestBase<
 
     // TODO: All the tests below rely on access OptionalRelated, but optional complex properties not yet supported (#31376)
 
-    public override Task Two_related(bool async)
-        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Two_related(async));
+    public override Task Two_related()
+        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Two_related());
 
-    public override Task Two_nested(bool async)
-        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Two_nested(async));
+    public override Task Two_nested()
+        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Two_nested());
 
-    public override Task Not_equals(bool async)
-        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Not_equals(async));
+    public override Task Not_equals()
+        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Not_equals());
 
-    public override Task Related_with_inline_null(bool async)
-        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Related_with_inline_null(async));
+    public override Task Related_with_inline_null()
+        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Related_with_inline_null());
 
-    public override Task Related_with_parameter_null(bool async)
-        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Related_with_parameter_null(async));
+    public override Task Related_with_parameter_null()
+        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Related_with_parameter_null());
 
-    public override Task Nested_with_inline_null(bool async)
-        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Nested_with_inline_null(async));
+    public override Task Nested_with_inline_null()
+        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Nested_with_inline_null());
 
-    public override Task Two_nested_collections(bool async)
-        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Two_nested_collections(async));
-
-    // Collection equality with owned collections is not supported
-    public override Task Nested_collection_with_inline(bool async)
-        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Nested_collection_with_inline(async));
+    public override Task Two_nested_collections()
+        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Two_nested_collections());
 
     // Collection equality with owned collections is not supported
-    public override Task Nested_collection_with_parameter(bool async)
-        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Nested_collection_with_parameter(async));
+    public override Task Nested_collection_with_inline()
+        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Nested_collection_with_inline());
+
+    // Collection equality with owned collections is not supported
+    public override Task Nested_collection_with_parameter()
+        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Nested_collection_with_parameter());
 
     protected void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

@@ -8,17 +8,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Translations.Operators;
 public abstract class MiscellaneousOperatorTranslationsTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : BasicTypesQueryFixtureBase, new()
 {
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Conditional(bool async)
+    [ConditionalFact]
+    public virtual async Task Conditional()
         => await AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => (b.Int == 8 ? b.String : "Foo") == "Seattle"));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Coalesce(bool async)
+    [ConditionalFact]
+    public virtual async Task Coalesce()
         => await AssertQuery(
-            async,
             ss => ss.Set<NullableBasicTypesEntity>().Where(b => (b.String ?? "Unknown") == "Seattle"));
 }

@@ -19,9 +19,9 @@ public class StringTranslationsSqlServer160Test : StringTranslationsRelationalTe
     protected override bool IsCaseSensitive
         => false;
 
-    public override async Task TrimStart_with_char_argument(bool async)
+    public override async Task TrimStart_with_char_argument()
     {
-        await base.TrimStart_with_char_argument(async);
+        await base.TrimStart_with_char_argument();
 
         AssertSql(
             """
@@ -31,9 +31,9 @@ WHERE LTRIM([b].[String], N'S') = N'eattle'
 """);
     }
 
-    public override async Task TrimStart_with_char_array_argument(bool async)
+    public override async Task TrimStart_with_char_array_argument()
     {
-        await base.TrimStart_with_char_array_argument(async);
+        await base.TrimStart_with_char_array_argument();
 
         AssertSql(
             """
@@ -43,9 +43,9 @@ WHERE LTRIM([b].[String], N'Se') = N'attle'
 """);
     }
 
-    public override async Task TrimEnd_with_char_argument(bool async)
+    public override async Task TrimEnd_with_char_argument()
     {
-        await base.TrimEnd_with_char_argument(async);
+        await base.TrimEnd_with_char_argument();
 
         AssertSql(
             """
@@ -55,9 +55,9 @@ WHERE RTRIM([b].[String], N'e') = N'Seattl'
 """);
     }
 
-    public override async Task TrimEnd_with_char_array_argument(bool async)
+    public override async Task TrimEnd_with_char_array_argument()
     {
-        await base.TrimEnd_with_char_array_argument(async);
+        await base.TrimEnd_with_char_array_argument();
 
         AssertSql(
             """
@@ -67,12 +67,11 @@ WHERE RTRIM([b].[String], N'le') = N'Seatt'
 """);
     }
 
-    public override async Task EndsWith_Column(bool async)
+    public override async Task EndsWith_Column()
     {
         // SQL Server trims trailing whitespace for length calculations, making our EndsWith() column translation not work reliably in that
         // case
         await AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => b.String == "Seattle" && b.String.EndsWith(b.String)));
 
         AssertSql(
@@ -83,27 +82,27 @@ WHERE [b].[String] = N'Seattle' AND RIGHT([b].[String], LEN([b].[String])) = [b]
 """);
     }
 
-    public override async Task Trim_with_char_argument_in_predicate(bool async)
+    public override async Task Trim_with_char_argument_in_predicate()
     {
         // String.Trim with parameters. Issue #22927.
-        await AssertTranslationFailed(() => base.Trim_with_char_argument_in_predicate(async));
+        await AssertTranslationFailed(() => base.Trim_with_char_argument_in_predicate());
 
         AssertSql();
     }
 
-    public override async Task Trim_with_char_array_argument_in_predicate(bool async)
+    public override async Task Trim_with_char_array_argument_in_predicate()
     {
         // String.Trim with parameters. Issue #22927.
-        await AssertTranslationFailed(() => base.Trim_with_char_array_argument_in_predicate(async));
+        await AssertTranslationFailed(() => base.Trim_with_char_array_argument_in_predicate());
 
         AssertSql();
     }
 
-    public override Task Regex_IsMatch(bool async)
-        => AssertTranslationFailed(() => base.Regex_IsMatch(async));
+    public override Task Regex_IsMatch()
+        => AssertTranslationFailed(() => base.Regex_IsMatch());
 
-    public override Task Regex_IsMatch_constant_input(bool async)
-        => AssertTranslationFailed(() => base.Regex_IsMatch_constant_input(async));
+    public override Task Regex_IsMatch_constant_input()
+        => AssertTranslationFailed(() => base.Regex_IsMatch_constant_input());
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

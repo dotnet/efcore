@@ -11,241 +11,215 @@ public class DateTimeTranslationsCosmosTest : DateTimeTranslationsTestBase<Basic
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    public override async Task Now(bool async)
+    public override async Task Now()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Now(async));
+        await AssertTranslationFailed(() => base.Now());
 
         AssertSql();
     }
 
-    public override Task UtcNow(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.UtcNow(a);
+    public override async Task UtcNow()
+    {
+        await base.UtcNow();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 @myDatetime=?
 
 SELECT VALUE c
 FROM root c
 WHERE (GetCurrentDateTime() != @myDatetime)
 """);
-            });
+    }
 
-    public override async Task Today(bool async)
+    public override async Task Today()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Today(async));
+        await AssertTranslationFailed(() => base.Today());
 
         AssertSql();
     }
 
-    public override async Task Date(bool async)
+    public override async Task Date()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Date(async));
+        await AssertTranslationFailed(() => base.Date());
 
         AssertSql();
     }
 
-    public override Task AddYear(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.AddYear(a);
+    public override async Task AddYear()
+    {
+        await base.AddYear();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (DateTimePart("yyyy", DateTimeAdd("yyyy", 1, c["DateTime"])) = 1999)
 """);
-            });
+    }
 
-    public override Task Year(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Year(a);
+    public override async Task Year()
+    {
+        await base.Year();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (DateTimePart("yyyy", c["DateTime"]) = 1998)
 """);
-            });
+    }
 
-    public override Task Month(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Month(a);
+    public override async Task Month()
+    {
+        await base.Month();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (DateTimePart("mm", c["DateTime"]) = 5)
 """);
-            });
+    }
 
-    public override async Task DayOfYear(bool async)
+    public override async Task DayOfYear()
     {
         // DateTime.DayOfYear not supported by Cosmos
-        await AssertTranslationFailed(() => base.DayOfYear(async));
+        await AssertTranslationFailed(() => base.DayOfYear());
 
         AssertSql();
     }
 
-    public override Task Day(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Day(a);
+    public override async Task Day()
+    {
+        await base.Day();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (DateTimePart("dd", c["DateTime"]) = 4)
 """);
-            });
+    }
 
-    public override Task Hour(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Hour(a);
+    public override async Task Hour()
+    {
+        await base.Hour();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (DateTimePart("hh", c["DateTime"]) = 15)
 """);
-            });
+    }
 
-    public override Task Minute(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Minute(a);
+    public override async Task Minute()
+    {
+        await base.Minute();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (DateTimePart("mi", c["DateTime"]) = 30)
 """);
-            });
+    }
 
-    public override Task Second(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Second(a);
+    public override async Task Second()
+    {
+        await base.Second();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (DateTimePart("ss", c["DateTime"]) = 10)
 """);
-            });
+    }
 
-    public override Task Millisecond(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Millisecond(a);
+    public override async Task Millisecond()
+    {
+        await base.Millisecond();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (DateTimePart("ms", c["DateTime"]) = 123)
 """);
-            });
+    }
 
-    public override async Task TimeOfDay(bool async)
+    public override async Task TimeOfDay()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.TimeOfDay(async));
+        await AssertTranslationFailed(() => base.TimeOfDay());
 
         AssertSql();
     }
 
-    public override async Task subtract_and_TotalDays(bool async)
+    public override async Task subtract_and_TotalDays()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.subtract_and_TotalDays(async));
+        await AssertTranslationFailed(() => base.subtract_and_TotalDays());
 
         AssertSql();
     }
 
-    public override Task Parse_with_constant(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Parse_with_constant(a);
+    public override async Task Parse_with_constant()
+    {
+        await base.Parse_with_constant();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (c["DateTime"] = "1998-05-04T15:30:10")
 """);
-            });
+    }
 
-    public override Task Parse_with_parameter(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Parse_with_parameter(a);
+    public override async Task Parse_with_parameter()
+    {
+        await base.Parse_with_parameter();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 @Parse=?
 
 SELECT VALUE c
 FROM root c
 WHERE (c["DateTime"] = @Parse)
 """);
-            });
+    }
 
-    public override Task New_with_constant(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.New_with_constant(a);
+    public override async Task New_with_constant()
+    {
+        await base.New_with_constant();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (c["DateTime"] = "1998-05-04T15:30:10")
 """);
-            });
+    }
 
-    public override Task New_with_parameters(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.New_with_parameters(a);
+    public override async Task New_with_parameters()
+    {
+        await base.New_with_parameters();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 @p=?
 
 SELECT VALUE c
 FROM root c
 WHERE (c["DateTime"] = @p)
 """);
-            });
+    }
 
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()

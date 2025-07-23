@@ -12,109 +12,89 @@ public class OwnedNavigationsStructuralEqualityCosmosTest : OwnedNavigationsStru
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    public override Task Two_related(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Two_related(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE false
-""");
-            });
-
-    public override Task Two_nested(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Two_nested(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE false
-""");
-            });
-
-    public override Task Not_equals(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Not_equals(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE false
-""");
-            });
-
-    public override Task Related_with_inline_null(bool async)
-        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Related_with_inline_null(async));
-
-    public override Task Related_with_parameter_null(bool async)
-        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Related_with_parameter_null(async));
-
-    public override Task Nested_with_inline_null(bool async)
-        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Nested_with_inline_null(async));
-
-    public override async Task Nested_with_inline(bool async)
+    public override async Task Two_related()
     {
-        if (async)
-        {
-            await base.Nested_with_inline(async);
+        await base.Two_related();
 
-            AssertSql();
-        }
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE false
+""");
     }
 
-    public override async Task Nested_with_parameter(bool async)
+    public override async Task Two_nested()
     {
-        if (async)
-        {
-            await base.Nested_with_parameter(async);
+        await base.Two_nested();
 
-            AssertSql();
-        }
-    }
-
-    public override Task Two_nested_collections(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Two_nested_collections(a);
-
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE false
 """);
-            });
-
-    public override async Task Nested_collection_with_inline(bool async)
-    {
-        if (async)
-        {
-            await base.Nested_collection_with_inline(async);
-
-            AssertSql();
-        }
     }
 
-    public override async Task Nested_collection_with_parameter(bool async)
+    public override async Task Not_equals()
     {
-        if (async)
-        {
-            await base.Nested_collection_with_parameter(async);
+        await base.Not_equals();
 
-            AssertSql();
-        }
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE false
+""");
+    }
+
+    public override Task Related_with_inline_null()
+        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Related_with_inline_null());
+
+    public override Task Related_with_parameter_null()
+        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Related_with_parameter_null());
+
+    public override Task Nested_with_inline_null()
+        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Nested_with_inline_null());
+
+    public override async Task Nested_with_inline()
+    {
+        await base.Nested_with_inline();
+
+        AssertSql();
+    }
+
+    public override async Task Nested_with_parameter()
+    {
+        await base.Nested_with_parameter();
+
+        AssertSql();
+    }
+
+    public override async Task Two_nested_collections()
+    {
+        await base.Two_nested_collections();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE false
+""");
+    }
+
+    public override async Task Nested_collection_with_inline()
+    {
+        await base.Nested_collection_with_inline();
+
+        AssertSql();
+    }
+
+    public override async Task Nested_collection_with_parameter()
+    {
+        await base.Nested_collection_with_parameter();
+
+        AssertSql();
     }
 
     [ConditionalFact]

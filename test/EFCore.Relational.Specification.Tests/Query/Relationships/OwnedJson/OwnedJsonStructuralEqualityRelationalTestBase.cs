@@ -17,8 +17,8 @@ public abstract class OwnedJsonStructuralEqualityRelationalTestBase<TFixture> : 
     }
 
     // #36401
-    public override Task Related_with_parameter_null(bool async)
-        => Assert.ThrowsAsync<EqualException>(() => base.Related_with_parameter_null(async));
+    public override Task Related_with_parameter_null()
+        => Assert.ThrowsAsync<EqualException>(() => base.Related_with_parameter_null());
 
     protected void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

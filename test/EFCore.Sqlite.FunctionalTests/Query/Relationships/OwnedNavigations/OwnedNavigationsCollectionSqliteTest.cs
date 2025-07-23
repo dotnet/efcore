@@ -9,6 +9,6 @@ public class OwnedNavigationsCollectionSqliteTest(OwnedNavigationsSqliteFixture 
     : OwnedNavigationsCollectionRelationalTestBase<OwnedNavigationsSqliteFixture>(fixture, testOutputHelper)
 {
     // TODO: #36296
-    public override Task Index_column(bool async)
-        => Assert.ThrowsAsync<SqliteException>(() => base.Index_column(async));
+    public override Task Index_column()
+        => Assert.ThrowsAsync<SqliteException>(() => base.Index_column());
 }

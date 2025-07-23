@@ -8,201 +8,149 @@ namespace Microsoft.EntityFrameworkCore.Query.Translations;
 public abstract class MathTranslationsTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : BasicTypesQueryFixtureBase, new()
 {
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Abs_decimal(bool async)
+    [ConditionalFact]
+    public virtual Task Abs_decimal()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(od => Math.Abs(od.Decimal) == 9.5m));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Abs_int(bool async)
+    [ConditionalFact]
+    public virtual Task Abs_int()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => Math.Abs(b.Int) == 9));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Abs_double(bool async)
+    [ConditionalFact]
+    public virtual Task Abs_double()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => Math.Abs(b.Double) == 9.5));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Abs_float(bool async)
+    [ConditionalFact]
+    public virtual Task Abs_float()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => MathF.Abs(b.Float) == 9.5));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Ceiling(bool async)
+    [ConditionalFact]
+    public virtual Task Ceiling()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => Math.Ceiling(b.Double) == 9));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Ceiling_float(bool async)
+    [ConditionalFact]
+    public virtual Task Ceiling_float()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => MathF.Ceiling(b.Float) == 9));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Floor_decimal(bool async)
+    [ConditionalFact]
+    public virtual Task Floor_decimal()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => Math.Floor(b.Decimal) == 8));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Floor_double(bool async)
+    [ConditionalFact]
+    public virtual Task Floor_double()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => Math.Floor(b.Double) == 8));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Floor_float(bool async)
+    [ConditionalFact]
+    public virtual Task Floor_float()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => MathF.Floor(b.Float) == 8));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Exp(bool async)
+    [ConditionalFact]
+    public virtual Task Exp()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => Math.Exp(b.Double) > 1));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Exp_float(bool async)
+    [ConditionalFact]
+    public virtual Task Exp_float()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => MathF.Exp(b.Float) > 1));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Power(bool async)
+    [ConditionalFact]
+    public virtual Task Power()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => Math.Pow(b.Int, 2) == 64));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Power_float(bool async)
+    [ConditionalFact]
+    public virtual Task Power_float()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => MathF.Pow(b.Float, 2) > 73 && MathF.Pow(b.Float, 2) < 74));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Round_decimal(bool async)
+    [ConditionalFact]
+    public virtual async Task Round_decimal()
     {
         await AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => Math.Round(b.Decimal) == 9));
 
         await AssertQueryScalar(
-            async,
             ss => ss.Set<BasicTypesEntity>().Select(b => Math.Round(b.Decimal)));
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Round_double(bool async)
+    [ConditionalFact]
+    public virtual async Task Round_double()
     {
         await AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => Math.Round(b.Double) == 9));
 
         await AssertQueryScalar(
-            async,
             ss => ss.Set<BasicTypesEntity>().Select(b => Math.Round(b.Double)));
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Round_float(bool async)
+    [ConditionalFact]
+    public virtual async Task Round_float()
     {
         await AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => MathF.Round(b.Float) == 9));
 
         await AssertQueryScalar(
-            async,
             ss => ss.Set<BasicTypesEntity>().Select(b => MathF.Round(b.Float)));
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Round_with_digits_decimal(bool async)
+    [ConditionalFact]
+    public virtual Task Round_with_digits_decimal()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => Math.Round(b.Decimal, 1) == 255.1m));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Round_with_digits_double(bool async)
+    [ConditionalFact]
+    public virtual Task Round_with_digits_double()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => Math.Round(b.Double, 1) == 255.1));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Round_with_digits_float(bool async)
+    [ConditionalFact]
+    public virtual Task Round_with_digits_float()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => Math.Round(b.Float, 1) == 255.1));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Truncate_decimal(bool async)
+    [ConditionalFact]
+    public virtual async Task Truncate_decimal()
     {
         await AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => Math.Truncate(b.Decimal) == 8));
 
         await AssertQueryScalar(
-            async,
             ss => ss.Set<BasicTypesEntity>().Select(b => Math.Truncate(b.Decimal)));
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Truncate_double(bool async)
+    [ConditionalFact]
+    public virtual async Task Truncate_double()
     {
         await AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => Math.Truncate(b.Double) == 8));
 
         await AssertQueryScalar(
-            async,
             ss => ss.Set<BasicTypesEntity>().Select(b => Math.Truncate(b.Double)));
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Truncate_float(bool async)
+    [ConditionalFact]
+    public virtual async Task Truncate_float()
     {
         await AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => MathF.Truncate(b.Float) == 8));
 
         await AssertQueryScalar(
-            async,
             ss => ss.Set<BasicTypesEntity>().Select(b => MathF.Truncate(b.Float)));
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Truncate_project_and_order_by_it_twice(bool async)
+    [ConditionalFact]
+    public virtual Task Truncate_project_and_order_by_it_twice()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>()
                 .Select(b => new { A = Math.Truncate(b.Double) })
                 .OrderBy(r => r.A)
@@ -210,11 +158,9 @@ public abstract class MathTranslationsTestBase<TFixture>(TFixture fixture) : Que
                 .OrderBy(r => r.A),
             assertOrder: true);
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Truncate_project_and_order_by_it_twice2(bool async)
+    [ConditionalFact]
+    public virtual Task Truncate_project_and_order_by_it_twice2()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>()
                 .Select(b => new { A = Math.Truncate(b.Double) })
                 .OrderBy(r => r.A)
@@ -222,310 +168,226 @@ public abstract class MathTranslationsTestBase<TFixture>(TFixture fixture) : Que
                 .OrderByDescending(r => r.A),
             assertOrder: true);
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Truncate_project_and_order_by_it_twice3(bool async)
+    [ConditionalFact]
+    public virtual Task Truncate_project_and_order_by_it_twice3()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>()
                 .Select(b => new { A = Math.Truncate(b.Double) })
                 .OrderByDescending(r => r.A)
                 .ThenBy(r => r.A),
             assertOrder: true);
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Log(bool async)
+    [ConditionalFact]
+    public virtual Task Log()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => b.Double > 0 && Math.Log(b.Double) != 0));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Log_float(bool async)
+    [ConditionalFact]
+    public virtual Task Log_float()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => b.Float > 0 && MathF.Log(b.Float) != 0));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Log_with_newBase(bool async)
+    [ConditionalFact]
+    public virtual Task Log_with_newBase()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => b.Double > 0 && Math.Log(b.Double, 7) != 0));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Log_with_newBase_float(bool async)
+    [ConditionalFact]
+    public virtual Task Log_with_newBase_float()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => b.Float > 0 && MathF.Log(b.Float, 7) != 0));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Log10(bool async)
+    [ConditionalFact]
+    public virtual Task Log10()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => b.Double > 0 && Math.Log10(b.Double) != 0));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Log10_float(bool async)
+    [ConditionalFact]
+    public virtual Task Log10_float()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => b.Float > 0 && MathF.Log10(b.Float) != 0));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Log2(bool async)
+    [ConditionalFact]
+    public virtual Task Log2()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => b.Double > 0 && Math.Log2(b.Double) != 0));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Sqrt(bool async)
+    [ConditionalFact]
+    public virtual Task Sqrt()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => b.Double > 0 && Math.Sqrt(b.Double) > 0));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Sqrt_float(bool async)
+    [ConditionalFact]
+    public virtual Task Sqrt_float()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => b.Float > 0 && MathF.Sqrt(b.Float) > 0));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Sign(bool async)
+    [ConditionalFact]
+    public virtual Task Sign()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => Math.Sign(b.Double) > 0));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Sign_float(bool async)
+    [ConditionalFact]
+    public virtual Task Sign_float()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => MathF.Sign(b.Float) > 0));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Max(bool async)
+    [ConditionalFact]
+    public virtual Task Max()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => Math.Max(b.Int, b.Short - 3) == b.Int));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Max_nested(bool async)
+    [ConditionalFact]
+    public virtual Task Max_nested()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>()
                 .Where(b => Math.Max(b.Short - 3, Math.Max(b.Int, 1)) == b.Int));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Max_nested_twice(bool async)
+    [ConditionalFact]
+    public virtual Task Max_nested_twice()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>()
                 .Where(b => Math.Max(Math.Max(1, Math.Max(b.Int, 2)), b.Short - 3) == b.Int));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Min(bool async)
+    [ConditionalFact]
+    public virtual Task Min()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>()
                 .Where(b => Math.Min(b.Int, b.Short + 3) == b.Int));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Min_nested(bool async)
+    [ConditionalFact]
+    public virtual Task Min_nested()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>()
                 .Where(b => Math.Min(b.Short + 3, Math.Min(b.Int, 99999)) == b.Int));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Min_nested_twice(bool async)
+    [ConditionalFact]
+    public virtual Task Min_nested_twice()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>()
                 .Where(b => Math.Min(Math.Min(99999, Math.Min(b.Int, 99998)), b.Short + 3) == b.Int));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Degrees(bool async)
+    [ConditionalFact]
+    public virtual Task Degrees()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => double.RadiansToDegrees(b.Double) > 0));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Degrees_float(bool async)
+    [ConditionalFact]
+    public virtual Task Degrees_float()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => float.RadiansToDegrees(b.Float) > 0));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Radians(bool async)
+    [ConditionalFact]
+    public virtual Task Radians()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => double.DegreesToRadians(b.Double) > 0));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Radians_float(bool async)
+    [ConditionalFact]
+    public virtual Task Radians_float()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => float.DegreesToRadians(b.Float) > 0));
 
     #region Trigonometry
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Acos(bool async)
+    [ConditionalFact]
+    public virtual Task Acos()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => b.Double >= -1 && b.Double <= 1 && Math.Acos(b.Double) > 1));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Acos_float(bool async)
+    [ConditionalFact]
+    public virtual Task Acos_float()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => b.Float >= -1 && b.Float <= 1 && MathF.Acos(b.Float) > 0));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Acosh(bool async)
+    [ConditionalFact]
+    public virtual Task Acosh()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => Math.Acosh(b.Double + 1) > 0));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Asin(bool async)
+    [ConditionalFact]
+    public virtual Task Asin()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => b.Double >= -1 && b.Double <= 1 && Math.Asin(b.Double) > double.MinValue));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Asin_float(bool async)
+    [ConditionalFact]
+    public virtual Task Asin_float()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => b.Float >= -1 && b.Float <= 1 && MathF.Asin(b.Float) > double.MinValue));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Asinh(bool async)
+    [ConditionalFact]
+    public virtual Task Asinh()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => Math.Asinh(b.Double) > 0));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Atan(bool async)
+    [ConditionalFact]
+    public virtual Task Atan()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => Math.Atan(b.Double) > 0));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Atan_float(bool async)
+    [ConditionalFact]
+    public virtual Task Atan_float()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => MathF.Atan(b.Float) > 0));
 
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Atanh(bool async)
+    [ConditionalFact]
+    public virtual Task Atanh()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => Math.Atanh(b.Double) > double.MinValue));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Atan2(bool async)
+    [ConditionalFact]
+    public virtual Task Atan2()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => Math.Atan2(b.Double, 1) > 0));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Atan2_float(bool async)
+    [ConditionalFact]
+    public virtual Task Atan2_float()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => MathF.Atan2(b.Float, 1) > 0));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Cos(bool async)
+    [ConditionalFact]
+    public virtual Task Cos()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => Math.Cos(b.Double) > 0));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Cos_float(bool async)
+    [ConditionalFact]
+    public virtual Task Cos_float()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => MathF.Cos(b.Float) > 0));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Cosh(bool async)
+    [ConditionalFact]
+    public virtual Task Cosh()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => Math.Cosh(b.Double) > 0));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Sin(bool async)
+    [ConditionalFact]
+    public virtual Task Sin()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => Math.Sin(b.Double) > 0));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Sin_float(bool async)
+    [ConditionalFact]
+    public virtual Task Sin_float()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => MathF.Sin(b.Float) > 0));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Sinh(bool async)
+    [ConditionalFact]
+    public virtual Task Sinh()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => Math.Sinh(b.Double) > 0));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Tan(bool async)
+    [ConditionalFact]
+    public virtual Task Tan()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => Math.Tan(b.Double) > 0));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Tan_float(bool async)
+    [ConditionalFact]
+    public virtual Task Tan_float()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => MathF.Tan(b.Float) > 0));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Tanh(bool async)
+    [ConditionalFact]
+    public virtual Task Tanh()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => Math.Tanh(b.Double) > 0));
 
     #endregion Trigonometry

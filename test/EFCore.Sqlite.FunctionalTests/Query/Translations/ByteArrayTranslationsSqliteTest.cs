@@ -12,9 +12,9 @@ public class ByteArrayTranslationsSqliteTest : ByteArrayTranslationsTestBase<Bas
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    public override async Task Length(bool async)
+    public override async Task Length()
     {
-        await base.Length(async);
+        await base.Length();
 
         AssertSql(
             """
@@ -25,16 +25,16 @@ WHERE length("b"."ByteArray") = 4
     }
 
     // Array access. Issue #16428.
-    public override Task Index(bool async)
-        => AssertTranslationFailed(() => base.Index(async));
+    public override Task Index()
+        => AssertTranslationFailed(() => base.Index());
 
     // Array access. Issue #16428.
-    public override Task First(bool async)
-        => AssertTranslationFailed(() => base.First(async));
+    public override Task First()
+        => AssertTranslationFailed(() => base.First());
 
-    public override async Task Contains_with_constant(bool async)
+    public override async Task Contains_with_constant()
     {
-        await base.Contains_with_constant(async);
+        await base.Contains_with_constant();
 
         AssertSql(
             """
@@ -44,9 +44,9 @@ WHERE instr("b"."ByteArray", X'01') > 0
 """);
     }
 
-    public override async Task Contains_with_parameter(bool async)
+    public override async Task Contains_with_parameter()
     {
-        await base.Contains_with_parameter(async);
+        await base.Contains_with_parameter();
 
         AssertSql(
             """
@@ -58,9 +58,9 @@ WHERE instr("b"."ByteArray", char(@someByte)) > 0
 """);
     }
 
-    public override async Task Contains_with_column(bool async)
+    public override async Task Contains_with_column()
     {
-        await base.Contains_with_column(async);
+        await base.Contains_with_column();
 
         AssertSql(
             """
@@ -70,9 +70,9 @@ WHERE instr("b"."ByteArray", char("b"."Byte")) > 0
 """);
     }
 
-    public override async Task SequenceEqual(bool async)
+    public override async Task SequenceEqual()
     {
-        await base.SequenceEqual(async);
+        await base.SequenceEqual();
 
         AssertSql(
             """

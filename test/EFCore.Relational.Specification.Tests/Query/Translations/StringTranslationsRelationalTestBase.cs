@@ -13,69 +13,61 @@ public abstract class StringTranslationsRelationalTestBase<TFixture>(TFixture fi
     // All the following tests specify case sensitivity (via StringComparison), which isn't supported in relational databases, where the
     // column collation is used to control comparison semantics.
 
-    public override Task Equals_with_OrdinalIgnoreCase(bool async)
-        => AssertTranslationFailed(() => base.Equals_with_OrdinalIgnoreCase(async));
+    public override Task Equals_with_OrdinalIgnoreCase()
+        => AssertTranslationFailed(() => base.Equals_with_OrdinalIgnoreCase());
 
-    public override Task Equals_with_Ordinal(bool async)
-        => AssertTranslationFailed(() => base.Equals_with_OrdinalIgnoreCase(async));
+    public override Task Equals_with_Ordinal()
+        => AssertTranslationFailed(() => base.Equals_with_OrdinalIgnoreCase());
 
-    public override Task Static_Equals_with_OrdinalIgnoreCase(bool async)
-        => AssertTranslationFailed(() => base.Static_Equals_with_OrdinalIgnoreCase(async));
+    public override Task Static_Equals_with_OrdinalIgnoreCase()
+        => AssertTranslationFailed(() => base.Static_Equals_with_OrdinalIgnoreCase());
 
-    public override Task Static_Equals_with_Ordinal(bool async)
-        => AssertTranslationFailed(() => base.Static_Equals_with_Ordinal(async));
+    public override Task Static_Equals_with_Ordinal()
+        => AssertTranslationFailed(() => base.Static_Equals_with_Ordinal());
 
-    public override Task StartsWith_with_StringComparison_Ordinal(bool async)
-        => AssertTranslationFailed(() => base.StartsWith_with_StringComparison_Ordinal(async));
+    public override Task StartsWith_with_StringComparison_Ordinal()
+        => AssertTranslationFailed(() => base.StartsWith_with_StringComparison_Ordinal());
 
-    public override Task StartsWith_with_StringComparison_OrdinalIgnoreCase(bool async)
-        => AssertTranslationFailed(() => base.StartsWith_with_StringComparison_OrdinalIgnoreCase(async));
+    public override Task StartsWith_with_StringComparison_OrdinalIgnoreCase()
+        => AssertTranslationFailed(() => base.StartsWith_with_StringComparison_OrdinalIgnoreCase());
 
-    public override Task EndsWith_with_StringComparison_Ordinal(bool async)
-        => AssertTranslationFailed(() => base.EndsWith_with_StringComparison_Ordinal(async));
+    public override Task EndsWith_with_StringComparison_Ordinal()
+        => AssertTranslationFailed(() => base.EndsWith_with_StringComparison_Ordinal());
 
-    public override Task EndsWith_with_StringComparison_OrdinalIgnoreCase(bool async)
-        => AssertTranslationFailed(() => base.EndsWith_with_StringComparison_OrdinalIgnoreCase(async));
+    public override Task EndsWith_with_StringComparison_OrdinalIgnoreCase()
+        => AssertTranslationFailed(() => base.EndsWith_with_StringComparison_OrdinalIgnoreCase());
 
-    public override Task Contains_with_StringComparison_Ordinal(bool async)
-        => AssertTranslationFailed(() => base.Contains_with_StringComparison_Ordinal(async));
+    public override Task Contains_with_StringComparison_Ordinal()
+        => AssertTranslationFailed(() => base.Contains_with_StringComparison_Ordinal());
 
-    public override Task Contains_with_StringComparison_OrdinalIgnoreCase(bool async)
-        => AssertTranslationFailed(() => base.Contains_with_StringComparison_OrdinalIgnoreCase(async));
+    public override Task Contains_with_StringComparison_OrdinalIgnoreCase()
+        => AssertTranslationFailed(() => base.Contains_with_StringComparison_OrdinalIgnoreCase());
 
     #endregion Case sensitivity
 
     #region Like
 
-    [ConditionalTheory] // #26661, precedence/parentheses - belongs in OperatorsQueryTestBase
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_Like_and_comparison(bool async)
+    [ConditionalFact] // #26661, precedence/parentheses - belongs in OperatorsQueryTestBase
+    public virtual Task Where_Like_and_comparison()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(c => EF.Functions.Like(c.String, "S%") && c.Int == 8),
             ss => ss.Set<BasicTypesEntity>().Where(c => c.String.StartsWith("S") && c.Int == 8));
 
-    [ConditionalTheory] // #26661, precedence/parentheses - belongs in OperatorsQueryTestBase
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_Like_or_comparison(bool async)
+    [ConditionalFact] // #26661, precedence/parentheses - belongs in OperatorsQueryTestBase
+    public virtual Task Where_Like_or_comparison()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(c => EF.Functions.Like(c.String, "S%") || c.Int == int.MaxValue),
             ss => ss.Set<BasicTypesEntity>().Where(c => c.String.StartsWith("S") || c.Id == int.MaxValue));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Like_with_non_string_column_using_ToString(bool async)
+    [ConditionalFact]
+    public virtual Task Like_with_non_string_column_using_ToString()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(o => EF.Functions.Like(o.Int.ToString(), "%5%")),
             ss => ss.Set<BasicTypesEntity>().Where(o => o.Int.ToString().Contains("5")));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Like_with_non_string_column_using_double_cast(bool async)
+    [ConditionalFact]
+    public virtual Task Like_with_non_string_column_using_double_cast()
         => AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(o => EF.Functions.Like((string)(object)o.Int, "%5%")),
             ss => ss.Set<BasicTypesEntity>().Where(o => o.Int.ToString().Contains("5")));
 

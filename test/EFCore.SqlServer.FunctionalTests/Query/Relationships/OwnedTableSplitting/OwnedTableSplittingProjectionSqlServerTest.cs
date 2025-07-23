@@ -6,9 +6,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Relationships.OwnedTableSplitting;
 public class OwnedTableSplittingProjectionSqlServerTest(OwnedTableSplittingSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
     : OwnedTableSplittingProjectionRelationalTestBase<OwnedTableSplittingSqlServerFixture>(fixture, testOutputHelper)
 {
-    public override async Task Select_root(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    public override async Task Select_root(QueryTrackingBehavior queryTrackingBehavior)
     {
-        await base.Select_root(async, queryTrackingBehavior);
+        await base.Select_root(queryTrackingBehavior);
 
         AssertSql(
             """
@@ -29,9 +29,9 @@ ORDER BY [r].[Id], [o].[RelatedTypeRootEntityId], [o].[Id], [s].[RootEntityId], 
 
     #region Simple properties
 
-    public override async Task Select_property_on_required_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    public override async Task Select_property_on_required_related(QueryTrackingBehavior queryTrackingBehavior)
     {
-        await base.Select_property_on_required_related(async, queryTrackingBehavior);
+        await base.Select_property_on_required_related(queryTrackingBehavior);
 
         AssertSql(
             """
@@ -40,9 +40,9 @@ FROM [RootEntity] AS [r]
 """);
     }
 
-    public override async Task Select_property_on_optional_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    public override async Task Select_property_on_optional_related(QueryTrackingBehavior queryTrackingBehavior)
     {
-        await base.Select_property_on_optional_related(async, queryTrackingBehavior);
+        await base.Select_property_on_optional_related(queryTrackingBehavior);
 
         AssertSql(
             """
@@ -51,9 +51,9 @@ FROM [RootEntity] AS [r]
 """);
     }
 
-    public override async Task Select_value_type_property_on_null_related_throws(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    public override async Task Select_value_type_property_on_null_related_throws(QueryTrackingBehavior queryTrackingBehavior)
     {
-        await base.Select_value_type_property_on_null_related_throws(async, queryTrackingBehavior);
+        await base.Select_value_type_property_on_null_related_throws(queryTrackingBehavior);
 
         AssertSql(
             """
@@ -62,9 +62,9 @@ FROM [RootEntity] AS [r]
 """);
     }
 
-    public override async Task Select_nullable_value_type_property_on_null_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    public override async Task Select_nullable_value_type_property_on_null_related(QueryTrackingBehavior queryTrackingBehavior)
     {
-        await base.Select_nullable_value_type_property_on_null_related(async, queryTrackingBehavior);
+        await base.Select_nullable_value_type_property_on_null_related(queryTrackingBehavior);
 
         AssertSql(
             """
@@ -77,9 +77,9 @@ FROM [RootEntity] AS [r]
 
     #region Non-collection
 
-    public override async Task Select_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    public override async Task Select_related(QueryTrackingBehavior queryTrackingBehavior)
     {
-        await base.Select_related(async, queryTrackingBehavior);
+        await base.Select_related(queryTrackingBehavior);
 
         if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
         {
@@ -93,9 +93,9 @@ ORDER BY [r].[Id], [r0].[RelatedTypeRootEntityId]
         }
     }
 
-    public override async Task Select_optional_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    public override async Task Select_optional_related(QueryTrackingBehavior queryTrackingBehavior)
     {
-        await base.Select_optional_related(async, queryTrackingBehavior);
+        await base.Select_optional_related(queryTrackingBehavior);
 
         if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
         {
@@ -111,9 +111,9 @@ ORDER BY [r].[Id], [o].[RelatedTypeRootEntityId]
         }
     }
 
-    public override async Task Select_required_nested_on_required_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    public override async Task Select_required_nested_on_required_related(QueryTrackingBehavior queryTrackingBehavior)
     {
-        await base.Select_required_nested_on_required_related(async, queryTrackingBehavior);
+        await base.Select_required_nested_on_required_related(queryTrackingBehavior);
 
         if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
         {
@@ -125,9 +125,9 @@ FROM [RootEntity] AS [r]
         }
     }
 
-    public override async Task Select_optional_nested_on_required_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    public override async Task Select_optional_nested_on_required_related(QueryTrackingBehavior queryTrackingBehavior)
     {
-        await base.Select_optional_nested_on_required_related(async, queryTrackingBehavior);
+        await base.Select_optional_nested_on_required_related(queryTrackingBehavior);
 
         if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
         {
@@ -139,9 +139,9 @@ FROM [RootEntity] AS [r]
         }
     }
 
-    public override async Task Select_required_nested_on_optional_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    public override async Task Select_required_nested_on_optional_related(QueryTrackingBehavior queryTrackingBehavior)
     {
-        await base.Select_required_nested_on_optional_related(async, queryTrackingBehavior);
+        await base.Select_required_nested_on_optional_related(queryTrackingBehavior);
 
         if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
         {
@@ -153,9 +153,9 @@ FROM [RootEntity] AS [r]
         }
     }
 
-    public override async Task Select_optional_nested_on_optional_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    public override async Task Select_optional_nested_on_optional_related(QueryTrackingBehavior queryTrackingBehavior)
     {
-        await base.Select_optional_nested_on_optional_related(async, queryTrackingBehavior);
+        await base.Select_optional_nested_on_optional_related(queryTrackingBehavior);
 
         if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
         {
@@ -171,9 +171,9 @@ FROM [RootEntity] AS [r]
 
     #region Collection
 
-    public override async Task Select_related_collection(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    public override async Task Select_related_collection(QueryTrackingBehavior queryTrackingBehavior)
     {
-        await base.Select_related_collection(async, queryTrackingBehavior);
+        await base.Select_related_collection(queryTrackingBehavior);
 
         if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
         {
@@ -191,9 +191,9 @@ ORDER BY [r].[Id], [s].[RootEntityId], [s].[Id], [s].[RelatedTypeRootEntityId], 
         }
     }
 
-    public override async Task Select_nested_collection_on_required_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    public override async Task Select_nested_collection_on_required_related(QueryTrackingBehavior queryTrackingBehavior)
     {
-        await base.Select_nested_collection_on_required_related(async, queryTrackingBehavior);
+        await base.Select_nested_collection_on_required_related(queryTrackingBehavior);
 
         if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
         {
@@ -207,9 +207,9 @@ ORDER BY [r].[Id], [r0].[RelatedTypeRootEntityId]
         }
     }
 
-    public override async Task Select_nested_collection_on_optional_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    public override async Task Select_nested_collection_on_optional_related(QueryTrackingBehavior queryTrackingBehavior)
     {
-        await base.Select_nested_collection_on_optional_related(async, queryTrackingBehavior);
+        await base.Select_nested_collection_on_optional_related(queryTrackingBehavior);
 
         if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
         {
@@ -225,9 +225,9 @@ ORDER BY [r].[Id], [o].[RelatedTypeRootEntityId]
         }
     }
 
-    public override async Task SelectMany_related_collection(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    public override async Task SelectMany_related_collection(QueryTrackingBehavior queryTrackingBehavior)
     {
-        await base.SelectMany_related_collection(async, queryTrackingBehavior);
+        await base.SelectMany_related_collection(queryTrackingBehavior);
 
         if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
         {
@@ -242,9 +242,9 @@ ORDER BY [r].[Id], [r0].[RootEntityId], [r0].[Id], [r1].[RelatedTypeRootEntityId
         }
     }
 
-    public override async Task SelectMany_nested_collection_on_required_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    public override async Task SelectMany_nested_collection_on_required_related(QueryTrackingBehavior queryTrackingBehavior)
     {
-        await base.SelectMany_nested_collection_on_required_related(async, queryTrackingBehavior);
+        await base.SelectMany_nested_collection_on_required_related(queryTrackingBehavior);
 
         if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
         {
@@ -257,9 +257,9 @@ INNER JOIN [RequiredRelated_NestedCollection] AS [r0] ON [r].[Id] = [r0].[Relate
         }
     }
 
-    public override async Task SelectMany_nested_collection_on_optional_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    public override async Task SelectMany_nested_collection_on_optional_related(QueryTrackingBehavior queryTrackingBehavior)
     {
-        await base.SelectMany_nested_collection_on_optional_related(async, queryTrackingBehavior);
+        await base.SelectMany_nested_collection_on_optional_related(queryTrackingBehavior);
 
         if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
         {
@@ -278,9 +278,9 @@ END = [o].[RelatedTypeRootEntityId]
 
     #region Multiple
 
-    public override async Task Select_root_duplicated(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    public override async Task Select_root_duplicated(QueryTrackingBehavior queryTrackingBehavior)
     {
-        await base.Select_root_duplicated(async, queryTrackingBehavior);
+        await base.Select_root_duplicated(queryTrackingBehavior);
 
         AssertSql(
             """
@@ -312,9 +312,9 @@ ORDER BY [r].[Id], [o].[RelatedTypeRootEntityId], [o].[Id], [s].[RootEntityId], 
 
     #region Subquery
 
-    public override async Task Select_subquery_required_related_FirstOrDefault(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    public override async Task Select_subquery_required_related_FirstOrDefault(QueryTrackingBehavior queryTrackingBehavior)
     {
-        await base.Select_subquery_required_related_FirstOrDefault(async, queryTrackingBehavior);
+        await base.Select_subquery_required_related_FirstOrDefault(queryTrackingBehavior);
 
         if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
         {
@@ -331,9 +331,9 @@ OUTER APPLY (
         }
     }
 
-    public override async Task Select_subquery_optional_related_FirstOrDefault(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    public override async Task Select_subquery_optional_related_FirstOrDefault(QueryTrackingBehavior queryTrackingBehavior)
     {
-        await base.Select_subquery_optional_related_FirstOrDefault(async, queryTrackingBehavior);
+        await base.Select_subquery_optional_related_FirstOrDefault(queryTrackingBehavior);
 
         if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
         {

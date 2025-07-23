@@ -8,9 +8,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Relationships.ComplexJson;
 public class ComplexJsonCollectionSqlServerTest(ComplexJsonSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
     : ComplexJsonCollectionRelationalTestBase<ComplexJsonSqlServerFixture>(fixture, testOutputHelper)
 {
-    public override async Task Count(bool async)
+    public override async Task Count()
     {
-        await base.Count(async);
+        await base.Count();
 
         AssertSql(
             """
@@ -22,9 +22,9 @@ WHERE (
 """);
     }
 
-    public override async Task Where(bool async)
+    public override async Task Where()
     {
-        await base.Where(async);
+        await base.Where();
 
         AssertSql(
             """
@@ -37,9 +37,9 @@ WHERE (
 """);
     }
 
-    public override async Task OrderBy_ElementAt(bool async)
+    public override async Task OrderBy_ElementAt()
     {
-        await base.OrderBy_ElementAt(async);
+        await base.OrderBy_ElementAt();
 
         AssertSql(
             """
@@ -56,11 +56,11 @@ WHERE (
 """);
     }
 
-    public override async Task Index_constant(bool async)
+    public override async Task Index_constant()
     {
         // Complex collection indexing currently fails because SubqueryMemberPushdownExpressionVisitor moves the Int member access to before the
         // ElementAt (making a Select()), this interferes with our translation. See #36335.
-        await Assert.ThrowsAsync<EqualException>(() => base.Index_constant(async));
+        await Assert.ThrowsAsync<EqualException>(() => base.Index_constant());
 
         AssertSql(
             """
@@ -70,11 +70,11 @@ WHERE CAST(JSON_VALUE([r].[RelatedCollection], '$[0]') AS int) = 8
 """);
     }
 
-    public override async Task Index_parameter(bool async)
+    public override async Task Index_parameter()
     {
         // Complex collection indexing currently fails because SubqueryMemberPushdownExpressionVisitor moves the Int member access to before the
         // ElementAt (making a Select()), this interferes with our translation. See #36335.
-        await Assert.ThrowsAsync<EqualException>(() => base.Index_parameter(async));
+        await Assert.ThrowsAsync<EqualException>(() => base.Index_parameter());
 
         AssertSql(
             """
@@ -86,11 +86,11 @@ WHERE CAST(JSON_VALUE([r].[RelatedCollection], '$[' + CAST(@i AS nvarchar(max)) 
 """);
     }
 
-    public override async Task Index_column(bool async)
+    public override async Task Index_column()
     {
         // Complex collection indexing currently fails because SubqueryMemberPushdownExpressionVisitor moves the Int member access to before the
         // ElementAt (making a Select()), this interferes with our translation. See #36335.
-        await Assert.ThrowsAsync<EqualException>(() => base.Index_column(async));
+        await Assert.ThrowsAsync<EqualException>(() => base.Index_column());
 
         AssertSql(
             """
@@ -100,9 +100,9 @@ WHERE CAST(JSON_VALUE([r].[RelatedCollection], '$[' + CAST([r].[Id] - 1 AS nvarc
 """);
     }
 
-    public override async Task Index_out_of_bounds(bool async)
+    public override async Task Index_out_of_bounds()
     {
-        await base.Index_out_of_bounds(async);
+        await base.Index_out_of_bounds();
 
         AssertSql(
             """

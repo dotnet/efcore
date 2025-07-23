@@ -8,45 +8,33 @@ namespace Microsoft.EntityFrameworkCore.Query.Translations.Operators;
 public abstract class ComparisonOperatorTranslationsTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : BasicTypesQueryFixtureBase, new()
 {
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Equal(bool async)
+    [ConditionalFact]
+    public virtual async Task Equal()
         => await AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => b.Int == 8));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual async Task NotEqual(bool async)
+    [ConditionalFact]
+    public virtual async Task NotEqual()
         => await AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => b.Int != 8));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual async Task GreaterThan(bool async)
+    [ConditionalFact]
+    public virtual async Task GreaterThan()
         => await AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => b.Int > 8));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual async Task GreaterThanOrEqual(bool async)
+    [ConditionalFact]
+    public virtual async Task GreaterThanOrEqual()
         => await AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => b.Int >= 8));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual async Task LessThan(bool async)
+    [ConditionalFact]
+    public virtual async Task LessThan()
         => await AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => b.Int < 8));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual async Task LessThanOrEqual(bool async)
+    [ConditionalFact]
+    public virtual async Task LessThanOrEqual()
         => await AssertQuery(
-            async,
             ss => ss.Set<BasicTypesEntity>().Where(b => b.Int <= 8));
 }

@@ -12,9 +12,9 @@ public class GuidTranslationsSqlServerTest : GuidTranslationsTestBase<BasicTypes
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    public override async Task New_with_constant(bool async)
+    public override async Task New_with_constant()
     {
-        await base.New_with_constant(async);
+        await base.New_with_constant();
 
         AssertSql(
             """
@@ -24,9 +24,9 @@ WHERE [b].[Guid] = 'df36f493-463f-4123-83f9-6b135deeb7ba'
 """);
     }
 
-    public override async Task New_with_parameter(bool async)
+    public override async Task New_with_parameter()
     {
-        await base.New_with_parameter(async);
+        await base.New_with_parameter();
 
         AssertSql(
             """
@@ -38,9 +38,9 @@ WHERE [b].[Guid] = @p
 """);
     }
 
-    public override async Task ToString_projection(bool async)
+    public override async Task ToString_projection()
     {
-        await base.ToString_projection(async);
+        await base.ToString_projection();
 
         AssertSql(
             """
@@ -49,9 +49,9 @@ FROM [BasicTypesEntities] AS [b]
 """);
     }
 
-    public override async Task NewGuid(bool async)
+    public override async Task NewGuid()
     {
-        await base.NewGuid(async);
+        await base.NewGuid();
 
         AssertSql(
             """

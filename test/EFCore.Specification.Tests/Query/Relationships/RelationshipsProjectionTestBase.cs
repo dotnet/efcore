@@ -7,47 +7,42 @@ public abstract class RelationshipsProjectionTestBase<TFixture>(TFixture fixture
     where TFixture : RelationshipsQueryFixtureBase, new()
 {
     [ConditionalTheory]
-    [MemberData(nameof(AsyncAndTrackingData))]
-    public virtual Task Select_root(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    [MemberData(nameof(TrackingData))]
+    public virtual Task Select_root(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
-            async,
             ss => ss.Set<RootEntity>(),
             queryTrackingBehavior: queryTrackingBehavior);
 
     #region Simple properties
 
     [ConditionalTheory]
-    [MemberData(nameof(AsyncAndTrackingData))]
-    public virtual Task Select_property_on_required_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    [MemberData(nameof(TrackingData))]
+    public virtual Task Select_property_on_required_related(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
-            async,
             ss => ss.Set<RootEntity>().Select(x => x.RequiredRelated.String),
             queryTrackingBehavior: queryTrackingBehavior);
 
     [ConditionalTheory]
-    [MemberData(nameof(AsyncAndTrackingData))]
-    public virtual Task Select_property_on_optional_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    [MemberData(nameof(TrackingData))]
+    public virtual Task Select_property_on_optional_related(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
-            async,
             ss => ss.Set<RootEntity>().Select(x => x.OptionalRelated!.String),
             queryTrackingBehavior: queryTrackingBehavior);
 
     [ConditionalTheory]
-    [MemberData(nameof(AsyncAndTrackingData))]
-    public virtual Task Select_value_type_property_on_null_related_throws(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    [MemberData(nameof(TrackingData))]
+    public virtual Task Select_value_type_property_on_null_related_throws(QueryTrackingBehavior queryTrackingBehavior)
         // We have an entity with OptionalRelated null, so projecting a value type property from that throws
         // "Nullable object must have a value"
         => Assert.ThrowsAsync<InvalidOperationException>(() =>
             AssertQuery(
-                async,
                 ss => ss.Set<RootEntity>().Select(x => x.OptionalRelated!.Int),
                 queryTrackingBehavior: queryTrackingBehavior));
 
     [ConditionalTheory]
-    [MemberData(nameof(AsyncAndTrackingData))]
-    public virtual Task Select_nullable_value_type_property_on_null_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    [MemberData(nameof(TrackingData))]
+    public virtual Task Select_nullable_value_type_property_on_null_related(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
-            async,
             ss => ss.Set<RootEntity>().Select(x => (int?)x.OptionalRelated!.Int),
             queryTrackingBehavior: queryTrackingBehavior);
 
@@ -56,50 +51,44 @@ public abstract class RelationshipsProjectionTestBase<TFixture>(TFixture fixture
     #region Non-collection
 
     [ConditionalTheory]
-    [MemberData(nameof(AsyncAndTrackingData))]
-    public virtual Task Select_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    [MemberData(nameof(TrackingData))]
+    public virtual Task Select_related(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
-            async,
             ss => ss.Set<RootEntity>().Select(x => x.RequiredRelated),
             queryTrackingBehavior: queryTrackingBehavior);
 
     [ConditionalTheory]
-    [MemberData(nameof(AsyncAndTrackingData))]
-    public virtual Task Select_optional_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    [MemberData(nameof(TrackingData))]
+    public virtual Task Select_optional_related(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
-            async,
             ss => ss.Set<RootEntity>().Select(x => x.OptionalRelated),
             queryTrackingBehavior: queryTrackingBehavior);
 
     [ConditionalTheory]
-    [MemberData(nameof(AsyncAndTrackingData))]
-    public virtual Task Select_required_nested_on_required_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    [MemberData(nameof(TrackingData))]
+    public virtual Task Select_required_nested_on_required_related(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
-            async,
             ss => ss.Set<RootEntity>().Select(x => x.RequiredRelated.RequiredNested),
             queryTrackingBehavior: queryTrackingBehavior);
 
     [ConditionalTheory]
-    [MemberData(nameof(AsyncAndTrackingData))]
-    public virtual Task Select_optional_nested_on_required_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    [MemberData(nameof(TrackingData))]
+    public virtual Task Select_optional_nested_on_required_related(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
-            async,
             ss => ss.Set<RootEntity>().Select(x => x.RequiredRelated.OptionalNested),
             queryTrackingBehavior: queryTrackingBehavior);
 
     [ConditionalTheory]
-    [MemberData(nameof(AsyncAndTrackingData))]
-    public virtual Task Select_required_nested_on_optional_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    [MemberData(nameof(TrackingData))]
+    public virtual Task Select_required_nested_on_optional_related(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
-            async,
             ss => ss.Set<RootEntity>().Select(x => x.OptionalRelated!.RequiredNested),
             queryTrackingBehavior: queryTrackingBehavior);
 
     [ConditionalTheory]
-    [MemberData(nameof(AsyncAndTrackingData))]
-    public virtual Task Select_optional_nested_on_optional_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    [MemberData(nameof(TrackingData))]
+    public virtual Task Select_optional_nested_on_optional_related(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
-            async,
             ss => ss.Set<RootEntity>().Select(x => x.OptionalRelated!.OptionalNested),
             queryTrackingBehavior: queryTrackingBehavior);
 
@@ -111,56 +100,50 @@ public abstract class RelationshipsProjectionTestBase<TFixture>(TFixture fixture
     // otherwise it's difficult/unreliable to compare client-side.
 
     [ConditionalTheory]
-    [MemberData(nameof(AsyncAndTrackingData))]
-    public virtual Task Select_related_collection(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    [MemberData(nameof(TrackingData))]
+    public virtual Task Select_related_collection(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
-            async,
             ss => ss.Set<RootEntity>().OrderBy(e => e.Id).Select(x => x.RelatedCollection),
             assertOrder: true,
             elementAsserter: (e, a) => AssertCollection(e, a, elementSorter: r => r.Id),
             queryTrackingBehavior: queryTrackingBehavior);
 
     [ConditionalTheory]
-    [MemberData(nameof(AsyncAndTrackingData))]
-    public virtual Task Select_nested_collection_on_required_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    [MemberData(nameof(TrackingData))]
+    public virtual Task Select_nested_collection_on_required_related(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
-            async,
             ss => ss.Set<RootEntity>().OrderBy(e => e.Id).Select(x => x.RequiredRelated.NestedCollection),
             assertOrder: true,
             elementAsserter: (e, a) => AssertCollection(e, a, elementSorter: r => r.Id),
             queryTrackingBehavior: queryTrackingBehavior);
 
     [ConditionalTheory]
-    [MemberData(nameof(AsyncAndTrackingData))]
-    public virtual Task Select_nested_collection_on_optional_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    [MemberData(nameof(TrackingData))]
+    public virtual Task Select_nested_collection_on_optional_related(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
-            async,
             ss => ss.Set<RootEntity>().OrderBy(e => e.Id).Select(x => x.OptionalRelated!.NestedCollection),
             assertOrder: true,
             elementAsserter: (e, a) => AssertCollection(e, a, elementSorter: r => r.Id),
             queryTrackingBehavior: queryTrackingBehavior);
 
     [ConditionalTheory]
-    [MemberData(nameof(AsyncAndTrackingData))]
-    public virtual Task SelectMany_related_collection(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    [MemberData(nameof(TrackingData))]
+    public virtual Task SelectMany_related_collection(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
-            async,
             ss => ss.Set<RootEntity>().SelectMany(x => x.RelatedCollection),
             queryTrackingBehavior: queryTrackingBehavior);
 
     [ConditionalTheory]
-    [MemberData(nameof(AsyncAndTrackingData))]
-    public virtual Task SelectMany_nested_collection_on_required_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    [MemberData(nameof(TrackingData))]
+    public virtual Task SelectMany_nested_collection_on_required_related(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
-            async,
             ss => ss.Set<RootEntity>().SelectMany(x => x.RequiredRelated.NestedCollection),
             queryTrackingBehavior: queryTrackingBehavior);
 
     [ConditionalTheory]
-    [MemberData(nameof(AsyncAndTrackingData))]
-    public virtual Task SelectMany_nested_collection_on_optional_related(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    [MemberData(nameof(TrackingData))]
+    public virtual Task SelectMany_nested_collection_on_optional_related(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
-            async,
             ss => ss.Set<RootEntity>()
                 .SelectMany(x => x.OptionalRelated!.NestedCollection),
             ss => ss.Set<RootEntity>()
@@ -172,10 +155,9 @@ public abstract class RelationshipsProjectionTestBase<TFixture>(TFixture fixture
     #region Multiple
 
     [ConditionalTheory]
-    [MemberData(nameof(AsyncAndTrackingData))]
-    public virtual Task Select_root_duplicated(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    [MemberData(nameof(TrackingData))]
+    public virtual Task Select_root_duplicated(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
-            async,
             ss => ss.Set<RootEntity>().Select(x => new { First = x, Second = x }),
             elementSorter: e => e.First.Id,
             elementAsserter: (e, a) =>
@@ -186,10 +168,9 @@ public abstract class RelationshipsProjectionTestBase<TFixture>(TFixture fixture
             queryTrackingBehavior: queryTrackingBehavior);
 
     // [ConditionalTheory]
-    // [MemberData(nameof(AsyncAndTrackingData))]
-    // public virtual Task Select_trunk_and_branch_duplicated(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    // [MemberData(nameof(TrackingData))]
+    // public virtual Task Select_trunk_and_branch_duplicated(QueryTrackingBehavior queryTrackingBehavior)
     //     => AssertQuery(
-    //         async,
     //         ss => ss.Set<RootEntity>()
     //             .OrderBy(x => x.Id)
     //             .Select(
@@ -211,10 +192,9 @@ public abstract class RelationshipsProjectionTestBase<TFixture>(TFixture fixture
     //         queryTrackingBehavior: queryTrackingBehavior);
 
     // [ConditionalTheory]
-    // [MemberData(nameof(AsyncAndTrackingData))]
-    // public virtual Task Select_trunk_and_trunk_duplicated(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    // [MemberData(nameof(TrackingData))]
+    // public virtual Task Select_trunk_and_trunk_duplicated(QueryTrackingBehavior queryTrackingBehavior)
     //     => AssertQuery(
-    //         async,
     //         ss => ss.Set<RootEntity>()
     //             .OrderBy(x => x.Id)
     //             .Select(
@@ -236,10 +216,9 @@ public abstract class RelationshipsProjectionTestBase<TFixture>(TFixture fixture
     //         queryTrackingBehavior: queryTrackingBehavior);
 
     // [ConditionalTheory]
-    // [MemberData(nameof(AsyncAndTrackingData))]
-    // public virtual Task Select_leaf_trunk_root(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    // [MemberData(nameof(TrackingData))]
+    // public virtual Task Select_leaf_trunk_root(QueryTrackingBehavior queryTrackingBehavior)
     //     => AssertQuery(
-    //         async,
     //         ss => ss.Set<RootEntity>()
     //             .Select(
     //                 x => new
@@ -258,10 +237,9 @@ public abstract class RelationshipsProjectionTestBase<TFixture>(TFixture fixture
     //         queryTrackingBehavior: queryTrackingBehavior);
 
     // [ConditionalTheory]
-    // [MemberData(nameof(AsyncAndTrackingData))]
-    // public virtual Task Select_multiple_branch_leaf(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    // [MemberData(nameof(TrackingData))]
+    // public virtual Task Select_multiple_branch_leaf(QueryTrackingBehavior queryTrackingBehavior)
     //     => AssertQuery(
-    //         async,
     //         ss => ss.Set<RootEntity>().Select(
     //             x => new
     //             {
@@ -289,10 +267,9 @@ public abstract class RelationshipsProjectionTestBase<TFixture>(TFixture fixture
     #region Subquery
 
     [ConditionalTheory]
-    [MemberData(nameof(AsyncAndTrackingData))]
-    public virtual Task Select_subquery_required_related_FirstOrDefault(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    [MemberData(nameof(TrackingData))]
+    public virtual Task Select_subquery_required_related_FirstOrDefault(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
-            async,
             ss => ss.Set<RootEntity>()
                 .Select(
                     x => ss.Set<RootEntity>()
@@ -302,10 +279,9 @@ public abstract class RelationshipsProjectionTestBase<TFixture>(TFixture fixture
             queryTrackingBehavior: queryTrackingBehavior);
 
     [ConditionalTheory]
-    [MemberData(nameof(AsyncAndTrackingData))]
-    public virtual Task Select_subquery_optional_related_FirstOrDefault(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    [MemberData(nameof(TrackingData))]
+    public virtual Task Select_subquery_optional_related_FirstOrDefault(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
-            async,
             ss => ss.Set<RootEntity>()
                 .Select(
                     x => ss.Set<RootEntity>()
@@ -315,10 +291,9 @@ public abstract class RelationshipsProjectionTestBase<TFixture>(TFixture fixture
             queryTrackingBehavior: queryTrackingBehavior);
 
     // [ConditionalTheory]
-    // [MemberData(nameof(AsyncAndTrackingData))]
-    // public virtual Task Select_subquery_root_set_trunk_FirstOrDefault_collection(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    // [MemberData(nameof(TrackingData))]
+    // public virtual Task Select_subquery_root_set_trunk_FirstOrDefault_collection(QueryTrackingBehavior queryTrackingBehavior)
     //     => AssertQuery(
-    //         async,
     //         ss => ss.Set<RootEntity>()
     //             .OrderBy(x => x.Id)
     //             .Select(
@@ -331,10 +306,9 @@ public abstract class RelationshipsProjectionTestBase<TFixture>(TFixture fixture
     //         queryTrackingBehavior: queryTrackingBehavior);
 
     // [ConditionalTheory]
-    // [MemberData(nameof(AsyncAndTrackingData))]
-    // public virtual Task Select_subquery_root_set_complex_projection_including_references_to_outer_FirstOrDefault(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    // [MemberData(nameof(TrackingData))]
+    // public virtual Task Select_subquery_root_set_complex_projection_including_references_to_outer_FirstOrDefault(QueryTrackingBehavior queryTrackingBehavior)
     //     => AssertQuery(
-    //         async,
     //         ss => ss.Set<RootEntity>()
     //             .OrderBy(x => x.Id)
     //             .Select(
@@ -361,10 +335,9 @@ public abstract class RelationshipsProjectionTestBase<TFixture>(TFixture fixture
     //         queryTrackingBehavior: queryTrackingBehavior);
 
     // [ConditionalTheory]
-    // [MemberData(nameof(AsyncAndTrackingData))]
-    // public virtual Task Select_subquery_root_set_complex_projection_FirstOrDefault_project_reference_to_outer(bool async, QueryTrackingBehavior queryTrackingBehavior)
+    // [MemberData(nameof(TrackingData))]
+    // public virtual Task Select_subquery_root_set_complex_projection_FirstOrDefault_project_reference_to_outer(QueryTrackingBehavior queryTrackingBehavior)
     //     => AssertQuery(
-    //         async,
     //         ss => ss.Set<RootEntity>()
     //             .OrderBy(x => x.Id)
     //             .Select(
