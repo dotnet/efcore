@@ -261,7 +261,7 @@ public sealed class SqlServerJsonPostprocessor(
                 // with OPENJSON.
                 return openJsonExpression.JsonExpression.TypeMapping
                     is SqlServerStringTypeMapping { StoreType: "json" }
-                    or SqlServerOwnedJsonTypeMapping { StoreType: "json" }
+                    or SqlServerStructuralJsonTypeMapping { StoreType: "json" }
                     ? openJsonExpression.Update(
                         new SqlUnaryExpression(
                             ExpressionType.Convert,

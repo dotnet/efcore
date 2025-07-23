@@ -369,4 +369,13 @@
   <data name="TransientExceptionDetected" xml:space="preserve">
     <value>An exception has been raised that is likely due to a transient failure. Consider enabling transient error resiliency by adding 'EnableRetryOnFailure' to the 'UseSqlServer' call.</value>
   </data>
+  <data name="VectorDimensionsInvalid" xml:space="preserve">
+    <value>Vector properties require a positive size (number of dimensions).</value>
+  </data>
+  <data name="VectorDimensionsMissing" xml:space="preserve">
+    <value>Vector property '{structuralType}.{propertyName}' was not configured with the number of dimensions. Set the column type to 'vector(x)' with the desired number of dimensions, or use the 'MaxLength' APIs.</value>
+  </data>
+  <data name="VectorPropertiesNotSupportedInJson" xml:space="preserve">
+    <value>Vector property '{propertyName}' is on '{structuralType}' which is mapped to JSON. Vector properties are not supported within JSON documents.</value>
+  </data>
 </root>

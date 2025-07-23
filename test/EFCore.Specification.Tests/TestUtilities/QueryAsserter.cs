@@ -1633,9 +1633,11 @@ public class QueryAsserter(
             case (null, null):
                 return;
             case (null, not null):
+                Assert.Null(actual);
+                throw new UnreachableException();
             case (not null, null):
-                throw new InvalidOperationException(
-                    $"Nullability doesn't match. Expected: {(expected == null ? "NULL" : "NOT NULL")}. Actual: {(actual == null ? "NULL." : "NOT NULL.")}.");
+                Assert.NotNull(actual);
+                throw new UnreachableException();
             case (not null, not null):
                 break;
         }

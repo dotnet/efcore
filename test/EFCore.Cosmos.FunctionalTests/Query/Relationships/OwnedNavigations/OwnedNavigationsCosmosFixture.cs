@@ -1,8 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.TestModels.RelationshipsModel;
-
 namespace Microsoft.EntityFrameworkCore.Query.Relationships.OwnedNavigations;
 
 public class OwnedNavigationsCosmosFixture : OwnedNavigationsFixtureBase
@@ -28,12 +26,10 @@ public class OwnedNavigationsCosmosFixture : OwnedNavigationsFixtureBase
     {
         base.OnModelCreating(modelBuilder, context);
 
-        modelBuilder.Entity<RelationshipsRoot>()
-            .ToContainer("RootEntities")
-            .HasDiscriminatorInJsonId()
-            .HasDiscriminator<string>("Discriminator").HasValue("Root");
+        modelBuilder.Ignore<RootReferencingEntity>();
 
-        modelBuilder.Entity<RelationshipsRoot>()
-            .ToContainer("RootEntities");
+        modelBuilder.Entity<RootEntity>()
+            .ToContainer("RootEntities")
+            .HasNoDiscriminator();
     }
 }

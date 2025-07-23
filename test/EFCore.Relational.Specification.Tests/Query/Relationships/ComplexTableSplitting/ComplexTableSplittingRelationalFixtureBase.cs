@@ -1,185 +1,62 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.TestModels.RelationshipsModel;
+using Microsoft.EntityFrameworkCore.Query.Relationships.ComplexProperties;
 
 namespace Microsoft.EntityFrameworkCore.Query.Relationships.ComplexTableSplitting;
 
-public abstract class ComplexTableSplittingRelationalFixtureBase : RelationshipsQueryFixtureBase
+/// <summary>
+///     Base fixture for tests exercising table splitting, where the entity and its contained complex type are mapped to the same
+///     table, and the complex type's properties are mapped to columns in that table.
+/// </summary>
+/// <remarks>
+///     Note that collections aren't supported with table splitting, so this fixture ignores them in the model configuration and
+///     removes them from the seeding data.
+/// </remarks>
+public abstract class ComplexTableSplittingRelationalFixtureBase : ComplexPropertiesFixtureBase, ITestSqlLoggerFactory
 {
     protected override string StoreName => "ComplexTableSplittingQueryTest";
+
+    protected override RelationshipsData CreateData()
+    {
+        var data = new RelationshipsData();
+
+        // TODO: Optional complex properties not yet supported (#31376), remove them from the seeding data
+        foreach (var rootEntity in data.RootEntities)
+        {
+            rootEntity.OptionalRelated = null;
+            rootEntity.RequiredRelated.OptionalNested = null;
+        }
+
+        return data;
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
         base.OnModelCreating(modelBuilder, context);
 
-        modelBuilder.Entity<RelationshipsRoot>().ToTable("RootEntities");
-        modelBuilder.Entity<RelationshipsTrunk>().ToTable("TrunkEntities");
-        modelBuilder.Entity<RelationshipsTrunk>().Property(x => x.Id).ValueGeneratedNever();
-
-        modelBuilder.Entity<RelationshipsRoot>()
-            .HasOne(x => x.OptionalReferenceTrunk)
-            .WithOne(x => x.OptionalReferenceInverseRoot)
-            .HasForeignKey<RelationshipsRoot>(x => x.OptionalReferenceTrunkId)
-            .IsRequired(false);
-
-        // TODO: Why is this a navigation and not a complex property?
-        modelBuilder.Entity<RelationshipsRoot>()
-            .HasOne(x => x.RequiredReferenceTrunk)
-            .WithOne(x => x.RequiredReferenceInverseRoot)
-            .HasForeignKey<RelationshipsRoot>(x => x.RequiredReferenceTrunkId)
-            .OnDelete(DeleteBehavior.Restrict)
-            .IsRequired(true);
-
-        modelBuilder.Entity<RelationshipsRoot>().Ignore(x => x.CollectionTrunk);
-        modelBuilder.Entity<RelationshipsTrunk>().Ignore(x => x.CollectionInverseRoot);
-
-        // TODO: issue #31376 - complex optional references
-        modelBuilder.Entity<RelationshipsTrunk>()
-            .Ignore(x => x.OptionalReferenceBranch);
-
-        modelBuilder.Entity<RelationshipsTrunk>()
-            .ComplexProperty(x => x.RequiredReferenceBranch, bb =>
+        modelBuilder.Entity<RootEntity>(b =>
+        {
+            b.ComplexProperty(e => e.RequiredRelated, rrb =>
             {
-                bb.IsRequired(true);
-                bb.Ignore(x => x.Id);
-                bb.Ignore(x => x.OptionalReferenceInverseTrunk);
-                bb.Ignore(x => x.OptionalReferenceLeafId);
+                rrb.ComplexProperty(r => r.RequiredNested);
 
-                // TODO: issue #31376 - complex optional references
-                bb.Ignore(x => x.OptionalReferenceLeaf);
+                // TODO: Optional complex properties not yet supported: #31376
+                rrb.Ignore(r => r.OptionalNested);
 
-                bb.Ignore(x => x.RequiredReferenceInverseTrunk);
-                bb.Ignore(x => x.RequiredReferenceLeafId);
-                bb.ComplexProperty(x => x.RequiredReferenceLeaf, bbb =>
-                {
-                    bbb.IsRequired(true);
-                    bbb.Ignore(x => x.Id);
-                    bbb.Ignore(x => x.OptionalReferenceInverseBranch);
-                    bbb.Ignore(x => x.RequiredReferenceInverseBranch);
-                    bbb.Ignore(x => x.CollectionInverseBranch);
-                    bbb.Ignore(x => x.CollectionBranchId);
-                });
-
-                bb.Ignore(x => x.CollectionInverseTrunk);
-                bb.Ignore(x => x.CollectionTrunkId);
-                bb.Ignore(x => x.CollectionLeaf);
+                // Collections are not supported with table splitting, only JSON
+                rrb.Ignore(r => r.NestedCollection);
             });
 
-        //  collections are not supported for non-json compex types
-        modelBuilder.Entity<RelationshipsTrunk>().Ignore(x => x.CollectionBranch);
+            // TODO: Optional complex properties not yet supported: #31376
+            b.Ignore(r => r.OptionalRelated);
+
+            // Collections are not supported with table splitting, only JSON
+            b.Ignore(r => r.RelatedCollection);
+        });
     }
 
-    protected override Task SeedAsync(RelationshipsContext context)
-    {
-        var rootEntities = RelationshipsData.CreateRootEntities();
-        var trunkEntities = RelationshipsData.CreateTrunkEntitiesWithOwnerships();
-
-        RelationshipsData.WireUp(rootEntities, trunkEntities, [], [], wireUpRootToTrunkOnly: true);
-
-        context.Set<RelationshipsRoot>().AddRange(rootEntities);
-        context.Set<RelationshipsTrunk>().AddRange(trunkEntities);
-
-        return context.SaveChangesAsync();
-    }
-
-    public override IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object?, object?>>
-    {
-        { typeof(RelationshipsRoot), e => ((RelationshipsRoot?)e)?.Id },
-        { typeof(RelationshipsTrunk), e => ((RelationshipsTrunk?)e)?.Id },
-        { typeof(RelationshipsBranch), e => ((RelationshipsBranch?)e)?.Name },
-        { typeof(RelationshipsLeaf), e => ((RelationshipsLeaf?)e)?.Name }
-    }.ToDictionary(e => e.Key, e => (object)e.Value);
-
-    public override IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object?, object?>>
-    {
-        {
-            typeof(RelationshipsRoot), (e, a) =>
-            {
-                Assert.Equal(e == null, a == null);
-
-                if (a != null)
-                {
-                    var ee = (RelationshipsRoot)e!;
-                    var aa = (RelationshipsRoot)a;
-
-                    Assert.Equal(ee.Id, aa.Id);
-
-                    Assert.Equal(ee.Name, aa.Name);
-                }
-            }
-        },
-        {
-            typeof(RelationshipsTrunk), (e, a) =>
-            {
-                Assert.Equal(e == null, a == null);
-
-                if (a != null)
-                {
-                    var ee = (RelationshipsTrunk)e!;
-                    var aa = (RelationshipsTrunk)a;
-
-                    Assert.Equal(ee.Id, aa.Id);
-
-                    Assert.Equal(ee.Name, aa.Name);
-
-                    AssertOwnedBranch(ee.RequiredReferenceBranch, aa.RequiredReferenceBranch);
-
-                    // TODO: issue #31376 - complex optional references
-                    //Assert.Equal(ee.OptionalReferenceBranch == null, aa.OptionalReferenceBranch == null);
-
-                    if (ee.OptionalReferenceBranch != null && aa.OptionalReferenceBranch != null)
-                    {
-                        AssertOwnedBranch(ee.OptionalReferenceBranch, aa.OptionalReferenceBranch);
-                    }
-                }
-            }
-        },
-        {
-            typeof(RelationshipsBranch), (e, a) =>
-            {
-                Assert.Equal(e == null, a == null);
-
-                if (a != null)
-                {
-                    var ee = (RelationshipsBranch)e!;
-                    var aa = (RelationshipsBranch)a;
-                    AssertOwnedBranch(ee, aa);
-                }
-            }
-        },
-        {
-            typeof(RelationshipsLeaf), (e, a) =>
-            {
-                Assert.Equal(e == null, a == null);
-
-                if (a != null)
-                {
-                    var ee = (RelationshipsLeaf)e!;
-                    var aa = (RelationshipsLeaf)a;
-                    AssertOwnedLeaf(ee, aa);
-                }
-            }
-        },
-    }.ToDictionary(e => e.Key, e => (object)e.Value);
-
-    public static void AssertOwnedBranch(RelationshipsBranch expected, RelationshipsBranch actual)
-    {
-        Assert.Equal(expected.Name, actual.Name);
-
-        AssertOwnedLeaf(expected.RequiredReferenceLeaf, actual.RequiredReferenceLeaf);
-
-        // TODO: issue #31376 - complex optional references
-        //Assert.Equal(expected.OptionalReferenceLeaf == null, actual.OptionalReferenceLeaf == null);
-        //if (expected.OptionalReferenceLeaf != null && actual.OptionalReferenceLeaf != null)
-        //{
-        //    AssertOwnedLeaf(expected.OptionalReferenceLeaf, actual.OptionalReferenceLeaf);
-        //}
-    }
-
-    public static void AssertOwnedLeaf(RelationshipsLeaf expected, RelationshipsLeaf actual)
-    {
-        Assert.Equal(expected.Name, actual.Name);
-    }
+    public TestSqlLoggerFactory TestSqlLoggerFactory
+        => (TestSqlLoggerFactory)ListLoggerFactory;
 }
 

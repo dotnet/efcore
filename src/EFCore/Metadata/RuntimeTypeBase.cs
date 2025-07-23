@@ -798,7 +798,7 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public abstract Func<MaterializationContext, object> GetOrCreateMaterializer(IEntityMaterializerSource source);
+    public abstract Func<MaterializationContext, object> GetOrCreateMaterializer(IStructuralTypeMaterializerSource source);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -807,7 +807,7 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public abstract Func<MaterializationContext, object> GetOrCreateEmptyMaterializer(IEntityMaterializerSource source);
+    public abstract Func<MaterializationContext, object> GetOrCreateEmptyMaterializer(IStructuralTypeMaterializerSource source);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

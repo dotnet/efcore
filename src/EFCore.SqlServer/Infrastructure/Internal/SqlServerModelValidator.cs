@@ -2,10 +2,12 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Text;
+using Microsoft.Data.SqlTypes;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 
@@ -43,6 +45,7 @@ public class SqlServerModelValidator : RelationalModelValidator
         base.Validate(model, logger);
 
         ValidateDecimalColumns(model, logger);
+        ValidateVectorColumns(model, logger);
         ValidateByteIdentityMapping(model, logger);
         ValidateTemporalTables(model, logger);
         ValidateUseOfJsonType(model, logger);
@@ -106,6 +109,32 @@ public class SqlServerModelValidator : RelationalModelValidator
             if (property.IsKey())
             {
                 logger.DecimalTypeKeyWarning((IProperty)property);
+            }
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual void ValidateVectorColumns(
+        IModel model,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
+        foreach (IConventionProperty property in model.GetEntityTypes()
+            .SelectMany(t => t.GetDeclaredProperties())
+            .Where(p => p.ClrType.UnwrapNullableType() == typeof(SqlVector<float>)))
+        {
+            if (property.GetTypeMapping() is not SqlServerVectorTypeMapping { Size: not null } vectorTypeMapping)
+            {
+                throw new InvalidOperationException(SqlServerStrings.VectorDimensionsMissing(property.DeclaringType.DisplayName(), property.Name));
+            }
+
+            if (property.DeclaringType.IsMappedToJson())
+            {
+                throw new InvalidOperationException(SqlServerStrings.VectorPropertiesNotSupportedInJson(property.DeclaringType.DisplayName(), property.Name));
             }
         }
     }

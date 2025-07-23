@@ -395,7 +395,7 @@ public abstract class EntryPropertyValues : PropertyValues
         }
     }
 
-    private IEntityMaterializerSource MaterializerSource
+    private IStructuralTypeMaterializerSource MaterializerSource
         => InternalEntry.StateManager.EntityMaterializerSource;
 
     /// <summary>

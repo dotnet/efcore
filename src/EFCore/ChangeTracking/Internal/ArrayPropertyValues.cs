@@ -417,7 +417,7 @@ public class ArrayPropertyValues : PropertyValues
         _values[index] = value;
     }
 
-    private IEntityMaterializerSource MaterializerSource
+    private IStructuralTypeMaterializerSource MaterializerSource
         => InternalEntry.StateManager.EntityMaterializerSource;
 
     /// <summary>
