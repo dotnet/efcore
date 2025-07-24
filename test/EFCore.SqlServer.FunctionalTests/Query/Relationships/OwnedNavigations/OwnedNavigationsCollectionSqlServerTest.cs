@@ -235,6 +235,25 @@ ORDER BY [r].[Id], [o].[RootEntityId], [o0].[RelatedTypeRootEntityId], [o1].[Rel
 """);
     }
 
+    public override async Task Select_within_Select_within_Select_with_aggregates()
+    {
+        await base.Select_within_Select_within_Select_with_aggregates();
+
+        AssertSql(
+            """
+SELECT (
+    SELECT COALESCE(SUM([s].[value]), 0)
+    FROM [RelatedCollection] AS [r0]
+    OUTER APPLY (
+        SELECT MAX([r1].[Int]) AS [value]
+        FROM [RelatedCollection_NestedCollection] AS [r1]
+        WHERE [r0].[RootEntityId] = [r1].[RelatedTypeRootEntityId] AND [r0].[Id] = [r1].[RelatedTypeId]
+    ) AS [s]
+    WHERE [r].[Id] = [r0].[RootEntityId])
+FROM [RootEntity] AS [r]
+""");
+    }
+
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());

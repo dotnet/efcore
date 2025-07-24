@@ -112,6 +112,23 @@ WHERE CAST(JSON_VALUE([r].[RelatedCollection], '$[9999]') AS int) = 8
 """);
     }
 
+    public override async Task Select_within_Select_within_Select_with_aggregates()
+    {
+        await base.Select_within_Select_within_Select_with_aggregates();
+
+        AssertSql(
+            """
+SELECT (
+    SELECT COALESCE(SUM([s].[value]), 0)
+    FROM OPENJSON([r].[RelatedCollection], '$') WITH ([NestedCollection] nvarchar(max) '$.NestedCollection' AS JSON) AS [r0]
+    OUTER APPLY (
+        SELECT MAX([n].[Int]) AS [value]
+        FROM OPENJSON([r0].[NestedCollection], '$') WITH ([Int] int '$.Int') AS [n]
+    ) AS [s])
+FROM [RootEntity] AS [r]
+""");
+    }
+
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());

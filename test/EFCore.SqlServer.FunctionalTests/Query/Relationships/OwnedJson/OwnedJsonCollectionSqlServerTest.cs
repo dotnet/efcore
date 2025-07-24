@@ -73,6 +73,8 @@ WHERE (
 """);
     }
 
+    #region Index
+
     public override async Task Index_parameter()
     {
         await base.Index_parameter();
@@ -108,6 +110,30 @@ WHERE CAST(JSON_VALUE([r].[RelatedCollection], '$[' + CAST([r].[Id] - 1 AS nvarc
 SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
 FROM [RootEntity] AS [r]
 WHERE CAST(JSON_VALUE([r].[RelatedCollection], '$[9999].Int') AS int) = 8
+""");
+    }
+
+    #endregion Index
+
+    public override async Task Select_within_Select_within_Select_with_aggregates()
+    {
+        await base.Select_within_Select_within_Select_with_aggregates();
+
+        AssertSql(
+        """
+SELECT (
+    SELECT COALESCE(SUM([s].[value]), 0)
+    FROM OPENJSON([r].[RelatedCollection], '$') WITH ([NestedCollection] nvarchar(max) '$.NestedCollection' AS JSON) AS [r0]
+    OUTER APPLY (
+        SELECT MAX([n].[Int]) AS [value]
+        FROM OPENJSON([r0].[NestedCollection], '$') WITH (
+            [Id] int '$.Id',
+            [Int] int '$.Int',
+            [Name] nvarchar(max) '$.Name',
+            [String] nvarchar(max) '$.String'
+        ) AS [n]
+    ) AS [s])
+FROM [RootEntity] AS [r]
 """);
     }
 

@@ -380,7 +380,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor
                                     jsonQuery.JsonColumn.TypeMapping,
                                     jsonQuery.IsNullable),
 
-                            // As above, but for a complex JSON collectio
+                            // As above, but for a complex JSON collection
                             CollectionResultExpression { QueryExpression: JsonQueryExpression jsonQuery }
                                 => new JsonScalarExpression(
                                     jsonQuery.JsonColumn,

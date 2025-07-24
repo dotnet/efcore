@@ -63,6 +63,12 @@ public abstract class RelationshipsCollectionTestBase<TFixture>(TFixture fixture
 
     #endregion Index
 
+    [ConditionalFact]
+    public virtual Task Select_within_Select_within_Select_with_aggregates()
+        => AssertQuery(
+            ss => ss.Set<RootEntity>().Select(e =>
+                e.RelatedCollection.Select(r => r.NestedCollection.Select(n => n.Int).Max()).Sum()));
+
     /// <summary>
     ///     Utility for tests that depend on the collection being naturally ordered
     ///     (e.g. JSON collection as opposed to a classical relational collection navigation, which is unordered).
