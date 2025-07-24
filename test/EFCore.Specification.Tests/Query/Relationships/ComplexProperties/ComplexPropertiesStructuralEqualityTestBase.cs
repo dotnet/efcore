@@ -74,14 +74,4 @@ public abstract class ComplexPropertiesStructuralEqualityTestBase<TFixture>(TFix
             ss => ss.Set<RootEntity>().Where(e => e.RequiredRelated.NestedCollection == nestedCollection),
             ss => ss.Set<RootEntity>().Where(e => e.RequiredRelated.NestedCollection.SequenceEqual(nestedCollection)));
     }
-
-    // TODO: the following is temporary until change tracking is implemented for complex JSON types (#35962)
-    private readonly TrackingRewriter _trackingRewriter = new(QueryTrackingBehavior.NoTracking);
-
-    protected override Expression RewriteServerQueryExpression(Expression serverQueryExpression)
-    {
-        var rewritten = _trackingRewriter.Visit(serverQueryExpression);
-
-        return rewritten;
-    }
 }

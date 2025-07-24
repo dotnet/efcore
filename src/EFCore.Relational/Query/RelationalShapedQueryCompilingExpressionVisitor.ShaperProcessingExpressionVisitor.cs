@@ -591,7 +591,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         {
                             case JsonProjectionInfo jsonProjectionInfo:
                             {
-                                if (_isTracking)
+                                // Disallow tracking queries to project owned entities (but not complex types)
+                                if (shaper.StructuralType is IEntityType && _isTracking)
                                 {
                                     // TODO: Update
                                     throw new InvalidOperationException(CoreStrings.OwnedEntitiesCannotBeTrackedWithoutTheirOwner);
@@ -624,7 +625,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
                             case QueryableJsonProjectionInfo queryableJsonEntityProjectionInfo:
                             {
-                                if (_isTracking)
+                                // Disallow tracking queries to project owned entities (but not complex types)
+                                if (shaper.StructuralType is IEntityType && _isTracking)
                                 {
                                     throw new InvalidOperationException(CoreStrings.OwnedEntitiesCannotBeTrackedWithoutTheirOwner);
                                 }
@@ -761,11 +763,6 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 } collectionResult
                     when GetProjectionIndex(projectionBindingExpression) is JsonProjectionInfo jsonProjectionInfo:
                 {
-                    if (_isTracking)
-                    {
-                        throw new InvalidOperationException(CoreStrings.OwnedEntitiesCannotBeTrackedWithoutTheirOwner);
-                    }
-
                     var relatedStructuralType = relationship switch
                     {
                         IComplexProperty complexProperty => (ITypeBase)complexProperty.ComplexType,
@@ -773,6 +770,12 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
                         _ => throw new UnreachableException()
                     };
+
+                    // Disallow tracking queries to project owned entities (but not complex types)
+                    if (relatedStructuralType is IEntityType && _isTracking)
+                    {
+                        throw new InvalidOperationException(CoreStrings.OwnedEntitiesCannotBeTrackedWithoutTheirOwner);
+                    }
 
                     // json entity collection at the root
                     var (jsonReaderDataVariable, keyValuesParameter) = JsonShapingPreProcess(
@@ -1709,6 +1712,11 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         inverseNavigation);
 
                     innerFixupMap[navigationJsonPropertyName] = fixup;
+
+                    if (relatedStructuralType is IComplexType)
+                    {
+                        trackingInnerFixupMap[navigationJsonPropertyName] = fixup;
+                    }
                 }
             }
 
@@ -1778,7 +1786,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                             shaperLambda,
                             GetOrCreateCollectionObjectLambda(declaringClrType, relationship),
                             fixup,
-                            Constant(_isTracking));
+                            // Perform fixup only for non-tracking queries - for tracking queries the change tracker does fixup.
+                            // Note that for complex JSON types we also perform fixup, even for tracking queries.
+                            Constant(!_isTracking || structuralType is IComplexType));
 
                     return declaringClrType.IsAssignableFrom(containerEntityExpression.Type)
                         ? includeJsonEntityCollectionMethodCall
@@ -1796,7 +1806,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         includingEntityExpression,
                         shaperLambda,
                         fixup,
-                        Constant(_isTracking));
+                        // Perform fixup only for non-tracking queries - for tracking queries the change tracker does fixup.
+                        // Note that for complex JSON types we also perform fixup, even for tracking queries.
+                        Constant(!_isTracking || structuralType is IComplexType));
 
                 return declaringClrType.IsAssignableFrom(containerEntityExpression.Type)
                     ? includeJsonEntityReferenceMethodCall

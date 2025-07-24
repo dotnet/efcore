@@ -1092,7 +1092,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             TIncludingEntity entity,
             Func<QueryContext, object[]?, JsonReaderData, TIncludedEntity> innerShaper,
             Action<TIncludingEntity, TIncludedEntity> fixup,
-            bool trackingQuery)
+            bool performFixup)
             where TIncludingEntity : class
             where TIncludedEntity : class
         {
@@ -1116,7 +1116,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
             var included = innerShaper(queryContext, keyPropertyValues, jsonReaderData);
 
-            if (!trackingQuery)
+            if (performFixup)
             {
                 fixup(entity, included);
             }
@@ -1137,7 +1137,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             Func<QueryContext, object[]?, JsonReaderData, TIncludedCollectionElement> innerShaper,
             Action<TIncludingEntity> getOrCreateCollectionObject,
             Action<TIncludingEntity, TIncludedCollectionElement> fixup,
-            bool trackingQuery)
+            bool performFixup)
             where TIncludingEntity : class
             where TIncludedCollectionElement : class
         {
@@ -1181,7 +1181,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     manager.CaptureState();
                     var resultElement = innerShaper(queryContext, newKeyPropertyValues, jsonReaderData);
 
-                    if (!trackingQuery)
+                    if (performFixup)
                     {
                         fixup(entity, resultElement);
                     }
