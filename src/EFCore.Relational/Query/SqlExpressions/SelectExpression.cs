@@ -2378,7 +2378,6 @@ public sealed partial class SelectExpression : TableExpressionBase
                     {
                         Check.DebugAssert(jsonQuery1.StructuralType == jsonQuery2.StructuralType);
                         Check.DebugAssert(jsonQuery1.Type == jsonQuery2.Type);
-                        Check.DebugAssert(jsonQuery1.IsNullable == jsonQuery2.IsNullable);
 
                         // Convert the JsonQueryExpression to a JsonScalarExpression, which is our current representation for a complex
                         // JSON in the SQL tree (as opposed to in the shaper) - see #36392.
@@ -2413,7 +2412,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                             jsonQuery1.Path,
                             jsonQuery1.Type,
                             collection: jsonQuery1.IsCollection,
-                            jsonQuery1.IsNullable);
+                            jsonQuery1.IsNullable || jsonQuery2.IsNullable);
 
                         var outerShaper = new CollectionResultExpression(outerJsonQuery, complexProperty, complexProperty.ComplexType.ClrType);
 
