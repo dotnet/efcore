@@ -88,6 +88,13 @@ WHERE (
 """);
     }
 
+    public override async Task Over_different_collection_properties()
+    {
+        await base.Over_different_collection_properties();
+
+        AssertSql();
+    }
+
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());

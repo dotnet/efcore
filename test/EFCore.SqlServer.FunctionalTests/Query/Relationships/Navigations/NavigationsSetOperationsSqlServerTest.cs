@@ -86,6 +86,30 @@ WHERE (
 """);
     }
 
+    public override async Task Over_different_collection_properties()
+    {
+        await base.Over_different_collection_properties();
+
+        AssertSql(
+"""
+SELECT [r].[Id], [r].[Name], [r].[OptionalRelatedId], [r].[RequiredRelatedId]
+FROM [RootEntity] AS [r]
+INNER JOIN [RelatedType] AS [r0] ON [r].[RequiredRelatedId] = [r0].[Id]
+LEFT JOIN [RelatedType] AS [r1] ON [r].[OptionalRelatedId] = [r1].[Id]
+WHERE (
+    SELECT COUNT(*)
+    FROM (
+        SELECT 1 AS empty
+        FROM [NestedType] AS [n]
+        WHERE [r0].[Id] = [n].[CollectionRelatedId]
+        UNION ALL
+        SELECT 1 AS empty
+        FROM [NestedType] AS [n0]
+        WHERE [r1].[Id] IS NOT NULL AND [r1].[Id] = [n0].[CollectionRelatedId]
+    ) AS [u]) = 4
+""");
+    }
+
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());

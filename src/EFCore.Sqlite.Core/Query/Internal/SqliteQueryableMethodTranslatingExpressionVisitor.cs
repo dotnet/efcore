@@ -375,13 +375,10 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         var jsonColumn = selectExpression.CreateColumnExpression(
             jsonEachExpression, JsonEachValueColumnName, typeof(string), _typeMappingSource.FindMapping(typeof(string))); // TODO: nullable?
 
-        var containerColumnName = structuralType.GetContainerColumnName();
-        Check.DebugAssert(containerColumnName is not null, "JsonQueryExpression to entity type without a container column name");
-
         // First step: build a SelectExpression that will execute json_each and project all properties and navigations out, e.g.
         // (SELECT value ->> 'a' AS a, value ->> 'b' AS b FROM json_each(c."JsonColumn", '$.Something.SomeCollection')
 
-        // We're only interested in properties which actually exist in the JSON, filter out uninteresting shadow keys
+        // We're only interested in properties which actually exist in the JSON, filter out uninteresting synthetic keys
         foreach (var property in structuralType.GetPropertiesInHierarchy())
         {
             if (property.GetJsonPropertyName() is string jsonPropertyName)

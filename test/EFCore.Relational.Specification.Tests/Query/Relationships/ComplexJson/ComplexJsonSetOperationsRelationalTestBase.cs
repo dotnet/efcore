@@ -26,6 +26,18 @@ public abstract class ComplexJsonSetOperationsRelationalTestBase<TFixture> : Com
             exception.Message);
     }
 
+
+    public override async Task Over_different_collection_properties()
+    {
+        // In complex type mapping, different properties are modeled as different structural types even if they share the same CLR type.
+        // As a result, their model definitions might differ (e.g. shadow properties) and we don't currently support set operations over them.
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(base.Over_different_collection_properties);
+
+        Assert.Equal(
+            RelationalStrings.SetOperationOverDifferentStructuralTypes("RootEntity.RequiredRelated#RelatedType.NestedCollection#NestedType", "RootEntity.OptionalRelated#RelatedType.NestedCollection#NestedType"),
+            exception.Message);
+    }
+
     protected void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 }

@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Linq;
+
 namespace Microsoft.EntityFrameworkCore.Query.Relationships;
 
 public abstract class RelationshipsSetOperationsTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
@@ -40,4 +42,12 @@ public abstract class RelationshipsSetOperationsTestBase<TFixture>(TFixture fixt
                 e.RequiredRelated.NestedCollection.Where(r => r.Int == 8)
                     .Concat(e.RequiredRelated.NestedCollection.Where(r => r.String == "foo"))
                     .Count() == 4));
+
+    [ConditionalFact]
+    public virtual Task Over_different_collection_properties()
+        => AssertQuery(
+            ss => ss.Set<RootEntity>().Where(e =>
+                e.RequiredRelated.NestedCollection.Concat(e.OptionalRelated!.NestedCollection).Count() == 4),
+            ss => ss.Set<RootEntity>().Where(e =>
+                e.RequiredRelated.NestedCollection.Concat(e.OptionalRelated == null ? new() : e.OptionalRelated.NestedCollection).Count() == 4));
 }
