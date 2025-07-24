@@ -73,6 +73,77 @@ WHERE (
 """);
     }
 
+    #region Distinct
+
+    public override async Task Distinct()
+    {
+        await base.Distinct();
+
+        AssertSql(
+            """
+SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+FROM [RootEntity] AS [r]
+WHERE (
+    SELECT COUNT(*)
+    FROM (
+        SELECT DISTINCT [r].[Id], [r0].[Id] AS [Id0], [r0].[Int], [r0].[Name], [r0].[String], [r0].[NestedCollection] AS [c], [r0].[OptionalNested] AS [c0], [r0].[RequiredNested] AS [c1]
+        FROM OPENJSON([r].[RelatedCollection], '$') WITH (
+            [Id] int '$.Id',
+            [Int] int '$.Int',
+            [Name] nvarchar(max) '$.Name',
+            [String] nvarchar(max) '$.String',
+            [NestedCollection] nvarchar(max) '$.NestedCollection' AS JSON,
+            [OptionalNested] nvarchar(max) '$.OptionalNested' AS JSON,
+            [RequiredNested] nvarchar(max) '$.RequiredNested' AS JSON
+        ) AS [r0]
+    ) AS [r1]) = 2
+""");
+    }
+
+    public override async Task Distinct_projected(QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Distinct_projected(queryTrackingBehavior);
+
+        if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
+        {
+            AssertSql(
+                """
+SELECT [r].[Id], [r1].[Id], [r1].[Id0], [r1].[Int], [r1].[Name], [r1].[String], [r1].[c], [r1].[c0], [r1].[c1]
+FROM [RootEntity] AS [r]
+OUTER APPLY (
+    SELECT DISTINCT [r].[Id], [r0].[Id] AS [Id0], [r0].[Int], [r0].[Name], [r0].[String], [r0].[NestedCollection] AS [c], [r0].[OptionalNested] AS [c0], [r0].[RequiredNested] AS [c1]
+    FROM OPENJSON([r].[RelatedCollection], '$') WITH (
+        [Id] int '$.Id',
+        [Int] int '$.Int',
+        [Name] nvarchar(max) '$.Name',
+        [String] nvarchar(max) '$.String',
+        [NestedCollection] nvarchar(max) '$.NestedCollection' AS JSON,
+        [OptionalNested] nvarchar(max) '$.OptionalNested' AS JSON,
+        [RequiredNested] nvarchar(max) '$.RequiredNested' AS JSON
+    ) AS [r0]
+) AS [r1]
+ORDER BY [r].[Id], [r1].[Id0], [r1].[Int], [r1].[Name]
+""");
+
+        }
+    }
+
+    public override async Task Distinct_over_projected_nested_collection()
+    {
+        await base.Distinct_over_projected_nested_collection();
+
+        AssertSql();
+    }
+
+    public override async Task Distinct_over_projected_filtered_nested_collection()
+    {
+        await base.Distinct_over_projected_filtered_nested_collection();
+
+        AssertSql();
+    }
+
+    #endregion Distinct
+
     #region Index
 
     public override async Task Index_parameter()

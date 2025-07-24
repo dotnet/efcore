@@ -57,6 +57,23 @@ WHERE (ARRAY(
 """);
     }
 
+
+    #region Distinct
+
+    public override Task Distinct()
+        => AssertTranslationFailed(base.Distinct);
+
+    public override Task Distinct_projected(QueryTrackingBehavior queryTrackingBehavior)
+        => Assert.ThrowsAnyAsync<Exception>(() => base.Distinct_projected(queryTrackingBehavior));
+
+    public override Task Distinct_over_projected_nested_collection()
+        => Assert.ThrowsAsync<InvalidOperationException>(base.Distinct_over_projected_nested_collection);
+
+    public override Task Distinct_over_projected_filtered_nested_collection()
+        => Assert.ThrowsAsync<InvalidOperationException>(base.Distinct_over_projected_nested_collection);
+
+    #endregion Distinct
+
     public override async Task Index_constant()
     {
         await base.Index_constant();

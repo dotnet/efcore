@@ -13,6 +13,20 @@ public abstract class OwnedNavigationsCollectionRelationalTestBase<TFixture> : O
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
+    public override async Task Distinct_over_projected_nested_collection()
+    {
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(base.Distinct_over_projected_nested_collection);
+
+        Assert.Equal(RelationalStrings.DistinctOnCollectionNotSupported, exception.Message);
+    }
+
+    public override async Task Distinct_over_projected_filtered_nested_collection()
+    {
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(base.Distinct_over_projected_filtered_nested_collection);
+
+        Assert.Equal(RelationalStrings.DistinctOnCollectionNotSupported, exception.Message);
+    }
+
     public void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 }
