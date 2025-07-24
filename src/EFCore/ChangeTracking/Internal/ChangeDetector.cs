@@ -321,11 +321,11 @@ public class ChangeDetector : IChangeDetector
 
         Check.DebugAssert(!complexProperty.ComplexType.ClrType.IsValueType, $"Expected {complexProperty.Name} to be a collection of reference types.");
 
-        var changesFound = false;
         var originalEntries = new Dictionary<object, InternalComplexEntry>(ReferenceEqualityComparer.Instance);
         var currentCollection = (IList?)entry[complexProperty];
         // The elements in the original collection might be the same instances as in the current collection, so their properties shouldn't be used for comparison.
         var originalCollection = (IList?)entry.GetOriginalValue(complexProperty);
+        var changesFound = (currentCollection == null) != (originalCollection == null);
 
         entry.EnsureComplexCollectionEntriesCapacity(complexProperty, currentCollection?.Count ?? 0, originalCollection?.Count ?? 0, trim: false);
         var originalNulls = new HashSet<int>();

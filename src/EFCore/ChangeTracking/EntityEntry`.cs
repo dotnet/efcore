@@ -74,7 +74,7 @@ public class EntityEntry<TEntity> : EntityEntry
     /// </param>
     /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
     public virtual ComplexPropertyEntry<TEntity, TProperty> ComplexProperty<TProperty>(
-        Expression<Func<TEntity, TProperty>> propertyExpression)
+        Expression<Func<TEntity, TProperty?>> propertyExpression)
     {
         Check.NotNull(propertyExpression);
 

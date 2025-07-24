@@ -655,7 +655,7 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
             {
                 if (((IComplexProperty)complexProperty).IsCollection)
                 {
-                    break;
+                    continue;
                 }
 
                 foreach (var property in complexProperty.ComplexType.GetFlattenedDeclaredProperties())

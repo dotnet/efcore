@@ -281,14 +281,17 @@ public abstract partial class ModelBuilderTest
                     e => e.QuarksCollection,
                     b =>
                     {
+                        b.IsRequired(false);
                         b.Property(e => e.Down).IsRequired(false);
                         b.Property<string>("Strange").IsRequired(false);
                         b.Property<string>("Bottom").IsRequired(false);
                     });
 
             var model = modelBuilder.FinalizeModel();
-            var complexType = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single().ComplexType;
+            var complexProperty = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single();
+            Assert.True(complexProperty.IsNullable);
 
+            var complexType = complexProperty.ComplexType;
             Assert.True(complexType.FindProperty("Down").IsNullable);
             Assert.True(complexType.FindProperty("Strange").IsNullable);
             Assert.True(complexType.FindProperty("Bottom").IsNullable);

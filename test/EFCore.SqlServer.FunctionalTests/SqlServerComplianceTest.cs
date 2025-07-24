@@ -10,7 +10,6 @@ public class SqlServerComplianceTest : RelationalComplianceTestBase
 {
     protected override ICollection<Type> IgnoredTestBases => new HashSet<Type>
     {
-        typeof(ComplexCollectionJsonUpdateTestBase<>) // issue #31252
     };
 
     protected override Assembly TargetAssembly { get; } = typeof(SqlServerComplianceTest).Assembly;

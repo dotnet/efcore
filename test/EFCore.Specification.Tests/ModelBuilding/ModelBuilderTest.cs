@@ -574,6 +574,7 @@ public abstract partial class ModelBuilderTest
             Expression<Func<TComplex, object?>> propertyExpression);
 
         public abstract TestComplexCollectionBuilder<TComplex> Ignore(string propertyName);
+        public abstract TestComplexCollectionBuilder<TComplex> IsRequired(bool isRequired = true);
         public abstract TestComplexCollectionBuilder<TComplex> HasChangeTrackingStrategy(ChangeTrackingStrategy changeTrackingStrategy);
         public abstract TestComplexCollectionBuilder<TComplex> UsePropertyAccessMode(PropertyAccessMode propertyAccessMode);
         public abstract TestComplexCollectionBuilder<TComplex> UseDefaultPropertyAccessMode(PropertyAccessMode propertyAccessMode);

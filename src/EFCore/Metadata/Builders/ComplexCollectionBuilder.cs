@@ -95,6 +95,20 @@ public class ComplexCollectionBuilder : IInfrastructure<IConventionComplexProper
     }
 
     /// <summary>
+    ///     Configures whether this property must have a value assigned or <see langword="null" /> is a valid value.
+    ///     A property can only be configured as non-required if it is based on a CLR type that can be
+    ///     assigned <see langword="null" />.
+    /// </summary>
+    /// <param name="required">A value indicating whether the property is required.</param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public virtual ComplexCollectionBuilder IsRequired(bool required = true)
+    {
+        PropertyBuilder.IsRequired(required, ConfigurationSource.Explicit);
+
+        return this;
+    }
+
+    /// <summary>
     ///     Returns an object that can be used to configure a property of the complex type.
     ///     If no property with the given name exists, then a new property will be added.
     /// </summary>

@@ -81,7 +81,7 @@ public class ComplexElementEntry<TEntity, TComplexProperty> : ComplexElementEntr
     /// </param>
     /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
     public virtual PropertyEntry<TEntity, TProperty> Property<TProperty>(
-        Expression<Func<TComplexProperty, TProperty>> propertyExpression)
+        Expression<Func<TComplexProperty, TProperty?>> propertyExpression)
     {
         Check.NotNull(propertyExpression, nameof(propertyExpression));
 
