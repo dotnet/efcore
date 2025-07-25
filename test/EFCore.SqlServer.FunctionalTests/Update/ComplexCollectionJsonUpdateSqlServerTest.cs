@@ -354,8 +354,5 @@ WHERE [Id] = @p3;
     {
         protected override ITestStoreFactory TestStoreFactory
             => SqlServerTestStoreFactory.Instance;
-
-        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => base.AddOptions(builder).ConfigureWarnings(e => e.Log(SqlServerEventId.JsonTypeExperimental));
     }
 }
