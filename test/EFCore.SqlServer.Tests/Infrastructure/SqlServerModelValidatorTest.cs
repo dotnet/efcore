@@ -13,39 +13,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
 public class SqlServerModelValidatorTest : RelationalModelValidatorTest
 {
-    [ConditionalFact]
-    public void Detects_use_of_json_column()
-    {
-        var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<Cheese>().Property(e => e.Name).HasColumnType("json");
-
-        VerifyWarning(
-            SqlServerResources.LogJsonTypeExperimental(new TestLogger<SqlServerLoggingDefinitions>())
-                .GenerateMessage("Cheese"), modelBuilder);
-    }
-
-    [ConditionalFact]
-    public void Detects_use_of_json_column_for_container()
-    {
-        var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<ValidatorJsonEntityBasic>(
-            b =>
-            {
-                b.OwnsOne(
-                    x => x.OwnedReference, bb =>
-                    {
-                        bb.ToJson().HasColumnType("json");
-                        bb.Ignore(x => x.NestedCollection);
-                        bb.Ignore(x => x.NestedReference);
-                    });
-                b.Ignore(x => x.OwnedCollection);
-            });
-
-        VerifyWarning(
-            SqlServerResources.LogJsonTypeExperimental(new TestLogger<SqlServerLoggingDefinitions>())
-                .GenerateMessage(nameof(ValidatorJsonOwnedRoot)), modelBuilder);
-    }
-
     [ConditionalFact] // Issue #34324
     public virtual void Throws_for_nested_primitive_collections()
     {

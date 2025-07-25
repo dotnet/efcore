@@ -254,21 +254,28 @@ public sealed class SqlServerJsonPostprocessor(
                     jsonScalar.IsNullable);
             }
 
-            case SqlServerOpenJsonExpression openJsonExpression:
-                // Currently, OPENJSON does not accept a "json" type, so we must cast the value to a string.
-                // We do this for both the case where is a string type mapping for a top-level property with the store type
-                // of "json", and when there is an "element" type mapping to something in the document but is now being used
-                // with OPENJSON.
-                return openJsonExpression.JsonExpression.TypeMapping
-                    is SqlServerStringTypeMapping { StoreType: "json" }
-                    or SqlServerStructuralJsonTypeMapping { StoreType: "json" }
-                    ? openJsonExpression.Update(
-                        new SqlUnaryExpression(
-                            ExpressionType.Convert,
-                            (SqlExpression)Visit(openJsonExpression.JsonExpression),
-                            typeof(string),
-                            typeMappingSource.FindMapping(typeof(string))!))
-                    : base.Visit(expression);
+            // The SQL Server json type cannot be compared ("The JSON data type cannot be compared or sorted, except when using the
+            // IS NULL operator"). So we find comparisons that involve the json type, and apply a conversion to string (nvarchar(max))
+            // to both sides. We exempt this when one of the sides is a constant null (not required).
+            case SqlBinaryExpression
+            {
+                OperatorType: ExpressionType.Equal or ExpressionType.NotEqual,
+                Left: var left,
+                Right: var right
+            } comparison
+                when (left.TypeMapping?.StoreType is "json" || right.TypeMapping?.StoreType is "json")
+                    && left is not SqlConstantExpression { Value: null } && right is not SqlConstantExpression { Value: null }:
+            {
+                return comparison.Update(
+                    sqlExpressionFactory.Convert(
+                        left,
+                        typeof(string),
+                        typeMappingSource.FindMapping(typeof(string))),
+                    sqlExpressionFactory.Convert(
+                        right,
+                        typeof(string),
+                        typeMappingSource.FindMapping(typeof(string))));
+            }
 
             default:
                 return base.Visit(expression);

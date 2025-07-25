@@ -18,7 +18,4 @@ public class OwnedJsonTypeSqlServerFixture : OwnedJsonRelationalFixtureBase
     //     modelBuilder.Entity<RootEntity>().OwnsOne(x => x.OptionalTrunk).HasColumnType("json");
     //     modelBuilder.Entity<RootEntity>().OwnsMany(x => x.CollectionTrunk).HasColumnType("json");
     // }
-
-    public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-        => base.AddOptions(builder.ConfigureWarnings(b => b.Ignore(SqlServerEventId.JsonTypeExperimental)));
 }
