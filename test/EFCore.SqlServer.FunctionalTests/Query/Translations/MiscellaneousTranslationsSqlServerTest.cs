@@ -602,6 +602,82 @@ WHERE CONVERT(nvarchar(max), [b].[DateTime]) LIKE N'%1998%'
 
     #endregion Convert
 
+    #region Parse
+
+    public override async Task Byte_Parse(bool async)
+    {
+        await base.Byte_Parse(async);
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE [b].[Int] >= 0 AND [b].[Int] <= 255 AND CAST(CONVERT(nvarchar(max), [b].[Int]) AS tinyint) = CAST(12 AS tinyint)
+""");
+    }
+
+    public override async Task Decimal_Parse(bool async)
+    {
+        await base.Decimal_Parse(async);
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE CAST(CONVERT(nvarchar(max), [b].[Int]) AS decimal(18,2)) = 8.0
+""");
+    }
+
+    public override async Task Double_Parse(bool async)
+    {
+        await base.Double_Parse(async);
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE CAST(CONVERT(nvarchar(max), [b].[Int]) AS float) = 8.0E0
+""");
+    }
+
+    public override async Task Short_Parse(bool async)
+    {
+        await base.Short_Parse(async);
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE CAST(CONVERT(nvarchar(max), [b].[Int]) AS smallint) = CAST(12 AS smallint)
+""");
+    }
+
+    public override async Task Int_Parse(bool async)
+    {
+        await base.Int_Parse(async);
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE CAST(CONVERT(nvarchar(max), [b].[Int]) AS int) = 12
+""");
+    }
+
+    public override async Task Long_Parse(bool async)
+    {
+        await base.Long_Parse(async);
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE CAST(CONVERT(nvarchar(max), [b].[Int]) AS bigint) = CAST(12 AS bigint)
+""");
+    }
+
+    #endregion
+
     #region Compare
 
     public override async Task Int_Compare_to_simple_zero()
