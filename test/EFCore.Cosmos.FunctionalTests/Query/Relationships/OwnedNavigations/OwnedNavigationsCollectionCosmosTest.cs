@@ -57,6 +57,23 @@ WHERE (ARRAY(
 """);
     }
 
+
+    #region Distinct
+
+    public override Task Distinct()
+        => AssertTranslationFailed(base.Distinct);
+
+    public override Task Distinct_projected(QueryTrackingBehavior queryTrackingBehavior)
+        => Assert.ThrowsAnyAsync<Exception>(() => base.Distinct_projected(queryTrackingBehavior));
+
+    public override Task Distinct_over_projected_nested_collection()
+        => Assert.ThrowsAsync<InvalidOperationException>(base.Distinct_over_projected_nested_collection);
+
+    public override Task Distinct_over_projected_filtered_nested_collection()
+        => Assert.ThrowsAsync<InvalidOperationException>(base.Distinct_over_projected_nested_collection);
+
+    #endregion Distinct
+
     public override async Task Index_constant()
     {
         await base.Index_constant();
@@ -105,6 +122,21 @@ WHERE (c["RelatedCollection"][(c["Id"] - 1)]["Int"] = 8)
 SELECT VALUE c
 FROM root c
 WHERE (c["RelatedCollection"][9999]["Int"] = 8)
+""");
+    }
+
+    public override async Task Select_within_Select_within_Select_with_aggregates()
+    {
+        await base.Select_within_Select_within_Select_with_aggregates();
+
+        AssertSql(
+            """
+SELECT VALUE (
+    SELECT VALUE SUM((
+        SELECT VALUE MAX(n["Int"])
+        FROM n IN r["NestedCollection"]))
+    FROM r IN c["RelatedCollection"])
+FROM root c
 """);
     }
 

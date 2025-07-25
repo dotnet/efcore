@@ -3,6 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Query.Relationships.ComplexProperties;
 
-public abstract class ComplexPropertiesProjectionTestBase<TFixture>(TFixture fixture)
-    : RelationshipsProjectionTestBase<TFixture>(fixture)
-        where TFixture : ComplexPropertiesFixtureBase, new();
+public abstract class ComplexPropertiesSetOperationsTestBase<TFixture>(TFixture fixture)
+    : RelationshipsSetOperationsTestBase<TFixture>(fixture)
+    where TFixture : ComplexPropertiesFixtureBase, new();

@@ -53,6 +53,58 @@ WHERE (
 """);
     }
 
+    #region Distinct
+
+    public override async Task Distinct()
+    {
+        await base.Distinct();
+
+        AssertSql(
+            """
+SELECT [r].[Id], [r].[Name], [r].[OptionalRelatedId], [r].[RequiredRelatedId]
+FROM [RootEntity] AS [r]
+WHERE (
+    SELECT COUNT(*)
+    FROM (
+        SELECT DISTINCT [r0].[Id], [r0].[CollectionRootId], [r0].[Int], [r0].[Name], [r0].[OptionalNestedId], [r0].[RequiredNestedId], [r0].[String]
+        FROM [RelatedType] AS [r0]
+        WHERE [r].[Id] = [r0].[CollectionRootId]
+    ) AS [r1]) = 2
+""");
+    }
+
+    public override async Task Distinct_projected(QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Distinct_projected(queryTrackingBehavior);
+
+        AssertSql(
+            """
+SELECT [r].[Id], [r1].[Id], [r1].[CollectionRootId], [r1].[Int], [r1].[Name], [r1].[OptionalNestedId], [r1].[RequiredNestedId], [r1].[String]
+FROM [RootEntity] AS [r]
+LEFT JOIN (
+    SELECT DISTINCT [r0].[Id], [r0].[CollectionRootId], [r0].[Int], [r0].[Name], [r0].[OptionalNestedId], [r0].[RequiredNestedId], [r0].[String]
+    FROM [RelatedType] AS [r0]
+) AS [r1] ON [r].[Id] = [r1].[CollectionRootId]
+ORDER BY [r].[Id]
+""");
+    }
+
+    public override async Task Distinct_over_projected_nested_collection()
+    {
+        await base.Distinct_over_projected_nested_collection();
+
+        AssertSql();
+    }
+
+    public override async Task Distinct_over_projected_filtered_nested_collection()
+    {
+        await base.Distinct_over_projected_filtered_nested_collection();
+
+        AssertSql();
+    }
+
+    #endregion Distinct
+
     public override async Task Index_constant()
     {
         await base.Index_constant();
@@ -79,6 +131,25 @@ WHERE (
         await base.Index_out_of_bounds();
 
         AssertSql();
+    }
+
+    public override async Task Select_within_Select_within_Select_with_aggregates()
+    {
+        await base.Select_within_Select_within_Select_with_aggregates();
+
+        AssertSql(
+            """
+SELECT (
+    SELECT COALESCE(SUM([s].[value]), 0)
+    FROM [RelatedType] AS [r0]
+    OUTER APPLY (
+        SELECT MAX([n].[Int]) AS [value]
+        FROM [NestedType] AS [n]
+        WHERE [r0].[Id] = [n].[CollectionRelatedId]
+    ) AS [s]
+    WHERE [r].[Id] = [r0].[CollectionRootId])
+FROM [RootEntity] AS [r]
+""");
     }
 
     [ConditionalFact]

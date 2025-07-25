@@ -49,7 +49,7 @@ public partial class NavigationExpandingExpressionVisitor
         protected override Expression VisitMember(MemberExpression memberExpression)
         {
             var innerExpression = Visit(memberExpression.Expression);
-            return TryExpandNavigation(innerExpression, MemberIdentity.Create(memberExpression.Member))
+            return TryExpandRelationship(innerExpression, MemberIdentity.Create(memberExpression.Member))
                 ?? memberExpression.Update(innerExpression);
         }
 
@@ -58,21 +58,21 @@ public partial class NavigationExpandingExpressionVisitor
             if (methodCallExpression.TryGetEFPropertyArguments(out var source, out var navigationName))
             {
                 source = Visit(source);
-                return TryExpandNavigation(source, MemberIdentity.Create(navigationName))
+                return TryExpandRelationship(source, MemberIdentity.Create(navigationName))
                     ?? methodCallExpression.Update(null, new[] { source, methodCallExpression.Arguments[1] });
             }
 
             if (methodCallExpression.TryGetIndexerArguments(Model, out source, out navigationName))
             {
                 source = Visit(source);
-                return TryExpandNavigation(source, MemberIdentity.Create(navigationName))
+                return TryExpandRelationship(source, MemberIdentity.Create(navigationName))
                     ?? methodCallExpression.Update(source, new[] { methodCallExpression.Arguments[0] });
             }
 
             return base.VisitMethodCall(methodCallExpression);
         }
 
-        private Expression? TryExpandNavigation(Expression? root, MemberIdentity memberIdentity)
+        private Expression? TryExpandRelationship(Expression? root, MemberIdentity memberIdentity)
         {
             if (root == null)
             {
@@ -80,7 +80,8 @@ public partial class NavigationExpandingExpressionVisitor
             }
 
             var innerExpression = root.UnwrapTypeConversion(out var convertedType);
-            var entityReference = UnwrapEntityReference(innerExpression);
+            var structuralTypeReference = UnwrapStructuralTypeReference(innerExpression);
+            var entityReference = structuralTypeReference as EntityReference;
             if (entityReference is not null)
             {
                 var entityType = entityReference.EntityType;
@@ -117,8 +118,8 @@ public partial class NavigationExpandingExpressionVisitor
 
             var structuralType = entityReference is not null
                 ? (ITypeBase)entityReference.EntityType
-                : innerExpression is ComplexPropertyReference complexReference
-                    ? complexReference.Property.ComplexType
+                : structuralTypeReference is ComplexTypeReference complexTypeReference
+                    ? complexTypeReference.ComplexType
                     : null;
 
             if (structuralType is not null)
@@ -1100,6 +1101,9 @@ public partial class NavigationExpandingExpressionVisitor
             {
                 case EntityReference entityReference:
                     return entityReference.Snapshot();
+
+                case ComplexTypeReference complexTypeReference:
+                    return complexTypeReference;
 
                 case NavigationTreeExpression navigationTreeExpression:
                     if (!_clonedMap.TryGetValue(navigationTreeExpression, out var clonedNavigationTreeExpression))

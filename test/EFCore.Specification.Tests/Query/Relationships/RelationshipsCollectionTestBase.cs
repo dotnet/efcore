@@ -26,6 +26,33 @@ public abstract class RelationshipsCollectionTestBase<TFixture>(TFixture fixture
             ss => ss.Set<RootEntity>().Where(e => e.RelatedCollection.Count > 0
                 && e.RelatedCollection.OrderBy(r => r.Id).ElementAt(0).Int == 8));
 
+    #region Distinct
+
+    [ConditionalFact]
+    public virtual Task Distinct()
+        => AssertQuery(ss => ss.Set<RootEntity>().Where(e => e.RelatedCollection.Distinct().Count() == 2));
+
+    [ConditionalTheory]
+    [MemberData(nameof(TrackingData))]
+    public virtual Task Distinct_projected(QueryTrackingBehavior queryTrackingBehavior)
+        => AssertQuery(
+            ss => ss.Set<RootEntity>().OrderBy(e => e.Id).Select(e => e.RelatedCollection.Distinct().ToList()),
+            assertOrder: true,
+            elementAsserter: (e, a) => AssertCollection(e, a, elementSorter: r => r.Id),
+            queryTrackingBehavior: queryTrackingBehavior);
+
+    [ConditionalFact]
+    public virtual Task Distinct_over_projected_nested_collection()
+        => AssertQuery(ss => ss.Set<RootEntity>().Where(e =>
+            e.RelatedCollection.Select(r => r.NestedCollection).Distinct().Count() == 2));
+
+    [ConditionalFact]
+    public virtual Task Distinct_over_projected_filtered_nested_collection()
+        => AssertQuery(ss => ss.Set<RootEntity>().Where(e =>
+            e.RelatedCollection.Select(r => r.NestedCollection.Where(n => n.Int == 8)).Distinct().Count() == 2));
+
+    #endregion Distinct
+
     #region Index
 
     [ConditionalFact]
@@ -62,6 +89,12 @@ public abstract class RelationshipsCollectionTestBase<TFixture>(TFixture fixture
                 assertEmpty: true));
 
     #endregion Index
+
+    [ConditionalFact]
+    public virtual Task Select_within_Select_within_Select_with_aggregates()
+        => AssertQuery(
+            ss => ss.Set<RootEntity>().Select(e =>
+                e.RelatedCollection.Select(r => r.NestedCollection.Select(n => n.Int).Max()).Sum()));
 
     /// <summary>
     ///     Utility for tests that depend on the collection being naturally ordered

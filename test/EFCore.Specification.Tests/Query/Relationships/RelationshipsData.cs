@@ -30,8 +30,8 @@ public class RelationshipsData : ISetSource
             // First basic entity with all properties set
             CreateRootEntity(id++, description: null),
 
-            // Second basic entity with all properties set to something different
-            CreateRootEntity(id++, description: "With_different_values", e =>
+            // Second basic entity with all properties set to other values (but same across all properties)
+            CreateRootEntity(id++, description: "With_other_values", e =>
             {
                 SetRelatedValues(e.RequiredRelated);
 
@@ -53,10 +53,46 @@ public class RelationshipsData : ISetSource
                     related.RequiredNested.String = "bar";
                     related.OptionalNested?.Int = 9;
                     related.OptionalNested?.String = "bar";
+
                     foreach (var nested in related.NestedCollection)
                     {
                         nested.Int = 9;
                         nested.String = "bar";
+                    }
+                }
+            }),
+
+            // Third basic entity with all properties set to completely different values
+            CreateRootEntity(id++, description: "With_different_values", e =>
+            {
+                var intValue = 100;
+                var stringValue = 100;
+
+                SetRelatedValues(e.RequiredRelated);
+
+                if (e.OptionalRelated is not null)
+                {
+                    SetRelatedValues(e.OptionalRelated);
+                }
+
+                foreach (var related in e.RelatedCollection)
+                {
+                    SetRelatedValues(related);
+                }
+
+                void SetRelatedValues(RelatedType related)
+                {
+                    related.Int = intValue++;
+                    related.String = $"foo{stringValue++}";
+                    related.RequiredNested.Int = intValue++;
+                    related.RequiredNested.String = $"foo{stringValue++}";
+                    related.OptionalNested?.Int = intValue++;
+                    related.OptionalNested?.String = $"foo{stringValue++}";
+
+                    foreach (var nested in related.NestedCollection)
+                    {
+                        nested.Int = intValue++;
+                        nested.String = $"foo{stringValue++}";
                     }
                 }
             }),
