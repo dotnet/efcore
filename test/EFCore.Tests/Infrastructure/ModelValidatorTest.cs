@@ -1136,21 +1136,6 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     }
 
     [ConditionalFact]
-    public virtual void Detects_optional_collection_complex_properties()
-    {
-        var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Ignore(typeof(Order));
-
-        var model = modelBuilder.Model;
-        var customerEntity = model.AddEntityType(typeof(Customer));
-        var collection = customerEntity.AddComplexProperty(nameof(Customer.Orders), collection: true);
-
-        Assert.Equal(
-            CoreStrings.ComplexPropertyOptional("Customer", "Orders"),
-            Assert.Throws<InvalidOperationException>(() => collection.IsNullable = true).Message);
-    }
-
-    [ConditionalFact]
     public virtual void Detects_value_type_complex_collection()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1183,7 +1168,8 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             eb =>
             {
                 eb.Property(e => e.Id);
-                eb.ComplexCollection(e => e.Tags);
+                eb.ComplexCollection(e => e.Tags,
+                    cb => cb.Property(p => p.Key).IsRequired());
             });
 
         VerifyError(

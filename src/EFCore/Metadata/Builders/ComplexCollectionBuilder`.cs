@@ -54,6 +54,16 @@ public class ComplexCollectionBuilder<[DynamicallyAccessedMembers(IEntityType.Dy
         => (ComplexCollectionBuilder<TComplex>)base.HasTypeAnnotation(annotation, value);
 
     /// <summary>
+    ///     Configures whether this property must have a value assigned or <see langword="null" /> is a valid value.
+    ///     A property can only be configured as non-required if it is based on a CLR type that can be
+    ///     assigned <see langword="null" />.
+    /// </summary>
+    /// <param name="required">A value indicating whether the property is required.</param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public new virtual ComplexCollectionBuilder<TComplex> IsRequired(bool required = true)
+        => (ComplexCollectionBuilder<TComplex>)base.IsRequired(required);
+
+    /// <summary>
     ///     Returns an object that can be used to configure a property of the complex type.
     ///     If the specified property is not already part of the model, it will be added.
     /// </summary>

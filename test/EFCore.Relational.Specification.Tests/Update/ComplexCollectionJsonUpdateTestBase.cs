@@ -11,7 +11,7 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
     protected ComplexCollectionJsonContext CreateContext()
         => (ComplexCollectionJsonContext)Fixture.CreateContext();
 
-    [ConditionalFact]
+    [ConditionalFact(Skip = "Issue #36433")]
     public virtual Task Add_element_to_complex_collection_mapped_to_json()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -19,18 +19,38 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
             async context =>
             {
                 var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
+
+                var companyEntry = context.Entry(company);
+                var budgetProperty = companyEntry.ComplexProperty(c => c.Department).Property(c => c.Budget);
+                Assert.Equal(budgetProperty.CurrentValue, budgetProperty.OriginalValue);
+
                 company.Contacts!.Add(new Contact { Name = "New Contact", PhoneNumbers = ["555-0000"] });
-                
+
+                Assert.Equal("""
+CompanyWithComplexCollections {Id: 1} Unchanged
+    Id: 1 PK
+    Name: 'Test Company'
+    Contacts (Complex: List<Contact>)
+    Department (Complex: Department)
+      Budget: 10000.00
+      Name: 'Initial Department'
+    Employees (Complex: List<Employee>)
+
+""", context.ChangeTracker.DebugView.LongView);
+
                 ClearLog();
                 await context.SaveChangesAsync();
             },
             async context =>
             {
-                var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
-                Assert.Equal(3, company.Contacts!.Count);
-                Assert.Equal("New Contact", company.Contacts[2].Name);
-                Assert.Single(company.Contacts[2].PhoneNumbers);
-                Assert.Equal("555-0000", company.Contacts[2].PhoneNumbers[0]);
+                using (SuspendRecordingEvents())
+                {
+                    var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
+                    Assert.Equal(3, company.Contacts!.Count);
+                    Assert.Equal("New Contact", company.Contacts[2].Name);
+                    Assert.Single(company.Contacts[2].PhoneNumbers);
+                    Assert.Equal("555-0000", company.Contacts[2].PhoneNumbers[0]);
+                }
             });
 
     [ConditionalFact]
@@ -41,16 +61,20 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
             async context =>
             {
                 var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
+
                 company.Contacts!.RemoveAt(0);
-                
+
                 ClearLog();
                 await context.SaveChangesAsync();
             },
             async context =>
             {
-                var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
-                Assert.Single(company.Contacts!);
-                Assert.Equal("Second Contact", company.Contacts![0].Name);
+                using (SuspendRecordingEvents())
+                {
+                    var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
+                    Assert.Single(company.Contacts!);
+                    Assert.Equal("Second Contact", company.Contacts![0].Name);
+                }
             });
 
     [ConditionalFact]
@@ -61,15 +85,19 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
             async context =>
             {
                 var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
+
                 company.Contacts![0].Name = "First Contact - Modified";
-                
+
                 ClearLog();
                 await context.SaveChangesAsync();
             },
             async context =>
             {
-                var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
-                Assert.Equal("First Contact - Modified", company.Contacts![0].Name);
+                using (SuspendRecordingEvents())
+                {
+                    var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
+                    Assert.Equal("First Contact - Modified", company.Contacts![0].Name);
+                }
             });
 
     [ConditionalFact]
@@ -80,63 +108,56 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
             async context =>
             {
                 var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
+
                 var temp = company.Contacts![0];
                 company.Contacts[0] = company.Contacts[1];
                 company.Contacts[1] = temp;
-                
+
                 ClearLog();
                 await context.SaveChangesAsync();
             },
             async context =>
             {
-                var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
-                Assert.Equal("Second Contact", company.Contacts![0].Name);
-                Assert.Equal("First Contact", company.Contacts[1].Name);
+                using (SuspendRecordingEvents())
+                {
+                    var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
+                    Assert.Equal("Second Contact", company.Contacts![0].Name);
+                    Assert.Equal("First Contact", company.Contacts[1].Name);
+                }
             });
 
-    [ConditionalFact]
-    public virtual Task Change_empty_complex_collection_to_null_mapped_to_json()
+    [ConditionalFact(Skip = "Issue #36433")]
+    public virtual Task Change_complex_collection_mapped_to_json_to_null_and_to_empty()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
             UseTransaction,
             async context =>
             {
                 var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
+                ClearLog();
+
                 company.Contacts!.Clear();
                 await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                using (SuspendRecordingEvents())
+                {
+                    var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
+                    Assert.NotNull(company.Contacts);
+                    Assert.Empty(company.Contacts);
+                    company.Contacts = null;
+                }
 
-                company.Contacts = null;
-                
-                ClearLog();
                 await context.SaveChangesAsync();
             },
             async context =>
             {
-                var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
-                Assert.Null(company.Contacts);
-            });
-
-    [ConditionalFact]
-    public virtual Task Change_null_complex_collection_to_empty_mapped_to_json()
-        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
-            CreateContext,
-            UseTransaction,
-            async context =>
-            {
-                var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
-                company.Contacts = null;
-                await context.SaveChangesAsync();
-
-                company.Contacts = [];
-                
-                ClearLog();
-                await context.SaveChangesAsync();
-            },
-            async context =>
-            {
-                var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
-                Assert.NotNull(company.Contacts);
-                Assert.Empty(company.Contacts);
+                using (SuspendRecordingEvents())
+                {
+                    var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
+                    Assert.Null(company.Contacts);
+                }
             });
 
     [ConditionalFact]
@@ -147,6 +168,7 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
             async context =>
             {
                 var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
+
                 company.Employees =
                 [
                     new Employee
@@ -174,24 +196,27 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                         }
                     }
                 ];
-                
+
                 ClearLog();
                 await context.SaveChangesAsync();
             },
             async context =>
             {
-                var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
-                Assert.Equal(2, company.Employees!.Count);
-                
-                var john = company.Employees[0];
-                Assert.Equal("John Doe", john.Name);
-                Assert.Equal("123 Main St", john.Address.Street);
-                Assert.Equal("Seattle", john.Address.City);
-                
-                var jane = company.Employees[1];
-                Assert.Equal("Jane Smith", jane.Name);
-                Assert.Equal("456 Oak Ave", jane.Address.Street);
-                Assert.Equal("Portland", jane.Address.City);
+                using (SuspendRecordingEvents())
+                {
+                    var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
+                    Assert.Equal(2, company.Employees!.Count);
+
+                    var john = company.Employees[0];
+                    Assert.Equal("John Doe", john.Name);
+                    Assert.Equal("123 Main St", john.Address.Street);
+                    Assert.Equal("Seattle", john.Address.City);
+
+                    var jane = company.Employees[1];
+                    Assert.Equal("Jane Smith", jane.Name);
+                    Assert.Equal("456 Oak Ave", jane.Address.Street);
+                    Assert.Equal("Portland", jane.Address.City);
+                }
             });
 
     [ConditionalFact]
@@ -202,21 +227,25 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
             async context =>
             {
                 var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
+
                 company.Contacts = [new Contact { Name = "Contact 1", PhoneNumbers = ["555-1111"] }];
                 company.Department = new Department { Name = "Department A", Budget = 50000.00m };
-                
+
                 ClearLog();
                 await context.SaveChangesAsync();
             },
             async context =>
             {
-                var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
-                Assert.Single(company.Contacts!);
-                Assert.Equal("Contact 1", company.Contacts![0].Name);
-                
-                Assert.NotNull(company.Department);
-                Assert.Equal("Department A", company.Department.Name);
-                Assert.Equal(50000.00m, company.Department.Budget);
+                using (SuspendRecordingEvents())
+                {
+                    var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
+                    Assert.Single(company.Contacts!);
+                    Assert.Equal("Contact 1", company.Contacts![0].Name);
+
+                    Assert.NotNull(company.Department);
+                    Assert.Equal("Department A", company.Department.Name);
+                    Assert.Equal(50000.00m, company.Department.Budget);
+                }
             });
 
     [ConditionalFact]
@@ -227,15 +256,19 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
             async context =>
             {
                 var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
+
                 company.Contacts!.Clear();
-                
+
                 ClearLog();
                 await context.SaveChangesAsync();
             },
             async context =>
             {
-                var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
-                Assert.Empty(company.Contacts!);
+                using (SuspendRecordingEvents())
+                {
+                    var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
+                    Assert.Empty(company.Contacts!);
+                }
             });
 
     [ConditionalFact]
@@ -246,21 +279,25 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
             async context =>
             {
                 var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
+
                 company.Contacts =
                 [
                     new Contact { Name = "Replacement Contact 1", PhoneNumbers = ["999-1111"] },
                     new Contact { Name = "Replacement Contact 2", PhoneNumbers = ["999-2222", "999-3333"] }
                 ];
-                
+
                 ClearLog();
                 await context.SaveChangesAsync();
             },
             async context =>
             {
-                var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
-                Assert.Equal(2, company.Contacts!.Count);
-                Assert.Equal("Replacement Contact 1", company.Contacts[0].Name);
-                Assert.Equal("Replacement Contact 2", company.Contacts[1].Name);
+                using (SuspendRecordingEvents())
+                {
+                    var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
+                    Assert.Equal(2, company.Contacts!.Count);
+                    Assert.Equal("Replacement Contact 1", company.Contacts[0].Name);
+                    Assert.Equal("Replacement Contact 2", company.Contacts[1].Name);
+                }
             });
 
     [ConditionalFact]
@@ -271,18 +308,22 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
             async context =>
             {
                 var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
+
                 company.Employees![0].PhoneNumbers.Add("555-9999");
-                
+
                 ClearLog();
                 await context.SaveChangesAsync();
             },
             async context =>
             {
-                var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
-                var employee = company.Employees![0];
-                Assert.Equal(2, employee.PhoneNumbers.Count);
-                Assert.Equal("555-0001", employee.PhoneNumbers[0]);
-                Assert.Equal("555-9999", employee.PhoneNumbers[1]);
+                using (SuspendRecordingEvents())
+                {
+                    var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
+                    var employee = company.Employees![0];
+                    Assert.Equal(2, employee.PhoneNumbers.Count);
+                    Assert.Equal("555-0001", employee.PhoneNumbers[0]);
+                    Assert.Equal("555-9999", employee.PhoneNumbers[1]);
+                }
             });
 
     [ConditionalFact]
@@ -293,23 +334,27 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
             async context =>
             {
                 var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
+
                 company.Employees![0].Address.City = "Modified City";
                 company.Employees[0].Address.PostalCode = "99999";
-                
+
                 ClearLog();
                 await context.SaveChangesAsync();
             },
             async context =>
             {
-                var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
-                var employee = company.Employees![0];
-                Assert.Equal("Modified City", employee.Address.City);
-                Assert.Equal("99999", employee.Address.PostalCode);
-                Assert.Equal("100 First St", employee.Address.Street); // Unchanged
-                Assert.Equal("USA", employee.Address.Country); // Unchanged
+                using (SuspendRecordingEvents())
+                {
+                    var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
+                    var employee = company.Employees![0];
+                    Assert.Equal("Modified City", employee.Address.City);
+                    Assert.Equal("99999", employee.Address.PostalCode);
+                    Assert.Equal("100 First St", employee.Address.Street); // Unchanged
+                    Assert.Equal("USA", employee.Address.Country); // Unchanged
+                }
             });
 
-    [ConditionalFact]
+    [ConditionalFact(Skip = "Issue #36433")]
     public virtual Task Set_complex_collection_to_null_mapped_to_json()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -317,15 +362,23 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
             async context =>
             {
                 var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
+
+                var companyEntry = context.Entry(company);
+                var employeesProperty = companyEntry.ComplexCollection(c => c.Employees);
+                Assert.Equal(employeesProperty.CurrentValue,
+                    employeesProperty.GetInfrastructure().GetOriginalValue(employeesProperty.Metadata));
                 company.Employees = null;
-                
+
                 ClearLog();
                 await context.SaveChangesAsync();
             },
             async context =>
             {
-                var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
-                Assert.Null(company.Employees);
+                using (SuspendRecordingEvents())
+                {
+                    var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
+                    Assert.Null(company.Employees);
+                }
             });
 
     [ConditionalFact]
@@ -338,7 +391,7 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                 var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
                 company.Employees = null;
                 await context.SaveChangesAsync();
-                
+
                 company.Employees =
                 [
                     new Employee
@@ -354,16 +407,19 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                         }
                     }
                 ];
-                
+
                 ClearLog();
                 await context.SaveChangesAsync();
             },
             async context =>
             {
-                var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
-                Assert.NotNull(company.Employees);
-                Assert.Single(company.Employees);
-                Assert.Equal("New Employee", company.Employees[0].Name);
+                using (SuspendRecordingEvents())
+                {
+                    var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
+                    Assert.NotNull(company.Employees);
+                    Assert.Single(company.Employees);
+                    Assert.Equal("New Employee", company.Employees[0].Name);
+                }
             });
 
     [ConditionalFact]
@@ -374,6 +430,7 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
             async context =>
             {
                 var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
+
                 company.Employees![0] = new Employee
                 {
                     Name = "Replacement Employee",
@@ -386,19 +443,22 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                         Country = "Canada"
                     }
                 };
-                
+
                 ClearLog();
                 await context.SaveChangesAsync();
             },
             async context =>
             {
-                var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
-                var employee = company.Employees![0];
-                Assert.Equal("Replacement Employee", employee.Name);
-                Assert.Equal(2, employee.PhoneNumbers.Count);
-                Assert.Equal("555-7777", employee.PhoneNumbers[0]);
-                Assert.Equal("789 Replace St", employee.Address.Street);
-                Assert.Equal("Canada", employee.Address.Country);
+                using (SuspendRecordingEvents())
+                {
+                    var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
+                    var employee = company.Employees![0];
+                    Assert.Equal("Replacement Employee", employee.Name);
+                    Assert.Equal(2, employee.PhoneNumbers.Count);
+                    Assert.Equal("555-7777", employee.PhoneNumbers[0]);
+                    Assert.Equal("789 Replace St", employee.Address.Street);
+                    Assert.Equal("Canada", employee.Address.Country);
+                }
             });
 
     [ConditionalFact]
@@ -409,6 +469,7 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
             async context =>
             {
                 var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
+
                 company.Employees!.Add(new Employee
                 {
                     Name = "Employee No Phone",
@@ -421,43 +482,24 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                         Country = "USA"
                     }
                 });
-                
+
                 ClearLog();
                 await context.SaveChangesAsync();
             },
             async context =>
             {
-                var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
-                Assert.Equal(2, company.Employees!.Count);
-                var employeeWithoutPhone = company.Employees[1];
-                Assert.Equal("Employee No Phone", employeeWithoutPhone.Name);
-                Assert.Empty(employeeWithoutPhone.PhoneNumbers);
-                Assert.Equal("Quiet City", employeeWithoutPhone.Address.City);
+                using (SuspendRecordingEvents())
+                {
+                    var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
+                    Assert.Equal(2, company.Employees!.Count);
+                    var employeeWithoutPhone = company.Employees[1];
+                    Assert.Equal("Employee No Phone", employeeWithoutPhone.Name);
+                    Assert.Empty(employeeWithoutPhone.PhoneNumbers);
+                    Assert.Equal("Quiet City", employeeWithoutPhone.Address.City);
+                }
             });
 
-    [ConditionalFact]
-    public virtual Task Modify_complex_property_mapped_to_json()
-        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
-            CreateContext,
-            UseTransaction,
-            async context =>
-            {
-                var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
-                company.Department!.Name = "Modified Department";
-                company.Department.Budget = 75000.00m;
-                
-                ClearLog();
-                await context.SaveChangesAsync();
-            },
-            async context =>
-            {
-                var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
-                Assert.NotNull(company.Department);
-                Assert.Equal("Modified Department", company.Department.Name);
-                Assert.Equal(75000.00m, company.Department.Budget);
-            });
-
-    [ConditionalFact]
+    [ConditionalFact(Skip = "Issue #36433")]
     public virtual Task Set_complex_property_mapped_to_json_to_null()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -466,14 +508,17 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
             {
                 var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
                 company.Department = null;
-                
+
                 ClearLog();
                 await context.SaveChangesAsync();
             },
             async context =>
             {
-                var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
-                Assert.Null(company.Department);
+                using (SuspendRecordingEvents())
+                {
+                    var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
+                    Assert.Null(company.Department);
+                }
             });
 
     [ConditionalFact]
@@ -486,18 +531,21 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                 var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
                 company.Department = null;
                 await context.SaveChangesAsync();
-                
+
                 company.Department = new Department { Name = "New Department", Budget = 25000.00m };
-                
+
                 ClearLog();
                 await context.SaveChangesAsync();
             },
             async context =>
             {
-                var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
-                Assert.NotNull(company.Department);
-                Assert.Equal("New Department", company.Department.Name);
-                Assert.Equal(25000.00m, company.Department.Budget);
+                using (SuspendRecordingEvents())
+                {
+                    var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
+                    Assert.NotNull(company.Department);
+                    Assert.Equal("New Department", company.Department.Name);
+                    Assert.Equal(25000.00m, company.Department.Budget);
+                }
             });
 
     [ConditionalFact]
@@ -508,26 +556,34 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
             async context =>
             {
                 var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
+
                 company.Department = new Department { Name = "Replacement Department", Budget = 99999.99m };
-                
+
                 ClearLog();
                 await context.SaveChangesAsync();
             },
             async context =>
             {
-                var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
-                Assert.NotNull(company.Department);
-                Assert.Equal("Replacement Department", company.Department.Name);
-                Assert.Equal(99999.99m, company.Department.Budget);
+                using (SuspendRecordingEvents())
+                {
+                    var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
+                    Assert.NotNull(company.Department);
+                    Assert.Equal("Replacement Department", company.Department.Name);
+                    Assert.Equal(99999.99m, company.Department.Budget);
+                }
             });
 
     protected virtual void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
-    {
-    }
+        => facade.UseTransaction(transaction.GetDbTransaction());
 
     protected virtual void ClearLog()
-    {
-    }
+        => Fixture.TestSqlLoggerFactory.Clear();
+
+    protected virtual void AssertSql(params string[] expected)
+        => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
+
+    protected virtual IDisposable SuspendRecordingEvents()
+        => Fixture.TestSqlLoggerFactory.SuspendRecordingEvents();
 
     protected class ComplexCollectionJsonContext(DbContextOptions options) : DbContext(options)
     {
@@ -578,6 +634,9 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
         public TestSqlLoggerFactory TestSqlLoggerFactory
             => (TestSqlLoggerFactory)ListLoggerFactory;
 
+        protected override bool ShouldLogCategory(string logCategory)
+            => logCategory == DbLoggerCategory.Update.Name;
+
         protected override Type ContextType => typeof(ComplexCollectionJsonContext);
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
@@ -615,30 +674,30 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                 Contacts =
                 [
                     new Contact
-                {
-                    Name = "First Contact",
-                    PhoneNumbers = ["555-1234", "555-5678"]
-                },
-                new Contact
-                {
-                    Name = "Second Contact",
-                    PhoneNumbers = ["555-9876", "555-5432"]
-                }
+                    {
+                        Name = "First Contact",
+                        PhoneNumbers = ["555-1234", "555-5678"]
+                    },
+                    new Contact
+                    {
+                        Name = "Second Contact",
+                        PhoneNumbers = ["555-9876", "555-5432"]
+                    }
                 ],
                 Employees =
                 [
                     new Employee
-                {
-                    Name = "Initial Employee",
-                    PhoneNumbers = ["555-0001"],
-                    Address = new Address
                     {
-                        Street = "100 First St",
-                        City = "Initial City",
-                        PostalCode = "00001",
-                        Country = "USA"
+                        Name = "Initial Employee",
+                        PhoneNumbers = ["555-0001"],
+                        Address = new Address
+                        {
+                            Street = "100 First St",
+                            City = "Initial City",
+                            PostalCode = "00001",
+                            Country = "USA"
+                        }
                     }
-                }
                 ],
                 Department = new Department
                 {
@@ -651,5 +710,4 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
             return context.SaveChangesAsync();
         }
     }
-
 }

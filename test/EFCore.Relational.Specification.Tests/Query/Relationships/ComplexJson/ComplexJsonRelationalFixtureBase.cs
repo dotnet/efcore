@@ -28,8 +28,6 @@ public abstract class ComplexJsonRelationalFixtureBase : ComplexPropertiesFixtur
                 orb.IsRequired(false);
 
                 orb.ComplexProperty(r => r.OptionalNested).IsRequired(false);
-
-                orb.ComplexProperty(r => r.RequiredNested);
             });
 
             b.ComplexCollection(e => e.RelatedCollection,rcb =>

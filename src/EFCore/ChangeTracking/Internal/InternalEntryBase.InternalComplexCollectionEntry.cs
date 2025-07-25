@@ -149,24 +149,31 @@ public partial class InternalEntryBase
 
             if (_originalEntries != null)
             {
-                foreach (var entry in _originalEntries)
+                for (var i = 0; i < _originalEntries.Count; i++)
                 {
+                    var entry = _originalEntries[i];
                     if (entry == null
                         || entry.EntityState != EntityState.Deleted)
                     {
                         continue;
                     }
                     entry.AcceptChanges();
+                    // The entry was deleted, so AcceptChanges removed it from the list
+                    i--;
                 }
             }
 
             if (_entries != null)
             {
-                _originalEntries = new List<InternalComplexEntry?>(_entries.Count);
-                foreach (var entry in _entries)
+                _originalEntries ??= new List<InternalComplexEntry?>(_entries.Count);
+                _originalEntries.Clear();
+                for (var i = 0; i < _entries.Count; i++)
                 {
-                    _originalEntries.Add(entry);
-                    entry?.AcceptChanges();
+                    _originalEntries.Add(_entries[i]);
+                }
+                for (var i = 0; i < _originalEntries.Count; i++)
+                {
+                    _originalEntries[i]?.AcceptChanges();
                 }
             }
             else
@@ -195,10 +202,14 @@ public partial class InternalEntryBase
 
             if (_originalEntries != null)
             {
-                _entries = new List<InternalComplexEntry?>(_originalEntries.Count);
-                foreach (var entry in _originalEntries)
+                _entries ??= new List<InternalComplexEntry?>(_originalEntries.Count);
+                _entries.Clear();
+                for (var i = 0; i < _originalEntries.Count; i++)
                 {
-                    _entries.Add(entry);
+                    _entries.Add(_originalEntries[i]);
+                }
+                foreach (var entry in _entries)
+                {
                     entry?.Ordinal = entry.OriginalOrdinal;
                 }
             }

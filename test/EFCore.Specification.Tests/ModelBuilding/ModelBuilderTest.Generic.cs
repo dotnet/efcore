@@ -714,6 +714,9 @@ public abstract partial class ModelBuilderTest
         public override TestComplexCollectionBuilder<TComplex> Ignore(string propertyName)
             => Wrap(PropertyBuilder.Ignore(propertyName));
 
+        public override TestComplexCollectionBuilder<TComplex> IsRequired(bool isRequired = true)
+            => Wrap(PropertyBuilder.IsRequired(isRequired));
+
         public override TestComplexCollectionBuilder<TComplex> HasChangeTrackingStrategy(ChangeTrackingStrategy changeTrackingStrategy)
             => Wrap(PropertyBuilder.HasChangeTrackingStrategy(changeTrackingStrategy));
 

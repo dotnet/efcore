@@ -24,8 +24,7 @@ public class SqliteComplianceTest : RelationalComplianceTestBase
         typeof(OwnedNavigationsProjectionTestBase<>),
         typeof(OwnedNavigationsProjectionRelationalTestBase<>),
         typeof(OwnedJsonProjectionRelationalTestBase<>),
-        typeof(OwnedTableSplittingProjectionRelationalTestBase<>),
-        typeof(ComplexCollectionJsonUpdateTestBase<>) // issue #31252
+        typeof(OwnedTableSplittingProjectionRelationalTestBase<>)
     };
 
     protected override Assembly TargetAssembly { get; } = typeof(SqliteComplianceTest).Assembly;

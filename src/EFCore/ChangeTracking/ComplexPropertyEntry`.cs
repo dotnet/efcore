@@ -95,7 +95,7 @@ public class ComplexPropertyEntry<TEntity, TComplexProperty> : ComplexPropertyEn
     /// </param>
     /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
     public virtual ComplexPropertyEntry<TEntity, TNestedComplexProperty> ComplexProperty<TNestedComplexProperty>(
-        Expression<Func<TComplexProperty, TNestedComplexProperty>> propertyExpression)
+        Expression<Func<TComplexProperty, TNestedComplexProperty?>> propertyExpression)
     {
         Check.NotNull(propertyExpression);
 
