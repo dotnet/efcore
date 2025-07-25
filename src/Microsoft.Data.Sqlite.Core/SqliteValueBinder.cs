@@ -160,6 +160,13 @@ namespace Microsoft.Data.Sqlite
                 var value1 = (double)(float)value;
                 BindDouble(value1);
             }
+#if NET5_0_OR_GREATER
+            else if (type == typeof(Half))
+            {
+                var value1 = (double)(Half)value;
+                BindDouble(value1);
+            }
+#endif
             else if (type == typeof(Guid))
             {
                 var guid = (Guid)value;
@@ -251,6 +258,9 @@ namespace Microsoft.Data.Sqlite
                 { typeof(decimal), SqliteType.Text },
                 { typeof(double), SqliteType.Real },
                 { typeof(float), SqliteType.Real },
+#if NET5_0_OR_GREATER
+                { typeof(Half), SqliteType.Real },
+#endif
                 { typeof(Guid), SqliteType.Text },
                 { typeof(int), SqliteType.Integer },
                 { typeof(long), SqliteType.Integer },
