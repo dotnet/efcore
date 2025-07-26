@@ -1848,7 +1848,7 @@ namespace TestNamespace
         where TDependent : class
     {
         public TDependent? Dependent { get; set; }
-        protected IList<OwnedType> ManyOwned = null!;
+        protected IList<OwnedType> ManyOwned = [];
         public ICollection<PrincipalBase> Principals { get; set; } = null!;
     }
 

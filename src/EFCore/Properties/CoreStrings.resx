@@ -354,9 +354,6 @@
   <data name="ComplexPropertyNotFound" xml:space="preserve">
     <value>The complex property '{type}.{property}' could not be found. Ensure that the property exists and has been included in the model as a complex property.</value>
   </data>
-  <data name="ComplexPropertyOptional" xml:space="preserve">
-    <value>Configuring the collection complex property '{type}.{property}' as optional is invalid.</value>
-  </data>
   <data name="ComplexPropertyShadow" xml:space="preserve">
     <value>Configuring the complex property '{type}.{property}' in shadow state isn't supported.  See https://github.com/dotnet/efcore/issues/31243 for more information.</value>
   </data>

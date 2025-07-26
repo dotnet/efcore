@@ -654,6 +654,7 @@ public class CosmosTestStore : TestStore
 
         public bool IsConceptualNull(IProperty property)
             => throw new NotImplementedException();
+        public bool IsModified(IComplexProperty property) => throw new NotImplementedException();
     }
 
     public class FakeEntityType : Annotatable, IEntityType

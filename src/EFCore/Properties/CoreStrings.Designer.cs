@@ -655,14 +655,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 type, property);
 
         /// <summary>
-        ///     Configuring the collection complex property '{type}.{property}' as optional is invalid.
-        /// </summary>
-        public static string ComplexPropertyOptional(object? type, object? property)
-            => string.Format(
-                GetString("ComplexPropertyOptional", nameof(type), nameof(property)),
-                type, property);
-
-        /// <summary>
         ///     Configuring the complex property '{type}.{property}' in shadow state isn't supported.  See https://github.com/dotnet/efcore/issues/31243 for more information.
         /// </summary>
         public static string ComplexPropertyShadow(object? type, object? property)

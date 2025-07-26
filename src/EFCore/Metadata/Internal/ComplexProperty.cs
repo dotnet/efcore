@@ -48,12 +48,6 @@ public class ComplexProperty : PropertyBase, IMutableComplexProperty, IConventio
             targetTypeName ?? declaringType.GetOwnedName(targetType.ShortDisplayName(), name),
             targetType, this, configurationSource);
         _builder = new InternalComplexPropertyBuilder(this, declaringType.Model.Builder);
-
-        if (collection)
-        {
-            _isNullable = false;
-            _isNullableConfigurationSource = configurationSource;
-        }
     }
 
     /// <summary>
@@ -147,12 +141,6 @@ public class ComplexProperty : PropertyBase, IMutableComplexProperty, IConventio
             {
                 throw new InvalidOperationException(
                     CoreStrings.CannotBeNullable(Name, DeclaringType.DisplayName(), ClrType.ShortDisplayName()));
-            }
-
-            if (IsCollection)
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.ComplexPropertyOptional(DeclaringType.DisplayName(), Name));
             }
         }
 

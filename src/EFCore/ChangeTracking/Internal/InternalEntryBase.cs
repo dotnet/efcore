@@ -303,18 +303,18 @@ public abstract partial class InternalEntryBase : IInternalEntry
             {
                 _originalValues.AcceptChanges(this);
 
-                foreach (var complexCollection in _complexCollectionEntries)
+                for (var i = 0; i < _complexCollectionEntries.Length; i++)
                 {
-                    complexCollection.AcceptChanges();
+                    _complexCollectionEntries[i].AcceptChanges();
                 }
             }
             else
             {
                 _originalValues.RejectChanges(this);
 
-                foreach (var complexCollection in _complexCollectionEntries)
+                for (var i = 0; i < _complexCollectionEntries.Length; i++)
                 {
-                    complexCollection.RejectChanges();
+                    _complexCollectionEntries[i].RejectChanges();
                 }
             }
         }
@@ -397,8 +397,7 @@ public abstract partial class InternalEntryBase : IInternalEntry
     /// </summary>
     public bool IsModified(IProperty property)
     {
-        Check.DebugAssert(property.DeclaringType.IsAssignableFrom(StructuralType) || property.DeclaringType.ContainingType.IsAssignableFrom(StructuralType),
-            "Property " + property.Name + " not contained under " + StructuralType.Name);
+        StructuralType.CheckContains(property);
 
         var propertyIndex = property.GetIndex();
 
@@ -415,8 +414,7 @@ public abstract partial class InternalEntryBase : IInternalEntry
     /// </summary>
     public bool IsUnknown(IProperty property)
     {
-        Check.DebugAssert(property.DeclaringType.IsAssignableFrom(StructuralType) || property.DeclaringType.ContainingType.IsAssignableFrom(StructuralType),
-            "Property " + property.Name + " not contained under " + StructuralType.Name);
+        StructuralType.CheckContains(property);
 
         return _stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.Unknown);
     }
@@ -434,8 +432,7 @@ public abstract partial class InternalEntryBase : IInternalEntry
         bool isConceptualNull = false,
         bool acceptChanges = false)
     {
-        Check.DebugAssert(property.DeclaringType.IsAssignableFrom(StructuralType) || property.DeclaringType.ContainingType.IsAssignableFrom(StructuralType),
-            "Property " + property.Name + " not contained under " + StructuralType.Name);
+        StructuralType.CheckContains(property);
 
         var propertyIndex = property.GetIndex();
         _stateData.FlagProperty(propertyIndex, PropertyFlag.Unknown, false);
@@ -530,11 +527,12 @@ public abstract partial class InternalEntryBase : IInternalEntry
     /// </summary>
     public bool IsModified(IComplexProperty property)
     {
-        Check.DebugAssert(property.IsCollection, $"Property {property.Name} should be a collection");
-        Check.DebugAssert(property.DeclaringType.IsAssignableFrom(StructuralType) || property.DeclaringType.ContainingType.IsAssignableFrom(StructuralType),
-            "Property " + property.Name + " not contained under " + StructuralType.Name);
+        StructuralType.CheckContains(property);
 
-        return _complexCollectionEntries[property.GetIndex()].IsModified();
+        return property.IsCollection
+            ? _complexCollectionEntries[property.GetIndex()].IsModified()
+            : property.ComplexType.GetFlattenedProperties().Any(IsModified)
+                || property.ComplexType.GetFlattenedComplexProperties().Any(cp => cp.IsCollection && IsModified(cp));
     }
 
     /// <summary>
@@ -549,8 +547,7 @@ public abstract partial class InternalEntryBase : IInternalEntry
         bool recurse = false)
     {
         Check.DebugAssert(property.IsCollection, $"Property {property.Name} should be a collection");
-        Check.DebugAssert(property.DeclaringType.IsAssignableFrom(StructuralType) || property.DeclaringType.ContainingType.IsAssignableFrom(StructuralType),
-            "Property " + property.Name + " not contained under " + StructuralType.Name);
+        StructuralType.CheckContains(property);
 
         var index = property.GetIndex();
         if (_complexCollectionEntries[index].IsModified() == isModified)
@@ -624,8 +621,7 @@ public abstract partial class InternalEntryBase : IInternalEntry
     /// </summary>
     public bool IsConceptualNull(IProperty property)
     {
-        Check.DebugAssert(property.DeclaringType.IsAssignableFrom(StructuralType) || property.DeclaringType.ContainingType.IsAssignableFrom(StructuralType),
-            "Property " + property.Name + " not contained under " + StructuralType.Name);
+        StructuralType.CheckContains(property);
 
         return _stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.Null);
     }
@@ -638,8 +634,7 @@ public abstract partial class InternalEntryBase : IInternalEntry
     /// </summary>
     public bool HasTemporaryValue(IProperty property)
     {
-        Check.DebugAssert(property.DeclaringType.IsAssignableFrom(StructuralType) || property.DeclaringType.ContainingType.IsAssignableFrom(StructuralType),
-            "Property " + property.Name + " not contained under " + StructuralType.Name);
+        StructuralType.CheckContains(property);
 
         return GetValueType(property) == CurrentValueType.Temporary;
     }
@@ -652,8 +647,7 @@ public abstract partial class InternalEntryBase : IInternalEntry
     /// </summary>
     protected virtual CurrentValueType GetValueType(IProperty property)
     {
-        Check.DebugAssert(property.DeclaringType.IsAssignableFrom(StructuralType) || property.DeclaringType.ContainingType.IsAssignableFrom(StructuralType),
-            "Property " + property.Name + " not contained under " + StructuralType.Name);
+        StructuralType.CheckContains(property);
 
         return _stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.IsStoreGenerated)
                 ? CurrentValueType.StoreGenerated
@@ -670,8 +664,7 @@ public abstract partial class InternalEntryBase : IInternalEntry
     /// </summary>
     public void SetTemporaryValue(IProperty property, object? value, bool setModified = true)
     {
-        Check.DebugAssert(property.DeclaringType.IsAssignableFrom(StructuralType) || property.DeclaringType.ContainingType.IsAssignableFrom(StructuralType),
-            "Property " + property.Name + " not contained under " + StructuralType.Name);
+        StructuralType.CheckContains(property);
 
         if (property.GetStoreGeneratedIndex() == -1)
         {
@@ -691,8 +684,7 @@ public abstract partial class InternalEntryBase : IInternalEntry
     /// </summary>
     public void MarkAsTemporary(IProperty property, bool temporary)
     {
-        Check.DebugAssert(property.DeclaringType.IsAssignableFrom(StructuralType) || property.DeclaringType.ContainingType.IsAssignableFrom(StructuralType),
-            "Property " + property.Name + " not contained under " + StructuralType.Name);
+        StructuralType.CheckContains(property);
 
         _stateData.FlagProperty(property.GetIndex(), PropertyFlag.IsTemporary, temporary);
     }
@@ -723,8 +715,7 @@ public abstract partial class InternalEntryBase : IInternalEntry
     /// </summary>
     public void SetStoreGeneratedValue(IProperty property, object? value, bool setModified = true)
     {
-        Check.DebugAssert(property.DeclaringType.IsAssignableFrom(StructuralType) || property.DeclaringType.ContainingType.IsAssignableFrom(StructuralType),
-            "Property " + property.Name + " not contained under " + StructuralType.Name);
+        StructuralType.CheckContains(property);
 
         if (property.GetStoreGeneratedIndex() == -1)
         {
@@ -749,8 +740,7 @@ public abstract partial class InternalEntryBase : IInternalEntry
     /// </summary>
     public void MarkUnknown(IProperty property)
     {
-        Check.DebugAssert(property.DeclaringType.IsAssignableFrom(StructuralType) || property.DeclaringType.ContainingType.IsAssignableFrom(StructuralType),
-            "Property " + property.Name + " not contained under " + StructuralType.Name);
+        StructuralType.CheckContains(property);
 
         _stateData.FlagProperty(property.GetIndex(), PropertyFlag.Unknown, true);
     }
@@ -857,8 +847,7 @@ public abstract partial class InternalEntryBase : IInternalEntry
     /// </summary>
     public virtual object? ReadPropertyValue(IPropertyBase propertyBase)
     {
-        Check.DebugAssert(propertyBase.DeclaringType.IsAssignableFrom(StructuralType) || propertyBase.DeclaringType.ContainingType.IsAssignableFrom(StructuralType),
-            "Property " + propertyBase.Name + " not contained under " + StructuralType.Name);
+        StructuralType.CheckContains(propertyBase);
 
         return propertyBase.IsShadowProperty()
             ? _shadowValues[propertyBase.GetShadowIndex()]
@@ -876,8 +865,7 @@ public abstract partial class InternalEntryBase : IInternalEntry
         object? value,
         bool forMaterialization)
     {
-        Check.DebugAssert(propertyBase.DeclaringType.IsAssignableFrom(StructuralType) || propertyBase.DeclaringType.ContainingType.IsAssignableFrom(StructuralType),
-            "Property " + propertyBase.Name + " not contained under " + StructuralType.Name);
+        StructuralType.CheckContains(propertyBase);
 
         if (value == null
             && !propertyBase.ClrType.IsNullableType())
@@ -909,14 +897,9 @@ public abstract partial class InternalEntryBase : IInternalEntry
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public object? GetCurrentValue(IPropertyBase propertyBase)
-    {
-        Check.DebugAssert(propertyBase.DeclaringType.IsAssignableFrom(StructuralType) || propertyBase.DeclaringType.ContainingType.IsAssignableFrom(StructuralType),
-            "Property " + propertyBase.Name + " not contained under " + StructuralType.Name);
-
-        return propertyBase is not IProperty property || !IsConceptualNull(property)
+        => StructuralType.CheckContains(propertyBase) is not IProperty property || !IsConceptualNull(property)
                 ? this[propertyBase]
                 : null;
-    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -925,14 +908,9 @@ public abstract partial class InternalEntryBase : IInternalEntry
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public object? GetPreStoreGeneratedCurrentValue(IPropertyBase propertyBase)
-    {
-        Check.DebugAssert(propertyBase.DeclaringType.IsAssignableFrom(StructuralType) || propertyBase.DeclaringType.ContainingType.IsAssignableFrom(StructuralType),
-            "Property " + propertyBase.Name + " not contained under " + StructuralType.Name);
-
-        return propertyBase is not IProperty property || !IsConceptualNull(property)
+        => StructuralType.CheckContains(propertyBase) is not IProperty property || !IsConceptualNull(property)
                 ? ReadPropertyValue(propertyBase)
                 : null;
-    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -942,8 +920,7 @@ public abstract partial class InternalEntryBase : IInternalEntry
     /// </summary>
     public virtual object? GetOriginalValue(IPropertyBase propertyBase)
     {
-        Check.DebugAssert(propertyBase.DeclaringType.IsAssignableFrom(StructuralType) || propertyBase.DeclaringType.ContainingType.IsAssignableFrom(StructuralType),
-            "Property " + propertyBase.Name + " not contained under " + StructuralType.Name);
+        StructuralType.CheckContains(propertyBase);
 
         return _originalValues.GetValue(this, propertyBase);
     }
@@ -968,8 +945,7 @@ public abstract partial class InternalEntryBase : IInternalEntry
         object? value,
         int index = -1)
     {
-        Check.DebugAssert(propertyBase.DeclaringType.IsAssignableFrom(StructuralType) || propertyBase.DeclaringType.ContainingType.IsAssignableFrom(StructuralType),
-            "Property " + propertyBase.Name + " not contained under " + StructuralType.Name);
+        StructuralType.CheckContains(propertyBase);
 
         EnsureOriginalValues();
 
@@ -1116,8 +1092,7 @@ public abstract partial class InternalEntryBase : IInternalEntry
     /// </summary>
     public InternalComplexEntry GetComplexCollectionEntry(IComplexProperty property, int ordinal)
     {
-        Check.DebugAssert(property.DeclaringType.IsAssignableFrom(StructuralType) || property.DeclaringType.ContainingType.IsAssignableFrom(StructuralType),
-            "Property " + property.Name + " not contained under " + StructuralType.Name);
+        StructuralType.CheckContains(property);
         Check.DebugAssert(property.IsCollection, $"Property {property.Name} should be a collection");
 
         return _complexCollectionEntries[property.GetIndex()].GetEntry(ordinal);
@@ -1131,8 +1106,7 @@ public abstract partial class InternalEntryBase : IInternalEntry
     /// </summary>
     public IReadOnlyList<InternalComplexEntry?> GetComplexCollectionEntries(IComplexProperty property)
     {
-        Check.DebugAssert(property.DeclaringType.IsAssignableFrom(StructuralType) || property.DeclaringType.ContainingType.IsAssignableFrom(StructuralType),
-            "Property " + property.Name + " not contained under " + StructuralType.Name);
+        StructuralType.CheckContains(property);
         Check.DebugAssert(property.IsCollection, $"Property {property.Name} should be a collection");
 
         return _complexCollectionEntries[property.GetIndex()].GetOrCreateEntries(original: false)!;
@@ -1146,8 +1120,7 @@ public abstract partial class InternalEntryBase : IInternalEntry
     /// </summary>
     public InternalComplexEntry GetComplexCollectionOriginalEntry(IComplexProperty property, int ordinal)
     {
-        Check.DebugAssert(property.DeclaringType.IsAssignableFrom(StructuralType) || property.DeclaringType.ContainingType.IsAssignableFrom(StructuralType),
-            "Property " + property.Name + " not contained under " + StructuralType.Name);
+        StructuralType.CheckContains(property);
         Check.DebugAssert(property.IsCollection, $"Property {property.Name} should be a collection");
 
         return _complexCollectionEntries[property.GetIndex()].GetEntry(ordinal, original: true);
@@ -1161,8 +1134,7 @@ public abstract partial class InternalEntryBase : IInternalEntry
     /// </summary>
     public IReadOnlyList<InternalComplexEntry?> GetComplexCollectionOriginalEntries(IComplexProperty property)
     {
-        Check.DebugAssert(property.DeclaringType.IsAssignableFrom(StructuralType) || property.DeclaringType.ContainingType.IsAssignableFrom(StructuralType),
-            "Property " + property.Name + " not contained under " + StructuralType.Name);
+        StructuralType.CheckContains(property);
         Check.DebugAssert(property.IsCollection, $"Property {property.Name} should be a collection");
 
         return _complexCollectionEntries[property.GetIndex()].GetOrCreateEntries(original: true)!;
@@ -1185,8 +1157,7 @@ public abstract partial class InternalEntryBase : IInternalEntry
     /// </summary>
     public virtual void EnsureComplexCollectionEntriesCapacity(IComplexProperty property, int capacity, int originalCapacity, bool trim = true)
     {
-        Check.DebugAssert(property.DeclaringType.IsAssignableFrom(StructuralType) || property.DeclaringType.ContainingType.IsAssignableFrom(StructuralType),
-            "Property " + property.Name + " not contained under " + StructuralType.Name);
+        StructuralType.CheckContains(property);
         Check.DebugAssert(property.IsCollection, $"Property {property.Name} should be a collection");
 
         var index = property.GetIndex();
@@ -1202,8 +1173,7 @@ public abstract partial class InternalEntryBase : IInternalEntry
     /// </summary>
     public virtual void MoveComplexCollectionEntry(IComplexProperty property, int fromOrdinal, int toOrdinal, bool original = false)
     {
-        Check.DebugAssert(property.DeclaringType.IsAssignableFrom(StructuralType) || property.DeclaringType.ContainingType.IsAssignableFrom(StructuralType),
-            "Property " + property.Name + " not contained under " + StructuralType.Name);
+        StructuralType.CheckContains(property);
         Check.DebugAssert(property.IsCollection, $"Property {property.Name} should be a collection");
 
         _complexCollectionEntries[property.GetIndex()].MoveEntry(fromOrdinal, toOrdinal, original);
@@ -1218,8 +1188,7 @@ public abstract partial class InternalEntryBase : IInternalEntry
     public void OnComplexElementStateChange(InternalComplexEntry entry, EntityState oldState, EntityState newState)
     {
         var property = entry.ComplexProperty;
-        Check.DebugAssert(property.DeclaringType.IsAssignableFrom(StructuralType) || property.DeclaringType.ContainingType.IsAssignableFrom(StructuralType),
-            "Property " + property.Name + " not contained under " + StructuralType.Name);
+        StructuralType.CheckContains(property);
         Check.DebugAssert(property.IsCollection, $"Property {property.Name} should be a collection");
 
         _complexCollectionEntries[property.GetIndex()].HandleStateChange(entry, oldState, newState);
@@ -1234,8 +1203,7 @@ public abstract partial class InternalEntryBase : IInternalEntry
     public virtual int ValidateOrdinal(InternalComplexEntry entry, bool original)
     {
         var property = entry.ComplexProperty;
-        Check.DebugAssert(property.DeclaringType.IsAssignableFrom(StructuralType) || property.DeclaringType.ContainingType.IsAssignableFrom(StructuralType),
-            "Property " + property.Name + " not contained under " + StructuralType.Name);
+        StructuralType.CheckContains(property);
         Check.DebugAssert(property.IsCollection, $"Property {property.Name} should be a collection");
 
         return _complexCollectionEntries[entry.ComplexProperty.GetIndex()].ValidateOrdinal(entry, original);
@@ -1517,9 +1485,9 @@ public abstract partial class InternalEntryBase : IInternalEntry
         {
             _originalValues.AcceptChanges(this);
 
-            foreach (var complexCollection in _complexCollectionEntries)
+            for (var i = 0; i < _complexCollectionEntries.Length; i++)
             {
-                complexCollection.AcceptChanges();
+                _complexCollectionEntries[i].AcceptChanges();
             }
         }
 
@@ -1643,7 +1611,6 @@ public abstract partial class InternalEntryBase : IInternalEntry
             foreach (var complexProperty in structuralType.GetFlattenedComplexProperties())
             {
                 if (!complexProperty.IsNullable
-                    && !complexProperty.IsCollection
                     && this[complexProperty] == null
                     && complexProperty.ComplexType.GetProperties().Any(p => !p.IsNullable)
                     && (complexProperty.DeclaringType is not IComplexType complexType
@@ -1725,8 +1692,7 @@ public abstract partial class InternalEntryBase : IInternalEntry
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool HasExplicitValue(IProperty property)
     {
-        Check.DebugAssert(property.DeclaringType.IsAssignableFrom(StructuralType) || property.DeclaringType.ContainingType.IsAssignableFrom(StructuralType),
-            "Property " + property.Name + " not contained under " + StructuralType.Name);
+        StructuralType.CheckContains(property);
 
         return !HasSentinelValue(property)
                 || _stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.IsStoreGenerated)
@@ -1735,8 +1701,7 @@ public abstract partial class InternalEntryBase : IInternalEntry
 
     private bool HasSentinelValue(IProperty property)
     {
-        Check.DebugAssert(property.DeclaringType.IsAssignableFrom(StructuralType) || property.DeclaringType.ContainingType.IsAssignableFrom(StructuralType),
-            "Property " + property.Name + " not contained under " + StructuralType.Name);
+        StructuralType.CheckContains(property);
 
         return property.IsShadowProperty()
                 ? AreEqual(_shadowValues[property.GetShadowIndex()], property.Sentinel, property)

@@ -156,6 +156,7 @@ public class ExceptionTest
 
         public bool IsConceptualNull(IProperty property)
             => throw new NotImplementedException();
+        public bool IsModified(IComplexProperty property) => throw new NotImplementedException();
     }
 
     private static IEntityType CreateEntityType()
