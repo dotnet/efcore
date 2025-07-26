@@ -105,6 +105,8 @@ ORDER BY [r].[Id]
 
     #endregion Distinct
 
+    #region Index
+
     public override async Task Index_constant()
     {
         await base.Index_constant();
@@ -132,6 +134,8 @@ ORDER BY [r].[Id]
 
         AssertSql();
     }
+
+    #endregion Index
 
     public override async Task Select_within_Select_within_Select_with_aggregates()
     {

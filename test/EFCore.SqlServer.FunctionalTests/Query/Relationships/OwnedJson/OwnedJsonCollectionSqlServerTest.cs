@@ -40,18 +40,6 @@ WHERE (
 """);
     }
 
-    public override async Task Index_constant()
-    {
-        await base.Index_constant();
-
-        AssertSql(
-            """
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
-FROM [RootEntity] AS [r]
-WHERE CAST(JSON_VALUE([r].[RelatedCollection], '$[0].Int') AS int) = 8
-""");
-    }
-
     public override async Task OrderBy_ElementAt()
     {
         await base.OrderBy_ElementAt();
@@ -145,6 +133,18 @@ ORDER BY [r].[Id], [r1].[Id0], [r1].[Int], [r1].[Name]
     #endregion Distinct
 
     #region Index
+
+    public override async Task Index_constant()
+    {
+        await base.Index_constant();
+
+        AssertSql(
+            """
+SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+FROM [RootEntity] AS [r]
+WHERE CAST(JSON_VALUE([r].[RelatedCollection], '$[0].Int') AS int) = 8
+""");
+    }
 
     public override async Task Index_parameter()
     {

@@ -6,6 +6,4 @@ namespace Microsoft.EntityFrameworkCore.Query.Relationships.OwnedTableSplitting;
 public class OwnedTableSplittingMiscellaneousSqliteTest(
     OwnedTableSplittingSqliteFixture fixture,
     ITestOutputHelper testOutputHelper)
-    : OwnedTableSplittingMiscellaneousRelationalTestBase<OwnedTableSplittingSqliteFixture>(fixture, testOutputHelper)
-{
-}
+    : OwnedTableSplittingMiscellaneousRelationalTestBase<OwnedTableSplittingSqliteFixture>(fixture, testOutputHelper);

@@ -4,6 +4,4 @@
 namespace Microsoft.EntityFrameworkCore.Query.Relationships.Navigations;
 
 public class NavigationsCollectionSqliteTest(NavigationsSqliteFixture fixture, ITestOutputHelper testOutputHelper)
-    : NavigationsCollectionRelationalTestBase<NavigationsSqliteFixture>(fixture, testOutputHelper)
-{
-}
+    : NavigationsCollectionRelationalTestBase<NavigationsSqliteFixture>(fixture, testOutputHelper);

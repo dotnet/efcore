@@ -6,6 +6,4 @@ namespace Microsoft.EntityFrameworkCore.Query.Relationships.OwnedNavigations;
 public class OwnedNavigationsMiscellaneousSqliteTest(
     OwnedNavigationsSqliteFixture fixture,
     ITestOutputHelper testOutputHelper)
-    : OwnedNavigationsMiscellaneousRelationalTestBase<OwnedNavigationsSqliteFixture>(fixture, testOutputHelper)
-{
-}
+    : OwnedNavigationsMiscellaneousRelationalTestBase<OwnedNavigationsSqliteFixture>(fixture, testOutputHelper);

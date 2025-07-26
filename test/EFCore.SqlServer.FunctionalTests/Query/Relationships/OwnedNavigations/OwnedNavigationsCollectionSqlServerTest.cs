@@ -101,7 +101,6 @@ ORDER BY [r].[Id], [o].[RootEntityId], [o0].[RelatedTypeRootEntityId], [o1].[Rel
 """);
     }
 
-
     #region Distinct
 
     public override async Task Distinct()
@@ -180,6 +179,8 @@ ORDER BY [r].[Id], [s].[RootEntityId], [s].[Id], [s].[RelatedTypeRootEntityId], 
     }
 
     #endregion Distinct
+
+    #region Index
 
     public override async Task Index_constant()
     {
@@ -314,6 +315,8 @@ WHERE (
 ORDER BY [r].[Id], [o].[RootEntityId], [o0].[RelatedTypeRootEntityId], [o1].[RelatedTypeRootEntityId], [r1].[RootEntityId], [r2].[RelatedTypeRootEntityId], [r3].[RelatedTypeRootEntityId], [o2].[RelatedTypeRootEntityId], [o2].[Id], [s].[RootEntityId], [s].[Id], [s].[RelatedTypeRootEntityId], [s].[RelatedTypeId], [s].[RelatedTypeRootEntityId0], [s].[RelatedTypeId0], [s].[RelatedTypeRootEntityId1], [s].[RelatedTypeId1], [s].[Id0], [r8].[RelatedTypeRootEntityId]
 """);
     }
+
+    #endregion Index
 
     public override async Task Select_within_Select_within_Select_with_aggregates()
     {

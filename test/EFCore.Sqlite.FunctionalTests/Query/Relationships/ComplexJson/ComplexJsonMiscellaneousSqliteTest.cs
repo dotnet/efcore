@@ -4,6 +4,4 @@
 namespace Microsoft.EntityFrameworkCore.Query.Relationships.ComplexJson;
 
 public class ComplexJsonMiscellaneousSqliteTest(ComplexJsonSqliteFixture fixture, ITestOutputHelper testOutputHelper)
-    : ComplexJsonMiscellaneousRelationalTestBase<ComplexJsonSqliteFixture>(fixture, testOutputHelper)
-{
-}
+    : ComplexJsonMiscellaneousRelationalTestBase<ComplexJsonSqliteFixture>(fixture, testOutputHelper);
