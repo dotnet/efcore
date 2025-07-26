@@ -140,7 +140,7 @@ public class StructuralTypeMaterializerSource : IStructuralTypeMaterializerSourc
                 => serviceProperty.ParameterBinding.BindToParameter(bindingInfo),
 
             IComplexProperty { IsCollection: true } complexProperty
-                => Expression.Default(complexProperty.ClrType), // Initialize collections to null, they'll be populated separately
+                => Default(complexProperty.ClrType), // Initialize collections to null, they'll be populated separately
 
             IComplexProperty complexProperty
                 => CreateMaterializeExpression(
