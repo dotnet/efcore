@@ -116,7 +116,7 @@ WHERE VECTORPROPERTY([v].[Vector], 'Dimensions') = 3
         public int Id { get; set; }
 
         [Column(TypeName = "vector(3)")]
-        public SqlVector<float> Vector { get; set; } = null!;
+        public SqlVector<float> Vector { get; set; }
     }
 
     public class VectorQueryFixture : SharedStoreFixtureBase<VectorQueryContext>
