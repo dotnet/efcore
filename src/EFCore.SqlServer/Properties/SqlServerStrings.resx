@@ -264,10 +264,6 @@
     <value>Found unique constraint on table '{tableName}' with name '{uniqueConstraintName}'.</value>
     <comment>Debug SqlServerEventId.UniqueConstraintFound string string</comment>
   </data>
-  <data name="LogJsonTypeExperimental" xml:space="preserve">
-    <value>The entity type '{entityType}' makes use of the SQL Server native 'json' type. Please note that support for this type in EF Core 9 is experimental and may change in future releases.</value>
-    <comment>Warning SqlServerEventId.JsonTypeExperimental string</comment>
-  </data>
   <data name="LogMissingSchema" xml:space="preserve">
     <value>Unable to find a schema in the database matching the selected schema '{schema}'.</value>
     <comment>Warning SqlServerEventId.MissingSchemaWarning string?</comment>

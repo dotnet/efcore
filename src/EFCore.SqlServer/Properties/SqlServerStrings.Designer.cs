@@ -835,31 +835,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         }
 
         /// <summary>
-        ///     The entity type '{entityType}' makes use of the SQL Server native 'json' type. Please note that support for this type in EF Core 9 is experimental and may change in future releases.
-        /// </summary>
-        public static EventDefinition<string> LogJsonTypeExperimental(IDiagnosticsLogger logger)
-        {
-            var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogJsonTypeExperimental;
-            if (definition == null)
-            {
-                definition = NonCapturingLazyInitializer.EnsureInitialized(
-                    ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogJsonTypeExperimental,
-                    logger,
-                    static logger => new EventDefinition<string>(
-                        logger.Options,
-                        SqlServerEventId.JsonTypeExperimental,
-                        LogLevel.Warning,
-                        "SqlServerEventId.JsonTypeExperimental",
-                        level => LoggerMessage.Define<string>(
-                            level,
-                            SqlServerEventId.JsonTypeExperimental,
-                            _resourceManager.GetString("LogJsonTypeExperimental")!)));
-            }
-
-            return (EventDefinition<string>)definition;
-        }
-
-        /// <summary>
         ///     Unable to find a schema in the database matching the selected schema '{schema}'.
         /// </summary>
         public static EventDefinition<string?> LogMissingSchema(IDiagnosticsLogger logger)
