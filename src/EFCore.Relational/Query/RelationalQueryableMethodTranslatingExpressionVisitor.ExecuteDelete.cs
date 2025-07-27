@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -189,4 +190,14 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
             GroupBy: [],
             Having: null
         };
+
+    /// <summary>
+    ///     This method has been obsoleted, use the method accepting a single SelectExpression parameter instead.
+    /// </summary>
+    [Obsolete("This method has been obsoleted, use the method accepting a single SelectExpression parameter instead.", error: true)]
+    protected virtual bool IsValidSelectExpressionForExecuteDelete(
+        SelectExpression selectExpression,
+        StructuralTypeShaperExpression shaper,
+        [NotNullWhen(true)] out TableExpression? tableExpression)
+        => throw new UnreachableException();
 }
