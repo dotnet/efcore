@@ -1,7 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-namespace Microsoft.EntityFrameworkCore.Cosmos.Extensions;
+namespace Microsoft.EntityFrameworkCore;
 
 /// <summary>
 ///     Provides CLR methods that get translated to database functions when used in LINQ to Entities queries.
@@ -99,17 +99,7 @@ public static class CosmosDbFunctionsExtensions
     public static double Rrf(this DbFunctions _, params double[] scores)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Rrf)));
 
-    /// <summary>
-    ///     Returns the distance between two vectors, using the distance function and data type defined using
-    ///     <see
-    ///         cref="CosmosPropertyBuilderExtensions.IsVectorProperty(Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder,Microsoft.Azure.Cosmos.DistanceFunction,int)" />
-    ///     .
-    /// </summary>
-    /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
-    /// <param name="vector1">The first vector.</param>
-    /// <param name="vector2">The second vector.</param>
-    public static double VectorDistance(this DbFunctions _, ReadOnlyMemory<byte> vector1, ReadOnlyMemory<byte> vector2)
-        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(VectorDistance)));
+    #region VectorDistance
 
     /// <summary>
     ///     Returns the distance between two vectors, given a distance function (aka similarity measure).
@@ -118,115 +108,17 @@ public static class CosmosDbFunctionsExtensions
     /// <param name="vector1">The first vector.</param>
     /// <param name="vector2">The second vector.</param>
     /// <param name="useBruteForce">
-    ///     A <see langword="bool" /> specifying how the computed value is used in an ORDER BY
-    ///     expression. If <see langword="true" />, then brute force is used, otherwise any index defined on the vector
-    ///     property is leveraged.
+    ///     An optional boolean specifying how the computed value is used in an <c>ORDER BY</c> expression.
+    ///     If <see langword="true"/>, then brute force is used. A value of <see langword="false" /> uses any index defined on the vector
+    ///     property, if it exists. Default value is <see langword="false" />.
     /// </param>
-    public static double VectorDistance(
-        this DbFunctions _,
-        ReadOnlyMemory<byte> vector1,
-        ReadOnlyMemory<byte> vector2,
-        [NotParameterized] bool useBruteForce)
-        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(VectorDistance)));
-
-    /// <summary>
-    ///     Returns the distance between two vectors, given a distance function (aka similarity measure).
-    /// </summary>
-    /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
-    /// <param name="vector1">The first vector.</param>
-    /// <param name="vector2">The second vector.</param>
-    /// <param name="distanceFunction">The distance function to use.</param>
-    /// <param name="useBruteForce">
-    ///     A <see langword="bool" /> specifying how the computed value is used in an ORDER BY
-    ///     expression. If <see langword="true" />, then brute force is used, otherwise any index defined on the vector
-    ///     property is leveraged.
-    /// </param>
-    public static double VectorDistance(
-        this DbFunctions _,
-        ReadOnlyMemory<byte> vector1,
-        ReadOnlyMemory<byte> vector2,
-        [NotParameterized] bool useBruteForce,
-        [NotParameterized] DistanceFunction distanceFunction)
-        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(VectorDistance)));
-
-    /// <summary>
-    ///     Returns the distance between two vectors, using the distance function and data type defined using
-    ///     <see
-    ///         cref="CosmosPropertyBuilderExtensions.IsVectorProperty(Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder,Microsoft.Azure.Cosmos.DistanceFunction,int)" />
-    ///     .
-    /// </summary>
-    /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
-    /// <param name="vector1">The first vector.</param>
-    /// <param name="vector2">The second vector.</param>
-    public static double VectorDistance(this DbFunctions _, ReadOnlyMemory<sbyte> vector1, ReadOnlyMemory<sbyte> vector2)
-        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(VectorDistance)));
-
-    /// <summary>
-    ///     Returns the distance between two vectors, given a distance function (aka similarity measure).
-    /// </summary>
-    /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
-    /// <param name="vector1">The first vector.</param>
-    /// <param name="vector2">The second vector.</param>
-    /// <param name="useBruteForce">
-    ///     A <see langword="bool" /> specifying how the computed value is used in an ORDER BY
-    ///     expression. If <see langword="true" />, then brute force is used, otherwise any index defined on the vector
-    ///     property is leveraged.
-    /// </param>
-    public static double VectorDistance(
-        this DbFunctions _,
-        ReadOnlyMemory<sbyte> vector1,
-        ReadOnlyMemory<sbyte> vector2,
-        [NotParameterized] bool useBruteForce)
-        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(VectorDistance)));
-
-    /// <summary>
-    ///     Returns the distance between two vectors, given a distance function (aka similarity measure).
-    /// </summary>
-    /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
-    /// <param name="vector1">The first vector.</param>
-    /// <param name="vector2">The second vector.</param>
-    /// <param name="distanceFunction">The distance function to use.</param>
-    /// <param name="useBruteForce">
-    ///     A <see langword="bool" /> specifying how the computed value is used in an ORDER BY
-    ///     expression. If <see langword="true" />, then brute force is used, otherwise any index defined on the vector
-    ///     property is leveraged.
-    /// </param>
-    public static double VectorDistance(
-        this DbFunctions _,
-        ReadOnlyMemory<sbyte> vector1,
-        ReadOnlyMemory<sbyte> vector2,
-        [NotParameterized] bool useBruteForce,
-        [NotParameterized] DistanceFunction distanceFunction)
-        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(VectorDistance)));
-
-    /// <summary>
-    ///     Returns the distance between two vectors, using the distance function and data type defined using
-    ///     <see
-    ///         cref="CosmosPropertyBuilderExtensions.IsVectorProperty(Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder,Microsoft.Azure.Cosmos.DistanceFunction,int)" />
-    ///     .
-    /// </summary>
-    /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
-    /// <param name="vector1">The first vector.</param>
-    /// <param name="vector2">The second vector.</param>
-    public static double VectorDistance(this DbFunctions _, ReadOnlyMemory<float> vector1, ReadOnlyMemory<float> vector2)
-        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(VectorDistance)));
-
-    /// <summary>
-    ///     Returns the distance between two vectors, given a distance function (aka similarity measure).
-    /// </summary>
-    /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
-    /// <param name="vector1">The first vector.</param>
-    /// <param name="vector2">The second vector.</param>
-    /// <param name="useBruteForce">
-    ///     A <see langword="bool" /> specifying how the computed value is used in an ORDER BY
-    ///     expression. If <see langword="true" />, then brute force is used, otherwise any index defined on the vector
-    ///     property is leveraged.
-    /// </param>
+    /// <param name="options">An optional object used to specify options for the vector distance calculation.</param>
     public static double VectorDistance(
         this DbFunctions _,
         ReadOnlyMemory<float> vector1,
         ReadOnlyMemory<float> vector2,
-        [NotParameterized] bool useBruteForce)
+        [NotParameterized] bool? useBruteForce = null,
+        [NotParameterized] VectorDistanceOptions? options = null)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(VectorDistance)));
 
     /// <summary>
@@ -235,17 +127,39 @@ public static class CosmosDbFunctionsExtensions
     /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
     /// <param name="vector1">The first vector.</param>
     /// <param name="vector2">The second vector.</param>
-    /// <param name="distanceFunction">The distance function to use.</param>
     /// <param name="useBruteForce">
-    ///     A <see langword="bool" /> specifying how the computed value is used in an ORDER BY
-    ///     expression. If <see langword="true" />, then brute force is used, otherwise any index defined on the vector
-    ///     property is leveraged.
+    ///     An optional boolean specifying how the computed value is used in an <c>ORDER BY</c> expression.
+    ///     If <see langword="true"/>, then brute force is used. A value of <see langword="false" /> uses any index defined on the vector
+    ///     property, if it exists. Default value is <see langword="false" />.
     /// </param>
+    /// <param name="options">An optional object used to specify options for the vector distance calculation.</param>
     public static double VectorDistance(
         this DbFunctions _,
-        ReadOnlyMemory<float> vector1,
-        ReadOnlyMemory<float> vector2,
-        [NotParameterized] bool useBruteForce,
-        [NotParameterized] DistanceFunction distanceFunction)
+        ReadOnlyMemory<byte> vector1,
+        ReadOnlyMemory<byte> vector2,
+        [NotParameterized] bool? useBruteForce = null,
+        [NotParameterized] VectorDistanceOptions? options = null)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(VectorDistance)));
+
+    /// <summary>
+    ///     Returns the distance between two vectors, given a distance function (aka similarity measure).
+    /// </summary>
+    /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
+    /// <param name="vector1">The first vector.</param>
+    /// <param name="vector2">The second vector.</param>
+    /// <param name="useBruteForce">
+    ///     An optional boolean specifying how the computed value is used in an <c>ORDER BY</c> expression.
+    ///     If <see langword="true"/>, then brute force is used. A value of <see langword="false" /> uses any index defined on the vector
+    ///     property, if it exists. Default value is <see langword="false" />.
+    /// </param>
+    /// <param name="options">An optional object used to specify options for the vector distance calculation.</param>
+    public static double VectorDistance(
+        this DbFunctions _,
+        ReadOnlyMemory<sbyte> vector1,
+        ReadOnlyMemory<sbyte> vector2,
+        [NotParameterized] bool? useBruteForce = null,
+        [NotParameterized] VectorDistanceOptions? options = null)
+        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(VectorDistance)));
+
+    #endregion VectorDistance
 }

@@ -4,7 +4,6 @@
 using System.Net;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
-using Microsoft.EntityFrameworkCore.Cosmos.Extensions;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Xunit.Sdk;
 
