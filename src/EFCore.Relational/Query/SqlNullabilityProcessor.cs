@@ -131,17 +131,18 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                     case ParameterTranslationMode.MultipleParameters:
                     {
                         var expandedParameters = _collectionParameterExpansionMap.GetOrAddNew(valuesParameter);
-                        for (var i = 0; i < values.Count; i++)
+                        var expandedParametersCounter = 0;
+                        foreach (var value in values)
                         {
                             // Create parameter for value if we didn't create it yet,
                             // otherwise reuse it.
-                            ExpandParameterIfNeeded(valuesParameter.Name, expandedParameters, queryParameters, i, values[i], elementTypeMapping);
+                            ExpandParameterIfNeeded(valuesParameter.Name, expandedParameters, queryParameters, expandedParametersCounter, value, elementTypeMapping);
 
                             processedValues.Add(
                                 new RowValueExpression(
                                     ProcessValuesOrderingColumn(
                                         valuesExpression,
-                                        [expandedParameters[i]],
+                                        [expandedParameters[expandedParametersCounter++]],
                                         intTypeMapping,
                                         ref valuesOrderingCounter)));
                         }
@@ -808,17 +809,18 @@ public class SqlNullabilityProcessor : ExpressionVisitor
 
                 processedValues = [];
 
+                var translationMode = valuesParameter.TranslationMode ?? CollectionParameterTranslationMode;
                 var expandedParameters = _collectionParameterExpansionMap.GetOrAddNew(valuesParameter);
                 var expandedParametersCounter = 0;
-                for (var i = 0; i < values.Count; i++)
+                foreach (var value in values)
                 {
-                    if (values[i] is null && removeNulls)
+                    if (value is null && removeNulls)
                     {
                         hasNull = true;
                         continue;
                     }
 
-                    switch (valuesParameter.TranslationMode ?? CollectionParameterTranslationMode)
+                    switch (translationMode)
                     {
                         case ParameterTranslationMode.MultipleParameters:
                         // see #36311 for more info
@@ -826,9 +828,8 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                         {
                             // Create parameter for value if we didn't create it yet,
                             // otherwise reuse it.
-                            ExpandParameterIfNeeded(valuesParameter.Name, expandedParameters, parameters, i, values[i], elementTypeMapping);
+                            ExpandParameterIfNeeded(valuesParameter.Name, expandedParameters, parameters, expandedParametersCounter, value, elementTypeMapping);
 
-                            // Use separate counter, because we may skip nulls.
                             processedValues.Add(expandedParameters[expandedParametersCounter++]);
 
                             break;
@@ -836,7 +837,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
 
                         case ParameterTranslationMode.Constant:
                         {
-                            processedValues.Add(_sqlExpressionFactory.Constant(values[i], values[i]?.GetType() ?? typeof(object), sensitive: true, elementTypeMapping));
+                            processedValues.Add(_sqlExpressionFactory.Constant(value, value?.GetType() ?? typeof(object), sensitive: true, elementTypeMapping));
 
                             break;
                         }
@@ -846,11 +847,27 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                     }
                 }
 
-                // Bucketization.
-                if ((valuesParameter.TranslationMode ?? CollectionParameterTranslationMode) is ParameterTranslationMode.MultipleParameters)
+                // Bucketization is a process used to group parameters into "buckets" of a fixed size when generating parameterized collections.
+                // This helps mitigate query plan bloat by reducing the number of unique query plans generated for queries with varying numbers
+                // of parameters. Instead of creating a new query plan for every possible parameter count, bucketization ensures that queries
+                // with similar parameter counts share the same query plan.
+                //
+                // The size of each bucket is determined by the CalculateParameterBucketSize method, which dynamically calculates the bucket size
+                // based on the total number of parameters and the type mapping of the collection elements. For example, smaller collections may
+                // use smaller bucket sizes, while larger collections may use larger bucket sizes to balance performance and memory usage.
+                //
+                // If the number of parameters in the collection is not a multiple of the bucket size, padding is added to ensure the collection
+                // fits into the nearest bucket. This padding uses the last value in the collection to fill the remaining slots.
+                //
+                // Providers can effectively disable bucketization by overriding the CalculateParameterBucketSize method to always return 1.
+                //
+                // Example:
+                // Suppose a query has 12 parameters, and the bucket size is calculated as 10. The query will be padded with 8 additional
+                // parameters (using the last value) to fit into the next bucket size of 20. This ensures that queries with 12, 13, or 19
+                // parameters all share the same query plan, reducing query plan fragmentation.
+                if (translationMode is ParameterTranslationMode.MultipleParameters)
                 {
-                    // For provider to effectively disable bucketization, return always 1 from ParametersPadFactor.
-                    var padFactor = ParametersPadFactor(values.Count);
+                    var padFactor = CalculateParameterBucketSize(values.Count, elementTypeMapping);
                     var padding = (padFactor - (values.Count % padFactor)) % padFactor;
                     for (var i = 0; i < padding; i++)
                     {
@@ -858,7 +875,6 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                         // otherwise reuse it.
                         ExpandParameterIfNeeded(valuesParameter.Name, expandedParameters, parameters, values.Count + i, values[^1], elementTypeMapping);
 
-                        // Use separate counter, because we may skip nulls.
                         processedValues.Add(expandedParameters[expandedParametersCounter++]);
                     }
                 }
@@ -1494,11 +1510,13 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         => false;
 
     /// <summary>
-    /// Gets the factor by which the parameters are padded when generating a parameterized collection
-    /// when using multiple parameters. This helps with query plan bloat.
+    ///     Gets the bucket size into which the parameters are padded when generating a parameterized collection
+    ///     when using multiple parameters. This helps with query plan bloat.
     /// </summary>
-    /// <param name="count">Number of value parameters are generated for.</param>
-    protected virtual int ParametersPadFactor(int count)
+    /// <param name="count">Number of value parameters.</param>
+    /// <param name="elementTypeMapping">The type mapping for the collection element.</param>
+    [EntityFrameworkInternal]
+    protected virtual int CalculateParameterBucketSize(int count, RelationalTypeMapping elementTypeMapping)
         => count switch
         {
             <= 5 => 1,

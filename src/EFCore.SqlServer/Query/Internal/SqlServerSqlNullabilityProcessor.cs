@@ -282,6 +282,19 @@ public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
         }
     }
 
+    /// <inheritdoc />
+    protected override int CalculateParameterBucketSize(int count, RelationalTypeMapping elementTypeMapping)
+         => count switch
+         {
+             <= 5 => 1,
+             <= 150 => 10,
+             <= 750 => 50,
+             <= 2000 => 100,
+             <= 2070 => 10, // try not to over-pad as we approach that limit
+             <= MaxParameterCount => 0, // just don't pad between 2070 and 2100, to minimize the crazy
+             _ => 200,
+         };
+
     private bool TryHandleOverLimitParameters(
         SqlParameterExpression valuesParameter,
         RelationalTypeMapping typeMapping,
