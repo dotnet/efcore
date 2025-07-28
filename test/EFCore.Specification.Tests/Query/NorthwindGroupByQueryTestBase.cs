@@ -37,7 +37,7 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
                     async,
                     ss => ss.Set<Order>().Where(o => o.Customer.City != "London")
                         .GroupBy(o => o.CustomerID, (k, es) => new { k, es })
-                        .Select(g => g.es.Average(o => o.OrderID))));
+                        .Select(g => g.es.Average(int (Order o) => o.OrderID))));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1580,7 +1580,7 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
                   {
                       s.Month,
                       s.Total,
-                      Payment = ss.Set<Order>().Where(e => e.OrderDate.Value.Month == s.Month).Sum(e => e.OrderID)
+                      Payment = ss.Set<Order>().Where(e => e.OrderDate.Value.Month == s.Month).Sum(int (Order e) => e.OrderID)
                   },
             elementSorter: e => (e.Month, e.Total),
             elementAsserter: (e, a) =>
@@ -1775,7 +1775,7 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
             ss => from c in ss.Set<Customer>()
                   from o in ss.Set<Order>().GroupBy(o => o.CustomerID)
                       .Where(g => g.Count() > 5)
-                      .Select(g => new { CustomerID = g.Key, LastOrderID = g.Max(o => o.OrderID) })
+                      .Select(g => new { CustomerID = g.Key, LastOrderID = g.Max(int (Order o) => o.OrderID) })
                       .Where(c1 => c.CustomerID == c1.CustomerID)
                   select c);
 
@@ -1787,7 +1787,7 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
             ss => from c in ss.Set<Customer>()
                   from o in ss.Set<Order>().GroupBy(o => o.CustomerID)
                       .Where(g => g.Count() > 5)
-                      .Select(g => new { CustomerID = g.Key, LastOrderID = g.Max(o => o.OrderID) })
+                      .Select(g => new { CustomerID = g.Key, LastOrderID = g.Max(int (Order o) => o.OrderID) })
                       .Where(c1 => c.CustomerID == c1.CustomerID)
                       .DefaultIfEmpty()
                   select c);
@@ -2342,7 +2342,7 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
                                   .Where(x => x.CustomerID == c.CustomerID).DefaultIfEmpty()
                               group new { c.CustomerID, oc1.Count } by c.CustomerID
                               into g
-                              select new { CustomerID = g.Key, Count = g.Sum(x => x.Count) }).Where(x => x.CustomerID == c1.CustomerID)
+                              select new { CustomerID = g.Key, Count = g.Sum(int? (x) => x.Count) }).Where(x => x.CustomerID == c1.CustomerID)
                       .DefaultIfEmpty()
                   select new
                   {
@@ -2357,7 +2357,7 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
                                   .Where(x => x.CustomerID == c.CustomerID).DefaultIfEmpty()
                               group new { c.CustomerID, Count = oc1.MaybeScalar(e => e.Count) } by c.CustomerID
                               into g
-                              select new { CustomerID = g.Key, Count = g.Sum(x => x.Count) }).Where(x => x.CustomerID == c1.CustomerID)
+                              select new { CustomerID = g.Key, Count = g.Sum(int? (x) => x.Count) }).Where(x => x.CustomerID == c1.CustomerID)
                       .DefaultIfEmpty()
                   select new
                   {
@@ -3200,7 +3200,7 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
                         Subquery = c.Orders
                             .Select(o => new { First = o.CustomerID, Second = o.OrderID })
                             .GroupBy(x => x.First)
-                            .Select(g => new { Sum = g.Sum(x => x.Second) }).ToList()
+                            .Select(g => new { Sum = g.Sum(int (x) => x.Second) }).ToList()
                     }),
             elementSorter: e => e.Key,
             elementAsserter: (e, a) =>
@@ -3222,7 +3222,7 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
                         Subquery = c.Orders
                             .Select(o => new { First = o.CustomerID, Second = o.OrderID })
                             .GroupBy(x => x.First)
-                            .Select(g => new { Max = g.Max(x => x.First.Length), Sum = g.Sum(x => x.Second) }).ToList()
+                            .Select(g => new { Max = g.Max(int (x) => x.First.Length), Sum = g.Sum(int (x) => x.Second) }).ToList()
                     }),
             elementSorter: e => e.Key,
             elementAsserter: (e, a) =>
@@ -3244,7 +3244,7 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
                         Subquery = ss.Set<Order>()
                             .Select(o => new { First = o.CustomerID, Second = o.OrderID })
                             .GroupBy(x => x.First)
-                            .Select(g => new { Max = g.Max(x => x.First.Length), Sum = g.Sum(x => x.Second) }).ToList()
+                            .Select(g => new { Max = g.Max(int (x) => x.First.Length), Sum = g.Sum(int (x) => x.Second) }).ToList()
                     }),
             elementSorter: e => e.Key,
             elementAsserter: (e, a) =>
@@ -3266,7 +3266,7 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
                         Subquery = c.Orders
                             .Select(o => new { First = o.OrderID, Second = o.Customer.City + o.CustomerID })
                             .GroupBy(x => x.Second)
-                            .Select(g => new { Sum = g.Sum(x => x.First), Count = g.Count(x => x.Second.StartsWith("Lon")) }).ToList()
+                            .Select(g => new { Sum = g.Sum(int (x) => x.First), Count = g.Count(x => x.Second.StartsWith("Lon")) }).ToList()
                     }),
             elementSorter: e => e.Key,
             elementAsserter: (e, a) =>
@@ -3288,7 +3288,7 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
                   {
                       Sum = grouping.Sum(x => x.ProductID + x.OrderID * 1000),
                       Subquery = (from c in ss.Set<Customer>()
-                                  where c.CustomerID.Length < grouping.Min(x => x.OrderID / 100)
+                                  where c.CustomerID.Length < grouping.Min(int (OrderDetail x) => x.OrderID / 100)
                                   orderby c.CustomerID
                                   select new { c.CustomerID, c.City }).ToList()
                   },
@@ -3381,7 +3381,7 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
                     {
                         g.Key,
                         A = ss.Set<Employee>().Where(e => e.City == "Seattle").GroupBy(e => e.City)
-                            .Select(g2 => g2.Count() + g.Min(e => e.OrderID))
+                            .Select(g2 => g2.Count() + g.Min(int (Order e) => e.OrderID))
                             .OrderBy(e => 1)
                             .FirstOrDefault()
                     }),

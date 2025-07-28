@@ -721,7 +721,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture>(TFixture fixture) : Q
                     ss.Set<Order>(),
                     x => new { x.CustomerID, Nested = new { x.City, Year = 1996 } },
                     x => new { x.CustomerID, Nested = new { City = "London", x.OrderDate.Value.Year } },
-                    (c, g) => new { c.CustomerID, Sum = g.Sum(x => x.CustomerID.Length) }),
+                    (c, g) => new { c.CustomerID, Sum = g.Sum(int (x) => x.CustomerID.Length) }),
                 elementSorter: e => e.CustomerID));
 
     [ConditionalTheory]

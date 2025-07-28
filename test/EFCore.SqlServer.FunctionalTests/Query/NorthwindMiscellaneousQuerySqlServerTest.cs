@@ -5844,18 +5844,19 @@ ORDER BY [c].[CustomerID]
                 () =>
                 {
                     using var context = CreateContext();
-                    using ((from c in context.Customers
-                            where c.City == "London"
-                            orderby c.CustomerID
-                            select (from o1 in context.Orders
-                                    where o1.CustomerID == c.CustomerID
-                                        && o1.OrderDate.Value.Year == 1997
-                                    orderby o1.OrderID
-                                    select (from o2 in context.Orders
-                                            where o1.CustomerID == c.CustomerID
-                                            orderby o2.OrderID
-                                            select o1.OrderID).ToList()).ToList())
-                           .GetEnumerator())
+                    using (context.Customers
+                        .Where(c => c.City == "London")
+                        .OrderBy(c => c.CustomerID)
+                        .Select(c => context.Orders
+                                .Where(o1 => o1.CustomerID == c.CustomerID && o1.OrderDate.Value.Year == 1997)
+                                .OrderBy(o1 => o1.OrderID)
+                                .Select(o1 => context.Orders
+                                    .Where(o2 => o1.CustomerID == c.CustomerID)
+                                    .OrderBy(o2 => o2.OrderID)
+                                    .Select(o2 => o1.OrderID)
+                                    .ToList())
+                                .ToList())
+                        .GetEnumerator())
                     {
                     }
                 });
