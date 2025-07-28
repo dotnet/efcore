@@ -1680,6 +1680,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
         => expression switch
         {
             ConstantExpression => true,
+            UnaryExpression e => CanEvaluate(e.Operand),
             NewExpression e => e.Arguments.All(CanEvaluate),
             NewArrayExpression e => e.Expressions.All(CanEvaluate),
             MemberInitExpression e => CanEvaluate(e.NewExpression)

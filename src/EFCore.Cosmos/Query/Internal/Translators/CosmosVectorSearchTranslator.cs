@@ -1,9 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Cosmos.Extensions;
+using System.Text;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
-using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 
 // ReSharper disable once CheckNamespace
@@ -36,51 +35,119 @@ public class CosmosVectorSearchTranslator(ISqlExpressionFactory sqlExpressionFac
             return null;
         }
 
-        var vectorMapping = arguments[1].TypeMapping as CosmosVectorTypeMapping
-            ?? arguments[2].TypeMapping as CosmosVectorTypeMapping
+        if (arguments is not [_, var vector1, var vector2, var useBruteForceExpression, var optionsExpression])
+        {
+            throw new UnreachableException();
+        }
+
+        if (useBruteForceExpression is not SqlConstantExpression { Value: var useBruteForceValue })
+        {
+            throw new InvalidOperationException(
+                CoreStrings.ArgumentNotConstant("useBruteForce", nameof(CosmosDbFunctionsExtensions.VectorDistance)));
+        }
+
+        if (optionsExpression is not SqlConstantExpression { Value: var optionsValue })
+        {
+            throw new InvalidOperationException(
+                CoreStrings.ArgumentNotConstant("options", nameof(CosmosDbFunctionsExtensions.VectorDistance)));
+        }
+
+        var options = (VectorDistanceOptions?)optionsValue;
+
+        var vectorMapping = vector1.TypeMapping as CosmosVectorTypeMapping
+            ?? vector2.TypeMapping as CosmosVectorTypeMapping
             ?? throw new InvalidOperationException(CosmosStrings.VectorSearchRequiresVector);
 
-        Check.DebugAssert(arguments.Count is 3 or 4 or 5, "Did you add a parameter?");
-
-        SqlConstantExpression bruteForce;
-        if (arguments.Count >= 4)
-        {
-            if (arguments[3] is not SqlConstantExpression { Value: bool })
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.ArgumentNotConstant("useBruteForce", nameof(CosmosDbFunctionsExtensions.VectorDistance)));
-            }
-
-            bruteForce = (SqlConstantExpression)arguments[3];
-        }
-        else
-        {
-            bruteForce = (SqlConstantExpression)sqlExpressionFactory.Constant(false);
-        }
 
         var vectorType = vectorMapping.VectorType;
-        if (arguments.Count == 5)
-        {
-            if (arguments[4] is not SqlConstantExpression { Value: DistanceFunction distanceFunction })
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.ArgumentNotConstant("distanceFunction", nameof(CosmosDbFunctionsExtensions.VectorDistance)));
-            }
 
-            vectorType = vectorType with { DistanceFunction = distanceFunction };
+        List<Expression> newArguments = new()
+        {
+            sqlExpressionFactory.ApplyTypeMapping(vector1, vectorMapping),
+            sqlExpressionFactory.ApplyTypeMapping(vector2, vectorMapping),
+        };
+
+        if (useBruteForceValue is not null)
+        {
+            newArguments.Add(useBruteForceExpression);
         }
 
-        var dataType = CosmosVectorType.CreateDefaultVectorDataType(vectorMapping.ClrType);
+        if (options is not null)
+        {
+            // If the options are provided but not useBruteForce, we need to explicitly specify the default for the
+            // latter (false)
+            if (useBruteForceValue is null)
+            {
+                newArguments.Add(sqlExpressionFactory.ApplyDefaultTypeMapping(new SqlConstantExpression(false, typeMapping: null)));
+            }
+
+            var optionsBuilder = new StringBuilder("{ ");
+
+            var requireComma = false;
+
+            if (options.DistanceFunction is DistanceFunction distanceFunction)
+            {
+                optionsBuilder
+                    .Append("'distanceFunction': '")
+                    .Append(distanceFunction.ToString().ToLower())
+                    .Append('\'');
+
+                vectorType = vectorType with { DistanceFunction = distanceFunction };
+
+                requireComma = true;
+            }
+
+            if (options.DataType is not null)
+            {
+                if (requireComma)
+                {
+                    optionsBuilder.Append(", ");
+                }
+
+                optionsBuilder
+                    .Append("'dataType': '")
+                    .Append(options.DataType.ToLower())
+                    .Append('\'');
+
+                requireComma = true;
+            }
+
+            if (options.SearchListSizeMultiplier is not null)
+            {
+                if (requireComma)
+                {
+                    optionsBuilder.Append(", ");
+                }
+
+                optionsBuilder
+                    .Append("'searchListSizeMultiplier': ")
+                    .Append(options.SearchListSizeMultiplier.Value);
+
+                requireComma = true;
+            }
+
+            if (options.QuantizedVectorListMultiplier is not null)
+            {
+                if (requireComma)
+                {
+                    optionsBuilder.Append(", ");
+                }
+
+                optionsBuilder
+                    .Append("'quantizedVectorListMultiplier': ")
+                    .Append(options.QuantizedVectorListMultiplier.Value);
+            }
+
+            optionsBuilder.Append(" }");
+
+            var optionsString = optionsBuilder.ToString();
+
+            newArguments.Add(new FragmentExpression(optionsString));
+        }
 
         return sqlExpressionFactory.Function(
             "VectorDistance",
-            [
-                sqlExpressionFactory.ApplyTypeMapping(arguments[1], vectorMapping),
-                sqlExpressionFactory.ApplyTypeMapping(arguments[2], vectorMapping),
-                bruteForce,
-                new FragmentExpression(
-                    $"{{'distanceFunction':'{vectorType.DistanceFunction.ToString().ToLower()}', 'dataType':'{dataType.ToString().ToLower()}'}}")
-            ],
+            newArguments,
             typeof(double),
             typeMappingSource.FindMapping(typeof(double))!);
     }

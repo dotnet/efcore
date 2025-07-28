@@ -2,14 +2,13 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.Azure.Cosmos;
-using Microsoft.EntityFrameworkCore.Cosmos.Extensions;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
-namespace Microsoft.EntityFrameworkCore;
+namespace Microsoft.EntityFrameworkCore.Query.Translations;
 
-public class VectorSearchCosmosTest : IClassFixture<VectorSearchCosmosTest.VectorSearchFixture>
+public class VectorSearchTranslationsCosmosTest : IClassFixture<VectorSearchTranslationsCosmosTest.VectorSearchFixture>
 {
-    public VectorSearchCosmosTest(VectorSearchFixture fixture, ITestOutputHelper testOutputHelper)
+    public VectorSearchTranslationsCosmosTest(VectorSearchFixture fixture, ITestOutputHelper testOutputHelper)
     {
         Fixture = fixture;
         _testOutputHelper = testOutputHelper;
@@ -21,214 +20,7 @@ public class VectorSearchCosmosTest : IClassFixture<VectorSearchCosmosTest.Vecto
     private readonly ITestOutputHelper _testOutputHelper;
 
     [ConditionalFact]
-    public virtual async Task Query_for_vector_distance_sbytes()
-    {
-        await using var context = CreateContext();
-        var inputVector = new ReadOnlyMemory<sbyte>([2, -1, 4, 3, 5, -2, 5, -7, 3, 1]);
-
-        var booksFromStore = await context
-            .Set<Book>()
-            .Select(e => EF.Functions.VectorDistance(e.SBytes, inputVector))
-            .ToListAsync();
-
-        Assert.Equal(3, booksFromStore.Count);
-        Assert.All(booksFromStore, s => Assert.NotEqual(0.0, s));
-
-        AssertSql(
-            """
-@inputVector='[2,-1,4,3,5,-2,5,-7,3,1]'
-
-SELECT VALUE VectorDistance(c["SBytes"], @inputVector, false, {'distanceFunction':'dotproduct', 'dataType':'int8'})
-FROM root c
-""");
-    }
-
-    [ConditionalFact]
-    public virtual async Task Query_for_vector_distance_bytes()
-    {
-        await using var context = CreateContext();
-        var inputVector = new ReadOnlyMemory<byte>([2, 1, 4, 3, 5, 2, 5, 7, 3, 1]);
-
-        var booksFromStore = await context
-            .Set<Book>()
-            .Select(e => EF.Functions.VectorDistance(e.Bytes, inputVector))
-            .ToListAsync();
-
-        Assert.Equal(3, booksFromStore.Count);
-        Assert.All(booksFromStore, s => Assert.NotEqual(0.0, s));
-
-        AssertSql(
-            """
-@inputVector='[2,1,4,3,5,2,5,7,3,1]'
-
-SELECT VALUE VectorDistance(c["Bytes"], @inputVector, false, {'distanceFunction':'cosine', 'dataType':'uint8'})
-FROM root c
-""");
-    }
-
-    [ConditionalFact]
-    public virtual async Task Query_for_vector_distance_singles()
-    {
-        await using var context = CreateContext();
-        var inputVector = new ReadOnlyMemory<float>([0.33f, -0.52f, 0.45f, -0.67f, 0.89f, -0.34f, 0.86f, -0.78f, 0.86f, -0.78f]);
-
-        var booksFromStore = await context
-            .Set<Book>()
-            .Select(
-                e => EF.Functions.VectorDistance(e.OwnedReference.NestedOwned.NestedSingles, inputVector, false, DistanceFunction.DotProduct))
-            .ToListAsync();
-
-        Assert.Equal(3, booksFromStore.Count);
-        Assert.All(booksFromStore, s => Assert.NotEqual(0.0, s));
-
-        AssertSql(
-"""
-@inputVector='[0.33,-0.52,0.45,-0.67,0.89,-0.34,0.86,-0.78,0.86,-0.78]'
-
-SELECT VALUE VectorDistance(c["OwnedReference"]["NestedOwned"]["NestedSingles"], @inputVector, false, {'distanceFunction':'dotproduct', 'dataType':'float32'})
-FROM root c
-""");
-    }
-
-    [ConditionalFact]
-    public virtual async Task Query_for_vector_distance_bytes_array()
-    {
-        await using var context = CreateContext();
-        var inputVector = new byte[] { 2, 1, 4, 3, 5, 2, 5, 7, 3, 1 };
-
-        var booksFromStore = await context
-            .Set<Book>()
-            .Select(e => EF.Functions.VectorDistance(e.BytesArray, inputVector))
-            .ToListAsync();
-
-        Assert.Equal(3, booksFromStore.Count);
-        Assert.All(booksFromStore, s => Assert.NotEqual(0.0, s));
-
-        AssertSql(
-            """
-@p='[2,1,4,3,5,2,5,7,3,1]'
-
-SELECT VALUE VectorDistance(c["BytesArray"], @p, false, {'distanceFunction':'cosine', 'dataType':'uint8'})
-FROM root c
-""");
-    }
-
-    [ConditionalFact]
-    public virtual async Task Query_for_vector_distance_singles_array()
-    {
-        await using var context = CreateContext();
-        var inputVector = new[] { 0.33f, -0.52f, 0.45f, -0.67f, 0.89f, -0.34f, 0.86f, -0.78f, 0.86f, -0.78f };
-
-        var booksFromStore = await context
-            .Set<Book>()
-            .Select(
-                e => EF.Functions.VectorDistance(e.SinglesArray, inputVector, false, DistanceFunction.DotProduct))
-            .ToListAsync();
-
-        Assert.Equal(3, booksFromStore.Count);
-        Assert.All(booksFromStore, s => Assert.NotEqual(0.0, s));
-
-        AssertSql(
-            """
-@p='[0.33,-0.52,0.45,-0.67,0.89,-0.34,0.86,-0.78,0.86,-0.78]'
-
-SELECT VALUE VectorDistance(c["SinglesArray"], @p, false, {'distanceFunction':'dotproduct', 'dataType':'float32'})
-FROM root c
-""");
-    }
-
-    [ConditionalFact]
-    public virtual async Task Vector_distance_sbytes_in_OrderBy()
-    {
-        await using var context = CreateContext();
-        var inputVector = new sbyte[] { 2, 1, 4, 6, 5, 2, 5, 7, 3, 1 };
-
-        var booksFromStore = await context
-            .Set<Book>()
-            .OrderBy(e => EF.Functions.VectorDistance(e.SBytes, inputVector, false, DistanceFunction.DotProduct))
-            .ToListAsync();
-
-        Assert.Equal(3, booksFromStore.Count);
-
-        AssertSql(
-            """
-@p='[2,1,4,6,5,2,5,7,3,1]'
-
-SELECT VALUE c
-FROM root c
-ORDER BY VectorDistance(c["SBytes"], @p, false, {'distanceFunction':'dotproduct', 'dataType':'int8'})
-""");
-    }
-
-    [ConditionalFact]
-    public virtual async Task Vector_distance_bytes_in_OrderBy()
-    {
-        await using var context = CreateContext();
-        var inputVector = new byte[] { 2, 1, 4, 6, 5, 2, 5, 7, 3, 1 };
-
-        var booksFromStore = await context
-            .Set<Book>()
-            .OrderBy(e => EF.Functions.VectorDistance(e.Bytes, inputVector))
-            .ToListAsync();
-
-        Assert.Equal(3, booksFromStore.Count);
-        AssertSql(
-            """
-@p='[2,1,4,6,5,2,5,7,3,1]'
-
-SELECT VALUE c
-FROM root c
-ORDER BY VectorDistance(c["Bytes"], @p, false, {'distanceFunction':'cosine', 'dataType':'uint8'})
-""");
-    }
-
-    [ConditionalFact]
-    public virtual async Task Vector_distance_singles_in_OrderBy()
-    {
-        await using var context = CreateContext();
-        var inputVector = new[] { 0.33f, -0.52f, 0.45f, -0.67f, 0.89f, -0.34f, 0.86f, -0.78f };
-
-        var booksFromStore = await context
-            .Set<Book>()
-            .OrderBy(e => EF.Functions.VectorDistance(e.OwnedReference.NestedOwned.NestedSingles, inputVector))
-            .ToListAsync();
-
-        Assert.Equal(3, booksFromStore.Count);
-
-        AssertSql(
-"""
-@p='[0.33,-0.52,0.45,-0.67,0.89,-0.34,0.86,-0.78]'
-
-SELECT VALUE c
-FROM root c
-ORDER BY VectorDistance(c["OwnedReference"]["NestedOwned"]["NestedSingles"], @p, false, {'distanceFunction':'cosine', 'dataType':'float32'})
-""");
-    }
-
-    [ConditionalFact]
-    public virtual async Task Vector_distance_bytes_array_in_OrderBy()
-    {
-        await using var context = CreateContext();
-        var inputVector = new byte[] { 2, 1, 4, 6, 5, 2, 5, 7, 3, 1 };
-
-        var booksFromStore = await context
-            .Set<Book>()
-            .OrderBy(e => EF.Functions.VectorDistance(e.BytesArray, inputVector))
-            .ToListAsync();
-
-        Assert.Equal(3, booksFromStore.Count);
-        AssertSql(
-            """
-@p='[2,1,4,6,5,2,5,7,3,1]'
-
-SELECT VALUE c
-FROM root c
-ORDER BY VectorDistance(c["BytesArray"], @p, false, {'distanceFunction':'cosine', 'dataType':'uint8'})
-""");
-    }
-
-    [ConditionalFact]
-    public virtual async Task Vector_distance_singles_array_in_OrderBy()
+    public virtual async Task OrderBy_VectorDistance_singles_memory()
     {
         await using var context = CreateContext();
         var inputVector = new[] { 0.33f, -0.52f, 0.45f, -0.67f, 0.89f, -0.34f, 0.86f, -0.78f };
@@ -245,7 +37,214 @@ ORDER BY VectorDistance(c["BytesArray"], @p, false, {'distanceFunction':'cosine'
 
 SELECT VALUE c
 FROM root c
-ORDER BY VectorDistance(c["SinglesArray"], @p, false, {'distanceFunction':'cosine', 'dataType':'float32'})
+ORDER BY VectorDistance(c["SinglesArray"], @p)
+""");
+    }
+
+    [ConditionalFact]
+    public virtual async Task OrderBy_VectorDistance_singles_array()
+    {
+        await using var context = CreateContext();
+        var inputVector = new[] { 0.33f, -0.52f, 0.45f, -0.67f, 0.89f, -0.34f, 0.86f, -0.78f, 0.86f, -0.78f };
+
+        var booksFromStore = await context
+            .Set<Book>()
+            .Select(
+                e => EF.Functions.VectorDistance(e.SinglesArray, inputVector, useBruteForce: false, new() { DistanceFunction = DistanceFunction.DotProduct }))
+            .ToListAsync();
+
+        Assert.Equal(3, booksFromStore.Count);
+        Assert.All(booksFromStore, s => Assert.NotEqual(0.0, s));
+
+        AssertSql(
+            """
+@p='[0.33,-0.52,0.45,-0.67,0.89,-0.34,0.86,-0.78,0.86,-0.78]'
+
+SELECT VALUE VectorDistance(c["SinglesArray"], @p, false, { 'distanceFunction': 'dotproduct' })
+FROM root c
+""");
+    }
+
+    [ConditionalFact]
+    public virtual async Task OrderBy_VectorDistance_bytes_memory()
+    {
+        await using var context = CreateContext();
+        var inputVector = new byte[] { 2, 1, 4, 6, 5, 2, 5, 7, 3, 1 };
+
+        var booksFromStore = await context
+            .Set<Book>()
+            .OrderBy(e => EF.Functions.VectorDistance(e.Bytes, inputVector))
+            .ToListAsync();
+
+        Assert.Equal(3, booksFromStore.Count);
+        AssertSql(
+            """
+@p='[2,1,4,6,5,2,5,7,3,1]'
+
+SELECT VALUE c
+FROM root c
+ORDER BY VectorDistance(c["Bytes"], @p)
+""");
+    }
+
+    [ConditionalFact]
+    public virtual async Task OrderBy_VectorDistance_bytes_array()
+    {
+        await using var context = CreateContext();
+        var inputVector = new byte[] { 2, 1, 4, 6, 5, 2, 5, 7, 3, 1 };
+
+        var booksFromStore = await context
+            .Set<Book>()
+            .OrderBy(e => EF.Functions.VectorDistance(e.BytesArray, inputVector))
+            .ToListAsync();
+
+        Assert.Equal(3, booksFromStore.Count);
+        AssertSql(
+            """
+@p='[2,1,4,6,5,2,5,7,3,1]'
+
+SELECT VALUE c
+FROM root c
+ORDER BY VectorDistance(c["BytesArray"], @p)
+""");
+    }
+
+    [ConditionalFact]
+    public virtual async Task OrderBy_VectorDistance_sbyte()
+    {
+        await using var context = CreateContext();
+        var inputVector = new sbyte[] { 2, 1, 4, 6, 5, 2, 5, 7, 3, 1 };
+
+        var booksFromStore = await context
+            .Set<Book>()
+            .OrderBy(e => EF.Functions.VectorDistance(e.SBytes, inputVector))
+            .ToListAsync();
+
+        Assert.Equal(3, booksFromStore.Count);
+
+        AssertSql(
+            """
+@p='[2,1,4,6,5,2,5,7,3,1]'
+
+SELECT VALUE c
+FROM root c
+ORDER BY VectorDistance(c["SBytes"], @p)
+""");
+    }
+
+    #region Brute force and options
+
+    [ConditionalFact]
+    public virtual async Task VectorDistance_with_brute_force_true()
+    {
+        await using var context = CreateContext();
+        var inputVector = new[] { 0.33f, -0.52f, 0.45f, -0.67f, 0.89f, -0.34f, 0.86f, -0.78f };
+
+        var booksFromStore = await context
+            .Set<Book>()
+            .OrderBy(e => EF.Functions.VectorDistance(e.SinglesArray, inputVector, useBruteForce: true))
+            .ToListAsync();
+
+        Assert.Equal(3, booksFromStore.Count);
+        AssertSql(
+            """
+@p='[0.33,-0.52,0.45,-0.67,0.89,-0.34,0.86,-0.78]'
+
+SELECT VALUE c
+FROM root c
+ORDER BY VectorDistance(c["SinglesArray"], @p, true)
+""");
+    }
+
+    [ConditionalFact]
+    public virtual async Task VectorDistance_with_brute_force_and_distance_function()
+    {
+        await using var context = CreateContext();
+        var inputVector = new[] { 0.33f, -0.52f, 0.45f, -0.67f, 0.89f, -0.34f, 0.86f, -0.78f };
+
+        var booksFromStore = await context
+            .Set<Book>()
+            .OrderBy(e => EF.Functions.VectorDistance(e.SinglesArray, inputVector, useBruteForce: true, new() { DistanceFunction = DistanceFunction.DotProduct }))
+            .ToListAsync();
+
+        Assert.Equal(3, booksFromStore.Count);
+        AssertSql(
+            """
+@p='[0.33,-0.52,0.45,-0.67,0.89,-0.34,0.86,-0.78]'
+
+SELECT VALUE c
+FROM root c
+ORDER BY VectorDistance(c["SinglesArray"], @p, true, { 'distanceFunction': 'dotproduct' })
+""");
+    }
+
+    [ConditionalFact]
+    public virtual async Task VectorDistance_with_distance_function_and_brute_force_null()
+    {
+        await using var context = CreateContext();
+        var inputVector = new[] { 0.33f, -0.52f, 0.45f, -0.67f, 0.89f, -0.34f, 0.86f, -0.78f };
+
+        var booksFromStore = await context
+            .Set<Book>()
+            .OrderBy(e => EF.Functions.VectorDistance(e.SinglesArray, inputVector, useBruteForce: null, new() { DistanceFunction = DistanceFunction.DotProduct }))
+            .ToListAsync();
+
+        Assert.Equal(3, booksFromStore.Count);
+        AssertSql(
+            """
+@p='[0.33,-0.52,0.45,-0.67,0.89,-0.34,0.86,-0.78]'
+
+SELECT VALUE c
+FROM root c
+ORDER BY VectorDistance(c["SinglesArray"], @p, false, { 'distanceFunction': 'dotproduct' })
+""");
+    }
+
+    [ConditionalFact]
+    public virtual async Task VectorDistance_with_data_type_and_distance_function()
+    {
+        await using var context = CreateContext();
+        var inputVector = new[] { 0.33f, -0.52f, 0.45f, -0.67f, 0.89f, -0.34f, 0.86f, -0.78f };
+
+        var booksFromStore = await context
+            .Set<Book>()
+            .OrderBy(e => EF.Functions.VectorDistance(e.SinglesArray, inputVector, useBruteForce: false, new() { DataType = "float32", DistanceFunction = DistanceFunction.DotProduct }))
+            .ToListAsync();
+
+        Assert.Equal(3, booksFromStore.Count);
+        AssertSql(
+            """
+@p='[0.33,-0.52,0.45,-0.67,0.89,-0.34,0.86,-0.78]'
+
+SELECT VALUE c
+FROM root c
+ORDER BY VectorDistance(c["SinglesArray"], @p, false, { 'distanceFunction': 'dotproduct', 'dataType': 'float32' })
+""");
+    }
+
+    #endregion Brute force and options
+
+    [ConditionalFact]
+    public virtual async Task Select_VectorDistance()
+    {
+        await using var context = CreateContext();
+        var inputVector = new ReadOnlyMemory<float>([0.33f, -0.52f, 0.45f, -0.67f, 0.89f, -0.34f, 0.86f, -0.78f, 0.86f, -0.78f]);
+
+        var booksFromStore = await context
+            .Set<Book>()
+            .Select(
+                e => EF.Functions.VectorDistance(e.OwnedReference.NestedOwned.NestedSingles, inputVector))
+            .ToListAsync();
+
+        Assert.Equal(3, booksFromStore.Count);
+        Assert.All(booksFromStore, s => Assert.NotEqual(0.0, s));
+
+        AssertSql(
+"""
+@inputVector='[0.33,-0.52,0.45,-0.67,0.89,-0.34,0.86,-0.78,0.86,-0.78]'
+
+SELECT VALUE VectorDistance(c["OwnedReference"]["NestedOwned"]["NestedSingles"], @inputVector)
+FROM root c
 """);
     }
 
@@ -272,7 +271,7 @@ ORDER BY VectorDistance(c["SinglesArray"], @p, false, {'distanceFunction':'cosin
 
 SELECT VALUE c
 FROM root c
-ORDER BY RANK RRF(VectorDistance(c["BytesArray"], @p, false, {'distanceFunction':'cosine', 'dataType':'uint8'}), VectorDistance(c["SinglesArray"], @p0, false, {'distanceFunction':'cosine', 'dataType':'float32'}))
+ORDER BY RANK RRF(VectorDistance(c["BytesArray"], @p), VectorDistance(c["SinglesArray"], @p0))
 """);
     }
 
@@ -323,14 +322,12 @@ ORDER BY RANK RRF(VectorDistance(c["BytesArray"], @p, false, {'distanceFunction'
                     .OrderBy(e => EF.Functions.VectorDistance(e.OwnedReference.NestedOwned.NestedSingles, inputVector, e.IsPublished))
                     .ToListAsync())).Message);
 
-        Assert.Equal(
-            CoreStrings.ArgumentNotConstant("distanceFunction", nameof(CosmosDbFunctionsExtensions.VectorDistance)),
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                async () => await context
-                    .Set<Book>()
-                    .OrderBy(
-                        e => EF.Functions.VectorDistance(e.OwnedReference.NestedOwned.NestedSingles, inputVector, false, e.DistanceFunction))
-                    .ToListAsync())).Message);
+        await Assert.ThrowsAsync<InvalidOperationException>(
+            async () => await context
+                .Set<Book>()
+                .OrderBy(
+                    e => EF.Functions.VectorDistance(e.OwnedReference.NestedOwned.NestedSingles, inputVector, useBruteForce: false, new() { DistanceFunction = e.DistanceFunction }))
+                .ToListAsync());
     }
 
     private class Book
