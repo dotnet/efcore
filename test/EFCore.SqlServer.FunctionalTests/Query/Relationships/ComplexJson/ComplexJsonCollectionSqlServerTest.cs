@@ -124,12 +124,24 @@ WHERE (
         // ElementAt (making a Select()), this interferes with our translation. See #36335.
         await Assert.ThrowsAsync<EqualException>(() => base.Index_constant());
 
-        AssertSql(
-            """
+        if (Fixture.UsingJsonType)
+        {
+            AssertSql(
+                """
+SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+FROM [RootEntity] AS [r]
+WHERE JSON_VALUE([r].[RelatedCollection], '$[0]' RETURNING int) = 8
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
 FROM [RootEntity] AS [r]
 WHERE CAST(JSON_VALUE([r].[RelatedCollection], '$[0]') AS int) = 8
 """);
+        }
     }
 
     public override async Task Index_parameter()
@@ -138,14 +150,28 @@ WHERE CAST(JSON_VALUE([r].[RelatedCollection], '$[0]') AS int) = 8
         // ElementAt (making a Select()), this interferes with our translation. See #36335.
         await Assert.ThrowsAsync<EqualException>(() => base.Index_parameter());
 
-        AssertSql(
-            """
+        if (Fixture.UsingJsonType)
+        {
+            AssertSql(
+                 """
+@i='?' (DbType = Int32)
+
+SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+FROM [RootEntity] AS [r]
+WHERE JSON_VALUE([r].[RelatedCollection], '$[' + CAST(@i AS nvarchar(max)) + ']' RETURNING int) = 8
+""");
+        }
+        else
+        {
+           AssertSql(
+               """
 @i='?' (DbType = Int32)
 
 SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
 FROM [RootEntity] AS [r]
 WHERE CAST(JSON_VALUE([r].[RelatedCollection], '$[' + CAST(@i AS nvarchar(max)) + ']') AS int) = 8
 """);
+        }
     }
 
     public override async Task Index_column()
@@ -154,24 +180,48 @@ WHERE CAST(JSON_VALUE([r].[RelatedCollection], '$[' + CAST(@i AS nvarchar(max)) 
         // ElementAt (making a Select()), this interferes with our translation. See #36335.
         await Assert.ThrowsAsync<EqualException>(() => base.Index_column());
 
-        AssertSql(
-            """
+        if (Fixture.UsingJsonType)
+        {
+            AssertSql(
+                """
+SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+FROM [RootEntity] AS [r]
+WHERE JSON_VALUE([r].[RelatedCollection], '$[' + CAST([r].[Id] - 1 AS nvarchar(max)) + ']' RETURNING int) = 8
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
 FROM [RootEntity] AS [r]
 WHERE CAST(JSON_VALUE([r].[RelatedCollection], '$[' + CAST([r].[Id] - 1 AS nvarchar(max)) + ']') AS int) = 8
 """);
+        }
     }
 
     public override async Task Index_out_of_bounds()
     {
         await base.Index_out_of_bounds();
 
-        AssertSql(
-            """
+        if (Fixture.UsingJsonType)
+        {
+            AssertSql(
+                """
+SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+FROM [RootEntity] AS [r]
+WHERE JSON_VALUE([r].[RelatedCollection], '$[9999]' RETURNING int) = 8
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
 FROM [RootEntity] AS [r]
 WHERE CAST(JSON_VALUE([r].[RelatedCollection], '$[9999]') AS int) = 8
 """);
+        }
     }
 
     #endregion Index

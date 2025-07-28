@@ -218,6 +218,9 @@ public sealed class SqlServerJsonPostprocessor(
                     jsonScalarExpression.IsNullable);
             }
 
+            // TODO: With the new RETURNING clause the following should not longer be needed - but support for varbinary
+            // isn't there yet. See #36474.
+
             // Some SQL Server types cannot be reliably parsed with JSON_VALUE(): binary/varbinary are encoded in base64 in the JSON,
             // but JSON_VALUE() returns a string and there's no SQL Server function to parse base64. However, OPENJSON/WITH does do base64
             // decoding.
