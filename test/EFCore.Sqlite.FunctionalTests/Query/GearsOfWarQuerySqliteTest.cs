@@ -406,12 +406,16 @@ FROM "Tags" AS "t"
 @tags4='a8ad98f9-e023-4e2a-9a70-c2728455bd34'
 @tags5='b39a6fba-9026-4d69-828e-fd7068673e57'
 @tags6='df36f493-463f-4123-83f9-6b135deeb7ba'
+@tags7='df36f493-463f-4123-83f9-6b135deeb7ba'
+@tags8='df36f493-463f-4123-83f9-6b135deeb7ba'
+@tags9='df36f493-463f-4123-83f9-6b135deeb7ba'
+@tags10='df36f493-463f-4123-83f9-6b135deeb7ba'
 
 SELECT "g"."Nickname", "g"."SquadId", "g"."AssignedCityName", "g"."CityOfBirthName", "g"."Discriminator", "g"."FullName", "g"."HasSoulPatch", "g"."LeaderNickname", "g"."LeaderSquadId", "g"."Rank", "t"."Id", "t"."GearNickName", "t"."GearSquadId", "t"."IssueDate", "t"."Note"
 FROM "Gears" AS "g"
 INNER JOIN "Cities" AS "c" ON "g"."CityOfBirthName" = "c"."Name"
 LEFT JOIN "Tags" AS "t" ON "g"."Nickname" = "t"."GearNickName" AND "g"."SquadId" = "t"."GearSquadId"
-WHERE "c"."Location" IS NOT NULL AND "t"."Id" IN (@tags1, @tags2, @tags3, @tags4, @tags5, @tags6)
+WHERE "c"."Location" IS NOT NULL AND "t"."Id" IN (@tags1, @tags2, @tags3, @tags4, @tags5, @tags6, @tags7, @tags8, @tags9, @tags10)
 """);
     }
 
@@ -3124,11 +3128,15 @@ FROM "Tags" AS "t"
 @tags4='a8ad98f9-e023-4e2a-9a70-c2728455bd34'
 @tags5='b39a6fba-9026-4d69-828e-fd7068673e57'
 @tags6='df36f493-463f-4123-83f9-6b135deeb7ba'
+@tags7='df36f493-463f-4123-83f9-6b135deeb7ba'
+@tags8='df36f493-463f-4123-83f9-6b135deeb7ba'
+@tags9='df36f493-463f-4123-83f9-6b135deeb7ba'
+@tags10='df36f493-463f-4123-83f9-6b135deeb7ba'
 
 SELECT "g"."Nickname", "g"."SquadId", "g"."AssignedCityName", "g"."CityOfBirthName", "g"."Discriminator", "g"."FullName", "g"."HasSoulPatch", "g"."LeaderNickname", "g"."LeaderSquadId", "g"."Rank"
 FROM "Gears" AS "g"
 LEFT JOIN "Tags" AS "t" ON "g"."Nickname" = "t"."GearNickName" AND "g"."SquadId" = "t"."GearSquadId"
-WHERE "t"."Id" IS NOT NULL AND "t"."Id" IN (@tags1, @tags2, @tags3, @tags4, @tags5, @tags6)
+WHERE "t"."Id" IS NOT NULL AND "t"."Id" IN (@tags1, @tags2, @tags3, @tags4, @tags5, @tags6, @tags7, @tags8, @tags9, @tags10)
 """);
     }
 
@@ -4197,11 +4205,15 @@ FROM "Tags" AS "t"
 @tags4='a8ad98f9-e023-4e2a-9a70-c2728455bd34'
 @tags5='b39a6fba-9026-4d69-828e-fd7068673e57'
 @tags6='df36f493-463f-4123-83f9-6b135deeb7ba'
+@tags7='df36f493-463f-4123-83f9-6b135deeb7ba'
+@tags8='df36f493-463f-4123-83f9-6b135deeb7ba'
+@tags9='df36f493-463f-4123-83f9-6b135deeb7ba'
+@tags10='df36f493-463f-4123-83f9-6b135deeb7ba'
 
 SELECT "g"."Nickname", "g"."SquadId", "g"."AssignedCityName", "g"."CityOfBirthName", "g"."Discriminator", "g"."FullName", "g"."HasSoulPatch", "g"."LeaderNickname", "g"."LeaderSquadId", "g"."Rank", "t"."Id", "t"."GearNickName", "t"."GearSquadId", "t"."IssueDate", "t"."Note"
 FROM "Gears" AS "g"
 LEFT JOIN "Tags" AS "t" ON "g"."Nickname" = "t"."GearNickName" AND "g"."SquadId" = "t"."GearSquadId"
-WHERE "t"."Id" IS NOT NULL AND "t"."Id" IN (@tags1, @tags2, @tags3, @tags4, @tags5, @tags6)
+WHERE "t"."Id" IS NOT NULL AND "t"."Id" IN (@tags1, @tags2, @tags3, @tags4, @tags5, @tags6, @tags7, @tags8, @tags9, @tags10)
 """);
     }
 

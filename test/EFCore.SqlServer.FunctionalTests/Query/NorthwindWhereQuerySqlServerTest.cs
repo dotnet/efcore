@@ -1470,11 +1470,15 @@ ORDER BY [c0].[CustomerID]
 @entity_equality_customer_Orders_OrderID4='10835'
 @entity_equality_customer_Orders_OrderID5='10952'
 @entity_equality_customer_Orders_OrderID6='11011'
+@entity_equality_customer_Orders_OrderID7='11011'
+@entity_equality_customer_Orders_OrderID8='11011'
+@entity_equality_customer_Orders_OrderID9='11011'
+@entity_equality_customer_Orders_OrderID10='11011'
 
 SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
 INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
-WHERE [o0].[OrderID] IN (@entity_equality_customer_Orders_OrderID1, @entity_equality_customer_Orders_OrderID2, @entity_equality_customer_Orders_OrderID3, @entity_equality_customer_Orders_OrderID4, @entity_equality_customer_Orders_OrderID5, @entity_equality_customer_Orders_OrderID6)
+WHERE [o0].[OrderID] IN (@entity_equality_customer_Orders_OrderID1, @entity_equality_customer_Orders_OrderID2, @entity_equality_customer_Orders_OrderID3, @entity_equality_customer_Orders_OrderID4, @entity_equality_customer_Orders_OrderID5, @entity_equality_customer_Orders_OrderID6, @entity_equality_customer_Orders_OrderID7, @entity_equality_customer_Orders_OrderID8, @entity_equality_customer_Orders_OrderID9, @entity_equality_customer_Orders_OrderID10)
 """);
     }
 
