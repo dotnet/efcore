@@ -184,16 +184,14 @@ ORDER BY [r].[Id], [o].[RelatedTypeRootEntityId], [o].[Id], [s].[RootEntityId], 
     {
         await base.Nested_collection_with_inline();
 
-        AssertSql(
-);
+        AssertSql();
     }
 
     public override async Task Nested_collection_with_parameter()
     {
         await base.Nested_collection_with_parameter();
 
-        AssertSql(
-);
+        AssertSql();
     }
 
     [ConditionalFact]
