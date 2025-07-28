@@ -125,11 +125,11 @@ public class SqlServerVectorTypeMapping : RelationalTypeMapping
         // This is because vectors are basically immutable, and it's better to have more efficient change tracking
         // equality checks.
         private static bool CalculateEquality(SqlVector<float>? x, SqlVector<float>? y)
-            => x is null
-                ? y is null
-                : y is not null && (x.IsNull
-                    ? y.IsNull
-                    : !y.IsNull && x.Memory.Span == y.Memory.Span);
+            => x is SqlVector<float> v1 && y is SqlVector<float> v2
+                ? v1.IsNull
+                    ? v2.IsNull
+                    : !v2.IsNull && v1.Memory.Span == v2.Memory.Span
+                : x is null && y is null;
 
         private static int CalculateHashCode(SqlVector<float> vector)
         {
