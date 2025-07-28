@@ -55,6 +55,7 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
 
         _structuralTypeMaterializerInjector =
             new StructuralTypeMaterializerInjector(
+                this,
                 dependencies.EntityMaterializerSource,
                 dependencies.LiftableConstantFactory,
                 queryCompilationContext.QueryTrackingBehavior,
@@ -233,12 +234,12 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
             {
                 { Value: IEntityType entityTypeValue } => liftableConstantFactory.CreateLiftableConstant(
                     constantExpression.Value,
-                    LiftableConstantExpressionHelpers.BuildMemberAccessLambdaForEntityOrComplexType(entityTypeValue),
+                    LiftableConstantExpressionHelpers.BuildMemberAccessLambdaForStructuralType(entityTypeValue),
                     entityTypeValue.ShortName() + "EntityType",
                     constantExpression.Type),
                 { Value: IComplexType complexTypeValue } => liftableConstantFactory.CreateLiftableConstant(
                     constantExpression.Value,
-                    LiftableConstantExpressionHelpers.BuildMemberAccessLambdaForEntityOrComplexType(complexTypeValue),
+                    LiftableConstantExpressionHelpers.BuildMemberAccessLambdaForStructuralType(complexTypeValue),
                     complexTypeValue.ShortName() + "ComplexType",
                     constantExpression.Type),
                 { Value: IProperty propertyValue } => liftableConstantFactory.CreateLiftableConstant(
@@ -361,8 +362,20 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
         }
     }
 
+    /// <summary>
+    ///     Called after a structural type is materialized, but before it's handed off to the change tracker.
+    /// </summary>
+    public virtual void AddStructuralTypeInitialization(
+        StructuralTypeShaperExpression shaper,
+        ParameterExpression instanceVariable,
+        List<ParameterExpression> variables,
+        List<Expression> expressions)
+    {
+    }
+
     private sealed class StructuralTypeMaterializerInjector(
-        IStructuralTypeMaterializerSource entityMaterializerSource,
+        ShapedQueryCompilingExpressionVisitor shapedQueryCompiler,
+        IStructuralTypeMaterializerSource materializerSource,
         ILiftableConstantFactory liftableConstantFactory,
         QueryTrackingBehavior queryTrackingBehavior,
         bool supportsPrecompiledQuery)
@@ -426,10 +439,10 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
 
         protected override Expression VisitExtension(Expression extensionExpression)
             => extensionExpression is StructuralTypeShaperExpression shaper
-                ? ProcessEntityShaper(shaper)
+                ? ProcessStructuralTypeShaper(shaper)
                 : base.VisitExtension(extensionExpression);
 
-        private Expression ProcessEntityShaper(StructuralTypeShaperExpression shaper)
+        private Expression ProcessStructuralTypeShaper(StructuralTypeShaperExpression shaper)
         {
             _currentEntityIndex++;
 
@@ -565,7 +578,7 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                                         supportsPrecompiledQuery
                                             ? liftableConstantFactory.CreateLiftableConstant(
                                                 typeBase,
-                                                LiftableConstantExpressionHelpers.BuildMemberAccessLambdaForEntityOrComplexType(typeBase),
+                                                LiftableConstantExpressionHelpers.BuildMemberAccessLambdaForStructuralType(typeBase),
                                                 typeBase.Name + "EntityType",
                                                 typeof(IEntityType))
                                             : Constant(typeBase),
@@ -606,7 +619,7 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
             ParameterExpression instanceVariable,
             ParameterExpression? entryVariable)
         {
-            var typeBase = shaper.StructuralType;
+            var structuralType = shaper.StructuralType;
 
             var expressions = new List<Expression>();
             var variables = new List<ParameterExpression>();
@@ -626,7 +639,7 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                             typeof(ISnapshot))
                         : Constant(Snapshot.Empty, typeof(ISnapshot))));
 
-            var returnType = typeBase.ClrType;
+            var returnType = structuralType.ClrType;
             var valueBufferExpression = Call(materializationContextVariable, MaterializationContext.GetValueBufferMethod);
 
             var materializationConditionBody = ReplacingExpressionVisitor.Replace(
@@ -637,23 +650,23 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
             var expressionContext = (returnType, materializationContextVariable, concreteEntityTypeVariable, shadowValuesVariable);
             expressions.Add(Assign(concreteEntityTypeVariable, materializationConditionBody));
 
-            var (primaryKey, concreteEntityTypes) = typeBase is IEntityType entityType
+            var (primaryKey, concreteStructuralTypes) = structuralType is IEntityType entityType
                 ? (entityType.FindPrimaryKey(), entityType.GetConcreteDerivedTypesInclusive().Cast<ITypeBase>().ToArray())
-                : (null, [typeBase]);
+                : (null, [structuralType]);
 
-            var switchCases = new SwitchCase[concreteEntityTypes.Length];
-            for (var i = 0; i < concreteEntityTypes.Length; i++)
+            var switchCases = new SwitchCase[concreteStructuralTypes.Length];
+            for (var i = 0; i < concreteStructuralTypes.Length; i++)
             {
-                var concreteEntityType = concreteEntityTypes[i];
+                var concreteStructuralType = concreteStructuralTypes[i];
                 switchCases[i] = SwitchCase(
-                    CreateFullMaterializeExpression(concreteEntityTypes[i], expressionContext),
+                    CreateFullMaterializeExpression(concreteStructuralTypes[i], expressionContext),
                     supportsPrecompiledQuery
                         ? liftableConstantFactory.CreateLiftableConstant(
-                            concreteEntityTypes[i],
-                            LiftableConstantExpressionHelpers.BuildMemberAccessLambdaForEntityOrComplexType(concreteEntityType),
-                            concreteEntityType.ShortName() + (typeBase is IEntityType ? "EntityType" : "ComplexType"),
-                            typeBase is IEntityType ? typeof(IEntityType) : typeof(IComplexType))
-                        : Constant(concreteEntityTypes[i], typeBase is IEntityType ? typeof(IEntityType) : typeof(IComplexType)));
+                            concreteStructuralTypes[i],
+                            LiftableConstantExpressionHelpers.BuildMemberAccessLambdaForStructuralType(concreteStructuralType),
+                            concreteStructuralType.ShortName() + (structuralType is IEntityType ? "EntityType" : "ComplexType"),
+                            structuralType is IEntityType ? typeof(IEntityType) : typeof(IComplexType))
+                        : Constant(concreteStructuralTypes[i], structuralType is IEntityType ? typeof(IEntityType) : typeof(IComplexType)));
             }
 
             var materializationExpression = Switch(
@@ -663,9 +676,11 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
 
             expressions.Add(Assign(instanceVariable, materializationExpression));
 
+            shapedQueryCompiler.AddStructuralTypeInitialization(shaper, instanceVariable, variables, expressions);
+
             if (_queryStateManager && primaryKey is not null)
             {
-                if (typeBase is IEntityType entityType2)
+                if (structuralType is IEntityType entityType2)
                 {
                     foreach (var et in entityType2.GetAllBaseTypes().Concat(entityType2.GetDerivedTypesInclusive()))
                     {
@@ -696,7 +711,7 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
         }
 
         private BlockExpression CreateFullMaterializeExpression(
-            ITypeBase concreteTypeBase,
+            ITypeBase concreteStructuralType,
             (Type ReturnType,
                 ParameterExpression MaterializationContextVariable,
                 ParameterExpression ConcreteEntityTypeVariable,
@@ -709,14 +724,14 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
 
             var blockExpressions = new List<Expression>(2);
 
-            var materializer = entityMaterializerSource
+            var materializer = materializerSource
                 .CreateMaterializeExpression(
                     new StructuralTypeMaterializerSourceParameters(
-                        concreteTypeBase, "instance", queryTrackingBehavior), materializationContextVariable);
+                        concreteStructuralType, "instance", queryTrackingBehavior), materializationContextVariable);
 
             // TODO: Properly support shadow properties for complex types #35613
             if (_queryStateManager
-                && concreteTypeBase is IRuntimeEntityType { ShadowPropertyCount: > 0 } runtimeEntityType)
+                && concreteStructuralType is IRuntimeEntityType { ShadowPropertyCount: > 0 } runtimeEntityType)
             {
                 var valueBufferExpression = Call(
                     materializationContextVariable, MaterializationContext.GetValueBufferMethod);

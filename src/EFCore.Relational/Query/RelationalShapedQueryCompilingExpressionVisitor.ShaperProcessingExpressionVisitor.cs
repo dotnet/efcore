@@ -16,6 +16,8 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public partial class RelationalShapedQueryCompilingExpressionVisitor
 {
+    private ShaperProcessingExpressionVisitor? _currentShaperProcessor;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -24,6 +26,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
     /// </summary>
     public sealed partial class ShaperProcessingExpressionVisitor : ExpressionVisitor
     {
+        private ShaperProcessingExpressionVisitor? _parentShaperProcessor;
+
         /// <summary>
         ///     Reading database values
         /// </summary>
@@ -297,25 +301,35 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             out LambdaExpression? relatedDataLoaders,
             ref int collectionId)
         {
-            _inline = true;
-            keySelector = Lambda(
-                Visit(relationalGroupByResultExpression.KeyShaper),
-                QueryCompilationContext.QueryContextParameter,
-                _dataReaderParameter);
+            _parentShaperProcessor = _parentVisitor._currentShaperProcessor;
+            _parentVisitor._currentShaperProcessor = this;
 
-            keyIdentifier = Lambda(
-                Visit(relationalGroupByResultExpression.KeyIdentifier),
-                QueryCompilationContext.QueryContextParameter,
-                _dataReaderParameter);
+            try
+            {
+                _inline = true;
+                keySelector = Lambda(
+                    Visit(relationalGroupByResultExpression.KeyShaper),
+                    QueryCompilationContext.QueryContextParameter,
+                    _dataReaderParameter);
 
-            _inline = false;
+                keyIdentifier = Lambda(
+                    Visit(relationalGroupByResultExpression.KeyIdentifier),
+                    QueryCompilationContext.QueryContextParameter,
+                    _dataReaderParameter);
 
-            return ProcessShaper(
-                relationalGroupByResultExpression.ElementShaper,
-                out relationalCommandResolver!,
-                out readerColumns,
-                out relatedDataLoaders,
-                ref collectionId);
+                _inline = false;
+
+                return ProcessShaper(
+                    relationalGroupByResultExpression.ElementShaper,
+                    out relationalCommandResolver!,
+                    out readerColumns,
+                    out relatedDataLoaders,
+                    ref collectionId);
+            }
+            finally
+            {
+                _parentVisitor._currentShaperProcessor = _parentShaperProcessor;
+            }
         }
 
         /// <summary>
@@ -331,145 +345,155 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             out LambdaExpression? relatedDataLoaders,
             ref int collectionId)
         {
-            relatedDataLoaders = null;
-            _collectionId = collectionId;
+            _parentShaperProcessor = _parentVisitor._currentShaperProcessor;
+            _parentVisitor._currentShaperProcessor = this;
 
-            if (_indexMapParameter != null)
+            try
             {
-                var result = Visit(shaperExpression);
-                _expressions.Add(result);
-                result = Block(_variables, _expressions);
+                relatedDataLoaders = null;
+                _collectionId = collectionId;
 
-                relationalCommandResolver = _parentVisitor.CreateRelationalCommandResolverExpression(_selectExpression);
-                readerColumns = _readerColumns;
-
-                return Lambda(
-                    result,
-                    QueryCompilationContext.QueryContextParameter,
-                    _dataReaderParameter,
-                    _indexMapParameter);
-            }
-
-            _containsCollectionMaterialization = new CollectionShaperFindingExpressionVisitor()
-                .ContainsCollectionMaterialization(shaperExpression);
-
-            // for NoTrackingWithIdentityResolution we need to make sure we see JSON entities in the correct order
-            // specifically, if we project JSON collection, it needs to be projected before any individual element from that collection
-            // otherwise we store JSON entities in incorrect order in the Change Tracker, leading to possible data corruption
-            // we only need to do this once, on top level
-            // see issue #33073 for more context
-            if (_queryStateManager && !_isTracking && collectionId == 0)
-            {
-                var jsonCorrectOrderOfEntitiesForChangeTrackerValidator =
-                    new JsonCorrectOrderOfEntitiesForChangeTrackerValidator(_selectExpression);
-                jsonCorrectOrderOfEntitiesForChangeTrackerValidator.Validate(shaperExpression);
-            }
-
-            if (!_containsCollectionMaterialization)
-            {
-                var result = Visit(shaperExpression);
-                _expressions.AddRange(_includeExpressions);
-                _expressions.AddRange(_jsonEntityExpressions);
-                _expressions.Add(result);
-                result = Block(_variables, _expressions);
-
-                relationalCommandResolver = _generateCommandResolver
-                    ? _parentVisitor.CreateRelationalCommandResolverExpression(_selectExpression)
-                    : Constant(null, typeof(RelationalCommandResolver));
-                readerColumns = _readerColumns;
-
-                return Lambda(
-                    result,
-                    QueryCompilationContext.QueryContextParameter,
-                    _dataReaderParameter,
-                    _resultContextParameter,
-                    _resultCoordinatorParameter);
-            }
-            else
-            {
-                _valuesArrayExpression = MakeMemberAccess(_resultContextParameter, ResultContextValuesMemberInfo);
-                _collectionPopulatingExpressions = [];
-                _valuesArrayInitializers = [];
-
-                var result = Visit(shaperExpression);
-
-                var valueArrayInitializationExpression = Assign(
-                    _valuesArrayExpression, NewArrayInit(typeof(object), _valuesArrayInitializers));
-
-                _expressions.AddRange(_jsonEntityExpressions);
-                _expressions.Add(valueArrayInitializationExpression);
-                _expressions.AddRange(_includeExpressions);
-
-                if (_splitQuery)
+                if (_indexMapParameter != null)
                 {
-                    _expressions.Add(Default(result.Type));
+                    var result = Visit(shaperExpression);
+                    _expressions.Add(result);
+                    result = Block(_variables, _expressions);
 
-                    var initializationBlock = Block(_variables, _expressions);
-                    result = Condition(
-                        Equal(_valuesArrayExpression, Constant(null, typeof(object[]))),
-                        initializationBlock,
-                        result);
+                    relationalCommandResolver = _parentVisitor.CreateRelationalCommandResolverExpression(_selectExpression);
+                    readerColumns = _readerColumns;
 
-                    if (_isAsync)
-                    {
-                        var tasks = NewArrayInit(
-                            typeof(Func<Task>), _collectionPopulatingExpressions.Select(
-                                e => Lambda<Func<Task>>(e)));
-                        relatedDataLoaders =
-                            Lambda<Func<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator, Task>>(
-                                Call(TaskAwaiterMethodInfo, tasks),
-                                QueryCompilationContext.QueryContextParameter,
-                                _executionStrategyParameter!,
-                                _resultCoordinatorParameter);
-                    }
-                    else
-                    {
-                        relatedDataLoaders =
-                            Lambda<Action<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator>>(
-                                Block(_collectionPopulatingExpressions),
-                                QueryCompilationContext.QueryContextParameter,
-                                _executionStrategyParameter!,
-                                _resultCoordinatorParameter);
-                    }
+                    return Lambda(
+                        result,
+                        QueryCompilationContext.QueryContextParameter,
+                        _dataReaderParameter,
+                        _indexMapParameter);
+                }
+
+                _containsCollectionMaterialization = new CollectionShaperFindingExpressionVisitor()
+                    .ContainsCollectionMaterialization(shaperExpression);
+
+                // for NoTrackingWithIdentityResolution we need to make sure we see JSON entities in the correct order
+                // specifically, if we project JSON collection, it needs to be projected before any individual element from that collection
+                // otherwise we store JSON entities in incorrect order in the Change Tracker, leading to possible data corruption
+                // we only need to do this once, on top level
+                // see issue #33073 for more context
+                if (_queryStateManager && !_isTracking && collectionId == 0)
+                {
+                    var jsonCorrectOrderOfEntitiesForChangeTrackerValidator =
+                        new JsonCorrectOrderOfEntitiesForChangeTrackerValidator(_selectExpression);
+                    jsonCorrectOrderOfEntitiesForChangeTrackerValidator.Validate(shaperExpression);
+                }
+
+                if (!_containsCollectionMaterialization)
+                {
+                    var result = Visit(shaperExpression);
+                    _expressions.AddRange(_includeExpressions);
+                    _expressions.AddRange(_jsonEntityExpressions);
+                    _expressions.Add(result);
+                    result = Block(_variables, _expressions);
+
+                    relationalCommandResolver = _generateCommandResolver
+                        ? _parentVisitor.CreateRelationalCommandResolverExpression(_selectExpression)
+                        : Constant(null, typeof(RelationalCommandResolver));
+                    readerColumns = _readerColumns;
+
+                    return Lambda(
+                        result,
+                        QueryCompilationContext.QueryContextParameter,
+                        _dataReaderParameter,
+                        _resultContextParameter,
+                        _resultCoordinatorParameter);
                 }
                 else
                 {
-                    var initializationBlock = Block(_variables, _expressions);
+                    _valuesArrayExpression = MakeMemberAccess(_resultContextParameter, ResultContextValuesMemberInfo);
+                    _collectionPopulatingExpressions = [];
+                    _valuesArrayInitializers = [];
 
-                    var conditionalMaterializationExpressions = new List<Expression>
+                    var result = Visit(shaperExpression);
+
+                    var valueArrayInitializationExpression = Assign(
+                        _valuesArrayExpression, NewArrayInit(typeof(object), _valuesArrayInitializers));
+
+                    _expressions.AddRange(_jsonEntityExpressions);
+                    _expressions.Add(valueArrayInitializationExpression);
+                    _expressions.AddRange(_includeExpressions);
+
+                    if (_splitQuery)
+                    {
+                        _expressions.Add(Default(result.Type));
+
+                        var initializationBlock = Block(_variables, _expressions);
+                        result = Condition(
+                            Equal(_valuesArrayExpression, Constant(null, typeof(object[]))),
+                            initializationBlock,
+                            result);
+
+                        if (_isAsync)
+                        {
+                            var tasks = NewArrayInit(
+                                typeof(Func<Task>), _collectionPopulatingExpressions.Select(
+                                    e => Lambda<Func<Task>>(e)));
+                            relatedDataLoaders =
+                                Lambda<Func<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator, Task>>(
+                                    Call(TaskAwaiterMethodInfo, tasks),
+                                    QueryCompilationContext.QueryContextParameter,
+                                    _executionStrategyParameter!,
+                                    _resultCoordinatorParameter);
+                        }
+                        else
+                        {
+                            relatedDataLoaders =
+                                Lambda<Action<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator>>(
+                                    Block(_collectionPopulatingExpressions),
+                                    QueryCompilationContext.QueryContextParameter,
+                                    _executionStrategyParameter!,
+                                    _resultCoordinatorParameter);
+                        }
+                    }
+                    else
+                    {
+                        var initializationBlock = Block(_variables, _expressions);
+
+                        var conditionalMaterializationExpressions = new List<Expression>
                     {
                         IfThen(
                             Equal(_valuesArrayExpression, Constant(null, typeof(object[]))),
                             initializationBlock)
                     };
 
-                    conditionalMaterializationExpressions.AddRange(_collectionPopulatingExpressions);
+                        conditionalMaterializationExpressions.AddRange(_collectionPopulatingExpressions);
 
-                    conditionalMaterializationExpressions.Add(
-                        Condition(
-                            IsTrue(
-                                MakeMemberAccess(
-                                    _resultCoordinatorParameter, SingleQueryResultCoordinatorResultReadyMemberInfo)),
-                            result,
-                            Default(result.Type)));
+                        conditionalMaterializationExpressions.Add(
+                            Condition(
+                                IsTrue(
+                                    MakeMemberAccess(
+                                        _resultCoordinatorParameter, SingleQueryResultCoordinatorResultReadyMemberInfo)),
+                                result,
+                                Default(result.Type)));
 
-                    result = Block(conditionalMaterializationExpressions);
+                        result = Block(conditionalMaterializationExpressions);
+                    }
+
+                    relationalCommandResolver = _generateCommandResolver
+                        ? _parentVisitor.CreateRelationalCommandResolverExpression(_selectExpression)
+                        : Constant(null, typeof(RelationalCommandCache));
+                    ;
+                    readerColumns = _readerColumns;
+
+                    collectionId = _collectionId;
+
+                    return Lambda(
+                        result,
+                        QueryCompilationContext.QueryContextParameter,
+                        _dataReaderParameter,
+                        _resultContextParameter,
+                        _resultCoordinatorParameter);
                 }
-
-                relationalCommandResolver = _generateCommandResolver
-                    ? _parentVisitor.CreateRelationalCommandResolverExpression(_selectExpression)
-                    : Constant(null, typeof(RelationalCommandCache));
-                ;
-                readerColumns = _readerColumns;
-
-                collectionId = _collectionId;
-
-                return Lambda(
-                    result,
-                    QueryCompilationContext.QueryContextParameter,
-                    _dataReaderParameter,
-                    _resultContextParameter,
-                    _resultCoordinatorParameter);
+            }
+            finally
+            {
+                _parentVisitor._currentShaperProcessor = _parentShaperProcessor;
             }
         }
 
@@ -575,9 +599,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             switch (extensionExpression)
             {
                 case RelationalStructuralTypeShaperExpression
-                    {
-                        ValueBufferExpression: ProjectionBindingExpression projectionBindingExpression
-                    } shaper
+                {
+                    ValueBufferExpression: ProjectionBindingExpression projectionBindingExpression
+                } shaper
                     when !_inline:
                 {
                     // we can't cache ProjectionBindingExpression results for non-tracking queries
@@ -695,30 +719,6 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                 accessor = CompensateForCollectionMaterialization(
                                     entityParameter,
                                     shaper.Type);
-
-                                if (GetProjectionIndex(projectionBindingExpression) is IDictionary<IPropertyBase, int> propertyMap)
-                                {
-                                    foreach (var (property, projectionIndex) in propertyMap)
-                                    {
-                                        if (property is IComplexProperty { ComplexType: var complexType } complexProperty
-                                            && complexType.IsMappedToJson())
-                                        {
-                                            var jsonReaderDataVariable = GenerateJsonReader(projectionIndex, complexType);
-
-                                            var shaperResult = CreateJsonShapers(
-                                                complexType,
-                                                nullable: true, // TODO
-                                                jsonReaderDataVariable,
-                                                keyValuesParameter: null!, // TODO
-                                                containerEntityExpression: entityParameter,
-                                                relationship: complexProperty);
-
-                                            var visitedShaperResult = Visit(shaperResult);
-
-                                            _includeExpressions.Add(visitedShaperResult);
-                                        }
-                                    }
-                                }
 
                                 break;
                             }
@@ -2473,7 +2473,42 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             }
         }
 
-        private ParameterExpression GenerateJsonReader(int jsonColumnIndex, ITypeBase structuralType)
+        /// <summary>
+        ///     Injects JSON shaper code for JSON-mapped complex properties.
+        /// </summary>
+        internal void ProcessTopLevelComplexJsonProperties(
+            StructuralTypeShaperExpression shaper,
+            ParameterExpression instanceVariable,
+            List<Expression> expressions)
+        {
+            // Note that the following processes only top-level complex properties (where the projection is a dictionary of properties to their projection index).
+            // For nested JSON types, CreateJsonShapers calls itself recursively.
+            if (shaper is RelationalStructuralTypeShaperExpression { ValueBufferExpression: ProjectionBindingExpression projectionBindingExpression }
+                && GetProjectionIndex(projectionBindingExpression) is Dictionary<IPropertyBase, int> propertyMap)
+            {
+                foreach (var (property, projectionIndex) in propertyMap)
+                {
+                    if (property is IComplexProperty { ComplexType: var complexType } complexProperty
+                        && complexType.IsMappedToJson())
+                    {
+                        var jsonReaderDataVariable = GenerateJsonReader(projectionIndex, complexType);
+
+                        var shaperResult = CreateJsonShapers(
+                            complexType,
+                            nullable: shaper.IsNullable || complexProperty.IsNullable,
+                            jsonReaderDataVariable,
+                            keyValuesParameter: null, // For owned entities only
+                            containerEntityExpression: instanceVariable,
+                            relationship: complexProperty);
+
+                        var visitedShaperResult = Visit(shaperResult);
+                        expressions.Add(visitedShaperResult);
+                    }
+                }
+            }
+        }
+
+        internal ParameterExpression GenerateJsonReader(int jsonColumnIndex, ITypeBase structuralType)
         {
             Check.DebugAssert(structuralType.IsMappedToJson());
 

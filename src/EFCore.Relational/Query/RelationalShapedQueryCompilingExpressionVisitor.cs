@@ -484,6 +484,27 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
         return result;
     }
 
+    /// <summary>
+    ///     Called after a structural type is materialized, but before it's handed off to the change tracker.
+    ///     Here we inject the JSON shapers for any complex JSON properties the type has.
+    /// </summary>
+    /// <remarks>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </remarks>
+    public override void AddStructuralTypeInitialization(
+        StructuralTypeShaperExpression shaper,
+        ParameterExpression instanceVariable,
+        List<ParameterExpression> variables,
+        List<Expression> expressions)
+    {
+        Check.DebugAssert(_currentShaperProcessor is not null);
+
+        _currentShaperProcessor.ProcessTopLevelComplexJsonProperties(shaper, instanceVariable, expressions);
+    }
+
     private Expression CreateRelationalCommandResolverExpression(Expression queryExpression)
     {
         // In the regular case, we generate code that accesses the RelationalCommandCache (which invokes the 2nd part of the
