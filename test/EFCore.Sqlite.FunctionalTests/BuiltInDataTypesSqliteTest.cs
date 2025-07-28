@@ -867,17 +867,17 @@ public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTy
         Assert.Equal(
             SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Min), typeof(DateTimeOffset).ShortDisplayName()),
             Assert.Throws<NotSupportedException>(
-                () => query.Select(g => g.Min(e => e.TestNullableDateTimeOffset)).ToList()).Message);
+                () => query.Select(g => g.Min(DateTimeOffset? (BuiltInNullableDataTypes e) => e.TestNullableDateTimeOffset)).ToList()).Message);
 
         Assert.Equal(
             SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Min), typeof(TimeSpan).ShortDisplayName()),
             Assert.Throws<NotSupportedException>(
-                () => query.Select(g => g.Min(e => e.TestNullableTimeSpan)).ToList()).Message);
+                () => query.Select(g => g.Min(TimeSpan? (BuiltInNullableDataTypes e) => e.TestNullableTimeSpan)).ToList()).Message);
 
         Assert.Equal(
             SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Min), typeof(ulong).ShortDisplayName()),
             Assert.Throws<NotSupportedException>(
-                () => query.Select(g => g.Min(e => e.TestNullableUnsignedInt64)).ToList()).Message);
+                () => query.Select(g => g.Min(ulong? (BuiltInNullableDataTypes e) => e.TestNullableUnsignedInt64)).ToList()).Message);
     }
 
     [ConditionalFact]
@@ -917,17 +917,17 @@ public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTy
         Assert.Equal(
             SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Max), typeof(DateTimeOffset).ShortDisplayName()),
             Assert.Throws<NotSupportedException>(
-                () => query.Select(g => g.Max(e => e.TestNullableDateTimeOffset)).ToList()).Message);
+                () => query.Select(g => g.Max(DateTimeOffset? (BuiltInNullableDataTypes e) => e.TestNullableDateTimeOffset)).ToList()).Message);
 
         Assert.Equal(
             SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Max), typeof(TimeSpan).ShortDisplayName()),
             Assert.Throws<NotSupportedException>(
-                () => query.Select(g => g.Max(e => e.TestNullableTimeSpan)).ToList()).Message);
+                () => query.Select(g => g.Max(TimeSpan? (BuiltInNullableDataTypes e) => e.TestNullableTimeSpan)).ToList()).Message);
 
         Assert.Equal(
             SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Max), typeof(ulong).ShortDisplayName()),
             Assert.Throws<NotSupportedException>(
-                () => query.Select(g => g.Max(e => e.TestNullableUnsignedInt64)).ToList()).Message);
+                () => query.Select(g => g.Max(ulong? (BuiltInNullableDataTypes e) => e.TestNullableUnsignedInt64)).ToList()).Message);
     }
 
     [ConditionalFact]

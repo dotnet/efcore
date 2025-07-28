@@ -139,7 +139,7 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
         => AssertSum(
             async,
             ss => ss.Set<Customer>(),
-            selector: c => c.Orders.Sum(o => o.OrderID));
+            selector: c => c.Orders.Sum(int (Order o) => o.OrderID));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -147,7 +147,7 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
         => AssertSum(
             async,
             ss => ss.Set<Customer>(),
-            selector: c => c.Orders.Sum(o => 5 + o.OrderDetails.Sum(od => od.ProductID)));
+            selector: c => c.Orders.Sum(int (Order o) => 5 + o.OrderDetails.Sum(int (OrderDetail od) => od.ProductID)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -155,7 +155,7 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
         => AssertSum(
             async,
             ss => ss.Set<Customer>(),
-            selector: c => c.Orders.Sum(o => 5 + o.OrderDetails.Min(od => od.ProductID)));
+            selector: c => c.Orders.Sum(int (Order o) => 5 + o.OrderDetails.Min(int (OrderDetail od) => od.ProductID)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -270,7 +270,7 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
         => AssertAverage(
             async,
             ss => ss.Set<Customer>(),
-            selector: c => c.Orders.Sum(o => o.OrderID));
+            selector: c => c.Orders.Sum(int (Order o) => o.OrderID));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -278,7 +278,7 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
         => AssertAverage(
             async,
             ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(3),
-            selector: c => (decimal)c.Orders.Average(o => 5 + o.OrderDetails.Average(od => od.ProductID)));
+            selector: c => (decimal)c.Orders.Average(double (Order o) => 5 + o.OrderDetails.Average(int (OrderDetail od) => od.ProductID)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -286,7 +286,7 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
         => AssertAverage(
             async,
             ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(3),
-            selector: c => (decimal)c.Orders.Average(o => 5 + o.OrderDetails.Max(od => od.ProductID)));
+            selector: c => (decimal)c.Orders.Average(int (Order o) => 5 + o.OrderDetails.Max(int (OrderDetail od) => od.ProductID)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -447,7 +447,7 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
         => AssertMin(
             async,
             ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(3),
-            selector: c => c.Orders.Min(o => 5 + Enumerable.Min(o.OrderDetails, od => od.ProductID)));
+            selector: c => c.Orders.Min(o => 5 + Enumerable.Min(o.OrderDetails, int (OrderDetail od) => od.ProductID)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -455,7 +455,7 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
         => AssertMin(
             async,
             ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(3),
-            selector: c => c.Orders.Min(o => 5 + o.OrderDetails.Max(od => od.ProductID)));
+            selector: c => c.Orders.Min(o => 5 + o.OrderDetails.Max(int (OrderDetail od) => od.ProductID)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -494,7 +494,7 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
         => AssertMax(
             async,
             ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(3),
-            selector: c => c.Orders.Max(o => 5 + Enumerable.Max(o.OrderDetails, od => od.ProductID)));
+            selector: c => c.Orders.Max(o => 5 + Enumerable.Max(o.OrderDetails, int (OrderDetail od) => od.ProductID)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -502,7 +502,7 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
         => AssertMax(
             async,
             ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(3),
-            selector: c => c.Orders.Max(o => 5 + o.OrderDetails.Sum(od => od.ProductID)));
+            selector: c => c.Orders.Max(o => 5 + o.OrderDetails.Sum(int (od) => od.ProductID)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

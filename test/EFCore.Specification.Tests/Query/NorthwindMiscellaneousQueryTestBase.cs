@@ -1833,6 +1833,7 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture>(TFixture fix
                       where c1.City == ss.Set<Customer>().OrderBy(c => c.CustomerID).First(c => c.IsLondon).City
                       select c1));
 
+#pragma warning disable CS9236 // Compiling requires binding the lambda expression at least 200 times
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Where_query_composition4(bool async)
@@ -1842,9 +1843,10 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture>(TFixture fix
                 ss => from c1 in ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(2)
                       where c1.City
                           == (from c2 in ss.Set<Customer>().OrderBy(c => c.CustomerID)
-                              from c3 in ss.Set<Customer>().OrderBy(c => c.IsLondon).ThenBy(c => c.CustomerID)
+                              from c3 in ss.Set<Customer>().OrderBy(bool (Customer c) => c.IsLondon).ThenBy(string (Customer c) => c.CustomerID)
                               select new { c3 }).First().c3.City
                       select c1));
+#pragma warning restore CS9236
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -3990,6 +3992,7 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture>(TFixture fix
                          where customers.Any()
                          select customers).Any()));
 
+#pragma warning disable CS9236 // Compiling requires binding the lambda expression at least 200 times
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Complex_query_with_repeated_nested_query_model_compiles_correctly(bool async)
@@ -4001,10 +4004,11 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture>(TFixture fix
                     outer =>
                         (from c in ss.Set<Customer>()
                          let customers = ss.Set<Customer>().Where(
-                                 cc => ss.Set<Customer>().OrderBy(inner => inner.CustomerID).Take(10).Distinct().Any())
+                                 cc => ss.Set<Customer>().OrderBy(string (Customer inner) => inner.CustomerID).Take(10).Distinct().Any())
                              .Select(cc => cc.CustomerID).ToList()
                          where customers.Any()
                          select customers).Any()));
+#pragma warning restore CS9236
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

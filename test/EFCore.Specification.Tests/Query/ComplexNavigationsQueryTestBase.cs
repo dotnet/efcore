@@ -2941,20 +2941,23 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
     {
         using var ctx = CreateContext();
 
-        var query = from l1 in ctx.LevelOne
-                    orderby l1.Id
-                    where (from l2 in ctx.LevelTwo
-                           orderby l2.Id
-                           where l2.Level1_Optional_Id == l1.Id
-                           select (from l3 in ctx.LevelThree
-                                   orderby l3.Id
-                                   where l3.Level2_Required_Id == l2.Id
-                                   select (from l4 in ctx.LevelFour
-                                           where l4.Level3_Required_Id == l3.Id
-                                           orderby l4.Id
-                                           select l4).FirstOrDefault()).FirstOrDefault()).FirstOrDefault().Name
-                        != "Foo"
-                    select l1;
+#pragma warning disable CS9236 // Compiling requires binding the lambda expression at least 200 times
+        var query = ctx.LevelOne
+            .OrderBy(l1 => l1.Id)
+            .Where(l1 => ctx.LevelTwo
+                .OrderBy(l2 => l2.Id)
+                .Where(l2 => l2.Level1_Optional_Id == l1.Id)
+                .Select(l2 => ctx.LevelThree
+                    .OrderBy(l3 => l3.Id)
+                    .Where(l3 => l3.Level2_Required_Id == l2.Id)
+                    .Select(l3 => ctx.LevelFour
+                        .Where(bool (Level4 l4) => l4.Level3_Required_Id == l3.Id)
+                        .OrderBy(int (Level4 l4) => l4.Id)
+                        .FirstOrDefault())
+                    .FirstOrDefault())
+                .FirstOrDefault()
+                .Name != "Foo");
+#pragma warning restore CS9236
 
         _ = async ? await query.ToListAsync() : query.ToList();
     }
@@ -2965,18 +2968,20 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
     {
         using var ctx = CreateContext();
 
-        var query = from l1 in ctx.LevelOne
-                    orderby l1.Id
-                    select (from l2 in ctx.LevelTwo
-                            orderby l2.Id
-                            where l2.Level1_Optional_Id == l1.Id
-                            select (from l3 in ctx.LevelThree
-                                    orderby l3.Id
-                                    where l3.Level2_Required_Id == l2.Id
-                                    select (from l4 in ctx.LevelFour
-                                            where l4.Level3_Required_Id == l3.Id
-                                            orderby l4.Id
-                                            select l4).FirstOrDefault()).FirstOrDefault()).FirstOrDefault();
+        var query = ctx.LevelOne
+            .OrderBy(l1 => l1.Id)
+            .Select(l1 => ctx.LevelTwo
+                .OrderBy(l2 => l2.Id)
+                .Where(l2 => l2.Level1_Optional_Id == l1.Id)
+                .Select(l2 => ctx.LevelThree
+                    .OrderBy(l3 => l3.Id)
+                    .Where(l3 => l3.Level2_Required_Id == l2.Id)
+                    .Select(l3 => ctx.LevelFour
+                        .Where(bool (Level4 l4) => l4.Level3_Required_Id == l3.Id)
+                        .OrderBy(int (Level4 l4) => l4.Id)
+                        .FirstOrDefault())
+                    .FirstOrDefault())
+                .FirstOrDefault());
 
         _ = async ? await query.ToListAsync() : query.ToList();
     }
@@ -4052,7 +4057,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
                                 LevelFour = new
                                 {
                                     xx.OneToOne_Required_FK2.OneToOne_Required_FK3.Id,
-                                    Result = (xx.OneToOne_Required_FK2.OneToMany_Optional3.Max(xxx => (int?)xxx.Id) ?? 0)
+                                    Result = (xx.OneToOne_Required_FK2.OneToMany_Optional3.Max(int? (Level4 xxx) => (int?)xxx.Id) ?? 0)
                                         > 1
                                 }
                             }

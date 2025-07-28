@@ -950,7 +950,7 @@ OUTER APPLY (
         await AssertAverage(
             async,
             ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(3),
-            selector: c => (decimal)c.Orders.Average(o => 5 + o.OrderDetails.Average(od => od.ProductID)),
+            selector: c => (decimal)c.Orders.Average(double (Order o) => 5 + o.OrderDetails.Average(int (OrderDetail od) => od.ProductID)),
             asserter: (e, a) => Assert.Equal(e, a, precision: 3));
 
         // #34256: rewrite query to avoid "Cannot perform an aggregate function on an expression containing an aggregate or a subquery"
