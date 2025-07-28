@@ -284,6 +284,11 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
             () => QueryAsserter.AssertFirst(actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, async));
 
     protected Task AssertFirstOrDefault<TResult>(
+        Func<ISetSource, IQueryable<TResult>> query,
+        Action<TResult?, TResult?>? asserter = null)
+        => AssertFirstOrDefault(async: true, query, asserter);
+
+    protected Task AssertFirstOrDefault<TResult>(
         bool async,
         Func<ISetSource, IQueryable<TResult>> query,
         Action<TResult?, TResult?>? asserter = null)
