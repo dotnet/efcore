@@ -58,4 +58,40 @@ public class ParameterQueryRootExpression : QueryRootExpression
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)
         => expressionPrinter.Visit(QueryParameterExpression);
+
+    /// <summary>
+    ///     This constructor has been obsoleted, use the constructor accepting QueryParameterExpression instead.
+    /// </summary>
+    [Obsolete("Use the constructor accepting QueryParameterExpression instead.")]
+    public ParameterQueryRootExpression(
+        IAsyncQueryProvider asyncQueryProvider,
+        Type elementType,
+        ParameterExpression parameterExpression)
+        : this(
+            asyncQueryProvider,
+            elementType,
+            new QueryParameterExpression(
+                parameterExpression.Name ?? throw new ArgumentException($"{parameterExpression} must have a name"),
+                parameterExpression.Type))
+    {
+    }
+
+    /// <summary>
+    ///     This constructor has been obsoleted, use the constructor accepting QueryParameterExpression instead.
+    /// </summary>
+    [Obsolete("Use the constructor accepting QueryParameterExpression instead.")]
+    public ParameterQueryRootExpression(Type elementType, ParameterExpression parameterExpression)
+        : this(
+            elementType,
+            new QueryParameterExpression(
+                parameterExpression.Name ?? throw new ArgumentException($"{parameterExpression} must have a name"),
+                parameterExpression.Type))
+    {
+    }
+
+    /// <summary>
+    ///     This constructor has been obsoleted, use QueryParameterExpression instead.
+    /// </summary>
+    [Obsolete("Use QueryParameterExpression instead.")]
+    public virtual ParameterExpression ParameterExpression => Parameter(QueryParameterExpression.Type, QueryParameterExpression.Name);
 }

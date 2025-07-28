@@ -94,9 +94,9 @@ public static class CosmosDbFunctionsExtensions
     ///     Combines scores provided by two or more specified functions.
     /// </summary>
     /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
-    /// <param name="functions">The functions to compute the score for.</param>
+    /// <param name="scores">Scoring function calls to be combined.</param>
     /// <returns>The combined score.</returns>
-    public static double Rrf(this DbFunctions _, params double[] functions)
+    public static double Rrf(this DbFunctions _, params double[] scores)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Rrf)));
 
     /// <summary>
