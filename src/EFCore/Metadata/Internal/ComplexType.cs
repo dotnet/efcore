@@ -104,10 +104,10 @@ public class ComplexType : TypeBase, IMutableComplexType, IConventionComplexType
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual TypeBase ContainingType
+    public virtual TypeBase ContainingEntryType
         => ComplexProperty.DeclaringType switch
         {
-            ComplexType declaringComplexType when !declaringComplexType.ComplexProperty.IsCollection => declaringComplexType.ContainingType,
+            ComplexType declaringComplexType when !declaringComplexType.ComplexProperty.IsCollection => declaringComplexType.ContainingEntryType,
             _ => ComplexProperty.DeclaringType
         };
 
@@ -657,46 +657,10 @@ public class ComplexType : TypeBase, IMutableComplexType, IConventionComplexType
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    IReadOnlyTypeBase IReadOnlyTypeBase.ContainingType
+    IRuntimeTypeBase IRuntimeTypeBase.ContainingEntryType
     {
         [DebuggerStepThrough]
-        get => ContainingType;
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    IMutableTypeBase IMutableTypeBase.ContainingType
-    {
-        [DebuggerStepThrough]
-        get => ContainingType;
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    IConventionTypeBase IConventionTypeBase.ContainingType
-    {
-        [DebuggerStepThrough]
-        get => ContainingType;
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    ITypeBase ITypeBase.ContainingType
-    {
-        [DebuggerStepThrough]
-        get => ContainingType;
+        get => ContainingEntryType;
     }
 
     /// <summary>

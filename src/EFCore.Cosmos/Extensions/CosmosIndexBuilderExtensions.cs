@@ -25,10 +25,14 @@ public static class CosmosIndexBuilderExtensions
     /// </remarks>
     /// <param name="indexBuilder">The builder for the index being configured.</param>
     /// <param name="indexType">The type of vector index to create.</param>
+    /// <param name="vectorIndex">The value indicating whether the index is configured as a vector index.</param>
     /// <returns>A builder to further configure the index.</returns>
-    public static IndexBuilder IsVectorIndex(this IndexBuilder indexBuilder, VectorIndexType? indexType)
+    public static IndexBuilder IsVectorIndex(
+        this IndexBuilder indexBuilder,
+        VectorIndexType? indexType,
+        bool vectorIndex = true)
     {
-        indexBuilder.Metadata.SetVectorIndexType(indexType);
+        indexBuilder.Metadata.SetVectorIndexType(indexType, vectorIndex);
 
         return indexBuilder;
     }
@@ -43,10 +47,12 @@ public static class CosmosIndexBuilderExtensions
     /// </remarks>
     /// <param name="indexBuilder">The builder for the index being configured.</param>
     /// <param name="indexType">The type of vector index to create.</param>
+    /// <param name="vectorIndex">The value indicating whether the index is configured as a vector index.</param>
     /// <returns>A builder to further configure the index.</returns>
     public static IndexBuilder<TEntity> IsVectorIndex<TEntity>(
         this IndexBuilder<TEntity> indexBuilder,
-        VectorIndexType? indexType)
+        VectorIndexType? indexType,
+        bool vectorIndex = true)
         => (IndexBuilder<TEntity>)IsVectorIndex((IndexBuilder)indexBuilder, indexType);
 
     /// <summary>
@@ -104,11 +110,11 @@ public static class CosmosIndexBuilderExtensions
     ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
     /// </remarks>
     /// <param name="indexBuilder">The builder for the index being configured.</param>
-    /// <param name="value">The value indicating whether the index is configured for Full-text search.</param>
+    /// <param name="fullTextIndex">The value indicating whether the index is configured for Full-text search.</param>
     /// <returns>A builder to further configure the index.</returns>
-    public static IndexBuilder IsFullTextIndex(this IndexBuilder indexBuilder, bool? value = true)
+    public static IndexBuilder IsFullTextIndex(this IndexBuilder indexBuilder, bool fullTextIndex = true)
     {
-        indexBuilder.Metadata.SetIsFullTextIndex(value);
+        indexBuilder.Metadata.SetIsFullTextIndex(fullTextIndex);
 
         return indexBuilder;
     }
@@ -122,12 +128,12 @@ public static class CosmosIndexBuilderExtensions
     ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
     /// </remarks>
     /// <param name="indexBuilder">The builder for the index being configured.</param>
-    /// <param name="value">The value indicating whether the index is configured for Full-text search.</param>
+    /// <param name="fullTextIndex">The value indicating whether the index is configured for Full-text search.</param>
     /// <returns>A builder to further configure the index.</returns>
     public static IndexBuilder<TEntity> IsFullTextIndex<TEntity>(
         this IndexBuilder<TEntity> indexBuilder,
-        bool? value = true)
-        => (IndexBuilder<TEntity>)IsFullTextIndex((IndexBuilder)indexBuilder, value);
+        bool fullTextIndex = true)
+        => (IndexBuilder<TEntity>)IsFullTextIndex((IndexBuilder)indexBuilder, fullTextIndex);
 
     /// <summary>
     ///     Configures the index as a full-text index.
@@ -138,7 +144,7 @@ public static class CosmosIndexBuilderExtensions
     ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
     /// </remarks>
     /// <param name="indexBuilder">The builder for the index being configured.</param>
-    /// <param name="value">The value indicating whether the index is configured for Full-text search.</param>
+    /// <param name="fullTextIndex">The value indicating whether the index is configured for Full-text search.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>
     ///     The same builder instance if the configuration was applied,
@@ -146,12 +152,12 @@ public static class CosmosIndexBuilderExtensions
     /// </returns>
     public static IConventionIndexBuilder? IsFullTextIndex(
         this IConventionIndexBuilder indexBuilder,
-        bool? value,
+        bool? fullTextIndex,
         bool fromDataAnnotation = false)
     {
         if (indexBuilder.CanSetIsFullTextIndex(fromDataAnnotation))
         {
-            indexBuilder.Metadata.SetIsFullTextIndex(value, fromDataAnnotation);
+            indexBuilder.Metadata.SetIsFullTextIndex(fullTextIndex, fromDataAnnotation);
             return indexBuilder;
         }
 
@@ -166,12 +172,12 @@ public static class CosmosIndexBuilderExtensions
     ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
     /// </remarks>
     /// <param name="indexBuilder">The builder for the index being configured.</param>
-    /// <param name="value">The value indicating whether the index is configured for Full-text search.</param>
+    /// <param name="fullTextIndex">The value indicating whether the index is configured for Full-text search.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns><see langword="true" /> if the index can be configured as a Full-text index.</returns>
     public static bool CanSetIsFullTextIndex(
         this IConventionIndexBuilder indexBuilder,
-        bool? value,
+        bool? fullTextIndex,
         bool fromDataAnnotation = false)
-        => indexBuilder.CanSetAnnotation(CosmosAnnotationNames.FullTextIndex, value, fromDataAnnotation);
+        => indexBuilder.CanSetAnnotation(CosmosAnnotationNames.FullTextIndex, fullTextIndex, fromDataAnnotation);
 }

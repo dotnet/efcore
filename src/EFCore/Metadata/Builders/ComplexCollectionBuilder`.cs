@@ -72,7 +72,7 @@ public class ComplexCollectionBuilder<[DynamicallyAccessedMembers(IEntityType.Dy
     ///     <c>blog => blog.Url</c>).
     /// </param>
     /// <returns>An object that can be used to configure the property.</returns>
-    public virtual ComplexTypePropertyBuilder<TProperty> Property<TProperty>(Expression<Func<TComplex, TProperty>> propertyExpression)
+    public virtual ComplexCollectionTypePropertyBuilder<TProperty> Property<TProperty>(Expression<Func<TComplex, TProperty>> propertyExpression)
         => new(
             TypeBuilder.Property(
                     Check.NotNull(propertyExpression).GetMemberAccess(), ConfigurationSource.Explicit)!

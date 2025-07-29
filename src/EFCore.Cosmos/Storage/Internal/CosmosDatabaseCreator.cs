@@ -117,6 +117,7 @@ public class CosmosDatabaseCreator : IDatabaseCreator
             mappedTypes.Add(entityType);
         }
 
+        var defaultFullTextLanguage = model.GetDefaultFullTextSearchLanguage();
         foreach (var (containerName, mappedTypes) in containers)
         {
             IReadOnlyList<string> partitionKeyStoreNames = Array.Empty<string>();
@@ -125,7 +126,6 @@ public class CosmosDatabaseCreator : IDatabaseCreator
             ThroughputProperties? throughput = null;
             var indexes = new List<IIndex>();
             var vectors = new List<(IProperty Property, CosmosVectorType VectorType)>();
-            string? defaultFullTextLanguage = null;
             var fullTextProperties = new List<(IProperty Property, string? Language)>();
 
             foreach (var entityType in mappedTypes)
@@ -138,7 +138,6 @@ public class CosmosDatabaseCreator : IDatabaseCreator
                 analyticalTtl ??= entityType.GetAnalyticalStoreTimeToLive();
                 defaultTtl ??= entityType.GetDefaultTimeToLive();
                 throughput ??= entityType.GetThroughput();
-                defaultFullTextLanguage ??= entityType.GetDefaultFullTextSearchLanguage();
 
                 ProcessEntityType(entityType, indexes, vectors, fullTextProperties);
             }

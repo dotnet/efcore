@@ -277,7 +277,7 @@ public class SqlServerAnnotationProvider : RelationalAnnotationProvider
                     // (we already checked that in the finalize model convention step)
                     yield return new Annotation(
                         RelationalAnnotationNames.DefaultConstraintName,
-                        mappedProperty.GenerateDefaultConstraintName(table));
+                        mappedProperty.GetDefaultDefaultConstraintName(table));
                 }
             }
         }

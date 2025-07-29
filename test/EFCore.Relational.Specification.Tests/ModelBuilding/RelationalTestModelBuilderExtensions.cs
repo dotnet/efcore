@@ -1646,6 +1646,23 @@ public static class RelationalTestModelBuilderExtensions
         return builder;
     }
 
+    public static ModelBuilderTest.TestComplexCollectionTypePropertyBuilder<TProperty> HasJsonPropertyName<TProperty>(
+        this ModelBuilderTest.TestComplexCollectionTypePropertyBuilder<TProperty> builder,
+        string? name)
+    {
+        switch (builder)
+        {
+            case IInfrastructure<ComplexCollectionTypePropertyBuilder<TProperty>> genericBuilder:
+                genericBuilder.Instance.HasJsonPropertyName(name);
+                break;
+            case IInfrastructure<ComplexCollectionTypePropertyBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.HasJsonPropertyName(name);
+                break;
+        }
+
+        return builder;
+    }
+
     public static ModelBuilderTest.TestComplexTypePrimitiveCollectionBuilder<TProperty> HasJsonPropertyName<TProperty>(
         this ModelBuilderTest.TestComplexTypePrimitiveCollectionBuilder<TProperty> builder,
         string? name)

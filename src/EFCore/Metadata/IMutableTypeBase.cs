@@ -33,12 +33,6 @@ public interface IMutableTypeBase : IReadOnlyTypeBase, IMutableAnnotatable
         => (IMutableEntityType)this;
 
     /// <summary>
-    ///     Gets this entity type or the closest collection property in the complex property chain.
-    /// </summary>
-    new IMutableTypeBase ContainingType
-        => this;
-
-    /// <summary>
     ///     Gets or sets the base type of this type. Returns <see langword="null" /> if this is not a derived type in an inheritance
     ///     hierarchy.
     /// </summary>

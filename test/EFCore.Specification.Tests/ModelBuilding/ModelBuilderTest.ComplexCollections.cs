@@ -366,51 +366,6 @@ public abstract partial class ModelBuilderTest
         }
 
         [ConditionalFact]
-        public virtual void Properties_can_be_made_concurrency_tokens()
-        {
-            var modelBuilder = CreateModelBuilder();
-
-            modelBuilder
-                .Ignore<Order>()
-                .Ignore<IndexedClass>()
-                .Entity<ComplexProperties>()
-                .Ignore(e => e.Quarks)
-                .ComplexCollection(
-                    e => e.QuarksCollection,
-                    b =>
-                    {
-                        b.Property(e => e.Up).IsConcurrencyToken();
-                        b.Property(e => e.Down).IsConcurrencyToken(false);
-                        b.Property<int>("Charm").IsConcurrencyToken();
-                        b.Property<string>("Strange").IsConcurrencyToken(false);
-                        b.Property<int>("Top").IsConcurrencyToken();
-                        b.Property<string>("Bottom").IsConcurrencyToken(false);
-                        b.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotifications);
-                    });
-
-            var model = modelBuilder.FinalizeModel();
-            var complexType = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single().ComplexType;
-
-            Assert.False(complexType.FindProperty(Customer.IdProperty.Name).IsConcurrencyToken);
-            Assert.True(complexType.FindProperty("Up").IsConcurrencyToken);
-            Assert.False(complexType.FindProperty("Down").IsConcurrencyToken);
-            Assert.True(complexType.FindProperty("Charm").IsConcurrencyToken);
-            Assert.False(complexType.FindProperty("Strange").IsConcurrencyToken);
-            Assert.True(complexType.FindProperty("Top").IsConcurrencyToken);
-            Assert.False(complexType.FindProperty("Bottom").IsConcurrencyToken);
-
-            Assert.Equal(-1, complexType.FindProperty(Customer.IdProperty.Name).GetOriginalValueIndex());
-            Assert.Equal(2, complexType.FindProperty("Up").GetOriginalValueIndex());
-            Assert.Equal(-1, complexType.FindProperty("Down").GetOriginalValueIndex());
-            Assert.Equal(0, complexType.FindProperty("Charm").GetOriginalValueIndex());
-            Assert.Equal(-1, complexType.FindProperty("Strange").GetOriginalValueIndex());
-            Assert.Equal(1, complexType.FindProperty("Top").GetOriginalValueIndex());
-            Assert.Equal(-1, complexType.FindProperty("Bottom").GetOriginalValueIndex());
-
-            Assert.Equal(ChangeTrackingStrategy.ChangingAndChangedNotifications, complexType.GetChangeTrackingStrategy());
-        }
-
-        [ConditionalFact]
         public virtual void Properties_can_have_access_mode_set()
         {
             var modelBuilder = CreateModelBuilder();
@@ -923,103 +878,6 @@ public abstract partial class ModelBuilderTest
         }
 
         [ConditionalFact]
-        public virtual void Properties_can_be_set_to_generate_values_on_Add()
-        {
-            var modelBuilder = CreateModelBuilder();
-
-            modelBuilder
-                .Ignore<Order>()
-                .Ignore<IndexedClass>()
-                .Entity<ComplexProperties>()
-                .ComplexCollection(
-                    e => e.QuarksCollection,
-                    b =>
-                    {
-                        b.Property(e => e.Up).ValueGeneratedOnAddOrUpdate();
-                        b.Property(e => e.Down).ValueGeneratedNever();
-                        b.Property<int>("Charm").Metadata.ValueGenerated = ValueGenerated.OnUpdateSometimes;
-                        b.Property<string>("Strange").ValueGeneratedNever();
-                        b.Property<int>("Top").ValueGeneratedOnAddOrUpdate();
-                        b.Property<string>("Bottom").ValueGeneratedOnUpdate();
-                    });
-
-            var model = modelBuilder.FinalizeModel();
-
-            var complexType = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single().ComplexType;
-            Assert.Equal(ValueGenerated.Never, complexType.FindProperty(Customer.IdProperty.Name).ValueGenerated);
-            Assert.Equal(ValueGenerated.OnAddOrUpdate, complexType.FindProperty("Up").ValueGenerated);
-            Assert.Equal(ValueGenerated.Never, complexType.FindProperty("Down").ValueGenerated);
-            Assert.Equal(ValueGenerated.OnUpdateSometimes, complexType.FindProperty("Charm").ValueGenerated);
-            Assert.Equal(ValueGenerated.Never, complexType.FindProperty("Strange").ValueGenerated);
-            Assert.Equal(ValueGenerated.OnAddOrUpdate, complexType.FindProperty("Top").ValueGenerated);
-            Assert.Equal(ValueGenerated.OnUpdate, complexType.FindProperty("Bottom").ValueGenerated);
-        }
-
-        [ConditionalFact]
-        public virtual void Properties_can_set_row_version()
-        {
-            var modelBuilder = CreateModelBuilder();
-
-            modelBuilder
-                .Ignore<Order>()
-                .Ignore<IndexedClass>()
-                .Entity<ComplexProperties>()
-                .ComplexCollection(
-                    e => e.QuarksCollection,
-                    b =>
-                    {
-                        b.Property(e => e.Up).IsRowVersion();
-                        b.Property(e => e.Down).ValueGeneratedNever();
-                        b.Property<int>("Charm").IsRowVersion();
-                    });
-
-            var model = modelBuilder.FinalizeModel();
-
-            var complexType = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single().ComplexType;
-
-            Assert.Equal(ValueGenerated.OnAddOrUpdate, complexType.FindProperty("Up").ValueGenerated);
-            Assert.Equal(ValueGenerated.Never, complexType.FindProperty("Down").ValueGenerated);
-            Assert.Equal(ValueGenerated.OnAddOrUpdate, complexType.FindProperty("Charm").ValueGenerated);
-
-            Assert.True(complexType.FindProperty("Up").IsConcurrencyToken);
-            Assert.False(complexType.FindProperty("Down").IsConcurrencyToken);
-            Assert.True(complexType.FindProperty("Charm").IsConcurrencyToken);
-        }
-
-        [ConditionalFact]
-        public virtual void Can_set_max_length_for_properties()
-        {
-            var modelBuilder = CreateModelBuilder();
-
-            modelBuilder
-                .Ignore<Order>()
-                .Ignore<IndexedClass>()
-                .Entity<ComplexProperties>()
-                .ComplexCollection(
-                    e => e.QuarksCollection,
-                    b =>
-                    {
-                        b.Property(e => e.Up).HasMaxLength(0);
-                        b.Property(e => e.Down).HasMaxLength(100);
-                        b.Property<int>("Charm").HasMaxLength(0);
-                        b.Property<string>("Strange").HasMaxLength(-1);
-                        b.Property<int>("Top").HasMaxLength(0);
-                        b.Property<string>("Bottom").HasMaxLength(100);
-                    });
-
-            var model = modelBuilder.FinalizeModel();
-            var complexType = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single().ComplexType;
-
-            Assert.Null(complexType.FindProperty(Customer.IdProperty.Name).GetMaxLength());
-            Assert.Equal(0, complexType.FindProperty("Up").GetMaxLength());
-            Assert.Equal(100, complexType.FindProperty("Down").GetMaxLength());
-            Assert.Equal(0, complexType.FindProperty("Charm").GetMaxLength());
-            Assert.Equal(-1, complexType.FindProperty("Strange").GetMaxLength());
-            Assert.Equal(0, complexType.FindProperty("Top").GetMaxLength());
-            Assert.Equal(100, complexType.FindProperty("Bottom").GetMaxLength());
-        }
-
-        [ConditionalFact]
         public virtual void Can_set_max_length_for_property_type()
         {
             var modelBuilder = CreateModelBuilder(
@@ -1158,46 +1016,6 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(-1, complexType.FindProperty("Strange").GetMaxLength());
             Assert.Equal(0, complexType.FindProperty("Top").GetMaxLength());
             Assert.Equal(-1, complexType.FindProperty("Bottom").GetMaxLength());
-        }
-
-        [ConditionalFact]
-        public virtual void Can_set_precision_and_scale_for_properties()
-        {
-            var modelBuilder = CreateModelBuilder();
-
-            modelBuilder
-                .Ignore<Order>()
-                .Ignore<IndexedClass>()
-                .Entity<ComplexProperties>()
-                .ComplexCollection(
-                    e => e.QuarksCollection,
-                    b =>
-                    {
-                        b.Property(e => e.Up).HasPrecision(1, 0);
-                        b.Property(e => e.Down).HasPrecision(100, 10);
-                        b.Property<int>("Charm").HasPrecision(1, 0);
-                        b.Property<string>("Strange").HasPrecision(100, 10);
-                        b.Property<int>("Top").HasPrecision(1, 0);
-                        b.Property<string>("Bottom").HasPrecision(100, 10);
-                    });
-
-            var model = modelBuilder.FinalizeModel();
-            var complexType = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single().ComplexType;
-
-            Assert.Null(complexType.FindProperty(Customer.IdProperty.Name).GetPrecision());
-            Assert.Null(complexType.FindProperty(Customer.IdProperty.Name).GetScale());
-            Assert.Equal(1, complexType.FindProperty("Up").GetPrecision());
-            Assert.Equal(0, complexType.FindProperty("Up").GetScale());
-            Assert.Equal(100, complexType.FindProperty("Down").GetPrecision());
-            Assert.Equal(10, complexType.FindProperty("Down").GetScale());
-            Assert.Equal(1, complexType.FindProperty("Charm").GetPrecision());
-            Assert.Equal(0, complexType.FindProperty("Charm").GetScale());
-            Assert.Equal(100, complexType.FindProperty("Strange").GetPrecision());
-            Assert.Equal(10, complexType.FindProperty("Strange").GetScale());
-            Assert.Equal(1, complexType.FindProperty("Top").GetPrecision());
-            Assert.Equal(0, complexType.FindProperty("Top").GetScale());
-            Assert.Equal(100, complexType.FindProperty("Bottom").GetPrecision());
-            Assert.Equal(10, complexType.FindProperty("Bottom").GetScale());
         }
 
         [ConditionalFact]
@@ -1427,15 +1245,8 @@ public abstract partial class ModelBuilderTest
                 .Property(e => e.Up)
                 .IsRequired()
                 .HasAnnotation("A", "V")
-                .IsConcurrencyToken()
-                .ValueGeneratedNever()
-                .ValueGeneratedOnAdd()
-                .ValueGeneratedOnAddOrUpdate()
-                .ValueGeneratedOnUpdate()
                 .IsUnicode()
-                .HasMaxLength(100)
                 .HasSentinel(1)
-                .HasPrecision(10, 1)
                 .HasValueGenerator<CustomValueGenerator>()
                 .HasValueGenerator(typeof(CustomValueGenerator))
                 .HasValueGeneratorFactory<CustomValueGeneratorFactory>()

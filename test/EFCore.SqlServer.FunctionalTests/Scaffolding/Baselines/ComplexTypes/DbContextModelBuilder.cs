@@ -73,7 +73,7 @@ namespace TestNamespace
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase.Columns.Add("FlagsEnum2", flagsEnum2ColumnBase);
             var idColumnBase = new ColumnBase<ColumnMappingBase>("Id", "bigint", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase.Columns.Add("Id", idColumnBase);
-            var manyOwned_DetailsColumnBase = new ColumnBase<ColumnMappingBase>("ManyOwned_Details", "varchar(64)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase)
+            var manyOwned_DetailsColumnBase = new ColumnBase<ColumnMappingBase>("ManyOwned_Details", "varchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase)
             {
                 IsNullable = true
             };
@@ -405,7 +405,7 @@ namespace TestNamespace
             var flagsEnum2Column = new Column("FlagsEnum2", "int", principalBaseTable);
             principalBaseTable.Columns.Add("FlagsEnum2", flagsEnum2Column);
             flagsEnum2Column.Accessors = ColumnAccessorsFactory.CreateGeneric<int>(flagsEnum2Column);
-            var manyOwned_DetailsColumn = new Column("ManyOwned_Details", "varchar(64)", principalBaseTable)
+            var manyOwned_DetailsColumn = new Column("ManyOwned_Details", "varchar(max)", principalBaseTable)
             {
                 IsNullable = true
             };
