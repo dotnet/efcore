@@ -1083,7 +1083,7 @@ public abstract class InternalTypeBaseBuilder :
 
             if (collection == false)
             {
-                complexType = propertyType;
+                complexType = propertyType.UnwrapNullableType();
             }
 
             if (collection == null
@@ -1091,7 +1091,7 @@ public abstract class InternalTypeBaseBuilder :
             {
                 var elementType = propertyType.TryGetSequenceType();
                 collection ??= elementType != null;
-                complexType ??= collection.Value ? elementType : propertyType;
+                complexType ??= (collection.Value ? elementType : propertyType)?.UnwrapNullableType();
             }
 
             foreach (var derivedType in Metadata.GetDerivedTypes())

@@ -368,7 +368,7 @@ public class InMemoryTable<TKey> : IInMemoryTable
             return false;
         }
 
-        if (!property.IsNullable && propertyValue == null)
+        if (!IsNullable(property) && propertyValue == null)
         {
             nullabilityErrors.Add(property);
 
@@ -377,6 +377,16 @@ public class InMemoryTable<TKey> : IInMemoryTable
 
         return false;
     }
+
+    private static bool IsNullable(IProperty property)
+        => property.IsNullable
+            || (property.DeclaringType is IComplexType complexType
+                && IsNullable(complexType.ComplexProperty));
+
+    private static bool IsNullable(IComplexProperty property)
+        => property.IsNullable
+            ||( property.DeclaringType is IComplexType complexType
+                && IsNullable(complexType.ComplexProperty));
 
     private void ThrowNullabilityErrorException(
         IUpdateEntry entry,

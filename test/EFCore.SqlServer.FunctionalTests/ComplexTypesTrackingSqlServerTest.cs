@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class ComplexTypesTrackingSqlServerTest(
     ComplexTypesTrackingSqlServerTest.SqlServerFixture fixture,
     ITestOutputHelper testOutputHelper)
@@ -336,25 +334,17 @@ public class ComplexTypesTrackingProxiesSqlServerTest(
     }
 }
 
-public abstract class ComplexTypesTrackingSqlServerTestBase<TFixture> : ComplexTypesTrackingTestBase<TFixture>
+public abstract class ComplexTypesTrackingSqlServerTestBase<TFixture> : ComplexTypesTrackingRelationalTestBase<TFixture>
     where TFixture : ComplexTypesTrackingSqlServerTestBase<TFixture>.SqlServerFixtureBase, new()
 {
     protected ComplexTypesTrackingSqlServerTestBase(TFixture fixture, ITestOutputHelper testOutputHelper)
-        : base(fixture)
+        : base(fixture, testOutputHelper)
     {
-        fixture.TestSqlLoggerFactory.Clear();
-        fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
-        => facade.UseTransaction(transaction.GetDbTransaction());
-
-    public abstract class SqlServerFixtureBase : FixtureBase
+    public abstract class SqlServerFixtureBase : RelationalFixtureBase
     {
         protected override ITestStoreFactory TestStoreFactory
             => SqlServerTestStoreFactory.Instance;
-
-        public TestSqlLoggerFactory TestSqlLoggerFactory
-            => (TestSqlLoggerFactory)ListLoggerFactory;
     }
 }
