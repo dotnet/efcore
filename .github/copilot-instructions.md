@@ -19,8 +19,10 @@ If you are not sure, do not guess, just tell that you don't know or ask clarifyi
     // The .NET Foundation licenses this file to you under the MIT license.
 ```
 - Don't add the UTF-8 BOM to files unless they have non-ASCII characters
-- All types should be public. Types in .Internal namespaces should have this comment on all members:
-```
+- Avoid breaking public APIs. If you need to break a public API, add a new API instead and mark the old one as obsolete. Use `ObsoleteAttribute` with the message pointing to the new API
+- All types should be public by default
+- Types in `.Internal` namespaces or annotated with `[EntityFrameworkInternal]` require this XML doc comment on ALL members:
+```csharp
 /// <summary>
 ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
 ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -28,7 +30,6 @@ If you are not sure, do not guess, just tell that you don't know or ask clarifyi
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
 ```
-- Avoid breaking public APIs. If you need to break a public API, add a new API instead and mark the old one as obsolete. Use `ObsoleteAttribute` with the message pointing to the new API
 
 ### Formatting
 
@@ -87,8 +88,12 @@ If you are not sure, do not guess, just tell that you don't know or ask clarifyi
 - Follow the existing test patterns in the corresponding test projects
 - Create both unit tests and functional tests where appropriate
 - Fix `SQL` and `C#` baselines for tests when necessary by setting the `EF_TEST_REWRITE_BASELINES` env var to `1`
-- Before building or running the tests execute `restore.cmd` or `restore.sh` and `activate.ps1` or `activate.sh` to set up the environment
-- When running the tests specify the test project and let it be rebuilt by not adding `--no-build`
+- Run tests with project rebuilding enabled (don't use `--no-build`) to ensure code changes are picked up
+
+#### Environment Setup
+- **ALWAYS** run `restore.cmd` (Windows) or `. ./restore.sh` (Linux/Mac) first to restore dependencies
+- **ALWAYS** run `. .\activate.ps1` (PowerShell) or `. ./activate.sh` (Bash) to set up the development environment with correct SDK versions before building or running the tests
+- These scripts set `DOTNET_ROOT`, `DOTNET_MULTILEVEL_LOOKUP`, and PATH for the project's specific .NET SDK version
 
 ## Documentation
 
@@ -102,7 +107,7 @@ If you are not sure, do not guess, just tell that you don't know or ask clarifyi
 ## Error Handling
 
 - Use appropriate exception types. 
-- Include helpful error messages stored in the .resx file corresponding to the project
+- **ALL** user-facing error messages must use string resources from the `.resx` (and the generated `.Designer.cs`) file corresponding to the project
 - Avoid catching exceptions without rethrowing them
 
 ## Asynchronous Programming
@@ -127,18 +132,15 @@ If you are not sure, do not guess, just tell that you don't know or ask clarifyi
 
 ### Entity Framework Core Specific guidelines
 
-- Follow the provider pattern when extending EF Core's capabilities for specific databases
-- Follow the existing model building design patterns
-  - Add corresponding methods to the `*Builder`, `*Configuration`, `*Extensions`, `IConvention*Builder`, `IReadOnly*`, `IMutable*`and `IConvention*` types as needed
-  - Make corresponding changes to the `Runtime*` types as needed.
-  - For Relational-specific model changes also modify the `RelationalModel` and `*AnnotationProvider` types.
-  - Make corresponding changes to the `CSharpRuntimeModelCodeGenerator`, `*CSharpRuntimeAnnotationCodeGenerator` and `CSharpDbContextGenerator` types as needed
-- Use the logging infrastructure for diagnostics
+- Use the logging infrastructure for diagnostics and interception
 - Prefer using `Check.DebugAssert` instead of `Debug.Assert` or comments
 - Use `Check.NotNull` and `Check.NotEmpty` for preconditions in public APIs
+  - The methods in `Check` class use `[CallerArgumentExpression]` to automatically capture parameter names
 - Unit tests should build the model using the corresponding `*TestHelpers.Instance.CreateConventionBuilder()` model and finalizing it
-- The services should be resolved from the `IServiceProvider` returned by `*TestHelpers.Instance.CreateContextServices`, note that it has overloads allowing to specify the model and mock services
+- The services in unit tests should be resolved from the `IServiceProvider` returned by `*TestHelpers.Instance.CreateContextServices`, note that it has overloads allowing to specify the model and mock services
 - For functional tests, create tests in projects corresponding to the database providers that derive from the appropriate test base classes in the `EFCore.*Specification.Tests` projects
+- Each provider has its own project structure: `EFCore.{Provider}`, `EFCore.{Provider}.Tests`, `EFCore.{Provider}.FunctionalTests`
+- Specification tests (`EFCore.*.Specification.Tests`) define provider-agnostic functional tests
 
 ## Repository Structure
 
@@ -191,8 +193,12 @@ Entity Framework Core (EF Core) is an object-database mapper for .NET. Below is 
 ### Model Building & Conventions
 - The model defines entities, properties, keys, relationships, and mappings.
 - Built via conventions, data annotations, and the fluent API (`OnModelCreating`).
-- Pre-convention configuration allows global rules.
+- Pre-convention configuration allows specifying model-wide rules and change used conventions.
+- API follows the pattern: `*Builder` → `IConvention*Builder`, `IReadOnly*` → `IMutable*` → `IConvention*` → `IRuntime*`
+- The interfaces are implemented by mutable and runtime models that provide the same behavior, but different perf characteristics
 - Model is cached for performance.
+- Compiled model is generated by `CSharpRuntimeModelCodeGenerator`, `*CSharpRuntimeAnnotationCodeGenerator` and `CSharpDbContextGenerator`
+- Relational providers also use `RelationalModel` and `*AnnotationProvider`
 
 ### Model Components
 - Entity Types: .NET classes mapped to tables/collections.
