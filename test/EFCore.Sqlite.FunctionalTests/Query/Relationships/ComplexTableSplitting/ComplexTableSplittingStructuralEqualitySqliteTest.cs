@@ -12,42 +12,72 @@ public class ComplexTableSplittingStructuralEqualitySqliteTest(
     {
         await base.Two_related();
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT "r"."Id", "r"."Name", "r"."OptionalRelated_Id", "r"."OptionalRelated_Int", "r"."OptionalRelated_Name", "r"."OptionalRelated_String", "r"."OptionalRelated_OptionalNested_Id", "r"."OptionalRelated_OptionalNested_Int", "r"."OptionalRelated_OptionalNested_Name", "r"."OptionalRelated_OptionalNested_String", "r"."OptionalRelated_RequiredNested_Id", "r"."OptionalRelated_RequiredNested_Int", "r"."OptionalRelated_RequiredNested_Name", "r"."OptionalRelated_RequiredNested_String", "r"."RequiredRelated_Id", "r"."RequiredRelated_Int", "r"."RequiredRelated_Name", "r"."RequiredRelated_String", "r"."RequiredRelated_OptionalNested_Id", "r"."RequiredRelated_OptionalNested_Int", "r"."RequiredRelated_OptionalNested_Name", "r"."RequiredRelated_OptionalNested_String", "r"."RequiredRelated_RequiredNested_Id", "r"."RequiredRelated_RequiredNested_Int", "r"."RequiredRelated_RequiredNested_Name", "r"."RequiredRelated_RequiredNested_String"
+FROM "RootEntity" AS "r"
+WHERE "r"."RequiredRelated_Id" = "r"."OptionalRelated_Id" AND "r"."RequiredRelated_Int" = "r"."OptionalRelated_Int" AND "r"."RequiredRelated_Name" = "r"."OptionalRelated_Name" AND "r"."RequiredRelated_String" = "r"."OptionalRelated_String" AND ("r"."RequiredRelated_OptionalNested_Id" = "r"."RequiredRelated_OptionalNested_Id" OR "r"."RequiredRelated_OptionalNested_Id" IS NULL) AND ("r"."RequiredRelated_OptionalNested_Int" = "r"."RequiredRelated_OptionalNested_Int" OR "r"."RequiredRelated_OptionalNested_Int" IS NULL) AND ("r"."RequiredRelated_OptionalNested_Name" = "r"."RequiredRelated_OptionalNested_Name" OR "r"."RequiredRelated_OptionalNested_Name" IS NULL) AND ("r"."RequiredRelated_OptionalNested_String" = "r"."RequiredRelated_OptionalNested_String" OR "r"."RequiredRelated_OptionalNested_String" IS NULL) AND "r"."RequiredRelated_RequiredNested_Id" = "r"."RequiredRelated_RequiredNested_Id" AND "r"."RequiredRelated_RequiredNested_Int" = "r"."RequiredRelated_RequiredNested_Int" AND "r"."RequiredRelated_RequiredNested_Name" = "r"."RequiredRelated_RequiredNested_Name" AND "r"."RequiredRelated_RequiredNested_String" = "r"."RequiredRelated_RequiredNested_String"
+""");
     }
 
     public override async Task Two_nested()
     {
         await base.Two_nested();
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT "r"."Id", "r"."Name", "r"."OptionalRelated_Id", "r"."OptionalRelated_Int", "r"."OptionalRelated_Name", "r"."OptionalRelated_String", "r"."OptionalRelated_OptionalNested_Id", "r"."OptionalRelated_OptionalNested_Int", "r"."OptionalRelated_OptionalNested_Name", "r"."OptionalRelated_OptionalNested_String", "r"."OptionalRelated_RequiredNested_Id", "r"."OptionalRelated_RequiredNested_Int", "r"."OptionalRelated_RequiredNested_Name", "r"."OptionalRelated_RequiredNested_String", "r"."RequiredRelated_Id", "r"."RequiredRelated_Int", "r"."RequiredRelated_Name", "r"."RequiredRelated_String", "r"."RequiredRelated_OptionalNested_Id", "r"."RequiredRelated_OptionalNested_Int", "r"."RequiredRelated_OptionalNested_Name", "r"."RequiredRelated_OptionalNested_String", "r"."RequiredRelated_RequiredNested_Id", "r"."RequiredRelated_RequiredNested_Int", "r"."RequiredRelated_RequiredNested_Name", "r"."RequiredRelated_RequiredNested_String"
+FROM "RootEntity" AS "r"
+WHERE "r"."RequiredRelated_RequiredNested_Id" = "r"."OptionalRelated_RequiredNested_Id" AND "r"."RequiredRelated_RequiredNested_Int" = "r"."OptionalRelated_RequiredNested_Int" AND "r"."RequiredRelated_RequiredNested_Name" = "r"."OptionalRelated_RequiredNested_Name" AND "r"."RequiredRelated_RequiredNested_String" = "r"."OptionalRelated_RequiredNested_String"
+""");
     }
 
     public override async Task Not_equals()
     {
         await base.Not_equals();
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT "r"."Id", "r"."Name", "r"."OptionalRelated_Id", "r"."OptionalRelated_Int", "r"."OptionalRelated_Name", "r"."OptionalRelated_String", "r"."OptionalRelated_OptionalNested_Id", "r"."OptionalRelated_OptionalNested_Int", "r"."OptionalRelated_OptionalNested_Name", "r"."OptionalRelated_OptionalNested_String", "r"."OptionalRelated_RequiredNested_Id", "r"."OptionalRelated_RequiredNested_Int", "r"."OptionalRelated_RequiredNested_Name", "r"."OptionalRelated_RequiredNested_String", "r"."RequiredRelated_Id", "r"."RequiredRelated_Int", "r"."RequiredRelated_Name", "r"."RequiredRelated_String", "r"."RequiredRelated_OptionalNested_Id", "r"."RequiredRelated_OptionalNested_Int", "r"."RequiredRelated_OptionalNested_Name", "r"."RequiredRelated_OptionalNested_String", "r"."RequiredRelated_RequiredNested_Id", "r"."RequiredRelated_RequiredNested_Int", "r"."RequiredRelated_RequiredNested_Name", "r"."RequiredRelated_RequiredNested_String"
+FROM "RootEntity" AS "r"
+WHERE "r"."RequiredRelated_Id" <> "r"."OptionalRelated_Id" OR "r"."OptionalRelated_Id" IS NULL OR "r"."RequiredRelated_Int" <> "r"."OptionalRelated_Int" OR "r"."OptionalRelated_Int" IS NULL OR "r"."RequiredRelated_Name" <> "r"."OptionalRelated_Name" OR "r"."OptionalRelated_Name" IS NULL OR "r"."RequiredRelated_String" <> "r"."OptionalRelated_String" OR "r"."OptionalRelated_String" IS NULL OR (("r"."RequiredRelated_OptionalNested_Id" <> "r"."RequiredRelated_OptionalNested_Id" OR "r"."RequiredRelated_OptionalNested_Id" IS NULL) AND "r"."RequiredRelated_OptionalNested_Id" IS NOT NULL) OR (("r"."RequiredRelated_OptionalNested_Int" <> "r"."RequiredRelated_OptionalNested_Int" OR "r"."RequiredRelated_OptionalNested_Int" IS NULL) AND "r"."RequiredRelated_OptionalNested_Int" IS NOT NULL) OR (("r"."RequiredRelated_OptionalNested_Name" <> "r"."RequiredRelated_OptionalNested_Name" OR "r"."RequiredRelated_OptionalNested_Name" IS NULL) AND "r"."RequiredRelated_OptionalNested_Name" IS NOT NULL) OR (("r"."RequiredRelated_OptionalNested_String" <> "r"."RequiredRelated_OptionalNested_String" OR "r"."RequiredRelated_OptionalNested_String" IS NULL) AND "r"."RequiredRelated_OptionalNested_String" IS NOT NULL) OR "r"."RequiredRelated_RequiredNested_Id" <> "r"."RequiredRelated_RequiredNested_Id" OR "r"."RequiredRelated_RequiredNested_Id" IS NULL OR "r"."RequiredRelated_RequiredNested_Int" <> "r"."RequiredRelated_RequiredNested_Int" OR "r"."RequiredRelated_RequiredNested_Int" IS NULL OR "r"."RequiredRelated_RequiredNested_Name" <> "r"."RequiredRelated_RequiredNested_Name" OR "r"."RequiredRelated_RequiredNested_Name" IS NULL OR "r"."RequiredRelated_RequiredNested_String" <> "r"."RequiredRelated_RequiredNested_String" OR "r"."RequiredRelated_RequiredNested_String" IS NULL
+""");
     }
 
     public override async Task Related_with_inline_null()
     {
         await base.Related_with_inline_null();
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT "r"."Id", "r"."Name", "r"."OptionalRelated_Id", "r"."OptionalRelated_Int", "r"."OptionalRelated_Name", "r"."OptionalRelated_String", "r"."OptionalRelated_OptionalNested_Id", "r"."OptionalRelated_OptionalNested_Int", "r"."OptionalRelated_OptionalNested_Name", "r"."OptionalRelated_OptionalNested_String", "r"."OptionalRelated_RequiredNested_Id", "r"."OptionalRelated_RequiredNested_Int", "r"."OptionalRelated_RequiredNested_Name", "r"."OptionalRelated_RequiredNested_String", "r"."RequiredRelated_Id", "r"."RequiredRelated_Int", "r"."RequiredRelated_Name", "r"."RequiredRelated_String", "r"."RequiredRelated_OptionalNested_Id", "r"."RequiredRelated_OptionalNested_Int", "r"."RequiredRelated_OptionalNested_Name", "r"."RequiredRelated_OptionalNested_String", "r"."RequiredRelated_RequiredNested_Id", "r"."RequiredRelated_RequiredNested_Int", "r"."RequiredRelated_RequiredNested_Name", "r"."RequiredRelated_RequiredNested_String"
+FROM "RootEntity" AS "r"
+WHERE "r"."OptionalRelated_Id" IS NULL AND "r"."OptionalRelated_Int" IS NULL AND "r"."OptionalRelated_Name" IS NULL AND "r"."OptionalRelated_String" IS NULL AND "r"."OptionalRelated_OptionalNested_Id" IS NULL AND "r"."OptionalRelated_OptionalNested_Int" IS NULL AND "r"."OptionalRelated_OptionalNested_Name" IS NULL AND "r"."OptionalRelated_OptionalNested_String" IS NULL AND "r"."OptionalRelated_RequiredNested_Id" IS NULL AND "r"."OptionalRelated_RequiredNested_Int" IS NULL AND "r"."OptionalRelated_RequiredNested_Name" IS NULL AND "r"."OptionalRelated_RequiredNested_String" IS NULL
+""");
     }
 
     public override async Task Related_with_parameter_null()
     {
         await base.Related_with_parameter_null();
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT "r"."Id", "r"."Name", "r"."OptionalRelated_Id", "r"."OptionalRelated_Int", "r"."OptionalRelated_Name", "r"."OptionalRelated_String", "r"."OptionalRelated_OptionalNested_Id", "r"."OptionalRelated_OptionalNested_Int", "r"."OptionalRelated_OptionalNested_Name", "r"."OptionalRelated_OptionalNested_String", "r"."OptionalRelated_RequiredNested_Id", "r"."OptionalRelated_RequiredNested_Int", "r"."OptionalRelated_RequiredNested_Name", "r"."OptionalRelated_RequiredNested_String", "r"."RequiredRelated_Id", "r"."RequiredRelated_Int", "r"."RequiredRelated_Name", "r"."RequiredRelated_String", "r"."RequiredRelated_OptionalNested_Id", "r"."RequiredRelated_OptionalNested_Int", "r"."RequiredRelated_OptionalNested_Name", "r"."RequiredRelated_OptionalNested_String", "r"."RequiredRelated_RequiredNested_Id", "r"."RequiredRelated_RequiredNested_Int", "r"."RequiredRelated_RequiredNested_Name", "r"."RequiredRelated_RequiredNested_String"
+FROM "RootEntity" AS "r"
+WHERE "r"."OptionalRelated_Id" IS NULL AND "r"."OptionalRelated_Int" IS NULL AND "r"."OptionalRelated_Name" IS NULL AND "r"."OptionalRelated_String" IS NULL AND "r"."OptionalRelated_OptionalNested_Id" IS NULL AND "r"."OptionalRelated_OptionalNested_Int" IS NULL AND "r"."OptionalRelated_OptionalNested_Name" IS NULL AND "r"."OptionalRelated_OptionalNested_String" IS NULL AND "r"."OptionalRelated_RequiredNested_Id" IS NULL AND "r"."OptionalRelated_RequiredNested_Int" IS NULL AND "r"."OptionalRelated_RequiredNested_Name" IS NULL AND "r"."OptionalRelated_RequiredNested_String" IS NULL
+""");
     }
 
     public override async Task Nested_with_inline_null()
     {
         await base.Nested_with_inline_null();
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT "r"."Id", "r"."Name", "r"."OptionalRelated_Id", "r"."OptionalRelated_Int", "r"."OptionalRelated_Name", "r"."OptionalRelated_String", "r"."OptionalRelated_OptionalNested_Id", "r"."OptionalRelated_OptionalNested_Int", "r"."OptionalRelated_OptionalNested_Name", "r"."OptionalRelated_OptionalNested_String", "r"."OptionalRelated_RequiredNested_Id", "r"."OptionalRelated_RequiredNested_Int", "r"."OptionalRelated_RequiredNested_Name", "r"."OptionalRelated_RequiredNested_String", "r"."RequiredRelated_Id", "r"."RequiredRelated_Int", "r"."RequiredRelated_Name", "r"."RequiredRelated_String", "r"."RequiredRelated_OptionalNested_Id", "r"."RequiredRelated_OptionalNested_Int", "r"."RequiredRelated_OptionalNested_Name", "r"."RequiredRelated_OptionalNested_String", "r"."RequiredRelated_RequiredNested_Id", "r"."RequiredRelated_RequiredNested_Int", "r"."RequiredRelated_RequiredNested_Name", "r"."RequiredRelated_RequiredNested_String"
+FROM "RootEntity" AS "r"
+WHERE "r"."RequiredRelated_OptionalNested_Id" IS NULL AND "r"."RequiredRelated_OptionalNested_Int" IS NULL AND "r"."RequiredRelated_OptionalNested_Name" IS NULL AND "r"."RequiredRelated_OptionalNested_String" IS NULL
+""");
     }
 
     public override async Task Nested_with_inline()
@@ -56,7 +86,7 @@ public class ComplexTableSplittingStructuralEqualitySqliteTest(
 
         AssertSql(
             """
-SELECT "r"."Id", "r"."Name", "r"."RequiredRelated_Id", "r"."RequiredRelated_Int", "r"."RequiredRelated_Name", "r"."RequiredRelated_String", "r"."RequiredRelated_RequiredNested_Id", "r"."RequiredRelated_RequiredNested_Int", "r"."RequiredRelated_RequiredNested_Name", "r"."RequiredRelated_RequiredNested_String"
+SELECT "r"."Id", "r"."Name", "r"."OptionalRelated_Id", "r"."OptionalRelated_Int", "r"."OptionalRelated_Name", "r"."OptionalRelated_String", "r"."OptionalRelated_OptionalNested_Id", "r"."OptionalRelated_OptionalNested_Int", "r"."OptionalRelated_OptionalNested_Name", "r"."OptionalRelated_OptionalNested_String", "r"."OptionalRelated_RequiredNested_Id", "r"."OptionalRelated_RequiredNested_Int", "r"."OptionalRelated_RequiredNested_Name", "r"."OptionalRelated_RequiredNested_String", "r"."RequiredRelated_Id", "r"."RequiredRelated_Int", "r"."RequiredRelated_Name", "r"."RequiredRelated_String", "r"."RequiredRelated_OptionalNested_Id", "r"."RequiredRelated_OptionalNested_Int", "r"."RequiredRelated_OptionalNested_Name", "r"."RequiredRelated_OptionalNested_String", "r"."RequiredRelated_RequiredNested_Id", "r"."RequiredRelated_RequiredNested_Int", "r"."RequiredRelated_RequiredNested_Name", "r"."RequiredRelated_RequiredNested_String"
 FROM "RootEntity" AS "r"
 WHERE "r"."RequiredRelated_RequiredNested_Id" = 1000 AND "r"."RequiredRelated_RequiredNested_Int" = 8 AND "r"."RequiredRelated_RequiredNested_Name" = 'Root1_RequiredRelated_RequiredNested' AND "r"."RequiredRelated_RequiredNested_String" = 'foo'
 """);
@@ -73,7 +103,7 @@ WHERE "r"."RequiredRelated_RequiredNested_Id" = 1000 AND "r"."RequiredRelated_Re
 @entity_equality_nested_Name='?' (Size = 36)
 @entity_equality_nested_String='?' (Size = 3)
 
-SELECT "r"."Id", "r"."Name", "r"."RequiredRelated_Id", "r"."RequiredRelated_Int", "r"."RequiredRelated_Name", "r"."RequiredRelated_String", "r"."RequiredRelated_RequiredNested_Id", "r"."RequiredRelated_RequiredNested_Int", "r"."RequiredRelated_RequiredNested_Name", "r"."RequiredRelated_RequiredNested_String"
+SELECT "r"."Id", "r"."Name", "r"."OptionalRelated_Id", "r"."OptionalRelated_Int", "r"."OptionalRelated_Name", "r"."OptionalRelated_String", "r"."OptionalRelated_OptionalNested_Id", "r"."OptionalRelated_OptionalNested_Int", "r"."OptionalRelated_OptionalNested_Name", "r"."OptionalRelated_OptionalNested_String", "r"."OptionalRelated_RequiredNested_Id", "r"."OptionalRelated_RequiredNested_Int", "r"."OptionalRelated_RequiredNested_Name", "r"."OptionalRelated_RequiredNested_String", "r"."RequiredRelated_Id", "r"."RequiredRelated_Int", "r"."RequiredRelated_Name", "r"."RequiredRelated_String", "r"."RequiredRelated_OptionalNested_Id", "r"."RequiredRelated_OptionalNested_Int", "r"."RequiredRelated_OptionalNested_Name", "r"."RequiredRelated_OptionalNested_String", "r"."RequiredRelated_RequiredNested_Id", "r"."RequiredRelated_RequiredNested_Int", "r"."RequiredRelated_RequiredNested_Name", "r"."RequiredRelated_RequiredNested_String"
 FROM "RootEntity" AS "r"
 WHERE "r"."RequiredRelated_RequiredNested_Id" = @entity_equality_nested_Id AND "r"."RequiredRelated_RequiredNested_Int" = @entity_equality_nested_Int AND "r"."RequiredRelated_RequiredNested_Name" = @entity_equality_nested_Name AND "r"."RequiredRelated_RequiredNested_String" = @entity_equality_nested_String
 """);

@@ -147,6 +147,19 @@ LEFT JOIN [NestedType] AS [n] ON [r0].[OptionalNestedId] = [n].[Id]
 """);
     }
 
+    public override async Task Select_required_related_via_optional_navigation(QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Select_required_related_via_optional_navigation(queryTrackingBehavior);
+
+        AssertSql(
+            """
+SELECT [r1].[Id], [r1].[CollectionRootId], [r1].[Int], [r1].[Name], [r1].[OptionalNestedId], [r1].[RequiredNestedId], [r1].[String]
+FROM [RootReferencingEntity] AS [r]
+LEFT JOIN [RootEntity] AS [r0] ON [r].[RootEntityId] = [r0].[Id]
+LEFT JOIN [RelatedType] AS [r1] ON [r0].[RequiredRelatedId] = [r1].[Id]
+""");
+    }
+
     #endregion Non-collection
 
     #region Collection

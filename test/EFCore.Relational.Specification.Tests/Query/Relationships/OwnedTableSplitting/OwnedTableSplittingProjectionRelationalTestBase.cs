@@ -16,6 +16,11 @@ public abstract class OwnedTableSplittingProjectionRelationalTestBase<TFixture>
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
+    public override Task Select_required_related_via_optional_navigation(QueryTrackingBehavior queryTrackingBehavior)
+        => AssertOwnedTrackingQuery(
+            queryTrackingBehavior,
+            () => base.Select_required_related_via_optional_navigation(queryTrackingBehavior));
+
     // Traditional relational collections navigations can't be compared reliably.
     // The failure below is because collections on from null instances are returned as empty collections rather than null; but
     // even disregarding that, elements in the collection don't preserve ordering and so can't be compared reliably.

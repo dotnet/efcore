@@ -492,12 +492,6 @@ public sealed partial class SelectExpression : TableExpressionBase
 
         void AddStructuralTypeProjection(StructuralTypeProjectionExpression projection)
         {
-            if (_projection.Count == 0
-                && projection is { StructuralType: IComplexType complexType, IsNullable: true })
-            {
-                throw new InvalidOperationException(RelationalStrings.CannotProjectNullableComplexType(complexType.DisplayName()));
-            }
-
             ProcessTypeProjection(projection);
 
             void ProcessTypeProjection(StructuralTypeProjectionExpression projection)
@@ -1367,11 +1361,6 @@ public sealed partial class SelectExpression : TableExpressionBase
 
         ConstantExpression AddStructuralTypeProjection(StructuralTypeProjectionExpression projection)
         {
-            if (projection is { StructuralType: IComplexType complexType, IsNullable: true })
-            {
-                throw new InvalidOperationException(RelationalStrings.CannotProjectNullableComplexType(complexType.DisplayName()));
-            }
-
             // JSON entity that had some query operations applied on it - it has been converted to a query root via OPENJSON/json_each
             // so it requires different materialization path than regular entity
             // e.g. we need to also add all the child navigations, JSON entity builds all the includes as part of it's own materializer

@@ -10,7 +10,7 @@ public class RelationshipsData : ISetSource
         RootEntities = CreateRootEntities();
         RelatedTypes = [];
         NestedTypes = [];
-        PreRootEntities = [];
+        RootReferencingEntities = CreateRootReferencingEntities(RootEntities);
     }
 
     public List<RootEntity> RootEntities { get; }
@@ -19,7 +19,7 @@ public class RelationshipsData : ISetSource
     public List<RelatedType> RelatedTypes { get; }
     public List<NestedType> NestedTypes { get; }
 
-    public List<RootReferencingEntity> PreRootEntities { get; }
+    public List<RootReferencingEntity> RootReferencingEntities { get; }
 
     public static List<RootEntity> CreateRootEntities()
     {
@@ -334,6 +334,23 @@ public class RelationshipsData : ISetSource
         }
     }
 
+    public static List<RootReferencingEntity> CreateRootReferencingEntities(IEnumerable<RootEntity> rootEntities)
+    {
+        var rootReferencingEntities = new List<RootReferencingEntity>();
+
+        var id = 1;
+
+        rootReferencingEntities.Add(new() { Id = id++, Root = null });
+        foreach (var rootEntity in rootEntities)
+        {
+            var rootReferencingEntity = new RootReferencingEntity { Id = id++, Root = rootEntity };
+            rootEntity.RootReferencingEntity = rootReferencingEntity;
+            rootReferencingEntities.Add(rootReferencingEntity);
+        }
+
+        return rootReferencingEntities;
+    }
+
     public IQueryable<TEntity> Set<TEntity>()
         where TEntity : class
         => typeof(TEntity) switch
@@ -341,7 +358,7 @@ public class RelationshipsData : ISetSource
             var t when t == typeof(RootEntity) => (IQueryable<TEntity>)RootEntities.AsQueryable(),
             var t when t == typeof(RelatedType) => (IQueryable<TEntity>)RelatedTypes.AsQueryable(),
             var t when t == typeof(NestedType) => (IQueryable<TEntity>)NestedTypes.AsQueryable(),
-            var t when t == typeof(RootReferencingEntity) => (IQueryable<TEntity>)PreRootEntities.AsQueryable(),
+            var t when t == typeof(RootReferencingEntity) => (IQueryable<TEntity>)RootReferencingEntities.AsQueryable(),
 
             _ => throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity))
         };

@@ -14,6 +14,11 @@ public abstract class OwnedNavigationsProjectionRelationalTestBase<TFixture>
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
+    public override Task Select_required_related_via_optional_navigation(QueryTrackingBehavior queryTrackingBehavior)
+        => AssertOwnedTrackingQuery(
+            queryTrackingBehavior,
+            () => base.Select_required_related_via_optional_navigation(queryTrackingBehavior));
+
     // Traditional relational collections navigations projected from null instances are returned as empty collections rather than null.
     // This is in contrast to client evaluation behavior - and also the JSON collection behavior - where we get null instance (coalescing).
     public override Task Select_nested_collection_on_optional_related(QueryTrackingBehavior queryTrackingBehavior)

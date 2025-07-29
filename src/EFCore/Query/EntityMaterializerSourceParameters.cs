@@ -8,12 +8,14 @@ namespace Microsoft.EntityFrameworkCore.Query;
 /// </summary>
 /// <param name="StructuralType">The entity or complex type being materialized.</param>
 /// <param name="InstanceName">The name of the instance being materialized.</param>
+/// <param name="AllowNullable">Whether nullable result is allowed.</param>
 /// <param name="QueryTrackingBehavior">
 ///     The query tracking behavior, or <see langword="null" /> if this materialization is not from a query.
 /// </param>
 public readonly record struct StructuralTypeMaterializerSourceParameters(
     ITypeBase StructuralType,
     string InstanceName,
+    bool? AllowNullable,
     QueryTrackingBehavior? QueryTrackingBehavior);
 
 /// <summary>

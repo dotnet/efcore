@@ -167,6 +167,23 @@ FROM [RootEntity] AS [r]
         }
     }
 
+    public override async Task Select_required_related_via_optional_navigation(QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Select_required_related_via_optional_navigation(queryTrackingBehavior);
+
+        if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
+        {
+            AssertSql(
+                """
+SELECT [r0].[Id], [r0].[RequiredRelated_Id], [r0].[RequiredRelated_Int], [r0].[RequiredRelated_Name], [r0].[RequiredRelated_String], [r].[Id], [r1].[RelatedTypeRootEntityId], [r1].[Id], [r1].[Int], [r1].[Name], [r1].[String], [r0].[RequiredRelated_OptionalNested_Id], [r0].[RequiredRelated_OptionalNested_Int], [r0].[RequiredRelated_OptionalNested_Name], [r0].[RequiredRelated_OptionalNested_String], [r0].[RequiredRelated_RequiredNested_Id], [r0].[RequiredRelated_RequiredNested_Int], [r0].[RequiredRelated_RequiredNested_Name], [r0].[RequiredRelated_RequiredNested_String]
+FROM [RootReferencingEntity] AS [r]
+LEFT JOIN [RootEntity] AS [r0] ON [r].[RootEntityId] = [r0].[Id]
+LEFT JOIN [RequiredRelated_NestedCollection] AS [r1] ON [r0].[Id] = [r1].[RelatedTypeRootEntityId]
+ORDER BY [r].[Id], [r0].[Id], [r1].[RelatedTypeRootEntityId]
+""");
+        }
+    }
+
     #endregion Non-collection
 
     #region Collection
