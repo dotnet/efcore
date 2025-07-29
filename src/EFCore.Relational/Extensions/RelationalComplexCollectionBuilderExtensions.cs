@@ -38,7 +38,7 @@ public static class RelationalComplexCollectionBuilderExtensions
     public static ComplexCollectionBuilder<TComplex> ToJson<TComplex>(
         this ComplexCollectionBuilder<TComplex> complexCollectionBuilder,
         string? jsonColumnName = null)
-        where TComplex : class
+        where TComplex : notnull
         => (ComplexCollectionBuilder<TComplex>)ToJson((ComplexCollectionBuilder)complexCollectionBuilder, jsonColumnName);
 
     /// <summary>

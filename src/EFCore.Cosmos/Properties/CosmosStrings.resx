@@ -183,9 +183,6 @@
   <data name="FullTextSearchConfiguredForUnsupportedPropertyType" xml:space="preserve">
     <value>Property '{entityType}.{property}' was configured for full-text search, but has type '{clrType}'; only string properties can be configured for full-text search.</value>
   </data>
-  <data name="FullTextSearchDefaultLanguageMismatch" xml:space="preserve">
-    <value>The default full-text search language was configured to '{defaultLanguage1}' on '{entityType1}', but on '{entityType2}' it was configured to '{defaultLanguage2}'. All entity types mapped to the same container '{container}' must be configured with the same default full-text search language.</value>
-  </data>
   <data name="HasShadowIdOnNonRoot" xml:space="preserve">
     <value>'HasShadowId' was called on a non-root entity type '{entityType}'. JSON 'id' configuration can only be made on the document root.</value>
   </data>

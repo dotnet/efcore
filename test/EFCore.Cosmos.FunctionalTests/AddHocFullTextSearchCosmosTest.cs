@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 namespace Microsoft.EntityFrameworkCore;
 
 [CosmosCondition(CosmosCondition.DoesNotUseTokenCredential)]
-public class AddHocFullTextSearchCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
+public class AdHocFullTextSearchCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
     protected override string StoreName
         => "AdHocFullTextSearchTests";
@@ -162,33 +162,21 @@ public class AddHocFullTextSearchCosmosTest(NonSharedFixture fixture) : NonShare
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<Entity>(b =>
-            {
-                b.ToContainer("Entities").HasDefaultFullTextLanguage("xx-YY");
-                b.HasPartitionKey(x => x.PartitionKey);
-                b.Property(x => x.Name).EnableFullTextSearch();
-                b.HasIndex(x => x.Name).IsFullTextIndex();
-            });
+        {
+            modelBuilder.HasDefaultFullTextLanguage("xx-YY");
+            modelBuilder.Entity<Entity>(b =>
+                {
+                    b.ToContainer("Entities");
+                    b.HasPartitionKey(x => x.PartitionKey);
+                    b.Property(x => x.Name).EnableFullTextSearch();
+                    b.HasIndex(x => x.Name).IsFullTextIndex();
+                });
+        }
     }
 
     #endregion
 
     #region DefaultFullTextSearchLanguageMismatch
-
-    [ConditionalFact]
-    public async Task Set_different_full_text_search_default_language_for_the_same_container()
-    {
-        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
-            () => InitializeAsync<ContextDefaultFullTextSearchLanguageMismatch>())).Message;
-
-        Assert.Equal(
-            CosmosStrings.FullTextSearchDefaultLanguageMismatch(
-                "pl-PL",
-                nameof(ContextDefaultFullTextSearchLanguageMismatch.Entity1),
-                nameof(ContextDefaultFullTextSearchLanguageMismatch.Entity2),
-                "en-US",
-                "Entities"), message);
-    }
 
     protected class ContextDefaultFullTextSearchLanguageMismatch(DbContextOptions options) : DbContext(options)
     {
@@ -213,9 +201,10 @@ public class AddHocFullTextSearchCosmosTest(NonSharedFixture fixture) : NonShare
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.HasDefaultFullTextLanguage("pl-PL");
             modelBuilder.Entity<Entity1>(b =>
             {
-                b.ToContainer("Entities").HasDefaultFullTextLanguage("pl-PL");
+                b.ToContainer("Entities");
                 b.HasPartitionKey(x => x.PartitionKey);
                 b.Property(x => x.Name).EnableFullTextSearch();
                 b.HasIndex(x => x.Name).IsFullTextIndex();
@@ -223,7 +212,7 @@ public class AddHocFullTextSearchCosmosTest(NonSharedFixture fixture) : NonShare
 
             modelBuilder.Entity<Entity2>(b =>
             {
-                b.ToContainer("Entities").HasDefaultFullTextLanguage("en-US");
+                b.ToContainer("Entities");
                 b.HasPartitionKey(x => x.PartitionKey);
                 b.Property(x => x.Name).EnableFullTextSearch();
                 b.HasIndex(x => x.Name).IsFullTextIndex();
@@ -276,6 +265,7 @@ public class AddHocFullTextSearchCosmosTest(NonSharedFixture fixture) : NonShare
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.HasDefaultFullTextLanguage("xx-YY");
             modelBuilder.Entity<Entity1>(b =>
             {
                 b.ToContainer("Entities");
@@ -286,7 +276,7 @@ public class AddHocFullTextSearchCosmosTest(NonSharedFixture fixture) : NonShare
 
             modelBuilder.Entity<Entity2>(b =>
             {
-                b.ToContainer("Entities").HasDefaultFullTextLanguage("xx-YY");
+                b.ToContainer("Entities");
                 b.HasPartitionKey(x => x.PartitionKey);
                 b.Property(x => x.Name).EnableFullTextSearch();
                 b.HasIndex(x => x.Name).IsFullTextIndex();
@@ -328,13 +318,16 @@ public class AddHocFullTextSearchCosmosTest(NonSharedFixture fixture) : NonShare
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<Entity>(b =>
         {
-            b.ToContainer("Entities").HasDefaultFullTextLanguage("xx-YY");
-            b.HasPartitionKey(x => x.PartitionKey);
-            b.Property(x => x.Name).EnableFullTextSearch();
-            b.HasIndex(x => x.Name).IsFullTextIndex();
-        });
+            modelBuilder.HasDefaultFullTextLanguage("xx-YY");
+            modelBuilder.Entity<Entity>(b =>
+                {
+                    b.ToContainer("Entities");
+                    b.HasPartitionKey(x => x.PartitionKey);
+                    b.Property(x => x.Name).EnableFullTextSearch();
+                    b.HasIndex(x => x.Name).IsFullTextIndex();
+                });
+        }
     }
 
     #endregion
@@ -363,13 +356,16 @@ public class AddHocFullTextSearchCosmosTest(NonSharedFixture fixture) : NonShare
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<Entity>(b =>
         {
-            b.ToContainer("Entities").HasDefaultFullTextLanguage("en-US");
-            b.HasPartitionKey(x => x.PartitionKey);
-            b.Property(x => x.Name).EnableFullTextSearch("xx-YY");
-            b.HasIndex(x => x.Name).IsFullTextIndex();
-        });
+            modelBuilder.HasDefaultFullTextLanguage("en-US");
+            modelBuilder.Entity<Entity>(b =>
+                {
+                    b.ToContainer("Entities");
+                    b.HasPartitionKey(x => x.PartitionKey);
+                    b.Property(x => x.Name).EnableFullTextSearch("xx-YY");
+                    b.HasIndex(x => x.Name).IsFullTextIndex();
+                });
+        }
     }
 
     #endregion

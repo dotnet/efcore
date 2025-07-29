@@ -589,6 +589,9 @@ public abstract partial class ModelBuilderTest
         protected virtual GenericTestComplexTypePropertyBuilder<TProperty> Wrap<TProperty>(ComplexTypePropertyBuilder<TProperty> propertyBuilder)
             => new(propertyBuilder);
 
+        protected virtual GenericTestComplexCollectionTypePropertyBuilder<TProperty> Wrap<TProperty>(ComplexCollectionTypePropertyBuilder<TProperty> propertyBuilder)
+            => new(propertyBuilder);
+
         protected virtual GenericTestComplexTypePrimitiveCollectionBuilder<TProperty> Wrap<TProperty>(
             ComplexTypePrimitiveCollectionBuilder<TProperty> propertyBuilder)
             => new(propertyBuilder);
@@ -599,12 +602,12 @@ public abstract partial class ModelBuilderTest
         public override TestComplexCollectionBuilder<TComplex> HasTypeAnnotation(string annotation, object? value)
             => Wrap(PropertyBuilder.HasTypeAnnotation(annotation, value));
 
-        public override TestComplexTypePropertyBuilder<TProperty> Property<TProperty>(
+        public override TestComplexCollectionTypePropertyBuilder<TProperty> Property<TProperty>(
             Expression<Func<TComplex, TProperty>> propertyExpression)
             where TProperty : default
             => Wrap(PropertyBuilder.Property(propertyExpression));
 
-        public override TestComplexTypePropertyBuilder<TProperty> Property<TProperty>(string propertyName)
+        public override TestComplexCollectionTypePropertyBuilder<TProperty> Property<TProperty>(string propertyName)
             => Wrap(PropertyBuilder.Property<TProperty>(propertyName));
 
         public override TestComplexTypePrimitiveCollectionBuilder<TProperty> PrimitiveCollection<TProperty>(
@@ -615,7 +618,7 @@ public abstract partial class ModelBuilderTest
         public override TestComplexTypePrimitiveCollectionBuilder<TProperty> PrimitiveCollection<TProperty>(string propertyName)
             => Wrap(PropertyBuilder.PrimitiveCollection<TProperty>(propertyName));
 
-        public override TestComplexTypePropertyBuilder<TProperty> IndexerProperty<TProperty>(string propertyName)
+        public override TestComplexCollectionTypePropertyBuilder<TProperty> IndexerProperty<TProperty>(string propertyName)
             => Wrap(PropertyBuilder.IndexerProperty<TProperty>(propertyName));
 
         public override TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(string propertyName)
@@ -1138,6 +1141,125 @@ public abstract partial class ModelBuilderTest
             => Wrap(PropertyBuilder.HasConversion<TConverter, TComparer, TProviderComparer>());
 
         ComplexTypePropertyBuilder<TProperty> IInfrastructure<ComplexTypePropertyBuilder<TProperty>>.Instance
+            => PropertyBuilder;
+    }
+
+    protected class GenericTestComplexCollectionTypePropertyBuilder<TProperty>(ComplexCollectionTypePropertyBuilder<TProperty> propertyBuilder) :
+        TestComplexCollectionTypePropertyBuilder<TProperty>,
+        IInfrastructure<ComplexCollectionTypePropertyBuilder<TProperty>>
+    {
+        protected ComplexCollectionTypePropertyBuilder<TProperty> PropertyBuilder { get; } = propertyBuilder;
+
+        public override IMutableProperty Metadata
+            => PropertyBuilder.Metadata;
+
+        protected virtual TestComplexCollectionTypePropertyBuilder<TProperty> Wrap(ComplexCollectionTypePropertyBuilder<TProperty> propertyBuilder)
+            => new GenericTestComplexCollectionTypePropertyBuilder<TProperty>(propertyBuilder);
+
+        public override TestComplexCollectionTypePropertyBuilder<TProperty> HasAnnotation(string annotation, object? value)
+            => Wrap(PropertyBuilder.HasAnnotation(annotation, value));
+
+        public override TestComplexCollectionTypePropertyBuilder<TProperty> IsRequired(bool isRequired = true)
+            => Wrap(PropertyBuilder.IsRequired(isRequired));
+
+        public override TestComplexCollectionTypePropertyBuilder<TProperty> HasSentinel(TProperty? sentinel)
+            => Wrap(PropertyBuilder.HasSentinel(sentinel));
+
+        public override TestComplexCollectionTypePropertyBuilder<TProperty> IsUnicode(bool unicode = true)
+            => Wrap(PropertyBuilder.IsUnicode(unicode));
+
+        public override TestComplexCollectionTypePropertyBuilder<TProperty> HasValueGenerator<TGenerator>()
+            => Wrap(PropertyBuilder.HasValueGenerator<TGenerator>());
+
+        public override TestComplexCollectionTypePropertyBuilder<TProperty> HasValueGenerator(Type valueGeneratorType)
+            => Wrap(PropertyBuilder.HasValueGenerator(valueGeneratorType));
+
+        public override TestComplexCollectionTypePropertyBuilder<TProperty> HasValueGeneratorFactory<TFactory>()
+            => Wrap(PropertyBuilder.HasValueGeneratorFactory<TFactory>());
+
+        public override TestComplexCollectionTypePropertyBuilder<TProperty> HasValueGeneratorFactory(Type valueGeneratorFactoryType)
+            => Wrap(PropertyBuilder.HasValueGeneratorFactory(valueGeneratorFactoryType));
+
+        public override TestComplexCollectionTypePropertyBuilder<TProperty> HasField(string fieldName)
+            => Wrap(PropertyBuilder.HasField(fieldName));
+
+        public override TestComplexCollectionTypePropertyBuilder<TProperty> UsePropertyAccessMode(PropertyAccessMode propertyAccessMode)
+            => Wrap(PropertyBuilder.UsePropertyAccessMode(propertyAccessMode));
+
+        public override TestComplexCollectionTypePropertyBuilder<TProperty> HasConversion<TConversion>()
+            => Wrap(PropertyBuilder.HasConversion<TConversion>());
+
+        public override TestComplexCollectionTypePropertyBuilder<TProperty> HasConversion<TConversion>(ValueComparer? valueComparer)
+            => Wrap(PropertyBuilder.HasConversion<TConversion>(valueComparer));
+
+        public override TestComplexCollectionTypePropertyBuilder<TProperty> HasConversion<TConversion>(
+            ValueComparer? valueComparer,
+            ValueComparer? providerComparerType)
+            => Wrap(PropertyBuilder.HasConversion<TConversion>(valueComparer, providerComparerType));
+
+        public override TestComplexCollectionTypePropertyBuilder<TProperty> HasConversion<TProvider>(
+            Expression<Func<TProperty, TProvider>> convertToProviderExpression,
+            Expression<Func<TProvider, TProperty>> convertFromProviderExpression)
+            => Wrap(
+                PropertyBuilder.HasConversion(
+                    convertToProviderExpression,
+                    convertFromProviderExpression));
+
+        public override TestComplexCollectionTypePropertyBuilder<TProperty> HasConversion<TProvider>(
+            Expression<Func<TProperty, TProvider>> convertToProviderExpression,
+            Expression<Func<TProvider, TProperty>> convertFromProviderExpression,
+            ValueComparer? valueComparer)
+            => Wrap(
+                PropertyBuilder.HasConversion(
+                    convertToProviderExpression,
+                    convertFromProviderExpression,
+                    valueComparer));
+
+        public override TestComplexCollectionTypePropertyBuilder<TProperty> HasConversion<TProvider>(
+            Expression<Func<TProperty, TProvider>> convertToProviderExpression,
+            Expression<Func<TProvider, TProperty>> convertFromProviderExpression,
+            ValueComparer? valueComparer,
+            ValueComparer? providerComparerType)
+            => Wrap(
+                PropertyBuilder.HasConversion(
+                    convertToProviderExpression,
+                    convertFromProviderExpression,
+                    valueComparer,
+                    providerComparerType));
+
+        public override TestComplexCollectionTypePropertyBuilder<TProperty> HasConversion<TProvider>(ValueConverter<TProperty, TProvider> converter)
+            => Wrap(PropertyBuilder.HasConversion(converter));
+
+        public override TestComplexCollectionTypePropertyBuilder<TProperty> HasConversion<TProvider>(
+            ValueConverter<TProperty, TProvider> converter,
+            ValueComparer? valueComparer)
+            => Wrap(PropertyBuilder.HasConversion(converter, valueComparer));
+
+        public override TestComplexCollectionTypePropertyBuilder<TProperty> HasConversion<TProvider>(
+            ValueConverter<TProperty, TProvider> converter,
+            ValueComparer? valueComparer,
+            ValueComparer? providerComparerType)
+            => Wrap(PropertyBuilder.HasConversion(converter, valueComparer, providerComparerType));
+
+        public override TestComplexCollectionTypePropertyBuilder<TProperty> HasConversion(ValueConverter? converter)
+            => Wrap(PropertyBuilder.HasConversion(converter));
+
+        public override TestComplexCollectionTypePropertyBuilder<TProperty> HasConversion(ValueConverter? converter, ValueComparer? valueComparer)
+            => Wrap(PropertyBuilder.HasConversion(converter, valueComparer));
+
+        public override TestComplexCollectionTypePropertyBuilder<TProperty> HasConversion(
+            ValueConverter? converter,
+            ValueComparer? valueComparer,
+            ValueComparer? providerComparerType)
+            => Wrap(PropertyBuilder.HasConversion(converter, valueComparer, providerComparerType));
+
+        public override TestComplexCollectionTypePropertyBuilder<TProperty> HasConversion<TConverter, TComparer>()
+            => Wrap(PropertyBuilder.HasConversion<TConverter, TComparer>());
+
+        public override TestComplexCollectionTypePropertyBuilder<TProperty> HasConversion<TConverter, TComparer, TProviderComparer>()
+            => Wrap(PropertyBuilder.HasConversion<TConverter, TComparer, TProviderComparer>());
+
+        ComplexCollectionTypePropertyBuilder<TProperty> IInfrastructure<ComplexCollectionTypePropertyBuilder<TProperty>>.Instance
             => PropertyBuilder;
     }
 

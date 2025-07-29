@@ -586,48 +586,4 @@ public static class CosmosEntityTypeExtensions
     public static ConfigurationSource? GetThroughputConfigurationSource(this IConventionEntityType entityType)
         => entityType.FindAnnotation(CosmosAnnotationNames.Throughput)
             ?.GetConfigurationSource();
-
-    /// <summary>
-    ///     Returns the default language for the full-text search at container scope.
-    /// </summary>
-    /// <param name="entityType">The entity type.</param>
-    /// <returns>The default language for the full-text search.</returns>
-    public static string? GetDefaultFullTextSearchLanguage(this IReadOnlyEntityType entityType)
-        => entityType.BaseType != null
-            ? entityType.GetRootType().GetDefaultFullTextSearchLanguage()
-            : (string?)entityType[CosmosAnnotationNames.DefaultFullTextSearchLanguage];
-
-    /// <summary>
-    ///     Sets the default language for the full-text search at container scope.
-    /// </summary>
-    /// <param name="entityType">The entity type.</param>
-    /// <param name="language">The default language for the full-text search.</param>
-    public static void SetDefaultFullTextSearchLanguage(this IMutableEntityType entityType, string? language)
-        => entityType.SetOrRemoveAnnotation(
-            CosmosAnnotationNames.DefaultFullTextSearchLanguage,
-            language);
-
-    /// <summary>
-    ///     Sets the default language for the full-text search at container scope.
-    /// </summary>
-    /// <param name="entityType">The entity type.</param>
-    /// <param name="language">The default language for the full-text search.</param>
-    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-    public static string? SetDefaultFullTextSearchLanguage(
-        this IConventionEntityType entityType,
-        string? language,
-        bool fromDataAnnotation = false)
-        => (string?)entityType.SetOrRemoveAnnotation(
-            CosmosAnnotationNames.DefaultFullTextSearchLanguage,
-            language,
-            fromDataAnnotation)?.Value;
-
-    /// <summary>
-    ///     Gets the <see cref="ConfigurationSource" /> for the default full-text search language at container scope.
-    /// </summary>
-    /// <param name="entityType">The entity type to find configuration source for.</param>
-    /// <returns>The <see cref="ConfigurationSource" /> for the default full-text search language.</returns>
-    public static ConfigurationSource? GetDefaultFullTextSearchLanguageConfigurationSource(this IConventionEntityType entityType)
-        => entityType.FindAnnotation(CosmosAnnotationNames.DefaultFullTextSearchLanguage)
-            ?.GetConfigurationSource();
 }

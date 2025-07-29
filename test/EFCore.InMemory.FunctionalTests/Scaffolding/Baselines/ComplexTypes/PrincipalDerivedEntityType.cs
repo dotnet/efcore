@@ -93,10 +93,7 @@ namespace TestNamespace
                     fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("_details", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                     propertyAccessMode: PropertyAccessMode.FieldDuringConstruction,
                     nullable: true,
-                    maxLength: 64,
                     unicode: false,
-                    precision: 3,
-                    scale: 2,
                     sentinel: "");
                 details.SetGetter(
                     string (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>> entity, IReadOnlyList<int> indices) => ((PrincipalDerivedUnsafeAccessors<CompiledModelTestBase.DependentBase<byte?>>.ManyOwned(entity) == null ? throw new InvalidOperationException(CoreStrings.ComplexCollectionNotInitialized("PrincipalDerived", "ManyOwned")) : PrincipalDerivedUnsafeAccessors<CompiledModelTestBase.DependentBase<byte?>>.ManyOwned(entity))[indices[0]] == null ? default(string) : (PrincipalDerivedUnsafeAccessors<CompiledModelTestBase.DependentBase<byte?>>.ManyOwned(entity) == null ? throw new InvalidOperationException(CoreStrings.ComplexCollectionNotInitialized("PrincipalDerived", "ManyOwned")) : PrincipalDerivedUnsafeAccessors<CompiledModelTestBase.DependentBase<byte?>>.ManyOwned(entity))[indices[0]].Details),

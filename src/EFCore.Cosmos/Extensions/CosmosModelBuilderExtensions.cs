@@ -257,4 +257,70 @@ public static class CosmosModelBuilderExtensions
             ? existingThroughput?.Throughput == throughput
             : existingThroughput?.AutoscaleMaxThroughput == throughput;
     }
+
+    /// <summary>
+    ///     Configures a default language to use for full-text search at database scope.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
+    /// </remarks>
+    /// <param name="modelBuilder">The model builder.</param>
+    /// <param name="language">The default language.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public static ModelBuilder HasDefaultFullTextLanguage(
+        this ModelBuilder modelBuilder,
+        string? language)
+    {
+        modelBuilder.Model.SetDefaultFullTextSearchLanguage(language);
+
+        return modelBuilder;
+    }
+
+    /// <summary>
+    ///     Configures a default language to use for full-text search at database scope.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
+    /// </remarks>
+    /// <param name="modelBuilder">The model builder.</param>
+    /// <param name="language">The default language.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>
+    ///     The same builder instance if the configuration was applied,
+    ///     <see langword="null" /> otherwise.
+    /// </returns>
+    public static IConventionModelBuilder? HasDefaultFullTextLanguage(
+        this IConventionModelBuilder modelBuilder,
+        string? language,
+        bool fromDataAnnotation = false)
+    {
+        if (!modelBuilder.CanSetDefaultFullTextLanguage(language, fromDataAnnotation))
+        {
+            return null;
+        }
+
+        modelBuilder.Metadata.SetDefaultFullTextSearchLanguage(language, fromDataAnnotation);
+
+        return modelBuilder;
+    }
+
+    /// <summary>
+    ///     Returns a value indicating whether the default full-text language can be set
+    ///     from the current configuration source
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
+    /// </remarks>
+    /// <param name="modelBuilder">The model builder.</param>
+    /// <param name="language">The default language.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns><see langword="true" /> if the configuration can be applied.</returns>
+    public static bool CanSetDefaultFullTextLanguage(
+        this IConventionModelBuilder modelBuilder,
+        string? language,
+        bool fromDataAnnotation = false)
+        => modelBuilder.CanSetAnnotation(CosmosAnnotationNames.DefaultFullTextSearchLanguage, language, fromDataAnnotation);
 }

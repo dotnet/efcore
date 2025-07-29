@@ -32,20 +32,32 @@ public static class CosmosIndexExtensions
     /// </summary>
     /// <param name="index">The index.</param>
     /// <param name="indexType">The index type to use.</param>
-    public static void SetVectorIndexType(this IMutableIndex index, VectorIndexType? indexType)
-        => index.SetAnnotation(CosmosAnnotationNames.VectorIndexType, indexType);
+    /// <param name="vectorIndex">The value indicating whether the index is configured as a vector index.</param>
+    public static void SetVectorIndexType(this IMutableIndex index, VectorIndexType? indexType, bool? vectorIndex)
+    {
+        if (vectorIndex == true)
+        {
+            index.SetAnnotation(CosmosAnnotationNames.VectorIndexType, indexType);
+        }
+        else
+        {
+            index.RemoveAnnotation(CosmosAnnotationNames.VectorIndexType);
+        }
+    }
 
     /// <summary>
     ///     Sets the vector index type to use, such as "flat", "diskANN", or "quantizedFlat".
     ///     See <see href="https://aka.ms/ef-cosmos-vectors">Vector Search in Azure Cosmos DB for NoSQL</see> for more information.
     /// </summary>
-    /// <param name="indexType">The index type to use.</param>
     /// <param name="index">The index.</param>
+    /// <param name="indexType">The index type to use.</param>
+    /// <param name="vectorIndex">The value indicating whether the index is configured as a vector index.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The configured value.</returns>
     public static string? SetVectorIndexType(
         this IConventionIndex index,
         VectorIndexType? indexType,
+        bool? vectorIndex,
         bool fromDataAnnotation = false)
         => (string?)index.SetAnnotation(
             CosmosAnnotationNames.VectorIndexType,
@@ -76,25 +88,25 @@ public static class CosmosIndexExtensions
     ///     See <see href="https://learn.microsoft.com/azure/cosmos-db/gen-ai/full-text-search">Full-text search in Azure Cosmos DB for NoSQL</see> for more information.
     /// </summary>
     /// <param name="index">The index.</param>
-    /// <param name="value">The value indicating whether the index is configured for full-text search.</param>
-    public static void SetIsFullTextIndex(this IMutableIndex index, bool? value)
-        => index.SetAnnotation(CosmosAnnotationNames.FullTextIndex, value);
+    /// <param name="fullTextIndex">The value indicating whether the index is configured for full-text search.</param>
+    public static void SetIsFullTextIndex(this IMutableIndex index, bool? fullTextIndex)
+        => index.SetAnnotation(CosmosAnnotationNames.FullTextIndex, fullTextIndex);
 
     /// <summary>
     ///     Configures the index for full-text search.
     ///     See <see href="https://learn.microsoft.com/azure/cosmos-db/gen-ai/full-text-search">Full-text search in Azure Cosmos DB for NoSQL</see> for more information.
     /// </summary>
     /// <param name="index">The index.</param>
-    /// <param name="value">The value indicating whether the index is configured for full-text search.</param>
+    /// <param name="fullTextIndex">The value indicating whether the index is configured for full-text search.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The configured value.</returns>
     public static string? SetIsFullTextIndex(
         this IConventionIndex index,
-        bool? value,
+        bool? fullTextIndex,
         bool fromDataAnnotation = false)
         => (string?)index.SetAnnotation(
             CosmosAnnotationNames.FullTextIndex,
-            value,
+            fullTextIndex,
             fromDataAnnotation)?.Value;
 
     /// <summary>

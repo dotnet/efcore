@@ -1242,8 +1242,6 @@ namespace TestNamespace
                             .HasField("_details")
                             .HasSentinel("")
                             .UsePropertyAccessMode(PropertyAccessMode.FieldDuringConstruction)
-                            .HasMaxLength(64)
-                            .HasPrecision(3, 2)
                             .HasAnnotation("foo", "bar");
                         eb.Ignore(e => e.Context);
                         eb.ComplexProperty(
@@ -1357,9 +1355,6 @@ namespace TestNamespace
         Assert.Equal("_details", collectionDetails.FieldInfo.Name);
         Assert.True(collectionDetails.IsNullable);
         Assert.False(collectionDetails.IsUnicode());
-        Assert.Equal(64, collectionDetails.GetMaxLength());
-        Assert.Equal(3, collectionDetails.GetPrecision());
-        Assert.Equal(2, collectionDetails.GetScale());
         Assert.Equal("", collectionDetails.Sentinel);
         Assert.Equal(PropertyAccessMode.FieldDuringConstruction, collectionDetails.GetPropertyAccessMode());
         Assert.Null(collectionDetails.GetValueConverter());
