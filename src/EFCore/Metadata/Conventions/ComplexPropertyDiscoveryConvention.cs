@@ -8,8 +8,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 /// <summary>
-///     A convention that configures relationships between entity types based on the navigation properties
-///     as long as there is no ambiguity as to which is the corresponding inverse navigation.
+///     A convention that configures complex properties on structural types as long as the type has been previously configured
+///     as a complex type or the declaring type is a complex type.
 /// </summary>
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
@@ -121,7 +121,8 @@ public class ComplexPropertyDiscoveryConvention :
             return false;
         }
 
-        if (!explicitlyConfigured
+        if (structuralType is not IReadOnlyComplexType
+            && !explicitlyConfigured
             && model.FindIsComplexConfigurationSource(targetClrType) == null)
         {
             AddComplexCandidate(memberInfo, structuralType.Builder);

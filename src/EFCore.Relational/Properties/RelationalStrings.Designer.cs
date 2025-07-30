@@ -96,6 +96,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 function);
 
         /// <summary>
+        ///     The complex collection property '{entityType}.{property}' must be mapped to a JSON column. Use 'ToJson()' to configure this complex collection as mapped to a JSON column.
+        /// </summary>
+        public static string ComplexCollectionNotMappedToJson(object? entityType, object? property)
+            => string.Format(
+                GetString("ComplexCollectionNotMappedToJson", nameof(entityType), nameof(property)),
+                entityType, property);
+
+        /// <summary>
         ///     Complex property '{complexProperty}' cannot have both a JSON column name ('{columnName}') and a JSON property name ('{propertyName}') configured. Use ToJson() to map to a JSON column or HasJsonPropertyName() to map as a JSON property within a containing JSON column, but not both.
         /// </summary>
         public static string ComplexPropertyBothJsonColumnAndJsonPropertyName(object? complexProperty, object? columnName, object? propertyName)
@@ -118,14 +126,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("ComplexPropertyJsonPropertyNameWithoutJsonMapping", nameof(complexProperty)),
                 complexProperty);
-
-        /// <summary>
-        ///     Property '{property}' cannot have both a column name ('{columnName}') and a JSON property name ('{jsonPropertyName}') configured. Properties in JSON-mapped types should use JSON property names, not column names.
-        /// </summary>
-        public static string PropertyBothColumnNameAndJsonPropertyName(object? property, object? columnName, object? jsonPropertyName)
-            => string.Format(
-                GetString("PropertyBothColumnNameAndJsonPropertyName", nameof(property), nameof(columnName), nameof(jsonPropertyName)),
-                property, columnName, jsonPropertyName);
 
         /// <summary>
         ///     The optional complex property '{type}.{property}' is mapped to columns by flattening the contained properties, but it only contains optional properties. Add a required property or discriminator or map this complex property to a JSON column.
@@ -674,7 +674,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, keyValue, table);
 
         /// <summary>
-        ///     The EF.MultipoleParameters&lt;T&gt; method may only be used within Entity Framework LINQ queries.
+        ///     The EF.MultipleParameters&lt;T&gt; method may only be used within Entity Framework LINQ queries.
         /// </summary>
         public static string EFMultipleParametersInvoked
             => GetString("EFMultipleParametersInvoked");
@@ -858,20 +858,20 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
-        ///     ExecuteUpdate is being used over a LINQ operator which isn't natively supported by the database; this cannot be translated because complex type '{complexType}' is projected out. Rewrite your query to project out the containing entity type instead.
-        /// </summary>
-        public static string ExecuteUpdateSubqueryNotSupportedOverComplexTypes(object? complexType)
-            => string.Format(
-                GetString("ExecuteUpdateSubqueryNotSupportedOverComplexTypes", nameof(complexType)),
-                complexType);
-
-        /// <summary>
         ///     ExecuteUpdate is being used over type '{structuralType}' which is mapped to JSON; ExecuteUpdate on JSON is not supported.
         /// </summary>
         public static string ExecuteUpdateOverJsonIsNotSupported(object? structuralType)
             => string.Format(
                 GetString("ExecuteUpdateOverJsonIsNotSupported", nameof(structuralType)),
                 structuralType);
+
+        /// <summary>
+        ///     ExecuteUpdate is being used over a LINQ operator which isn't natively supported by the database; this cannot be translated because complex type '{complexType}' is projected out. Rewrite your query to project out the containing entity type instead.
+        /// </summary>
+        public static string ExecuteUpdateSubqueryNotSupportedOverComplexTypes(object? complexType)
+            => string.Format(
+                GetString("ExecuteUpdateSubqueryNotSupportedOverComplexTypes", nameof(complexType)),
+                complexType);
 
         /// <summary>
         ///     Can't use explicitly named default constraints with TPC inheritance or entity splitting. Constraint name: '{explicitDefaultConstraintName}'.
@@ -1366,7 +1366,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 methodName, entityType);
 
         /// <summary>
-        ///     The 'Down' method for this migration has not been implemented. Both the 'Up' abd 'Down' methods must be implemented to support reverting migrations.
+        ///     The 'Down' method for this migration has not been implemented. Both the 'Up' and 'Down' methods must be implemented to support reverting migrations.
         /// </summary>
         public static string MigrationDownMissing
             => GetString("MigrationDownMissing");
@@ -1410,7 +1410,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 parameter);
 
         /// <summary>
-        ///     A result set was was missing when reading the results of a SaveChanges operation; this may indicate that a stored procedure was configured to return results in the EF model, but did not. Check your stored procedure definitions.
+        ///     A result set was missing when reading the results of a SaveChanges operation; this may indicate that a stored procedure was configured to return results in the EF model, but did not. Check your stored procedure definitions.
         /// </summary>
         public static string MissingResultSetWhenSaving
             => GetString("MissingResultSetWhenSaving");
@@ -1646,6 +1646,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         public static string ProjectionMappingCountMismatch
             => GetString("ProjectionMappingCountMismatch");
+
+        /// <summary>
+        ///     Property '{property}' cannot have both a column name ('{columnName}') and a JSON property name ('{jsonPropertyName}') configured. Properties in JSON-mapped types should use JSON property names, not column names.
+        /// </summary>
+        public static string PropertyBothColumnNameAndJsonPropertyName(object? property, object? columnName, object? jsonPropertyName)
+            => string.Format(
+                GetString("PropertyBothColumnNameAndJsonPropertyName", nameof(property), nameof(columnName), nameof(jsonPropertyName)),
+                property, columnName, jsonPropertyName);
 
         /// <summary>
         ///     The '{propertyType}' property '{entityType}.{property}' could not be mapped to the database type '{storeType}' because the database provider does not support mapping '{propertyType}' properties to '{storeType}' columns. Consider mapping to a different database type or converting the property value to a type supported by the database using a value converter. See https://aka.ms/efcore-docs-value-converters for more information. Alternately, exclude the property from the model using the '[NotMapped]' attribute or by using 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.
@@ -2022,7 +2030,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 complexType);
 
         /// <summary>
-        ///     The entity type '{entityType}' is not mapped to the store object '{table}'.
+        ///     The type '{entityType}' is not mapped to the store object '{table}'.
         /// </summary>
         public static string TableNotMappedEntityType(object? entityType, object? table)
             => string.Format(
@@ -2200,7 +2208,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 nodeType, expressionType);
 
         /// <summary>
-        ///     No relational type mapping can be found for property '{entity}.{property}' and the current provider doesn't specify a default store type for the properties of type '{clrType}'.
+        ///     No relational type mapping can be found for property '{entity}.{property}' and the current provider doesn't specify a default store type for the properties of type '{clrType}'. 
         /// </summary>
         public static string UnsupportedPropertyType(object? entity, object? property, object? clrType)
             => string.Format(
@@ -3445,7 +3453,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     The key {keyProperties} on the entity type '{entityType}' cannot be represented in the database. Either all or some of the properties aren't mapped to table '{table}'. All key properties must be mapped to a single table for the unique constraint to be created.
+        ///     The key {keyProperties} on the entity type '{entityType}' cannot be represented in the database. Some or all of the properties aren't mapped to table '{table}'. All key properties must be mapped to a single table for the unique constraint to be created.
         /// </summary>
         public static EventDefinition<string, string, string> LogKeyPropertiesNotMappedToTable(IDiagnosticsLogger logger)
         {

@@ -1030,6 +1030,7 @@ namespace TestNamespace
 
                 PrincipalComplexProperty.Create(complexType);
                 complexType.AddAnnotation("go", "brr");
+                complexType.AddAnnotation("Relational:ContainerColumnName", "ManyOwned");
                 complexType.AddAnnotation("Relational:FunctionName", null);
                 complexType.AddAnnotation("Relational:Schema", null);
                 complexType.AddAnnotation("Relational:SqlQuery", "select * from PrincipalBase");

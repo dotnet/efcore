@@ -287,7 +287,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("CannotConvertQueryableToEnumerableMethod");
 
         /// <summary>
-        ///     Cannot create an instance of reade/writer type '{readerWriterType}'. Ensure that the type can be instantiated and has a public parameterless constructor, or has a public static 'Instance' field returning the singleton instance to use.
+        ///     Cannot create an instance of reader/writer type '{readerWriterType}'. Ensure that the type can be instantiated and has a public parameterless constructor, or has a public static 'Instance' field returning the singleton instance to use.
         /// </summary>
         public static string CannotCreateJsonValueReaderWriter(object? readerWriterType)
             => string.Format(
@@ -343,7 +343,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 type);
 
         /// <summary>
-        ///     Unable to create an instance of entity type '{entityType}' because it is abstract. Consider making make it non-abstract or mapping at least one derived type.
+        ///     Unable to create an instance of entity type '{entityType}' because it is abstract. Consider making it non-abstract or mapping at least one derived type.
         /// </summary>
         public static string CannotMaterializeAbstractType(object? entityType)
             => string.Format(
@@ -357,6 +357,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("CanOnlyConfigureExistingNavigations", "0_navigationName", "1_entityType"),
                 navigationName, entityType);
+
+        /// <summary>
+        ///     The entity type '{entityType}' is configured to use the '{changeTrackingStrategy}' change tracking strategy, but does not implement the required '{notificationInterface}' interface. Implement '{notificationInterface}' on '{entityType}' or use a different change tracking strategy.
+        /// </summary>
+        public static string ChangeTrackingInterfaceMissing(object? entityType, object? changeTrackingStrategy, object? notificationInterface)
+            => string.Format(
+                GetString("ChangeTrackingInterfaceMissing", nameof(entityType), nameof(changeTrackingStrategy), nameof(notificationInterface)),
+                entityType, changeTrackingStrategy, notificationInterface);
 
         /// <summary>
         ///     Unable to save changes because a circular dependency was detected in the data to be saved: '{cycle}'.
@@ -423,7 +431,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, derivedType);
 
         /// <summary>
-        ///     The entity type '{entityType}' cannot be configured as non-owned because it has already been configured as a owned. Use the nested builder in 'OwnsOne' or 'OwnsMany' on the owner entity type builder to further configure this type. If the entity type shouldn't be owned and you are unable to remove the 'OwnsOne' or 'OwnsMany' call you can remove the entity type from the model by calling 'Ignore'. See https://aka.ms/efcore-docs-owned for more information and examples.
+        ///     The entity type '{entityType}' cannot be configured as non-owned because it has already been configured as owned. Use the nested builder in 'OwnsOne' or 'OwnsMany' on the owner entity type builder to further configure this type. If the entity type shouldn't be owned and you are unable to remove the 'OwnsOne' or 'OwnsMany' call you can remove the entity type from the model by calling 'Ignore'. See https://aka.ms/efcore-docs-owned for more information and examples.
         /// </summary>
         public static string ClashingOwnedEntityType(object? entityType)
             => string.Format(
@@ -719,6 +727,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 type, property);
 
         /// <summary>
+        ///     The shadow property '{type}.{property}' cannot be configured on the value type complex type '{type}'. Shadow properties are not supported on value type complex types. See https://github.com/dotnet/efcore/issues/35337 for more information.
+        /// </summary>
+        public static string ComplexValueTypeShadowProperty(object? type, object? property)
+            => string.Format(
+                GetString("ComplexValueTypeShadowProperty", nameof(type), nameof(property)),
+                type, property);
+
+        /// <summary>
         ///     There are multiple properties with the [ForeignKey] attribute pointing to navigation '{1_entityType}.{0_navigation}'. To define a composite foreign key using data annotations, use the [ForeignKey] attribute on the navigation.
         /// </summary>
         public static string CompositeFkOnProperty(object? navigation, object? entityType)
@@ -727,7 +743,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 navigation, entityType);
 
         /// <summary>
-        ///     The entity type '{entityType}' has multiple properties with the [Key] attribute. Composite primary keys configured by placing the [PrimaryKey] attribute on the entity type class, or by using 'HasKey' in 'OnModelCreating'.
+        ///     The entity type '{entityType}' has multiple properties with the [Key] attribute. Composite primary keys can be configured by placing the [PrimaryKey] attribute on the entity type class, or by using 'HasKey' in 'OnModelCreating'.
         /// </summary>
         public static string CompositePKWithDataAnnotation(object? entityType)
             => string.Format(
@@ -1163,7 +1179,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("EFParameterInvoked");
 
         /// <summary>
-        ///     Complex type '{complexType}' has no properties defines. Configure at least one property or don't include this type in the model.
+        ///     Complex type '{complexType}' has no properties defined. Configure at least one property or don't include this type in the model.
         /// </summary>
         public static string EmptyComplexType(object? complexType)
             => string.Format(
@@ -1473,15 +1489,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("HiLoBadBlockSize");
 
         /// <summary>
-        ///     The entity type '{entityType}' is configured to use the '{changeTrackingStrategy}' change tracking strategy, but does not implement the required '{notificationInterface}' interface. Implement '{notificationInterface}' on '{entityType}' or use a different change tracking strategy.
-        /// </summary>
-        public static string ChangeTrackingInterfaceMissing(object? entityType, object? changeTrackingStrategy, object? notificationInterface)
-            => string.Format(
-                GetString("ChangeTrackingInterfaceMissing", nameof(entityType), nameof(changeTrackingStrategy), nameof(notificationInterface)),
-                entityType, changeTrackingStrategy, notificationInterface);
-
-        /// <summary>
-        ///     A relationship cycle involving the primary keys of the following entity types was detected: '{entityType}'. This would prevent any entity to be inserted without violating the store constraints. Review the foreign keys defined on the primary keys and either remove or use other properties for at least one of them.
+        ///     A relationship cycle involving the primary keys of the following entity types was detected: '{entityType}'. This would prevent any entity from being inserted without violating the store constraints. Review the foreign keys defined on the primary keys and either remove or use other properties for at least one of them.
         /// </summary>
         public static string IdentifyingRelationshipCycle(object? entityType)
             => string.Format(
@@ -1756,7 +1764,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 typeName, entityTypeName);
 
         /// <summary>
-        ///     Cannot create a DbSet for '{typeName}' because it is configured as an shared-type entity type. Access the entity type via the 'Set' method overload that accepts an entity type name.
+        ///     Cannot create a DbSet for '{typeName}' because it is configured as a shared-type entity type. Access the entity type via the 'Set' method overload that accepts an entity type name.
         /// </summary>
         public static string InvalidSetSharedType(object? typeName)
             => string.Format(
@@ -1796,11 +1804,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, entityType, valueType, propertyType);
 
         /// <summary>
-        ///     Unable to include navigation chain '{includeExpression}' specified by 'Include' operation as the converted type '{type}' is not part of model.
+        ///     Unable to include navigation chain '{includeExpression}' specified by 'Include' operation as the converted type '{type}' is not part of the model.
         /// </summary>
-        public static string InvalidTypeConversationWithInclude(object? includeExpression, object? type)
+        public static string InvalidTypeConversionWithInclude(object? includeExpression, object? type)
             => string.Format(
-                GetString("InvalidTypeConversationWithInclude", nameof(includeExpression), nameof(type)),
+                GetString("InvalidTypeConversionWithInclude", nameof(includeExpression), nameof(type)),
                 includeExpression, type);
 
         /// <summary>
@@ -1966,7 +1974,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("MemberMemberBindingNotSupported");
 
         /// <summary>
-        ///     An asynchronous store managment operation was performed and no asynchronous seed delegate has been provided, however a synchronous seed delegate was. Set 'UseAsyncSeeding' option with a delegate equivalent to the one supplied in 'UseSeeding'.
+        ///     An asynchronous store management operation was performed and no asynchronous seed delegate has been provided, however a synchronous seed delegate was. Set 'UseAsyncSeeding' option with a delegate equivalent to the one supplied in 'UseSeeding'.
         /// </summary>
         public static string MissingAsyncSeeder
             => GetString("MissingAsyncSeeder");
@@ -1980,7 +1988,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 field, property, entityType);
 
         /// <summary>
-        ///     A synchronous store managment operation was performed and no synchronous seed delegate has been provided, however an asynchronous seed delegate was. Set 'UseSeeding' option with a delegate equivalent to the one supplied in 'UseAsyncSeeding'.
+        ///     A synchronous store management operation was performed and no synchronous seed delegate has been provided, however an asynchronous seed delegate was. Set 'UseSeeding' option with a delegate equivalent to the one supplied in 'UseAsyncSeeding'.
         /// </summary>
         public static string MissingSeeder
             => GetString("MissingSeeder");
@@ -3468,6 +3476,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.CoreStrings", typeof(CoreResources).Assembly);
 
         /// <summary>
+        ///     The complex property '{entityType}.{property}' is configured with a collection type '{collectionType}' but is not marked as a collection. Consider using 'ComplexCollection()' to configure this as a complex collection instead.
+        /// </summary>
+        public static EventDefinition<string, string, string> LogAccidentalComplexPropertyCollection(IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogAccidentalComplexPropertyCollection;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((LoggingDefinitions)logger.Definitions).LogAccidentalComplexPropertyCollection,
+                    logger,
+                    static logger => new EventDefinition<string, string, string>(
+                        logger.Options,
+                        CoreEventId.AccidentalComplexPropertyCollection,
+                        LogLevel.Warning,
+                        "CoreEventId.AccidentalComplexPropertyCollection",
+                        level => LoggerMessage.Define<string, string, string>(
+                            level,
+                            CoreEventId.AccidentalComplexPropertyCollection,
+                            _resourceManager.GetString("LogAccidentalComplexPropertyCollection")!)));
+            }
+
+            return (EventDefinition<string, string, string>)definition;
+        }
+
+        /// <summary>
         ///     The type '{entityType}' has been mapped as an entity type. If you are mapping this type intentionally, then please suppress this warning and report the issue on GitHub.
         /// </summary>
         public static EventDefinition<string> LogAccidentalEntityType(IDiagnosticsLogger logger)
@@ -4543,7 +4576,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     No instantiatable types implementing `IEntityTypeConfiguration` were found while while scanning assembly '{assemblyName}'.
+        ///     No instantiatable types implementing `IEntityTypeConfiguration` were found while scanning assembly '{assemblyName}'.
         /// </summary>
         public static EventDefinition<string> LogNoEntityTypeConfigurationsWarning(IDiagnosticsLogger logger)
         {
@@ -5293,7 +5326,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     The type '{entityTypeConfig}' was found while scanning assemblies but could not instantiated because it does not have a parameterless constructor.
+        ///     The type '{entityTypeConfig}' was found while scanning assemblies but could not be instantiated because it does not have a parameterless constructor.
         /// </summary>
         public static EventDefinition<string> LogSkippedEntityTypeConfigurationWarning(IDiagnosticsLogger logger)
         {

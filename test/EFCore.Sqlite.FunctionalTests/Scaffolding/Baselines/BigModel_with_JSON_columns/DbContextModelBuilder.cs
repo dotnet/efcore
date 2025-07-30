@@ -2419,7 +2419,7 @@ namespace TestNamespace
             var defaultTableMappings4 = new List<TableMappingBase<ColumnMappingBase>>();
             ownedType.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings4);
             var microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappingBase0 = new TableMappingBase<ColumnMappingBase>(ownedType, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase, null);
-            microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase.AddTypeMapping(microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappingBase0, false);
+            microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase.AddTypeMapping(microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappingBase0, null);
             defaultTableMappings4.Add(microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappingBase0);
 
             var tableMappings4 = new List<TableMapping>();
@@ -2428,7 +2428,7 @@ namespace TestNamespace
             {
                 IsSharedTablePrincipal = false,
             };
-            principalBaseTable.AddTypeMapping(principalBaseTableMapping0, false);
+            principalBaseTable.AddTypeMapping(principalBaseTableMapping0, null);
             tableMappings4.Add(principalBaseTableMapping0);
             principalBaseTable.AddRowInternalForeignKey(ownedType, RelationalModel.GetForeignKey(this,
                 "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalBase.Owned#OwnedType",
@@ -2490,7 +2490,7 @@ namespace TestNamespace
             var defaultTableMappings6 = new List<TableMappingBase<ColumnMappingBase>>();
             ownedType0.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings6);
             var microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappingBase2 = new TableMappingBase<ColumnMappingBase>(ownedType0, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase, null);
-            microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase.AddTypeMapping(microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappingBase2, false);
+            microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase.AddTypeMapping(microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappingBase2, null);
             defaultTableMappings6.Add(microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappingBase2);
 
             var tableMappings6 = new List<TableMapping>();
@@ -2499,7 +2499,7 @@ namespace TestNamespace
             {
                 IsSharedTablePrincipal = false,
             };
-            principalBaseTable.AddTypeMapping(principalBaseTableMapping2, true);
+            principalBaseTable.AddTypeMapping(principalBaseTableMapping2, null);
             tableMappings6.Add(principalBaseTableMapping2);
             principalBaseTable.AddRowInternalForeignKey(ownedType0, RelationalModel.GetForeignKey(this,
                 "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalDerived<Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+DependentBase<byte?>>.ManyOwned#OwnedType",

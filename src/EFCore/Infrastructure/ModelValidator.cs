@@ -137,7 +137,7 @@ public class ModelValidator : IModelValidator
 
         foreach (var entityType in conventionModel.GetEntityTypes())
         {
-            ValidatePropertyMapping(entityType, conventionModel);
+            ValidatePropertyMapping(entityType, conventionModel, logger);
         }
     }
 
@@ -146,7 +146,8 @@ public class ModelValidator : IModelValidator
     /// </summary>
     /// <param name="structuralType">The type base to validate.</param>
     /// <param name="model">The model to validate.</param>
-    protected virtual void ValidatePropertyMapping(IConventionTypeBase structuralType, IConventionModel model)
+    /// <param name="logger">The logger to use.</param>
+    protected virtual void ValidatePropertyMapping(IConventionTypeBase structuralType, IConventionModel model, IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
         var unmappedProperty = structuralType.GetDeclaredProperties().FirstOrDefault(
             p => (!ConfigurationSource.Convention.Overrides(p.GetConfigurationSource())
@@ -164,9 +165,9 @@ public class ModelValidator : IModelValidator
 
         foreach (var complexProperty in structuralType.GetDeclaredComplexProperties())
         {
-            ValidatePropertyMapping(complexProperty);
+            ValidatePropertyMapping(complexProperty, logger);
 
-            ValidatePropertyMapping(complexProperty.ComplexType, model);
+            ValidatePropertyMapping(complexProperty.ComplexType, model, logger);
         }
 
         if (structuralType.ClrType == Model.DefaultPropertyBagType)
@@ -300,10 +301,12 @@ public class ModelValidator : IModelValidator
     ///     Validates property mappings for a given complex property.
     /// </summary>
     /// <param name="complexProperty">The complex property to validate.</param>
-    protected virtual void ValidatePropertyMapping(IConventionComplexProperty complexProperty)
+    /// <param name="logger">The logger to use.</param>
+    protected virtual void ValidatePropertyMapping(IConventionComplexProperty complexProperty, IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
         var structuralType = complexProperty.DeclaringType;
 
+        // Issue #31243: Shadow complex properties are not supported
         if (complexProperty.IsShadowProperty())
         {
             throw new InvalidOperationException(
@@ -322,11 +325,34 @@ public class ModelValidator : IModelValidator
                 CoreStrings.EmptyComplexType(complexProperty.ComplexType.DisplayName()));
         }
 
+        if (!complexProperty.IsCollection && complexProperty.ClrType.IsGenericType)
+        {
+            var genericTypeDefinition = complexProperty.ClrType.GetGenericTypeDefinition();
+            if (genericTypeDefinition == typeof(List<>)
+                || genericTypeDefinition == typeof(HashSet<>)
+                || genericTypeDefinition == typeof(Collection<>)
+                || genericTypeDefinition == typeof(ObservableCollection<>))
+            {
+                logger.AccidentalComplexPropertyCollection((IComplexProperty)complexProperty);
+            }
+        }
+
         // Issue #31411: Complex value type collections are not supported
         if (complexProperty.IsCollection && complexProperty.ComplexType.ClrType.IsValueType)
         {
             throw new InvalidOperationException(
                 CoreStrings.ComplexValueTypeCollection(structuralType.DisplayName(), complexProperty.Name));
+        }
+
+        // Issue #35337: Shadow properties on value type complex types are not supported
+        if (complexProperty.ComplexType.ClrType.IsValueType)
+        {
+            var shadowProperty = complexProperty.ComplexType.GetDeclaredProperties().FirstOrDefault(p => p.IsShadowProperty());
+            if (shadowProperty != null)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.ComplexValueTypeShadowProperty(complexProperty.ComplexType.DisplayName(), shadowProperty.Name));
+            }
         }
     }
 

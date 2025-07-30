@@ -217,7 +217,7 @@
     <value>Unable to convert a queryable method to an enumerable method. This is likely an issue in Entity Framework, please file an issue at https://go.microsoft.com/fwlink/?linkid=2142044.</value>
   </data>
   <data name="CannotCreateJsonValueReaderWriter" xml:space="preserve">
-    <value>Cannot create an instance of reade/writer type '{readerWriterType}'. Ensure that the type can be instantiated and has a public parameterless constructor, or has a public static 'Instance' field returning the singleton instance to use.</value>
+    <value>Cannot create an instance of reader/writer type '{readerWriterType}'. Ensure that the type can be instantiated and has a public parameterless constructor, or has a public static 'Instance' field returning the singleton instance to use.</value>
   </data>
   <data name="CannotCreateValueComparer" xml:space="preserve">
     <value>Cannot create an instance of value comparer type '{generatorType}'. Ensure that the type can be instantiated and has a parameterless constructor, or use the overload of '{method}' that accepts a delegate.</value>
@@ -238,10 +238,13 @@
     <value>The type '{type}' cannot be marked as a shared type since an entity type with the same CLR type already exists in the model.</value>
   </data>
   <data name="CannotMaterializeAbstractType" xml:space="preserve">
-    <value>Unable to create an instance of entity type '{entityType}' because it is abstract. Consider making make it non-abstract or mapping at least one derived type.</value>
+    <value>Unable to create an instance of entity type '{entityType}' because it is abstract. Consider making it non-abstract or mapping at least one derived type.</value>
   </data>
   <data name="CanOnlyConfigureExistingNavigations" xml:space="preserve">
     <value>Navigation '{1_entityType}.{0_navigationName}' was not found. Please add the navigation to the entity type before configuring it.</value>
+  </data>
+  <data name="ChangeTrackingInterfaceMissing" xml:space="preserve">
+    <value>The entity type '{entityType}' is configured to use the '{changeTrackingStrategy}' change tracking strategy, but does not implement the required '{notificationInterface}' interface. Implement '{notificationInterface}' on '{entityType}' or use a different change tracking strategy.</value>
   </data>
   <data name="CircularDependency" xml:space="preserve">
     <value>Unable to save changes because a circular dependency was detected in the data to be saved: '{cycle}'.</value>
@@ -268,7 +271,7 @@
     <value>The entity type '{entityType}' cannot be marked as non-owned because the derived entity type '{derivedType}' has been configured as owned. Either don't configure '{derivedType}' as owned, or call 'HasBaseType(null)' for it in 'OnModelCreating'. See https://aka.ms/efcore-docs-owned for more information and examples.</value>
   </data>
   <data name="ClashingOwnedEntityType" xml:space="preserve">
-    <value>The entity type '{entityType}' cannot be configured as non-owned because it has already been configured as a owned. Use the nested builder in 'OwnsOne' or 'OwnsMany' on the owner entity type builder to further configure this type. If the entity type shouldn't be owned and you are unable to remove the 'OwnsOne' or 'OwnsMany' call you can remove the entity type from the model by calling 'Ignore'. See https://aka.ms/efcore-docs-owned for more information and examples.</value>
+    <value>The entity type '{entityType}' cannot be configured as non-owned because it has already been configured as owned. Use the nested builder in 'OwnsOne' or 'OwnsMany' on the owner entity type builder to further configure this type. If the entity type shouldn't be owned and you are unable to remove the 'OwnsOne' or 'OwnsMany' call you can remove the entity type from the model by calling 'Ignore'. See https://aka.ms/efcore-docs-owned for more information and examples.</value>
   </data>
   <data name="ClashingSharedType" xml:space="preserve">
     <value>The entity type '{entityType}' cannot be added to the model because its CLR type has been configured as a shared type.</value>
@@ -378,11 +381,14 @@
   <data name="ComplexValueTypeCollection" xml:space="preserve">
     <value>The complex type collection '{type}.{property}' cannot be configured because complex value type collections are not supported. See https://github.com/dotnet/efcore/issues/31411 for more information.</value>
   </data>
+  <data name="ComplexValueTypeShadowProperty" xml:space="preserve">
+    <value>The shadow property '{type}.{property}' cannot be configured on the value type complex type '{type}'. Shadow properties are not supported on value type complex types. See https://github.com/dotnet/efcore/issues/35337 for more information.</value>
+  </data>
   <data name="CompositeFkOnProperty" xml:space="preserve">
     <value>There are multiple properties with the [ForeignKey] attribute pointing to navigation '{1_entityType}.{0_navigation}'. To define a composite foreign key using data annotations, use the [ForeignKey] attribute on the navigation.</value>
   </data>
   <data name="CompositePKWithDataAnnotation" xml:space="preserve">
-    <value>The entity type '{entityType}' has multiple properties with the [Key] attribute. Composite primary keys configured by placing the [PrimaryKey] attribute on the entity type class, or by using 'HasKey' in 'OnModelCreating'.</value>
+    <value>The entity type '{entityType}' has multiple properties with the [Key] attribute. Composite primary keys can be configured by placing the [PrimaryKey] attribute on the entity type class, or by using 'HasKey' in 'OnModelCreating'.</value>
   </data>
   <data name="ConcurrentMethodInvocation" xml:space="preserve">
     <value>A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.</value>
@@ -553,7 +559,7 @@
     <value>The EF.Parameter&lt;T&gt; method may only be used within Entity Framework LINQ queries.</value>
   </data>
   <data name="EmptyComplexType" xml:space="preserve">
-    <value>Complex type '{complexType}' has no properties defines. Configure at least one property or don't include this type in the model.</value>
+    <value>Complex type '{complexType}' has no properties defined. Configure at least one property or don't include this type in the model.</value>
   </data>
   <data name="EmptyJsonString" xml:space="preserve">
     <value>The empty string is not valid JSON.</value>
@@ -672,11 +678,8 @@
   <data name="HiLoBadBlockSize" xml:space="preserve">
     <value>The block size used for Hi-Lo value generation is not positive. The Hi-Lo generator is usually backed by a SQL sequence and this means that the sequence increment must be positive.</value>
   </data>
-  <data name="ChangeTrackingInterfaceMissing" xml:space="preserve">
-    <value>The entity type '{entityType}' is configured to use the '{changeTrackingStrategy}' change tracking strategy, but does not implement the required '{notificationInterface}' interface. Implement '{notificationInterface}' on '{entityType}' or use a different change tracking strategy.</value>
-  </data>
   <data name="IdentifyingRelationshipCycle" xml:space="preserve">
-    <value>A relationship cycle involving the primary keys of the following entity types was detected: '{entityType}'. This would prevent any entity to be inserted without violating the store constraints. Review the foreign keys defined on the primary keys and either remove or use other properties for at least one of them.</value>
+    <value>A relationship cycle involving the primary keys of the following entity types was detected: '{entityType}'. This would prevent any entity from being inserted without violating the store constraints. Review the foreign keys defined on the primary keys and either remove or use other properties for at least one of them.</value>
   </data>
   <data name="IdentityConflict" xml:space="preserve">
     <value>The instance of entity type '{entityType}' cannot be tracked because another instance with the same key value for {keyProperties} is already being tracked. When attaching existing entities, ensure that only one entity instance with a given key value is attached. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values.</value>
@@ -782,7 +785,7 @@
     <value>Cannot create a DbSet for '{typeName}' because this type is not included in the model for the context. However the model contains an entity type with the same name in a different namespace: '{entityTypeName}'.</value>
   </data>
   <data name="InvalidSetSharedType" xml:space="preserve">
-    <value>Cannot create a DbSet for '{typeName}' because it is configured as an shared-type entity type. Access the entity type via the 'Set' method overload that accepts an entity type name.</value>
+    <value>Cannot create a DbSet for '{typeName}' because it is configured as a shared-type entity type. Access the entity type via the 'Set' method overload that accepts an entity type name.</value>
   </data>
   <data name="InvalidSetType" xml:space="preserve">
     <value>Cannot create a DbSet for '{typeName}' because this type is not included in the model for the context.</value>
@@ -796,8 +799,8 @@
   <data name="InvalidType" xml:space="preserve">
     <value>The value for property '{1_entityType}.{0_property}' cannot be set to a value of type '{valueType}' because its type is '{propertyType}'.</value>
   </data>
-  <data name="InvalidTypeConversationWithInclude" xml:space="preserve">
-    <value>Unable to include navigation chain '{includeExpression}' specified by 'Include' operation as the converted type '{type}' is not part of model.</value>
+  <data name="InvalidTypeConversionWithInclude" xml:space="preserve">
+    <value>Unable to include navigation chain '{includeExpression}' specified by 'Include' operation as the converted type '{type}' is not part of the model.</value>
   </data>
   <data name="InvalidUseService" xml:space="preserve">
     <value>A call was made to '{useService}', but Entity Framework is not building its own internal service provider. Either allow Entity Framework to build the service provider by removing the call to '{useInternalServiceProvider}', or build the '{service}' services to use into the service provider before passing it to '{useInternalServiceProvider}'.</value>
@@ -852,6 +855,10 @@
   </data>
   <data name="LiteralGenerationNotSupported" xml:space="preserve">
     <value>The type mapping for '{type}' has not implemented code literal generation.</value>
+  </data>
+  <data name="LogAccidentalComplexPropertyCollection" xml:space="preserve">
+    <value>The complex property '{entityType}.{property}' is configured with a collection type '{collectionType}' but is not marked as a collection. Consider using 'ComplexCollection()' to configure this as a complex collection instead.</value>
+    <comment>Warning CoreEventId.AccidentalComplexPropertyCollection string string string</comment>
   </data>
   <data name="LogAccidentalEntityType" xml:space="preserve">
     <value>The type '{entityType}' has been mapped as an entity type. If you are mapping this type intentionally, then please suppress this warning and report the issue on GitHub.</value>
@@ -1026,7 +1033,7 @@
     <comment>Debug CoreEventId.NavigationLazyLoading string string</comment>
   </data>
   <data name="LogNoEntityTypeConfigurationsWarning" xml:space="preserve">
-    <value>No instantiatable types implementing `IEntityTypeConfiguration` were found while while scanning assembly '{assemblyName}'.</value>
+    <value>No instantiatable types implementing `IEntityTypeConfiguration` were found while scanning assembly '{assemblyName}'.</value>
     <comment>Warning CoreEventId.NoEntityTypeConfigurationsWarning string</comment>
   </data>
   <data name="LogNonOwnershipInverseNavigation" xml:space="preserve">
@@ -1146,7 +1153,7 @@
     <comment>Debug CoreEventId.SkipCollectionChangeDetected int int string string string</comment>
   </data>
   <data name="LogSkippedEntityTypeConfigurationWarning" xml:space="preserve">
-    <value>The type '{entityTypeConfig}' was found while scanning assemblies but could not instantiated because it does not have a parameterless constructor.</value>
+    <value>The type '{entityTypeConfig}' was found while scanning assemblies but could not be instantiated because it does not have a parameterless constructor.</value>
     <comment>Warning CoreEventId.SkippedEntityTypeConfigurationWarning string</comment>
   </data>
   <data name="LogStartedTracking" xml:space="preserve">
@@ -1199,13 +1206,13 @@
     <value>EF Core does not support MemberMemberBinding: 'new Blog { Data = { Name = "hello world" } }'.</value>
   </data>
   <data name="MissingAsyncSeeder" xml:space="preserve">
-    <value>An asynchronous store managment operation was performed and no asynchronous seed delegate has been provided, however a synchronous seed delegate was. Set 'UseAsyncSeeding' option with a delegate equivalent to the one supplied in 'UseSeeding'.</value>
+    <value>An asynchronous store management operation was performed and no asynchronous seed delegate has been provided, however a synchronous seed delegate was. Set 'UseAsyncSeeding' option with a delegate equivalent to the one supplied in 'UseSeeding'.</value>
   </data>
   <data name="MissingBackingField" xml:space="preserve">
     <value>The specified field '{field}' could not be found for property '{2_entityType}.{1_property}'.</value>
   </data>
   <data name="MissingSeeder" xml:space="preserve">
-    <value>A synchronous store managment operation was performed and no synchronous seed delegate has been provided, however an asynchronous seed delegate was. Set 'UseSeeding' option with a delegate equivalent to the one supplied in 'UseAsyncSeeding'.</value>
+    <value>A synchronous store management operation was performed and no synchronous seed delegate has been provided, however an asynchronous seed delegate was. Set 'UseSeeding' option with a delegate equivalent to the one supplied in 'UseAsyncSeeding'.</value>
   </data>
   <data name="ModelMutable" xml:space="preserve">
     <value>Runtime metadata changes are not allowed when the model hasn't been marked as read-only.</value>

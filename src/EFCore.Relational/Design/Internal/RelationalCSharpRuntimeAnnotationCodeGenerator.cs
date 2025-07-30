@@ -1547,7 +1547,9 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
         }
 
         var table = tableMapping.Table;
-        var isOptional = table.IsOptional(typeBase);
+        var isOptional = typeBase.IsMappedToJson()
+            ? (bool?)null
+            : table.IsOptional(typeBase);
         mainBuilder
             .AppendLine($"{tableVariable}.AddTypeMapping({tableMappingVariable}, {code.Literal(isOptional)});")
             .AppendLine($"{tableMappingsVariable}.Add({tableMappingVariable});");

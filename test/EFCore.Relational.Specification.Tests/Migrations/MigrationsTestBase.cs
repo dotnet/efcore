@@ -2785,6 +2785,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                             "MyComplex", ct =>
                             {
                                 ct.ComplexProperty<MyNestedComplex>("MyNestedComplex").IsRequired();
+                                ct.ComplexCollection(c => c.NestedCollection).ToJson();
                             });
                     });
             },
@@ -2811,6 +2812,21 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                     {
                         Assert.Equal("MyComplex_MyNestedComplex_Foo", c.Name);
                         Assert.True(c.IsNullable);
+                    },
+                    c =>
+                    {
+                        Assert.Equal("MyComplex_Nested_Bar", c.Name);
+                        Assert.True(c.IsNullable);
+                    },
+                    c =>
+                    {
+                        Assert.Equal("MyComplex_Nested_Foo", c.Name);
+                        Assert.True(c.IsNullable);
+                    },
+                    c =>
+                    {
+                        Assert.Equal("NestedCollection", c.Name);
+                        Assert.True(c.IsNullable);
                     });
             });
 
@@ -2831,6 +2847,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                             "MyComplex", ct =>
                             {
                                 ct.ComplexProperty<MyNestedComplex>("MyNestedComplex");
+                                ct.ComplexCollection(c => c.NestedCollection).ToJson();
                             });
                     });
             },
@@ -2854,6 +2871,21 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                     c =>
                     {
                         Assert.Equal("MyComplex_MyNestedComplex_Foo", c.Name);
+                        Assert.True(c.IsNullable);
+                    },
+                    c =>
+                    {
+                        Assert.Equal("MyComplex_Nested_Bar", c.Name);
+                        Assert.True(c.IsNullable);
+                    },
+                    c =>
+                    {
+                        Assert.Equal("MyComplex_Nested_Foo", c.Name);
+                        Assert.True(c.IsNullable);
+                    },
+                    c =>
+                    {
+                        Assert.Equal("NestedCollection", c.Name);
                         Assert.True(c.IsNullable);
                     });
             });

@@ -1593,8 +1593,8 @@ public abstract partial class ModelBuilderTest
                     {
                         b.Ignore(e => e.Tuple);
                         b.Ignore(e => e.Tuples);
-                        b.ComplexProperty(e => e.Label, b => b.ComplexProperty(e => e.Customer));
-                        b.ComplexProperty(e => e.OldLabel, b => b.ComplexProperty(e => e.Customer));
+                        b.ComplexProperty(e => e.Label);
+                        b.ComplexProperty(e => e.OldLabel);
                     });
 
             var model = modelBuilder.FinalizeModel();
@@ -1712,7 +1712,7 @@ public abstract partial class ModelBuilderTest
 
             Assert.Equal(
                 CoreStrings.NavigationNotAddedComplexType(
-                    "ComplexProperties.Customer#Customer", nameof(Customer.Details), typeof(CustomerDetails).ShortDisplayName()),
+                    "ComplexProperties.Customer#Customer", nameof(Customer.Orders), "IEnumerable<Order>"),
                 Assert.Throws<InvalidOperationException>(modelBuilder.FinalizeModel).Message);
         }
 
@@ -1728,7 +1728,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore(c => c.Name)
                 .Ignore(c => c.Title)
                 .Ignore(c => c.Id)
-                .Ignore(c => c.AlternateKey);
+                .Ignore(c => c.AlternateKey)
+                .Ignore(c => c.Details);
 
             Assert.Equal(
                 CoreStrings.EmptyComplexType(

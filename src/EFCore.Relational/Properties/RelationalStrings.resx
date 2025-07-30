@@ -148,6 +148,9 @@
   <data name="CompiledModelFunctionTranslation" xml:space="preserve">
     <value>The function '{function}' has a custom translation. Compiled model can't be generated, because custom function translations are not supported.</value>
   </data>
+  <data name="ComplexCollectionNotMappedToJson" xml:space="preserve">
+    <value>The complex collection property '{entityType}.{property}' must be mapped to a JSON column. Use 'ToJson()' to configure this complex collection as mapped to a JSON column.</value>
+  </data>
   <data name="ComplexPropertyBothJsonColumnAndJsonPropertyName" xml:space="preserve">
     <value>Complex property '{complexProperty}' cannot have both a JSON column name ('{columnName}') and a JSON property name ('{propertyName}') configured. Use ToJson() to map to a JSON column or HasJsonPropertyName() to map as a JSON property within a containing JSON column, but not both.</value>
   </data>
@@ -156,9 +159,6 @@
   </data>
   <data name="ComplexPropertyJsonPropertyNameWithoutJsonMapping" xml:space="preserve">
     <value>Complex property '{complexProperty}' cannot use 'HasJsonPropertyName()' because it is not contained within a JSON-mapped type. Use 'ToJson()' to map the complex property to a JSON column, or ensure it is contained within a type that is mapped to JSON.</value>
-  </data>
-  <data name="PropertyBothColumnNameAndJsonPropertyName" xml:space="preserve">
-    <value>Property '{property}' cannot have both a column name ('{columnName}') and a JSON property name ('{jsonPropertyName}') configured. Properties in JSON-mapped types should use JSON property names, not column names.</value>
   </data>
   <data name="ComplexPropertyOptionalTableSharing" xml:space="preserve">
     <value>The optional complex property '{type}.{property}' is mapped to columns by flattening the contained properties, but it only contains optional properties. Add a required property or discriminator or map this complex property to a JSON column.</value>
@@ -439,11 +439,11 @@
   <data name="ExecuteUpdateDeleteOnEntityNotMappedToTable" xml:space="preserve">
     <value>ExecuteUpdate or ExecuteDelete was called on entity type '{entityType}', but that entity type is not mapped to a table.</value>
   </data>
-  <data name="ExecuteUpdateSubqueryNotSupportedOverComplexTypes" xml:space="preserve">
-    <value>ExecuteUpdate is being used over a LINQ operator which isn't natively supported by the database; this cannot be translated because complex type '{complexType}' is projected out. Rewrite your query to project out the containing entity type instead.</value>
-  </data>
   <data name="ExecuteUpdateOverJsonIsNotSupported" xml:space="preserve">
     <value>ExecuteUpdate is being used over type '{structuralType}' which is mapped to JSON; ExecuteUpdate on JSON is not supported.</value>
+  </data>
+  <data name="ExecuteUpdateSubqueryNotSupportedOverComplexTypes" xml:space="preserve">
+    <value>ExecuteUpdate is being used over a LINQ operator which isn't natively supported by the database; this cannot be translated because complex type '{complexType}' is projected out. Rewrite your query to project out the containing entity type instead.</value>
   </data>
   <data name="ExplicitDefaultConstraintNamesNotSupportedForTpc" xml:space="preserve">
     <value>Can't use explicitly named default constraints with TPC inheritance or entity splitting. Constraint name: '{explicitDefaultConstraintName}'.</value>
@@ -806,7 +806,7 @@
     <comment>Warning RelationalEventId.ModelValidationKeyDefaultValueWarning string string</comment>
   </data>
   <data name="LogKeyPropertiesNotMappedToTable" xml:space="preserve">
-    <value>The key {keyProperties} on the entity type '{entityType}' cannot be represented in the database. Either all or some of the properties aren't mapped to table '{table}'. All key properties must be mapped to a single table for the unique constraint to be created.</value>
+    <value>The key {keyProperties} on the entity type '{entityType}' cannot be represented in the database. Some or all of the properties aren't mapped to table '{table}'. All key properties must be mapped to a single table for the unique constraint to be created.</value>
     <comment>Error RelationalEventId.KeyPropertiesNotMappedToTable string string string</comment>
   </data>
   <data name="LogMigrating" xml:space="preserve">
@@ -962,7 +962,7 @@
     <value>Using '{methodName}' on DbSet of '{entityType}' is not supported since '{entityType}' is part of hierarchy and does not contain a discriminator property.</value>
   </data>
   <data name="MigrationDownMissing" xml:space="preserve">
-    <value>The 'Down' method for this migration has not been implemented. Both the 'Up' abd 'Down' methods must be implemented to support reverting migrations.</value>
+    <value>The 'Down' method for this migration has not been implemented. Both the 'Up' and 'Down' methods must be implemented to support reverting migrations.</value>
   </data>
   <data name="MigrationNotFound" xml:space="preserve">
     <value>The migration '{migrationName}' was not found.</value>
@@ -980,7 +980,7 @@
     <value>No value was provided for the required parameter '{parameter}'.</value>
   </data>
   <data name="MissingResultSetWhenSaving" xml:space="preserve">
-    <value>A result set was was missing when reading the results of a SaveChanges operation; this may indicate that a stored procedure was configured to return results in the EF model, but did not. Check your stored procedure definitions.</value>
+    <value>A result set was missing when reading the results of a SaveChanges operation; this may indicate that a stored procedure was configured to return results in the EF model, but did not. Check your stored procedure definitions.</value>
   </data>
   <data name="ModificationCommandBatchAlreadyComplete" xml:space="preserve">
     <value>Cannot add commands to a completed ModificationCommandBatch.</value>
@@ -1077,6 +1077,9 @@
   </data>
   <data name="ProjectionMappingCountMismatch" xml:space="preserve">
     <value>Unable to translate set operations when both sides don't assign values to the same properties in the nominal type. Please make sure that the same properties are included on both sides, and consider assigning default values if a property doesn't require a specific value.</value>
+  </data>
+  <data name="PropertyBothColumnNameAndJsonPropertyName" xml:space="preserve">
+    <value>Property '{property}' cannot have both a column name ('{columnName}') and a JSON property name ('{jsonPropertyName}') configured. Properties in JSON-mapped types should use JSON property names, not column names.</value>
   </data>
   <data name="PropertyNotMapped" xml:space="preserve">
     <value>The '{propertyType}' property '{entityType}.{property}' could not be mapped to the database type '{storeType}' because the database provider does not support mapping '{propertyType}' properties to '{storeType}' columns. Consider mapping to a different database type or converting the property value to a type supported by the database using a value converter. See https://aka.ms/efcore-docs-value-converters for more information. Alternately, exclude the property from the model using the '[NotMapped]' attribute or by using 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.</value>
@@ -1223,7 +1226,7 @@
     <value>The query requires a subquery over complex type '{complexType}'. Subqueries over complex types are currently unsupported.</value>
   </data>
   <data name="TableNotMappedEntityType" xml:space="preserve">
-    <value>The entity type '{entityType}' is not mapped to the store object '{table}'.</value>
+    <value>The type '{entityType}' is not mapped to the store object '{table}'.</value>
   </data>
   <data name="TableOverrideMismatch" xml:space="preserve">
     <value>The property '{propertySpecification}' has specific configuration for the table '{table}', but isn't mapped to a column on that table. Remove the specific configuration, or map an entity type that contains this property to '{table}'.</value>
