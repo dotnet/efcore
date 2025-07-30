@@ -420,8 +420,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             var sqlExpression = sqlExpressions[i];
             rowExpressions[i] =
                 new RowValueExpression(
-                    new[]
-                    {
+                    [
                         // Since VALUES may not guarantee row ordering, we add an _ord value by which we'll order.
                         _sqlExpressionFactory.Constant(i, intTypeMapping),
                         // If no type mapping was inferred (i.e. no column in the inline collection), it's left null, to allow it to get
@@ -431,11 +430,11 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
                         sqlExpression.TypeMapping is null && inferredTypeMaping is not null
                             ? _sqlExpressionFactory.ApplyTypeMapping(sqlExpression, inferredTypeMaping)
                             : sqlExpression
-                    });
+                    ]);
         }
 
         var alias = _sqlAliasManager.GenerateTableAlias("values");
-        var valuesExpression = new ValuesExpression(alias, rowExpressions, new[] { ValuesOrderingColumnName, ValuesValueColumnName });
+        var valuesExpression = new ValuesExpression(alias, rowExpressions, [ValuesOrderingColumnName, ValuesValueColumnName]);
 
         return CreateShapedQueryExpressionForValuesExpression(
             valuesExpression,

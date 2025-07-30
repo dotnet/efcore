@@ -1020,6 +1020,13 @@ WHERE ([1, 2, 3][c["Int"]] = 1)
 """);
     }
 
+    public override async Task Inline_collection_index_Column_with_EF_Constant()
+    {
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.Inline_collection_index_Column_with_EF_Constant());
+
+        Assert.Equal(CoreStrings.EFConstantNotSupported, exception.Message);
+    }
+
     public override async Task Inline_collection_value_index_Column()
     {
         // Member indexer (c.Array[c.SomeMember]) isn't supported by Cosmos

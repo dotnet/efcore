@@ -2604,7 +2604,7 @@ SELECT [t].[Id], [t].[Name]
 FROM [TestEntities] AS [t]
 WHERE EXISTS (
     SELECT 1
-    FROM (VALUES (?), (?), (?)) AS [i]([Value])
+    FROM (VALUES (CAST(? AS int)), (?), (?)) AS [i]([Value])
     WHERE [i].[Value] = [t].[Id])
 """,
                 //
@@ -2628,7 +2628,7 @@ SELECT [t].[Id], [t].[Name]
 FROM [TestEntities] AS [t]
 WHERE EXISTS (
     SELECT 1
-    FROM (VALUES (1), (2), (3)) AS [i]([Value])
+    FROM (VALUES (CAST(1 AS int)), (2), (3)) AS [i]([Value])
     WHERE [i].[Value] = [t].[Id])
 """,
             //

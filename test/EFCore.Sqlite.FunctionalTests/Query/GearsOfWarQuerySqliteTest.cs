@@ -8750,7 +8750,7 @@ LEFT JOIN (
     ) AS "w0"
     WHERE "w0"."row" <= COALESCE((
         SELECT "n"."Value"
-        FROM (SELECT 1 AS "_ord", @numbers1 AS "Value" UNION ALL VALUES (2, @numbers2), (3, @numbers3)) AS "n"
+        FROM (SELECT @numbers1 AS "Value" UNION ALL VALUES (@numbers2), (@numbers3)) AS "n"
         ORDER BY "n"."Value"
         LIMIT 1 OFFSET 1), 0)
 ) AS "w1" ON "g"."FullName" = "w1"."OwnerFullName"

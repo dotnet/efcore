@@ -795,7 +795,7 @@ SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."
 FROM "PrimitiveCollectionsEntity" AS "p"
 WHERE EXISTS (
     SELECT 1
-    FROM (SELECT 2 AS "Value" UNION ALL VALUES (999), (1000)) AS "i"
+    FROM (SELECT CAST(2 AS INTEGER) AS "Value" UNION ALL VALUES (999), (1000)) AS "i"
     WHERE "i"."Value" > 0)
 """);
     }
@@ -810,7 +810,7 @@ SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."
 FROM "PrimitiveCollectionsEntity" AS "p"
 WHERE (
     SELECT COUNT(*)
-    FROM (SELECT 2 AS "Value" UNION ALL VALUES (999), (1000)) AS "i"
+    FROM (SELECT CAST(2 AS INTEGER) AS "Value" UNION ALL VALUES (999), (1000)) AS "i"
     WHERE "i"."Value" > "p"."Id") = 2
 """);
     }
@@ -1051,6 +1051,18 @@ WHERE (
     FROM (SELECT 0 AS "_ord", CAST(1 AS INTEGER) AS "Value" UNION ALL VALUES (1, 2), (2, 3)) AS "v"
     ORDER BY "v"."_ord"
     LIMIT 1 OFFSET "p"."Int") = 1
+""");
+    }
+
+    public override async Task Inline_collection_index_Column_with_EF_Constant()
+    {
+        await base.Inline_collection_index_Column_with_EF_Constant();
+
+        AssertSql(
+            """
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."NullableWrappedId", "p"."NullableWrappedIdWithNullableComparer", "p"."String", "p"."Strings", "p"."WrappedId"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE '[1,2,3]' ->> "p"."Int" = 1
 """);
     }
 
@@ -1639,7 +1651,7 @@ WHERE (
     SELECT COUNT(*)
     FROM (
         SELECT "i"."Value" AS "Value0"
-        FROM (SELECT 1 AS "_ord", @ints1 AS "Value" UNION ALL VALUES (2, @ints2)) AS "i"
+        FROM (SELECT 0 AS "_ord", @ints1 AS "Value" UNION ALL VALUES (1, @ints2)) AS "i"
         ORDER BY "i"."_ord"
         LIMIT -1 OFFSET 1
     ) AS "i0"
@@ -1671,7 +1683,7 @@ WHERE (
         SELECT "i1"."Value"
         FROM (
             SELECT "i"."Value"
-            FROM (SELECT 1 AS "_ord", @ints1 AS "Value" UNION ALL VALUES (2, @ints2)) AS "i"
+            FROM (SELECT 0 AS "_ord", @ints1 AS "Value" UNION ALL VALUES (1, @ints2)) AS "i"
             ORDER BY "i"."_ord"
             LIMIT -1 OFFSET 1
         ) AS "i1"
