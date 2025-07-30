@@ -519,9 +519,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                     AssertPropertiesModified(entry, state == EntityState.Modified);
                 }
 
-                //TODO: SaveChanges support #31237
-                if (!hasCollections
-                    && (state == EntityState.Added || state == EntityState.Unchanged))
+                if (state == EntityState.Added || state == EntityState.Unchanged)
                 {
                     _ = async ? await context.SaveChangesAsync() : context.SaveChanges();
 
@@ -921,6 +919,42 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
     [ConditionalTheory]
     [InlineData(false)]
     [InlineData(true)]
+    public virtual async Task Can_save_null_second_level_complex_property_with_required_properties(bool async)
+    {
+        using var context = CreateContext();
+
+        await context.Database.CreateExecutionStrategy().ExecuteAsync(
+            context, async context =>
+            {
+                using var transaction = context.Database.BeginTransaction();
+
+                var yogurt = CreateYogurt(context, nullLicense: true);
+                var entry = async ? await context.AddAsync(yogurt) : context.Add(yogurt);
+
+                if (async)
+                {
+                    await context.SaveChangesAsync();
+                }
+                else
+                {
+                    context.SaveChanges();
+                }
+
+                // #31376
+                //var actualYogurt = async
+                //    ? await context.Set<Yogurt>().OrderBy(y => y.Id).AsNoTracking().FirstAsync()
+                //    : context.Set<Yogurt>().OrderBy(y => y.Id).AsNoTracking().First();
+
+                //Assert.Null(actualYogurt.Culture.License!.Value.Tag);
+                //Assert.Null(actualYogurt.Culture.Manufacturer.Tag);
+                //Assert.Null(actualYogurt.Milk.License!.Value.Tag);
+                //Assert.Null(actualYogurt.Milk.Manufacturer.Tag);
+            });
+    }
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
     public virtual async Task Can_save_null_third_level_complex_property_with_all_optional_properties(bool async)
     {
         using var context = CreateContext();
@@ -933,7 +967,22 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                 var yogurt = CreateYogurt(context, nullTag: true);
                 var entry = async ? await context.AddAsync(yogurt) : context.Add(yogurt);
 
-                context.SaveChanges();
+                if (async)
+                {
+                    await context.SaveChangesAsync();
+                }
+                else
+                {
+                    context.SaveChanges();
+                }
+
+                // #31376
+                //var actualYogurt = async
+                //    ? await context.Set<Yogurt>().OrderBy(y => y.Id).AsNoTracking().FirstAsync()
+                //    : context.Set<Yogurt>().OrderBy(y => y.Id).AsNoTracking().First();
+
+                //Assert.Null(actualYogurt.Culture.License);
+                //Assert.Null(actualYogurt.Milk.License);
             });
     }
 
@@ -3321,7 +3370,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         public int Rating { get; set; }
         public bool? Validation { get; set; }
         public Manufacturer Manufacturer { get; set; }
-        public License License { get; set; }
+        public License? License { get; set; }
     }
 
     public class Milk
@@ -3331,7 +3380,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         public int Rating { get; set; }
         public bool? Validation { get; set; }
         public Manufacturer Manufacturer { get; set; } = null!;
-        public License License { get; set; }
+        public License? License { get; set; }
     }
 
     public class Manufacturer
@@ -3360,7 +3409,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         public string? Text { get; set; }
     }
 
-    protected Yogurt CreateYogurt(DbContext context, bool nullMilk = false, bool nullManufacturer = false, bool nullTag = false)
+    protected Yogurt CreateYogurt(DbContext context, bool nullMilk = false, bool nullManufacturer = false, bool nullTag = false, bool nullLicense = false)
     {
         var yogurt = Fixture.UseProxies
             ? context.CreateProxy<Yogurt>()
@@ -3370,13 +3419,15 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
 
         yogurt.Culture = new Culture
         {
-            License = new License
-            {
-                Charge = 1.0m,
-                Tag = nullTag ? null! : new Tag { Text = "Ta1" },
-                Title = "Ti1",
-                Tog = new Tog { Text = "To1" }
-            },
+            License = nullLicense
+                ? null
+                : new License
+                {
+                    Charge = 1.0m,
+                    Tag = nullTag ? null! : new Tag { Text = "Ta1" },
+                    Title = "Ti1",
+                    Tog = new Tog { Text = "To1" }
+                },
             Manufacturer = nullManufacturer
                 ? null!
                 : new Manufacturer
@@ -3395,13 +3446,15 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
             ? null!
             : new Milk
             {
-                License = new License
-                {
-                    Charge = 1.0m,
-                    Tag = nullTag ? null! : new Tag { Text = "Ta1" },
-                    Title = "Ti1",
-                    Tog = new Tog { Text = "To1" }
-                },
+                License = nullLicense
+                    ? null
+                    : new License
+                    {
+                        Charge = 1.0m,
+                        Tag = nullTag ? null! : new Tag { Text = "Ta1" },
+                        Title = "Ti1",
+                        Tog = new Tog { Text = "To1" }
+                    },
                 Manufacturer = nullManufacturer
                     ? null!
                     : new Manufacturer
