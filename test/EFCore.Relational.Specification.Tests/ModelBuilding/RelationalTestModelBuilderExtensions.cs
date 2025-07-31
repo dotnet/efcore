@@ -349,6 +349,39 @@ public static class RelationalTestModelBuilderExtensions
 
         return builder;
     }
+    public static ModelBuilderTest.TestComplexPropertyBuilder<TComplex> HasColumnType<TComplex>(
+        this ModelBuilderTest.TestComplexPropertyBuilder<TComplex> builder,
+        string? columnType)
+        where TComplex : class
+    {
+        if (builder is IInfrastructure<ComplexPropertyBuilder<TComplex>> genericBuilder)
+        {
+            genericBuilder.Instance.HasColumnType(columnType);
+        }
+        else if (builder is IInfrastructure<ComplexPropertyBuilder> nonGenericBuilder)
+        {
+            nonGenericBuilder.Instance.HasColumnType(columnType);
+        }
+
+        return builder;
+    }
+
+    public static ModelBuilderTest.TestComplexCollectionBuilder<TElement> HasColumnType<TElement>(
+        this ModelBuilderTest.TestComplexCollectionBuilder<TElement> builder,
+        string? columnType)
+        where TElement : notnull
+    {
+        if (builder is IInfrastructure<ComplexCollectionBuilder<TElement>> genericBuilder)
+        {
+            genericBuilder.Instance.HasColumnType(columnType);
+        }
+        else if (builder is IInfrastructure<ComplexCollectionBuilder> nonGenericBuilder)
+        {
+            nonGenericBuilder.Instance.HasColumnType(columnType);
+        }
+
+        return builder;
+    }
 
     public static ModelBuilderTest.TestEntityTypeBuilder<TEntity> UseTpcMappingStrategy<TEntity>(
         this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder)

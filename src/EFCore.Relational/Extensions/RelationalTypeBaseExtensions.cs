@@ -4,6 +4,7 @@
 // ReSharper disable once CheckNamespace
 
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
@@ -370,9 +371,44 @@ public static class RelationalTypeBaseExtensions
     /// <param name="typeBase">The type to get the container column name for.</param>
     /// <returns>The container column name to which the type is mapped.</returns>
     public static string? GetContainerColumnName(this IReadOnlyTypeBase typeBase)
-        => typeBase is IReadOnlyEntityType entityType
-            ? entityType.GetContainerColumnName()
-            : ((IReadOnlyComplexType)typeBase).GetContainerColumnName();
+    {
+        var containerColumnName = typeBase.FindAnnotation(RelationalAnnotationNames.ContainerColumnName);
+        return containerColumnName != null
+                ? (string?)containerColumnName.Value
+                : typeBase is IReadOnlyEntityType entityType
+                    ? entityType.FindOwnership()?.PrincipalEntityType.GetContainerColumnName()
+                    : ((IReadOnlyComplexType)typeBase).ComplexProperty.DeclaringType.GetContainerColumnName();
+    }
+
+    /// <summary>
+    ///     Sets the name of the container column to which the type is mapped.
+    /// </summary>
+    /// <param name="typeBase">The type to set the container column name for.</param>
+    /// <param name="columnName">The name to set.</param>
+    public static void SetContainerColumnName(this IMutableTypeBase typeBase, string? columnName)
+        => typeBase.SetOrRemoveAnnotation(RelationalAnnotationNames.ContainerColumnName, columnName);
+
+    /// <summary>
+    ///     Sets the name of the container column to which the type is mapped.
+    /// </summary>
+    /// <param name="typeBase">The type to set the container column name for.</param>
+    /// <param name="columnName">The name to set.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    public static string? SetContainerColumnName(
+        this IConventionTypeBase typeBase,
+        string? columnName,
+        bool fromDataAnnotation = false)
+        => (string?)typeBase.SetAnnotation(RelationalAnnotationNames.ContainerColumnName, columnName, fromDataAnnotation)?.Value;
+
+    /// <summary>
+    ///     Gets the <see cref="ConfigurationSource" /> for the container column name.
+    /// </summary>
+    /// <param name="typeBase">The type to get the container column name configuration source for.</param>
+    /// <returns>The <see cref="ConfigurationSource" /> for the container column name.</returns>
+    public static ConfigurationSource? GetContainerColumnNameConfigurationSource(this IConventionTypeBase typeBase)
+        => typeBase.FindAnnotation(RelationalAnnotationNames.ContainerColumnName)
+            ?.GetConfigurationSource();
 
     /// <summary>
     ///     Gets the column type to use for the container column to which the type is mapped.
@@ -380,10 +416,42 @@ public static class RelationalTypeBaseExtensions
     /// <param name="typeBase">The type.</param>
     /// <returns>The database column type.</returns>
     public static string? GetContainerColumnType(this IReadOnlyTypeBase typeBase)
-        => typeBase is IReadOnlyEntityType entityType
-            ? entityType.GetContainerColumnType()
-            : null;
+     => typeBase.FindAnnotation(RelationalAnnotationNames.ContainerColumnType)?.Value is string columnName
+            ? columnName
+            : typeBase is IReadOnlyEntityType entityType
+                ? entityType.FindOwnership()?.PrincipalEntityType.GetContainerColumnType()
+                : ((IReadOnlyComplexType)typeBase).ComplexProperty.DeclaringType.GetContainerColumnType();
 
+    /// <summary>
+    ///     Sets the type of the container column to which the type is mapped.
+    /// </summary>
+    /// <param name="typeBase">The type to set the container column type for.</param>
+    /// <param name="columnType">The type to set.</param>
+    public static void SetContainerColumnType(this IMutableTypeBase typeBase, string? columnType)
+        => typeBase.SetOrRemoveAnnotation(RelationalAnnotationNames.ContainerColumnType, columnType);
+
+    /// <summary>
+    ///     Sets the type of the container column to which the type is mapped.
+    /// </summary>
+    /// <param name="typeBase">The type to set the container column type for.</param>
+    /// <param name="columnType">The type to set.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    public static string? SetContainerColumnType(
+        this IConventionTypeBase typeBase,
+        string? columnType,
+        bool fromDataAnnotation = false)
+        => (string?)typeBase.SetAnnotation(RelationalAnnotationNames.ContainerColumnType, columnType, fromDataAnnotation)?.Value;
+
+    /// <summary>
+    ///     Gets the <see cref="ConfigurationSource" /> for the container column type.
+    /// </summary>
+    /// <param name="typeBase">The type to get the container column type configuration source for.</param>
+    /// <returns>The <see cref="ConfigurationSource" /> for the container column type.</returns>
+    public static ConfigurationSource? GetContainerColumnTypeConfigurationSource(this IConventionTypeBase typeBase)
+        => typeBase.FindAnnotation(RelationalAnnotationNames.ContainerColumnType)
+            ?.GetConfigurationSource();
+            
     /// <summary>
     ///     Gets the value of JSON property name used for the given entity mapped to a JSON column.
     /// </summary>

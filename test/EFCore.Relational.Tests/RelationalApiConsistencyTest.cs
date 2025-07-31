@@ -202,9 +202,9 @@ public class RelationalApiConsistencyTest(RelationalApiConsistencyTest.Relationa
             },
             {
                 typeof(IReadOnlyComplexType), (
-                    typeof(RelationalComplexTypeExtensions),
-                    typeof(RelationalComplexTypeExtensions),
-                    typeof(RelationalComplexTypeExtensions),
+                    typeof(RelationalTypeBaseExtensions),
+                    typeof(RelationalTypeBaseExtensions),
+                    typeof(RelationalTypeBaseExtensions),
                     null,
                     null
                 )

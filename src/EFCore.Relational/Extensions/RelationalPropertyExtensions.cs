@@ -2047,11 +2047,14 @@ public static class RelationalPropertyExtensions
     /// <param name="property">The property.</param>
     /// <returns>
     ///     The value for the JSON property used to store the value of this entity property.
-    ///     <see langword="null" /> is returned for key properties and for properties of entities that are not mapped to a JSON column.
+    ///     By default <see langword="null" /> is returned for key properties and for properties that
+    ///     are not mapped to JSON.
     /// </returns>
     public static string? GetJsonPropertyName(this IReadOnlyProperty property)
         => (string?)property.FindAnnotation(RelationalAnnotationNames.JsonPropertyName)?.Value
-            ?? (property.IsKey() || !property.DeclaringType.IsMappedToJson() ? null : property.Name);
+            ?? (property.IsKey() || !property.DeclaringType.IsMappedToJson()
+                ? null
+                : property == property.DeclaringType.FindDiscriminatorProperty() ? "$type" : property.Name);
 
     /// <summary>
     ///     Sets the value of JSON property name used for the given property of an entity mapped to a JSON column.
