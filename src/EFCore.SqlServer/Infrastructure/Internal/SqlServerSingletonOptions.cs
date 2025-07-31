@@ -56,6 +56,7 @@ public class SqlServerSingletonOptions : ISqlServerSingletonOptions
             SqlServerEngineType.SqlServer => SqlServerCompatibilityLevel >= 130,
             SqlServerEngineType.AzureSql => AzureSqlCompatibilityLevel >= 130,
             SqlServerEngineType.AzureSynapse => true,
+            SqlServerEngineType.Unknown => false, // TODO: We shouldn't observe Unknown here, #36477
             _ => throw new UnreachableException()
         };
 
@@ -71,6 +72,7 @@ public class SqlServerSingletonOptions : ISqlServerSingletonOptions
             SqlServerEngineType.SqlServer => SqlServerCompatibilityLevel >= 170,
             SqlServerEngineType.AzureSql => AzureSqlCompatibilityLevel >= 170,
             SqlServerEngineType.AzureSynapse => false,
+            SqlServerEngineType.Unknown => false, // TODO: We shouldn't observe Unknown here, #36477
             _ => throw new UnreachableException()
         };
 
