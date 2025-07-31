@@ -1571,6 +1571,44 @@ public static class CoreLoggerExtensions
         => ((EventDefinition<string>)definition).GenerateMessage(((EntityTypeEventData)payload).EntityType.DisplayName());
 
     /// <summary>
+    ///     Logs for the <see cref="CoreEventId.AccidentalComplexPropertyCollection" /> event.
+    /// </summary>
+    /// <param name="diagnostics">The diagnostics logger to use.</param>
+    /// <param name="complexProperty">The complex property.</param>
+    public static void AccidentalComplexPropertyCollection(
+        this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
+        IComplexProperty complexProperty)
+    {
+        var definition = CoreResources.LogAccidentalComplexPropertyCollection(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            definition.Log(
+                diagnostics,
+                complexProperty.DeclaringType.DisplayName(),
+                complexProperty.Name,
+                complexProperty.ClrType.ShortDisplayName());
+        }
+
+        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = new ComplexPropertyEventData(definition, AccidentalComplexPropertyCollection, complexProperty);
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+        }
+    }
+
+    private static string AccidentalComplexPropertyCollection(EventDefinitionBase definition, EventData payload)
+    {
+        var d = (EventDefinition<string, string, string>)definition;
+        var p = (ComplexPropertyEventData)payload;
+        return d.GenerateMessage(
+                p.Property.DeclaringType.DisplayName(),
+                p.Property.Name,
+                p.Property.ClrType.ShortDisplayName());
+    }
+
+    /// <summary>
     ///     Logs for the <see cref="CoreEventId.AmbiguousEndRequiredWarning" /> event.
     /// </summary>
     /// <param name="diagnostics">The diagnostics logger to use.</param>

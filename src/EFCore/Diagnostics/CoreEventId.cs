@@ -126,6 +126,7 @@ public static class CoreEventId
         SkippedEntityTypeConfigurationWarning,
         NoEntityTypeConfigurationsWarning,
         AccidentalEntityType,
+        AccidentalComplexPropertyCollection,
 
         // ChangeTracking events
         DetectChangesStarting = CoreBaseId + 800,
@@ -706,6 +707,19 @@ public static class CoreEventId
     ///     </para>
     /// </remarks>
     public static readonly EventId AccidentalEntityType = MakeModelValidationId(Id.AccidentalEntityType);
+
+    /// <summary>
+    ///     A complex property is configured with a collection type but is not marked as a collection.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This event is in the <see cref="DbLoggerCategory.Model.Validation" /> category.
+    ///     </para>
+    ///     <para>
+    ///         This event uses the <see cref="ComplexPropertyEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///     </para>
+    /// </remarks>
+    public static readonly EventId AccidentalComplexPropertyCollection = MakeModelValidationId(Id.AccidentalComplexPropertyCollection);
 
     /// <summary>
     ///     The <see cref="RequiredAttribute" /> on the collection navigation property was ignored.

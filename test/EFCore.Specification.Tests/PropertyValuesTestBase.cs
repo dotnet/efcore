@@ -3955,39 +3955,8 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
                     b.Property<int>("Shadow1");
                     b.Property<string>("Shadow2");
 
-                    b.ComplexProperty(
-                        e => e.Culture, b =>
-                        {
-                            b.ComplexProperty(
-                                e => e.License, b =>
-                                {
-                                    b.ComplexProperty(e => e.Tag);
-                                    b.ComplexProperty(e => e.Tog);
-                                });
-                            b.ComplexProperty(
-                                e => e.Manufacturer, b =>
-                                {
-                                    b.ComplexProperty(e => e.Tag);
-                                    b.ComplexProperty(e => e.Tog);
-                                });
-                        });
-
-                    b.ComplexProperty(
-                        e => e.Milk, b =>
-                        {
-                            b.ComplexProperty(
-                                e => e.License, b =>
-                                {
-                                    b.ComplexProperty(e => e.Tag);
-                                    b.ComplexProperty(e => e.Tog);
-                                });
-                            b.ComplexProperty(
-                                e => e.Manufacturer, b =>
-                                {
-                                    b.ComplexProperty(e => e.Tag);
-                                    b.ComplexProperty(e => e.Tog);
-                                });
-                        });
+                    b.ComplexProperty(e => e.Culture);
+                    b.ComplexProperty(e => e.Milk);
                 });
 
             modelBuilder.Entity<Contact33307>();
@@ -3995,8 +3964,7 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
             modelBuilder.Entity<Customer33307>();
 
             modelBuilder.Entity<School>(
-                b => b.ComplexCollection(
-                        e => e.Departments, b => b.ComplexCollection(e => e.Courses)));
+                b => b.ComplexCollection(e => e.Departments));
         }
 
         protected override Task SeedAsync(PoolableDbContext context)

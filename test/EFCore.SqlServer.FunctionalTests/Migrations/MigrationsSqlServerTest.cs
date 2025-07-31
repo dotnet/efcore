@@ -3637,7 +3637,30 @@ CREATE TABLE [Contacts] (
     [MyComplex_Prop] nvarchar(max) NULL,
     [MyComplex_MyNestedComplex_Bar] datetime2 NULL,
     [MyComplex_MyNestedComplex_Foo] int NULL,
+    [MyComplex_Nested_Bar] datetime2 NULL,
+    [MyComplex_Nested_Foo] int NULL,
+    [NestedCollection] nvarchar(max) NULL,
     CONSTRAINT [PK_Contacts] PRIMARY KEY ([Id])
+);
+""");
+    }
+
+    public override async Task Create_table_with_optional_complex_type_with_required_properties()
+    {
+        await base.Create_table_with_optional_complex_type_with_required_properties();
+
+        AssertSql(
+            """
+CREATE TABLE [Suppliers] (
+    [Id] int NOT NULL IDENTITY,
+    [Number] int NOT NULL,
+    [MyComplex_Prop] nvarchar(max) NULL,
+    [MyComplex_MyNestedComplex_Bar] datetime2 NULL,
+    [MyComplex_MyNestedComplex_Foo] int NULL,
+    [MyComplex_Nested_Bar] datetime2 NULL,
+    [MyComplex_Nested_Foo] int NULL,
+    [NestedCollection] nvarchar(max) NULL,
+    CONSTRAINT [PK_Suppliers] PRIMARY KEY ([Id])
 );
 """);
     }

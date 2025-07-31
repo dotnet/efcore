@@ -343,7 +343,7 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
                 principalKey.GetReferencingForeignKeys());
 
             Assert.Equal(
-                new[] { dependentBaseForeignKey, tptForeignKey, referenceOwnership, derivedSkipNavigation.Inverse.ForeignKey },
+                [dependentBaseForeignKey, tptForeignKey, referenceOwnership, derivedSkipNavigation.Inverse.ForeignKey],
                 principalBase.GetReferencingForeignKeys());
         }
     }
@@ -415,6 +415,13 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
             {
                 eb.ToTable("PrincipalBase");
                 eb.ToFunction((string?)null);
+            });
+
+        modelBuilder.Entity<PrincipalDerived<DependentBase<byte?>>>(
+            eb =>
+            {
+                eb.ComplexCollection<IList<OwnedType>, OwnedType>(
+                    "ManyOwned", "OwnedCollection", eb => eb.ToJson());
             });
     }
 

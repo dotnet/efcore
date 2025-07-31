@@ -98,9 +98,18 @@ public class RelationalModelValidator : ModelValidator
     }
 
     /// <inheritdoc/>
-    protected override void ValidatePropertyMapping(IConventionComplexProperty complexProperty)
+    protected override void ValidatePropertyMapping(
+        IConventionComplexProperty complexProperty,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
-        base.ValidatePropertyMapping(complexProperty);
+        base.ValidatePropertyMapping(complexProperty, logger);
+
+        if (complexProperty.IsCollection && !complexProperty.ComplexType.IsMappedToJson())
+        {
+            throw new InvalidOperationException(
+                RelationalStrings.ComplexCollectionNotMappedToJson(
+                    complexProperty.DeclaringType.DisplayName(), complexProperty.Name));
+        }
 
         if (!complexProperty.ComplexType.IsMappedToJson()
             && complexProperty.IsNullable

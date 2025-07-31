@@ -703,10 +703,6 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                 .ComplexProperty(e => e.Customer, b =>
                 {
                     b.ToJson("customer_data");
-                    b.ComplexProperty(c => c.Details, db =>
-                    {
-                        db.Property(d => d.Id);
-                    });
                     b.Ignore(c => c.Orders);
                 });
 
@@ -745,10 +741,17 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             Assert.True(complexType.IsMappedToJson());
             Assert.Equal(nameof(ComplexProperties.Customer), complexType.GetContainerColumnName());
         }
+
+        // Complex collections must be mapped to JSON
+        public override void Complex_properties_can_be_configured_by_type()
+            => Assert.Throws<InvalidOperationException>(base.Complex_properties_can_be_configured_by_type);
     }
 
     public abstract class RelationalComplexCollectionTestBase(RelationalModelBuilderFixture fixture) : ComplexCollectionTestBase(fixture)
     {
+        protected override TestComplexCollectionBuilder<TElement> ConfigureComplexCollection<TElement>(TestComplexCollectionBuilder<TElement> builder)
+            => builder.ToJson();
+
         [ConditionalFact]
         public virtual void Complex_collection_mapped_to_json_uses_property_name_when_column_name_not_specified()
         {

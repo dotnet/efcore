@@ -2243,7 +2243,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                 if (entityType == null)
                 {
                     throw new InvalidOperationException(
-                        CoreStrings.InvalidTypeConversationWithInclude(expression, convertedType.ShortDisplayName()));
+                        CoreStrings.InvalidTypeConversionWithInclude(expression, convertedType.ShortDisplayName()));
                 }
             }
 

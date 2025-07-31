@@ -41,6 +41,22 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         LoggerFactory.Clear();
     }
 
+    [ConditionalFact]
+    public void Logs_warning_when_non_collection_complex_property_has_collection_type()
+    {
+        var modelBuilder = CreateConventionlessModelBuilder();
+        var entityTypeBuilder = modelBuilder.Entity<WithStructCollection>();
+        entityTypeBuilder.Property(e => e.Id);
+        entityTypeBuilder.HasKey(e => e.Id);
+
+        var complexPropertyBuilder = entityTypeBuilder.ComplexProperty(e => e.Foo);
+
+        VerifyWarning(
+            CoreResources.LogAccidentalComplexPropertyCollection(new TestLogger<TestLoggingDefinitions>())
+                    .GenerateMessage(nameof(WithStructCollection), nameof(WithStructCollection.Foo), "List<StructTag>"),
+            modelBuilder);
+    }
+
     [ConditionalFact] // Issue #33913
     public virtual void Detects_well_known_concrete_collections_mapped_as_owned_entity_type()
     {
@@ -1153,12 +1169,6 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         public List<StructTag> Foo { get; set; }
     }
 
-    protected struct StructTag
-    {
-        public required string Key { get; set; }
-        public required string Value { get; set; }
-    }
-
     [ConditionalFact]
     public virtual void Detects_non_list_complex_collection()
     {
@@ -1195,6 +1205,23 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
 
         VerifyError(
             CoreStrings.ComplexPropertyShadow(nameof(Customer), "CustomerDetails"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_shadow_properties_on_value_type_complex_types()
+    {
+        var modelBuilder = CreateConventionlessModelBuilder();
+        var model = modelBuilder.Model;
+        var entityType = model.AddEntityType(typeof(SampleEntity));
+        entityType.AddProperty(nameof(SampleEntity.Id), typeof(int));
+
+        var complexProperty = entityType.AddComplexProperty("Tag", typeof(StructTag), typeof(StructTag));
+
+        complexProperty.ComplexType.AddProperty("ShadowProperty", typeof(string));
+
+        VerifyError(
+            CoreStrings.ComplexValueTypeShadowProperty("SampleEntity.Tag#StructTag", "ShadowProperty"),
             modelBuilder);
     }
 

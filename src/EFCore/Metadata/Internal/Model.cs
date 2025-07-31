@@ -838,20 +838,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual IReadOnlySet<Property>? FindProperties(Type type)
-    {
-        if (_propertiesByType == null)
-        {
-            return null;
-        }
-
-        var unwrappedType = type.UnwrapNullableType();
-        if (unwrappedType.IsScalarType())
-        {
-            return null;
-        }
-
-        return _propertiesByType.GetValueOrDefault(unwrappedType);
-    }
+        => _propertiesByType?.GetValueOrDefault(type);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -862,13 +849,14 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     public virtual void AddProperty(Property property)
     {
         var type = property.ClrType.UnwrapNullableType();
-        if (type.IsScalarType())
+        if (type.IsScalarType()
+            || type.IsEnum)
         {
             return;
         }
 
         EnsureMutable();
-        _propertiesByType ??= new Dictionary<Type, HashSet<Property>>();
+        _propertiesByType ??= [];
 
         if (_propertiesByType.TryGetValue(type, out var properties))
         {

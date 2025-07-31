@@ -205,13 +205,16 @@ public class ColumnModification : IColumnModification
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public static object? GetCurrentValue(IUpdateEntry entry, IProperty property)
-        => property.DeclaringType switch
-        {
-            IComplexType { ComplexProperty: var complexProperty }
-                when complexProperty.IsNullable && !complexProperty.IsCollection && entry.GetCurrentValue(complexProperty) == null
-                => null,
-            _ => entry.GetCurrentValue(property)
-        };
+        => property.DeclaringType is IComplexType { ComplexProperty: var complexProperty }
+            && IsNull(complexProperty, entry)
+            ? null
+            : entry.GetCurrentValue(property);
+
+    private static bool IsNull(IComplexProperty complexProperty, IUpdateEntry entry)
+        => (complexProperty.DeclaringType is IComplexType { ComplexProperty: var parentComplexProperty }
+            && IsNull(parentComplexProperty, entry))
+           || (complexProperty.IsNullable && !complexProperty.IsCollection
+               && entry.GetCurrentValue(complexProperty) == null);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

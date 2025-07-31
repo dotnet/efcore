@@ -470,7 +470,7 @@ public class InternalModelBuilder : AnnotatableBuilder<Model, InternalModelBuild
                 Metadata.Builder.HasNoEntityType(existingEntityType, ConfigurationSource.Convention);
             }
 
-            var properties = Metadata.FindProperties(type);
+            var properties = Metadata.FindProperties(type.UnwrapNullableType());
             if (properties != null)
             {
                 foreach (var property in properties)
