@@ -217,13 +217,7 @@ public class SqlServerTypeMappingSource(
         // ReSharper restore CoVariantArrayConversion
     }
 
-    private readonly bool _isJsonTypeSupported = sqlServerSingletonOptions.EngineType switch
-    {
-        SqlServerEngineType.SqlServer => sqlServerSingletonOptions.SqlServerCompatibilityLevel >= 170,
-        SqlServerEngineType.AzureSql => sqlServerSingletonOptions.AzureSqlCompatibilityLevel >= 170,
-        SqlServerEngineType.AzureSynapse => false,
-        _ => false
-    };
+    private readonly bool _isJsonTypeSupported = sqlServerSingletonOptions.SupportsJsonType;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

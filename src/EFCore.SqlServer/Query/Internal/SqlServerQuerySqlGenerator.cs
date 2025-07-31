@@ -522,26 +522,58 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
             return jsonScalarExpression;
         }
 
-        if (jsonScalarExpression.TypeMapping is SqlServerStructuralJsonTypeMapping
-            || jsonScalarExpression.TypeMapping?.ElementTypeMapping is not null)
+        // Hack: we currently use JsonScalarExpression to represent both JSON_VALUE and JSON_QUERY in the SQL tree
+        // (see #36392), so we need to differentiate between the two here.
+        // We use JSON_QUERY() to project out sub-documents, so either when the result is a structural type,
+        // or when it is a primitive collection (array).
+        var jsonQuery = jsonScalarExpression.TypeMapping is SqlServerStructuralJsonTypeMapping
+            || jsonScalarExpression.TypeMapping?.ElementTypeMapping is not null;
+
+        // SQL Server 2025 introduced the RETURNING clause for JSON_VALUE: JSON_VALUE(json, '$.foo' RETURNING int).
+        // This is better than adding a cast, as this:
+        // 1. Allows us to get the desired type directly (potentially more efficient, possibly index usage too)
+        // 2. Supports big strings (otherwise JSON_VALUE always returns nvarchar(4000))
+        // 3. Can do JSON-specific decoding (e.g. base64 for varbinary)
+        // Note that RETURNING is only (currently) supported over the json type (not nvarchar(max)).
+        // Note that we don't need to check the compatibility level - if the json type is being used, then RETURNING is supported.
+        var useJsonValueReturningClause = !jsonQuery && jsonScalarExpression.Json.TypeMapping?.StoreType is "json"
+            // Temporarily disabling for Azure SQL, which doesn't yet support RETURNING; this should get removed for 10 (see #36460).
+            && _sqlServerSingletonOptions.EngineType is not SqlServerEngineType.AzureSql;
+
+        // For JSON_VALUE(), if we can use the RETURNING clause, always do that.
+        // Otherwise, JSON_VALUE always returns nvarchar(4000) (https://learn.microsoft.com/sql/t-sql/functions/json-value-transact-sql),
+        // so we cast the result to the expected type - except if it's a string (since the cast interferes with indexes over
+        // the JSON property).
+        var useWrappingCast = !jsonQuery && !useJsonValueReturningClause && jsonScalarExpression.TypeMapping is not StringTypeMapping;
+
+        if (jsonQuery)
         {
             Sql.Append("JSON_QUERY(");
         }
         else
         {
-            // JSON_VALUE always returns nvarchar(4000) (https://learn.microsoft.com/sql/t-sql/functions/json-value-transact-sql),
-            // so we cast the result to the expected type - except if it's a string (since the cast interferes with indexes over
-            // the JSON property).
-            Sql.Append(jsonScalarExpression.TypeMapping is StringTypeMapping ? "JSON_VALUE(" : "CAST(JSON_VALUE(");
+            if (useWrappingCast)
+            {
+                Sql.Append("CAST(");
+            }
+
+            Sql.Append("JSON_VALUE(");
         }
 
         Visit(jsonScalarExpression.Json);
 
         Sql.Append(", ");
         GenerateJsonPath(jsonScalarExpression.Path);
+
+        if (useJsonValueReturningClause)
+        {
+            Sql.Append(" RETURNING ");
+            Sql.Append(jsonScalarExpression.TypeMapping!.StoreType);
+        }
+
         Sql.Append(")");
 
-        if (jsonScalarExpression.TypeMapping is not SqlServerStructuralJsonTypeMapping and not StringTypeMapping)
+        if (useWrappingCast)
         {
             Sql.Append(" AS ");
             Sql.Append(jsonScalarExpression.TypeMapping!.StoreType);

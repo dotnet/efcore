@@ -50,12 +50,31 @@ public class SqlServerSingletonOptions : ISqlServerSingletonOptions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool SupportsJsonFunctions =>
-        (EngineType == SqlServerEngineType.SqlServer && SqlServerCompatibilityLevel >= 130)
-        ||
-        (EngineType == SqlServerEngineType.AzureSql && AzureSqlCompatibilityLevel >= 130)
-        ||
-        (EngineType == SqlServerEngineType.AzureSynapse);
+    public virtual bool SupportsJsonFunctions
+        => EngineType switch
+        {
+            SqlServerEngineType.SqlServer => SqlServerCompatibilityLevel >= 130,
+            SqlServerEngineType.AzureSql => AzureSqlCompatibilityLevel >= 130,
+            SqlServerEngineType.AzureSynapse => true,
+            SqlServerEngineType.Unknown => false, // TODO: We shouldn't observe Unknown here, #36477
+            _ => throw new UnreachableException()
+        };
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool SupportsJsonType
+        => EngineType switch
+        {
+            SqlServerEngineType.SqlServer => SqlServerCompatibilityLevel >= 170,
+            SqlServerEngineType.AzureSql => AzureSqlCompatibilityLevel >= 170,
+            SqlServerEngineType.AzureSynapse => false,
+            SqlServerEngineType.Unknown => false, // TODO: We shouldn't observe Unknown here, #36477
+            _ => throw new UnreachableException()
+        };
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
