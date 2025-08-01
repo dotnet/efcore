@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 /// <param name="elementType">The clr type of individual elements in the collection.</param>
 public class CollectionResultExpression(
     Expression queryExpression,
-    IPropertyBase? relationship,
+    IStructuralProperty? relationship,
     Type elementType)
     : Expression, IPrintableExpression
 {
@@ -30,7 +30,7 @@ public class CollectionResultExpression(
     /// <summary>
     ///     The relationship associated with the collection, if any.
     /// </summary>
-    public virtual IPropertyBase? Relationship { get; } = relationship;
+    public virtual IStructuralProperty? Relationship { get; } = relationship;
 
     /// <summary>
     ///     The clr type of elements of the collection.

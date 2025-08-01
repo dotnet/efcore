@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
 /// </remarks>
-public interface INavigationBase : IReadOnlyNavigationBase, IPropertyBase
+public interface INavigationBase : IReadOnlyNavigationBase, IStructuralProperty
 {
     /// <summary>
     ///     Gets the entity type that this navigation property belongs to.
@@ -36,6 +36,13 @@ public interface INavigationBase : IReadOnlyNavigationBase, IPropertyBase
     {
         [DebuggerStepThrough]
         get => (INavigationBase?)((IReadOnlyNavigationBase)this).Inverse;
+    }
+
+    /// <inheritdoc />
+    ITypeBase IStructuralProperty.TargetType
+    {
+        [DebuggerStepThrough]
+        get => TargetEntityType;
     }
 
     /// <summary>
