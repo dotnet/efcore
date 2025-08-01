@@ -1550,6 +1550,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     {
         private readonly SqlAliasManager _sqlAliasManager = queryableTranslator._sqlAliasManager;
         private SelectExpression _selectExpression = null!;
+        private bool _bindComplexProperties;
 
         public Expression Expand(SelectExpression selectExpression, Expression lambdaBody)
         {
@@ -1563,6 +1564,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             var innerExpression = Visit(memberExpression.Expression);
 
             return TryExpand(innerExpression, MemberIdentity.Create(memberExpression.Member))
+                ?? TryBindPropertyAccess(innerExpression, memberExpression.Member.Name)
                 ?? memberExpression.Update(innerExpression);
         }
 
@@ -1573,10 +1575,17 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
                 source = Visit(source);
 
                 return TryExpand(source, MemberIdentity.Create(navigationName))
-                    ?? TryBindPrimitiveCollection(source, navigationName)
-                    ?? methodCallExpression.Update(null!, new[] { source, methodCallExpression.Arguments[1] });
+                    ?? TryBindPropertyAccess(source, navigationName)
+                    ?? methodCallExpression.Update(null!, [source, methodCallExpression.Arguments[1]]);
             }
 
+            // The following is a hack.
+            // In preprocessing, SubqueryMemberPushdownExpressionVisitor rewrites ElementAt(0).Int to Select(s => s.Int).ElementAt(0),
+            // as that's apparently needed for NavigationExpandingExpressionVisitor to work correctly;
+            // see https://github.com/dotnet/efcore/issues/30386#issuecomment-1452643142 for more context.
+            // Here, we pattern match the resulting Select(s => s.Int).ElementAt(0) over JsonQueryExpression to properly identify the
+            // indexing operation and translate it.
+            // Note that this happens for both owned and complex JSON-mapped types.
             if (methodCallExpression.Method.IsGenericMethod
                 && (methodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.ElementAt
                     || methodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.ElementAtOrDefault))
@@ -1599,7 +1608,16 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
                     source = maybeAsQueryableMethodCall.Arguments[0];
                 }
 
+                // This special visitor normally only handles owned access, and not complex properties; all complex property access
+                // is handled in RelationalSqlTranslatingExpressionVisitor as usual.
+                // However, indexing over complex JSON-mapped collection is mangled in preprocessing just like it is for owned
+                // entities (see comment above). So we very specifically handle complex properties as part of the pattern matching
+                // hack here, to make sure indexing works properly.
+                // #36335 tracks removing the preprocessing mangling, at which point this should no longer be needed
+                var parentBindComplexProperties = _bindComplexProperties;
+                _bindComplexProperties = true;
                 source = Visit(source);
+                _bindComplexProperties = parentBindComplexProperties;
 
                 if (source is JsonQueryExpression jsonQueryExpression)
                 {
@@ -1665,15 +1683,15 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
                 var result = source;
                 if (asQueryable != null)
                 {
-                    result = asQueryable.Update(null, new[] { result });
+                    result = asQueryable.Update(null, [result]);
                 }
 
                 if (select != null)
                 {
-                    result = select.Update(null, new[] { result, select.Arguments[1] });
+                    result = select.Update(null, [result, select.Arguments[1]]);
                 }
 
-                return elementAt.Update(null, new[] { result, elementAt.Arguments[1] });
+                return elementAt.Update(null, [result, elementAt.Arguments[1]]);
             }
 
             static bool IsValidSelectorForJsonArrayElementAccess(Expression expression, JsonQueryExpression baselineJsonQuery)
@@ -1906,7 +1924,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             }
         }
 
-        private Expression? TryBindPrimitiveCollection(Expression? source, string memberName)
+        private Expression? TryBindPropertyAccess(Expression? source, string memberName)
         {
             while (source is IncludeExpression includeExpression)
             {
@@ -1936,12 +1954,27 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             }
 
             var property = type.FindProperty(memberName);
-            if (property?.IsPrimitiveCollection != true)
+            if (property?.IsPrimitiveCollection is true)
             {
-                return null;
+                return source.CreateEFPropertyExpression(property);
             }
 
-            return source.CreateEFPropertyExpression(property);
+            // See comments on indexing-related hacks in VisitMethodCall above
+            if (_bindComplexProperties
+                && type.FindComplexProperty(memberName) is IComplexProperty { IsCollection: true } complexProperty)
+            {
+                Check.DebugAssert(complexProperty.ComplexType.IsMappedToJson());
+
+                if (queryableTranslator._sqlTranslator.TryBindMember(
+                    queryableTranslator._sqlTranslator.Visit(source), MemberIdentity.Create(memberName),
+                    out var translatedExpression, out _)
+                    && translatedExpression is CollectionResultExpression { QueryExpression: JsonQueryExpression jsonQuery })
+                {
+                    return jsonQuery;
+                }
+            }
+
+            return null;
         }
 
         private sealed class AnnotationApplyingExpressionVisitor(IReadOnlyList<IAnnotation> annotations) : ExpressionVisitor

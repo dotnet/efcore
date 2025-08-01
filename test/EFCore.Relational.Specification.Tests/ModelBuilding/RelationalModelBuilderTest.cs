@@ -745,6 +745,66 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         // Complex collections must be mapped to JSON
         public override void Complex_properties_can_be_configured_by_type()
             => Assert.Throws<InvalidOperationException>(base.Complex_properties_can_be_configured_by_type);
+
+        [ConditionalFact]
+        public virtual void Complex_type_discriminator_mapped_to_json_has_default_json_property_name()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder
+                .Ignore<Order>()
+                .Ignore<IndexedClass>()
+                .Entity<ComplexProperties>()
+                .ComplexProperty(e => e.Customer, b =>
+                {
+                    b.ToJson("customer_data");
+                    b.Ignore(c => c.Details);
+                    b.Ignore(c => c.Orders);
+                    b.HasDiscriminator<string>("CustomerType");
+                    // Issue #31250
+                    // .HasValue<Customer>("Customer")
+                    // .HasValue<SpecialCustomer>("Special")
+                    // .HasValue<OtherCustomer>("Other");
+                });
+
+            var model = modelBuilder.FinalizeModel();
+            var complexProperty = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single();
+            var complexType = complexProperty.ComplexType;
+
+            Assert.True(complexType.IsMappedToJson());
+            Assert.Equal("customer_data", complexType.GetContainerColumnName());
+
+            var discriminatorProperty = complexType.FindDiscriminatorProperty();
+            Assert.NotNull(discriminatorProperty);
+            Assert.Equal("CustomerType", discriminatorProperty.Name);
+            Assert.Equal("$type", discriminatorProperty.GetJsonPropertyName());
+        }
+
+        [ConditionalFact]
+        public virtual void Complex_property_mapped_to_json_can_specify_column_type()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder
+                .Ignore<Product>()
+                .Ignore<IndexedClass>()
+                .Entity<ComplexProperties>()
+                .ComplexProperty(e => e.Customer, b =>
+                {
+                    b.ToJson("customer_data");
+                    b.HasColumnType("jsonb");
+                    b.Ignore(c => c.Details);
+                    b.Ignore(c => c.Orders);
+                });
+
+            var model = modelBuilder.FinalizeModel();
+            var complexProperty = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single();
+            var complexType = complexProperty.ComplexType;
+
+            Assert.True(complexType.IsMappedToJson());
+            Assert.Equal("customer_data", complexType.GetContainerColumnName());
+            Assert.Equal("jsonb", complexType.GetContainerColumnType());
+        }
     }
 
     public abstract class RelationalComplexCollectionTestBase(RelationalModelBuilderFixture fixture) : ComplexCollectionTestBase(fixture)
@@ -874,6 +934,30 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             
             var nestedCol3 = complexCollectionProperty1.ComplexType.FindComplexProperty("Collection1")!;
             Assert.Equal("CustomNestedCollection3", nestedCol3.GetJsonPropertyName());
+        }
+
+        [ConditionalFact]
+        public virtual void Complex_collection_mapped_to_json_can_specify_column_type()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder
+                .Ignore<Order>()
+                .Ignore<IndexedClass>()
+                .Entity<ComplexProperties>()
+                .ComplexCollection(e => e.QuarksCollection, b =>
+                {
+                    b.ToJson("quarks_data");
+                    b.HasColumnType("jsonb");
+                });
+
+            var model = modelBuilder.FinalizeModel();
+            var complexProperty = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single();
+            var complexType = complexProperty.ComplexType;
+
+            Assert.True(complexType.IsMappedToJson());
+            Assert.Equal("quarks_data", complexType.GetContainerColumnName());
+            Assert.Equal("jsonb", complexType.GetContainerColumnType());
         }
     }
 

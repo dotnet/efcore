@@ -75,7 +75,6 @@
   <PropertyGroup>
     <XUnitPublishTargetFramework>net10.0</XUnitPublishTargetFramework>
     <XUnitRuntimeTargetFramework>netcoreapp2.0</XUnitRuntimeTargetFramework>
-    <XUnitRunnerVersion>2.9.2</XUnitRunnerVersion>
     <XUnitArguments></XUnitArguments>
     <XUnitWorkItemTimeout Condition = "'$(XUnitWorkItemTimeout)' == ''">02:00:00</XUnitWorkItemTimeout>
   </PropertyGroup>

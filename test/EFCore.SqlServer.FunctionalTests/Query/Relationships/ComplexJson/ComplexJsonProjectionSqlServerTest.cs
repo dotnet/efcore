@@ -23,44 +23,88 @@ FROM [RootEntity] AS [r]
     {
         await base.Select_property_on_required_related(queryTrackingBehavior);
 
-        AssertSql(
-            """
+        if (Fixture.UsingJsonType)
+        {
+            AssertSql(
+                """
+SELECT JSON_VALUE([r].[RequiredRelated], '$.String' RETURNING nvarchar(max))
+FROM [RootEntity] AS [r]
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 SELECT JSON_VALUE([r].[RequiredRelated], '$.String')
 FROM [RootEntity] AS [r]
 """);
+        }
     }
 
     public override async Task Select_property_on_optional_related(QueryTrackingBehavior queryTrackingBehavior)
     {
         await base.Select_property_on_optional_related(queryTrackingBehavior);
 
-        AssertSql(
-            """
+        if (Fixture.UsingJsonType)
+        {
+            AssertSql(
+                """
+SELECT JSON_VALUE([r].[OptionalRelated], '$.String' RETURNING nvarchar(max))
+FROM [RootEntity] AS [r]
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 SELECT JSON_VALUE([r].[OptionalRelated], '$.String')
 FROM [RootEntity] AS [r]
 """);
+        }
     }
 
     public override async Task Select_value_type_property_on_null_related_throws(QueryTrackingBehavior queryTrackingBehavior)
     {
         await base.Select_value_type_property_on_null_related_throws(queryTrackingBehavior);
 
-        AssertSql(
-            """
+        if (Fixture.UsingJsonType)
+        {
+            AssertSql(
+                """
+SELECT JSON_VALUE([r].[OptionalRelated], '$.Int' RETURNING int)
+FROM [RootEntity] AS [r]
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 SELECT CAST(JSON_VALUE([r].[OptionalRelated], '$.Int') AS int)
 FROM [RootEntity] AS [r]
 """);
+        }
     }
 
     public override async Task Select_nullable_value_type_property_on_null_related(QueryTrackingBehavior queryTrackingBehavior)
     {
         await base.Select_nullable_value_type_property_on_null_related(queryTrackingBehavior);
 
-        AssertSql(
-            """
+        if (Fixture.UsingJsonType)
+        {
+            AssertSql(
+                """
+SELECT JSON_VALUE([r].[OptionalRelated], '$.Int' RETURNING int)
+FROM [RootEntity] AS [r]
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 SELECT CAST(JSON_VALUE([r].[OptionalRelated], '$.Int') AS int)
 FROM [RootEntity] AS [r]
 """);
+        }
     }
 
     #endregion Simple properties
