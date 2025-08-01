@@ -2702,7 +2702,7 @@ public class RelationalModelValidator : ModelValidator
                 var nonJsonType = mappedTypes.Where(x => !x.IsMappedToJson()).First();
 
                 // must be an owned collection (mapped to a separate table) that owns a JSON type
-                // issue #28441
+                // Issue #28441
                 throw new InvalidOperationException(
                     RelationalStrings.JsonEntityOwnedByNonJsonOwnedType(
                         nonJsonType.DisplayName(), table.DisplayName()));
@@ -2711,7 +2711,7 @@ public class RelationalModelValidator : ModelValidator
             var distinctRootTypes = nonOwnedTypes.Select(x => x.GetRootType()).Distinct().ToList();
             if (distinctRootTypes.Count > 1)
             {
-                // issue #28442
+                // Issue #28442
                 throw new InvalidOperationException(
                     RelationalStrings.JsonEntityWithTableSplittingIsNotSupported);
             }
@@ -2966,26 +2966,35 @@ public class RelationalModelValidator : ModelValidator
         foreach (var property in typeBase.GetProperties())
         {
             var jsonPropertyName = property.GetJsonPropertyName();
-            if (!string.IsNullOrEmpty(jsonPropertyName))
+            if (string.IsNullOrEmpty(jsonPropertyName))
             {
-                var columnNameAnnotation = property.FindAnnotation(RelationalAnnotationNames.ColumnName);
-                if (columnNameAnnotation != null && !string.IsNullOrEmpty((string?)columnNameAnnotation.Value))
-                {
-                    throw new InvalidOperationException(
-                        RelationalStrings.PropertyBothColumnNameAndJsonPropertyName(
-                            $"{typeBase.DisplayName()}.{property.Name}",
-                            (string)columnNameAnnotation.Value,
-                            jsonPropertyName));
-                }
+                continue;
+            }
 
-                if (property.TryGetDefaultValue(out var _))
-                {
-                    throw new InvalidOperationException(
-                        RelationalStrings.JsonEntityWithDefaultValueSetOnItsProperty(
-                            typeBase.DisplayName(), property.Name));
-                }
+            var columnNameAnnotation = property.FindAnnotation(RelationalAnnotationNames.ColumnName);
+            if (columnNameAnnotation != null && !string.IsNullOrEmpty((string?)columnNameAnnotation.Value))
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.PropertyBothColumnNameAndJsonPropertyName(
+                        $"{typeBase.DisplayName()}.{property.Name}",
+                        (string)columnNameAnnotation.Value,
+                        jsonPropertyName));
+            }
 
-                CheckUniqueness(jsonPropertyName, property.Name, typeBase, jsonPropertyNames);
+            if (property.TryGetDefaultValue(out var _))
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.JsonEntityWithDefaultValueSetOnItsProperty(
+                        typeBase.DisplayName(), property.Name));
+            }
+
+            CheckUniqueness(jsonPropertyName, property.Name, typeBase, jsonPropertyNames);
+
+            if (property.IsConcurrencyToken)
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.ConcurrencyTokenOnJsonMappedProperty(
+                        property.Name, typeBase.DisplayName()));
             }
         }
 
