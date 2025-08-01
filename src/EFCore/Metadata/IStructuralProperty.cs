@@ -4,22 +4,15 @@
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
 /// <summary>
-///     Represents a complex property of a structural type.
+///     Represents a structural property that refers to a type.
 /// </summary>
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
 /// </remarks>
-public interface IComplexProperty : IReadOnlyComplexProperty, IStructuralProperty
+public interface IStructuralProperty : IReadOnlyStructuralProperty, IPropertyBase
 {
     /// <summary>
-    ///     Gets the associated complex type.
+    ///     Gets the type that this structural property refers to.
     /// </summary>
-    new IComplexType ComplexType { get; }
-
-    /// <inheritdoc />
-    ITypeBase IStructuralProperty.TargetType
-    {
-        [DebuggerStepThrough]
-        get => ComplexType;
-    }
+    new ITypeBase TargetType { get; }
 }

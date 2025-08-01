@@ -375,6 +375,9 @@
   <data name="ComplexTypeNotificationChangeTracking" xml:space="preserve">
     <value>Complex type '{complexType}' uses change tracking strategy '{changeTrackingStrategy}', but complex types with notification change tracking are not supported. See https://github.com/dotnet/efcore/issues/36175 for more information.</value>
   </data>
+  <data name="ComplexTypeShadowProperty" xml:space="preserve">
+    <value>The shadow property '{complexType}.{property}' cannot be configured on the complex type '{complexType}'. Shadow properties are not supported on complex types. See https://github.com/dotnet/efcore/issues/35613 for more information.</value>
+  </data>
   <data name="ComplexTypesNotSupported" xml:space="preserve">
     <value>'{service}' doesn't currently support complex types.</value>
   </data>

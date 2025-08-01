@@ -18,8 +18,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 ///         examples.
 ///     </para>
 /// </remarks>
-public interface IMutableNavigationBase : IReadOnlyNavigationBase, IMutablePropertyBase
+public interface IMutableNavigationBase : IReadOnlyNavigationBase, IMutableStructuralProperty
 {
+    /// <summary>
+    ///     Gets the entity type that this navigation property will hold an instance(s) of.
+    /// </summary>
+    new IMutableEntityType TargetEntityType
+    {
+        [DebuggerStepThrough]
+        get => (IMutableEntityType)((IReadOnlyNavigationBase)this).TargetEntityType;
+    }
+
+    /// <inheritdoc />
+    IMutableTypeBase IMutableStructuralProperty.TargetType
+    {
+        [DebuggerStepThrough]
+        get => TargetEntityType;
+    }
+
     /// <summary>
     ///     Sets a value indicating whether this navigation should be eager loaded by default.
     /// </summary>

@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 ///         See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
 ///     </para>
 /// </remarks>
-public interface IConventionComplexProperty : IReadOnlyComplexProperty, IConventionPropertyBase
+public interface IConventionComplexProperty : IReadOnlyComplexProperty, IConventionStructuralProperty
 {
     /// <summary>
     ///     Gets the builder that can be used to configure this property.
@@ -44,4 +44,11 @@ public interface IConventionComplexProperty : IReadOnlyComplexProperty, IConvent
     /// </summary>
     /// <returns>The configuration source for <see cref="IReadOnlyProperty.IsNullable" />.</returns>
     ConfigurationSource? GetIsNullableConfigurationSource();
+
+    /// <inheritdoc />
+    IConventionTypeBase IConventionStructuralProperty.TargetType
+    {
+        [DebuggerStepThrough]
+        get => ComplexType;
+    }
 }

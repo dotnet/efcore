@@ -33,6 +33,18 @@ public class NavigationTest
             Assert.Throws<InvalidOperationException>(() => fk.SetPrincipalToDependent(nameof(B.ManyAs))).Message);
     }
 
+    [ConditionalFact]
+    public void Can_get_TargetType()
+    {
+        var foreignKey = CreateForeignKey();
+        var navigation = foreignKey.SetDependentToPrincipal(E.DeceptionProperty);
+
+        Assert.Same(navigation.TargetEntityType, ((IStructuralProperty)navigation).TargetType);
+        Assert.Same(navigation.TargetEntityType, ((IReadOnlyStructuralProperty)navigation).TargetType);
+        Assert.Same(navigation.TargetEntityType, ((IMutableStructuralProperty)navigation).TargetType);
+        Assert.Same(navigation.TargetEntityType, ((IConventionStructuralProperty)navigation).TargetType);
+    }
+
     private IMutableForeignKey CreateForeignKey()
     {
         IMutableModel model = new Model();

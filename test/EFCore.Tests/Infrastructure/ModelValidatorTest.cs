@@ -1226,6 +1226,23 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     }
 
     [ConditionalFact]
+    public virtual void Detects_shadow_properties_on_complex_types()
+    {
+        var modelBuilder = CreateConventionlessModelBuilder();
+        var model = modelBuilder.Model;
+        var entityType = model.AddEntityType(typeof(SampleEntity));
+        entityType.AddProperty(nameof(SampleEntity.Id), typeof(int));
+
+        var complexProperty = entityType.AddComplexProperty("ReferencedEntity", typeof(ReferencedEntity), typeof(ReferencedEntity));
+
+        complexProperty.ComplexType.AddProperty("ShadowProperty", typeof(string));
+
+        VerifyError(
+            CoreStrings.ComplexTypeShadowProperty("SampleEntity.ReferencedEntity#ReferencedEntity", "ShadowProperty"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
     public virtual void Detects_indexer_complex_properties()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -2023,7 +2040,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     {
         var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<B>().ComplexProperty(b => b.A)
-            .HasDiscriminator<byte>("Type");
+            .HasDiscriminator<int?>("P0");
 
         VerifyError(CoreStrings.NoDiscriminatorValue("B.A#A"), modelBuilder);
     }
@@ -2033,11 +2050,11 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     {
         var modelBuilder = CreateConventionModelBuilder();
         var complexPropertyBuilder = modelBuilder.Entity<B>().ComplexProperty(b => b.A);
-        complexPropertyBuilder.HasDiscriminator<byte>("Type");
+        complexPropertyBuilder.HasDiscriminator<int?>("P0");
 
         complexPropertyBuilder.Metadata.ComplexType.SetDiscriminatorValue("1");
 
-        VerifyError(CoreStrings.DiscriminatorValueIncompatible("1", "B.A#A", "byte"), modelBuilder);
+        VerifyError(CoreStrings.DiscriminatorValueIncompatible("1", "B.A#A", "int?"), modelBuilder);
     }
 
     [ConditionalFact]

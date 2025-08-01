@@ -166,6 +166,9 @@
   <data name="ComputedColumnSqlUnspecified" xml:space="preserve">
     <value>The computed column SQL has not been specified for the column '{table}.{column}'. Specify the SQL before using Entity Framework to create the database schema.</value>
   </data>
+  <data name="ConcurrencyTokenOnJsonMappedProperty" xml:space="preserve">
+    <value>The property '{property}' on '{type}' is configured as a concurrency token, but the type is mapped to JSON. Concurrency tokens are not supported on JSON-mapped types.</value>
+  </data>
   <data name="ConflictingAmbientTransaction" xml:space="preserve">
     <value>An ambient transaction has been detected. The ambient transaction needs to be completed before starting a new transaction on this connection.</value>
   </data>

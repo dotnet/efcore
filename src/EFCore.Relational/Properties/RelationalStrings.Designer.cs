@@ -144,6 +144,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 table, column);
 
         /// <summary>
+        ///     The property '{property}' on '{type}' is configured as a concurrency token, but the type is mapped to JSON. Concurrency tokens are not supported on JSON-mapped types.
+        /// </summary>
+        public static string ConcurrencyTokenOnJsonMappedProperty(object? property, object? type)
+            => string.Format(
+                GetString("ConcurrencyTokenOnJsonMappedProperty", nameof(property), nameof(type)),
+                property, type);
+
+        /// <summary>
         ///     An ambient transaction has been detected. The ambient transaction needs to be completed before starting a new transaction on this connection.
         /// </summary>
         public static string ConflictingAmbientTransaction

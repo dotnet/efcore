@@ -711,6 +711,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 complexType, changeTrackingStrategy);
 
         /// <summary>
+        ///     The shadow property '{complexType}.{property}' cannot be configured on the complex type '{complexType}'. Shadow properties are not supported on complex types. See https://github.com/dotnet/efcore/issues/35613 for more information.
+        /// </summary>
+        public static string ComplexTypeShadowProperty(object? complexType, object? property)
+            => string.Format(
+                GetString("ComplexTypeShadowProperty", nameof(complexType), nameof(property)),
+                complexType, property);
+
+        /// <summary>
         ///     '{service}' doesn't currently support complex types.
         /// </summary>
         public static string ComplexTypesNotSupported(object? service)

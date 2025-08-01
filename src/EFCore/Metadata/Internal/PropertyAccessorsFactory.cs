@@ -273,26 +273,10 @@ public class PropertyAccessorsFactory
         Expression indicesExpression,
         MemberInfo memberInfo,
         bool fromDeclaringType,
-        bool fromEntity)
+        bool fromEntity,
+        bool addNullCheck = true)
     {
         Check.DebugAssert(!fromEntity || !fromDeclaringType, "fromEntity and fromDeclaringType can't both be true");
-
-        if (property?.IsIndexerProperty() == true)
-        {
-            Expression expression = Expression.MakeIndex(
-                instanceExpression, (PropertyInfo)memberInfo, [Expression.Constant(property.Name)]);
-
-            if (property.DeclaringType.IsPropertyBag)
-            {
-                expression = Expression.Condition(
-                    Expression.Call(
-                        instanceExpression, ContainsKeyMethod, [Expression.Constant(property.Name)]),
-                    expression,
-                    expression.Type.GetDefaultValueConstant());
-            }
-
-            return expression;
-        }
 
         if (!fromDeclaringType
             && property?.DeclaringType is IRuntimeComplexType complexType)
@@ -309,23 +293,47 @@ public class PropertyAccessorsFactory
                         indicesExpression,
                         complexProperty.GetMemberInfo(forMaterialization: false, forSet: false),
                         fromDeclaringType,
-                        fromEntity);
+                        fromEntity,
+                        addNullCheck);
                     break;
                 default:
-                    return instanceExpression.MakeMemberAccess(memberInfo);
-            }
-
-            if (!instanceExpression.Type.IsValueType
-                || instanceExpression.Type.IsNullableValueType())
-            {
-                return Expression.Condition(
-                    Expression.Equal(instanceExpression, Expression.Constant(null)),
-                    Expression.Default(memberInfo.GetMemberType()),
-                    instanceExpression.MakeMemberAccess(memberInfo));
+                    addNullCheck = false;
+                    break;
             }
         }
+        else
+        {
+            addNullCheck = false;
+        }
 
-        return instanceExpression.MakeMemberAccess(memberInfo);
+        Expression? memberAccess;
+        if (property?.IsIndexerProperty() == true)
+        {
+            memberAccess = Expression.MakeIndex(
+                instanceExpression, (PropertyInfo)memberInfo, [Expression.Constant(property.Name)]);
+
+            if (property.DeclaringType.IsPropertyBag)
+            {
+                memberAccess = Expression.Condition(
+                    Expression.Call(
+                        instanceExpression, ContainsKeyMethod, [Expression.Constant(property.Name)]),
+                    memberAccess,
+                    memberAccess.Type.GetDefaultValueConstant());
+            }
+        }
+        else
+        {
+            memberAccess = instanceExpression.MakeMemberAccess(memberInfo);
+        }
+
+        return !addNullCheck
+            || instanceExpression.Type.IsValueType
+                && !instanceExpression.Type.IsNullableValueType()
+            ? memberAccess
+            : Expression.Condition(
+                Expression.Equal(instanceExpression, Expression.Constant(null)),
+                Expression.Default(memberInfo.GetMemberType()),
+                memberAccess);
     }
 
     private static readonly MethodInfo ComplexCollectionNotInitializedMethod
