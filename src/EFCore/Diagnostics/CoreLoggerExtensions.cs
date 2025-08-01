@@ -2290,21 +2290,21 @@ public static class CoreLoggerExtensions
     }
 
     /// <summary>
-    ///     Logs for the <see cref="CoreEventId.ComplexTypePropertyChangeDetected" /> event.
+    ///     Logs for the <see cref="CoreEventId.ComplexElementPropertyChangeDetected" /> event.
     /// </summary>
     /// <param name="diagnostics">The diagnostics logger to use.</param>
     /// <param name="internalComplexEntry">The internal complex entry.</param>
     /// <param name="property">The property.</param>
     /// <param name="oldValue">The old value.</param>
     /// <param name="newValue">The new value.</param>
-    public static void ComplexTypePropertyChangeDetected(
+    public static void ComplexElementPropertyChangeDetected(
         this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
         InternalComplexEntry internalComplexEntry,
         IProperty property,
         object? oldValue,
         object? newValue)
     {
-        var definition = CoreResources.LogComplexTypePropertyChangeDetected(diagnostics);
+        var definition = CoreResources.LogComplexElementPropertyChangeDetected(diagnostics);
 
         if (diagnostics.ShouldLog(definition))
         {
@@ -2315,7 +2315,7 @@ public static class CoreLoggerExtensions
         {
             var eventData = new ComplexTypePropertyChangedEventData(
                 definition,
-                ComplexTypePropertyChangeDetected,
+                ComplexElementPropertyChangeDetected,
                 new ComplexElementEntry(internalComplexEntry),
                 property,
                 oldValue,
@@ -2325,7 +2325,7 @@ public static class CoreLoggerExtensions
         }
     }
 
-    private static string ComplexTypePropertyChangeDetected(EventDefinitionBase definition, EventData payload)
+    private static string ComplexElementPropertyChangeDetected(EventDefinitionBase definition, EventData payload)
     {
         var d = (EventDefinition<string, string>)definition;
         var p = (ComplexTypePropertyChangedEventData)payload;
@@ -2335,21 +2335,21 @@ public static class CoreLoggerExtensions
     }
 
     /// <summary>
-    ///     Logs for the <see cref="CoreEventId.ComplexTypePropertyChangeDetected" /> event.
+    ///     Logs for the <see cref="CoreEventId.ComplexElementPropertyChangeDetected" /> event.
     /// </summary>
     /// <param name="diagnostics">The diagnostics logger to use.</param>
     /// <param name="internalComplexEntry">The internal complex entry.</param>
     /// <param name="property">The property.</param>
     /// <param name="oldValue">The old value.</param>
     /// <param name="newValue">The new value.</param>
-    public static void ComplexTypePropertyChangeDetectedSensitive(
+    public static void ComplexElementPropertyChangeDetectedSensitive(
         this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
         InternalComplexEntry internalComplexEntry,
         IProperty property,
         object? oldValue,
         object? newValue)
     {
-        var definition = CoreResources.LogComplexTypePropertyChangeDetectedSensitive(diagnostics);
+        var definition = CoreResources.LogComplexElementPropertyChangeDetectedSensitive(diagnostics);
 
         if (diagnostics.ShouldLog(definition))
         {
@@ -2366,7 +2366,7 @@ public static class CoreLoggerExtensions
         {
             var eventData = new ComplexTypePropertyChangedEventData(
                 definition,
-                ComplexTypePropertyChangeDetectedSensitive,
+                ComplexElementPropertyChangeDetectedSensitive,
                 new ComplexElementEntry(internalComplexEntry),
                 property,
                 oldValue,
@@ -2376,7 +2376,7 @@ public static class CoreLoggerExtensions
         }
     }
 
-    private static string ComplexTypePropertyChangeDetectedSensitive(EventDefinitionBase definition, EventData payload)
+    private static string ComplexElementPropertyChangeDetectedSensitive(EventDefinitionBase definition, EventData payload)
     {
         var d = (EventDefinition<string, string, object?, object?, string>)definition;
         var p = (ComplexTypePropertyChangedEventData)payload;

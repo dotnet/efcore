@@ -141,15 +141,14 @@ public class ClrPropertySetterFactory : ClrAccessorFactory<IClrPropertySetter>
         return convertedParameter;
     }
 
-    private static Expression CreateSimplePropertyAssignment(MemberInfo memberInfo, IPropertyBase? propertyBase, Expression instanceParameter, Expression convertedParameter)
-    {
-        return propertyBase?.IsIndexerProperty() == true
+    private static Expression CreateSimplePropertyAssignment(
+        MemberInfo memberInfo, IPropertyBase? propertyBase, Expression instanceParameter, Expression convertedParameter)
+        => propertyBase?.IsIndexerProperty() == true
             ? Assign(
                 MakeIndex(
                     instanceParameter, (PropertyInfo)memberInfo, [Constant(propertyBase.Name)]),
                 convertedParameter)
             : MakeMemberAccess(instanceParameter, memberInfo).Assign(convertedParameter);
-    }
 
     private void CreateExpressionUsingContainingEntity<TRoot, TDeclaring, TValue>(
         MemberInfo memberInfo,
@@ -284,7 +283,8 @@ public class ClrPropertySetterFactory : ClrAccessorFactory<IClrPropertySetter>
             }
 
             var propertyMemberInfo = propertyBase.GetMemberInfo(forMaterialization: false, forSet: true);
-            statements.Add(MakeMemberAccess(previousLevel, propertyMemberInfo).Assign(convertedParameter));
+            statements.Add(CreateSimplePropertyAssignment(
+                propertyMemberInfo, propertyBase, previousLevel, convertedParameter));
 
             for (var i = 0; i <= chainCount - 1; i++)
             {
@@ -314,7 +314,8 @@ public class ClrPropertySetterFactory : ClrAccessorFactory<IClrPropertySetter>
                             indicesParameter,
                             complexMemberInfo,
                             fromDeclaringType: true,
-                            fromEntity: false);
+                            fromEntity: false,
+                            addNullCheck: false);
 
                         statements.Add(memberExpression.Assign(variables[chainCount - 1 - i]));
                     }

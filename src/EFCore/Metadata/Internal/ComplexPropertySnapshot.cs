@@ -120,7 +120,9 @@ public class ComplexPropertySnapshot
             }
         }
 
-        return MergeConfiguration(complexPropertyBuilder);
+        return complexPropertyBuilder.Metadata.IsCollection == ComplexProperty.IsCollection
+            ? MergeConfiguration(complexPropertyBuilder)
+            : complexPropertyBuilder;
     }
 
     private InternalComplexPropertyBuilder MergeConfiguration(InternalComplexPropertyBuilder complexPropertyBuilder)
