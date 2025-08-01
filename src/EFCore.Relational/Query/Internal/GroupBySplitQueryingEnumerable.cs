@@ -360,6 +360,19 @@ public class GroupBySplitQueryingEnumerable<TKey, TElement>
             {
                 _relationalQueryContext.Connection.ReturnCommand(_relationalCommand!);
                 _dataReader.Dispose();
+
+                if (_resultCoordinator != null)
+                {
+                    foreach (var dataReader in _resultCoordinator.DataReaders)
+                    {
+                        dataReader?.DataReader.Dispose();
+                    }
+
+                    _resultCoordinator.DataReaders.Clear();
+
+                    _resultCoordinator = null;
+                }
+
                 _dataReader = null;
                 _dbDataReader = null;
             }
@@ -526,20 +539,30 @@ public class GroupBySplitQueryingEnumerable<TKey, TElement>
             return false;
         }
 
-        public ValueTask DisposeAsync()
+        public async ValueTask DisposeAsync()
         {
-            if (_dataReader is not null)
+            if (_dataReader != null)
             {
                 _relationalQueryContext.Connection.ReturnCommand(_relationalCommand!);
+                await _dataReader.DisposeAsync().ConfigureAwait(false);
 
-                var dataReader = _dataReader;
+                if (_resultCoordinator != null)
+                {
+                    foreach (var dataReader in _resultCoordinator.DataReaders)
+                    {
+                        if (dataReader != null)
+                        {
+                            await dataReader.DataReader.DisposeAsync().ConfigureAwait(false);
+                        }
+                    }
+
+                    _resultCoordinator.DataReaders.Clear();
+                    _resultCoordinator = null;
+                }
+
                 _dataReader = null;
                 _dbDataReader = null;
-
-                return dataReader.DisposeAsync();
             }
-
-            return default;
         }
     }
 }
