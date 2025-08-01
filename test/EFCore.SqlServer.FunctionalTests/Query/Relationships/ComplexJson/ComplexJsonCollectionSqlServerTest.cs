@@ -120,9 +120,7 @@ WHERE (
 
     public override async Task Index_constant()
     {
-        // Complex collection indexing currently fails because SubqueryMemberPushdownExpressionVisitor moves the Int member access to before the
-        // ElementAt (making a Select()), this interferes with our translation. See #36335.
-        await Assert.ThrowsAsync<EqualException>(() => base.Index_constant());
+        await base.Index_constant();
 
         if (Fixture.UsingJsonType)
         {
@@ -139,16 +137,14 @@ WHERE JSON_VALUE([r].[RelatedCollection], '$[0]' RETURNING int) = 8
                 """
 SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
 FROM [RootEntity] AS [r]
-WHERE CAST(JSON_VALUE([r].[RelatedCollection], '$[0]') AS int) = 8
+WHERE CAST(JSON_VALUE([r].[RelatedCollection], '$[0].Int') AS int) = 8
 """);
         }
     }
 
     public override async Task Index_parameter()
     {
-        // Complex collection indexing currently fails because SubqueryMemberPushdownExpressionVisitor moves the Int member access to before the
-        // ElementAt (making a Select()), this interferes with our translation. See #36335.
-        await Assert.ThrowsAsync<EqualException>(() => base.Index_parameter());
+        await base.Index_parameter();
 
         if (Fixture.UsingJsonType)
         {
@@ -169,16 +165,14 @@ WHERE JSON_VALUE([r].[RelatedCollection], '$[' + CAST(@i AS nvarchar(max)) + ']'
 
 SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
 FROM [RootEntity] AS [r]
-WHERE CAST(JSON_VALUE([r].[RelatedCollection], '$[' + CAST(@i AS nvarchar(max)) + ']') AS int) = 8
+WHERE CAST(JSON_VALUE([r].[RelatedCollection], '$[' + CAST(@i AS nvarchar(max)) + '].Int') AS int) = 8
 """);
         }
     }
 
     public override async Task Index_column()
     {
-        // Complex collection indexing currently fails because SubqueryMemberPushdownExpressionVisitor moves the Int member access to before the
-        // ElementAt (making a Select()), this interferes with our translation. See #36335.
-        await Assert.ThrowsAsync<EqualException>(() => base.Index_column());
+        await base.Index_column();
 
         if (Fixture.UsingJsonType)
         {
@@ -195,7 +189,7 @@ WHERE JSON_VALUE([r].[RelatedCollection], '$[' + CAST([r].[Id] - 1 AS nvarchar(m
                 """
 SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
 FROM [RootEntity] AS [r]
-WHERE CAST(JSON_VALUE([r].[RelatedCollection], '$[' + CAST([r].[Id] - 1 AS nvarchar(max)) + ']') AS int) = 8
+WHERE CAST(JSON_VALUE([r].[RelatedCollection], '$[' + CAST([r].[Id] - 1 AS nvarchar(max)) + '].Int') AS int) = 8
 """);
         }
     }
@@ -219,7 +213,7 @@ WHERE JSON_VALUE([r].[RelatedCollection], '$[9999]' RETURNING int) = 8
                 """
 SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
 FROM [RootEntity] AS [r]
-WHERE CAST(JSON_VALUE([r].[RelatedCollection], '$[9999]') AS int) = 8
+WHERE CAST(JSON_VALUE([r].[RelatedCollection], '$[9999].Int') AS int) = 8
 """);
         }
     }

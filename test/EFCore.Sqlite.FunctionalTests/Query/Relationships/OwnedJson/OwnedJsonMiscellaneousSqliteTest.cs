@@ -4,6 +4,4 @@
 namespace Microsoft.EntityFrameworkCore.Query.Relationships.OwnedJson;
 
 public class OwnedJsonMiscellaneousSqliteTest(OwnedJsonSqliteFixture fixture, ITestOutputHelper testOutputHelper)
-    : OwnedJsonMiscellaneousRelationalTestBase<OwnedJsonSqliteFixture>(fixture, testOutputHelper)
-{
-}
+    : OwnedJsonMiscellaneousRelationalTestBase<OwnedJsonSqliteFixture>(fixture, testOutputHelper);
