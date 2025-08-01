@@ -3049,6 +3049,62 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             => throw new NotImplementedException();
 
         [ConditionalFact]
+        public void Complex_property_container_column_type_is_used_in_relational_model()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+            
+            modelBuilder.Entity<EntityWithComplexProperty>(
+                eb =>
+                {
+                    eb.ComplexProperty(e => e.ComplexProperty, cb =>
+                    {
+                        cb.ToJson("complex_data");
+                        cb.HasColumnType("some_json_mapping");
+                    });
+                });
+
+            var model = Finalize(modelBuilder);
+
+            var entityType = model.Model.FindEntityType(typeof(EntityWithComplexProperty));
+            var complexProperty = entityType.GetComplexProperties().Single();
+            var complexType = complexProperty.ComplexType;
+
+            Assert.Equal("some_json_mapping", complexType.GetContainerColumnType());
+
+            var table = entityType.GetTableMappings().Single().Table;
+            var column = table.Columns.Single(c => c.Name == "complex_data");
+            Assert.Equal("some_json_mapping", column.StoreType);
+        }
+
+        [ConditionalFact]
+        public void Complex_collection_container_column_type_is_used_in_relational_model()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+            
+            modelBuilder.Entity<EntityWithComplexCollection>(
+                eb =>
+                {
+                    eb.ComplexCollection(e => e.ComplexCollection, cb =>
+                    {
+                        cb.ToJson("collection_data");
+                        cb.HasColumnType("some_json_mapping");
+                    });
+                });
+
+            var model = Finalize(modelBuilder);
+
+            var entityType = model.Model.FindEntityType(typeof(EntityWithComplexCollection));
+            var complexProperty = entityType.GetComplexProperties().Single();
+            var complexType = complexProperty.ComplexType;
+
+            Assert.Equal("some_json_mapping", complexType.GetContainerColumnType());
+
+            var table = entityType.GetTableMappings().Single().Table;
+            var column = table.Columns.Single(c => c.Name == "collection_data");
+            Assert.Equal("some_json_mapping", column.StoreType);
+        }
+
+        [ConditionalFact]
         public void Can_use_relational_model_with_functions()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -3194,6 +3250,50 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.False(defaultMapping2.Table.Columns.Single().IsNullable);
         }
 
+        [ConditionalFact]
+        public void Container_column_type_is_used_for_complex_property_json_column()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+            
+            modelBuilder.Entity<EntityWithComplexProperty>()
+                .ComplexProperty(e => e.ComplexProperty, b =>
+                {
+                    b.ToJson("complex_data");
+                    b.HasColumnType("some_json_mapping");
+                });
+
+            var model = modelBuilder.FinalizeModel();
+            var relationalModel = model.GetRelationalModel();
+
+            var table = relationalModel.Tables.Single();
+            var jsonColumn = table.Columns.Single(c => c.Name == "complex_data");
+            
+            Assert.Equal("some_json_mapping", jsonColumn.StoreType);
+            Assert.IsType<JsonColumn>(jsonColumn);
+        }
+
+        [ConditionalFact]
+        public void Container_column_type_is_used_for_complex_collection_json_column()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+            
+            modelBuilder.Entity<EntityWithComplexCollection>()
+                .ComplexCollection(e => e.ComplexCollection, b =>
+                {
+                    b.ToJson("collection_data");
+                    b.HasColumnType("some_json_mapping");
+                });
+
+            var model = modelBuilder.FinalizeModel();
+            var relationalModel = model.GetRelationalModel();
+
+            var table = relationalModel.Tables.Single();
+            var jsonColumn = table.Columns.Single(c => c.Name == "collection_data");
+            
+            Assert.Equal("some_json_mapping", jsonColumn.StoreType);
+            Assert.IsType<JsonColumn>(jsonColumn);
+        }
+
         private static IRelationalModel Finalize(TestHelpers.TestModelBuilder modelBuilder)
             => modelBuilder.FinalizeModel(designTime: true).GetRelationalModel();
 
@@ -3298,6 +3398,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             public string Street { get; set; }
             public string City { get; set; }
+        }
+
+        private class EntityWithComplexProperty
+        {
+            public int Id { get; set; }
+            public ComplexData ComplexProperty { get; set; }
+        }
+
+        private class EntityWithComplexCollection
+        {
+            public int Id { get; set; }
+            public List<ComplexData> ComplexCollection { get; set; }
+        }
+
+        private class ComplexData
+        {
+            public string Value { get; set; }
+            public int Number { get; set; }
         }
     }
 }

@@ -72,4 +72,31 @@ public static class RelationalComplexPropertyBuilderExtensions
         string? name)
         where TComplex : notnull
         => (ComplexPropertyBuilder<TComplex>)HasJsonPropertyName((ComplexPropertyBuilder)complexPropertyBuilder, name);
+
+    /// <summary>
+    ///     Configures the column type for the JSON column that stores the complex property.
+    /// </summary>
+    /// <param name="complexPropertyBuilder">The builder for the complex property being configured.</param>
+    /// <param name="columnType">The database type for the column, or <see langword="null" /> to use the database default.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public static ComplexPropertyBuilder HasColumnType(
+        this ComplexPropertyBuilder complexPropertyBuilder,
+        string? columnType)
+    {
+        complexPropertyBuilder.Metadata.ComplexType.SetContainerColumnType(columnType);
+
+        return complexPropertyBuilder;
+    }
+
+    /// <summary>
+    ///     Configures the column type for the JSON column that stores the complex property.
+    /// </summary>
+    /// <param name="complexPropertyBuilder">The builder for the complex property being configured.</param>
+    /// <param name="columnType">The database type for the column, or <see langword="null" /> to use the database default.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public static ComplexPropertyBuilder<TComplex> HasColumnType<TComplex>(
+        this ComplexPropertyBuilder<TComplex> complexPropertyBuilder,
+        string? columnType)
+        where TComplex : notnull
+        => (ComplexPropertyBuilder<TComplex>)HasColumnType((ComplexPropertyBuilder)complexPropertyBuilder, columnType);
 }
