@@ -772,6 +772,10 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     /// </summary>
     /// <param name="navigationName">The name of the navigation property to be configured.</param>
     /// <returns>An object that can be used to configure the navigation property.</returns>
+        /// <remarks>
+    ///     Navigation properties must first be added to the entity type using methods like HasOne, HasMany,
+    ///     or OwnsOne/OwnsMany before they can be configured with this method.
+    /// </remarks>
     public virtual NavigationBuilder Navigation(string navigationName)
         => new(Builder.Navigation(Check.NotEmpty(navigationName)));
 
