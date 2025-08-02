@@ -253,8 +253,8 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture>(TFixture fix
                 .OrderBy(c => c.CustomerID)
                 .Take(1)
                 .Union(ss.Set<Customer>().Where(c => c.City == "Mannheim"))
-                .Take(1)
-                .OrderBy(c => c.CustomerID),
+                .OrderBy(c => c.CustomerID)
+                .Take(1),
             assertOrder: true);
 
     [ConditionalTheory]
