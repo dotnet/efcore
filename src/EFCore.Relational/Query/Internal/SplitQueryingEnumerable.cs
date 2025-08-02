@@ -281,6 +281,7 @@ public class SplitQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, I
             {
                 _relationalQueryContext.Connection.ReturnCommand(_relationalCommand!);
                 _dataReader.Dispose();
+
                 if (_resultCoordinator != null)
                 {
                     foreach (var dataReader in _resultCoordinator.DataReaders)
@@ -430,6 +431,7 @@ public class SplitQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, I
             {
                 _relationalQueryContext.Connection.ReturnCommand(_relationalCommand!);
                 await _dataReader.DisposeAsync().ConfigureAwait(false);
+
                 if (_resultCoordinator != null)
                 {
                     foreach (var dataReader in _resultCoordinator.DataReaders)
