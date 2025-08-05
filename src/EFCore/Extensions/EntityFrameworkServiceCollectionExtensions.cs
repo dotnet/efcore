@@ -216,7 +216,7 @@ public static class EntityFrameworkServiceCollectionExtensions
         where TContextImplementation : DbContext, TContextService
         where TContextService : class
     {
-        Check.NotNull(optionsAction, nameof(optionsAction));
+        Check.NotNull(optionsAction);
 
         return AddDbContextPool<TContextService, TContextImplementation>(serviceCollection, (_, ob) => optionsAction(ob), poolSize);
     }
@@ -333,7 +333,7 @@ public static class EntityFrameworkServiceCollectionExtensions
         where TContextImplementation : DbContext, TContextService
         where TContextService : class
     {
-        Check.NotNull(optionsAction, nameof(optionsAction));
+        Check.NotNull(optionsAction);
 
         AddPoolingOptions<TContextImplementation>(serviceCollection, optionsAction, poolSize);
 
@@ -461,13 +461,6 @@ public static class EntityFrameworkServiceCollectionExtensions
     ///         For applications that don't use dependency injection, consider creating <see cref="DbContext" />
     ///         instances directly with its constructor. The <see cref="DbContext.OnConfiguring" /> method can then be
     ///         overridden to configure a connection string and other options.
-    ///     </para>
-    ///     <para>
-    ///         Entity Framework Core does not support multiple parallel operations being run on the same <see cref="DbContext" />
-    ///         instance. This includes both parallel execution of async queries and any explicit concurrent use from multiple threads.
-    ///         Therefore, always await async calls immediately, or use separate DbContext instances for operations that execute
-    ///         in parallel. See <see href="https://aka.ms/efcore-docs-threading">Avoiding DbContext threading issues</see> for more information
-    ///         and examples.
     ///     </para>
     ///     <para>
     ///         Entity Framework Core does not support multiple parallel operations being run on the same <see cref="DbContext" />
@@ -919,7 +912,7 @@ public static class EntityFrameworkServiceCollectionExtensions
         serviceCollection.TryAdd(
             new ServiceDescriptor(
                 typeof(TContext),
-                typeof(TContext),
+                sp => sp.GetRequiredService<IDbContextFactory<TContext>>().CreateDbContext(),
                 lifetime == ServiceLifetime.Transient
                     ? ServiceLifetime.Transient
                     : ServiceLifetime.Scoped));
@@ -973,7 +966,7 @@ public static class EntityFrameworkServiceCollectionExtensions
             int poolSize = DbContextPool<DbContext>.DefaultPoolSize)
         where TContext : DbContext
     {
-        Check.NotNull(optionsAction, nameof(optionsAction));
+        Check.NotNull(optionsAction);
 
         return AddPooledDbContextFactory<TContext>(serviceCollection, (_, ob) => optionsAction(ob), poolSize);
     }
@@ -1024,13 +1017,14 @@ public static class EntityFrameworkServiceCollectionExtensions
             int poolSize = DbContextPool<DbContext>.DefaultPoolSize)
         where TContext : DbContext
     {
-        Check.NotNull(optionsAction, nameof(optionsAction));
+        Check.NotNull(optionsAction);
 
         AddPoolingOptions<TContext>(serviceCollection, optionsAction, poolSize);
 
         serviceCollection.TryAddSingleton<IDbContextPool<TContext>, DbContextPool<TContext>>();
         serviceCollection.TryAddSingleton<IDbContextFactory<TContext>>(
             sp => new PooledDbContextFactory<TContext>(sp.GetRequiredService<IDbContextPool<TContext>>()));
+        serviceCollection.TryAddScoped<TContext>(sp => sp.GetRequiredService<IDbContextFactory<TContext>>().CreateDbContext());
 
         return serviceCollection;
     }

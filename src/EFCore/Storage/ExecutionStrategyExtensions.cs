@@ -27,7 +27,7 @@ public static class ExecutionStrategyExtensions
         this IExecutionStrategy strategy,
         Action operation)
     {
-        Check.NotNull(operation, nameof(operation));
+        Check.NotNull(operation);
 
         strategy.Execute(
             operation, operationScoped =>
@@ -54,7 +54,7 @@ public static class ExecutionStrategyExtensions
         this IExecutionStrategy strategy,
         Func<TResult> operation)
     {
-        Check.NotNull(operation, nameof(operation));
+        Check.NotNull(operation);
 
         return strategy.Execute(operation, operationScoped => operationScoped());
     }
@@ -75,7 +75,7 @@ public static class ExecutionStrategyExtensions
         TState state,
         Action<TState> operation)
     {
-        Check.NotNull(operation, nameof(operation));
+        Check.NotNull(operation);
 
         strategy.Execute(
             new { operation, state }, s =>
@@ -103,7 +103,7 @@ public static class ExecutionStrategyExtensions
         this IExecutionStrategy strategy,
         Func<Task> operation)
     {
-        Check.NotNull(operation, nameof(operation));
+        Check.NotNull(operation);
 
         return strategy.ExecuteAsync(
             operation, async (operationScoped, _) =>
@@ -137,7 +137,7 @@ public static class ExecutionStrategyExtensions
         Func<CancellationToken, Task> operation,
         CancellationToken cancellationToken)
     {
-        Check.NotNull(operation, nameof(operation));
+        Check.NotNull(operation);
 
         return strategy.ExecuteAsync(
             operation, async (operationScoped, ct) =>
@@ -170,7 +170,7 @@ public static class ExecutionStrategyExtensions
         this IExecutionStrategy strategy,
         Func<Task<TResult>> operation)
     {
-        Check.NotNull(operation, nameof(operation));
+        Check.NotNull(operation);
 
         return strategy.ExecuteAsync(operation, (operationScoped, _) => operationScoped(), default);
     }
@@ -204,7 +204,7 @@ public static class ExecutionStrategyExtensions
         Func<CancellationToken, Task<TResult>> operation,
         CancellationToken cancellationToken)
     {
-        Check.NotNull(operation, nameof(operation));
+        Check.NotNull(operation);
 
         return strategy.ExecuteAsync(operation, (operationScoped, ct) => operationScoped(ct), cancellationToken);
     }
@@ -230,7 +230,7 @@ public static class ExecutionStrategyExtensions
         TState state,
         Func<TState, Task> operation)
     {
-        Check.NotNull(operation, nameof(operation));
+        Check.NotNull(operation);
 
         return strategy.ExecuteAsync(
             new { operation, state }, async (t, _) =>
@@ -267,7 +267,7 @@ public static class ExecutionStrategyExtensions
         Func<TState, CancellationToken, Task> operation,
         CancellationToken cancellationToken)
     {
-        Check.NotNull(operation, nameof(operation));
+        Check.NotNull(operation);
 
         return strategy.ExecuteAsync(
             new { operation, state }, async (t, ct) =>
@@ -303,7 +303,7 @@ public static class ExecutionStrategyExtensions
         TState state,
         Func<TState, Task<TResult>> operation)
     {
-        Check.NotNull(operation, nameof(operation));
+        Check.NotNull(operation);
 
         return strategy.ExecuteAsync(
             new { operation, state }, (t, _) => t.operation(t.state), default);
@@ -776,10 +776,10 @@ public static class ExecutionStrategyExtensions
         Func<DbContext, IDbContextTransaction> beginTransaction)
         => strategy.Execute(
             new ExecutionState<TState, TResult>(
-                Check.NotNull(operation, nameof(operation)), Check.NotNull(verifySucceeded, nameof(verifySucceeded)), state),
+                Check.NotNull(operation), Check.NotNull(verifySucceeded), state),
             (c, s) =>
             {
-                Check.NotNull(beginTransaction, nameof(beginTransaction));
+                Check.NotNull(beginTransaction);
                 using (var transaction = beginTransaction(c))
                 {
                     s.CommitFailed = false;
@@ -833,10 +833,10 @@ public static class ExecutionStrategyExtensions
         CancellationToken cancellationToken = default)
         => strategy.ExecuteAsync(
             new ExecutionStateAsync<TState, TResult>(
-                Check.NotNull(operation, nameof(operation)), Check.NotNull(verifySucceeded, nameof(verifySucceeded)), state),
+                Check.NotNull(operation), Check.NotNull(verifySucceeded), state),
             async (c, s, ct) =>
             {
-                Check.NotNull(beginTransaction, nameof(beginTransaction));
+                Check.NotNull(beginTransaction);
                 var transaction = await beginTransaction(c, cancellationToken).ConfigureAwait(false);
                 await using var _ = transaction.ConfigureAwait(false);
 

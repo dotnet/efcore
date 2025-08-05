@@ -49,12 +49,12 @@ public class MemberClassifier : IMemberClassifier
             ? CoreAnnotationNames.InverseNavigations
             : CoreAnnotationNames.InverseNavigationsNoAttribute;
         if (entityType.FindAnnotation(candidatesAnnotationName)?.Value
-            is OrderedDictionary<PropertyInfo, (Type Type, bool? ShouldBeOwned)> navigationCandidates)
+            is Utilities.OrderedDictionary<PropertyInfo, (Type Type, bool? ShouldBeOwned)> navigationCandidates)
         {
             return navigationCandidates;
         }
 
-        navigationCandidates = new OrderedDictionary<PropertyInfo, (Type Type, bool? ShouldBeOwned)>();
+        navigationCandidates = new Utilities.OrderedDictionary<PropertyInfo, (Type Type, bool? ShouldBeOwned)>();
 
         var model = entityType.Model;
         if (model.FindAnnotation(inverseAnnotationName)?.Value
@@ -218,7 +218,7 @@ public class MemberClassifier : IMemberClassifier
         }
 
         var targetType = memberInfo.GetMemberType();
-        if (targetType.TryGetSequenceType() is Type sequenceType
+        if (targetType.TryGetElementType(typeof(IList<>)) is Type sequenceType
             && IsCandidateComplexType(sequenceType, model, out explicitlyConfigured))
         {
             elementType = sequenceType;
@@ -230,8 +230,9 @@ public class MemberClassifier : IMemberClassifier
 
     private static bool IsCandidateComplexType(Type targetType, IConventionModel model, out bool explicitlyConfigured)
     {
-        if (targetType.IsGenericType
-            && targetType.GetGenericTypeDefinition() == typeof(Dictionary<,>))
+        if (!targetType.IsValidComplexType()
+            || (targetType.IsGenericType
+                && targetType.GetGenericTypeDefinition() == typeof(Dictionary<,>)))
         {
             explicitlyConfigured = false;
             return false;

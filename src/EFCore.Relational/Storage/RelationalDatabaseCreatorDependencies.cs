@@ -54,7 +54,8 @@ public sealed record RelationalDatabaseCreatorDependencies
         IExecutionStrategy executionStrategy,
         ICurrentDbContext currentContext,
         IDbContextOptions contextOptions,
-        IRelationalCommandDiagnosticsLogger commandLogger)
+        IRelationalCommandDiagnosticsLogger commandLogger,
+        IExceptionDetector exceptionDetector)
     {
         Connection = connection;
         ModelDiffer = modelDiffer;
@@ -65,6 +66,7 @@ public sealed record RelationalDatabaseCreatorDependencies
         CurrentContext = currentContext;
         ContextOptions = contextOptions;
         CommandLogger = commandLogger;
+        ExceptionDetector = exceptionDetector;
     }
 
     /// <summary>
@@ -111,4 +113,9 @@ public sealed record RelationalDatabaseCreatorDependencies
     ///     Contains the <see cref="DbContext" /> currently in use.
     /// </summary>
     public ICurrentDbContext CurrentContext { get; init; }
+
+    /// <summary>
+    /// Gets the exception detector.
+    /// </summary>
+    public IExceptionDetector ExceptionDetector { get; init; }
 }

@@ -88,6 +88,9 @@ public class TestRelationalTypeMappingSource(
     private static readonly RelationalTypeMapping _defaultTimeSpanMapping
         = new TimeSpanTypeMapping("default_timespan_mapping");
 
+    private static readonly RelationalTypeMapping _jsonMapping
+        = new StringTypeMapping("some_json_mapping", DbType.String);
+
     private readonly IReadOnlyDictionary<Type, RelationalTypeMapping> _simpleMappings
         = new Dictionary<Type, RelationalTypeMapping>
         {
@@ -115,7 +118,8 @@ public class TestRelationalTypeMappingSource(
             { "some_string(max)", _string },
             { "some_binary(max)", _binary },
             { "money", _defaultDecimalMapping },
-            { "dec", _defaultDecimalMapping }
+            { "dec", _defaultDecimalMapping },
+            { "some_json_mapping", _jsonMapping }
         };
 
     private class TestStringTypeMapping(

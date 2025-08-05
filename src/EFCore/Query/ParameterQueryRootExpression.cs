@@ -15,47 +15,83 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public class ParameterQueryRootExpression : QueryRootExpression
 {
     /// <summary>
-    ///     The parameter expression representing the values for this query root.
+    ///     The query parameter expression representing the values for this query root.
     /// </summary>
-    public virtual ParameterExpression ParameterExpression { get; }
+    public virtual QueryParameterExpression QueryParameterExpression { get; }
 
     /// <summary>
     ///     Creates a new instance of the <see cref="ParameterQueryRootExpression" /> class.
     /// </summary>
     /// <param name="asyncQueryProvider">The query provider associated with this query root.</param>
     /// <param name="elementType">The values that this query root represents.</param>
-    /// <param name="parameterExpression">The parameter expression representing the values for this query root.</param>
+    /// <param name="queryParameterExpression">The parameter expression representing the values for this query root.</param>
     public ParameterQueryRootExpression(
         IAsyncQueryProvider asyncQueryProvider,
         Type elementType,
-        ParameterExpression parameterExpression)
+        QueryParameterExpression queryParameterExpression)
         : base(asyncQueryProvider, elementType)
-        => ParameterExpression = parameterExpression;
+        => QueryParameterExpression = queryParameterExpression;
 
     /// <summary>
     ///     Creates a new instance of the <see cref="ParameterQueryRootExpression" /> class.
     /// </summary>
     /// <param name="elementType">The values that this query root represents.</param>
-    /// <param name="parameterExpression">The parameter expression representing the values for this query root.</param>
-    public ParameterQueryRootExpression(Type elementType, ParameterExpression parameterExpression)
+    /// <param name="queryParameterExpression">The query parameter expression representing the values for this query root.</param>
+    public ParameterQueryRootExpression(Type elementType, QueryParameterExpression queryParameterExpression)
         : base(elementType)
-        => ParameterExpression = parameterExpression;
+        => QueryParameterExpression = queryParameterExpression;
 
     /// <inheritdoc />
     public override Expression DetachQueryProvider()
-        => new ParameterQueryRootExpression(ElementType, ParameterExpression);
+        => new ParameterQueryRootExpression(ElementType, QueryParameterExpression);
 
     /// <inheritdoc />
     protected override Expression VisitChildren(ExpressionVisitor visitor)
     {
-        var parameterExpression = (ParameterExpression)visitor.Visit(ParameterExpression);
+        var queryParameter = (QueryParameterExpression)visitor.Visit(QueryParameterExpression);
 
-        return parameterExpression == ParameterExpression
+        return queryParameter == QueryParameterExpression
             ? this
-            : new ParameterQueryRootExpression(ElementType, parameterExpression);
+            : new ParameterQueryRootExpression(ElementType, queryParameter);
     }
 
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)
-        => expressionPrinter.Visit(ParameterExpression);
+        => expressionPrinter.Visit(QueryParameterExpression);
+
+    /// <summary>
+    ///     This constructor has been obsoleted, use the constructor accepting QueryParameterExpression instead.
+    /// </summary>
+    [Obsolete("Use the constructor accepting QueryParameterExpression instead.")]
+    public ParameterQueryRootExpression(
+        IAsyncQueryProvider asyncQueryProvider,
+        Type elementType,
+        ParameterExpression parameterExpression)
+        : this(
+            asyncQueryProvider,
+            elementType,
+            new QueryParameterExpression(
+                parameterExpression.Name ?? throw new ArgumentException($"{parameterExpression} must have a name"),
+                parameterExpression.Type))
+    {
+    }
+
+    /// <summary>
+    ///     This constructor has been obsoleted, use the constructor accepting QueryParameterExpression instead.
+    /// </summary>
+    [Obsolete("Use the constructor accepting QueryParameterExpression instead.")]
+    public ParameterQueryRootExpression(Type elementType, ParameterExpression parameterExpression)
+        : this(
+            elementType,
+            new QueryParameterExpression(
+                parameterExpression.Name ?? throw new ArgumentException($"{parameterExpression} must have a name"),
+                parameterExpression.Type))
+    {
+    }
+
+    /// <summary>
+    ///     This constructor has been obsoleted, use QueryParameterExpression instead.
+    /// </summary>
+    [Obsolete("Use QueryParameterExpression instead.")]
+    public virtual ParameterExpression ParameterExpression => Parameter(QueryParameterExpression.Type, QueryParameterExpression.Name);
 }

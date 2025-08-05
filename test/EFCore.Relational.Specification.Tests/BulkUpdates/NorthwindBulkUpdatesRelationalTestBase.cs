@@ -61,11 +61,6 @@ WHERE [OrderID] < 10300"));
             RelationalStrings.NoSetPropertyInvocation,
             () => base.Update_without_property_to_set_throws(async));
 
-    public override Task Update_with_invalid_lambda_throws(bool async)
-        => AssertTranslationFailed(
-            RelationalStrings.InvalidArgumentToExecuteUpdate,
-            () => base.Update_with_invalid_lambda_throws(async));
-
     public override Task Update_with_invalid_lambda_in_set_property_throws(bool async)
         => AssertTranslationFailed(
             RelationalStrings.InvalidPropertyInSetProperty(
@@ -74,7 +69,7 @@ WHERE [OrderID] < 10300"));
 
     public override Task Update_multiple_tables_throws(bool async)
         => AssertTranslationFailed(
-            RelationalStrings.MultipleTablesInExecuteUpdate("c => c.Customer.ContactName", "c => c.e.OrderDate"),
+            RelationalStrings.MultipleTablesInExecuteUpdate("c => c.e.OrderDate", "c => c.Customer.ContactName"),
             () => base.Update_multiple_tables_throws(async));
 
     public override Task Update_unmapped_property_throws(bool async)

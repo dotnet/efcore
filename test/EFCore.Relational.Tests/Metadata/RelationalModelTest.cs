@@ -199,13 +199,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var orderMapping = orderType.GetDefaultMappings().Single();
             Assert.Null(orderMapping.IncludesDerivedTypes);
             Assert.Equal(
-                new[] { nameof(Order.Id), nameof(Order.AlternateId), nameof(Order.CustomerId), nameof(Order.OrderDate) },
+                [nameof(Order.Id), nameof(Order.AlternateId), nameof(Order.CustomerId), nameof(Order.OrderDate)],
                 orderMapping.ColumnMappings.Select(m => m.Property.Name));
 
             var ordersTable = orderMapping.Table;
-            Assert.Equal(new[] { nameof(Order) }, ordersTable.EntityTypeMappings.Select(m => m.TypeBase.DisplayName()));
+            Assert.Equal([nameof(Order), nameof(OrderDetails)], ordersTable.EntityTypeMappings.Select(m => m.TypeBase.DisplayName()));
             Assert.Equal(
-                new[] { nameof(Order.AlternateId), nameof(Order.CustomerId), nameof(Order.Id), "OrderDate" },
+                [nameof(OrderDetails.Active), nameof(Order.AlternateId), nameof(Order.CustomerId), nameof(Order.Id), nameof(OrderDetails.OrderDate), nameof(OrderDetails.OrderId)],
                 ordersTable.Columns.Select(m => m.Name));
             Assert.Equal("Microsoft.EntityFrameworkCore.Metadata.RelationalModelTest+Order", ordersTable.Name);
             Assert.Null(ordersTable.Schema);
@@ -225,24 +225,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var orderDetailsOwnership = orderType.FindNavigation(nameof(Order.Details)).ForeignKey;
             var orderDetailsType = orderDetailsOwnership.DeclaringEntityType;
             var orderDetailsTable = orderDetailsType.GetDefaultMappings().Single().Table;
-            Assert.NotEqual(ordersTable, orderDetailsTable);
+            Assert.Same(ordersTable, orderDetailsTable);
             Assert.Empty(ordersTable.GetReferencingRowInternalForeignKeys(orderType));
             Assert.Equal(
                 RelationalStrings.TableNotMappedEntityType(nameof(SpecialCustomer), ordersTable.Name),
                 Assert.Throws<InvalidOperationException>(
                     () => ordersTable.IsOptional(specialCustomerType)).Message);
 
+            var orderDetailsDate = orderDetailsType.FindProperty(nameof(OrderDetails.OrderDate));
             var orderDateColumn = orderDateMapping.Column;
             Assert.Same(orderDateColumn, ordersTable.FindColumn("OrderDate"));
             Assert.Same(orderDateColumn, ordersTable.FindColumn(orderDate));
-            Assert.Equal(new[] { orderDate }, orderDateColumn.PropertyMappings.Select(m => m.Property));
+            Assert.Equal([orderDate, orderDetailsDate], orderDateColumn.PropertyMappings.Select(m => m.Property));
+            Assert.Equal([orderDate, orderDetailsDate], orderDetailsTable.FindColumn("OrderDate").PropertyMappings.Select(m => m.Property));
             Assert.Equal("OrderDate", orderDateColumn.Name);
             Assert.Equal("default_datetime_mapping", orderDateColumn.StoreType);
             Assert.False(orderDateColumn.IsNullable);
             Assert.Same(ordersTable, orderDateColumn.Table);
-
-            var orderDetailsDate = orderDetailsType.FindProperty(nameof(OrderDetails.OrderDate));
-            Assert.Equal(new[] { orderDetailsDate }, orderDetailsTable.FindColumn("OrderDate").PropertyMappings.Select(m => m.Property));
 
             var customerTable = customerType.GetDefaultMappings().Last().Table;
             Assert.False(customerTable.IsOptional(customerType));
@@ -271,7 +270,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
                 var specialCustomerTable = specialCustomerType.GetDefaultMappings().Last().Table;
                 Assert.Null(specialCustomerTable.Schema);
-                Assert.Equal(4, specialCustomerTable.Columns.Count());
+                Assert.Equal(7, specialCustomerTable.Columns.Count());
 
                 Assert.Null(
                     specialCustomerTable.EntityTypeMappings.Single(m => m.TypeBase == specialCustomerType).IsSharedTablePrincipal);
@@ -299,10 +298,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     Assert.True(specialCustomerTableMapping.IncludesDerivedTypes);
                     Assert.Same(customerTable, specialCustomerTable);
 
-                    Assert.Equal(5, specialCustomerTable.EntityTypeMappings.Count());
+                    Assert.Equal(6, specialCustomerTable.EntityTypeMappings.Count());
                     Assert.All(specialCustomerTable.EntityTypeMappings, t => Assert.Null(t.IsSharedTablePrincipal));
 
-                    Assert.Equal(10, specialCustomerTable.Columns.Count());
+                    Assert.Equal(13, specialCustomerTable.Columns.Count());
 
                     Assert.True(specialtyColumn.IsNullable);
                 }
@@ -3050,6 +3049,62 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             => throw new NotImplementedException();
 
         [ConditionalFact]
+        public void Complex_property_container_column_type_is_used_in_relational_model()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+            
+            modelBuilder.Entity<EntityWithComplexProperty>(
+                eb =>
+                {
+                    eb.ComplexProperty(e => e.ComplexProperty, cb =>
+                    {
+                        cb.ToJson("complex_data");
+                        cb.HasColumnType("some_json_mapping");
+                    });
+                });
+
+            var model = Finalize(modelBuilder);
+
+            var entityType = model.Model.FindEntityType(typeof(EntityWithComplexProperty));
+            var complexProperty = entityType.GetComplexProperties().Single();
+            var complexType = complexProperty.ComplexType;
+
+            Assert.Equal("some_json_mapping", complexType.GetContainerColumnType());
+
+            var table = entityType.GetTableMappings().Single().Table;
+            var column = table.Columns.Single(c => c.Name == "complex_data");
+            Assert.Equal("some_json_mapping", column.StoreType);
+        }
+
+        [ConditionalFact]
+        public void Complex_collection_container_column_type_is_used_in_relational_model()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+            
+            modelBuilder.Entity<EntityWithComplexCollection>(
+                eb =>
+                {
+                    eb.ComplexCollection(e => e.ComplexCollection, cb =>
+                    {
+                        cb.ToJson("collection_data");
+                        cb.HasColumnType("some_json_mapping");
+                    });
+                });
+
+            var model = Finalize(modelBuilder);
+
+            var entityType = model.Model.FindEntityType(typeof(EntityWithComplexCollection));
+            var complexProperty = entityType.GetComplexProperties().Single();
+            var complexType = complexProperty.ComplexType;
+
+            Assert.Equal("some_json_mapping", complexType.GetContainerColumnType());
+
+            var table = entityType.GetTableMappings().Single().Table;
+            var column = table.Columns.Single(c => c.Name == "collection_data");
+            Assert.Equal("some_json_mapping", column.StoreType);
+        }
+
+        [ConditionalFact]
         public void Can_use_relational_model_with_functions()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -3195,6 +3250,50 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.False(defaultMapping2.Table.Columns.Single().IsNullable);
         }
 
+        [ConditionalFact]
+        public void Container_column_type_is_used_for_complex_property_json_column()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+            
+            modelBuilder.Entity<EntityWithComplexProperty>()
+                .ComplexProperty(e => e.ComplexProperty, b =>
+                {
+                    b.ToJson("complex_data");
+                    b.HasColumnType("some_json_mapping");
+                });
+
+            var model = modelBuilder.FinalizeModel();
+            var relationalModel = model.GetRelationalModel();
+
+            var table = relationalModel.Tables.Single();
+            var jsonColumn = table.Columns.Single(c => c.Name == "complex_data");
+            
+            Assert.Equal("some_json_mapping", jsonColumn.StoreType);
+            Assert.IsType<JsonColumn>(jsonColumn);
+        }
+
+        [ConditionalFact]
+        public void Container_column_type_is_used_for_complex_collection_json_column()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+            
+            modelBuilder.Entity<EntityWithComplexCollection>()
+                .ComplexCollection(e => e.ComplexCollection, b =>
+                {
+                    b.ToJson("collection_data");
+                    b.HasColumnType("some_json_mapping");
+                });
+
+            var model = modelBuilder.FinalizeModel();
+            var relationalModel = model.GetRelationalModel();
+
+            var table = relationalModel.Tables.Single();
+            var jsonColumn = table.Columns.Single(c => c.Name == "collection_data");
+            
+            Assert.Equal("some_json_mapping", jsonColumn.StoreType);
+            Assert.IsType<JsonColumn>(jsonColumn);
+        }
+
         private static IRelationalModel Finalize(TestHelpers.TestModelBuilder modelBuilder)
             => modelBuilder.FinalizeModel(designTime: true).GetRelationalModel();
 
@@ -3299,6 +3398,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             public string Street { get; set; }
             public string City { get; set; }
+        }
+
+        private class EntityWithComplexProperty
+        {
+            public int Id { get; set; }
+            public ComplexData ComplexProperty { get; set; }
+        }
+
+        private class EntityWithComplexCollection
+        {
+            public int Id { get; set; }
+            public List<ComplexData> ComplexCollection { get; set; }
+        }
+
+        private class ComplexData
+        {
+            public string Value { get; set; }
+            public int Number { get; set; }
         }
     }
 }

@@ -241,7 +241,7 @@ public static class ExpressionExtensions
                         Expression.MakeIndex(
                             keyValuesConstantExpression,
                             ValueBuffer.Indexer,
-                            new[] { Expression.Constant(i) }))
+                            [Expression.Constant(i)]))
                     : Expression.Equal(
                         Expression.Call(
                             EF.MakePropertyMethod(property.ClrType),
@@ -251,7 +251,7 @@ public static class ExpressionExtensions
                             Expression.MakeIndex(
                                 keyValuesConstantExpression,
                                 ValueBuffer.Indexer,
-                                new[] { Expression.Constant(i) }),
+                                [Expression.Constant(i)]),
                             property.ClrType));
     }
 }

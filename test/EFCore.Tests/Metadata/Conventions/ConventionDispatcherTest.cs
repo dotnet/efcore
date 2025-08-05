@@ -762,11 +762,11 @@ public class ConventionDispatcherTest
         public readonly List<object> Calls = [];
 
         public void ProcessDiscriminatorPropertySet(
-            IConventionEntityTypeBuilder entityTypeBuilder,
+            IConventionTypeBaseBuilder structuralTypeBuilder,
             string name,
             IConventionContext<string> context)
         {
-            Assert.True(entityTypeBuilder.Metadata.IsInModel);
+            Assert.True(structuralTypeBuilder.Metadata.IsInModel);
 
             Calls.Add(name);
 

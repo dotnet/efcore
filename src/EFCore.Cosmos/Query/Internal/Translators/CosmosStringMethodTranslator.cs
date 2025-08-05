@@ -13,31 +13,52 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 /// </summary>
 public class CosmosStringMethodTranslator(ISqlExpressionFactory sqlExpressionFactory) : IMethodCallTranslator
 {
-    private static readonly MethodInfo IndexOfMethodInfo
+    private static readonly MethodInfo IndexOfMethodInfoString
         = typeof(string).GetRuntimeMethod(nameof(string.IndexOf), [typeof(string)])!;
 
-    private static readonly MethodInfo IndexOfMethodInfoWithStartingPosition
+    private static readonly MethodInfo IndexOfMethodInfoChar
+        = typeof(string).GetRuntimeMethod(nameof(string.IndexOf), [typeof(char)])!;
+
+    private static readonly MethodInfo IndexOfMethodInfoWithStartingPositionString
         = typeof(string).GetRuntimeMethod(nameof(string.IndexOf), [typeof(string), typeof(int)])!;
 
-    private static readonly MethodInfo ReplaceMethodInfo
+    private static readonly MethodInfo IndexOfMethodInfoWithStartingPositionChar
+        = typeof(string).GetRuntimeMethod(nameof(string.IndexOf), [typeof(char), typeof(int)])!;
+
+    private static readonly MethodInfo ReplaceMethodInfoString
         = typeof(string).GetRuntimeMethod(nameof(string.Replace), [typeof(string), typeof(string)])!;
 
-    private static readonly MethodInfo ContainsMethodInfo
+    private static readonly MethodInfo ReplaceMethodInfoChar
+        = typeof(string).GetRuntimeMethod(nameof(string.Replace), [typeof(char), typeof(char)])!;
+
+    private static readonly MethodInfo ContainsMethodInfoString
         = typeof(string).GetRuntimeMethod(nameof(string.Contains), [typeof(string)])!;
 
-    private static readonly MethodInfo ContainsWithStringComparisonMethodInfo
+    private static readonly MethodInfo ContainsMethodInfoChar
+        = typeof(string).GetRuntimeMethod(nameof(string.Contains), [typeof(char)])!;
+
+    private static readonly MethodInfo ContainsWithStringComparisonMethodInfoString
         = typeof(string).GetRuntimeMethod(nameof(string.Contains), [typeof(string), typeof(StringComparison)])!;
 
-    private static readonly MethodInfo StartsWithMethodInfo
+    private static readonly MethodInfo ContainsWithStringComparisonMethodInfoChar
+        = typeof(string).GetRuntimeMethod(nameof(string.Contains), [typeof(char), typeof(StringComparison)])!;
+
+    private static readonly MethodInfo StartsWithMethodInfoString
         = typeof(string).GetRuntimeMethod(nameof(string.StartsWith), [typeof(string)])!;
 
-    private static readonly MethodInfo StartsWithWithStringComparisonMethodInfo
+    private static readonly MethodInfo StartsWithMethodInfoChar
+        = typeof(string).GetRuntimeMethod(nameof(string.StartsWith), [typeof(char)])!;
+
+    private static readonly MethodInfo StartsWithWithStringComparisonMethodInfoString
         = typeof(string).GetRuntimeMethod(nameof(string.StartsWith), [typeof(string), typeof(StringComparison)])!;
 
-    private static readonly MethodInfo EndsWithMethodInfo
+    private static readonly MethodInfo EndsWithMethodInfoString
         = typeof(string).GetRuntimeMethod(nameof(string.EndsWith), [typeof(string)])!;
 
-    private static readonly MethodInfo EndsWithWithStringComparisonMethodInfo
+    private static readonly MethodInfo EndsWithMethodInfoChar
+        = typeof(string).GetRuntimeMethod(nameof(string.EndsWith), [typeof(char)])!;
+
+    private static readonly MethodInfo EndsWithWithStringComparisonMethodInfoString
         = typeof(string).GetRuntimeMethod(nameof(string.EndsWith), [typeof(string), typeof(StringComparison)])!;
 
     private static readonly MethodInfo ToLowerMethodInfo
@@ -109,27 +130,27 @@ public class CosmosStringMethodTranslator(ISqlExpressionFactory sqlExpressionFac
     {
         if (instance != null)
         {
-            if (IndexOfMethodInfo.Equals(method))
+            if (IndexOfMethodInfoString.Equals(method) || IndexOfMethodInfoChar.Equals(method))
             {
                 return TranslateSystemFunction("INDEX_OF", typeof(int), instance, arguments[0]);
             }
 
-            if (IndexOfMethodInfoWithStartingPosition.Equals(method))
+            if (IndexOfMethodInfoWithStartingPositionString.Equals(method) || IndexOfMethodInfoWithStartingPositionChar.Equals(method))
             {
                 return TranslateSystemFunction("INDEX_OF", typeof(int), instance, arguments[0], arguments[1]);
             }
 
-            if (ReplaceMethodInfo.Equals(method))
+            if (ReplaceMethodInfoString.Equals(method) || ReplaceMethodInfoChar.Equals(method))
             {
                 return TranslateSystemFunction("REPLACE", method.ReturnType, instance, arguments[0], arguments[1]);
             }
 
-            if (ContainsMethodInfo.Equals(method))
+            if (ContainsMethodInfoString.Equals(method) || ContainsMethodInfoChar.Equals(method))
             {
                 return TranslateSystemFunction("CONTAINS", typeof(bool), instance, arguments[0]);
             }
 
-            if (ContainsWithStringComparisonMethodInfo.Equals(method))
+            if (ContainsWithStringComparisonMethodInfoString.Equals(method) || ContainsWithStringComparisonMethodInfoChar.Equals(method))
             {
                 if (arguments[1] is SqlConstantExpression { Value: StringComparison comparisonType })
                 {
@@ -150,12 +171,12 @@ public class CosmosStringMethodTranslator(ISqlExpressionFactory sqlExpressionFac
                 return null;
             }
 
-            if (StartsWithMethodInfo.Equals(method))
+            if (StartsWithMethodInfoString.Equals(method) || StartsWithMethodInfoChar.Equals(method))
             {
                 return TranslateSystemFunction("STARTSWITH", typeof(bool), instance, arguments[0]);
             }
 
-            if (StartsWithWithStringComparisonMethodInfo.Equals(method))
+            if (StartsWithWithStringComparisonMethodInfoString.Equals(method))
             {
                 if (arguments[1] is SqlConstantExpression { Value: StringComparison comparisonType })
                 {
@@ -176,12 +197,12 @@ public class CosmosStringMethodTranslator(ISqlExpressionFactory sqlExpressionFac
                 return null;
             }
 
-            if (EndsWithMethodInfo.Equals(method))
+            if (EndsWithMethodInfoString.Equals(method) || EndsWithMethodInfoChar.Equals(method))
             {
                 return TranslateSystemFunction("ENDSWITH", typeof(bool), instance, arguments[0]);
             }
 
-            if (EndsWithWithStringComparisonMethodInfo.Equals(method))
+            if (EndsWithWithStringComparisonMethodInfoString.Equals(method))
             {
                 if (arguments[1] is SqlConstantExpression { Value: StringComparison comparisonType })
                 {

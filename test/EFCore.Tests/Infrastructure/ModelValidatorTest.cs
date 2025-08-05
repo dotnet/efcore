@@ -41,6 +41,22 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         LoggerFactory.Clear();
     }
 
+    [ConditionalFact]
+    public void Logs_warning_when_non_collection_complex_property_has_collection_type()
+    {
+        var modelBuilder = CreateConventionlessModelBuilder();
+        var entityTypeBuilder = modelBuilder.Entity<WithStructCollection>();
+        entityTypeBuilder.Property(e => e.Id);
+        entityTypeBuilder.HasKey(e => e.Id);
+
+        var complexPropertyBuilder = entityTypeBuilder.ComplexProperty(e => e.Foo);
+
+        VerifyWarning(
+            CoreResources.LogAccidentalComplexPropertyCollection(new TestLogger<TestLoggingDefinitions>())
+                    .GenerateMessage(nameof(WithStructCollection), nameof(WithStructCollection.Foo), "List<StructTag>"),
+            modelBuilder);
+    }
+
     [ConditionalFact] // Issue #33913
     public virtual void Detects_well_known_concrete_collections_mapped_as_owned_entity_type()
     {
@@ -56,13 +72,13 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             modelBuilder);
     }
 
-    private class MyEntity<T>
+    protected class MyEntity<T>
     {
         public int Id { get; set; }
         public List<T> JsonbFields { get; set; }
     }
 
-    private class JsonbField
+    protected class JsonbField
     {
         public required string Key { get; set; }
         public required string Value { get; set; }
@@ -257,7 +273,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     {
         var modelBuilder = CreateConventionModelBuilder();
 
-        modelBuilder.Entity<WithReadOnlyCollection>(
+        modelBuilder.Entity<WithReadOnlyIntCollection>(
             eb =>
             {
                 eb.Property(e => e.Id);
@@ -267,7 +283,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         Validate(modelBuilder);
     }
 
-    protected class WithReadOnlyCollection
+    protected class WithReadOnlyIntCollection
     {
         public int Id { get; set; }
         public IReadOnlyCollection<int> Tags { get; set; }
@@ -401,7 +417,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         entityTypeD.SetQueryFilter((Expression<Func<D, bool>>)(_ => true));
 
         VerifyError(
-            CoreStrings.BadFilterDerivedType(entityTypeD.GetQueryFilter(), entityTypeD.DisplayName(), entityTypeA.DisplayName()),
+            CoreStrings.BadFilterDerivedType(entityTypeD.FindDeclaredQueryFilter(null).Expression, entityTypeD.DisplayName(), entityTypeA.DisplayName()),
             modelBuilder);
     }
 
@@ -1136,18 +1152,45 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     }
 
     [ConditionalFact]
-    public virtual void Detects_collection_complex_properties()
+    public virtual void Detects_value_type_complex_collection()
     {
         var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Ignore(typeof(Order));
 
-        var model = modelBuilder.Model;
-        var customerEntity = model.AddEntityType(typeof(Customer));
-        customerEntity.AddComplexProperty(nameof(Customer.Orders), collection: true);
+        modelBuilder.Entity<WithStructCollection>().ComplexCollection(e => e.Foo);
 
         VerifyError(
-            CoreStrings.ComplexPropertyCollection(nameof(Customer), nameof(Customer.Orders)),
+            CoreStrings.ComplexValueTypeCollection(nameof(WithStructCollection), nameof(WithStructCollection.Foo)),
             modelBuilder);
+    }
+
+    protected class WithStructCollection
+    {
+        public int Id { get; set; }
+        public List<StructTag> Foo { get; set; }
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_non_list_complex_collection()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<WithReadOnlyCollection>(
+            eb =>
+            {
+                eb.Property(e => e.Id);
+                eb.ComplexCollection(e => e.Tags,
+                    cb => cb.Property(p => p.Key).IsRequired());
+            });
+
+        VerifyError(
+            CoreStrings.NonListCollection(nameof(WithReadOnlyCollection), nameof(WithReadOnlyCollection.Tags), "IReadOnlyCollection<JsonbField>", "IList<JsonbField>"),
+            modelBuilder);
+    }
+
+    protected class WithReadOnlyCollection
+    {
+        public int Id { get; set; }
+        public IReadOnlyCollection<JsonbField> Tags { get; set; }
     }
 
     [ConditionalFact]
@@ -1162,6 +1205,23 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
 
         VerifyError(
             CoreStrings.ComplexPropertyShadow(nameof(Customer), "CustomerDetails"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_shadow_properties_on_value_type_complex_types()
+    {
+        var modelBuilder = CreateConventionlessModelBuilder();
+        var model = modelBuilder.Model;
+        var entityType = model.AddEntityType(typeof(SampleEntity));
+        entityType.AddProperty(nameof(SampleEntity.Id), typeof(int));
+
+        var complexProperty = entityType.AddComplexProperty("Tag", typeof(StructTag), typeof(StructTag));
+
+        complexProperty.ComplexType.AddProperty("ShadowProperty", typeof(string));
+
+        VerifyError(
+            CoreStrings.ComplexValueTypeShadowProperty("SampleEntity.Tag#StructTag", "ShadowProperty"),
             modelBuilder);
     }
 
@@ -1432,6 +1492,60 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         VerifyError(
             CoreStrings.ChangeTrackingInterfaceMissing("ChangedOnlyEntity", changeTrackingStrategy, "INotifyPropertyChanging"),
             modelBuilder);
+    }
+
+    [ConditionalTheory]
+    [InlineData(ChangeTrackingStrategy.ChangedNotifications)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)]
+    public virtual void Detects_complex_collections_with_notifications(ChangeTrackingStrategy changeTrackingStrategy)
+    {
+        var modelBuilder = CreateConventionlessModelBuilder();
+        var model = modelBuilder.Model;
+
+        var entityType = model.AddEntityType(typeof(WithFullNotificationCollection));
+        var id = entityType.AddProperty("Id");
+        entityType.SetPrimaryKey(id);
+        entityType.AddComplexProperty("Foo");
+
+        model.SetChangeTrackingStrategy(changeTrackingStrategy);
+
+        VerifyError(
+            CoreStrings.ChangeTrackingInterfaceMissing("WithFullNotificationCollection", changeTrackingStrategy, "INotifyPropertyChanged"),
+            modelBuilder);
+    }
+
+    protected class WithFullNotificationCollection
+    {
+        public int Id { get; set; }
+        public List<FullNotificationEntity> Foo { get; set; }
+    }
+
+    [ConditionalTheory]
+    [InlineData(ChangeTrackingStrategy.ChangedNotifications)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)]
+    public virtual void Detects_complex_properties_with_notifications(ChangeTrackingStrategy changeTrackingStrategy)
+    {
+        var modelBuilder = CreateConventionlessModelBuilder();
+        var model = modelBuilder.Model;
+
+        var entityType = model.AddEntityType(typeof(WithFullNotificationProperty));
+        var id = entityType.AddProperty("Id");
+        entityType.SetPrimaryKey(id);
+        entityType.AddComplexProperty("Foo");
+
+        model.SetChangeTrackingStrategy(changeTrackingStrategy);
+
+        VerifyError(
+            CoreStrings.ChangeTrackingInterfaceMissing("WithFullNotificationProperty", changeTrackingStrategy, "INotifyPropertyChanged"),
+            modelBuilder);
+    }
+
+    protected class WithFullNotificationProperty
+    {
+        public int Id { get; set; }
+        public FullNotificationEntity Foo { get; set; }
     }
 
     [ConditionalTheory]
@@ -1902,6 +2016,28 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             .HasValue<D>(1);
 
         VerifyError(CoreStrings.NoDiscriminatorValue(typeof(C).Name), modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_missing_complex_type_discriminator_values()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<B>().ComplexProperty(b => b.A)
+            .HasDiscriminator<byte>("Type");
+
+        VerifyError(CoreStrings.NoDiscriminatorValue("B.A#A"), modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_incompatible_complex_type_discriminator_value()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        var complexPropertyBuilder = modelBuilder.Entity<B>().ComplexProperty(b => b.A);
+        complexPropertyBuilder.HasDiscriminator<byte>("Type");
+
+        complexPropertyBuilder.Metadata.ComplexType.SetDiscriminatorValue("1");
+
+        VerifyError(CoreStrings.DiscriminatorValueIncompatible("1", "B.A#A", "byte"), modelBuilder);
     }
 
     [ConditionalFact]

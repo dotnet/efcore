@@ -218,11 +218,11 @@ public partial class DbContextTest
         {
         }
 
-        public void PropertyChanged(InternalEntityEntry entry, IPropertyBase property, bool setModifed)
+        public void PropertyChanged(IInternalEntry entry, IPropertyBase property, bool setModifed)
         {
         }
 
-        public void PropertyChanging(InternalEntityEntry entry, IPropertyBase property)
+        public void PropertyChanging(IInternalEntry entry, IPropertyBase property)
         {
         }
 
@@ -272,6 +272,9 @@ public partial class DbContextTest
         public void ResetState()
         {
         }
+
+        public void DetectChanges(InternalComplexEntry entry) => throw new NotImplementedException();
+        public bool DetectComplexCollectionChanges(InternalEntryBase entry, IComplexProperty complexProperty) => throw new NotImplementedException();
     }
 
     [ConditionalTheory]

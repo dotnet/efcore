@@ -360,7 +360,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
                 ss => from p in ss.Set<ProductForLinq>()
                       group p by p.Category
                       into g
-                      let minPrice = g.Min(p => p.UnitPrice)
+                      let minPrice = g.Min(decimal (ProductForLinq p) => p.UnitPrice)
                       select new { Category = g.Key, CheapestProducts = g.Where(p => p.UnitPrice == minPrice) }));
 
     [ConditionalTheory]
@@ -383,7 +383,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
                 ss => from p in ss.Set<ProductForLinq>()
                       group p by p.Category
                       into g
-                      let minPrice = g.Max(p => p.UnitPrice)
+                      let minPrice = g.Max(decimal (ProductForLinq p) => p.UnitPrice)
                       select new { Category = g.Key, MostExpensiveProducts = g.Where(p => p.UnitPrice == minPrice) }));
 
     [ConditionalTheory]

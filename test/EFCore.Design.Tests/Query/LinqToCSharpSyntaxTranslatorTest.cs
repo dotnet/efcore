@@ -7,6 +7,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Xunit.Sdk;
 using static System.Linq.Expressions.Expression;
@@ -1976,7 +1977,8 @@ catch
     {
         var typeMappingSource = new SqlServerTypeMappingSource(
             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-            new RelationalTypeMappingSourceDependencies([]));
+            new RelationalTypeMappingSourceDependencies([]),
+            new SqlServerSingletonOptions());
 
         var translator = new CSharpHelper(typeMappingSource);
         var namespaces = new HashSet<string>();

@@ -131,6 +131,7 @@ public class EntityFrameworkRelationalServicesBuilder : EntityFrameworkServicesB
     /// <returns>This builder, such that further calls can be chained.</returns>
     public override EntityFrameworkServicesBuilder TryAddCoreServices()
     {
+        TryAdd<IStructuralTypeMaterializerSource, RelationalStructuralTypeMaterializerSource>();
         TryAdd<IParameterNameGeneratorFactory, ParameterNameGeneratorFactory>();
         TryAdd<IComparer<IReadOnlyModificationCommand>, ModificationCommandComparer>();
         TryAdd<IMigrationsIdGenerator, MigrationsIdGenerator>();

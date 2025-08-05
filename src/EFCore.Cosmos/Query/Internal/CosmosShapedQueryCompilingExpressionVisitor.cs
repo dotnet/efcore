@@ -3,8 +3,6 @@
 
 #nullable disable
 
-using Microsoft.EntityFrameworkCore.Cosmos.Internal;
-using Microsoft.EntityFrameworkCore.Cosmos.Query.Internal.Expressions;
 using Microsoft.EntityFrameworkCore.Internal;
 using Newtonsoft.Json.Linq;
 using static System.Linq.Expressions.Expression;
@@ -61,7 +59,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
         }
 
         shaperBody = new JObjectInjectingExpressionVisitor().Visit(shaperBody);
-        shaperBody = InjectEntityMaterializers(shaperBody);
+        shaperBody = InjectStructuralTypeMaterializers(shaperBody);
 
         if (shapedQueryExpression.QueryExpression is not SelectExpression selectExpression)
         {

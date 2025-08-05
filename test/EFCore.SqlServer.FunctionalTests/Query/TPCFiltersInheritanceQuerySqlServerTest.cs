@@ -206,11 +206,11 @@ FROM [Eagle] AS [e]
 """,
             //
             """
-@__p_0='1'
+@p='1'
 
 SELECT TOP(1) [e].[Id], [e].[CountryId], [e].[Name], [e].[Species], [e].[EagleId], [e].[IsFlightless], [e].[Group]
 FROM [Eagle] AS [e]
-WHERE [e].[Id] = @__p_0
+WHERE [e].[Id] = @p
 """);
     }
 

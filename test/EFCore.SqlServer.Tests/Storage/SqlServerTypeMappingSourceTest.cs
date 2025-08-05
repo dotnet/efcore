@@ -2,11 +2,14 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
+using Microsoft.Data.SqlTypes;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 
 // ReSharper disable InconsistentNaming
-namespace Microsoft.EntityFrameworkCore;
+namespace Microsoft.EntityFrameworkCore.Storage;
 
 public class SqlServerTypeMappingSourceTest : RelationalTypeMappingSourceTestBase
 {
@@ -1329,6 +1332,7 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMappingSourceTestBas
     [InlineData("varchar(333)", typeof(string), 333, false, false)]
     [InlineData("varchar(max)", typeof(string), -1, false, false)]
     [InlineData("VARCHAR(max)", typeof(string), -1, false, false, "VARCHAR(max)")]
+    [InlineData("vector(3)", typeof(SqlVector<float>), 3, false, false)]
     public void Can_map_by_store_type(string storeType, Type type, int? size, bool unicode, bool fixedLength, string expectedType = null)
     {
         var mapping = CreateRelationalTypeMappingSource(CreateModel()).FindMapping(storeType);
@@ -1346,6 +1350,7 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMappingSourceTestBas
     [InlineData(typeof(DateTime), "date")]
     [InlineData(typeof(TimeOnly), "time")]
     [InlineData(typeof(TimeSpan), "time")]
+    [InlineData(typeof(SqlVector<float>), "vector(3)")]
     public void Can_map_by_clr_and_store_types(Type clrType, string storeType)
     {
         var mapping = CreateRelationalTypeMappingSource(CreateModel()).FindMapping(clrType, storeType);
@@ -1762,6 +1767,92 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMappingSourceTestBas
             mapper.GetMapping(model.FindEntityType(typeof(MyRelatedType4)).FindProperty("Relationship2Id")).StoreType);
     }
 
+    #region Vector
+
+    [ConditionalFact]
+    public void Vector_is_properly_mapped()
+    {
+        var typeMapping = GetTypeMapping(typeof(SqlVector<float>), maxLength: 3);
+
+        Assert.Null(typeMapping.DbType);
+        Assert.Equal("vector(3)", typeMapping.StoreType);
+        Assert.Equal(3, typeMapping.Size);
+        Assert.Null(typeMapping.Precision);
+        Assert.Null(typeMapping.Scale);
+    }
+
+    [ConditionalFact]
+    public void Vector_requires_positive_dimensions()
+    {
+        var exception = Assert.Throws<InvalidOperationException>(() => GetTypeMapping(typeof(SqlVector<float>), maxLength: 0));
+        Assert.Equal(SqlServerStrings.VectorDimensionsInvalid, exception.Message);
+
+        exception = Assert.Throws<InvalidOperationException>(() => GetTypeMapping(typeof(SqlVector<float>), maxLength: -1));
+        Assert.Equal(SqlServerStrings.VectorDimensionsInvalid, exception.Message);
+
+        // We do allow constructing a vector type mapping with no dimensions, since the scaffolder requires it
+        // (see comment in SqlServerVectorTypeMapping)
+        var typeMapping = GetTypeMapping(typeof(SqlVector<float>));
+        Assert.Null(typeMapping.Size);
+    }
+
+    #endregion Vector
+
+    #region Json
+
+    [ConditionalFact]
+    public void Json_is_mapped_to_nvarchar_with_UseSqlServer_by_default()
+    {
+        var typeMappingSource = CreateTypeMappingSource(o => o.UseSqlServer(null));
+
+        Assert.Equal("nvarchar(max)", typeMappingSource.GetMapping(typeof(JsonTypePlaceholder)).StoreType);
+        Assert.Equal("nvarchar(max)", typeMappingSource.GetMapping(typeof(int[])).StoreType);
+    }
+
+    [ConditionalFact]
+    public void Json_is_mapped_to_nvarchar_with_UseSqlServer_with_compatibility_level_170()
+    {
+        var typeMappingSource = CreateTypeMappingSource(o =>
+            o.UseSqlServer((string)null, o => o.UseCompatibilityLevel(170)));
+
+        Assert.Equal("json", typeMappingSource.GetMapping(typeof(JsonTypePlaceholder)).StoreType);
+        Assert.Equal("json", typeMappingSource.GetMapping(typeof(int[])).StoreType);
+    }
+
+    [ConditionalFact]
+    public void Json_is_mapped_to_json_type_with_UseAzureSql_by_default()
+    {
+        var typeMappingSource = CreateTypeMappingSource(o => o.UseAzureSql(null));
+
+        Assert.Equal("json", typeMappingSource.GetMapping(typeof(JsonTypePlaceholder)).StoreType);
+        Assert.Equal("json", typeMappingSource.GetMapping(typeof(int[])).StoreType);
+    }
+
+    [ConditionalFact]
+    public void Json_is_mapped_to_nvarchar_with_compatibility_level_170_when_explicitly_specified()
+    {
+        var typeMappingSource = CreateTypeMappingSource(o =>
+            o.UseSqlServer((string)null, o => o.UseCompatibilityLevel(170)));
+
+        Assert.Equal("nvarchar(max)", typeMappingSource.FindMapping(typeof(JsonTypePlaceholder), "nvarchar(max)").StoreType);
+        Assert.Equal("nvarchar(max)", typeMappingSource.FindMapping(typeof(int[]), "nvarchar(max)").StoreType);
+    }
+
+    private SqlServerTypeMappingSource CreateTypeMappingSource(Action<DbContextOptionsBuilder> optionsAction = null)
+    {
+        var optionsBuilder = new DbContextOptionsBuilder();
+        optionsAction(optionsBuilder);
+        var singletonOptions = new SqlServerSingletonOptions();
+        singletonOptions.Initialize(optionsBuilder.Options);
+
+        return new SqlServerTypeMappingSource(
+            TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
+            singletonOptions);
+    }
+
+    #endregion Json
+
     [ConditionalFact]
     public void Plugins_can_override_builtin_mappings()
     {
@@ -1769,8 +1860,9 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMappingSourceTestBas
             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
             TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>() with
             {
-                Plugins = new[] { new FakeTypeMappingSourcePlugin() }
-            });
+                Plugins = [new FakeTypeMappingSourcePlugin()]
+            },
+            TestServiceFactory.Instance.Create<SqlServerSingletonOptions>());
 
         Assert.Equal("String", typeMappingSource.GetMapping("datetime2").ClrType.Name);
     }
@@ -1785,7 +1877,8 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMappingSourceTestBas
     {
         var typeMappingSource = new SqlServerTypeMappingSource(
             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
+            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
+            TestServiceFactory.Instance.Create<SqlServerSingletonOptions>());
 
         model.ModelDependencies = new RuntimeModelDependencies(typeMappingSource, null!, null!);
 

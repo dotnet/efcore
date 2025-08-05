@@ -74,7 +74,7 @@ public class QueryCompiler : IQueryCompiler
 
         queryContext.CancellationToken = cancellationToken;
 
-        var queryAfterExtraction = ExtractParameters(query, queryContext, _logger);
+        var queryAfterExtraction = ExtractParameters(query, queryContext.Parameters, _logger);
 
         var compiledQuery
             = _compiledQueryCache
@@ -82,7 +82,7 @@ public class QueryCompiler : IQueryCompiler
                     _compiledQueryCacheKeyGenerator.GenerateCacheKey(queryAfterExtraction, async),
                     () => RuntimeFeature.IsDynamicCodeSupported
                         ? CompileQueryCore<TResult>(_database, queryAfterExtraction, _model, async)
-                        : throw new InvalidOperationException("Query wasn't precompiled and dynamic code isn't supported (NativeAOT)"));
+                        : throw new InvalidOperationException(CoreStrings.QueryNotPrecompiled));
 
         return compiledQuery(queryContext);
     }
@@ -95,7 +95,9 @@ public class QueryCompiler : IQueryCompiler
     /// </summary>
     public virtual Func<QueryContext, TResult> CreateCompiledQuery<TResult>(Expression query)
     {
-        var queryAfterExtraction = ExtractParameters(query, _queryContextFactory.Create(), _logger, compiledQuery: true);
+        var queryContext = _queryContextFactory.Create();
+
+        var queryAfterExtraction = ExtractParameters(query, queryContext.Parameters, _logger, compiledQuery: true);
 
         return CompileQueryCore<TResult>(_database, queryAfterExtraction, _model, false);
     }
@@ -108,7 +110,9 @@ public class QueryCompiler : IQueryCompiler
     /// </summary>
     public virtual Func<QueryContext, TResult> CreateCompiledAsyncQuery<TResult>(Expression query)
     {
-        var queryAfterExtraction = ExtractParameters(query, _queryContextFactory.Create(), _logger, compiledQuery: true);
+        var queryContext = _queryContextFactory.Create();
+
+        var queryAfterExtraction = ExtractParameters(query, queryContext.Parameters, _logger, compiledQuery: true);
 
         return CompileQueryCore<TResult>(_database, queryAfterExtraction, _model, true);
     }
@@ -135,12 +139,12 @@ public class QueryCompiler : IQueryCompiler
     [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
     public virtual Expression<Func<QueryContext, TResult>> PrecompileQuery<TResult>(Expression query, bool async)
     {
-        query = new ExpressionTreeFuncletizer(_model, _evaluatableExpressionFilter, _contextType, generateContextAccessors: false, _logger)
-            .ExtractParameters(
-                query, _queryContextFactory.Create(), parameterize: true, clearParameterizedValues: true, precompiledQuery: true,
-                out var nonNullableReferenceTypeParameters);
+        var queryContext = _queryContextFactory.Create();
 
-        return _database.CompileQueryExpression<TResult>(query, async, nonNullableReferenceTypeParameters);
+        query = new ExpressionTreeFuncletizer(_model, _evaluatableExpressionFilter, _contextType, generateContextAccessors: false, _logger)
+            .ExtractParameters(query, queryContext.Parameters, parameterize: true, clearParameterizedValues: true, precompiledQuery: true);
+
+        return _database.CompileQueryExpression<TResult>(query, async);
     }
 
     /// <summary>
@@ -151,10 +155,10 @@ public class QueryCompiler : IQueryCompiler
     /// </summary>
     public virtual Expression ExtractParameters(
         Expression query,
-        IParameterValues parameterValues,
+        Dictionary<string, object?> parameters,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger,
         bool compiledQuery = false,
         bool generateContextAccessors = false)
         => new ExpressionTreeFuncletizer(_model, _evaluatableExpressionFilter, _contextType, generateContextAccessors: false, logger)
-            .ExtractParameters(query, parameterValues, parameterize: !compiledQuery, clearParameterizedValues: true);
+            .ExtractParameters(query, parameters, parameterize: !compiledQuery, clearParameterizedValues: true);
 }

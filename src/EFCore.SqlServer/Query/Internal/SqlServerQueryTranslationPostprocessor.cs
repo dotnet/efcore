@@ -1,10 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using Microsoft.EntityFrameworkCore.SqlServer.Internal;
-
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 
 /// <summary>
@@ -17,7 +13,6 @@ public class SqlServerQueryTranslationPostprocessor : RelationalQueryTranslation
 {
     private readonly SqlServerJsonPostprocessor _jsonPostprocessor;
     private readonly SqlServerAggregateOverSubqueryPostprocessor _aggregatePostprocessor;
-    private readonly SkipWithoutOrderByInSplitQueryVerifier _skipWithoutOrderByInSplitQueryVerifier = new();
     private readonly SqlServerSqlTreePruner _pruner = new();
 
     /// <summary>
@@ -49,7 +44,6 @@ public class SqlServerQueryTranslationPostprocessor : RelationalQueryTranslation
 
         var query2 = _jsonPostprocessor.Process(query1);
         var query3 = _aggregatePostprocessor.Visit(query2);
-        _skipWithoutOrderByInSplitQueryVerifier.Visit(query3);
 
         return query3;
     }
@@ -72,37 +66,4 @@ public class SqlServerQueryTranslationPostprocessor : RelationalQueryTranslation
     /// </summary>
     protected override Expression Prune(Expression query)
         => _pruner.Prune(query);
-
-    private sealed class SkipWithoutOrderByInSplitQueryVerifier : ExpressionVisitor
-    {
-        [return: NotNullIfNotNull(nameof(expression))]
-        public override Expression? Visit(Expression? expression)
-        {
-            switch (expression)
-            {
-                case ShapedQueryExpression shapedQueryExpression:
-                    Visit(shapedQueryExpression.ShaperExpression);
-                    return shapedQueryExpression;
-
-                case RelationalSplitCollectionShaperExpression relationalSplitCollectionShaperExpression:
-                    foreach (var table in relationalSplitCollectionShaperExpression.SelectExpression.Tables)
-                    {
-                        Visit(table);
-                    }
-
-                    Visit(relationalSplitCollectionShaperExpression.InnerShaper);
-
-                    return relationalSplitCollectionShaperExpression;
-
-                case SelectExpression { Offset: not null, Orderings.Count: 0 }:
-                    throw new InvalidOperationException(SqlServerStrings.SplitQueryOffsetWithoutOrderBy);
-
-                case NonQueryExpression nonQueryExpression:
-                    return nonQueryExpression;
-
-                default:
-                    return base.Visit(expression);
-            }
-        }
-    }
 }

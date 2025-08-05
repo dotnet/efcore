@@ -373,7 +373,8 @@ public abstract class RelationalDatabaseCreator : IRelationalDatabaseCreator
     /// </summary>
     /// <remarks>
     ///     <para>
-    ///         Any exceptions thrown when attempting to connect are caught and not propagated to the application.
+    ///         Any exceptions thrown when attempting to connect are caught and not propagated to the application,
+    ///         except for the ones indicating cancellation.
     ///     </para>
     ///     <para>
     ///         The configured connection string is used to create the connection in the normal way, so all
@@ -386,12 +387,15 @@ public abstract class RelationalDatabaseCreator : IRelationalDatabaseCreator
     /// </remarks>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns><see langword="true" /> if the database is available; <see langword="false" /> otherwise.</returns>
-    /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
     public virtual async Task<bool> CanConnectAsync(CancellationToken cancellationToken = default)
     {
         try
         {
             return await ExistsAsync(cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception exception) when (Dependencies.ExceptionDetector.IsCancellation(exception, cancellationToken))
+        {
+            throw;
         }
         catch
         {

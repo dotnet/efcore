@@ -3,7 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class MaterializationInterceptionTestBase<TContext> : SingletonInterceptorsTestBase<TContext>
+public abstract class MaterializationInterceptionTestBase<TContext>(NonSharedFixture fixture) : SingletonInterceptorsTestBase<TContext>(fixture)
     where TContext : SingletonInterceptorsTestBase<TContext>.LibraryContext
 {
     protected override string StoreName
@@ -49,7 +49,7 @@ public abstract class MaterializationInterceptionTestBase<TContext> : SingletonI
 
         using var context = await CreateContext(interceptors, inject, usePooling);
 
-        var materializer = context.GetService<IEntityMaterializerSource>();
+        var materializer = context.GetService<IStructuralTypeMaterializerSource>();
         var book = (Book)materializer.GetEmptyMaterializer(context.Model.FindEntityType(typeof(Book))!)(
             new MaterializationContext(ValueBuffer.Empty, context));
 

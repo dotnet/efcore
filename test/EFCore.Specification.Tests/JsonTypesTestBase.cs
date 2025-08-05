@@ -17,7 +17,7 @@ using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class JsonTypesTestBase : NonSharedModelTestBase
+public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
     [ConditionalTheory]
     [InlineData(sbyte.MinValue, """{"Prop":-128}""")]
@@ -3975,7 +3975,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
             existingObject: existingObject,
             facets: facets);
 
-    protected virtual async Task Can_read_and_write_JSON_value<TEntity, TModel>(
+    protected virtual Task Can_read_and_write_JSON_value<TEntity, TModel>(
         Action<ModelBuilder> buildModel,
         Action<ModelConfigurationBuilder>? configureConventions,
         string propertyName,
@@ -3986,7 +3986,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
         Dictionary<string, object?>? facets = null)
         where TEntity : class
     {
-        var contextFactory = await CreateContextFactory<DbContext>(
+        var contextFactory = CreateContextFactory<DbContext>(
             buildModel,
             configureConventions: configureConventions);
         using var context = contextFactory.CreateContext();
@@ -4060,6 +4060,8 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
         {
             Assert.Null(element);
         }
+
+        return Task.CompletedTask;
     }
 
     protected override string StoreName

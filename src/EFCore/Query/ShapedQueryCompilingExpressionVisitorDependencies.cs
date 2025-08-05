@@ -49,7 +49,7 @@ public sealed record ShapedQueryCompilingExpressionVisitorDependencies
     /// </remarks>
     [EntityFrameworkInternal]
     public ShapedQueryCompilingExpressionVisitorDependencies(
-        IEntityMaterializerSource entityMaterializerSource,
+        IStructuralTypeMaterializerSource entityMaterializerSource,
         ITypeMappingSource typeMappingSource,
         IMemoryCache memoryCache,
         ICoreSingletonOptions coreSingletonOptions,
@@ -73,7 +73,7 @@ public sealed record ShapedQueryCompilingExpressionVisitorDependencies
     /// <summary>
     ///     The materializer source.
     /// </summary>
-    public IEntityMaterializerSource EntityMaterializerSource { get; init; }
+    public IStructuralTypeMaterializerSource EntityMaterializerSource { get; init; }
 
     /// <summary>
     ///     The type mapping source.
@@ -111,7 +111,7 @@ public sealed record ShapedQueryCompilingExpressionVisitorDependencies
     public IEnumerable<ISingletonInterceptor> SingletonInterceptors { get; init; }
 
     /// <summary>
-    ///     TODO
+    ///     The context services.
     /// </summary>
     public IDbContextServices ContextServices { get; init; }
 }

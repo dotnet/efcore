@@ -394,13 +394,14 @@ internal static class SharedTypeExtensions
 
     private static readonly Dictionary<Type, object> CommonTypeDictionary = new()
     {
-#pragma warning disable IDE0034 // Simplify 'default' expression - default causes default(object)
         { typeof(int), default(int) },
         { typeof(Guid), default(Guid) },
         { typeof(DateOnly), default(DateOnly) },
         { typeof(DateTime), default(DateTime) },
         { typeof(DateTimeOffset), default(DateTimeOffset) },
+        { typeof(decimal), default(decimal) },
         { typeof(TimeOnly), default(TimeOnly) },
+        { typeof(TimeSpan), default(TimeSpan) },
         { typeof(long), default(long) },
         { typeof(bool), default(bool) },
         { typeof(double), default(double) },
@@ -412,25 +413,15 @@ internal static class SharedTypeExtensions
         { typeof(ushort), default(ushort) },
         { typeof(ulong), default(ulong) },
         { typeof(sbyte), default(sbyte) }
-#pragma warning restore IDE0034 // Simplify 'default' expression
     };
 
     public static object? GetDefaultValue(
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
         this Type type)
-    {
-        if (!type.IsValueType)
-        {
-            return null;
-        }
+        => type.IsNullableType() ? null : RuntimeHelpers.GetUninitializedObject(type);
 
-        // A bit of perf code to avoid calling Activator.CreateInstance for common types and
-        // to avoid boxing on every call. This is about 50% faster than just calling CreateInstance
-        // for all value types.
-        return CommonTypeDictionary.TryGetValue(type, out var value)
-            ? value
-            : Activator.CreateInstance(type);
-    }
+    public static ConstantExpression GetDefaultValueConstant(this Type type)
+        => Expression.Constant(type.GetDefaultValue(), type);
 
     [RequiresUnreferencedCode("Gets all types from the given assembly - unsafe for trimming")]
     public static IEnumerable<TypeInfo> GetConstructibleTypes(
@@ -631,7 +622,10 @@ internal static class SharedTypeExtensions
         }
         else
         {
-            yield return type.Namespace!;
+            if (type.Namespace is not null)
+            {
+                yield return type.Namespace;
+            }
         }
 
         if (type.IsGenericType)
@@ -645,7 +639,4 @@ internal static class SharedTypeExtensions
             }
         }
     }
-
-    public static ConstantExpression GetDefaultValueConstant(this Type type)
-        => Expression.Constant(type.IsValueType ? RuntimeHelpers.GetUninitializedObject(type) : null, type);
 }

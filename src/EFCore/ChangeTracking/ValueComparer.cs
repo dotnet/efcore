@@ -108,9 +108,9 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
         LambdaExpression hashCodeExpression,
         LambdaExpression snapshotExpression)
     {
-        Check.NotNull(equalsExpression, nameof(equalsExpression));
-        Check.NotNull(hashCodeExpression, nameof(hashCodeExpression));
-        Check.NotNull(snapshotExpression, nameof(snapshotExpression));
+        Check.NotNull(equalsExpression);
+        Check.NotNull(hashCodeExpression);
+        Check.NotNull(snapshotExpression);
 
         EqualsExpression = equalsExpression;
         HashCodeExpression = hashCodeExpression;
@@ -188,8 +188,8 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
         Expression leftExpression,
         Expression rightExpression)
     {
-        Check.NotNull(leftExpression, nameof(leftExpression));
-        Check.NotNull(rightExpression, nameof(rightExpression));
+        Check.NotNull(leftExpression);
+        Check.NotNull(rightExpression);
 
         var original1 = EqualsExpression.Parameters[0];
         var original2 = EqualsExpression.Parameters[1];
@@ -207,7 +207,7 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
     /// <returns>The body of the lambda with the parameter replaced.</returns>
     public virtual Expression ExtractHashCodeBody(Expression expression)
     {
-        Check.NotNull(expression, nameof(expression));
+        Check.NotNull(expression);
 
         return ReplacingExpressionVisitor.Replace(
             HashCodeExpression.Parameters[0],
@@ -223,7 +223,7 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
     /// <returns>The body of the lambda with the parameter replaced.</returns>
     public virtual Expression ExtractSnapshotBody(Expression expression)
     {
-        Check.NotNull(expression, nameof(expression));
+        Check.NotNull(expression);
 
         return ReplacingExpressionVisitor.Replace(
             SnapshotExpression.Parameters[0],
@@ -256,7 +256,6 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
     public static ValueComparer CreateDefault(
         [DynamicallyAccessedMembers(
             DynamicallyAccessedMemberTypes.PublicMethods
-            | DynamicallyAccessedMemberTypes.NonPublicMethods
             | DynamicallyAccessedMemberTypes.PublicProperties)]
         Type type,
         bool favorStructuralComparisons)
@@ -279,7 +278,11 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
     /// </param>
     /// <typeparam name="T">The type.</typeparam>
     /// <returns>The <see cref="ValueComparer{T}" />.</returns>
-    public static ValueComparer CreateDefault<T>(bool favorStructuralComparisons)
+    public static ValueComparer CreateDefault
+        <[DynamicallyAccessedMembers(
+            DynamicallyAccessedMemberTypes.PublicMethods
+            | DynamicallyAccessedMemberTypes.PublicProperties)]
+        T>(bool favorStructuralComparisons)
     {
         var nonNullableType = typeof(T).UnwrapNullableType();
 
@@ -312,14 +315,12 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
                 : new ValueComparer<T>(favorStructuralComparisons);
     }
 
-    /// <summary>
-    ///     The expression representing construction of this object.
-    /// </summary>
-    [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
-    public abstract Expression ConstructorExpression { get; }
-
     // PublicMethods is required to preserve e.g. GetHashCode
-    internal class DefaultValueComparer<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicMethods)] T> : ValueComparer<T>
+    internal class DefaultValueComparer
+        <[DynamicallyAccessedMembers(
+            DynamicallyAccessedMemberTypes.PublicMethods
+            | DynamicallyAccessedMemberTypes.PublicProperties)]
+        T> : ValueComparer<T>
     {
         public DefaultValueComparer(bool favorStructuralComparisons)
             : base(favorStructuralComparisons)

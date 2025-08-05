@@ -197,8 +197,8 @@ public class SqlServerValueGeneratorSelectorTest
         builder.Entity<AnEntity>(
             b =>
             {
-                b.Property(e => e.Random).ValueGeneratedOnAdd();
-                b.HasKey(e => e.Random);
+                b.Property(e => e.TimeSpan).ValueGeneratedOnAdd();
+                b.HasKey(e => e.TimeSpan);
             });
         var model = builder.FinalizeModel();
         var entityType = model.FindEntityType(typeof(AnEntity));
@@ -206,9 +206,9 @@ public class SqlServerValueGeneratorSelectorTest
         var selector = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<IValueGeneratorSelector>();
 
         Assert.Equal(
-            CoreStrings.NoValueGenerator("Random", "AnEntity", "Something"),
+            CoreStrings.NoValueGenerator("TimeSpan", "AnEntity", "TimeSpan"),
 #pragma warning disable CS0618 // Type or member is obsolete
-            Assert.Throws<NotSupportedException>(() => selector.Select(entityType.FindProperty("Random"), entityType)).Message);
+            Assert.Throws<NotSupportedException>(() => selector.Select(entityType.FindProperty("TimeSpan"), entityType)).Message);
 #pragma warning restore CS0618 // Type or member is obsolete
     }
 
@@ -219,15 +219,15 @@ public class SqlServerValueGeneratorSelectorTest
         builder.Entity<AnEntity>(
             b =>
             {
-                b.Property(e => e.Random).ValueGeneratedOnAdd();
-                b.HasKey(e => e.Random);
+                b.Property(e => e.TimeSpan).ValueGeneratedOnAdd();
+                b.HasKey(e => e.TimeSpan);
             });
         var model = builder.FinalizeModel();
         var entityType = model.FindEntityType(typeof(AnEntity))!;
 
         var selector = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<IValueGeneratorSelector>();
 
-        Assert.False(selector.TrySelect(entityType.FindProperty("Random")!, entityType, out var valueGenerator));
+        Assert.False(selector.TrySelect(entityType.FindProperty("TimeSpan")!, entityType, out var valueGenerator));
         Assert.Null(valueGenerator);
     }
 
@@ -271,6 +271,7 @@ public class SqlServerValueGeneratorSelectorTest
         public byte[] Binary { get; set; }
         public float Float { get; set; }
         public decimal Decimal { get; set; }
+        public TimeSpan TimeSpan { get; set; }
 
         [NotMapped]
         public Something Random { get; set; }

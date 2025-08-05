@@ -4,11 +4,12 @@
 #nullable disable
 
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json;
 using NameSpace1;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract class AdHocMiscellaneousQueryRelationalTestBase : AdHocMiscellaneousQueryTestBase
+    public abstract class AdHocMiscellaneousQueryRelationalTestBase(NonSharedFixture fixture) : AdHocMiscellaneousQueryTestBase(fixture)
     {
         protected TestSqlLoggerFactory TestSqlLoggerFactory
             => (TestSqlLoggerFactory)ListLoggerFactory;
@@ -18,6 +19,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected void AssertSql(params string[] expected)
             => TestSqlLoggerFactory.AssertBaseline(expected);
+
+        protected abstract DbContextOptionsBuilder SetParameterizedCollectionMode(DbContextOptionsBuilder optionsBuilder, ParameterTranslationMode parameterizedCollectionMode);
 
         #region 2951
 
@@ -234,6 +237,120 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 public static DateTime Modify(DateTime date)
                     => throw new NotSupportedException();
+            }
+        }
+
+        #endregion
+
+        #region 34752
+
+        [ConditionalFact]
+        public virtual async Task Mapping_JsonElement_property_throws_a_meaningful_exception()
+        {
+            var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => InitializeAsync<Context34752>())).Message;
+
+            Assert.Equal(
+                CoreStrings.PropertyNotAdded(nameof(Context34752.Entity), nameof(Context34752.Entity.Json), nameof(JsonElement)),
+                message);
+        }
+
+        protected class Context34752(DbContextOptions options) : DbContext(options)
+        {
+            public DbSet<Entity> Entities { get; set; }
+
+            public class Entity
+            {
+                public int Id { get; set; }
+                public JsonElement Json { get; set; }
+            }
+        }
+
+        #endregion
+
+        #region Inlined redacting
+
+        [ConditionalTheory]
+        [MemberData(nameof(InlinedRedactingData))]
+        public virtual async Task Check_inlined_constants_redacting(bool async, bool enableSensitiveDataLogging)
+        {
+            var contextFactory = await InitializeAsync<InlinedRedactingContext>(
+                onConfiguring: o =>
+                {
+                    SetParameterizedCollectionMode(o, ParameterTranslationMode.Constant);
+                    o.EnableSensitiveDataLogging(enableSensitiveDataLogging);
+                });
+            using var context = contextFactory.CreateContext();
+
+            var id = 1;
+            var ids = new[] { id, 2, 3 };
+            var query1 = context.TestEntities.Where(x => ids.Contains(x.Id));
+            var query2 = context.TestEntities.Where(x => ids.Where(y => y == x.Id).Any());
+            var query3 = context.TestEntities.Where(x => EF.Constant(id) == x.Id);
+
+            if (async)
+            {
+                await query1.ToListAsync();
+                await query2.ToListAsync();
+                await query3.ToListAsync();
+            }
+            else
+            {
+                query1.ToList();
+                query2.ToList();
+                query3.ToList();
+            }
+        }
+
+        protected class InlinedRedactingContext(DbContextOptions options) : DbContext(options)
+        {
+            public DbSet<TestEntity> TestEntities { get; set; }
+
+            public class TestEntity
+            {
+                public int Id { get; set; }
+                public string Name { get; set; }
+            }
+        }
+
+        public static readonly IEnumerable<object[]> InlinedRedactingData = [[true, true], [true, false], [false, true], [false, false]];
+
+        #endregion
+
+        #region 36311
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public async Task Entity_equality_with_Contains_and_Parameter(bool async)
+        {
+            var contextFactory = await InitializeAsync<Context36311>(
+                onConfiguring: o => SetParameterizedCollectionMode(o, ParameterTranslationMode.Parameter));
+            using var context = contextFactory.CreateContext();
+
+            List<Context36311.BlogDetails> details = [new Context36311.BlogDetails { Id = 1 }, new Context36311.BlogDetails { Id = 2 }];
+            var query = context.Blogs.Where(b => details.Contains(b.Details));
+
+            var result = async
+                ? await query.ToListAsync()
+                : query.ToList();
+        }
+
+        protected class Context36311(DbContextOptions options) : DbContext(options)
+        {
+            public DbSet<Blog> Blogs { get; set; }
+
+            public class Blog
+            {
+                public int Id { get; set; }
+                public string Name { get; set; }
+
+                public BlogDetails Details { get; set; }
+            }
+
+            public class BlogDetails
+            {
+                public int Id { get; set; }
+                public string Name { get; set; }
             }
         }
 

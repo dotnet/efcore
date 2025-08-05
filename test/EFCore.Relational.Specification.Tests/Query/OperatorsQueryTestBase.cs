@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.TestModels.Operators;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class OperatorsQueryTestBase : NonSharedModelTestBase
+public abstract class OperatorsQueryTestBase(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
     protected OperatorsData ExpectedData { get; init; } = OperatorsData.Instance;
 

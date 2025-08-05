@@ -54,7 +54,9 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     IListSource
     where TEntity : class
 {
+#pragma warning disable EF1001
     private ObservableBackedBindingList<TEntity>? _bindingList;
+#pragma warning restore EF1001
     private ObservableCollection<TEntity>? _observable;
     private readonly DbContext _context;
     private readonly IEntityType _entityType;
@@ -174,7 +176,7 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     }
 
     /// <summary>
-    ///     Returns an <see cref="IEnumerator{T}" /> for all tracked entities of type TEntity
+    ///     Returns an <see cref="IEnumerator{T}" /> for all tracked entities of type <typeparamref name="TEntity"/>
     ///     that are not marked as deleted.
     /// </summary>
     /// <returns>An enumerator for the collection.</returns>
@@ -182,7 +184,7 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
         => _context.GetDependencies().StateManager.GetNonDeletedEntities<TEntity>().GetEnumerator();
 
     /// <summary>
-    ///     Returns an <see cref="IEnumerator{T}" /> for all tracked entities of type TEntity
+    ///     Returns an <see cref="IEnumerator{T}" /> for all tracked entities of type <typeparamref name="TEntity"/>
     ///     that are not marked as deleted.
     /// </summary>
     /// <returns>An enumerator for the collection.</returns>
@@ -235,7 +237,7 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     }
 
     /// <summary>
-    ///     Marks all entities of type TEntity being tracked by the <see cref="DbContext" />
+    ///     Marks all entities of type <typeparamref name="TEntity"/> being tracked by the <see cref="DbContext" />
     ///     as <see cref="EntityState.Deleted" />.
     /// </summary>
     /// <remarks>
@@ -278,7 +280,7 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     }
 
     /// <summary>
-    ///     Copies to an array all entities of type TEntity that are being tracked and are
+    ///     Copies to an array all entities of type <typeparamref name="TEntity"/> that are being tracked and are
     ///     not marked as Deleted.
     /// </summary>
     /// <remarks>
@@ -315,8 +317,7 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     public virtual bool Remove(TEntity item)
     {
         var entry = _context.GetDependencies().StateManager.TryGetEntry(item);
-        if (entry != null
-            && entry.EntityState != EntityState.Deleted)
+        if (entry is { EntityState: not EntityState.Deleted and not EntityState.Detached })
         {
             try
             {
@@ -381,7 +382,7 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     }
 
     /// <summary>
-    ///     The number of entities of type TEntity that are being tracked and are not marked
+    ///     The number of entities of type <typeparamref name="TEntity"/> that are being tracked and are not marked
     ///     as Deleted.
     /// </summary>
     /// <remarks>
@@ -472,10 +473,12 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     ///     examples.
     /// </remarks>
     /// <returns>The binding list.</returns>
+#pragma warning disable EF1001
     [RequiresUnreferencedCode(
         "BindingList raises ListChanged events with PropertyDescriptors. PropertyDescriptors require unreferenced code.")]
     public virtual BindingList<TEntity> ToBindingList()
         => _bindingList ??= new ObservableBackedBindingList<TEntity>(ToObservableCollection());
+#pragma warning restore EF1001
 
     /// <summary>
     ///     This method is called by data binding frameworks when attempting to data bind
@@ -565,7 +568,7 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     /// <returns>An entry for the entity found, or <see langword="null" />.</returns>
     public virtual EntityEntry<TEntity>? FindEntryUntyped(IEnumerable<object?> keyValues)
     {
-        Check.NotNull(keyValues, nameof(keyValues));
+        Check.NotNull(keyValues);
 
         var internalEntityEntry = Finder.FindEntry(keyValues);
 
@@ -624,7 +627,7 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     /// <returns>An entry for the entity found, or <see langword="null" />.</returns>
     public virtual EntityEntry<TEntity>? FindEntry(IEnumerable<string> propertyNames, IEnumerable<object?> propertyValues)
     {
-        Check.NotNull(propertyNames, nameof(propertyNames));
+        Check.NotNull(propertyNames);
 
         return FindEntry(propertyNames.Select(n => _entityType.GetProperty(n)), propertyValues);
     }
@@ -691,7 +694,7 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     /// <returns>An entry for each entity being tracked.</returns>
     public virtual IEnumerable<EntityEntry<TEntity>> GetEntries(IEnumerable<string> propertyNames, IEnumerable<object?> propertyValues)
     {
-        Check.NotNull(propertyNames, nameof(propertyNames));
+        Check.NotNull(propertyNames);
 
         return GetEntries(propertyNames.Select(n => _entityType.GetProperty(n)), propertyValues);
     }
@@ -722,7 +725,7 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     /// <returns>An entry for the entity found, or <see langword="null" />.</returns>
     public virtual EntityEntry<TEntity>? FindEntry<TProperty>(IProperty property, TProperty? propertyValue)
     {
-        Check.NotNull(property, nameof(property));
+        Check.NotNull(property);
 
         var internalEntityEntry = Finder.FindEntry(property, propertyValue);
 
@@ -754,8 +757,8 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     /// <returns>An entry for the entity found, or <see langword="null" />.</returns>
     public virtual EntityEntry<TEntity>? FindEntry(IEnumerable<IProperty> properties, IEnumerable<object?> propertyValues)
     {
-        Check.NotNull(properties, nameof(properties));
-        Check.NotNull(propertyValues, nameof(propertyValues));
+        Check.NotNull(properties);
+        Check.NotNull(propertyValues);
 
         var internalEntityEntry = Finder.FindEntry(properties, propertyValues);
 
@@ -793,7 +796,7 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     /// <returns>An entry for each entity being tracked.</returns>
     public virtual IEnumerable<EntityEntry<TEntity>> GetEntries<TProperty>(IProperty property, TProperty? propertyValue)
     {
-        Check.NotNull(property, nameof(property));
+        Check.NotNull(property);
 
         return Finder.GetEntries(property, propertyValue).Select(e => new EntityEntry<TEntity>(e));
     }
@@ -828,15 +831,15 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     /// <returns>An entry for each entity being tracked.</returns>
     public virtual IEnumerable<EntityEntry<TEntity>> GetEntries(IEnumerable<IProperty> properties, IEnumerable<object?> propertyValues)
     {
-        Check.NotNull(properties, nameof(properties));
-        Check.NotNull(propertyValues, nameof(propertyValues));
+        Check.NotNull(properties);
+        Check.NotNull(propertyValues);
 
         return Finder.GetEntries(properties, propertyValues).Select(e => new EntityEntry<TEntity>(e));
     }
 
     private IProperty FindAndValidateProperty<TProperty>(string propertyName)
     {
-        Check.NotEmpty(propertyName, nameof(propertyName));
+        Check.NotEmpty(propertyName);
 
         var property = _entityType.GetProperty(propertyName);
 

@@ -12,9 +12,6 @@ public class JsonUpdateSqlServerFixture : JsonUpdateFixtureBase
     protected override ITestStoreFactory TestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 
-    public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-        => base.AddOptions(builder).ConfigureWarnings(e => e.Log(SqlServerEventId.JsonTypeExperimental));
-
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
         base.OnModelCreating(modelBuilder, context);

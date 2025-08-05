@@ -389,7 +389,7 @@ public class InternalModelBuilder : AnnotatableBuilder<Model, InternalModelBuild
     public virtual InternalModelBuilder? RemoveImplicitJoinEntity(
         EntityType joinEntityType,
         ConfigurationSource configurationSource = ConfigurationSource.Convention)
-        => !Check.NotNull(joinEntityType, nameof(joinEntityType)).IsInModel
+        => !Check.NotNull(joinEntityType).IsInModel
             ? this
             : !joinEntityType.IsImplicitlyCreatedJoinEntityType
                 ? null
@@ -470,7 +470,7 @@ public class InternalModelBuilder : AnnotatableBuilder<Model, InternalModelBuild
                 Metadata.Builder.HasNoEntityType(existingEntityType, ConfigurationSource.Convention);
             }
 
-            var properties = Metadata.FindProperties(type);
+            var properties = Metadata.FindProperties(type.UnwrapNullableType());
             if (properties != null)
             {
                 foreach (var property in properties)

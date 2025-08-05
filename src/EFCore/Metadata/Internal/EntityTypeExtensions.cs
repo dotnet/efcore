@@ -124,42 +124,31 @@ public static class EntityTypeExtensions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static bool UseEagerSnapshots(this IReadOnlyEntityType entityType)
-    {
-        var changeTrackingStrategy = entityType.GetChangeTrackingStrategy();
-
-        return changeTrackingStrategy is ChangeTrackingStrategy.Snapshot or ChangeTrackingStrategy.ChangedNotifications;
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
     public static PropertyCounts CalculateCounts(this IRuntimeEntityType entityType)
     {
         var propertyIndex = 0;
         var navigationIndex = 0;
         var complexPropertyIndex = 0;
+        var complexCollectionIndex = 0;
         var originalValueIndex = 0;
         var shadowIndex = 0;
         var relationshipIndex = 0;
         var storeGenerationIndex = 0;
 
-        var baseCounts = entityType.BaseType?.Counts;
+        var baseCounts = entityType.BaseType?.CalculateCounts();
         if (baseCounts != null)
         {
             propertyIndex = baseCounts.PropertyCount;
             navigationIndex = baseCounts.NavigationCount;
             complexPropertyIndex = baseCounts.ComplexPropertyCount;
+            complexCollectionIndex = baseCounts.ComplexCollectionCount;
             originalValueIndex = baseCounts.OriginalValueCount;
             shadowIndex = baseCounts.ShadowCount;
             relationshipIndex = baseCounts.RelationshipCount;
             storeGenerationIndex = baseCounts.StoreGeneratedCount;
         }
 
-        foreach (var property in entityType.GetDeclaredProperties())
+        foreach (IRuntimeProperty property in entityType.GetDeclaredProperties())
         {
             var indexes = new PropertyIndexes(
                 index: propertyIndex++,
@@ -168,27 +157,35 @@ public static class EntityTypeExtensions
                 relationshipIndex: property.IsKey() || property.IsForeignKey() ? relationshipIndex++ : -1,
                 storeGenerationIndex: property.MayBeStoreGenerated() ? storeGenerationIndex++ : -1);
 
-            ((IRuntimePropertyBase)property).PropertyIndexes = indexes;
+            property.PropertyIndexes = indexes;
         }
 
-        CountComplexProperties(entityType.GetDeclaredComplexProperties());
+        CountComplexProperties(
+            entityType.GetDeclaredComplexProperties(),
+            ref propertyIndex,
+            ref complexPropertyIndex,
+            ref complexCollectionIndex,
+            ref originalValueIndex,
+            ref shadowIndex,
+            ref relationshipIndex,
+            ref storeGenerationIndex);
 
         var isNotifying = entityType.GetChangeTrackingStrategy() != ChangeTrackingStrategy.Snapshot;
 
-        foreach (var navigation in entityType.GetDeclaredNavigations()
-                     .Union<IPropertyBase>(entityType.GetDeclaredSkipNavigations()))
+        foreach (IRuntimeNavigationBase navigation in entityType.GetDeclaredNavigations()
+                    .Union<INavigationBase>(entityType.GetDeclaredSkipNavigations()))
         {
             var indexes = new PropertyIndexes(
                 index: navigationIndex++,
                 originalValueIndex: -1,
                 shadowIndex: navigation.IsShadowProperty() ? shadowIndex++ : -1,
-                relationshipIndex: ((IReadOnlyNavigationBase)navigation).IsCollection && isNotifying ? -1 : relationshipIndex++,
+                relationshipIndex: navigation.IsCollection && isNotifying ? -1 : relationshipIndex++,
                 storeGenerationIndex: -1);
 
-            ((IRuntimePropertyBase)navigation).PropertyIndexes = indexes;
+            navigation.PropertyIndexes = indexes;
         }
 
-        foreach (var serviceProperty in entityType.GetDeclaredServiceProperties())
+        foreach (IRuntimeServiceProperty serviceProperty in entityType.GetDeclaredServiceProperties())
         {
             var indexes = new PropertyIndexes(
                 index: -1,
@@ -197,46 +194,124 @@ public static class EntityTypeExtensions
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
 
-            ((IRuntimePropertyBase)serviceProperty).PropertyIndexes = indexes;
+            serviceProperty.PropertyIndexes = indexes;
         }
 
         return new PropertyCounts(
             propertyIndex,
             navigationIndex,
             complexPropertyIndex,
+            complexCollectionIndex,
             originalValueIndex,
             shadowIndex,
             relationshipIndex,
             storeGenerationIndex);
+    }
 
-        void CountComplexProperties(IEnumerable<IComplexProperty> complexProperties)
+    private static void CountComplexProperties(
+        IEnumerable<IComplexProperty> complexProperties,
+        ref int propertyIndex,
+        ref int complexPropertyIndex,
+        ref int complexCollectionIndex,
+        ref int originalValueIndex,
+        ref int shadowIndex,
+        ref int relationshipIndex,
+        ref int storeGenerationIndex)
+    {
+        foreach (IRuntimeComplexProperty complexProperty in complexProperties)
         {
-            foreach (var complexProperty in complexProperties)
-            {
-                var indexes = new PropertyIndexes(
-                    index: complexPropertyIndex++,
-                    originalValueIndex: -1,
-                    shadowIndex: complexProperty.IsShadowProperty() ? shadowIndex++ : -1,
-                    relationshipIndex: -1,
-                    storeGenerationIndex: -1);
+            CalculateCounts(
+                complexProperty,
+                ref propertyIndex,
+                ref complexPropertyIndex,
+                ref complexCollectionIndex,
+                ref originalValueIndex,
+                ref shadowIndex,
+                ref relationshipIndex,
+                ref storeGenerationIndex);
+        }
+    }
 
-                ((IRuntimePropertyBase)complexProperty).PropertyIndexes = indexes;
+    private static void CalculateCounts(
+        IRuntimeComplexProperty complexProperty,
+        ref int propertyIndex,
+        ref int complexPropertyIndex,
+        ref int complexCollectionIndex,
+        ref int originalValueIndex,
+        ref int shadowIndex,
+        ref int relationshipIndex,
+        ref int storeGenerationIndex)
+    {
+        var indexes = new PropertyIndexes(
+            index: complexProperty.IsCollection ? complexCollectionIndex++ : complexPropertyIndex++,
+            originalValueIndex: complexProperty.IsCollection ? originalValueIndex++ : -1,
+            shadowIndex: complexProperty.IsShadowProperty() ? shadowIndex++ : -1,
+            relationshipIndex: -1,
+            storeGenerationIndex: -1);
 
-                var complexType = complexProperty.ComplexType;
-                foreach (var property in complexType.GetProperties())
-                {
-                    var complexIndexes = new PropertyIndexes(
-                        index: propertyIndex++,
-                        originalValueIndex: property.RequiresOriginalValue() ? originalValueIndex++ : -1,
-                        shadowIndex: property.IsShadowProperty() ? shadowIndex++ : -1,
-                        relationshipIndex: property.IsKey() || property.IsForeignKey() ? relationshipIndex++ : -1,
-                        storeGenerationIndex: property.MayBeStoreGenerated() ? storeGenerationIndex++ : -1);
+        complexProperty.PropertyIndexes = indexes;
 
-                    ((IRuntimePropertyBase)property).PropertyIndexes = complexIndexes;
-                }
+        var parentPropertyIndex = propertyIndex;
+        var parentComplexPropertyIndex = complexPropertyIndex;
+        var parentComplexCollectionIndex = complexCollectionIndex;
+        var parentOriginalValueIndex = originalValueIndex;
+        var parentShadowIndex = shadowIndex;
+        var parentRelationshipIndex = relationshipIndex;
+        var parentStoreGenerationIndex = storeGenerationIndex;
 
-                CountComplexProperties(complexType.GetComplexProperties());
-            }
+        if (complexProperty.IsCollection)
+        {
+            propertyIndex = 0;
+            complexPropertyIndex = 0;
+            complexCollectionIndex = 0;
+            originalValueIndex = 0;
+            shadowIndex = 0;
+            relationshipIndex = 0;
+            storeGenerationIndex = 0;
+        }
+
+        var complexType = complexProperty.ComplexType;
+        foreach (IRuntimeProperty property in complexType.GetProperties())
+        {
+            var complexIndexes = new PropertyIndexes(
+                index: propertyIndex++,
+                originalValueIndex: property.RequiresOriginalValue() ? originalValueIndex++ : -1,
+                shadowIndex: property.IsShadowProperty() ? shadowIndex++ : -1,
+                relationshipIndex: property.IsKey() || property.IsForeignKey() ? relationshipIndex++ : -1,
+                storeGenerationIndex: property.MayBeStoreGenerated() ? storeGenerationIndex++ : -1);
+
+            property.PropertyIndexes = complexIndexes;
+        }
+
+        CountComplexProperties(
+            complexType.GetComplexProperties(),
+            ref propertyIndex,
+            ref complexPropertyIndex,
+            ref complexCollectionIndex,
+            ref originalValueIndex,
+            ref shadowIndex,
+            ref relationshipIndex,
+            ref storeGenerationIndex);
+
+        if (complexProperty.IsCollection)
+        {
+            ((IRuntimeComplexType)complexProperty.ComplexType).SetCounts(new PropertyCounts(
+                propertyIndex,
+                navigationCount: 0,
+                complexPropertyIndex,
+                complexCollectionIndex,
+                originalValueIndex,
+                shadowIndex,
+                relationshipIndex,
+                storeGenerationIndex));
+
+            propertyIndex = parentPropertyIndex;
+            complexPropertyIndex = parentComplexPropertyIndex;
+            complexCollectionIndex = parentComplexCollectionIndex;
+            originalValueIndex = parentOriginalValueIndex;
+            shadowIndex = parentShadowIndex;
+            relationshipIndex = parentRelationshipIndex;
+            storeGenerationIndex = parentStoreGenerationIndex;
         }
     }
 
@@ -296,25 +371,4 @@ public static class EntityTypeExtensions
         string navigationName)
         => entityType.GetDerivedTypes().Select(t => t.FindDeclaredNavigation(navigationName)!)
             .Where(n => n != null);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public static IProperty CheckContains(
-        this IEntityType entityType,
-        IProperty property)
-    {
-        Check.NotNull(property, nameof(property));
-
-        if (!property.DeclaringType.ContainingEntityType.IsAssignableFrom(entityType))
-        {
-            throw new InvalidOperationException(
-                CoreStrings.PropertyDoesNotBelong(property.Name, property.DeclaringType.DisplayName(), entityType.DisplayName()));
-        }
-
-        return property;
-    }
 }

@@ -123,6 +123,14 @@ public class TestSqlLoggerFactory : ListLoggerFactory
             var fileInfo = _queryBaselineRewritingFileInfos.GetOrAdd(fileName, _ => new QueryBaselineRewritingFileInfo());
             lock (fileInfo.Lock)
             {
+                // Check if we've already processed this line - if so no need to do it again
+                if (fileInfo.ProcessedLines.Contains(lineNumber))
+                {
+                    return;
+                }
+
+                fileInfo.ProcessedLines.Add(lineNumber);
+
                 // First, adjust our lineNumber to take into account any baseline rewriting that already occurred in this file
                 var origLineNumber = lineNumber;
                 foreach (var displacement in fileInfo.LineDisplacements)
@@ -239,13 +247,13 @@ public class TestSqlLoggerFactory : ListLoggerFactory
                         // Skip over the invocation on the read side, and write the new baseline invocation
                         var tempBuf = new char[Math.Max(1024, invocation.Span.Length)];
                         reader.ReadBlock(tempBuf, 0, invocation.Span.Length);
-                        var numNewlinesInOrigin = tempBuf.Count(c => c is '\n' or '\r');
+                        var numNewlinesInOrigin = tempBuf.Count(c => c is '\n');
 
                         indentBuilder.Append("    ");
                         var indent = indentBuilder.ToString();
                         var newBaseLine = $@"AssertSql(
 {string.Join("," + Environment.NewLine + indent + "//" + Environment.NewLine, SqlStatements.Select(sql => indent + "\"\"\"" + Environment.NewLine + sql + Environment.NewLine + "\"\"\""))})";
-                        var numNewlinesInRewritten = newBaseLine.Count(c => c is '\n' or '\r');
+                        var numNewlinesInRewritten = newBaseLine.Count(c => c is '\n');
 
                         writer.Write(newBaseLine);
 
@@ -337,6 +345,12 @@ public class TestSqlLoggerFactory : ListLoggerFactory
         public QueryBaselineRewritingFileInfo() { }
 
         public object Lock { get; } = new();
+
+        /// <summary>
+        ///     Contains information on which lines in the file where we've already performed baseline rewriting; we use this to
+        ///     avoid processing the same line twice (e.g. when a test is a theory that's executed multiple times).
+        /// </summary>
+        public readonly HashSet<int> ProcessedLines = new();
 
         /// <summary>
         ///     Contains information on where previous baseline rewriting caused line numbers to shift; this is used in adjusting line

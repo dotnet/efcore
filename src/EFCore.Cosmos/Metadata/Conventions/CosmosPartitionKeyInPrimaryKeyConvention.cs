@@ -76,7 +76,7 @@ public class CosmosPartitionKeyInPrimaryKeyConvention :
                 if (keyContainsPartitionProperties)
                 {
                     primaryKey.DeclaringEntityType.Builder.HasNoKey(primaryKey);
-                    entityTypeBuilder.HasKey(primaryKeyProperties);
+                    entityTypeBuilder.PrimaryKey(primaryKeyProperties);
                 }
             }
         }

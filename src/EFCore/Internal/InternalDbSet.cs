@@ -205,7 +205,7 @@ public class InternalDbSet<[DynamicallyAccessedMembers(IEntityType.DynamicallyAc
         TEntity entity,
         CancellationToken cancellationToken = default)
     {
-        var entry = EntryWithoutDetectChanges(Check.NotNull(entity, nameof(entity)));
+        var entry = EntryWithoutDetectChanges(Check.NotNull(entity));
 
         await SetEntityStateAsync(entry.GetInfrastructure(), EntityState.Added, cancellationToken)
             .ConfigureAwait(false);
@@ -236,7 +236,7 @@ public class InternalDbSet<[DynamicallyAccessedMembers(IEntityType.DynamicallyAc
     /// </summary>
     public override EntityEntry<TEntity> Remove(TEntity entity)
     {
-        Check.NotNull(entity, nameof(entity));
+        Check.NotNull(entity);
 
         var entry = EntryWithoutDetectChanges(entity);
 
@@ -307,7 +307,7 @@ public class InternalDbSet<[DynamicallyAccessedMembers(IEntityType.DynamicallyAc
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override void AttachRange(params TEntity[] entities)
-        => SetEntityStates(Check.NotNull(entities, nameof(entities)), EntityState.Unchanged);
+        => SetEntityStates(Check.NotNull(entities), EntityState.Unchanged);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -317,7 +317,7 @@ public class InternalDbSet<[DynamicallyAccessedMembers(IEntityType.DynamicallyAc
     /// </summary>
     public override void RemoveRange(params TEntity[] entities)
     {
-        Check.NotNull(entities, nameof(entities));
+        Check.NotNull(entities);
 
         var stateManager = _context.GetDependencies().StateManager;
 
@@ -347,7 +347,7 @@ public class InternalDbSet<[DynamicallyAccessedMembers(IEntityType.DynamicallyAc
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override void UpdateRange(params TEntity[] entities)
-        => SetEntityStates(Check.NotNull(entities, nameof(entities)), EntityState.Modified);
+        => SetEntityStates(Check.NotNull(entities), EntityState.Modified);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -356,7 +356,7 @@ public class InternalDbSet<[DynamicallyAccessedMembers(IEntityType.DynamicallyAc
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override void AddRange(IEnumerable<TEntity> entities)
-        => SetEntityStates(Check.NotNull(entities, nameof(entities)), EntityState.Added);
+        => SetEntityStates(Check.NotNull(entities), EntityState.Added);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -387,7 +387,7 @@ public class InternalDbSet<[DynamicallyAccessedMembers(IEntityType.DynamicallyAc
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override void AttachRange(IEnumerable<TEntity> entities)
-        => SetEntityStates(Check.NotNull(entities, nameof(entities)), EntityState.Unchanged);
+        => SetEntityStates(Check.NotNull(entities), EntityState.Unchanged);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -397,7 +397,7 @@ public class InternalDbSet<[DynamicallyAccessedMembers(IEntityType.DynamicallyAc
     /// </summary>
     public override void RemoveRange(IEnumerable<TEntity> entities)
     {
-        Check.NotNull(entities, nameof(entities));
+        Check.NotNull(entities);
 
         var stateManager = _context.GetDependencies().StateManager;
 
@@ -427,7 +427,7 @@ public class InternalDbSet<[DynamicallyAccessedMembers(IEntityType.DynamicallyAc
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override void UpdateRange(IEnumerable<TEntity> entities)
-        => SetEntityStates(Check.NotNull(entities, nameof(entities)), EntityState.Modified);
+        => SetEntityStates(Check.NotNull(entities), EntityState.Modified);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -437,7 +437,7 @@ public class InternalDbSet<[DynamicallyAccessedMembers(IEntityType.DynamicallyAc
     /// </summary>
     public override EntityEntry<TEntity> Entry(TEntity entity)
     {
-        Check.NotNull(entity, nameof(entity));
+        Check.NotNull(entity);
 
         var entry = EntryWithoutDetectChanges(entity);
 
