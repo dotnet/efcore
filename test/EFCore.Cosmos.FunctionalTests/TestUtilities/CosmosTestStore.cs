@@ -658,8 +658,8 @@ public class CosmosTestStore : TestStore
 
     public class FakeEntityType : Annotatable, IEntityType
     {
-        public IEntityType BaseType
-            => throw new NotImplementedException();
+        public IEntityType? BaseType
+            => null;
 
         public string DefiningNavigationName
             => throw new NotImplementedException();
@@ -962,10 +962,10 @@ public class CosmosTestStore : TestStore
             => throw new NotImplementedException();
 
         IEnumerable<IReadOnlyTrigger> IReadOnlyEntityType.GetDeclaredTriggers()
-            => throw new NotImplementedException();
+            => Enumerable.Empty<IReadOnlyTrigger>();
 
         IEnumerable<ITrigger> IEntityType.GetDeclaredTriggers()
-            => throw new NotImplementedException();
+            => Enumerable.Empty<ITrigger>();
 
         public IComplexProperty FindComplexProperty(string name)
             => throw new NotImplementedException();
