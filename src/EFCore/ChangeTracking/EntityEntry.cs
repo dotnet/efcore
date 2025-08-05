@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 [DebuggerDisplay("{" + nameof(InternalEntry) + ",nq}")]
 public class EntityEntry : IInfrastructure<InternalEntityEntry>
 {
-    private static readonly int MaxEntityState = Enum.GetValues(typeof(EntityState)).Cast<int>().Max();
+    private static readonly int MaxEntityState = Enum.GetValuesAsUnderlyingType<EntityState>().Cast<int>().Max();
     private IEntityFinder? _finder;
 
     /// <summary>
@@ -44,9 +44,7 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     /// </summary>
     [EntityFrameworkInternal]
     public EntityEntry(InternalEntityEntry internalEntry)
-    {
-        InternalEntry = internalEntry;
-    }
+        => InternalEntry = internalEntry;
 
     /// <summary>
     ///     Gets the entity being tracked by this entry.

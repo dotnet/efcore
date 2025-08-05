@@ -27,9 +27,7 @@ public class ServiceParameterBindingFactory : IParameterBindingFactory
     /// </summary>
     /// <param name="serviceType">The service type.</param>
     public ServiceParameterBindingFactory(Type serviceType)
-    {
-        _serviceType = serviceType;
-    }
+        => _serviceType = serviceType;
 
     /// <summary>
     ///     Checks whether or not this factory can bind a parameter with the given type and name.

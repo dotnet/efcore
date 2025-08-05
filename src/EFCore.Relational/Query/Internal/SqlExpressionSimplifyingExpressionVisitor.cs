@@ -39,19 +39,10 @@ public class SqlExpressionSimplifyingExpressionVisitor : ExpressionVisitor
     {
         if (extensionExpression is ShapedQueryExpression shapedQueryExpression)
         {
-            return shapedQueryExpression.UpdateQueryExpression(Visit(shapedQueryExpression.QueryExpression));
-        }
+            var newQueryExpression = Visit(shapedQueryExpression.QueryExpression);
+            var newShaperExpression = Visit(shapedQueryExpression.ShaperExpression);
 
-        // Only applies to 'CASE WHEN condition...' not 'CASE operand WHEN...'
-        if (extensionExpression is CaseExpression
-            {
-                Operand: null, ElseResult: CaseExpression { Operand: null } nestedCaseExpression
-            } caseExpression)
-        {
-            return VisitExtension(
-                _sqlExpressionFactory.Case(
-                    caseExpression.WhenClauses.Union(nestedCaseExpression.WhenClauses).ToList(),
-                    nestedCaseExpression.ElseResult));
+            return shapedQueryExpression.Update(newQueryExpression, newShaperExpression);
         }
 
         if (extensionExpression is SqlBinaryExpression sqlBinaryExpression)
@@ -143,6 +134,16 @@ public class SqlExpressionSimplifyingExpressionVisitor : ExpressionVisitor
 
         return operatorType switch
         {
+            // CompareTo(a, b) == 0 -> a == b
+            // CompareTo(a, b) == 1 -> a > b
+            // CompareTo(a, b) = -1 -> a < b
+            ExpressionType.Equal => (SqlExpression)Visit(
+                intValue switch
+                {
+                    0 => _sqlExpressionFactory.Equal(testLeft, testRight),
+                    1 => _sqlExpressionFactory.GreaterThan(testLeft, testRight),
+                    _ => _sqlExpressionFactory.LessThan(testLeft, testRight)
+                }),
             // CompareTo(a, b) != 0 -> a != b
             // CompareTo(a, b) != 1 -> a <= b
             // CompareTo(a, b) != -1 -> a >= b
@@ -200,29 +201,13 @@ public class SqlExpressionSimplifyingExpressionVisitor : ExpressionVisitor
             sqlBinaryExpression.Left as SqlConstantExpression ?? sqlBinaryExpression.Right as SqlConstantExpression;
         var caseComponent = sqlBinaryExpression.Left as CaseExpression ?? sqlBinaryExpression.Right as CaseExpression;
 
-        // generic CASE statement comparison optimization:
-        // (CASE
-        //  WHEN condition1 THEN result1
-        //  WHEN condition2 THEN result2
-        //  WHEN ...
-        //  WHEN conditionN THEN resultN) == result1 -> condition1
-        if (sqlBinaryExpression.OperatorType == ExpressionType.Equal
-            && sqlConstantComponent?.Value is not null
-            && caseComponent is { Operand: null, ElseResult: null })
-        {
-            var matchingCaseBlock = caseComponent.WhenClauses.FirstOrDefault(wc => sqlConstantComponent.Equals(wc.Result));
-            if (matchingCaseBlock != null)
-            {
-                return Visit(matchingCaseBlock.Test);
-            }
-        }
-
         // CompareTo specific optimizations
         if (sqlConstantComponent != null
             && IsCompareTo(caseComponent)
             && sqlConstantComponent.Value is int intValue and > -2 and < 2
             && sqlBinaryExpression.OperatorType
-                is ExpressionType.NotEqual
+                is ExpressionType.Equal
+                or ExpressionType.NotEqual
                 or ExpressionType.GreaterThan
                 or ExpressionType.GreaterThanOrEqual
                 or ExpressionType.LessThan
