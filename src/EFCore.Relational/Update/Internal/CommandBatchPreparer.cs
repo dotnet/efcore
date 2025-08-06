@@ -621,10 +621,17 @@ public class CommandBatchPreparer : ICommandBatchPreparer
             if (_sensitiveLoggingEnabled)
             {
                 builder.Append(": ");
-                var value = values[i];
-                if (value != null)
+                if (values != null)
                 {
-                    builder.Append(values[i]);
+                    var value = values[i];
+                    if (value != null)
+                    {
+                        builder.Append(values[i]);
+                    }
+                    else
+                    {
+                        builder.Append("NULL");
+                    }
                 }
                 else
                 {
