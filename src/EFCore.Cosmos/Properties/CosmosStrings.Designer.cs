@@ -583,6 +583,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
         public static string WithPartitionKeyNotConstantOrParameter
             => GetString("WithPartitionKeyNotConstantOrParameter");
 
+        /// <summary>
+        ///    Multiple partition keys in changes detected while 'ThrowOnCrossPartitionSaveChanges' is enabled. See https://learn.microsoft.com/en-us/ef/core/providers/cosmos/limitations and https://learn.microsoft.com/en-us/ef/core/providers/cosmos/?tabs=dotnet-core-cli#azure-cosmos-db-options for more information.
+        /// </summary>
+        public static string CrossPartitionSaveChangesDisabled
+            => GetString("CrossPartitionSaveChangesDisabled");
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name)!;
@@ -610,9 +616,34 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             = new ResourceManager("Microsoft.EntityFrameworkCore.Cosmos.Properties.CosmosStrings", typeof(CosmosResources).Assembly);
 
         /// <summary>
-        ///     Executed CreateItem ({elapsed} ms, {charge} RU) ActivityId='{activityId}', Container='{container}', Id='{id}', Partition='{partitionKey}'
+        ///     Executed TransactionalBatch ({elapsed} ms, {charge} RU) ActivityId='{activityId}', Container='{container}', Partition='{partitionKey}'
         /// </summary>
-        public static EventDefinition<string, string, string, string, string, string?> LogExecutedCreateItem(IDiagnosticsLogger logger)
+        public static EventDefinition<string, string, string, string, string?> LogExecutedTransactionalBatch(IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.CosmosLoggingDefinitions)logger.Definitions).LogExecutedTransactionalBatch;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((Diagnostics.Internal.CosmosLoggingDefinitions)logger.Definitions).LogExecutedTransactionalBatch,
+                    logger,
+                    static logger => new EventDefinition<string, string, string, string, string?>(
+                        logger.Options,
+                        CosmosEventId.ExecutedTransactionalBatch,
+                        LogLevel.Information,
+                        "CosmosEventId.ExecutedTransactionalBatch",
+                        level => LoggerMessage.Define<string, string, string, string, string?>(
+                            level,
+                            CosmosEventId.ExecutedTransactionalBatch,
+                            _resourceManager.GetString("LogExecutedTransactionalBatch")!)));
+            }
+
+            return (EventDefinition<string, string, string, string, string?>)definition;
+        }
+
+        /// <summary>
+        ///     Executed CreateItem ActivityId='{activityId}', Container='{container}', Id='{id}', Partition='{partitionKey}'
+        /// </summary>
+        public static EventDefinition<string, string, string, string?> LogExecutedCreateItem(IDiagnosticsLogger logger)
         {
             var definition = ((Diagnostics.Internal.CosmosLoggingDefinitions)logger.Definitions).LogExecutedCreateItem;
             if (definition == null)
@@ -620,24 +651,24 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.CosmosLoggingDefinitions)logger.Definitions).LogExecutedCreateItem,
                     logger,
-                    static logger => new EventDefinition<string, string, string, string, string, string?>(
+                    static logger => new EventDefinition<string, string, string, string?>(
                         logger.Options,
                         CosmosEventId.ExecutedCreateItem,
                         LogLevel.Information,
                         "CosmosEventId.ExecutedCreateItem",
-                        level => LoggerMessage.Define<string, string, string, string, string, string?>(
+                        level => LoggerMessage.Define<string, string, string, string?>(
                             level,
                             CosmosEventId.ExecutedCreateItem,
                             _resourceManager.GetString("LogExecutedCreateItem")!)));
             }
 
-            return (EventDefinition<string, string, string, string, string, string?>)definition;
+            return (EventDefinition<string, string, string, string?>)definition;
         }
 
         /// <summary>
-        ///     Executed DeleteItem ({elapsed} ms, {charge} RU) ActivityId='{activityId}', Container='{container}', Id='{id}', Partition='{partitionKey}'
+        ///     Executed DeleteItem ActivityId='{activityId}', Container='{container}', Id='{id}', Partition='{partitionKey}'
         /// </summary>
-        public static EventDefinition<string, string, string, string, string, string?> LogExecutedDeleteItem(IDiagnosticsLogger logger)
+        public static EventDefinition<string, string, string, string?> LogExecutedDeleteItem(IDiagnosticsLogger logger)
         {
             var definition = ((Diagnostics.Internal.CosmosLoggingDefinitions)logger.Definitions).LogExecutedDeleteItem;
             if (definition == null)
@@ -645,18 +676,18 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.CosmosLoggingDefinitions)logger.Definitions).LogExecutedDeleteItem,
                     logger,
-                    static logger => new EventDefinition<string, string, string, string, string, string?>(
+                    static logger => new EventDefinition<string, string, string, string?>(
                         logger.Options,
                         CosmosEventId.ExecutedDeleteItem,
                         LogLevel.Information,
                         "CosmosEventId.ExecutedDeleteItem",
-                        level => LoggerMessage.Define<string, string, string, string, string, string?>(
+                        level => LoggerMessage.Define<string, string, string, string?>(
                             level,
                             CosmosEventId.ExecutedDeleteItem,
                             _resourceManager.GetString("LogExecutedDeleteItem")!)));
             }
 
-            return (EventDefinition<string, string, string, string, string, string?>)definition;
+            return (EventDefinition<string, string, string, string?>)definition;
         }
 
         /// <summary>
@@ -709,7 +740,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
         /// <summary>
         ///     Executed ReplaceItem ({elapsed} ms, {charge} RU) ActivityId='{activityId}', Container='{container}', Id='{id}', Partition='{partitionKey}'
         /// </summary>
-        public static EventDefinition<string, string, string, string, string, string?> LogExecutedReplaceItem(IDiagnosticsLogger logger)
+        public static EventDefinition<string, string, string, string?> LogExecutedReplaceItem(IDiagnosticsLogger logger)
         {
             var definition = ((Diagnostics.Internal.CosmosLoggingDefinitions)logger.Definitions).LogExecutedReplaceItem;
             if (definition == null)
@@ -717,18 +748,18 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.CosmosLoggingDefinitions)logger.Definitions).LogExecutedReplaceItem,
                     logger,
-                    static logger => new EventDefinition<string, string, string, string, string, string?>(
+                    static logger => new EventDefinition<string, string, string, string?>(
                         logger.Options,
                         CosmosEventId.ExecutedReplaceItem,
                         LogLevel.Information,
                         "CosmosEventId.ExecutedReplaceItem",
-                        level => LoggerMessage.Define<string, string, string, string, string, string?>(
+                        level => LoggerMessage.Define<string, string, string, string?>(
                             level,
                             CosmosEventId.ExecutedReplaceItem,
                             _resourceManager.GetString("LogExecutedReplaceItem")!)));
             }
 
-            return (EventDefinition<string, string, string, string, string, string?>)definition;
+            return (EventDefinition<string, string, string, string?>)definition;
         }
 
         /// <summary>

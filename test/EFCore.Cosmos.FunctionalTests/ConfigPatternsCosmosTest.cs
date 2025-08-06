@@ -126,6 +126,58 @@ public class ConfigPatternsCosmosTest(ConfigPatternsCosmosTest.CosmosFixture fix
             });
     }
 
+    [ConditionalFact]
+    public async Task Should_throw_cross_partition_save_changes_enabled()
+    {
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+            async () =>
+            {
+                await using var testDatabase = await CosmosTestStore.CreateInitializedAsync(DatabaseName, o => o.ThrowOnCrossPartitionSaveChanges());
+                var options = CreateOptions(testDatabase);
+
+                var customer1 = new Customer { Id = 42, Name = "Theon" };
+                var customer2 = new Customer { Id = 43, Name = "Theon" };
+
+                using var context = new CustomerContext(options);
+                await context.Database.EnsureCreatedAsync();
+
+                await context.AddAsync(customer1);
+                await context.AddAsync(customer2);
+
+                await context.SaveChangesAsync();
+            });
+
+        Assert.Equal(
+            "Multiple partition keys in changes detected while 'ThrowOnCrossPartitionSaveChanges' is enabled. See https://learn.microsoft.com/en-us/ef/core/providers/cosmos/limitations and https://learn.microsoft.com/en-us/ef/core/providers/cosmos/?tabs=dotnet-core-cli#azure-cosmos-db-options for more information.",
+            exception.Message);
+    }
+
+    [ConditionalFact]
+    public async Task Should_not_throw_cross_partition_save_changes_disabled()
+    {
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+            async () =>
+            {
+                await using var testDatabase = await CosmosTestStore.CreateInitializedAsync(DatabaseName, o => o.ThrowOnCrossPartitionSaveChanges(false));
+                var options = CreateOptions(testDatabase);
+
+                var customer1 = new Customer { Id = 42, Name = "Theon" };
+                var customer2 = new Customer { Id = 43, Name = "Theon" };
+
+                using var context = new CustomerContext(options);
+                await context.Database.EnsureCreatedAsync();
+
+                await context.AddAsync(customer1);
+                await context.AddAsync(customer2);
+
+                await context.SaveChangesAsync();
+            });
+
+        Assert.Equal(
+            "Multiple partition keys in changes detected while 'ThrowOnCrossPartitionSaveChanges' is enabled. See https://learn.microsoft.com/en-us/ef/core/providers/cosmos/limitations and https://learn.microsoft.com/en-us/ef/core/providers/cosmos/?tabs=dotnet-core-cli#azure-cosmos-db-options for more information.",
+            exception.Message);
+    }
+
     private DbContextOptions CreateOptions(CosmosTestStore testDatabase, Action<DbContextOptionsBuilder> configure = null)
     {
         var builder = Fixture.AddOptions(testDatabase.AddProviderOptions(new DbContextOptionsBuilder()))
@@ -144,7 +196,7 @@ public class ConfigPatternsCosmosTest(ConfigPatternsCosmosTest.CosmosFixture fix
     private class CustomerContext(DbContextOptions dbContextOptions) : DbContext(dbContextOptions)
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<Customer>();
+            => modelBuilder.Entity<Customer>().HasPartitionKey(x => x.Id);
     }
 
     public class CosmosFixture : ServiceProviderFixtureBase

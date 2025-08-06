@@ -4,13 +4,18 @@
 using System.Collections;
 using System.Collections.ObjectModel;
 using System.Net;
+using System.Reflection.Metadata;
 using System.Runtime.CompilerServices;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Threading;
+using System.Xml.Linq;
 using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Update;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -372,20 +377,39 @@ public class CosmosClientWrapper : ICosmosClientWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool CreateItem(
-        string containerId,
-        JToken document,
-        IUpdateEntry entry)
+    public virtual PartitionKey GetPartitionKeyValue(IUpdateEntry updateEntry)
+        => ExtractPartitionKeyValue(updateEntry);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual ICosmosTransactionalBatchWrapper CreateTransactionalBatch(string containerId, PartitionKey partitionKeyValue)
+    {
+        var container = Client.GetDatabase(_databaseId).GetContainer(containerId);
+        var batch = container.CreateTransactionalBatch(partitionKeyValue);
+
+        return new CosmosTransactionalBatchWrapper(batch, containerId, partitionKeyValue, _enableContentResponseOnWrite);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual CosmosTransactionalBatchResult ExecuteBatch(ICosmosTransactionalBatchWrapper batch)
     {
         _databaseLogger.SyncNotSupported();
 
-        return _executionStrategy.Execute((containerId, document, entry, this), CreateItemOnce, null);
+        return _executionStrategy.Execute((batch, this), ExecuteBatchOnce, null);
     }
 
-    private static bool CreateItemOnce(
-        DbContext context,
-        (string ContainerId, JToken Document, IUpdateEntry Entry, CosmosClientWrapper Wrapper) parameters)
-        => CreateItemOnceAsync(context, parameters).GetAwaiter().GetResult();
+    private static CosmosTransactionalBatchResult ExecuteBatchOnce(DbContext _,
+        (ICosmosTransactionalBatchWrapper Batch, CosmosClientWrapper Wrapper) parameters)
+        => ExecuteBatchOnceAsync(_, parameters).GetAwaiter().GetResult();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -393,239 +417,72 @@ public class CosmosClientWrapper : ICosmosClientWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Task<bool> CreateItemAsync(
-        string containerId,
-        JToken document,
-        IUpdateEntry updateEntry,
-        CancellationToken cancellationToken = default)
-        => _executionStrategy.ExecuteAsync((containerId, document, updateEntry, this), CreateItemOnceAsync, null, cancellationToken);
+    public virtual Task<CosmosTransactionalBatchResult> ExecuteBatchAsync(ICosmosTransactionalBatchWrapper batch, CancellationToken cancellationToken = default)
+        => _executionStrategy.ExecuteAsync((batch, this), ExecuteBatchOnceAsync, null, cancellationToken);
 
-    private static async Task<bool> CreateItemOnceAsync(
-        DbContext _,
-        (string ContainerId, JToken Document, IUpdateEntry Entry, CosmosClientWrapper Wrapper) parameters,
+    private static async Task<CosmosTransactionalBatchResult> ExecuteBatchOnceAsync(DbContext _,
+        (ICosmosTransactionalBatchWrapper Batch, CosmosClientWrapper Wrapper) parameters,
         CancellationToken cancellationToken = default)
     {
-        var stream = new MemoryStream();
-        await using var __ = stream.ConfigureAwait(false);
-        var writer = new StreamWriter(stream, new UTF8Encoding(), bufferSize: 1024, leaveOpen: false);
-        await using var ___ = writer.ConfigureAwait(false);
-
-        using var jsonWriter = new JsonTextWriter(writer);
-        Serializer.Serialize(jsonWriter, parameters.Document);
-        await jsonWriter.FlushAsync(cancellationToken).ConfigureAwait(false);
-
-        var entry = parameters.Entry;
+        var batch = parameters.Batch;
+        var transactionalBatch = batch.GetTransactionalBatch();
         var wrapper = parameters.Wrapper;
-        var container = wrapper.Client.GetDatabase(wrapper._databaseId).GetContainer(parameters.ContainerId);
-        var itemRequestOptions = CreateItemRequestOptions(entry, wrapper._enableContentResponseOnWrite);
-        var partitionKeyValue = ExtractPartitionKeyValue(entry);
 
-        var response = await container.CreateItemStreamAsync(
-                stream,
-                partitionKeyValue,
-                itemRequestOptions,
-                cancellationToken)
-            .ConfigureAwait(false);
+        using var response = await transactionalBatch.ExecuteAsync(cancellationToken).ConfigureAwait(false);
 
-        wrapper._commandLogger.ExecutedCreateItem(
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorCode = response.StatusCode;
+            var errorEntries = response
+                .Select((opResult, index) => (opResult, index))
+                .Where(r => r.opResult.StatusCode == errorCode)
+                .Select(r => batch.Entries[r.index])
+                .ToList();
+
+            return new CosmosTransactionalBatchResult(errorEntries, errorCode);
+        }
+
+        wrapper._commandLogger.ExecutedTransactionalBatch(
             response.Diagnostics.GetClientElapsedTime(),
             response.Headers.RequestCharge,
             response.Headers.ActivityId,
-            parameters.Document["id"]!.ToString(),
-            parameters.ContainerId,
-            partitionKeyValue);
+            batch.Operations,
+            batch.CollectionId,
+            batch.PartitionKeyValue);
 
-        ProcessResponse(response, entry);
-
-        return response.StatusCode == HttpStatusCode.Created;
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual bool ReplaceItem(
-        string collectionId,
-        string documentId,
-        JObject document,
-        IUpdateEntry entry)
-    {
-        _databaseLogger.SyncNotSupported();
-
-        return _executionStrategy.Execute((collectionId, documentId, document, entry, this), ReplaceItemOnce, null);
-    }
-
-    private static bool ReplaceItemOnce(
-        DbContext context,
-        (string ContainerId, string ItemId, JObject Document, IUpdateEntry Entry, CosmosClientWrapper Wrapper) parameters)
-        => ReplaceItemOnceAsync(context, parameters).GetAwaiter().GetResult();
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual Task<bool> ReplaceItemAsync(
-        string collectionId,
-        string documentId,
-        JObject document,
-        IUpdateEntry updateEntry,
-        CancellationToken cancellationToken = default)
-        => _executionStrategy.ExecuteAsync(
-            (collectionId, documentId, document, updateEntry, this), ReplaceItemOnceAsync, null, cancellationToken);
-
-    private static async Task<bool> ReplaceItemOnceAsync(
-        DbContext _,
-        (string ContainerId, string ResourceId, JObject Document, IUpdateEntry Entry, CosmosClientWrapper Wrapper) parameters,
-        CancellationToken cancellationToken = default)
-    {
-        var stream = new MemoryStream();
-        await using var __ = stream.ConfigureAwait(false);
-        var writer = new StreamWriter(stream, new UTF8Encoding(), bufferSize: 1024, leaveOpen: false);
-        await using var ___ = writer.ConfigureAwait(false);
-        using var jsonWriter = new JsonTextWriter(writer);
-        Serializer.Serialize(jsonWriter, parameters.Document);
-        await jsonWriter.FlushAsync(cancellationToken).ConfigureAwait(false);
-
-        var entry = parameters.Entry;
-        var wrapper = parameters.Wrapper;
-        var container = wrapper.Client.GetDatabase(wrapper._databaseId).GetContainer(parameters.ContainerId);
-        var itemRequestOptions = CreateItemRequestOptions(entry, wrapper._enableContentResponseOnWrite);
-        var partitionKeyValue = ExtractPartitionKeyValue(entry);
-
-        using var response = await container.ReplaceItemStreamAsync(
-                stream,
-                parameters.ResourceId,
-                partitionKeyValue,
-                itemRequestOptions,
-                cancellationToken)
-            .ConfigureAwait(false);
-
-        wrapper._commandLogger.ExecutedReplaceItem(
-            response.Diagnostics.GetClientElapsedTime(),
-            response.Headers.RequestCharge,
-            response.Headers.ActivityId,
-            parameters.ResourceId,
-            parameters.ContainerId,
-            partitionKeyValue);
-
-        ProcessResponse(response, entry);
-
-        return response.StatusCode == HttpStatusCode.OK;
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual bool DeleteItem(
-        string containerId,
-        string documentId,
-        IUpdateEntry entry)
-    {
-        _databaseLogger.SyncNotSupported();
-
-        return _executionStrategy.Execute((containerId, documentId, entry, this), DeleteItemOnce, null);
-    }
-
-    private static bool DeleteItemOnce(
-        DbContext context,
-        (string ContainerId, string DocumentId, IUpdateEntry Entry, CosmosClientWrapper Wrapper) parameters)
-        => DeleteItemOnceAsync(context, parameters).GetAwaiter().GetResult();
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual Task<bool> DeleteItemAsync(
-        string containerId,
-        string documentId,
-        IUpdateEntry entry,
-        CancellationToken cancellationToken = default)
-        => _executionStrategy.ExecuteAsync((containerId, documentId, entry, this), DeleteItemOnceAsync, null, cancellationToken);
-
-    private static async Task<bool> DeleteItemOnceAsync(
-        DbContext? _,
-        (string ContainerId, string ResourceId, IUpdateEntry Entry, CosmosClientWrapper Wrapper) parameters,
-        CancellationToken cancellationToken = default)
-    {
-        var entry = parameters.Entry;
-        var wrapper = parameters.Wrapper;
-        var items = wrapper.Client.GetDatabase(wrapper._databaseId).GetContainer(parameters.ContainerId);
-
-        var itemRequestOptions = CreateItemRequestOptions(entry, wrapper._enableContentResponseOnWrite);
-        var partitionKeyValue = ExtractPartitionKeyValue(entry);
-
-        using var response = await items.DeleteItemStreamAsync(
-                parameters.ResourceId,
-                partitionKeyValue,
-                itemRequestOptions,
-                cancellationToken: cancellationToken)
-            .ConfigureAwait(false);
-
-        wrapper._commandLogger.ExecutedDeleteItem(
-            response.Diagnostics.GetClientElapsedTime(),
-            response.Headers.RequestCharge,
-            response.Headers.ActivityId,
-            parameters.ResourceId,
-            parameters.ContainerId,
-            partitionKeyValue);
-
-        ProcessResponse(response, entry);
-
-        return response.StatusCode == HttpStatusCode.NoContent;
-    }
-
-    private static ItemRequestOptions? CreateItemRequestOptions(IUpdateEntry entry, bool? enableContentResponseOnWrite)
-    {
-        var etagProperty = entry.EntityType.GetETagProperty();
-        if (etagProperty == null)
+        foreach (var operation in batch.Operations)
         {
-            return null;
-        }
-
-        var etag = entry.GetOriginalValue(etagProperty);
-        var converter = etagProperty.GetTypeMapping().Converter;
-        if (converter != null)
-        {
-            etag = converter.ConvertToProvider(etag);
-        }
-
-        bool enabledContentResponse;
-        if (enableContentResponseOnWrite.HasValue)
-        {
-            enabledContentResponse = enableContentResponseOnWrite.Value;
-        }
-        else
-        {
-            switch (entry.EntityState)
+            switch (operation.Value)
             {
-                case EntityState.Modified:
-                {
-                    var jObjectProperty = entry.EntityType.FindProperty(CosmosPartitionKeyInPrimaryKeyConvention.JObjectPropertyName);
-                    enabledContentResponse = (jObjectProperty?.ValueGenerated & ValueGenerated.OnUpdate) == ValueGenerated.OnUpdate;
+                case CosmosCudOperation.Create:
+                    wrapper._commandLogger.ExecutedCreateItem(
+                        response.Headers.ActivityId,
+                        operation.Key,
+                        batch.CollectionId,
+                        batch.PartitionKeyValue);
                     break;
-                }
-                case EntityState.Added:
-                {
-                    var jObjectProperty = entry.EntityType.FindProperty(CosmosPartitionKeyInPrimaryKeyConvention.JObjectPropertyName);
-                    enabledContentResponse = (jObjectProperty?.ValueGenerated & ValueGenerated.OnAdd) == ValueGenerated.OnAdd;
+                case CosmosCudOperation.Update:
+                    wrapper._commandLogger.ExecutedReplaceItem(
+                        response.Headers.ActivityId,
+                        operation.Key,
+                        batch.CollectionId,
+                        batch.PartitionKeyValue);
                     break;
-                }
+                case CosmosCudOperation.Delete:
+                    wrapper._commandLogger.ExecutedDeleteItem(
+                        response.Headers.ActivityId,
+                        operation.Key,
+                        batch.CollectionId,
+                        batch.PartitionKeyValue);
+                    break;
                 default:
-                    enabledContentResponse = false;
-                    break;
+                    throw new UnreachableException();
             }
         }
 
-        return new ItemRequestOptions { IfMatchEtag = (string?)etag, EnableContentResponseOnWrite = enabledContentResponse };
+        ProcessResponse(response, batch.Entries);
+
+        return CosmosTransactionalBatchResult.Success;
     }
 
     private static PartitionKey ExtractPartitionKeyValue(IUpdateEntry entry)
@@ -645,26 +502,31 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         return builder.Build();
     }
 
-    private static void ProcessResponse(ResponseMessage response, IUpdateEntry entry)
+    private static void ProcessResponse(TransactionalBatchResponse batchResponse, IReadOnlyList<IUpdateEntry> entries)
     {
-        response.EnsureSuccessStatusCode();
-        var etagProperty = entry.EntityType.GetETagProperty();
-        if (etagProperty != null && entry.EntityState != EntityState.Deleted)
+        for (var i = 0; i < batchResponse.Count; i++)
         {
-            entry.SetStoreGeneratedValue(etagProperty, response.Headers.ETag);
-        }
+            var entry = entries[i];
+            var response = batchResponse[i];
 
-        var jObjectProperty = entry.EntityType.FindProperty(CosmosPartitionKeyInPrimaryKeyConvention.JObjectPropertyName);
-        if (jObjectProperty is { ValueGenerated: ValueGenerated.OnAddOrUpdate }
-            && response.Content != null)
-        {
-            using var responseStream = response.Content;
-            using var reader = new StreamReader(responseStream);
-            using var jsonReader = new JsonTextReader(reader);
+            var etagProperty = entry.EntityType.GetETagProperty();
+            if (etagProperty != null && entry.EntityState != EntityState.Deleted)
+            {
+                entry.SetStoreGeneratedValue(etagProperty, response.ETag);
+            }
 
-            var createdDocument = Serializer.Deserialize<JObject>(jsonReader);
+            var jObjectProperty = entry.EntityType.FindProperty(CosmosPartitionKeyInPrimaryKeyConvention.JObjectPropertyName);
+            if (jObjectProperty is { ValueGenerated: ValueGenerated.OnAddOrUpdate }
+                && response.ResourceStream != null)
+            {
+                using var responseStream = response.ResourceStream;
+                using var reader = new StreamReader(responseStream);
+                using var jsonReader = new JsonTextReader(reader);
 
-            entry.SetStoreGeneratedValue(jObjectProperty, createdDocument);
+                var createdDocument = Serializer.Deserialize<JObject>(jsonReader);
+
+                entry.SetStoreGeneratedValue(jObjectProperty, createdDocument);
+            }
         }
     }
 

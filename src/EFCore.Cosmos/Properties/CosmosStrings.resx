@@ -211,12 +211,12 @@
     <value>The query requires use of LIMIT and OFFSET in a subquery, which is unsupported by Cosmos.</value>
   </data>
   <data name="LogExecutedCreateItem" xml:space="preserve">
-    <value>Executed CreateItem ({elapsed} ms, {charge} RU) ActivityId='{activityId}', Container='{container}', Id='{id}', Partition='{partitionKey}'</value>
-    <comment>Information CosmosEventId.ExecutedCreateItem string string string string string string?</comment>
+    <value>Executed CreateItem ActivityId='{activityId}', Container='{container}', Id='{id}', Partition='{partitionKey}'</value>
+    <comment>Information CosmosEventId.ExecutedCreateItem string string string string?</comment>
   </data>
   <data name="LogExecutedDeleteItem" xml:space="preserve">
-    <value>Executed DeleteItem ({elapsed} ms, {charge} RU) ActivityId='{activityId}', Container='{container}', Id='{id}', Partition='{partitionKey}'</value>
-    <comment>Information CosmosEventId.ExecutedDeleteItem string string string string string string?</comment>
+    <value>Executed DeleteItem ActivityId='{activityId}', Container='{container}', Id='{id}', Partition='{partitionKey}'</value>
+    <comment>Information CosmosEventId.ExecutedDeleteItem string string string string?</comment>
   </data>
   <data name="LogExecutedReadItem" xml:space="preserve">
     <value>Executed ReadItem ({elapsed} ms, {charge} RU) ActivityId='{activityId}', Container='{container}', Id='{id}', Partition='{partitionKey}'</value>
@@ -227,8 +227,12 @@
     <comment>Information CosmosEventId.ExecutedReadNext string string string string string? string string string string</comment>
   </data>
   <data name="LogExecutedReplaceItem" xml:space="preserve">
-    <value>Executed ReplaceItem ({elapsed} ms, {charge} RU) ActivityId='{activityId}', Container='{container}', Id='{id}', Partition='{partitionKey}'</value>
-    <comment>Information CosmosEventId.ExecutedReplaceItem string string string string string string?</comment>
+    <value>Executed ReplaceItem ActivityId='{activityId}', Container='{container}', Id='{id}', Partition='{partitionKey}'</value>
+    <comment>Information CosmosEventId.ExecutedReplaceItem string string string string?</comment>
+  </data>
+  <data name="LogExecutedTransactionalBatch" xml:space="preserve">
+    <value>Executed TransactionalBatch ({elapsed} ms, {charge} RU) ActivityId='{activityId}', Container='{container}', Partition='{partitionKey}'</value>
+    <comment>Information CosmosEventId.ExecutedReplaceItem string string string?</comment>
   </data>
   <data name="LogExecutingReadItem" xml:space="preserve">
     <value>Reading resource '{resourceId}' item from container '{containerId}' in partition '{partitionKey}'.</value>
@@ -384,5 +388,8 @@
   </data>
   <data name="WithPartitionKeyNotConstantOrParameter" xml:space="preserve">
     <value>'WithPartitionKey' only accepts simple constant or parameter arguments. See https://aka.ms/efdocs-cosmos-partition-keys for more information.</value>
+  </data>
+  <data name="CrossPartitionSaveChangesDisabled" xml:space="preserve">
+    <value>Multiple partition keys in changes detected while 'ThrowOnCrossPartitionSaveChanges' is enabled. See https://learn.microsoft.com/en-us/ef/core/providers/cosmos/limitations and https://learn.microsoft.com/en-us/ef/core/providers/cosmos/?tabs=dotnet-core-cli#azure-cosmos-db-options for more information.</value>
   </data>
 </root>

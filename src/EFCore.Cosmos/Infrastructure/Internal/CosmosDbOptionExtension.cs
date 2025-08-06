@@ -16,6 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 /// </summary>
 public class CosmosOptionsExtension : IDbContextOptionsExtension
 {
+    private bool _thrownOnCrossPartitionSaveChanges;
     private string? _accountEndpoint;
     private string? _accountKey;
     private TokenCredential? _tokenCredential;
@@ -55,6 +56,7 @@ public class CosmosOptionsExtension : IDbContextOptionsExtension
     /// </summary>
     protected CosmosOptionsExtension(CosmosOptionsExtension copyFrom)
     {
+        _thrownOnCrossPartitionSaveChanges = copyFrom._thrownOnCrossPartitionSaveChanges;
         _accountEndpoint = copyFrom._accountEndpoint;
         _accountKey = copyFrom._accountKey;
         _tokenCredential = copyFrom._tokenCredential;
@@ -83,6 +85,30 @@ public class CosmosOptionsExtension : IDbContextOptionsExtension
     /// </summary>
     public virtual DbContextOptionsExtensionInfo Info
         => _info ??= new ExtensionInfo(this);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool ThrowOnCrossPartitionSaveChanges
+        => _thrownOnCrossPartitionSaveChanges;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual CosmosOptionsExtension WithThrowOnCrossPartitionSaveChanges(bool thrownOnCrossPartitionSaveChanges)
+    {
+        var clone = Clone();
+
+        clone._thrownOnCrossPartitionSaveChanges = thrownOnCrossPartitionSaveChanges;
+
+        return clone;
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

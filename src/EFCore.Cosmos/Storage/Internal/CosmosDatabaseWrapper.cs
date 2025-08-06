@@ -4,6 +4,7 @@
 using System.Net;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Update.Internal;
@@ -24,6 +25,7 @@ public class CosmosDatabaseWrapper : Database
 
     private readonly ICosmosClientWrapper _cosmosClient;
     private readonly bool _sensitiveLoggingEnabled;
+    private readonly bool _throwOnCrossPartitionSaveChanges;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -33,6 +35,7 @@ public class CosmosDatabaseWrapper : Database
     /// </summary>
     public CosmosDatabaseWrapper(
         DatabaseDependencies dependencies,
+        IDbContextOptions dbContextOptions,
         ICosmosClientWrapper cosmosClient,
         ILoggingOptions loggingOptions)
         : base(dependencies)
@@ -43,6 +46,9 @@ public class CosmosDatabaseWrapper : Database
         {
             _sensitiveLoggingEnabled = true;
         }
+
+        var options = dbContextOptions.FindExtension<CosmosOptionsExtension>()!;
+        _throwOnCrossPartitionSaveChanges = options.ThrowOnCrossPartitionSaveChanges;
     }
 
     /// <summary>
@@ -54,66 +60,24 @@ public class CosmosDatabaseWrapper : Database
     public override int SaveChanges(IList<IUpdateEntry> entries)
     {
         var rowsAffected = 0;
-        var entriesSaved = new HashSet<IUpdateEntry>();
-        var rootEntriesToSave = new HashSet<IUpdateEntry>();
+        var batches = CreateBatches(entries);
 
-        // ReSharper disable once ForCanBeConvertedToForeach
-        for (var i = 0; i < entries.Count; i++)
+        foreach (var batch in batches)
         {
-            var entry = entries[i];
-            var entityType = entry.EntityType;
+            var transaction = GetTransaction(batch, out var transactionRows);
+            rowsAffected += transactionRows;
+            var response = _cosmosClient.ExecuteBatch(transaction);
 
-            Check.DebugAssert(!entityType.IsAbstract(), $"{entityType} is abstract");
-
-            if (!entityType.IsDocumentRoot())
+            if (!response.IsSuccess)
             {
-#pragma warning disable EF1001 // Internal EF Core API usage.
-                // #16707
-                var root = GetRootDocument((InternalEntityEntry)entry);
-#pragma warning restore EF1001 // Internal EF Core API usage.
-                if (!entriesSaved.Contains(root)
-                    && rootEntriesToSave.Add(root)
-                    && root.EntityState == EntityState.Unchanged)
-                {
-#pragma warning disable EF1001 // Internal EF Core API usage.
-                    // #16707
-                    ((InternalEntityEntry)root).SetEntityState(EntityState.Modified);
-#pragma warning restore EF1001 // Internal EF Core API usage.
-                    entries.Add(root);
-                }
-
-                continue;
-            }
-
-            entriesSaved.Add(entry);
-
-            try
-            {
-                if (Save(entry))
-                {
-                    rowsAffected++;
-                }
-            }
-            catch (Exception ex) when (ex is not DbUpdateException and not OperationCanceledException)
-            {
-                var errorEntries = new[] { entry };
-                var exception = WrapUpdateException(ex, errorEntries);
-
+                var exception = CreateUpdateException(response);
                 if (exception is not DbUpdateConcurrencyException
                     || !Dependencies.Logger.OptimisticConcurrencyException(
-                        entry.Context, errorEntries, (DbUpdateConcurrencyException)exception, null).IsSuppressed)
+                            response.ErroredEntries!.First().Context, response.ErroredEntries!, (DbUpdateConcurrencyException)exception, null)
+                       .IsSuppressed)
                 {
                     throw exception;
                 }
-            }
-        }
-
-        foreach (var rootEntry in rootEntriesToSave)
-        {
-            if (!entriesSaved.Contains(rootEntry)
-                && Save(rootEntry))
-            {
-                rowsAffected++;
             }
         }
 
@@ -130,23 +94,47 @@ public class CosmosDatabaseWrapper : Database
         IList<IUpdateEntry> entries,
         CancellationToken cancellationToken = default)
     {
-        var rowsAffected = 0;
-        var entriesSaved = new HashSet<IUpdateEntry>();
-        var rootEntriesToSave = new HashSet<IUpdateEntry>();
-
-        // ReSharper disable once ForCanBeConvertedToForeach
-        for (var i = 0; i < entries.Count; i++)
+        if (entries.Count == 0)
         {
-            var entry = entries[i];
-            var entityType = entry.EntityType;
+            return 0;
+        }
 
-            Check.DebugAssert(!entityType.IsAbstract(), $"{entityType} is abstract");
+        var rowsAffected = 0;
+        var batches = CreateBatches(entries);
 
-            if (!entityType.IsDocumentRoot())
+        foreach (var batch in batches)
+        {
+            var transaction = GetTransaction(batch, out var transactionRows);
+            rowsAffected += transactionRows;
+            var response = await _cosmosClient.ExecuteBatchAsync(transaction, cancellationToken).ConfigureAwait(false);
+
+            if (!response.IsSuccess)
+            {
+                var exception = CreateUpdateException(response);
+                if (exception is not DbUpdateConcurrencyException
+                    || !(await Dependencies.Logger.OptimisticConcurrencyExceptionAsync(
+                            response.ErroredEntries!.First().Context, response.ErroredEntries!, (DbUpdateConcurrencyException)exception, null, cancellationToken)
+                        .ConfigureAwait(false)).IsSuppressed)
+                {
+                    throw exception;
+                }
+            }
+        }
+
+        return rowsAffected;
+    }
+
+    private IGrouping<Grouping, RootEntryToSave>[] CreateBatches(IList<IUpdateEntry> entries)
+    {
+        var rootEntriesToSave = new HashSet<IUpdateEntry>(entries.Count);
+        foreach (var entry in entries)
+        {
+            Check.DebugAssert(!entry.EntityType.IsAbstract(), $"{entry.EntityType} is abstract");
+
+            if (!entry.EntityType.IsDocumentRoot())
             {
                 var root = GetRootDocument((InternalEntityEntry)entry);
-                if (!entriesSaved.Contains(root)
-                    && rootEntriesToSave.Add(root)
+                if (rootEntriesToSave.Add(root)
                     && root.EntityState == EntityState.Unchanged)
                 {
 #pragma warning disable EF1001 // Internal EF Core API usage.
@@ -159,46 +147,64 @@ public class CosmosDatabaseWrapper : Database
                 continue;
             }
 
-            entriesSaved.Add(entry);
-            try
-            {
-                if (await SaveAsync(entry, cancellationToken).ConfigureAwait(false))
-                {
-                    rowsAffected++;
-                }
-            }
-            catch (Exception ex) when (ex is not DbUpdateException and not OperationCanceledException)
-            {
-                var errorEntries = new[] { entry };
-                var exception = WrapUpdateException(ex, errorEntries);
-
-                if (exception is not DbUpdateConcurrencyException
-                    || !(await Dependencies.Logger.OptimisticConcurrencyExceptionAsync(
-                            entry.Context, errorEntries, (DbUpdateConcurrencyException)exception, null, cancellationToken)
-                        .ConfigureAwait(false)).IsSuppressed)
-                {
-                    throw exception;
-                }
-            }
+            rootEntriesToSave.Add(entry);
         }
 
-        foreach (var rootEntry in rootEntriesToSave)
+        var batches = rootEntriesToSave
+            .Select(x => new RootEntryToSave
+            {
+                Entry = x,
+                DocumentSource = GetDocumentSource(x.EntityType)
+            })
+            .GroupBy(x => new Grouping
+            {
+                ContainerId = x.DocumentSource.GetContainerId(),
+                PartitionKeyValue = _cosmosClient.GetPartitionKeyValue(x.Entry)
+            }).ToArray();
+
+        if (_throwOnCrossPartitionSaveChanges && batches.Length > 1)
         {
-            if (!entriesSaved.Contains(rootEntry)
-                && await SaveAsync(rootEntry, cancellationToken).ConfigureAwait(false))
-            {
-                rowsAffected++;
-            }
+            throw new InvalidOperationException(CosmosStrings.CrossPartitionSaveChangesDisabled);
         }
 
-        return rowsAffected;
+        return batches;
     }
 
-    private bool Save(IUpdateEntry entry)
+    private ICosmosTransactionalBatchWrapper GetTransaction(IGrouping<Grouping, RootEntryToSave> batch, out int transactionRows)
     {
+        transactionRows = 0;
+
+        var transaction = _cosmosClient.CreateTransactionalBatch(batch.Key.ContainerId, batch.Key.PartitionKeyValue);
+
+        // ReSharper disable once ForCanBeConvertedToForeach
+        foreach (var entry in batch)
+        {
+            if (AddToTransaction(transaction, entry))
+            {
+                transactionRows++;
+            }
+        }
+
+        return transaction;
+    }
+
+    private class RootEntryToSave
+    {
+        public required IUpdateEntry Entry { get; init; }
+        public required DocumentSource DocumentSource { get; init; }
+    }
+
+    private readonly struct Grouping
+    {
+        public required string ContainerId { get; init; }
+        public required PartitionKey PartitionKeyValue { get; init; }
+    }
+
+    private bool AddToTransaction(ICosmosTransactionalBatchWrapper batch, RootEntryToSave rootEntry)
+    {
+        var entry = rootEntry.Entry;
         var entityType = entry.EntityType;
-        var documentSource = GetDocumentSource(entityType);
-        var collectionId = documentSource.GetContainerId();
+        var documentSource = rootEntry.DocumentSource;
         var state = entry.EntityState;
 
         if (entry.SharedIdentityEntry != null)
@@ -206,73 +212,6 @@ public class CosmosDatabaseWrapper : Database
             if (entry.EntityState == EntityState.Deleted)
             {
                 return false;
-            }
-
-            if (state == EntityState.Added)
-            {
-                state = EntityState.Modified;
-            }
-        }
-
-        switch (state)
-        {
-            case EntityState.Added:
-                var newDocument = documentSource.GetCurrentDocument(entry);
-                if (newDocument != null)
-                {
-                    documentSource.UpdateDocument(newDocument, entry);
-                }
-                else
-                {
-                    newDocument = documentSource.CreateDocument(entry);
-                }
-
-                return _cosmosClient.CreateItem(collectionId, newDocument, entry);
-
-            case EntityState.Modified:
-                var document = documentSource.GetCurrentDocument(entry);
-                if (document != null)
-                {
-                    if (documentSource.UpdateDocument(document, entry) == null)
-                    {
-                        return false;
-                    }
-                }
-                else
-                {
-                    document = documentSource.CreateDocument(entry);
-
-                    var propertyName = entityType.FindDiscriminatorProperty()?.GetJsonPropertyName();
-                    if (propertyName != null)
-                    {
-                        document[propertyName] =
-                            JToken.FromObject(entityType.GetDiscriminatorValue()!, CosmosClientWrapper.Serializer);
-                    }
-                }
-
-                return _cosmosClient.ReplaceItem(
-                    collectionId, documentSource.GetId(entry.SharedIdentityEntry ?? entry), document, entry);
-
-            case EntityState.Deleted:
-                return _cosmosClient.DeleteItem(collectionId, documentSource.GetId(entry), entry);
-
-            default:
-                return false;
-        }
-    }
-
-    private Task<bool> SaveAsync(IUpdateEntry entry, CancellationToken cancellationToken)
-    {
-        var entityType = entry.EntityType;
-        var documentSource = GetDocumentSource(entityType);
-        var collectionId = documentSource.GetContainerId();
-        var state = entry.EntityState;
-
-        if (entry.SharedIdentityEntry != null)
-        {
-            if (entry.EntityState == EntityState.Deleted)
-            {
-                return Task.FromResult(false);
             }
 
             if (state == EntityState.Added)
@@ -357,8 +296,8 @@ public class CosmosDatabaseWrapper : Database
                     newDocument = documentSource.CreateDocument(entry);
                 }
 
-                return _cosmosClient.CreateItemAsync(
-                    collectionId, newDocument, entry, cancellationToken);
+                batch.CreateItem(newDocument, entry);
+                break;
 
             case EntityState.Modified:
                 var document = documentSource.GetCurrentDocument(entry);
@@ -366,7 +305,7 @@ public class CosmosDatabaseWrapper : Database
                 {
                     if (documentSource.UpdateDocument(document, entry) == null)
                     {
-                        return Task.FromResult(false);
+                        return false;
                     }
                 }
                 else
@@ -381,20 +320,22 @@ public class CosmosDatabaseWrapper : Database
                     }
                 }
 
-                return _cosmosClient.ReplaceItemAsync(
-                    collectionId,
+                batch.ReplaceItem(
                     documentSource.GetId(entry.SharedIdentityEntry ?? entry),
                     document,
-                    entry,
-                    cancellationToken);
+                    entry);
+                break;
 
             case EntityState.Deleted:
-                return _cosmosClient.DeleteItemAsync(
-                    collectionId, documentSource.GetId(entry), entry, cancellationToken);
+                batch.DeleteItem(
+                    documentSource.GetId(entry), entry);
+                break;
 
             default:
-                return Task.FromResult(false);
+                return false;
         }
+
+        return true;
     }
 
     /// <summary>
@@ -442,19 +383,18 @@ public class CosmosDatabaseWrapper : Database
     }
 #pragma warning restore EF1001 // Internal EF Core API usage.
 
-    private Exception WrapUpdateException(Exception exception, IReadOnlyList<IUpdateEntry> entries)
+    private DbUpdateException CreateUpdateException(CosmosTransactionalBatchResult response)
     {
-        var entry = entries[0];
+        var entry = response.ErroredEntries![0];
         var documentSource = GetDocumentSource(entry.EntityType);
+
         var id = documentSource.GetId(entry.SharedIdentityEntry ?? entry);
 
-        return exception switch
+        return response.StatusCode switch
         {
-            CosmosException { StatusCode: HttpStatusCode.PreconditionFailed }
-                => new DbUpdateConcurrencyException(CosmosStrings.UpdateConflict(id), exception, entries),
-            CosmosException { StatusCode: HttpStatusCode.Conflict }
-                => new DbUpdateException(CosmosStrings.UpdateConflict(id), exception, entries),
-            _ => new DbUpdateException(CosmosStrings.UpdateStoreException(id), exception, entries)
+            HttpStatusCode.PreconditionFailed => new DbUpdateConcurrencyException(CosmosStrings.UpdateConflict(id), null, response.ErroredEntries!),
+            HttpStatusCode.Conflict => new DbUpdateException(CosmosStrings.UpdateConflict(id), null, response.ErroredEntries!),
+            _ => new DbUpdateException(CosmosStrings.UpdateStoreException(id), null, response.ErroredEntries!)
         };
     }
 }

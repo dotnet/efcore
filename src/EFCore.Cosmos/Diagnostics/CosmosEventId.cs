@@ -35,6 +35,7 @@ public static class CosmosEventId
         ExecutedCreateItem,
         ExecutedReplaceItem,
         ExecutedDeleteItem,
+        ExecutedTransactionalBatch,
 
         // Update events
         PrimaryKeyValueNotSet = CoreEventId.ProviderBaseId + 200,
@@ -108,11 +109,25 @@ public static class CosmosEventId
     ///         This event is in the <see cref="DbLoggerCategory.Database.Command" /> category.
     ///     </para>
     ///     <para>
-    ///         This event uses the <see cref="CosmosItemCommandExecutedEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///         This event uses the <see cref="CosmosTransactionalBatchExecutedEventData" /> payload when used with a <see cref="DiagnosticSource" />.
     ///     </para>
     /// </remarks>
     public static readonly EventId ExecutedReadItem
         = new((int)Id.ExecutedReadItem, CommandPrefix + Id.ExecutedReadItem);
+
+    /// <summary>
+    ///     TransactionalBatch was executed.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This event is in the <see cref="DbLoggerCategory.Database.Command" /> category.
+    ///     </para>
+    ///     <para>
+    ///         This event uses the <see cref="CosmosTransactionalBatchExecutedEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///     </para>
+    /// </remarks>
+    public static readonly EventId ExecutedTransactionalBatch
+        = new((int)Id.ExecutedTransactionalBatch, CommandPrefix + Id.ExecutedTransactionalBatch);
 
     /// <summary>
     ///     CreateItem was executed.

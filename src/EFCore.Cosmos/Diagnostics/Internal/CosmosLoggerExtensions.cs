@@ -252,7 +252,7 @@ public static class CosmosLoggerExtensions
 
         if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
         {
-            var eventData = new CosmosItemCommandExecutedEventData(
+            var eventData = new CosmosItemReadExecutedEventData(
                 definition,
                 ExecutedReadItem,
                 elapsed,
@@ -270,7 +270,7 @@ public static class CosmosLoggerExtensions
     private static string ExecutedReadItem(EventDefinitionBase definition, EventData payload)
     {
         var d = (EventDefinition<string, string, string, string, string, string?>)definition;
-        var p = (CosmosItemCommandExecutedEventData)payload;
+        var p = (CosmosItemReadExecutedEventData)payload;
         return d.GenerateMessage(
             p.Elapsed.Milliseconds.ToString(),
             p.RequestCharge.ToString(),
@@ -286,10 +286,65 @@ public static class CosmosLoggerExtensions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static void ExecutedCreateItem(
-        this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
+    public static void ExecutedTransactionalBatch(this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
         TimeSpan elapsed,
         double requestCharge,
+        string activityId,
+        IReadOnlyDictionary<string, CosmosCudOperation> operations,
+        string containerId,
+        PartitionKey partitionKeyValue)
+    {
+        var definition = CosmosResources.LogExecutedTransactionalBatch(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            var logSensitiveData = diagnostics.ShouldLogSensitiveData();
+            definition.Log(
+                diagnostics,
+                elapsed.TotalMilliseconds.ToString(),
+                requestCharge.ToString(),
+                activityId,
+                containerId,
+                logSensitiveData ? partitionKeyValue.ToString() : "?");
+        }
+
+        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = new CosmosTransactionalBatchExecutedEventData(
+                definition,
+                ExecutedTransactionalBatch,
+                elapsed,
+                requestCharge,
+                activityId,
+                containerId,
+                operations,
+                partitionKeyValue,
+                diagnostics.ShouldLogSensitiveData());
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+        }
+    }
+    
+    private static string ExecutedTransactionalBatch(EventDefinitionBase definition, EventData payload)
+    {
+        var d = (EventDefinition<string, string, string, string, string?>)definition;
+        var p = (CosmosTransactionalBatchExecutedEventData)payload;
+        return d.GenerateMessage(
+            p.Elapsed.Milliseconds.ToString(),
+            p.RequestCharge.ToString(),
+            p.ActivityId,
+            p.ContainerId,
+            p.LogSensitiveData ? p.PartitionKeyValue.ToString() : "?");
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static void ExecutedCreateItem(
+        this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
         string activityId,
         string resourceId,
         string containerId,
@@ -302,8 +357,6 @@ public static class CosmosLoggerExtensions
             var logSensitiveData = diagnostics.ShouldLogSensitiveData();
             definition.Log(
                 diagnostics,
-                elapsed.TotalMilliseconds.ToString(),
-                requestCharge.ToString(),
                 activityId,
                 containerId,
                 logSensitiveData ? resourceId : "?",
@@ -315,8 +368,6 @@ public static class CosmosLoggerExtensions
             var eventData = new CosmosItemCommandExecutedEventData(
                 definition,
                 ExecutedCreateItem,
-                elapsed,
-                requestCharge,
                 activityId,
                 containerId,
                 resourceId,
@@ -329,11 +380,9 @@ public static class CosmosLoggerExtensions
 
     private static string ExecutedCreateItem(EventDefinitionBase definition, EventData payload)
     {
-        var d = (EventDefinition<string, string, string, string, string, string?>)definition;
+        var d = (EventDefinition<string, string, string, string?>)definition;
         var p = (CosmosItemCommandExecutedEventData)payload;
         return d.GenerateMessage(
-            p.Elapsed.Milliseconds.ToString(),
-            p.RequestCharge.ToString(),
             p.ActivityId,
             p.ContainerId,
             p.LogSensitiveData ? p.ResourceId : "?",
@@ -348,8 +397,6 @@ public static class CosmosLoggerExtensions
     /// </summary>
     public static void ExecutedDeleteItem(
         this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
-        TimeSpan elapsed,
-        double requestCharge,
         string activityId,
         string resourceId,
         string containerId,
@@ -362,8 +409,6 @@ public static class CosmosLoggerExtensions
             var logSensitiveData = diagnostics.ShouldLogSensitiveData();
             definition.Log(
                 diagnostics,
-                elapsed.TotalMilliseconds.ToString(),
-                requestCharge.ToString(),
                 activityId,
                 containerId,
                 logSensitiveData ? resourceId : "?",
@@ -375,8 +420,6 @@ public static class CosmosLoggerExtensions
             var eventData = new CosmosItemCommandExecutedEventData(
                 definition,
                 ExecutedDeleteItem,
-                elapsed,
-                requestCharge,
                 activityId,
                 containerId,
                 resourceId,
@@ -389,11 +432,9 @@ public static class CosmosLoggerExtensions
 
     private static string ExecutedDeleteItem(EventDefinitionBase definition, EventData payload)
     {
-        var d = (EventDefinition<string, string, string, string, string, string?>)definition;
+        var d = (EventDefinition<string, string, string, string?>)definition;
         var p = (CosmosItemCommandExecutedEventData)payload;
         return d.GenerateMessage(
-            p.Elapsed.Milliseconds.ToString(),
-            p.RequestCharge.ToString(),
             p.ActivityId,
             p.ContainerId,
             p.LogSensitiveData ? p.ResourceId : "?",
@@ -408,8 +449,6 @@ public static class CosmosLoggerExtensions
     /// </summary>
     public static void ExecutedReplaceItem(
         this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
-        TimeSpan elapsed,
-        double requestCharge,
         string activityId,
         string resourceId,
         string containerId,
@@ -422,8 +461,6 @@ public static class CosmosLoggerExtensions
             var logSensitiveData = diagnostics.ShouldLogSensitiveData();
             definition.Log(
                 diagnostics,
-                elapsed.TotalMilliseconds.ToString(),
-                requestCharge.ToString(),
                 activityId,
                 containerId,
                 logSensitiveData ? resourceId : "?",
@@ -435,8 +472,6 @@ public static class CosmosLoggerExtensions
             var eventData = new CosmosItemCommandExecutedEventData(
                 definition,
                 ExecutedReplaceItem,
-                elapsed,
-                requestCharge,
                 activityId,
                 containerId,
                 resourceId,
@@ -449,11 +484,9 @@ public static class CosmosLoggerExtensions
 
     private static string ExecutedReplaceItem(EventDefinitionBase definition, EventData payload)
     {
-        var d = (EventDefinition<string, string, string, string, string, string?>)definition;
+        var d = (EventDefinition<string, string, string, string?>)definition;
         var p = (CosmosItemCommandExecutedEventData)payload;
         return d.GenerateMessage(
-            p.Elapsed.Milliseconds.ToString(),
-            p.RequestCharge.ToString(),
             p.ActivityId,
             p.ContainerId,
             p.LogSensitiveData ? p.ResourceId : "?",

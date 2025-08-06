@@ -67,74 +67,6 @@ public interface ICosmosClientWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    bool CreateItem(string containerId, JToken document, IUpdateEntry entry);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    bool ReplaceItem(
-        string collectionId,
-        string documentId,
-        JObject document,
-        IUpdateEntry entry);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    bool DeleteItem(
-        string containerId,
-        string documentId,
-        IUpdateEntry entry);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    Task<bool> CreateItemAsync(
-        string containerId,
-        JToken document,
-        IUpdateEntry updateEntry,
-        CancellationToken cancellationToken = default);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    Task<bool> ReplaceItemAsync(
-        string collectionId,
-        string documentId,
-        JObject document,
-        IUpdateEntry updateEntry,
-        CancellationToken cancellationToken = default);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    Task<bool> DeleteItemAsync(
-        string containerId,
-        string documentId,
-        IUpdateEntry entry,
-        CancellationToken cancellationToken = default);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
     FeedIterator CreateQuery(
         string containerId,
         CosmosSqlQuery query,
@@ -193,4 +125,36 @@ public interface ICosmosClientWrapper
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     IEnumerable<JToken> GetResponseMessageEnumerable(ResponseMessage responseMessage);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    PartitionKey GetPartitionKeyValue(IUpdateEntry entry);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    ICosmosTransactionalBatchWrapper CreateTransactionalBatch(string containerId, PartitionKey partitionKeyValue);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    Task<CosmosTransactionalBatchResult> ExecuteBatchAsync(ICosmosTransactionalBatchWrapper batch, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    CosmosTransactionalBatchResult ExecuteBatch(ICosmosTransactionalBatchWrapper batch);
 }

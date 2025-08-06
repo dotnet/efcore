@@ -41,6 +41,17 @@ public class CosmosDbContextOptionsBuilder : ICosmosDbContextOptionsBuilderInfra
         => _optionsBuilder;
 
     /// <summary>
+    ///     Configures the context to throw an exception when a single SaveChanges call contains entity changes from multiple partition keys or collections.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
+    /// </remarks>
+    /// <param name="value">A value indicating whether to throw on cross partition SaveChanges.</param>
+    public virtual CosmosDbContextOptionsBuilder ThrowOnCrossPartitionSaveChanges(bool value = true)
+        => WithOption(e => e.WithThrowOnCrossPartitionSaveChanges(value));
+
+    /// <summary>
     ///     Configures the context to use the provided <see cref="IExecutionStrategy" />.
     /// </summary>
     /// <remarks>

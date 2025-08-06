@@ -1,7 +1,9 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-namespace Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
+using Newtonsoft.Json.Linq;
+
+namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 
 /// <summary>
 ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -9,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class CosmosLoggingDefinitions : LoggingDefinitions
+public interface ICosmosTransactionalBatchWrapper
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -17,7 +19,7 @@ public class CosmosLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public EventDefinitionBase? LogExecutingSqlQuery;
+    IReadOnlyList<IUpdateEntry> Entries { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -25,7 +27,7 @@ public class CosmosLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public EventDefinitionBase? LogExecutingReadItem;
+    void CreateItem(JToken document, IUpdateEntry updateEntry);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -33,7 +35,7 @@ public class CosmosLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public EventDefinitionBase? LogExecutedReadNext;
+    void DeleteItem(string documentId, IUpdateEntry updateEntry);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -41,7 +43,7 @@ public class CosmosLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public EventDefinitionBase? LogExecutedReadItem;
+    void ReplaceItem(string documentId, JToken document, IUpdateEntry updateEntry);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -49,7 +51,7 @@ public class CosmosLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public EventDefinitionBase? LogExecutedTransactionalBatch;
+    TransactionalBatch GetTransactionalBatch();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -57,7 +59,7 @@ public class CosmosLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public EventDefinitionBase? LogExecutedCreateItem;
+    public PartitionKey PartitionKeyValue { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -65,7 +67,7 @@ public class CosmosLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public EventDefinitionBase? LogExecutedReplaceItem;
+    public string CollectionId { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -73,29 +75,5 @@ public class CosmosLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public EventDefinitionBase? LogExecutedDeleteItem;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public EventDefinitionBase? LogSyncNotSupported;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public EventDefinitionBase? LogNoPartitionKeyDefined;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public EventDefinitionBase? LogPrimaryKeyValueNotSet;
+    IReadOnlyDictionary<string, CosmosCudOperation> Operations { get; }
 }

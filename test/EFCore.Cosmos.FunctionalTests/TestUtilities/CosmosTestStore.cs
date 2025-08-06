@@ -240,8 +240,11 @@ public class CosmosTestStore : TestStore
 
                                                     document["$type"] = entityName;
 
-                                                    await cosmosClient.CreateItemAsync(
-                                                        containerName!, document, new FakeUpdateEntry()).ConfigureAwait(false);
+                                                    var entry = new FakeUpdateEntry();
+                                                    var partitionKey = cosmosClient.GetPartitionKeyValue(entry);
+                                                    var batch = cosmosClient.CreateTransactionalBatch(containerName!, partitionKey);
+                                                    batch.CreateItem(document, entry);
+                                                    await cosmosClient.ExecuteBatchAsync(batch);
                                                 }
                                                 else if (reader.TokenType == JsonToken.EndObject)
                                                 {
