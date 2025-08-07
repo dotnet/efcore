@@ -110,4 +110,10 @@ public class SqlServerSqlGenerationHelper : RelationalSqlGenerationHelper
     /// <returns>An SQL string to release the savepoint.</returns>
     public override string GenerateReleaseSavepointStatement(string name)
         => throw new NotSupportedException(SqlServerStrings.NoSavepointRelease);
+
+    /// <inheritdoc />
+    public override string DelimitJsonPathElement(string pathElement)
+        => !char.IsAsciiLetter(pathElement[0])
+            ? $"\"{EscapeJsonPathElement(pathElement)}\""
+            : base.DelimitJsonPathElement(pathElement);
 }

@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
 public class CosmosNorthwindTestStoreFactory : CosmosTestStoreFactory
 {
-    private const string Name = "Northwind";
+    private const string Name = "Northwind3";
 
     public static new CosmosNorthwindTestStoreFactory Instance { get; } = new();
 

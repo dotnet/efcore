@@ -5,18 +5,14 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 // ReSharper disable ConvertToConstant.Local
 // ReSharper disable RedundantBoolCompare
 // ReSharper disable InconsistentNaming
-
-public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFixture>
+public abstract class NorthwindWhereQueryTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {
-    protected NorthwindWhereQueryTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     protected NorthwindContext CreateContext()
         => Fixture.CreateContext();
 
@@ -1211,11 +1207,19 @@ public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFix
             ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI" && boolean),
             assertEmpty: true);
 
+        await AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI" || boolean));
+
         boolean = true;
 
         await AssertQuery(
             async,
             ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI" && boolean));
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI" || boolean));
     }
 
     [ConditionalTheory]
@@ -1457,6 +1461,13 @@ public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFix
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Where_ternary_boolean_condition_negated(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Product>().Where(p => !(p.UnitsInStock >= 20 ? false : true)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Where_compare_constructed_equal(bool async)
         => AssertQuery(
             async,
@@ -1542,7 +1553,7 @@ public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFix
     public virtual Task Where_compare_null_with_cast_to_object(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => (object)c.Region == null));
+            ss => ss.Set<Customer>().Where(c => c.Region == null));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1639,9 +1650,8 @@ public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFix
             async,
             ss => ss.Set<Customer>().Where(
                 c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault() == new Order { OrderID = 10276 }),
-
             ss => ss.Set<Customer>().Where(
-                c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault().OrderID == 10276 ));
+                c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault().OrderID == 10276));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -2046,9 +2056,7 @@ public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFix
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Multiple_AndAlso_on_same_column_converted_to_in_using_parameters(bool async)
     {
-        var prm1 = "ALFKI";
-        var prm2 = "ANATR";
-        var prm3 = "ANTON";
+        var (prm1, prm2, prm3) = ("ALFKI", "ANATR", "ANTON");
 
         return AssertQuery(
             async,
@@ -2059,8 +2067,7 @@ public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFix
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Array_of_parameters_Contains_OrElse_comparison_with_constant_gets_combined_to_one_in(bool async)
     {
-        var prm1 = "ALFKI";
-        var prm2 = "ANATR";
+        var (prm1, prm2) = ("ALFKI", "ANATR");
 
         return AssertQuery(
             async,
@@ -2391,6 +2398,177 @@ public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFix
                 async,
                 ss => ss.Set<Customer>().Where(c => c.CustomerID == EF.Constant(c.CustomerID))));
 
-        Assert.Equal(CoreStrings.EFConstantWithNonEvaluableArgument, exception.Message);
+        Assert.Equal(CoreStrings.EFConstantWithNonEvaluatableArgument, exception.Message);
     }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task EF_Parameter(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == EF.Parameter("ALFKI")),
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI"));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task EF_Parameter_with_subtree(bool async)
+    {
+        // This is a somewhat silly scenario: a subtree would get parameterized anyway, with or without EF.Parameter().
+        // But including for completeness.
+        var i = "ALF";
+        var j = "KI";
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == EF.Parameter(i + j)),
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI"));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task EF_Parameter_does_not_parameterized_as_part_of_bigger_subtree(bool async)
+    {
+        var id = "ALF";
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == EF.Parameter(id) + "KI"),
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALF" + "KI"));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task EF_Parameter_with_non_evaluatable_argument_throws(bool async)
+    {
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.CustomerID == EF.Parameter(c.CustomerID))));
+
+        Assert.Equal(CoreStrings.EFParameterWithNonEvaluatableArgument, exception.Message);
+    }
+
+    private class EntityWithImplicitCast(int value)
+    {
+        private readonly int _value = value;
+
+        public string Value
+            => _value.ToString();
+
+        public override string ToString()
+            => Value;
+
+        public static implicit operator string(EntityWithImplicitCast entity)
+            => entity.Value;
+
+        public EntityWithImplicitCast Clone()
+            => new(_value);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Implicit_cast_in_predicate(bool async)
+    {
+        await AssertQuery(
+            async,
+            ss => ss.Set<Order>().Where(x => x.CustomerID == new EntityWithImplicitCast(1337)),
+            assertEmpty: true);
+
+        var prm = new EntityWithImplicitCast(1337);
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<Order>().Where(x => x.CustomerID == prm.Value),
+            assertEmpty: true);
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<Order>().Where(x => x.CustomerID == prm.ToString()),
+            assertEmpty: true);
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<Order>().Where(x => x.CustomerID == prm),
+            assertEmpty: true);
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<Order>().Where(x => x.CustomerID == new EntityWithImplicitCast(1337).Clone()),
+            assertEmpty: true);
+    }
+
+    public interface IHaveId
+    {
+        int Id { get; }
+    }
+
+    public class DtoWithInterface : IHaveId
+    {
+        public int Id { get; set; }
+    }
+
+    public static IQueryable<T> AddFilter<T>(IQueryable<T> query, int id)
+        where T : IHaveId
+        => query.Where(a => a.Id == id);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Interface_casting_though_generic_method(bool async)
+    {
+        await AssertQuery(
+            async,
+            ss => AddFilter(ss.Set<Order>().Select(x => new DtoWithInterface { Id = x.OrderID }), 10252),
+            elementAsserter: (e, a) => AssertEqual(e.Id, a.Id));
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<Order>().Select(x => new DtoWithInterface { Id = x.OrderID }).Where<IHaveId>(x => x.Id == 10252),
+            elementAsserter: (e, a) => AssertEqual(e.Id, a.Id));
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<Order>().Select(x => new DtoWithInterface { Id = x.OrderID }).Where(x => ((IHaveId)x).Id == 10252),
+            elementAsserter: (e, a) => AssertEqual(e.Id, a.Id));
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<Order>().Select(x => new DtoWithInterface { Id = x.OrderID }).Where(x => (x as IHaveId).Id == 10252),
+            elementAsserter: (e, a) => AssertEqual(e.Id, a.Id));
+    }
+
+    [ConditionalTheory] // #35095
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Simplifiable_coalesce_over_nullable(bool async)
+    {
+        int? orderId = 10248;
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Order>().Where(o => o.OrderID == (orderId ?? 0)));
+    }
+
+    #region Evaluation order of operators
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Take_and_Where_evaluation_order(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Employee>().OrderBy(e => e.EmployeeID).Take(3).Where(e => e.EmployeeID % 2 == 0));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Skip_and_Where_evaluation_order(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Employee>().OrderBy(e => e.EmployeeID).Skip(3).Where(e => e.EmployeeID % 2 == 0));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Take_and_Distinct_evaluation_order(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Select(c => c.ContactTitle).OrderBy(t => t).Take(3).Distinct());
+
+    #endregion Evaluation order of operators
 }
