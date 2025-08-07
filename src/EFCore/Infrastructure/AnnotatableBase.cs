@@ -62,7 +62,7 @@ public class AnnotatableBase : IAnnotatable
     /// <returns>The newly added annotation.</returns>
     public virtual Annotation AddAnnotation(string name, object? value)
     {
-        Check.NotEmpty(name, nameof(name));
+        Check.NotEmpty(name);
 
         var annotation = CreateAnnotation(name, value);
 
@@ -176,7 +176,7 @@ public class AnnotatableBase : IAnnotatable
     /// </returns>
     public virtual Annotation? FindAnnotation(string name)
     {
-        Check.NotEmpty(name, nameof(name));
+        Check.NotEmpty(name);
 
         return _annotations?.GetValueOrDefault(name);
     }
@@ -197,7 +197,7 @@ public class AnnotatableBase : IAnnotatable
     /// </summary>
     internal static IAnnotation GetAnnotation(IReadOnlyAnnotatable annotatable, string annotationName)
     {
-        Check.NotEmpty(annotationName, nameof(annotationName));
+        Check.NotEmpty(annotationName);
 
         var annotation = annotatable.FindAnnotation(annotationName);
         if (annotation == null)
@@ -215,7 +215,7 @@ public class AnnotatableBase : IAnnotatable
     /// <returns>The annotation that was removed.</returns>
     public virtual Annotation? RemoveAnnotation(string name)
     {
-        Check.NotNull(name, nameof(name));
+        Check.NotNull(name);
         EnsureMutable();
 
         var annotation = FindAnnotation(name);
@@ -250,7 +250,7 @@ public class AnnotatableBase : IAnnotatable
 
         set
         {
-            Check.NotEmpty(name, nameof(name));
+            Check.NotEmpty(name);
 
             if (value == null)
             {
@@ -286,7 +286,7 @@ public class AnnotatableBase : IAnnotatable
     /// <returns>The newly added annotation.</returns>
     public virtual Annotation AddRuntimeAnnotation(string name, object? value)
     {
-        Check.NotEmpty(name, nameof(name));
+        Check.NotEmpty(name);
 
         var annotation = CreateRuntimeAnnotation(name, value);
 
@@ -383,7 +383,7 @@ public class AnnotatableBase : IAnnotatable
     /// </returns>
     public virtual Annotation? FindRuntimeAnnotation(string name)
     {
-        Check.NotEmpty(name, nameof(name));
+        Check.NotEmpty(name);
 
         return _runtimeAnnotations?.GetValueOrDefault(name);
     }
@@ -395,7 +395,7 @@ public class AnnotatableBase : IAnnotatable
     /// <returns>The annotation that was removed.</returns>
     public virtual Annotation? RemoveRuntimeAnnotation(string name)
     {
-        Check.NotNull(name, nameof(name));
+        Check.NotNull(name);
         EnsureReadOnly();
 
         if (_runtimeAnnotations == null)

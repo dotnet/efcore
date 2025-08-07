@@ -19,6 +19,12 @@ namespace Microsoft.EntityFrameworkCore;
         "MakeGenericMethod is used in this class to create MethodCallExpression nodes, but only if the method in question is called "
         + "from user code - so it's never trimmed. After https://github.com/dotnet/linker/issues/2482 is fixed, the suppression will no "
         + "longer be necessary.")]
+[UnconditionalSuppressMessage(
+    "AOT",
+    "IL3050:Calling members annotated with 'RequiresDynamicCodeAttribute' may break functionality when AOT compiling.",
+    Justification =
+        "MakeGenericMethod is used in this class to create MethodCallExpression nodes, but only if the method in question is called "
+        + "from user code - so it's never trimmed.")]
 public static class EntityFrameworkQueryableExtensions
 {
     /// <summary>
@@ -101,7 +107,7 @@ public static class EntityFrameworkQueryableExtensions
         Expression<Func<TSource, bool>> predicate,
         CancellationToken cancellationToken = default)
     {
-        Check.NotNull(predicate, nameof(predicate));
+        Check.NotNull(predicate);
 
         return ExecuteAsync<TSource, Task<bool>>(QueryableMethods.AnyWithPredicate, source, predicate, cancellationToken);
     }
@@ -137,7 +143,7 @@ public static class EntityFrameworkQueryableExtensions
         Expression<Func<TSource, bool>> predicate,
         CancellationToken cancellationToken = default)
     {
-        Check.NotNull(predicate, nameof(predicate));
+        Check.NotNull(predicate);
 
         return ExecuteAsync<TSource, Task<bool>>(QueryableMethods.All, source, predicate, cancellationToken);
     }
@@ -204,7 +210,7 @@ public static class EntityFrameworkQueryableExtensions
         Expression<Func<TSource, bool>> predicate,
         CancellationToken cancellationToken = default)
     {
-        Check.NotNull(predicate, nameof(predicate));
+        Check.NotNull(predicate);
 
         return ExecuteAsync<TSource, Task<int>>(QueryableMethods.CountWithPredicate, source, predicate, cancellationToken);
     }
@@ -268,7 +274,7 @@ public static class EntityFrameworkQueryableExtensions
         Expression<Func<TSource, bool>> predicate,
         CancellationToken cancellationToken = default)
     {
-        Check.NotNull(predicate, nameof(predicate));
+        Check.NotNull(predicate);
 
         return ExecuteAsync<TSource, Task<long>>(QueryableMethods.LongCountWithPredicate, source, predicate, cancellationToken);
     }
@@ -312,7 +318,7 @@ public static class EntityFrameworkQueryableExtensions
         int index,
         CancellationToken cancellationToken = default)
     {
-        Check.NotNull(index, nameof(index));
+        Check.NotNull(index);
 
         return ExecuteAsync<TSource, Task<TSource>>(
             QueryableMethods.ElementAt, source, Expression.Constant(index), cancellationToken);
@@ -343,14 +349,14 @@ public static class EntityFrameworkQueryableExtensions
     ///     <paramref name="source" /> is <see langword="null" />.
     /// </exception>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
-    public static Task<TSource> ElementAtOrDefaultAsync<TSource>(
+    public static Task<TSource?> ElementAtOrDefaultAsync<TSource>(
         this IQueryable<TSource> source,
         int index,
         CancellationToken cancellationToken = default)
     {
-        Check.NotNull(index, nameof(index));
+        Check.NotNull(index);
 
-        return ExecuteAsync<TSource, Task<TSource>>(
+        return ExecuteAsync<TSource, Task<TSource?>>(
             QueryableMethods.ElementAtOrDefault, source, Expression.Constant(index), cancellationToken);
     }
 
@@ -428,7 +434,7 @@ public static class EntityFrameworkQueryableExtensions
         Expression<Func<TSource, bool>> predicate,
         CancellationToken cancellationToken = default)
     {
-        Check.NotNull(predicate, nameof(predicate));
+        Check.NotNull(predicate);
 
         return ExecuteAsync<TSource, Task<TSource>>(QueryableMethods.FirstWithPredicate, source, predicate, cancellationToken);
     }
@@ -494,7 +500,7 @@ public static class EntityFrameworkQueryableExtensions
         Expression<Func<TSource, bool>> predicate,
         CancellationToken cancellationToken = default)
     {
-        Check.NotNull(predicate, nameof(predicate));
+        Check.NotNull(predicate);
 
         return ExecuteAsync<TSource, Task<TSource?>>(
             QueryableMethods.FirstOrDefaultWithPredicate, source, predicate, cancellationToken);
@@ -574,7 +580,7 @@ public static class EntityFrameworkQueryableExtensions
         Expression<Func<TSource, bool>> predicate,
         CancellationToken cancellationToken = default)
     {
-        Check.NotNull(predicate, nameof(predicate));
+        Check.NotNull(predicate);
 
         return ExecuteAsync<TSource, Task<TSource>>(QueryableMethods.LastWithPredicate, source, predicate, cancellationToken);
     }
@@ -640,7 +646,7 @@ public static class EntityFrameworkQueryableExtensions
         Expression<Func<TSource, bool>> predicate,
         CancellationToken cancellationToken = default)
     {
-        Check.NotNull(predicate, nameof(predicate));
+        Check.NotNull(predicate);
 
         return ExecuteAsync<TSource, Task<TSource?>>(QueryableMethods.LastOrDefaultWithPredicate, source, predicate, cancellationToken);
     }
@@ -737,7 +743,7 @@ public static class EntityFrameworkQueryableExtensions
         Expression<Func<TSource, bool>> predicate,
         CancellationToken cancellationToken = default)
     {
-        Check.NotNull(predicate, nameof(predicate));
+        Check.NotNull(predicate);
 
         return ExecuteAsync<TSource, Task<TSource>>(QueryableMethods.SingleWithPredicate, source, predicate, cancellationToken);
     }
@@ -809,7 +815,7 @@ public static class EntityFrameworkQueryableExtensions
         Expression<Func<TSource, bool>> predicate,
         CancellationToken cancellationToken = default)
     {
-        Check.NotNull(predicate, nameof(predicate));
+        Check.NotNull(predicate);
 
         return ExecuteAsync<TSource, Task<TSource?>>(
             QueryableMethods.SingleOrDefaultWithPredicate, source, predicate, cancellationToken);
@@ -881,7 +887,7 @@ public static class EntityFrameworkQueryableExtensions
         Expression<Func<TSource, TResult>> selector,
         CancellationToken cancellationToken = default)
     {
-        Check.NotNull(selector, nameof(selector));
+        Check.NotNull(selector);
 
         return ExecuteAsync<TSource, Task<TResult>>(QueryableMethods.MinWithSelector, source, selector, cancellationToken);
     }
@@ -952,7 +958,7 @@ public static class EntityFrameworkQueryableExtensions
         Expression<Func<TSource, TResult>> selector,
         CancellationToken cancellationToken = default)
     {
-        Check.NotNull(selector, nameof(selector));
+        Check.NotNull(selector);
 
         return ExecuteAsync<TSource, Task<TResult>>(QueryableMethods.MaxWithSelector, source, selector, cancellationToken);
     }
@@ -1044,7 +1050,7 @@ public static class EntityFrameworkQueryableExtensions
         Expression<Func<TSource, decimal>> selector,
         CancellationToken cancellationToken = default)
     {
-        Check.NotNull(selector, nameof(selector));
+        Check.NotNull(selector);
 
         return ExecuteAsync<TSource, Task<decimal>>(
             QueryableMethods.GetSumWithSelector(typeof(decimal)), source, selector, cancellationToken);
@@ -1080,7 +1086,7 @@ public static class EntityFrameworkQueryableExtensions
         Expression<Func<TSource, decimal?>> selector,
         CancellationToken cancellationToken = default)
     {
-        Check.NotNull(selector, nameof(selector));
+        Check.NotNull(selector);
 
         return ExecuteAsync<TSource, Task<decimal?>>(
             QueryableMethods.GetSumWithSelector(typeof(decimal?)), source, selector, cancellationToken);
@@ -1168,7 +1174,7 @@ public static class EntityFrameworkQueryableExtensions
         Expression<Func<TSource, int>> selector,
         CancellationToken cancellationToken = default)
     {
-        Check.NotNull(selector, nameof(selector));
+        Check.NotNull(selector);
 
         return ExecuteAsync<TSource, Task<int>>(QueryableMethods.GetSumWithSelector(typeof(int)), source, selector, cancellationToken);
     }
@@ -1203,7 +1209,7 @@ public static class EntityFrameworkQueryableExtensions
         Expression<Func<TSource, int?>> selector,
         CancellationToken cancellationToken = default)
     {
-        Check.NotNull(selector, nameof(selector));
+        Check.NotNull(selector);
 
         return ExecuteAsync<TSource, Task<int?>>(
             QueryableMethods.GetSumWithSelector(typeof(int?)), source, selector, cancellationToken);
@@ -1291,7 +1297,7 @@ public static class EntityFrameworkQueryableExtensions
         Expression<Func<TSource, long>> selector,
         CancellationToken cancellationToken = default)
     {
-        Check.NotNull(selector, nameof(selector));
+        Check.NotNull(selector);
 
         return ExecuteAsync<TSource, Task<long>>(
             QueryableMethods.GetSumWithSelector(typeof(long)), source, selector, cancellationToken);
@@ -1327,7 +1333,7 @@ public static class EntityFrameworkQueryableExtensions
         Expression<Func<TSource, long?>> selector,
         CancellationToken cancellationToken = default)
     {
-        Check.NotNull(selector, nameof(selector));
+        Check.NotNull(selector);
 
         return ExecuteAsync<TSource, Task<long?>>(
             QueryableMethods.GetSumWithSelector(typeof(long?)), source, selector, cancellationToken);
@@ -1415,7 +1421,7 @@ public static class EntityFrameworkQueryableExtensions
         Expression<Func<TSource, double>> selector,
         CancellationToken cancellationToken = default)
     {
-        Check.NotNull(selector, nameof(selector));
+        Check.NotNull(selector);
 
         return ExecuteAsync<TSource, Task<double>>(
             QueryableMethods.GetSumWithSelector(typeof(double)), source, selector, cancellationToken);
@@ -1451,7 +1457,7 @@ public static class EntityFrameworkQueryableExtensions
         Expression<Func<TSource, double?>> selector,
         CancellationToken cancellationToken = default)
     {
-        Check.NotNull(selector, nameof(selector));
+        Check.NotNull(selector);
 
         return ExecuteAsync<TSource, Task<double?>>(
             QueryableMethods.GetSumWithSelector(typeof(double?)), source, selector, cancellationToken);
@@ -1539,7 +1545,7 @@ public static class EntityFrameworkQueryableExtensions
         Expression<Func<TSource, float>> selector,
         CancellationToken cancellationToken = default)
     {
-        Check.NotNull(selector, nameof(selector));
+        Check.NotNull(selector);
 
         return ExecuteAsync<TSource, Task<float>>(
             QueryableMethods.GetSumWithSelector(typeof(float)), source, selector, cancellationToken);
@@ -1575,7 +1581,7 @@ public static class EntityFrameworkQueryableExtensions
         Expression<Func<TSource, float?>> selector,
         CancellationToken cancellationToken = default)
     {
-        Check.NotNull(selector, nameof(selector));
+        Check.NotNull(selector);
 
         return ExecuteAsync<TSource, Task<float?>>(
             QueryableMethods.GetSumWithSelector(typeof(float?)), source, selector, cancellationToken);
@@ -1672,7 +1678,7 @@ public static class EntityFrameworkQueryableExtensions
         Expression<Func<TSource, decimal>> selector,
         CancellationToken cancellationToken = default)
     {
-        Check.NotNull(selector, nameof(selector));
+        Check.NotNull(selector);
 
         return ExecuteAsync<TSource, Task<decimal>>(
             QueryableMethods.GetAverageWithSelector(typeof(decimal)), source, selector, cancellationToken);
@@ -1709,7 +1715,7 @@ public static class EntityFrameworkQueryableExtensions
         Expression<Func<TSource, decimal?>> selector,
         CancellationToken cancellationToken = default)
     {
-        Check.NotNull(selector, nameof(selector));
+        Check.NotNull(selector);
 
         return ExecuteAsync<TSource, Task<decimal?>>(
             QueryableMethods.GetAverageWithSelector(typeof(decimal?)), source, selector, cancellationToken);
@@ -1800,7 +1806,7 @@ public static class EntityFrameworkQueryableExtensions
         Expression<Func<TSource, int>> selector,
         CancellationToken cancellationToken = default)
     {
-        Check.NotNull(selector, nameof(selector));
+        Check.NotNull(selector);
 
         return ExecuteAsync<TSource, Task<double>>(
             QueryableMethods.GetAverageWithSelector(typeof(int)), source, selector, cancellationToken);
@@ -1837,7 +1843,7 @@ public static class EntityFrameworkQueryableExtensions
         Expression<Func<TSource, int?>> selector,
         CancellationToken cancellationToken = default)
     {
-        Check.NotNull(selector, nameof(selector));
+        Check.NotNull(selector);
 
         return ExecuteAsync<TSource, Task<double?>>(
             QueryableMethods.GetAverageWithSelector(typeof(int?)), source, selector, cancellationToken);
@@ -1928,7 +1934,7 @@ public static class EntityFrameworkQueryableExtensions
         Expression<Func<TSource, long>> selector,
         CancellationToken cancellationToken = default)
     {
-        Check.NotNull(selector, nameof(selector));
+        Check.NotNull(selector);
 
         return ExecuteAsync<TSource, Task<double>>(
             QueryableMethods.GetAverageWithSelector(typeof(long)), source, selector, cancellationToken);
@@ -1965,7 +1971,7 @@ public static class EntityFrameworkQueryableExtensions
         Expression<Func<TSource, long?>> selector,
         CancellationToken cancellationToken = default)
     {
-        Check.NotNull(selector, nameof(selector));
+        Check.NotNull(selector);
 
         return ExecuteAsync<TSource, Task<double?>>(
             QueryableMethods.GetAverageWithSelector(typeof(long?)), source, selector, cancellationToken);
@@ -2058,7 +2064,7 @@ public static class EntityFrameworkQueryableExtensions
         Expression<Func<TSource, double>> selector,
         CancellationToken cancellationToken = default)
     {
-        Check.NotNull(selector, nameof(selector));
+        Check.NotNull(selector);
 
         return ExecuteAsync<TSource, Task<double>>(
             QueryableMethods.GetAverageWithSelector(typeof(double)), source, selector, cancellationToken);
@@ -2095,7 +2101,7 @@ public static class EntityFrameworkQueryableExtensions
         Expression<Func<TSource, double?>> selector,
         CancellationToken cancellationToken = default)
     {
-        Check.NotNull(selector, nameof(selector));
+        Check.NotNull(selector);
 
         return ExecuteAsync<TSource, Task<double?>>(
             QueryableMethods.GetAverageWithSelector(typeof(double?)), source, selector, cancellationToken);
@@ -2187,7 +2193,7 @@ public static class EntityFrameworkQueryableExtensions
         Expression<Func<TSource, float>> selector,
         CancellationToken cancellationToken = default)
     {
-        Check.NotNull(selector, nameof(selector));
+        Check.NotNull(selector);
 
         return ExecuteAsync<TSource, Task<float>>(
             QueryableMethods.GetAverageWithSelector(typeof(float)), source, selector, cancellationToken);
@@ -2224,7 +2230,7 @@ public static class EntityFrameworkQueryableExtensions
         Expression<Func<TSource, float?>> selector,
         CancellationToken cancellationToken = default)
     {
-        Check.NotNull(selector, nameof(selector));
+        Check.NotNull(selector);
 
         return ExecuteAsync<TSource, Task<float?>>(
             QueryableMethods.GetAverageWithSelector(typeof(float?)), source, selector, cancellationToken);
@@ -2465,7 +2471,7 @@ public static class EntityFrameworkQueryableExtensions
         Expression<Func<TEntity, TProperty>> navigationPropertyPath)
         where TEntity : class
     {
-        Check.NotNull(navigationPropertyPath, nameof(navigationPropertyPath));
+        Check.NotNull(navigationPropertyPath);
 
         return new IncludableQueryable<TEntity, TProperty>(
             source.Provider is EntityQueryProvider
@@ -2619,7 +2625,7 @@ public static class EntityFrameworkQueryableExtensions
         [NotParameterized] string navigationPropertyPath)
         where TEntity : class
     {
-        Check.NotEmpty(navigationPropertyPath, nameof(navigationPropertyPath));
+        Check.NotEmpty(navigationPropertyPath);
 
         return
             source.Provider is EntityQueryProvider
@@ -2664,7 +2670,14 @@ public static class EntityFrameworkQueryableExtensions
     #region Query Filters
 
     internal static readonly MethodInfo IgnoreQueryFiltersMethodInfo
-        = typeof(EntityFrameworkQueryableExtensions).GetTypeInfo().GetDeclaredMethod(nameof(IgnoreQueryFilters))!;
+        = typeof(EntityFrameworkQueryableExtensions).GetTypeInfo().GetDeclaredMethods(nameof(IgnoreQueryFilters))
+            .Where(info => info.GetParameters().Length == 1)
+            .First();
+
+    internal static readonly MethodInfo IgnoreNamedQueryFiltersMethodInfo
+        = typeof(EntityFrameworkQueryableExtensions).GetTypeInfo().GetDeclaredMethods(nameof(IgnoreQueryFilters))
+            .Where(info => info.GetParameters().Length == 2)
+            .First();
 
     /// <summary>
     ///     Specifies that the current Entity Framework LINQ query should not have any model-level entity query filters applied.
@@ -2685,6 +2698,28 @@ public static class EntityFrameworkQueryableExtensions
                     instance: null,
                     method: IgnoreQueryFiltersMethodInfo.MakeGenericMethod(typeof(TEntity)),
                     arguments: source.Expression))
+            : source;
+
+    /// <summary>
+    ///     Specifies that the current Entity Framework LINQ query should not have any model-level entity query filters applied.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-query-filters">EF Core query filters</see> for more information and examples.
+    /// </remarks>
+    /// <typeparam name="TEntity">The type of entity being queried.</typeparam>
+    /// <param name="source">The source query.</param>
+    /// <param name="filterKeys">The filter keys.</param>
+    /// <returns>A new query that will not apply any model-level entity query filters.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="source" /> is <see langword="null" />.</exception>
+    public static IQueryable<TEntity> IgnoreQueryFilters<TEntity>(
+        this IQueryable<TEntity> source, [NotParameterized] IReadOnlyCollection<string> filterKeys)
+        where TEntity : class
+        => source.Provider is EntityQueryProvider
+            ? source.Provider.CreateQuery<TEntity>(
+                Expression.Call(
+                    instance: null,
+                    method: IgnoreNamedQueryFiltersMethodInfo.MakeGenericMethod(typeof(TEntity)),
+                    arguments: [source.Expression, Expression.Constant(filterKeys)]))
             : source;
 
     #endregion
@@ -2879,7 +2914,7 @@ public static class EntityFrameworkQueryableExtensions
         this IQueryable<T> source,
         [NotParameterized] string tag)
     {
-        Check.NotEmpty(tag, nameof(tag));
+        Check.NotEmpty(tag);
 
         return
             source.Provider is EntityQueryProvider
@@ -3130,8 +3165,8 @@ public static class EntityFrameworkQueryableExtensions
         CancellationToken cancellationToken = default)
         where TKey : notnull
     {
-        Check.NotNull(keySelector, nameof(keySelector));
-        Check.NotNull(elementSelector, nameof(elementSelector));
+        Check.NotNull(keySelector);
+        Check.NotNull(elementSelector);
 
         var d = new Dictionary<TKey, TElement>(comparer);
         await foreach (var element in source.AsAsyncEnumerable().WithCancellation(cancellationToken).ConfigureAwait(false))
@@ -3173,7 +3208,7 @@ public static class EntityFrameworkQueryableExtensions
         Action<T> action,
         CancellationToken cancellationToken = default)
     {
-        Check.NotNull(action, nameof(action));
+        Check.NotNull(action);
 
         await foreach (var element in source.AsAsyncEnumerable().WithCancellation(cancellationToken).ConfigureAwait(false))
         {
@@ -3337,9 +3372,18 @@ public static class EntityFrameworkQueryableExtensions
     /// <returns>The total number of rows updated in the database.</returns>
     public static int ExecuteUpdate<TSource>(
         this IQueryable<TSource> source,
-        Expression<Func<SetPropertyCalls<TSource>, SetPropertyCalls<TSource>>> setPropertyCalls)
-        => source.Provider.Execute<int>(
-            Expression.Call(ExecuteUpdateMethodInfo.MakeGenericMethod(typeof(TSource)), source.Expression, setPropertyCalls));
+        Action<UpdateSettersBuilder<TSource>> setPropertyCalls)
+    {
+        var setterBuilder = new UpdateSettersBuilder<TSource>();
+        setPropertyCalls(setterBuilder);
+        var setters = setterBuilder.BuildSettersExpression();
+
+        return source.Provider.Execute<int>(
+            Expression.Call(
+                ExecuteUpdateMethodInfo.MakeGenericMethod(typeof(TSource)),
+                source.Expression,
+                setters));
+    }
 
     /// <summary>
     ///     Asynchronously updates database rows for the entity instances which match the LINQ query from the database.
@@ -3360,18 +3404,41 @@ public static class EntityFrameworkQueryableExtensions
     /// <param name="setPropertyCalls">A collection of set property statements specifying properties to update.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>The total number of rows updated in the database.</returns>
+    [DynamicDependency("ExecuteUpdate``1(System.Linq.IQueryable{``1},System.Collections.Generic.IReadOnlyList{ITuple})", typeof(EntityFrameworkQueryableExtensions))]
     public static Task<int> ExecuteUpdateAsync<TSource>(
         this IQueryable<TSource> source,
-        Expression<Func<SetPropertyCalls<TSource>, SetPropertyCalls<TSource>>> setPropertyCalls,
+        Action<UpdateSettersBuilder<TSource>> setPropertyCalls,
         CancellationToken cancellationToken = default)
-        => source.Provider is IAsyncQueryProvider provider
+    {
+        var setterBuilder = new UpdateSettersBuilder<TSource>();
+        setPropertyCalls(setterBuilder);
+        var setters = setterBuilder.BuildSettersExpression();
+
+        return source.Provider is IAsyncQueryProvider provider
             ? provider.ExecuteAsync<Task<int>>(
                 Expression.Call(
-                    ExecuteUpdateMethodInfo.MakeGenericMethod(typeof(TSource)), source.Expression, setPropertyCalls), cancellationToken)
+                    ExecuteUpdateMethodInfo.MakeGenericMethod(typeof(TSource)),
+                    source.Expression,
+                    setters),
+                cancellationToken)
             : throw new InvalidOperationException(CoreStrings.IQueryableProviderNotAsync);
+    }
 
-    internal static readonly MethodInfo ExecuteUpdateMethodInfo
-        = typeof(EntityFrameworkQueryableExtensions).GetTypeInfo().GetDeclaredMethod(nameof(ExecuteUpdate))!;
+    private static int ExecuteUpdate<TSource>(this IQueryable<TSource> source, [NotParameterized] IReadOnlyList<ITuple> setters)
+        => throw new UnreachableException("Can't call this overload directly");
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public static readonly MethodInfo ExecuteUpdateMethodInfo
+        = typeof(EntityFrameworkQueryableExtensions)
+            .GetMethods(BindingFlags.NonPublic | BindingFlags.Static)
+            .Single(
+                m => m.Name == nameof(ExecuteUpdate) && m.GetParameters()[1].ParameterType == typeof(IReadOnlyList<ITuple>));
 
     #endregion
 }

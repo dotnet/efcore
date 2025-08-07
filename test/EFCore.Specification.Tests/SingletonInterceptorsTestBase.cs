@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class SingletonInterceptorsTestBase<TContext> : NonSharedModelTestBase
+public abstract class SingletonInterceptorsTestBase<TContext>(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
     where TContext : SingletonInterceptorsTestBase<TContext>.LibraryContext
 {
     protected class Book

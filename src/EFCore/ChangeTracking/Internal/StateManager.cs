@@ -26,7 +26,7 @@ public class StateManager : IStateManager
     private IChangeDetector? _changeDetector;
 
     private readonly IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> _changeTrackingLogger;
-    private readonly IInternalEntityEntrySubscriber _internalEntityEntrySubscriber;
+    private readonly IInternalEntrySubscriber _internalEntityEntrySubscriber;
     private readonly IModel _model;
     private readonly IDatabase _database;
     private readonly IConcurrencyDetector? _concurrencyDetector;
@@ -174,7 +174,7 @@ public class StateManager : IStateManager
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IEntityMaterializerSource EntityMaterializerSource { get; }
+    public virtual IStructuralTypeMaterializerSource EntityMaterializerSource { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -599,6 +599,27 @@ public class StateManager : IStateManager
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public virtual InternalComplexEntry StartTracking(InternalComplexEntry entry)
+    {
+        if (entry.StateManager != this)
+        {
+            throw new InvalidOperationException(CoreStrings.WrongStateManager(entry.StructuralType.DisplayName()));
+        }
+
+        if (_internalEntityEntrySubscriber.SnapshotAndSubscribe(entry))
+        {
+            _needsUnsubscribe = true;
+        }
+
+        return entry;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public virtual void StopTracking(InternalEntityEntry entry, EntityState oldState)
     {
         if (_needsUnsubscribe)
@@ -642,6 +663,20 @@ public class StateManager : IStateManager
                     }
                 }
             }
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void StopTracking(InternalComplexEntry entry, EntityState oldState)
+    {
+        if (_needsUnsubscribe)
+        {
+            _internalEntityEntrySubscriber.Unsubscribe(entry);
         }
     }
 
@@ -1128,7 +1163,7 @@ public class StateManager : IStateManager
 
         foreach (var entry in GetEntriesForState(added: true, modified: true, deleted: true))
         {
-            toSave.Add(entry.PrepareToSave());
+            toSave.Add((IUpdateEntry)entry.PrepareToSave());
         }
 
         return toSave;

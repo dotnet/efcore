@@ -485,6 +485,59 @@ public partial class NavigationExpandingExpressionVisitor
     /// <summary>
     ///     Queryable properties are not expanded (similar to <see cref="OwnedNavigationReference" />.
     /// </summary>
+    private sealed class ComplexPropertyReference(Expression parent, IComplexProperty complexProperty)
+        : Expression, IPrintableExpression
+    {
+        protected override Expression VisitChildren(ExpressionVisitor visitor)
+        {
+            Parent = visitor.Visit(Parent);
+
+            return this;
+        }
+
+        public Expression Parent { get; private set; } = parent;
+        public new IComplexProperty Property { get; } = complexProperty;
+        public ComplexTypeReference ComplexTypeReference { get; } = new(complexProperty.ComplexType);
+
+        public override Type Type
+            => Property.ClrType;
+
+        public override ExpressionType NodeType
+            => ExpressionType.Extension;
+
+        void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
+        {
+            expressionPrinter.AppendLine(nameof(ComplexPropertyReference));
+            using (expressionPrinter.Indent())
+            {
+                expressionPrinter.Append("Parent: ");
+                expressionPrinter.Visit(Parent);
+                expressionPrinter.AppendLine();
+                expressionPrinter.Append("Property: " + Property.Name);
+            }
+        }
+    }
+
+    private sealed class ComplexTypeReference(IComplexType complexType) : Expression, IPrintableExpression
+    {
+        public IComplexType ComplexType { get; } = complexType;
+
+        public override ExpressionType NodeType
+            => ExpressionType.Extension;
+
+        public override Type Type
+            => ComplexType.ClrType;
+
+        protected override Expression VisitChildren(ExpressionVisitor visitor)
+            => this;
+
+        void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
+            => expressionPrinter.Append($"{nameof(ComplexTypeReference)}: {ComplexType.DisplayName()}");
+    }
+
+    /// <summary>
+    ///     Queryable properties are not expanded (similar to <see cref="OwnedNavigationReference" />.
+    /// </summary>
     private sealed class PrimitiveCollectionReference(Expression parent, IProperty property) : Expression, IPrintableExpression
     {
         protected override Expression VisitChildren(ExpressionVisitor visitor)

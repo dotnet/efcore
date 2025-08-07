@@ -630,10 +630,9 @@ public class DbFunctionTest
     {
         var modelBuilder = GetModelBuilder();
 
-        var expectedMessage = AbstractionsStrings.ArgumentIsEmpty("name");
-
         Assert.Equal(
-            expectedMessage, Assert.Throws<ArgumentException>(() => modelBuilder.HasDbFunction(MethodAmi).HasName("")).Message);
+            $"{AbstractionsStrings.ArgumentIsEmpty} (Parameter 'name')",
+            Assert.Throws<ArgumentException>(() => modelBuilder.HasDbFunction(MethodAmi).HasName("")).Message);
     }
 
     [ConditionalFact]

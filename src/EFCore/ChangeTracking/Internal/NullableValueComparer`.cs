@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 /// <summary>
@@ -9,7 +11,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class NullableValueComparer<T> : ValueComparer<T?>, IInfrastructure<ValueComparer>
+public class NullableValueComparer
+    <[DynamicallyAccessedMembers(
+        DynamicallyAccessedMemberTypes.PublicMethods
+        | DynamicallyAccessedMemberTypes.PublicProperties)]
+    T> : ValueComparer<T?>, IInfrastructure<ValueComparer>
     where T : struct
 {
     private static readonly PropertyInfo _hasValueProperty = typeof(T?).GetProperty("HasValue")!;

@@ -38,6 +38,101 @@ public interface IConventionTypeBase : IReadOnlyTypeBase, IConventionAnnotatable
         => (IConventionEntityType)this;
 
     /// <summary>
+    ///     Gets the base type of this type. Returns <see langword="null" /> if this is not a derived type in an inheritance hierarchy.
+    /// </summary>
+    new IConventionTypeBase? BaseType { get; }
+
+    /// <summary>
+    ///     Gets the root base type for a given type.
+    /// </summary>
+    /// <returns>
+    ///     The root base type. If the given type is not a derived type, then the same type is returned.
+    /// </returns>
+    new IConventionTypeBase GetRootType()
+        => (IConventionTypeBase)((IReadOnlyTypeBase)this).GetRootType();
+
+    /// <summary>
+    ///     Gets all types in the model that derive from this type.
+    /// </summary>
+    /// <returns>The derived types.</returns>
+    new IEnumerable<IConventionTypeBase> GetDerivedTypes()
+        => ((IReadOnlyTypeBase)this).GetDerivedTypes().Cast<IConventionTypeBase>();
+
+    /// <summary>
+    ///     Returns all derived types of this type, including the type itself.
+    /// </summary>
+    /// <returns>Derived types.</returns>
+    new IEnumerable<IConventionTypeBase> GetDerivedTypesInclusive()
+        => ((IReadOnlyTypeBase)this).GetDerivedTypesInclusive().Cast<IConventionTypeBase>();
+
+    /// <summary>
+    ///     Gets all types in the model that directly derive from this type.
+    /// </summary>
+    /// <returns>The derived types.</returns>
+    new IEnumerable<IConventionTypeBase> GetDirectlyDerivedTypes()
+        => ((IReadOnlyTypeBase)this).GetDirectlyDerivedTypes().Cast<IConventionTypeBase>();
+
+    /// <summary>
+    ///     Returns the property that will be used for storing a discriminator value.
+    /// </summary>
+    /// <returns>The property that will be used for storing a discriminator value.</returns>
+    new IConventionProperty? FindDiscriminatorProperty()
+        => (IConventionProperty?)((IReadOnlyEntityType)this).FindDiscriminatorProperty();
+
+    /// <summary>
+    ///     Sets the <see cref="IReadOnlyProperty" /> that will be used for storing a discriminator value.
+    /// </summary>
+    /// <param name="property">The property to set.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The discriminator property.</returns>
+    IConventionProperty? SetDiscriminatorProperty(IReadOnlyProperty? property, bool fromDataAnnotation = false);
+
+    /// <summary>
+    ///     Gets the <see cref="ConfigurationSource" /> for the discriminator property.
+    /// </summary>
+    /// <returns>The <see cref="ConfigurationSource" /> or <see langword="null" /> if no discriminator property has been set.</returns>
+    ConfigurationSource? GetDiscriminatorPropertyConfigurationSource();
+
+    /// <summary>
+    ///     Sets the discriminator value for this type.
+    /// </summary>
+    /// <param name="value">The value to set.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    object? SetDiscriminatorValue(object? value, bool fromDataAnnotation = false)
+        => SetAnnotation(CoreAnnotationNames.DiscriminatorValue, value, fromDataAnnotation)
+            ?.Value;
+
+    /// <summary>
+    ///     Removes the discriminator value for this type.
+    /// </summary>
+    /// <returns>The removed discriminator value.</returns>
+    object? RemoveDiscriminatorValue()
+        => RemoveAnnotation(CoreAnnotationNames.DiscriminatorValue)?.Value;
+
+    /// <summary>
+    ///     Gets the <see cref="ConfigurationSource" /> for the discriminator value.
+    /// </summary>
+    /// <returns>The <see cref="ConfigurationSource" /> or <see langword="null" /> if no discriminator value has been set.</returns>
+    ConfigurationSource? GetDiscriminatorValueConfigurationSource()
+        => FindAnnotation(CoreAnnotationNames.DiscriminatorValue)
+            ?.GetConfigurationSource();
+
+    /// <summary>
+    ///     Sets the base type of this type. Returns <see langword="null" /> if this is not a derived type in an inheritance hierarchy.
+    /// </summary>
+    /// <param name="structuralType">The base type.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The new base type.</returns>
+    IConventionTypeBase? SetBaseType(IConventionTypeBase? structuralType, bool fromDataAnnotation = false);
+
+    /// <summary>
+    ///     Returns the configuration source for the <see cref="BaseType" /> property.
+    /// </summary>
+    /// <returns>The configuration source for the <see cref="BaseType" /> property.</returns>
+    ConfigurationSource? GetBaseTypeConfigurationSource();
+
+    /// <summary>
     ///     Marks the given member name as ignored, preventing conventions from adding a matching property
     ///     or navigation to the type.
     /// </summary>

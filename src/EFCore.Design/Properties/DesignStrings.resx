@@ -162,9 +162,6 @@
   <data name="CompiledModelCustomCacheKeyFactory" xml:space="preserve">
     <value>The context is configured to use a custom model cache key factory '{factoryType}', this usually indicates that the produced model can change between context instances. To preserve this behavior manually modify the generated compiled model source code.</value>
   </data>
-  <data name="CompiledModelDefiningQuery" xml:space="preserve">
-    <value>The entity type '{entityType}' has a defining query configured. Compiled model can't be generated, because defining queries are not supported.</value>
-  </data>
   <data name="CompiledModelGenerated" xml:space="preserve">
     <value>Successfully generated a compiled model, it will be discovered automatically, but you can also call '{optionsCall}'. Run this command again when the model is modified.</value>
   </data>

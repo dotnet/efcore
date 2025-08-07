@@ -1019,6 +1019,14 @@ public abstract class NorthwindSelectQueryTestBase<TFixture>(TFixture fixture) :
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Project_single_element_from_collection_with_OrderBy_Take_OrderBy_and_FirstOrDefault(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Select(
+                c => c.Orders.OrderBy(o => o.OrderID).Take(1).OrderBy(o => o.OrderDate).FirstOrDefault()));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Project_single_element_from_collection_with_OrderBy_Skip_and_FirstOrDefault(bool async)
         => AssertQuery(
             async,
@@ -1440,6 +1448,33 @@ public abstract class NorthwindSelectQueryTestBase<TFixture>(TFixture fixture) :
                 AssertEqual(e.c, a.c);
                 AssertEqual(e.o, a.o);
             });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task SelectMany_with_multiple_Take(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().SelectMany(c => c.Orders.OrderBy(o => o.OrderID).Take(5).Take(3)));
+
+    [ConditionalTheory] // #33343
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task SelectMany_with_nested_DefaultIfEmpty(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>()
+                .SelectMany(c => c.Orders
+                    // Make sure no orders are actually returned;
+                    // if the DIE below is erroneously lifted as in #3343, that would cause a change in results
+                    .Where(p => false)
+                    .SelectMany(o => o.OrderDetails.DefaultIfEmpty())),
+            assertEmpty: true);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Select_with_multiple_Take(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().OrderBy(o => o.CustomerID).Take(5).Take(3));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -2337,7 +2372,7 @@ public abstract class NorthwindSelectQueryTestBase<TFixture>(TFixture fixture) :
                     c => new
                     {
                         c.CustomerID,
-                        Order = c.Orders.FirstOrDefault(o => o.OrderID < 11000).MaybeScalar(e => e.OrderDate),
+                        Order = Enumerable.FirstOrDefault(c.Orders, o => o.OrderID < 11000).MaybeScalar(e => e.OrderDate),
                         InterpolatedString = $"test{c.City}",
                         NonInterpolatedString = "test" + c.City,
                         Collection = new List<string>

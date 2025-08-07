@@ -18,7 +18,7 @@ public class SqlServerConfigPatternsTest
         [ConditionalFact]
         public async Task Can_query_with_implicit_services_and_OnConfiguring()
         {
-            using (await SqlServerTestStore.GetNorthwindStoreAsync())
+            await using (await SqlServerTestStore.GetNorthwindStoreAsync())
             {
                 using var context = new NorthwindContext();
                 Assert.Equal(91, await context.Customers.CountAsync());
@@ -46,7 +46,7 @@ public class SqlServerConfigPatternsTest
         [ConditionalFact]
         public async Task Can_query_with_implicit_services_and_explicit_config()
         {
-            using (await SqlServerTestStore.GetNorthwindStoreAsync())
+            await using (await SqlServerTestStore.GetNorthwindStoreAsync())
             {
                 using var context = new NorthwindContext(
                     new DbContextOptionsBuilder()
@@ -71,7 +71,7 @@ public class SqlServerConfigPatternsTest
         [ConditionalFact]
         public async Task Can_query_with_explicit_services_and_OnConfiguring()
         {
-            using (await SqlServerTestStore.GetNorthwindStoreAsync())
+            await using (await SqlServerTestStore.GetNorthwindStoreAsync())
             {
                 using var context = new NorthwindContext(
                     new DbContextOptionsBuilder().UseInternalServiceProvider(
@@ -100,7 +100,7 @@ public class SqlServerConfigPatternsTest
         [ConditionalFact]
         public async Task Can_query_with_explicit_services_and_explicit_config()
         {
-            using (await SqlServerTestStore.GetNorthwindStoreAsync())
+            await using (await SqlServerTestStore.GetNorthwindStoreAsync())
             {
                 using var context = new NorthwindContext(
                     new DbContextOptionsBuilder()
@@ -127,7 +127,7 @@ public class SqlServerConfigPatternsTest
         [ConditionalFact]
         public async Task Throws_on_attempt_to_use_SQL_Server_without_providing_connection_string()
         {
-            using (await SqlServerTestStore.GetNorthwindStoreAsync())
+            await using (await SqlServerTestStore.GetNorthwindStoreAsync())
             {
                 Assert.Equal(
                     CoreStrings.NoProviderConfigured,
@@ -158,7 +158,7 @@ public class SqlServerConfigPatternsTest
         [ConditionalFact]
         public async Task Throws_on_attempt_to_use_context_with_no_store()
         {
-            using (await SqlServerTestStore.GetNorthwindStoreAsync())
+            await using (await SqlServerTestStore.GetNorthwindStoreAsync())
             {
                 Assert.Equal(
                     CoreStrings.NoProviderConfigured,
@@ -192,7 +192,7 @@ public class SqlServerConfigPatternsTest
             new EntityFrameworkServicesBuilder(serviceCollection).TryAddCoreServices();
             var serviceProvider = serviceCollection.BuildServiceProvider(validateScopes: true);
 
-            using (await SqlServerTestStore.GetNorthwindStoreAsync())
+            await using (await SqlServerTestStore.GetNorthwindStoreAsync())
             {
                 Assert.Equal(
                     CoreStrings.NoProviderConfigured,
@@ -232,7 +232,7 @@ public class SqlServerConfigPatternsTest
                 .AddSingleton(p => new DbContextOptionsBuilder().UseInternalServiceProvider(p).Options)
                 .BuildServiceProvider(validateScopes: true);
 
-            using (await SqlServerTestStore.GetNorthwindStoreAsync())
+            await using (await SqlServerTestStore.GetNorthwindStoreAsync())
             {
                 await serviceProvider.GetRequiredService<MyController>().TestAsync();
             }
@@ -284,7 +284,7 @@ public class SqlServerConfigPatternsTest
                         .UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString, b => b.ApplyConfiguration())
                         .Options).BuildServiceProvider(validateScopes: true);
 
-            using (await SqlServerTestStore.GetNorthwindStoreAsync())
+            await using (await SqlServerTestStore.GetNorthwindStoreAsync())
             {
                 await serviceProvider.GetRequiredService<MyController>().TestAsync();
             }
@@ -323,7 +323,7 @@ public class SqlServerConfigPatternsTest
         [ConditionalFact]
         public async Task Can_pass_context_options_to_constructor_and_use_in_builder()
         {
-            using (await SqlServerTestStore.GetNorthwindStoreAsync())
+            await using (await SqlServerTestStore.GetNorthwindStoreAsync())
             {
                 using var context = new NorthwindContext(
                     new DbContextOptionsBuilder()
@@ -348,7 +348,7 @@ public class SqlServerConfigPatternsTest
         [ConditionalFact]
         public async Task Can_pass_connection_string_to_constructor_and_use_in_OnConfiguring()
         {
-            using (await SqlServerTestStore.GetNorthwindStoreAsync())
+            await using (await SqlServerTestStore.GetNorthwindStoreAsync())
             {
                 using var context = new NorthwindContext(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString);
                 Assert.Equal(91, await context.Customers.CountAsync());
@@ -376,7 +376,7 @@ public class SqlServerConfigPatternsTest
         [ConditionalFact]
         public async Task Can_use_one_context_nested_inside_another_of_the_same_type()
         {
-            using (await SqlServerTestStore.GetNorthwindStoreAsync())
+            await using (await SqlServerTestStore.GetNorthwindStoreAsync())
             {
                 var serviceProvider = new ServiceCollection()
                     .AddEntityFrameworkSqlServer()

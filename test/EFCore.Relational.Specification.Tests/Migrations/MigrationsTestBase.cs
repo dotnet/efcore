@@ -364,6 +364,115 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
             });
 
     [ConditionalFact]
+    public virtual async Task Create_table_with_complex_properties_mapped_to_json()
+        => await Test(
+            builder => { },
+            builder =>
+            {
+                builder.Entity(
+                    "Entity", e =>
+                    {
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.HasKey("Id");
+                        e.Property<string>("Name");
+
+                        e.ComplexProperty<MyJsonComplex>(
+                            "ComplexReference", cp =>
+                            {
+                                cp.ToJson("ComplexReferenceJSON");
+                                cp.Property(x => x.Value).HasJsonPropertyName("custom_value");
+                                cp.Property(x => x.Date).HasJsonPropertyName("custom_date");
+                                cp.Ignore(x => x.NestedCollection);
+                                cp.ComplexProperty(x => x.Nested, np =>
+                                {
+                                    np.Property("Foo").HasJsonPropertyName("nested_foo");
+                                    np.Property("Bar").HasJsonPropertyName("nested_bar");
+                                    np.HasJsonPropertyName("nested_complex");
+                                });
+                            });
+
+                        e.ComplexCollection<List<MyJsonComplex>, MyJsonComplex>(
+                            "ComplexCollection", cp =>
+                            {
+                                cp.ToJson("ComplexCollectionJSON");
+                                cp.Property(x => x.Value).HasJsonPropertyName("custom_value2");
+                                cp.Property(x => x.Date).HasJsonPropertyName("custom_date2");
+                                cp.Ignore(x => x.NestedCollection);
+                                cp.ComplexProperty(x => x.Nested, np =>
+                                {
+                                    np.Property("Foo").HasJsonPropertyName("nested_foo2");
+                                    np.Property("Bar").HasJsonPropertyName("nested_bar2");
+                                    np.HasJsonPropertyName("nested_complex2");
+                                });
+                            });
+                    });
+            },
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                Assert.Equal("Entity", table.Name);
+
+                Assert.Collection(
+                    table.Columns,
+                    c => Assert.Equal("Id", c.Name),
+                    c => Assert.Equal("Name", c.Name),
+                    c => Assert.Equal("ComplexCollectionJSON", c.Name),
+                    c => Assert.Equal("ComplexReferenceJSON", c.Name));
+                Assert.Same(
+                    table.Columns.Single(c => c.Name == "Id"),
+                    Assert.Single(table.PrimaryKey!.Columns));
+            });
+
+    [ConditionalFact]
+    public virtual async Task Create_table_with_complex_properties_with_nested_collection_mapped_to_json()
+        => await Test(
+            builder => { },
+            builder =>
+            {
+                builder.Entity(
+                    "Entity", e =>
+                    {
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.HasKey("Id");
+                        e.Property<string>("Name");
+
+                        e.ComplexProperty<MyJsonComplex>(
+                            "ComplexReference", cp =>
+                            {
+                                cp.ComplexProperty(x => x.Nested, np =>
+                                {
+                                    np.ToJson("ComplexReferenceJSON");
+                                    np.Property("Foo").HasJsonPropertyName("nested_foo");
+                                    np.Property("Bar").HasJsonPropertyName("nested_bar");
+                                });
+                                cp.ComplexCollection(x => x.NestedCollection, ncp =>
+                                {
+                                    ncp.ToJson("ComplexCollectionJSON");
+                                    ncp.Property("Foo").HasJsonPropertyName("nested_collection_foo");
+                                    ncp.Property("Bar").HasJsonPropertyName("nested_collection_bar");
+                                });
+                            });
+                    });
+            },
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                Assert.Equal("Entity", table.Name);
+
+                Assert.Collection(
+                    table.Columns,
+                    c => Assert.Equal("Id", c.Name),
+                    c => Assert.Equal("Name", c.Name),
+                    c => Assert.Equal("ComplexReference_Date", c.Name),
+                    c => Assert.Equal("ComplexReference_Value", c.Name),
+                    c => Assert.Equal("ComplexCollectionJSON", c.Name),
+                    c => Assert.Equal("ComplexReferenceJSON", c.Name));
+                Assert.Same(
+                    table.Columns.Single(c => c.Name == "Id"),
+                    Assert.Single(table.PrimaryKey!.Columns));
+            });
+
+    [ConditionalFact]
     public virtual Task Alter_table_add_comment()
         => Test(
             builder => builder.Entity("People").Property<int>("Id"),
@@ -976,8 +1085,8 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
             builder =>
             {
                 builder.Entity("Base").Property<int>("Id");
-                builder.Entity("Derived1").HasBaseType("Base").Property<string>("Foo");
-                builder.Entity("Derived2").HasBaseType("Base").Property<string>("Foo");
+                builder.Entity("Derived1").HasBaseType("Base").Property<string>("Foo").HasColumnName("Foo");
+                builder.Entity("Derived2").HasBaseType("Base").Property<string>("Foo").HasColumnName("Foo");
             },
             builder => { },
             builder => builder.Entity("Base").Property<string>("Foo"),
@@ -1386,32 +1495,16 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                         e.OwnsOne(
                             "Owned", "OwnedReference", o =>
                             {
-                                o.OwnsOne(
-                                    "Nested", "NestedReference", n =>
-                                    {
-                                        n.Property<int>("Number");
-                                    });
-                                o.OwnsMany(
-                                    "Nested2", "NestedCollection", n =>
-                                    {
-                                        n.Property<int>("Number2");
-                                    });
+                                o.OwnsOne("Nested", "NestedReference", n => n.Property<int>("Number"));
+                                o.OwnsMany("Nested2", "NestedCollection", n => n.Property<int>("Number2"));
                                 o.Property<DateTime>("Date");
                             });
 
                         e.OwnsMany(
                             "Owned2", "OwnedCollection", o =>
                             {
-                                o.OwnsOne(
-                                    "Nested3", "NestedReference2", n =>
-                                    {
-                                        n.Property<int>("Number3");
-                                    });
-                                o.OwnsMany(
-                                    "Nested4", "NestedCollection2", n =>
-                                    {
-                                        n.Property<int>("Number4");
-                                    });
+                                o.OwnsOne("Nested3", "NestedReference2", n => n.Property<int>("Number3"));
+                                o.OwnsMany("Nested4", "NestedCollection2", n => n.Property<int>("Number4"));
                                 o.Property<DateTime>("Date2");
                             });
                     });
@@ -2692,6 +2785,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                             "MyComplex", ct =>
                             {
                                 ct.ComplexProperty<MyNestedComplex>("MyNestedComplex").IsRequired();
+                                ct.ComplexCollection(c => c.NestedCollection).ToJson();
                             });
                     });
             },
@@ -2707,17 +2801,92 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                     c =>
                     {
                         Assert.Equal("MyComplex_Prop", c.Name);
-                        Assert.Equal(true, c.IsNullable);
+                        Assert.True(c.IsNullable);
                     },
                     c =>
                     {
                         Assert.Equal("MyComplex_MyNestedComplex_Bar", c.Name);
-                        Assert.Equal(true, c.IsNullable);
+                        Assert.True(c.IsNullable);
                     },
                     c =>
                     {
                         Assert.Equal("MyComplex_MyNestedComplex_Foo", c.Name);
-                        Assert.Equal(true, c.IsNullable);
+                        Assert.True(c.IsNullable);
+                    },
+                    c =>
+                    {
+                        Assert.Equal("MyComplex_Nested_Bar", c.Name);
+                        Assert.True(c.IsNullable);
+                    },
+                    c =>
+                    {
+                        Assert.Equal("MyComplex_Nested_Foo", c.Name);
+                        Assert.True(c.IsNullable);
+                    },
+                    c =>
+                    {
+                        Assert.Equal("NestedCollection", c.Name);
+                        Assert.True(c.IsNullable);
+                    });
+            });
+
+    [ConditionalFact]
+    public virtual Task Create_table_with_optional_complex_type_with_required_properties()
+        => Test(
+            builder => { },
+            builder =>
+            {
+                builder.Entity(
+                    "Supplier", e =>
+                    {
+                        e.ToTable("Suppliers");
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.HasKey("Id");
+                        e.Property<int>("Number");
+                        e.ComplexProperty<MyComplex>(
+                            "MyComplex", ct =>
+                            {
+                                ct.ComplexProperty<MyNestedComplex>("MyNestedComplex");
+                                ct.ComplexCollection(c => c.NestedCollection).ToJson();
+                            });
+                    });
+            },
+            model =>
+            {
+                var contactsTable = Assert.Single(model.Tables.Where(t => t.Name == "Suppliers"));
+                Assert.Collection(
+                    contactsTable.Columns,
+                    c => Assert.Equal("Id", c.Name),
+                    c => Assert.Equal("Number", c.Name),
+                    c =>
+                    {
+                        Assert.Equal("MyComplex_Prop", c.Name);
+                        Assert.True(c.IsNullable);
+                    },
+                    c =>
+                    {
+                        Assert.Equal("MyComplex_MyNestedComplex_Bar", c.Name);
+                        Assert.True(c.IsNullable);
+                    },
+                    c =>
+                    {
+                        Assert.Equal("MyComplex_MyNestedComplex_Foo", c.Name);
+                        Assert.True(c.IsNullable);
+                    },
+                    c =>
+                    {
+                        Assert.Equal("MyComplex_Nested_Bar", c.Name);
+                        Assert.True(c.IsNullable);
+                    },
+                    c =>
+                    {
+                        Assert.Equal("MyComplex_Nested_Foo", c.Name);
+                        Assert.True(c.IsNullable);
+                    },
+                    c =>
+                    {
+                        Assert.Equal("NestedCollection", c.Name);
+                        Assert.True(c.IsNullable);
                     });
             });
 
@@ -2726,8 +2895,8 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
         [Required]
         public string Prop { get; set; }
 
-        [Required]
         public MyNestedComplex Nested { get; set; }
+        public List<MyNestedComplex> NestedCollection { get; set; }
     }
 
     public class MyNestedComplex
@@ -3235,7 +3404,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
 
                         e.ToTable("Customers");
                     })
-            ]);
+                ]);
 
     [ConditionalFact]
     public virtual Task Multiop_create_table_and_drop_it_in_one_migration()
@@ -3252,7 +3421,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                         e.ToTable("Customers");
                     }),
                 builder => { },
-            ]);
+                ]);
 
     [ConditionalFact]
     public virtual Task Multiop_rename_table_and_drop()
@@ -3277,7 +3446,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                         e.ToTable("NewCustomers");
                     }),
                 builder => { },
-            ]);
+                ]);
 
     [ConditionalFact]
     public virtual Task Multiop_rename_table_and_create_new_table_with_the_old_name()
@@ -3323,13 +3492,21 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                             e.ToTable("Customers");
                         });
                 },
-            ]);
+                ]);
+
+    protected class MyJsonComplex
+    {
+        public string Value { get; set; }
+        public DateTime Date { get; set; }
+        public MyNestedComplex Nested { get; set; }
+        public List<MyNestedComplex> NestedCollection { get; set; }
+    }
 
     protected class Person
     {
         public int Id { get; set; }
-        public int AnotherId { get; set; }
         public string Name { get; set; }
+        public int AnotherId { get; set; }
         public int Age { get; set; }
     }
 
@@ -3447,7 +3624,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
         // Get the migration operations between the two models and test
         var operations = modelDiffer.GetDifferences(sourceModel.GetRelationalModel(), targetModel.GetRelationalModel());
 
-        return Test(sourceModel, targetModel, operations, asserter, migrationsSqlGenerationOptions);
+        return Test(preSnapshotSourceModel, targetModel, operations, asserter, migrationsSqlGenerationOptions);
     }
 
     protected virtual Task Test(
@@ -3484,7 +3661,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
             modelSnapshotNamespace: null, typeof(DbContext), "MigrationsTestSnapshot", preSnapshotSourceModel);
         var sourceModel = BuildModelFromSnapshotSource(sourceModelSnapshot);
 
-        return Test(sourceModel, targetModel: null, operations, asserter, migrationsSqlGenerationOptions);
+        return Test(preSnapshotSourceModel, targetModel: null, operations, asserter, migrationsSqlGenerationOptions);
     }
 
     protected virtual async Task Test(

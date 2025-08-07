@@ -58,7 +58,7 @@ public abstract class PropertyChangeInterceptorBase
             if (indexerPropertyInfo != null
                 && indexerPropertyInfo.GetSetMethod(nonPublic: true) == invocation.Method)
             {
-                return (string)invocation.Arguments[0];
+                return (string)invocation.Arguments[0]!;
             }
         }
 

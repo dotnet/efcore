@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-[SqlServerCondition(SqlServerCondition.IsNotSqlAzure)]
+[SqlServerCondition(SqlServerCondition.IsNotAzureSql)]
 public class EverythingIsBytesSqlServerTest(EverythingIsBytesSqlServerTest.EverythingIsBytesSqlServerFixture fixture)
     : BuiltInDataTypesTestBase<EverythingIsBytesSqlServerTest.EverythingIsBytesSqlServerFixture>(fixture)
 {

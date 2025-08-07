@@ -3,7 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class OwnedEntityQueryInMemoryTest : OwnedEntityQueryTestBase
+public class OwnedEntityQueryInMemoryTest(NonSharedFixture fixture) : OwnedEntityQueryTestBase(fixture)
 {
     protected override ITestStoreFactory TestStoreFactory
         => InMemoryTestStoreFactory.Instance;

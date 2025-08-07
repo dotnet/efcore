@@ -38,7 +38,6 @@ public class SqlServerConnection : RelationalConnection, ISqlServerConnection
     /// </summary>
     protected override void OpenDbConnection(bool errorsExpected)
     {
-        // Note: Not needed for the Async overload: see https://github.com/dotnet/SqlClient/issues/615
         if (errorsExpected
             && DbConnection is SqlConnection sqlConnection)
         {
@@ -47,6 +46,25 @@ public class SqlServerConnection : RelationalConnection, ISqlServerConnection
         else
         {
             DbConnection.Open();
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override Task OpenDbConnectionAsync(bool errorsExpected, CancellationToken cancellationToken)
+    {
+        if (errorsExpected
+            && DbConnection is SqlConnection sqlConnection)
+        {
+            return sqlConnection.OpenAsync(SqlConnectionOverrides.OpenWithoutRetry, cancellationToken);
+        }
+        else
+        {
+            return DbConnection.OpenAsync(cancellationToken);
         }
     }
 

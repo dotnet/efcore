@@ -189,7 +189,7 @@ public class KeyDiscoveryConvention :
         IConventionEntityType entityType,
         IEnumerable<IConventionProperty> candidateProperties)
     {
-        Check.NotNull(entityType, nameof(entityType));
+        Check.NotNull(entityType);
 
         // ReSharper disable PossibleMultipleEnumeration
         var keyProperties = candidateProperties.Where(p => string.Equals(p.Name, KeySuffix, StringComparison.OrdinalIgnoreCase));

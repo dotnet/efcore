@@ -12,7 +12,7 @@ using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding;
 
-public class CompiledModelSqlServerTest : CompiledModelRelationalTestBase
+public class CompiledModelSqlServerTest(NonSharedFixture fixture) : CompiledModelRelationalTestBase(fixture)
 {
     protected override void BuildBigModel(ModelBuilder modelBuilder, bool jsonColumns)
     {

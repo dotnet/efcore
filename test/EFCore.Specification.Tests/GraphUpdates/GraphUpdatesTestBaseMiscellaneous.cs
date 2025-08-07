@@ -731,7 +731,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
     [ConditionalTheory] // Issue #21206
     [InlineData(false)]
     [InlineData(true)]
-    public async Task Discriminator_values_are_not_marked_as_unknown(bool async)
+    public virtual async Task Discriminator_values_are_not_marked_as_unknown(bool async)
         => await ExecuteWithStrategyInTransactionAsync(
             async context =>
             {

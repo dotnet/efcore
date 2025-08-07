@@ -1916,11 +1916,11 @@ WHERE "e"."NullableBoolA" IS NOT NULL
 """,
             //
             """
-@__prm_0='False'
+@prm='False'
 
 SELECT "e"."Id", "e"."BoolA", "e"."BoolB", "e"."BoolC", "e"."IntA", "e"."IntB", "e"."IntC", "e"."NullableBoolA", "e"."NullableBoolB", "e"."NullableBoolC", "e"."NullableIntA", "e"."NullableIntB", "e"."NullableIntC", "e"."NullableStringA", "e"."NullableStringB", "e"."NullableStringC", "e"."StringA", "e"."StringB", "e"."StringC"
 FROM "Entities1" AS "e"
-WHERE @__prm_0 = ("e"."NullableBoolA" IS NOT NULL)
+WHERE @prm = ("e"."NullableBoolA" IS NOT NULL)
 """,
             //
             """
@@ -1942,11 +1942,11 @@ WHERE "e"."NullableBoolA" IS NULL
 """,
             //
             """
-@__prm_0='False'
+@prm='False'
 
 SELECT "e"."Id", "e"."BoolA", "e"."BoolB", "e"."BoolC", "e"."IntA", "e"."IntB", "e"."IntC", "e"."NullableBoolA", "e"."NullableBoolB", "e"."NullableBoolC", "e"."NullableIntA", "e"."NullableIntB", "e"."NullableIntC", "e"."NullableStringA", "e"."NullableStringB", "e"."NullableStringC", "e"."StringA", "e"."StringB", "e"."StringC"
 FROM "Entities1" AS "e"
-WHERE @__prm_0 = ("e"."NullableBoolA" IS NOT NULL)
+WHERE @prm = ("e"."NullableBoolA" IS NOT NULL)
 """);
     }
 
@@ -1962,11 +1962,11 @@ WHERE "e"."NullableBoolA" IS NULL
 """,
             //
             """
-@__prm_0='False'
+@prm='False'
 
 SELECT "e"."Id", "e"."BoolA", "e"."BoolB", "e"."BoolC", "e"."IntA", "e"."IntB", "e"."IntC", "e"."NullableBoolA", "e"."NullableBoolB", "e"."NullableBoolC", "e"."NullableIntA", "e"."NullableIntB", "e"."NullableIntC", "e"."NullableStringA", "e"."NullableStringB", "e"."NullableStringC", "e"."StringA", "e"."StringB", "e"."StringC"
 FROM "Entities1" AS "e"
-WHERE @__prm_0 <> ("e"."NullableBoolA" IS NOT NULL)
+WHERE @prm <> ("e"."NullableBoolA" IS NOT NULL)
 """,
             //
             """
@@ -1988,11 +1988,11 @@ WHERE "e"."NullableIntA" IS NULL
 """,
             //
             """
-@__prm_0='False'
+@prm='False'
 
 SELECT "e"."Id", "e"."BoolA", "e"."BoolB", "e"."BoolC", "e"."IntA", "e"."IntB", "e"."IntC", "e"."NullableBoolA", "e"."NullableBoolB", "e"."NullableBoolC", "e"."NullableIntA", "e"."NullableIntB", "e"."NullableIntC", "e"."NullableStringA", "e"."NullableStringB", "e"."NullableStringC", "e"."StringA", "e"."StringB", "e"."StringC"
 FROM "Entities1" AS "e"
-WHERE @__prm_0 <> ("e"."NullableIntA" IS NOT NULL)
+WHERE @prm <> ("e"."NullableIntA" IS NOT NULL)
 """,
             //
             """
@@ -2014,11 +2014,11 @@ WHERE "e"."NullableBoolA" IS NOT NULL
 """,
             //
             """
-@__prm_0='False'
+@prm='False'
 
 SELECT "e"."Id", "e"."BoolA", "e"."BoolB", "e"."BoolC", "e"."IntA", "e"."IntB", "e"."IntC", "e"."NullableBoolA", "e"."NullableBoolB", "e"."NullableBoolC", "e"."NullableIntA", "e"."NullableIntB", "e"."NullableIntC", "e"."NullableStringA", "e"."NullableStringB", "e"."NullableStringC", "e"."StringA", "e"."StringB", "e"."StringC"
 FROM "Entities1" AS "e"
-WHERE @__prm_0 <> ("e"."NullableBoolA" IS NOT NULL)
+WHERE @prm <> ("e"."NullableBoolA" IS NOT NULL)
 """);
     }
 
@@ -2051,35 +2051,35 @@ WHERE "e"."BoolB" OR "e"."NullableBoolA" IS NOT NULL
 
         AssertSql(
             """
-@__i_0='1'
+@i='1'
 
 SELECT "e"."Id"
 FROM "Entities1" AS "e"
-WHERE "e"."IntA" <= @__i_0
+WHERE "e"."IntA" <= @i
 """,
             //
             """
-@__i_0='1'
+@i='1'
 
 SELECT "e"."Id"
 FROM "Entities1" AS "e"
-WHERE "e"."IntA" < @__i_0
+WHERE "e"."IntA" < @i
 """,
             //
             """
-@__i_0='1'
+@i='1'
 
 SELECT "e"."Id"
 FROM "Entities1" AS "e"
-WHERE "e"."IntA" >= @__i_0
+WHERE "e"."IntA" >= @i
 """,
             //
             """
-@__i_0='1'
+@i='1'
 
 SELECT "e"."Id"
 FROM "Entities1" AS "e"
-WHERE "e"."IntA" > @__i_0
+WHERE "e"."IntA" > @i
 """);
     }
 
@@ -2089,45 +2089,45 @@ WHERE "e"."IntA" > @__i_0
 
         AssertSql(
             """
-@__i_0='1' (Nullable = true)
+@i='1' (Nullable = true)
 
 SELECT "e"."Id"
 FROM "Entities1" AS "e"
 WHERE CASE
-    WHEN "e"."NullableIntA" > @__i_0 THEN 0
+    WHEN "e"."NullableIntA" > @i THEN 0
     ELSE 1
 END
 """,
             //
             """
-@__i_0='1' (Nullable = true)
+@i='1' (Nullable = true)
 
 SELECT "e"."Id"
 FROM "Entities1" AS "e"
 WHERE CASE
-    WHEN "e"."NullableIntA" >= @__i_0 THEN 0
+    WHEN "e"."NullableIntA" >= @i THEN 0
     ELSE 1
 END
 """,
             //
             """
-@__i_0='1' (Nullable = true)
+@i='1' (Nullable = true)
 
 SELECT "e"."Id"
 FROM "Entities1" AS "e"
 WHERE CASE
-    WHEN "e"."NullableIntA" < @__i_0 THEN 0
+    WHEN "e"."NullableIntA" < @i THEN 0
     ELSE 1
 END
 """,
             //
             """
-@__i_0='1' (Nullable = true)
+@i='1' (Nullable = true)
 
 SELECT "e"."Id"
 FROM "Entities1" AS "e"
 WHERE CASE
-    WHEN "e"."NullableIntA" <= @__i_0 THEN 0
+    WHEN "e"."NullableIntA" <= @i THEN 0
     ELSE 1
 END
 """);

@@ -7,39 +7,41 @@ namespace Microsoft.EntityFrameworkCore.Utilities;
 
 public class CheckTest
 {
-    [ConditionalFact]
-    public void Not_null_throws_when_arg_is_null()
-        // ReSharper disable once NotResolvedInText
-        => Assert.Throws<ArgumentNullException>(() => Check.NotNull<string>(null, "foo"));
+    [ConditionalTheory]
+    [InlineData(null)]
+    public void Not_null_throws_when_arg_is_null(string arg1)
+        => Assert.Equal(nameof(arg1), Assert.Throws<ArgumentNullException>(() => Check.NotNull(arg1)).ParamName);
 
-    [ConditionalFact]
-    public void Not_null_throws_when_arg_name_empty()
-        => Assert.Throws<ArgumentException>(() => Check.NotNull(null as object, string.Empty));
+    [ConditionalTheory]
+    [InlineData("")]
+    [InlineData(" ")]
+    public void Not_empty_throws_when_arg_is_empty(string arg1)
+        => Assert.Equal(nameof(arg1), Assert.Throws<ArgumentException>(() => Check.NotEmpty(arg1)).ParamName);
 
-    [ConditionalFact]
-    public void Not_empty_throws_when_empty()
-        => Assert.Throws<ArgumentException>(() => Check.NotEmpty("", string.Empty));
+    [ConditionalTheory]
+    [InlineData(null)]
+    public void Generic_Not_empty_throws_when_arg_is_null(string[] arg1)
+        => Assert.Equal(nameof(arg1), Assert.Throws<ArgumentNullException>(() => Check.NotEmpty(arg1)).ParamName);
 
-    [ConditionalFact]
-    public void Not_empty_throws_when_whitespace()
-        => Assert.Throws<ArgumentException>(() => Check.NotEmpty(" ", string.Empty));
+    [ConditionalTheory]
+    [InlineData(new object[] { new string[0] })]
+    public void Generic_Not_empty_throws_when_arg_is_empty(string[] arg1)
+        => Assert.Equal(nameof(arg1), Assert.Throws<ArgumentException>(() => Check.NotEmpty(arg1)).ParamName);
 
-    [ConditionalFact]
-    public void Not_empty_throws_when_parameter_name_null()
-        // ReSharper disable once AssignNullToNotNullAttribute
-        => Assert.Throws<ArgumentNullException>(() => Check.NotEmpty(null, null));
+    [ConditionalTheory]
+    [InlineData("")]
+    public void Not_but_not_empty_throws_when_arg_is_empty(string arg1)
+        => Assert.Equal(nameof(arg1), Assert.Throws<ArgumentException>(() => Check.NullButNotEmpty(arg1)).ParamName);
 
-    [ConditionalFact]
-    public void Generic_Not_empty_throws_when_arg_is_empty()
-        // ReSharper disable once NotResolvedInText
-        => Assert.Throws<ArgumentException>(() => Check.NotEmpty(Array.Empty<string>(), "foo"));
+    [ConditionalTheory]
+    [InlineData(new object[] { new string[] { null } })]
+    public void Has_no_nulls_throws_when_arg_has_nulls(string[] arg1)
+        => Assert.Equal(nameof(arg1), Assert.Throws<ArgumentException>(() => Check.HasNoNulls(arg1)).ParamName);
 
-    [ConditionalFact]
-    public void Generic_Not_empty_throws_when_arg_is_null()
-        // ReSharper disable once NotResolvedInText
-        => Assert.Throws<ArgumentNullException>(() => Check.NotEmpty<object>(null, "foo"));
-
-    [ConditionalFact]
-    public void Generic_Not_empty_throws_when_arg_name_empty()
-        => Assert.Throws<ArgumentException>(() => Check.NotEmpty(null, string.Empty));
+    [ConditionalTheory]
+    [InlineData(new object[] { new string[] { null } })]
+    [InlineData(new object[] { new string[] { "" } })]
+    [InlineData(new object[] { new string[] { " " } })]
+    public void Has_no_empty_elements_throws_when_arg_has_empty_elements(string[] arg1)
+        => Assert.Equal(nameof(arg1), Assert.Throws<ArgumentException>(() => Check.HasNoEmptyElements(arg1)).ParamName);
 }

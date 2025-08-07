@@ -264,10 +264,6 @@
     <value>Found unique constraint on table '{tableName}' with name '{uniqueConstraintName}'.</value>
     <comment>Debug SqlServerEventId.UniqueConstraintFound string string</comment>
   </data>
-  <data name="LogJsonTypeExperimental" xml:space="preserve">
-    <value>The entity type '{entityType}' makes use of the SQL Server native 'json' type. Please note that support for this type in EF Core 9 is experimental and may change in future releases.</value>
-    <comment>Warning SqlServerEventId.JsonTypeExperimental string</comment>
-  </data>
   <data name="LogMissingSchema" xml:space="preserve">
     <value>Unable to find a schema in the database matching the selected schema '{schema}'.</value>
     <comment>Warning SqlServerEventId.MissingSchemaWarning string?</comment>
@@ -321,9 +317,6 @@
   <data name="SequenceBadType" xml:space="preserve">
     <value>SQL Server sequences cannot be used to generate values for the property '{property}' on entity type '{entityType}' because the property type is '{propertyType}'. Sequences can only be used with integer properties.</value>
   </data>
-  <data name="SplitQueryOffsetWithoutOrderBy" xml:space="preserve">
-    <value>The query uses 'Skip' without specifying ordering and uses split query mode. This generates incorrect results. Either provide ordering or run query in single query mode using `AsSingleQuery()`. See https://go.microsoft.com/fwlink/?linkid=2196526 for more information.</value>
-  </data>
   <data name="TemporalAllEntitiesMappedToSameTableMustBeTemporal" xml:space="preserve">
     <value>Entity type '{entityType}' should be marked as temporal because it shares table mapping with another entity that has been marked as temporal. Alternatively, other entity types that share the same table must be non-temporal.</value>
   </data>
@@ -371,5 +364,14 @@
   </data>
   <data name="TransientExceptionDetected" xml:space="preserve">
     <value>An exception has been raised that is likely due to a transient failure. Consider enabling transient error resiliency by adding 'EnableRetryOnFailure' to the 'UseSqlServer' call.</value>
+  </data>
+  <data name="VectorDimensionsInvalid" xml:space="preserve">
+    <value>Vector properties require a positive size (number of dimensions).</value>
+  </data>
+  <data name="VectorDimensionsMissing" xml:space="preserve">
+    <value>Vector property '{structuralType}.{propertyName}' was not configured with the number of dimensions. Set the column type to 'vector(x)' with the desired number of dimensions, or use the 'MaxLength' APIs.</value>
+  </data>
+  <data name="VectorPropertiesNotSupportedInJson" xml:space="preserve">
+    <value>Vector property '{propertyName}' is on '{structuralType}' which is mapped to JSON. Vector properties are not supported within JSON documents.</value>
   </data>
 </root>

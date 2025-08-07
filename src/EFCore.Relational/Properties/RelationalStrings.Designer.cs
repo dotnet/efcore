@@ -96,6 +96,46 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 function);
 
         /// <summary>
+        ///     The complex collection property '{entityType}.{property}' must be mapped to a JSON column. Use 'ToJson()' to configure this complex collection as mapped to a JSON column.
+        /// </summary>
+        public static string ComplexCollectionNotMappedToJson(object? entityType, object? property)
+            => string.Format(
+                GetString("ComplexCollectionNotMappedToJson", nameof(entityType), nameof(property)),
+                entityType, property);
+
+        /// <summary>
+        ///     Complex property '{complexProperty}' cannot have both a JSON column name ('{columnName}') and a JSON property name ('{propertyName}') configured. Use ToJson() to map to a JSON column or HasJsonPropertyName() to map as a JSON property within a containing JSON column, but not both.
+        /// </summary>
+        public static string ComplexPropertyBothJsonColumnAndJsonPropertyName(object? complexProperty, object? columnName, object? propertyName)
+            => string.Format(
+                GetString("ComplexPropertyBothJsonColumnAndJsonPropertyName", nameof(complexProperty), nameof(columnName), nameof(propertyName)),
+                complexProperty, columnName, propertyName);
+
+        /// <summary>
+        ///     Complex property '{property1}' and '{property2}' are both configured to use the same JSON property name '{jsonPropertyName}'. Each property within a JSON-mapped type must have a unique JSON property name.
+        /// </summary>
+        public static string ComplexPropertyJsonPropertyNameConflict(object? property1, object? property2, object? jsonPropertyName)
+            => string.Format(
+                GetString("ComplexPropertyJsonPropertyNameConflict", nameof(property1), nameof(property2), nameof(jsonPropertyName)),
+                property1, property2, jsonPropertyName);
+
+        /// <summary>
+        ///     Complex property '{complexProperty}' cannot use 'HasJsonPropertyName()' because it is not contained within a JSON-mapped type. Use 'ToJson()' to map the complex property to a JSON column, or ensure it is contained within a type that is mapped to JSON.
+        /// </summary>
+        public static string ComplexPropertyJsonPropertyNameWithoutJsonMapping(object? complexProperty)
+            => string.Format(
+                GetString("ComplexPropertyJsonPropertyNameWithoutJsonMapping", nameof(complexProperty)),
+                complexProperty);
+
+        /// <summary>
+        ///     The optional complex property '{type}.{property}' is mapped to columns by flattening the contained properties, but it only contains optional properties. Add a required property or discriminator or map this complex property to a JSON column.
+        /// </summary>
+        public static string ComplexPropertyOptionalTableSharing(object? type, object? property)
+            => string.Format(
+                GetString("ComplexPropertyOptionalTableSharing", nameof(type), nameof(property)),
+                type, property);
+
+        /// <summary>
         ///     The computed column SQL has not been specified for the column '{table}.{column}'. Specify the SQL before using Entity Framework to create the database schema.
         /// </summary>
         public static string ComputedColumnSqlUnspecified(object? table, object? column)
@@ -466,14 +506,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType1, property1, entityType2, property2, columnName, table, maxLength1, maxLength2);
 
         /// <summary>
-        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different column nullability settings.
-        /// </summary>
-        public static string DuplicateColumnNameNullabilityMismatch(object? entityType1, object? property1, object? entityType2, object? property2, object? columnName, object? table)
-            => string.Format(
-                GetString("DuplicateColumnNameNullabilityMismatch", nameof(entityType1), nameof(property1), nameof(entityType2), nameof(property2), nameof(columnName), nameof(table)),
-                entityType1, property1, entityType2, property2, columnName, table);
-
-        /// <summary>
         ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured to use different column orders ('{columnOrder1}' and '{columnOrder2}').
         /// </summary>
         public static string DuplicateColumnNameOrderMismatch(object? entityType1, object? property1, object? entityType2, object? property2, object? columnName, object? table, object? columnOrder1, object? columnOrder2)
@@ -498,7 +530,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType1, property1, entityType2, property2, columnName, table, type1, type2);
 
         /// <summary>
-        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but the properties are contained within the same hierarchy. All properties on an entity type must be mapped to unique different columns.
+        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but the properties are contained within the same hierarchy. All properties on an entity type must be mapped to different columns.
         /// </summary>
         public static string DuplicateColumnNameSameHierarchy(object? entityType1, object? property1, object? entityType2, object? property2, object? columnName, object? table)
             => string.Format(
@@ -640,6 +672,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("DuplicateSeedDataSensitive", nameof(entityType), nameof(keyValue), nameof(table)),
                 entityType, keyValue, table);
+
+        /// <summary>
+        ///     The EF.MultipleParameters&lt;T&gt; method may only be used within Entity Framework LINQ queries.
+        /// </summary>
+        public static string EFMultipleParametersInvoked
+            => GetString("EFMultipleParametersInvoked");
 
         /// <summary>
         ///     Empty collections are not supported as inline query roots.
@@ -812,12 +850,36 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 operation);
 
         /// <summary>
+        ///     ExecuteUpdate or ExecuteDelete was called on entity type '{entityType}', but that entity type is not mapped to a table.
+        /// </summary>
+        public static string ExecuteUpdateDeleteOnEntityNotMappedToTable(object? entityType)
+            => string.Format(
+                GetString("ExecuteUpdateDeleteOnEntityNotMappedToTable", nameof(entityType)),
+                entityType);
+
+        /// <summary>
+        ///     ExecuteUpdate is being used over type '{structuralType}' which is mapped to JSON; ExecuteUpdate on JSON is not supported.
+        /// </summary>
+        public static string ExecuteUpdateOverJsonIsNotSupported(object? structuralType)
+            => string.Format(
+                GetString("ExecuteUpdateOverJsonIsNotSupported", nameof(structuralType)),
+                structuralType);
+
+        /// <summary>
         ///     ExecuteUpdate is being used over a LINQ operator which isn't natively supported by the database; this cannot be translated because complex type '{complexType}' is projected out. Rewrite your query to project out the containing entity type instead.
         /// </summary>
         public static string ExecuteUpdateSubqueryNotSupportedOverComplexTypes(object? complexType)
             => string.Format(
                 GetString("ExecuteUpdateSubqueryNotSupportedOverComplexTypes", nameof(complexType)),
                 complexType);
+
+        /// <summary>
+        ///     Can't use explicitly named default constraints with TPC inheritance or entity splitting. Constraint name: '{explicitDefaultConstraintName}'.
+        /// </summary>
+        public static string ExplicitDefaultConstraintNamesNotSupportedForTpc(object? explicitDefaultConstraintName)
+            => string.Format(
+                GetString("ExplicitDefaultConstraintNamesNotSupportedForTpc", nameof(explicitDefaultConstraintName)),
+                explicitDefaultConstraintName);
 
         /// <summary>
         ///     The required column '{column}' was not present in the results of a 'FromSql' operation.
@@ -848,6 +910,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("HasDataNotSupportedForEntitiesMappedToJson", nameof(entity)),
                 entity);
+
+        /// <summary>
+        ///     Named default constraints can't be used with TPC or entity splitting if they result in non-unique constraint name. Constraint name: '{constraintNameCandidate}'.
+        /// </summary>
+        public static string ImplicitDefaultNamesNotSupportedForTpcWhenNamesClash(object? constraintNameCandidate)
+            => string.Format(
+                GetString("ImplicitDefaultNamesNotSupportedForTpcWhenNamesClash", nameof(constraintNameCandidate)),
+                constraintNameCandidate);
 
         /// <summary>
         ///     Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and the comment '{comment}' does not match the comment '{otherComment}'.
@@ -1076,6 +1146,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("JsonEmptyString");
 
         /// <summary>
+        ///     Entity '{jsonType}' is mapped to JSON column '{containingColumn}', but its owner '{ownerType}' is mapped to a different JSON column '{ownerContainingColumn}'. All owned entities must be mapped to the same JSON column. Only call '.ToJson()' on the outermost owned entity type.
+        /// </summary>
+        public static string JsonEntityMappedToDifferentColumnThanOwner(object? jsonType, object? containingColumn, object? ownerType, object? ownerContainingColumn)
+            => string.Format(
+                GetString("JsonEntityMappedToDifferentColumnThanOwner", nameof(jsonType), nameof(containingColumn), nameof(ownerType), nameof(ownerContainingColumn)),
+                jsonType, containingColumn, ownerType, ownerContainingColumn);
+
+        /// <summary>
         ///     Entity '{jsonType}' is mapped to JSON and also to a table or view '{tableOrViewName}', but its owner '{ownerType}' is mapped to a different table or view '{ownerTableOrViewName}'. Every entity mapped to JSON must also map to the same table or view as its owner.
         /// </summary>
         public static string JsonEntityMappedToDifferentTableOrViewThanOwner(object? jsonType, object? tableOrViewName, object? ownerType, object? ownerTableOrViewName)
@@ -1100,14 +1178,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 column, table);
 
         /// <summary>
-        ///     JSON entity or collection can't be projected directly in a tracked query. Either disable tracking by using '{asNoTracking}' method or project the owner entity instead.
-        /// </summary>
-        public static string JsonEntityOrCollectionProjectedAtRootLevelInTrackingQuery(object? asNoTracking)
-            => string.Format(
-                GetString("JsonEntityOrCollectionProjectedAtRootLevelInTrackingQuery", nameof(asNoTracking)),
-                asNoTracking);
-
-        /// <summary>
         ///     Owned entity type '{nonJsonType}' is mapped to table '{table}' and contains JSON columns. This is currently not supported. All owned types containing a JSON column must be mapped to a JSON column themselves.
         /// </summary>
         public static string JsonEntityOwnedByNonJsonOwnedType(object? nonJsonType, object? table)
@@ -1116,7 +1186,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 nonJsonType, table);
 
         /// <summary>
-        ///     Entity type '{jsonEntity}' is mapped to JSON and has a navigation to a regular entity which is not the owner.
+        ///     Entity type '{jsonEntity}' is mapped to JSON and has a navigation to a non-owned entity which is not the owner. This is currently not supported.
         /// </summary>
         public static string JsonEntityReferencingRegularEntity(object? jsonEntity)
             => string.Format(
@@ -1156,14 +1226,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 jsonEntity, expectedCount, actualCount);
 
         /// <summary>
-        ///     Entity '{jsonEntity}' is mapped to JSON and contains multiple properties or navigations which are mapped to the same JSON property '{property}'. Each property should map to a unique JSON property.
-        /// </summary>
-        public static string JsonEntityWithMultiplePropertiesMappedToSameJsonProperty(object? jsonEntity, object? property)
-            => string.Format(
-                GetString("JsonEntityWithMultiplePropertiesMappedToSameJsonProperty", nameof(jsonEntity), nameof(property)),
-                jsonEntity, property);
-
-        /// <summary>
         ///     Entity type '{rootType}' references entities mapped to JSON. Only TPH inheritance is supported for those entities.
         /// </summary>
         public static string JsonEntityWithNonTphInheritanceOnOwner(object? rootType)
@@ -1198,6 +1260,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         public static string JsonNodeMustBeHandledByProviderSpecificVisitor
             => GetString("JsonNodeMustBeHandledByProviderSpecificVisitor");
+
+        /// <summary>
+        ///     Both '{property1}' and '{property2}' on `{type}` are configured to use the same JSON property name '{jsonPropertyName}'. Each property within a JSON-mapped type must have a unique JSON property name.
+        /// </summary>
+        public static string JsonObjectWithMultiplePropertiesMappedToSameJsonProperty(object? property1, object? property2, object? type, object? jsonPropertyName)
+            => string.Format(
+                GetString("JsonObjectWithMultiplePropertiesMappedToSameJsonProperty", nameof(property1), nameof(property2), nameof(type), nameof(jsonPropertyName)),
+                property1, property2, type, jsonPropertyName);
 
         /// <summary>
         ///     Using a parameter to access the element of a JSON collection '{entityTypeName}' is not supported when using '{asNoTrackingWithIdentityResolution}'. Use a constant, or project the entire JSON entity collection instead.
@@ -1296,7 +1366,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 methodName, entityType);
 
         /// <summary>
-        ///     The 'Down' method for this migration has not been implemented. Both the 'Up' abd 'Down' methods must be implemented to support reverting migrations.
+        ///     The 'Down' method for this migration has not been implemented. Both the 'Up' and 'Down' methods must be implemented to support reverting migrations.
         /// </summary>
         public static string MigrationDownMissing
             => GetString("MigrationDownMissing");
@@ -1340,7 +1410,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 parameter);
 
         /// <summary>
-        ///     A result set was was missing when reading the results of a SaveChanges operation; this may indicate that a stored procedure was configured to return results in the EF model, but did not. Check your stored procedure definitions.
+        ///     A result set was missing when reading the results of a SaveChanges operation; this may indicate that a stored procedure was configured to return results in the EF model, but did not. Check your stored procedure definitions.
         /// </summary>
         public static string MissingResultSetWhenSaving
             => GetString("MissingResultSetWhenSaving");
@@ -1576,6 +1646,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         public static string ProjectionMappingCountMismatch
             => GetString("ProjectionMappingCountMismatch");
+
+        /// <summary>
+        ///     Property '{property}' cannot have both a column name ('{columnName}') and a JSON property name ('{jsonPropertyName}') configured. Properties in JSON-mapped types should use JSON property names, not column names.
+        /// </summary>
+        public static string PropertyBothColumnNameAndJsonPropertyName(object? property, object? columnName, object? jsonPropertyName)
+            => string.Format(
+                GetString("PropertyBothColumnNameAndJsonPropertyName", nameof(property), nameof(columnName), nameof(jsonPropertyName)),
+                property, columnName, jsonPropertyName);
 
         /// <summary>
         ///     The '{propertyType}' property '{entityType}.{property}' could not be mapped to the database type '{storeType}' because the database provider does not support mapping '{propertyType}' properties to '{storeType}' columns. Consider mapping to a different database type or converting the property value to a type supported by the database using a value converter. See https://aka.ms/efcore-docs-value-converters for more information. Alternately, exclude the property from the model using the '[NotMapped]' attribute or by using 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.
@@ -1952,7 +2030,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 complexType);
 
         /// <summary>
-        ///     The entity type '{entityType}' is not mapped to the store object '{table}'.
+        ///     The type '{entityType}' is not mapped to the store object '{table}'.
         /// </summary>
         public static string TableNotMappedEntityType(object? entityType, object? table)
             => string.Format(
@@ -2806,6 +2884,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
+        ///     A connection open was canceled to database '{database}' on server '{server}'.
+        /// </summary>
+        public static EventDefinition<string, string> LogConnectionCanceled(IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogConnectionCanceled;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogConnectionCanceled,
+                    logger,
+                    static logger => new EventDefinition<string, string>(
+                        logger.Options,
+                        RelationalEventId.ConnectionCanceled,
+                        LogLevel.Debug,
+                        "RelationalEventId.ConnectionCanceled",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            RelationalEventId.ConnectionCanceled,
+                            _resourceManager.GetString("LogConnectionCanceled")!)));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
+
+        /// <summary>
         ///     Created DbConnection. ({elapsed}ms).
         /// </summary>
         public static EventDefinition<int> LogConnectionCreated(IDiagnosticsLogger logger)
@@ -3350,7 +3453,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     The key {keyProperties} on the entity type '{entityType}' cannot be represented in the database. Either all or some of the properties aren't mapped to table '{table}'. All key properties must be mapped to a single table for the unique constraint to be created.
+        ///     The key {keyProperties} on the entity type '{entityType}' cannot be represented in the database. Some or all of the properties aren't mapped to table '{table}'. All key properties must be mapped to a single table for the unique constraint to be created.
         /// </summary>
         public static EventDefinition<string, string, string> LogKeyPropertiesNotMappedToTable(IDiagnosticsLogger logger)
         {

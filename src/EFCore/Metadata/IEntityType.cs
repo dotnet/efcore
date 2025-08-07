@@ -26,12 +26,6 @@ public interface IEntityType : IReadOnlyEntityType, ITypeBase
     InstantiationBinding? ServiceOnlyConstructorBinding { get; }
 
     /// <summary>
-    ///     Returns the <see cref="IProperty" /> that will be used for storing a discriminator value.
-    /// </summary>
-    new IProperty? FindDiscriminatorProperty()
-        => (IProperty?)((IReadOnlyEntityType)this).FindDiscriminatorProperty();
-
-    /// <summary>
     ///     Gets the root base type for a given entity type.
     /// </summary>
     /// <returns>
@@ -73,14 +67,14 @@ public interface IEntityType : IReadOnlyEntityType, ITypeBase
     /// </summary>
     /// <returns>The derived types.</returns>
     new IEnumerable<IEntityType> GetDerivedTypes()
-        => ((IReadOnlyEntityType)this).GetDerivedTypes().Cast<IEntityType>();
+        => ((IReadOnlyTypeBase)this).GetDerivedTypes().Cast<IEntityType>();
 
     /// <summary>
     ///     Returns all derived types of this entity type, including the type itself.
     /// </summary>
     /// <returns>Derived types.</returns>
     new IEnumerable<IEntityType> GetDerivedTypesInclusive()
-        => ((IReadOnlyEntityType)this).GetDerivedTypesInclusive().Cast<IEntityType>();
+        => ((IReadOnlyTypeBase)this).GetDerivedTypesInclusive().Cast<IEntityType>();
 
     /// <summary>
     ///     Gets all types in the model that directly derive from this entity type.
@@ -269,7 +263,7 @@ public interface IEntityType : IReadOnlyEntityType, ITypeBase
     /// <param name="memberInfo">The navigation property on the entity class.</param>
     /// <returns>The navigation property, or <see langword="null" /> if none is found.</returns>
     new INavigation? FindNavigation(MemberInfo memberInfo)
-        => FindNavigation(Check.NotNull(memberInfo, nameof(memberInfo)).GetSimpleMemberName());
+        => FindNavigation(Check.NotNull(memberInfo).GetSimpleMemberName());
 
     /// <summary>
     ///     Gets a navigation property on the given entity type. Returns <see langword="null" /> if no navigation property is found.
@@ -535,7 +529,7 @@ public interface IEntityType : IReadOnlyEntityType, ITypeBase
             .SelectMany(t => t.GetDeclaredProperties());
 
     /// <summary>
-    ///     Gets all properties declared on the base types and types derived from this entity type, including those on complex types.
+    ///     Gets all properties declared on the base types and types derived from this entity type, including those on non-collection complex types.
     /// </summary>
     /// <returns>The properties.</returns>
     IEnumerable<IProperty> ITypeBase.GetFlattenedPropertiesInHierarchy()

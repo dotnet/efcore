@@ -3,6 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
+using CharTypeMapping = Microsoft.EntityFrameworkCore.Storage.CharTypeMapping;
 using ExpressionExtensions = Microsoft.EntityFrameworkCore.Query.ExpressionExtensions;
 
 // ReSharper disable once CheckNamespace
@@ -16,14 +17,23 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 /// </summary>
 public class SqlServerStringMethodTranslator : IMethodCallTranslator
 {
-    private static readonly MethodInfo IndexOfMethodInfo
+    private static readonly MethodInfo IndexOfMethodInfoString
         = typeof(string).GetRuntimeMethod(nameof(string.IndexOf), [typeof(string)])!;
 
-    private static readonly MethodInfo IndexOfMethodInfoWithStartingPosition
+    private static readonly MethodInfo IndexOfMethodInfoChar
+        = typeof(string).GetRuntimeMethod(nameof(string.IndexOf), [typeof(char)])!;
+
+    private static readonly MethodInfo IndexOfMethodInfoWithStartingPositionString
         = typeof(string).GetRuntimeMethod(nameof(string.IndexOf), [typeof(string), typeof(int)])!;
 
-    private static readonly MethodInfo ReplaceMethodInfo
+    private static readonly MethodInfo IndexOfMethodInfoWithStartingPositionChar
+        = typeof(string).GetRuntimeMethod(nameof(string.IndexOf), [typeof(char), typeof(int)])!;
+
+    private static readonly MethodInfo ReplaceMethodInfoString
         = typeof(string).GetRuntimeMethod(nameof(string.Replace), [typeof(string), typeof(string)])!;
+
+    private static readonly MethodInfo ReplaceMethodInfoChar
+        = typeof(string).GetRuntimeMethod(nameof(string.Replace), [typeof(char), typeof(char)])!;
 
     private static readonly MethodInfo ToLowerMethodInfo
         = typeof(string).GetRuntimeMethod(nameof(string.ToLower), Type.EmptyTypes)!;
@@ -115,31 +125,31 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
     {
         if (instance != null)
         {
-            if (IndexOfMethodInfo.Equals(method))
+            if (IndexOfMethodInfoString.Equals(method) || IndexOfMethodInfoChar.Equals(method))
             {
                 return TranslateIndexOf(instance, method, arguments[0], null);
             }
 
-            if (IndexOfMethodInfoWithStartingPosition.Equals(method))
+            if (IndexOfMethodInfoWithStartingPositionString.Equals(method) || IndexOfMethodInfoWithStartingPositionChar.Equals(method))
             {
                 return TranslateIndexOf(instance, method, arguments[0], arguments[1]);
             }
 
-            if (ReplaceMethodInfo.Equals(method))
+            if (ReplaceMethodInfoString.Equals(method) || ReplaceMethodInfoChar.Equals(method))
             {
                 var firstArgument = arguments[0];
                 var secondArgument = arguments[1];
                 var stringTypeMapping = ExpressionExtensions.InferTypeMapping(instance, firstArgument, secondArgument);
 
                 instance = _sqlExpressionFactory.ApplyTypeMapping(instance, stringTypeMapping);
-                firstArgument = _sqlExpressionFactory.ApplyTypeMapping(firstArgument, stringTypeMapping);
-                secondArgument = _sqlExpressionFactory.ApplyTypeMapping(secondArgument, stringTypeMapping);
+                firstArgument = _sqlExpressionFactory.ApplyTypeMapping(firstArgument, firstArgument.Type == typeof(char) ? CharTypeMapping.Default : stringTypeMapping);
+                secondArgument = _sqlExpressionFactory.ApplyTypeMapping(secondArgument, secondArgument.Type == typeof(char) ? CharTypeMapping.Default : stringTypeMapping);
 
                 return _sqlExpressionFactory.Function(
                     "REPLACE",
                     new[] { instance, firstArgument, secondArgument },
                     nullable: true,
-                    argumentsPropagateNullability: new[] { true, true, true },
+                    argumentsPropagateNullability: Statics.TrueArrays[3],
                     method.ReturnType,
                     stringTypeMapping);
             }
@@ -151,7 +161,7 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
                     ToLowerMethodInfo.Equals(method) ? "LOWER" : "UPPER",
                     new[] { instance },
                     nullable: true,
-                    argumentsPropagateNullability: new[] { true },
+                    argumentsPropagateNullability: Statics.TrueArrays[1],
                     method.ReturnType,
                     instance.TypeMapping);
             }
@@ -170,11 +180,11 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
                             "LEN",
                             new[] { instance },
                             nullable: true,
-                            argumentsPropagateNullability: new[] { true },
+                            argumentsPropagateNullability: Statics.TrueArrays[1],
                             typeof(int))
                     },
                     nullable: true,
-                    argumentsPropagateNullability: new[] { true, true, true },
+                    argumentsPropagateNullability: Statics.TrueArrays[3],
                     method.ReturnType,
                     instance.TypeMapping);
             }
@@ -192,7 +202,7 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
                         arguments[1]
                     },
                     nullable: true,
-                    argumentsPropagateNullability: new[] { true, true, true },
+                    argumentsPropagateNullability: Statics.TrueArrays[3],
                     method.ReturnType,
                     instance.TypeMapping);
             }
@@ -234,12 +244,12 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
                             "RTRIM",
                             new[] { instance },
                             nullable: true,
-                            argumentsPropagateNullability: new[] { true },
+                            argumentsPropagateNullability: Statics.TrueArrays[1],
                             instance.Type,
                             instance.TypeMapping)
                     },
                     nullable: true,
-                    argumentsPropagateNullability: new[] { true },
+                    argumentsPropagateNullability: Statics.TrueArrays[1],
                     instance.Type,
                     instance.TypeMapping);
             }
@@ -274,7 +284,7 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
                 "SUBSTRING",
                 new[] { argument, _sqlExpressionFactory.Constant(1), _sqlExpressionFactory.Constant(1) },
                 nullable: true,
-                argumentsPropagateNullability: new[] { true, true, true },
+                argumentsPropagateNullability: Statics.TrueArrays[3],
                 method.ReturnType);
         }
 
@@ -290,12 +300,12 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
                         "LEN",
                         new[] { argument },
                         nullable: true,
-                        argumentsPropagateNullability: new[] { true },
+                        argumentsPropagateNullability: Statics.TrueArrays[1],
                         typeof(int)),
                     _sqlExpressionFactory.Constant(1)
                 },
                 nullable: true,
-                argumentsPropagateNullability: new[] { true, true, true },
+                argumentsPropagateNullability: Statics.TrueArrays[3],
                 method.ReturnType);
         }
 
@@ -308,7 +318,7 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
                 "PATINDEX",
                 new[] { pattern, expression },
                 nullable: true,
-                argumentsPropagateNullability: new[] { true, true },
+                argumentsPropagateNullability: Statics.TrueArrays[2],
                 method.ReturnType
             );
         }
@@ -323,7 +333,8 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
         SqlExpression? startIndex)
     {
         var stringTypeMapping = ExpressionExtensions.InferTypeMapping(instance, searchExpression)!;
-        searchExpression = _sqlExpressionFactory.ApplyTypeMapping(searchExpression, stringTypeMapping);
+        searchExpression = _sqlExpressionFactory.ApplyTypeMapping(searchExpression, searchExpression.Type == typeof(char) ? CharTypeMapping.Default : stringTypeMapping);
+
         instance = _sqlExpressionFactory.ApplyTypeMapping(instance, stringTypeMapping);
 
         var charIndexArguments = new List<SqlExpression> { searchExpression, instance };
@@ -405,7 +416,7 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
             functionName,
             arguments: charactersToTrim is null ? [instance] : [instance, charactersToTrim],
             nullable: true,
-            argumentsPropagateNullability: charactersToTrim is null ? [true] : [true, true],
+            argumentsPropagateNullability: Statics.TrueArrays[charactersToTrim is null ? 1 : 2],
             instance.Type,
             instance.TypeMapping);
     }

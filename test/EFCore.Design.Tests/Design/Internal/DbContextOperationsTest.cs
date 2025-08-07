@@ -271,7 +271,7 @@ public class DbContextOperationsTest
 
         Assert.Equal(
             DesignStrings.OptimizeNoFilesGenerated,
-            Assert.Single(reporter.Messages.Where(m => m.Level == LogLevel.Warning)).Message);
+            Assert.Single(reporter.Messages, m => m.Level == LogLevel.Warning).Message);
     }
 
     [ConditionalFact]

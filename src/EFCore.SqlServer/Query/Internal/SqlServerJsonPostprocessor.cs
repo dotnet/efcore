@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 public sealed class SqlServerJsonPostprocessor(
     IRelationalTypeMappingSource typeMappingSource,
     ISqlExpressionFactory sqlExpressionFactory,
-    SqlAliasManager sqlAliasManager)
+    SqlAliasManager? sqlAliasManager)
     : ExpressionVisitor
 {
     private readonly List<OuterApplyExpression> _openjsonOuterAppliesToAdd = new();
@@ -218,6 +218,9 @@ public sealed class SqlServerJsonPostprocessor(
                     jsonScalarExpression.IsNullable);
             }
 
+            // TODO: With the new RETURNING clause the following should not longer be needed - but support for varbinary
+            // isn't there yet. See #36474.
+
             // Some SQL Server types cannot be reliably parsed with JSON_VALUE(): binary/varbinary are encoded in base64 in the JSON,
             // but JSON_VALUE() returns a string and there's no SQL Server function to parse base64. However, OPENJSON/WITH does do base64
             // decoding.
@@ -229,6 +232,11 @@ public sealed class SqlServerJsonPostprocessor(
                     ?? (jsonScalar.Json as ColumnExpression)?.Name
                     ?? "Json";
 
+                // We need to generate an alias here; we always have a manager except
+                // when called from SqlNullabilityProcessor (where there's no manager),
+                // but in that scenario we never have to deal with JsonScalarExpression,
+                // only OpenJsonExpression.
+                Check.DebugAssert(sqlAliasManager is not null);
                 var tableAlias = sqlAliasManager.GenerateTableAlias(name);
                 var join =
                     new OuterApplyExpression(
@@ -249,21 +257,28 @@ public sealed class SqlServerJsonPostprocessor(
                     jsonScalar.IsNullable);
             }
 
-            case SqlServerOpenJsonExpression openJsonExpression:
-                // Currently, OPENJSON does not accept a "json" type, so we must cast the value to a string.
-                // We do this for both the case where is a string type mapping for a top-level property with the store type
-                // of "json", and when there is an "element" type mapping to something in the document but is now being used
-                // with OPENJSON.
-                return openJsonExpression.JsonExpression.TypeMapping
-                    is SqlServerStringTypeMapping { StoreType: "json" }
-                    or SqlServerOwnedJsonTypeMapping { StoreType: "json" }
-                    ? openJsonExpression.Update(
-                        new SqlUnaryExpression(
-                            ExpressionType.Convert,
-                            (SqlExpression)Visit(openJsonExpression.JsonExpression),
-                            typeof(string),
-                            typeMappingSource.FindMapping(typeof(string))!))
-                    : base.Visit(expression);
+            // The SQL Server json type cannot be compared ("The JSON data type cannot be compared or sorted, except when using the
+            // IS NULL operator"). So we find comparisons that involve the json type, and apply a conversion to string (nvarchar(max))
+            // to both sides. We exempt this when one of the sides is a constant null (not required).
+            case SqlBinaryExpression
+            {
+                OperatorType: ExpressionType.Equal or ExpressionType.NotEqual,
+                Left: var left,
+                Right: var right
+            } comparison
+                when (left.TypeMapping?.StoreType is "json" || right.TypeMapping?.StoreType is "json")
+                    && left is not SqlConstantExpression { Value: null } && right is not SqlConstantExpression { Value: null }:
+            {
+                return comparison.Update(
+                    sqlExpressionFactory.Convert(
+                        left,
+                        typeof(string),
+                        typeMappingSource.FindMapping(typeof(string))),
+                    sqlExpressionFactory.Convert(
+                        right,
+                        typeof(string),
+                        typeMappingSource.FindMapping(typeof(string))));
+            }
 
             default:
                 return base.Visit(expression);
