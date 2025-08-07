@@ -503,7 +503,8 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         GenerateFluentApiForPrecisionAndScale(property, stringBuilder);
         GenerateFluentApiForIsUnicode(property, stringBuilder);
 
-        if (!annotations.ContainsKey(RelationalAnnotationNames.ColumnType))
+        if (!annotations.ContainsKey(RelationalAnnotationNames.ColumnType)
+            && !property.DeclaringType.IsMappedToJson())
         {
             annotations[RelationalAnnotationNames.ColumnType] = new Annotation(
                 RelationalAnnotationNames.ColumnType,
@@ -568,7 +569,8 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         stringBuilder
             .AppendLine()
             .Append(builderName)
-            .Append($".ComplexProperty<{Code.Reference(Model.DefaultPropertyBagType)}>(")
+            .Append(complexProperty.IsCollection ? ".ComplexCollection(" : ".ComplexProperty(")
+            .Append($"typeof({Code.Reference(Model.DefaultPropertyBagType)}), ")
             .Append($"{Code.Literal(complexProperty.Name)}, {Code.Literal(complexType.Name)}, ")
             .Append(complexTypeBuilderName)
             .AppendLine(" =>");
@@ -579,7 +581,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
 
             using (stringBuilder.Indent())
             {
-                if (complexProperty.IsNullable != complexProperty.ClrType.IsNullableType())
+                if (!complexProperty.IsNullable)
                 {
                     stringBuilder
                         .AppendLine()
@@ -680,8 +682,8 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         }
 
         var propertyAnnotations = Dependencies.AnnotationCodeGenerator
-        .FilterIgnoredAnnotations(property.GetAnnotations())
-        .ToDictionary(a => a.Name, a => a);
+            .FilterIgnoredAnnotations(property.GetAnnotations())
+            .ToDictionary(a => a.Name, a => a);
 
         var typeAnnotations = Dependencies.AnnotationCodeGenerator
             .FilterIgnoredAnnotations(property.ComplexType.GetAnnotations())
@@ -692,7 +694,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
             inChainedCall: false, hasAnnotationMethodInfo: HasPropertyAnnotationMethodInfo);
 
         GenerateAnnotations(
-            propertyBuilderName, property, stringBuilder, typeAnnotations,
+            propertyBuilderName, property.ComplexType, stringBuilder, typeAnnotations,
             inChainedCall: false, hasAnnotationMethodInfo: HasTypeAnnotationMethodInfo);
     }
 

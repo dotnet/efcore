@@ -3,6 +3,7 @@
 
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 #pragma warning disable EF1001 // Accessing annotation names (internal)
@@ -253,6 +254,18 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
             annotations.Remove(RelationalAnnotationNames.ContainerColumnType);
         }
 
+        if (annotations.TryGetValue(RelationalAnnotationNames.JsonPropertyName, out var jsonPropertyNameAnnotation)
+            && jsonPropertyNameAnnotation is { Value: string jsonPropertyName }
+            && entityType.IsOwned())
+        {
+            methodCallCodeFragments.Add(
+                new MethodCallCodeFragment(
+                    nameof(RelationalOwnedNavigationBuilderExtensions.HasJsonPropertyName),
+                    jsonPropertyName));
+
+            annotations.Remove(RelationalAnnotationNames.JsonPropertyName);
+        }
+
         methodCallCodeFragments.AddRange(GenerateFluentApiCallsHelper(entityType, annotations, GenerateFluentApi));
 
         return methodCallCodeFragments;
@@ -264,6 +277,31 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
         IDictionary<string, IAnnotation> annotations)
     {
         var methodCallCodeFragments = new List<MethodCallCodeFragment>();
+
+        if (annotations.TryGetValue(RelationalAnnotationNames.ContainerColumnName, out var containerColumnNameAnnotation)
+            && containerColumnNameAnnotation is { Value: string containerColumnName })
+        {
+            methodCallCodeFragments.Add(
+                new MethodCallCodeFragment(
+                    nameof(RelationalComplexPropertyBuilderExtensions.ToJson),
+                    containerColumnName));
+
+            annotations.Remove(RelationalAnnotationNames.ContainerColumnName);
+#pragma warning disable CS0618
+            annotations.Remove(RelationalAnnotationNames.ContainerColumnTypeMapping);
+#pragma warning restore CS0618
+        }
+
+        if (annotations.TryGetValue(RelationalAnnotationNames.ContainerColumnType, out var containerColumnTypeAnnotation)
+            && containerColumnTypeAnnotation is { Value: string containerColumnType })
+        {
+            methodCallCodeFragments.Add(
+                new MethodCallCodeFragment(
+                    nameof(RelationalComplexPropertyBuilderExtensions.HasColumnType),
+                    containerColumnType));
+
+            annotations.Remove(RelationalAnnotationNames.ContainerColumnType);
+        }
 
         methodCallCodeFragments.AddRange(GenerateFluentApiCallsHelper(complexType, annotations, GenerateFluentApi));
 
@@ -338,6 +376,10 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
 
         GenerateSimpleFluentApiCall(
             annotations,
+            RelationalAnnotationNames.JsonPropertyName, nameof(RelationalPropertyBuilderExtensions.HasJsonPropertyName), methodCallCodeFragments);
+
+        GenerateSimpleFluentApiCall(
+            annotations,
             RelationalAnnotationNames.Comment, nameof(RelationalPropertyBuilderExtensions.HasComment), methodCallCodeFragments);
 
         GenerateSimpleFluentApiCall(
@@ -355,6 +397,10 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
         IDictionary<string, IAnnotation> annotations)
     {
         var methodCallCodeFragments = new List<MethodCallCodeFragment>();
+
+        GenerateSimpleFluentApiCall(
+            annotations,
+            RelationalAnnotationNames.JsonPropertyName, nameof(RelationalComplexPropertyBuilderExtensions.HasJsonPropertyName), methodCallCodeFragments);
 
         methodCallCodeFragments.AddRange(GenerateFluentApiCallsHelper(complexProperty, annotations, GenerateFluentApi));
 
