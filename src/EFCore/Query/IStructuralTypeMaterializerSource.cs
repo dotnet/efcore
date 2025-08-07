@@ -94,8 +94,8 @@ public interface IStructuralTypeMaterializerSource
 }
 
 /// <summary>
-///     This interface has been obsoleted, use <see cref="IEntityMaterializerSource" /> instead.
+///     This interface has been obsoleted, use <see cref="IStructuralTypeMaterializerSource" /> instead.
 /// </summary>
-[Obsolete("This interface has been obsoleted, use IEntityMaterializerSource instead.", error: true)]
+[Obsolete("This interface has been obsoleted, use IStructuralTypeMaterializerSource instead.", error: true)]
 public interface IEntityMaterializerSource;
 

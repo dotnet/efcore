@@ -367,6 +367,8 @@ namespace MyNamespace
         public int Id { get; set; }
 
         public int AlternateId { get; set; }
+        [NotMapped]
+        public List<string> List { get; set; }
         public EntityWithOneProperty EntityWithOneProperty { get; set; }
 
         [NotMapped]
@@ -6032,8 +6034,7 @@ namespace RootNamespace
                                 eb.ComplexProperty(e => e.EntityWithStringKey, cb =>
                                 {
                                     cb.Ignore(e => e.Properties);
-                                    cb.Property(e => e.Id).IsRequired();
-                                    cb.HasDiscriminator();
+                                    cb.HasDiscriminator<string>("Id");
                                 });
                                 eb.HasPropertyAnnotation("PropertyAnnotation", 1);
                                 eb.HasTypeAnnotation("TypeAnnotation", 2);
@@ -6071,15 +6072,11 @@ namespace RootNamespace
 
                             b1.ComplexProperty<Dictionary<string, object>>("EntityWithStringKey", "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty.EntityWithTwoProperties#EntityWithTwoProperties.EntityWithStringKey#EntityWithStringKey", b2 =>
                                 {
-                                    b2.Property<string>("Discriminator")
-                                        .IsRequired()
-                                        .HasColumnType("nvarchar(max)");
-
                                     b2.Property<string>("Id")
                                         .IsRequired()
                                         .HasColumnType("nvarchar(max)");
 
-                                    b2.HasDiscriminator().HasValue("EntityWithStringKey");
+                                    b2.HasDiscriminator<string>("Id").HasValue("EntityWithStringKey");
                                 });
 
                             b1.HasPropertyAnnotation("PropertyAnnotation", 1);

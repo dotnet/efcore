@@ -945,4 +945,49 @@ public partial class RelationalModelValidatorTest
         public int Id { get; set; }
         public ValidatorJsonEntityBasic Link { get; set; }
     }
+
+    [ConditionalFact]
+    public void Throw_when_concurrency_token_configured_on_json_mapped_owned_entity()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorJsonEntityBasic>(
+            b =>
+            {
+                b.OwnsOne(
+                    x => x.OwnedReference, bb =>
+                    {
+                        bb.ToJson();
+                        bb.Property(x => x.Name).IsConcurrencyToken();
+                        bb.Ignore(x => x.NestedCollection);
+                        bb.Ignore(x => x.NestedReference);
+                    });
+                b.Ignore(x => x.OwnedCollection);
+            });
+
+        VerifyError(
+            RelationalStrings.ConcurrencyTokenOnJsonMappedProperty("Name", nameof(ValidatorJsonOwnedRoot)),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public void Throw_when_concurrency_token_configured_on_json_mapped_complex_property()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        
+        modelBuilder.Entity<ValidatorJsonEntityBasic>(
+            b =>
+            {
+                b.ComplexProperty(x => x.OwnedReference, cb =>
+                {
+                    cb.ToJson();
+                    cb.Property(x => x.Name).IsConcurrencyToken();
+                    cb.Ignore(x => x.NestedCollection);
+                    cb.Ignore(x => x.NestedReference);
+                });
+            });
+
+        VerifyError(
+            RelationalStrings.ConcurrencyTokenOnJsonMappedProperty("Name", "ValidatorJsonEntityBasic.OwnedReference#ValidatorJsonOwnedRoot"),
+            modelBuilder);
+    }
 }

@@ -759,17 +759,11 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 case CollectionResultExpression
                 {
                     QueryExpression: ProjectionBindingExpression projectionBindingExpression,
-                    Relationship: IPropertyBase relationship,
+                    Relationship: IStructuralProperty relationship,
                 } collectionResult
                     when GetProjectionIndex(projectionBindingExpression) is JsonProjectionInfo jsonProjectionInfo:
                 {
-                    var relatedStructuralType = relationship switch
-                    {
-                        IComplexProperty complexProperty => (ITypeBase)complexProperty.ComplexType,
-                        INavigation navigation => navigation.TargetEntityType,
-
-                        _ => throw new UnreachableException()
-                    };
+                    var relatedStructuralType = relationship.TargetType;
 
                     // Disallow tracking queries to project owned entities (but not complex types)
                     if (relatedStructuralType is IEntityType && _isTracking)

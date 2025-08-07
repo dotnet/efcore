@@ -144,6 +144,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 table, column);
 
         /// <summary>
+        ///     The property '{property}' on '{type}' is configured as a concurrency token, but the type is mapped to JSON. Concurrency tokens are not supported on JSON-mapped types.
+        /// </summary>
+        public static string ConcurrencyTokenOnJsonMappedProperty(object? property, object? type)
+            => string.Format(
+                GetString("ConcurrencyTokenOnJsonMappedProperty", nameof(property), nameof(type)),
+                property, type);
+
+        /// <summary>
         ///     An ambient transaction has been detected. The ambient transaction needs to be completed before starting a new transaction on this connection.
         /// </summary>
         public static string ConflictingAmbientTransaction
@@ -2198,6 +2206,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("UnsupportedDataOperationStoreType", nameof(type), nameof(column)),
                 type, column);
+
+        /// <summary>
+        ///     The store type '{storeType}' specified for JSON column '{columnName}' in table '{tableName}' is not supported by the current provider. JSON columns require a provider-specific JSON store type.
+        /// </summary>
+        public static string UnsupportedJsonColumnType(object? storeType, object? columnName, object? tableName)
+            => string.Format(
+                GetString("UnsupportedJsonColumnType", nameof(storeType), nameof(columnName), nameof(tableName)),
+                storeType, columnName, tableName);
 
         /// <summary>
         ///     Unsupported operator '{nodeType}' specified for expression of type '{expressionType}'.

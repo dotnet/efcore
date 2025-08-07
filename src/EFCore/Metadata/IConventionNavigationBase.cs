@@ -17,8 +17,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 ///         See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
 ///     </para>
 /// </remarks>
-public interface IConventionNavigationBase : IReadOnlyNavigationBase, IConventionPropertyBase
+public interface IConventionNavigationBase : IReadOnlyNavigationBase, IConventionStructuralProperty
 {
+    /// <summary>
+    ///     Gets the entity type that this navigation property will hold an instance(s) of.
+    /// </summary>
+    new IConventionEntityType TargetEntityType
+    {
+        [DebuggerStepThrough]
+        get => (IConventionEntityType)((IReadOnlyNavigationBase)this).TargetEntityType;
+    }
+
+    /// <inheritdoc />
+    IConventionTypeBase IConventionStructuralProperty.TargetType
+    {
+        [DebuggerStepThrough]
+        get => TargetEntityType;
+    }
+
     /// <summary>
     ///     Sets a value indicating whether this navigation should be eager loaded by default.
     /// </summary>

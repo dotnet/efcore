@@ -12,12 +12,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
 /// </remarks>
-public interface IReadOnlyComplexProperty : IReadOnlyPropertyBase
+public interface IReadOnlyComplexProperty : IReadOnlyStructuralProperty
 {
     /// <summary>
     ///     Gets the associated complex type.
     /// </summary>
     IReadOnlyComplexType ComplexType { get; }
+
+    /// <inheritdoc />
+    IReadOnlyTypeBase IReadOnlyStructuralProperty.TargetType
+    {
+        [DebuggerStepThrough]
+        get => ComplexType;
+    }
 
     /// <summary>
     ///     Gets a value indicating whether this property can contain <see langword="null" />.

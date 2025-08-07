@@ -9806,6 +9806,150 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
     }
 
     [ConditionalFact]
+    public virtual void Convert_table_from_owned_to_complex_properties_mapped_to_json()
+        => Execute(
+            builder =>
+            {
+                builder.Entity(
+                    "Entity", e =>
+                    {
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.HasKey("Id");
+                        e.Property<string>("Name");
+
+                        e.OwnsOne(
+                            "Owned", "json_reference", o =>
+                            {
+                                o.ToJson();
+                                o.Property<string>("Value").HasJsonPropertyName("custom_value");
+                                o.Property<DateTime>("Date").HasJsonPropertyName("custom_date");
+                                o.OwnsOne("Nested", "nested_reference", n =>
+                                {
+                                    n.Property<int>("Foo");
+                                    n.Property<DateTime>("Bar");
+                                });
+                                o.OwnsMany("Nested2", "nested_collection", n =>
+                                {
+                                    n.Property<int>("Foo");
+                                    n.Property<DateTime>("Bar");
+                                });
+                            });
+
+                        e.OwnsMany(
+                            "Owned2", "json_collection", o =>
+                            {
+                                o.ToJson();
+                                o.Property<string>("Value");
+                                o.Property<DateTime>("Date");
+                                o.OwnsOne("Nested3", "NestedReference2", n =>
+                                {
+                                    n.Property<int>("Foo");
+                                    n.Property<DateTime>("Bar");
+                                });
+                                o.OwnsMany("Nested4", "NestedCollection2", n =>
+                                {
+                                    n.Property<int>("Foo");
+                                    n.Property<DateTime>("Bar");
+                                });
+                                o.Property<DateTime>("Date2");
+                            });
+                    });
+            },
+            builder =>
+            {
+                builder.Entity(
+                    "Entity", e =>
+                    {
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.HasKey("Id");
+                        e.Property<string>("Name");
+
+                        e.ComplexProperty<MyJsonComplex>(
+                            "ComplexReference", cp =>
+                            {
+                                cp.ToJson("json_reference");
+                                cp.Property(x => x.Value).HasJsonPropertyName("custom_value");
+                                cp.Property(x => x.Date).HasJsonPropertyName("custom_date");
+                                cp.ComplexCollection(x => x.NestedCollection, nc =>
+                                {
+                                    nc.HasJsonPropertyName("nested_collection");
+                                });
+                                cp.ComplexProperty(x => x.Nested, np =>
+                                {
+                                    np.HasJsonPropertyName("nested_reference");
+                                });
+                            });
+
+                        e.ComplexCollection<List<MyJsonComplex>, MyJsonComplex>(
+                            "ComplexCollection", cp =>
+                            {
+                                cp.ToJson("json_collection");
+                                cp.Property(x => x.Value);
+                                cp.Property(x => x.Date);
+                                cp.ComplexCollection(x => x.NestedCollection, nc =>
+                                {
+                                    nc.HasJsonPropertyName("nested_collection2");
+                                });
+                                cp.ComplexProperty(x => x.Nested, np =>
+                                {
+                                    np.HasJsonPropertyName("nested_reference2");
+                                });
+                            });
+                    });
+            },
+            Assert.Empty);
+
+    [ConditionalFact]
+    public virtual void Noop_on_complex_properties() => Execute(
+        builder =>
+        {
+            builder.Entity(
+                "Entity", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.HasKey("Id");
+                    e.Property<string>("Name");
+
+                    e.ComplexProperty<MyJsonComplex>(
+                        "ComplexReference", cp =>
+                        {
+                            cp.IsRequired(false);
+                            cp.Property(x => x.Value).HasJsonPropertyName("custom_value");
+                            cp.Property(x => x.Date).HasJsonPropertyName("custom_date");
+                            cp.ComplexCollection(x => x.NestedCollection).ToJson();
+                            cp.ComplexProperty(x => x.Nested);
+                        });
+
+                    e.ComplexCollection<List<MyJsonComplex>, MyJsonComplex>(
+                        "ComplexCollection", cp =>
+                        {
+                            cp.ToJson();
+                            cp.Property(x => x.Value);
+                            cp.Property(x => x.Date);
+                            cp.ComplexCollection(x => x.NestedCollection);
+                            cp.ComplexProperty(x => x.Nested);
+                        });
+                });
+        },
+        source => { },
+        target => { },
+        Assert.Empty);
+
+    protected class MyJsonComplex
+    {
+        public string Value { get; set; }
+        public DateTime Date { get; set; }
+        public MyNestedComplex Nested { get; set; }
+        public List<MyNestedComplex> NestedCollection { get; set; }
+    }
+
+    protected class MyNestedComplex
+    {
+        public int Foo { get; set; }
+        public DateTime Bar { get; set; }
+    }
+
+    [ConditionalFact]
     public void SeedData_with_guid_AK_and_multiple_owned_types()
         => Execute(
             target =>

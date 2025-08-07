@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 ///         examples.
 ///     </para>
 /// </remarks>
-public interface IMutableComplexProperty : IReadOnlyComplexProperty, IMutablePropertyBase
+public interface IMutableComplexProperty : IReadOnlyComplexProperty, IMutableStructuralProperty
 {
     /// <summary>
     ///     Gets the associated complex type.
@@ -31,4 +31,11 @@ public interface IMutableComplexProperty : IReadOnlyComplexProperty, IMutablePro
     /// <inheritdoc />
     bool IReadOnlyComplexProperty.IsNullable
         => IsNullable;
+
+    /// <inheritdoc />
+    IMutableTypeBase IMutableStructuralProperty.TargetType
+    {
+        [DebuggerStepThrough]
+        get => ComplexType;
+    }
 }

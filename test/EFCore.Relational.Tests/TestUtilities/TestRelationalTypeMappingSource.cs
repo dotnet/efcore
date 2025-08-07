@@ -108,7 +108,8 @@ public class TestRelationalTypeMappingSource(
             { typeof(decimal), _defaultDecimalMapping },
             { typeof(TimeSpan), _defaultTimeSpanMapping },
             { typeof(string), _string },
-            { typeof(int[]), _intArray }
+            { typeof(int[]), _intArray },
+            { typeof(JsonTypePlaceholder), _jsonMapping }
         };
 
     private readonly IReadOnlyDictionary<string, RelationalTypeMapping> _simpleNameMappings

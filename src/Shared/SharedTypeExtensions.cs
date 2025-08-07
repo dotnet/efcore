@@ -48,6 +48,7 @@ internal static class SharedTypeExtensions
     public static bool IsValidComplexType(this Type type)
         => !type.IsArray
             && !type.IsInterface
+            && !type.IsNullableValueType()
             && !IsScalarType(type);
 
     public static bool IsScalarType(this Type type)

@@ -160,11 +160,17 @@
   <data name="ComplexPropertyJsonPropertyNameWithoutJsonMapping" xml:space="preserve">
     <value>Complex property '{complexProperty}' cannot use 'HasJsonPropertyName()' because it is not contained within a JSON-mapped type. Use 'ToJson()' to map the complex property to a JSON column, or ensure it is contained within a type that is mapped to JSON.</value>
   </data>
+  <data name="UnsupportedJsonColumnType" xml:space="preserve">
+    <value>The store type '{storeType}' specified for JSON column '{columnName}' in table '{tableName}' is not supported by the current provider. JSON columns require a provider-specific JSON store type.</value>
+  </data>
   <data name="ComplexPropertyOptionalTableSharing" xml:space="preserve">
     <value>The optional complex property '{type}.{property}' is mapped to columns by flattening the contained properties, but it only contains optional properties. Add a required property or discriminator or map this complex property to a JSON column.</value>
   </data>
   <data name="ComputedColumnSqlUnspecified" xml:space="preserve">
     <value>The computed column SQL has not been specified for the column '{table}.{column}'. Specify the SQL before using Entity Framework to create the database schema.</value>
+  </data>
+  <data name="ConcurrencyTokenOnJsonMappedProperty" xml:space="preserve">
+    <value>The property '{property}' on '{type}' is configured as a concurrency token, but the type is mapped to JSON. Concurrency tokens are not supported on JSON-mapped types.</value>
   </data>
   <data name="ConflictingAmbientTransaction" xml:space="preserve">
     <value>An ambient transaction has been detected. The ambient transaction needs to be completed before starting a new transaction on this connection.</value>

@@ -354,6 +354,14 @@ public class ModelValidator : IModelValidator
                     CoreStrings.ComplexValueTypeShadowProperty(complexProperty.ComplexType.DisplayName(), shadowProperty.Name));
             }
         }
+
+        // Issue #35613: Shadow properties on all complex types are not supported
+        var shadowPropertyOnComplexType = complexProperty.ComplexType.GetDeclaredProperties().FirstOrDefault(p => p.IsShadowProperty());
+        if (shadowPropertyOnComplexType != null)
+        {
+            throw new InvalidOperationException(
+                CoreStrings.ComplexTypeShadowProperty(complexProperty.ComplexType.DisplayName(), shadowPropertyOnComplexType.Name));
+        }
     }
 
     /// <summary>
