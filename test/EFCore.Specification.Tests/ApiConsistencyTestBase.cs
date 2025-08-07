@@ -49,7 +49,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
     }
 
     [ConditionalFact]
-    public void Fluent_api_methods_should_not_return_void()
+    public virtual void Fluent_api_methods_should_not_return_void()
     {
         var voidMethods
             = (from type in GetAllTypes(Fixture.FluentApiTypes)
@@ -65,7 +65,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
     }
 
     [ConditionalFact]
-    public void Generic_fluent_api_methods_should_return_generic_types()
+    public virtual void Generic_fluent_api_methods_should_return_generic_types()
     {
         var nonGenericMethods = new List<(Type Type, MethodInfo Method)>();
         foreach (var type in GetAllTypes(Fixture.FluentApiTypes))
@@ -208,7 +208,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
     }
 
     [ConditionalFact]
-    public void Builders_have_matching_methods()
+    public virtual void Builders_have_matching_methods()
     {
         foreach (var tuple in Fixture.MirrorTypes)
         {
@@ -260,7 +260,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
     }
 
     [ConditionalFact]
-    public void Metadata_types_have_expected_structure()
+    public virtual void Metadata_types_have_expected_structure()
     {
         var errors = Fixture.MetadataTypes.Select(ValidateMetadata)
             .Where(e => e != null)
@@ -274,7 +274,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
     private static readonly string MetadataNamespace = typeof(IReadOnlyModel).Namespace;
     private static readonly string MetadataBuilderNamespace = typeof(IConventionModelBuilder).Namespace;
 
-    private string ValidateMetadata(KeyValuePair<Type, (Type, Type, Type, Type)> types)
+    protected virtual string ValidateMetadata(KeyValuePair<Type, (Type, Type, Type, Type)> types)
     {
         var readOnlyType = types.Key;
         var (mutableType, conventionType, conventionBuilderType, runtimeType) = types.Value;
@@ -369,7 +369,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
     }
 
     [ConditionalFact]
-    public void Mutable_metadata_types_have_matching_methods()
+    public virtual void Mutable_metadata_types_have_matching_methods()
     {
         var errors =
             Fixture.MetadataMethods.Select(
@@ -390,7 +390,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
             "\r\n-- Mismatches: --\r\n" + string.Join(Environment.NewLine, errors));
     }
 
-    private string MatchMutable((MethodInfo Readonly, MethodInfo Mutable) methodTuple)
+    protected virtual string MatchMutable((MethodInfo Readonly, MethodInfo Mutable) methodTuple)
     {
         var (readonlyMethod, mutableMethod) = methodTuple;
 
@@ -432,7 +432,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
     }
 
     [ConditionalFact]
-    public void Convention_metadata_types_have_matching_methods()
+    public virtual void Convention_metadata_types_have_matching_methods()
     {
         var errors =
             Fixture.MetadataMethods.Select(
@@ -463,7 +463,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
         }
     }
 
-    private string MatchConvention((MethodInfo Mutable, MethodInfo Convention) methodTuple)
+    protected virtual string MatchConvention((MethodInfo Mutable, MethodInfo Convention) methodTuple)
     {
         var (mutableMethod, conventionMethod) = methodTuple;
 
@@ -514,7 +514,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
     }
 
     [ConditionalFact]
-    public void Convention_metadata_types_have_expected_methods()
+    public virtual void Convention_metadata_types_have_expected_methods()
     {
         var errors =
             Fixture.MetadataMethods.Select(t => ValidateConventionMethods(t.Convention))
@@ -526,7 +526,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
             "\r\n-- Errors: --\r\n" + string.Join(Environment.NewLine, errors));
     }
 
-    private string ValidateConventionMethods(IReadOnlyList<MethodInfo> methods)
+    protected virtual string ValidateConventionMethods(IReadOnlyList<MethodInfo> methods)
     {
         if (methods.Count == 0)
         {
@@ -563,7 +563,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
     }
 
     [ConditionalFact]
-    public void Convention_builder_types_have_expected_methods()
+    public virtual void Convention_builder_types_have_expected_methods()
     {
         var errors =
             Fixture.MetadataMethods.Select(t => ValidateConventionBuilderMethods(t.ConventionBuilder))
@@ -575,7 +575,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
             "\r\n-- Errors: --\r\n" + string.Join(Environment.NewLine, errors));
     }
 
-    private string ValidateConventionBuilderMethods(IReadOnlyList<MethodInfo> methods)
+    protected virtual string ValidateConventionBuilderMethods(IReadOnlyList<MethodInfo> methods)
     {
         if (methods == null
             || methods.Count == 0)
@@ -668,7 +668,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
     }
 
     [ConditionalFact]
-    public void Convention_builder_methods_have_matching_returns()
+    public virtual void Convention_builder_methods_have_matching_returns()
     {
         var errors =
             Fixture.MetadataTypes.Select(
@@ -683,7 +683,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
             + string.Join(Environment.NewLine, errors));
     }
 
-    private string ValidateConventionBuilderMethodReturns(Type builderType, Type conventionType)
+    protected virtual string ValidateConventionBuilderMethodReturns(Type builderType, Type conventionType)
     {
         if (builderType == null)
         {
@@ -818,7 +818,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
     }
 
     [ConditionalFact]
-    public void Runtime_metadata_types_have_matching_methods()
+    public virtual void Runtime_metadata_types_have_matching_methods()
     {
         var errors =
             Fixture.MetadataMethods.Select(
@@ -838,7 +838,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
             "\r\n-- Mismatches: --\r\n" + string.Join(Environment.NewLine, errors));
     }
 
-    private string MatchRuntime((MethodInfo ReadOnly, MethodInfo Runtime) methodTuple)
+    protected virtual string MatchRuntime((MethodInfo ReadOnly, MethodInfo Runtime) methodTuple)
     {
         var (readOnlyMethod, runtimeMethod) = methodTuple;
 
@@ -889,7 +889,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
     }
 
     [ConditionalFact]
-    public void Readonly_metadata_methods_have_expected_name()
+    public virtual void Readonly_metadata_methods_have_expected_name()
     {
         var errors =
             Fixture.MetadataMethods
@@ -920,7 +920,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
     }
 
     [ConditionalFact]
-    public void Mutable_metadata_methods_have_expected_shape()
+    public virtual void Mutable_metadata_methods_have_expected_shape()
     {
         var errors =
             Fixture.MetadataMethods
@@ -933,7 +933,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
             "\r\n-- Errors: --\r\n" + string.Join(Environment.NewLine, errors));
     }
 
-    private string ValidateMutableMethod(MethodInfo mutableMethod)
+    protected virtual string ValidateMutableMethod(MethodInfo mutableMethod)
     {
         var message = ValidateMethodName(mutableMethod);
         if (message != null)
@@ -973,7 +973,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
     }
 
     [ConditionalFact]
-    public void Convention_metadata_methods_have_expected_shape()
+    public virtual void Convention_metadata_methods_have_expected_shape()
     {
         var errors =
             Fixture.MetadataMethods
@@ -986,7 +986,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
             "\r\n-- Errors: --\r\n" + string.Join(Environment.NewLine, errors));
     }
 
-    private string ValidateConventionMethod(MethodInfo conventionMethod, Type type)
+    protected virtual string ValidateConventionMethod(MethodInfo conventionMethod, Type type)
     {
         var message = ValidateMethodName(conventionMethod);
         if (message != null)
