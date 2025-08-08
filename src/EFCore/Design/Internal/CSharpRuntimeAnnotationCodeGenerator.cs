@@ -10,21 +10,17 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal;
 /// <summary>
 ///     Base class to be used by database providers when implementing an <see cref="ICSharpRuntimeAnnotationCodeGenerator" />
 /// </summary>
-public class CSharpRuntimeAnnotationCodeGenerator : ICSharpRuntimeAnnotationCodeGenerator
+/// <remarks>
+///     Initializes a new instance of this class.
+/// </remarks>
+/// <param name="dependencies">Parameter object containing dependencies for this service.</param>
+public class CSharpRuntimeAnnotationCodeGenerator(CSharpRuntimeAnnotationCodeGeneratorDependencies dependencies)
+    : ICSharpRuntimeAnnotationCodeGenerator
 {
-    /// <summary>
-    ///     Initializes a new instance of this class.
-    /// </summary>
-    /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
-    public CSharpRuntimeAnnotationCodeGenerator(CSharpRuntimeAnnotationCodeGeneratorDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
-
     /// <summary>
     ///     Dependencies for this service.
     /// </summary>
-    protected virtual CSharpRuntimeAnnotationCodeGeneratorDependencies Dependencies { get; }
+    protected virtual CSharpRuntimeAnnotationCodeGeneratorDependencies Dependencies { get; } = dependencies;
 
     /// <inheritdoc />
     public virtual void Generate(IModel model, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
@@ -343,6 +339,10 @@ public class CSharpRuntimeAnnotationCodeGenerator : ICSharpRuntimeAnnotationCode
         }
     }
 
+    /// <inheritdoc />
+    public void Create(ValueConverter converter, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
+        => Create(converter, parameters, Dependencies.CSharpHelper);
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -355,7 +355,7 @@ public class CSharpRuntimeAnnotationCodeGenerator : ICSharpRuntimeAnnotationCode
         ICSharpHelper codeHelper)
     {
         var mainBuilder = parameters.MainBuilder;
-        var constructor = converter.GetType().GetDeclaredConstructor(new[] { typeof(JsonValueReaderWriter) });
+        var constructor = converter.GetType().GetDeclaredConstructor([typeof(JsonValueReaderWriter)]);
         var jsonReaderWriterProperty = converter.GetType().GetProperty(nameof(CollectionToJsonStringConverter<object>.JsonReaderWriter));
         if (constructor == null
             || jsonReaderWriterProperty == null)
@@ -364,6 +364,8 @@ public class CSharpRuntimeAnnotationCodeGenerator : ICSharpRuntimeAnnotationCode
             AddNamespace(converter.ModelClrType, parameters.Namespaces);
             AddNamespace(converter.ProviderClrType, parameters.Namespaces);
 
+            var unsafeAccessors = new HashSet<string>();
+
             mainBuilder
                 .Append("new ValueConverter<")
                 .Append(codeHelper.Reference(converter.ModelClrType))
@@ -371,9 +373,16 @@ public class CSharpRuntimeAnnotationCodeGenerator : ICSharpRuntimeAnnotationCode
                 .Append(codeHelper.Reference(converter.ProviderClrType))
                 .AppendLine(">(")
                 .IncrementIndent()
-                .Append(codeHelper.Expression(converter.ConvertToProviderExpression, parameters.Namespaces))
+                .AppendLines(
+                    codeHelper.Expression(converter.ConvertToProviderExpression, parameters.Namespaces, unsafeAccessors),
+                    skipFinalNewline: true)
                 .AppendLine(",")
-                .Append(codeHelper.Expression(converter.ConvertFromProviderExpression, parameters.Namespaces));
+                .AppendLines(
+                    codeHelper.Expression(converter.ConvertFromProviderExpression, parameters.Namespaces, unsafeAccessors),
+                    skipFinalNewline: true);
+
+            Check.DebugAssert(
+                unsafeAccessors.Count == 0, "Generated unsafe accessors not handled: " + string.Join(Environment.NewLine, unsafeAccessors));
 
             if (converter.ConvertsNulls)
             {
@@ -402,6 +411,10 @@ public class CSharpRuntimeAnnotationCodeGenerator : ICSharpRuntimeAnnotationCode
         }
     }
 
+    /// <inheritdoc />
+    public void Create(ValueComparer comparer, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
+        => Create(comparer, parameters, Dependencies.CSharpHelper);
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -415,37 +428,48 @@ public class CSharpRuntimeAnnotationCodeGenerator : ICSharpRuntimeAnnotationCode
     {
         var mainBuilder = parameters.MainBuilder;
 
-        var constructor = comparer.GetType().GetDeclaredConstructor(new[] { typeof(ValueComparer) });
-        var elementComparerProperty = comparer.GetType().GetProperty(nameof(ListComparer<object>.ElementComparer));
+        var comparerType = comparer.GetType();
+        var constructor = comparerType.GetDeclaredConstructor([typeof(ValueComparer)]);
         if (constructor == null
-            || elementComparerProperty == null)
+            || comparer is not IInfrastructure<ValueComparer> { Instance: ValueComparer underlyingValueComparer })
         {
             AddNamespace(typeof(ValueComparer<>), parameters.Namespaces);
             AddNamespace(comparer.Type, parameters.Namespaces);
+
+            var unsafeAccessors = new HashSet<string>();
 
             mainBuilder
                 .Append("new ValueComparer<")
                 .Append(codeHelper.Reference(comparer.Type))
                 .AppendLine(">(")
                 .IncrementIndent()
-                .AppendLines(codeHelper.Expression(comparer.EqualsExpression, parameters.Namespaces), skipFinalNewline: true)
+                .AppendLines(
+                    codeHelper.Expression(comparer.EqualsExpression, parameters.Namespaces, unsafeAccessors),
+                    skipFinalNewline: true)
                 .AppendLine(",")
-                .AppendLines(codeHelper.Expression(comparer.HashCodeExpression, parameters.Namespaces), skipFinalNewline: true)
+                .AppendLines(
+                    codeHelper.Expression(comparer.HashCodeExpression, parameters.Namespaces, unsafeAccessors),
+                    skipFinalNewline: true)
                 .AppendLine(",")
-                .AppendLines(codeHelper.Expression(comparer.SnapshotExpression, parameters.Namespaces), skipFinalNewline: true)
+                .AppendLines(
+                    codeHelper.Expression(comparer.SnapshotExpression, parameters.Namespaces, unsafeAccessors),
+                    skipFinalNewline: true)
                 .Append(")")
                 .DecrementIndent();
+
+            Check.DebugAssert(
+                unsafeAccessors.Count == 0, "Generated unsafe accessors not handled: " + string.Join(Environment.NewLine, unsafeAccessors));
         }
         else
         {
-            AddNamespace(comparer.GetType(), parameters.Namespaces);
+            AddNamespace(comparerType, parameters.Namespaces);
 
             mainBuilder
                 .Append("new ")
-                .Append(codeHelper.Reference(comparer.GetType()))
+                .Append(codeHelper.Reference(comparerType))
                 .Append("(");
 
-            Create((ValueComparer)elementComparerProperty.GetValue(comparer)!, parameters, codeHelper);
+            Create(underlyingValueComparer, parameters, codeHelper);
 
             mainBuilder
                 .Append(")");

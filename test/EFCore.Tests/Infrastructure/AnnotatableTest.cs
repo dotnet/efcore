@@ -21,7 +21,7 @@ public class AnnotatableTest
         Assert.Equal("Bar", annotatable["Foo"]);
         Assert.Same(annotation, annotatable.FindAnnotation("Foo"));
 
-        Assert.Equal(new[] { annotation }, annotatable.GetAnnotations().ToArray());
+        Assert.Equal([annotation], annotatable.GetAnnotations().ToArray());
 
         Assert.Same(annotation, annotatable.RemoveAnnotation(annotation.Name));
 
