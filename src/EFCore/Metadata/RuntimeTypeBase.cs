@@ -2,6 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
@@ -19,8 +21,9 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
     private RuntimeModel _model;
     private readonly RuntimeTypeBase? _baseType;
     private SortedSet<RuntimeTypeBase>? _directlyDerivedTypes;
-    private readonly OrderedDictionary<string, RuntimeProperty> _properties;
-    private OrderedDictionary<string, RuntimeComplexProperty>? _complexProperties;
+    private readonly object? _discriminatorValue;
+    private readonly Utilities.OrderedDictionary<string, RuntimeProperty> _properties;
+    private Utilities.OrderedDictionary<string, RuntimeComplexProperty>? _complexProperties;
     private readonly PropertyInfo? _indexerPropertyInfo;
     private readonly bool _isPropertyBag;
     private readonly ChangeTrackingStrategy _changeTrackingStrategy;
@@ -29,6 +32,12 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
     private RuntimeProperty[]? _flattenedProperties;
     private RuntimeProperty[]? _flattenedDeclaredProperties;
     private RuntimeComplexProperty[]? _flattenedComplexProperties;
+    private RuntimePropertyBase[]? _snapshottableProperties;
+    private Func<IInternalEntry, ISnapshot>? _originalValuesFactory;
+    private Func<ISnapshot>? _storeGeneratedValuesFactory;
+    private Func<IInternalEntry, ISnapshot>? _temporaryValuesFactory;
+    private Func<IDictionary<string, object?>, ISnapshot>? _shadowValuesFactory;
+    private Func<ISnapshot>? _emptyShadowValuesFactory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -45,6 +54,8 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
         ChangeTrackingStrategy changeTrackingStrategy,
         PropertyInfo? indexerPropertyInfo,
         bool propertyBag,
+        string? discriminatorProperty,
+        object? discriminatorValue,
         int derivedTypesCount,
         int propertyCount,
         int complexPropertyCount)
@@ -60,11 +71,15 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
 
         _changeTrackingStrategy = changeTrackingStrategy;
         _indexerPropertyInfo = indexerPropertyInfo;
+        _discriminatorValue = discriminatorValue;
         _isPropertyBag = propertyBag;
-        _properties = new OrderedDictionary<string, RuntimeProperty>(propertyCount, new PropertyNameComparer(this));
+        if(discriminatorProperty != null) {
+        SetAnnotation(CoreAnnotationNames.DiscriminatorProperty, discriminatorProperty);
+            }
+        _properties = new Utilities.OrderedDictionary<string, RuntimeProperty>(propertyCount, new PropertyNameComparer(this));
         if (complexPropertyCount > 0)
         {
-            _complexProperties = new OrderedDictionary<string, RuntimeComplexProperty>(complexPropertyCount, StringComparer.Ordinal);
+            _complexProperties = new Utilities.OrderedDictionary<string, RuntimeComplexProperty>(complexPropertyCount, StringComparer.Ordinal);
         }
     }
 
@@ -129,7 +144,7 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
     {
         if (!HasDirectlyDerivedTypes)
         {
-            return Enumerable.Empty<T>();
+            return [];
         }
 
         var derivedTypes = new List<T>();
@@ -310,7 +325,7 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
 
     private IEnumerable<RuntimeProperty> FindDerivedProperties(string propertyName)
     {
-        Check.NotNull(propertyName, nameof(propertyName));
+        Check.NotNull(propertyName);
 
         return !HasDirectlyDerivedTypes
             ? Enumerable.Empty<RuntimeProperty>()
@@ -363,6 +378,8 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
     ///     A value indicating whether this entity type has an indexer which is able to contain arbitrary properties
     ///     and a method that can be used to determine whether a given indexer property contains a value.
     /// </param>
+    /// <param name="discriminatorProperty">The name of the property that will be used for storing a discriminator value.</param>
+    /// <param name="discriminatorValue">The discriminator value for this complex type.</param>
     /// <param name="propertyCount">The expected number of declared properties for this complex type.</param>
     /// <param name="complexPropertyCount">The expected number of declared complex properties for this complex type.</param>
     /// <returns>The newly created property.</returns>
@@ -379,6 +396,8 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
         ChangeTrackingStrategy changeTrackingStrategy = ChangeTrackingStrategy.Snapshot,
         PropertyInfo? indexerPropertyInfo = null,
         bool propertyBag = false,
+        string? discriminatorProperty = null,
+        object? discriminatorValue = null,
         int propertyCount = 0,
         int complexPropertyCount = 0)
     {
@@ -396,10 +415,12 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
             changeTrackingStrategy,
             indexerPropertyInfo,
             propertyBag,
+            discriminatorProperty,
+            discriminatorValue,
             propertyCount: propertyCount,
             complexPropertyCount: complexPropertyCount);
 
-        _complexProperties ??= new OrderedDictionary<string, RuntimeComplexProperty>(StringComparer.Ordinal);
+        _complexProperties ??= new Utilities.OrderedDictionary<string, RuntimeComplexProperty>(StringComparer.Ordinal);
         _complexProperties.Add(property.Name, property);
 
         return property;
@@ -428,8 +449,8 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
 
     private IEnumerable<RuntimeComplexProperty> GetDerivedComplexProperties()
         => !HasDirectlyDerivedTypes
-            ? Enumerable.Empty<RuntimeComplexProperty>()
-            : GetDerivedTypes().Cast<RuntimeEntityType>().SelectMany(et => et.GetDeclaredComplexProperties());
+            ? []
+            : GetDerivedTypes().SelectMany(et => et.GetDeclaredComplexProperties());
 
     /// <summary>
     ///     Gets the complex properties defined on this type.
@@ -456,10 +477,10 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
 
     private IEnumerable<RuntimeComplexProperty> FindDerivedComplexProperties(string propertyName)
     {
-        Check.NotNull(propertyName, nameof(propertyName));
+        Check.NotNull(propertyName);
 
         return !HasDirectlyDerivedTypes
-            ? Enumerable.Empty<RuntimeComplexProperty>()
+            ? []
             : (IEnumerable<RuntimeComplexProperty>)GetDerivedTypes()
                 .Select(et => et.FindDeclaredComplexProperty(propertyName)).Where(p => p != null);
     }
@@ -502,14 +523,66 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
     public abstract InstantiationBinding? ConstructorBinding { get; set; }
 
     /// <summary>
-    ///     Returns all <see cref="IProperty" /> members from this type and all nested complex types, if any.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    /// <returns>The properties.</returns>
+    [EntityFrameworkInternal]
+    public virtual void SetOriginalValuesFactory(Func<IInternalEntry, ISnapshot> factory)
+        => _originalValuesFactory = factory;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual void SetStoreGeneratedValuesFactory(Func<ISnapshot> factory)
+        => _storeGeneratedValuesFactory = factory;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual void SetTemporaryValuesFactory(Func<IInternalEntry, ISnapshot> factory)
+        => _temporaryValuesFactory = factory;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual void SetEmptyShadowValuesFactory(Func<ISnapshot> factory)
+        => _emptyShadowValuesFactory = factory;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual void SetShadowValuesFactory(Func<IDictionary<string, object?>, ISnapshot> factory)
+        => _shadowValuesFactory = factory;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public virtual IEnumerable<RuntimeProperty> GetFlattenedProperties()
     {
         return NonCapturingLazyInitializer.EnsureInitialized(
             ref _flattenedProperties, this,
-            static type => Create(type).ToArray());
+            static type => [.. Create(type)]);
 
         static IEnumerable<RuntimeProperty> Create(RuntimeTypeBase type)
         {
@@ -529,20 +602,27 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
     }
 
     /// <summary>
-    ///     Returns all <see cref="RuntimeComplexProperty" /> members from this type and all nested complex types, if any.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    /// <returns>The properties.</returns>
     public virtual IEnumerable<RuntimeComplexProperty> GetFlattenedComplexProperties()
     {
         return NonCapturingLazyInitializer.EnsureInitialized(
             ref _flattenedComplexProperties, this,
-            static type => Create(type).ToArray());
+            static type => [.. Create(type)]);
 
         static IEnumerable<RuntimeComplexProperty> Create(RuntimeTypeBase type)
         {
             foreach (var complexProperty in type.GetComplexProperties())
             {
                 yield return complexProperty;
+
+                if (((IComplexProperty)complexProperty).IsCollection)
+                {
+                    continue;
+                }
 
                 foreach (var nestedComplexProperty in complexProperty.ComplexType.GetFlattenedComplexProperties())
                 {
@@ -553,14 +633,16 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
     }
 
     /// <summary>
-    ///     Returns all <see cref="IProperty" /> members from this type and all nested complex types, if any.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    /// <returns>The properties.</returns>
     public virtual IEnumerable<RuntimeProperty> GetFlattenedDeclaredProperties()
     {
         return NonCapturingLazyInitializer.EnsureInitialized(
             ref _flattenedDeclaredProperties, this,
-            static type => Create(type).ToArray());
+            static type => [.. Create(type)]);
 
         static IEnumerable<RuntimeProperty> Create(RuntimeTypeBase type)
         {
@@ -571,6 +653,11 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
 
             foreach (var complexProperty in type.GetDeclaredComplexProperties())
             {
+                if (((IComplexProperty)complexProperty).IsCollection)
+                {
+                    continue;
+                }
+
                 foreach (var property in complexProperty.ComplexType.GetFlattenedDeclaredProperties())
                 {
                     yield return property;
@@ -585,7 +672,43 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public abstract IEnumerable<RuntimePropertyBase> GetSnapshottableMembers();
+    public abstract PropertyCounts CalculateCounts();
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual IEnumerable<RuntimePropertyBase> GetSnapshottableMembers()
+    {
+        return NonCapturingLazyInitializer.EnsureInitialized(
+            ref _snapshottableProperties, this,
+            static type => [.. Create(type)]);
+
+        static IEnumerable<RuntimePropertyBase> Create(RuntimeTypeBase type)
+        {
+            foreach (var property in type.GetProperties())
+            {
+                yield return property;
+            }
+
+            foreach (var complexProperty in type.GetComplexProperties())
+            {
+                yield return complexProperty;
+
+                if (complexProperty.IsCollection)
+                {
+                    continue;
+                }
+
+                foreach (var property in complexProperty.ComplexType.GetSnapshottableMembers())
+                {
+                    yield return property;
+                }
+            }
+        }
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -604,11 +727,134 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    [EntityFrameworkInternal]
+    public Func<IInternalEntry, ISnapshot> OriginalValuesFactory
+        => NonCapturingLazyInitializer.EnsureInitialized(
+            ref _originalValuesFactory, this,
+            static structuralType => RuntimeFeature.IsDynamicCodeSupported
+                ? OriginalValuesFactoryFactory.Instance.Create(structuralType)
+                : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public Func<ISnapshot> StoreGeneratedValuesFactory
+        => NonCapturingLazyInitializer.EnsureInitialized(
+            ref _storeGeneratedValuesFactory, this,
+            static structuralType => RuntimeFeature.IsDynamicCodeSupported
+                ? StoreGeneratedValuesFactoryFactory.Instance.CreateEmpty(structuralType)
+                : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public Func<IInternalEntry, ISnapshot> TemporaryValuesFactory
+        => NonCapturingLazyInitializer.EnsureInitialized(
+            ref _temporaryValuesFactory, this,
+            static structuralType => RuntimeFeature.IsDynamicCodeSupported
+                ? TemporaryValuesFactoryFactory.Instance.Create(structuralType)
+                : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public Func<IDictionary<string, object?>, ISnapshot> ShadowValuesFactory
+        => NonCapturingLazyInitializer.EnsureInitialized(
+            ref _shadowValuesFactory, this,
+            static structuralType => RuntimeFeature.IsDynamicCodeSupported
+                ? ShadowValuesFactoryFactory.Instance.Create(structuralType)
+                : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public Func<ISnapshot> EmptyShadowValuesFactory
+        => NonCapturingLazyInitializer.EnsureInitialized(
+            ref _emptyShadowValuesFactory, this,
+            static structuralType => RuntimeFeature.IsDynamicCodeSupported
+                ? EmptyShadowValuesFactoryFactory.Instance.CreateEmpty(structuralType)
+                : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public abstract Func<MaterializationContext, object> GetOrCreateMaterializer(IStructuralTypeMaterializerSource source);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public abstract Func<MaterializationContext, object> GetOrCreateEmptyMaterializer(IStructuralTypeMaterializerSource source);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     protected static IEnumerable<T> ToEnumerable<T>(T? element)
         where T : class
         => element == null
-            ? Enumerable.Empty<T>()
-            : new[] { element };
+            ? []
+            : [element];
+
+    /// <inheritdoc />
+    IReadOnlyTypeBase? IReadOnlyTypeBase.BaseType
+    {
+        [DebuggerStepThrough]
+        get => BaseType;
+    }
+
+    /// <inheritdoc />
+    ITypeBase? ITypeBase.BaseType
+    {
+        [DebuggerStepThrough]
+        get => BaseType;
+    }
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IEnumerable<IReadOnlyTypeBase> IReadOnlyTypeBase.GetDerivedTypes()
+        => GetDerivedTypes<RuntimeTypeBase>();
+
+    /// <inheritdoc />
+    IEnumerable<IReadOnlyTypeBase> IReadOnlyTypeBase.GetDerivedTypesInclusive()
+        => !HasDirectlyDerivedTypes
+            ? [this]
+            : new[] { this }.Concat(GetDerivedTypes<RuntimeTypeBase>());
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IEnumerable<IReadOnlyTypeBase> IReadOnlyTypeBase.GetDirectlyDerivedTypes()
+        => DirectlyDerivedTypes.Cast<RuntimeTypeBase>();
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IEnumerable<ITypeBase> ITypeBase.GetDirectlyDerivedTypes()
+        => DirectlyDerivedTypes.Cast<RuntimeTypeBase>();
 
     /// <inheritdoc />
     bool IReadOnlyTypeBase.HasSharedClrType
@@ -637,6 +883,23 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
         [DebuggerStepThrough]
         get => Model;
     }
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    string? IReadOnlyTypeBase.GetDiscriminatorPropertyName()
+    {
+        if (BaseType != null)
+        {
+            return ((IReadOnlyTypeBase)this).GetRootType().GetDiscriminatorPropertyName();
+        }
+
+        return (string?)this[CoreAnnotationNames.DiscriminatorProperty];
+    }
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    object? IReadOnlyTypeBase.GetDiscriminatorValue()
+        => _discriminatorValue;
 
     /// <inheritdoc />
     [DebuggerStepThrough]
@@ -793,23 +1056,24 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
         => GetSnapshottableMembers();
 
     /// <summary>
-    ///     Returns all properties that implement <see cref="IProperty" />, including those on complex types.
+    ///     Returns all properties that implement <see cref="IProperty" />, including those on non-collection complex types.
     /// </summary>
     /// <returns>The properties.</returns>
     IEnumerable<IProperty> ITypeBase.GetFlattenedProperties()
         => GetFlattenedProperties();
 
     /// <summary>
-    ///     Returns all properties that implement <see cref="IComplexProperty" />, including those on complex types.
+    ///     Returns all properties that implement <see cref="IComplexProperty" />, including those on non-collection complex types.
     /// </summary>
     /// <returns>The properties.</returns>
     IEnumerable<IComplexProperty> ITypeBase.GetFlattenedComplexProperties()
         => GetFlattenedComplexProperties();
 
     /// <summary>
-    ///     Returns all properties declared properties that implement <see cref="IProperty" />, including those on complex types.
+    ///     Returns all properties declared properties that implement <see cref="IProperty" />, including those on non-collection complex types.
     /// </summary>
     /// <returns>The properties.</returns>
     IEnumerable<IProperty> ITypeBase.GetFlattenedDeclaredProperties()
         => GetFlattenedDeclaredProperties();
 }
+

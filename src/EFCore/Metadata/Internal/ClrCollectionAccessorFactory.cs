@@ -44,37 +44,44 @@ public class ClrCollectionAccessorFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IClrCollectionAccessor? Create(INavigationBase navigation)
+    public virtual IClrCollectionAccessor? Create(IPropertyBase relationship)
     {
-        if (!navigation.IsCollection)
+        if (!relationship.IsCollection)
         {
             return null;
         }
 
         // ReSharper disable once SuspiciousTypeConversion.Global
-        if (navigation is IClrCollectionAccessor accessor)
+        if (relationship is IClrCollectionAccessor accessor)
         {
             return accessor;
         }
 
-        var targetType = navigation.TargetEntityType;
+        var targetType = relationship switch
+        {
+            INavigationBase navigation => (ITypeBase)navigation.TargetEntityType,
+            IComplexProperty complexProperty => complexProperty.ComplexType,
+
+            _ => throw new UnreachableException()
+        };
+
         if (targetType == null)
         {
             return null;
         }
 
-        var memberInfo = GetMostDerivedMemberInfo(navigation);
-        var propertyType = navigation.IsIndexerProperty() || navigation.IsShadowProperty()
-            ? navigation.ClrType
+        var memberInfo = GetMostDerivedMemberInfo(relationship);
+        var propertyType = relationship.IsIndexerProperty() || relationship.IsShadowProperty()
+            ? relationship.ClrType
             : memberInfo!.GetMemberType();
 
         var elementType = propertyType.TryGetElementType(typeof(IEnumerable<>));
         if (elementType == null)
         {
             throw new InvalidOperationException(
-                CoreStrings.NavigationBadType(
-                    navigation.Name,
-                    navigation.DeclaringType.DisplayName(),
+                CoreStrings.NavigationBadType( // TODO: Update
+                    relationship.Name,
+                    relationship.DeclaringType.DisplayName(),
                     propertyType.ShortDisplayName(),
                     targetType.DisplayName()));
         }
@@ -83,17 +90,17 @@ public class ClrCollectionAccessorFactory
         {
             throw new InvalidOperationException(
                 CoreStrings.NavigationArray(
-                    navigation.Name,
-                    navigation.DeclaringType.DisplayName(),
+                    relationship.Name,
+                    relationship.DeclaringType.DisplayName(),
                     propertyType.ShortDisplayName()));
         }
 
         var boundMethod = GenericCreate.MakeGenericMethod(
-            memberInfo?.DeclaringType ?? navigation.DeclaringType.ClrType, propertyType, elementType);
+            memberInfo?.DeclaringType ?? relationship.DeclaringType.ClrType, propertyType, elementType);
 
         try
         {
-            return (IClrCollectionAccessor?)boundMethod.Invoke(null, [navigation]);
+            return (IClrCollectionAccessor?)boundMethod.Invoke(null, [relationship]);
         }
         catch (TargetInvocationException invocationException)
         {
@@ -102,22 +109,22 @@ public class ClrCollectionAccessorFactory
     }
 
     [UsedImplicitly]
-    private static IClrCollectionAccessor CreateGeneric<TEntity, TCollection, TElement>(INavigationBase navigation)
+    private static IClrCollectionAccessor CreateGeneric<TEntity, TCollection, TElement>(IPropertyBase relationship)
         where TEntity : class
         where TCollection : class, IEnumerable<TElement>
         where TElement : class
     {
         CreateExpressions<TEntity, TCollection, TElement>(
-            navigation,
+            relationship,
             out var getCollection,
             out var setCollection,
             out var setCollectionForMaterialization,
             out var createAndSetCollection,
             out var createCollection);
 
-        return new ClrICollectionAccessor<TEntity, TCollection, TElement>(
-            navigation.Name,
-            navigation.IsShadowProperty(),
+        return new ClrCollectionAccessor<TEntity, TCollection, TElement>(
+            relationship.Name,
+            relationship.IsShadowProperty(),
             getCollection?.Compile(),
             setCollection?.Compile(),
             setCollectionForMaterialization?.Compile(),
@@ -174,7 +181,7 @@ public class ClrCollectionAccessorFactory
 
     [UsedImplicitly]
     private static void CreateExpressions<TEntity, TCollection, TElement>(
-        INavigationBase navigation,
+        IPropertyBase relationship,
         out Expression<Func<TEntity, TCollection>>? getCollection,
         out Expression<Action<TEntity, TCollection>>? setCollection,
         out Expression<Action<TEntity, TCollection>>? setCollectionForMaterialization,
@@ -193,11 +200,11 @@ public class ClrCollectionAccessorFactory
         var entityParameter = Expression.Parameter(typeof(TEntity), "entity");
         var valueParameter = Expression.Parameter(typeof(TCollection), "collection");
 
-        if (!navigation.IsShadowProperty())
+        if (!relationship.IsShadowProperty())
         {
-            var memberInfoForRead = navigation.GetMemberInfo(forMaterialization: false, forSet: false);
-            navigation.TryGetMemberInfo(forMaterialization: false, forSet: true, out var memberInfoForWrite, out _);
-            navigation.TryGetMemberInfo(forMaterialization: true, forSet: true, out var memberInfoForMaterialization, out _);
+            var memberInfoForRead = relationship.GetMemberInfo(forMaterialization: false, forSet: false);
+            relationship.TryGetMemberInfo(forMaterialization: false, forSet: true, out var memberInfoForWrite, out _);
+            relationship.TryGetMemberInfo(forMaterialization: true, forSet: true, out var memberInfoForMaterialization, out _);
             var memberAccessForRead = (Expression)Expression.MakeMemberAccess(entityParameter, memberInfoForRead);
             if (memberAccessForRead.Type != typeof(TCollection))
             {
@@ -222,7 +229,7 @@ public class ClrCollectionAccessorFactory
         var concreteType = CollectionTypeFactory.Instance.TryFindTypeToInstantiate(
             typeof(TEntity),
             typeof(TCollection),
-            navigation.DeclaringEntityType.Model[CoreAnnotationNames.FullChangeTrackingNotificationsRequired] != null);
+            relationship.DeclaringType.Model[CoreAnnotationNames.FullChangeTrackingNotificationsRequired] != null);
         if (concreteType != null)
         {
             var isHashSet = concreteType.IsGenericType && concreteType.GetGenericTypeDefinition() == typeof(HashSet<>);
@@ -268,10 +275,10 @@ public class ClrCollectionAccessorFactory
                 valueParameter1);
     }
 
-    private static MemberInfo? GetMostDerivedMemberInfo(INavigationBase navigation)
+    private static MemberInfo? GetMostDerivedMemberInfo(IPropertyBase relationship)
     {
-        var propertyInfo = navigation.PropertyInfo;
-        var fieldInfo = navigation.FieldInfo;
+        var propertyInfo = relationship.PropertyInfo;
+        var fieldInfo = relationship.FieldInfo;
 
         return fieldInfo == null
             ? propertyInfo

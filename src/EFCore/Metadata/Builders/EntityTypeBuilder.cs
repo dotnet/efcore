@@ -59,7 +59,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual EntityTypeBuilder HasAnnotation(string annotation, object? value)
     {
-        Check.NotEmpty(annotation, nameof(annotation));
+        Check.NotEmpty(annotation);
 
         Builder.HasAnnotation(annotation, value, ConfigurationSource.Explicit);
 
@@ -88,7 +88,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     /// <param name="propertyNames">The names of the properties that make up the primary key.</param>
     /// <returns>An object that can be used to configure the primary key.</returns>
     public virtual KeyBuilder HasKey(params string[] propertyNames)
-        => new(Builder.PrimaryKey(Check.NotEmpty(propertyNames, nameof(propertyNames)), ConfigurationSource.Explicit)!.Metadata);
+        => new(Builder.PrimaryKey(Check.NotEmpty(propertyNames), ConfigurationSource.Explicit)!.Metadata);
 
     /// <summary>
     ///     Creates an alternate key in the model for this entity type if one does not already exist over the specified
@@ -98,7 +98,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     /// <param name="propertyNames">The names of the properties that make up the key.</param>
     /// <returns>An object that can be used to configure the key.</returns>
     public virtual KeyBuilder HasAlternateKey(params string[] propertyNames)
-        => new(Builder.HasKey(Check.NotEmpty(propertyNames, nameof(propertyNames)), ConfigurationSource.Explicit)!.Metadata);
+        => new(Builder.HasKey(Check.NotEmpty(propertyNames), ConfigurationSource.Explicit)!.Metadata);
 
     /// <summary>
     ///     Configures the entity type to have no keys. It will only be usable for queries.
@@ -124,7 +124,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     public virtual PropertyBuilder Property(string propertyName)
         => new(
             Builder.Property(
-                Check.NotEmpty(propertyName, nameof(propertyName)),
+                Check.NotEmpty(propertyName),
                 ConfigurationSource.Explicit)!.Metadata);
 
     /// <summary>
@@ -145,7 +145,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         => new(
             Builder.Property(
                 typeof(TProperty),
-                Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit)!.Metadata);
+                Check.NotEmpty(propertyName), ConfigurationSource.Explicit)!.Metadata);
 
     /// <summary>
     ///     Returns an object that can be used to configure a property of the entity type.
@@ -164,8 +164,8 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     public virtual PropertyBuilder Property(Type propertyType, string propertyName)
         => new(
             Builder.Property(
-                Check.NotNull(propertyType, nameof(propertyType)),
-                Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit)!.Metadata);
+                Check.NotNull(propertyType),
+                Check.NotEmpty(propertyName), ConfigurationSource.Explicit)!.Metadata);
 
     /// <summary>
     ///     Returns an object that can be used to configure a property of the entity type where that property represents
@@ -182,7 +182,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     public virtual PrimitiveCollectionBuilder PrimitiveCollection(string propertyName)
         => new(
             Builder.PrimitiveCollection(
-                Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit)!.Metadata);
+                Check.NotEmpty(propertyName), ConfigurationSource.Explicit)!.Metadata);
 
     /// <summary>
     ///     Returns an object that can be used to configure a property of the entity type where that property represents
@@ -203,7 +203,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         => new(
             Builder.PrimitiveCollection(
                 typeof(TProperty),
-                Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit)!.Metadata);
+                Check.NotEmpty(propertyName), ConfigurationSource.Explicit)!.Metadata);
 
     /// <summary>
     ///     Returns an object that can be used to configure a property of the entity type where that property represents
@@ -223,8 +223,8 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     public virtual PrimitiveCollectionBuilder PrimitiveCollection(Type propertyType, string propertyName)
         => new(
             Builder.PrimitiveCollection(
-                Check.NotNull(propertyType, nameof(propertyType)),
-                Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit)!.Metadata);
+                Check.NotNull(propertyType),
+                Check.NotEmpty(propertyName), ConfigurationSource.Explicit)!.Metadata);
 
     /// <summary>
     ///     Returns an object that can be used to configure a property of the entity type.
@@ -243,7 +243,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         => new(
             Builder.IndexerProperty(
                 typeof(TProperty),
-                Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit)!.Metadata);
+                Check.NotEmpty(propertyName), ConfigurationSource.Explicit)!.Metadata);
 
     /// <summary>
     ///     Returns an object that can be used to configure a property of the entity type.
@@ -261,12 +261,12 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type propertyType,
         string propertyName)
     {
-        Check.NotNull(propertyType, nameof(propertyType));
+        Check.NotNull(propertyType);
 
         return new PropertyBuilder(
             Builder.IndexerProperty(
                 propertyType,
-                Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit)!.Metadata);
+                Check.NotEmpty(propertyName), ConfigurationSource.Explicit)!.Metadata);
     }
 
     /// <summary>
@@ -284,7 +284,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         => new(
             Builder.ComplexProperty(
                 propertyType: null,
-                Check.NotEmpty(propertyName, nameof(propertyName)),
+                Check.NotEmpty(propertyName),
                 complexTypeName: null,
                 collection: false,
                 ConfigurationSource.Explicit)!.Metadata);
@@ -304,10 +304,11 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     /// <param name="propertyName">The name of the property to be configured.</param>
     /// <returns>An object that can be used to configure the property.</returns>
     public virtual ComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(string propertyName)
+        where TProperty : notnull
         => new(
             Builder.ComplexProperty(
                 typeof(TProperty),
-                Check.NotEmpty(propertyName, nameof(propertyName)),
+                Check.NotEmpty(propertyName),
                 complexTypeName: null,
                 collection: false,
                 ConfigurationSource.Explicit)!.Metadata);
@@ -330,16 +331,17 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     public virtual ComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(
         string propertyName,
         string complexTypeName)
+        where TProperty : notnull
         => new(
             Builder.ComplexProperty(
                 typeof(TProperty),
-                Check.NotEmpty(propertyName, nameof(propertyName)),
-                Check.NotEmpty(complexTypeName, nameof(complexTypeName)),
+                Check.NotEmpty(propertyName),
+                Check.NotEmpty(complexTypeName),
                 collection: false,
                 ConfigurationSource.Explicit)!.Metadata);
 
     /// <summary>
-    ///     Configures a complex property of the entity type.
+    ///     Returns an object that can be used to configure a complex property of the entity type.
     ///     If no property with the given name exists, then a new property will be added.
     /// </summary>
     /// <remarks>
@@ -355,14 +357,14 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     public virtual ComplexPropertyBuilder ComplexProperty(Type propertyType, string propertyName)
         => new(
             Builder.ComplexProperty(
-                Check.NotNull(propertyType, nameof(propertyType)),
-                Check.NotEmpty(propertyName, nameof(propertyName)),
+                Check.NotNull(propertyType),
+                Check.NotEmpty(propertyName),
                 complexTypeName: null,
                 collection: false,
                 ConfigurationSource.Explicit)!.Metadata);
 
     /// <summary>
-    ///     Configures a complex property of the entity type.
+    ///     Returns an object that can be used to configure a complex property of the entity type.
     ///     If no property with the given name exists, then a new property will be added.
     /// </summary>
     /// <remarks>
@@ -382,9 +384,9 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         string complexTypeName)
         => new(
             Builder.ComplexProperty(
-                Check.NotNull(propertyType, nameof(propertyType)),
-                Check.NotEmpty(propertyName, nameof(propertyName)),
-                Check.NotEmpty(complexTypeName, nameof(complexTypeName)),
+                Check.NotNull(propertyType),
+                Check.NotEmpty(propertyName),
+                Check.NotEmpty(complexTypeName),
                 collection: false,
                 ConfigurationSource.Explicit)!.Metadata);
 
@@ -402,7 +404,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual EntityTypeBuilder ComplexProperty(string propertyName, Action<ComplexPropertyBuilder> buildAction)
     {
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotNull(buildAction);
 
         buildAction(ComplexProperty(propertyName));
 
@@ -427,8 +429,9 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     public virtual EntityTypeBuilder ComplexProperty<TProperty>(
         string propertyName,
         Action<ComplexPropertyBuilder<TProperty>> buildAction)
+        where TProperty : notnull
     {
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotNull(buildAction);
 
         buildAction(ComplexProperty<TProperty>(propertyName));
 
@@ -455,8 +458,9 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         string propertyName,
         string complexTypeName,
         Action<ComplexPropertyBuilder<TProperty>> buildAction)
+        where TProperty : notnull
     {
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotNull(buildAction);
 
         buildAction(ComplexProperty<TProperty>(propertyName, complexTypeName));
 
@@ -464,7 +468,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     }
 
     /// <summary>
-    ///     Returns an object that can be used to configure a complex property of the complex type.
+    ///     Configures a complex property of the entity type.
     ///     If no property with the given name exists, then a new property will be added.
     /// </summary>
     /// <remarks>
@@ -480,7 +484,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual EntityTypeBuilder ComplexProperty(Type propertyType, string propertyName, Action<ComplexPropertyBuilder> buildAction)
     {
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotNull(buildAction);
 
         buildAction(ComplexProperty(propertyType, propertyName));
 
@@ -488,7 +492,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     }
 
     /// <summary>
-    ///     Returns an object that can be used to configure a complex property of the complex type.
+    ///     Configures a complex property of the entity type.
     ///     If no property with the given name exists, then a new property will be added.
     /// </summary>
     /// <remarks>
@@ -509,9 +513,255 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         string complexTypeName,
         Action<ComplexPropertyBuilder> buildAction)
     {
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotNull(buildAction);
 
         buildAction(ComplexProperty(propertyType, propertyName, complexTypeName));
+
+        return this;
+    }
+
+    /// <summary>
+    ///     Returns an object that can be used to configure a complex collection of the entity type.
+    ///     If no property with the given name exists, then a new property will be added.
+    /// </summary>
+    /// <remarks>
+    ///     When adding a new property with this overload the property name must match the
+    ///     name of a CLR property or field on the complex type. This overload cannot be used to
+    ///     add a new shadow state complex property.
+    /// </remarks>
+    /// <param name="propertyName">The name of the property to be configured.</param>
+    /// <returns>An object that can be used to configure the property.</returns>
+    public virtual ComplexCollectionBuilder ComplexCollection(string propertyName)
+        => new(
+            Builder.ComplexProperty(
+                propertyType: null,
+                Check.NotEmpty(propertyName),
+                complexTypeName: null,
+                collection: true,
+                ConfigurationSource.Explicit)!.Metadata);
+
+    /// <summary>
+    ///     Returns an object that can be used to configure a complex collection of the entity type.
+    ///     If no property with the given name exists, then a new property will be added.
+    /// </summary>
+    /// <remarks>
+    ///     When adding a new property, if a property with the same name exists in the complex class
+    ///     then it will be added to the model. If no property exists in the complex class, then
+    ///     a new shadow state complex property will be added. A shadow state property is one that does not have a
+    ///     corresponding property in the complex class. The current value for the property is stored in
+    ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the complex class.
+    /// </remarks>
+    /// <typeparam name="TProperty">The type of the property to be configured.</typeparam>
+    /// <typeparam name="TElement">The element type.</typeparam>
+    /// <param name="propertyName">The name of the property to be configured.</param>
+    /// <returns>An object that can be used to configure the property.</returns>
+    public virtual ComplexCollectionBuilder<TElement> ComplexCollection<TProperty, TElement>(string propertyName)
+        where TProperty : IEnumerable<TElement>
+        where TElement : notnull
+        => new(
+            Builder.ComplexProperty(
+                typeof(TProperty),
+                Check.NotEmpty(propertyName),
+                complexTypeName: null,
+                collection: true,
+                ConfigurationSource.Explicit)!.Metadata);
+
+    /// <summary>
+    ///     Returns an object that can be used to configure a complex collection of the entity type.
+    ///     If no property with the given name exists, then a new property will be added.
+    /// </summary>
+    /// <remarks>
+    ///     When adding a new property, if a property with the same name exists in the complex class
+    ///     then it will be added to the model. If no property exists in the complex class, then
+    ///     a new shadow state complex property will be added. A shadow state property is one that does not have a
+    ///     corresponding property in the complex class. The current value for the property is stored in
+    ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the complex class.
+    /// </remarks>
+    /// <typeparam name="TProperty">The type of the property to be configured.</typeparam>
+    /// <typeparam name="TElement">The element type.</typeparam>
+    /// <param name="propertyName">The name of the property to be configured.</param>
+    /// <param name="complexTypeName">The name of the complex type.</param>
+    /// <returns>An object that can be used to configure the property.</returns>
+    public virtual ComplexCollectionBuilder<TElement> ComplexCollection<TProperty, TElement>(string propertyName, string complexTypeName)
+        where TProperty : IEnumerable<TElement>
+        where TElement : notnull
+        => new(
+            Builder.ComplexProperty(
+                typeof(TProperty),
+                Check.NotEmpty(propertyName),
+                complexTypeName,
+                collection: true,
+                ConfigurationSource.Explicit)!.Metadata);
+
+    /// <summary>
+    ///     Returns an object that can be used to configure a complex collection of the entity type.
+    ///     If no property with the given name exists, then a new property will be added.
+    /// </summary>
+    /// <remarks>
+    ///     When adding a new complex property, if a property with the same name exists in the complex class
+    ///     then it will be added to the model. If no property exists in the complex class, then
+    ///     a new shadow state complex property will be added. A shadow state property is one that does not have a
+    ///     corresponding property in the complex class. The current value for the property is stored in
+    ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the complex class.
+    /// </remarks>
+    /// <param name="propertyType">The type of the property to be configured.</param>
+    /// <param name="propertyName">The name of the property to be configured.</param>
+    /// <returns>An object that can be used to configure the property.</returns>
+    public virtual ComplexCollectionBuilder ComplexCollection(Type propertyType, string propertyName)
+        => new(
+            Builder.ComplexProperty(
+                Check.NotNull(propertyType),
+                Check.NotEmpty(propertyName),
+                complexTypeName: null,
+                collection: true,
+                ConfigurationSource.Explicit)!.Metadata);
+
+    /// <summary>
+    ///     Returns an object that can be used to configure a complex collection of the entity type.
+    ///     If no property with the given name exists, then a new property will be added.
+    /// </summary>
+    /// <remarks>
+    ///     When adding a new complex property, if a property with the same name exists in the complex class
+    ///     then it will be added to the model. If no property exists in the complex class, then
+    ///     a new shadow state complex property will be added. A shadow state property is one that does not have a
+    ///     corresponding property in the complex class. The current value for the property is stored in
+    ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the complex class.
+    /// </remarks>
+    /// <param name="propertyType">The type of the property to be configured.</param>
+    /// <param name="propertyName">The name of the property to be configured.</param>
+    /// <param name="complexTypeName">The name of the complex type.</param>
+    /// <returns>An object that can be used to configure the property.</returns>
+    public virtual ComplexCollectionBuilder ComplexCollection(Type propertyType, string propertyName, string complexTypeName)
+        => new(
+            Builder.ComplexProperty(
+                Check.NotNull(propertyType),
+                Check.NotEmpty(propertyName),
+                Check.NotEmpty(complexTypeName),
+                collection: true,
+                ConfigurationSource.Explicit)!.Metadata);
+
+    /// <summary>
+    ///     Configures a complex collection of the entity type.
+    ///     If no property with the given name exists, then a new property will be added.
+    /// </summary>
+    /// <remarks>
+    ///     When adding a new property with this overload the property name must match the
+    ///     name of a CLR property or field on the complex type. This overload cannot be used to
+    ///     add a new shadow state complex property.
+    /// </remarks>
+    /// <param name="propertyName">The name of the property to be configured.</param>
+    /// <param name="buildAction">An action that performs configuration of the property.</param>
+    /// <returns>An object that can be used to configure the property.</returns>
+    public virtual EntityTypeBuilder ComplexCollection(string propertyName, Action<ComplexCollectionBuilder> buildAction)
+    {
+        Check.NotNull(buildAction);
+
+        buildAction(ComplexCollection(propertyName));
+
+        return this;
+    }
+
+    /// <summary>
+    ///     Configures a complex collection of the entity type.
+    ///     If no property with the given name exists, then a new property will be added.
+    /// </summary>
+    /// <remarks>
+    ///     When adding a new property, if a property with the same name exists in the complex class
+    ///     then it will be added to the model. If no property exists in the complex class, then
+    ///     a new shadow state complex property will be added. A shadow state property is one that does not have a
+    ///     corresponding property in the complex class. The current value for the property is stored in
+    ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the complex class.
+    /// </remarks>
+    /// <typeparam name="TProperty">The type of the property to be configured.</typeparam>
+    /// <typeparam name="TElement">The element type.</typeparam>
+    /// <param name="propertyName">The name of the property to be configured.</param>
+    /// <param name="buildAction">An action that performs configuration of the property.</param>
+    /// <returns>An object that can be used to configure the property.</returns>
+    public virtual EntityTypeBuilder ComplexCollection<TProperty, TElement>(string propertyName, Action<ComplexCollectionBuilder<TElement>> buildAction)
+        where TProperty : IEnumerable<TElement>
+        where TElement : notnull
+    {
+        Check.NotNull(buildAction);
+
+        buildAction(ComplexCollection<TProperty, TElement>(propertyName));
+
+        return this;
+    }
+
+    /// <summary>
+    ///     Configures a complex collection of the entity type.
+    ///     If no property with the given name exists, then a new property will be added.
+    /// </summary>
+    /// <remarks>
+    ///     When adding a new property, if a property with the same name exists in the complex class
+    ///     then it will be added to the model. If no property exists in the complex class, then
+    ///     a new shadow state complex property will be added. A shadow state property is one that does not have a
+    ///     corresponding property in the complex class. The current value for the property is stored in
+    ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the complex class.
+    /// </remarks>
+    /// <typeparam name="TProperty">The type of the property to be configured.</typeparam>
+    /// <typeparam name="TElement">The element type.</typeparam>
+    /// <param name="propertyName">The name of the property to be configured.</param>
+    /// <param name="complexTypeName">The name of the complex type.</param>
+    /// <param name="buildAction">An action that performs configuration of the property.</param>
+    /// <returns>An object that can be used to configure the property.</returns>
+    public virtual EntityTypeBuilder ComplexCollection<TProperty, TElement>(
+        string propertyName, string complexTypeName, Action<ComplexCollectionBuilder<TElement>> buildAction)
+        where TProperty : IEnumerable<TElement>
+        where TElement : notnull
+    {
+        Check.NotNull(buildAction);
+
+        buildAction(ComplexCollection<TProperty, TElement>(propertyName, complexTypeName));
+
+        return this;
+    }
+
+    /// <summary>
+    ///     Configures a complex collection of the entity type.
+    ///     If no property with the given name exists, then a new property will be added.
+    /// </summary>
+    /// <remarks>
+    ///     When adding a new complex property, if a property with the same name exists in the complex class
+    ///     then it will be added to the model. If no property exists in the complex class, then
+    ///     a new shadow state complex property will be added. A shadow state property is one that does not have a
+    ///     corresponding property in the complex class. The current value for the property is stored in
+    ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the complex class.
+    /// </remarks>
+    /// <param name="propertyType">The type of the property to be configured.</param>
+    /// <param name="propertyName">The name of the property to be configured.</param>
+    /// <param name="buildAction">An action that performs configuration of the property.</param>
+    /// <returns>An object that can be used to configure the property.</returns>
+    public virtual EntityTypeBuilder ComplexCollection(Type propertyType, string propertyName, Action<ComplexCollectionBuilder> buildAction)
+    {
+        Check.NotNull(buildAction);
+
+        buildAction(ComplexCollection(propertyType, propertyName));
+
+        return this;
+    }
+
+    /// <summary>
+    ///     Configures a complex collection of the entity type.
+    ///     If no property with the given name exists, then a new property will be added.
+    /// </summary>
+    /// <remarks>
+    ///     When adding a new complex property, if a property with the same name exists in the complex class
+    ///     then it will be added to the model. If no property exists in the complex class, then
+    ///     a new shadow state complex property will be added. A shadow state property is one that does not have a
+    ///     corresponding property in the complex class. The current value for the property is stored in
+    ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the complex class.
+    /// </remarks>
+    /// <param name="propertyType">The type of the property to be configured.</param>
+    /// <param name="propertyName">The name of the property to be configured.</param>
+    /// <param name="complexTypeName">The name of the complex type.</param>
+    /// <param name="buildAction">An action that performs configuration of the property.</param>
+    /// <returns>An object that can be used to configure the property.</returns>
+    public virtual EntityTypeBuilder ComplexCollection(Type propertyType, string propertyName, string complexTypeName, Action<ComplexCollectionBuilder> buildAction)
+    {
+        Check.NotNull(buildAction);
+
+        buildAction(ComplexCollection(propertyType, propertyName, complexTypeName));
 
         return this;
     }
@@ -522,8 +772,12 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     /// </summary>
     /// <param name="navigationName">The name of the navigation property to be configured.</param>
     /// <returns>An object that can be used to configure the navigation property.</returns>
+        /// <remarks>
+    ///     Navigation properties must first be added to the entity type using methods like HasOne, HasMany,
+    ///     or OwnsOne/OwnsMany before they can be configured with this method.
+    /// </remarks>
     public virtual NavigationBuilder Navigation(string navigationName)
-        => new(Builder.Navigation(Check.NotEmpty(navigationName, nameof(navigationName))));
+        => new(Builder.Navigation(Check.NotEmpty(navigationName)));
 
     /// <summary>
     ///     Excludes the given property from the entity type. This method is typically used to remove properties
@@ -532,7 +786,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     /// <param name="propertyName">The name of the property to be removed from the entity type.</param>
     public virtual EntityTypeBuilder Ignore(string propertyName)
     {
-        Check.NotEmpty(propertyName, nameof(propertyName));
+        Check.NotEmpty(propertyName);
 
         Builder.Ignore(propertyName, ConfigurationSource.Explicit);
 
@@ -553,6 +807,20 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     }
 
     /// <summary>
+    ///     Specifies a LINQ predicate expression that will automatically be applied to any queries targeting
+    ///     this entity type.
+    /// </summary>
+    /// <param name="filterKey">The filter key</param>
+    /// <param name="filter">The LINQ predicate expression.</param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public virtual EntityTypeBuilder HasQueryFilter(string filterKey,LambdaExpression? filter)
+    {
+        Builder.HasQueryFilter(new QueryFilter(filterKey, filter));
+
+        return this;
+    }
+
+    /// <summary>
     ///     Configures an unnamed index on the specified properties.
     ///     If there is an existing unnamed index on the given
     ///     list of properties, then the existing index will be
@@ -561,7 +829,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     /// <param name="propertyNames">The names of the properties that make up the index.</param>
     /// <returns>An object that can be used to configure the index.</returns>
     public virtual IndexBuilder HasIndex(params string[] propertyNames)
-        => new(Builder.HasIndex(Check.NotEmpty(propertyNames, nameof(propertyNames)), ConfigurationSource.Explicit)!.Metadata);
+        => new(Builder.HasIndex(Check.NotEmpty(propertyNames), ConfigurationSource.Explicit)!.Metadata);
 
     /// <summary>
     ///     Configures an index on the specified properties and with the given name.
@@ -576,8 +844,8 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         string name)
         => new(
             Builder.HasIndex(
-                Check.NotEmpty(propertyNames, nameof(propertyNames)),
-                Check.NotEmpty(name, nameof(name)),
+                Check.NotEmpty(propertyNames),
+                Check.NotEmpty(name),
                 ConfigurationSource.Explicit)!.Metadata);
 
     /// <summary>
@@ -606,8 +874,8 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         string ownedTypeName,
         string navigationName)
         => OwnsOneBuilder(
-            new TypeIdentity(Check.NotEmpty(ownedTypeName, nameof(ownedTypeName))),
-            Check.NotEmpty(navigationName, nameof(navigationName)));
+            new TypeIdentity(Check.NotEmpty(ownedTypeName)),
+            Check.NotEmpty(navigationName));
 
     /// <summary>
     ///     Configures a relationship where the target entity is owned by (or part of) this entity.
@@ -637,8 +905,8 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type ownedType,
         string navigationName)
         => OwnsOneBuilder(
-            new TypeIdentity(Check.NotEmpty(ownedTypeName, nameof(ownedTypeName)), ownedType),
-            Check.NotEmpty(navigationName, nameof(navigationName)));
+            new TypeIdentity(Check.NotEmpty(ownedTypeName), ownedType),
+            Check.NotEmpty(navigationName));
 
     /// <summary>
     ///     Configures a relationship where the target entity is owned by (or part of) this entity.
@@ -666,11 +934,11 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type ownedType,
         string navigationName)
     {
-        Check.NotNull(ownedType, nameof(ownedType));
+        Check.NotNull(ownedType);
 
         return OwnsOneBuilder(
             new TypeIdentity(ownedType, (Model)Metadata.Model),
-            Check.NotEmpty(navigationName, nameof(navigationName)));
+            Check.NotEmpty(navigationName));
     }
 
     /// <summary>
@@ -701,9 +969,9 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         string navigationName,
         Action<OwnedNavigationBuilder> buildAction)
     {
-        Check.NotEmpty(ownedTypeName, nameof(ownedTypeName));
-        Check.NotEmpty(navigationName, nameof(navigationName));
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotEmpty(ownedTypeName);
+        Check.NotEmpty(navigationName);
+        Check.NotNull(buildAction);
 
         buildAction(OwnsOneBuilder(new TypeIdentity(ownedTypeName), navigationName));
         return this;
@@ -739,10 +1007,10 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         string navigationName,
         Action<OwnedNavigationBuilder> buildAction)
     {
-        Check.NotEmpty(ownedTypeName, nameof(ownedTypeName));
-        Check.NotNull(ownedType, nameof(ownedType));
-        Check.NotEmpty(navigationName, nameof(navigationName));
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotEmpty(ownedTypeName);
+        Check.NotNull(ownedType);
+        Check.NotEmpty(navigationName);
+        Check.NotNull(buildAction);
 
         buildAction(OwnsOneBuilder(new TypeIdentity(ownedTypeName, ownedType), navigationName));
         return this;
@@ -776,9 +1044,9 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         string navigationName,
         Action<OwnedNavigationBuilder> buildAction)
     {
-        Check.NotNull(ownedType, nameof(ownedType));
-        Check.NotEmpty(navigationName, nameof(navigationName));
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotNull(ownedType);
+        Check.NotEmpty(navigationName);
+        Check.NotNull(buildAction);
 
         buildAction(OwnsOneBuilder(new TypeIdentity(ownedType, (Model)Metadata.Model), navigationName));
         return this;
@@ -824,8 +1092,8 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         string ownedTypeName,
         string navigationName)
         => OwnsManyBuilder(
-            new TypeIdentity(Check.NotEmpty(ownedTypeName, nameof(ownedTypeName))),
-            Check.NotEmpty(navigationName, nameof(navigationName)));
+            new TypeIdentity(Check.NotEmpty(ownedTypeName)),
+            Check.NotEmpty(navigationName));
 
     /// <summary>
     ///     Configures a relationship where the target entity is owned by (or part of) this entity.
@@ -855,11 +1123,11 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type ownedType,
         string navigationName)
     {
-        Check.NotNull(ownedType, nameof(ownedType));
+        Check.NotNull(ownedType);
 
         return OwnsManyBuilder(
-            new TypeIdentity(Check.NotEmpty(ownedTypeName, nameof(ownedTypeName)), ownedType),
-            Check.NotEmpty(navigationName, nameof(navigationName)));
+            new TypeIdentity(Check.NotEmpty(ownedTypeName), ownedType),
+            Check.NotEmpty(navigationName));
     }
 
     /// <summary>
@@ -888,11 +1156,11 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type ownedType,
         string navigationName)
     {
-        Check.NotNull(ownedType, nameof(ownedType));
+        Check.NotNull(ownedType);
 
         return OwnsManyBuilder(
             new TypeIdentity(ownedType, (Model)Metadata.Model),
-            Check.NotEmpty(navigationName, nameof(navigationName)));
+            Check.NotEmpty(navigationName));
     }
 
     /// <summary>
@@ -923,9 +1191,9 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         string navigationName,
         Action<OwnedNavigationBuilder> buildAction)
     {
-        Check.NotEmpty(ownedTypeName, nameof(ownedTypeName));
-        Check.NotEmpty(navigationName, nameof(navigationName));
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotEmpty(ownedTypeName);
+        Check.NotEmpty(navigationName);
+        Check.NotNull(buildAction);
 
         buildAction(OwnsManyBuilder(new TypeIdentity(ownedTypeName), navigationName));
         return this;
@@ -961,10 +1229,10 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         string navigationName,
         Action<OwnedNavigationBuilder> buildAction)
     {
-        Check.NotEmpty(ownedTypeName, nameof(ownedTypeName));
-        Check.NotNull(ownedType, nameof(ownedType));
-        Check.NotEmpty(navigationName, nameof(navigationName));
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotEmpty(ownedTypeName);
+        Check.NotNull(ownedType);
+        Check.NotEmpty(navigationName);
+        Check.NotNull(buildAction);
 
         buildAction(OwnsManyBuilder(new TypeIdentity(ownedTypeName, ownedType), navigationName));
         return this;
@@ -998,9 +1266,9 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         string navigationName,
         Action<OwnedNavigationBuilder> buildAction)
     {
-        Check.NotNull(ownedType, nameof(ownedType));
-        Check.NotEmpty(navigationName, nameof(navigationName));
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotNull(ownedType);
+        Check.NotEmpty(navigationName);
+        Check.NotNull(buildAction);
 
         buildAction(OwnsManyBuilder(new TypeIdentity(ownedType, (Model)Metadata.Model), navigationName));
         return this;
@@ -1049,8 +1317,8 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         string relatedTypeName,
         string? navigationName)
     {
-        Check.NotEmpty(relatedTypeName, nameof(relatedTypeName));
-        Check.NullButNotEmpty(navigationName, nameof(navigationName));
+        Check.NotEmpty(relatedTypeName);
+        Check.NullButNotEmpty(navigationName);
 
         var relatedEntityType = FindRelatedEntityType(relatedTypeName, navigationName);
         var foreignKey = HasOneBuilder(MemberIdentity.Create(navigationName), relatedEntityType);
@@ -1091,8 +1359,8 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type relatedType,
         string? navigationName = null)
     {
-        Check.NotNull(relatedType, nameof(relatedType));
-        Check.NullButNotEmpty(navigationName, nameof(navigationName));
+        Check.NotNull(relatedType);
+        Check.NullButNotEmpty(navigationName);
 
         var relatedEntityType = FindRelatedEntityType(relatedType, navigationName);
         var foreignKey = HasOneBuilder(MemberIdentity.Create(navigationName), relatedEntityType);
@@ -1123,7 +1391,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     [RequiresUnreferencedCode("Use an overload that accepts a type")]
     public virtual ReferenceNavigationBuilder HasOne(string? navigationName)
     {
-        Check.NotEmpty(navigationName, nameof(navigationName));
+        Check.NotEmpty(navigationName);
 
         return Metadata.ClrType == Model.DefaultPropertyBagType
             ? HasOne(navigationName, null) // Path only used by pre 3.0 snapshots
@@ -1191,8 +1459,8 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         string relatedTypeName,
         string? navigationName)
     {
-        Check.NotEmpty(relatedTypeName, nameof(relatedTypeName));
-        Check.NullButNotEmpty(navigationName, nameof(navigationName));
+        Check.NotEmpty(relatedTypeName);
+        Check.NullButNotEmpty(navigationName);
 
         return HasMany(
             navigationName,
@@ -1217,7 +1485,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     [RequiresUnreferencedCode("Use the generic overload instead")]
     public virtual CollectionNavigationBuilder HasMany(string navigationName)
     {
-        Check.NotEmpty(navigationName, nameof(navigationName));
+        Check.NotEmpty(navigationName);
 
         var memberType = Metadata.GetNavigationMemberInfo(navigationName).GetMemberType();
         var elementType = memberType.TryGetElementType(typeof(IEnumerable<>));
@@ -1263,8 +1531,8 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type relatedType,
         string? navigationName = null)
     {
-        Check.NotNull(relatedType, nameof(relatedType));
-        Check.NullButNotEmpty(navigationName, nameof(navigationName));
+        Check.NotNull(relatedType);
+        Check.NullButNotEmpty(navigationName);
 
         return HasMany(
             navigationName,
@@ -1381,7 +1649,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     /// <returns>An object that can be used to configure the model data.</returns>
     public virtual DataBuilder HasData(IEnumerable<object> data)
     {
-        Check.NotNull(data, nameof(data));
+        Check.NotNull(data);
 
         Builder.HasData(data, ConfigurationSource.Explicit);
 
@@ -1405,8 +1673,8 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         string name,
         Type type)
     {
-        Check.NotEmpty(name, nameof(name));
-        Check.NotNull(type, nameof(type));
+        Check.NotEmpty(name);
+        Check.NotNull(type);
 
         return Builder.HasDiscriminator(name, type, ConfigurationSource.Explicit)!;
     }
@@ -1419,7 +1687,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     /// <returns>A builder that allows the discriminator property to be configured.</returns>
     public virtual DiscriminatorBuilder<TDiscriminator> HasDiscriminator<TDiscriminator>(string name)
     {
-        Check.NotEmpty(name, nameof(name));
+        Check.NotEmpty(name);
 
         return new DiscriminatorBuilder<TDiscriminator>(
             Builder.HasDiscriminator(name, typeof(TDiscriminator), ConfigurationSource.Explicit)!);

@@ -862,25 +862,22 @@ public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTy
             .Where(e => e.PartitionId == 200)
             .GroupBy(_ => true);
 
-        Assert.Equal(
-            SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Min), typeof(decimal).ShortDisplayName()),
-            Assert.Throws<NotSupportedException>(
-                () => query.Select(g => g.Min(e => e.TestNullableDecimal)).ToList()).Message);
+        Assert.Equal(2.000000000000001m, query.Select(g => g.Min(e => e.TestNullableDecimal)).Single());
 
         Assert.Equal(
             SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Min), typeof(DateTimeOffset).ShortDisplayName()),
             Assert.Throws<NotSupportedException>(
-                () => query.Select(g => g.Min(e => e.TestNullableDateTimeOffset)).ToList()).Message);
+                () => query.Select(g => g.Min(DateTimeOffset? (BuiltInNullableDataTypes e) => e.TestNullableDateTimeOffset)).ToList()).Message);
 
         Assert.Equal(
             SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Min), typeof(TimeSpan).ShortDisplayName()),
             Assert.Throws<NotSupportedException>(
-                () => query.Select(g => g.Min(e => e.TestNullableTimeSpan)).ToList()).Message);
+                () => query.Select(g => g.Min(TimeSpan? (BuiltInNullableDataTypes e) => e.TestNullableTimeSpan)).ToList()).Message);
 
         Assert.Equal(
             SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Min), typeof(ulong).ShortDisplayName()),
             Assert.Throws<NotSupportedException>(
-                () => query.Select(g => g.Min(e => e.TestNullableUnsignedInt64)).ToList()).Message);
+                () => query.Select(g => g.Min(ulong? (BuiltInNullableDataTypes e) => e.TestNullableUnsignedInt64)).ToList()).Message);
     }
 
     [ConditionalFact]
@@ -915,25 +912,22 @@ public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTy
             .Where(e => e.PartitionId == 201)
             .GroupBy(_ => true);
 
-        Assert.Equal(
-            SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Max), typeof(decimal).ShortDisplayName()),
-            Assert.Throws<NotSupportedException>(
-                () => query.Select(g => g.Max(e => e.TestNullableDecimal)).ToList()).Message);
+        Assert.Equal(10.000000000000001m, query.Select(g => g.Max(e => e.TestNullableDecimal)).Single());
 
         Assert.Equal(
             SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Max), typeof(DateTimeOffset).ShortDisplayName()),
             Assert.Throws<NotSupportedException>(
-                () => query.Select(g => g.Max(e => e.TestNullableDateTimeOffset)).ToList()).Message);
+                () => query.Select(g => g.Max(DateTimeOffset? (BuiltInNullableDataTypes e) => e.TestNullableDateTimeOffset)).ToList()).Message);
 
         Assert.Equal(
             SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Max), typeof(TimeSpan).ShortDisplayName()),
             Assert.Throws<NotSupportedException>(
-                () => query.Select(g => g.Max(e => e.TestNullableTimeSpan)).ToList()).Message);
+                () => query.Select(g => g.Max(TimeSpan? (BuiltInNullableDataTypes e) => e.TestNullableTimeSpan)).ToList()).Message);
 
         Assert.Equal(
             SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Max), typeof(ulong).ShortDisplayName()),
             Assert.Throws<NotSupportedException>(
-                () => query.Select(g => g.Max(e => e.TestNullableUnsignedInt64)).ToList()).Message);
+                () => query.Select(g => g.Max(ulong? (BuiltInNullableDataTypes e) => e.TestNullableUnsignedInt64)).ToList()).Message);
     }
 
     [ConditionalFact]
@@ -1407,12 +1401,6 @@ public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTy
 
         var ex = Assert.Throws<NotSupportedException>(
             () => query
-                .OrderBy(e => e.TestNullableDecimal)
-                .First());
-        Assert.Equal(SqliteStrings.OrderByNotSupported("decimal"), ex.Message);
-
-        ex = Assert.Throws<NotSupportedException>(
-            () => query
                 .OrderBy(e => e.TestNullableDateTimeOffset)
                 .First());
         Assert.Equal(SqliteStrings.OrderByNotSupported("DateTimeOffset"), ex.Message);
@@ -1464,12 +1452,6 @@ public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTy
 
         var ex = Assert.Throws<NotSupportedException>(
             () => query
-                .ThenBy(e => e.TestNullableDecimal)
-                .First());
-        Assert.Equal(SqliteStrings.OrderByNotSupported("decimal"), ex.Message);
-
-        ex = Assert.Throws<NotSupportedException>(
-            () => query
                 .ThenBy(e => e.TestNullableDateTimeOffset)
                 .First());
         Assert.Equal(SqliteStrings.OrderByNotSupported("DateTimeOffset"), ex.Message);
@@ -1485,6 +1467,119 @@ public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTy
                 .ThenBy(e => e.TestNullableUnsignedInt64)
                 .First());
         Assert.Equal(SqliteStrings.OrderByNotSupported("ulong"), ex.Message);
+    }
+
+
+    [ConditionalFact]
+    public virtual void Can_query_OrderBy_of_converted_types()
+    {
+        using var context = CreateContext();
+        var min = new BuiltInNullableDataTypes
+        {
+            Id = 221,
+            PartitionId = 207,
+            TestNullableDecimal = 2.000000000000001m,
+            TestNullableDateTimeOffset = new DateTimeOffset(2018, 1, 1, 12, 0, 0, TimeSpan.Zero),
+            TestNullableTimeSpan = TimeSpan.FromDays(2),
+            TestNullableUnsignedInt64 = 0
+        };
+        context.Add(min);
+
+        var max = new BuiltInNullableDataTypes
+        {
+            Id = 222,
+            PartitionId = 207,
+            TestNullableDecimal = 10.000000000000001m,
+            TestNullableDateTimeOffset = new DateTimeOffset(2018, 1, 1, 11, 0, 0, TimeSpan.FromHours(-2)),
+            TestNullableTimeSpan = TimeSpan.FromDays(10),
+            TestNullableUnsignedInt64 = long.MaxValue + 1ul
+        };
+        context.Add(max);
+
+        context.SaveChanges();
+
+        Fixture.TestSqlLoggerFactory.Clear();
+
+        var query = context.Set<BuiltInNullableDataTypes>()
+            .Where(e => e.PartitionId == 207);
+
+        var results = query
+            .OrderBy(e => e.TestNullableDecimal)
+            .Select(e => e.Id)
+            .First();
+
+        AssertSql(
+            """
+SELECT "b"."Id"
+FROM "BuiltInNullableDataTypes" AS "b"
+WHERE "b"."PartitionId" = 207
+ORDER BY "b"."TestNullableDecimal" COLLATE EF_DECIMAL
+LIMIT 1
+""");
+
+        var expectedResults = query.AsEnumerable()
+            .OrderBy(e => e.TestNullableDecimal)
+            .Select(e => e.Id)
+            .First();
+
+        Assert.Equal(expectedResults, results);
+    }
+
+    [ConditionalFact]
+    public virtual void Can_query_ThenBy_of_converted_types()
+    {
+        using var context = CreateContext();
+        var min = new BuiltInNullableDataTypes
+        {
+            Id = 223,
+            PartitionId = 208,
+            TestNullableDecimal = 2.000000000000001m,
+            TestNullableDateTimeOffset = new DateTimeOffset(2018, 1, 1, 12, 0, 0, TimeSpan.Zero),
+            TestNullableTimeSpan = TimeSpan.FromDays(2),
+            TestNullableUnsignedInt64 = 0
+        };
+        context.Add(min);
+
+        var max = new BuiltInNullableDataTypes
+        {
+            Id = 224,
+            PartitionId = 208,
+            TestNullableDecimal = 10.000000000000001m,
+            TestNullableDateTimeOffset = new DateTimeOffset(2018, 1, 1, 11, 0, 0, TimeSpan.FromHours(-2)),
+            TestNullableTimeSpan = TimeSpan.FromDays(10),
+            TestNullableUnsignedInt64 = long.MaxValue + 1ul
+        };
+        context.Add(max);
+
+        context.SaveChanges();
+
+        Fixture.TestSqlLoggerFactory.Clear();
+
+        var query = context.Set<BuiltInNullableDataTypes>()
+            .Where(e => e.PartitionId == 208);
+
+        var results = query
+            .OrderBy(e => e.PartitionId)
+            .ThenBy(e => e.TestNullableDecimal)
+            .Select(e => e.Id)
+            .First();
+
+        AssertSql(
+            """
+SELECT "b"."Id"
+FROM "BuiltInNullableDataTypes" AS "b"
+WHERE "b"."PartitionId" = 208
+ORDER BY "b"."PartitionId", "b"."TestNullableDecimal" COLLATE EF_DECIMAL
+LIMIT 1
+""");
+
+        var expectedResults = query.AsEnumerable()
+            .OrderBy(e => e.PartitionId)
+            .ThenBy(e => e.TestNullableDecimal)
+            .Select(e => e.Id)
+            .First();
+
+        Assert.Equal(expectedResults, results);
     }
 
     [ConditionalFact]

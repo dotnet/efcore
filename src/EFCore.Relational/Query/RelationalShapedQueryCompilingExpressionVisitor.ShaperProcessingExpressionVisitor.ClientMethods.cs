@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
@@ -447,7 +447,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     return relationalCommand.ExecuteReader(
                         new RelationalCommandParameterObject(
                             queryContext.Connection,
-                            queryContext.ParameterValues,
+                            queryContext.Parameters,
                             readerColumns,
                             queryContext.Context,
                             queryContext.CommandLogger,
@@ -543,7 +543,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     return await relationalCommand.ExecuteReaderAsync(
                             new RelationalCommandParameterObject(
                                 queryContext.Connection,
-                                queryContext.ParameterValues,
+                                queryContext.Parameters,
                                 readerColumns,
                                 queryContext.Context,
                                 queryContext.CommandLogger,
@@ -812,7 +812,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     return relationalCommand.ExecuteReader(
                         new RelationalCommandParameterObject(
                             queryContext.Connection,
-                            queryContext.ParameterValues,
+                            queryContext.Parameters,
                             readerColumns,
                             queryContext.Context,
                             queryContext.CommandLogger,
@@ -903,7 +903,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     return await relationalCommand.ExecuteReaderAsync(
                             new RelationalCommandParameterObject(
                                 queryContext.Connection,
-                                queryContext.ParameterValues,
+                                queryContext.Parameters,
                                 readerColumns,
                                 queryContext.Context,
                                 queryContext.CommandLogger,
@@ -962,10 +962,10 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
         [EntityFrameworkInternal]
         public static TEntity? MaterializeJsonEntity<TEntity>(
             QueryContext queryContext,
-            object[] keyPropertyValues,
+            object[]? keyPropertyValues,
             JsonReaderData? jsonReaderData,
             bool nullable,
-            Func<QueryContext, object[], JsonReaderData, TEntity> shaper)
+            Func<QueryContext, object[]?, JsonReaderData, TEntity> shaper)
             where TEntity : class
         {
             if (jsonReaderData == null)
@@ -979,18 +979,17 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             var manager = new Utf8JsonReaderManager(jsonReaderData, queryContext.QueryLogger);
             var tokenType = manager.CurrentReader.TokenType;
 
-            if (tokenType == JsonTokenType.Null)
+            switch (tokenType)
             {
-                return nullable
-                    ? null
-                    : throw new InvalidOperationException(
-                        RelationalStrings.JsonRequiredEntityWithNullJson(typeof(TEntity).Name));
-            }
+                case JsonTokenType.Null:
+                    return nullable
+                        ? null
+                        : throw new InvalidOperationException(
+                            RelationalStrings.JsonRequiredEntityWithNullJson(typeof(TEntity).Name));
 
-            if (tokenType != JsonTokenType.StartObject)
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.JsonReaderInvalidTokenType(tokenType.ToString()));
+                case not JsonTokenType.StartObject:
+                    throw new InvalidOperationException(
+                        CoreStrings.JsonReaderInvalidTokenType(tokenType.ToString()));
             }
 
             manager.CaptureState();
@@ -1008,10 +1007,10 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
         [EntityFrameworkInternal]
         public static TResult? MaterializeJsonEntityCollection<TEntity, TResult>(
             QueryContext queryContext,
-            object[] keyPropertyValues,
+            object[]? keyPropertyValues,
             JsonReaderData? jsonReaderData,
-            INavigationBase navigation,
-            Func<QueryContext, object[], JsonReaderData, TEntity> innerShaper)
+            IPropertyBase relationship,
+            Func<QueryContext, object[]?, JsonReaderData, TEntity> innerShaper)
             where TEntity : class
         {
             if (jsonReaderData == null)
@@ -1022,29 +1021,35 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             var manager = new Utf8JsonReaderManager(jsonReaderData, queryContext.QueryLogger);
             var tokenType = manager.CurrentReader.TokenType;
 
-            if (tokenType == JsonTokenType.Null)
+            switch (tokenType)
             {
-                return default;
+                case JsonTokenType.Null:
+                    return default;
+
+                case not JsonTokenType.StartArray:
+                    throw new InvalidOperationException(CoreStrings.JsonReaderInvalidTokenType(tokenType.ToString()));
+
+                default:
+                    break;
             }
 
-            if (tokenType != JsonTokenType.StartArray)
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.JsonReaderInvalidTokenType(tokenType.ToString()));
-            }
-
-            var collectionAccessor = navigation.GetCollectionAccessor();
+            var collectionAccessor = relationship.GetCollectionAccessor();
             var result = (TResult)collectionAccessor!.Create();
 
-            var newKeyPropertyValues = new object[keyPropertyValues.Length + 1];
-            Array.Copy(keyPropertyValues, newKeyPropertyValues, keyPropertyValues.Length);
+            object[]? newKeyPropertyValues = null;
+
+            if (keyPropertyValues is not null)
+            {
+                newKeyPropertyValues = new object[keyPropertyValues.Length + 1];
+                Array.Copy(keyPropertyValues, newKeyPropertyValues, keyPropertyValues.Length);
+            }
 
             tokenType = manager.MoveNext();
 
             var i = 0;
             while (tokenType != JsonTokenType.EndArray)
             {
-                newKeyPropertyValues[^1] = ++i;
+                newKeyPropertyValues?[^1] = ++i;
 
                 if (tokenType == JsonTokenType.StartObject)
                 {
@@ -1082,12 +1087,12 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
         [EntityFrameworkInternal]
         public static void IncludeJsonEntityReference<TIncludingEntity, TIncludedEntity>(
             QueryContext queryContext,
-            object[] keyPropertyValues,
+            object[]? keyPropertyValues,
             JsonReaderData? jsonReaderData,
             TIncludingEntity entity,
-            Func<QueryContext, object[], JsonReaderData, TIncludedEntity> innerShaper,
+            Func<QueryContext, object[]?, JsonReaderData, TIncludedEntity> innerShaper,
             Action<TIncludingEntity, TIncludedEntity> fixup,
-            bool trackingQuery)
+            bool performFixup)
             where TIncludingEntity : class
             where TIncludedEntity : class
         {
@@ -1096,9 +1101,22 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 return;
             }
 
+            var manager = new Utf8JsonReaderManager(jsonReaderData, queryContext.QueryLogger);
+            var tokenType = manager.CurrentReader.TokenType;
+
+            switch (tokenType)
+            {
+                case JsonTokenType.Null:
+                    return;
+
+                case not JsonTokenType.StartObject:
+                    throw new InvalidOperationException(
+                        CoreStrings.JsonReaderInvalidTokenType(tokenType.ToString()));
+            }
+
             var included = innerShaper(queryContext, keyPropertyValues, jsonReaderData);
 
-            if (!trackingQuery)
+            if (performFixup)
             {
                 fixup(entity, included);
             }
@@ -1113,13 +1131,13 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
         [EntityFrameworkInternal]
         public static void IncludeJsonEntityCollection<TIncludingEntity, TIncludedCollectionElement>(
             QueryContext queryContext,
-            object[] keyPropertyValues,
+            object[]? keyPropertyValues,
             JsonReaderData? jsonReaderData,
             TIncludingEntity entity,
-            Func<QueryContext, object[], JsonReaderData, TIncludedCollectionElement> innerShaper,
+            Func<QueryContext, object[]?, JsonReaderData, TIncludedCollectionElement> innerShaper,
             Action<TIncludingEntity> getOrCreateCollectionObject,
             Action<TIncludingEntity, TIncludedCollectionElement> fixup,
-            bool trackingQuery)
+            bool performFixup)
             where TIncludingEntity : class
             where TIncludedCollectionElement : class
         {
@@ -1131,30 +1149,39 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             var manager = new Utf8JsonReaderManager(jsonReaderData, queryContext.QueryLogger);
             var tokenType = manager.CurrentReader.TokenType;
 
-            if (tokenType != JsonTokenType.StartArray)
+            switch (tokenType)
             {
-                throw new InvalidOperationException(
-                    CoreStrings.JsonReaderInvalidTokenType(tokenType.ToString()));
+                case JsonTokenType.Null:
+                    return;
+
+                case not JsonTokenType.StartArray:
+                    throw new InvalidOperationException(
+                        CoreStrings.JsonReaderInvalidTokenType(tokenType.ToString()));
             }
 
             getOrCreateCollectionObject(entity);
 
-            var newKeyPropertyValues = new object[keyPropertyValues.Length + 1];
-            Array.Copy(keyPropertyValues, newKeyPropertyValues, keyPropertyValues.Length);
+            object[]? newKeyPropertyValues = null;
+
+            if (keyPropertyValues is not null)
+            {
+                newKeyPropertyValues = new object[keyPropertyValues.Length + 1];
+                Array.Copy(keyPropertyValues, newKeyPropertyValues, keyPropertyValues.Length);
+            }
 
             tokenType = manager.MoveNext();
 
             var i = 0;
             while (tokenType != JsonTokenType.EndArray)
             {
-                newKeyPropertyValues[^1] = ++i;
+                newKeyPropertyValues?[^1] = ++i;
 
                 if (tokenType == JsonTokenType.StartObject)
                 {
                     manager.CaptureState();
                     var resultElement = innerShaper(queryContext, newKeyPropertyValues, jsonReaderData);
 
-                    if (!trackingQuery)
+                    if (performFixup)
                     {
                         fixup(entity, resultElement);
                     }

@@ -3,7 +3,8 @@
 
 using System.Collections;
 using System.Data;
-using System.Text.Json;
+using Microsoft.Data.SqlTypes;
+using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
@@ -13,7 +14,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqlServerTypeMappingSource : RelationalTypeMappingSource
+public class SqlServerTypeMappingSource(
+    TypeMappingSourceDependencies dependencies,
+    RelationalTypeMappingSourceDependencies relationalDependencies,
+    ISqlServerSingletonOptions sqlServerSingletonOptions)
+    : RelationalTypeMappingSource(dependencies, relationalDependencies)
 {
     private static readonly SqlServerFloatTypeMapping RealAlias
         = new("placeholder", storeTypePostfix: StoreTypePostfix.None);
@@ -206,23 +211,13 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
                 { "varbinary(max)", [VariableLengthMaxBinary] },
                 { "varchar", [SqlServerStringTypeMapping.Default] },
                 { "varchar(max)", [VariableLengthMaxAnsiString] },
+                { "vector", [SqlServerVectorTypeMapping.Default] },
                 { "xml", [Xml] }
             };
         // ReSharper restore CoVariantArrayConversion
     }
 
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public SqlServerTypeMappingSource(
-        TypeMappingSourceDependencies dependencies,
-        RelationalTypeMappingSourceDependencies relationalDependencies)
-        : base(dependencies, relationalDependencies)
-    {
-    }
+    private readonly bool _isJsonTypeSupported = sqlServerSingletonOptions.SupportsJsonType;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -239,11 +234,19 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
         var clrType = mappingInfo.ClrType;
         var storeTypeName = mappingInfo.StoreTypeName;
 
-        if (clrType == typeof(JsonElement))
+        if (clrType == typeof(JsonTypePlaceholder))
         {
-            return storeTypeName == "json"
-                ? SqlServerOwnedJsonTypeMapping.OwnedJsonTypeDefault
-                : SqlServerOwnedJsonTypeMapping.Default;
+            // We get here when a structural type (complex type or owned entity) is mapped to JSON.
+            return storeTypeName switch
+            {
+                "json" => SqlServerStructuralJsonTypeMapping.JsonTypeDefault,
+                "nvarchar(max)" => SqlServerStructuralJsonTypeMapping.NvarcharMaxDefault,
+
+                null when _isJsonTypeSupported => SqlServerStructuralJsonTypeMapping.JsonTypeDefault,
+                null => SqlServerStructuralJsonTypeMapping.NvarcharMaxDefault,
+
+                _ => null
+            };
         }
 
         if (storeTypeName != null)
@@ -305,62 +308,54 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
                 return mapping;
             }
 
-            if (clrType == typeof(ulong) && mappingInfo.IsRowVersion == true)
+            switch (clrType)
             {
-                return UlongRowversion;
-            }
+                case Type t when t == typeof(ulong) && mappingInfo.IsRowVersion is true:
+                    return UlongRowversion;
 
-            if (clrType == typeof(long) && mappingInfo.IsRowVersion == true)
-            {
-                return LongRowversion;
-            }
+                case Type t when t == typeof(long) && mappingInfo.IsRowVersion is true:
+                    return LongRowversion;
 
-            if (clrType == typeof(string))
-            {
-                if (storeTypeName == "json")
-                {
-                    return SqlServerStringTypeMapping.JsonTypeDefault;
-                }
-
-                var isAnsi = mappingInfo.IsUnicode == false;
-                var isFixedLength = mappingInfo.IsFixedLength == true;
-                var maxSize = isAnsi ? 8000 : 4000;
-
-                var size = mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ? isAnsi ? 900 : 450 : null);
-                if (size < 0 || size > maxSize)
-                {
-                    size = isFixedLength ? maxSize : null;
-                }
-
-                if (size == null
-                    && storeTypeName == null
-                    && !mappingInfo.IsKeyOrIndex)
-                {
-                    return isAnsi
-                        ? isFixedLength
-                            ? FixedLengthAnsiString
-                            : VariableLengthMaxAnsiString
-                        : isFixedLength
-                            ? FixedLengthUnicodeString
-                            : VariableLengthMaxUnicodeString;
-                }
-
-                return new SqlServerStringTypeMapping(
-                    unicode: !isAnsi,
-                    size: size,
-                    fixedLength: isFixedLength,
-                    storeTypePostfix: storeTypeName == null ? StoreTypePostfix.Size : StoreTypePostfix.None,
-                    useKeyComparison: mappingInfo.IsKey);
-            }
-
-            if (clrType == typeof(byte[]))
-            {
-                if (mappingInfo.IsRowVersion == true)
-                {
+                case Type t when t == typeof(byte[]) && mappingInfo.IsRowVersion is true:
                     return Rowversion;
+
+                case Type t when t == typeof(string) && storeTypeName == "json":
+                    return SqlServerStringTypeMapping.JsonTypeDefault;
+
+                case Type t when t == typeof(string):
+                {
+                    var isAnsi = mappingInfo.IsUnicode == false;
+                    var isFixedLength = mappingInfo.IsFixedLength == true;
+                    var maxSize = isAnsi ? 8000 : 4000;
+
+                    var size = mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ? isAnsi ? 900 : 450 : null);
+                    if (size < 0 || size > maxSize)
+                    {
+                        size = isFixedLength ? maxSize : null;
+                    }
+
+                    if (size == null
+                        && storeTypeName == null
+                        && !mappingInfo.IsKeyOrIndex)
+                    {
+                        return isAnsi
+                            ? isFixedLength
+                                ? FixedLengthAnsiString
+                                : VariableLengthMaxAnsiString
+                            : isFixedLength
+                                ? FixedLengthUnicodeString
+                                : VariableLengthMaxUnicodeString;
+                    }
+
+                    return new SqlServerStringTypeMapping(
+                        unicode: !isAnsi,
+                        size: size,
+                        fixedLength: isFixedLength,
+                        storeTypePostfix: storeTypeName == null ? StoreTypePostfix.Size : StoreTypePostfix.None,
+                        useKeyComparison: mappingInfo.IsKey);
                 }
 
-                if (mappingInfo.ElementTypeMapping == null)
+                case Type t when t == typeof(byte[]) && mappingInfo.ElementTypeMapping is null:
                 {
                     var isFixedLength = mappingInfo.IsFixedLength == true;
 
@@ -377,10 +372,56 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
                             fixedLength: isFixedLength,
                             storeTypePostfix: storeTypeName == null ? StoreTypePostfix.Size : StoreTypePostfix.None);
                 }
+
+                case Type t when t == typeof(SqlVector<float>):
+                    return new SqlServerVectorTypeMapping(mappingInfo.Size);
             }
         }
 
         return null;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override RelationalTypeMapping? FindCollectionMapping(
+        RelationalTypeMappingInfo info,
+        Type modelType,
+        Type? providerType,
+        CoreTypeMapping? elementMapping)
+    {
+        // If the user hasn't explicitly specified a store type and we're on a compatibility level that supports the 'json' type,
+        // map the collection to 'json' rather than 'nvarchar(max)' (which is the default).
+        if (info.StoreTypeName is null
+            && _isJsonTypeSupported
+            && TryFindJsonCollectionMapping(
+                info.CoreTypeMappingInfo, modelType, providerType, ref elementMapping, out var comparer, out var collectionReaderWriter))
+        {
+            var jsonTypeMappingInfo = new RelationalTypeMappingInfo(
+                info.CoreTypeMappingInfo.ClrType,
+                (RelationalTypeMapping?)info.CoreTypeMappingInfo.ElementTypeMapping,
+                storeTypeName: "json",
+                storeTypeNameBase: "json")
+                // Note that the converter info is only used temporarily here and never creates an instance.
+                .WithConverter(new ValueConverterInfo(modelType, typeof(string), _ => null!));
+
+            return (RelationalTypeMapping)FindMapping(jsonTypeMappingInfo)!
+                .WithComposedConverter(
+                    (ValueConverter)Activator.CreateInstance(
+                        typeof(CollectionToJsonStringConverter<>).MakeGenericType(
+                            modelType.TryGetElementType(typeof(IEnumerable<>))!), collectionReaderWriter!)!,
+                    comparer,
+                    comparer,
+                    elementMapping,
+                    collectionReaderWriter);
+        }
+
+#pragma warning disable EF1001 // Internal EF Core API usage.
+        return base.FindCollectionMapping(info, modelType, providerType, elementMapping);
+#pragma warning restore EF1001
     }
 
     private static readonly List<string> NameBasesUsingPrecision =

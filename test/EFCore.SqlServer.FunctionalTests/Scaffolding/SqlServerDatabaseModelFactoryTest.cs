@@ -1,11 +1,13 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Globalization;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
 // ReSharper disable InconsistentNaming
 
@@ -1359,28 +1361,28 @@ CREATE TABLE [db2].[DependentTable] (
                 // ReSharper disable once PossibleNullReferenceException
                 Assert.Equal("db2", sequence.Schema);
 
-                Assert.Single(dbModel.Tables.Where(t => t is { Schema: "db.2", Name: "QuotedTableName" }));
+                Assert.Single(dbModel.Tables, t => t is { Schema: "db.2", Name: "QuotedTableName" });
                 Assert.DoesNotContain(dbModel.Tables, t => t is { Schema: "db.2", Name: "Table.With.Dot" });
-                Assert.Single(dbModel.Tables.Where(t => t is { Schema: "db.2", Name: "SimpleTableName" }));
-                Assert.Single(dbModel.Tables.Where(t => t is { Schema: "db.2", Name: "JustTableName" }));
+                Assert.Single(dbModel.Tables, t => t is { Schema: "db.2", Name: "SimpleTableName" });
+                Assert.Single(dbModel.Tables, t => t is { Schema: "db.2", Name: "JustTableName" });
 
                 Assert.DoesNotContain(dbModel.Tables, t => t is { Schema: "dbo", Name: "QuotedTableName" });
-                Assert.Single(dbModel.Tables.Where(t => t is { Schema: "dbo", Name: "Table.With.Dot" }));
-                Assert.Single(dbModel.Tables.Where(t => t is { Schema: "dbo", Name: "SimpleTableName" }));
-                Assert.Single(dbModel.Tables.Where(t => t is { Schema: "dbo", Name: "JustTableName" }));
+                Assert.Single(dbModel.Tables, t => t is { Schema: "dbo", Name: "Table.With.Dot" });
+                Assert.Single(dbModel.Tables, t => t is { Schema: "dbo", Name: "SimpleTableName" });
+                Assert.Single(dbModel.Tables, t => t is { Schema: "dbo", Name: "JustTableName" });
 
-                Assert.Single(dbModel.Tables.Where(t => t is { Schema: "db2", Name: "QuotedTableName" }));
-                Assert.Single(dbModel.Tables.Where(t => t is { Schema: "db2", Name: "Table.With.Dot" }));
-                Assert.Single(dbModel.Tables.Where(t => t is { Schema: "db2", Name: "SimpleTableName" }));
-                Assert.Single(dbModel.Tables.Where(t => t is { Schema: "db2", Name: "JustTableName" }));
+                Assert.Single(dbModel.Tables, t => t is { Schema: "db2", Name: "QuotedTableName" });
+                Assert.Single(dbModel.Tables, t => t is { Schema: "db2", Name: "Table.With.Dot" });
+                Assert.Single(dbModel.Tables, t => t is { Schema: "db2", Name: "SimpleTableName" });
+                Assert.Single(dbModel.Tables, t => t is { Schema: "db2", Name: "JustTableName" });
 
-                var principalTable = Assert.Single(dbModel.Tables.Where(t => t is { Schema: "db2", Name: "PrincipalTable" }));
+                var principalTable = Assert.Single(dbModel.Tables, t => t is { Schema: "db2", Name: "PrincipalTable" });
                 // ReSharper disable once PossibleNullReferenceException
                 Assert.NotNull(principalTable.PrimaryKey);
                 Assert.Single(principalTable.UniqueConstraints);
                 Assert.Single(principalTable.Indexes);
 
-                var dependentTable = Assert.Single(dbModel.Tables.Where(t => t is { Schema: "db2", Name: "DependentTable" }));
+                var dependentTable = Assert.Single(dbModel.Tables, t => t is { Schema: "db2", Name: "DependentTable" });
                 // ReSharper disable once PossibleNullReferenceException
                 Assert.Single(dependentTable.ForeignKeys);
 
@@ -1592,8 +1594,8 @@ IF NOT EXISTS (
 
     IF @fg_name IS NULL
         BEGIN
-        SET @fg_name = @db_name + N'_MODFG';
-        EXEC(N'ALTER DATABASE CURRENT ADD FILEGROUP [' + @fg_name + '] CONTAINS MEMORY_OPTIMIZED_DATA;');
+        SET @fg_name = QUOTENAME(@db_name + N'_MODFG');
+        EXEC(N'ALTER DATABASE CURRENT ADD FILEGROUP ' + @fg_name + ' CONTAINS MEMORY_OPTIMIZED_DATA;');
         END
 
     DECLARE @path nvarchar(max);
@@ -1608,7 +1610,7 @@ IF NOT EXISTS (
     EXEC(N'
         ALTER DATABASE CURRENT
         ADD FILE (NAME=''' + @filename + ''', filename=''' + @new_path + ''')
-        TO FILEGROUP [' + @fg_name + '];')
+        TO FILEGROUP ' + @fg_name + ';')
     END
 END
 
@@ -1623,7 +1625,7 @@ CREATE TABLE [Blogs] (
             Enumerable.Empty<string>(),
             (dbModel, scaffoldingFactory) =>
             {
-                var table = Assert.Single(dbModel.Tables.Where(t => t.Name == "Blogs"));
+                var table = Assert.Single(dbModel.Tables, t => t.Name == "Blogs");
 
                 // ReSharper disable once PossibleNullReferenceException
                 Assert.True((bool)table[SqlServerAnnotationNames.MemoryOptimized]!);
@@ -1706,10 +1708,10 @@ EXECUTE sys.sp_addextendedproperty @name = N'MS_Description', @value = N'Blog.Id
 On multiple lines.", c.Table.Comment);
                     });
 
-                Assert.Single(table.Columns.Where(c => c.Name == "Id"));
-                Assert.Single(table.Columns.Where(c => c.Name == "Name"));
-                Assert.Single(table.Columns.Where(c => c.Comment == "Blog.Id column comment."));
-                Assert.Single(table.Columns.Where(c => c.Comment != null));
+                Assert.Single(table.Columns, c => c.Name == "Id");
+                Assert.Single(table.Columns, c => c.Name == "Name");
+                Assert.Single(table.Columns, c => c.Comment == "Blog.Id column comment.");
+                Assert.Single(table.Columns, c => c.Comment != null);
 
                 var model = scaffoldingFactory.Create(dbModel, new ModelReverseEngineerOptions());
 
@@ -1756,8 +1758,8 @@ SELECT
                         Assert.Equal("BlogsView", c.Table.Name);
                     });
 
-                Assert.Single(table.Columns.Where(c => c.Name == "Id"));
-                Assert.Single(table.Columns.Where(c => c.Name == "Name"));
+                Assert.Single(table.Columns, c => c.Name == "Id");
+                Assert.Single(table.Columns, c => c.Name == "Name");
 
                 var model = scaffoldingFactory.Create(dbModel, new ModelReverseEngineerOptions());
 
@@ -1903,8 +1905,8 @@ CREATE INDEX IX_INDEX on IndexTable ( IndexProperty );",
                         Assert.Equal("IndexTable", c.Table.Name);
                     });
 
-                Assert.Single(table.Indexes.Where(c => c.Name == "IX_NAME"));
-                Assert.Single(table.Indexes.Where(c => c.Name == "IX_INDEX"));
+                Assert.Single(table.Indexes, c => c.Name == "IX_NAME");
+                Assert.Single(table.Indexes, c => c.Name == "IX_INDEX");
 
                 var model = scaffoldingFactory.Create(dbModel, new ModelReverseEngineerOptions());
 
@@ -2270,7 +2272,7 @@ CREATE TABLE TypeAlias (
             Enumerable.Empty<string>(),
             (dbModel, scaffoldingFactory) =>
             {
-                var column = Assert.Single(dbModel.Tables.Single().Columns.Where(c => c.Name == "typeAliasColumn"));
+                var column = Assert.Single(dbModel.Tables.Single().Columns, c => c.Name == "typeAliasColumn");
 
                 // ReSharper disable once PossibleNullReferenceException
                 Assert.Equal("nvarchar(max)", column.StoreType);
@@ -2313,7 +2315,7 @@ CREATE TABLE TypeAlias (
             Enumerable.Empty<string>(),
             (dbModel, scaffoldingFactory) =>
             {
-                var column = Assert.Single(dbModel.Tables.Single().Columns.Where(c => c.Name == "typeAliasColumn"));
+                var column = Assert.Single(dbModel.Tables.Single().Columns, c => c.Name == "typeAliasColumn");
 
                 // ReSharper disable once PossibleNullReferenceException
                 Assert.Equal("nvarchar(128)", column.StoreType);
@@ -3939,6 +3941,7 @@ CREATE TABLE MyTable (
     B decimal DEFAULT (0.0),
     C decimal DEFAULT (0),
     D decimal DEFAULT ((CONVERT ( ""decimal"", ( (1.1234) ) ))),
+    E decimal DEFAULT ((10.0)),
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
@@ -3962,10 +3965,69 @@ CREATE TABLE MyTable (
                 Assert.Equal("(CONVERT([decimal],(1.1234)))", column.DefaultValueSql);
                 Assert.Equal((decimal)1.1234, column.DefaultValue);
 
+                column = columns.Single(c => c.Name == "E");
+                Assert.Equal("((10.0))", column.DefaultValueSql);
+                Assert.Equal((decimal)10, column.DefaultValue);
+
                 var model = scaffoldingFactory.Create(dbModel, new ModelReverseEngineerOptions());
                 Assert.Equal(1, model.GetEntityTypes().Count());
             },
             "DROP TABLE MyTable;");
+
+    [ConditionalFact]
+    public void Simple_decimal_literals_are_parsed_for_HasDefaultValue_with_Danish_locale()
+    {
+        var currentCulture = CultureInfo.CurrentCulture;
+
+        try
+        {
+            CultureInfo.CurrentCulture = new CultureInfo("da-DK");
+            Test(
+            @"
+CREATE TABLE MyTable (
+    Id int,
+    A decimal DEFAULT -1.1111,
+    B decimal DEFAULT (0.0),
+    C decimal DEFAULT (0),
+    D decimal DEFAULT ((CONVERT ( ""decimal"", ( (1.1234) ) ))),
+    E decimal DEFAULT ((10.0)),
+);",
+            Enumerable.Empty<string>(),
+            Enumerable.Empty<string>(),
+            (dbModel, scaffoldingFactory) =>
+            {
+                var columns = dbModel.Tables.Single().Columns;
+
+                var column = columns.Single(c => c.Name == "A");
+                Assert.Equal("((-1.1111))", column.DefaultValueSql);
+                Assert.Equal((decimal)-1.1111, column.DefaultValue);
+
+                column = columns.Single(c => c.Name == "B");
+                Assert.Equal("((0.0))", column.DefaultValueSql);
+                Assert.Equal((decimal)0, column.DefaultValue);
+
+                column = columns.Single(c => c.Name == "C");
+                Assert.Equal("((0))", column.DefaultValueSql);
+                Assert.Equal((decimal)0, column.DefaultValue);
+
+                column = columns.Single(c => c.Name == "D");
+                Assert.Equal("(CONVERT([decimal],(1.1234)))", column.DefaultValueSql);
+                Assert.Equal((decimal)1.1234, column.DefaultValue);
+
+                column = columns.Single(c => c.Name == "E");
+                Assert.Equal("((10.0))", column.DefaultValueSql);
+                Assert.Equal((decimal)10, column.DefaultValue);
+
+                var model = scaffoldingFactory.Create(dbModel, new ModelReverseEngineerOptions());
+                Assert.Equal(1, model.GetEntityTypes().Count());
+            },
+            "DROP TABLE MyTable;");
+        }
+        finally
+        {
+            CultureInfo.CurrentCulture = currentCulture;
+        }
+    }
 
     [ConditionalFact]
     public void Simple_bool_literals_are_parsed_for_HasDefaultValue()
@@ -5161,6 +5223,7 @@ CREATE INDEX ixHypo ON HypotheticalIndexTable ( Id1 ) WITH STATISTICS_ONLY = -1;
             "DROP TABLE HypotheticalIndexTable;");
 
     [ConditionalFact]
+    [SqlServerCondition(SqlServerCondition.IsNotAzureSql)]
     public void Ignore_columnstore_index()
         => Test(
             @"
@@ -5358,7 +5421,7 @@ CREATE TABLE DependentTable (
 
                 Assert.Equal(2, foreignKeys.Count);
 
-                var principalFk = Assert.Single(foreignKeys.Where(f => f.PrincipalTable.Name == "PrincipalTable"));
+                var principalFk = Assert.Single(foreignKeys, f => f.PrincipalTable.Name == "PrincipalTable");
 
                 // ReSharper disable once PossibleNullReferenceException
                 Assert.Equal("dbo", principalFk.Table.Schema);
@@ -5369,7 +5432,7 @@ CREATE TABLE DependentTable (
                 Assert.Equal(["Id"], principalFk.PrincipalColumns.Select(ic => ic.Name).ToList());
                 Assert.Equal(ReferentialAction.Cascade, principalFk.OnDelete);
 
-                var anotherPrincipalFk = Assert.Single(foreignKeys.Where(f => f.PrincipalTable.Name == "AnotherPrincipalTable"));
+                var anotherPrincipalFk = Assert.Single(foreignKeys, f => f.PrincipalTable.Name == "AnotherPrincipalTable");
 
                 // ReSharper disable once PossibleNullReferenceException
                 Assert.Equal("dbo", anotherPrincipalFk.Table.Schema);
@@ -5661,6 +5724,32 @@ CREATE TABLE DependentTable (
             @"
 DROP TABLE DependentTable;
 DROP TABLE PrincipalTable;");
+
+    #endregion
+
+    #region Types
+
+    [ConditionalFact]
+    [SqlServerCondition(SqlServerCondition.SupportsVectorType)]
+    public void Vector_type()
+        => Test(
+            "CREATE TABLE [dbo].[VectorTable] (vector VECTOR(3))",
+            tables: [],
+            schemas: [],
+            (dbModel, scaffoldingFactory) =>
+            {
+                var table = Assert.Single(dbModel.Tables);
+                var column = Assert.Single(table.Columns);
+                Assert.Equal("vector", column.Name);
+                Assert.Equal("vector(3)", column.StoreType);
+
+                var model = scaffoldingFactory.Create(dbModel, new ModelReverseEngineerOptions());
+                var entityType = Assert.Single(model.GetEntityTypes());
+                var property = Assert.Single(entityType.GetProperties());
+                Assert.Equal("Vector", property.Name);
+                Assert.True(property.GetTypeMapping() is SqlServerVectorTypeMapping { Size: 3 });
+            },
+            "DROP TABLE [dbo].[VectorTable]");
 
     #endregion
 

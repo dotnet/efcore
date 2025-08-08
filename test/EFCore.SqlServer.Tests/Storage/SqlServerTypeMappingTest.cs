@@ -2,9 +2,10 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
-using System.Globalization;
 using Microsoft.Data.SqlClient;
+using Microsoft.Data.SqlTypes;
 using Microsoft.EntityFrameworkCore.Design.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
 // ReSharper disable InconsistentNaming
@@ -182,7 +183,8 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
     public static RelationalTypeMapping GetMapping(Type type)
         => new SqlServerTypeMappingSource(
                 TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())
+                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
+                TestServiceFactory.Instance.Create<SqlServerSingletonOptions>())
             .FindMapping(type);
 
     public override void ByteArray_literal_generated_correctly()
@@ -408,13 +410,32 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
             "new TimeOnly(12, 30, 10, 500).Add(TimeSpan.FromTicks(10))");
     }
 
+    #region Vector
+
+    [ConditionalFact]
+    public virtual void Vector_comparer_compares_Memory()
+    {
+        var typeMapping = new SqlServerVectorTypeMapping(3);
+
+        float[] array = [1, 2, 3];
+        var vector1 = new SqlVector<float>(array);
+        var vector2 = new SqlVector<float>(array);
+        var vector3 = new SqlVector<float>(new float[] { 1, 2, 3 });
+
+        Assert.True(typeMapping.Comparer.Equals(vector1, vector2));
+        Assert.False(typeMapping.Comparer.Equals(vector1, vector3));
+    }
+
+    #endregion Vector
+
     public static RelationalTypeMapping GetMapping(string type)
         => GetTypeMappingSource().FindMapping(type);
 
     public static SqlServerTypeMappingSource GetTypeMappingSource()
         => new(
             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
+            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
+            TestServiceFactory.Instance.Create<SqlServerSingletonOptions>());
 
     protected virtual void Test_GenerateCodeLiteral_helper(
         RelationalTypeMapping typeMapping,
@@ -423,151 +444,12 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
     {
         var typeMappingSource = new SqlServerTypeMappingSource(
             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
+            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
+            TestServiceFactory.Instance.Create<SqlServerSingletonOptions>());
 
         var csharpHelper = new CSharpHelper(typeMappingSource);
 
         Assert.Equal(expectedCode, csharpHelper.UnknownLiteral(value));
-    }
-
-    private class FakeType(string fullName) : Type
-    {
-        public override object[] GetCustomAttributes(bool inherit)
-            => throw new NotImplementedException();
-
-        public override bool IsDefined(Type attributeType, bool inherit)
-            => throw new NotImplementedException();
-
-        public override ConstructorInfo[] GetConstructors(BindingFlags bindingAttr)
-            => throw new NotImplementedException();
-
-        public override Type GetInterface(string name, bool ignoreCase)
-            => throw new NotImplementedException();
-
-        public override Type[] GetInterfaces()
-            => throw new NotImplementedException();
-
-        public override EventInfo GetEvent(string name, BindingFlags bindingAttr)
-            => throw new NotImplementedException();
-
-        public override EventInfo[] GetEvents(BindingFlags bindingAttr)
-            => throw new NotImplementedException();
-
-        public override Type[] GetNestedTypes(BindingFlags bindingAttr)
-            => throw new NotImplementedException();
-
-        public override Type GetNestedType(string name, BindingFlags bindingAttr)
-            => throw new NotImplementedException();
-
-        public override Type GetElementType()
-            => throw new NotImplementedException();
-
-        protected override bool HasElementTypeImpl()
-            => throw new NotImplementedException();
-
-        protected override PropertyInfo GetPropertyImpl(
-            string name,
-            BindingFlags bindingAttr,
-            Binder binder,
-            Type returnType,
-            Type[] types,
-            ParameterModifier[] modifiers)
-            => throw new NotImplementedException();
-
-        public override PropertyInfo[] GetProperties(BindingFlags bindingAttr)
-            => throw new NotImplementedException();
-
-        protected override MethodInfo GetMethodImpl(
-            string name,
-            BindingFlags bindingAttr,
-            Binder binder,
-            CallingConventions callConvention,
-            Type[] types,
-            ParameterModifier[] modifiers)
-            => throw new NotImplementedException();
-
-        public override MethodInfo[] GetMethods(BindingFlags bindingAttr)
-            => throw new NotImplementedException();
-
-        public override FieldInfo GetField(string name, BindingFlags bindingAttr)
-            => throw new NotImplementedException();
-
-        public override FieldInfo[] GetFields(BindingFlags bindingAttr)
-            => throw new NotImplementedException();
-
-        public override MemberInfo[] GetMembers(BindingFlags bindingAttr)
-            => throw new NotImplementedException();
-
-        protected override TypeAttributes GetAttributeFlagsImpl()
-            => throw new NotImplementedException();
-
-        protected override bool IsArrayImpl()
-            => throw new NotImplementedException();
-
-        protected override bool IsByRefImpl()
-            => throw new NotImplementedException();
-
-        protected override bool IsPointerImpl()
-            => throw new NotImplementedException();
-
-        protected override bool IsPrimitiveImpl()
-            => throw new NotImplementedException();
-
-        protected override bool IsCOMObjectImpl()
-            => throw new NotImplementedException();
-
-        public override object InvokeMember(
-            string name,
-            BindingFlags invokeAttr,
-            Binder binder,
-            object target,
-            object[] args,
-            ParameterModifier[] modifiers,
-            CultureInfo culture,
-            string[] namedParameters)
-            => throw new NotImplementedException();
-
-        public override Type UnderlyingSystemType { get; }
-
-        protected override ConstructorInfo GetConstructorImpl(
-            BindingFlags bindingAttr,
-            Binder binder,
-            CallingConventions callConvention,
-            Type[] types,
-            ParameterModifier[] modifiers)
-            => throw new NotImplementedException();
-
-        public override string Name
-            => throw new NotImplementedException();
-
-        public override Guid GUID
-            => throw new NotImplementedException();
-
-        public override Module Module
-            => throw new NotImplementedException();
-
-        public override Assembly Assembly
-            => throw new NotImplementedException();
-
-        public override string Namespace
-            => throw new NotImplementedException();
-
-        public override string AssemblyQualifiedName
-            => throw new NotImplementedException();
-
-        public override Type BaseType
-            => throw new NotImplementedException();
-
-        public override object[] GetCustomAttributes(Type attributeType, bool inherit)
-            => throw new NotImplementedException();
-
-        public override string FullName { get; } = fullName;
-
-        public override int GetHashCode()
-            => FullName.GetHashCode();
-
-        public override bool Equals(object o)
-            => ReferenceEquals(this, o);
     }
 
     protected override DbContextOptions ContextOptions { get; }

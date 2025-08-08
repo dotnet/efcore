@@ -2035,7 +2035,29 @@ CREATE TABLE "Contacts" (
     "Number" INTEGER NULL,
     "MyComplex_Prop" TEXT NULL,
     "MyComplex_MyNestedComplex_Bar" TEXT NULL,
-    "MyComplex_MyNestedComplex_Foo" INTEGER NULL
+    "MyComplex_MyNestedComplex_Foo" INTEGER NULL,
+    "MyComplex_Nested_Bar" TEXT NULL,
+    "MyComplex_Nested_Foo" INTEGER NULL,
+    "NestedCollection" TEXT NULL
+);
+""");
+    }
+
+    public override async Task Create_table_with_optional_complex_type_with_required_properties()
+    {
+        await base.Create_table_with_optional_complex_type_with_required_properties();
+
+        AssertSql(
+            """
+CREATE TABLE "Suppliers" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_Suppliers" PRIMARY KEY AUTOINCREMENT,
+    "Number" INTEGER NOT NULL,
+    "MyComplex_Prop" TEXT NULL,
+    "MyComplex_MyNestedComplex_Bar" TEXT NULL,
+    "MyComplex_MyNestedComplex_Foo" INTEGER NULL,
+    "MyComplex_Nested_Bar" TEXT NULL,
+    "MyComplex_Nested_Foo" INTEGER NULL,
+    "NestedCollection" TEXT NULL
 );
 """);
     }

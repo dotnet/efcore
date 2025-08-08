@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
@@ -84,6 +83,14 @@ public class CosmosModelValidator : ModelValidator
 
             foreach (var complexProperty in typeBase.GetDeclaredComplexProperties())
             {
+                if (complexProperty.IsCollection)
+                {
+                    throw new InvalidOperationException(
+                        CosmosStrings.ComplexTypeCollectionsNotSupported(
+                            complexProperty.ComplexType.ShortName(),
+                            complexProperty.Name));
+                }
+
                 ValidateType(complexProperty.ComplexType, logger);
             }
         }
@@ -162,7 +169,7 @@ public class CosmosModelValidator : ModelValidator
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
         var discriminatorValues = new Dictionary<object, IEntityType>();
-        List<string?> partitionKeyStoreNames = new();
+        List<string?> partitionKeyStoreNames = [];
         int? analyticalTtl = null;
         int? defaultTtl = null;
         ThroughputProperties? throughput = null;
@@ -552,7 +559,7 @@ public class CosmosModelValidator : ModelValidator
         {
             foreach (var index in entityType.GetDeclaredIndexes())
             {
-                if (index.FindAnnotation(CosmosAnnotationNames.VectorIndexType) != null)
+                if (index.GetVectorIndexType() != null)
                 {
                     if (index.Properties.Count > 1)
                     {
@@ -562,12 +569,32 @@ public class CosmosModelValidator : ModelValidator
                                 string.Join(",", index.Properties.Select(e => e.Name))));
                     }
 
-                    if (index.Properties[0].FindAnnotation(CosmosAnnotationNames.VectorType) == null)
+                    if (index.Properties[0].GetVectorDistanceFunction() == null
+                        || index.Properties[0].GetVectorDimensions() == null)
                     {
                         throw new InvalidOperationException(
                             CosmosStrings.VectorIndexOnNonVector(
                                 entityType.DisplayName(),
                                 index.Properties[0].Name));
+                    }
+                }
+                else if (index.IsFullTextIndex() == true)
+                {
+                    if (index.Properties.Count > 1)
+                    {
+                        throw new InvalidOperationException(
+                            CosmosStrings.CompositeFullTextIndex(
+                                index.DeclaringEntityType.DisplayName(),
+                                string.Join(",", index.Properties.Select(e => e.Name))));
+                    }
+
+                    if (index.Properties[0].GetIsFullTextSearchEnabled() != true)
+                    {
+                        throw new InvalidOperationException(
+                            CosmosStrings.FullTextIndexOnNonFullTextProperty(
+                                index.DeclaringEntityType.DisplayName(),
+                                index.Properties[0].Name,
+                                nameof(CosmosPropertyBuilderExtensions.EnableFullTextSearch)));
                     }
                 }
                 else
@@ -587,7 +614,6 @@ public class CosmosModelValidator : ModelValidator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [Experimental(EFDiagnostics.CosmosVectorSearchExperimental)]
     protected override void ValidatePropertyMapping(
         IModel model,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
@@ -598,8 +624,8 @@ public class CosmosModelValidator : ModelValidator
         {
             foreach (var property in entityType.GetDeclaredProperties())
             {
-                var cosmosVectorType = property.GetVectorType();
-                if (cosmosVectorType is not null)
+                if (property.GetVectorDistanceFunction() is not null
+                    && property.GetVectorDimensions() is not null)
                 {
                     // Will throw if the data type is not set and cannot be inferred.
                     CosmosVectorType.CreateDefaultVectorDataType(property.ClrType);

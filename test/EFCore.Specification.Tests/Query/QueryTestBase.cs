@@ -8,14 +8,20 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
     where TFixture : class, IQueryFixtureBase, new()
 {
+    private readonly Lazy<QueryAsserter> _queryAsserterCache;
+
     protected QueryTestBase(TFixture fixture)
     {
         Fixture = fixture;
-        QueryAsserter = CreateQueryAsserter(fixture);
+
+        _queryAsserterCache = new Lazy<QueryAsserter>(CreateQueryAsserter);
     }
 
     protected TFixture Fixture { get; }
-    protected QueryAsserter QueryAsserter { get; }
+    protected QueryAsserter QueryAsserter => _queryAsserterCache.Value;
+
+    private QueryAsserter CreateQueryAsserter()
+        => CreateQueryAsserter(Fixture);
 
     protected virtual QueryAsserter CreateQueryAsserter(TFixture fixture)
         => new(
@@ -33,7 +39,36 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
     protected virtual Expression RewriteExpectedQueryExpression(Expression expectedQueryExpression)
         => new ExpectedQueryRewritingVisitor().Visit(expectedQueryExpression);
 
-    public static IEnumerable<object[]> IsAsyncData = new object[][] { [false], [true] };
+    public static readonly IEnumerable<object[]> IsAsyncData = [[false], [true]];
+
+    public static readonly IEnumerable<object[]> TrackingData =
+    [
+        [QueryTrackingBehavior.TrackAll],
+        [QueryTrackingBehavior.NoTracking]
+    ];
+
+    public Task AssertQuery<TResult>(
+        Func<ISetSource, IQueryable<TResult>> query,
+        Func<TResult, object>? elementSorter = null,
+        Action<TResult, TResult>? elementAsserter = null,
+        bool assertOrder = false,
+        bool assertEmpty = false,
+        QueryTrackingBehavior? queryTrackingBehavior = null,
+        [CallerMemberName] string testMethodName = "")
+        => AssertQuery(async: true, query, query, elementSorter, elementAsserter, assertOrder, assertEmpty, queryTrackingBehavior, testMethodName);
+
+    public Task AssertQuery<TResult>(
+        Func<ISetSource, IQueryable<TResult>> actualQuery,
+        Func<ISetSource, IQueryable<TResult>> expectedQuery,
+        Func<TResult, object>? elementSorter = null,
+        Action<TResult, TResult>? elementAsserter = null,
+        bool assertOrder = false,
+        bool assertEmpty = false,
+        QueryTrackingBehavior? queryTrackingBehavior = null,
+        [CallerMemberName] string testMethodName = "")
+        => TestOutputWrapper(
+            () => QueryAsserter.AssertQuery(
+                actualQuery, expectedQuery, elementSorter, elementAsserter, assertOrder, assertEmpty, async: true, queryTrackingBehavior, testMethodName));
 
     public Task AssertQuery<TResult>(
         bool async,
@@ -42,8 +77,9 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         Action<TResult, TResult>? elementAsserter = null,
         bool assertOrder = false,
         bool assertEmpty = false,
+        QueryTrackingBehavior? queryTrackingBehavior = null,
         [CallerMemberName] string testMethodName = "")
-        => AssertQuery(async, query, query, elementSorter, elementAsserter, assertOrder, assertEmpty, testMethodName);
+        => AssertQuery(async, query, query, elementSorter, elementAsserter, assertOrder, assertEmpty, queryTrackingBehavior, testMethodName);
 
     public Task AssertQuery<TResult>(
         bool async,
@@ -53,10 +89,20 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         Action<TResult, TResult>? elementAsserter = null,
         bool assertOrder = false,
         bool assertEmpty = false,
+        QueryTrackingBehavior? queryTrackingBehavior = null,
         [CallerMemberName] string testMethodName = "")
         => TestOutputWrapper(
             () => QueryAsserter.AssertQuery(
-                actualQuery, expectedQuery, elementSorter, elementAsserter, assertOrder, assertEmpty, async, testMethodName));
+                actualQuery, expectedQuery, elementSorter, elementAsserter, assertOrder, assertEmpty, async, queryTrackingBehavior, testMethodName));
+
+    public Task AssertQueryScalar<TResult>(
+        Func<ISetSource, IQueryable<TResult>> query,
+        Action<TResult, TResult>? asserter = null,
+        bool assertOrder = false,
+        bool assertEmpty = false,
+        [CallerMemberName] string testMethodName = "")
+        where TResult : struct
+        => AssertQueryScalar(async: true, query, asserter, assertOrder, assertEmpty, testMethodName);
 
     public Task AssertQueryScalar<TResult>(
         bool async,
@@ -67,6 +113,17 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         [CallerMemberName] string testMethodName = "")
         where TResult : struct
         => AssertQueryScalar(async, query, query, asserter, assertOrder, assertEmpty, testMethodName);
+
+    public Task AssertQueryScalar<TResult>(
+        Func<ISetSource, IQueryable<TResult>> actualQuery,
+        Func<ISetSource, IQueryable<TResult>> expectedQuery,
+        Action<TResult, TResult>? asserter = null,
+        bool assertOrder = false,
+        bool assertEmpty = false,
+        [CallerMemberName] string testMethodName = "")
+        where TResult : struct
+        => TestOutputWrapper(
+            () => AssertQueryScalar(async: true, actualQuery, expectedQuery, asserter, assertOrder, assertEmpty, testMethodName));
 
     public Task AssertQueryScalar<TResult>(
         bool async,
@@ -192,6 +249,11 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
             () => QueryAsserter.AssertElementAtOrDefault(actualQuery, expectedQuery, actualIndex, expectedIndex, asserter, async));
 
     protected Task AssertFirst<TResult>(
+        Func<ISetSource, IQueryable<TResult>> query,
+        Action<TResult, TResult>? asserter = null)
+        => AssertFirst(async: true, query, query, asserter);
+
+    protected Task AssertFirst<TResult>(
         bool async,
         Func<ISetSource, IQueryable<TResult>> query,
         Action<TResult, TResult>? asserter = null)
@@ -220,6 +282,11 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         Action<TResult, TResult>? asserter = null)
         => TestOutputWrapper(
             () => QueryAsserter.AssertFirst(actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, async));
+
+    protected Task AssertFirstOrDefault<TResult>(
+        Func<ISetSource, IQueryable<TResult>> query,
+        Action<TResult?, TResult?>? asserter = null)
+        => AssertFirstOrDefault(async: true, query, asserter);
 
     protected Task AssertFirstOrDefault<TResult>(
         bool async,
@@ -373,9 +440,18 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
             () => QueryAsserter.AssertLastOrDefault(actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, async));
 
     protected Task AssertCount<TResult>(
+        Func<ISetSource, IQueryable<TResult>> query)
+        => AssertCount(async: true, query, query);
+
+    protected Task AssertCount<TResult>(
         bool async,
         Func<ISetSource, IQueryable<TResult>> query)
         => AssertCount(async, query, query);
+
+    protected Task AssertCount<TResult>(
+        Func<ISetSource, IQueryable<TResult>> actualQuery,
+        Func<ISetSource, IQueryable<TResult>> expectedQuery)
+        => AssertCount(async: true, actualQuery, expectedQuery);
 
     protected Task AssertCount<TResult>(
         bool async,
@@ -388,6 +464,13 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         Func<ISetSource, IQueryable<TResult>> query,
         Expression<Func<TResult, bool>> predicate)
         => AssertCount(async, query, query, predicate, predicate);
+
+    protected Task AssertCount<TResult>(
+        Func<ISetSource, IQueryable<TResult>> actualQuery,
+        Func<ISetSource, IQueryable<TResult>> expectedQuery,
+        Expression<Func<TResult, bool>> actualPredicate,
+        Expression<Func<TResult, bool>> expectedPredicate)
+        => AssertCount(async: true, actualQuery, expectedQuery, actualPredicate, expectedPredicate);
 
     protected Task AssertCount<TResult>(
         bool async,

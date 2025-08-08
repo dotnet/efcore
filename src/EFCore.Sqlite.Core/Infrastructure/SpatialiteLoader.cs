@@ -44,7 +44,7 @@ public static class SpatialiteLoader
     /// <returns><see langword="true" /> if the extension was loaded; otherwise, <see langword="false" />.</returns>
     public static bool TryLoad(DbConnection connection)
     {
-        Check.NotNull(connection, nameof(connection));
+        Check.NotNull(connection);
 
         var opened = false;
         if (connection.State != ConnectionState.Open)
@@ -82,7 +82,7 @@ public static class SpatialiteLoader
     /// <param name="connection">The connection.</param>
     public static void Load(DbConnection connection)
     {
-        Check.NotNull(connection, nameof(connection));
+        Check.NotNull(connection);
 
         FindExtension();
 

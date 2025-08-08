@@ -3,6 +3,8 @@
 
 // ReSharper disable once CheckNamespace
 
+using Microsoft.Data.SqlTypes;
+
 namespace Microsoft.EntityFrameworkCore;
 
 /// <summary>
@@ -2452,4 +2454,30 @@ public static class SqlServerDbFunctionsExtensions
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(VariancePopulation)));
 
     #endregion Population variance
+
+    #region Vector functions
+
+    /// <summary>
+    ///     Calculates the distance between two vectors using a specified distance metric.
+    /// </summary>
+    /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
+    /// <param name="distanceMetric">
+    /// A string with the name of the distance metric to use to calculate the distance between the two given vectors. The following distance metrics are supported: <c>cosine</c>, <c>euclidean</c> or <c>dot</c>.
+    /// </param>
+    /// <param name="vector1">The first vector.</param>
+    /// <param name="vector2">The second vector.</param>
+    /// <remarks>
+    ///     Vector distance is always exact and doesn't use any vector index, even if available.
+    /// </remarks>
+    /// <seealso href="https://learn.microsoft.com/sql/t-sql/functions/vector-distance-transact-sql">SQL Server documentation for <c>VECTOR_DISTANCE</c>.</seealso>
+    /// <seealso href="https://learn.microsoft.com/sql/relational-databases/vectors/vectors-sql-server">Vectors in the SQL Database Engine.</seealso>
+    public static double VectorDistance<T>(
+        this DbFunctions _,
+        [NotParameterized] string distanceMetric,
+        SqlVector<T> vector1,
+        SqlVector<T> vector2)
+        where T : unmanaged
+        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(VectorDistance)));
+
+    #endregion Vector functions
 }

@@ -134,8 +134,10 @@ WHERE (
 
         AssertExecuteUpdateSql(
             """
+@p='SomeOtherKiwi' (Size = 4000)
+
 UPDATE [k]
-SET [k].[Name] = N'SomeOtherKiwi'
+SET [k].[Name] = @p
 FROM [Kiwi] AS [k]
 WHERE [k].[CountryId] = 1
 """);
@@ -147,8 +149,10 @@ WHERE [k].[CountryId] = 1
 
         AssertExecuteUpdateSql(
             """
+@p='0' (Size = 1)
+
 UPDATE [k]
-SET [k].[FoundOn] = CAST(0 AS tinyint)
+SET [k].[FoundOn] = @p
 FROM [Kiwi] AS [k]
 WHERE [k].[CountryId] = 1
 """);
@@ -160,8 +164,10 @@ WHERE [k].[CountryId] = 1
 
         AssertExecuteUpdateSql(
             """
+@p='Monovia' (Size = 4000)
+
 UPDATE [c]
-SET [c].[Name] = N'Monovia'
+SET [c].[Name] = @p
 FROM [Countries] AS [c]
 WHERE (
     SELECT COUNT(*)
@@ -182,9 +188,12 @@ WHERE (
 
         AssertExecuteUpdateSql(
             """
+@p='Kiwi' (Size = 4000)
+@p0='0' (Size = 1)
+
 UPDATE [k]
-SET [k].[FoundOn] = CAST(0 AS tinyint),
-    [k].[Name] = N'Kiwi'
+SET [k].[Name] = @p,
+    [k].[FoundOn] = @p0
 FROM [Kiwi] AS [k]
 WHERE [k].[CountryId] = 1
 """);
@@ -196,8 +205,10 @@ WHERE [k].[CountryId] = 1
 
         AssertExecuteUpdateSql(
             """
+@p='Monovia' (Size = 4000)
+
 UPDATE [c]
-SET [c].[Name] = N'Monovia'
+SET [c].[Name] = @p
 FROM [Countries] AS [c]
 WHERE (
     SELECT COUNT(*)

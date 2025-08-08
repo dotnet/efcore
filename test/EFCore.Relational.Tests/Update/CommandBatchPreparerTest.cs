@@ -1211,6 +1211,35 @@ FakeEntity [Deleted]"
         public string DerivedValue { get; set; }
     }
 
+    [ConditionalFact]
+    public void BatchCommands_handles_null_values_when_sensitive_logging_enabled()
+    {
+        // Test for issue where null values in FormatValues caused NullReferenceException
+        // hiding the real circular dependency error
+        var model = CreateCyclicFKModel();
+        var configuration = CreateContextServices(model);
+        var stateManager = configuration.GetRequiredService<IStateManager>();
+
+        var fakeEntry = stateManager.GetOrCreateEntry(
+            new FakeEntity { Id = 42, RelatedId = 1 });
+        fakeEntry.SetEntityState(EntityState.Added);
+
+        var relatedFakeEntry = stateManager.GetOrCreateEntry(
+            new RelatedFakeEntity { Id = 1, RelatedId = 42 });
+        relatedFakeEntry.SetEntityState(EntityState.Added);
+
+        var modelData = new UpdateAdapter(stateManager);
+
+        // This should throw InvalidOperationException for circular dependency
+        // NOT NullReferenceException from FormatValues
+        var exception = Assert.Throws<InvalidOperationException>(
+            () => CreateBatches([fakeEntry, relatedFakeEntry], modelData, sensitiveLogging: true));
+
+        // Verify the exception is about circular dependency, not null reference
+        Assert.Contains("circular dependency", exception.Message);
+        Assert.DoesNotContain("Object reference not set", exception.Message);
+    }
+
     private class AnotherFakeEntity
     {
         public int Id { get; set; }

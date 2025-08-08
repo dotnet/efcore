@@ -503,7 +503,8 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         GenerateFluentApiForPrecisionAndScale(property, stringBuilder);
         GenerateFluentApiForIsUnicode(property, stringBuilder);
 
-        if (!annotations.ContainsKey(RelationalAnnotationNames.ColumnType))
+        if (!annotations.ContainsKey(RelationalAnnotationNames.ColumnType)
+            && !property.DeclaringType.IsMappedToJson())
         {
             annotations[RelationalAnnotationNames.ColumnType] = new Annotation(
                 RelationalAnnotationNames.ColumnType,
@@ -568,7 +569,8 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         stringBuilder
             .AppendLine()
             .Append(builderName)
-            .Append($".ComplexProperty<{Code.Reference(Model.DefaultPropertyBagType)}>(")
+            .Append(complexProperty.IsCollection ? ".ComplexCollection(" : ".ComplexProperty(")
+            .Append($"typeof({Code.Reference(Model.DefaultPropertyBagType)}), ")
             .Append($"{Code.Literal(complexProperty.Name)}, {Code.Literal(complexType.Name)}, ")
             .Append(complexTypeBuilderName)
             .AppendLine(" =>");
@@ -579,7 +581,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
 
             using (stringBuilder.Indent())
             {
-                if (complexProperty.IsNullable != complexProperty.ClrType.IsNullableType())
+                if (!complexProperty.IsNullable)
                 {
                     stringBuilder
                         .AppendLine()
@@ -628,6 +630,57 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         IComplexProperty property,
         IndentedStringBuilder stringBuilder)
     {
+        var discriminatorProperty = property.ComplexType.FindDiscriminatorProperty();
+        if (discriminatorProperty != null)
+        {
+            stringBuilder
+                .AppendLine()
+                .Append(propertyBuilderName)
+                .Append('.')
+                .Append("HasDiscriminator");
+
+            if (discriminatorProperty.DeclaringType == property.ComplexType
+                && discriminatorProperty.Name != "Discriminator")
+            {
+                var propertyClrType = FindValueConverter(discriminatorProperty)?.ProviderClrType
+                        .MakeNullable(discriminatorProperty.IsNullable)
+                    ?? discriminatorProperty.ClrType;
+                stringBuilder
+                    .Append('<')
+                    .Append(Code.Reference(propertyClrType))
+                    .Append(">(")
+                    .Append(Code.Literal(discriminatorProperty.Name))
+                    .Append(')');
+            }
+            else
+            {
+                stringBuilder
+                    .Append("()");
+            }
+
+            var discriminatorValue = property.ComplexType.GetDiscriminatorValue();
+            if (discriminatorValue != null)
+            {
+                if (discriminatorProperty != null)
+                {
+                    var valueConverter = FindValueConverter(discriminatorProperty);
+                    if (valueConverter != null)
+                    {
+                        discriminatorValue = valueConverter.ConvertToProvider(discriminatorValue);
+                    }
+                }
+
+                stringBuilder
+                    .Append('.')
+                    .Append("HasValue")
+                    .Append('(')
+                    .Append(Code.UnknownLiteral(discriminatorValue))
+                    .Append(')');
+            }
+
+            stringBuilder.AppendLine(";");
+        }
+
         var propertyAnnotations = Dependencies.AnnotationCodeGenerator
             .FilterIgnoredAnnotations(property.GetAnnotations())
             .ToDictionary(a => a.Name, a => a);
@@ -641,7 +694,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
             inChainedCall: false, hasAnnotationMethodInfo: HasPropertyAnnotationMethodInfo);
 
         GenerateAnnotations(
-            propertyBuilderName, property, stringBuilder, typeAnnotations,
+            propertyBuilderName, property.ComplexType, stringBuilder, typeAnnotations,
             inChainedCall: false, hasAnnotationMethodInfo: HasTypeAnnotationMethodInfo);
     }
 

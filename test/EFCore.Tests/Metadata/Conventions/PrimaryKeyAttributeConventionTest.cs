@@ -71,7 +71,7 @@ public class PrimaryKeyAttributeConventionTest
         var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
 
         Assert.Equal(
-            AbstractionsStrings.CollectionArgumentHasEmptyElements("additionalPropertyNames"),
+            $"{AbstractionsStrings.CollectionArgumentHasEmptyElements} (Parameter 'additionalPropertyNames')",
             Assert.Throws<ArgumentException>(
                 () => modelBuilder.Entity(entityTypeWithInvalidPrimaryKey)).Message);
     }

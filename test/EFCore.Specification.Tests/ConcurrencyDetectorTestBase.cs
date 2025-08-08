@@ -97,5 +97,5 @@ public abstract class ConcurrencyDetectorTestBase<TFixture>(TFixture fixture) : 
             => ConcurrencyDetectorDbContext.SeedAsync(context);
     }
 
-    public static IEnumerable<object[]> IsAsyncData = new object[][] { [false], [true] };
+    public static readonly IEnumerable<object[]> IsAsyncData = [[false], [true]];
 }

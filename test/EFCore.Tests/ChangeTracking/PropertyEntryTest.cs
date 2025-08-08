@@ -69,7 +69,7 @@ public class PropertyEntryTest
 
         using (var context = new UserContext())
         {
-            var disconnectedEntity = new User { Id = id, LongName = "NewLongName" };
+            var disconnectedEntity = new User { Id = id, Name = "", LongName = "NewLongName" };
             var trackedEntity = context.Find<User>(id)!;
 
             Assert.Equal("A", trackedEntity.Name);
@@ -79,7 +79,7 @@ public class PropertyEntryTest
 
             entry.CurrentValues.SetValues(disconnectedEntity);
 
-            Assert.Null(trackedEntity.Name);
+            Assert.Equal("", trackedEntity.Name);
             Assert.Equal("NewLongName", trackedEntity.LongName);
 
             Assert.False(entry.Property(e => e.Id).IsModified);
@@ -152,7 +152,7 @@ public class PropertyEntryTest
         using (var context = new UserContext())
         {
             var user = context.Update(
-                new User { Id = id }).Entity;
+                new User { Id = id, Name = "A1", LongName = "B1" }).Entity;
 
             user.Name = "A2";
             user.LongName = "B2";

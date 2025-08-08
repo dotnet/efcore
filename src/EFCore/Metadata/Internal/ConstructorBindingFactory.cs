@@ -206,7 +206,7 @@ public class ConstructorBindingFactory : IConstructorBindingFactory
         constructorBinding = foundBindings[0];
         serviceOnlyBinding = foundServiceOnlyBindings.Count == 1 ? foundServiceOnlyBindings[0] : null;
 
-        IEnumerable<string> ConstructConstructor(IGrouping<ConstructorInfo, ParameterInfo> parameters)
+        static IEnumerable<string> ConstructConstructor(IGrouping<ConstructorInfo, ParameterInfo> parameters)
             => parameters.Key.GetParameters().Select(y => $"{y.ParameterType.ShortDisplayName()} {y.Name}");
     }
 
@@ -249,7 +249,7 @@ public class ConstructorBindingFactory : IConstructorBindingFactory
             out unboundParameters);
 
     private bool TryBindConstructor<T>(
-        T entityType,
+        T structuralType,
         ConstructorInfo constructor,
         Func<IPropertyParameterBindingFactory, T, Type, string, ParameterBinding?> bindToProperty,
         Func<IParameterBindingFactory?, T, Type, string, ParameterBinding?> bind,
@@ -261,7 +261,7 @@ public class ConstructorBindingFactory : IConstructorBindingFactory
         List<ParameterInfo>? unboundParametersList = null;
         foreach (var parameter in constructor.GetParameters())
         {
-            var parameterBinding = BindParameter(entityType, bindToProperty, bind, parameter);
+            var parameterBinding = BindParameter(structuralType, bindToProperty, bind, parameter);
             if (parameterBinding == null)
             {
                 unboundParametersList ??= [];

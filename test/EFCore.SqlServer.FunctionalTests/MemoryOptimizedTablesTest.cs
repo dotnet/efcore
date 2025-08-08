@@ -19,7 +19,7 @@ public class MemoryOptimizedTablesTest(MemoryOptimizedTablesTest.MemoryOptimized
     [ConditionalFact]
     public async Task Can_create_memoryOptimized_table()
     {
-        using (await CreateTestStoreAsync())
+        await using (await CreateTestStoreAsync())
         {
             var bigUn = new BigUn();
             var fastUns = new[] { new FastUn { Name = "First 'un", BigUn = bigUn }, new FastUn { Name = "Second 'un", BigUn = bigUn } };

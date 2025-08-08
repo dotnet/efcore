@@ -14,19 +14,19 @@ public sealed record RelationalParameterBasedSqlProcessorParameters
     public bool UseRelationalNulls { get; init; }
 
     /// <summary>
-    ///     A collection of parameter names to constantize.
+    ///     Which parametrized collection translation mode should be used.
     /// </summary>
-    public IReadOnlySet<string> ParametersToConstantize { get; init; }
+    public ParameterTranslationMode CollectionParameterTranslationMode { get; init; }
 
     /// <summary>
     ///     Creates a new instance of <see cref="RelationalParameterBasedSqlProcessorParameters" />.
     /// </summary>
     /// <param name="useRelationalNulls">A value indicating if relational nulls should be used.</param>
-    /// <param name="parametersToConstantize">A collection of parameter names to constantize.</param>
+    /// <param name="collectionParameterTranslationMode">Which translation mode should be used.</param>
     [EntityFrameworkInternal]
-    public RelationalParameterBasedSqlProcessorParameters(bool useRelationalNulls, IReadOnlySet<string> parametersToConstantize)
+    public RelationalParameterBasedSqlProcessorParameters(bool useRelationalNulls, ParameterTranslationMode collectionParameterTranslationMode)
     {
         UseRelationalNulls = useRelationalNulls;
-        ParametersToConstantize = parametersToConstantize;
+        CollectionParameterTranslationMode = collectionParameterTranslationMode;
     }
 }

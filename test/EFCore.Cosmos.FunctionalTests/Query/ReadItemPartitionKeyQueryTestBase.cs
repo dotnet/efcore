@@ -1,8 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Cosmos.Internal;
-
 namespace Microsoft.EntityFrameworkCore.Query;
 
 public abstract class ReadItemPartitionKeyQueryTestBase<TFixture> : QueryTestBase<TFixture>
@@ -14,6 +12,30 @@ public abstract class ReadItemPartitionKeyQueryTestBase<TFixture> : QueryTestBas
         Fixture.TestSqlLoggerFactory.Clear();
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
+
+    [ConditionalFact] // Issue #35224
+    public virtual Task Key_with_special_characters_1()
+        => AssertQuery(
+            async: true,
+            ss => ss.Set<FancyDiscriminatorEntity>().Where(c => c.Id == "Cat|1"));
+
+    [ConditionalFact]
+    public virtual Task Key_with_special_characters_2()
+        => AssertQuery(
+            async: true,
+            ss => ss.Set<FancyDiscriminatorEntity>().Where(c => c.Id == "Cat2||"));
+
+    [ConditionalFact]
+    public virtual Task Key_with_special_characters_3()
+        => AssertQuery(
+            async: true,
+            ss => ss.Set<FancyDiscriminatorEntity>().Where(c => c.Id == "Cat|3|$|5"));
+
+    [ConditionalFact]
+    public virtual Task Key_with_special_characters_4()
+        => AssertQuery(
+            async: true,
+            ss => ss.Set<FancyDiscriminatorEntity>().Where(c => c.Id == "|Cat|"));
 
     [ConditionalFact]
     public virtual Task Predicate_with_hierarchical_partition_key()

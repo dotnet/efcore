@@ -117,6 +117,7 @@ public class CosmosDatabaseCreator : IDatabaseCreator
             mappedTypes.Add(entityType);
         }
 
+        var defaultFullTextLanguage = model.GetDefaultFullTextSearchLanguage();
         foreach (var (containerName, mappedTypes) in containers)
         {
             IReadOnlyList<string> partitionKeyStoreNames = Array.Empty<string>();
@@ -125,6 +126,7 @@ public class CosmosDatabaseCreator : IDatabaseCreator
             ThroughputProperties? throughput = null;
             var indexes = new List<IIndex>();
             var vectors = new List<(IProperty Property, CosmosVectorType VectorType)>();
+            var fullTextProperties = new List<(IProperty Property, string? Language)>();
 
             foreach (var entityType in mappedTypes)
             {
@@ -136,15 +138,8 @@ public class CosmosDatabaseCreator : IDatabaseCreator
                 analyticalTtl ??= entityType.GetAnalyticalStoreTimeToLive();
                 defaultTtl ??= entityType.GetDefaultTimeToLive();
                 throughput ??= entityType.GetThroughput();
-                indexes.AddRange(entityType.GetIndexes());
 
-                foreach (var property in entityType.GetProperties())
-                {
-                    if (property.FindTypeMapping() is CosmosVectorTypeMapping vectorTypeMapping)
-                    {
-                        vectors.Add((property, vectorTypeMapping.VectorType));
-                    }
-                }
+                ProcessEntityType(entityType, indexes, vectors, fullTextProperties);
             }
 
             yield return new ContainerProperties(
@@ -154,7 +149,38 @@ public class CosmosDatabaseCreator : IDatabaseCreator
                 defaultTtl,
                 throughput,
                 indexes,
-                vectors);
+                vectors,
+                defaultFullTextLanguage ?? "en-US",
+                fullTextProperties);
+        }
+
+        static void ProcessEntityType(
+            IEntityType entityType,
+            List<IIndex> indexes,
+            List<(IProperty Property, CosmosVectorType VectorType)> vectors,
+            List<(IProperty Property, string? Language)> fullTextProperties)
+        {
+            indexes.AddRange(entityType.GetIndexes());
+
+            foreach (var property in entityType.GetProperties())
+            {
+                if (property.FindTypeMapping() is CosmosVectorTypeMapping vectorTypeMapping)
+                {
+                    vectors.Add((property, vectorTypeMapping.VectorType));
+                }
+
+                if (property.GetIsFullTextSearchEnabled() == true)
+                {
+                    fullTextProperties.Add((property, property.GetFullTextSearchLanguage()));
+                }
+            }
+
+            foreach (var ownedType in entityType.GetNavigations()
+                .Where(x => x.ForeignKey.IsOwnership && !x.IsOnDependent && !x.TargetEntityType.IsDocumentRoot())
+                .Select(x => x.TargetEntityType))
+            {
+                ProcessEntityType(ownedType, indexes, vectors, fullTextProperties);
+            }
         }
     }
 
