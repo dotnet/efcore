@@ -34,6 +34,10 @@ public abstract class RelationshipsQueryFixtureBase : SharedStoreFixtureBase<Poo
     protected override Task SeedAsync(PoolableDbContext context)
     {
         context.Set<RootEntity>().AddRange(_data.RootEntities);
+        if (context.Model.FindEntityType(typeof(RootReferencingEntity)) is not null)
+        {
+            context.Set<RootReferencingEntity>().AddRange(_data.RootReferencingEntities);
+        }
 
         return context.SaveChangesAsync();
     }

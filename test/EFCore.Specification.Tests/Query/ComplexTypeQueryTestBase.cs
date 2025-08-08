@@ -67,7 +67,8 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
     public virtual Task Project_complex_type_via_optional_navigation(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<CustomerGroup>().Select(cg => cg.OptionalCustomer!.ShippingAddress));
+            ss => ss.Set<CustomerGroup>().Select(cg => cg.OptionalCustomer!.ShippingAddress),
+            ss => ss.Set<CustomerGroup>().Select(cg => cg.OptionalCustomer != null ? cg.OptionalCustomer.ShippingAddress : default));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -171,13 +172,6 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
                     && c.ShippingAddress.Country == new Country { FullName = "United States", Code = "US" }
                     && c.ShippingAddress.Tags.SequenceEqual(new List<string> { "foo", "bar" })));
     }
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Complex_type_equals_null(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<Customer>().Where(c => c.ShippingAddress == null));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -338,7 +332,8 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
     public virtual Task Project_struct_complex_type_via_optional_navigation(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<ValuedCustomerGroup>().Select(cg => cg.OptionalCustomer!.ShippingAddress));
+            ss => ss.Set<ValuedCustomerGroup>().Select(cg => cg.OptionalCustomer!.ShippingAddress),
+            ss => ss.Set<ValuedCustomerGroup>().Select(cg => cg.OptionalCustomer != null ? cg.OptionalCustomer.ShippingAddress : default));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

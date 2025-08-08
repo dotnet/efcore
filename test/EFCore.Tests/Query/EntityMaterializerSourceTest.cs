@@ -26,7 +26,7 @@ public class EntityMaterializerSourceTest
             CoreStrings.CannotMaterializeAbstractType(nameof(SomeAbstractEntity)),
             Assert.Throws<InvalidOperationException>(
                     () => source.CreateMaterializeExpression(
-                        new StructuralTypeMaterializerSourceParameters((IEntityType)entityType, "", null), null!))
+                        new StructuralTypeMaterializerSourceParameters((IEntityType)entityType, "", null, null), null!))
                 .Message);
     }
 
@@ -550,7 +550,7 @@ public class EntityMaterializerSourceTest
         IReadOnlyEntityType entityType)
         => Expression.Lambda<Func<MaterializationContext, object>>(
                 source.CreateMaterializeExpression(
-                    new StructuralTypeMaterializerSourceParameters((IEntityType)entityType, "instance", null),
+                    new StructuralTypeMaterializerSourceParameters((IEntityType)entityType, "instance", null, null),
                     _contextParameter),
                 _contextParameter)
             .Compile();

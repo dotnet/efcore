@@ -92,6 +92,13 @@ public abstract class RelationshipsProjectionTestBase<TFixture>(TFixture fixture
             ss => ss.Set<RootEntity>().Select(x => x.OptionalRelated!.OptionalNested),
             queryTrackingBehavior: queryTrackingBehavior);
 
+    [ConditionalTheory]
+    [MemberData(nameof(TrackingData))]
+    public virtual Task Select_required_related_via_optional_navigation(QueryTrackingBehavior queryTrackingBehavior)
+        => AssertQuery(
+            ss => ss.Set<RootReferencingEntity>().Select(e => e.Root!.RequiredRelated),
+            queryTrackingBehavior: queryTrackingBehavior);
+
     #endregion Non-collection
 
     #region Collection

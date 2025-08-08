@@ -177,6 +177,18 @@ FROM [RootEntity] AS [r]
 """);
     }
 
+    public override async Task Select_required_related_via_optional_navigation(QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Select_required_related_via_optional_navigation(queryTrackingBehavior);
+
+        AssertSql(
+            """
+SELECT [r0].[RequiredRelated]
+FROM [RootReferencingEntity] AS [r]
+LEFT JOIN [RootEntity] AS [r0] ON [r].[RootEntityId] = [r0].[Id]
+""");
+    }
+
     #endregion Non-collection
 
     #region Collection

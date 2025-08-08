@@ -659,7 +659,7 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
             {
                 var concreteStructuralType = concreteStructuralTypes[i];
                 switchCases[i] = SwitchCase(
-                    CreateFullMaterializeExpression(concreteStructuralTypes[i], expressionContext),
+                    CreateFullMaterializeExpression(concreteStructuralTypes[i], shaper.IsNullable, expressionContext),
                     supportsPrecompiledQuery
                         ? liftableConstantFactory.CreateLiftableConstant(
                             concreteStructuralTypes[i],
@@ -712,6 +712,7 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
 
         private BlockExpression CreateFullMaterializeExpression(
             ITypeBase concreteStructuralType,
+            bool shaperIsNullable,
             (Type ReturnType,
                 ParameterExpression MaterializationContextVariable,
                 ParameterExpression ConcreteEntityTypeVariable,
@@ -727,7 +728,7 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
             var materializer = materializerSource
                 .CreateMaterializeExpression(
                     new StructuralTypeMaterializerSourceParameters(
-                        concreteStructuralType, "instance", queryTrackingBehavior), materializationContextVariable);
+                        concreteStructuralType, "instance", shaperIsNullable, queryTrackingBehavior), materializationContextVariable);
 
             // TODO: Properly support shadow properties for complex types #35613
             if (_queryStateManager
