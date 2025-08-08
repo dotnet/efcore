@@ -698,18 +698,23 @@ public class StructuralTypeMaterializerSource : IStructuralTypeMaterializerSourc
                 bindingInfo.MaterializationContextExpression);
         }
 
-        // Create null checks for all scalar properties using direct ValueBuffer access.
-        var nullChecks = allScalarProperties.Select(p =>
-            Equal(
-                valueBufferExpression.CreateValueBufferReadValueExpression(typeof(object), p.GetIndex(), p),
-                Constant(null, typeof(object))));
+        var requiredProperty = allScalarProperties.Where(p => !p.IsNullable).FirstOrDefault();
+        var nullCheck = requiredProperty is not null
+            // If there's a required property, it's enough to check just that one for null.
+            ? Equal(
+                valueBufferExpression.CreateValueBufferReadValueExpression(typeof(object), requiredProperty.GetIndex(), requiredProperty),
+                Constant(null, typeof(object)))
+            // Create null checks for all scalar properties.
+            : allScalarProperties
+                .Select(p =>
+                    Equal(
+                        valueBufferExpression.CreateValueBufferReadValueExpression(typeof(object), p.GetIndex(), p),
+                        Constant(null, typeof(object))))
+                .Aggregate(AndAlso);
 
-        // Combine all null checks with AndAlso.
-        var allNullCondition = nullChecks.Aggregate(AndAlso);
-
-        // If all properties are null, return null; otherwise materialize the complex type.
+        // If property/properties are null, return default (to handle structs); otherwise materialize the complex type.
         return Condition(
-            allNullCondition,
+            nullCheck,
             Default(clrType),
             materializeExpression);
     }
