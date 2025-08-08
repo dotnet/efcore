@@ -123,7 +123,7 @@ namespace MyNamespace
     }
 
     [ConditionalFact]
-    public void Snapshot_with_default_values_are_round_tripped()
+    public void Snapshot_default_values_are_round_tripped()
     {
         var generator = CreateMigrationsCodeGenerator();
 
@@ -367,6 +367,8 @@ namespace MyNamespace
         public int Id { get; set; }
 
         public int AlternateId { get; set; }
+        [NotMapped]
+        public Coordinates Coordinates { get; set; }
         public EntityWithOneProperty EntityWithOneProperty { get; set; }
 
         [NotMapped]
@@ -4352,12 +4354,10 @@ namespace RootNamespace
                 {
                     b.OwnsOne("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithTwoProperties", "EntityWithTwoProperties", b1 =>
                         {
-                            b1.Property<int>("EntityWithOnePropertyId")
-                                .HasColumnType("int");
+                            b1.Property<int>("EntityWithOnePropertyId");
 
                             b1.Property<int>("AlternateId")
-                                .HasColumnType("int")
-                                .HasAnnotation("Relational:JsonPropertyName", "NotKey");
+                                .HasJsonPropertyName("NotKey");
 
                             b1.HasKey("EntityWithOnePropertyId");
 
@@ -4370,8 +4370,7 @@ namespace RootNamespace
 
                             b1.OwnsOne("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithStringKey", "EntityWithStringKey", b2 =>
                                 {
-                                    b2.Property<int>("EntityWithTwoPropertiesEntityWithOnePropertyId")
-                                        .HasColumnType("int");
+                                    b2.Property<int>("EntityWithTwoPropertiesEntityWithOnePropertyId");
 
                                     b2.HasKey("EntityWithTwoPropertiesEntityWithOnePropertyId");
 
@@ -4382,24 +4381,20 @@ namespace RootNamespace
 
                                     b2.OwnsMany("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithStringProperty", "Properties", b3 =>
                                         {
-                                            b3.Property<int>("EntityWithStringKeyEntityWithTwoPropertiesEntityWithOnePropertyId")
-                                                .HasColumnType("int");
+                                            b3.Property<int>("EntityWithStringKeyEntityWithTwoPropertiesEntityWithOnePropertyId");
 
                                             b3.Property<int>("__synthesizedOrdinal")
-                                                .ValueGeneratedOnAdd()
-                                                .HasColumnType("int");
+                                                .ValueGeneratedOnAdd();
 
-                                            b3.Property<int>("Id")
-                                                .HasColumnType("int");
+                                            b3.Property<int>("Id");
 
-                                            b3.Property<string>("Name")
-                                                .HasColumnType("nvarchar(max)");
+                                            b3.Property<string>("Name");
 
                                             b3.HasKey("EntityWithStringKeyEntityWithTwoPropertiesEntityWithOnePropertyId", "__synthesizedOrdinal");
 
                                             b3.ToTable("EntityWithOneProperty", "DefaultSchema");
 
-                                            b3.HasAnnotation("Relational:JsonPropertyName", "JsonProps");
+                                            b3.HasJsonPropertyName("JsonProps");
 
                                             b3.WithOwner()
                                                 .HasForeignKey("EntityWithStringKeyEntityWithTwoPropertiesEntityWithOnePropertyId");
@@ -5992,10 +5987,10 @@ namespace RootNamespace
                         .HasColumnOrder(1)
                         .HasComputedColumnSql("ListSql")
                         .IsFixedLength()
+                        .HasJsonPropertyName("ListJson")
                         .HasComment("ListComment")
                         .UseCollation("ListCollation")
-                        .HasAnnotation("AnnotationName", "AnnotationValue")
-                        .HasAnnotation("Relational:JsonPropertyName", "ListJson");
+                        .HasAnnotation("AnnotationName", "AnnotationValue");
 
                     SqlServerPrimitiveCollectionBuilderExtensions.IsSparse(b.PrimitiveCollection<string>("List"));
 
@@ -6029,11 +6024,15 @@ namespace RootNamespace
                                 eb.PrimitiveCollection<List<string>>("List")
                                     .HasColumnType("nvarchar(max)")
                                     .IsSparse();
+                                eb.ComplexProperty(e => e.Coordinates, cb =>
+                                {
+                                    cb.Property(c => c.Latitude).HasColumnName("Coordinate_X");
+                                    cb.Property(c => c.Longitude).HasColumnName("Coordinate_Y");
+                                });
                                 eb.ComplexProperty(e => e.EntityWithStringKey, cb =>
                                 {
                                     cb.Ignore(e => e.Properties);
-                                    cb.Property(e => e.Id).IsRequired();
-                                    cb.HasDiscriminator();
+                                    cb.HasDiscriminator<string>("Id");
                                 });
                                 eb.HasPropertyAnnotation("PropertyAnnotation", 1);
                                 eb.HasTypeAnnotation("TypeAnnotation", 2);
@@ -6051,7 +6050,7 @@ namespace RootNamespace
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.ComplexProperty<Dictionary<string, object>>("EntityWithTwoProperties", "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty.EntityWithTwoProperties#EntityWithTwoProperties", b1 =>
+                    b.ComplexProperty(typeof(Dictionary<string, object>), "EntityWithTwoProperties", "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty.EntityWithTwoProperties#EntityWithTwoProperties", b1 =>
                         {
                             b1.IsRequired();
 
@@ -6069,17 +6068,26 @@ namespace RootNamespace
 
                             SqlServerComplexTypePrimitiveCollectionBuilderExtensions.IsSparse(b1.PrimitiveCollection<string>("List"));
 
-                            b1.ComplexProperty<Dictionary<string, object>>("EntityWithStringKey", "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty.EntityWithTwoProperties#EntityWithTwoProperties.EntityWithStringKey#EntityWithStringKey", b2 =>
+                            b1.ComplexProperty(typeof(Dictionary<string, object>), "Coordinates", "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty.EntityWithTwoProperties#EntityWithTwoProperties.Coordinates#Coordinates", b2 =>
                                 {
-                                    b2.Property<string>("Discriminator")
-                                        .IsRequired()
-                                        .HasColumnType("nvarchar(max)");
+                                    b2.IsRequired();
 
+                                    b2.Property<decimal>("Latitude")
+                                        .HasColumnType("decimal(18,2)")
+                                        .HasColumnName("Coordinate_X");
+
+                                    b2.Property<decimal>("Longitude")
+                                        .HasColumnType("decimal(18,2)")
+                                        .HasColumnName("Coordinate_Y");
+                                });
+
+                            b1.ComplexProperty(typeof(Dictionary<string, object>), "EntityWithStringKey", "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty.EntityWithTwoProperties#EntityWithTwoProperties.EntityWithStringKey#EntityWithStringKey", b2 =>
+                                {
                                     b2.Property<string>("Id")
                                         .IsRequired()
                                         .HasColumnType("nvarchar(max)");
 
-                                    b2.HasDiscriminator().HasValue("EntityWithStringKey");
+                                    b2.HasDiscriminator<string>("Id").HasValue("EntityWithStringKey");
                                 });
 
                             b1.HasPropertyAnnotation("PropertyAnnotation", 1);
@@ -6111,6 +6119,21 @@ namespace RootNamespace
                 Assert.Equal(1, complexProperty["PropertyAnnotation"]);
                 Assert.Equal(2, complexProperty.ComplexType["TypeAnnotation"]);
 
+                var coordinateComplexProperty = complexType.FindComplexProperty(nameof(EntityWithTwoProperties.Coordinates));
+                Assert.False(coordinateComplexProperty.IsCollection);
+                Assert.False(coordinateComplexProperty.IsNullable);
+                var coordinateComplexType = coordinateComplexProperty.ComplexType;
+                Assert.Equal(
+                    "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty.EntityWithTwoProperties#EntityWithTwoProperties.Coordinates#Coordinates",
+                    coordinateComplexType.Name);
+                Assert.Equal(
+                    "EntityWithOneProperty.EntityWithTwoProperties#EntityWithTwoProperties.Coordinates#Coordinates",
+                    coordinateComplexType.DisplayName());
+                var coordinateXProperty = coordinateComplexType.FindProperty(nameof(Coordinates.Latitude));
+                Assert.Equal("Coordinate_X", coordinateXProperty.GetColumnName());
+                var coordinateYProperty = coordinateComplexType.FindProperty(nameof(Coordinates.Longitude));
+                Assert.Equal("Coordinate_Y", coordinateYProperty.GetColumnName());
+
                 var nestedComplexProperty = complexType.FindComplexProperty(nameof(EntityWithTwoProperties.EntityWithStringKey));
                 Assert.False(nestedComplexProperty.IsCollection);
                 Assert.True(nestedComplexProperty.IsNullable);
@@ -6126,6 +6149,128 @@ namespace RootNamespace
                 Assert.False(nestedIdProperty.IsNullable);
             },
             validate: true);
+
+    public readonly struct Coordinates(decimal latitude, decimal longitude)
+    {
+        public decimal Latitude { get; } = latitude;
+        public decimal Longitude { get; } = longitude;
+    }
+
+    [ConditionalFact]
+    public virtual void Complex_types_mapped_to_json_are_stored_in_snapshot()
+        => Test(
+            builder =>
+            {
+                builder.Entity<EntityWithOneProperty>(
+                    b =>
+                    {
+                        b.HasKey(x => x.Id).HasName("PK_Custom");
+
+                        b.ComplexProperty(
+                            x => x.EntityWithTwoProperties, bb =>
+                            {
+                                bb.ToJson("TwoProps").HasColumnType("json");
+                                bb.Property(x => x.AlternateId).HasJsonPropertyName("NotKey");
+                                bb.ComplexProperty(
+                                    x => x.EntityWithStringKey, bbb =>
+                                    {
+                                        bbb.ComplexCollection(x => x.Properties, bbbb => bbbb.HasJsonPropertyName("JsonProps"));
+                                    });
+                                bb.ComplexProperty(x => x.Coordinates, bbb =>
+                                {
+                                    bbb.Property(c => c.Latitude).HasJsonPropertyName("Lat");
+                                    bbb.Property(c => c.Longitude).HasJsonPropertyName("Lon");
+                                });
+                            });
+                    });
+            },
+            AddBoilerPlate(
+                GetHeading()
+                + """
+            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.ComplexProperty(typeof(Dictionary<string, object>), "EntityWithTwoProperties", "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty.EntityWithTwoProperties#EntityWithTwoProperties", b1 =>
+                        {
+                            b1.Property<int>("AlternateId")
+                                .HasJsonPropertyName("NotKey");
+
+                            b1.Property<int>("Id");
+
+                            b1.ComplexProperty(typeof(Dictionary<string, object>), "Coordinates", "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty.EntityWithTwoProperties#EntityWithTwoProperties.Coordinates#Coordinates", b2 =>
+                                {
+                                    b2.IsRequired();
+
+                                    b2.Property<decimal>("Latitude")
+                                        .HasJsonPropertyName("Lat");
+
+                                    b2.Property<decimal>("Longitude")
+                                        .HasJsonPropertyName("Lon");
+                                });
+
+                            b1.ComplexProperty(typeof(Dictionary<string, object>), "EntityWithStringKey", "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty.EntityWithTwoProperties#EntityWithTwoProperties.EntityWithStringKey#EntityWithStringKey", b2 =>
+                                {
+                                    b2.Property<string>("Id");
+
+                                    b2.ComplexCollection(typeof(Dictionary<string, object>), "Properties", "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty.EntityWithTwoProperties#EntityWithTwoProperties.EntityWithStringKey#EntityWithStringKey.Properties#EntityWithStringProperty", b3 =>
+                                        {
+                                            b3.Property<int>("Id");
+
+                                            b3.Property<string>("Name");
+
+                                            b3.HasJsonPropertyName("JsonProps");
+                                        });
+                                });
+
+                            b1
+                                .ToJson("TwoProps")
+                                .HasColumnType("json");
+                        });
+
+                    b.HasKey("Id")
+                        .HasName("PK_Custom");
+
+                    b.ToTable("EntityWithOneProperty", "DefaultSchema");
+                });
+""", usingSystem: false, usingCollections: true),
+            o =>
+            {
+                var entityWithOneProperty = o.FindEntityType(typeof(EntityWithOneProperty));
+                Assert.Equal("PK_Custom", entityWithOneProperty.GetKeys().Single().GetName());
+
+                var complexProperty1 = entityWithOneProperty.FindComplexProperty(nameof(EntityWithOneProperty.EntityWithTwoProperties));
+                Assert.False(complexProperty1.IsCollection);
+                Assert.True(complexProperty1.IsNullable);
+                var complexType1 = complexProperty1.ComplexType;
+                Assert.Equal("TwoProps", complexType1.GetContainerColumnName());
+                Assert.Equal("json", complexType1.GetContainerColumnType());
+
+                var alternateIdProperty = complexType1.FindProperty(nameof(EntityWithTwoProperties.AlternateId));
+                Assert.Equal("NotKey", alternateIdProperty.GetJsonPropertyName());
+
+                var coordinatesComplexProperty = complexType1.FindComplexProperty(nameof(EntityWithTwoProperties.Coordinates));
+                Assert.False(coordinatesComplexProperty.IsCollection);
+                Assert.False(coordinatesComplexProperty.IsNullable);
+                var coordinatesComplexType = coordinatesComplexProperty.ComplexType;
+                var latitudeProperty = coordinatesComplexType.FindProperty(nameof(Coordinates.Latitude));
+                Assert.Equal("Lat", latitudeProperty.GetJsonPropertyName());
+                var longitudeProperty = coordinatesComplexType.FindProperty(nameof(Coordinates.Longitude));
+                Assert.Equal("Lon", longitudeProperty.GetJsonPropertyName());
+
+                var entityWithStringKeyComplexProperty = complexType1.FindComplexProperty(nameof(EntityWithTwoProperties.EntityWithStringKey));
+                Assert.False(entityWithStringKeyComplexProperty.IsCollection);
+                Assert.True(entityWithStringKeyComplexProperty.IsNullable);
+                var entityWithStringKeyComplexType = entityWithStringKeyComplexProperty.ComplexType;
+
+                var propertiesComplexCollection = entityWithStringKeyComplexType.FindComplexProperty(nameof(EntityWithStringKey.Properties));
+                Assert.True(propertiesComplexCollection.IsCollection);
+                Assert.Equal("JsonProps", propertiesComplexCollection.GetJsonPropertyName());
+            });
 
     #endregion
 
