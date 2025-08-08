@@ -22,7 +22,7 @@ public class RuntimeProperty : RuntimePropertyBase, IRuntimeProperty
     private readonly ValueGenerated _valueGenerated;
     private readonly bool _isConcurrencyToken;
     private object? _sentinel;
-    private object? _sentinelFromProviderValue;
+    private volatile object? _sentinelFromProviderValue;
     private readonly PropertySaveBehavior _beforeSaveBehavior;
     private readonly PropertySaveBehavior _afterSaveBehavior;
     private readonly Func<IProperty, ITypeBase, ValueGenerator>? _valueGeneratorFactory;
@@ -335,11 +335,12 @@ public class RuntimeProperty : RuntimePropertyBase, IRuntimeProperty
     {
         get
         {
-            if (_sentinelFromProviderValue != null)
+            var providerValue = _sentinelFromProviderValue;
+            if (providerValue != null)
             {
-                var providerValue = _sentinelFromProviderValue;
+                Interlocked.CompareExchange(ref _sentinel, TypeMapping.Converter!.ConvertFromProvider(providerValue), null);
+
                 _sentinelFromProviderValue = null;
-                _sentinel = TypeMapping.Converter!.ConvertFromProvider(providerValue);
             }
 
             return _sentinel;
