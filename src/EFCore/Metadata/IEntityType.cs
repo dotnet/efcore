@@ -598,6 +598,13 @@ public interface IEntityType : IReadOnlyEntityType, ITypeBase
     /// </summary>
     new IEnumerable<ITrigger> GetDeclaredTriggers();
 
+    /// <summary>
+    ///     Gets all triggers defined on this entity type.
+    /// </summary>
+    /// <returns>The triggers defined on this entity type.</returns>
+    new IEnumerable<ITrigger> GetTriggers()
+        => (BaseType?.GetTriggers() ?? Enumerable.Empty<ITrigger>()).Concat(GetDeclaredTriggers());
+
     internal const DynamicallyAccessedMemberTypes DynamicallyAccessedMemberTypes =
         System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors
         | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors

@@ -514,6 +514,30 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => GetString("TransactionsNotSupported");
 
         /// <summary>
+        ///     Trigger '{trigger}' on entity type '{entityType}' does not have a trigger operation configured. Use 'HasTriggerOperation()' to configure the trigger operation.
+        /// </summary>
+        public static string TriggerMissingOperation(object? trigger, object? entityType)
+            => string.Format(
+                GetString("TriggerMissingOperation", nameof(trigger), nameof(entityType)),
+                trigger, entityType);
+
+        /// <summary>
+        ///     Trigger '{trigger}' on entity type '{entityType}' does not have a trigger type configured. Use 'HasTriggerType()' to configure the trigger type.
+        /// </summary>
+        public static string TriggerMissingType(object? trigger, object? entityType)
+            => string.Format(
+                GetString("TriggerMissingType", nameof(trigger), nameof(entityType)),
+                trigger, entityType);
+
+        /// <summary>
+        ///     Trigger '{trigger}' is defined on entity type '{entityType}' which inherits from '{baseType}'. Triggers can only be defined on root entity types.
+        /// </summary>
+        public static string TriggerOnDerivedType(object? trigger, object? entityType, object? baseType)
+            => string.Format(
+                GetString("TriggerOnDerivedType", nameof(trigger), nameof(entityType), nameof(baseType)),
+                trigger, entityType, baseType);
+
+        /// <summary>
         ///     Unable to bind '{memberType}' '{member}' to an entity projection of '{entityType}'.
         /// </summary>
         public static string UnableToBindMemberToEntityProjection(object? memberType, object? member, object? entityType)

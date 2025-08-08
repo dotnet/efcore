@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.Azure.Cosmos.Scripts;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 
 // ReSharper disable once CheckNamespace
@@ -1006,5 +1007,44 @@ public static class CosmosEntityTypeBuilderExtensions
         return autoscale
             ? existingThroughput?.Throughput == throughput
             : existingThroughput?.AutoscaleMaxThroughput == throughput;
+    }
+
+    /// <summary>
+    ///     Configures a database trigger on the entity.
+    /// </summary>
+    /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+    /// <param name="modelName">The name of the trigger.</param>
+    /// <param name="triggerType">The trigger type.</param>
+    /// <param name="triggerOperation">The trigger operation.</param>
+    /// <returns>A builder that can be used to configure the database trigger.</returns>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-triggers">Database triggers</see> for more information and examples.
+    /// </remarks>
+    public static TriggerBuilder HasTrigger(this EntityTypeBuilder entityTypeBuilder, string modelName, TriggerType triggerType, TriggerOperation triggerOperation)
+    {
+        var triggerBuilder = EntityTypeBuilder.HasTrigger(entityTypeBuilder.Metadata, modelName);
+        triggerBuilder.Metadata.SetTriggerType(triggerType);
+        triggerBuilder.Metadata.SetTriggerOperation(triggerOperation);
+        return triggerBuilder;
+    }
+
+    /// <summary>
+    ///     Configures a database trigger on the entity.
+    /// </summary>
+    /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+    /// <param name="modelName">The name of the trigger.</param>
+    /// <param name="triggerType">The trigger type.</param>
+    /// <param name="triggerOperation">The trigger operation.</param>
+    /// <returns>A builder that can be used to configure the database trigger.</returns>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-triggers">Database triggers</see> for more information and examples.
+    /// </remarks>
+    public static TriggerBuilder HasTrigger<TEntity>(this EntityTypeBuilder<TEntity> entityTypeBuilder, string modelName, TriggerType triggerType, TriggerOperation triggerOperation)
+        where TEntity : class
+    {
+        var triggerBuilder = EntityTypeBuilder.HasTrigger(entityTypeBuilder.Metadata, modelName);
+        triggerBuilder.Metadata.SetTriggerType(triggerType);
+        triggerBuilder.Metadata.SetTriggerOperation(triggerOperation);
+        return triggerBuilder;
     }
 }

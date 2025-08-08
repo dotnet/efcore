@@ -634,6 +634,13 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     IEnumerable<IReadOnlyTrigger> GetDeclaredTriggers();
 
     /// <summary>
+    ///     Gets all triggers defined on this entity type.
+    /// </summary>
+    /// <returns>The triggers defined on this entity type.</returns>
+    IEnumerable<IReadOnlyTrigger> GetTriggers()
+        => (BaseType?.GetTriggers() ?? Enumerable.Empty<IReadOnlyTrigger>()).Concat(GetDeclaredTriggers());
+
+    /// <summary>
     ///     Gets the <see cref="PropertyAccessMode" /> being used for navigations of this entity type.
     /// </summary>
     /// <remarks>

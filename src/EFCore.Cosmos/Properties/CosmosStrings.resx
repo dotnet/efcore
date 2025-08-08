@@ -355,6 +355,15 @@
   <data name="TransactionsNotSupported" xml:space="preserve">
     <value>The Cosmos database provider does not support transactions.</value>
   </data>
+  <data name="TriggerMissingOperation" xml:space="preserve">
+    <value>Trigger '{trigger}' on entity type '{entityType}' does not have a trigger operation configured. Use 'HasTriggerOperation()' to configure the trigger operation.</value>
+  </data>
+  <data name="TriggerMissingType" xml:space="preserve">
+    <value>Trigger '{trigger}' on entity type '{entityType}' does not have a trigger type configured. Use 'HasTriggerType()' to configure the trigger type.</value>
+  </data>
+  <data name="TriggerOnDerivedType" xml:space="preserve">
+    <value>Trigger '{trigger}' is defined on entity type '{entityType}' which inherits from '{baseType}'. Triggers can only be defined on root entity types.</value>
+  </data>
   <data name="UnableToBindMemberToEntityProjection" xml:space="preserve">
     <value>Unable to bind '{memberType}' '{member}' to an entity projection of '{entityType}'.</value>
   </data>

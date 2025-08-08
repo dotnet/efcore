@@ -633,4 +633,41 @@ public class CosmosModelValidator : ModelValidator
             }
         }
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override void ValidateTriggers(
+        IModel model,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
+        base.ValidateTriggers(model, logger);
+
+        foreach (var entityType in model.GetEntityTypes())
+        {
+            foreach (var trigger in entityType.GetDeclaredTriggers())
+            {
+                if (entityType.BaseType != null)
+                {
+                    throw new InvalidOperationException(
+                        CosmosStrings.TriggerOnDerivedType(trigger.ModelName, entityType.DisplayName(), entityType.BaseType.DisplayName()));
+                }
+
+                if (trigger.GetTriggerType() == null)
+                {
+                    throw new InvalidOperationException(
+                        CosmosStrings.TriggerMissingType(trigger.ModelName, entityType.DisplayName()));
+                }
+
+                if (trigger.GetTriggerOperation() == null)
+                {
+                    throw new InvalidOperationException(
+                        CosmosStrings.TriggerMissingOperation(trigger.ModelName, entityType.DisplayName()));
+                }
+            }
+        }
+    }
 }
