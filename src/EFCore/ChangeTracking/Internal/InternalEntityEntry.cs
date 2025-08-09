@@ -527,6 +527,30 @@ public sealed partial class InternalEntityEntry : InternalEntryBase, IUpdateEntr
 
 
     /// <summary>
+    /// Refreshes the property value with the value from the database
+    /// </summary>
+    /// <param name="propertyBase">Property</param>
+    /// <param name="value">New value from database</param>
+    /// <param name="mergeOption">MergeOption</param>
+    /// <param name="updateEntityState">Sets the EntityState to Unchanged if MergeOption.OverwriteChanges else calls ChangeDetector to determine changes</param>
+    public void ReloadValue(IPropertyBase propertyBase, object? value, MergeOption mergeOption, bool updateEntityState)
+    {
+        var property = (IProperty)propertyBase;
+        EnsureOriginalValues();
+        bool isModified = IsModified(property);
+        _originalValues.SetValue(property, value, -1);
+        if (mergeOption == MergeOption.OverwriteChanges || !isModified)
+            SetProperty(propertyBase, value, isMaterialization: true, setModified: false);
+        if (updateEntityState)
+        {
+            if (mergeOption == MergeOption.OverwriteChanges)
+                SetEntityState(EntityState.Unchanged);
+            else
+                ((StateManager as StateManager)?.ChangeDetector as ChangeDetector)?.DetectChanges(this);
+        }
+    }
+
+    /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
