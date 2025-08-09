@@ -178,6 +178,11 @@ public class QueryCompilationContext
     public virtual bool IgnoreAutoIncludes { get; internal set; }
 
     /// <summary>
+    ///     A value indicating how already loaded objects should be merged and refreshed with the results of this query.
+    /// </summary>
+    public virtual MergeOption RefreshMergeOption { get; internal set; }
+
+    /// <summary>
     ///     The set of tags applied to this query.
     /// </summary>
     public virtual ISet<string> Tags { get; } = new HashSet<string>();
