@@ -371,8 +371,13 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
 
                 _projectionMapping[_projectionMembers.Peek()] = projection;
 
-                return shaper.Update(
-                    new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), typeof(ValueBuffer)));
+                return shaper
+                    .Update(new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), typeof(ValueBuffer)))
+#pragma warning disable EF1001
+                    // This is to handle have correct type for the shaper expression. It is later fixed in MatchTypes.
+                    // This mirrors for structural types what we do for scalars.
+                    .MakeClrTypeNullable();
+#pragma warning restore EF1001
             }
 
             case IncludeExpression includeExpression:
@@ -658,7 +663,14 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                 targetType.MakeNullable() == expression.Type,
                 $"expression has type {expression.Type.Name}, but must be nullable over {targetType.Name}");
 
-            expression = Expression.Convert(expression, targetType);
+            return expression switch
+            {
+#pragma warning disable EF1001
+                RelationalStructuralTypeShaperExpression structuralShaper => structuralShaper.MakeClrTypeNonNullable(),
+#pragma warning restore EF1001
+
+                _ =>  Expression.Convert(expression, targetType),
+            };
         }
 
         return expression;

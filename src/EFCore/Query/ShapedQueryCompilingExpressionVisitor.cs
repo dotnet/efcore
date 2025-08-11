@@ -449,7 +449,7 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
             var variables = new List<ParameterExpression>();
 
             var typeBase = shaper.StructuralType;
-            var clrType = typeBase.ClrType;
+            var clrType = shaper.Type;
 
             var materializationContextVariable = Variable(
                 typeof(MaterializationContext),
@@ -634,7 +634,7 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                             typeof(ISnapshot))
                         : Constant(Snapshot.Empty, typeof(ISnapshot))));
 
-            var returnType = structuralType.ClrType;
+            var returnType = shaper.Type;
             var valueBufferExpression = Call(materializationContextVariable, MaterializationContext.GetValueBufferMethod);
 
             var materializationConditionBody = ReplacingExpressionVisitor.Replace(
@@ -654,7 +654,7 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
             {
                 var concreteStructuralType = concreteStructuralTypes[i];
                 switchCases[i] = SwitchCase(
-                    CreateFullMaterializeExpression(concreteStructuralTypes[i], shaper.IsNullable, expressionContext),
+                    CreateFullMaterializeExpression(concreteStructuralTypes[i], expressionContext),
                     supportsPrecompiledQuery
                         ? liftableConstantFactory.CreateLiftableConstant(
                             concreteStructuralTypes[i],
@@ -707,7 +707,6 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
 
         private BlockExpression CreateFullMaterializeExpression(
             ITypeBase concreteStructuralType,
-            bool shaperIsNullable,
             (Type ReturnType,
                 ParameterExpression MaterializationContextVariable,
                 ParameterExpression ConcreteEntityTypeVariable,
@@ -723,7 +722,7 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
             var materializer = materializerSource
                 .CreateMaterializeExpression(
                     new StructuralTypeMaterializerSourceParameters(
-                        concreteStructuralType, "instance", shaperIsNullable, queryTrackingBehavior), materializationContextVariable);
+                        concreteStructuralType, "instance", returnType, queryTrackingBehavior), materializationContextVariable);
 
             // TODO: Properly support shadow properties for complex types #35613
             if (_queryStateManager
