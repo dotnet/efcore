@@ -45,7 +45,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         _nonNullableColumns = [];
         _nullValueColumns = [];
         _collectionParameterExpansionMap = [];
-        ParametersFacade = null!;
+        ParametersDecorator = null!;
     }
 
     /// <summary>
@@ -66,20 +66,20 @@ public class SqlNullabilityProcessor : ExpressionVisitor
     /// <summary>
     ///     Dictionary of current parameter values in use.
     /// </summary>
-    protected virtual CacheSafeParameterFacade ParametersFacade { get; private set; }
+    protected virtual ParametersCacheDecorator ParametersDecorator { get; private set; }
 
     /// <summary>
     ///     Processes a query expression to apply null semantics and optimize it.
     /// </summary>
     /// <param name="queryExpression">A query expression to process.</param>
-    /// <param name="parametersFacade">A facade allowing access to parameters in a cache-safe way.</param>
+    /// <param name="parametersDecorator">A decorator allowing access to parameters in a cache-safe way.</param>
     /// <returns>An optimized query expression.</returns>
-    public virtual Expression Process(Expression queryExpression, CacheSafeParameterFacade parametersFacade)
+    public virtual Expression Process(Expression queryExpression, ParametersCacheDecorator parametersDecorator)
     {
         _nonNullableColumns.Clear();
         _nullValueColumns.Clear();
         _collectionParameterExpansionMap.Clear();
-        ParametersFacade = parametersFacade;
+        ParametersDecorator = parametersDecorator;
 
         var result = Visit(queryExpression);
 
@@ -117,7 +117,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                 Check.DebugAssert(valuesParameter.TypeMapping is not null);
                 Check.DebugAssert(valuesParameter.TypeMapping.ElementTypeMapping is not null);
                 var elementTypeMapping = (RelationalTypeMapping)valuesParameter.TypeMapping.ElementTypeMapping;
-                var queryParameters = ParametersFacade.GetParametersAndDisableSqlCaching();
+                var queryParameters = ParametersDecorator.GetAndDisableCaching();
                 var values = ((IEnumerable?)queryParameters[valuesParameter.Name])?.Cast<object>().ToList() ?? [];
 
                 var intTypeMapping = (IntTypeMapping?)Dependencies.TypeMappingSource.FindMapping(typeof(int));
@@ -817,7 +817,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                 // The InExpression has a values parameter. Expand it out, embedding its values as constants into the SQL; disable SQL
                 // caching.
                 var elementTypeMapping = (RelationalTypeMapping)inExpression.ValuesParameter.TypeMapping!.ElementTypeMapping!;
-                var parameters = ParametersFacade.GetParametersAndDisableSqlCaching();
+                var parameters = ParametersDecorator.GetAndDisableCaching();
                 var values = ((IEnumerable?)parameters[valuesParameter.Name])?.Cast<object>().ToList() ?? [];
 
                 processedValues = [];
@@ -1430,7 +1430,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         bool allowOptimizedExpansion,
         out bool nullable)
     {
-        if (ParametersFacade.IsParameterNull(sqlParameterExpression.Name))
+        if (ParametersDecorator.IsNull(sqlParameterExpression.Name))
         {
             nullable = true;
 
@@ -1444,7 +1444,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
 
         if (sqlParameterExpression.TranslationMode is ParameterTranslationMode.Constant)
         {
-            var parameters = ParametersFacade.GetParametersAndDisableSqlCaching();
+            var parameters = ParametersDecorator.GetAndDisableCaching();
 
             return _sqlExpressionFactory.Constant(
                 parameters[sqlParameterExpression.Name],
@@ -1544,7 +1544,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
     // Note that we can check parameter values for null since we cache by the parameter nullability; but we cannot do the same for bool.
     private bool IsNull(SqlExpression? expression)
         => expression is SqlConstantExpression { Value: null }
-            || expression is SqlParameterExpression { Name: string parameterName } && ParametersFacade.IsParameterNull(parameterName);
+            || expression is SqlParameterExpression { Name: string parameterName } && ParametersDecorator.IsNull(parameterName);
 
     private bool IsTrue(SqlExpression? expression)
         => expression is SqlConstantExpression { Value: true };
@@ -1845,7 +1845,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
             && collection is SqlParameterExpression collectionParameter)
         {
             // We're looking at a parameter beyond its simple nullability, so we can't use the SQL cache for this query.
-            var parameters = ParametersFacade.GetParametersAndDisableSqlCaching();
+            var parameters = ParametersDecorator.GetAndDisableCaching();
             if (parameters[collectionParameter.Name] is not IList values)
             {
                 throw new UnreachableException($"Parameter '{collectionParameter.Name}' is not an IList.");
@@ -1971,7 +1971,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                 // not_null_value_parameter is null -> false
                 // not_null_value_parameter is not null -> true
                 return _sqlExpressionFactory.Constant(
-                    ParametersFacade.IsParameterNull(sqlParameterOperand.Name) ^ sqlUnaryExpression.OperatorType == ExpressionType.NotEqual,
+                    ParametersDecorator.IsNull(sqlParameterOperand.Name) ^ sqlUnaryExpression.OperatorType == ExpressionType.NotEqual,
                     sqlUnaryExpression.TypeMapping);
 
             case ColumnExpression columnOperand

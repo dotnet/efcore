@@ -76,8 +76,8 @@ public abstract class ComplexTypeQueryFixtureBase : SharedStoreFixtureBase<Poola
         { typeof(ValuedCustomerGroup), (Func<ValuedCustomerGroup, object>)(e => e.Id) },
 
         // Complex types - still need comparers for cases where they are projected directly
-        { typeof(Address), (Func<Address, object>)(e => e.ZipCode) },
-        { typeof(Country), (Func<Country, object>)(e => e.Code) },
+        { typeof(Address), (Func<Address, object>)(e => e?.ZipCode ?? 0) },
+        { typeof(Country), (Func<Country, object>)(e => e?.Code ?? string.Empty) },
         { typeof(AddressStruct), (Func<AddressStruct, object>)(e => e.ZipCode) },
         { typeof(CountryStruct), (Func<CountryStruct, object>)(e => e.Code) }
     }.ToDictionary(e => e.Key, e => e.Value);

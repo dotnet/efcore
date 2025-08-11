@@ -190,6 +190,10 @@ FROM root c
         }
     }
 
+    [ConditionalTheory(Skip = "This type of projection does not make sense for Cosmos.")]
+    public override Task Select_required_related_via_optional_navigation(QueryTrackingBehavior queryTrackingBehavior)
+        => base.Select_required_related_via_optional_navigation(queryTrackingBehavior);
+
     #endregion Non-collection
 
     #region Collection

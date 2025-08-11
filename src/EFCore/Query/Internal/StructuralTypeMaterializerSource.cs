@@ -95,27 +95,45 @@ public class StructuralTypeMaterializerSource : IStructuralTypeMaterializerSourc
             properties.Remove(consumedProperty);
         }
 
-        var constructorExpression = constructorBinding.CreateConstructorExpression(bindingInfo);
+        var materializationExpression = HandleMaterializationInterception();
 
-        if (_materializationInterceptor == null
-            // TODO: This currently applies the materialization interceptor only on the root structural type - any contained complex types
-            // don't get intercepted. #35883
-            || structuralType is not IEntityType)
+        return
+            structuralType is IComplexType complexType && ReadComplexTypeDirectly(complexType)
+                && (IsNullable(complexType) || parameters.AllowNullable == true)
+                ? HandleNullableComplexTypeMaterialization(
+                    complexType,
+                    complexType.ClrType,
+                    materializationExpression,
+                    bindingInfo)
+                : materializationExpression;
+
+        Expression HandleMaterializationInterception()
         {
-            return properties.Count == 0 && blockExpressions.Count == 0
-                ? constructorExpression
-                : CreateMaterializeExpression(blockExpressions, instanceVariable, constructorExpression, properties, bindingInfo);
-        }
+            var constructorExpression = constructorBinding.CreateConstructorExpression(bindingInfo);
 
-        return CreateInterceptionMaterializeExpression(
-            structuralType,
-            properties,
-            _materializationInterceptor,
-            bindingInfo,
-            constructorExpression,
-            instanceVariable,
-            blockExpressions);
+            return _materializationInterceptor == null
+                // TODO: This currently applies the materialization interceptor only on the root structural type - any contained complex types
+                // don't get intercepted. #35883
+                || structuralType is not IEntityType
+                ? properties.Count == 0 && blockExpressions.Count == 0
+                    ? constructorExpression
+                    : CreateMaterializeExpression(blockExpressions, instanceVariable, constructorExpression, properties, bindingInfo)
+                : CreateInterceptionMaterializeExpression(
+                    structuralType,
+                    properties,
+                    _materializationInterceptor,
+                    bindingInfo,
+                    constructorExpression,
+                    instanceVariable,
+                    blockExpressions);
+        }
     }
+
+    /// <summary>
+    ///     Should complex type be read directly using e.g. DbDataReader.GetFieldValue
+    ///     or is it going to be handled separately (i.e. relational JSON).
+    /// </summary>
+    protected virtual bool ReadComplexTypeDirectly(IComplexType complexType) => true;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -130,11 +148,17 @@ public class StructuralTypeMaterializerSource : IStructuralTypeMaterializerSourc
         MethodCallExpression valueBufferExpression,
         List<Expression> blockExpressions)
     {
+        if (property is IComplexProperty cp && !ReadComplexTypeDirectly(cp.ComplexType))
+        {
+            return;
+        }
+
         var memberInfo = property.GetMemberInfo(forMaterialization: true, forSet: true);
 
         var valueExpression = property switch
         {
-            IProperty p => valueBufferExpression.CreateValueBufferReadValueExpression(memberInfo.GetMemberType(), p.GetIndex(), p),
+            IProperty p
+                => valueBufferExpression.CreateValueBufferReadValueExpression(memberInfo.GetMemberType(), p.GetIndex(), p),
 
             IServiceProperty serviceProperty
                 => serviceProperty.ParameterBinding.BindToParameter(bindingInfo),
@@ -143,9 +167,7 @@ public class StructuralTypeMaterializerSource : IStructuralTypeMaterializerSourc
                 => Default(complexProperty.ClrType), // Initialize collections to null, they'll be populated separately
 
             IComplexProperty complexProperty
-                => CreateMaterializeExpression(
-                    new StructuralTypeMaterializerSourceParameters(complexProperty.ComplexType, "complexType", QueryTrackingBehavior: null),
-                    bindingInfo.MaterializationContextExpression),
+                => CreateComplexTypeMaterializeExpression(complexProperty, bindingInfo),
 
             _ => throw new UnreachableException()
         };
@@ -192,6 +214,21 @@ public class StructuralTypeMaterializerSource : IStructuralTypeMaterializerSourc
                     MakeIndex(parameter, (PropertyInfo)memberInfo, [Constant(property.Name)]),
                     value)
                 : MakeMemberAccess(parameter, memberInfo).Assign(value);
+        }
+
+        Expression CreateComplexTypeMaterializeExpression(IComplexProperty complexProperty, ParameterBindingInfo bindingInfo)
+        {
+            var materializeExpression = CreateMaterializeExpression(
+                new StructuralTypeMaterializerSourceParameters(complexProperty.ComplexType, "complexType", null, QueryTrackingBehavior: null),
+                bindingInfo.MaterializationContextExpression);
+
+            return IsNullable(complexProperty)
+                ? HandleNullableComplexTypeMaterialization(
+                    complexProperty.ComplexType,
+                    complexProperty.ClrType,
+                    materializeExpression,
+                    bindingInfo)
+                : materializeExpression;
         }
     }
 
@@ -493,15 +530,14 @@ public class StructuralTypeMaterializerSource : IStructuralTypeMaterializerSourc
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Func<MaterializationContext, object> GetMaterializer(
-        IEntityType entityType)
+    public virtual Func<MaterializationContext, object> GetMaterializer(IEntityType entityType)
     {
         var materializationContextParameter
             = Parameter(typeof(MaterializationContext), "materializationContext");
 
         return Lambda<Func<MaterializationContext, object>>(
                 ((IStructuralTypeMaterializerSource)this).CreateMaterializeExpression(
-                    new StructuralTypeMaterializerSourceParameters(entityType, "instance", null), materializationContextParameter),
+                    new StructuralTypeMaterializerSourceParameters(entityType, "instance", null, null), materializationContextParameter),
                 materializationContextParameter)
             .Compile();
     }
@@ -518,7 +554,7 @@ public class StructuralTypeMaterializerSource : IStructuralTypeMaterializerSourc
 
         return Lambda<Func<MaterializationContext, object>>(
                 ((IStructuralTypeMaterializerSource)this).CreateMaterializeExpression(
-                    new StructuralTypeMaterializerSourceParameters(complexType, "instance", null), materializationContextParameter),
+                    new StructuralTypeMaterializerSourceParameters(complexType, "instance", null, null), materializationContextParameter),
                 materializationContextParameter)
             .Compile();
     }
@@ -572,7 +608,7 @@ public class StructuralTypeMaterializerSource : IStructuralTypeMaterializerSourc
 
         var materializationContextExpression = Parameter(typeof(MaterializationContext), "mc");
         var bindingInfo = new ParameterBindingInfo(
-            new StructuralTypeMaterializerSourceParameters(entityType, "instance", null), materializationContextExpression);
+            new StructuralTypeMaterializerSourceParameters(entityType, "instance", null, null), materializationContextExpression);
 
         var blockExpressions = new List<Expression>();
         var instanceVariable = Variable(binding.RuntimeType, "instance");
@@ -644,4 +680,50 @@ public class StructuralTypeMaterializerSource : IStructuralTypeMaterializerSourc
             }
         }
     }
+
+    private Expression HandleNullableComplexTypeMaterialization(IComplexType complexType, Type clrType, Expression materializeExpression, ParameterBindingInfo bindingInfo)
+    {
+        var valueBufferExpression = Call(
+            bindingInfo.MaterializationContextExpression,
+            MaterializationContext.GetValueBufferMethod);
+
+        // Get all scalar properties of the complex type (including nested ones).
+        var allScalarProperties = complexType.GetFlattenedProperties().ToList();
+
+        if (allScalarProperties is [])
+        {
+            // If no scalar properties, just create the instance.
+            return CreateMaterializeExpression(
+                new StructuralTypeMaterializerSourceParameters(complexType, "complexType", null, QueryTrackingBehavior: null),
+                bindingInfo.MaterializationContextExpression);
+        }
+
+        var requiredProperty = allScalarProperties.Where(p => !p.IsNullable).FirstOrDefault();
+        var nullCheck = requiredProperty is not null
+            // If there's a required property, it's enough to check just that one for null.
+            ? Equal(
+                valueBufferExpression.CreateValueBufferReadValueExpression(typeof(object), requiredProperty.GetIndex(), requiredProperty),
+                Constant(null, typeof(object)))
+            // Create null checks for all scalar properties.
+            : allScalarProperties
+                .Select(p =>
+                    Equal(
+                        valueBufferExpression.CreateValueBufferReadValueExpression(typeof(object), p.GetIndex(), p),
+                        Constant(null, typeof(object))))
+                .Aggregate(AndAlso);
+
+        // If property/properties are null, return default (to handle structs); otherwise materialize the complex type.
+        return Condition(
+            nullCheck,
+            Default(clrType),
+            materializeExpression);
+    }
+
+    private static bool IsNullable(IComplexType complexType)
+        => IsNullable(complexType.ComplexProperty);
+
+    private static bool IsNullable(IComplexProperty complexProperty)
+        => complexProperty.IsNullable
+            || (complexProperty.DeclaringType is IComplexType complexType
+                && IsNullable(complexType.ComplexProperty));
 }

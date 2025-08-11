@@ -17,20 +17,6 @@ public abstract class ComplexTableSplittingRelationalFixtureBase : ComplexProper
 {
     protected override string StoreName => "ComplexTableSplittingQueryTest";
 
-    protected override RelationshipsData CreateData()
-    {
-        var data = new RelationshipsData();
-
-        // TODO: Optional complex properties not yet supported (#31376), remove them from the seeding data
-        foreach (var rootEntity in data.RootEntities)
-        {
-            rootEntity.OptionalRelated = null;
-            rootEntity.RequiredRelated.OptionalNested = null;
-        }
-
-        return data;
-    }
-
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
         base.OnModelCreating(modelBuilder, context);
@@ -40,16 +26,20 @@ public abstract class ComplexTableSplittingRelationalFixtureBase : ComplexProper
             b.ComplexProperty(e => e.RequiredRelated, rrb =>
             {
                 rrb.ComplexProperty(r => r.RequiredNested);
-
-                // TODO: Optional complex properties not yet supported: #31376
-                rrb.Ignore(r => r.OptionalNested);
+                rrb.ComplexProperty(r => r.OptionalNested);
 
                 // Collections are not supported with table splitting, only JSON
                 rrb.Ignore(r => r.NestedCollection);
             });
 
-            // TODO: Optional complex properties not yet supported: #31376
-            b.Ignore(r => r.OptionalRelated);
+            b.ComplexProperty(e => e.OptionalRelated, orb =>
+            {
+                orb.ComplexProperty(o => o.RequiredNested);
+                orb.ComplexProperty(o => o.OptionalNested);
+
+                // Collections are not supported with table splitting, only JSON
+                orb.Ignore(o => o.NestedCollection);
+            });
 
             // Collections are not supported with table splitting, only JSON
             b.Ignore(r => r.RelatedCollection);

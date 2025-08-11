@@ -107,14 +107,16 @@ WHERE [c0].[ShippingAddress_ZipCode] <> 7728
 """);
     }
 
-    // This test fails because when OptionalCustomer is null, we get all-null results because of the LEFT JOIN, and we materialize this
-    // as an empty ShippingAddress instead of null (see SQL). The proper solution here would be to project the Customer ID just for the
-    // purpose of knowing that it's there.
     public override async Task Project_complex_type_via_optional_navigation(bool async)
     {
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.Project_complex_type_via_optional_navigation(async));
+        await base.Project_complex_type_via_optional_navigation(async);
 
-        Assert.Equal(RelationalStrings.CannotProjectNullableComplexType("Customer.ShippingAddress#Address"), exception.Message);
+        AssertSql(
+            """
+SELECT [c0].[ShippingAddress_AddressLine1], [c0].[ShippingAddress_AddressLine2], [c0].[ShippingAddress_Tags], [c0].[ShippingAddress_ZipCode], [c0].[ShippingAddress_Country_Code], [c0].[ShippingAddress_Country_FullName]
+FROM [CustomerGroup] AS [c]
+LEFT JOIN [Customer] AS [c0] ON [c].[OptionalCustomerId] = [c0].[Id]
+""");
     }
 
     public override async Task Project_complex_type_via_required_navigation(bool async)
@@ -243,13 +245,6 @@ SELECT [c].[Id], [c].[Name], [c].[BillingAddress_AddressLine1], [c].[BillingAddr
 FROM [Customer] AS [c]
 WHERE [c].[ShippingAddress_AddressLine1] = @entity_equality_address_AddressLine1 AND [c].[ShippingAddress_AddressLine2] IS NULL AND [c].[ShippingAddress_Tags] = @entity_equality_address_Tags AND [c].[ShippingAddress_ZipCode] = @entity_equality_address_ZipCode AND [c].[ShippingAddress_Country_Code] = @entity_equality_address_Country_Code AND [c].[ShippingAddress_Country_FullName] = @entity_equality_address_Country_FullName
 """);
-    }
-
-    public override async Task Complex_type_equals_null(bool async)
-    {
-        await base.Complex_type_equals_null(async);
-
-        AssertSql();
     }
 
     public override async Task Subquery_over_complex_type(bool async)
@@ -476,15 +471,16 @@ WHERE [v0].[ShippingAddress_ZipCode] <> 7728
 """);
     }
 
-    // This test fails because when OptionalCustomer is null, we get all-null results because of the LEFT JOIN, and we materialize this
-    // as an empty ShippingAddress instead of null (see SQL). The proper solution here would be to project the Customer ID just for the
-    // purpose of knowing that it's there.
     public override async Task Project_struct_complex_type_via_optional_navigation(bool async)
     {
-        var exception =
-            await Assert.ThrowsAsync<InvalidOperationException>(() => base.Project_struct_complex_type_via_optional_navigation(async));
+        await base.Project_struct_complex_type_via_optional_navigation(async);
 
-        Assert.Equal(RelationalStrings.CannotProjectNullableComplexType("ValuedCustomer.ShippingAddress#AddressStruct"), exception.Message);
+        AssertSql(
+            """
+SELECT [v0].[ShippingAddress_AddressLine1], [v0].[ShippingAddress_AddressLine2], [v0].[ShippingAddress_ZipCode], [v0].[ShippingAddress_Country_Code], [v0].[ShippingAddress_Country_FullName]
+FROM [ValuedCustomerGroup] AS [v]
+LEFT JOIN [ValuedCustomer] AS [v0] ON [v].[OptionalCustomerId] = [v0].[Id]
+""");
     }
 
     public override async Task Project_struct_complex_type_via_required_navigation(bool async)

@@ -311,15 +311,6 @@ public partial class RelationalSqlTranslatingExpressionVisitor
 
             Check.DebugAssert(complexType != null, "We checked that at least one side is a complex type before calling this function");
 
-            // Comparison to null needs to be handled in a special way for table splitting, but for JSON mapping is handled via
-            // the regular JSON flow below.
-            if ((IsNullSqlConstantExpression(left) || IsNullSqlConstantExpression(right)) && !complexType.IsMappedToJson())
-            {
-                // TODO: when we support optional complex types with table splitting - or projecting required complex types via optional
-                // navigations - we'll be able to translate this, #31376
-                throw new InvalidOperationException(RelationalStrings.CannotCompareComplexTypeToNull);
-            }
-
             // If a complex type is the result of a subquery, then comparing its columns would mean duplicating the subquery, which would
             // be potentially very inefficient.
             // TODO: Enable this by extracting the subquery out to a common table expressions (WITH), #31237

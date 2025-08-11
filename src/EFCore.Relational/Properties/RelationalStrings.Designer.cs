@@ -54,20 +54,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("CannotChangeWhenOpen");
 
         /// <summary>
-        ///     Comparing complex types to null is not supported.
-        /// </summary>
-        public static string CannotCompareComplexTypeToNull
-            => GetString("CannotCompareComplexTypeToNull");
-
-        /// <summary>
-        ///     You are attempting to project out complex type '{complexType}' via an optional navigation; that is currently not supported. Either project out the complex type in a non-optional context, or project the containing entity type along with the complex type.
-        /// </summary>
-        public static string CannotProjectNullableComplexType(object? complexType)
-            => string.Format(
-                GetString("CannotProjectNullableComplexType", nameof(complexType)),
-                complexType);
-
-        /// <summary>
         ///     Join expressions have no aliases; set the alias on the enclosed table expression.
         /// </summary>
         public static string CannotSetAliasOnJoin

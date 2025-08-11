@@ -130,12 +130,6 @@
   <data name="CannotChangeWhenOpen" xml:space="preserve">
     <value>The instance of DbConnection is currently in use. The connection can only be changed when the existing connection is not being used.</value>
   </data>
-  <data name="CannotCompareComplexTypeToNull" xml:space="preserve">
-    <value>Comparing complex types to null is not supported.</value>
-  </data>
-  <data name="CannotProjectNullableComplexType" xml:space="preserve">
-    <value>You are attempting to project out complex type '{complexType}' via an optional navigation; that is currently not supported. Either project out the complex type in a non-optional context, or project the containing entity type along with the complex type.</value>
-  </data>
   <data name="CannotSetAliasOnJoin" xml:space="preserve">
     <value>Join expressions have no aliases; set the alias on the enclosed table expression.</value>
   </data>
