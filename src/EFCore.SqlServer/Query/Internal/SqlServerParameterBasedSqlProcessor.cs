@@ -11,9 +11,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqlServerParameterBasedSqlProcessor : RelationalParameterBasedSqlProcessor
+public class SqlServerParameterBasedSqlProcessor(
+    RelationalParameterBasedSqlProcessorDependencies dependencies,
+    RelationalParameterBasedSqlProcessorParameters parameters,
+    ISqlServerSingletonOptions sqlServerSingletonOptions)
+    : RelationalParameterBasedSqlProcessor(dependencies, parameters)
 {
-    private readonly ISqlServerSingletonOptions _sqlServerSingletonOptions;
+    private readonly ISqlServerSingletonOptions _sqlServerSingletonOptions = sqlServerSingletonOptions;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -21,27 +25,12 @@ public class SqlServerParameterBasedSqlProcessor : RelationalParameterBasedSqlPr
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public SqlServerParameterBasedSqlProcessor(
-        RelationalParameterBasedSqlProcessorDependencies dependencies,
-        RelationalParameterBasedSqlProcessorParameters parameters,
-        ISqlServerSingletonOptions sqlServerSingletonOptions)
-        : base(dependencies, parameters)
-    {
-        _sqlServerSingletonOptions = sqlServerSingletonOptions;
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public override Expression Process(Expression queryExpression, CacheSafeParameterFacade parametersFacade)
+    public override Expression Process(Expression queryExpression, ParametersCacheDecorator parametersDecorator)
     {
         var afterZeroLimitConversion = new SqlServerZeroLimitConverter(Dependencies.SqlExpressionFactory)
-            .Process(queryExpression, parametersFacade);
+            .Process(queryExpression, parametersDecorator);
 
-        var afterBaseProcessing = base.Process(afterZeroLimitConversion, parametersFacade);
+        var afterBaseProcessing = base.Process(afterZeroLimitConversion, parametersDecorator);
 
         var afterSearchConditionConversion = new SearchConditionConverter(Dependencies.SqlExpressionFactory)
             .Visit(afterBaseProcessing);
@@ -50,7 +39,7 @@ public class SqlServerParameterBasedSqlProcessor : RelationalParameterBasedSqlPr
     }
 
     /// <inheritdoc />
-    protected override Expression ProcessSqlNullability(Expression selectExpression, CacheSafeParameterFacade parametersFacade)
-        => new SqlServerSqlNullabilityProcessor(Dependencies, Parameters, _sqlServerSingletonOptions).Process(
-            selectExpression, parametersFacade);
+    protected override Expression ProcessSqlNullability(Expression selectExpression, ParametersCacheDecorator Decorator)
+        => new SqlServerSqlNullabilityProcessor(Dependencies, Parameters, _sqlServerSingletonOptions)
+            .Process(selectExpression, Decorator);
 }
