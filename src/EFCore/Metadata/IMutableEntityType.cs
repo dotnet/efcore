@@ -745,6 +745,13 @@ public interface IMutableEntityType : IReadOnlyEntityType, IMutableTypeBase
     new IEnumerable<IMutableTrigger> GetDeclaredTriggers();
 
     /// <summary>
+    ///     Gets all triggers defined on this entity type.
+    /// </summary>
+    /// <returns>The triggers defined on this entity type.</returns>
+    new IEnumerable<IMutableTrigger> GetTriggers()
+        => (BaseType?.GetTriggers() ?? Enumerable.Empty<IMutableTrigger>()).Concat(GetDeclaredTriggers());
+
+    /// <summary>
     ///     Creates a new trigger with the given name on entity type. Throws an exception if a trigger with the same name exists on the same
     ///     entity type.
     /// </summary>
