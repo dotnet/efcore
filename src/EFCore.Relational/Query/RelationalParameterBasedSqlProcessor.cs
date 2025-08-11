@@ -49,7 +49,7 @@ public class RelationalParameterBasedSqlProcessor
     [EntityFrameworkInternal]
     public virtual Expression Process(Expression queryExpression, Dictionary<string, object?> parameters, out bool canCache)
     {
-        var parametersFacade = new CacheSafeParameterFacade(parameters);
+        var parametersFacade = new ParametersCacheDecorator(parameters);
         var result = Process(queryExpression, parametersFacade);
         canCache = parametersFacade.CanCache;
 
@@ -60,11 +60,11 @@ public class RelationalParameterBasedSqlProcessor
     ///     Performs final query processing that takes parameter values into account.
     /// </summary>
     /// <param name="queryExpression">A query expression to process.</param>
-    /// <param name="parametersFacade">A facade allowing access to parameters in a cache-safe way.</param>
-    public virtual Expression Process(Expression queryExpression, CacheSafeParameterFacade parametersFacade)
+    /// <param name="parametersDecorator">A decorator allowing access to parameters in a cache-safe way.</param>
+    public virtual Expression Process(Expression queryExpression, ParametersCacheDecorator parametersDecorator)
     {
-        queryExpression = ProcessSqlNullability(queryExpression, parametersFacade);
-        queryExpression = ExpandFromSqlParameter(queryExpression, parametersFacade);
+        queryExpression = ProcessSqlNullability(queryExpression, parametersDecorator);
+        queryExpression = ExpandFromSqlParameter(queryExpression, parametersDecorator);
 
         return queryExpression;
     }
@@ -74,19 +74,19 @@ public class RelationalParameterBasedSqlProcessor
     ///     optimize it for given parameter values.
     /// </summary>
     /// <param name="queryExpression">A query expression to optimize.</param>
-    /// <param name="parametersFacade">A facade allowing access to parameters in a cache-safe way.</param>
+    /// <param name="Decorator">A decorator allowing access to parameters in a cache-safe way.</param>
     /// <returns>A processed query expression.</returns>
-    protected virtual Expression ProcessSqlNullability(Expression queryExpression, CacheSafeParameterFacade parametersFacade)
-        => new SqlNullabilityProcessor(Dependencies, Parameters).Process(queryExpression, parametersFacade);
+    protected virtual Expression ProcessSqlNullability(Expression queryExpression, ParametersCacheDecorator Decorator)
+        => new SqlNullabilityProcessor(Dependencies, Parameters).Process(queryExpression, Decorator);
 
     /// <summary>
     ///     Expands the parameters to <see cref="FromSqlExpression" /> inside the query expression for given parameter values.
     /// </summary>
     /// <param name="queryExpression">A query expression to optimize.</param>
-    /// <param name="parametersFacade">A facade allowing access to parameters in a cache-safe way.</param>
+    /// <param name="Decorator">A decorator allowing access to parameters in a cache-safe way.</param>
     /// <returns>A processed query expression.</returns>
-    protected virtual Expression ExpandFromSqlParameter(Expression queryExpression, CacheSafeParameterFacade parametersFacade)
-        => new RelationalParameterProcessor(Dependencies).Expand(queryExpression, parametersFacade);
+    protected virtual Expression ExpandFromSqlParameter(Expression queryExpression, ParametersCacheDecorator Decorator)
+        => new RelationalParameterProcessor(Dependencies).Expand(queryExpression, Decorator);
 
     /// <summary>
     ///     Optimizes the query expression for given parameter values.

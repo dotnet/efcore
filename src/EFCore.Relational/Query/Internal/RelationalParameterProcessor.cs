@@ -35,7 +35,7 @@ public class RelationalParameterProcessor : ExpressionVisitor
 
     private readonly Dictionary<string, SqlParameterExpression> _sqlParameters = new();
 
-    private CacheSafeParameterFacade _parametersFacade;
+    private ParametersCacheDecorator _parametersDecorator;
     private ParameterNameGenerator _parameterNameGenerator;
 
     /// <summary>
@@ -53,7 +53,7 @@ public class RelationalParameterProcessor : ExpressionVisitor
         _typeMappingSource = dependencies.TypeMappingSource;
         _parameterNameGeneratorFactory = dependencies.ParameterNameGeneratorFactory;
         _sqlGenerationHelper = dependencies.SqlGenerationHelper;
-        _parametersFacade = default!;
+        _parametersDecorator = default!;
         _parameterNameGenerator = default!;
     }
 
@@ -68,13 +68,13 @@ public class RelationalParameterProcessor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Expression Expand(Expression queryExpression, CacheSafeParameterFacade parametersFacade)
+    public virtual Expression Expand(Expression queryExpression, ParametersCacheDecorator parametersDecorator)
     {
         _visitedFromSqlExpressions.Clear();
         _prefixedParameterNames.Clear();
         _sqlParameters.Clear();
         _parameterNameGenerator = _parameterNameGeneratorFactory.Create();
-        _parametersFacade = parametersFacade;
+        _parametersDecorator = parametersDecorator;
 
         var result = Visit(queryExpression);
 
@@ -140,7 +140,7 @@ public class RelationalParameterProcessor : ExpressionVisitor
         {
             case QueryParameterExpression queryParameter:
                 // parameter value will never be null. It could be empty object?[]
-                var parameters = _parametersFacade.GetParametersAndDisableSqlCaching();
+                var parameters = _parametersDecorator.GetAndDisableCaching();
                 var parameterValues = (object?[])parameters[queryParameter.Name]!;
 
                 var subParameters = new List<IRelationalParameter>(parameterValues.Length);
