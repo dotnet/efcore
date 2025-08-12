@@ -837,34 +837,6 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                 updateExpressions.Add(setOriginalValueExpression);
             }
 
-            //foreach (var property in propertiesToUpdate)
-            //{
-            //    // Create expression to read the new value from the database
-            //    var newValue = valueBufferExpression.CreateValueBufferReadValueExpression(
-            //        property.ClrType,
-            //        property.GetIndex(),
-            //        property);
-
-            //    var setSetPropertyMethod = typeof(InternalEntityEntry)
-            //        .GetMethod(nameof(InternalEntityEntry.SetProperty), new[] { typeof(IPropertyBase), typeof(object), typeof(bool), typeof(bool), typeof(bool) })!;
-
-            //    // Create expression to set the property on the existing entity
-            //    // This mimics what EntityEntry.Reload() does: entry[property] = newValue
-            //    var setPropertyExpression = Call(
-            //        entryVariable,
-            //        setSetPropertyMethod,
-            //        Constant(property),
-            //        property.ClrType.IsValueType && property.IsNullable
-            //            ? (Expression)Convert(newValue, typeof(object))
-            //            : Convert(newValue, typeof(object)),
-            //        Constant(false), // isMaterialization
-            //        Constant(false), // setModified
-            //        Constant(false)); // isCascadeDelete
-
-            //    updateExpressions.Add(setPropertyExpression);
-            //}
-
-
             return updateExpressions.Count > 0
                 ? (Expression)Block(updateExpressions)
                 : Empty();
