@@ -5,4 +5,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Relationships.ComplexProperties;
 
 public abstract class ComplexPropertiesProjectionTestBase<TFixture>(TFixture fixture)
     : RelationshipsProjectionTestBase<TFixture>(fixture)
-    where TFixture : ComplexPropertiesFixtureBase, new();
+    where TFixture : ComplexPropertiesFixtureBase, new()
+{
+    #region Value types
+
+    [ConditionalTheory]
+    [MemberData(nameof(TrackingData))]
+    public virtual Task Select_root_with_value_types(QueryTrackingBehavior queryTrackingBehavior)
+        => AssertQuery(
+            ss => ss.Set<ValueRootEntity>(),
+            queryTrackingBehavior: queryTrackingBehavior);
+
+    #endregion Value types
+}

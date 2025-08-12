@@ -26,6 +26,34 @@ public abstract class ComplexPropertiesFixtureBase : RelationshipsQueryFixtureBa
             b.ComplexCollection(e => e.RelatedCollection, rcb
                 => rcb.ComplexProperty(r => r.OptionalNested).IsRequired(false));
         });
+
+        // Value types are only supported with complex types, so we add them to the model here.
+        modelBuilder.Entity<ValueRootEntity>(b =>
+        {
+            b.Property(x => x.Id).ValueGeneratedNever();
+
+            // Note that all collections below are reference type collections,
+            // as we don't yet support complex collections of value types, #31411
+            b.ComplexProperty(e => e.RequiredRelated);
+
+            b.ComplexProperty(e => e.OptionalRelated, orb =>
+            {
+                orb.IsRequired(false);
+                orb.ComplexProperty(r => r.OptionalNested).IsRequired(false);
+            });
+
+            b.ComplexCollection(e => e.RelatedCollection, rcb
+                => rcb.ComplexProperty(r => r.OptionalNested).IsRequired(false));
+        });
+    }
+
+    protected override async Task SeedAsync(PoolableDbContext context)
+    {
+        await base.SeedAsync(context);
+
+        context.Set<ValueRootEntity>().AddRange(Data.ValueRootEntities);
+
+        await context.SaveChangesAsync();
     }
 
     // Derived fixtures ignore some complex properties that are mapped in this one

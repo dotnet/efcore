@@ -2885,14 +2885,14 @@ public sealed partial class SelectExpression : TableExpressionBase
                     complexType.GetJsonPropertyName()
                     ?? throw new UnreachableException($"No JSON property name for complex property {complexProperty.Name}"),
                     tableAlias,
-                    complexProperty.ClrType,
+                    complexProperty.ClrType.UnwrapNullableType(),
                     typeMapping: containerColumn.StoreTypeMapping,
                     isComplexTypeNullable)
                 : new ColumnExpression(
                     containerColumn.Name,
                     tableAlias,
                     containerColumn,
-                    complexProperty.ClrType,
+                    complexProperty.ClrType.UnwrapNullableType(),
                     containerColumn.StoreTypeMapping,
                     isComplexTypeNullable);
 
