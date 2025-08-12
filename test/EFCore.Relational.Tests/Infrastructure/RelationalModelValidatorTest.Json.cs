@@ -723,6 +723,26 @@ public partial class RelationalModelValidatorTest
     }
 
     [ConditionalFact]
+    public void Throws_when_nested_complex_property_mapped_to_json_with_table_sharing()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorComplexEntity>()
+            .ComplexProperty(e => e.ComplexProp, outerBuilder =>
+            {
+                outerBuilder.ComplexProperty(x => x.NestedComplex, innerBuilder =>
+                {
+                    innerBuilder.ToJson("inner_json");
+                });
+            });
+
+        VerifyError(
+            RelationalStrings.NestedComplexPropertyJsonWithTableSharing(
+                "ValidatorComplexEntity.ComplexProp#ValidatorComplexType.NestedComplex",
+                "ValidatorComplexEntity.ComplexProp#ValidatorComplexType"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
     public void Throws_when_properties_in_complex_type_have_same_json_property_name()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -851,6 +871,13 @@ public partial class RelationalModelValidatorTest
     {
         public string Name { get; set; }
         public int Number { get; set; }
+        public ValidatorNestedComplexType NestedComplex { get; set; }
+    }
+
+    protected class ValidatorNestedComplexType
+    {
+        public string Value { get; set; }
+        public int Count { get; set; }
     }
 
     protected class ValidatorJsonEntityBasic
@@ -944,5 +971,50 @@ public partial class RelationalModelValidatorTest
     {
         public int Id { get; set; }
         public ValidatorJsonEntityBasic Link { get; set; }
+    }
+
+    [ConditionalFact]
+    public void Throw_when_concurrency_token_configured_on_json_mapped_owned_entity()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorJsonEntityBasic>(
+            b =>
+            {
+                b.OwnsOne(
+                    x => x.OwnedReference, bb =>
+                    {
+                        bb.ToJson();
+                        bb.Property(x => x.Name).IsConcurrencyToken();
+                        bb.Ignore(x => x.NestedCollection);
+                        bb.Ignore(x => x.NestedReference);
+                    });
+                b.Ignore(x => x.OwnedCollection);
+            });
+
+        VerifyError(
+            RelationalStrings.ConcurrencyTokenOnJsonMappedProperty("Name", nameof(ValidatorJsonOwnedRoot)),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public void Throw_when_concurrency_token_configured_on_json_mapped_complex_property()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        
+        modelBuilder.Entity<ValidatorJsonEntityBasic>(
+            b =>
+            {
+                b.ComplexProperty(x => x.OwnedReference, cb =>
+                {
+                    cb.ToJson();
+                    cb.Property(x => x.Name).IsConcurrencyToken();
+                    cb.Ignore(x => x.NestedCollection);
+                    cb.Ignore(x => x.NestedReference);
+                });
+            });
+
+        VerifyError(
+            RelationalStrings.ConcurrencyTokenOnJsonMappedProperty("Name", "ValidatorJsonEntityBasic.OwnedReference#ValidatorJsonOwnedRoot"),
+            modelBuilder);
     }
 }

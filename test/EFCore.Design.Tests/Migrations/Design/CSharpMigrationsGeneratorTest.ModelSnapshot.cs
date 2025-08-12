@@ -368,6 +368,8 @@ namespace MyNamespace
 
         public int AlternateId { get; set; }
         [NotMapped]
+        public List<string> List { get; set; }
+        [NotMapped]
         public Coordinates Coordinates { get; set; }
         public EntityWithOneProperty EntityWithOneProperty { get; set; }
 

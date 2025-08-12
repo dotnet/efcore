@@ -1051,9 +1051,6 @@ public abstract class InternalTypeBaseBuilder :
             Debug.Assert(configurationSource.HasValue);
 
             memberInfo ??= existingComplexProperty.PropertyInfo ?? (MemberInfo?)existingComplexProperty.FieldInfo;
-            propertyType ??= existingComplexProperty.ClrType;
-            collection ??= existingComplexProperty.IsCollection;
-            complexType ??= existingComplexType.ClrType;
 
             propertiesToDetach = [existingComplexProperty];
         }
@@ -1067,33 +1064,6 @@ public abstract class InternalTypeBaseBuilder :
                 return null;
             }
 
-            memberInfo ??= Metadata.IsPropertyBag
-                ? null
-                : Metadata.ClrType.GetMembersInHierarchy(propertyName).FirstOrDefault();
-
-            if (propertyType == null)
-            {
-                if (memberInfo == null)
-                {
-                    throw new InvalidOperationException(CoreStrings.NoPropertyType(propertyName, Metadata.DisplayName()));
-                }
-
-                propertyType = memberInfo.GetMemberType();
-            }
-
-            if (collection == false)
-            {
-                complexType = propertyType.UnwrapNullableType();
-            }
-
-            if (collection == null
-                || complexType == null)
-            {
-                var elementType = propertyType.TryGetSequenceType();
-                collection ??= elementType != null;
-                complexType ??= (collection.Value ? elementType : propertyType)?.UnwrapNullableType();
-            }
-
             foreach (var derivedType in Metadata.GetDerivedTypes())
             {
                 var derivedProperty = derivedType.FindDeclaredComplexProperty(propertyName);
@@ -1104,6 +1074,33 @@ public abstract class InternalTypeBaseBuilder :
                     propertiesToDetach.Add(derivedProperty);
                 }
             }
+
+            memberInfo ??= Metadata.IsPropertyBag
+                ? null
+                : Metadata.ClrType.GetMembersInHierarchy(propertyName).FirstOrDefault();
+        }
+
+        if (propertyType == null)
+        {
+            if (memberInfo == null)
+            {
+                throw new InvalidOperationException(CoreStrings.NoPropertyType(propertyName, Metadata.DisplayName()));
+            }
+
+            propertyType = memberInfo.GetMemberType();
+        }
+
+        if (collection == false)
+        {
+            complexType = propertyType.UnwrapNullableType();
+        }
+
+        if (collection == null
+            || complexType == null)
+        {
+            var elementType = propertyType.TryGetSequenceType();
+            collection ??= elementType != null;
+            complexType ??= (collection.Value ? elementType : propertyType)?.UnwrapNullableType();
         }
 
         var model = Metadata.Model;
@@ -1517,7 +1514,8 @@ public abstract class InternalTypeBaseBuilder :
 
         return memberInfo == null
             || propertyType == memberInfo.GetMemberType()
-            || typeConfigurationSource == null;
+            || typeConfigurationSource == null
+            || typeConfigurationSource == ConfigurationSource.Explicit;
     }
 
     /// <summary>
