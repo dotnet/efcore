@@ -9,9 +9,7 @@ namespace System.Diagnostics.CodeAnalysis
     internal sealed class NotNullIfNotNullAttribute : Attribute
     {
         public NotNullIfNotNullAttribute(string parameterName)
-        {
-            ParameterName = parameterName;
-        }
+            => ParameterName = parameterName;
 
         public string ParameterName { get; }
     }

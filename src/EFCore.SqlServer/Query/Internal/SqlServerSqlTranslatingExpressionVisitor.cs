@@ -163,7 +163,7 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
             var isBinaryMaxDataType = GetProviderType(sqlExpression) == "varbinary(max)" || sqlExpression is SqlParameterExpression;
             var dataLengthSqlFunction = Dependencies.SqlExpressionFactory.Function(
                 "DATALENGTH",
-                new[] { sqlExpression },
+                [sqlExpression],
                 nullable: true,
                 argumentsPropagateNullability: Statics.TrueArrays[1],
                 isBinaryMaxDataType ? typeof(long) : typeof(int));
@@ -420,16 +420,15 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
                                 _sqlExpressionFactory.Equal(
                                     _sqlExpressionFactory.Function(
                                         methodType is StartsEndsWithContains.StartsWith ? "LEFT" : "RIGHT",
-                                        new[]
-                                        {
-                                                translatedInstance,
-                                                _sqlExpressionFactory.Function(
-                                                    "LEN",
-                                                    new[] { translatedPattern },
-                                                    nullable: true,
-                                                    argumentsPropagateNullability: Statics.TrueArrays[1],
-                                                    typeof(int))
-                                        },
+                                        [
+                                            translatedInstance,
+                                            _sqlExpressionFactory.Function(
+                                                "LEN",
+                                                [translatedPattern],
+                                                nullable: true,
+                                                argumentsPropagateNullability: Statics.TrueArrays[1],
+                                                typeof(int))
+                                        ],
                                         nullable: true,
                                         argumentsPropagateNullability: Statics.TrueArrays[2],
                                         typeof(string),
@@ -462,7 +461,7 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
                     => _sqlExpressionFactory.GreaterThan(
                         _sqlExpressionFactory.Function(
                             "CHARINDEX",
-                            new[] { translatedPattern, translatedInstance },
+                            [translatedPattern, translatedInstance],
                             nullable: true,
                             argumentsPropagateNullability: Statics.TrueArrays[2],
                             typeof(int)),
@@ -668,14 +667,13 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
                 ? Dependencies.SqlExpressionFactory.Convert(
                     Dependencies.SqlExpressionFactory.Function(
                         "SUBSTRING",
-                        new[]
-                        {
+                        [
                             sqlArray,
                             Dependencies.SqlExpressionFactory.Add(
                                 Dependencies.SqlExpressionFactory.ApplyDefaultTypeMapping(sqlIndex),
                                 Dependencies.SqlExpressionFactory.Constant(1)),
                             Dependencies.SqlExpressionFactory.Constant(1)
-                        },
+                        ],
                         nullable: true,
                         argumentsPropagateNullability: Statics.TrueArrays[3],
                         typeof(byte[])),

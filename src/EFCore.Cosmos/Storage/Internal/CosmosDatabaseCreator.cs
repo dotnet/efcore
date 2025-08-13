@@ -120,7 +120,7 @@ public class CosmosDatabaseCreator : IDatabaseCreator
         var defaultFullTextLanguage = model.GetDefaultFullTextSearchLanguage();
         foreach (var (containerName, mappedTypes) in containers)
         {
-            IReadOnlyList<string> partitionKeyStoreNames = Array.Empty<string>();
+            IReadOnlyList<string> partitionKeyStoreNames = [];
             int? analyticalTtl = null;
             int? defaultTtl = null;
             ThroughputProperties? throughput = null;
@@ -176,8 +176,8 @@ public class CosmosDatabaseCreator : IDatabaseCreator
             }
 
             foreach (var ownedType in entityType.GetNavigations()
-                .Where(x => x.ForeignKey.IsOwnership && !x.IsOnDependent && !x.TargetEntityType.IsDocumentRoot())
-                .Select(x => x.TargetEntityType))
+                         .Where(x => x.ForeignKey.IsOwnership && !x.IsOnDependent && !x.TargetEntityType.IsDocumentRoot())
+                         .Select(x => x.TargetEntityType))
             {
                 ProcessEntityType(ownedType, indexes, vectors, fullTextProperties);
             }

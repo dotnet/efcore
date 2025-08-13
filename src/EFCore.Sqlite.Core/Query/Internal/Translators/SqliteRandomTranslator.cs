@@ -43,17 +43,16 @@ public class SqliteRandomTranslator : IMethodCallTranslator
         => MethodInfo.Equals(method)
             ? _sqlExpressionFactory.Function(
                 "abs",
-                new[]
-                {
+                [
                     _sqlExpressionFactory.Divide(
                         _sqlExpressionFactory.Function(
                             "random",
-                            Enumerable.Empty<SqlExpression>(),
+                            [],
                             nullable: false,
-                            argumentsPropagateNullability: Enumerable.Empty<bool>(),
+                            argumentsPropagateNullability: [],
                             method.ReturnType),
                         _sqlExpressionFactory.Constant(9223372036854780000.0))
-                },
+                ],
                 nullable: false,
                 argumentsPropagateNullability: Statics.TrueArrays[1],
                 method.ReturnType)

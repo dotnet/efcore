@@ -3183,7 +3183,6 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
                     .HasParameter(a => a.Name, p => p.IsInputOutput())
                     .HasResultColumn(a => a.Name))
             .Property(a => a.Name).ValueGeneratedOnUpdate().Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Save);
-        ;
 
         VerifyError(
             RelationalStrings.StoredProcedureResultColumnParameterConflict(nameof(Animal), nameof(Animal.Name), "Animal_Update"),
@@ -3396,7 +3395,6 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
                     .HasParameter("FavoritePersonId")
                     .HasResultColumn(a => a.Name))
             .Property(a => a.Name).ValueGeneratedOnUpdate().Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Save);
-        ;
         modelBuilder.Entity<Cat>();
 
         Validate(modelBuilder);
@@ -3415,7 +3413,6 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
                     .HasParameter("FavoritePersonId")
                     .HasResultColumn(a => a.Name))
             .Property(a => a.Name).ValueGeneratedOnUpdate().Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Save);
-        ;
         modelBuilder.Entity<Cat>()
             .UpdateUsingStoredProcedure(s => s.HasParameter(c => c.Breed));
 

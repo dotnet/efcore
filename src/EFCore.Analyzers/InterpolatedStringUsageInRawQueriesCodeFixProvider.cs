@@ -11,11 +11,11 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Microsoft.EntityFrameworkCore;
 
-[ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(InterpolatedStringUsageInRawQueriesCodeFixProvider))]
-[Shared]
+[ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(InterpolatedStringUsageInRawQueriesCodeFixProvider)), Shared]
 public sealed class InterpolatedStringUsageInRawQueriesCodeFixProvider : CodeFixProvider
 {
-    public override ImmutableArray<string> FixableDiagnosticIds => [EFDiagnostics.InterpolatedStringUsageInRawQueries];
+    public override ImmutableArray<string> FixableDiagnosticIds
+        => [EFDiagnostics.InterpolatedStringUsageInRawQueries];
 
     public override FixAllProvider GetFixAllProvider()
         => WellKnownFixAllProviders.BatchFixer;

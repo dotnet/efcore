@@ -31,7 +31,9 @@ namespace Microsoft.EntityFrameworkCore.Tools
             bool nullable,
             string[] remainingArguments,
             IOperationReportHandler reportHandler)
-            : base(assembly, startupAssembly, designAssembly, project, projectDir, rootNamespace, language, nullable, remainingArguments, reportHandler)
+            : base(
+                assembly, startupAssembly, designAssembly, project, projectDir, rootNamespace, language, nullable, remainingArguments,
+                reportHandler)
         {
             var info = new AppDomainSetup { ApplicationBase = AppBasePath };
 
@@ -68,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
 
             if (DesignAssemblyPath != null)
             {
-                _domain.AssemblyResolve += (object? sender, ResolveEventArgs args) =>
+                _domain.AssemblyResolve += (sender, args) =>
                 {
                     var assemblyPath = Path.Combine(Path.GetDirectoryName(DesignAssemblyPath)!, args.Name + ".dll");
                     return File.Exists(assemblyPath) ? Assembly.LoadFrom(assemblyPath) : null;
@@ -111,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
 
                 var designAssembly = _domain.GetAssemblies().Single(assembly => assembly.GetName().Name == DesignAssemblyName);
                 _efcoreVersion = designAssembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
-                        ?.InformationalVersion;
+                    ?.InformationalVersion;
                 return _efcoreVersion;
             }
         }

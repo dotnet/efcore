@@ -255,7 +255,7 @@ public class TableBase : Annotatable, ITableBase
         }
 
         CheckMappedType(entityType);
-        return Enumerable.Empty<IForeignKey>();
+        return [];
     }
 
     /// <inheritdoc />
@@ -268,6 +268,6 @@ public class TableBase : Annotatable, ITableBase
         }
 
         CheckMappedType(entityType);
-        return Enumerable.Empty<IForeignKey>();
+        return [];
     }
 }

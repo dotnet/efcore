@@ -134,13 +134,12 @@ public static class ScaffoldingModelExtensions
                 tableNamedArgs.Add(nameof(TableAttribute.Schema), schema);
             }
 
-            yield return new AttributeCodeFragment(typeof(TableAttribute), new object?[] { tableName }, tableNamedArgs);
+            yield return new AttributeCodeFragment(typeof(TableAttribute), [tableName], tableNamedArgs);
         }
 
         foreach (var index in entityType.GetIndexes()
-                     .Where(
-                         i => ((IConventionIndex)i).GetConfigurationSource() != ConfigurationSource.Convention
-                             && i.IsHandledByDataAnnotations(annotationCodeGenerator)))
+                     .Where(i => ((IConventionIndex)i).GetConfigurationSource() != ConfigurationSource.Convention
+                         && i.IsHandledByDataAnnotations(annotationCodeGenerator)))
         {
             var indexArgs = new List<object?>();
             var indexNamedArgs = new Dictionary<string, object?>();
@@ -632,8 +631,7 @@ public static class ScaffoldingModelExtensions
         }
 
         var valueGenerated = property.ValueGenerated;
-        if (((IConventionProperty)property).GetValueGeneratedConfigurationSource() is ConfigurationSource
-            valueGeneratedConfigurationSource
+        if (((IConventionProperty)property).GetValueGeneratedConfigurationSource() is { } valueGeneratedConfigurationSource
             && valueGeneratedConfigurationSource != ConfigurationSource.Convention
             && ValueGenerationConvention.GetValueGenerated(property) != valueGenerated)
         {

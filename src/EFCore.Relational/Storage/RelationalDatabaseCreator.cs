@@ -116,7 +116,8 @@ public abstract class RelationalDatabaseCreator : IRelationalDatabaseCreator
     ///     to incrementally update the schema. It is assumed that none of the tables exist in the database.
     /// </summary>
     public virtual void CreateTables()
-        => Dependencies.MigrationCommandExecutor.ExecuteNonQuery(GetCreateTablesCommands(), Dependencies.Connection, new MigrationExecutionState(), commitTransaction: true);
+        => Dependencies.MigrationCommandExecutor.ExecuteNonQuery(
+            GetCreateTablesCommands(), Dependencies.Connection, new MigrationExecutionState(), commitTransaction: true);
 
     /// <summary>
     ///     Asynchronously creates all tables for the current model in the database. No attempt is made
@@ -129,7 +130,8 @@ public abstract class RelationalDatabaseCreator : IRelationalDatabaseCreator
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
     public virtual Task CreateTablesAsync(CancellationToken cancellationToken = default)
         => Dependencies.MigrationCommandExecutor.ExecuteNonQueryAsync(
-            GetCreateTablesCommands(), Dependencies.Connection, new MigrationExecutionState(), commitTransaction: true, cancellationToken: cancellationToken);
+            GetCreateTablesCommands(), Dependencies.Connection, new MigrationExecutionState(), commitTransaction: true,
+            cancellationToken: cancellationToken);
 
     /// <summary>
     ///     Gets the commands that will create all tables from the model.

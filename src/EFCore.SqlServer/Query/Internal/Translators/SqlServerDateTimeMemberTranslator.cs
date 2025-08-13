@@ -52,7 +52,7 @@ public class SqlServerDateTimeMemberTranslator(
             nameof(DateTime.Date)
                 => sqlExpressionFactory.Function(
                     "CONVERT",
-                    new[] { sqlExpressionFactory.Fragment("date"), instance! },
+                    [sqlExpressionFactory.Fragment("date"), instance!],
                     nullable: true,
                     argumentsPropagateNullability: Statics.FalseTrue,
                     returnType,
@@ -63,7 +63,7 @@ public class SqlServerDateTimeMemberTranslator(
             nameof(DateTime.TimeOfDay)
                 => sqlExpressionFactory.Function(
                     "CONVERT",
-                    new[] { sqlExpressionFactory.Fragment("time"), instance! },
+                    [sqlExpressionFactory.Fragment("time"), instance!],
                     nullable: true,
                     argumentsPropagateNullability: Statics.FalseTrue,
                     returnType),
@@ -98,8 +98,7 @@ public class SqlServerDateTimeMemberTranslator(
             nameof(DateTime.Today)
                 => sqlExpressionFactory.Function(
                     "CONVERT",
-                    new[]
-                    {
+                    [
                         sqlExpressionFactory.Fragment("date"),
                         sqlExpressionFactory.Function(
                             "GETDATE",
@@ -107,7 +106,7 @@ public class SqlServerDateTimeMemberTranslator(
                             nullable: false,
                             argumentsPropagateNullability: [],
                             typeof(DateTime))
-                    },
+                    ],
                     nullable: true,
                     argumentsPropagateNullability: Statics.FalseTrue,
                     returnType),

@@ -1,10 +1,14 @@
-<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8"?>
+
 <Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
   <PropertyGroup>
     <_FullOutputPath>$([MSBuild]::NormalizePath('$(MSBuildProjectDirectory)', '$(OutputPath)'))</_FullOutputPath>
     <_FullIntermediateOutputPath>$([MSBuild]::NormalizePath('$(MSBuildProjectDirectory)', '$(IntermediateOutputPath)'))</_FullIntermediateOutputPath>
-    <_FullIntermediateOutputPath Condition="'$(AppendRuntimeIdentifierToOutputPath)' == 'true' And '$(RuntimeIdentifier)' != '' And '$(_UsingDefaultRuntimeIdentifier)' != 'true' And '$(UseArtifactsIntermediateOutput)' != 'true'">$([MSBuild]::NormalizePath('$(_FullIntermediateOutputPath)', '../'))</_FullIntermediateOutputPath>
+    <_FullIntermediateOutputPath Condition="'$(AppendRuntimeIdentifierToOutputPath)' == 'true' And '$(RuntimeIdentifier)' != '' And '$(_UsingDefaultRuntimeIdentifier)' != 'true' And '$(UseArtifactsIntermediateOutput)' != 'true'">
+      $([MSBuild]::NormalizePath('$(_FullIntermediateOutputPath)',
+      '../'))
+    </_FullIntermediateOutputPath>
     <EFGeneratedSourcesBuildFile Condition="'$(EFGeneratedSourcesBuildFile)' == ''">$(_FullIntermediateOutputPath)$(AssemblyName).EFGeneratedSources.Build.txt</EFGeneratedSourcesBuildFile>
     <EFGeneratedSourcesPublishFile Condition="'$(EFGeneratedSourcesPublishFile)' == ''">$(_FullIntermediateOutputPath)$(AssemblyName).EFGeneratedSources.Publish.txt</EFGeneratedSourcesPublishFile>
     <_AssemblyFullName>$(_FullOutputPath)$(AssemblyName).dll</_AssemblyFullName>
@@ -115,24 +119,24 @@ For Publish:
     </OptimizeDbContext>
 
     <Delete Files="$(EFGeneratedSourcesBuildFile)"
-            Condition="'$(_EFGenerationStage)'=='build'"/>
+            Condition="'$(_EFGenerationStage)'=='build'" />
     <Delete Files="$(EFGeneratedSourcesPublishFile)"
-            Condition="'$(_EFGenerationStage)'=='publish'"/>
+            Condition="'$(_EFGenerationStage)'=='publish'" />
 
     <WriteLinesToFile File="$(EFGeneratedSourcesBuildFile)"
                       Lines="$(_EFGeneratedFiles)"
-                      Condition="'$(_EFGenerationStage)'=='build'"/>
+                      Condition="'$(_EFGenerationStage)'=='build'" />
     <WriteLinesToFile File="$(EFGeneratedSourcesPublishFile)"
                       Lines="$(_EFGeneratedFiles)"
-                      Condition="'$(_EFGenerationStage)'=='publish'"/>
+                      Condition="'$(_EFGenerationStage)'=='publish'" />
 
-    <CallTarget Targets="Build"/>
+    <CallTarget Targets="Build" />
   </Target>
 
   <Target Name="_EFValidateProperties"
           BeforeTargets="CoreCompile">
     <Error Condition="'$(EFScaffoldModelStage)'=='publish' And '$(EFPrecompileQueriesStage)'=='build'"
-           Text="If %24(EFScaffoldModelStage) is set to 'publish' then %24(EFPrecompileQueriesStage) must also be set to 'publish'."/>
+           Text="If %24(EFScaffoldModelStage) is set to 'publish' then %24(EFPrecompileQueriesStage) must also be set to 'publish'." />
   </Target>
 
   <!-- Read the previously generated files -->
@@ -140,11 +144,11 @@ For Publish:
           BeforeTargets="_EFProcessGeneratedFiles;_EFCleanGeneratedFiles">
     <ReadLinesFromFile File="$(EFGeneratedSourcesBuildFile)"
                        Condition="Exists('$(EFGeneratedSourcesBuildFile)')">
-      <Output TaskParameter="Lines" ItemName="_ReadGeneratedFiles"/>
+      <Output TaskParameter="Lines" ItemName="_ReadGeneratedFiles" />
     </ReadLinesFromFile>
     <ReadLinesFromFile File="$(EFGeneratedSourcesPublishFile)"
                        Condition="Exists('$(EFGeneratedSourcesPublishFile)')">
-      <Output TaskParameter="Lines" ItemName="_ReadGeneratedFiles"/>
+      <Output TaskParameter="Lines" ItemName="_ReadGeneratedFiles" />
     </ReadLinesFromFile>
 
     <ItemGroup>
@@ -212,7 +216,7 @@ For Publish:
       Condition="'%(_MSBuildProjectReferenceExistent.BuildReference)' == 'true' and '@(ProjectReferenceWithConfiguration)' != '' "
       ContinueOnError="$(ContinueOnError)"
       SkipNonexistentTargets="true"
-      RemoveProperties="%(_MSBuildProjectReferenceExistent.GlobalPropertiesToRemove)$(_GlobalPropertiesToRemoveFromProjectReferences)"/>
+      RemoveProperties="%(_MSBuildProjectReferenceExistent.GlobalPropertiesToRemove)$(_GlobalPropertiesToRemoveFromProjectReferences)" />
   </Target>
 
   <Target Name="_EFCleanGeneratedFiles" AfterTargets="Clean">

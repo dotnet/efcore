@@ -119,8 +119,7 @@ public class RelationalCommandCache : IPrintableExpression
             {
                 _parameterInfos[key] = new ParameterInfo
                 {
-                    IsNull = value is null,
-                    ObjectArrayLength = value is object[] arr ? arr.Length : null
+                    IsNull = value is null, ObjectArrayLength = value is object[] arr ? arr.Length : null
                 };
             }
         }

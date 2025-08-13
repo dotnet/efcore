@@ -51,10 +51,7 @@ internal class Project
     {
         Debug.Assert(!string.IsNullOrEmpty(file), "file is null or empty.");
 
-        var args = new List<string>
-            {
-                "msbuild",
-            };
+        var args = new List<string> { "msbuild", };
 
         if (framework != null)
         {

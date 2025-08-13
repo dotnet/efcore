@@ -43,7 +43,7 @@ public class SqlServerIsDateFunctionTranslator : IMethodCallTranslator
             ? _sqlExpressionFactory.Convert(
                 _sqlExpressionFactory.Function(
                     "ISDATE",
-                    new[] { arguments[1] },
+                    [arguments[1]],
                     nullable: true,
                     argumentsPropagateNullability: Statics.TrueArrays[1],
                     MethodInfo.ReturnType),

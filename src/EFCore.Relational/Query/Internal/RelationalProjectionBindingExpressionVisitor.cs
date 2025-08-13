@@ -192,7 +192,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                         && method.DeclaringType == typeof(Enumerable)
                         && argument.Type.TryGetElementType(typeof(IQueryable<>)) != null)
                     {
-                        if (_queryableMethodTranslatingExpressionVisitor.TranslateSubquery(argument) is ShapedQueryExpression subquery)
+                        if (_queryableMethodTranslatingExpressionVisitor.TranslateSubquery(argument) is { } subquery)
                         {
                             _clientProjections!.Add(subquery);
                             // expression.Type here will be List<T>
@@ -389,7 +389,10 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                 return QueryCompilationContext.NotTranslatedExpression;
             }
 
-            case CollectionResultExpression { QueryExpression: ProjectionBindingExpression projectionBindingExpression } collectionResultExpression:
+            case CollectionResultExpression
+            {
+                QueryExpression: ProjectionBindingExpression projectionBindingExpression
+            } collectionResultExpression:
             {
                 // TODO this should not be needed at some point, we shouldn't be revisiting same projection.
                 // This happens because we don't process result selector for Join/SelectMany directly.

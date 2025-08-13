@@ -173,7 +173,7 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
                 var penultimateOperator = terminatingOperator switch
                 {
                     // This is needed e.g. for GetEnumerator(), DbSet.AsAsyncEnumerable (non-static terminating operators)
-                    { Object: Expression @object } => @object,
+                    { Object: { } @object } => @object,
                     { Arguments: [var sourceArgument, ..] } => sourceArgument,
                     _ => throw new UnreachableException()
                 };
@@ -284,13 +284,12 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
         ]);
 
         foreach (var ns in _namespaces
-                     .OrderBy(
-                         ns => ns switch
-                         {
-                             _ when ns.StartsWith("System.", StringComparison.Ordinal) => 10,
-                             _ when ns.StartsWith("Microsoft.", StringComparison.Ordinal) => 9,
-                             _ => 0
-                         })
+                     .OrderBy(ns => ns switch
+                     {
+                         _ when ns.StartsWith("System.", StringComparison.Ordinal) => 10,
+                         _ when ns.StartsWith("Microsoft.", StringComparison.Ordinal) => 9,
+                         _ => 0
+                     })
                      .ThenBy(ns => ns))
         {
             _code.Append("using ").Append(ns).AppendLine(";");
@@ -398,7 +397,7 @@ namespace System.Runtime.CompilerServices
                 var nestedOperatorExpression = operatorMethodCall switch
                 {
                     // This is needed e.g. for GetEnumerator(), DbSet.AsAsyncEnumerable (non-static terminating operators)
-                    { Object: Expression @object } => @object,
+                    { Object: { } @object } => @object,
                     { Arguments: [var sourceArgument, ..] } => sourceArgument,
                     _ => throw new UnreachableException()
                 };
@@ -489,10 +488,9 @@ namespace System.Runtime.CompilerServices
             IArrayTypeSymbol arrayTypeSymbol => arrayTypeSymbol.ElementType,
             INamedTypeSymbol namedReturnType2
                 when namedReturnType2.AllInterfaces.Prepend(namedReturnType2)
-                    .Any(
-                        i => i.OriginalDefinition.Equals(_symbols.GenericEnumerable, SymbolEqualityComparer.Default)
-                            || i.OriginalDefinition.Equals(_symbols.GenericAsyncEnumerable, SymbolEqualityComparer.Default)
-                            || i.OriginalDefinition.Equals(_symbols.GenericEnumerator, SymbolEqualityComparer.Default))
+                    .Any(i => i.OriginalDefinition.Equals(_symbols.GenericEnumerable, SymbolEqualityComparer.Default)
+                        || i.OriginalDefinition.Equals(_symbols.GenericAsyncEnumerable, SymbolEqualityComparer.Default)
+                        || i.OriginalDefinition.Equals(_symbols.GenericEnumerator, SymbolEqualityComparer.Default))
                 => namedReturnType2.TypeArguments[0],
             _ => null
         };
@@ -767,7 +765,8 @@ namespace System.Runtime.CompilerServices
                             // If there were captured variables, generate code to evaluate and build the same NewArrayExpression at runtime,
                             // and then fall through to the normal logic, generating variable extractors against that NewArrayExpression
                             // (local var) instead of against the method argument.
-                            code.AppendLine($"""
+                            code.AppendLine(
+                                $"""
                                              var setterBuilder = new UpdateSettersBuilder<{sourceElementTypeName}>();
                                              {parameterName}(setterBuilder);
                                              var setters = setterBuilder.BuildSettersExpression();
@@ -854,7 +853,8 @@ namespace System.Runtime.CompilerServices
                                 {
                                     code
                                         .Append('"').Append(capturedVariablesPathTree.ParameterName!).AppendLine("\",")
-                                        .AppendLine($"Expression.Lambda<Func<object?>>(Expression.Convert({roslynPathSegment}, typeof(object)))")
+                                        .AppendLine(
+                                            $"Expression.Lambda<Func<object?>>(Expression.Convert({roslynPathSegment}, typeof(object)))")
                                         .AppendLine(".Compile(preferInterpretation: true)")
                                         .AppendLine(".Invoke());");
                                 }
@@ -869,8 +869,7 @@ namespace System.Runtime.CompilerServices
                 // side we have a query root (i.e. not the MethodCallExpression for the FromSql(), but rather its evaluated result)
                 case FromSqlQueryRootExpression fromSqlQueryRoot:
                 {
-                    if (_funcletizer.CalculatePathsToEvaluatableRoots(fromSqlQueryRoot.Argument) is not ExpressionTreeFuncletizer.PathNode
-                        evaluatableRootPaths)
+                    if (_funcletizer.CalculatePathsToEvaluatableRoots(fromSqlQueryRoot.Argument) is not { } evaluatableRootPaths)
                     {
                         // There are no captured variables in this FromSqlQueryRootExpression, skip it.
                         break;
@@ -1134,7 +1133,7 @@ namespace System.Runtime.CompilerServices
             _ => terminatingOperator switch
             {
                 // This is needed e.g. for GetEnumerator(), DbSet.AsAsyncEnumerable (non-static terminating operators)
-                { Object: Expression }
+                { Object: not null }
                     => terminatingOperator.Update(penultimateOperator, terminatingOperator.Arguments),
                 { Arguments: [_, ..] }
                     => terminatingOperator.Update(@object: null, [penultimateOperator, .. terminatingOperator.Arguments.Skip(1)]),
@@ -1183,8 +1182,7 @@ namespace System.Runtime.CompilerServices
                     },
                     Arguments:
                     [
-                        UnaryExpression { NodeType: ExpressionType.Quote, Operand: LambdaExpression propertySelector },
-                        Expression valueSelector
+                        UnaryExpression { NodeType: ExpressionType.Quote, Operand: LambdaExpression propertySelector }, { } valueSelector
                     ]
                 } methodCallExpression
                 && methodCallExpression.Method.DeclaringType.GetGenericTypeDefinition() == typeof(UpdateSettersBuilder<>))

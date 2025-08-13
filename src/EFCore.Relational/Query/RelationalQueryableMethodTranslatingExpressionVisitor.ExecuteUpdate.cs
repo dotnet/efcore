@@ -93,7 +93,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                     return false;
                 }
 
-                if (!_sqlTranslator.TryBindMember(_sqlTranslator.Visit(baseExpression), member, out var translatedBaseExpression, out var propertyBase))
+                if (!_sqlTranslator.TryBindMember(
+                        _sqlTranslator.Visit(baseExpression), member, out var translatedBaseExpression, out var propertyBase))
                 {
                     AddTranslationErrorDetails(RelationalStrings.InvalidPropertyInSetProperty(propertySelector.Print()));
                     return false;
@@ -147,7 +148,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                         }
 
                         if (!IsColumnOnSameTable(column, propertySelector)
-                            || TranslateSqlSetterValueSelector(source, valueSelector, column) is not SqlExpression translatedValueSelector)
+                            || TranslateSqlSetterValueSelector(source, valueSelector, column) is not { } translatedValueSelector)
                         {
                             return false;
                         }
@@ -169,10 +170,11 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
 
                         if (complexType.IsMappedToJson())
                         {
-                            throw new InvalidOperationException(RelationalStrings.ExecuteUpdateOverJsonIsNotSupported(complexType.DisplayName()));
+                            throw new InvalidOperationException(
+                                RelationalStrings.ExecuteUpdateOverJsonIsNotSupported(complexType.DisplayName()));
                         }
 
-                        if (TranslateSetterValueSelector(source, valueSelector, shaper.Type) is not Expression translatedValueSelector
+                        if (TranslateSetterValueSelector(source, valueSelector, shaper.Type) is not { } translatedValueSelector
                             || !TryProcessComplexType(shaper, translatedValueSelector))
                         {
                             return false;
@@ -234,7 +236,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
 
                     var rewrittenValueSelector = CreatePropertyAccessExpression(valueExpression, property);
                     if (TranslateSqlSetterValueSelector(
-                            source, rewrittenValueSelector, column) is not SqlExpression translatedValueSelector)
+                            source, rewrittenValueSelector, column) is not { } translatedValueSelector)
                     {
                         return false;
                     }
@@ -251,7 +253,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
 
                     if (complexProperty.ComplexType.IsMappedToJson())
                     {
-                        throw new InvalidOperationException(RelationalStrings.ExecuteUpdateOverJsonIsNotSupported(complexProperty.ComplexType.DisplayName()));
+                        throw new InvalidOperationException(
+                            RelationalStrings.ExecuteUpdateOverJsonIsNotSupported(complexProperty.ComplexType.DisplayName()));
                     }
 
                     var nestedShaperExpression = (StructuralTypeShaperExpression)projection.BindComplexProperty(complexProperty);
@@ -317,8 +320,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                         }
 
                         case MemberInitExpression memberInitExpression
-                            when memberInitExpression.Bindings.SingleOrDefault(
-                                mb => mb.Member.Name == property.Name) is MemberAssignment memberAssignment:
+                            when memberInitExpression.Bindings.SingleOrDefault(mb => mb.Member.Name == property.Name) is MemberAssignment
+                                memberAssignment:
                             return memberAssignment.Expression;
 
                         default:
@@ -382,8 +385,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                 remappedValueSelector = Expression.Convert(remappedValueSelector, propertyType);
             }
 
-            if (_sqlTranslator.TranslateProjection(remappedValueSelector, applyDefaultTypeMapping: false) is not Expression
-                translatedValueSelector)
+            if (_sqlTranslator.TranslateProjection(remappedValueSelector, applyDefaultTypeMapping: false) is not
+                { } translatedValueSelector)
             {
                 AddTranslationErrorDetails(RelationalStrings.InvalidValueInSetProperty(valueSelector.Print()));
                 return null;
@@ -427,7 +430,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                 return null;
             }
 
-            if (entityType.FindPrimaryKey() is not IKey pk)
+            if (entityType.FindPrimaryKey() is not { } pk)
             {
                 AddTranslationErrorDetails(
                     RelationalStrings.ExecuteOperationOnKeylessEntityTypeWithUnsupportedOperator(
@@ -477,7 +480,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                         transparentIdentifierParameter)
                     : valueExpression;
 
-                rewrittenSetters[i] = new(propertyExpression, valueExpression);
+                rewrittenSetters[i] = new ExecuteUpdateSetter(propertyExpression, valueExpression);
             }
 
             tableExpression = (TableExpression)outerSelectExpression.Tables[0];
@@ -597,6 +600,6 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         : Expression
     {
         public SqlParameterExpression ParameterExpression { get; } = parameterExpression;
-        public List<IComplexProperty> ComplexPropertyChain { get; } = new() { firstComplexProperty };
+        public List<IComplexProperty> ComplexPropertyChain { get; } = [firstComplexProperty];
     }
 }

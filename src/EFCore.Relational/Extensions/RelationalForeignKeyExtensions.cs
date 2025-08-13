@@ -139,7 +139,7 @@ public static class RelationalForeignKeyExtensions
         foreignKey.DeclaringEntityType.Model.EnsureRelationalModel();
         return (IEnumerable<IForeignKeyConstraint>?)foreignKey.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.ForeignKeyMappings)
-            ?? Enumerable.Empty<IForeignKeyConstraint>();
+            ?? [];
     }
 
     /// <summary>

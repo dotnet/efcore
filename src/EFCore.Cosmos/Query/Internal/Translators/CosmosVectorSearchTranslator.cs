@@ -58,14 +58,12 @@ public class CosmosVectorSearchTranslator(ISqlExpressionFactory sqlExpressionFac
             ?? vector2.TypeMapping as CosmosVectorTypeMapping
             ?? throw new InvalidOperationException(CosmosStrings.VectorSearchRequiresVector);
 
-
         var vectorType = vectorMapping.VectorType;
 
-        List<Expression> newArguments = new()
-        {
-            sqlExpressionFactory.ApplyTypeMapping(vector1, vectorMapping),
-            sqlExpressionFactory.ApplyTypeMapping(vector2, vectorMapping),
-        };
+        List<Expression> newArguments =
+        [
+            sqlExpressionFactory.ApplyTypeMapping(vector1, vectorMapping), sqlExpressionFactory.ApplyTypeMapping(vector2, vectorMapping)
+        ];
 
         if (useBruteForceValue is not null)
         {
@@ -85,7 +83,7 @@ public class CosmosVectorSearchTranslator(ISqlExpressionFactory sqlExpressionFac
 
             var requireComma = false;
 
-            if (options.DistanceFunction is DistanceFunction distanceFunction)
+            if (options.DistanceFunction is { } distanceFunction)
             {
                 optionsBuilder
                     .Append("'distanceFunction': '")

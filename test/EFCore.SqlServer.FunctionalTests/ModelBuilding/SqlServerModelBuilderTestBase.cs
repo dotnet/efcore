@@ -208,9 +208,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
                     b.PrimitiveCollection<int[]>("Charm").HasColumnType("nvarchar(25)");
                     b.PrimitiveCollection<string[]>("Strange").HasColumnType("text");
                     b.PrimitiveCollection<ObservableCollection<int>>("Top").HasColumnType("char(100)");
-                    ;
                     b.PrimitiveCollection<ObservableCollection<string>?>("Bottom").HasColumnType("varchar(max)");
-                    ;
                 });
 
             var model = modelBuilder.FinalizeModel();

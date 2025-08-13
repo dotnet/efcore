@@ -136,7 +136,7 @@ public class SqliteSqlNullabilityProcessor : SqlNullabilityProcessor
         TableExpressionBase table,
         SqlParameterExpression newCollectionParameter)
         => table is TableValuedFunctionExpression { Arguments: [SqlParameterExpression] } jsonEachExpression
-            ? jsonEachExpression.Update(new[] { newCollectionParameter })
+            ? jsonEachExpression.Update([newCollectionParameter])
             : base.UpdateParameterCollection(table, newCollectionParameter);
 #pragma warning restore EF1001
 }

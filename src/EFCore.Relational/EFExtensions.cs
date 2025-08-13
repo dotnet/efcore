@@ -30,7 +30,8 @@ public static class EFExtensions
         /// <typeparam name="TSource">The type of collection.</typeparam>
         /// <param name="argument">The collection to be integrated as parameters into the query.</param>
         /// <returns>The same value for further use in the query.</returns>
-        public static TSource MultipleParameters<TSource>(TSource argument) where TSource : IEnumerable
+        public static TSource MultipleParameters<TSource>(TSource argument)
+            where TSource : IEnumerable
             => throw new InvalidOperationException(RelationalStrings.EFMultipleParametersInvoked);
     }
 }

@@ -87,24 +87,22 @@ public class SqliteDateTimeMethodTranslator(SqliteSqlExpressionFactory sqlExpres
         {
             return sqlExpressionFactory.Function(
                 "rtrim",
-                new[]
-                {
+                [
                     sqlExpressionFactory.Function(
                         "rtrim",
-                        new[]
-                        {
+                        [
                             sqlExpressionFactory.Strftime(
                                 method.ReturnType,
                                 "%Y-%m-%d %H:%M:%f",
                                 instance!,
                                 modifiers: [modifier]),
                             sqlExpressionFactory.Constant("0")
-                        },
+                        ],
                         nullable: true,
                         argumentsPropagateNullability: Statics.TrueFalse,
                         method.ReturnType),
                     sqlExpressionFactory.Constant(".")
-                },
+                ],
                 nullable: true,
                 argumentsPropagateNullability: Statics.TrueFalse,
                 method.ReturnType);

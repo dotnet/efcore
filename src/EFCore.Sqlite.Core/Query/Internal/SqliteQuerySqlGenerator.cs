@@ -145,10 +145,9 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
                     GroupBy: []
                 }
                 && selectExpression.Projection.Count == s.Source1.Projection.Count
-                && selectExpression.Projection.Select(
-                        (pe, index) => pe.Expression is ColumnExpression column
-                            && column.TableAlias == s.Alias
-                            && column.Name == s.Source1.Projection[index].Alias)
+                && selectExpression.Projection.Select((pe, index) => pe.Expression is ColumnExpression column
+                        && column.TableAlias == s.Alias
+                        && column.Name == s.Source1.Projection[index].Alias)
                     .All(e => e))
             {
                 setOperation = s;
@@ -219,11 +218,11 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
             {
                 switch (path[i])
                 {
-                    case { PropertyName: string propertyName }:
+                    case { PropertyName: { } propertyName }:
                         Sql.Append(".").Append(propertyName);
                         break;
 
-                    case { ArrayIndex: SqlExpression arrayIndex }:
+                    case { ArrayIndex: { } arrayIndex }:
                         Sql.Append("[");
 
                         if (arrayIndex is SqlConstantExpression)
@@ -282,7 +281,7 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
 
             switch (pathSegment)
             {
-                case { PropertyName: string propertyName }:
+                case { PropertyName: { } propertyName }:
                     if (inJsonpathString)
                     {
                         Sql.Append(".").Append(Dependencies.SqlGenerationHelper.DelimitJsonPathElement(propertyName));
@@ -335,7 +334,7 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
 
                     Sql.Append(" ->> ");
 
-                    Check.DebugAssert(pathSegment.ArrayIndex is not null, "pathSegment.ArrayIndex is not null");
+                    Check.DebugAssert(pathSegment.ArrayIndex is not null);
 
                     var requiresParentheses = RequiresParentheses(jsonScalarExpression, pathSegment.ArrayIndex);
                     if (requiresParentheses)

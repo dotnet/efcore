@@ -85,7 +85,7 @@ public class RelationalStructuralTypeShaperExpression : StructuralTypeShaperExpr
                 : Constant(entityType, typeof(IEntityType));
 
             expressions.Add(Switch(discriminatorValueVariable, defaultBlock, switchCases));
-            baseCondition = Lambda(Block(new[] { discriminatorValueVariable }, expressions), valueBufferParameter);
+            baseCondition = Lambda(Block([discriminatorValueVariable], expressions), valueBufferParameter);
         }
         else
         {
@@ -113,10 +113,9 @@ public class RelationalStructuralTypeShaperExpression : StructuralTypeShaperExpr
             if (requiredNonPkProperties.Count > 0)
             {
                 condition = requiredNonPkProperties
-                    .Select(
-                        p => NotEqual(
-                            valueBufferParameter.CreateValueBufferReadValueExpression(typeof(object), p.GetIndex(), p),
-                            Constant(null)))
+                    .Select(p => NotEqual(
+                        valueBufferParameter.CreateValueBufferReadValueExpression(typeof(object), p.GetIndex(), p),
+                        Constant(null)))
                     .Aggregate(AndAlso);
             }
 
@@ -126,10 +125,9 @@ public class RelationalStructuralTypeShaperExpression : StructuralTypeShaperExpr
                 && allNonPrincipalSharedNonPkProperties.All(p => p.IsNullable))
             {
                 var atLeastOneNonNullValueInNullablePropertyCondition = allNonPrincipalSharedNonPkProperties
-                    .Select(
-                        p => NotEqual(
-                            valueBufferParameter.CreateValueBufferReadValueExpression(typeof(object), p.GetIndex(), p),
-                            Constant(null)))
+                    .Select(p => NotEqual(
+                        valueBufferParameter.CreateValueBufferReadValueExpression(typeof(object), p.GetIndex(), p),
+                        Constant(null)))
                     .Aggregate(OrElse);
 
                 condition = condition == null

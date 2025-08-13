@@ -3,13 +3,13 @@
 
 using System.Collections;
 using System.Reflection;
-#if NET
-using System.Runtime.Loader;
-#endif
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Tools.Properties;
+#if NET
+using System.Runtime.Loader;
+#endif
 
 namespace Microsoft.EntityFrameworkCore.Tools;
 
@@ -37,7 +37,9 @@ internal class ReflectionOperationExecutor : OperationExecutorBase
         bool nullable,
         string[] remainingArguments,
         IOperationReportHandler reportHandler)
-        : base(assembly, startupAssembly, designAssembly, project, projectDir, rootNamespace, language, nullable, remainingArguments, reportHandler)
+        : base(
+            assembly, startupAssembly, designAssembly, project, projectDir, rootNamespace, language, nullable, remainingArguments,
+            reportHandler)
     {
         var reporter = new OperationReporter(reportHandler);
         var configurationFile = (startupAssembly ?? assembly) + ".config";
@@ -148,7 +150,7 @@ internal class ReflectionOperationExecutor : OperationExecutorBase
             }
 #endif
             _efcoreVersion = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
-                    ?.InformationalVersion;
+                ?.InformationalVersion;
             return _efcoreVersion;
         }
     }

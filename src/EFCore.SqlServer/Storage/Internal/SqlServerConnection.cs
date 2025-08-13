@@ -62,10 +62,8 @@ public class SqlServerConnection : RelationalConnection, ISqlServerConnection
         {
             return sqlConnection.OpenAsync(SqlConnectionOverrides.OpenWithoutRetry, cancellationToken);
         }
-        else
-        {
-            return DbConnection.OpenAsync(cancellationToken);
-        }
+
+        return DbConnection.OpenAsync(cancellationToken);
     }
 
     /// <summary>
