@@ -276,7 +276,7 @@ public class AnnotatableBase : IAnnotatable
     ///     Gets all runtime annotations on the current object.
     /// </summary>
     public virtual IEnumerable<Annotation> GetRuntimeAnnotations()
-        => _runtimeAnnotations?.OrderBy(p => p.Key).Select(p => p.Value) ?? Enumerable.Empty<Annotation>();
+        => _runtimeAnnotations?.OrderBy(p => p.Key).Select(p => p.Value) ?? [];
 
     /// <summary>
     ///     Adds a runtime annotation to this object. Throws if an annotation with the specified name already exists.

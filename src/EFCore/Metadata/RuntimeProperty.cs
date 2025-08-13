@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -125,7 +124,7 @@ public class RuntimeProperty : RuntimePropertyBase, IRuntimeProperty
     /// <param name="clrType">The type of value the property will hold.</param>
     /// <param name="nullable">A value indicating whether this property can contain <see langword="null" />.</param>
     /// <param name="maxLength">The maximum length of data that is allowed in this property.</param>
-    /// <param name="unicode">A value indicating whether or not the property can persist Unicode characters.</param>
+    /// <param name="unicode">A value indicating whether the property can persist Unicode characters.</param>
     /// <param name="precision">The precision of data that is allowed in this property.</param>
     /// <param name="scale">The scale of data that is allowed in this property.</param>
     /// <param name="providerClrType">
@@ -180,7 +179,8 @@ public class RuntimeProperty : RuntimePropertyBase, IRuntimeProperty
     public override RuntimeTypeBase DeclaringType { get; }
 
     /// <inheritdoc />
-    public override bool IsCollection => IsPrimitiveCollection;
+    public override bool IsCollection
+        => IsPrimitiveCollection;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -25,8 +25,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 /// </remarks>
 public class CollectionEntry : NavigationEntry
 {
-    private ICollectionLoader? _loader;
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -164,11 +162,12 @@ public class CollectionEntry : NavigationEntry
             {
                 var joinEntityType = skipNavigation.JoinEntityType;
                 var foreignKey = skipNavigation.ForeignKey;
-                foreach (var joinEntry in stateManager
-                             .GetEntriesForState(added: !value, modified: !value, deleted: !value, unchanged: value).Where(
-                                 e => e.EntityType == joinEntityType
-                                     && stateManager.FindPrincipal(e, foreignKey) == InternalEntry)
-                             .ToList())
+                var joinEntries = stateManager
+                    .GetEntriesForState(added: !value, modified: !value, deleted: !value, unchanged: value)
+                    .Where(e => e.EntityType == joinEntityType
+                        && stateManager.FindPrincipal(e, foreignKey) == InternalEntry)
+                    .ToList();
+                foreach (var joinEntry in joinEntries)
                 {
                     joinEntry.SetEntityState(value ? EntityState.Modified : EntityState.Unchanged);
                 }
@@ -335,8 +334,9 @@ public class CollectionEntry : NavigationEntry
                 ? null
                 : InternalEntry.StateManager.GetOrCreateEntry(entity, Metadata.TargetEntityType);
 
+    [field: AllowNull, MaybeNull]
     private ICollectionLoader TargetLoader
-        => _loader ??= Metadata is IRuntimeSkipNavigation skipNavigation
+        => field ??= Metadata is IRuntimeSkipNavigation skipNavigation
             ? skipNavigation.GetManyToManyLoader()
             : new EntityFinderCollectionLoaderAdapter(
                 InternalEntry.StateManager.CreateEntityFinder(Metadata.TargetEntityType),

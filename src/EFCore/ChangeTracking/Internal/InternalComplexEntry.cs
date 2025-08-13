@@ -14,9 +14,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 /// </summary>
 public sealed class InternalComplexEntry : InternalEntryBase
 {
-    private int _ordinal;
-    private int _originalOrdinal;
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -32,7 +29,7 @@ public sealed class InternalComplexEntry : InternalEntryBase
         Check.DebugAssert(complexType.ComplexProperty.IsCollection, $"{complexType} expected to be a collection");
 
         ContainingEntry = containingEntry;
-        _ordinal = ordinal;
+        Ordinal = ordinal;
         OriginalOrdinal = ordinal;
     }
 
@@ -64,7 +61,8 @@ public sealed class InternalComplexEntry : InternalEntryBase
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public IComplexProperty ComplexProperty => ComplexType.ComplexProperty;
+    public IComplexProperty ComplexProperty
+        => ComplexType.ComplexProperty;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -72,7 +70,8 @@ public sealed class InternalComplexEntry : InternalEntryBase
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override IStateManager StateManager => ContainingEntry.StateManager;
+    public override IStateManager StateManager
+        => ContainingEntry.StateManager;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -98,20 +97,21 @@ public sealed class InternalComplexEntry : InternalEntryBase
     public int Ordinal
     {
         // -1 is used to indicate that the entry is deleted
-        get => _ordinal;
+        get;
         set
         {
             if (EntityState is not EntityState.Detached and not EntityState.Deleted
-                && _ordinal != value
+                && field != value
                 && ContainingEntry.GetComplexCollectionEntry(ComplexProperty, value) is var existingEntry
                 && existingEntry != this
                 && existingEntry is { EntityState: not EntityState.Detached and not EntityState.Deleted, Ordinal: not -1 })
             {
-                throw new InvalidOperationException(CoreStrings.ComplexCollectionEntryOrdinalReadOnly(
-                    ComplexProperty.DeclaringType.ShortNameChain(), ComplexProperty.Name));
+                throw new InvalidOperationException(
+                    CoreStrings.ComplexCollectionEntryOrdinalReadOnly(
+                        ComplexProperty.DeclaringType.ShortNameChain(), ComplexProperty.Name));
             }
 
-            _ordinal = value;
+            field = value;
         }
     }
 
@@ -121,7 +121,8 @@ public sealed class InternalComplexEntry : InternalEntryBase
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public IRuntimeComplexType ComplexType => (IRuntimeComplexType)StructuralType;
+    public IRuntimeComplexType ComplexType
+        => (IRuntimeComplexType)StructuralType;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -132,20 +133,21 @@ public sealed class InternalComplexEntry : InternalEntryBase
     public int OriginalOrdinal
     {
         // -1 is used to indicate that the entry is added
-        get => _originalOrdinal;
+        get;
         set
         {
             if (EntityState is not EntityState.Detached and not EntityState.Added
-                && _originalOrdinal != value
+                && field != value
                 && ContainingEntry.GetComplexCollectionOriginalEntry(ComplexProperty, value) is var existingEntry
                 && existingEntry != this
                 && existingEntry is { EntityState: not EntityState.Detached and not EntityState.Added, OriginalOrdinal: not -1 })
             {
-                throw new InvalidOperationException(CoreStrings.ComplexCollectionEntryOriginalOrdinalReadOnly(
-                    ComplexProperty.DeclaringType.ShortNameChain(), ComplexProperty.Name));
+                throw new InvalidOperationException(
+                    CoreStrings.ComplexCollectionEntryOriginalOrdinalReadOnly(
+                        ComplexProperty.DeclaringType.ShortNameChain(), ComplexProperty.Name));
             }
 
-            _originalOrdinal = value;
+            field = value;
         }
     }
 
@@ -157,8 +159,8 @@ public sealed class InternalComplexEntry : InternalEntryBase
     /// </summary>
     public override object? ReadPropertyValue(IPropertyBase propertyBase)
         => EntityState == EntityState.Deleted
-        ? GetOriginalValue(propertyBase)
-        : base.ReadPropertyValue(propertyBase);
+            ? GetOriginalValue(propertyBase)
+            : base.ReadPropertyValue(propertyBase);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -168,8 +170,8 @@ public sealed class InternalComplexEntry : InternalEntryBase
     /// </summary>
     public override T ReadOriginalValue<T>(IProperty property, int originalValueIndex)
         => EntityState == EntityState.Added
-        ? GetCurrentValue<T>(property)
-        : base.ReadOriginalValue<T>(property, originalValueIndex);
+            ? GetCurrentValue<T>(property)
+            : base.ReadOriginalValue<T>(property, originalValueIndex);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -179,8 +181,8 @@ public sealed class InternalComplexEntry : InternalEntryBase
     /// </summary>
     public override object? GetOriginalValue(IPropertyBase propertyBase)
         => EntityState == EntityState.Added
-        ? GetCurrentValue(propertyBase)
-        : base.GetOriginalValue(propertyBase);
+            ? GetCurrentValue(propertyBase)
+            : base.GetOriginalValue(propertyBase);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -301,7 +303,7 @@ public sealed class InternalComplexEntry : InternalEntryBase
     }
 
     private static string GetShortNameChain(IReadOnlyTypeBase structuralType)
-        => (structuralType is IReadOnlyComplexType complexType) && (complexType.ComplexProperty is IReadOnlyComplexProperty complexProperty)
+        => (structuralType is IReadOnlyComplexType { ComplexProperty: var complexProperty })
             ? complexProperty.IsCollection
                 ? ""
                 : GetShortNameChain(complexProperty.DeclaringType) + "." + complexProperty.Name + "."
@@ -327,13 +329,11 @@ public sealed class InternalComplexEntry : InternalEntryBase
             () => ToDebugString(ChangeTrackerDebugStringOptions.ShortDefault),
             () => ToDebugString());
 
-
     private string ToDebugString(
         ChangeTrackerDebugStringOptions options = ChangeTrackerDebugStringOptions.LongDefault,
         int indent = 0)
     {
         var builder = new StringBuilder();
-        var indentString = new string(' ', indent);
 
         try
         {

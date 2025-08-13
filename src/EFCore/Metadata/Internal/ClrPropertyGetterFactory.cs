@@ -127,8 +127,10 @@ public class ClrPropertyGetterFactory : ClrAccessorFactory<IClrPropertyGetter>
         readExpression = ConvertReadExpression(readExpression, hasClrSentinelValueExpression);
         structuralReadExpression = ConvertReadExpression(structuralReadExpression, hasStructuralSentinelValueExpression);
 
-        getClrValueUsingContainingEntityExpression = Expression.Lambda<Func<TRoot, IReadOnlyList<int>, TValue>>(readExpression, entityParameter, indicesParameter);
-        hasSentinelValueUsingContainingEntityExpression = Expression.Lambda<Func<TRoot, IReadOnlyList<int>, bool>>(hasClrSentinelValueExpression, entityParameter, indicesParameter);
+        getClrValueUsingContainingEntityExpression =
+            Expression.Lambda<Func<TRoot, IReadOnlyList<int>, TValue>>(readExpression, entityParameter, indicesParameter);
+        hasSentinelValueUsingContainingEntityExpression = Expression.Lambda<Func<TRoot, IReadOnlyList<int>, bool>>(
+            hasClrSentinelValueExpression, entityParameter, indicesParameter);
         getClrValueExpression = Expression.Lambda<Func<TDeclaring, TValue>>(structuralReadExpression, structuralParameter);
         hasSentinelValueExpression =
             Expression.Lambda<Func<TDeclaring, bool>>(hasStructuralSentinelValueExpression, structuralParameter);
@@ -137,7 +139,8 @@ public class ClrPropertyGetterFactory : ClrAccessorFactory<IClrPropertyGetter>
         {
             if (memberInfo.DeclaringType!.IsAssignableFrom(propertyDeclaringType))
             {
-                return PropertyAccessorsFactory.CreateMemberAccess(propertyBase, instanceParameter, indicesParameter, memberInfo, fromDeclaringType, fromEntity: !fromDeclaringType);
+                return PropertyAccessorsFactory.CreateMemberAccess(
+                    propertyBase, instanceParameter, indicesParameter, memberInfo, fromDeclaringType, fromEntity: !fromDeclaringType);
             }
 
             // This path handles properties that exist only on proxy types and so only exist if the instance is a proxy
@@ -153,7 +156,8 @@ public class ClrPropertyGetterFactory : ClrAccessorFactory<IClrPropertyGetter>
                     Expression.Condition(
                         Expression.ReferenceEqual(converted, Expression.Constant(null)),
                         Expression.Default(memberInfo.GetMemberType()),
-                        PropertyAccessorsFactory.CreateMemberAccess(propertyBase, converted, indicesParameter, memberInfo, fromDeclaringType, fromEntity: !fromDeclaringType))
+                        PropertyAccessorsFactory.CreateMemberAccess(
+                            propertyBase, converted, indicesParameter, memberInfo, fromDeclaringType, fromEntity: !fromDeclaringType))
                 });
         }
 

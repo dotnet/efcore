@@ -106,9 +106,8 @@ public class KeyDiscoveryConvention :
 
         if (keyProperties == null)
         {
-            var candidateProperties = entityType.GetProperties().Where(
-                p => !p.IsImplicitlyCreated()
-                    || !ConfigurationSource.Convention.Overrides(p.GetConfigurationSource()));
+            var candidateProperties = entityType.GetProperties().Where(p => !p.IsImplicitlyCreated()
+                || !ConfigurationSource.Convention.Overrides(p.GetConfigurationSource()));
             keyProperties = DiscoverKeyProperties(entityType, candidateProperties).ToList();
             if (keyProperties.Count > 1)
             {
@@ -196,10 +195,9 @@ public class KeyDiscoveryConvention :
         if (!keyProperties.Any())
         {
             var entityTypeName = entityType.ShortName();
-            keyProperties = candidateProperties.Where(
-                p => p.Name.Length == entityTypeName.Length + KeySuffix.Length
-                    && p.Name.StartsWith(entityTypeName, StringComparison.OrdinalIgnoreCase)
-                    && p.Name.EndsWith(KeySuffix, StringComparison.OrdinalIgnoreCase));
+            keyProperties = candidateProperties.Where(p => p.Name.Length == entityTypeName.Length + KeySuffix.Length
+                && p.Name.StartsWith(entityTypeName, StringComparison.OrdinalIgnoreCase)
+                && p.Name.EndsWith(KeySuffix, StringComparison.OrdinalIgnoreCase));
         }
         // ReSharper restore PossibleMultipleEnumeration
 

@@ -70,5 +70,6 @@ public interface IPropertyBase : IReadOnlyPropertyBase, IAnnotatable
     ///     Gets the <see cref="IClrCollectionAccessor" /> for this property, if it's a collection navigation or complex property.
     /// </summary>
     /// <returns>The accessor.</returns>
-    IClrCollectionAccessor? GetCollectionAccessor() => null;
+    IClrCollectionAccessor? GetCollectionAccessor()
+        => null;
 }

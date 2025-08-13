@@ -259,7 +259,7 @@ public class PropertyAccessorsFactory
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public static readonly MethodInfo ContainsKeyMethod =
-        typeof(IDictionary<string, object>).GetMethod(nameof(IDictionary<string, object>.ContainsKey), [typeof(string)])!;
+        typeof(IDictionary<string, object>).GetMethod(nameof(IDictionary<,>.ContainsKey), [typeof(string)])!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -284,7 +284,8 @@ public class PropertyAccessorsFactory
             switch (complexType.ComplexProperty)
             {
                 case { IsCollection: true } complexProperty when fromEntity:
-                    instanceExpression = CreateComplexCollectionElementAccess(complexProperty, instanceExpression, indicesExpression, fromDeclaringType, fromEntity);
+                    instanceExpression = CreateComplexCollectionElementAccess(
+                        complexProperty, instanceExpression, indicesExpression, fromDeclaringType, fromEntity);
                     break;
                 case { IsCollection: false } complexProperty:
                     instanceExpression = CreateMemberAccess(
@@ -316,7 +317,7 @@ public class PropertyAccessorsFactory
             {
                 memberAccess = Expression.Condition(
                     Expression.Call(
-                        instanceExpression, ContainsKeyMethod, [Expression.Constant(property.Name)]),
+                        instanceExpression, ContainsKeyMethod, Expression.Constant(property.Name)),
                     memberAccess,
                     memberAccess.Type.GetDefaultValueConstant());
             }
@@ -328,17 +329,16 @@ public class PropertyAccessorsFactory
 
         return !addNullCheck
             || instanceExpression.Type.IsValueType
-                && !instanceExpression.Type.IsNullableValueType()
-            ? memberAccess
-            : Expression.Condition(
-                Expression.Equal(instanceExpression, Expression.Constant(null)),
-                Expression.Default(memberInfo.GetMemberType()),
-                memberAccess);
+            && !instanceExpression.Type.IsNullableValueType()
+                ? memberAccess
+                : Expression.Condition(
+                    Expression.Equal(instanceExpression, Expression.Constant(null)),
+                    Expression.Default(memberInfo.GetMemberType()),
+                    memberAccess);
     }
 
     private static readonly MethodInfo ComplexCollectionNotInitializedMethod
         = typeof(CoreStrings).GetMethod(nameof(CoreStrings.ComplexCollectionNotInitialized), BindingFlags.Static | BindingFlags.Public)!;
-
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -346,7 +346,8 @@ public class PropertyAccessorsFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static readonly ConstructorInfo InvalidOperationConstructor = typeof(InvalidOperationException).GetConstructor([typeof(string)])!;
+    public static readonly ConstructorInfo
+        InvalidOperationConstructor = typeof(InvalidOperationException).GetConstructor([typeof(string)])!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

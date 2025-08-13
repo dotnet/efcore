@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
-
 namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 
 /// <summary>
@@ -12,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 ///     See <see href="https://aka.ms/efcore-docs-value-comparers">EF Core value comparers</see> for more information and examples.
 /// </remarks>
 public class GeometryValueComparer
-    <[DynamicallyAccessedMembers(
+<[DynamicallyAccessedMembers(
         DynamicallyAccessedMemberTypes.PublicMethods
         | DynamicallyAccessedMemberTypes.PublicProperties)]
     TGeometry>
@@ -43,7 +41,7 @@ public class GeometryValueComparer
         return Expression.Lambda<Func<TGeometry?, TGeometry?, bool>>(
             Expression.Block(
                 typeof(bool),
-                new[] { x, y, xNull, yNull },
+                [x, y, xNull, yNull],
                 Expression.Assign(x, left),
                 Expression.Assign(y, right),
                 Expression.Assign(xNull, Expression.ReferenceEqual(x, nullExpression)),

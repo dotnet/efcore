@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Internal;
 
@@ -59,9 +58,9 @@ public static class ExpressionExtensions
     /// <param name="valueExpression">The value that will be assigned.</param>
     /// <returns>The <see cref="BinaryExpression" /> representing the assignment binding.</returns>
     [UnconditionalSuppressMessage(
-        "ReflectionAnalysis", "IL2077",
-        Justification = "AssignBinaryExpression is preserved via DynamicDependency below")]
-    [DynamicDependency(DynamicallyAccessedMemberTypes.All, "System.Linq.Expressions.AssignBinaryExpression", "System.Linq.Expressions")]
+         "ReflectionAnalysis", "IL2077",
+         Justification = "AssignBinaryExpression is preserved via DynamicDependency below"),
+     DynamicDependency(DynamicallyAccessedMemberTypes.All, "System.Linq.Expressions.AssignBinaryExpression", "System.Linq.Expressions")]
     public static Expression Assign(
         this MemberExpression memberExpression,
         Expression valueExpression)
@@ -447,7 +446,7 @@ public static class ExpressionExtensions
     /// <param name="model">The model being used.</param>
     /// <param name="baseExpression">The given expression, with the top-level member access node removed.</param>
     /// <returns>
-    ///     <see langword="true" /> if <paramref name="expression"/> represents a member access, <see langword="false" /> otherwise.
+    ///     <see langword="true" /> if <paramref name="expression" /> represents a member access, <see langword="false" /> otherwise.
     /// </returns>
     public static bool IsMemberAccess(
         Expression expression,
@@ -464,7 +463,7 @@ public static class ExpressionExtensions
     /// <param name="baseExpression">The given expression, with the top-level member access node removed.</param>
     /// <param name="memberIdentity">A <see cref="MemberIdentity" /> representing the member being accessed.</param>
     /// <returns>
-    ///     <see langword="true" /> if <paramref name="expression"/> represents a member access, <see langword="false" /> otherwise.
+    ///     <see langword="true" /> if <paramref name="expression" /> represents a member access, <see langword="false" /> otherwise.
     /// </returns>
     public static bool IsMemberAccess(
         Expression expression,
