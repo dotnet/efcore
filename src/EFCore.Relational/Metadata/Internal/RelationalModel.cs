@@ -608,7 +608,12 @@ public class RelationalModel : Annotatable, IRelationalModel
 
         Check.DebugAssert(tableBase.FindColumn(containerColumnName) == null, $"Table '{tableBase.Name}' already has a '{containerColumnName}' column.");
 
-        var jsonColumnTypeMapping = relationalTypeMappingSource.FindMapping(typeof(JsonTypePlaceholder), storeTypeName: containerColumnType)!;
+        var jsonColumnTypeMapping = relationalTypeMappingSource.FindMapping(typeof(JsonTypePlaceholder), storeTypeName: containerColumnType);
+        if (jsonColumnTypeMapping == null)
+        {
+            throw new InvalidOperationException(RelationalStrings.UnsupportedJsonColumnType(containerColumnType ?? "null", containerColumnName, tableBase.Name));
+        }
+
         var jsonColumn = createColumn(containerColumnName, containerColumnType, tableBase, jsonColumnTypeMapping);
         tableBase.Columns.Add(containerColumnName, jsonColumn);
 

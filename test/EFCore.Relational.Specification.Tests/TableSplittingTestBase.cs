@@ -166,7 +166,7 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase, IClassFix
         }
     }
 
-    [ConditionalFact]
+    [ConditionalFact(Skip = "Issue #35613")]
     public virtual async Task Can_share_required_columns_with_complex_types()
     {
         await InitializeAsync(
@@ -210,11 +210,10 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase, IClassFix
 
         using (var context = CreateContext())
         {
-            // Requires query support for shadow properties in complex types #35613
-            //var scooter = context.Set<PoweredVehicle>().Include(v => v.Engine).Single(v => v.Name == "Gas scooter");
+            var scooter = context.Set<PoweredVehicle>().Include(v => v.Engine).Single(v => v.Name == "Gas scooter");
 
-            //Assert.Equal(scooter.SeatingCapacity, context.Entry(scooter).Reference(v => (IntermittentCombustionEngine)v.Engine).TargetEntry
-            //        .ComplexProperty(v => v.FuelTank).Property<int>("SeatingCapacity").CurrentValue);
+            Assert.Equal(scooter.SeatingCapacity, context.Entry(scooter).Reference(v => (IntermittentCombustionEngine)v.Engine).TargetEntry
+                    .ComplexProperty(v => v.FuelTank).Property<int>("SeatingCapacity").CurrentValue);
         }
     }
 
@@ -290,7 +289,7 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase, IClassFix
         }
     }
 
-    [ConditionalFact]
+    [ConditionalFact(Skip = "Issue #35613")]
     public virtual async Task Can_use_optional_dependents_with_shared_concurrency_tokens_with_complex_types()
     {
         await InitializeAsync(
@@ -329,45 +328,45 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase, IClassFix
         }
 
         // Requires query support for shadow properties in complex types #35613
-        //using (var context = CreateContext())
-        //{
-        //    var scooter = context.Set<PoweredVehicle>().Include(v => v.Engine).Single(v => v.Name == "Gas scooter");
+        using (var context = CreateContext())
+        {
+            var scooter = context.Set<PoweredVehicle>().Include(v => v.Engine).Single(v => v.Name == "Gas scooter");
 
-        //    Assert.Equal(1, scooter.SeatingCapacity);
+            Assert.Equal(1, scooter.SeatingCapacity);
 
-        //    scooter.Engine = new IntermittentCombustionEngine { FuelTank = new FuelTank { Capacity = 5 } };
+            scooter.Engine = new IntermittentCombustionEngine { FuelTank = new FuelTank { Capacity = 5 } };
 
-        //    var seatingCapacityEntry = context.Entry(scooter).Reference(v => (IntermittentCombustionEngine)v.Engine).TargetEntry
-        //        .ComplexProperty(v => v.FuelTank).Property<int>("SeatingCapacity");
+            var seatingCapacityEntry = context.Entry(scooter).Reference(v => (IntermittentCombustionEngine)v.Engine).TargetEntry
+                .ComplexProperty(v => v.FuelTank).Property<int>("SeatingCapacity");
 
-        //    Assert.Equal(0, seatingCapacityEntry.OriginalValue);
+            Assert.Equal(0, seatingCapacityEntry.OriginalValue);
 
-        //    context.SaveChanges();
+            context.SaveChanges();
 
-        //    Assert.Equal(0, scooter.SeatingCapacity);
-        //    Assert.Equal(0, seatingCapacityEntry.OriginalValue);
-        //    Assert.Equal(0, seatingCapacityEntry.CurrentValue);
-        //}
+            Assert.Equal(0, scooter.SeatingCapacity);
+            Assert.Equal(0, seatingCapacityEntry.OriginalValue);
+            Assert.Equal(0, seatingCapacityEntry.CurrentValue);
+        }
 
-        //using (var context = CreateContext())
-        //{
-        //    var scooter = context.Set<PoweredVehicle>().Include(v => v.Engine).Single(v => v.Name == "Gas scooter");
+        using (var context = CreateContext())
+        {
+            var scooter = context.Set<PoweredVehicle>().Include(v => v.Engine).Single(v => v.Name == "Gas scooter");
 
-        //    Assert.Equal(scooter.SeatingCapacity, context.Entry(scooter).Reference(v => (IntermittentCombustionEngine)v.Engine).TargetEntry
-        //        .ComplexProperty(v => v.FuelTank).Property<int>("SeatingCapacity").CurrentValue);
+            Assert.Equal(scooter.SeatingCapacity, context.Entry(scooter).Reference(v => (IntermittentCombustionEngine)v.Engine).TargetEntry
+                .ComplexProperty(v => v.FuelTank).Property<int>("SeatingCapacity").CurrentValue);
 
-        //    scooter.SeatingCapacity = 2;
-        //    context.SaveChanges();
-        //}
+            scooter.SeatingCapacity = 2;
+            context.SaveChanges();
+        }
 
-        //using (var context = CreateContext())
-        //{
-        //    var scooter = context.Set<PoweredVehicle>().Include(v => v.Engine).Single(v => v.Name == "Gas scooter");
+        using (var context = CreateContext())
+        {
+            var scooter = context.Set<PoweredVehicle>().Include(v => v.Engine).Single(v => v.Name == "Gas scooter");
 
-        //    Assert.Equal(2, scooter.SeatingCapacity);
-        //    Assert.Equal(2, context.Entry(scooter).Reference(v => (IntermittentCombustionEngine)v.Engine).TargetEntry
-        //        .ComplexProperty(v => v.FuelTank).Property<int>("SeatingCapacity").CurrentValue);
-        //}
+            Assert.Equal(2, scooter.SeatingCapacity);
+            Assert.Equal(2, context.Entry(scooter).Reference(v => (IntermittentCombustionEngine)v.Engine).TargetEntry
+                .ComplexProperty(v => v.FuelTank).Property<int>("SeatingCapacity").CurrentValue);
+        }
     }
 
     protected async Task Test_roundtrip(Action<ModelBuilder> onModelCreating)

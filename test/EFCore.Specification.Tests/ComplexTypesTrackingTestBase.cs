@@ -490,6 +490,156 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
     public virtual void Can_write_original_values_for_properties_of_complex_readonly_struct_collections_with_fields(bool trackFromQuery)
         => WriteOriginalValuesTest(trackFromQuery, CreateFieldCollectionPubWithReadonlyStructs);
 
+    [ConditionalTheory(Skip = "Issue #36483")]
+    [InlineData(EntityState.Added, false)]
+    [InlineData(EntityState.Added, true)]
+    [InlineData(EntityState.Unchanged, false)]
+    [InlineData(EntityState.Unchanged, true)]
+    [InlineData(EntityState.Modified, false)]
+    [InlineData(EntityState.Modified, true)]
+    [InlineData(EntityState.Deleted, false)]
+    [InlineData(EntityState.Deleted, true)]
+    public virtual Task Can_track_entity_with_complex_type_array_collections(EntityState state, bool async)
+        => TrackAndSaveTest(state, async, CreatePubWithArrayCollections);
+
+    [ConditionalTheory(Skip = "Issue #36483")]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_mark_complex_type_array_collection_properties_modified(bool trackFromQuery)
+        => MarkModifiedTest(trackFromQuery, CreatePubWithArrayCollections);
+
+    [ConditionalTheory(Skip = "Issue #36483")]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_read_original_values_for_properties_of_complex_type_array_collections(bool trackFromQuery)
+        => ReadOriginalValuesTest(trackFromQuery, CreatePubWithArrayCollections);
+
+    [ConditionalTheory(Skip = "Issue #36483")]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_write_original_values_for_properties_of_complex_type_array_collections(bool trackFromQuery)
+        => WriteOriginalValuesTest(trackFromQuery, CreatePubWithArrayCollections);
+
+    [ConditionalTheory(Skip = "Issue #36483")]
+    [InlineData(EntityState.Added, false)]
+    [InlineData(EntityState.Added, true)]
+    [InlineData(EntityState.Unchanged, false)]
+    [InlineData(EntityState.Unchanged, true)]
+    [InlineData(EntityState.Modified, false)]
+    [InlineData(EntityState.Modified, true)]
+    [InlineData(EntityState.Deleted, false)]
+    [InlineData(EntityState.Deleted, true)]
+    public virtual Task Can_track_entity_with_complex_struct_array_collections(EntityState state, bool async)
+        => TrackAndSaveTest(state, async, CreatePubWithStructArrayCollections);
+
+    [ConditionalTheory(Skip = "Issue #36483")]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_mark_complex_struct_array_collection_properties_modified(bool trackFromQuery)
+        => MarkModifiedTest(trackFromQuery, CreatePubWithStructArrayCollections);
+
+    [ConditionalTheory(Skip = "Issue #36483")]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_read_original_values_for_properties_of_complex_struct_array_collections(bool trackFromQuery)
+        => ReadOriginalValuesTest(trackFromQuery, CreatePubWithStructArrayCollections);
+
+    [ConditionalTheory(Skip = "Issue #36483")]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_write_original_values_for_properties_of_complex_struct_array_collections(bool trackFromQuery)
+        => WriteOriginalValuesTest(trackFromQuery, CreatePubWithStructArrayCollections);
+
+    [ConditionalTheory(Skip = "Issue #31411")]
+    [InlineData(EntityState.Added, false)]
+    [InlineData(EntityState.Added, true)]
+    [InlineData(EntityState.Unchanged, false)]
+    [InlineData(EntityState.Unchanged, true)]
+    [InlineData(EntityState.Modified, false)]
+    [InlineData(EntityState.Modified, true)]
+    [InlineData(EntityState.Deleted, false)]
+    [InlineData(EntityState.Deleted, true)]
+    public virtual Task Can_track_entity_with_complex_readonly_struct_array_collections(EntityState state, bool async)
+        => TrackAndSaveTest(state, async, CreatePubWithReadonlyStructArrayCollections);
+
+    [ConditionalTheory(Skip = "Issue #31411")]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_mark_complex_readonly_struct_array_collection_properties_modified(bool trackFromQuery)
+        => MarkModifiedTest(trackFromQuery, CreatePubWithReadonlyStructArrayCollections);
+
+    [ConditionalTheory(Skip = "Issue #31411")]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_read_original_values_for_properties_of_complex_readonly_struct_array_collections(bool trackFromQuery)
+        => ReadOriginalValuesTest(trackFromQuery, CreatePubWithReadonlyStructArrayCollections);
+
+    [ConditionalTheory(Skip = "Issue #31411")]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_write_original_values_for_properties_of_complex_readonly_struct_array_collections(bool trackFromQuery)
+        => WriteOriginalValuesTest(trackFromQuery, CreatePubWithReadonlyStructArrayCollections);
+
+    [ConditionalTheory(Skip = "Issue #36483")]
+    [InlineData(EntityState.Added, false)]
+    [InlineData(EntityState.Added, true)]
+    [InlineData(EntityState.Unchanged, false)]
+    [InlineData(EntityState.Unchanged, true)]
+    [InlineData(EntityState.Modified, false)]
+    [InlineData(EntityState.Modified, true)]
+    [InlineData(EntityState.Deleted, false)]
+    [InlineData(EntityState.Deleted, true)]
+    public virtual Task Can_track_entity_with_complex_record_array_collections(EntityState state, bool async)
+        => TrackAndSaveTest(state, async, CreatePubWithRecordArrayCollections);
+
+    [ConditionalTheory(Skip = "Issue #36483")]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_mark_complex_record_array_collection_properties_modified(bool trackFromQuery)
+        => MarkModifiedTest(trackFromQuery, CreatePubWithRecordArrayCollections);
+
+    [ConditionalTheory(Skip = "Issue #36483")]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_read_original_values_for_properties_of_complex_record_array_collections(bool trackFromQuery)
+        => ReadOriginalValuesTest(trackFromQuery, CreatePubWithRecordArrayCollections);
+
+    [ConditionalTheory(Skip = "Issue #36483")]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_write_original_values_for_properties_of_complex_record_array_collections(bool trackFromQuery)
+        => WriteOriginalValuesTest(trackFromQuery, CreatePubWithRecordArrayCollections);
+
+    [ConditionalTheory]
+    [InlineData(EntityState.Added, false)]
+    [InlineData(EntityState.Added, true)]
+    [InlineData(EntityState.Unchanged, false)]
+    [InlineData(EntityState.Unchanged, true)]
+    [InlineData(EntityState.Modified, false)]
+    [InlineData(EntityState.Modified, true)]
+    [InlineData(EntityState.Deleted, false)]
+    [InlineData(EntityState.Deleted, true)]
+    public virtual Task Can_track_entity_with_complex_property_bag_collections(EntityState state, bool async)
+        => TrackAndSaveTest(state, async, CreatePubWithPropertyBagCollections);
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_mark_complex_property_bag_collection_properties_modified(bool trackFromQuery)
+        => MarkModifiedTest(trackFromQuery, CreatePubWithPropertyBagCollections);
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_read_original_values_for_properties_of_complex_property_bag_collections(bool trackFromQuery)
+        => ReadOriginalValuesTest(trackFromQuery, CreatePubWithPropertyBagCollections);
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_write_original_values_for_properties_of_complex_property_bag_collections(bool trackFromQuery)
+        => WriteOriginalValuesTest(trackFromQuery, CreatePubWithPropertyBagCollections);
+
     private async Task TrackAndSaveTest<TEntity>(EntityState state, bool async, Func<DbContext, TEntity> createPub)
         where TEntity : class
         => await ExecuteWithStrategyInTransactionAsync(
@@ -2322,10 +2472,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                 b =>
                 {
                     b.ComplexCollection(
-                        e => e.Activities, b =>
-                        {
-                            b.ComplexCollection(e => e.Teams);
-                        });
+                        e => e.Activities, b => b.ComplexCollection(e => e.Teams));
                     b.ComplexProperty(e => e.FeaturedTeam);
                 });
 
@@ -2357,11 +2504,72 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                 b =>
                 {
                     b.ComplexCollection(
+                        e => e.Activities, b => b.ComplexCollection(e => e.Teams));
+                    b.ComplexProperty(e => e.FeaturedTeam);
+                });
+
+            modelBuilder.Entity<PubWithArrayCollections>(
+                b =>
+                {
+                    b.ComplexCollection(
+                        e => e.Activities, b => b.ComplexCollection(e => e.Teams));
+                    b.ComplexProperty(e => e.FeaturedTeam);
+                });
+
+            // TODO: Issue #31411
+            //modelBuilder.Entity<PubWithStructArrayCollections>(
+            //    b =>
+            //    {
+            //        b.ComplexCollection(
+            //            e => e.Activities, b =>
+            //            {
+            //                b.ComplexCollection(e => e.Teams);
+            //            });
+            //        b.ComplexProperty(e => e.FeaturedTeam);
+            //    });
+
+            //modelBuilder.Entity<PubWithReadonlyStructArrayCollections>(
+            //    b =>
+            //    {
+            //        b.ComplexCollection(
+            //            e => e.Activities, b =>
+            //            {
+            //                b.ComplexCollection(e => e.Teams);
+            //            });
+            //        b.ComplexProperty(e => e.FeaturedTeam);
+            //    });
+
+            modelBuilder.Entity<PubWithRecordArrayCollections>(
+                b =>
+                {
+                    b.ComplexCollection(
+                        e => e.Activities, b => b.ComplexCollection(e => e.Teams));
+                    b.ComplexProperty(e => e.FeaturedTeam);
+                });
+
+            modelBuilder.Entity<PubWithPropertyBagCollections>(
+                b =>
+                {
+                    b.ComplexCollection(
                         e => e.Activities, b =>
                         {
-                            b.ComplexCollection(e => e.Teams);
+                            b.ComplexCollection(e => e.Teams, "TeamPropertyBag", teamBuilder =>
+                            {
+                                teamBuilder.Property<string>("Name");
+                                teamBuilder.Property<List<string>>("Members");
+                                teamBuilder.Property<DateTime>("Founded");
+                                teamBuilder.Property<bool>("IsActive");
+                                teamBuilder.Property<double>("Rating");
+                            });
                         });
-                    b.ComplexProperty(e => e.FeaturedTeam);
+                    b.ComplexProperty(e => e.FeaturedTeam, "FeaturedTeamPropertyBag", featuredTeamBuilder =>
+                    {
+                        featuredTeamBuilder.Property<string>("Name");
+                        featuredTeamBuilder.Property<List<string>>("Members");
+                        featuredTeamBuilder.Property<DateTime>("Founded");
+                        featuredTeamBuilder.Property<bool>("IsActive");
+                        featuredTeamBuilder.Property<double>("Rating");
+                    });
                 });
 
             if (!UseProxies)
@@ -2773,6 +2981,61 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         public List<FieldTeamRecord> Teams = null!;
     }
 
+    public class ActivityWithArrayCollection
+    {
+        public string Name { get; set; } = null!;
+        public decimal? CoverCharge { get; set; }
+        public bool IsTeamBased { get; set; }
+        public string? Description { get; set; }
+        public string[]? Notes { get; set; }
+        public DayOfWeek Day { get; set; }
+        public Team[] Teams { get; set; } = [];
+    }
+
+    public struct ActivityStructWithArrayCollection
+    {
+        public string Name { get; set; }
+        public decimal? CoverCharge { get; set; }
+        public bool IsTeamBased { get; set; }
+        public string? Description { get; set; }
+        public string[]? Notes { get; set; }
+        public DayOfWeek Day { get; set; }
+        public TeamStruct[] Teams { get; set; }
+    }
+
+    public readonly struct ActivityReadonlyStructWithArrayCollection
+    {
+        public string Name { get; init; }
+        public decimal? CoverCharge { get; init; }
+        public bool IsTeamBased { get; init; }
+        public string? Description { get; init; }
+        public string[]? Notes { get; init; }
+        public DayOfWeek Day { get; init; }
+        public TeamReadonlyStruct[] Teams { get; init; }
+    }
+
+    public record ActivityRecordWithArrayCollection
+    {
+        public string Name { get; init; } = null!;
+        public decimal? CoverCharge { get; init; }
+        public bool IsTeamBased { get; init; }
+        public string? Description { get; init; }
+        public string[]? Notes { get; init; }
+        public DayOfWeek Day { get; init; }
+        public TeamRecord[] Teams { get; init; } = [];
+    }
+
+    public class ActivityWithPropertyBagCollection
+    {
+        public string Name { get; set; } = null!;
+        public decimal? CoverCharge { get; set; }
+        public bool IsTeamBased { get; set; }
+        public string? Description { get; set; }
+        public string[]? Notes { get; set; }
+        public DayOfWeek Day { get; set; }
+        public List<Dictionary<string, object>> Teams { get; set; } = [];
+    }
+
 
     protected PubWithReadonlyStructs CreatePubWithReadonlyStructs(DbContext context)
     {
@@ -2998,6 +3261,46 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         public virtual string Name { get; set; } = null!;
         public virtual List<ActivityRecordWithCollection> Activities { get; set; } = [];
         public virtual TeamRecord FeaturedTeam { get; set; } = null!;
+    }
+
+    public class PubWithArrayCollections
+    {
+        public virtual Guid Id { get; set; }
+        public virtual string Name { get; set; } = null!;
+        public virtual ActivityWithArrayCollection[] Activities { get; set; } = [];
+        public virtual Team FeaturedTeam { get; set; } = null!;
+    }
+
+    public class PubWithStructArrayCollections
+    {
+        public virtual Guid Id { get; set; }
+        public virtual string Name { get; set; } = null!;
+        public virtual ActivityStructWithArrayCollection[] Activities { get; set; } = [];
+        public virtual TeamStruct FeaturedTeam { get; set; }
+    }
+
+    public class PubWithReadonlyStructArrayCollections
+    {
+        public virtual Guid Id { get; set; }
+        public virtual string Name { get; set; } = null!;
+        public virtual ActivityReadonlyStructWithArrayCollection[] Activities { get; set; } = [];
+        public virtual TeamReadonlyStruct FeaturedTeam { get; set; }
+    }
+
+    public class PubWithRecordArrayCollections
+    {
+        public virtual Guid Id { get; set; }
+        public virtual string Name { get; set; } = null!;
+        public virtual ActivityRecordWithArrayCollection[] Activities { get; set; } = [];
+        public virtual TeamRecord FeaturedTeam { get; set; } = null!;
+    }
+
+    public class PubWithPropertyBagCollections
+    {
+        public virtual Guid Id { get; set; }
+        public virtual string Name { get; set; } = null!;
+        public virtual List<ActivityWithPropertyBagCollection> Activities { get; set; } = [];
+        public virtual Dictionary<string, object> FeaturedTeam { get; set; } = null!;
     }
 
     public class FieldPubWithCollections
@@ -3766,6 +4069,368 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         ];
 
         pub.FeaturedTeam = new TeamRecord { Name = "Not In This Lifetime", Members = ["Slash", "Axl"] };
+
+        return pub;
+    }
+
+    protected PubWithArrayCollections CreatePubWithArrayCollections(DbContext context)
+    {
+        var pub = Fixture.UseProxies
+            ? context.CreateProxy<PubWithArrayCollections>()
+            : new PubWithArrayCollections();
+
+        pub.Id = Guid.NewGuid();
+        pub.Name = "The FBI";
+
+        pub.Activities =
+        [
+            new ActivityWithArrayCollection
+            {
+                Name = "Pub Quiz",
+                Day = DayOfWeek.Monday,
+                Description = "A general knowledge pub quiz.",
+                Notes = ["One", "Two", "Three"],
+                CoverCharge = 2.0m,
+                IsTeamBased = true,
+                Teams =
+                [
+                    new Team
+                    {
+                        Name = "Clueless",
+                        Members =
+                        {
+                            "Boris",
+                            "David",
+                            "Theresa"
+                        }
+                    },
+                    new Team
+                    {
+                        Name = "ZZ",
+                        Members =
+                        {
+                            "Has Beard",
+                            "Has Beard",
+                            "Is Called Beard"
+                        }
+                    }
+                ]
+            },
+            new ActivityWithArrayCollection
+            {
+                Name = "Music Quiz",
+                Day = DayOfWeek.Friday,
+                Description = "A music pub quiz.",
+                Notes = [],
+                CoverCharge = 5.0m,
+                IsTeamBased = true,
+                Teams =
+                [
+                    new Team
+                    {
+                        Name = "Dazed and Confused",
+                        Members =
+                        {
+                            "Robert",
+                            "Jimmy",
+                            "John",
+                            "Jason"
+                        }
+                    },
+                    new Team { Name = "Banksy", Members = [] }
+                ]
+            }
+        ];
+
+        pub.FeaturedTeam = new Team { Name = "Not In This Lifetime", Members = { "Slash", "Axl" } };
+
+        return pub;
+    }
+
+    protected PubWithStructArrayCollections CreatePubWithStructArrayCollections(DbContext context)
+    {
+        var pub = Fixture.UseProxies
+            ? context.CreateProxy<PubWithStructArrayCollections>()
+            : new PubWithStructArrayCollections();
+
+        pub.Id = Guid.NewGuid();
+        pub.Name = "The FBI";
+
+        pub.Activities =
+        [
+            new ActivityStructWithArrayCollection
+            {
+                Name = "Pub Quiz",
+                Day = DayOfWeek.Monday,
+                Description = "A general knowledge pub quiz.",
+                Notes = ["One", "Two", "Three"],
+                CoverCharge = 2.0m,
+                IsTeamBased = true,
+                Teams =
+                [
+                    new TeamStruct
+                    {
+                        Name = "Clueless",
+                        Members =
+                        [
+                            "Boris",
+                            "David",
+                            "Theresa"
+                        ]
+                    },
+                    new TeamStruct
+                    {
+                        Name = "ZZ",
+                        Members =
+                        [
+                            "Has Beard",
+                            "Has Beard",
+                            "Is Called Beard"
+                        ]
+                    }
+                ]
+            },
+            new ActivityStructWithArrayCollection
+            {
+                Name = "Music Quiz",
+                Day = DayOfWeek.Friday,
+                Description = "A music pub quiz.",
+                Notes = [],
+                CoverCharge = 5.0m,
+                IsTeamBased = true,
+                Teams =
+                [
+                    new TeamStruct
+                    {
+                        Name = "Dazed and Confused",
+                        Members =
+                        [
+                            "Robert",
+                            "Jimmy",
+                            "John",
+                            "Jason"
+                        ]
+                    },
+                    new TeamStruct { Name = "Banksy", Members = [] }
+                ]
+            }
+        ];
+
+        pub.FeaturedTeam = new TeamStruct { Name = "Not In This Lifetime", Members = ["Slash", "Axl"] };
+
+        return pub;
+    }
+
+    protected PubWithReadonlyStructArrayCollections CreatePubWithReadonlyStructArrayCollections(DbContext context)
+    {
+        var pub = Fixture.UseProxies
+            ? context.CreateProxy<PubWithReadonlyStructArrayCollections>()
+            : new PubWithReadonlyStructArrayCollections();
+
+        pub.Id = Guid.NewGuid();
+        pub.Name = "The FBI";
+
+        pub.Activities =
+        [
+            new ActivityReadonlyStructWithArrayCollection
+            {
+                Name = "Pub Quiz",
+                Day = DayOfWeek.Monday,
+                Description = "A general knowledge pub quiz.",
+                Notes = ["One", "Two", "Three"],
+                CoverCharge = 2.0m,
+                IsTeamBased = true,
+                Teams =
+                [
+                    new TeamReadonlyStruct("Clueless", [
+                        "Boris",
+                        "David",
+                        "Theresa"
+                    ]),
+                    new TeamReadonlyStruct("ZZ", [
+                        "Has Beard",
+                        "Has Beard",
+                        "Is Called Beard"
+                    ])
+                ]
+            },
+            new ActivityReadonlyStructWithArrayCollection
+            {
+                Name = "Music Quiz",
+                Day = DayOfWeek.Friday,
+                Description = "A music pub quiz.",
+                Notes = [],
+                CoverCharge = 5.0m,
+                IsTeamBased = true,
+                Teams =
+                [
+                    new TeamReadonlyStruct("Dazed and Confused", [
+                        "Robert",
+                        "Jimmy",
+                        "John",
+                        "Jason"
+                    ]),
+                    new TeamReadonlyStruct("Banksy", [])
+                ]
+            }
+        ];
+
+        pub.FeaturedTeam = new TeamReadonlyStruct("Not In This Lifetime", ["Slash", "Axl"]);
+
+        return pub;
+    }
+
+    protected PubWithRecordArrayCollections CreatePubWithRecordArrayCollections(DbContext context)
+    {
+        var pub = Fixture.UseProxies
+            ? context.CreateProxy<PubWithRecordArrayCollections>()
+            : new PubWithRecordArrayCollections();
+
+        pub.Id = Guid.NewGuid();
+        pub.Name = "The FBI";
+
+        pub.Activities =
+        [
+            new ActivityRecordWithArrayCollection
+            {
+                Name = "Pub Quiz",
+                Day = DayOfWeek.Monday,
+                Description = "A general knowledge pub quiz.",
+                Notes = ["One", "Two", "Three"],
+                CoverCharge = 2.0m,
+                IsTeamBased = true,
+                Teams =
+                [
+                    new TeamRecord
+                    {
+                        Name = "Clueless",
+                        Members =
+                        [
+                            "Boris",
+                            "David",
+                            "Theresa"
+                        ]
+                    },
+                    new TeamRecord
+                    {
+                        Name = "ZZ",
+                        Members =
+                        [
+                            "Has Beard",
+                            "Has Beard",
+                            "Is Called Beard"
+                        ]
+                    }
+                ]
+            },
+            new ActivityRecordWithArrayCollection
+            {
+                Name = "Music Quiz",
+                Day = DayOfWeek.Friday,
+                Description = "A music pub quiz.",
+                Notes = [],
+                CoverCharge = 5.0m,
+                IsTeamBased = true,
+                Teams =
+                [
+                    new TeamRecord
+                    {
+                        Name = "Dazed and Confused",
+                        Members =
+                        [
+                            "Robert",
+                            "Jimmy",
+                            "John",
+                            "Jason"
+                        ]
+                    },
+                    new TeamRecord { Name = "Banksy", Members = [] }
+                ]
+            }
+        ];
+
+        pub.FeaturedTeam = new TeamRecord { Name = "Not In This Lifetime", Members = ["Slash", "Axl"] };
+
+        return pub;
+    }
+
+    protected PubWithPropertyBagCollections CreatePubWithPropertyBagCollections(DbContext context)
+    {
+        var pub = Fixture.UseProxies
+            ? context.CreateProxy<PubWithPropertyBagCollections>()
+            : new PubWithPropertyBagCollections();
+
+        pub.Id = Guid.NewGuid();
+        pub.Name = "The FBI";
+
+        pub.Activities =
+        [
+            new ActivityWithPropertyBagCollection
+            {
+                Name = "Pub Quiz",
+                Day = DayOfWeek.Monday,
+                Description = "A general knowledge pub quiz.",
+                Notes = ["One", "Two", "Three"],
+                CoverCharge = 2.0m,
+                IsTeamBased = true,
+                Teams =
+                [
+                    new Dictionary<string, object>
+                    {
+                        ["Name"] = "Clueless",
+                        ["Members"] = new List<string> { "Boris", "David", "Theresa" },
+                        ["Founded"] = new DateTime(2015, 3, 15),
+                        ["IsActive"] = true,
+                        ["Rating"] = 4.2
+                    },
+                    new Dictionary<string, object>
+                    {
+                        ["Name"] = "ZZ",
+                        ["Members"] = new List<string> { "Has Beard", "Has Beard", "Is Called Beard" },
+                        ["Founded"] = new DateTime(2020, 1, 1),
+                        ["IsActive"] = false,
+                        ["Rating"] = 3.8
+                    }
+                ]
+            },
+            new ActivityWithPropertyBagCollection
+            {
+                Name = "Music Quiz",
+                Day = DayOfWeek.Friday,
+                Description = "A music pub quiz.",
+                Notes = [],
+                CoverCharge = 5.0m,
+                IsTeamBased = true,
+                Teams =
+                [
+                    new Dictionary<string, object>
+                    {
+                        ["Name"] = "Dazed and Confused",
+                        ["Members"] = new List<string> { "Robert", "Jimmy", "John", "Jason" },
+                        ["Founded"] = new DateTime(2018, 7, 20),
+                        ["IsActive"] = true,
+                        ["Rating"] = 4.9
+                    },
+                    new Dictionary<string, object>
+                    {
+                        ["Name"] = "Banksy",
+                        ["Members"] = new List<string>(),
+                        ["Founded"] = new DateTime(2022, 12, 31),
+                        ["IsActive"] = true,
+                        ["Rating"] = 2.1
+                    }
+                ]
+            }
+        ];
+
+        pub.FeaturedTeam = new Dictionary<string, object>
+        {
+            ["Name"] = "Not In This Lifetime",
+            ["Members"] = new List<string> { "Slash", "Axl" },
+            ["Founded"] = new DateTime(2016, 4, 1),
+            ["IsActive"] = true,
+            ["Rating"] = 4.7
+        };
 
         return pub;
     }
