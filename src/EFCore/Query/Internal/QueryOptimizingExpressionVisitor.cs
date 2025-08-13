@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal;
@@ -157,7 +156,7 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
         // Normalize x.Any(i => i == foo) to x.Contains(foo)
         // And x.All(i => i != foo) to !x.Contains(foo)
         if (methodCallExpression.Method.IsGenericMethod
-            && methodCallExpression.Method.GetGenericMethodDefinition() is { } methodInfo
+            && methodCallExpression.Method.GetGenericMethodDefinition() is var methodInfo
             && (methodInfo == EnumerableMethods.AnyWithPredicate
                 || methodInfo == EnumerableMethods.All
                 || methodInfo == QueryableMethods.AnyWithPredicate
@@ -336,6 +335,7 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
 
                     return true;
                 }
+
                 return false;
             }
 
@@ -373,7 +373,7 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
                     Test: BinaryExpression { NodeType: ExpressionType.Equal or ExpressionType.NotEqual } binaryTest
                 } conditionalExpression
                 && !(conditionalExpression.Type.IsNullableValueType()
-                    && visitedMemberExpression.Member.Name is nameof(Nullable<int>.HasValue) or nameof(Nullable<int>.Value)))
+                    && visitedMemberExpression.Member.Name is nameof(Nullable<>.HasValue) or nameof(Nullable<>.Value)))
             {
                 var isLeftNullConstant = IsNullConstant(binaryTest.Left);
                 var isRightNullConstant = IsNullConstant(binaryTest.Right);

@@ -3,7 +3,6 @@
 
 using System.ComponentModel;
 using System.Data.Common;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
@@ -25,7 +24,7 @@ public class DatabaseFacade : IInfrastructure<IServiceProvider>, IDatabaseFacade
     public DatabaseFacade(DbContext context)
         => _context = context;
 
-    [field: AllowNull][field: MaybeNull]
+    [field: AllowNull, MaybeNull]
     private IDatabaseFacadeDependencies Dependencies
         => field ??= _context.GetService<IDatabaseFacadeDependencies>();
 

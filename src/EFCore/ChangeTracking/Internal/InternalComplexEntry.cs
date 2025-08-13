@@ -303,7 +303,7 @@ public sealed class InternalComplexEntry : InternalEntryBase
     }
 
     private static string GetShortNameChain(IReadOnlyTypeBase structuralType)
-        => (structuralType is IReadOnlyComplexType complexType) && (complexType.ComplexProperty is { } complexProperty)
+        => (structuralType is IReadOnlyComplexType { ComplexProperty: var complexProperty })
             ? complexProperty.IsCollection
                 ? ""
                 : GetShortNameChain(complexProperty.DeclaringType) + "." + complexProperty.Name + "."

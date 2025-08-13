@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections.Concurrent;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 
@@ -1601,8 +1600,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [Obsolete] // The interface didn't mark method obsolete
-    [DebuggerStepThrough]
+    [Obsolete, DebuggerStepThrough] // The interface didn't mark method obsolete
     IConventionEntityType? IConventionModel.AddEntityType(
         string name,
         string definingNavigationName,
@@ -1631,8 +1629,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [Obsolete] // The interface didn't mark method obsolete
-    [DebuggerStepThrough]
+    [Obsolete, DebuggerStepThrough] // The interface didn't mark method obsolete
     IConventionEntityType? IConventionModel.AddEntityType(
         [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type,
         string definingNavigationName,

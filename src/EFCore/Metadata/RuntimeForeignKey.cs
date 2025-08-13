@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -278,6 +277,6 @@ public class RuntimeForeignKey : RuntimeAnnotatableBase, IRuntimeForeignKey
     }
 
     /// <inheritdoc />
-    [field: AllowNull] [field: MaybeNull]
+    [field: AllowNull, MaybeNull]
     Func<IDependentsMap> IRuntimeForeignKey.DependentsMapFactory { get; set; } = null!;
 }

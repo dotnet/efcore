@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -922,8 +921,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
         => (IReadOnlyCollection<IQueryFilter>?)this[CoreAnnotationNames.QueryFilter] ?? [];
 
     /// <inheritdoc />
-    [DebuggerStepThrough]
-    [Obsolete("Use GetDeclaredQueryFilters() instead.")]
+    [DebuggerStepThrough, Obsolete("Use GetDeclaredQueryFilters() instead.")]
     LambdaExpression? IReadOnlyEntityType.GetQueryFilter()
         => ((IReadOnlyEntityType)this).GetDeclaredQueryFilters().FirstOrDefault(f => f.IsAnonymous)?.Expression;
 

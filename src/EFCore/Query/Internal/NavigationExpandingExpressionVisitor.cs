@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using ExpressionExtensions = Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
@@ -282,10 +281,10 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         // Convert ICollection<T>.Count to Count<T>()
         if (memberExpression.Expression != null
             && innerExpression != null
-            && memberExpression.Member.Name == nameof(ICollection<int>.Count)
+            && memberExpression.Member.Name == nameof(ICollection<>.Count)
             && memberExpression.Expression.Type.GetInterfaces().Append(memberExpression.Expression.Type)
                 .Any(e => e.IsGenericType
-                    && (e.GetGenericTypeDefinition() is { } genericTypeDefinition
+                    && (e.GetGenericTypeDefinition() is var genericTypeDefinition
                         && (genericTypeDefinition == typeof(ICollection<>)
                             || genericTypeDefinition == typeof(IReadOnlyCollection<>)))))
         {
@@ -2064,7 +2063,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
     private Expression UnwrapCollectionMaterialization(Expression expression)
     {
         while (expression is MethodCallExpression { Method.IsGenericMethod: true } innerMethodCall
-               && innerMethodCall.Method.GetGenericMethodDefinition() is { } innerMethod
+               && innerMethodCall.Method.GetGenericMethodDefinition() is var innerMethod
                && (innerMethod == EnumerableMethods.AsEnumerable
                    || innerMethod == EnumerableMethods.ToList
                    || innerMethod == EnumerableMethods.ToArray))
@@ -2221,7 +2220,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
 
                 break;
 
-            case MemberExpression { Expression: { } } memberExpression:
+            case MemberExpression { Expression: not null } memberExpression:
                 if (TryExtractIncludeTreeNode(memberExpression.Expression, memberExpression.Member.Name, out var addedNode))
                 {
                     return addedNode;

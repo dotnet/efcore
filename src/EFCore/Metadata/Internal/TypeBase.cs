@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 
@@ -313,7 +312,7 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [field: AllowNull] [field: MaybeNull]
+    [field: AllowNull, MaybeNull]
     public virtual Func<IInternalEntry, ISnapshot> OriginalValuesFactory
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref field, this,
@@ -333,7 +332,7 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [field: AllowNull] [field: MaybeNull]
+    [field: AllowNull, MaybeNull]
     public virtual Func<ISnapshot> StoreGeneratedValuesFactory
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref field, this,
@@ -353,7 +352,7 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [field: AllowNull] [field: MaybeNull]
+    [field: AllowNull, MaybeNull]
     public virtual Func<IInternalEntry, ISnapshot> TemporaryValuesFactory
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref field, this,
@@ -373,7 +372,7 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [field: AllowNull] [field: MaybeNull]
+    [field: AllowNull, MaybeNull]
     public virtual Func<IDictionary<string, object?>, ISnapshot> ShadowValuesFactory
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref field, this,
@@ -393,7 +392,7 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [field: AllowNull] [field: MaybeNull]
+    [field: AllowNull, MaybeNull]
     public virtual Func<ISnapshot> EmptyShadowValuesFactory
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref field, this,

@@ -32,8 +32,7 @@ public class StructuralTypeShaperExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [UsedImplicitly]
-    [EntityFrameworkInternal]
+    [UsedImplicitly, EntityFrameworkInternal]
     public static Exception CreateUnableToDiscriminateException(ITypeBase type, object? discriminator)
         => new InvalidOperationException(CoreStrings.UnableToDiscriminate(type.DisplayName(), discriminator?.ToString()));
 

@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 
@@ -3009,7 +3008,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
 
         if (newRelationship == null)
         {
-            if (relationship.Metadata.IsInModel == true)
+            if (relationship.Metadata.IsInModel)
             {
                 relationship.Metadata.DeclaringEntityType.Builder.HasNoRelationship(relationship.Metadata, configurationSource);
             }
@@ -3164,9 +3163,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
             var ownership = Metadata.FindOwnership();
             var existingDerivedNavigations = Metadata.FindDerivedNavigations(navigation.Name!)
                 .Where(n => n.ForeignKey.IsOwnership).ToList();
-            if (existingDerivedNavigations.Count == 1
-                && existingDerivedNavigations[0].ForeignKey.DeclaringEntityType is { } existingOwnedType
-                && !existingOwnedType.HasSharedClrType)
+            if (existingDerivedNavigations is [{ ForeignKey.DeclaringEntityType: { HasSharedClrType: false } existingOwnedType }])
             {
                 ownedEntityTypeBuilder = existingOwnedType.Builder;
                 ownedEntityTypeBuilder.HasNoRelationship(existingDerivedNavigations[0].ForeignKey, configurationSource);

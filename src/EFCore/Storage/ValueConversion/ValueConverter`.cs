@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -94,7 +93,7 @@ public class ValueConverter<TModel, TProvider> : ValueConverter
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information and examples.
     /// </remarks>
-    [field: AllowNull][field: MaybeNull]
+    [field: AllowNull, MaybeNull]
     public override Func<object?, object?> ConvertToProvider
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref field, this, static c => SanitizeConverter(c.ConvertToProviderTyped, c.ConvertsNulls));
@@ -106,7 +105,7 @@ public class ValueConverter<TModel, TProvider> : ValueConverter
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information and examples.
     /// </remarks>
-    [field: AllowNull][field: MaybeNull]
+    [field: AllowNull, MaybeNull]
     public override Func<object?, object?> ConvertFromProvider
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref field, this, static c => SanitizeConverter(c.ConvertFromProviderTyped, c.ConvertsNulls));
@@ -117,7 +116,7 @@ public class ValueConverter<TModel, TProvider> : ValueConverter
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information and examples.
     /// </remarks>
-    [field: AllowNull][field: MaybeNull]
+    [field: AllowNull, MaybeNull]
     public virtual Func<TModel, TProvider> ConvertToProviderTyped
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref field, this, static c => c.ConvertToProviderExpression.Compile());
@@ -128,7 +127,7 @@ public class ValueConverter<TModel, TProvider> : ValueConverter
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information and examples.
     /// </remarks>
-    [field: AllowNull][field: MaybeNull]
+    [field: AllowNull, MaybeNull]
     public virtual Func<TProvider, TModel> ConvertFromProviderTyped
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref field, this, static c => c.ConvertFromProviderExpression.Compile());

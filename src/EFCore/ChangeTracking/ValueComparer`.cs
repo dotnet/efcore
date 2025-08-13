@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
 using ExpressionExtensions = Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
 using static System.Linq.Expressions.Expression;
@@ -246,7 +245,7 @@ public class ValueComparer
     }
 
     /// <inheritdoc />
-    [field: AllowNull][field: MaybeNull]
+    [field: AllowNull, MaybeNull]
     public override LambdaExpression ObjectEqualsExpression
     {
         get

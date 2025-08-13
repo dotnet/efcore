@@ -71,7 +71,7 @@ internal sealed partial class OrderedDictionary<TKey, TValue> : IDictionary<TKey
     ///     An <see cref="OrderedDictionary{TKey, TValue}.KeyCollection" /> containing the keys in the
     ///     <see cref="OrderedDictionary{TKey, TValue}" />.
     /// </returns>
-    [field: AllowNull][field: MaybeNull]
+    [field: AllowNull, MaybeNull]
     public KeyCollection Keys
         => field ??= new KeyCollection(this);
 
@@ -82,7 +82,7 @@ internal sealed partial class OrderedDictionary<TKey, TValue> : IDictionary<TKey
     ///     An <see cref="OrderedDictionary{TKey, TValue}.ValueCollection" /> containing the values in the
     ///     <see cref="OrderedDictionary{TKey, TValue}" />.
     /// </returns>
-    [field: AllowNull][field: MaybeNull]
+    [field: AllowNull, MaybeNull]
     public ValueCollection Values
         => field ??= new ValueCollection(this);
 

@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections.Concurrent;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -47,8 +46,7 @@ public class RuntimeModel : RuntimeAnnotatableBase, IRuntimeModel
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
-    [Obsolete("Use a constructor with parameters")]
+    [EntityFrameworkInternal, Obsolete("Use a constructor with parameters")]
     public RuntimeModel()
     {
         _entityTypes = new Dictionary<string, RuntimeEntityType>(StringComparer.Ordinal);
@@ -87,8 +85,7 @@ public class RuntimeModel : RuntimeAnnotatableBase, IRuntimeModel
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
-    [Obsolete("This is set in the constructor now")]
+    [EntityFrameworkInternal, Obsolete("This is set in the constructor now")]
     public virtual Guid ModelId { get => _modelId; set => _modelId = value; }
 
     /// <summary>

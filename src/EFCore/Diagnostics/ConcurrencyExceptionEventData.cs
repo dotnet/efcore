@@ -1,7 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics;
@@ -42,7 +41,7 @@ public class ConcurrencyExceptionEventData : DbContextErrorEventData
     /// <summary>
     ///     The entries that were involved in the concurrency violation.
     /// </summary>
-    [field: AllowNull][field: MaybeNull]
+    [field: AllowNull, MaybeNull]
     public virtual IReadOnlyList<EntityEntry> Entries
         => field ??= _internalEntries.Select(e => new EntityEntry((InternalEntityEntry)e)).ToList();
 }

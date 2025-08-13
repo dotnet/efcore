@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -48,7 +47,7 @@ public class InternalDbSet<[DynamicallyAccessedMembers(IEntityType.DynamicallyAc
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [field: AllowNull][field: MaybeNull]
+    [field: AllowNull, MaybeNull]
     public override IEntityType EntityType
     {
         get
@@ -114,7 +113,7 @@ public class InternalDbSet<[DynamicallyAccessedMembers(IEntityType.DynamicallyAc
         }
     }
 
-    [field: AllowNull][field: MaybeNull]
+    [field: AllowNull, MaybeNull]
     private EntityQueryable<TEntity> EntityQueryable
     {
         get
@@ -448,7 +447,7 @@ public class InternalDbSet<[DynamicallyAccessedMembers(IEntityType.DynamicallyAc
         return entry;
     }
 
-    [field: AllowNull][field: MaybeNull]
+    [field: AllowNull, MaybeNull]
     private IEntityFinder<TEntity> Finder
     {
         get

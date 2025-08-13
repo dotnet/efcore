@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
-
 namespace Microsoft.EntityFrameworkCore.Query;
 
 /// <summary>
@@ -269,7 +267,7 @@ public class QueryCompilationContext
         = typeof(QueryContext).GetProperty(nameof(QueryContext.Parameters))!;
 
     private static readonly MethodInfo ParameterDictionaryAddMethod
-        = typeof(Dictionary<string, object?>).GetMethod(nameof(Dictionary<string, object?>.Add))!;
+        = typeof(Dictionary<string, object?>).GetMethod(nameof(Dictionary<,>.Add))!;
 
     [DebuggerDisplay("{Microsoft.EntityFrameworkCore.Query.ExpressionPrinter.Print(this), nq}")]
     private sealed class NotTranslatedExpressionType : Expression, IPrintableExpression
@@ -287,7 +285,7 @@ public class QueryCompilationContext
     private sealed class RuntimeParameterConstantLifter(ILiftableConstantFactory liftableConstantFactory) : ExpressionVisitor
     {
         private static readonly MethodInfo ComplexPropertyListElementAddMethod =
-            typeof(List<IComplexProperty>).GetMethod(nameof(List<IComplexProperty>.Add))!;
+            typeof(List<IComplexProperty>).GetMethod(nameof(List<>.Add))!;
 
         protected override Expression VisitConstant(ConstantExpression constantExpression)
         {

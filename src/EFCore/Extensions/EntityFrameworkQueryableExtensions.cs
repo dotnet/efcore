@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 
@@ -13,18 +12,17 @@ namespace Microsoft.EntityFrameworkCore;
 ///     Entity Framework LINQ related extension methods.
 /// </summary>
 [UnconditionalSuppressMessage(
-    "ReflectionAnalysis",
-    "IL2060",
-    Justification =
-        "MakeGenericMethod is used in this class to create MethodCallExpression nodes, but only if the method in question is called "
-        + "from user code - so it's never trimmed. After https://github.com/dotnet/linker/issues/2482 is fixed, the suppression will no "
-        + "longer be necessary.")]
-[UnconditionalSuppressMessage(
-    "AOT",
-    "IL3050:Calling members annotated with 'RequiresDynamicCodeAttribute' may break functionality when AOT compiling.",
-    Justification =
-        "MakeGenericMethod is used in this class to create MethodCallExpression nodes, but only if the method in question is called "
-        + "from user code - so it's never trimmed.")]
+     "ReflectionAnalysis",
+     "IL2060",
+     Justification =
+         "MakeGenericMethod is used in this class to create MethodCallExpression nodes, but only if the method in question is called "
+         + "from user code - so it's never trimmed. After https://github.com/dotnet/linker/issues/2482 is fixed, the suppression will no "
+         + "longer be necessary."), UnconditionalSuppressMessage(
+     "AOT",
+     "IL3050:Calling members annotated with 'RequiresDynamicCodeAttribute' may break functionality when AOT compiling.",
+     Justification =
+         "MakeGenericMethod is used in this class to create MethodCallExpression nodes, but only if the method in question is called "
+         + "from user code - so it's never trimmed.")]
 public static class EntityFrameworkQueryableExtensions
 {
     /// <summary>
@@ -2937,8 +2935,8 @@ public static class EntityFrameworkQueryableExtensions
     /// </exception>
     public static IQueryable<T> TagWithCallSite<T>(
         this IQueryable<T> source,
-        [NotParameterized] [CallerFilePath] string? filePath = null,
-        [NotParameterized] [CallerLineNumber] int lineNumber = 0)
+        [NotParameterized, CallerFilePath] string? filePath = null,
+        [NotParameterized, CallerLineNumber] int lineNumber = 0)
         => source.Provider is EntityQueryProvider
             ? source.Provider.CreateQuery<T>(
                 Expression.Call(

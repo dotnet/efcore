@@ -60,15 +60,15 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
 
             // Convert x.Count > 0 and x.Count != 0 to x.Any()
             {
-                    NodeType: ExpressionType.GreaterThan or ExpressionType.NotEqual,
-                    Left: MemberExpression
-                    {
-                        Member: { Name: nameof(ICollection<object>.Count), DeclaringType.IsGenericType: true } member,
-                        Expression: { } source
-                    },
-                    Right: ConstantExpression { Value: 0 }
-                }
-                when member.DeclaringType.GetGenericTypeDefinition() is { } genericTypeDefinition
+                NodeType: ExpressionType.GreaterThan or ExpressionType.NotEqual,
+                Left: MemberExpression
+                {
+                    Member: { Name: nameof(ICollection<>.Count), DeclaringType.IsGenericType: true } member,
+                    Expression: { } source
+                },
+                Right: ConstantExpression { Value: 0 }
+            }
+                when member.DeclaringType.GetGenericTypeDefinition() is var genericTypeDefinition
                 && (genericTypeDefinition == typeof(ICollection<>)
                     || genericTypeDefinition.GetInterfaces()
                         .Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(ICollection<>)))
@@ -79,14 +79,14 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
 
             // Same for arrays: convert x.Length > 0 and x.Length != 0 to x.Any()
             {
-                    NodeType: ExpressionType.GreaterThan or ExpressionType.NotEqual,
-                    Left: UnaryExpression
-                    {
-                        NodeType: ExpressionType.ArrayLength,
-                        Operand: { } source
-                    },
-                    Right: ConstantExpression { Value: 0 }
-                }
+                NodeType: ExpressionType.GreaterThan or ExpressionType.NotEqual,
+                Left: UnaryExpression
+                {
+                    NodeType: ExpressionType.ArrayLength,
+                    Operand: { } source
+                },
+                Right: ConstantExpression { Value: 0 }
+            }
                 => VisitMethodCall(
                     Expression.Call(
                         EnumerableMethods.AnyWithoutPredicate.MakeGenericMethod(source.Type.GetSequenceType()),
@@ -172,14 +172,14 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
 
         if (method.DeclaringType is { IsGenericType: true }
             && method.DeclaringType.TryGetElementType(typeof(ICollection<>)) is not null
-            && method.Name == nameof(ICollection<int>.Contains))
+            && method.Name == nameof(ICollection<>.Contains))
         {
             visitedExpression = TryConvertCollectionContainsToQueryableContains(methodCallExpression);
         }
 
         if (method.DeclaringType == typeof(EntityFrameworkQueryableExtensions)
             && method.IsGenericMethod
-            && method.GetGenericMethodDefinition() is { } genericMethod
+            && method.GetGenericMethodDefinition() is var genericMethod
             && (genericMethod == EntityFrameworkQueryableExtensions.IncludeMethodInfo
                 || genericMethod == EntityFrameworkQueryableExtensions.ThenIncludeAfterEnumerableMethodInfo
                 || genericMethod == EntityFrameworkQueryableExtensions.ThenIncludeAfterReferenceMethodInfo

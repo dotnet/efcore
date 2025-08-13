@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
-
 namespace Microsoft.EntityFrameworkCore.Query;
 
 /// <summary>
@@ -83,7 +81,7 @@ public class ReplacingExpressionVisitor : ExpressionVisitor
         var innerExpression = Visit(memberExpression.Expression);
 
         if (innerExpression is GroupByShaperExpression groupByShaperExpression
-            && memberExpression.Member.Name == nameof(IGrouping<int, int>.Key))
+            && memberExpression.Member.Name == nameof(IGrouping<,>.Key))
         {
             return groupByShaperExpression.KeySelector;
         }

@@ -27,7 +27,7 @@ public static class TypeBaseExtensions
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public static string ShortNameChain(this IReadOnlyTypeBase structuralType)
-        => (structuralType is IReadOnlyComplexType complexType) && (complexType.ComplexProperty is { } complexProperty)
+        => (structuralType is IReadOnlyComplexType { ComplexProperty: var complexProperty })
             ? complexProperty.DeclaringType.ShortNameChain() + (complexProperty.IsCollection ? "[]" : ".") + structuralType.ShortName()
             : structuralType.ShortName();
 

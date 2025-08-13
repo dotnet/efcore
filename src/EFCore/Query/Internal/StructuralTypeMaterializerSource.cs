@@ -201,7 +201,7 @@ public class StructuralTypeMaterializerSource : IStructuralTypeMaterializerSourc
                                     ReferenceEqual(value, Constant(null))),
                                 MakeMemberAccess(
                                     currentVariable,
-                                    iCollectionInterface.GetProperty(nameof(ICollection<object>.IsReadOnly))!)),
+                                    iCollectionInterface.GetProperty(nameof(ICollection<>.IsReadOnly))!)),
                             MakeMemberAccess(parameter, memberInfo).Assign(value),
                             Call(
                                 genericMethod,
@@ -312,17 +312,17 @@ public class StructuralTypeMaterializerSource : IStructuralTypeMaterializerSourc
         = typeof(IMaterializationInterceptor).GetMethod(nameof(IMaterializationInterceptor.InitializedInstance))!;
 
     private static readonly PropertyInfo HasResultMethod
-        = typeof(InterceptionResult<object>).GetProperty(nameof(InterceptionResult<object>.HasResult))!;
+        = typeof(InterceptionResult<object>).GetProperty(nameof(InterceptionResult<>.HasResult))!;
 
     private static readonly PropertyInfo ResultProperty
-        = typeof(InterceptionResult<object>).GetProperty(nameof(InterceptionResult<object>.Result))!;
+        = typeof(InterceptionResult<object>).GetProperty(nameof(InterceptionResult<>.Result))!;
 
     private static readonly PropertyInfo IsSuppressedProperty
         = typeof(InterceptionResult).GetProperty(nameof(InterceptionResult.IsSuppressed))!;
 
     private static readonly MethodInfo DictionaryAddMethod
         = typeof(Dictionary<IPropertyBase, (object, Func<MaterializationContext, object?>)>).GetMethod(
-            nameof(Dictionary<IPropertyBase, object>.Add),
+            nameof(Dictionary<,>.Add),
             [typeof(IPropertyBase), typeof((object, Func<MaterializationContext, object?>))])!;
 
     private static readonly ConstructorInfo DictionaryConstructor

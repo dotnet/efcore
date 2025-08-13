@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 
@@ -101,7 +100,7 @@ public class DependencyInjectionMethodParameterBinding : DependencyInjectionPara
     /// <summary>
     ///     A delegate to set a CLR service property on an entity instance.
     /// </summary>
-    [field: AllowNull][field: MaybeNull]
+    [field: AllowNull, MaybeNull]
     public override Func<MaterializationContext, IEntityType, object, object?> ServiceDelegate
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref field, this, static b =>

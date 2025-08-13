@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
 using ExpressionExtensions = Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
 
@@ -643,16 +642,13 @@ public partial class NavigationExpandingExpressionVisitor
             if (UnwrapEntityReference(innerExpression) is { } entityReference)
             {
                 var entityType = entityReference.EntityType;
-                if (convertedType != null)
+                if (convertedType == null)
                 {
-                    entityType = entityType.GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive())
-                        .FirstOrDefault(et => et.ClrType == convertedType);
-                    if (entityType == null)
-                    {
-                        return null;
-                    }
+                    return entityType;
                 }
 
+                entityType = entityType.GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive())
+                    .FirstOrDefault(et => et.ClrType == convertedType);
                 return entityType;
             }
 
@@ -1148,8 +1144,8 @@ public partial class NavigationExpandingExpressionVisitor
             _keyAccessExpression = Expression.MakeMemberAccess(
                 groupByNavigationExpansionExpression.CurrentParameter,
                 groupByNavigationExpansionExpression.CurrentParameter.Type.GetTypeInfo().GetDeclaredProperty(
-                    nameof(IGrouping<int, int>.Key))!);
-            _keyMemberInfo = parameterExpression.Type.GetTypeInfo().GetDeclaredProperty(nameof(IGrouping<int, int>.Key))!;
+                    nameof(IGrouping<,>.Key))!);
+            _keyMemberInfo = parameterExpression.Type.GetTypeInfo().GetDeclaredProperty(nameof(IGrouping<,>.Key))!;
             _cloningExpressionVisitor = new CloningExpressionVisitor();
         }
 

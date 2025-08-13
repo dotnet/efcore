@@ -3,7 +3,6 @@
 
 using System.Buffers;
 using System.Collections.ObjectModel;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using static System.Linq.Expressions.Expression;
 using ElementInit = System.Linq.Expressions.ElementInit;
@@ -844,7 +843,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
         {
             _state = State.CreateContainsEvaluatable(
                 typeof(LambdaExpression),
-                [_state.Path! with { PathFromParent = static e => Property(e, nameof(Expression<T>.Body)) }]);
+                [_state.Path! with { PathFromParent = static e => Property(e, nameof(Expression<>.Body)) }]);
         }
 
         _inLambda = oldInLambda;

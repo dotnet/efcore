@@ -205,7 +205,7 @@ public class ForeignKeyPropertyDiscoveryConvention :
                     var invertedRelationshipBuilder = relationshipBuilder
                         .HasEntityTypes(foreignKey.DeclaringEntityType, foreignKey.PrincipalEntityType);
                     if (invertedRelationshipBuilder is not null
-                        && invertedRelationshipBuilder.Metadata is { } invertedFk
+                        && invertedRelationshipBuilder.Metadata is var invertedFk
                         && invertedFk.IsSelfReferencing())
                     {
                         invertedRelationshipBuilder = invertedRelationshipBuilder.HasNavigations(
