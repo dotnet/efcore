@@ -20,8 +20,11 @@ public class LazyLoader : ILazyLoader, IInjectableService
     private bool _disposed;
     private bool _detached;
     private IDictionary<string, bool>? _loadedStates;
-    private readonly Lock _isLoadingLock = new Lock();
-    private readonly Dictionary<(object Entity, string NavigationName), TaskCompletionSource> _isLoading = new(NavEntryEqualityComparer.Instance);
+    private readonly Lock _isLoadingLock = new();
+
+    private readonly Dictionary<(object Entity, string NavigationName), TaskCompletionSource> _isLoading = new(
+        NavEntryEqualityComparer.Instance);
+
     private static readonly AsyncLocal<int> _isLoadingCallDepth = new();
     private HashSet<string>? _nonLazyNavigations;
 
@@ -118,8 +121,9 @@ public class LazyLoader : ILazyLoader, IInjectableService
             ref var refIsLoadingValue = ref CollectionsMarshal.GetValueRefOrAddDefault(_isLoading, navEntry, out exists);
             if (!exists)
             {
-                refIsLoadingValue = new();
+                refIsLoadingValue = new TaskCompletionSource();
             }
+
             _isLoadingCallDepth.Value++;
             isLoadingValue = refIsLoadingValue!;
         }
@@ -132,6 +136,7 @@ public class LazyLoader : ILazyLoader, IInjectableService
             {
                 isLoadingValue.Task.Wait();
             }
+
             _isLoadingCallDepth.Value--;
             return;
         }
@@ -190,8 +195,9 @@ public class LazyLoader : ILazyLoader, IInjectableService
             ref var refIsLoadingValue = ref CollectionsMarshal.GetValueRefOrAddDefault(_isLoading, navEntry, out exists);
             if (!exists)
             {
-                refIsLoadingValue = new();
+                refIsLoadingValue = new TaskCompletionSource();
             }
+
             _isLoadingCallDepth.Value++;
             isLoadingValue = refIsLoadingValue!;
         }
@@ -204,6 +210,7 @@ public class LazyLoader : ILazyLoader, IInjectableService
             {
                 await isLoadingValue.Task.WaitAsync(cancellationToken).ConfigureAwait(false);
             }
+
             _isLoadingCallDepth.Value--;
             return;
         }
@@ -216,10 +223,10 @@ public class LazyLoader : ILazyLoader, IInjectableService
                 try
                 {
                     await entry.LoadAsync(
-                               _queryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution
-                                   ? LoadOptions.ForceIdentityResolution
-                                   : LoadOptions.None,
-                               cancellationToken).ConfigureAwait(false);
+                        _queryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution
+                            ? LoadOptions.ForceIdentityResolution
+                            : LoadOptions.None,
+                        cancellationToken).ConfigureAwait(false);
                 }
                 catch
                 {

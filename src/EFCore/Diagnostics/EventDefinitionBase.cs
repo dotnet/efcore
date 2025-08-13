@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace Microsoft.EntityFrameworkCore.Diagnostics;
 
 /// <summary>
@@ -31,7 +33,6 @@ public abstract class EventDefinitionBase
         EventIdCode = eventIdCode;
 
         var warningsConfiguration = loggingOptions.WarningsConfiguration;
-
         if (warningsConfiguration != null)
         {
             var levelOverride = warningsConfiguration.GetLevel(eventId);
@@ -86,12 +87,11 @@ public abstract class EventDefinitionBase
 
     internal sealed class MessageExtractingLogger : ILogger
     {
-        private string? _message;
-
+        [field: AllowNull] [field: MaybeNull]
         public string Message
         {
-            get => _message ?? throw new InvalidOperationException();
-            private set => _message = value;
+            get => field ?? throw new InvalidOperationException();
+            private set;
         }
 
         void ILogger.Log<TState>(

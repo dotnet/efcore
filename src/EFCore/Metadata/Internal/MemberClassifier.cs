@@ -219,7 +219,7 @@ public class MemberClassifier : IMemberClassifier
         }
 
         var targetType = memberInfo.GetMemberType();
-        if (targetType.TryGetElementType(typeof(IList<>)) is Type sequenceType
+        if (targetType.TryGetElementType(typeof(IList<>)) is { } sequenceType
             && IsCandidateComplexType(sequenceType.UnwrapNullableType(), model, out explicitlyConfigured))
         {
             elementType = sequenceType;
@@ -233,7 +233,7 @@ public class MemberClassifier : IMemberClassifier
     {
         if (!targetType.IsValidComplexType()
             || (targetType.IsGenericType
-                && targetType.GetGenericTypeDefinition() is Type genericTypeDefinition
+                && targetType.GetGenericTypeDefinition() is { } genericTypeDefinition
                 && (genericTypeDefinition == typeof(Dictionary<,>)
                     || genericTypeDefinition == typeof(List<>)
                     || genericTypeDefinition == typeof(HashSet<>)

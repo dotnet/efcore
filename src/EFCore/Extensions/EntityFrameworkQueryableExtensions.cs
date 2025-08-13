@@ -2429,20 +2429,16 @@ public static class EntityFrameworkQueryableExtensions
     internal static readonly MethodInfo IncludeMethodInfo
         = typeof(EntityFrameworkQueryableExtensions)
             .GetTypeInfo().GetDeclaredMethods(nameof(Include))
-            .Single(
-                mi =>
-                    mi.GetGenericArguments().Length == 2
-                    && mi.GetParameters().Any(
-                        pi => pi.Name == "navigationPropertyPath" && pi.ParameterType != typeof(string)));
+            .Single(mi =>
+                mi.GetGenericArguments().Length == 2
+                && mi.GetParameters().Any(pi => pi.Name == "navigationPropertyPath" && pi.ParameterType != typeof(string)));
 
     internal static readonly MethodInfo NotQuiteIncludeMethodInfo
         = typeof(EntityFrameworkQueryableExtensions)
             .GetTypeInfo().GetDeclaredMethods(nameof(NotQuiteInclude))
-            .Single(
-                mi =>
-                    mi.GetGenericArguments().Length == 2
-                    && mi.GetParameters().Any(
-                        pi => pi.Name == "navigationPropertyPath" && pi.ParameterType != typeof(string)));
+            .Single(mi =>
+                mi.GetGenericArguments().Length == 2
+                && mi.GetParameters().Any(pi => pi.Name == "navigationPropertyPath" && pi.ParameterType != typeof(string)));
 
     /// <summary>
     ///     Specifies related entities to include in the query results. The navigation property to be included is specified starting with the
@@ -2501,20 +2497,18 @@ public static class EntityFrameworkQueryableExtensions
         = typeof(EntityFrameworkQueryableExtensions)
             .GetTypeInfo().GetDeclaredMethods(nameof(ThenInclude))
             .Where(mi => mi.GetGenericArguments().Length == 3)
-            .Single(
-                mi =>
-                {
-                    var typeInfo = mi.GetParameters()[0].ParameterType.GenericTypeArguments[1];
-                    return typeInfo.IsGenericType
-                        && typeInfo.GetGenericTypeDefinition() == typeof(IEnumerable<>);
-                });
+            .Single(mi =>
+            {
+                var typeInfo = mi.GetParameters()[0].ParameterType.GenericTypeArguments[1];
+                return typeInfo.IsGenericType
+                    && typeInfo.GetGenericTypeDefinition() == typeof(IEnumerable<>);
+            });
 
     internal static readonly MethodInfo ThenIncludeAfterReferenceMethodInfo
         = typeof(EntityFrameworkQueryableExtensions)
             .GetTypeInfo().GetDeclaredMethods(nameof(ThenInclude))
-            .Single(
-                mi => mi.GetGenericArguments().Length == 3
-                    && mi.GetParameters()[0].ParameterType.GenericTypeArguments[1].IsGenericParameter);
+            .Single(mi => mi.GetGenericArguments().Length == 3
+                && mi.GetParameters()[0].ParameterType.GenericTypeArguments[1].IsGenericParameter);
 
     /// <summary>
     ///     Specifies additional related data to be further included based on a related type that was just included.
@@ -2599,9 +2593,7 @@ public static class EntityFrameworkQueryableExtensions
     internal static readonly MethodInfo StringIncludeMethodInfo
         = typeof(EntityFrameworkQueryableExtensions)
             .GetTypeInfo().GetDeclaredMethods(nameof(Include))
-            .Single(
-                mi => mi.GetParameters().Any(
-                    pi => pi.Name == "navigationPropertyPath" && pi.ParameterType == typeof(string)));
+            .Single(mi => mi.GetParameters().Any(pi => pi.Name == "navigationPropertyPath" && pi.ParameterType == typeof(string)));
 
     /// <summary>
     ///     Specifies related entities to include in the query results. The navigation property to be included is
@@ -2712,7 +2704,8 @@ public static class EntityFrameworkQueryableExtensions
     /// <returns>A new query that will not apply any model-level entity query filters.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="source" /> is <see langword="null" />.</exception>
     public static IQueryable<TEntity> IgnoreQueryFilters<TEntity>(
-        this IQueryable<TEntity> source, [NotParameterized] IReadOnlyCollection<string> filterKeys)
+        this IQueryable<TEntity> source,
+        [NotParameterized] IReadOnlyCollection<string> filterKeys)
         where TEntity : class
         => source.Provider is EntityQueryProvider
             ? source.Provider.CreateQuery<TEntity>(
@@ -3404,7 +3397,9 @@ public static class EntityFrameworkQueryableExtensions
     /// <param name="setPropertyCalls">A collection of set property statements specifying properties to update.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>The total number of rows updated in the database.</returns>
-    [DynamicDependency("ExecuteUpdate``1(System.Linq.IQueryable{``1},System.Collections.Generic.IReadOnlyList{ITuple})", typeof(EntityFrameworkQueryableExtensions))]
+    [DynamicDependency(
+        "ExecuteUpdate``1(System.Linq.IQueryable{``1},System.Collections.Generic.IReadOnlyList{ITuple})",
+        typeof(EntityFrameworkQueryableExtensions))]
     public static Task<int> ExecuteUpdateAsync<TSource>(
         this IQueryable<TSource> source,
         Action<UpdateSettersBuilder<TSource>> setPropertyCalls,
@@ -3437,8 +3432,7 @@ public static class EntityFrameworkQueryableExtensions
     public static readonly MethodInfo ExecuteUpdateMethodInfo
         = typeof(EntityFrameworkQueryableExtensions)
             .GetMethods(BindingFlags.NonPublic | BindingFlags.Static)
-            .Single(
-                m => m.Name == nameof(ExecuteUpdate) && m.GetParameters()[1].ParameterType == typeof(IReadOnlyList<ITuple>));
+            .Single(m => m.Name == nameof(ExecuteUpdate) && m.GetParameters()[1].ParameterType == typeof(IReadOnlyList<ITuple>));
 
     #endregion
 }

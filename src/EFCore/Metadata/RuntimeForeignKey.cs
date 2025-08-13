@@ -22,8 +22,8 @@ public class RuntimeForeignKey : RuntimeAnnotatableBase, IRuntimeForeignKey
     private readonly bool _isRequiredDependent;
     private readonly bool _isOwnership;
 
+    // Note: This is set and used only by KeyValueFactoryFactory, which ensures thread-safety
     private IDependentKeyValueFactory? _dependentKeyValueFactory;
-    private Func<IDependentsMap>? _dependentsMapFactory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -267,7 +267,6 @@ public class RuntimeForeignKey : RuntimeAnnotatableBase, IRuntimeForeignKey
     IDependentKeyValueFactory IForeignKey.GetDependentKeyValueFactory()
         => _dependentKeyValueFactory!;
 
-    // Note: This is set and used only by KeyValueFactoryFactory, which ensures thread-safety
     /// <inheritdoc />
     IDependentKeyValueFactory IRuntimeForeignKey.DependentKeyValueFactory
     {
@@ -278,14 +277,7 @@ public class RuntimeForeignKey : RuntimeAnnotatableBase, IRuntimeForeignKey
         set => _dependentKeyValueFactory = value;
     }
 
-    // Note: This is set and used only by KeyValueFactoryFactory, which ensures thread-safety
     /// <inheritdoc />
-    Func<IDependentsMap> IRuntimeForeignKey.DependentsMapFactory
-    {
-        [DebuggerStepThrough]
-        get => _dependentsMapFactory!;
-
-        [DebuggerStepThrough]
-        set => _dependentsMapFactory = value;
-    }
+    [field: AllowNull] [field: MaybeNull]
+    Func<IDependentsMap> IRuntimeForeignKey.DependentsMapFactory { get; set; } = null!;
 }

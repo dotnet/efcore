@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 
@@ -25,8 +26,6 @@ public class DependencyInjectionMethodParameterBinding : DependencyInjectionPara
 
     private static readonly MethodInfo CreateServiceMethod
         = typeof(DependencyInjectionMethodParameterBinding).GetTypeInfo().GetDeclaredMethod(nameof(CreateService))!;
-
-    private Func<MaterializationContext, IEntityType, object, object>? _serviceDelegate;
 
     /// <summary>
     ///     Creates a new <see cref="DependencyInjectionParameterBinding" /> instance for the given method
@@ -64,8 +63,7 @@ public class DependencyInjectionMethodParameterBinding : DependencyInjectionPara
         var serviceInstance = bindingInfo.ServiceInstances.FirstOrDefault(e => e.Type == ServiceType);
         if (serviceInstance != null)
         {
-            var parameters = Method.GetParameters().Select(
-                (p, i) => Expression.Parameter(p.ParameterType, "param" + i)).ToArray();
+            var parameters = Method.GetParameters().Select((p, i) => Expression.Parameter(p.ParameterType, "param" + i)).ToArray();
 
             return Expression.Condition(
                 Expression.ReferenceEqual(serviceInstance, Expression.Constant(null)),
@@ -103,24 +101,24 @@ public class DependencyInjectionMethodParameterBinding : DependencyInjectionPara
     /// <summary>
     ///     A delegate to set a CLR service property on an entity instance.
     /// </summary>
+    [field: AllowNull][field: MaybeNull]
     public override Func<MaterializationContext, IEntityType, object, object?> ServiceDelegate
         => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _serviceDelegate, this, static b =>
+            ref field, this, static b =>
             {
                 var materializationContextParam = Expression.Parameter(typeof(MaterializationContext));
                 var entityTypeParam = Expression.Parameter(typeof(IEntityType));
                 var entityParam = Expression.Parameter(typeof(object));
 
-                var parameters = b.Method.GetParameters().Select(
-                    (p, i) => Expression.Parameter(p.ParameterType, "param" + i)).ToArray();
+                var parameters = b.Method.GetParameters().Select((p, i) => Expression.Parameter(p.ParameterType, "param" + i)).ToArray();
 
                 var entityType = (IEntityType)b.ConsumedProperties.First().DeclaringType;
-                var serviceStateProperty = entityType.GetServiceProperties().FirstOrDefault(
-                    p => p.ParameterBinding != b && p.ParameterBinding.ServiceType == b.ServiceType);
+                var serviceStateProperty = entityType.GetServiceProperties()
+                    .FirstOrDefault(p => p.ParameterBinding != b && p.ParameterBinding.ServiceType == b.ServiceType);
 
                 var serviceVariable = Expression.Variable(b.ServiceType, "service");
                 var serviceExpression = Expression.Block(
-                    new[] { serviceVariable },
+                    [serviceVariable],
                     new List<Expression>
                     {
                         Expression.Assign(

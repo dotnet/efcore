@@ -89,11 +89,10 @@ public class OwnedNavigationBuilder<
     /// <returns>An object that can be used to configure the property.</returns>
     public virtual PropertyBuilder<TProperty> Property<TProperty>(
         Expression<Func<TDependentEntity, TProperty>> propertyExpression)
-        => UpdateBuilder(
-            () => new PropertyBuilder<TProperty>(
-                DependentEntityType.Builder.Property(
-                    Check.NotNull(propertyExpression).GetMemberAccess(),
-                    ConfigurationSource.Explicit)!.Metadata));
+        => UpdateBuilder(() => new PropertyBuilder<TProperty>(
+            DependentEntityType.Builder.Property(
+                Check.NotNull(propertyExpression).GetMemberAccess(),
+                ConfigurationSource.Explicit)!.Metadata));
 
     /// <summary>
     ///     Returns an object that can be used to configure a property of the owned type where that property represents
@@ -114,11 +113,10 @@ public class OwnedNavigationBuilder<
     /// <returns>An object that can be used to configure the property.</returns>
     public virtual PrimitiveCollectionBuilder<TProperty> PrimitiveCollection<TProperty>(
         Expression<Func<TDependentEntity, TProperty>> propertyExpression)
-        => UpdateBuilder(
-            () => new PrimitiveCollectionBuilder<TProperty>(
-                DependentEntityType.Builder.PrimitiveCollection(
-                    Check.NotNull(propertyExpression).GetMemberAccess(),
-                    ConfigurationSource.Explicit)!.Metadata));
+        => UpdateBuilder(() => new PrimitiveCollectionBuilder<TProperty>(
+            DependentEntityType.Builder.PrimitiveCollection(
+                Check.NotNull(propertyExpression).GetMemberAccess(),
+                ConfigurationSource.Explicit)!.Metadata));
 
     /// <summary>
     ///     Returns an object that can be used to configure an existing navigation property

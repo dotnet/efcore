@@ -107,7 +107,8 @@ public class ComplexType : TypeBase, IMutableComplexType, IConventionComplexType
     public virtual TypeBase ContainingEntryType
         => ComplexProperty.DeclaringType switch
         {
-            ComplexType declaringComplexType when !declaringComplexType.ComplexProperty.IsCollection => declaringComplexType.ContainingEntryType,
+            ComplexType declaringComplexType when !declaringComplexType.ComplexProperty.IsCollection => declaringComplexType
+                .ContainingEntryType,
             _ => ComplexProperty.DeclaringType
         };
 
@@ -395,7 +396,8 @@ public class ComplexType : TypeBase, IMutableComplexType, IConventionComplexType
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void SetCounts(PropertyCounts value) => _counts = value!;
+    public virtual void SetCounts(PropertyCounts value)
+        => _counts = value!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -467,9 +469,7 @@ public class ComplexType : TypeBase, IMutableComplexType, IConventionComplexType
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     IMutableComplexType? IMutableComplexType.BaseType
-    {
-        get => BaseType;
-    }
+        => BaseType;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

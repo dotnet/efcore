@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace Microsoft.EntityFrameworkCore.Query.Internal;
 
 /// <summary>
@@ -11,8 +13,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 /// </summary>
 public class EntityQueryProvider : IAsyncQueryProvider
 {
-    private static MethodInfo? _genericCreateQueryMethod;
-    private MethodInfo? _genericExecuteMethod;
     private readonly IQueryCompiler _queryCompiler;
 
     /// <summary>
@@ -24,12 +24,14 @@ public class EntityQueryProvider : IAsyncQueryProvider
     public EntityQueryProvider(IQueryCompiler queryCompiler)
         => _queryCompiler = queryCompiler;
 
+    [field: AllowNull][field: MaybeNull]
     private static MethodInfo GenericCreateQueryMethod
-        => _genericCreateQueryMethod ??= typeof(EntityQueryProvider)
+        => field ??= typeof(EntityQueryProvider)
             .GetMethod("CreateQuery", 1, BindingFlags.Instance | BindingFlags.Public, null, [typeof(Expression)], null)!;
 
+    [field: AllowNull][field: MaybeNull]
     private MethodInfo GenericExecuteMethod
-        => _genericExecuteMethod ??= _queryCompiler.GetType()
+        => field ??= _queryCompiler.GetType()
             .GetMethod("Execute", 1, BindingFlags.Instance | BindingFlags.Public, null, [typeof(Expression)], null)!;
 
     /// <summary>

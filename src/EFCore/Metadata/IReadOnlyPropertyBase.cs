@@ -78,7 +78,7 @@ public interface IReadOnlyPropertyBase : IReadOnlyAnnotatable
     ///     <see langword="true" /> if the property is an indexer property, otherwise <see langword="false" />.
     /// </returns>
     bool IsIndexerProperty()
-        => PropertyInfo is PropertyInfo propertyInfo
+        => PropertyInfo is { } propertyInfo
             && propertyInfo == DeclaringType.FindIndexerPropertyInfo();
 
     /// <summary>

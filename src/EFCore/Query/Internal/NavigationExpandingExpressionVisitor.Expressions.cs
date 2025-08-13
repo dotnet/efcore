@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace Microsoft.EntityFrameworkCore.Query.Internal;
 
 public partial class NavigationExpandingExpressionVisitor
@@ -88,10 +90,7 @@ public partial class NavigationExpandingExpressionVisitor
     private sealed class IncludeTreeNode(IEntityType entityType, EntityReference? reference, bool setLoaded)
         : Dictionary<INavigationBase, IncludeTreeNode>
     {
-        public IncludeTreeNode(IEntityType entityType)
-            : this(entityType, null, setLoaded: true)
-        {
-        }
+        private EntityReference? _reference = reference;
 
         public IEntityType EntityType { get; } = entityType;
         public LambdaExpression? FilterExpression { get; private set; }
@@ -110,25 +109,21 @@ public partial class NavigationExpandingExpressionVisitor
             }
 
             IncludeTreeNode? nodeToAdd = null;
-            if (reference != null)
+            if (_reference != null)
             {
-                if (navigation is INavigation concreteNavigation
-                    && reference.ForeignKeyExpansionMap.TryGetValue(
-                        (concreteNavigation.ForeignKey, concreteNavigation.IsOnDependent), out var expansion))
+                nodeToAdd = navigation switch
                 {
-                    // Value known to be non-null
-                    nodeToAdd = UnwrapEntityReference(expansion)!.IncludePaths;
-                }
-                else if (navigation is ISkipNavigation skipNavigation
-                         && reference.ForeignKeyExpansionMap.TryGetValue(
-                             (skipNavigation.ForeignKey, skipNavigation.IsOnDependent), out var firstExpansion)
-                         // Value known to be non-null
-                         && UnwrapEntityReference(firstExpansion)!.ForeignKeyExpansionMap.TryGetValue(
-                             (skipNavigation.Inverse.ForeignKey, !skipNavigation.Inverse.IsOnDependent), out var secondExpansion))
-                {
-                    // Value known to be non-null
-                    nodeToAdd = UnwrapEntityReference(secondExpansion)!.IncludePaths;
-                }
+                    INavigation concreteNavigation when _reference.ForeignKeyExpansionMap.TryGetValue(
+                        (concreteNavigation.ForeignKey, concreteNavigation.IsOnDependent), out var expansion) => UnwrapEntityReference(
+                        expansion)!.IncludePaths,
+                    ISkipNavigation skipNavigation when _reference.ForeignKeyExpansionMap.TryGetValue(
+                            (skipNavigation.ForeignKey, skipNavigation.IsOnDependent), out var firstExpansion)
+                        // Value known to be non-null
+                        && UnwrapEntityReference(firstExpansion)!.ForeignKeyExpansionMap.TryGetValue(
+                            (skipNavigation.Inverse.ForeignKey, !skipNavigation.Inverse.IsOnDependent),
+                            out var secondExpansion) => UnwrapEntityReference(secondExpansion)!.IncludePaths,
+                    _ => nodeToAdd
+                };
             }
 
             nodeToAdd ??= new IncludeTreeNode(navigation.TargetEntityType, null, setLoaded);
@@ -161,7 +156,7 @@ public partial class NavigationExpandingExpressionVisitor
         }
 
         public void AssignEntityReference(EntityReference entityReference)
-            => reference = entityReference;
+            => _reference = entityReference;
 
         public void ApplyFilter(LambdaExpression filterExpression)
             => FilterExpression = filterExpression;
@@ -205,8 +200,6 @@ public partial class NavigationExpandingExpressionVisitor
 
         private readonly string _parameterName;
 
-        private NavigationTreeNode? _currentTree;
-
         public NavigationExpansionExpression(
             Expression source,
             NavigationTreeNode currentTree,
@@ -225,14 +218,15 @@ public partial class NavigationExpandingExpressionVisitor
             // CurrentParameter would be non-null if CurrentTree is non-null
             => CurrentTree.CurrentParameter!;
 
+        [field: AllowNull] [field: MaybeNull]
         public NavigationTreeNode CurrentTree
         {
             // _currentTree is always non-null. Field is to override the setter to set parameter
-            get => _currentTree!;
+            get;
             private set
             {
-                _currentTree = value;
-                _currentTree.SetParameter(_parameterName);
+                field = value;
+                field.SetParameter(_parameterName);
             }
         }
 

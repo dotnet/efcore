@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text;
 using Microsoft.Extensions.Caching.Memory;
@@ -39,7 +40,6 @@ public class CoreOptionsExtension : IDbContextOptionsExtension
     private int? _maxPoolSize;
     private TimeSpan _loggingCacheTime = DefaultLoggingCacheTime;
     private bool _serviceProviderCachingEnabled = true;
-    private DbContextOptionsExtensionInfo? _info;
     private IEnumerable<IInterceptor>? _interceptors;
     private IEnumerable<ISingletonInterceptor>? _singletonInterceptors;
     private Action<DbContext, bool>? _seed;
@@ -99,8 +99,9 @@ public class CoreOptionsExtension : IDbContextOptionsExtension
     /// <summary>
     ///     Information/metadata about the extension.
     /// </summary>
+    [field: AllowNull][field: MaybeNull]
     public virtual DbContextOptionsExtensionInfo Info
-        => _info ??= new ExtensionInfo(this);
+        => field ??= new ExtensionInfo(this);
 
     /// <summary>
     ///     Override this method in a derived class to ensure that any clone created is also of that class.
@@ -662,7 +663,6 @@ public class CoreOptionsExtension : IDbContextOptionsExtension
     private sealed class ExtensionInfo(CoreOptionsExtension extension) : DbContextOptionsExtensionInfo(extension)
     {
         private int? _serviceProviderHash;
-        private string? _logFragment;
 
         private new CoreOptionsExtension Extension
             => (CoreOptionsExtension)base.Extension;
@@ -670,11 +670,12 @@ public class CoreOptionsExtension : IDbContextOptionsExtension
         public override bool IsDatabaseProvider
             => false;
 
+        [field: AllowNull][field: MaybeNull]
         public override string LogFragment
         {
             get
             {
-                if (_logFragment == null)
+                if (field == null)
                 {
                     var builder = new StringBuilder();
 
@@ -703,10 +704,10 @@ public class CoreOptionsExtension : IDbContextOptionsExtension
                         builder.Append("MaxPoolSize=").Append(Extension._maxPoolSize).Append(' ');
                     }
 
-                    _logFragment = builder.ToString();
+                    field = builder.ToString();
                 }
 
-                return _logFragment;
+                return field;
             }
         }
 

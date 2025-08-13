@@ -20,12 +20,8 @@ public abstract class PropertyBase : ConventionAnnotatable, IMutablePropertyBase
     private ConfigurationSource? _fieldInfoConfigurationSource;
 
     // Warning: Never access these fields directly as access needs to be thread-safe
-    private IClrPropertyGetter? _getter;
     private IClrPropertySetter? _setter;
-    private IClrPropertySetter? _materializationSetter;
     private IClrIndexedCollectionAccessor? _clrIndexedCollectionAccessor;
-    private PropertyAccessors? _accessors;
-    private PropertyIndexes? _indexes;
     private IComparer<IUpdateEntry>? _currentValueComparer;
 
     /// <summary>
@@ -340,17 +336,18 @@ public abstract class PropertyBase : ConventionAnnotatable, IMutablePropertyBase
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    [field: AllowNull][field: MaybeNull]
     public virtual PropertyIndexes PropertyIndexes
     {
         get => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _indexes, this,
+            ref field, this,
             static property =>
             {
                 property.EnsureReadOnly();
                 ((IRuntimeEntityType)(((IRuntimeTypeBase)property.DeclaringType).ContainingEntityType)).CalculateCounts();
             });
 
-        set => NonCapturingLazyInitializer.EnsureInitialized(ref _indexes, value);
+        set => NonCapturingLazyInitializer.EnsureInitialized(ref field, value);
     }
 
     /// <summary>
@@ -359,9 +356,10 @@ public abstract class PropertyBase : ConventionAnnotatable, IMutablePropertyBase
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    [field: AllowNull][field: MaybeNull]
     public virtual IClrPropertyGetter Getter
         => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _getter, this, static property =>
+            ref field, this, static property =>
             {
                 property.EnsureReadOnly();
                 return ClrPropertyGetterFactory.Instance.Create(property);
@@ -387,9 +385,10 @@ public abstract class PropertyBase : ConventionAnnotatable, IMutablePropertyBase
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    [field: AllowNull][field: MaybeNull]
     public virtual IClrPropertySetter MaterializationSetter
         => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _materializationSetter, this, static property =>
+            ref field, this, static property =>
             {
                 property.EnsureReadOnly();
                 return ClrPropertyMaterializationSetterFactory.Instance.Create(property);
@@ -418,9 +417,10 @@ public abstract class PropertyBase : ConventionAnnotatable, IMutablePropertyBase
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    [field: AllowNull][field: MaybeNull]
     public virtual PropertyAccessors Accessors
         => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _accessors, this, static property =>
+            ref field, this, static property =>
             {
                 property.EnsureReadOnly();
                 return PropertyAccessorsFactory.Instance.Create(property);

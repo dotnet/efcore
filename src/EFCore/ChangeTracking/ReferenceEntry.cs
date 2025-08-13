@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -23,8 +24,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 /// </remarks>
 public class ReferenceEntry : NavigationEntry
 {
-    private IEntityFinder? _finder;
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -270,6 +269,7 @@ public class ReferenceEntry : NavigationEntry
             ? null
             : InternalEntry.StateManager.GetOrCreateEntry(CurrentValue, Metadata.TargetEntityType);
 
+    [field: AllowNull][field: MaybeNull]
     private IEntityFinder TargetFinder
-        => _finder ??= InternalEntry.StateManager.CreateEntityFinder(Metadata.TargetEntityType);
+        => field ??= InternalEntry.StateManager.CreateEntityFinder(Metadata.TargetEntityType);
 }

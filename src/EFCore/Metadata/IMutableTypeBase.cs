@@ -450,7 +450,7 @@ public interface IMutableTypeBase : IReadOnlyTypeBase, IMutableAnnotatable
     /// </summary>
     /// <param name="property">The property to remove.</param>
     /// <returns>The removed property, or <see langword="null" /> if the property was not found.</returns>
-    IMutableComplexProperty? RemoveComplexProperty(IReadOnlyProperty property);
+    IMutableComplexProperty? RemoveComplexProperty(IReadOnlyComplexProperty property);
 
     /// <summary>
     ///     Gets the members defined on this type and base types.

@@ -250,7 +250,7 @@ public class EntityReferenceMap
                 case 1 when returnDeleted:
                     return _deletedReferenceMap!.Values;
                 case 0:
-                    return Enumerable.Empty<InternalEntityEntry>();
+                    return [];
             }
         }
 

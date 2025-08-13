@@ -35,12 +35,6 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     private SortedDictionary<string, PropertyInfo>? _runtimeProperties;
     private SortedDictionary<string, FieldInfo>? _runtimeFields;
 
-    private Func<IInternalEntry, ISnapshot>? _originalValuesFactory;
-    private Func<ISnapshot>? _storeGeneratedValuesFactory;
-    private Func<IInternalEntry, ISnapshot>? _temporaryValuesFactory;
-    private Func<IDictionary<string, object?>, ISnapshot>? _shadowValuesFactory;
-    private Func<ISnapshot>? _emptyShadowValuesFactory;
-
     // _serviceOnlyConstructorBinding needs to be set as well whenever _constructorBinding is set
     private InstantiationBinding? _constructorBinding;
     private InstantiationBinding? _serviceOnlyConstructorBinding;
@@ -319,12 +313,14 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    [field: AllowNull] [field: MaybeNull]
     public virtual Func<IInternalEntry, ISnapshot> OriginalValuesFactory
         => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _originalValuesFactory, this,
+            ref field, this,
             static structuralType =>
             {
-                Check.DebugAssert(structuralType is not ComplexType complexType || complexType.ComplexProperty.IsCollection,
+                Check.DebugAssert(
+                    structuralType is not ComplexType complexType || complexType.ComplexProperty.IsCollection,
                     $"ComplexType {structuralType.Name} is not a collection");
 
                 structuralType.EnsureReadOnly();
@@ -337,12 +333,14 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    [field: AllowNull] [field: MaybeNull]
     public virtual Func<ISnapshot> StoreGeneratedValuesFactory
         => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _storeGeneratedValuesFactory, this,
+            ref field, this,
             static structuralType =>
             {
-                Check.DebugAssert(structuralType is not ComplexType complexType || complexType.ComplexProperty.IsCollection,
+                Check.DebugAssert(
+                    structuralType is not ComplexType complexType || complexType.ComplexProperty.IsCollection,
                     $"ComplexType {structuralType.Name} is not a collection");
 
                 structuralType.EnsureReadOnly();
@@ -355,12 +353,14 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    [field: AllowNull] [field: MaybeNull]
     public virtual Func<IInternalEntry, ISnapshot> TemporaryValuesFactory
         => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _temporaryValuesFactory, this,
+            ref field, this,
             static structuralType =>
             {
-                Check.DebugAssert(structuralType is not ComplexType complexType || complexType.ComplexProperty.IsCollection,
+                Check.DebugAssert(
+                    structuralType is not ComplexType complexType || complexType.ComplexProperty.IsCollection,
                     $"ComplexType {structuralType.Name} is not a collection");
 
                 structuralType.EnsureReadOnly();
@@ -373,12 +373,14 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    [field: AllowNull] [field: MaybeNull]
     public virtual Func<IDictionary<string, object?>, ISnapshot> ShadowValuesFactory
         => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _shadowValuesFactory, this,
+            ref field, this,
             static structuralType =>
             {
-                Check.DebugAssert(structuralType is not ComplexType complexType || complexType.ComplexProperty.IsCollection,
+                Check.DebugAssert(
+                    structuralType is not ComplexType complexType || complexType.ComplexProperty.IsCollection,
                     $"ComplexType {structuralType.Name} is not a collection");
 
                 structuralType.EnsureReadOnly();
@@ -391,12 +393,14 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    [field: AllowNull] [field: MaybeNull]
     public virtual Func<ISnapshot> EmptyShadowValuesFactory
         => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _emptyShadowValuesFactory, this,
+            ref field, this,
             static structuralType =>
             {
-                Check.DebugAssert(structuralType is not ComplexType complexType || complexType.ComplexProperty.IsCollection,
+                Check.DebugAssert(
+                    structuralType is not ComplexType complexType || complexType.ComplexProperty.IsCollection,
                     $"ComplexType {structuralType.Name} is not a collection");
 
                 structuralType.EnsureReadOnly();
@@ -722,7 +726,7 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     /// </summary>
     public virtual IEnumerable<Property> GetDerivedProperties()
         => _directlyDerivedTypes.Count == 0
-            ? Enumerable.Empty<Property>()
+            ? []
             : GetDerivedTypes().SelectMany(et => et.GetDeclaredProperties());
 
     /// <summary>
@@ -736,7 +740,7 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
         Check.NotNull(propertyName);
 
         return _directlyDerivedTypes.Count == 0
-            ? Enumerable.Empty<Property>()
+            ? []
             : (IEnumerable<Property>)GetDerivedTypes().Select(et => et.FindDeclaredProperty(propertyName)).Where(p => p != null);
     }
 
@@ -1148,7 +1152,7 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     /// </summary>
     public virtual IEnumerable<ComplexProperty> GetDerivedComplexProperties()
         => _directlyDerivedTypes.Count == 0
-            ? Enumerable.Empty<ComplexProperty>()
+            ? []
             : GetDerivedTypes().SelectMany(et => et.GetDeclaredComplexProperties());
 
     /// <summary>
@@ -1162,7 +1166,7 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
         Check.NotNull(propertyName);
 
         return _directlyDerivedTypes.Count == 0
-            ? Enumerable.Empty<ComplexProperty>()
+            ? []
             : (IEnumerable<ComplexProperty>)GetDerivedTypes()
                 .Select(et => et.FindDeclaredComplexProperty(propertyName)).Where(p => p != null);
     }
@@ -1226,18 +1230,12 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
                     property.DeclaringType.DisplayName()));
         }
 
-        CheckPropertyNotInUse(property);
-
         property.SetRemovedFromModel();
 
         var removed = _complexProperties.Remove(property.Name);
         Check.DebugAssert(removed, "removed is false");
 
         return (ComplexProperty?)Model.ConventionDispatcher.OnComplexPropertyRemoved(BaseBuilder, property);
-    }
-
-    private void CheckPropertyNotInUse(ComplexProperty property)
-    {
     }
 
     /// <summary>
@@ -1458,6 +1456,7 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    // ReSharper disable once MemberHidesInterfaceMemberWithDefaultImplementation
     private string DisplayName()
         => ((IReadOnlyTypeBase)this).DisplayName();
 
@@ -1495,7 +1494,6 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
 
         set => SetConstructorBinding(value, ConfigurationSource.Explicit);
     }
-
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2487,7 +2485,7 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    IMutableComplexProperty? IMutableTypeBase.RemoveComplexProperty(IReadOnlyProperty property)
+    IMutableComplexProperty? IMutableTypeBase.RemoveComplexProperty(IReadOnlyComplexProperty property)
         => RemoveComplexProperty((ComplexProperty)property);
 
     /// <summary>

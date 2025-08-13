@@ -249,7 +249,9 @@ internal static class EnumerableMethods
     public static MethodInfo GetMinWithSelector(Type type)
         => MinWithSelectorMethods.GetValueOrDefault(type, MinWithSelector);
 
-    [UnconditionalSuppressMessage("AOT", "IL3050:Calling members annotated with 'RequiresDynamicCodeAttribute' may break functionality when AOT compiling.", Justification = "Types used here in 'MakeGenericType' are types like 'TSource', not specific types.")]
+    [UnconditionalSuppressMessage(
+        "AOT", "IL3050:Calling members annotated with 'RequiresDynamicCodeAttribute' may break functionality when AOT compiling.",
+        Justification = "Types used here in 'MakeGenericType' are types like 'TSource', not specific types.")]
     static EnumerableMethods()
     {
         var queryableMethodGroups = typeof(Enumerable)
@@ -600,10 +602,9 @@ internal static class EnumerableMethods
         }
 
         MethodInfo GetMethod(string name, int genericParameterCount, Func<Type[], Type[]> parameterGenerator)
-            => queryableMethodGroups[name].Single(
-                mi => ((genericParameterCount == 0 && !mi.IsGenericMethod)
-                        || (mi.IsGenericMethod && mi.GetGenericArguments().Length == genericParameterCount))
-                    && mi.GetParameters().Select(e => e.ParameterType).SequenceEqual(
-                        parameterGenerator(mi.IsGenericMethod ? mi.GetGenericArguments() : [])));
+            => queryableMethodGroups[name].Single(mi => ((genericParameterCount == 0 && !mi.IsGenericMethod)
+                    || (mi.IsGenericMethod && mi.GetGenericArguments().Length == genericParameterCount))
+                && mi.GetParameters().Select(e => e.ParameterType).SequenceEqual(
+                    parameterGenerator(mi.IsGenericMethod ? mi.GetGenericArguments() : [])));
     }
 }

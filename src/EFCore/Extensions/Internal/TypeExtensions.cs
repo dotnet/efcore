@@ -65,11 +65,10 @@ public static class TypeExtensions
         return defaultPropertyAttribute == null
             ? null
             : type.GetRuntimeProperties()
-                .FirstOrDefault(
-                    pi =>
-                        pi.Name == defaultPropertyAttribute.MemberName
-                        && pi.IsIndexerProperty()
-                        && pi.SetMethod?.GetParameters() is { Length: 2 } parameters
-                        && parameters[0].ParameterType == typeof(string));
+                .FirstOrDefault(pi =>
+                    pi.Name == defaultPropertyAttribute.MemberName
+                    && pi.IsIndexerProperty()
+                    && pi.SetMethod?.GetParameters() is { Length: 2 } parameters
+                    && parameters[0].ParameterType == typeof(string));
     }
 }

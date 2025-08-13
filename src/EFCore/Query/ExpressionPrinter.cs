@@ -407,7 +407,7 @@ public class ExpressionPrinter : ExpressionVisitor
             }
 
             var expressions = blockExpression.Expressions.Count > 0
-                ? blockExpression.Expressions.Except(new[] { blockExpression.Result })
+                ? blockExpression.Expressions.Except([blockExpression.Result])
                 : blockExpression.Expressions;
 
             foreach (var expression in expressions)

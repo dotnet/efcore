@@ -173,7 +173,7 @@ public static class EntityTypeExtensions
         var isNotifying = entityType.GetChangeTrackingStrategy() != ChangeTrackingStrategy.Snapshot;
 
         foreach (IRuntimeNavigationBase navigation in entityType.GetDeclaredNavigations()
-                    .Union<INavigationBase>(entityType.GetDeclaredSkipNavigations()))
+                     .Union<INavigationBase>(entityType.GetDeclaredSkipNavigations()))
         {
             var indexes = new PropertyIndexes(
                 index: navigationIndex++,
@@ -295,15 +295,16 @@ public static class EntityTypeExtensions
 
         if (complexProperty.IsCollection)
         {
-            ((IRuntimeComplexType)complexProperty.ComplexType).SetCounts(new PropertyCounts(
-                propertyIndex,
-                navigationCount: 0,
-                complexPropertyIndex,
-                complexCollectionIndex,
-                originalValueIndex,
-                shadowIndex,
-                relationshipIndex,
-                storeGenerationIndex));
+            ((IRuntimeComplexType)complexProperty.ComplexType).SetCounts(
+                new PropertyCounts(
+                    propertyIndex,
+                    navigationCount: 0,
+                    complexPropertyIndex,
+                    complexCollectionIndex,
+                    originalValueIndex,
+                    shadowIndex,
+                    relationshipIndex,
+                    storeGenerationIndex));
 
             propertyIndex = parentPropertyIndex;
             complexPropertyIndex = parentComplexPropertyIndex;

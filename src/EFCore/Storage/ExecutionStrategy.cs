@@ -201,7 +201,7 @@ public abstract class ExecutionStrategy : IExecutionStrategy
 
         // In order to avoid infinite recursive generics, wrap operation with ExecutionResult
         return ExecuteImplementation(
-            (context, state) => new ExecutionResult<TResult>(true, operation(context, state)),
+            (context, innerState) => new ExecutionResult<TResult>(true, operation(context, innerState)),
             verifySucceeded,
             state).Result;
     }
@@ -304,8 +304,8 @@ public abstract class ExecutionStrategy : IExecutionStrategy
 
         // In order to avoid infinite recursive generics, wrap operation with ExecutionResult
         var result = await ExecuteImplementationAsync(
-            async (context, state, cancellationToken) => new ExecutionResult<TResult>(
-                true, await operation(context, state, cancellationToken).ConfigureAwait(false)),
+            async (context, innerState, cancellationToken) => new ExecutionResult<TResult>(
+                true, await operation(context, innerState, cancellationToken).ConfigureAwait(false)),
             verifySucceeded,
             state,
             cancellationToken).ConfigureAwait(false);
@@ -489,7 +489,7 @@ public abstract class ExecutionStrategy : IExecutionStrategy
     {
         while (true)
         {
-            if (exception is DbUpdateException { InnerException: Exception innerException })
+            if (exception is DbUpdateException { InnerException: { } innerException })
             {
                 exception = innerException;
                 continue;

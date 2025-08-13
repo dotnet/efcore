@@ -190,10 +190,9 @@ public class StructuralTypeShaperExpression : Expression, IPrintableExpression
             // null, return null for the entity instance.
             body = Condition(
                 entityType.GetProperties()
-                    .Select(
-                        p => NotEqual(
-                            valueBufferParameter.CreateValueBufferReadValueExpression(typeof(object), p.GetIndex(), p),
-                            Constant(null)))
+                    .Select(p => NotEqual(
+                        valueBufferParameter.CreateValueBufferReadValueExpression(typeof(object), p.GetIndex(), p),
+                        Constant(null)))
                     .Aggregate(OrElse),
                 body,
                 Default(typeof(IEntityType)));

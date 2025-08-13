@@ -455,7 +455,7 @@ public class CSharpRuntimeAnnotationCodeGenerator(CSharpRuntimeAnnotationCodeGen
             .Any(t => t == typeof(ValueComparer) || (t.IsGenericType && t.GetGenericTypeDefinition() == typeof(ValueComparer<>)));
 
         if (!containsNestedComparerCtor
-            || comparer is not IInfrastructure<ValueComparer> { Instance: ValueComparer underlyingValueComparer })
+            || comparer is not IInfrastructure<ValueComparer> { Instance: { } underlyingValueComparer })
         {
             AddNamespace(typeof(ValueComparer<>), parameters.Namespaces);
             AddNamespace(comparer.Type, parameters.Namespaces);

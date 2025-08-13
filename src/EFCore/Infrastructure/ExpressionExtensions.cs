@@ -447,7 +447,7 @@ public static class ExpressionExtensions
     /// <param name="model">The model being used.</param>
     /// <param name="baseExpression">The given expression, with the top-level member access node removed.</param>
     /// <returns>
-    ///     <see langword="true" /> if <paramref name="expression"/> represents a member access, <see langword="false" /> otherwise.
+    ///     <see langword="true" /> if <paramref name="expression" /> represents a member access, <see langword="false" /> otherwise.
     /// </returns>
     public static bool IsMemberAccess(
         Expression expression,
@@ -464,7 +464,7 @@ public static class ExpressionExtensions
     /// <param name="baseExpression">The given expression, with the top-level member access node removed.</param>
     /// <param name="memberIdentity">A <see cref="MemberIdentity" /> representing the member being accessed.</param>
     /// <returns>
-    ///     <see langword="true" /> if <paramref name="expression"/> represents a member access, <see langword="false" /> otherwise.
+    ///     <see langword="true" /> if <paramref name="expression" /> represents a member access, <see langword="false" /> otherwise.
     /// </returns>
     public static bool IsMemberAccess(
         Expression expression,

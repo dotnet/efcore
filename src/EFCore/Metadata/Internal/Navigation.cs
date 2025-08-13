@@ -17,7 +17,6 @@ public class Navigation : PropertyBase, IMutableNavigation, IConventionNavigatio
     private InternalNavigationBuilder? _builder;
 
     // Warning: Never access these fields directly as access needs to be thread-safe
-    private IClrCollectionAccessor? _collectionAccessor;
     private bool _collectionAccessorInitialized;
 
     /// <summary>
@@ -153,7 +152,8 @@ public class Navigation : PropertyBase, IMutableNavigation, IConventionNavigatio
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override bool IsCollection => !IsOnDependent && !ForeignKey.IsUnique;
+    public override bool IsCollection
+        => !IsOnDependent && !ForeignKey.IsUnique;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -310,7 +310,7 @@ public class Navigation : PropertyBase, IMutableNavigation, IConventionNavigatio
     /// </summary>
     public virtual IClrCollectionAccessor? CollectionAccessor
         => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _collectionAccessor,
+            ref field,
             ref _collectionAccessorInitialized,
             this,
             static navigation => ClrCollectionAccessorFactory.Instance.Create(navigation));

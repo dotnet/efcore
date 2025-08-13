@@ -41,7 +41,10 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
     internal static readonly MethodInfo ObjectGetHashCodeMethod
         = typeof(object).GetRuntimeMethod(nameof(object.GetHashCode), Type.EmptyTypes)!;
 
-    private static readonly ConcurrentDictionary<Type, MethodInfo> _genericSnapshotMethodMap = new();
+    internal static readonly PropertyInfo StructuralComparisonsStructuralEqualityComparerProperty =
+        typeof(StructuralComparisons).GetProperty(nameof(StructuralComparisons.StructuralEqualityComparer))!;
+
+    private static readonly ConcurrentDictionary<Type, MethodInfo> GenericSnapshotMethodMap = new();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -51,13 +54,13 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
     /// </summary>
     [EntityFrameworkInternal]
     public static MethodInfo GetGenericSnapshotMethod(Type type)
-        => _genericSnapshotMethodMap.GetOrAdd(
+        => GenericSnapshotMethodMap.GetOrAdd(
             type, t =>
                 typeof(ValueComparer<>).MakeGenericType(t).GetGenericMethod(
-                    nameof(ValueComparer<object>.Snapshot),
+                    nameof(ValueComparer<>.Snapshot),
                     genericParameterCount: 0,
                     BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly,
-                    (a, b) => new[] { a[0] },
+                    (a, b) => [a[0]],
                     @override: false)!);
 
     /// <summary>
@@ -78,7 +81,7 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
     /// </summary>
     [EntityFrameworkInternal]
     protected static readonly MethodInfo ToHashCodeMethod
-        = typeof(HashCode).GetRuntimeMethod(nameof(HashCode.ToHashCode), new Type[0])!;
+        = typeof(HashCode).GetRuntimeMethod(nameof(HashCode.ToHashCode), [])!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -195,7 +198,7 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
         var original2 = EqualsExpression.Parameters[1];
 
         return new ReplacingExpressionVisitor(
-                new Expression[] { original1, original2 }, new[] { leftExpression, rightExpression })
+                [original1, original2], [leftExpression, rightExpression])
             .Visit(EqualsExpression.Body);
     }
 
@@ -279,7 +282,7 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
     /// <typeparam name="T">The type.</typeparam>
     /// <returns>The <see cref="ValueComparer{T}" />.</returns>
     public static ValueComparer CreateDefault
-        <[DynamicallyAccessedMembers(
+    <[DynamicallyAccessedMembers(
             DynamicallyAccessedMemberTypes.PublicMethods
             | DynamicallyAccessedMemberTypes.PublicProperties)]
         T>(bool favorStructuralComparisons)
@@ -317,7 +320,7 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
 
     // PublicMethods is required to preserve e.g. GetHashCode
     internal class DefaultValueComparer
-        <[DynamicallyAccessedMembers(
+    <[DynamicallyAccessedMembers(
             DynamicallyAccessedMemberTypes.PublicMethods
             | DynamicallyAccessedMemberTypes.PublicProperties)]
         T> : ValueComparer<T>

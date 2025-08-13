@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -19,9 +20,7 @@ public class SkipNavigation : PropertyBase, IMutableSkipNavigation, IConventionS
     private readonly Type _type;
 
     // Warning: Never access these fields directly as access needs to be thread-safe
-    private IClrCollectionAccessor? _collectionAccessor;
     private bool _collectionAccessorInitialized;
-    private ICollectionLoader? _manyToManyLoader;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -354,7 +353,7 @@ public class SkipNavigation : PropertyBase, IMutableSkipNavigation, IConventionS
     /// </summary>
     public virtual IClrCollectionAccessor? CollectionAccessor
         => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _collectionAccessor,
+            ref field,
             ref _collectionAccessorInitialized,
             this,
             static navigation =>
@@ -369,9 +368,10 @@ public class SkipNavigation : PropertyBase, IMutableSkipNavigation, IConventionS
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    [field: AllowNull][field: MaybeNull]
     public virtual ICollectionLoader ManyToManyLoader
         => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _manyToManyLoader, this, static navigation =>
+            ref field, this, static navigation =>
             {
                 navigation.EnsureReadOnly();
                 return ManyToManyLoaderFactory.Instance.Create(navigation);

@@ -55,7 +55,7 @@ internal static class ExpressionExtensions
             _ => throw new InvalidOperationException()
         };
 
-    public static bool TryGetNonNullConstantValue<T>(this Expression expression, [NotNullWhen(true)][MaybeNullWhen(false)]out T value)
+    public static bool TryGetNonNullConstantValue<T>(this Expression expression, [NotNullWhen(true)] [MaybeNullWhen(false)] out T value)
     {
         switch (expression)
         {

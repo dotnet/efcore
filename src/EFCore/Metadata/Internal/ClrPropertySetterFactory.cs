@@ -102,7 +102,8 @@ public class ClrPropertySetterFactory : ClrAccessorFactory<IClrPropertySetter>
     private static readonly MethodInfo GenericCreateExpression
         = typeof(ClrPropertySetterFactory).GetMethod(nameof(CreateExpressions), BindingFlags.Instance | BindingFlags.NonPublic)!;
 
-    private static readonly MethodInfo ComplexCollectionNullElementSetterException = typeof(CoreStrings).GetMethod(nameof(CoreStrings.ComplexCollectionNullElementSetter))!;
+    private static readonly MethodInfo ComplexCollectionNullElementSetterException =
+        typeof(CoreStrings).GetMethod(nameof(CoreStrings.ComplexCollectionNullElementSetter))!;
 
     private void CreateExpressions<TRoot, TDeclaring, TValue>(
         MemberInfo memberInfo,
@@ -111,7 +112,8 @@ public class ClrPropertySetterFactory : ClrAccessorFactory<IClrPropertySetter>
         out Expression<Func<TDeclaring, TValue, TDeclaring>> setterExpression)
         where TRoot : class
     {
-        CreateExpressionUsingContainingEntity<TRoot, TDeclaring, TValue>(memberInfo, propertyBase, out setterUsingContainingEntityExpression);
+        CreateExpressionUsingContainingEntity<TRoot, TDeclaring, TValue>(
+            memberInfo, propertyBase, out setterUsingContainingEntityExpression);
         CreateDirectExpression(memberInfo, propertyBase, out setterExpression);
     }
 
@@ -142,7 +144,10 @@ public class ClrPropertySetterFactory : ClrAccessorFactory<IClrPropertySetter>
     }
 
     private static Expression CreateSimplePropertyAssignment(
-        MemberInfo memberInfo, IPropertyBase? propertyBase, Expression instanceParameter, Expression convertedParameter)
+        MemberInfo memberInfo,
+        IPropertyBase? propertyBase,
+        Expression instanceParameter,
+        Expression convertedParameter)
         => propertyBase?.IsIndexerProperty() == true
             ? Assign(
                 MakeIndex(
@@ -283,8 +288,9 @@ public class ClrPropertySetterFactory : ClrAccessorFactory<IClrPropertySetter>
             }
 
             var propertyMemberInfo = propertyBase.GetMemberInfo(forMaterialization: false, forSet: true);
-            statements.Add(CreateSimplePropertyAssignment(
-                propertyMemberInfo, propertyBase, previousLevel, convertedParameter));
+            statements.Add(
+                CreateSimplePropertyAssignment(
+                    propertyMemberInfo, propertyBase, previousLevel, convertedParameter));
 
             for (var i = 0; i <= chainCount - 1; i++)
             {

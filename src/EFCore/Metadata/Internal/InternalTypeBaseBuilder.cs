@@ -205,7 +205,7 @@ public abstract class InternalTypeBaseBuilder :
             if (memberInfo == null
                 || (memberInfo is PropertyInfo propertyInfo && propertyInfo.IsIndexerProperty()))
             {
-                if (existingProperty.GetTypeConfigurationSource() is ConfigurationSource existingTypeConfigurationSource
+                if (existingProperty.GetTypeConfigurationSource() is { } existingTypeConfigurationSource
                     && typeConfigurationSource != null
                     && !typeConfigurationSource.Overrides(existingTypeConfigurationSource))
                 {
@@ -375,8 +375,8 @@ public abstract class InternalTypeBaseBuilder :
         bool required,
         bool checkType = false)
         => CreateUniqueProperties(
-            new[] { propertyType },
-            new[] { propertyName },
+            [propertyType],
+            [propertyName],
             required,
             checkTypes: checkType)?.First().Builder;
 
@@ -808,7 +808,7 @@ public abstract class InternalTypeBaseBuilder :
                 && (propertyType == null || propertyType == existingProperty.ClrType))
             || ((memberInfo == null
                     || (memberInfo is PropertyInfo propertyInfo && propertyInfo.IsIndexerProperty()))
-                && (existingProperty.GetTypeConfigurationSource() is not ConfigurationSource existingTypeConfigurationSource
+                && (existingProperty.GetTypeConfigurationSource() is not { } existingTypeConfigurationSource
                     || typeConfigurationSource.Overrides(existingTypeConfigurationSource)))
             || configurationSource.Overrides(existingProperty.GetConfigurationSource())
             : configurationSource.HasValue
@@ -1375,7 +1375,10 @@ public abstract class InternalTypeBaseBuilder :
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected virtual InternalPropertyBuilder? GetOrCreateDiscriminatorProperty(
-        Type? type, string? name, MemberInfo? memberInfo, ConfigurationSource configurationSource)
+        Type? type,
+        string? name,
+        MemberInfo? memberInfo,
+        ConfigurationSource configurationSource)
     {
         if (memberInfo != null)
         {
@@ -1401,7 +1404,7 @@ public abstract class InternalTypeBaseBuilder :
             type,
             name,
             memberInfo,
-            typeConfigurationSource: type != null ? ConfigurationSource.Convention : null,
+            typeConfigurationSource: ConfigurationSource.Convention,
             ConfigurationSource.Convention);
 
         if (discriminatorPropertyBuilder == null)
@@ -1413,7 +1416,7 @@ public abstract class InternalTypeBaseBuilder :
                     type,
                     name,
                     memberInfo,
-                    typeConfigurationSource: type != null ? ConfigurationSource.Convention : null,
+                    typeConfigurationSource: ConfigurationSource.Convention,
                     ConfigurationSource.Convention);
             }
 
@@ -1861,7 +1864,11 @@ public abstract class InternalTypeBaseBuilder :
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    public IConventionComplexPropertyBuilder? ComplexCollection(Type propertyType, string propertyName, Type? complexType = null, bool fromDataAnnotation = false)
+    public IConventionComplexPropertyBuilder? ComplexCollection(
+        Type propertyType,
+        string propertyName,
+        Type? complexType = null,
+        bool fromDataAnnotation = false)
         => ComplexProperty(
             propertyType,
             propertyName,
@@ -1878,7 +1885,10 @@ public abstract class InternalTypeBaseBuilder :
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    public IConventionComplexPropertyBuilder? ComplexCollection(MemberInfo memberInfo, Type? complexType = null, bool fromDataAnnotation = false)
+    public IConventionComplexPropertyBuilder? ComplexCollection(
+        MemberInfo memberInfo,
+        Type? complexType = null,
+        bool fromDataAnnotation = false)
         => ComplexProperty(
             propertyType: memberInfo.GetMemberType(),
             propertyName: memberInfo.Name,
@@ -1888,7 +1898,11 @@ public abstract class InternalTypeBaseBuilder :
             collection: true,
             configurationSource: fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
-    bool IConventionTypeBaseBuilder.CanHaveComplexCollection(Type? propertyType, string propertyName, Type? complexType, bool fromDataAnnotation)
+    bool IConventionTypeBaseBuilder.CanHaveComplexCollection(
+        Type? propertyType,
+        string propertyName,
+        Type? complexType,
+        bool fromDataAnnotation)
         => CanHaveComplexProperty(
             propertyType,
             propertyName,

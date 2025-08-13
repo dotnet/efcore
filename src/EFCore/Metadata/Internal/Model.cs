@@ -427,7 +427,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
             ? entityType
             : FindEntityType(entityType.Name)
             ?? (entityType.HasSharedClrType
-                ? entityType.FindOwnership() is ForeignKey ownership
+                ? entityType.FindOwnership() is { } ownership
                     ? FindActualEntityType(ownership.PrincipalEntityType)
                         ?.FindNavigation(ownership.PrincipalToDependent!.Name)?.TargetEntityType
                     : null
@@ -478,8 +478,8 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     {
         var entityType = FindEntityType(name);
         return entityType == null
-            ? Enumerable.Empty<EntityType>()
-            : new[] { entityType };
+            ? []
+            : [entityType];
     }
 
     /// <summary>
@@ -643,7 +643,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual IEnumerable<ITypeMappingConfiguration> GetTypeMappingConfigurations()
-        => Configuration?.GetTypeMappingConfigurations() ?? Enumerable.Empty<ITypeMappingConfiguration>();
+        => Configuration?.GetTypeMappingConfigurations() ?? [];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1183,7 +1183,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     public virtual bool IsIndexerMethod(MethodInfo methodInfo)
         => !methodInfo.IsStatic
             && methodInfo is { IsSpecialName: true, DeclaringType: not null }
-            && FindIndexerPropertyInfo(methodInfo.DeclaringType) is PropertyInfo indexerProperty
+            && FindIndexerPropertyInfo(methodInfo.DeclaringType) is { } indexerProperty
             && (methodInfo == indexerProperty.GetMethod || methodInfo == indexerProperty.SetMethod);
 
     /// <summary>

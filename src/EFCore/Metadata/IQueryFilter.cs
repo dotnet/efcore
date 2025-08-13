@@ -6,23 +6,24 @@ using System.Diagnostics.CodeAnalysis;
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
 /// <summary>
-/// Represents a query filter in a model.
+///     Represents a query filter in a model.
 /// </summary>
 public interface IQueryFilter
 {
     /// <summary>
-    /// The LINQ expression of the filter.
+    ///     The LINQ expression of the filter.
     /// </summary>
     LambdaExpression? Expression { get; }
 
     /// <summary>
-    /// The name of the filter.
+    ///     The name of the filter.
     /// </summary>
     string? Key { get; }
 
     /// <summary>
-    /// Indicates whether the query filter is anonymous.
+    ///     Indicates whether the query filter is anonymous.
     /// </summary>
     [MemberNotNullWhen(false, nameof(Key))]
-    bool IsAnonymous => Key == null;
+    bool IsAnonymous
+        => Key == null;
 }

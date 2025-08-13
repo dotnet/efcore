@@ -258,7 +258,7 @@ public class RuntimeModel : RuntimeAnnotatableBase, IRuntimeModel
     /// </summary>
     /// <param name="clrType">The type of value the property will hold.</param>
     /// <param name="maxLength">The maximum length of data that is allowed in this property type.</param>
-    /// <param name="unicode">A value indicating whether or not the property can persist Unicode characters.</param>
+    /// <param name="unicode">A value indicating whether the property can persist Unicode characters.</param>
     /// <param name="precision">The precision of data that is allowed in this property type.</param>
     /// <param name="scale">The scale of data that is allowed in this property type.</param>
     /// <param name="providerPropertyType">
@@ -353,7 +353,7 @@ public class RuntimeModel : RuntimeAnnotatableBase, IRuntimeModel
     bool IModel.IsIndexerMethod(MethodInfo methodInfo)
         => !methodInfo.IsStatic
             && methodInfo is { IsSpecialName: true, DeclaringType: not null }
-            && FindIndexerPropertyInfo(methodInfo.DeclaringType) is PropertyInfo indexerProperty
+            && FindIndexerPropertyInfo(methodInfo.DeclaringType) is { } indexerProperty
             && (methodInfo == indexerProperty.GetMethod || methodInfo == indexerProperty.SetMethod);
 
     /// <inheritdoc />

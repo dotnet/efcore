@@ -231,7 +231,7 @@ public static class ExpressionExtensions
             IReadOnlyProperty property,
             int i)
             => property.ClrType.IsValueType
-                && property.ClrType.UnwrapNullableType() is Type nonNullableType
+                && property.ClrType.UnwrapNullableType() is { } nonNullableType
                 && !(nonNullableType == typeof(bool) || nonNullableType.IsNumeric() || nonNullableType.IsEnum)
                     ? Infrastructure.ExpressionExtensions.CreateEqualsExpression(
                         Expression.Call(

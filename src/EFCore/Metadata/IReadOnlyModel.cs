@@ -180,7 +180,7 @@ public interface IReadOnlyModel : IReadOnlyAnnotatable
             }
         }
 
-        return Enumerable.Empty<IReadOnlyEntityType>();
+        return [];
     }
 
     private static int GetDerivedLevel(Type? derivedType, Dictionary<Type, int> derivedLevels)

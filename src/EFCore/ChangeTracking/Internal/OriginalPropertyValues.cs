@@ -71,7 +71,8 @@ public class OriginalPropertyValues : EntryPropertyValues
 
             // The stored original collection might contain references to the current elements,
             // so we need to recreate it using stored values.
-            var clonedCollection = (IList)((IRuntimePropertyBase)complexProperty).GetIndexedCollectionAccessor().Create(originalCollection.Count);
+            var clonedCollection = (IList)((IRuntimePropertyBase)complexProperty).GetIndexedCollectionAccessor()
+                .Create(originalCollection.Count);
             for (var i = 0; i < originalCollection.Count; i++)
             {
                 clonedCollection.Add(

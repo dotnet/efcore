@@ -103,7 +103,8 @@ public class RuntimeSkipNavigation : RuntimePropertyBase, IRuntimeSkipNavigation
     /// <summary>
     ///     Gets a value indicating whether the property is a collection.
     /// </summary>
-    public override bool IsCollection => _isCollection;
+    public override bool IsCollection
+        => _isCollection;
 
     /// <inheritdoc />
     public override object? Sentinel

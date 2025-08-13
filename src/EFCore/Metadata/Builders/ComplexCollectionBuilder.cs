@@ -262,7 +262,7 @@ public class ComplexCollectionBuilder : IInfrastructure<IConventionComplexProper
     {
         Check.NotNull(propertyType);
 
-        return new(
+        return new ComplexCollectionTypePropertyBuilder(
             TypeBuilder.IndexerProperty(
                 propertyType,
                 Check.NotEmpty(propertyName), ConfigurationSource.Explicit)!.Metadata);
@@ -674,7 +674,9 @@ public class ComplexCollectionBuilder : IInfrastructure<IConventionComplexProper
     /// <param name="propertyName">The name of the property to be configured.</param>
     /// <param name="buildAction">An action that performs configuration of the property.</param>
     /// <returns>An object that can be used to configure the property.</returns>
-    public virtual ComplexCollectionBuilder ComplexCollection<TProperty, TElement>(string propertyName, Action<ComplexCollectionBuilder<TElement>> buildAction)
+    public virtual ComplexCollectionBuilder ComplexCollection<TProperty, TElement>(
+        string propertyName,
+        Action<ComplexCollectionBuilder<TElement>> buildAction)
         where TProperty : IEnumerable<TElement>
         where TElement : notnull
     {
@@ -703,7 +705,9 @@ public class ComplexCollectionBuilder : IInfrastructure<IConventionComplexProper
     /// <param name="buildAction">An action that performs configuration of the property.</param>
     /// <returns>An object that can be used to configure the property.</returns>
     public virtual ComplexCollectionBuilder ComplexCollection<TProperty, TElement>(
-        string propertyName, string complexTypeName, Action<ComplexCollectionBuilder<TElement>> buildAction)
+        string propertyName,
+        string complexTypeName,
+        Action<ComplexCollectionBuilder<TElement>> buildAction)
         where TProperty : IEnumerable<TElement>
         where TElement : notnull
     {
@@ -729,7 +733,10 @@ public class ComplexCollectionBuilder : IInfrastructure<IConventionComplexProper
     /// <param name="propertyName">The name of the property to be configured.</param>
     /// <param name="buildAction">An action that performs configuration of the property.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
-    public virtual ComplexCollectionBuilder ComplexCollection(Type propertyType, string propertyName, Action<ComplexCollectionBuilder> buildAction)
+    public virtual ComplexCollectionBuilder ComplexCollection(
+        Type propertyType,
+        string propertyName,
+        Action<ComplexCollectionBuilder> buildAction)
     {
         Check.NotNull(buildAction);
 
@@ -754,7 +761,11 @@ public class ComplexCollectionBuilder : IInfrastructure<IConventionComplexProper
     /// <param name="complexTypeName">The name of the complex type.</param>
     /// <param name="buildAction">An action that performs configuration of the property.</param>
     /// <returns>An object that can be used to configure the property.</returns>
-    public virtual ComplexCollectionBuilder ComplexCollection(Type propertyType, string propertyName, string complexTypeName, Action<ComplexCollectionBuilder> buildAction)
+    public virtual ComplexCollectionBuilder ComplexCollection(
+        Type propertyType,
+        string propertyName,
+        string complexTypeName,
+        Action<ComplexCollectionBuilder> buildAction)
     {
         Check.NotNull(buildAction);
 

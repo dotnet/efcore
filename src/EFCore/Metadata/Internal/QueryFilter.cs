@@ -4,7 +4,7 @@
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 /// <summary>
-/// Represents a query filter in a model.
+///     Represents a query filter in a model.
 /// </summary>
 /// <param name="key">The key of the query filter.</param>
 /// <param name="expression">The expression representing the filter.</param>
@@ -41,7 +41,8 @@ public class QueryFilter(string? key, LambdaExpression? expression) : IQueryFilt
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public QueryFilter(LambdaExpression? expression, ConfigurationSource configurationSource)
-        : this(null, expression) => ConfigurationSource = configurationSource;
+        : this(null, expression)
+        => ConfigurationSource = configurationSource;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -50,7 +51,8 @@ public class QueryFilter(string? key, LambdaExpression? expression) : IQueryFilt
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public QueryFilter(string key, LambdaExpression? expression, ConfigurationSource configurationSource)
-        : this(key, expression) => ConfigurationSource = configurationSource;
+        : this(key, expression)
+        => ConfigurationSource = configurationSource;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -58,7 +60,8 @@ public class QueryFilter(string? key, LambdaExpression? expression) : IQueryFilt
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public QueryFilter(LambdaExpression? expression) : this(null, expression)
+    public QueryFilter(LambdaExpression? expression)
+        : this(null, expression)
     {
     }
 
@@ -69,7 +72,8 @@ public class QueryFilter(string? key, LambdaExpression? expression) : IQueryFilt
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public QueryFilter(string key, LambdaExpression? expression, bool fromDataAnnotation)
-        : this(key, expression) => ConfigurationSource = fromDataAnnotation
+        : this(key, expression)
+        => ConfigurationSource = fromDataAnnotation
             ? Metadata.ConfigurationSource.DataAnnotation
             : Metadata.ConfigurationSource.Convention;
 
@@ -80,7 +84,8 @@ public class QueryFilter(string? key, LambdaExpression? expression) : IQueryFilt
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public QueryFilter(LambdaExpression? expression, bool fromDataAnnotation)
-        : this(expression) => ConfigurationSource = fromDataAnnotation
+        : this(expression)
+        => ConfigurationSource = fromDataAnnotation
             ? Metadata.ConfigurationSource.DataAnnotation
             : Metadata.ConfigurationSource.Convention;
 }

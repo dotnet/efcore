@@ -15,8 +15,8 @@ internal static class Check
     [ContractAnnotation("value:null => halt")]
     [return: NotNull]
     public static T NotNull<T>(
-        [NoEnumeration, AllowNull, NotNull] T value,
-        [InvokerParameterName, CallerArgumentExpression(nameof(value))] string parameterName = "")
+        [NoEnumeration] [AllowNull] [NotNull] T value,
+        [InvokerParameterName] [CallerArgumentExpression(nameof(value))] string parameterName = "")
     {
         if (value is null)
         {
@@ -29,7 +29,7 @@ internal static class Check
     [ContractAnnotation("value:null => halt")]
     public static IReadOnlyList<T> NotEmpty<T>(
         [NotNull] IReadOnlyList<T>? value,
-        [InvokerParameterName, CallerArgumentExpression(nameof(value))] string parameterName = "")
+        [InvokerParameterName] [CallerArgumentExpression(nameof(value))] string parameterName = "")
     {
         NotNull(value, parameterName);
 
@@ -44,7 +44,7 @@ internal static class Check
     [ContractAnnotation("value:null => halt")]
     public static string NotEmpty(
         [NotNull] string? value,
-        [InvokerParameterName, CallerArgumentExpression(nameof(value))] string parameterName = "")
+        [InvokerParameterName] [CallerArgumentExpression(nameof(value))] string parameterName = "")
     {
         NotNull(value, parameterName);
 
@@ -56,10 +56,9 @@ internal static class Check
         return value;
     }
 
-
     public static string? NullButNotEmpty(
         string? value,
-        [InvokerParameterName, CallerArgumentExpression(nameof(value))] string parameterName = "")
+        [InvokerParameterName] [CallerArgumentExpression(nameof(value))] string parameterName = "")
     {
         if (value is not null && value.Length == 0)
         {
@@ -71,11 +70,12 @@ internal static class Check
 
     public static IReadOnlyList<T> HasNoNulls<T>(
         [NotNull] IReadOnlyList<T>? value,
-        [InvokerParameterName, CallerArgumentExpression(nameof(value))] string parameterName = "")
+        [InvokerParameterName] [CallerArgumentExpression(nameof(value))] string parameterName = "")
         where T : class
     {
         NotNull(value, parameterName);
 
+        // ReSharper disable once ForCanBeConvertedToForeach
         for (var i = 0; i < value.Count; i++)
         {
             if (value[i] is null)
@@ -89,7 +89,7 @@ internal static class Check
 
     public static IReadOnlyList<string> HasNoEmptyElements(
         [NotNull] IReadOnlyList<string>? value,
-        [InvokerParameterName, CallerArgumentExpression(nameof(value))] string parameterName = "")
+        [InvokerParameterName] [CallerArgumentExpression(nameof(value))] string parameterName = "")
     {
         NotNull(value, parameterName);
 
@@ -105,7 +105,9 @@ internal static class Check
     }
 
     [Conditional("DEBUG")]
-    public static void DebugAssert([DoesNotReturnIf(false)] bool condition, [CallerArgumentExpression(nameof(condition))] string message = "")
+    public static void DebugAssert(
+        [DoesNotReturnIf(false)] bool condition,
+        [CallerArgumentExpression(nameof(condition))] string message = "")
     {
         if (!condition)
         {

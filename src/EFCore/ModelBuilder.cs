@@ -505,10 +505,9 @@ public class ModelBuilder : IInfrastructure<IConventionModelBuilder>
     {
         var applyEntityConfigurationMethod = typeof(ModelBuilder)
             .GetMethods()
-            .Single(
-                e => e is { Name: nameof(ApplyConfiguration), ContainsGenericParameters: true }
-                    && e.GetParameters().SingleOrDefault()?.ParameterType.GetGenericTypeDefinition()
-                    == typeof(IEntityTypeConfiguration<>));
+            .Single(e => e is { Name: nameof(ApplyConfiguration), ContainsGenericParameters: true }
+                && e.GetParameters().SingleOrDefault()?.ParameterType.GetGenericTypeDefinition()
+                == typeof(IEntityTypeConfiguration<>));
 
         var logger = Builder.Metadata.ScopedModelDependencies?.Logger;
         var foundOne = false;

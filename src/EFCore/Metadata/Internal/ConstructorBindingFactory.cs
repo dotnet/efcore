@@ -182,11 +182,10 @@ public class ConstructorBindingFactory : IConstructorBindingFactory
         {
             var constructorErrors = bindingFailures.SelectMany(f => f)
                 .GroupBy(f => (ConstructorInfo)f.Member)
-                .Select(
-                    x => "    "
-                        + CoreStrings.ConstructorBindingFailed(
-                            string.Join("', '", x.Select(f => f.Name)),
-                            $"{type.DisplayName()}({string.Join(", ", ConstructConstructor(x))})")
+                .Select(x => "    "
+                    + CoreStrings.ConstructorBindingFailed(
+                        string.Join("', '", x.Select(f => f.Name)),
+                        $"{type.DisplayName()}({string.Join(", ", ConstructConstructor(x))})")
                 );
 
             throw new InvalidOperationException(

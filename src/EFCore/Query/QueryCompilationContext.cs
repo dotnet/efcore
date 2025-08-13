@@ -255,15 +255,14 @@ public class QueryCompilationContext
             ? query
             : Expression.Block(
                 _runtimeParameters
-                    .Select(
-                        kv =>
-                            Expression.Call(
-                                Expression.Property(
-                                    QueryContextParameter,
-                                    QueryContextParametersProperty),
-                                ParameterDictionaryAddMethod,
-                                Expression.Constant(kv.Key),
-                                Expression.Convert(Expression.Invoke(kv.Value, QueryContextParameter), typeof(object))))
+                    .Select(kv =>
+                        Expression.Call(
+                            Expression.Property(
+                                QueryContextParameter,
+                                QueryContextParametersProperty),
+                            ParameterDictionaryAddMethod,
+                            Expression.Constant(kv.Key),
+                            Expression.Convert(Expression.Invoke(kv.Value, QueryContextParameter), typeof(object))))
                     .Append(query));
 
     private static readonly PropertyInfo QueryContextParametersProperty

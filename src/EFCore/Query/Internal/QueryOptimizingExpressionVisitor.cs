@@ -157,7 +157,7 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
         // Normalize x.Any(i => i == foo) to x.Contains(foo)
         // And x.All(i => i != foo) to !x.Contains(foo)
         if (methodCallExpression.Method.IsGenericMethod
-            && methodCallExpression.Method.GetGenericMethodDefinition() is MethodInfo methodInfo
+            && methodCallExpression.Method.GetGenericMethodDefinition() is { } methodInfo
             && (methodInfo == EnumerableMethods.AnyWithPredicate
                 || methodInfo == EnumerableMethods.All
                 || methodInfo == QueryableMethods.AnyWithPredicate
@@ -336,7 +336,6 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
 
                     return true;
                 }
-
                 return false;
             }
 
@@ -357,7 +356,7 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
         // Simplify (a != null ? new { Member = b, ... } : null).Member
         // to a != null ? b : null
         // Later null check removal will simplify it further
-        if (expression is MemberExpression { Expression: Expression inner } visitedMemberExpression)
+        if (expression is MemberExpression { Expression: { } inner } visitedMemberExpression)
         {
             var (conditional, convert) = inner switch
             {
