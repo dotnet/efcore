@@ -29,20 +29,50 @@ public abstract class ComplexTypesTrackingRelationalTestBase<TFixture> : Complex
                 b =>
                 {
                     b.ComplexCollection(
-                        e => e.Activities, b =>
-                        {
-                            b.ToJson();
-                        });
+                        e => e.Activities, b => b.ToJson());
                 });
 
             modelBuilder.Entity<PubWithRecordCollections>(
                 b =>
                 {
                     b.ComplexCollection(
-                        e => e.Activities, b =>
-                        {
-                            b.ToJson();
-                        });
+                        e => e.Activities, b => b.ToJson());
+                });
+
+            modelBuilder.Entity<PubWithArrayCollections>(
+                b =>
+                {
+                    b.ComplexCollection(
+                        e => e.Activities, b => b.ToJson());
+                });
+
+            // TODO: Issue #31411
+            //modelBuilder.Entity<PubWithStructArrayCollections>(
+            //    b =>
+            //    {
+            //        b.ComplexCollection(
+            //            e => e.Activities, b => b.ToJson());
+            //    });
+
+            //modelBuilder.Entity<PubWithReadonlyStructArrayCollections>(
+            //    b =>
+            //    {
+            //        b.ComplexCollection(
+            //            e => e.Activities, b => b.ToJson());
+            //    });
+
+            modelBuilder.Entity<PubWithRecordArrayCollections>(
+                b =>
+                {
+                    b.ComplexCollection(
+                        e => e.Activities, b => b.ToJson());
+                });
+
+            modelBuilder.Entity<PubWithPropertyBagCollections>(
+                b =>
+                {
+                    b.ComplexCollection(
+                        e => e.Activities, b => b.ToJson());
                 });
 
             if (!UseProxies)
@@ -51,20 +81,14 @@ public abstract class ComplexTypesTrackingRelationalTestBase<TFixture> : Complex
                 b =>
                 {
                     b.ComplexCollection(
-                        e => e.Activities, b =>
-                        {
-                            b.ToJson();
-                        });
+                        e => e.Activities, b => b.ToJson());
                 });
 
                 modelBuilder.Entity<FieldPubWithRecordCollections>(
                     b =>
                     {
                         b.ComplexCollection(
-                            e => e.Activities, b =>
-                            {
-                                b.ToJson();
-                            });
+                            e => e.Activities, b => b.ToJson());
                     });
             }
         }

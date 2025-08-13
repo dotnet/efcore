@@ -750,7 +750,7 @@ public class ChangeDetector : IChangeDetector
             }
             else
             {
-                _logger.ComplexTypePropertyChangeDetectedSensitive((InternalComplexEntry)entry, property, original, current);
+                _logger.ComplexElementPropertyChangeDetectedSensitive((InternalComplexEntry)entry, property, original, current);
             }
         }
         else
@@ -761,7 +761,7 @@ public class ChangeDetector : IChangeDetector
             }
             else
             {
-                _logger.ComplexTypePropertyChangeDetected((InternalComplexEntry)entry, property, original, current);
+                _logger.ComplexElementPropertyChangeDetected((InternalComplexEntry)entry, property, original, current);
             }
         }
     }
