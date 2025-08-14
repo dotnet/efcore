@@ -5098,6 +5098,63 @@ END = CAST(1 AS bit)
 """);
     }
 
+    public override async Task Is_not_null_optimizes_unary_op(bool async)
+    {
+        await base.Is_not_null_optimizes_unary_op(async);
+
+        AssertSql(
+            """
+SELECT ~[e].[NullableIntA]
+FROM [Entities1] AS [e]
+""");
+    }
+
+    public override async Task Is_not_null_optimizes_binary_op(bool async)
+    {
+        await base.Is_not_null_optimizes_binary_op(async);
+
+        AssertSql(
+            """
+SELECT [e].[NullableIntA] + [e].[NullableIntB]
+FROM [Entities1] AS [e]
+""");
+    }
+
+    public override async Task Is_not_null_optimizes_binary_op_with_partial_checks(bool async)
+    {
+        await base.Is_not_null_optimizes_binary_op_with_partial_checks(async);
+
+        AssertSql(
+            """
+SELECT [e].[NullableStringA] + [e].[NullableStringB] + COALESCE([e].[NullableStringC], N'')
+FROM [Entities1] AS [e]
+""");
+    }
+
+    public override async Task Is_not_null_optimizes_binary_op_with_nested_checks(bool async)
+    {
+        await base.Is_not_null_optimizes_binary_op_with_nested_checks(async);
+
+        AssertSql(
+            """
+SELECT [e].[NullableStringA] + [e].[NullableStringB]
+FROM [Entities1] AS [e]
+""");
+    }
+
+    public override async Task Is_not_null_optimizes_binary_op_with_mixed_checks(bool async)
+    {
+        await base.Is_not_null_optimizes_binary_op_with_mixed_checks(async);
+
+        AssertSql(
+            """
+SELECT CASE
+    WHEN [e].[BoolA] = CAST(1 AS bit) THEN [e].[NullableStringA] + COALESCE([e].[NullableStringB], N'')
+END
+FROM [Entities1] AS [e]
+""");
+    }
+
     public override async Task Sum_function_is_always_considered_non_nullable(bool async)
     {
         await base.Sum_function_is_always_considered_non_nullable(async);
