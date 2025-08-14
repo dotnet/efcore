@@ -6,10 +6,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Relationships.ComplexProperties;
 internal class TrackingRewriter(QueryTrackingBehavior queryTrackingBehavior) : ExpressionVisitor
 {
     private static readonly MethodInfo AsNoTrackingMethodInfo
-        = typeof(EntityFrameworkQueryableExtensions).GetTypeInfo().GetDeclaredMethod(nameof(EntityFrameworkQueryableExtensions.AsNoTracking))!;
+        = typeof(EntityFrameworkQueryableExtensions).GetTypeInfo()
+            .GetDeclaredMethod(nameof(EntityFrameworkQueryableExtensions.AsNoTracking))!;
 
     private static readonly MethodInfo AsNoTrackingWithIdentityResolutionMethodInfo
-        = typeof(EntityFrameworkQueryableExtensions).GetTypeInfo().GetDeclaredMethod(nameof(EntityFrameworkQueryableExtensions.AsNoTrackingWithIdentityResolution))!;
+        = typeof(EntityFrameworkQueryableExtensions).GetTypeInfo()
+            .GetDeclaredMethod(nameof(EntityFrameworkQueryableExtensions.AsNoTrackingWithIdentityResolution))!;
 
     protected override Expression VisitExtension(Expression expression)
         => expression is EntityQueryRootExpression root

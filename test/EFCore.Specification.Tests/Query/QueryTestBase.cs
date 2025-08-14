@@ -18,7 +18,9 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
     }
 
     protected TFixture Fixture { get; }
-    protected QueryAsserter QueryAsserter => _queryAsserterCache.Value;
+
+    protected QueryAsserter QueryAsserter
+        => _queryAsserterCache.Value;
 
     private QueryAsserter CreateQueryAsserter()
         => CreateQueryAsserter(Fixture);
@@ -55,7 +57,8 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         bool assertEmpty = false,
         QueryTrackingBehavior? queryTrackingBehavior = null,
         [CallerMemberName] string testMethodName = "")
-        => AssertQuery(async: true, query, query, elementSorter, elementAsserter, assertOrder, assertEmpty, queryTrackingBehavior, testMethodName);
+        => AssertQuery(
+            async: true, query, query, elementSorter, elementAsserter, assertOrder, assertEmpty, queryTrackingBehavior, testMethodName);
 
     public Task AssertQuery<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
@@ -66,9 +69,9 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         bool assertEmpty = false,
         QueryTrackingBehavior? queryTrackingBehavior = null,
         [CallerMemberName] string testMethodName = "")
-        => TestOutputWrapper(
-            () => QueryAsserter.AssertQuery(
-                actualQuery, expectedQuery, elementSorter, elementAsserter, assertOrder, assertEmpty, async: true, queryTrackingBehavior, testMethodName));
+        => TestOutputWrapper(() => QueryAsserter.AssertQuery(
+            actualQuery, expectedQuery, elementSorter, elementAsserter, assertOrder, assertEmpty, async: true, queryTrackingBehavior,
+            testMethodName));
 
     public Task AssertQuery<TResult>(
         bool async,
@@ -79,7 +82,8 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         bool assertEmpty = false,
         QueryTrackingBehavior? queryTrackingBehavior = null,
         [CallerMemberName] string testMethodName = "")
-        => AssertQuery(async, query, query, elementSorter, elementAsserter, assertOrder, assertEmpty, queryTrackingBehavior, testMethodName);
+        => AssertQuery(
+            async, query, query, elementSorter, elementAsserter, assertOrder, assertEmpty, queryTrackingBehavior, testMethodName);
 
     public Task AssertQuery<TResult>(
         bool async,
@@ -91,9 +95,9 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         bool assertEmpty = false,
         QueryTrackingBehavior? queryTrackingBehavior = null,
         [CallerMemberName] string testMethodName = "")
-        => TestOutputWrapper(
-            () => QueryAsserter.AssertQuery(
-                actualQuery, expectedQuery, elementSorter, elementAsserter, assertOrder, assertEmpty, async, queryTrackingBehavior, testMethodName));
+        => TestOutputWrapper(() => QueryAsserter.AssertQuery(
+            actualQuery, expectedQuery, elementSorter, elementAsserter, assertOrder, assertEmpty, async, queryTrackingBehavior,
+            testMethodName));
 
     public Task AssertQueryScalar<TResult>(
         Func<ISetSource, IQueryable<TResult>> query,
@@ -122,8 +126,8 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         bool assertEmpty = false,
         [CallerMemberName] string testMethodName = "")
         where TResult : struct
-        => TestOutputWrapper(
-            () => AssertQueryScalar(async: true, actualQuery, expectedQuery, asserter, assertOrder, assertEmpty, testMethodName));
+        => TestOutputWrapper(() => AssertQueryScalar(
+            async: true, actualQuery, expectedQuery, asserter, assertOrder, assertEmpty, testMethodName));
 
     public Task AssertQueryScalar<TResult>(
         bool async,
@@ -134,8 +138,8 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         bool assertEmpty = false,
         [CallerMemberName] string testMethodName = "")
         where TResult : struct
-        => TestOutputWrapper(
-            () => QueryAsserter.AssertQueryScalar(actualQuery, expectedQuery, asserter, assertOrder, assertEmpty, async, testMethodName));
+        => TestOutputWrapper(() => QueryAsserter.AssertQueryScalar(
+            actualQuery, expectedQuery, asserter, assertOrder, assertEmpty, async, testMethodName));
 
     public Task AssertQueryScalar<TResult>(
         bool async,
@@ -156,8 +160,8 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         bool assertEmpty = false,
         [CallerMemberName] string testMethodName = "")
         where TResult : struct
-        => TestOutputWrapper(
-            () => QueryAsserter.AssertQueryScalar(actualQuery, expectedQuery, asserter, assertOrder, assertEmpty, async, testMethodName));
+        => TestOutputWrapper(() => QueryAsserter.AssertQueryScalar(
+            actualQuery, expectedQuery, asserter, assertOrder, assertEmpty, async, testMethodName));
 
     protected Task AssertSingleResult<TResult>(
         bool async,
@@ -245,8 +249,8 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         Func<int> actualIndex,
         Func<int> expectedIndex,
         Action<TResult?, TResult?>? asserter = null)
-        => TestOutputWrapper(
-            () => QueryAsserter.AssertElementAtOrDefault(actualQuery, expectedQuery, actualIndex, expectedIndex, asserter, async));
+        => TestOutputWrapper(()
+            => QueryAsserter.AssertElementAtOrDefault(actualQuery, expectedQuery, actualIndex, expectedIndex, asserter, async));
 
     protected Task AssertFirst<TResult>(
         Func<ISetSource, IQueryable<TResult>> query,
@@ -280,8 +284,8 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         Expression<Func<TResult, bool>> actualPredicate,
         Expression<Func<TResult, bool>> expectedPredicate,
         Action<TResult, TResult>? asserter = null)
-        => TestOutputWrapper(
-            () => QueryAsserter.AssertFirst(actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, async));
+        => TestOutputWrapper(() => QueryAsserter.AssertFirst(
+            actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, async));
 
     protected Task AssertFirstOrDefault<TResult>(
         Func<ISetSource, IQueryable<TResult>> query,
@@ -316,8 +320,8 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         Expression<Func<TResult, bool>> actualPredicate,
         Expression<Func<TResult, bool>> expectedPredicate,
         Action<TResult?, TResult?>? asserter = null)
-        => TestOutputWrapper(
-            () => QueryAsserter.AssertFirstOrDefault(actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, async));
+        => TestOutputWrapper(() => QueryAsserter.AssertFirstOrDefault(
+            actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, async));
 
     protected Task AssertSingle<TResult>(
         bool async,
@@ -346,8 +350,8 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         Expression<Func<TResult, bool>> actualPredicate,
         Expression<Func<TResult, bool>> expectedPredicate,
         Action<TResult, TResult>? asserter = null)
-        => TestOutputWrapper(
-            () => QueryAsserter.AssertSingle(actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, async));
+        => TestOutputWrapper(() => QueryAsserter.AssertSingle(
+            actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, async));
 
     protected Task AssertSingleOrDefault<TResult>(
         bool async,
@@ -376,8 +380,8 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         Expression<Func<TResult, bool>> actualPredicate,
         Expression<Func<TResult, bool>> expectedPredicate,
         Action<TResult?, TResult?>? asserter = null)
-        => TestOutputWrapper(
-            () => QueryAsserter.AssertSingleOrDefault(actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, async));
+        => TestOutputWrapper(() => QueryAsserter.AssertSingleOrDefault(
+            actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, async));
 
     protected Task AssertLast<TResult>(
         bool async,
@@ -406,8 +410,8 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         Expression<Func<TResult, bool>> actualPredicate,
         Expression<Func<TResult, bool>> expectedPredicate,
         Action<TResult, TResult>? asserter = null)
-        => TestOutputWrapper(
-            () => QueryAsserter.AssertLast(actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, async));
+        => TestOutputWrapper(() => QueryAsserter.AssertLast(
+            actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, async));
 
     protected Task AssertLastOrDefault<TResult>(
         bool async,
@@ -436,8 +440,8 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         Expression<Func<TResult, bool>> actualPredicate,
         Expression<Func<TResult, bool>> expectedPredicate,
         Action<TResult?, TResult?>? asserter = null)
-        => TestOutputWrapper(
-            () => QueryAsserter.AssertLastOrDefault(actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, async));
+        => TestOutputWrapper(() => QueryAsserter.AssertLastOrDefault(
+            actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, async));
 
     protected Task AssertCount<TResult>(
         Func<ISetSource, IQueryable<TResult>> query)
@@ -997,8 +1001,8 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         Expression<Func<TResult, int>> actualSelector,
         Expression<Func<TResult, int>> expectedSelector,
         Action<double, double>? asserter = null)
-        => TestOutputWrapper(
-            () => QueryAsserter.AssertAverage(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async));
+        => TestOutputWrapper(() => QueryAsserter.AssertAverage(
+            actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async));
 
     protected Task AssertAverage<TResult>(
         bool async,
@@ -1014,8 +1018,8 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         Expression<Func<TResult, int?>> actualSelector,
         Expression<Func<TResult, int?>> expectedSelector,
         Action<double?, double?>? asserter = null)
-        => TestOutputWrapper(
-            () => QueryAsserter.AssertAverage(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async));
+        => TestOutputWrapper(() => QueryAsserter.AssertAverage(
+            actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async));
 
     protected Task AssertAverage<TResult>(
         bool async,
@@ -1031,8 +1035,8 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         Expression<Func<TResult, long>> actualSelector,
         Expression<Func<TResult, long>> expectedSelector,
         Action<double, double>? asserter = null)
-        => TestOutputWrapper(
-            () => QueryAsserter.AssertAverage(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async));
+        => TestOutputWrapper(() => QueryAsserter.AssertAverage(
+            actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async));
 
     protected Task AssertAverage<TResult>(
         bool async,
@@ -1048,8 +1052,8 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         Expression<Func<TResult, long?>> actualSelector,
         Expression<Func<TResult, long?>> expectedSelector,
         Action<double?, double?>? asserter = null)
-        => TestOutputWrapper(
-            () => QueryAsserter.AssertAverage(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async));
+        => TestOutputWrapper(() => QueryAsserter.AssertAverage(
+            actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async));
 
     protected Task AssertAverage<TResult>(
         bool async,
@@ -1065,8 +1069,8 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         Expression<Func<TResult, decimal>> actualSelector,
         Expression<Func<TResult, decimal>> expectedSelector,
         Action<decimal, decimal>? asserter = null)
-        => TestOutputWrapper(
-            () => QueryAsserter.AssertAverage(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async));
+        => TestOutputWrapper(() => QueryAsserter.AssertAverage(
+            actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async));
 
     protected Task AssertAverage<TResult>(
         bool async,
@@ -1082,8 +1086,8 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         Expression<Func<TResult, decimal?>> actualSelector,
         Expression<Func<TResult, decimal?>> expectedSelector,
         Action<decimal?, decimal?>? asserter = null)
-        => TestOutputWrapper(
-            () => QueryAsserter.AssertAverage(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async));
+        => TestOutputWrapper(() => QueryAsserter.AssertAverage(
+            actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async));
 
     protected Task AssertAverage<TResult>(
         bool async,
@@ -1099,8 +1103,8 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         Expression<Func<TResult, float>> actualSelector,
         Expression<Func<TResult, float>> expectedSelector,
         Action<float, float>? asserter = null)
-        => TestOutputWrapper(
-            () => QueryAsserter.AssertAverage(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async));
+        => TestOutputWrapper(() => QueryAsserter.AssertAverage(
+            actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async));
 
     protected Task AssertAverage<TResult>(
         bool async,
@@ -1116,8 +1120,8 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         Expression<Func<TResult, float?>> actualSelector,
         Expression<Func<TResult, float?>> expectedSelector,
         Action<float?, float?>? asserter = null)
-        => TestOutputWrapper(
-            () => QueryAsserter.AssertAverage(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async));
+        => TestOutputWrapper(() => QueryAsserter.AssertAverage(
+            actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async));
 
     protected Task AssertAverage<TResult>(
         bool async,
@@ -1133,8 +1137,8 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         Expression<Func<TResult, double>> actualSelector,
         Expression<Func<TResult, double>> expectedSelector,
         Action<double, double>? asserter = null)
-        => TestOutputWrapper(
-            () => QueryAsserter.AssertAverage(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async));
+        => TestOutputWrapper(() => QueryAsserter.AssertAverage(
+            actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async));
 
     protected Task AssertAverage<TResult>(
         bool async,
@@ -1150,8 +1154,8 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         Expression<Func<TResult, double?>> actualSelector,
         Expression<Func<TResult, double?>> expectedSelector,
         Action<double?, double?>? asserter = null)
-        => TestOutputWrapper(
-            () => QueryAsserter.AssertAverage(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async));
+        => TestOutputWrapper(() => QueryAsserter.AssertAverage(
+            actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async));
 
     #endregion
 

@@ -10,11 +10,9 @@ public abstract class MiscellaneousOperatorTranslationsTestBase<TFixture>(TFixtu
 {
     [ConditionalFact]
     public virtual async Task Conditional()
-        => await AssertQuery(
-            ss => ss.Set<BasicTypesEntity>().Where(b => (b.Int == 8 ? b.String : "Foo") == "Seattle"));
+        => await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => (b.Int == 8 ? b.String : "Foo") == "Seattle"));
 
     [ConditionalFact]
     public virtual async Task Coalesce()
-        => await AssertQuery(
-            ss => ss.Set<NullableBasicTypesEntity>().Where(b => (b.String ?? "Unknown") == "Seattle"));
+        => await AssertQuery(ss => ss.Set<NullableBasicTypesEntity>().Where(b => (b.String ?? "Unknown") == "Seattle"));
 }

@@ -22,8 +22,8 @@ public class ModelAsserter
         => AssertEqual(
             expected,
             actual,
-            compareAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-            compareAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
+            compareAnnotations ? expected.GetAnnotations() : [],
+            compareAnnotations ? actual.GetAnnotations() : [],
             compareMemberAnnotations: compareAnnotations);
 
     public virtual void AssertEqual(
@@ -83,8 +83,8 @@ public class ModelAsserter
                 AssertEqual(
                     expected,
                     actual,
-                    compareAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                    compareAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
+                    compareAnnotations ? expected.GetAnnotations() : [],
+                    compareAnnotations ? actual.GetAnnotations() : [],
                     compareBackreferences: false,
                     compareMemberAnnotations: compareAnnotations));
     }
@@ -246,8 +246,8 @@ public class ModelAsserter
                 AssertEqual(
                     expected,
                     actual,
-                    compareAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                    compareAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
+                    compareAnnotations ? expected.GetAnnotations() : [],
+                    compareAnnotations ? actual.GetAnnotations() : [],
                     compareBackreferences: false,
                     compareMemberAnnotations: compareAnnotations));
     }
@@ -283,8 +283,8 @@ public class ModelAsserter
             () => Assert.Equal(expected.GetPropertyAccessMode(), actual.GetPropertyAccessMode()),
             () => AssertEqual(
                 expected.ComplexType, actual.ComplexType,
-                compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
+                compareMemberAnnotations ? expected.GetAnnotations() : [],
+                compareMemberAnnotations ? actual.GetAnnotations() : [],
                 compareBackreferences: false,
                 compareMemberAnnotations: compareMemberAnnotations),
             () =>
@@ -321,8 +321,8 @@ public class ModelAsserter
                 AssertEqual(
                     expected,
                     actual,
-                    compareAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                    compareAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
+                    compareAnnotations ? expected.GetAnnotations() : [],
+                    compareAnnotations ? actual.GetAnnotations() : [],
                     compareBackreferences: false,
                     compareAnnotations));
     }
@@ -462,8 +462,8 @@ public class ModelAsserter
                 AssertEqual(
                     expected,
                     actual,
-                    compareAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                    compareAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
+                    compareAnnotations ? expected.GetAnnotations() : [],
+                    compareAnnotations ? actual.GetAnnotations() : [],
                     compareBackreferences: false));
     }
 
@@ -528,8 +528,8 @@ public class ModelAsserter
                 AssertEqual(
                     expected,
                     actual,
-                    compareAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                    compareAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
+                    compareAnnotations ? expected.GetAnnotations() : [],
+                    compareAnnotations ? actual.GetAnnotations() : [],
                     compareBackreferences: false));
     }
 
@@ -611,8 +611,8 @@ public class ModelAsserter
                 AssertEqual(
                     expected,
                     actual,
-                    compareAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                    compareAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
+                    compareAnnotations ? expected.GetAnnotations() : [],
+                    compareAnnotations ? actual.GetAnnotations() : [],
                     compareBackreferences: false));
     }
 
@@ -685,11 +685,12 @@ public class ModelAsserter
             Assert.Null(actual);
             return true;
         }
+
         Assert.NotNull(actual);
 
-        expectedAnnotations ??= Enumerable.Empty<IAnnotation>();
+        expectedAnnotations ??= [];
         expectedAnnotations = expectedAnnotations.Where(a => !CoreAnnotationNames.AllNames.Contains(a.Name));
-        actualAnnotations ??= Enumerable.Empty<IAnnotation>();
+        actualAnnotations ??= [];
         actualAnnotations = actualAnnotations.Where(a => !CoreAnnotationNames.AllNames.Contains(a.Name));
         Assert.Multiple(
             () => Assert.Equal(expected.ClrType, actual.ClrType),
@@ -732,8 +733,8 @@ public class ModelAsserter
                 AssertEqual(
                     expected,
                     actual,
-                    compareAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                    compareAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
+                    compareAnnotations ? expected.GetAnnotations() : [],
+                    compareAnnotations ? actual.GetAnnotations() : [],
                     compareBackreferences: false));
     }
 
@@ -812,8 +813,8 @@ public class ModelAsserter
                 AssertEqual(
                     expected,
                     actual,
-                    compareAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                    compareAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
+                    compareAnnotations ? expected.GetAnnotations() : [],
+                    compareAnnotations ? actual.GetAnnotations() : [],
                     compareBackreferences: false,
                     compareMemberAnnotations: compareAnnotations));
     }
@@ -858,20 +859,20 @@ public class ModelAsserter
             () => AssertEqual(
                 expected.DependentToPrincipal, actual.DependentToPrincipal,
                 compareMemberAnnotations
-                    ? expected.DependentToPrincipal?.GetAnnotations() ?? Enumerable.Empty<IAnnotation>()
-                    : Enumerable.Empty<IAnnotation>(),
+                    ? expected.DependentToPrincipal?.GetAnnotations() ?? []
+                    : [],
                 compareMemberAnnotations
-                    ? actual.DependentToPrincipal?.GetAnnotations() ?? Enumerable.Empty<IAnnotation>()
-                    : Enumerable.Empty<IAnnotation>(),
+                    ? actual.DependentToPrincipal?.GetAnnotations() ?? []
+                    : [],
                 compareBackreferences: true),
             () => AssertEqual(
                 expected.PrincipalToDependent, actual.PrincipalToDependent,
                 compareMemberAnnotations
-                    ? expected.PrincipalToDependent?.GetAnnotations() ?? Enumerable.Empty<IAnnotation>()
-                    : Enumerable.Empty<IAnnotation>(),
+                    ? expected.PrincipalToDependent?.GetAnnotations() ?? []
+                    : [],
                 compareMemberAnnotations
-                    ? actual.PrincipalToDependent?.GetAnnotations() ?? Enumerable.Empty<IAnnotation>()
-                    : Enumerable.Empty<IAnnotation>(),
+                    ? actual.PrincipalToDependent?.GetAnnotations() ?? []
+                    : [],
                 compareBackreferences: true),
             () =>
             {
@@ -907,8 +908,8 @@ public class ModelAsserter
                 AssertEqual(
                     expected,
                     actual,
-                    compareAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                    compareAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
+                    compareAnnotations ? expected.GetAnnotations() : [],
+                    compareAnnotations ? actual.GetAnnotations() : [],
                     compareBackreferences: false));
     }
 
@@ -1044,6 +1045,7 @@ public class ModelAsserter
                 targetEntityType.SetQueryFilter(queryFilter.Key, queryFilter.Expression);
             }
         }
+
         targetEntityType.AddData(sourceEntityType.GetSeedData());
         targetEntityType.SetPropertyAccessMode(sourceEntityType.GetPropertyAccessMode());
         targetEntityType.SetChangeTrackingStrategy(sourceEntityType.GetChangeTrackingStrategy());

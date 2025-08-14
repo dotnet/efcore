@@ -4,6 +4,6 @@
 namespace Microsoft.EntityFrameworkCore.Query.Relationships.Navigations;
 
 public abstract class NavigationsCollectionTestBase<TFixture>(TFixture fixture) : RelationshipsCollectionTestBase<TFixture>(fixture)
-        where TFixture : NavigationsFixtureBase, new()
+    where TFixture : NavigationsFixtureBase, new()
 {
 }

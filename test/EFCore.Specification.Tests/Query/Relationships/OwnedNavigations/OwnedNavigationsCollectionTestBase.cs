@@ -4,7 +4,7 @@
 namespace Microsoft.EntityFrameworkCore.Query.Relationships.OwnedNavigations;
 
 public abstract class OwnedNavigationsCollectionTestBase<TFixture>(TFixture fixture) : RelationshipsCollectionTestBase<TFixture>(fixture)
-        where TFixture : OwnedNavigationsFixtureBase, new()
+    where TFixture : OwnedNavigationsFixtureBase, new()
 {
     public override Task Distinct_projected(QueryTrackingBehavior queryTrackingBehavior)
         => AssertOwnedTrackingQuery(queryTrackingBehavior, () => base.Distinct_projected(queryTrackingBehavior));

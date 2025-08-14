@@ -1705,8 +1705,8 @@ public class QueryAsserter(
 
         var expectedType = expected!.GetType();
         if (expectedType.IsGenericType
-            && expectedType.GetTypeInfo().ImplementedInterfaces.Any(
-                i => i.IsConstructedGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>)))
+            && expectedType.GetTypeInfo().ImplementedInterfaces
+                .Any(i => i.IsConstructedGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>)))
         {
             _assertIncludeCollectionMethodInfo.MakeGenericMethod(expectedType.GenericTypeArguments[0])
                 .Invoke(this, [expected, actual, expectedIncludes, assertOrder]);
@@ -1824,10 +1824,12 @@ public class QueryAsserter(
     private class TrackingRewriter(QueryTrackingBehavior queryTrackingBehavior) : ExpressionVisitor
     {
         private static readonly MethodInfo AsNoTrackingMethodInfo
-            = typeof(EntityFrameworkQueryableExtensions).GetTypeInfo().GetDeclaredMethod(nameof(EntityFrameworkQueryableExtensions.AsNoTracking))!;
+            = typeof(EntityFrameworkQueryableExtensions).GetTypeInfo()
+                .GetDeclaredMethod(nameof(EntityFrameworkQueryableExtensions.AsNoTracking))!;
 
         private static readonly MethodInfo AsNoTrackingWithIdentityResolutionMethodInfo
-            = typeof(EntityFrameworkQueryableExtensions).GetTypeInfo().GetDeclaredMethod(nameof(EntityFrameworkQueryableExtensions.AsNoTrackingWithIdentityResolution))!;
+            = typeof(EntityFrameworkQueryableExtensions).GetTypeInfo()
+                .GetDeclaredMethod(nameof(EntityFrameworkQueryableExtensions.AsNoTrackingWithIdentityResolution))!;
 
         protected override Expression VisitExtension(Expression expression)
             => expression is EntityQueryRootExpression root

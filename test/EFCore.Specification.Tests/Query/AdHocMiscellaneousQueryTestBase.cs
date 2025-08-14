@@ -9,7 +9,8 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
+public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
+    : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
     protected override string StoreName
         => "AdHocMiscellaneousQueryTests";
@@ -62,8 +63,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture) 
 
     #region 6901
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task LeftJoin_with_missing_key_values_on_both_sides(bool async)
     {
         var contextFactory = await InitializeAsync<Context6901>();
@@ -93,73 +93,71 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture) 
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Customer>(
-                c =>
-                {
-                    c.HasKey(x => x.CustomerID);
-                    c.Property(c => c.CustomerID).ValueGeneratedNever();
-                    c.Property(c => c.CustomerName).HasMaxLength(120).IsUnicode(false);
-                    c.HasData(
-                        new Customer
-                        {
-                            CustomerID = 1,
-                            CustomerName = "Sam Tippet",
-                            PostcodeID = 5
-                        },
-                        new Customer
-                        {
-                            CustomerID = 2,
-                            CustomerName = "William Greig",
-                            PostcodeID = 2
-                        },
-                        new Customer
-                        {
-                            CustomerID = 3,
-                            CustomerName = "Steve Jones",
-                            PostcodeID = 3
-                        },
-                        new Customer { CustomerID = 4, CustomerName = "Jim Warren" },
-                        new Customer
-                        {
-                            CustomerID = 5,
-                            CustomerName = "Andrew Smith",
-                            PostcodeID = 5
-                        });
-                });
+            modelBuilder.Entity<Customer>(c =>
+            {
+                c.HasKey(x => x.CustomerID);
+                c.Property(c => c.CustomerID).ValueGeneratedNever();
+                c.Property(c => c.CustomerName).HasMaxLength(120).IsUnicode(false);
+                c.HasData(
+                    new Customer
+                    {
+                        CustomerID = 1,
+                        CustomerName = "Sam Tippet",
+                        PostcodeID = 5
+                    },
+                    new Customer
+                    {
+                        CustomerID = 2,
+                        CustomerName = "William Greig",
+                        PostcodeID = 2
+                    },
+                    new Customer
+                    {
+                        CustomerID = 3,
+                        CustomerName = "Steve Jones",
+                        PostcodeID = 3
+                    },
+                    new Customer { CustomerID = 4, CustomerName = "Jim Warren" },
+                    new Customer
+                    {
+                        CustomerID = 5,
+                        CustomerName = "Andrew Smith",
+                        PostcodeID = 5
+                    });
+            });
 
-            modelBuilder.Entity<Postcode>(
-                p =>
-                {
-                    p.HasKey(x => x.PostcodeID);
-                    p.Property(c => c.PostcodeID).ValueGeneratedNever();
-                    p.Property(c => c.PostcodeValue).HasMaxLength(100).IsUnicode(false);
-                    p.Property(c => c.TownName).HasMaxLength(255).IsUnicode(false);
-                    p.HasData(
-                        new Postcode
-                        {
-                            PostcodeID = 2,
-                            PostcodeValue = "1000",
-                            TownName = "Town 1"
-                        },
-                        new Postcode
-                        {
-                            PostcodeID = 3,
-                            PostcodeValue = "2000",
-                            TownName = "Town 2"
-                        },
-                        new Postcode
-                        {
-                            PostcodeID = 4,
-                            PostcodeValue = "3000",
-                            TownName = "Town 3"
-                        },
-                        new Postcode
-                        {
-                            PostcodeID = 5,
-                            PostcodeValue = "4000",
-                            TownName = "Town 4"
-                        });
-                });
+            modelBuilder.Entity<Postcode>(p =>
+            {
+                p.HasKey(x => x.PostcodeID);
+                p.Property(c => c.PostcodeID).ValueGeneratedNever();
+                p.Property(c => c.PostcodeValue).HasMaxLength(100).IsUnicode(false);
+                p.Property(c => c.TownName).HasMaxLength(255).IsUnicode(false);
+                p.HasData(
+                    new Postcode
+                    {
+                        PostcodeID = 2,
+                        PostcodeValue = "1000",
+                        TownName = "Town 1"
+                    },
+                    new Postcode
+                    {
+                        PostcodeID = 3,
+                        PostcodeValue = "2000",
+                        TownName = "Town 2"
+                    },
+                    new Postcode
+                    {
+                        PostcodeID = 4,
+                        PostcodeValue = "3000",
+                        TownName = "Town 3"
+                    },
+                    new Postcode
+                    {
+                        PostcodeID = 5,
+                        PostcodeValue = "4000",
+                        TownName = "Town 4"
+                    });
+            });
         }
 
         public DbSet<Customer> Customers { get; set; }
@@ -212,8 +210,8 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture) 
         using (var context = contextFactory.CreateContext())
         {
             // can_project_shadow_property_using_ef_property
-            var query = context.Contacts.OfType<Context6986.ServiceOperatorContact>().Select(
-                c => new { c, Prop = EF.Property<int>(c, "ServiceOperatorId") }).ToList();
+            var query = context.Contacts.OfType<Context6986.ServiceOperatorContact>()
+                .Select(c => new { c, Prop = EF.Property<int>(c, "ServiceOperatorId") }).ToList();
 
             Assert.Single(query);
             Assert.Equal(1, query[0].Prop);
@@ -392,7 +390,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture) 
         var list = context.Posts.Select(p => new Context7983.PostDTO().From(p)).ToList();
 
         Assert.Equal(3, list.Count);
-        Assert.Equal(new[] { "First", "Second", "Third" }, list.Select(dto => dto.Title));
+        Assert.Equal(["First", "Second", "Third"], list.Select(dto => dto.Title));
     }
 
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
@@ -708,8 +706,8 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture) 
     {
         var contextFactory = await InitializeAsync<Context9468>(seed: c => c.SeedAsync());
         using var context = contextFactory.CreateContext();
-        var query = context.Carts.Select(
-            t => new { Processing = t.Configuration != null ? !t.Configuration.Processed : (bool?)null }).ToList();
+        var query = context.Carts.Select(t => new { Processing = t.Configuration != null ? !t.Configuration.Processed : (bool?)null })
+            .ToList();
 
         Assert.Single(query, t => t.Processing == null);
         Assert.Single(query, t => t.Processing == true);
@@ -827,13 +825,12 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture) 
         public DbSet<PriceEntity> Prices { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<PriceEntity>(
-                b =>
-                {
-                    b.Property(e => e.Price).HasPrecision(18, 8);
-                    b.Property(e => e.DecimalColumn).HasPrecision(18, 2);
-                    b.Property(e => e.NullableDecimalColumn).HasPrecision(18, 2);
-                });
+            => modelBuilder.Entity<PriceEntity>(b =>
+            {
+                b.Property(e => e.Price).HasPrecision(18, 8);
+                b.Property(e => e.DecimalColumn).HasPrecision(18, 2);
+                b.Property(e => e.NullableDecimalColumn).HasPrecision(18, 2);
+            });
 
         public Task SeedAsync()
         {
@@ -906,14 +903,13 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture) 
     {
         var contextFactory = await InitializeAsync<Context12274>(seed: c => c.SeedAsync());
         using var context = contextFactory.CreateContext();
-        var results = context.Entities.Select(
-            x =>
-                new Context12274.OuterDTO
-                {
-                    Id = x.Id,
-                    Name = x.Name,
-                    Inner = new Context12274.InnerDTO()
-                }).ToList();
+        var results = context.Entities.Select(x =>
+            new Context12274.OuterDTO
+            {
+                Id = x.Id,
+                Name = x.Name,
+                Inner = new Context12274.InnerDTO()
+            }).ToList();
         Assert.Equal(4, results.Count);
         Assert.False(ReferenceEquals(results[0].Inner, results[1].Inner));
         Assert.False(ReferenceEquals(results[1].Inner, results[2].Inner));
@@ -1251,8 +1247,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture) 
 
     #region 21770
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Comparing_enum_casted_to_byte_with_int_parameter(bool async)
     {
         var contextFactory = await InitializeAsync<Context21770>();
@@ -1267,8 +1262,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture) 
         Assert.Single(bitterIceCreams);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Comparing_enum_casted_to_byte_with_int_constant(bool async)
     {
         var contextFactory = await InitializeAsync<Context21770>();
@@ -1282,8 +1276,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture) 
         Assert.Single(bitterIceCreams);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Comparing_byte_column_to_enum_in_vb_creating_double_cast(bool async)
     {
         var contextFactory = await InitializeAsync<Context21770>();
@@ -1303,8 +1296,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture) 
             : query.ToList();
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Null_check_removal_in_ternary_maintain_appropriate_cast(bool async)
     {
         var contextFactory = await InitializeAsync<Context21770>();
@@ -1326,35 +1318,33 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture) 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<IceCream>(
-                entity =>
-                {
-                    entity.HasData(
-                        new IceCream
-                        {
-                            IceCreamId = 1,
-                            Name = "Vanilla",
-                            Taste = (byte)Taste.Sweet
-                        },
-                        new IceCream
-                        {
-                            IceCreamId = 2,
-                            Name = "Chocolate",
-                            Taste = (byte)Taste.Sweet
-                        },
-                        new IceCream
-                        {
-                            IceCreamId = 3,
-                            Name = "Match",
-                            Taste = (byte)Taste.Bitter
-                        });
-                });
+            modelBuilder.Entity<IceCream>(entity =>
+            {
+                entity.HasData(
+                    new IceCream
+                    {
+                        IceCreamId = 1,
+                        Name = "Vanilla",
+                        Taste = (byte)Taste.Sweet
+                    },
+                    new IceCream
+                    {
+                        IceCreamId = 2,
+                        Name = "Chocolate",
+                        Taste = (byte)Taste.Sweet
+                    },
+                    new IceCream
+                    {
+                        IceCreamId = 3,
+                        Name = "Match",
+                        Taste = (byte)Taste.Bitter
+                    });
+            });
 
-            modelBuilder.Entity<Food>(
-                entity =>
-                {
-                    entity.HasData(new Food { Id = 1, Taste = null });
-                });
+            modelBuilder.Entity<Food>(entity =>
+            {
+                entity.HasData(new Food { Id = 1, Taste = null });
+            });
         }
 
         public enum Taste : byte
@@ -1450,8 +1440,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture) 
 
     #region 24657
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Bool_discriminator_column_works(bool async)
     {
         var contextFactory = await InitializeAsync<Context24657>(seed: c => c.SeedAsync());
@@ -1517,8 +1506,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture) 
 
     #region 26593
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Unwrap_convert_node_over_projection_when_translating_contains_over_subquery(bool async)
     {
         var contextFactory = await InitializeAsync<Context26593>(seed: c => c.SeedAsync());
@@ -1542,8 +1530,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture) 
             : query.ToList();
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Unwrap_convert_node_over_projection_when_translating_contains_over_subquery_2(bool async)
     {
         var contextFactory = await InitializeAsync<Context26593>(seed: c => c.SeedAsync());
@@ -1567,8 +1554,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture) 
             : query.ToList();
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Unwrap_convert_node_over_projection_when_translating_contains_over_subquery_3(bool async)
     {
         var contextFactory = await InitializeAsync<Context26593>(seed: c => c.SeedAsync());
@@ -1637,8 +1623,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture) 
 
     #region 26587
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task GroupBy_aggregate_on_right_side_of_join(bool async)
     {
         var contextFactory = await InitializeAsync<Context26587>();
@@ -1683,8 +1668,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture) 
 
     #region 26472
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Enum_with_value_converter_matching_take_value(bool async)
     {
         var contextFactory = await InitializeAsync<Context26472>();
@@ -1693,14 +1677,13 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture) 
         var query = context.Orders.Where(x => x.Items.Any()).OrderBy(e => e.Id).Take(1)
             .Select(e => e.Id)
             .Join(context.Orders, o => o, i => i.Id, (o, i) => i)
-            .Select(
-                entity => new
-                {
-                    entity.Id,
-                    SpecialSum = entity.Items.Where(x => x.Type == orderItemType)
-                        .Select(x => x.Price)
-                        .FirstOrDefault()
-                });
+            .Select(entity => new
+            {
+                entity.Id,
+                SpecialSum = entity.Items.Where(x => x.Type == orderItemType)
+                    .Select(x => x.Price)
+                    .FirstOrDefault()
+            });
 
         var result = async
             ? await query.ToListAsync()
@@ -1743,8 +1726,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture) 
 
     #region 27083
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task GroupBy_Aggregate_over_navigations_repeated(bool async)
     {
         var contextFactory = await InitializeAsync<Context27083>(seed: c => c.SeedAsync());
@@ -1754,13 +1736,12 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture) 
             .Set<Context27083.TimeSheet>()
             .Where(x => x.OrderId != null)
             .GroupBy(x => x.OrderId)
-            .Select(
-                x => new
-                {
-                    HourlyRate = x.Min(f => f.Order.HourlyRate),
-                    CustomerId = x.Min(f => f.Project.Customer.Id),
-                    CustomerName = x.Min(f => f.Project.Customer.Name),
-                });
+            .Select(x => new
+            {
+                HourlyRate = x.Min(f => f.Order.HourlyRate),
+                CustomerId = x.Min(f => f.Project.Customer.Id),
+                CustomerName = x.Min(f => f.Project.Customer.Name),
+            });
 
         var timeSheets = async
             ? await query.ToListAsync()
@@ -1769,8 +1750,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture) 
         Assert.Equal(2, timeSheets.Count);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Aggregate_over_subquery_in_group_by_projection(bool async)
     {
         var contextFactory = await InitializeAsync<Context27083>(seed: c => c.SeedAsync());
@@ -1782,15 +1762,14 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture) 
             .Set<Context27083.Order>()
             .Where(someFilterFromOutside)
             .GroupBy(x => new { x.CustomerId, x.Number })
-            .Select(
-                x => new
-                {
-                    x.Key.CustomerId,
-                    CustomerMinHourlyRate =
-                        context.Set<Context27083.Order>().Where(n => n.CustomerId == x.Key.CustomerId).Min(h => h.HourlyRate),
-                    HourlyRate = x.Min(f => f.HourlyRate),
-                    Count = x.Count()
-                });
+            .Select(x => new
+            {
+                x.Key.CustomerId,
+                CustomerMinHourlyRate =
+                    context.Set<Context27083.Order>().Where(n => n.CustomerId == x.Key.CustomerId).Min(h => h.HourlyRate),
+                HourlyRate = x.Min(f => f.HourlyRate),
+                Count = x.Count()
+            });
 
         var orders = async
             ? await query.ToListAsync()
@@ -1902,8 +1881,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture) 
 
     #region 27094
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Aggregate_over_subquery_in_group_by_projection_2(bool async)
     {
         var contextFactory = await InitializeAsync<Context27094>();
@@ -1922,8 +1900,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture) 
             : query.ToList();
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Group_by_aggregate_in_subquery_projection_after_group_by(bool async)
     {
         var contextFactory = await InitializeAsync<Context27094>();
@@ -1964,24 +1941,21 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture) 
 
     #region 26744
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Subquery_first_member_compared_to_null(bool async)
     {
         var contextFactory = await InitializeAsync<Context26744>(seed: c => c.SeedAsync());
         using var context = contextFactory.CreateContext();
 
         var query = context.Parents
-            .Where(
-                p => p.Children.Any(c => c.SomeNullableDateTime == null)
-                    && p.Children.Where(c => c.SomeNullableDateTime == null)
-                        .OrderBy(c => c.SomeInteger)
-                        .First().SomeOtherNullableDateTime
-                    != null)
-            .Select(
-                p => p.Children.Where(c => c.SomeNullableDateTime == null)
+            .Where(p => p.Children.Any(c => c.SomeNullableDateTime == null)
+                && p.Children.Where(c => c.SomeNullableDateTime == null)
                     .OrderBy(c => c.SomeInteger)
-                    .First().SomeOtherNullableDateTime);
+                    .First().SomeOtherNullableDateTime
+                != null)
+            .Select(p => p.Children.Where(c => c.SomeNullableDateTime == null)
+                .OrderBy(c => c.SomeInteger)
+                .First().SomeOtherNullableDateTime);
 
         var result = async
             ? await query.ToListAsync()
@@ -1990,19 +1964,17 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture) 
         Assert.Single(result);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task SelectMany_where_Select(bool async)
     {
         var contextFactory = await InitializeAsync<Context26744>(seed: c => c.SeedAsync());
         using var context = contextFactory.CreateContext();
 
         var query = context.Parents
-            .SelectMany(
-                p => p.Children
-                    .Where(c => c.SomeNullableDateTime == null)
-                    .OrderBy(c => c.SomeInteger)
-                    .Take(1))
+            .SelectMany(p => p.Children
+                .Where(c => c.SomeNullableDateTime == null)
+                .OrderBy(c => c.SomeInteger)
+                .Take(1))
             .Where(c => c.SomeOtherNullableDateTime != null)
             .Select(c => c.SomeNullableDateTime);
 
@@ -2045,8 +2017,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture) 
 
     #region 27343
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Flattened_GroupJoin_on_interface_generic(bool async)
     {
         var contextFactory = await InitializeAsync<Context27343>(seed: c => c.SeedAsync());
@@ -2098,8 +2069,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture) 
 
     #region 28039
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Pushdown_does_not_add_grouping_key_to_projection_when_distinct_is_applied(bool async)
     {
         var contextFactory = await InitializeAsync<Context28039>();
@@ -2161,32 +2131,30 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture) 
 
     #region 31961
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Filter_on_nested_DTO_with_interface_gets_simplified_correctly(bool async)
     {
         var contextFactory = await InitializeAsync<Context31961>();
         using var context = contextFactory.CreateContext();
 
         var query = context.Customers
-            .Select(
-                m => new Context31961.CustomerDto
-                {
-                    Id = m.Id,
-                    CompanyId = m.CompanyId,
-                    Company = m.Company != null
-                        ? new Context31961.CompanyDto
+            .Select(m => new Context31961.CustomerDto
+            {
+                Id = m.Id,
+                CompanyId = m.CompanyId,
+                Company = m.Company != null
+                    ? new Context31961.CompanyDto
+                    {
+                        Id = m.Company.Id,
+                        CompanyName = m.Company.CompanyName,
+                        CountryId = m.Company.CountryId,
+                        Country = new Context31961.CountryDto
                         {
-                            Id = m.Company.Id,
-                            CompanyName = m.Company.CompanyName,
-                            CountryId = m.Company.CountryId,
-                            Country = new Context31961.CountryDto
-                            {
-                                Id = m.Company.Country.Id, CountryName = m.Company.Country.CountryName,
-                            },
-                        }
-                        : null,
-                })
+                            Id = m.Company.Country.Id, CountryName = m.Company.Country.CountryName,
+                        },
+                    }
+                    : null,
+            })
             .Where(m => m.Company.Country.CountryName == "COUNTRY");
 
         var result = async
