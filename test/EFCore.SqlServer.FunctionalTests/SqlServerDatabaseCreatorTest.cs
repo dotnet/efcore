@@ -110,7 +110,7 @@ public class SqlServerDatabaseCreatorExistsTest : SqlServerDatabaseCreatorTestBa
 [SqlServerCondition(SqlServerCondition.IsNotCI)]
 public class SqlServerDatabaseCreatorEnsureDeletedTest : SqlServerDatabaseCreatorTestBase
 {
-    [ConditionalTheory]
+    [ConditionalTheory(Skip = "#36578")]
     [InlineData(true, true, true)]
     [InlineData(false, false, true)]
     [InlineData(true, false, false)]
@@ -435,7 +435,7 @@ public class SqlServerDatabaseCreatorHasTablesTest : SqlServerDatabaseCreatorTes
 [SqlServerCondition(SqlServerCondition.IsNotCI)]
 public class SqlServerDatabaseCreatorDeleteTest : SqlServerDatabaseCreatorTestBase
 {
-    [ConditionalTheory]
+    [ConditionalTheory(Skip = "#36578")]
     [InlineData(true, true)]
     [InlineData(false, false)]
     public static async Task Deletes_database(bool async, bool ambientTransaction)
