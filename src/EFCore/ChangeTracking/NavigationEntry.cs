@@ -69,7 +69,8 @@ public abstract class NavigationEntry : MemberEntry, IInfrastructure<InternalEnt
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    protected virtual InternalEntityEntry InternalEntityEntry => (InternalEntityEntry)InternalEntry;
+    protected virtual InternalEntityEntry InternalEntityEntry
+        => (InternalEntityEntry)InternalEntry;
 
     private static INavigationBase GetNavigation(InternalEntityEntry internalEntry, string name)
     {

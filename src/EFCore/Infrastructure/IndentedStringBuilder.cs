@@ -291,7 +291,7 @@ public class IndentedStringBuilder
         => new IndentSuspender(this);
 
     /// <summary>
-    ///    Clones this <see cref="IndentedStringBuilder" />, copying the built string and current indent level.
+    ///     Clones this <see cref="IndentedStringBuilder" />, copying the built string and current indent level.
     /// </summary>
     /// <returns>New instance of <see cref="IndentedStringBuilder" />.</returns>
     public virtual IndentedStringBuilder Clone()

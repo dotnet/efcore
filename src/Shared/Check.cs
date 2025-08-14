@@ -56,7 +56,6 @@ internal static class Check
         return value;
     }
 
-
     public static string? NullButNotEmpty(
         string? value,
         [InvokerParameterName, CallerArgumentExpression(nameof(value))] string parameterName = "")
@@ -76,6 +75,7 @@ internal static class Check
     {
         NotNull(value, parameterName);
 
+        // ReSharper disable once ForCanBeConvertedToForeach
         for (var i = 0; i < value.Count; i++)
         {
             if (value[i] is null)
@@ -105,7 +105,9 @@ internal static class Check
     }
 
     [Conditional("DEBUG")]
-    public static void DebugAssert([DoesNotReturnIf(false)] bool condition, [CallerArgumentExpression(nameof(condition))] string message = "")
+    public static void DebugAssert(
+        [DoesNotReturnIf(false)] bool condition,
+        [CallerArgumentExpression(nameof(condition))] string message = "")
     {
         if (!condition)
         {
@@ -113,8 +115,7 @@ internal static class Check
         }
     }
 
-    [Conditional("DEBUG")]
-    [DoesNotReturn]
+    [Conditional("DEBUG"), DoesNotReturn]
     public static void DebugFail(string message)
         => throw new UnreachableException($"Check.DebugFail failed: {message}");
 

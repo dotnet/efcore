@@ -98,4 +98,3 @@ public interface IStructuralTypeMaterializerSource
 /// </summary>
 [Obsolete("This interface has been obsoleted, use IStructuralTypeMaterializerSource instead.", error: true)]
 public interface IEntityMaterializerSource;
-

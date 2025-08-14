@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
@@ -505,10 +504,9 @@ public class ModelBuilder : IInfrastructure<IConventionModelBuilder>
     {
         var applyEntityConfigurationMethod = typeof(ModelBuilder)
             .GetMethods()
-            .Single(
-                e => e is { Name: nameof(ApplyConfiguration), ContainsGenericParameters: true }
-                    && e.GetParameters().SingleOrDefault()?.ParameterType.GetGenericTypeDefinition()
-                    == typeof(IEntityTypeConfiguration<>));
+            .Single(e => e is { Name: nameof(ApplyConfiguration), ContainsGenericParameters: true }
+                && e.GetParameters().SingleOrDefault()?.ParameterType.GetGenericTypeDefinition()
+                == typeof(IEntityTypeConfiguration<>));
 
         var logger = Builder.Metadata.ScopedModelDependencies?.Logger;
         var foundOne = false;

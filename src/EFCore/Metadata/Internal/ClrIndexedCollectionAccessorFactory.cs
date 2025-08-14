@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections;
 using System.Runtime.ExceptionServices;
 using JetBrains.Annotations;
 
@@ -50,15 +51,17 @@ public class ClrIndexedCollectionAccessorFactory
         }
 
         var memberInfo = GetMostDerivedMemberInfo(collection);
-        Check.DebugAssert(memberInfo == null || memberInfo.GetMemberType() == collection.ClrType,
+        Check.DebugAssert(
+            memberInfo == null || memberInfo.GetMemberType() == collection.ClrType,
             $"The member '{memberInfo?.Name}' is not of the expected type '{collection.ClrType.ShortDisplayName()}'.");
 
         var propertyType = collection.IsIndexerProperty() || collection.IsShadowProperty()
             ? collection.ClrType
             : memberInfo!.GetMemberType();
         var elementType = propertyType.TryGetElementType(typeof(IList<>));
-        Check.DebugAssert(elementType != null,
-             $"The type of navigation '{collection.DeclaringType.DisplayName()}.{collection.Name}' is '{propertyType.ShortDisplayName()}' which does not implement 'IList<>'. Collection properties must implement 'IList<>' of the target type.");
+        Check.DebugAssert(
+            elementType != null,
+            $"The type of navigation '{collection.DeclaringType.DisplayName()}.{collection.Name}' is '{propertyType.ShortDisplayName()}' which does not implement 'IList<>'. Collection properties must implement 'IList<>' of the target type.");
 
         var boundMethod = GenericCreate.MakeGenericMethod(
             memberInfo?.DeclaringType ?? collection.DeclaringType.ClrType, propertyType, elementType);
@@ -164,8 +167,8 @@ public class ClrIndexedCollectionAccessorFactory
             var concreteType = collectionType;
             if (collectionType.IsInterface)
             {
-                if (collectionType == typeof(System.Collections.IList) ||
-                    (collectionType.IsGenericType && collectionType.GetGenericTypeDefinition() == typeof(IList<>)))
+                if (collectionType == typeof(IList)
+                    || (collectionType.IsGenericType && collectionType.GetGenericTypeDefinition() == typeof(IList<>)))
                 {
                     concreteType = typeof(List<TElement>);
                 }
@@ -224,6 +227,7 @@ public class ClrIndexedCollectionAccessorFactory
             {
                 memberAccessForMaterialization = Expression.Convert(memberAccessForMaterialization, typeof(TCollection));
             }
+
             index = Expression.MakeIndex(memberAccessForMaterialization, indexer, [indexParameter]);
 
             setForMaterialization = Expression.Lambda<Action<TStructural, int, TElement?>>(

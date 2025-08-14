@@ -93,5 +93,6 @@ public class ParameterQueryRootExpression : QueryRootExpression
     ///     This constructor has been obsoleted, use QueryParameterExpression instead.
     /// </summary>
     [Obsolete("Use QueryParameterExpression instead.")]
-    public virtual ParameterExpression ParameterExpression => Parameter(QueryParameterExpression.Type, QueryParameterExpression.Name);
+    public virtual ParameterExpression ParameterExpression
+        => Parameter(QueryParameterExpression.Type, QueryParameterExpression.Name);
 }

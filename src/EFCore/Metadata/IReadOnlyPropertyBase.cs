@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
-
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
 /// <summary>
@@ -78,8 +76,8 @@ public interface IReadOnlyPropertyBase : IReadOnlyAnnotatable
     ///     <see langword="true" /> if the property is an indexer property, otherwise <see langword="false" />.
     /// </returns>
     bool IsIndexerProperty()
-        => PropertyInfo is PropertyInfo propertyInfo
-            && propertyInfo == DeclaringType.FindIndexerPropertyInfo();
+        => PropertyInfo is not null
+            && PropertyInfo == DeclaringType.FindIndexerPropertyInfo();
 
     /// <summary>
     ///     Gets the <see cref="PropertyAccessMode" /> being used for this property-like object.

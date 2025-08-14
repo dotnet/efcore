@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
@@ -312,9 +311,8 @@ public class EntityFrameworkServicesBuilder
         TryAdd<ILiftableConstantFactory, LiftableConstantFactory>();
         TryAdd<ILiftableConstantProcessor, LiftableConstantProcessor>();
 
-        TryAdd(
-            p => p.GetService<IDbContextOptions>()?.FindExtension<CoreOptionsExtension>()?.DbContextLogger
-                ?? new NullDbContextLogger());
+        TryAdd(p => p.GetService<IDbContextOptions>()?.FindExtension<CoreOptionsExtension>()?.DbContextLogger
+            ?? new NullDbContextLogger());
 
         // This has to be lazy to avoid creating instances that are not disposed
         ServiceCollectionMap

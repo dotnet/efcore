@@ -104,9 +104,8 @@ internal static class EnumerableExtensions
         this IEnumerable<T> source,
         T item,
         IEqualityComparer<T> comparer)
-        => source.Select(
-                (x, index) =>
-                    comparer.Equals(item, x) ? index : -1)
+        => source.Select((x, index) =>
+                comparer.Equals(item, x) ? index : -1)
             .FirstOr(x => x != -1, -1);
 
     public static T FirstOr<T>(this IEnumerable<T> source, T alternate)
@@ -128,11 +127,12 @@ internal static class EnumerableExtensions
     public static List<TSource> ToList<TSource>(this IEnumerable source)
         => [.. source.OfType<TSource>()];
 
-    public static IList<TSource> AsList<TSource>(this IEnumerable<TSource> source) => source switch
-    {
-        IList<TSource> list => list,
-        _ => [.. source]
-    };
+    public static IList<TSource> AsList<TSource>(this IEnumerable<TSource> source)
+        => source switch
+        {
+            IList<TSource> list => list,
+            _ => [.. source]
+        };
 
     public static string Format(this IEnumerable<string> strings)
         => "{"

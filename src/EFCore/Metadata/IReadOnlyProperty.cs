@@ -91,13 +91,13 @@ public interface IReadOnlyProperty : IReadOnlyPropertyBase
     int? GetScale();
 
     /// <summary>
-    ///     Gets a value indicating whether or not the property can persist Unicode characters.
+    ///     Gets a value indicating whether the property can persist Unicode characters.
     /// </summary>
     /// <returns>The Unicode setting, or <see langword="null" /> if none is defined.</returns>
     bool? IsUnicode();
 
     /// <summary>
-    ///     Gets a value indicating whether or not this property can be modified before the entity is
+    ///     Gets a value indicating whether this property can be modified before the entity is
     ///     saved to the database.
     /// </summary>
     /// <remarks>
@@ -115,7 +115,7 @@ public interface IReadOnlyProperty : IReadOnlyPropertyBase
     PropertySaveBehavior GetBeforeSaveBehavior();
 
     /// <summary>
-    ///     Gets a value indicating whether or not this property can be modified after the entity is
+    ///     Gets a value indicating whether this property can be modified after the entity is
     ///     saved to the database.
     /// </summary>
     /// <remarks>

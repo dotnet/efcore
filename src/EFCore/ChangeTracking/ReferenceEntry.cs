@@ -23,8 +23,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 /// </remarks>
 public class ReferenceEntry : NavigationEntry
 {
-    private IEntityFinder? _finder;
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -270,6 +268,7 @@ public class ReferenceEntry : NavigationEntry
             ? null
             : InternalEntry.StateManager.GetOrCreateEntry(CurrentValue, Metadata.TargetEntityType);
 
+    [field: AllowNull, MaybeNull]
     private IEntityFinder TargetFinder
-        => _finder ??= InternalEntry.StateManager.CreateEntityFinder(Metadata.TargetEntityType);
+        => field ??= InternalEntry.StateManager.CreateEntityFinder(Metadata.TargetEntityType);
 }

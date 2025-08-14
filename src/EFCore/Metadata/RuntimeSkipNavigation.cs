@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -103,7 +102,8 @@ public class RuntimeSkipNavigation : RuntimePropertyBase, IRuntimeSkipNavigation
     /// <summary>
     ///     Gets a value indicating whether the property is a collection.
     /// </summary>
-    public override bool IsCollection => _isCollection;
+    public override bool IsCollection
+        => _isCollection;
 
     /// <inheritdoc />
     public override object? Sentinel

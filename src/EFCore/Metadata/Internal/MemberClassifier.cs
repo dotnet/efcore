@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections.ObjectModel;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 
@@ -219,7 +218,7 @@ public class MemberClassifier : IMemberClassifier
         }
 
         var targetType = memberInfo.GetMemberType();
-        if (targetType.TryGetElementType(typeof(IList<>)) is Type sequenceType
+        if (targetType.TryGetElementType(typeof(IList<>)) is { } sequenceType
             && IsCandidateComplexType(sequenceType.UnwrapNullableType(), model, out explicitlyConfigured))
         {
             elementType = sequenceType;
@@ -233,7 +232,7 @@ public class MemberClassifier : IMemberClassifier
     {
         if (!targetType.IsValidComplexType()
             || (targetType.IsGenericType
-                && targetType.GetGenericTypeDefinition() is Type genericTypeDefinition
+                && targetType.GetGenericTypeDefinition() is var genericTypeDefinition
                 && (genericTypeDefinition == typeof(Dictionary<,>)
                     || genericTypeDefinition == typeof(List<>)
                     || genericTypeDefinition == typeof(HashSet<>)

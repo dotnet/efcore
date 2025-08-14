@@ -208,9 +208,8 @@ public class NavigationFixer : INavigationFixer
                     // Clear the inverse reference, unless it has already been changed
                     if (inverse != null
                         && ReferenceEquals(oldTargetEntry[inverse], entry.Entity)
-                        && (entry.EntityType.GetNavigations().All(
-                            n => n == navigation
-                                || !ReferenceEquals(oldTargetEntry.Entity, entry[n]))))
+                        && (entry.EntityType.GetNavigations().All(n => n == navigation
+                            || !ReferenceEquals(oldTargetEntry.Entity, entry[n]))))
                     {
                         SetNavigation(oldTargetEntry, inverse, null, fromQuery: false);
                     }
@@ -1204,15 +1203,14 @@ public class NavigationFixer : INavigationFixer
             IForeignKey secondForeignKey,
             out InternalEntityEntry? joinEntry)
         {
-            var key = joinEntityType.FindKey(new[] { firstForeignKey.Properties[0], secondForeignKey.Properties[0] });
+            var key = joinEntityType.FindKey([firstForeignKey.Properties[0], secondForeignKey.Properties[0]]);
             if (key != null)
             {
                 joinEntry = entry.StateManager.TryGetEntry(
                     key,
-                    new[]
-                    {
+                    [
                         firstEntry[firstForeignKey.PrincipalKey.Properties[0]], secondEntry[secondForeignKey.PrincipalKey.Properties[0]]
-                    });
+                    ]);
                 return true;
             }
 
