@@ -50,7 +50,7 @@ public class SqliteHexMethodTranslator : IMethodCallTranslator
         {
             return _sqlExpressionFactory.Function(
                 "hex",
-                new[] { arguments[1] },
+                [arguments[1]],
                 nullable: true,
                 argumentsPropagateNullability: Statics.TrueArrays[1],
                 typeof(string));

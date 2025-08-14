@@ -318,9 +318,7 @@ public class StoreGeneratedSentinelSqlServerTest(StoreGeneratedSentinelSqlServer
                 });
 
             modelBuilder.Entity<UriPrincipal>().Property(e => e.Id).HasSentinel(UriSentinel);
-            ;
             modelBuilder.Entity<EnumPrincipal>().Property(e => e.Id).HasSentinel(KeyEnumSentinel);
-            ;
             modelBuilder.Entity<GuidAsStringPrincipal>().Property(e => e.Id).HasSentinel(GuidAsStringSentinel);
             modelBuilder.Entity<StringAsGuidPrincipal>().Property(e => e.Id).HasSentinel(StringAsGuidSentinel);
         }

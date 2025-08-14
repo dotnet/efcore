@@ -145,14 +145,14 @@ public class CommandBatchPreparer : ICommandBatchPreparer
 
                     foreach (var command in batch.ModificationCommands)
                     {
-                        batch = StartNewBatch(parameterNameGenerator, command);
+                        batch = StartNewBatch(parameterNameGenerator, command, Dependencies);
                         batch.Complete(moreBatchesExpected: true);
 
                         yield return batch;
                     }
                 }
 
-                batch = StartNewBatch(parameterNameGenerator, modificationCommand);
+                batch = StartNewBatch(parameterNameGenerator, modificationCommand, Dependencies);
             }
         }
 
@@ -176,7 +176,8 @@ public class CommandBatchPreparer : ICommandBatchPreparer
 
             for (var commandIndex = 0; commandIndex < batch.ModificationCommands.Count; commandIndex++)
             {
-                var singleCommandBatch = StartNewBatch(parameterNameGenerator, batch.ModificationCommands[commandIndex]);
+                var singleCommandBatch = StartNewBatch(
+                    parameterNameGenerator, batch.ModificationCommands[commandIndex], Dependencies);
                 singleCommandBatch.Complete(
                     moreBatchesExpected: moreCommandSets || commandIndex < batch.ModificationCommands.Count - 1);
 
@@ -184,12 +185,15 @@ public class CommandBatchPreparer : ICommandBatchPreparer
             }
         }
 
-        ModificationCommandBatch StartNewBatch(
+        yield break;
+
+        static ModificationCommandBatch StartNewBatch(
             ParameterNameGenerator? parameterNameGenerator,
-            IReadOnlyModificationCommand modificationCommand)
+            IReadOnlyModificationCommand modificationCommand,
+            CommandBatchPreparerDependencies dependencies)
         {
             parameterNameGenerator?.Reset();
-            var batch = Dependencies.ModificationCommandBatchFactory.Create();
+            var batch = dependencies.ModificationCommandBatchFactory.Create();
             batch.TryAddCommand(modificationCommand);
             return batch;
         }
@@ -510,7 +514,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
 
         var rowForeignKeyValueFactory = ((ForeignKeyConstraint)foreignKey).GetRowForeignKeyValueFactory();
         var dependentCommand = reverseDependency ? target : source;
-        var values = rowForeignKeyValueFactory.CreateDependentKeyValue(dependentCommand, fromOriginalValues: !reverseDependency)!;
+        var values = rowForeignKeyValueFactory.CreateDependentKeyValue(dependentCommand, fromOriginalValues: !reverseDependency);
         FormatValues(values, foreignKey.Columns, dependentCommand, builder);
 
         builder.Append(" } ");
@@ -568,7 +572,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
         builder.Append("UniqueConstraint { ");
         var rowForeignKeyValueFactory = ((UniqueConstraint)constraint).GetRowKeyValueFactory();
         var dependentCommand = reverseDependency ? target : source;
-        var values = rowForeignKeyValueFactory.CreateKeyValue(dependentCommand, fromOriginalValues: !reverseDependency)!;
+        var values = rowForeignKeyValueFactory.CreateKeyValue(dependentCommand, fromOriginalValues: !reverseDependency);
         FormatValues(values, constraint.Columns, dependentCommand, builder);
 
         builder.Append(" } ");
@@ -595,8 +599,8 @@ public class CommandBatchPreparer : ICommandBatchPreparer
 
         var rowForeignKeyValueFactory = ((TableIndex)index).GetRowIndexValueFactory();
         var dependentCommand = reverseDependency ? target : source;
-        var indexValue = rowForeignKeyValueFactory.CreateIndexValue(dependentCommand, fromOriginalValues: !reverseDependency)!;
-        FormatValues(indexValue.Value!, index.Columns, dependentCommand, builder);
+        var indexValue = rowForeignKeyValueFactory.CreateIndexValue(dependentCommand, fromOriginalValues: !reverseDependency);
+        FormatValues(indexValue.Value, index.Columns, dependentCommand, builder);
 
         builder.Append(" } ");
 
@@ -607,7 +611,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
     }
 
     private void FormatValues(
-        object?[] values,
+        object?[]? values,
         IReadOnlyList<IColumn> columns,
         IReadOnlyModificationCommand dependentCommand,
         StringBuilder builder)
@@ -621,17 +625,9 @@ public class CommandBatchPreparer : ICommandBatchPreparer
             if (_sensitiveLoggingEnabled)
             {
                 builder.Append(": ");
-                if (values != null)
+                if (values?[i] is { } value)
                 {
-                    var value = values[i];
-                    if (value != null)
-                    {
-                        builder.Append(values[i]);
-                    }
-                    else
-                    {
-                        builder.Append("NULL");
-                    }
+                    builder.Append(value);
                 }
                 else
                 {

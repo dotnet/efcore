@@ -434,18 +434,17 @@ public class OperationExecutor : MarshalByRefObject
         var nameGroups = contextTypes.GroupBy(t => t.Name).ToList();
         var fullNameGroups = contextTypes.GroupBy(t => t.FullName).ToList();
 
-        return contextTypes.Select(
-            t => new Hashtable
-            {
-                ["AssemblyQualifiedName"] = t.AssemblyQualifiedName,
-                ["FullName"] = t.FullName,
-                ["Name"] = t.Name,
-                ["SafeName"] = nameGroups.Count(g => g.Key == t.Name) == 1
-                    ? t.Name
-                    : fullNameGroups.Count(g => g.Key == t.FullName) == 1
-                        ? t.FullName
-                        : t.AssemblyQualifiedName
-            });
+        return contextTypes.Select(t => new Hashtable
+        {
+            ["AssemblyQualifiedName"] = t.AssemblyQualifiedName,
+            ["FullName"] = t.FullName,
+            ["Name"] = t.Name,
+            ["SafeName"] = nameGroups.Count(g => g.Key == t.Name) == 1
+                ? t.Name
+                : fullNameGroups.Count(g => g.Key == t.FullName) == 1
+                    ? t.FullName
+                    : t.AssemblyQualifiedName
+        });
     }
 
     /// <summary>
@@ -494,16 +493,15 @@ public class OperationExecutor : MarshalByRefObject
         var migrations = MigrationsOperations.GetMigrations(contextType, connectionString, noConnect).ToList();
         var nameGroups = migrations.GroupBy(m => m.Name).ToList();
 
-        return migrations.Select(
-            m => new Hashtable
-            {
-                ["Id"] = m.Id,
-                ["Name"] = m.Name,
-                ["SafeName"] = nameGroups.Count(g => g.Key == m.Name) == 1
-                    ? m.Name
-                    : m.Id,
-                ["Applied"] = m.Applied
-            });
+        return migrations.Select(m => new Hashtable
+        {
+            ["Id"] = m.Id,
+            ["Name"] = m.Name,
+            ["SafeName"] = nameGroups.Count(g => g.Key == m.Name) == 1
+                ? m.Name
+                : m.Id,
+            ["Applied"] = m.Applied
+        });
     }
 
     /// <summary>
@@ -543,15 +541,14 @@ public class OperationExecutor : MarshalByRefObject
             var precompileQueries = (bool)(args["precompileQueries"] ?? false);
             var nativeAot = (bool)(args["nativeAot"] ?? false);
 
-            Execute(
-                () => executor.OptimizeContextImpl(
-                    outputDir,
-                    modelNamespace,
-                    contextType,
-                    suffix,
-                    scaffoldModel,
-                    precompileQueries,
-                    nativeAot));
+            Execute(() => executor.OptimizeContextImpl(
+                outputDir,
+                modelNamespace,
+                contextType,
+                suffix,
+                scaffoldModel,
+                precompileQueries,
+                nativeAot));
         }
     }
 
@@ -616,11 +613,10 @@ public class OperationExecutor : MarshalByRefObject
             var suppressOnConfiguring = (bool)(args["suppressOnConfiguring"] ?? false);
             var noPluralize = (bool)(args["noPluralize"] ?? false);
 
-            Execute(
-                () => executor.ScaffoldContextImpl(
-                    provider, connectionString, outputDir, outputDbContextDir, dbContextClassName,
-                    schemaFilters, tableFilters, modelNamespace, contextNamespace, useDataAnnotations,
-                    overwriteFiles, useDatabaseNames, suppressOnConfiguring, noPluralize));
+            Execute(() => executor.ScaffoldContextImpl(
+                provider, connectionString, outputDir, outputDbContextDir, dbContextClassName,
+                schemaFilters, tableFilters, modelNamespace, contextNamespace, useDataAnnotations,
+                overwriteFiles, useDatabaseNames, suppressOnConfiguring, noPluralize));
         }
     }
 

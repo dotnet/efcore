@@ -140,7 +140,7 @@ public class RelationalTypeMappingPostprocessor(
         switch (valuesExpression)
         {
             // Regular VALUES over a collection of scalar values. Apply the inferred type mappings on each of the values.
-            case { RowValues: IReadOnlyList<RowValueExpression> rowValues }:
+            case { RowValues: { } rowValues }:
             {
                 var newRowValues = new RowValueExpression[rowValues.Count];
                 for (var i = 0; i < newRowValues.Length; i++)
@@ -152,7 +152,7 @@ public class RelationalTypeMappingPostprocessor(
                         var value = rowValue.Values[j];
 
                         if (value.TypeMapping is null
-                            && inferredTypeMappings[j] is RelationalTypeMapping inferredTypeMapping)
+                            && inferredTypeMappings[j] is { } inferredTypeMapping)
                         {
                             value = _sqlExpressionFactory.ApplyTypeMapping(value, inferredTypeMapping);
                         }
@@ -176,7 +176,7 @@ public class RelationalTypeMappingPostprocessor(
             // VALUES over a values parameter (i.e. a parameter representing the entire collection, that will be constantized into the SQL
             // later). Apply the inferred type mapping on the parameter.
             case { ValuesParameter: { TypeMapping: null } valuesParameter }
-                when inferredTypeMappings[1] is RelationalTypeMapping elementTypeMapping:
+                when inferredTypeMappings[1] is { } elementTypeMapping:
             {
                 if (RelationalDependencies.TypeMappingSource.FindMapping(
                         valuesParameter.Type, QueryCompilationContext.Model, elementTypeMapping) is not
@@ -241,7 +241,7 @@ public class RelationalTypeMappingPostprocessor(
 
         protected override Expression VisitExtension(Expression node)
         {
-            if (node is TableExpressionBase { Alias: string tableAlias } table)
+            if (node is TableExpressionBase { Alias: { } tableAlias } table)
             {
                 _tableAliasMap[tableAlias] = table.UnwrapJoin();
             }

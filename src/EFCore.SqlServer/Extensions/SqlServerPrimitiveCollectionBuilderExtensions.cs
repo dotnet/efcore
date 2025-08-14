@@ -89,7 +89,8 @@ public static class SqlServerPrimitiveCollectionBuilderExtensions
         this PrimitiveCollectionBuilder<TProperty> primitiveCollectionBuilder,
         object? value,
         string defaultConstraintName)
-        => (PrimitiveCollectionBuilder<TProperty>)HasDefaultValue((PrimitiveCollectionBuilder)primitiveCollectionBuilder, value, defaultConstraintName);
+        => (PrimitiveCollectionBuilder<TProperty>)HasDefaultValue(
+            (PrimitiveCollectionBuilder)primitiveCollectionBuilder, value, defaultConstraintName);
 
     /// <summary>
     ///     Configures the default value expression for the column that the property maps to when targeting a relational database.
@@ -129,5 +130,6 @@ public static class SqlServerPrimitiveCollectionBuilderExtensions
         this PrimitiveCollectionBuilder<TProperty> primitiveCollectionBuilder,
         string? sql,
         string defaultConstraintName)
-        => (PrimitiveCollectionBuilder<TProperty>)HasDefaultValueSql((PrimitiveCollectionBuilder)primitiveCollectionBuilder, sql, defaultConstraintName);
+        => (PrimitiveCollectionBuilder<TProperty>)HasDefaultValueSql(
+            (PrimitiveCollectionBuilder)primitiveCollectionBuilder, sql, defaultConstraintName);
 }

@@ -159,15 +159,15 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
             ? new SqlServerOpenJsonExpression(tableAlias, sqlExpression)
             : new SqlServerOpenJsonExpression(
                 tableAlias, sqlExpression,
-                columnInfos: new[]
-                {
+                columnInfos:
+                [
                     new SqlServerOpenJsonExpression.ColumnInfo
                     {
                         Name = "value",
                         TypeMapping = elementTypeMapping,
                         Path = []
                     }
-                });
+                ]);
 
         var elementClrType = sqlExpression.Type.GetSequenceType();
 
@@ -253,14 +253,14 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
         // We're only interested in properties which actually exist in the JSON, filter out uninteresting shadow keys
         foreach (var property in jsonQueryExpression.StructuralType.GetPropertiesInHierarchy())
         {
-            if (property.GetJsonPropertyName() is string jsonPropertyName)
+            if (property.GetJsonPropertyName() is { } jsonPropertyName)
             {
                 columnInfos.Add(
                     new SqlServerOpenJsonExpression.ColumnInfo
                     {
                         Name = jsonPropertyName,
                         TypeMapping = property.GetRelationalTypeMapping(),
-                        Path = [new(jsonPropertyName)],
+                        Path = [new PathSegment(jsonPropertyName)],
                         AsJson = property.GetRelationalTypeMapping().ElementTypeMapping is not null
                     });
             }
@@ -271,16 +271,16 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
             case IEntityType entityType:
                 // Navigations represent nested JSON owned entities, which we also add to the OPENJSON WITH clause, but with AS JSON.
                 foreach (var navigation in entityType.GetNavigationsInHierarchy()
-                            .Where(
-                                n => n.ForeignKey.IsOwnership
-                                    && n.TargetEntityType.IsMappedToJson()
-                                    && n.ForeignKey.PrincipalToDependent == n))
+                             .Where(n => n.ForeignKey.IsOwnership
+                                 && n.TargetEntityType.IsMappedToJson()
+                                 && n.ForeignKey.PrincipalToDependent == n))
                 {
                     var jsonPropertyName = navigation.TargetEntityType.GetJsonPropertyName();
                     Check.DebugAssert(jsonPropertyName is not null, $"No JSON property name for navigation {navigation.Name}");
 
                     AddStructuralColumnInfo(jsonPropertyName);
                 }
+
                 break;
 
             case IComplexType complexType:
@@ -291,6 +291,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
 
                     AddStructuralColumnInfo(jsonPropertyName);
                 }
+
                 break;
 
             default:
@@ -302,7 +303,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                         {
                             Name = jsonPropertyName,
                             TypeMapping = _nvarcharMaxTypeMapping ??= _typeMappingSource.FindMapping("nvarchar(max)")!,
-                            Path = [new(jsonPropertyName)],
+                            Path = [new PathSegment(jsonPropertyName)],
                             AsJson = true
                         });
         }
@@ -362,48 +363,48 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                 // index on parameter using a column
                 // translate via JSON because it is a better translation
                 case SelectExpression
-                {
-                    Tables: [ValuesExpression { ValuesParameter: { } valuesParameter }],
-                    Predicate: null,
-                    GroupBy: [],
-                    Having: null,
-                    IsDistinct: false,
+                    {
+                        Tables: [ValuesExpression { ValuesParameter: { } valuesParameter }],
+                        Predicate: null,
+                        GroupBy: [],
+                        Having: null,
+                        IsDistinct: false,
 #pragma warning disable EF1001
-                    Orderings: [{ Expression: ColumnExpression { Name: ValuesOrderingColumnName }, IsAscending: true }],
+                        Orderings: [{ Expression: ColumnExpression { Name: ValuesOrderingColumnName }, IsAscending: true }],
 #pragma warning restore EF1001
-                    Limit: null,
-                    Offset: null
-                } selectExpression
-                when TranslateExpression(index) is { } translatedIndex
+                        Limit: null,
+                        Offset: null
+                    } selectExpression
+                    when TranslateExpression(index) is { } translatedIndex
                     && _sqlServerSingletonOptions.SupportsJsonFunctions
                     && TryTranslate(selectExpression, valuesParameter, translatedIndex, out var result):
                     return result;
 
                 // Index on JSON array
                 case SelectExpression
-                {
-                    Tables: [SqlServerOpenJsonExpression { Arguments: [var jsonArrayColumn] } openJsonExpression],
-                    Predicate: null,
-                    GroupBy: [],
-                    Having: null,
-                    IsDistinct: false,
-                    Limit: null,
-                    Offset: null,
-                    // We can only apply the indexing if the JSON array is ordered by its natural ordered, i.e. by the "key" column that
-                    // we created in TranslateCollection. For example, if another ordering has been applied (e.g. by the JSON elements
-                    // themselves), we can no longer simply index into the original array.
-                    Orderings:
-                    [
-                        {
-                            Expression: SqlUnaryExpression
+                    {
+                        Tables: [SqlServerOpenJsonExpression { Arguments: [var jsonArrayColumn] } openJsonExpression],
+                        Predicate: null,
+                        GroupBy: [],
+                        Having: null,
+                        IsDistinct: false,
+                        Limit: null,
+                        Offset: null,
+                        // We can only apply the indexing if the JSON array is ordered by its natural ordered, i.e. by the "key" column that
+                        // we created in TranslateCollection. For example, if another ordering has been applied (e.g. by the JSON elements
+                        // themselves), we can no longer simply index into the original array.
+                        Orderings:
+                        [
                             {
-                                OperatorType: ExpressionType.Convert,
-                                Operand: ColumnExpression { Name: "key", TableAlias: var orderingTableAlias }
+                                Expression: SqlUnaryExpression
+                                {
+                                    OperatorType: ExpressionType.Convert,
+                                    Operand: ColumnExpression { Name: "key", TableAlias: var orderingTableAlias }
+                                }
                             }
-                        }
-                    ]
-                } selectExpression
-                when orderingTableAlias == openJsonExpression.Alias
+                        ]
+                    } selectExpression
+                    when orderingTableAlias == openJsonExpression.Alias
                     && TranslateExpression(index) is { } translatedIndex
                     && TryTranslate(selectExpression, jsonArrayColumn, translatedIndex, out var result):
                     return result;
@@ -419,51 +420,45 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
             [NotNullWhen(true)] out ShapedQueryExpression? result)
         {
             // Extract the column projected out of the source, and simplify the subquery to a simple JsonScalarExpression
-            var shaperExpression = source.ShaperExpression;
-            if (shaperExpression is UnaryExpression { NodeType: ExpressionType.Convert } unaryExpression
-                && unaryExpression.Operand.Type.IsNullableType()
-                && unaryExpression.Operand.Type.UnwrapNullableType() == unaryExpression.Type)
+            if (!TryGetProjection(source, selectExpression, out var projection))
             {
-                shaperExpression = unaryExpression.Operand;
+                result = null;
+                return false;
             }
 
-            if (shaperExpression is ProjectionBindingExpression projectionBindingExpression
-                && selectExpression.GetProjection(projectionBindingExpression) is SqlExpression projection)
+            // OPENJSON's value column is an nvarchar(max); if this is a collection column whose type mapping is know, the projection
+            // contains a CAST node which we unwrap
+            var projectionColumn = projection switch
             {
-                // OPENJSON's value column is an nvarchar(max); if this is a collection column whose type mapping is know, the projection
-                // contains a CAST node which we unwrap
-                var projectionColumn = projection switch
-                {
-                    ColumnExpression c => c,
-                    SqlUnaryExpression { OperatorType: ExpressionType.Convert, Operand: ColumnExpression c } => c,
-                    _ => null
-                };
+                ColumnExpression c => c,
+                SqlUnaryExpression { OperatorType: ExpressionType.Convert, Operand: ColumnExpression c } => c,
+                _ => null
+            };
 
-                if (projectionColumn is not null)
-                {
-                    // If the inner expression happens to itself be a JsonScalarExpression, simply append the two paths to avoid creating
-                    // JSON_VALUE within JSON_VALUE.
-                    var (json, path) = jsonArrayColumn is JsonScalarExpression innerJsonScalarExpression
-                        ? (innerJsonScalarExpression.Json,
-                            innerJsonScalarExpression.Path.Append(new PathSegment(translatedIndex)).ToArray())
-                        : (jsonArrayColumn, new PathSegment[] { new(translatedIndex) });
+            if (projectionColumn is null)
+            {
+                result = null;
+                return false;
+            }
 
-                    var translation = new JsonScalarExpression(
-                        json,
-                        path,
-                        projection.Type,
-                        projection.TypeMapping,
-                        projectionColumn.IsNullable);
+            // If the inner expression happens to itself be a JsonScalarExpression, simply append the two paths to avoid creating
+            // JSON_VALUE within JSON_VALUE.
+            var (json, path) = jsonArrayColumn is JsonScalarExpression innerJsonScalarExpression
+                ? (innerJsonScalarExpression.Json,
+                    innerJsonScalarExpression.Path.Append(new PathSegment(translatedIndex)).ToArray())
+                : (jsonArrayColumn, new PathSegment[] { new(translatedIndex) });
+
+            var translation = new JsonScalarExpression(
+                json,
+                path,
+                projection.Type,
+                projection.TypeMapping,
+                projectionColumn.IsNullable);
 
 #pragma warning disable EF1001
-                    result = source.UpdateQueryExpression(new SelectExpression(translation, _queryCompilationContext.SqlAliasManager));
+            result = source.UpdateQueryExpression(new SelectExpression(translation, _queryCompilationContext.SqlAliasManager));
 #pragma warning restore EF1001
-                    return true;
-                }
-            }
-
-            result = default;
-            return false;
+            return true;
         }
     }
 
@@ -499,9 +494,9 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
     /// </summary>
     protected override bool IsValidSelectExpressionForExecuteDelete(SelectExpression selectExpression)
         => selectExpression.Offset == null
-           && selectExpression.GroupBy.Count == 0
-           && selectExpression.Having == null
-           && selectExpression.Orderings.Count == 0;
+            && selectExpression.GroupBy.Count == 0
+            && selectExpression.Having == null
+            && selectExpression.Orderings.Count == 0;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -539,7 +534,10 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
         return false;
     }
 
-    private bool TryGetProjection(ShapedQueryExpression shapedQueryExpression, [NotNullWhen(true)] out SqlExpression? projection)
+    private bool TryGetProjection(
+        ShapedQueryExpression shapedQueryExpression,
+        SelectExpression selectExpression,
+        [NotNullWhen(true)] out SqlExpression? projection)
     {
         var shaperExpression = shapedQueryExpression.ShaperExpression;
         // No need to check ConvertChecked since this is convert node which we may have added during projection
@@ -550,8 +548,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
             shaperExpression = unaryExpression.Operand;
         }
 
-        if (shapedQueryExpression.QueryExpression is SelectExpression selectExpression
-            && shaperExpression is ProjectionBindingExpression projectionBindingExpression
+        if (shaperExpression is ProjectionBindingExpression projectionBindingExpression
             && selectExpression.GetProjection(projectionBindingExpression) is SqlExpression sqlExpression)
         {
             projection = sqlExpression;

@@ -154,12 +154,12 @@ public class SqlServerAnnotationProvider : RelationalAnnotationProvider
 
         var table = constraint.Table;
 
-        if (key.IsClustered(StoreObjectIdentifier.Table(table.Name, table.Schema)) is bool isClustered)
+        if (key.IsClustered(StoreObjectIdentifier.Table(table.Name, table.Schema)) is { } isClustered)
         {
             yield return new Annotation(SqlServerAnnotationNames.Clustered, isClustered);
         }
 
-        if (key.GetFillFactor() is int fillFactor)
+        if (key.GetFillFactor() is { } fillFactor)
         {
             yield return new Annotation(SqlServerAnnotationNames.FillFactor, fillFactor);
         }
@@ -181,17 +181,16 @@ public class SqlServerAnnotationProvider : RelationalAnnotationProvider
         // Model validation ensures that these facets are the same on all mapped indexes
         var modelIndex = index.MappedIndexes.First();
         var table = StoreObjectIdentifier.Table(index.Table.Name, index.Table.Schema);
-        if (modelIndex.IsClustered(table) is bool isClustered)
+        if (modelIndex.IsClustered(table) is { } isClustered)
         {
             yield return new Annotation(SqlServerAnnotationNames.Clustered, isClustered);
         }
 
-        if (modelIndex.GetIncludeProperties(table) is IReadOnlyList<string> includeProperties)
+        if (modelIndex.GetIncludeProperties(table) is { } includeProperties)
         {
             var includeColumns = includeProperties
-                .Select(
-                    p => modelIndex.DeclaringEntityType.FindProperty(p)!
-                        .GetColumnName(StoreObjectIdentifier.Table(table.Name, table.Schema)))
+                .Select(p => modelIndex.DeclaringEntityType.FindProperty(p)!
+                    .GetColumnName(StoreObjectIdentifier.Table(table.Name, table.Schema)))
                 .ToArray();
 
             yield return new Annotation(
@@ -199,22 +198,22 @@ public class SqlServerAnnotationProvider : RelationalAnnotationProvider
                 includeColumns);
         }
 
-        if (modelIndex.IsCreatedOnline(table) is bool isOnline)
+        if (modelIndex.IsCreatedOnline(table) is { } isOnline)
         {
             yield return new Annotation(SqlServerAnnotationNames.CreatedOnline, isOnline);
         }
 
-        if (modelIndex.GetFillFactor(table) is int fillFactor)
+        if (modelIndex.GetFillFactor(table) is { } fillFactor)
         {
             yield return new Annotation(SqlServerAnnotationNames.FillFactor, fillFactor);
         }
 
-        if (modelIndex.GetSortInTempDb(table) is bool sortInTempDb)
+        if (modelIndex.GetSortInTempDb(table) is { } sortInTempDb)
         {
             yield return new Annotation(SqlServerAnnotationNames.SortInTempDb, sortInTempDb);
         }
 
-        if (modelIndex.GetDataCompression(table) is DataCompressionType dataCompressionType)
+        if (modelIndex.GetDataCompression(table) is { } dataCompressionType)
         {
             yield return new Annotation(SqlServerAnnotationNames.DataCompression, dataCompressionType);
         }
@@ -236,9 +235,8 @@ public class SqlServerAnnotationProvider : RelationalAnnotationProvider
         var table = StoreObjectIdentifier.Table(column.Table.Name, column.Table.Schema);
         var identityProperty = column.PropertyMappings
             .Select(m => m.Property)
-            .FirstOrDefault(
-                p => p.GetValueGenerationStrategy(table)
-                    == SqlServerValueGenerationStrategy.IdentityColumn);
+            .FirstOrDefault(p => p.GetValueGenerationStrategy(table)
+                == SqlServerValueGenerationStrategy.IdentityColumn);
         if (identityProperty != null)
         {
             var seed = identityProperty.GetIdentitySeed(table);
@@ -252,7 +250,7 @@ public class SqlServerAnnotationProvider : RelationalAnnotationProvider
         // JSON columns have no property mappings so all annotations that rely on property mappings should be skipped for them
         if (column is not JsonColumn)
         {
-            if (column.PropertyMappings.FirstOrDefault()?.Property.IsSparse() is bool isSparse)
+            if (column.PropertyMappings.FirstOrDefault()?.Property.IsSparse() is { } isSparse)
             {
                 // Model validation ensures that these facets are the same on all mapped properties
                 yield return new Annotation(SqlServerAnnotationNames.Sparse, isSparse);
@@ -261,15 +259,15 @@ public class SqlServerAnnotationProvider : RelationalAnnotationProvider
             var mappedProperty = column.PropertyMappings.FirstOrDefault()?.Property;
             if (mappedProperty != null)
             {
-                if (mappedProperty.GetDefaultConstraintName(table) is string defaultConstraintName)
+                if (mappedProperty.GetDefaultConstraintName(table) is { } defaultConstraintName)
                 {
                     // named constraint stored as annotation are either explicitly configured by user
                     // or generated by EF because of naming duplicates (SqlServerDefaultValueConvention)
                     yield return new Annotation(RelationalAnnotationNames.DefaultConstraintName, defaultConstraintName);
                 }
-                else if (mappedProperty.DeclaringType.Model.AreNamedDefaultConstraintsUsed() == true
-                    && (mappedProperty.FindAnnotation(RelationalAnnotationNames.DefaultValue) != null
-                        || mappedProperty.FindAnnotation(RelationalAnnotationNames.DefaultValueSql) != null))
+                else if (mappedProperty.DeclaringType.Model.AreNamedDefaultConstraintsUsed()
+                         && (mappedProperty.FindAnnotation(RelationalAnnotationNames.DefaultValue) != null
+                             || mappedProperty.FindAnnotation(RelationalAnnotationNames.DefaultValueSql) != null))
                 {
                     // named default constraints opt-in + default value (sql) was specified
                     // generate the default constraint name (based on table and column name)

@@ -38,8 +38,7 @@ public class SqliteAnnotationProvider : RelationalAnnotationProvider
             yield break;
         }
 
-        if (model.Tables.SelectMany(t => t.Columns).Any(
-                c => SqliteTypeMappingSource.IsSpatialiteType(c.StoreType)))
+        if (model.Tables.SelectMany(t => t.Columns).Any(c => SqliteTypeMappingSource.IsSpatialiteType(c.StoreType)))
         {
             yield return new Annotation(SqliteAnnotationNames.InitSpatialMetaData, true);
         }

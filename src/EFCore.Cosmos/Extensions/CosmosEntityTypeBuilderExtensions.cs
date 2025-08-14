@@ -1020,7 +1020,11 @@ public static class CosmosEntityTypeBuilderExtensions
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-triggers">Database triggers</see> for more information and examples.
     /// </remarks>
-    public static TriggerBuilder HasTrigger(this EntityTypeBuilder entityTypeBuilder, string modelName, TriggerType triggerType, TriggerOperation triggerOperation)
+    public static TriggerBuilder HasTrigger(
+        this EntityTypeBuilder entityTypeBuilder,
+        string modelName,
+        TriggerType triggerType,
+        TriggerOperation triggerOperation)
     {
         var triggerBuilder = EntityTypeBuilder.HasTrigger(entityTypeBuilder.Metadata, modelName);
         triggerBuilder.Metadata.SetTriggerType(triggerType);
@@ -1039,7 +1043,11 @@ public static class CosmosEntityTypeBuilderExtensions
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-triggers">Database triggers</see> for more information and examples.
     /// </remarks>
-    public static TriggerBuilder HasTrigger<TEntity>(this EntityTypeBuilder<TEntity> entityTypeBuilder, string modelName, TriggerType triggerType, TriggerOperation triggerOperation)
+    public static TriggerBuilder HasTrigger<TEntity>(
+        this EntityTypeBuilder<TEntity> entityTypeBuilder,
+        string modelName,
+        TriggerType triggerType,
+        TriggerOperation triggerOperation)
         where TEntity : class
     {
         var triggerBuilder = EntityTypeBuilder.HasTrigger(entityTypeBuilder.Metadata, modelName);

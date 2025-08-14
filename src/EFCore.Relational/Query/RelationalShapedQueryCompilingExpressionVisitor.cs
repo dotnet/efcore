@@ -63,7 +63,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
         _threadSafetyChecksEnabled = dependencies.CoreSingletonOptions.AreThreadSafetyChecksEnabled;
         _detailedErrorsEnabled = dependencies.CoreSingletonOptions.AreDetailedErrorsEnabled;
         _useRelationalNulls = RelationalOptionsExtension.Extract(queryCompilationContext.ContextOptions).UseRelationalNulls;
-        _collectionParameterTranslationMode = RelationalOptionsExtension.Extract(queryCompilationContext.ContextOptions).ParameterizedCollectionMode;
+        _collectionParameterTranslationMode =
+            RelationalOptionsExtension.Extract(queryCompilationContext.ContextOptions).ParameterizedCollectionMode;
         _isPrecompiling = queryCompilationContext.IsPrecompiling;
     }
 
@@ -713,22 +714,21 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
                             Constant(relationalCommandTemplate.LogCommandText, typeof(string)),
                             NewArrayInit(
                                 typeof(IRelationalParameter),
-                                relationalCommandTemplate.Parameters.Cast<TypeMappedRelationalParameter>().Select(
-                                    p => (Expression)New(
-                                        _typeMappedRelationalParameterConstructor ??= typeof(TypeMappedRelationalParameter)
-                                            .GetConstructor(
-                                            [
-                                                typeof(string),
-                                                typeof(string),
-                                                typeof(RelationalTypeMapping),
-                                                typeof(bool?),
-                                                typeof(ParameterDirection)
-                                            ])!,
-                                        Constant(p.InvariantName),
-                                        Constant(p.Name),
-                                        RelationalExpressionQuotingUtilities.QuoteTypeMapping(p.RelationalTypeMapping),
-                                        Constant(p.IsNullable, typeof(bool?)),
-                                        Constant(p.Direction))).ToArray())),
+                                relationalCommandTemplate.Parameters.Cast<TypeMappedRelationalParameter>().Select(p => (Expression)New(
+                                    _typeMappedRelationalParameterConstructor ??= typeof(TypeMappedRelationalParameter)
+                                        .GetConstructor(
+                                        [
+                                            typeof(string),
+                                            typeof(string),
+                                            typeof(RelationalTypeMapping),
+                                            typeof(bool?),
+                                            typeof(ParameterDirection)
+                                        ])!,
+                                    Constant(p.InvariantName),
+                                    Constant(p.Name),
+                                    RelationalExpressionQuotingUtilities.QuoteTypeMapping(p.RelationalTypeMapping),
+                                    Constant(p.IsNullable, typeof(bool?)),
+                                    Constant(p.Direction))).ToArray())),
                         liftableConstantContextParameter),
                     "relationalCommandTemplate",
                     typeof(IRelationalCommandTemplate));
@@ -783,7 +783,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
 
         public IReadOnlySet<SqlParameterExpression> LocateParameters(Expression selectExpression)
         {
-            _parameters = new HashSet<SqlParameterExpression>();
+            _parameters = [];
             Visit(selectExpression);
             return _parameters;
         }

@@ -76,10 +76,9 @@ public class InMemoryConventionSetBuilder : ProviderConventionSetBuilder
     {
         var serviceProvider = new ServiceCollection()
             .AddEntityFrameworkInMemoryDatabase()
-            .AddDbContext<DbContext>(
-                (p, o) =>
-                    o.UseInMemoryDatabase(Guid.NewGuid().ToString())
-                        .UseInternalServiceProvider(p))
+            .AddDbContext<DbContext>((p, o) =>
+                o.UseInMemoryDatabase(Guid.NewGuid().ToString())
+                    .UseInternalServiceProvider(p))
             .BuildServiceProvider();
 
         return serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope();

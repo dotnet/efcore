@@ -56,8 +56,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                         }
                         else
                         {
-                            var innerColumns = keyProperties.Select(
-                                p => CreateColumnExpression(p, table, alias, nullable: false));
+                            var innerColumns = keyProperties.Select(p => CreateColumnExpression(p, table, alias, nullable: false));
 
                             var joinPredicate = joinColumns
                                 .Zip(innerColumns, _sqlExpressionFactory.Equal)
@@ -251,8 +250,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                 case RelationalAnnotationNames.TphMappingStrategy:
                 case null:
                 {
-                    if (entityType.GetFunctionMappings().SingleOrDefault(e => e.IsDefaultFunctionMapping) is IFunctionMapping
-                        functionMapping)
+                    if (entityType.GetFunctionMappings().SingleOrDefault(e => e.IsDefaultFunctionMapping) is { } functionMapping)
                     {
                         var storeFunction = functionMapping.Table;
 
@@ -349,7 +347,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
 
                 var identifier = new List<(ColumnExpression Column, ValueComparer Comparer)>();
 
-                if (entityType.FindPrimaryKey() is IKey primaryKey)
+                if (entityType.FindPrimaryKey() is { } primaryKey)
                 {
                     foreach (var property in primaryKey.Properties)
                     {
@@ -491,6 +489,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
             }
         }
 
+        return;
+
         bool HasSiblings(IEntityType entityType)
             => entityType.BaseType?.GetDirectlyDerivedTypes().Any(i => i != entityType) == true;
 
@@ -509,10 +509,9 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         Dictionary<ITableBase, string> tableMap)
     {
         foreach (var ownedJsonNavigation in entityType.GetNavigationsInHierarchy()
-                     .Where(
-                         n => n.ForeignKey.IsOwnership
-                             && n.TargetEntityType.IsMappedToJson()
-                             && n.ForeignKey.PrincipalToDependent == n))
+                     .Where(n => n.ForeignKey.IsOwnership
+                         && n.TargetEntityType.IsMappedToJson()
+                         && n.ForeignKey.PrincipalToDependent == n))
         {
             // Find the containing column for the owned JSON entity type, and then the table in the table map that
             // contains that column.
@@ -606,7 +605,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
 
             // Skip also properties with no JSON name (i.e. shadow keys containing the index in the collection, which don't actually exist
             // in the JSON document and can't be bound to)
-            if (property.GetJsonPropertyName() is string jsonPropertyName)
+            if (property.GetJsonPropertyName() is { } jsonPropertyName)
             {
                 propertyExpressions[property] = CreateColumnExpression(
                     tableExpressionBase, jsonPropertyName, property.ClrType, property.GetRelationalTypeMapping(),
@@ -629,10 +628,9 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
             var containerColumn = table.FindColumn(containerColumnName)!;
             var containerColumnTypeMapping = containerColumn.StoreTypeMapping;
             foreach (var ownedJsonNavigation in entityType.GetNavigationsInHierarchy()
-                        .Where(
-                            n => n.ForeignKey.IsOwnership
-                                && n.TargetEntityType.IsMappedToJson()
-                                && n.ForeignKey.PrincipalToDependent == n))
+                         .Where(n => n.ForeignKey.IsOwnership
+                             && n.TargetEntityType.IsMappedToJson()
+                             && n.ForeignKey.PrincipalToDependent == n))
             {
                 var targetEntityType = ownedJsonNavigation.TargetEntityType;
                 var jsonNavigationName = ownedJsonNavigation.TargetEntityType.GetJsonPropertyName();
@@ -652,7 +650,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
 
                 // need to remap key property map to use target entity key properties
                 var newKeyPropertyMap = new Dictionary<IProperty, ColumnExpression>();
-                var targetPrimaryKeyProperties = targetEntityType.FindPrimaryKey()!.Properties.Take(jsonQueryExpression.KeyPropertyMap!.Count);
+                var targetPrimaryKeyProperties =
+                    targetEntityType.FindPrimaryKey()!.Properties.Take(jsonQueryExpression.KeyPropertyMap!.Count);
                 var sourcePrimaryKeyProperties =
                     entityType.FindPrimaryKey()!.Properties.Take(jsonQueryExpression.KeyPropertyMap.Count);
                 foreach (var (target, source) in targetPrimaryKeyProperties.Zip(sourcePrimaryKeyProperties, (t, s) => (t, s)))
@@ -712,7 +711,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         => new(
             subqueryProjection.Alias,
             tableAlias,
-            column: subqueryProjection.Expression is ColumnExpression { Column: IColumnBase column } ? column : null,
+            column: subqueryProjection.Expression is ColumnExpression { Column: { } column } ? column : null,
             subqueryProjection.Type,
             subqueryProjection.Expression.TypeMapping!,
             subqueryProjection.Expression switch

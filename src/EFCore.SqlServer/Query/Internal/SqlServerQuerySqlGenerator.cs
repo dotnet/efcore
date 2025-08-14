@@ -229,20 +229,21 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
             //    with the two above, this implies that all of the expressions
             //    are using the default type mapping of the type)
             if (defaultTypeMapping == typeMapping
-                && sqlFunctionExpression.Arguments.All(a => a.Type == type && a.TypeMapping == typeMapping)) {
-
+                && sqlFunctionExpression.Arguments.All(a => a.Type == type && a.TypeMapping == typeMapping))
+            {
                 var head = sqlFunctionExpression.Arguments[0];
                 sqlFunctionExpression = (SqlFunctionExpression)sqlFunctionExpression
                     .Arguments
                     .Skip(1)
-                    .Aggregate(head, (l, r) => new SqlFunctionExpression(
-                        "ISNULL",
-                        arguments: [l, r],
-                        nullable: true,
-                        argumentsPropagateNullability: [false, false],
-                        sqlFunctionExpression.Type,
-                        sqlFunctionExpression.TypeMapping
-                    ));
+                    .Aggregate(
+                        head, (l, r) => new SqlFunctionExpression(
+                            "ISNULL",
+                            arguments: [l, r],
+                            nullable: true,
+                            argumentsPropagateNullability: [false, false],
+                            sqlFunctionExpression.Type,
+                            sqlFunctionExpression.TypeMapping
+                        ));
             }
         }
 
@@ -536,7 +537,8 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
         // 3. Can do JSON-specific decoding (e.g. base64 for varbinary)
         // Note that RETURNING is only (currently) supported over the json type (not nvarchar(max)).
         // Note that we don't need to check the compatibility level - if the json type is being used, then RETURNING is supported.
-        var useJsonValueReturningClause = !jsonQuery && jsonScalarExpression.Json.TypeMapping?.StoreType is "json"
+        var useJsonValueReturningClause = !jsonQuery
+            && jsonScalarExpression.Json.TypeMapping?.StoreType is "json"
             // Temporarily disabling for Azure SQL, which doesn't yet support RETURNING; this should get removed for 10 (see #36460).
             && _sqlServerSingletonOptions.EngineType is not SqlServerEngineType.AzureSql;
 
@@ -591,11 +593,11 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
         {
             switch (pathSegment)
             {
-                case { PropertyName: string propertyName }:
+                case { PropertyName: { } propertyName }:
                     Sql.Append(".").Append(Dependencies.SqlGenerationHelper.DelimitJsonPathElement(propertyName));
                     break;
 
-                case { ArrayIndex: SqlExpression arrayIndex }:
+                case { ArrayIndex: { } arrayIndex }:
                     Sql.Append("[");
 
                     // JSON functions such as JSON_VALUE only support arbitrary expressions for the path parameter in SQL Server 2017 and

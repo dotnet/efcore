@@ -163,10 +163,9 @@ public class SqlServerDatabaseModelFactory : DatabaseModelFactory
             foreach (var table in tableList)
             {
                 var (parsedSchema, parsedTableName) = Parse(table);
-                if (!databaseModel.Tables.Any(
-                        t => !string.IsNullOrEmpty(parsedSchema)
-                            && t.Schema == parsedSchema
-                            || t.Name == parsedTableName))
+                if (!databaseModel.Tables.Any(t => !string.IsNullOrEmpty(parsedSchema)
+                        && t.Schema == parsedSchema
+                        || t.Name == parsedTableName))
                 {
                     _logger.MissingTableWarning(table);
                 }
@@ -750,7 +749,7 @@ FROM
 
         if (SupportsViews())
         {
-            Check.DebugAssert(viewFilter is not null, "viewFilter is not null");
+            Check.DebugAssert(viewFilter is not null);
 
             builder.AppendLine().Append(
                 $"""
@@ -782,9 +781,8 @@ LEFT JOIN [sys].[default_constraints] AS [dc] ON [c].[object_id] = [dc].[parent_
 
         using var reader = command.ExecuteReader();
         var tableColumnGroups = reader.Cast<DbDataRecord>()
-            .GroupBy(
-                ddr => (tableSchema: ddr.GetValueOrDefault<string>("table_schema"),
-                    tableName: ddr.GetFieldValue<string>("table_name")));
+            .GroupBy(ddr => (tableSchema: ddr.GetValueOrDefault<string>("table_schema"),
+                tableName: ddr.GetFieldValue<string>("table_name")));
 
         foreach (var tableColumnGroup in tableColumnGroups)
         {
@@ -1089,9 +1087,8 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal];";
 
         using var reader = command.ExecuteReader();
         var tableIndexGroups = reader.Cast<DbDataRecord>()
-            .GroupBy(
-                ddr => (tableSchema: ddr.GetValueOrDefault<string>("table_schema"),
-                    tableName: ddr.GetFieldValue<string>("table_name")));
+            .GroupBy(ddr => (tableSchema: ddr.GetValueOrDefault<string>("table_schema"),
+                tableName: ddr.GetFieldValue<string>("table_name")));
 
         foreach (var tableIndexGroup in tableIndexGroups)
         {
@@ -1102,11 +1099,10 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal];";
 
             var primaryKeyGroups = tableIndexGroup
                 .Where(ddr => ddr.GetValueOrDefault<bool>("is_primary_key"))
-                .GroupBy(
-                    ddr =>
-                        (Name: ddr.GetFieldValue<string>("index_name"),
-                            TypeDesc: ddr.GetValueOrDefault<string>("type_desc"),
-                            FillFactor: ddr.GetValueOrDefault<byte>("fill_factor")))
+                .GroupBy(ddr =>
+                    (Name: ddr.GetFieldValue<string>("index_name"),
+                        TypeDesc: ddr.GetValueOrDefault<string>("type_desc"),
+                        FillFactor: ddr.GetValueOrDefault<byte>("fill_factor")))
                 .ToArray();
 
             Check.DebugAssert(primaryKeyGroups.Length is 0 or 1, "Multiple primary keys found");
@@ -1122,11 +1118,10 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal];";
 
             var uniqueConstraintGroups = tableIndexGroup
                 .Where(ddr => ddr.GetValueOrDefault<bool>("is_unique_constraint"))
-                .GroupBy(
-                    ddr =>
-                        (Name: ddr.GetValueOrDefault<string>("index_name"),
-                            TypeDesc: ddr.GetValueOrDefault<string>("type_desc"),
-                            FillFactor: ddr.GetValueOrDefault<byte>("fill_factor")))
+                .GroupBy(ddr =>
+                    (Name: ddr.GetValueOrDefault<string>("index_name"),
+                        TypeDesc: ddr.GetValueOrDefault<string>("type_desc"),
+                        FillFactor: ddr.GetValueOrDefault<byte>("fill_factor")))
                 .ToArray();
 
             foreach (var uniqueConstraintGroup in uniqueConstraintGroups)
@@ -1139,17 +1134,15 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal];";
             }
 
             var indexGroups = tableIndexGroup
-                .Where(
-                    ddr => !ddr.GetValueOrDefault<bool>("is_primary_key")
-                        && !ddr.GetValueOrDefault<bool>("is_unique_constraint"))
-                .GroupBy(
-                    ddr =>
-                        (Name: ddr.GetValueOrDefault<string>("index_name"),
-                            TypeDesc: ddr.GetValueOrDefault<string>("type_desc"),
-                            IsUnique: ddr.GetValueOrDefault<bool>("is_unique"),
-                            HasFilter: ddr.GetValueOrDefault<bool>("has_filter"),
-                            FilterDefinition: ddr.GetValueOrDefault<string>("filter_definition"),
-                            FillFactor: ddr.GetValueOrDefault<byte>("fill_factor")))
+                .Where(ddr => !ddr.GetValueOrDefault<bool>("is_primary_key")
+                    && !ddr.GetValueOrDefault<bool>("is_unique_constraint"))
+                .GroupBy(ddr =>
+                    (Name: ddr.GetValueOrDefault<string>("index_name"),
+                        TypeDesc: ddr.GetValueOrDefault<string>("type_desc"),
+                        IsUnique: ddr.GetValueOrDefault<bool>("is_unique"),
+                        HasFilter: ddr.GetValueOrDefault<bool>("has_filter"),
+                        FilterDefinition: ddr.GetValueOrDefault<string>("filter_definition"),
+                        FillFactor: ddr.GetValueOrDefault<byte>("fill_factor")))
                 .ToArray();
 
             foreach (var indexGroup in indexGroups)
@@ -1181,8 +1174,7 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal];";
                 {
                     var columnName = dataRecord.GetValueOrDefault<string>("column_name");
                     var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
-                        ?? table.Columns.FirstOrDefault(
-                            c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
+                        ?? table.Columns.FirstOrDefault(c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
 
                     if (column is null)
                     {
@@ -1215,8 +1207,7 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal];";
                 {
                     var columnName = dataRecord.GetValueOrDefault<string>("column_name");
                     var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
-                        ?? table.Columns.FirstOrDefault(
-                            c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
+                        ?? table.Columns.FirstOrDefault(c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
 
                     if (column is null)
                     {
@@ -1263,8 +1254,7 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal];";
                     }
 
                     var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
-                        ?? table.Columns.FirstOrDefault(
-                            c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
+                        ?? table.Columns.FirstOrDefault(c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
 
                     if (column is null)
                     {
@@ -1307,9 +1297,8 @@ ORDER BY [table_schema], [table_name], [f].[name], [fc].[constraint_column_id];
 
         using var reader = command.ExecuteReader();
         var tableForeignKeyGroups = reader.Cast<DbDataRecord>()
-            .GroupBy(
-                ddr => (tableSchema: ddr.GetValueOrDefault<string>("table_schema"),
-                    tableName: ddr.GetFieldValue<string>("table_name")));
+            .GroupBy(ddr => (tableSchema: ddr.GetValueOrDefault<string>("table_schema"),
+                tableName: ddr.GetFieldValue<string>("table_name")));
 
         foreach (var tableForeignKeyGroup in tableForeignKeyGroups)
         {
@@ -1319,11 +1308,10 @@ ORDER BY [table_schema], [table_name], [f].[name], [fc].[constraint_column_id];
             var table = tables.Single(t => t.Schema == tableSchema && t.Name == tableName);
 
             var foreignKeyGroups = tableForeignKeyGroup
-                .GroupBy(
-                    c => (Name: c.GetValueOrDefault<string>("name"),
-                        PrincipalTableSchema: c.GetValueOrDefault<string>("principal_table_schema"),
-                        PrincipalTableName: c.GetValueOrDefault<string>("principal_table_name"),
-                        OnDeleteAction: c.GetValueOrDefault<string>("delete_referential_action_desc")));
+                .GroupBy(c => (Name: c.GetValueOrDefault<string>("name"),
+                    PrincipalTableSchema: c.GetValueOrDefault<string>("principal_table_schema"),
+                    PrincipalTableName: c.GetValueOrDefault<string>("principal_table_name"),
+                    OnDeleteAction: c.GetValueOrDefault<string>("delete_referential_action_desc")));
 
             foreach (var foreignKeyGroup in foreignKeyGroups)
             {
@@ -1347,12 +1335,10 @@ ORDER BY [table_schema], [table_name], [f].[name], [fc].[constraint_column_id];
                     DisplayName(principalTableSchema, principalTableName),
                     onDeleteAction!);
 
-                var principalTable = tables.FirstOrDefault(
-                        t => t.Schema == principalTableSchema
-                            && t.Name == principalTableName)
-                    ?? tables.FirstOrDefault(
-                        t => t.Schema?.Equals(principalTableSchema, StringComparison.OrdinalIgnoreCase) == true
-                            && t.Name.Equals(principalTableName, StringComparison.OrdinalIgnoreCase));
+                var principalTable = tables.FirstOrDefault(t => t.Schema == principalTableSchema
+                        && t.Name == principalTableName)
+                    ?? tables.FirstOrDefault(t => t.Schema?.Equals(principalTableSchema, StringComparison.OrdinalIgnoreCase) == true
+                        && t.Name.Equals(principalTableName, StringComparison.OrdinalIgnoreCase));
 
                 if (principalTable == null)
                 {
@@ -1378,14 +1364,13 @@ ORDER BY [table_schema], [table_name], [f].[name], [fc].[constraint_column_id];
                 {
                     var columnName = dataRecord.GetValueOrDefault<string>("column_name");
                     var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
-                        ?? table.Columns.FirstOrDefault(
-                            c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
+                        ?? table.Columns.FirstOrDefault(c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
                     Check.DebugAssert(column != null, "column is null.");
 
                     var principalColumnName = dataRecord.GetValueOrDefault<string>("referenced_column_name");
                     var principalColumn = foreignKey.PrincipalTable.Columns.FirstOrDefault(c => c.Name == principalColumnName)
-                        ?? foreignKey.PrincipalTable.Columns.FirstOrDefault(
-                            c => c.Name.Equals(principalColumnName, StringComparison.OrdinalIgnoreCase));
+                        ?? foreignKey.PrincipalTable.Columns.FirstOrDefault(c => c.Name.Equals(
+                            principalColumnName, StringComparison.OrdinalIgnoreCase));
                     if (principalColumn == null)
                     {
                         invalid = true;
@@ -1412,10 +1397,9 @@ ORDER BY [table_schema], [table_name], [f].[name], [fc].[constraint_column_id];
                     else
                     {
                         var duplicated = table.ForeignKeys
-                            .FirstOrDefault(
-                                k => k.Columns.SequenceEqual(foreignKey.Columns)
-                                    && k.PrincipalColumns.SequenceEqual(foreignKey.PrincipalColumns)
-                                    && k.PrincipalTable.Equals(foreignKey.PrincipalTable));
+                            .FirstOrDefault(k => k.Columns.SequenceEqual(foreignKey.Columns)
+                                && k.PrincipalColumns.SequenceEqual(foreignKey.PrincipalColumns)
+                                && k.PrincipalTable.Equals(foreignKey.PrincipalTable));
                         if (duplicated != null)
                         {
                             _logger.DuplicateForeignKeyConstraintIgnored(
@@ -1449,9 +1433,8 @@ ORDER BY [table_schema], [table_name], [tr].[name];
 
         using var reader = command.ExecuteReader();
         var tableGroups = reader.Cast<DbDataRecord>()
-            .GroupBy(
-                ddr => (tableSchema: ddr.GetValueOrDefault<string>("table_schema"),
-                    tableName: ddr.GetFieldValue<string>("table_name")));
+            .GroupBy(ddr => (tableSchema: ddr.GetValueOrDefault<string>("table_schema"),
+                tableName: ddr.GetFieldValue<string>("table_name")));
 
         foreach (var tableGroup in tableGroups)
         {
@@ -1490,7 +1473,8 @@ ORDER BY [table_schema], [table_name], [tr].[name];
         => IsFullFeaturedEngineEdition();
 
     private bool IsFullFeaturedEngineEdition()
-        => _engineEdition is not EngineEdition.SqlDataWarehouse and not EngineEdition.SqlOnDemand and not EngineEdition.DynamicsTdsEndpoint && _version != "Microsoft SQL Kusto";
+        => _engineEdition is not EngineEdition.SqlDataWarehouse and not EngineEdition.SqlOnDemand and not EngineEdition.DynamicsTdsEndpoint
+            && _version != "Microsoft SQL Kusto";
 
     private static string DisplayName(string? schema, string name)
         => (!string.IsNullOrEmpty(schema) ? schema + "." : "") + name;

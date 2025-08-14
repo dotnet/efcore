@@ -85,8 +85,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        [EntityFrameworkInternal]
+        [MethodImpl(MethodImplOptions.AggressiveInlining), EntityFrameworkInternal]
         public static TValue ThrowReadValueException<TValue>(
             Exception exception,
             object? value,
@@ -1028,9 +1027,6 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
                 case not JsonTokenType.StartArray:
                     throw new InvalidOperationException(CoreStrings.JsonReaderInvalidTokenType(tokenType.ToString()));
-
-                default:
-                    break;
             }
 
             var collectionAccessor = relationship.GetCollectionAccessor();

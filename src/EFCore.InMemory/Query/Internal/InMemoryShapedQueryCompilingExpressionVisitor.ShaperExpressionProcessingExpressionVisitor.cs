@@ -215,7 +215,7 @@ public partial class InMemoryShapedQueryCompilingExpressionVisitor
                     = queryExpression.GetProjection(projectionBindingExpression).GetConstantValue<Dictionary<IProperty, int>>();
 
                 var updatedExpression = newExpression.Update(
-                    new[] { Constant(ValueBuffer.Empty), newExpression.Arguments[1] });
+                    [Constant(ValueBuffer.Empty), newExpression.Arguments[1]]);
 
                 return MakeBinary(ExpressionType.Assign, binaryExpression.Left, updatedExpression);
             }

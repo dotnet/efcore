@@ -21,7 +21,10 @@ public class JsonQueryExpression : Expression, IPrintableExpression
     /// </summary>
     /// <param name="structuralType">The structural type represented by this expression.</param>
     /// <param name="jsonColumn">A column containing the JSON value.</param>
-    /// <param name="keyPropertyMap">For owned entities, a map of key properties and columns they map to in the database. For complex types, <see langword="null" />.</param>
+    /// <param name="keyPropertyMap">
+    ///     For owned entities, a map of key properties and columns they map to in the database. For complex types,
+    ///     <see langword="null" />.
+    /// </param>
     /// <param name="type">The CLR represented by this expression.</param>
     /// <param name="collection">Whether this expression represents a collection.</param>
     public JsonQueryExpression(
@@ -46,7 +49,10 @@ public class JsonQueryExpression : Expression, IPrintableExpression
     /// </summary>
     /// <param name="structuralType">The structural type represented by this expression.</param>
     /// <param name="jsonColumn">A column containing the JSON value.</param>
-    /// <param name="keyPropertyMap">For owned entities, a map of key properties and columns they map to in the database. For complex types, <see langword="null" />.</param>
+    /// <param name="keyPropertyMap">
+    ///     For owned entities, a map of key properties and columns they map to in the database. For complex types,
+    ///     <see langword="null" />.
+    /// </param>
     /// <param name="path">The list of path segments leading to the entity from the root of the JSON stored in the column.</param>
     /// <param name="type">The CLR represented by this expression.</param>
     /// <param name="collection">Whether this expression represents a collection.</param>
@@ -60,7 +66,9 @@ public class JsonQueryExpression : Expression, IPrintableExpression
         bool collection,
         bool nullable)
     {
-        Check.DebugAssert(structuralType is not IEntityType entityType || entityType.FindPrimaryKey() is not null, "JsonQueryExpression over keyless entity type");
+        Check.DebugAssert(
+            structuralType is not IEntityType entityType || entityType.FindPrimaryKey() is not null,
+            "JsonQueryExpression over keyless entity type");
 
         StructuralType = structuralType;
         JsonColumn = jsonColumn;
@@ -131,7 +139,7 @@ public class JsonQueryExpression : Expression, IPrintableExpression
 
         return new JsonScalarExpression(
             JsonColumn,
-            [.. Path, new(property.GetJsonPropertyName()!)],
+            [.. Path, new PathSegment(property.GetJsonPropertyName()!)],
             property.ClrType.UnwrapNullableType(),
             property.FindRelationalTypeMapping()!,
             IsNullable || property.IsNullable);
@@ -245,7 +253,7 @@ public class JsonQueryExpression : Expression, IPrintableExpression
     /// </summary>
     /// <returns>A new expression which has <see cref="IsNullable" /> property set to true.</returns>
     public virtual JsonQueryExpression MakeNullable()
-        => new JsonQueryExpression(
+        => new(
             StructuralType,
             JsonColumn.MakeNullable(),
             KeyPropertyMap?.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.MakeNullable()),
@@ -298,8 +306,8 @@ public class JsonQueryExpression : Expression, IPrintableExpression
                     && KeyPropertyMap is not null
                     && keyPropertyMap.Count == KeyPropertyMap.Count
                     && KeyPropertyMapEquals(keyPropertyMap))))
-                ? this
-                : new JsonQueryExpression(StructuralType, jsonColumn, keyPropertyMap, Path, Type, IsCollection, IsNullable);
+            ? this
+            : new JsonQueryExpression(StructuralType, jsonColumn, keyPropertyMap, Path, Type, IsCollection, IsNullable);
 
     /// <inheritdoc />
     public override bool Equals(object? obj)
