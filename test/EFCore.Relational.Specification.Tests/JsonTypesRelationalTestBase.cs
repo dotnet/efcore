@@ -127,8 +127,7 @@ public abstract class JsonTypesRelationalTestBase(NonSharedFixture fixture) : Js
             RelationalStrings.NestedCollectionsNotSupported(propertyType, entityType, "Prop"),
             (await Assert.ThrowsAsync<InvalidOperationException>(testCode)).Message);
 
-    [ConditionalTheory]
-    [InlineData(null)]
+    [ConditionalTheory, InlineData(null)]
     public virtual Task Can_read_write_collection_of_fixed_length_string_JSON_values(object? storeType)
         => Can_read_and_write_JSON_collection_value<StringCollectionType, List<string>>(
             b => b.ElementType().IsFixedLength().HasMaxLength(32),
@@ -146,8 +145,7 @@ public abstract class JsonTypesRelationalTestBase(NonSharedFixture fixture) : Js
                 { CoreAnnotationNames.MaxLength, 32 }
             });
 
-    [ConditionalTheory]
-    [InlineData(null)]
+    [ConditionalTheory, InlineData(null)]
     public virtual Task Can_read_write_collection_of_ASCII_string_JSON_values(object? storeType)
         => Can_read_and_write_JSON_collection_value<StringCollectionType, List<string>>(
             b => b.ElementType().IsUnicode(false),

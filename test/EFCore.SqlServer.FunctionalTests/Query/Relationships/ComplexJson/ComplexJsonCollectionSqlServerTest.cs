@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Xunit.Sdk;
-
 namespace Microsoft.EntityFrameworkCore.Query.Relationships.ComplexJson;
 
 public class ComplexJsonCollectionSqlServerTest(ComplexJsonSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
@@ -149,7 +147,7 @@ WHERE CAST(JSON_VALUE([r].[RelatedCollection], '$[0].Int') AS int) = 8
         if (Fixture.UsingJsonType)
         {
             AssertSql(
-                 """
+                """
 @i='?' (DbType = Int32)
 
 SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
@@ -159,8 +157,8 @@ WHERE JSON_VALUE([r].[RelatedCollection], '$[' + CAST(@i AS nvarchar(max)) + ']'
         }
         else
         {
-           AssertSql(
-               """
+            AssertSql(
+                """
 @i='?' (DbType = Int32)
 
 SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]

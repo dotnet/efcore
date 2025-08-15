@@ -1676,7 +1676,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
 
     private static IEnumerable<TElement> ClientDefaultIfEmpty<TElement>(IEnumerable<TElement> source)
         // ReSharper disable PossibleMultipleEnumeration
-        => source?.Count() == 0 ? [default(TElement)] : source;
+        => source?.Count() == 0 ? [default] : source;
     // ReSharper restore PossibleMultipleEnumeration
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]

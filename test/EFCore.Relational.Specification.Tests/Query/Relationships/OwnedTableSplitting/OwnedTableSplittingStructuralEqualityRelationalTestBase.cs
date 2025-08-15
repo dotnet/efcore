@@ -5,7 +5,8 @@ using Microsoft.EntityFrameworkCore.Query.Relationships.OwnedNavigations;
 
 namespace Microsoft.EntityFrameworkCore.Query.Relationships.OwnedTableSplitting;
 
-public abstract class OwnedTableSplittingStructuralEqualityRelationalTestBase<TFixture> : OwnedNavigationsStructuralEqualityTestBase<TFixture>
+public abstract class
+    OwnedTableSplittingStructuralEqualityRelationalTestBase<TFixture> : OwnedNavigationsStructuralEqualityTestBase<TFixture>
     where TFixture : OwnedTableSplittingRelationalFixtureBase, new()
 {
     public OwnedTableSplittingStructuralEqualityRelationalTestBase(TFixture fixture, ITestOutputHelper testOutputHelper)

@@ -51,13 +51,13 @@ public abstract class RelationshipsStructuralEqualityTestBase<TFixture>(TFixture
         => AssertQuery(
             ss => ss.Set<RootEntity>()
                 .Where(e => e.RequiredRelated.RequiredNested
-                == new NestedType
-                {
-                    Id = 1000,
-                    Name = "Root1_RequiredRelated_RequiredNested",
-                    Int = 8,
-                    String = "foo"
-                }),
+                    == new NestedType
+                    {
+                        Id = 1000,
+                        Name = "Root1_RequiredRelated_RequiredNested",
+                        Int = 8,
+                        String = "foo"
+                    }),
             ss => ss.Set<RootEntity>()
                 .Where(e => e.RequiredRelated.RequiredNested.Equals(
                     new NestedType

@@ -1014,14 +1014,14 @@ LIMIT @p
     public override async Task Same_entity_with_complex_type_projected_twice_with_pushdown_as_part_of_another_projection(bool async)
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Same_entity_with_complex_type_projected_twice_with_pushdown_as_part_of_another_projection(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(()
+                => base.Same_entity_with_complex_type_projected_twice_with_pushdown_as_part_of_another_projection(async))).Message);
 
     public override async Task Same_complex_type_projected_twice_with_pushdown_as_part_of_another_projection(bool async)
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Same_complex_type_projected_twice_with_pushdown_as_part_of_another_projection(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(()
+                => base.Same_complex_type_projected_twice_with_pushdown_as_part_of_another_projection(async))).Message);
 
     #region GroupBy
 

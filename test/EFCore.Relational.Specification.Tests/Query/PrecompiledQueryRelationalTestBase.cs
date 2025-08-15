@@ -403,9 +403,8 @@ Assert.Collection(
     public virtual async Task Foreach_sync_over_DbSet_property_is_not_supported()
     {
         // TODO: Assert diagnostics about non-intercepted query
-        var exception = await Assert.ThrowsAsync<FailException>(
-            () => Test(
-                """
+        var exception = await Assert.ThrowsAsync<FailException>(() => Test(
+            """
 foreach (var blog in context.Blogs)
 {
 }
@@ -418,9 +417,8 @@ foreach (var blog in context.Blogs)
     public virtual async Task Foreach_async_is_not_supported()
     {
         // TODO: Assert diagnostics about non-intercepted query
-        var exception = await Assert.ThrowsAsync<FailException>(
-            () => Test(
-                """
+        var exception = await Assert.ThrowsAsync<FailException>(() => Test(
+            """
 await foreach (var blog in context.Blogs)
 {
 }
@@ -1301,8 +1299,8 @@ await using var context = new PrecompiledQueryContext(dbContextOptions);
         public int Id { get; set; }
 
         public string? Name { get; set; }
-        public List<Post> Posts { get; set; } = new();
-        public List<JsonRoot> Json { get; set; } = new();
+        public List<Post> Posts { get; set; } = [];
+        public List<JsonRoot> Json { get; set; } = [];
     }
 
     public class JsonRoot

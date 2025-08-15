@@ -203,10 +203,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
             });
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
-    [InlineData(null)]
+    [ConditionalTheory, InlineData(true), InlineData(false), InlineData(null)]
     public virtual Task Create_table_with_computed_column(bool? stored)
         => Test(
             builder => { },
@@ -383,12 +380,13 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                                 cp.Property(x => x.Value).HasJsonPropertyName("custom_value");
                                 cp.Property(x => x.Date).HasJsonPropertyName("custom_date");
                                 cp.Ignore(x => x.NestedCollection);
-                                cp.ComplexProperty(x => x.Nested, np =>
-                                {
-                                    np.Property("Foo").HasJsonPropertyName("nested_foo");
-                                    np.Property("Bar").HasJsonPropertyName("nested_bar");
-                                    np.HasJsonPropertyName("nested_complex");
-                                });
+                                cp.ComplexProperty(
+                                    x => x.Nested, np =>
+                                    {
+                                        np.Property("Foo").HasJsonPropertyName("nested_foo");
+                                        np.Property("Bar").HasJsonPropertyName("nested_bar");
+                                        np.HasJsonPropertyName("nested_complex");
+                                    });
                             });
 
                         e.ComplexCollection<List<MyJsonComplex>, MyJsonComplex>(
@@ -398,12 +396,13 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                                 cp.Property(x => x.Value).HasJsonPropertyName("custom_value2");
                                 cp.Property(x => x.Date).HasJsonPropertyName("custom_date2");
                                 cp.Ignore(x => x.NestedCollection);
-                                cp.ComplexProperty(x => x.Nested, np =>
-                                {
-                                    np.Property("Foo").HasJsonPropertyName("nested_foo2");
-                                    np.Property("Bar").HasJsonPropertyName("nested_bar2");
-                                    np.HasJsonPropertyName("nested_complex2");
-                                });
+                                cp.ComplexProperty(
+                                    x => x.Nested, np =>
+                                    {
+                                        np.Property("Foo").HasJsonPropertyName("nested_foo2");
+                                        np.Property("Bar").HasJsonPropertyName("nested_bar2");
+                                        np.HasJsonPropertyName("nested_complex2");
+                                    });
                             });
                     });
             },
@@ -439,18 +438,20 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                         e.ComplexProperty<MyJsonComplex>(
                             "ComplexReference", cp =>
                             {
-                                cp.ComplexProperty(x => x.Nested, np =>
-                                {
-                                    np.ToJson("ComplexReferenceJSON");
-                                    np.Property("Foo").HasJsonPropertyName("nested_foo");
-                                    np.Property("Bar").HasJsonPropertyName("nested_bar");
-                                });
-                                cp.ComplexCollection(x => x.NestedCollection, ncp =>
-                                {
-                                    ncp.ToJson("ComplexCollectionJSON");
-                                    ncp.Property("Foo").HasJsonPropertyName("nested_collection_foo");
-                                    ncp.Property("Bar").HasJsonPropertyName("nested_collection_bar");
-                                });
+                                cp.ComplexProperty(
+                                    x => x.Nested, np =>
+                                    {
+                                        np.ToJson("ComplexReferenceJSON");
+                                        np.Property("Foo").HasJsonPropertyName("nested_foo");
+                                        np.Property("Bar").HasJsonPropertyName("nested_bar");
+                                    });
+                                cp.ComplexCollection(
+                                    x => x.NestedCollection, ncp =>
+                                    {
+                                        ncp.ToJson("ComplexCollectionJSON");
+                                        ncp.Property("Foo").HasJsonPropertyName("nested_collection_foo");
+                                        ncp.Property("Bar").HasJsonPropertyName("nested_collection_bar");
+                                    });
                             });
                     });
             },
@@ -864,10 +865,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                     Assert.Single(table.PrimaryKey!.Columns));
             });
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
-    [InlineData(null)]
+    [ConditionalTheory, InlineData(true), InlineData(false), InlineData(null)]
     public virtual Task Add_column_with_computedSql(bool? stored)
         => Test(
             builder => builder.Entity(
@@ -1052,9 +1050,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                 }
             });
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public virtual Task Add_column_computed_with_collation(bool stored)
         => Test(
             builder => builder.Entity("People").Property<int>("Id"),
@@ -1207,10 +1203,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                 Assert.Contains(table.Columns.Single(c => c.Name == "LastName"), index.Columns);
             });
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
-    [InlineData(null)]
+    [ConditionalTheory, InlineData(true), InlineData(false), InlineData(null)]
     public virtual Task Alter_column_make_computed(bool? stored)
         => Test(
             builder => builder.Entity(
@@ -3385,83 +3378,94 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
     [ConditionalFact]
     public virtual Task Multiop_drop_table_and_create_the_same_table_in_one_migration()
         => TestComposite(
-            [
-                builder => builder.Entity(
-                    "Customer", e =>
-                    {
-                        e.Property<int>("Id").ValueGeneratedOnAdd();
-                        e.Property<string>("Name");
-                        e.HasKey("Id");
-                        e.ToTable("Customers");
-                    }),
-                builder => { },
-                builder => builder.Entity(
-                    "Customer", e =>
-                    {
-                        e.Property<int>("Id").ValueGeneratedOnAdd();
-                        e.Property<string>("Name");
-                        e.HasKey("Id");
+        [
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.Property<string>("Name");
+                    e.HasKey("Id");
+                    e.ToTable("Customers");
+                }),
+            builder => { },
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.Property<string>("Name");
+                    e.HasKey("Id");
 
-                        e.ToTable("Customers");
-                    })
-                ]);
+                    e.ToTable("Customers");
+                })
+        ]);
 
     [ConditionalFact]
     public virtual Task Multiop_create_table_and_drop_it_in_one_migration()
         => TestComposite(
-            [
-                builder => { },
-                builder => builder.Entity(
-                    "Customer", e =>
-                    {
-                        e.Property<int>("Id").ValueGeneratedOnAdd();
-                        e.Property<string>("Name");
-                        e.HasKey("Id");
+        [
+            builder => { },
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.Property<string>("Name");
+                    e.HasKey("Id");
 
-                        e.ToTable("Customers");
-                    }),
-                builder => { },
-                ]);
+                    e.ToTable("Customers");
+                }),
+            builder => { },
+        ]);
 
     [ConditionalFact]
     public virtual Task Multiop_rename_table_and_drop()
         => TestComposite(
-            [
-                builder => builder.Entity(
-                    "Customer", e =>
-                    {
-                        e.Property<int>("Id").ValueGeneratedOnAdd();
-                        e.Property<string>("Name");
-                        e.HasKey("Id");
+        [
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.Property<string>("Name");
+                    e.HasKey("Id");
 
-                        e.ToTable("Customers");
-                    }),
-                builder => builder.Entity(
-                    "Customer", e =>
-                    {
-                        e.Property<int>("Id").ValueGeneratedOnAdd();
-                        e.Property<string>("Name");
-                        e.HasKey("Id");
+                    e.ToTable("Customers");
+                }),
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.Property<string>("Name");
+                    e.HasKey("Id");
 
-                        e.ToTable("NewCustomers");
-                    }),
-                builder => { },
-                ]);
+                    e.ToTable("NewCustomers");
+                }),
+            builder => { },
+        ]);
 
     [ConditionalFact]
     public virtual Task Multiop_rename_table_and_create_new_table_with_the_old_name()
         => TestComposite(
-            [
-                builder => builder.Entity(
-                    "Customer", e =>
-                    {
-                        e.Property<int>("Id").ValueGeneratedOnAdd();
-                        e.Property<string>("Name");
-                        e.HasKey("Id");
+        [
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.Property<string>("Name");
+                    e.HasKey("Id");
 
-                        e.ToTable("Customers");
-                    }),
-                builder => builder.Entity(
+                    e.ToTable("Customers");
+                }),
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.Property<string>("Name");
+                    e.HasKey("Id");
+
+                    e.ToTable("NewCustomers");
+                }),
+            builder =>
+            {
+                builder.Entity(
                     "Customer", e =>
                     {
                         e.Property<int>("Id").ValueGeneratedOnAdd();
@@ -3469,30 +3473,19 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                         e.HasKey("Id");
 
                         e.ToTable("NewCustomers");
-                    }),
-                builder =>
-                {
-                    builder.Entity(
-                        "Customer", e =>
-                        {
-                            e.Property<int>("Id").ValueGeneratedOnAdd();
-                            e.Property<string>("Name");
-                            e.HasKey("Id");
+                    });
 
-                            e.ToTable("NewCustomers");
-                        });
+                builder.Entity(
+                    "AnotherCustomer", e =>
+                    {
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.Property<string>("Name");
+                        e.HasKey("Id");
 
-                    builder.Entity(
-                        "AnotherCustomer", e =>
-                        {
-                            e.Property<int>("Id").ValueGeneratedOnAdd();
-                            e.Property<string>("Name");
-                            e.HasKey("Id");
-
-                            e.ToTable("Customers");
-                        });
-                },
-                ]);
+                        e.ToTable("Customers");
+                    });
+            },
+        ]);
 
     protected class MyJsonComplex
     {
@@ -3633,7 +3626,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
         Action<DatabaseModel> asserter,
         bool withConventions = true,
         MigrationsSqlGenerationOptions migrationsSqlGenerationOptions = MigrationsSqlGenerationOptions.Default)
-        => Test(buildSourceAction, new[] { operation }, asserter, withConventions, migrationsSqlGenerationOptions);
+        => Test(buildSourceAction, [operation], asserter, withConventions, migrationsSqlGenerationOptions);
 
     protected virtual Task Test(
         Action<ModelBuilder> buildSourceAction,

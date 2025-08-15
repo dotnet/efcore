@@ -17,10 +17,9 @@ public class SqlServerFixture : ServiceProviderFixtureBase
         => SqlServerTestStoreFactory.Instance;
 
     public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-        => base.AddOptions(builder).ConfigureWarnings(
-            w =>
-            {
-                w.Log(SqlServerEventId.ByteIdentityColumnWarning);
-                w.Log(SqlServerEventId.DecimalTypeKeyWarning);
-            });
+        => base.AddOptions(builder).ConfigureWarnings(w =>
+        {
+            w.Log(SqlServerEventId.ByteIdentityColumnWarning);
+            w.Log(SqlServerEventId.DecimalTypeKeyWarning);
+        });
 }

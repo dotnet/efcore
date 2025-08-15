@@ -3,8 +3,6 @@
 
 // ReSharper disable InconsistentNaming
 
-using Xunit.Sdk;
-
 namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
 public class SqlServerModelBuilderNonGenericTest : SqlServerModelBuilderTestBase

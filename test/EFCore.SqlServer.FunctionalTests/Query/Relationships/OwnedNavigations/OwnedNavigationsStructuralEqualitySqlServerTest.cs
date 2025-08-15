@@ -181,7 +181,7 @@ ORDER BY [r].[Id], [r0].[RootEntityId], [r1].[RelatedTypeRootEntityId], [o].[Roo
         await base.Nested_with_inline();
 
         AssertSql(
-);
+        );
     }
 
     public override async Task Nested_with_parameter()
@@ -189,7 +189,7 @@ ORDER BY [r].[Id], [r0].[RootEntityId], [r1].[RelatedTypeRootEntityId], [o].[Roo
         await base.Nested_with_parameter();
 
         AssertSql(
-);
+        );
     }
 
     public override async Task Two_nested_collections()

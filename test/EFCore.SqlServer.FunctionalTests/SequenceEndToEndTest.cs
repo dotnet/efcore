@@ -58,8 +58,7 @@ public class SequenceEndToEndTest : IAsyncLifetime
         context.SaveChanges();
     }
 
-    [ConditionalFact]
-    [SqlServerCondition(SqlServerCondition.IsNotCI)]
+    [ConditionalFact, SqlServerCondition(SqlServerCondition.IsNotCI)]
     public void Can_use_sequence_end_to_end_on_multiple_databases()
     {
         var serviceProvider = new ServiceCollection()
@@ -283,12 +282,11 @@ public class SequenceEndToEndTest : IAsyncLifetime
                 .UseSqlServer(SqlServerTestStore.CreateConnectionString(_databaseName), b => b.ApplyConfiguration());
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<Pegasus>(
-                b =>
-                {
-                    b.HasKey(e => e.Identifier);
-                    b.Property(e => e.Identifier).UseHiLo();
-                });
+            => modelBuilder.Entity<Pegasus>(b =>
+            {
+                b.HasKey(e => e.Identifier);
+                b.Property(e => e.Identifier).UseHiLo();
+            });
     }
 
     private class Pegasus
@@ -382,19 +380,18 @@ public class SequenceEndToEndTest : IAsyncLifetime
                 .UseSqlServer(SqlServerTestStore.CreateConnectionString(_databaseName), b => b.ApplyConfiguration());
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<Unicon>(
-                b =>
+            => modelBuilder.Entity<Unicon>(b =>
+            {
+                b.HasKey(e => e.Identifier);
+                if (_useSequence)
                 {
-                    b.HasKey(e => e.Identifier);
-                    if (_useSequence)
-                    {
-                        b.Property(e => e.Identifier).UseHiLo();
-                    }
-                    else
-                    {
-                        b.Property(e => e.Identifier).UseIdentityColumn();
-                    }
-                });
+                    b.Property(e => e.Identifier).UseHiLo();
+                }
+                else
+                {
+                    b.Property(e => e.Identifier).UseIdentityColumn();
+                }
+            });
     }
 
     private class Unicon

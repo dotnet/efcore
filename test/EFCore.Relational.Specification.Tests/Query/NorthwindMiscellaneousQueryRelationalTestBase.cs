@@ -11,8 +11,7 @@ public abstract class NorthwindMiscellaneousQueryRelationalTestBase<TFixture>(TF
     : NorthwindMiscellaneousQueryTestBase<TFixture>(fixture)
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Projecting_collection_split(bool async)
         => AssertQuery(
             async,
@@ -21,8 +20,7 @@ public abstract class NorthwindMiscellaneousQueryRelationalTestBase<TFixture>(TF
             assertOrder: true,
             elementAsserter: (e, a) => AssertCollection(e, a));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Projecting_collection_then_include_split(bool async)
         => AssertQuery(
             async,

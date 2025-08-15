@@ -5,7 +5,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Relationships.Navigations;
 
 public abstract class NavigationsRelationalFixtureBase : NavigationsFixtureBase, ITestSqlLoggerFactory
 {
-    protected override string StoreName => "NavigationsQueryTest";
+    protected override string StoreName
+        => "NavigationsQueryTest";
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {

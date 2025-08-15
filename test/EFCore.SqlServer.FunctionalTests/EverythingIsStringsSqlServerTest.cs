@@ -225,8 +225,7 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => base
                 .AddOptions(builder)
-                .ConfigureWarnings(
-                    c => c.Log(SqlServerEventId.DecimalTypeDefaultWarning));
+                .ConfigureWarnings(c => c.Log(SqlServerEventId.DecimalTypeDefaultWarning));
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {

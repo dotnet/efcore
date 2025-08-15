@@ -3582,7 +3582,7 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture>(TFixture fix
             assertOrder: true);
 
     private static IEnumerable<TElement> ClientDefaultIfEmpty<TElement>(IEnumerable<TElement> source)
-        => source?.Count() == 0 ? [default(TElement)] : source;
+        => source?.Count() == 0 ? [default] : source;
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Complex_query_with_repeated_query_model_compiles_correctly(bool async)

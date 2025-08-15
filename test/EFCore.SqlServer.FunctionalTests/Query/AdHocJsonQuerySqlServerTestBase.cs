@@ -53,7 +53,7 @@ WHERE [e].[Id] < 4
         await base.Project_nested_json_entity_with_missing_scalars(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[Id], JSON_QUERY([e].[OptionalReference], '$.NestedOptionalReference'), JSON_QUERY([e].[RequiredReference], '$.NestedRequiredReference'), JSON_QUERY([e].[Collection], '$[0].NestedCollection')
 FROM [Entities] AS [e]
 WHERE [e].[Id] < 4
@@ -71,7 +71,6 @@ FROM [Entities] AS [e]
 WHERE [e].[Id] = 5
 """);
     }
-
 
     public override async Task Project_missing_required_navigation(bool async)
     {
@@ -445,8 +444,7 @@ VALUES(
 
     #region EnumLegacyValues
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Read_enum_property_with_legacy_values(bool async)
     {
         var contextFactory = await InitializeAsync<DbContext>(
@@ -456,14 +454,13 @@ VALUES(
 
         using (var context = contextFactory.CreateContext())
         {
-            var query = context.Set<MyEntityEnumLegacyValues>().Select(
-                x => new
-                {
-                    x.Reference.IntEnum,
-                    x.Reference.ByteEnum,
-                    x.Reference.LongEnum,
-                    x.Reference.NullableEnum
-                });
+            var query = context.Set<MyEntityEnumLegacyValues>().Select(x => new
+            {
+                x.Reference.IntEnum,
+                x.Reference.ByteEnum,
+                x.Reference.LongEnum,
+                x.Reference.NullableEnum
+            });
 
             var exception = async
                 ? await (Assert.ThrowsAsync<SqlException>(() => query.ToListAsync()))
@@ -474,8 +471,7 @@ VALUES(
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Read_json_entity_with_enum_properties_with_legacy_values(bool async)
     {
         var contextFactory = await InitializeAsync<DbContext>(
@@ -515,8 +511,7 @@ VALUES(
             l => l.Message == CoreResources.LogStringEnumValueInJson(testLogger).GenerateMessage(nameof(ULongEnumLegacyValues)));
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Read_json_entity_collection_with_enum_properties_with_legacy_values(bool async)
     {
         var contextFactory = await InitializeAsync<DbContext>(
@@ -574,14 +569,13 @@ N'e1')
 """);
 
     protected virtual void BuildModelEnumLegacyValues(ModelBuilder modelBuilder)
-        => modelBuilder.Entity<MyEntityEnumLegacyValues>(
-            b =>
-            {
-                b.ToTable("Entities");
-                b.Property(x => x.Id).ValueGeneratedNever();
-                b.OwnsOne(x => x.Reference, b => b.ToJson().HasColumnType(JsonColumnType));
-                b.OwnsMany(x => x.Collection, b => b.ToJson().HasColumnType(JsonColumnType));
-            });
+        => modelBuilder.Entity<MyEntityEnumLegacyValues>(b =>
+        {
+            b.ToTable("Entities");
+            b.Property(x => x.Id).ValueGeneratedNever();
+            b.OwnsOne(x => x.Reference, b => b.ToJson().HasColumnType(JsonColumnType));
+            b.OwnsMany(x => x.Collection, b => b.ToJson().HasColumnType(JsonColumnType));
+        });
 
     private class MyEntityEnumLegacyValues
     {

@@ -175,8 +175,7 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
 
     private class AnNum
     {
-        [Column(TypeName = "decimal(18, 0)")]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Column(TypeName = "decimal(18, 0)"), DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public decimal Id { get; set; }
 
         public string TheWalrus { get; set; }
@@ -544,15 +543,14 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Category>(
-                builder =>
-                {
-                    builder.OwnsOne(
-                        x => x.Picture, fileSource =>
-                        {
-                            fileSource.HasOne<FileMetadata>().WithOne().HasForeignKey<FileSource>(x => x.FileId);
-                        });
-                });
+            modelBuilder.Entity<Category>(builder =>
+            {
+                builder.OwnsOne(
+                    x => x.Picture, fileSource =>
+                    {
+                        fileSource.HasOne<FileMetadata>().WithOne().HasForeignKey<FileSource>(x => x.FileId);
+                    });
+            });
         }
     }
 
@@ -866,12 +864,11 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(
-        nameof(DataGenerator.GetCombinations),
-        new object[] { 0, 1, 2, 3, 4, 7 },
-        2,
-        MemberType = typeof(DataGenerator))]
+    [ConditionalTheory, MemberData(
+         nameof(DataGenerator.GetCombinations),
+         new object[] { 0, 1, 2, 3, 4, 7 },
+         2,
+         MemberType = typeof(DataGenerator))]
     public async Task Can_insert_entities_with_generated_PKs(int studentCount, int courseCount)
     {
         var students = new Student[]
@@ -1079,78 +1076,75 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Course>(
-                builder =>
-                {
-                    builder.ToTable("Courses");
+            modelBuilder.Entity<Course>(builder =>
+            {
+                builder.ToTable("Courses");
 
-                    builder.HasKey(x => x.Id);
+                builder.HasKey(x => x.Id);
 
-                    builder.Property(x => x.Id)
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValueSql("NEWSEQUENTIALID()");
+                builder.Property(x => x.Id)
+                    .ValueGeneratedOnAdd()
+                    .HasDefaultValueSql("NEWSEQUENTIALID()");
 
-                    builder.Property(x => x.Title)
-                        .IsRequired()
-                        .HasMaxLength(50);
+                builder.Property(x => x.Title)
+                    .IsRequired()
+                    .HasMaxLength(50);
 
-                    builder.Property(x => x.RowVersion)
-                        .IsRowVersion();
+                builder.Property(x => x.RowVersion)
+                    .IsRowVersion();
 
-                    builder.HasMany(x => x.Students)
-                        .WithMany(x => x.Courses)
-                        .UsingEntity<Enrollment>();
-                });
+                builder.HasMany(x => x.Students)
+                    .WithMany(x => x.Courses)
+                    .UsingEntity<Enrollment>();
+            });
 
-            modelBuilder.Entity<Student>(
-                builder =>
-                {
-                    builder.ToTable("Students");
+            modelBuilder.Entity<Student>(builder =>
+            {
+                builder.ToTable("Students");
 
-                    builder.HasKey(x => x.Id);
+                builder.HasKey(x => x.Id);
 
-                    builder.Property(x => x.Id)
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValueSql("NEWSEQUENTIALID()");
+                builder.Property(x => x.Id)
+                    .ValueGeneratedOnAdd()
+                    .HasDefaultValueSql("NEWSEQUENTIALID()");
 
-                    builder.Property(x => x.LastName)
-                        .IsRequired()
-                        .HasMaxLength(50);
+                builder.Property(x => x.LastName)
+                    .IsRequired()
+                    .HasMaxLength(50);
 
-                    builder.Property(x => x.FirstMidName)
-                        .IsRequired()
-                        .HasMaxLength(50);
+                builder.Property(x => x.FirstMidName)
+                    .IsRequired()
+                    .HasMaxLength(50);
 
-                    builder.Property(x => x.RowVersion)
-                        .IsRowVersion();
-                });
+                builder.Property(x => x.RowVersion)
+                    .IsRowVersion();
+            });
 
-            modelBuilder.Entity<Enrollment>(
-                builder =>
-                {
-                    builder.ToTable("Enrollments");
+            modelBuilder.Entity<Enrollment>(builder =>
+            {
+                builder.ToTable("Enrollments");
 
-                    builder.HasKey(x => x.Id);
+                builder.HasKey(x => x.Id);
 
-                    builder.Property(x => x.Id)
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValueSql("NEWSEQUENTIALID()");
+                builder.Property(x => x.Id)
+                    .ValueGeneratedOnAdd()
+                    .HasDefaultValueSql("NEWSEQUENTIALID()");
 
-                    builder.Property(x => x.RowVersion)
-                        .IsRowVersion();
+                builder.Property(x => x.RowVersion)
+                    .IsRowVersion();
 
-                    builder.HasOne(t => t.Course)
-                        .WithMany(t => t.Enrollments)
-                        .HasPrincipalKey(d => d.Id)
-                        .HasForeignKey(d => d.CourseId)
-                        .OnDelete(DeleteBehavior.Cascade);
+                builder.HasOne(t => t.Course)
+                    .WithMany(t => t.Enrollments)
+                    .HasPrincipalKey(d => d.Id)
+                    .HasForeignKey(d => d.CourseId)
+                    .OnDelete(DeleteBehavior.Cascade);
 
-                    builder.HasOne(t => t.Student)
-                        .WithMany(t => t.Enrollments)
-                        .HasPrincipalKey(d => d.Id)
-                        .HasForeignKey(d => d.StudentId)
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
+                builder.HasOne(t => t.Student)
+                    .WithMany(t => t.Enrollments)
+                    .HasPrincipalKey(d => d.Id)
+                    .HasForeignKey(d => d.StudentId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
         }
     }
 
@@ -1412,71 +1406,65 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Level>(
-                eb =>
-                {
-                    eb.Property(g => g.Id)
-                        .ValueGeneratedNever();
+            modelBuilder.Entity<Level>(eb =>
+            {
+                eb.Property(g => g.Id)
+                    .ValueGeneratedNever();
 
-                    eb.HasKey(l => new { l.GameId, l.Id });
-                });
+                eb.HasKey(l => new { l.GameId, l.Id });
+            });
 
-            modelBuilder.Entity<Actor>(
-                eb =>
-                {
-                    eb.Property(g => g.Id)
-                        .ValueGeneratedNever();
+            modelBuilder.Entity<Actor>(eb =>
+            {
+                eb.Property(g => g.Id)
+                    .ValueGeneratedNever();
 
-                    eb.HasKey(a => new { a.GameId, a.Id });
+                eb.HasKey(a => new { a.GameId, a.Id });
 
-                    eb.HasOne(a => a.Level)
-                        .WithMany(l => l.Actors)
-                        .HasForeignKey(nameof(Actor.GameId), "LevelId")
-                        .IsRequired();
+                eb.HasOne(a => a.Level)
+                    .WithMany(l => l.Actors)
+                    .HasForeignKey(nameof(Actor.GameId), "LevelId")
+                    .IsRequired();
 
-                    eb.HasMany(a => a.Items)
-                        .WithOne(i => i.Actor)
-                        .HasForeignKey(nameof(Item.GameId), "ActorId");
-                });
+                eb.HasMany(a => a.Items)
+                    .WithOne(i => i.Actor)
+                    .HasForeignKey(nameof(Item.GameId), "ActorId");
+            });
 
-            modelBuilder.Entity<PlayerCharacter>(
-                eb =>
-                {
-                    eb.HasOne(p => p.CurrentWeapon)
-                        .WithOne()
-                        .HasForeignKey<PlayerCharacter>(nameof(PlayerCharacter.GameId), "CurrentWeaponId");
-                });
+            modelBuilder.Entity<PlayerCharacter>(eb =>
+            {
+                eb.HasOne(p => p.CurrentWeapon)
+                    .WithOne()
+                    .HasForeignKey<PlayerCharacter>(nameof(PlayerCharacter.GameId), "CurrentWeaponId");
+            });
 
-            modelBuilder.Entity<Item>(
-                eb =>
-                {
-                    eb.Property(g => g.Id)
-                        .ValueGeneratedNever();
+            modelBuilder.Entity<Item>(eb =>
+            {
+                eb.Property(g => g.Id)
+                    .ValueGeneratedNever();
 
-                    eb.HasKey(l => new { l.GameId, l.Id });
-                });
+                eb.HasKey(l => new { l.GameId, l.Id });
+            });
 
-            modelBuilder.Entity<Container>(
-                eb =>
-                {
-                    eb.HasMany(c => c.Items)
-                        .WithOne()
-                        .HasForeignKey("GameId", "ContainerId");
-                });
+            modelBuilder.Entity<Container>(eb =>
+            {
+                eb.HasMany(c => c.Items)
+                    .WithOne()
+                    .HasForeignKey("GameId", "ContainerId");
+            });
 
-            modelBuilder.Entity<Game>(
-                eb =>
-                {
-                    eb.Property(g => g.Id)
-                        .ValueGeneratedOnAdd();
-                    eb.HasMany(g => g.Levels)
-                        .WithOne(l => l.Game)
-                        .HasForeignKey(l => l.GameId);
-                    eb.HasMany(g => g.Actors)
-                        .WithOne(a => a.Game)
-                        .HasForeignKey(a => a.GameId)
-                        .OnDelete(DeleteBehavior.Restrict);
-                });
+            modelBuilder.Entity<Game>(eb =>
+            {
+                eb.Property(g => g.Id)
+                    .ValueGeneratedOnAdd();
+                eb.HasMany(g => g.Levels)
+                    .WithOne(l => l.Game)
+                    .HasForeignKey(l => l.GameId);
+                eb.HasMany(g => g.Actors)
+                    .WithOne(a => a.Game)
+                    .HasForeignKey(a => a.GameId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
         }
     }
 
@@ -1690,12 +1678,11 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
         public DbSet<Customer> Customers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<Customer>(
-                b =>
-                {
-                    b.HasKey(c => c.CustomerID);
-                    b.ToTable("Customers");
-                });
+            => modelBuilder.Entity<Customer>(b =>
+            {
+                b.HasKey(c => c.CustomerID);
+                b.ToTable("Customers");
+            });
     }
 
     private class Customer

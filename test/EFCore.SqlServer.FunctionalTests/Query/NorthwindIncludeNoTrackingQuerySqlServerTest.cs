@@ -19,8 +19,7 @@ public class NorthwindIncludeNoTrackingQuerySqlServerTest : NorthwindIncludeNoTr
     public override async Task Include_collection_with_last_no_orderby(bool async)
         => Assert.Equal(
             RelationalStrings.LastUsedWithoutOrderBy(nameof(Enumerable.Last)),
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Include_collection_with_last_no_orderby(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Include_collection_with_last_no_orderby(async))).Message);
 
     public override async Task Include_duplicate_reference3(bool async)
     {

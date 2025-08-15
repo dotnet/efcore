@@ -7,7 +7,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Relationships.OwnedJson;
 
 public abstract class OwnedJsonRelationalFixtureBase : OwnedNavigationsFixtureBase, ITestSqlLoggerFactory
 {
-    protected override string StoreName => "OwnedJsonJsonQueryTest";
+    protected override string StoreName
+        => "OwnedJsonJsonQueryTest";
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {

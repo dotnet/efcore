@@ -53,8 +53,7 @@ LIMIT -1 OFFSET @p0
 """);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Select_datetime_millisecond_component_composed(bool async)
     {
         await AssertQueryScalar(
@@ -68,8 +67,7 @@ FROM "Orders" AS "o"
 """);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Select_datetime_TimeOfDay_component_composed(bool async)
     {
         await AssertQueryScalar(
@@ -374,23 +372,20 @@ FROM "Orders" AS "o"
             CoreStrings.ClientProjectionCapturingConstantInMethodInstance(
                 "Microsoft.EntityFrameworkCore.Query.NorthwindMiscellaneousQuerySqliteTest",
                 "InstanceMethod"),
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Client_code_using_instance_method_throws(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Client_code_using_instance_method_throws(async))).Message);
 
     public override async Task Client_code_using_instance_in_static_method(bool async)
         => Assert.Equal(
             CoreStrings.ClientProjectionCapturingConstantInMethodArgument(
                 "Microsoft.EntityFrameworkCore.Query.NorthwindMiscellaneousQuerySqliteTest",
                 "StaticMethod"),
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Client_code_using_instance_in_static_method(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Client_code_using_instance_in_static_method(async))).Message);
 
     public override async Task Client_code_using_instance_in_anonymous_type(bool async)
         => Assert.Equal(
             CoreStrings.ClientProjectionCapturingConstantInTree(
                 "Microsoft.EntityFrameworkCore.Query.NorthwindMiscellaneousQuerySqliteTest"),
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Client_code_using_instance_in_anonymous_type(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Client_code_using_instance_in_anonymous_type(async))).Message);
 
     public override async Task Client_code_unknown_method(bool async)
         => await AssertTranslationFailedWithDetails(
@@ -402,40 +397,38 @@ FROM "Orders" AS "o"
     public override async Task Entity_equality_through_subquery_composite_key(bool async)
         => Assert.Equal(
             CoreStrings.EntityEqualityOnCompositeKeyEntitySubqueryNotSupported("==", nameof(OrderDetail)),
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Entity_equality_through_subquery_composite_key(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Entity_equality_through_subquery_composite_key(async)))
+            .Message);
 
     public override async Task DefaultIfEmpty_in_subquery_nested_filter_order_comparison(bool async)
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.DefaultIfEmpty_in_subquery_nested_filter_order_comparison(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(()
+                => base.DefaultIfEmpty_in_subquery_nested_filter_order_comparison(async))).Message);
 
     public override async Task Select_subquery_recursive_trivial(bool async)
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Select_subquery_recursive_trivial(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Select_subquery_recursive_trivial(async))).Message);
 
     public override async Task Select_correlated_subquery_ordered(bool async)
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Select_correlated_subquery_ordered(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Select_correlated_subquery_ordered(async))).Message);
 
     public override async Task Correlated_collection_with_distinct_without_default_identifiers_projecting_columns_with_navigation(
         bool async)
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Correlated_collection_with_distinct_without_default_identifiers_projecting_columns_with_navigation(async)))
+            (await Assert.ThrowsAsync<InvalidOperationException>(()
+                => base.Correlated_collection_with_distinct_without_default_identifiers_projecting_columns_with_navigation(async)))
             .Message);
 
     public override async Task Correlated_collection_with_distinct_without_default_identifiers_projecting_columns(bool async)
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Correlated_collection_with_distinct_without_default_identifiers_projecting_columns(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(()
+                => base.Correlated_collection_with_distinct_without_default_identifiers_projecting_columns(async))).Message);
 
     public override Task Max_on_empty_sequence_throws(bool async)
         => Assert.ThrowsAsync<InvalidOperationException>(() => base.Max_on_empty_sequence_throws(async));
@@ -445,9 +438,8 @@ FROM "Orders" AS "o"
 
     [ConditionalFact]
     public async Task Single_Predicate_Cancellation()
-        => await Assert.ThrowsAnyAsync<OperationCanceledException>(
-            async () =>
-                await Single_Predicate_Cancellation_test(Fixture.TestSqlLoggerFactory.CancelQuery()));
+        => await Assert.ThrowsAnyAsync<OperationCanceledException>(async () =>
+            await Single_Predicate_Cancellation_test(Fixture.TestSqlLoggerFactory.CancelQuery()));
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

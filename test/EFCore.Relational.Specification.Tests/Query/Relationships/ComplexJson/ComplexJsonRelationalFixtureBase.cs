@@ -7,7 +7,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Relationships.ComplexJson;
 
 public abstract class ComplexJsonRelationalFixtureBase : ComplexPropertiesFixtureBase, ITestSqlLoggerFactory
 {
-    protected override string StoreName => "ComplexJsonQueryTest";
+    protected override string StoreName
+        => "ComplexJsonQueryTest";
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {

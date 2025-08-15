@@ -20,11 +20,9 @@ public class ProductModelProductDescription
     public DateTime ModifiedDate { get; set; }
     public Guid rowguid { get; set; }
 
-    [ForeignKey("ProductDescriptionID")]
-    [InverseProperty("ProductModelProductDescription")]
+    [ForeignKey("ProductDescriptionID"), InverseProperty("ProductModelProductDescription")]
     public virtual ProductDescription ProductDescription { get; set; }
 
-    [ForeignKey("ProductModelID")]
-    [InverseProperty("ProductModelProductDescription")]
+    [ForeignKey("ProductModelID"), InverseProperty("ProductModelProductDescription")]
     public virtual ProductModel ProductModel { get; set; }
 }

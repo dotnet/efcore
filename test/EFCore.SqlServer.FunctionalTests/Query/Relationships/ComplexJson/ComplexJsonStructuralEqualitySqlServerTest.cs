@@ -73,7 +73,7 @@ WHERE CAST([r].[RequiredRelated] AS nvarchar(max)) <> CAST([r].[OptionalRelated]
         }
         else
         {
-           AssertSql(
+            AssertSql(
                 """
 SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
 FROM [RootEntity] AS [r]
@@ -109,7 +109,7 @@ WHERE CAST([r].[OptionalRelated] AS nvarchar(max)) = CAST(NULL AS nvarchar(max))
         }
         else
         {
-           AssertSql(
+            AssertSql(
                 """
 SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
 FROM [RootEntity] AS [r]
@@ -145,7 +145,7 @@ WHERE CAST(JSON_QUERY([r].[RequiredRelated], '$.RequiredNested') AS nvarchar(max
         }
         else
         {
-           AssertSql(
+            AssertSql(
                 """
 SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
 FROM [RootEntity] AS [r]
@@ -213,7 +213,7 @@ WHERE JSON_QUERY([r].[RequiredRelated], '$.NestedCollection') = JSON_QUERY([r].[
         if (Fixture.UsingJsonType)
         {
             AssertSql(
-                  """
+                """
 SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
 FROM [RootEntity] AS [r]
 WHERE CAST(JSON_QUERY([r].[RequiredRelated], '$.NestedCollection') AS nvarchar(max)) = CAST('[{"Id":1002,"Int":8,"Name":"Root1_RequiredRelated_NestedCollection_1","String":"foo"},{"Id":1003,"Int":8,"Name":"Root1_RequiredRelated_NestedCollection_2","String":"foo"}]' AS nvarchar(max))
@@ -221,7 +221,7 @@ WHERE CAST(JSON_QUERY([r].[RequiredRelated], '$.NestedCollection') AS nvarchar(m
         }
         else
         {
-           AssertSql(
+            AssertSql(
                 """
 SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
 FROM [RootEntity] AS [r]
@@ -247,7 +247,7 @@ WHERE CAST(JSON_QUERY([r].[RequiredRelated], '$.NestedCollection') AS nvarchar(m
         }
         else
         {
-           AssertSql(
+            AssertSql(
                 """
 @entity_equality_nestedCollection='?' (Size = 171)
 

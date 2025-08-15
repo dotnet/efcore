@@ -3,7 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query.Translations;
 
-public abstract class MiscellaneousTranslationsRelationalTestBase<TFixture>(TFixture fixture) : MiscellaneousTranslationsTestBase<TFixture>(fixture)
+public abstract class MiscellaneousTranslationsRelationalTestBase<TFixture>(TFixture fixture)
+    : MiscellaneousTranslationsTestBase<TFixture>(fixture)
     where TFixture : BasicTypesQueryFixtureBase, new()
 {
     public override Task Random_Shared_Next_with_no_args()

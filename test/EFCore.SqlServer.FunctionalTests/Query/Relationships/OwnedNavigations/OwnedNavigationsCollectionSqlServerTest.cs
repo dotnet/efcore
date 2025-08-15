@@ -160,7 +160,6 @@ OUTER APPLY (
 ) AS [s]
 ORDER BY [r].[Id], [s].[RootEntityId], [s].[Id], [s].[RelatedTypeRootEntityId], [s].[RelatedTypeId]
 """);
-
         }
     }
 
