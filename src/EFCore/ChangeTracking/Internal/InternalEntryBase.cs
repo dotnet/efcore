@@ -974,6 +974,30 @@ public abstract partial class InternalEntryBase : IInternalEntry
         }
     }
 
+    /// <summary>
+    /// Refreshes the property value with the value from the database
+    /// </summary>
+    /// <param name="propertyBase">Property</param>
+    /// <param name="value">New value from database</param>
+    /// <param name="mergeOption">MergeOption</param>
+    /// <param name="updateEntityState">Sets the EntityState to Unchanged if MergeOption.OverwriteChanges else calls ChangeDetector to determine changes</param>
+    public void ReloadValue(IPropertyBase propertyBase, object? value, MergeOption mergeOption, bool updateEntityState)
+    {
+        var property = (IProperty)propertyBase;
+        EnsureOriginalValues();
+        bool isModified = IsModified(property);
+        _originalValues.SetValue(property, value, -1);
+        if (mergeOption == MergeOption.OverwriteChanges || !isModified)
+            SetProperty(propertyBase, value, isMaterialization: true, setModified: false);
+        if (updateEntityState)
+        {
+            if (mergeOption == MergeOption.OverwriteChanges)
+                SetEntityState(EntityState.Unchanged);
+            else
+                ((StateManager as StateManager)?.ChangeDetector as ChangeDetector)?.DetectValueChange(this, property);
+        }
+    }
+
     private void ReorderOriginalComplexCollectionEntries(IComplexProperty complexProperty, IList? newOriginalCollection)
     {
         Check.DebugAssert(HasOriginalValuesSnapshot, "This should only be called when original values are present");
