@@ -501,6 +501,9 @@
   <data name="DiscriminatorPropertyMustBeOnRoot" xml:space="preserve">
     <value>A discriminator property cannot be set for the entity type '{entityType}' because it is not the root of an inheritance hierarchy.</value>
   </data>
+  <data name="DiscriminatorPropertyNotAllowedOnComplexCollection" xml:space="preserve">
+    <value>A discriminator property cannot be set for the type '{type}' because '{containingType}' is a complex collection.</value>
+  </data>
   <data name="DiscriminatorPropertyNotFound" xml:space="preserve">
     <value>Unable to set property '{property}' as a discriminator for entity type '{entityType}' because it is not a property of '{entityType}'.</value>
   </data>
@@ -901,11 +904,11 @@
   </data>
   <data name="LogComplexElementPropertyChangeDetected" xml:space="preserve">
     <value>The unchanged property '{typePath}.{property}' was detected as changed and will be marked as modified. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see property values.</value>
-    <comment>Debug CoreEventId.ComplexTypePropertyChangeDetected string string</comment>
+    <comment>Debug CoreEventId.ComplexElementPropertyChangeDetected string string</comment>
   </data>
   <data name="LogComplexElementPropertyChangeDetectedSensitive" xml:space="preserve">
     <value>The unchanged property '{typePath}.{property}' was detected as changed from '{oldValue}' to '{newValue}' and will be marked as modified for entity with key '{keyValues}'.</value>
-    <comment>Debug CoreEventId.ComplexTypePropertyChangeDetected string string object? object? string</comment>
+    <comment>Debug CoreEventId.ComplexElementPropertyChangeDetected string string object? object? string</comment>
   </data>
   <data name="LogConflictingForeignKeyAttributesOnNavigationAndProperty" xml:space="preserve">
     <value>The relationship was separated into two relationships because the [ForeignKey] attribute specified on the navigation '{navigationEntityType}.{navigation}' doesn't match the [ForeignKey] attribute specified on the property '{propertyEntityType}.{property}'.</value>

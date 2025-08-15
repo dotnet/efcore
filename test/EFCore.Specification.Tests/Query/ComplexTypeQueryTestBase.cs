@@ -298,6 +298,12 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
             ss => ss.Set<ValuedCustomerGroup>().Select(cg => cg.OptionalCustomer != null ? cg.OptionalCustomer.ShippingAddress : default));
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Project_nullable_struct_complex_type_via_optional_navigation(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<ValuedCustomerGroup>().Select(cg => cg.OptionalCustomer != null ? cg.OptionalCustomer.ShippingAddress : (AddressStruct?)null));
+
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Project_struct_complex_type_via_required_navigation(bool async)
         => AssertQuery(
             async,

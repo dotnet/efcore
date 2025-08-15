@@ -1243,6 +1243,50 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     }
 
     [ConditionalFact]
+    public virtual void Passes_for_discriminator_shadow_property_on_complex_types()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<SampleEntity>(eb =>
+        {
+            eb.ComplexProperty(e => e.ReferencedEntity, cpb =>
+            {
+                cpb.HasDiscriminator();
+            });
+            eb.Ignore(e => e.AnotherReferencedEntity);
+        });
+
+        var model = Validate(modelBuilder);
+        var complexType = model.FindEntityType(typeof(SampleEntity))!
+            .FindComplexProperty(nameof(SampleEntity.ReferencedEntity))!.ComplexType;
+        var discriminatorProperty = complexType.FindDiscriminatorProperty()!;
+
+        Assert.True(discriminatorProperty.IsShadowProperty());
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_discriminator_property_on_complex_collection()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<SampleEntity>(eb =>
+        {
+            eb.ComplexCollection(e => e.OtherSamples, ccb =>
+            {
+                var complexType = ccb.Metadata.ComplexType;
+                var discriminatorProperty = complexType.AddProperty("Discriminator", typeof(string));
+                complexType.SetDiscriminatorProperty(discriminatorProperty);
+            });
+        });
+
+        VerifyError(
+            CoreStrings.DiscriminatorPropertyNotAllowedOnComplexCollection(
+                "SampleEntity.OtherSamples#SampleEntity",
+                "SampleEntity.OtherSamples#SampleEntity"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
     public virtual void Detects_indexer_complex_properties()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -2040,7 +2084,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     {
         var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<B>().ComplexProperty(b => b.A)
-            .HasDiscriminator<int?>("P0");
+            .HasDiscriminator<int?>("Type");
 
         VerifyError(CoreStrings.NoDiscriminatorValue("B.A#A"), modelBuilder);
     }

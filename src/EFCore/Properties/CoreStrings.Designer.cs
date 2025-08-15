@@ -1035,6 +1035,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
+        ///     A discriminator property cannot be set for the type '{type}' because '{containingType}' is a complex collection.
+        /// </summary>
+        public static string DiscriminatorPropertyNotAllowedOnComplexCollection(object? type, object? containingType)
+            => string.Format(
+                GetString("DiscriminatorPropertyNotAllowedOnComplexCollection", nameof(type), nameof(containingType)),
+                type, containingType);
+
+        /// <summary>
         ///     Unable to set property '{property}' as a discriminator for entity type '{entityType}' because it is not a property of '{entityType}'.
         /// </summary>
         public static string DiscriminatorPropertyNotFound(object? property, object? entityType)
@@ -3748,7 +3756,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                         logger.Options,
                         CoreEventId.ComplexElementPropertyChangeDetected,
                         LogLevel.Debug,
-                        "CoreEventId.ComplexTypePropertyChangeDetected",
+                        "CoreEventId.ComplexElementPropertyChangeDetected",
                         level => LoggerMessage.Define<string, string>(
                             level,
                             CoreEventId.ComplexElementPropertyChangeDetected,
@@ -3773,7 +3781,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                         logger.Options,
                         CoreEventId.ComplexElementPropertyChangeDetected,
                         LogLevel.Debug,
-                        "CoreEventId.ComplexTypePropertyChangeDetected",
+                        "CoreEventId.ComplexElementPropertyChangeDetected",
                         level => LoggerMessage.Define<string, string, object?, object?, string>(
                             level,
                             CoreEventId.ComplexElementPropertyChangeDetected,

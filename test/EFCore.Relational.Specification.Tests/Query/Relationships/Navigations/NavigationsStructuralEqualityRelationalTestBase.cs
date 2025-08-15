@@ -16,7 +16,7 @@ public abstract class NavigationsStructuralEqualityRelationalTestBase<TFixture> 
     }
 
     // Traditional relational collections navigations can't be compared reliably.
-    // The failure below is because collections on from null instances are returned as empty collections rather than null; but
+    // The failure below is because collections on null instances are returned as empty collections rather than null; but
     // even disregarding that, elements in the collection don't preserve ordering and so can't be compared reliably.
     public override Task Two_nested_collections()
         => Assert.ThrowsAsync<EqualException>(() => base.Two_nested_collections());

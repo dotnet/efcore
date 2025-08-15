@@ -49,6 +49,20 @@ public abstract class ComplexTableSplittingRelationalFixtureBase : ComplexProper
         });
     }
 
+    protected override RelationshipsData CreateData()
+    {
+        var data = base.CreateData();
+
+        foreach (var rootEntity in data.RootEntities)
+        {
+            rootEntity.RequiredRelated.NestedCollection = null!;
+            rootEntity.OptionalRelated?.NestedCollection = null!;
+            rootEntity.RelatedCollection = null!;
+        }
+
+        return data;
+    }
+
     public TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ListLoggerFactory;
 }

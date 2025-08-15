@@ -721,18 +721,17 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(
-                    e => e.Customer, b =>
-                    {
-                        b.ToJson("customer_data");
-                        b.Ignore(c => c.Details);
-                        b.Ignore(c => c.Orders);
-                        b.HasDiscriminator<string>("Title");
-                        // Issue #31250
-                        // .HasValue<Customer>("Customer")
-                        // .HasValue<SpecialCustomer>("Special")
-                        // .HasValue<OtherCustomer>("Other");
-                    });
+                .ComplexProperty(e => e.Customer, b =>
+                {
+                    b.ToJson("customer_data");
+                    b.Ignore(c => c.Details);
+                    b.Ignore(c => c.Orders);
+                    b.HasDiscriminator<string>("CustomerType");
+                    // Issue #31250
+                    // .HasValue<Customer>("Customer")
+                    // .HasValue<SpecialCustomer>("Special")
+                    // .HasValue<OtherCustomer>("Other");
+                });
 
             var model = modelBuilder.FinalizeModel();
             var complexProperty = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single();
@@ -743,7 +742,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
             var discriminatorProperty = complexType.FindDiscriminatorProperty();
             Assert.NotNull(discriminatorProperty);
-            Assert.Equal("Title", discriminatorProperty.Name);
+            Assert.Equal("CustomerType", discriminatorProperty.Name);
             Assert.Equal("$type", discriminatorProperty.GetJsonPropertyName());
         }
 
@@ -879,7 +878,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                                 nc.HasJsonPropertyName("CustomNestedCollection4");
                             });
                     });
-            });
+                });
 
             var model = modelBuilder.FinalizeModel();
             var entityType = model.FindEntityType(typeof(JsonEntityWithNesting))!;

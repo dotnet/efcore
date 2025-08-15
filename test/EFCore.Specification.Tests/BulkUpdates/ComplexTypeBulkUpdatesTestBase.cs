@@ -181,4 +181,35 @@ public abstract class ComplexTypeBulkUpdatesTestBase<TFixture>(TFixture fixture)
             c => c,
             s => s.SetProperty(x => x.ShippingAddress.Tags, ["new_tag1", "new_tag2"]),
             rowsAffectedCount: 3);
+
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_complex_type_to_null(bool async)
+        => AssertUpdate(
+            async,
+            ss => ss.Set<Customer>(),
+            c => c,
+            s => s.SetProperty(x => x.OptionalAddress, (Address)null),
+            rowsAffectedCount: 3);
+
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_complex_type_to_null_lambda(bool async)
+        => AssertUpdate(
+            async,
+            ss => ss.Set<Customer>(),
+            c => c,
+            s => s.SetProperty(x => x.OptionalAddress, x => null),
+            rowsAffectedCount: 3);
+
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_complex_type_to_null_parameter(bool async)
+    {
+        var nullAddress = (Address)null;
+
+        return AssertUpdate(
+                async,
+                ss => ss.Set<Customer>(),
+                c => c,
+                s => s.SetProperty(x => x.OptionalAddress, nullAddress),
+                rowsAffectedCount: 3);
+    }
 }

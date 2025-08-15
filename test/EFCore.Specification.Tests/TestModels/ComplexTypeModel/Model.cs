@@ -10,6 +10,7 @@ public class Customer
 
     public required Address ShippingAddress { get; set; }
     public required Address BillingAddress { get; set; }
+    public Address? OptionalAddress { get; set; }
 }
 
 public record Address
