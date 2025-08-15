@@ -12,6 +12,7 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- core dependencies-->
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="9.0.8" />
     <PackageVersion Include="System.Text.Json" Version="$(SystemTextJsonVersion)" />
 
     <!-- runtime dependencies-->
