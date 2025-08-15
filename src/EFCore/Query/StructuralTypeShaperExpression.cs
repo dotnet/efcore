@@ -26,6 +26,8 @@ public class StructuralTypeShaperExpression : Expression, IPrintableExpression
     private static readonly MethodInfo GetDiscriminatorValueMethod
         = typeof(IReadOnlyTypeBase).GetMethod(nameof(IReadOnlyTypeBase.GetDiscriminatorValue))!;
 
+    private readonly Type _clrType;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -46,7 +48,7 @@ public class StructuralTypeShaperExpression : Expression, IPrintableExpression
         ITypeBase type,
         Expression valueBufferExpression,
         bool nullable)
-        : this(type, valueBufferExpression, nullable, null)
+        : this(type, valueBufferExpression, nullable, null, type.ClrType)
     {
     }
 
@@ -59,11 +61,13 @@ public class StructuralTypeShaperExpression : Expression, IPrintableExpression
     /// <param name="materializationCondition">
     ///     An expression of <see cref="Func{ValueBuffer, ITypeBase}" /> to determine which structural type to materialize.
     /// </param>
+    /// <param name="clrType">CLR type for this expression as returned from <see cref="Type"/>.</param>
     protected StructuralTypeShaperExpression(
         ITypeBase type,
         Expression valueBufferExpression,
         bool nullable,
-        LambdaExpression? materializationCondition)
+        LambdaExpression? materializationCondition,
+        Type clrType)
     {
         if (materializationCondition == null)
         {
@@ -80,6 +84,9 @@ public class StructuralTypeShaperExpression : Expression, IPrintableExpression
         ValueBufferExpression = valueBufferExpression;
         IsNullable = nullable;
         MaterializationCondition = materializationCondition!;
+        Check.DebugAssert(clrType == StructuralType.ClrType || clrType == StructuralType.ClrType.MakeNullable(),
+            $"The CLR type '{clrType}' must be equal to the structural type '{StructuralType.ClrType}' or a nullable version of it.");
+        _clrType = clrType;
     }
 
     /// <summary>
@@ -235,7 +242,7 @@ public class StructuralTypeShaperExpression : Expression, IPrintableExpression
     /// <returns>This expression if the type was not changed, or a new expression with the updated type.</returns>
     public virtual StructuralTypeShaperExpression WithType(ITypeBase type)
         => type != StructuralType
-            ? new StructuralTypeShaperExpression(type, ValueBufferExpression, IsNullable, materializationCondition: null)
+            ? new StructuralTypeShaperExpression(type, ValueBufferExpression, IsNullable, materializationCondition: null, type.ClrType)
             : this;
 
     /// <summary>
@@ -246,7 +253,7 @@ public class StructuralTypeShaperExpression : Expression, IPrintableExpression
     public virtual StructuralTypeShaperExpression MakeNullable(bool nullable = true)
         => IsNullable != nullable
             // Marking nullable requires re-computation of materialization condition
-            ? new StructuralTypeShaperExpression(StructuralType, ValueBufferExpression, nullable, materializationCondition: null)
+            ? new StructuralTypeShaperExpression(StructuralType, ValueBufferExpression, nullable, materializationCondition: null, Type)
             : this;
 
     /// <summary>
@@ -257,12 +264,30 @@ public class StructuralTypeShaperExpression : Expression, IPrintableExpression
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public virtual StructuralTypeShaperExpression Update(Expression valueBufferExpression)
         => valueBufferExpression != ValueBufferExpression
-            ? new StructuralTypeShaperExpression(StructuralType, valueBufferExpression, IsNullable, MaterializationCondition)
+            ? new StructuralTypeShaperExpression(StructuralType, valueBufferExpression, IsNullable, MaterializationCondition, Type)
             : this;
 
     /// <inheritdoc />
     public override Type Type
-        => StructuralType.ClrType;
+        => _clrType;
+
+    /// <summary>
+    ///     Changes the <see cref="Type" /> of this expression to be nullable.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual StructuralTypeShaperExpression MakeClrTypeNullable()
+        => Type != Type.MakeNullable()
+            ? new StructuralTypeShaperExpression(StructuralType, ValueBufferExpression, IsNullable, MaterializationCondition, Type.MakeNullable())
+            : this;
+
+    /// <summary>
+    ///     Changes the <see cref="Type" /> of this expression to be non nullable.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual StructuralTypeShaperExpression MakeClrTypeNonNullable()
+        => Type != Type.UnwrapNullableType()
+            ? new StructuralTypeShaperExpression(StructuralType, ValueBufferExpression, IsNullable, MaterializationCondition, Type.UnwrapNullableType())
+            : this;
 
     /// <inheritdoc />
     public sealed override ExpressionType NodeType
