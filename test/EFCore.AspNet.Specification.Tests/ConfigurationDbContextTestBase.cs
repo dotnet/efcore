@@ -31,7 +31,7 @@ public abstract class ConfigurationDbContextTestBase<TFixture>(
             {
                 var store = new ResourceStore(context, new FakeLogger<ResourceStore>());
 
-                Assert.Equal(2, (await store.FindApiScopesByNameAsync(new[] { "ApiScope2", "ApiScope1" })).Count());
+                Assert.Equal(2, (await store.FindApiScopesByNameAsync(["ApiScope2", "ApiScope1"])).Count());
             }
         );
 
@@ -117,7 +117,7 @@ public abstract class ConfigurationDbContextTestBase<TFixture>(
                 var store = new ResourceStore(context, new FakeLogger<ResourceStore>());
 
                 Assert.Equal(
-                    2, (await store.FindIdentityResourcesByScopeNameAsync(new[] { "IdentityResource2", "IdentityResource1" })).Count());
+                    2, (await store.FindIdentityResourcesByScopeNameAsync(["IdentityResource2", "IdentityResource1"])).Count());
             }
         );
 
@@ -134,7 +134,7 @@ public abstract class ConfigurationDbContextTestBase<TFixture>(
             {
                 var store = new ResourceStore(context, new FakeLogger<ResourceStore>());
 
-                Assert.Equal(2, (await store.FindApiResourcesByScopeNameAsync(new[] { "S1", "S4" })).Count());
+                Assert.Equal(2, (await store.FindApiResourcesByScopeNameAsync(["S1", "S4"])).Count());
             }
         );
 
@@ -229,7 +229,7 @@ public abstract class ConfigurationDbContextTestBase<TFixture>(
             {
                 var store = new ResourceStore(context, new FakeLogger<ResourceStore>());
 
-                Assert.Equal(2, (await store.FindApiResourcesByNameAsync(new[] { "ApiResource2", "ApiResource1" })).Count());
+                Assert.Equal(2, (await store.FindApiResourcesByNameAsync(["ApiResource2", "ApiResource1"])).Count());
             }
         );
 
@@ -247,7 +247,7 @@ public abstract class ConfigurationDbContextTestBase<TFixture>(
     protected virtual List<EntityTypeMapping> ExpectedMappings
         =>
         [
-            new EntityTypeMapping
+            new()
             {
                 Name = "IdentityServer4.EntityFramework.Entities.ApiResource",
                 TableName = "ApiResources",
@@ -275,7 +275,7 @@ public abstract class ConfigurationDbContextTestBase<TFixture>(
                     "Navigation: ApiResource.UserClaims (List<ApiResourceClaim>) Collection ToDependent ApiResourceClaim Inverse: ApiResource",
                 },
             },
-            new EntityTypeMapping
+            new()
             {
                 Name = "IdentityServer4.EntityFramework.Entities.ApiResourceClaim",
                 TableName = "ApiResourceClaims",
@@ -291,9 +291,12 @@ public abstract class ConfigurationDbContextTestBase<TFixture>(
                 {
                     "ForeignKey: ApiResourceClaim {'ApiResourceId'} -> ApiResource {'Id'} Required Cascade ToDependent: UserClaims ToPrincipal: ApiResource",
                 },
-                Navigations = { "Navigation: ApiResourceClaim.ApiResource (ApiResource) Required ToPrincipal ApiResource Inverse: UserClaims", },
+                Navigations =
+                {
+                    "Navigation: ApiResourceClaim.ApiResource (ApiResource) Required ToPrincipal ApiResource Inverse: UserClaims",
+                },
             },
-            new EntityTypeMapping
+            new()
             {
                 Name = "IdentityServer4.EntityFramework.Entities.ApiResourceProperty",
                 TableName = "ApiResourceProperties",
@@ -310,9 +313,12 @@ public abstract class ConfigurationDbContextTestBase<TFixture>(
                 {
                     "ForeignKey: ApiResourceProperty {'ApiResourceId'} -> ApiResource {'Id'} Required Cascade ToDependent: Properties ToPrincipal: ApiResource",
                 },
-                Navigations = { "Navigation: ApiResourceProperty.ApiResource (ApiResource) Required ToPrincipal ApiResource Inverse: Properties", },
+                Navigations =
+                {
+                    "Navigation: ApiResourceProperty.ApiResource (ApiResource) Required ToPrincipal ApiResource Inverse: Properties",
+                },
             },
-            new EntityTypeMapping
+            new()
             {
                 Name = "IdentityServer4.EntityFramework.Entities.ApiResourceScope",
                 TableName = "ApiResourceScopes",
@@ -328,9 +334,12 @@ public abstract class ConfigurationDbContextTestBase<TFixture>(
                 {
                     "ForeignKey: ApiResourceScope {'ApiResourceId'} -> ApiResource {'Id'} Required Cascade ToDependent: Scopes ToPrincipal: ApiResource",
                 },
-                Navigations = { "Navigation: ApiResourceScope.ApiResource (ApiResource) Required ToPrincipal ApiResource Inverse: Scopes", },
+                Navigations =
+                {
+                    "Navigation: ApiResourceScope.ApiResource (ApiResource) Required ToPrincipal ApiResource Inverse: Scopes",
+                },
             },
-            new EntityTypeMapping
+            new()
             {
                 Name = "IdentityServer4.EntityFramework.Entities.ApiResourceSecret",
                 TableName = "ApiResourceSecrets",
@@ -350,9 +359,12 @@ public abstract class ConfigurationDbContextTestBase<TFixture>(
                 {
                     "ForeignKey: ApiResourceSecret {'ApiResourceId'} -> ApiResource {'Id'} Required Cascade ToDependent: Secrets ToPrincipal: ApiResource",
                 },
-                Navigations = { "Navigation: ApiResourceSecret.ApiResource (ApiResource) Required ToPrincipal ApiResource Inverse: Secrets", },
+                Navigations =
+                {
+                    "Navigation: ApiResourceSecret.ApiResource (ApiResource) Required ToPrincipal ApiResource Inverse: Secrets",
+                },
             },
-            new EntityTypeMapping
+            new()
             {
                 Name = "IdentityServer4.EntityFramework.Entities.ApiScope",
                 TableName = "ApiScopes",
@@ -375,7 +387,7 @@ public abstract class ConfigurationDbContextTestBase<TFixture>(
                     "Navigation: ApiScope.UserClaims (List<ApiScopeClaim>) Collection ToDependent ApiScopeClaim Inverse: Scope",
                 },
             },
-            new EntityTypeMapping
+            new()
             {
                 Name = "IdentityServer4.EntityFramework.Entities.ApiScopeClaim",
                 TableName = "ApiScopeClaims",
@@ -393,7 +405,7 @@ public abstract class ConfigurationDbContextTestBase<TFixture>(
                 },
                 Navigations = { "Navigation: ApiScopeClaim.Scope (ApiScope) Required ToPrincipal ApiScope Inverse: UserClaims", },
             },
-            new EntityTypeMapping
+            new()
             {
                 Name = "IdentityServer4.EntityFramework.Entities.ApiScopeProperty",
                 TableName = "ApiScopeProperties",
@@ -412,7 +424,7 @@ public abstract class ConfigurationDbContextTestBase<TFixture>(
                 },
                 Navigations = { "Navigation: ApiScopeProperty.Scope (ApiScope) Required ToPrincipal ApiScope Inverse: Properties", },
             },
-            new EntityTypeMapping
+            new()
             {
                 Name = "IdentityServer4.EntityFramework.Entities.Client",
                 TableName = "Clients",
@@ -478,7 +490,7 @@ public abstract class ConfigurationDbContextTestBase<TFixture>(
                     "Navigation: Client.RedirectUris (List<ClientRedirectUri>) Collection ToDependent ClientRedirectUri Inverse: Client",
                 },
             },
-            new EntityTypeMapping
+            new()
             {
                 Name = "IdentityServer4.EntityFramework.Entities.ClientClaim",
                 TableName = "ClientClaims",
@@ -494,7 +506,7 @@ public abstract class ConfigurationDbContextTestBase<TFixture>(
                 FKs = { "ForeignKey: ClientClaim {'ClientId'} -> Client {'Id'} Required Cascade ToDependent: Claims ToPrincipal: Client", },
                 Navigations = { "Navigation: ClientClaim.Client (Client) Required ToPrincipal Client Inverse: Claims", },
             },
-            new EntityTypeMapping
+            new()
             {
                 Name = "IdentityServer4.EntityFramework.Entities.ClientCorsOrigin",
                 TableName = "ClientCorsOrigins",
@@ -512,7 +524,7 @@ public abstract class ConfigurationDbContextTestBase<TFixture>(
                 },
                 Navigations = { "Navigation: ClientCorsOrigin.Client (Client) Required ToPrincipal Client Inverse: AllowedCorsOrigins", },
             },
-            new EntityTypeMapping
+            new()
             {
                 Name = "IdentityServer4.EntityFramework.Entities.ClientGrantType",
                 TableName = "ClientGrantTypes",
@@ -530,7 +542,7 @@ public abstract class ConfigurationDbContextTestBase<TFixture>(
                 },
                 Navigations = { "Navigation: ClientGrantType.Client (Client) Required ToPrincipal Client Inverse: AllowedGrantTypes", },
             },
-            new EntityTypeMapping
+            new()
             {
                 Name = "IdentityServer4.EntityFramework.Entities.ClientIdPRestriction",
                 TableName = "ClientIdPRestrictions",
@@ -551,7 +563,7 @@ public abstract class ConfigurationDbContextTestBase<TFixture>(
                     "Navigation: ClientIdPRestriction.Client (Client) Required ToPrincipal Client Inverse: IdentityProviderRestrictions",
                 },
             },
-            new EntityTypeMapping
+            new()
             {
                 Name = "IdentityServer4.EntityFramework.Entities.ClientPostLogoutRedirectUri",
                 TableName = "ClientPostLogoutRedirectUris",
@@ -572,7 +584,7 @@ public abstract class ConfigurationDbContextTestBase<TFixture>(
                     "Navigation: ClientPostLogoutRedirectUri.Client (Client) Required ToPrincipal Client Inverse: PostLogoutRedirectUris",
                 },
             },
-            new EntityTypeMapping
+            new()
             {
                 Name = "IdentityServer4.EntityFramework.Entities.ClientProperty",
                 TableName = "ClientProperties",
@@ -591,7 +603,7 @@ public abstract class ConfigurationDbContextTestBase<TFixture>(
                 },
                 Navigations = { "Navigation: ClientProperty.Client (Client) Required ToPrincipal Client Inverse: Properties", },
             },
-            new EntityTypeMapping
+            new()
             {
                 Name = "IdentityServer4.EntityFramework.Entities.ClientRedirectUri",
                 TableName = "ClientRedirectUris",
@@ -609,7 +621,7 @@ public abstract class ConfigurationDbContextTestBase<TFixture>(
                 },
                 Navigations = { "Navigation: ClientRedirectUri.Client (Client) Required ToPrincipal Client Inverse: RedirectUris", },
             },
-            new EntityTypeMapping
+            new()
             {
                 Name = "IdentityServer4.EntityFramework.Entities.ClientScope",
                 TableName = "ClientScopes",
@@ -627,7 +639,7 @@ public abstract class ConfigurationDbContextTestBase<TFixture>(
                 },
                 Navigations = { "Navigation: ClientScope.Client (Client) Required ToPrincipal Client Inverse: AllowedScopes", },
             },
-            new EntityTypeMapping
+            new()
             {
                 Name = "IdentityServer4.EntityFramework.Entities.ClientSecret",
                 TableName = "ClientSecrets",
@@ -649,7 +661,7 @@ public abstract class ConfigurationDbContextTestBase<TFixture>(
                 },
                 Navigations = { "Navigation: ClientSecret.Client (Client) Required ToPrincipal Client Inverse: ClientSecrets", },
             },
-            new EntityTypeMapping
+            new()
             {
                 Name = "IdentityServer4.EntityFramework.Entities.IdentityResource",
                 TableName = "IdentityResources",
@@ -675,7 +687,7 @@ public abstract class ConfigurationDbContextTestBase<TFixture>(
                     "Navigation: IdentityResource.UserClaims (List<IdentityResourceClaim>) Collection ToDependent IdentityResourceClaim Inverse: IdentityResource",
                 },
             },
-            new EntityTypeMapping
+            new()
             {
                 Name = "IdentityServer4.EntityFramework.Entities.IdentityResourceClaim",
                 TableName = "IdentityResourceClaims",
@@ -696,7 +708,7 @@ public abstract class ConfigurationDbContextTestBase<TFixture>(
                     "Navigation: IdentityResourceClaim.IdentityResource (IdentityResource) Required ToPrincipal IdentityResource Inverse: UserClaims",
                 },
             },
-            new EntityTypeMapping
+            new()
             {
                 Name = "IdentityServer4.EntityFramework.Entities.IdentityResourceProperty",
                 TableName = "IdentityResourceProperties",
@@ -745,10 +757,9 @@ public abstract class ConfigurationDbContextTestBase<TFixture>(
             => base.AddOptions(builder)
                 .EnableDetailedErrors()
                 .EnableSensitiveDataLogging()
-                .ConfigureWarnings(
-                    b => b.Default(WarningBehavior.Throw)
-                        .Log(CoreEventId.SensitiveDataLoggingEnabledWarning)
-                        .Log(CoreEventId.PossibleUnintendedReferenceComparisonWarning));
+                .ConfigureWarnings(b => b.Default(WarningBehavior.Throw)
+                    .Log(CoreEventId.SensitiveDataLoggingEnabledWarning)
+                    .Log(CoreEventId.PossibleUnintendedReferenceComparisonWarning));
 
         protected override bool UsePooling
             => false; // The IdentityServer ConfigurationDbContext has additional service dependencies

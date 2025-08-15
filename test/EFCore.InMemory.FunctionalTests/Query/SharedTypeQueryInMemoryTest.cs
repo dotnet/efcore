@@ -8,8 +8,7 @@ public class SharedTypeQueryInMemoryTest(NonSharedFixture fixture) : SharedTypeQ
     protected override ITestStoreFactory TestStoreFactory
         => InMemoryTestStoreFactory.Instance;
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Can_use_shared_type_entity_type_in_ToInMemoryQuery(bool async)
     {
         var contextFactory = await InitializeAsync<MyContextInMemory24601>(
@@ -35,8 +34,8 @@ public class SharedTypeQueryInMemoryTest(NonSharedFixture fixture) : SharedTypeQ
                 });
 
             modelBuilder.Entity<ViewQuery24601>().HasNoKey()
-                .ToInMemoryQuery(
-                    () => Set<Dictionary<string, object>>("STET").Select(e => new ViewQuery24601 { Value = (string)e["Value"] }));
+                .ToInMemoryQuery(()
+                    => Set<Dictionary<string, object>>("STET").Select(e => new ViewQuery24601 { Value = (string)e["Value"] }));
         }
     }
 }

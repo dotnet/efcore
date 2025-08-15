@@ -21,8 +21,7 @@ public class FromSqlQueryCosmosTest : QueryTestBase<NorthwindQueryCosmosFixture<
     protected NorthwindContext CreateContext()
         => Fixture.CreateContext();
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public Task FromSqlRaw_queryable_simple(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -63,8 +62,7 @@ SELECT * FROM root c WHERE c["$type"] = "OrderDetail"
             exception.Message);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public Task FromSqlRaw_queryable_simple_columns_out_of_order(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -91,8 +89,7 @@ FROM (
 """);
             });
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public Task FromSqlRaw_queryable_simple_columns_out_of_order_and_extra_columns(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -119,8 +116,7 @@ FROM (
 """);
             });
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public Task FromSqlRaw_queryable_composed(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -151,8 +147,7 @@ WHERE CONTAINS(s["ContactName"], "z")
 """);
             });
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task FromSqlRaw_queryable_composed_after_removing_whitespaces(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -174,7 +169,9 @@ SELECT VALUE s
 FROM (
 
 
-""" + "        " + """
+"""
+                    + "        "
+                    + """
 
 
 
@@ -185,21 +182,19 @@ WHERE CONTAINS(s["ContactName"], "z")
 """);
             });
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public Task FromSqlRaw_queryable_composed_compiled(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
             {
                 if (a)
                 {
-                    var query = EF.CompileAsyncQuery(
-                        (NorthwindContext context) => context.Set<Customer>()
-                            .FromSqlRaw(
-                                """
+                    var query = EF.CompileAsyncQuery((NorthwindContext context) => context.Set<Customer>()
+                        .FromSqlRaw(
+                            """
 SELECT * FROM root c WHERE c["$type"] = "Customer"
 """)
-                            .Where(c => c.ContactName.Contains("z")));
+                        .Where(c => c.ContactName.Contains("z")));
 
                     using (var context = CreateContext())
                     {
@@ -210,10 +205,9 @@ SELECT * FROM root c WHERE c["$type"] = "Customer"
                 }
                 else
                 {
-                    var query = EF.CompileQuery(
-                        (NorthwindContext context) => context.Set<Customer>()
-                            .FromSqlRaw("""SELECT * FROM root c WHERE c["$type"] = "Customer" """)
-                            .Where(c => c.ContactName.Contains("z")));
+                    var query = EF.CompileQuery((NorthwindContext context) => context.Set<Customer>()
+                        .FromSqlRaw("""SELECT * FROM root c WHERE c["$type"] = "Customer" """)
+                        .Where(c => c.ContactName.Contains("z")));
 
                     using (var context = CreateContext())
                     {
@@ -233,18 +227,16 @@ WHERE CONTAINS(s["ContactName"], "z")
 """);
             });
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task FromSqlRaw_queryable_composed_compiled_with_parameter(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
             {
                 if (a)
                 {
-                    var query = EF.CompileAsyncQuery(
-                        (NorthwindContext context) => context.Set<Customer>().FromSqlRaw(
-                                """SELECT * FROM root c WHERE c["$type"] = "Customer" AND c["id"] = {0}""", "CONSH")
-                            .Where(c => c.ContactName.Contains("z")));
+                    var query = EF.CompileAsyncQuery((NorthwindContext context) => context.Set<Customer>().FromSqlRaw(
+                            """SELECT * FROM root c WHERE c["$type"] = "Customer" AND c["id"] = {0}""", "CONSH")
+                        .Where(c => c.ContactName.Contains("z")));
 
                     using (var context = CreateContext())
                     {
@@ -255,10 +247,9 @@ WHERE CONTAINS(s["ContactName"], "z")
                 }
                 else
                 {
-                    var query = EF.CompileQuery(
-                        (NorthwindContext context) => context.Set<Customer>().FromSqlRaw(
-                                """SELECT * FROM root c WHERE c["$type"] = "Customer" AND c["id"] = {0}""", "CONSH")
-                            .Where(c => c.ContactName.Contains("z")));
+                    var query = EF.CompileQuery((NorthwindContext context) => context.Set<Customer>().FromSqlRaw(
+                            """SELECT * FROM root c WHERE c["$type"] = "Customer" AND c["id"] = {0}""", "CONSH")
+                        .Where(c => c.ContactName.Contains("z")));
 
                     using (var context = CreateContext())
                     {
@@ -278,8 +269,7 @@ WHERE CONTAINS(s["ContactName"], "z")
 """);
             });
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task FromSqlRaw_queryable_multiple_line_query(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -310,8 +300,7 @@ FROM (
 """);
             });
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task FromSqlRaw_queryable_composed_multiple_line_query(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -344,8 +333,7 @@ WHERE (s["City"] = "London")
 """);
             });
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public Task FromSqlRaw_queryable_with_parameters(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -379,8 +367,7 @@ FROM (
 """);
             });
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public Task FromSqlRaw_queryable_with_parameters_inline(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -411,8 +398,7 @@ FROM (
 """);
             });
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public Task FromSqlRaw_queryable_with_null_parameter(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -441,8 +427,7 @@ FROM (
 """);
             });
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public Task FromSqlRaw_queryable_with_parameters_and_closure(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -477,8 +462,7 @@ WHERE (s["ContactTitle"] = @contactTitle)
 """);
             });
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task FromSqlRaw_queryable_simple_cache_key_includes_query_string(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -520,8 +504,7 @@ FROM (
 """);
             });
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task FromSqlRaw_queryable_with_parameters_cache_key_includes_parameters(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -577,8 +560,7 @@ FROM (
 """);
             });
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task FromSqlRaw_queryable_simple_as_no_tracking_not_composed(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -606,8 +588,7 @@ FROM (
 """);
             });
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task FromSqlRaw_queryable_simple_projection_composed(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -638,8 +619,7 @@ FROM (
 """);
             });
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task FromSqlRaw_composed_with_nullable_predicate(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -667,8 +647,7 @@ WHERE (s["ContactName"] = s["CompanyName"])
 """);
             });
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task FromSqlRaw_does_not_parameterize_interpolated_string(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -686,8 +665,7 @@ WHERE (s["ContactName"] = s["CompanyName"])
                 Assert.Equal(2, actual.Count);
             });
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task FromSqlRaw_queryable_simple_projection_not_composed(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -697,8 +675,7 @@ WHERE (s["ContactName"] = s["CompanyName"])
                         """
 SELECT * FROM root c WHERE c["$type"] = "Customer"
 """)
-                    .Select(
-                        c => new { c.CustomerID, c.City })
+                    .Select(c => new { c.CustomerID, c.City })
                     .AsNoTracking();
 
                 var actual = a
@@ -738,8 +715,7 @@ FROM (
             exception.Message);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task FromSql_queryable_with_parameters_interpolated(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -765,8 +741,7 @@ FROM (
 """);
             });
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task FromSql_queryable_with_parameters_inline_interpolated(bool async)
         => Fixture.NoSyncTest(
             async, async a =>

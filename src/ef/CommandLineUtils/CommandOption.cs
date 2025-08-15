@@ -11,7 +11,7 @@ internal class CommandOption
         OptionType = optionType;
         Values = [];
 
-        foreach (var part in Template.Split(new[] { ' ', '|' }, StringSplitOptions.RemoveEmptyEntries))
+        foreach (var part in Template.Split([' ', '|'], StringSplitOptions.RemoveEmptyEntries))
         {
             if (part.StartsWith("--", StringComparison.Ordinal))
             {

@@ -22,25 +22,23 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
     public void Model_differ_does_not_detect_views_with_owned_types()
         => Execute(
             _ => { },
-            target => target.Entity<Order>(
-                x =>
-                {
-                    x.ToView("Orders");
-                    x.OwnsOne(y => y.Shipping);
-                }),
+            target => target.Entity<Order>(x =>
+            {
+                x.ToView("Orders");
+                x.OwnsOne(y => y.Shipping);
+            }),
             upOperations => Assert.Equal(0, upOperations.Count));
 
     [ConditionalFact]
     public void Model_differ_does_not_detect_views_with_weak_types()
         => Execute(
             _ => { },
-            target => target.Entity<Order>(
-                x =>
-                {
-                    x.ToView("Orders");
-                    x.OwnsOne(y => y.Billing);
-                    x.OwnsOne(y => y.Shipping);
-                }),
+            target => target.Entity<Order>(x =>
+            {
+                x.ToView("Orders");
+                x.OwnsOne(y => y.Billing);
+                x.OwnsOne(y => y.Shipping);
+            }),
             upOperations => Assert.Equal(0, upOperations.Count));
 
     [ConditionalFact]
@@ -303,38 +301,34 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
             _ => { },
             modelBuilder =>
             {
-                modelBuilder.Entity<Book>(
-                    entity =>
-                    {
-                        entity.HasOne(d => d.Album)
-                            .WithMany(p => p.Books);
-                        entity.HasOne(d => d.User)
-                            .WithMany(p => p.Books);
-                    });
-                modelBuilder.Entity<Album>(
-                    entity =>
-                    {
-                        entity.HasOne(d => d.OwnerUser)
-                            .WithMany(p => p.AlbumOwnerUsers);
-                        entity.HasOne(d => d.Book)
-                            .WithMany(p => p.Albums);
-                    });
-                modelBuilder.Entity<User>(
-                    entity =>
-                    {
-                        entity.HasOne(d => d.Book)
-                            .WithMany(p => p.Users);
-                        entity.HasOne(d => d.ReaderGroup)
-                            .WithMany(p => p.UserReaderGroups);
-                    });
-                modelBuilder.Entity<Group>(
-                    entity =>
-                    {
-                        entity.HasOne(d => d.OwnerAlbum)
-                            .WithMany(p => p.Groups);
-                        entity.HasOne(d => d.OwnerUser)
-                            .WithMany(p => p.Groups);
-                    });
+                modelBuilder.Entity<Book>(entity =>
+                {
+                    entity.HasOne(d => d.Album)
+                        .WithMany(p => p.Books);
+                    entity.HasOne(d => d.User)
+                        .WithMany(p => p.Books);
+                });
+                modelBuilder.Entity<Album>(entity =>
+                {
+                    entity.HasOne(d => d.OwnerUser)
+                        .WithMany(p => p.AlbumOwnerUsers);
+                    entity.HasOne(d => d.Book)
+                        .WithMany(p => p.Albums);
+                });
+                modelBuilder.Entity<User>(entity =>
+                {
+                    entity.HasOne(d => d.Book)
+                        .WithMany(p => p.Users);
+                    entity.HasOne(d => d.ReaderGroup)
+                        .WithMany(p => p.UserReaderGroups);
+                });
+                modelBuilder.Entity<Group>(entity =>
+                {
+                    entity.HasOne(d => d.OwnerAlbum)
+                        .WithMany(p => p.Groups);
+                    entity.HasOne(d => d.OwnerUser)
+                        .WithMany(p => p.Groups);
+                });
             },
             result =>
             {
@@ -476,8 +470,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
             modelBuilder =>
             {
                 modelBuilder.Entity<CreateTableEntity2>();
-                modelBuilder.Entity<CreateTableEntity2B>().HasKey(
-                    e => new { e.C, e.B });
+                modelBuilder.Entity<CreateTableEntity2B>().HasKey(e => new { e.C, e.B });
             },
             operations =>
             {
@@ -560,12 +553,11 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
     public void Create_table_columns_handles_aliased_columns()
         => Execute(
             _ => { },
-            modelBuilder => modelBuilder.Entity<CreateTableEntity1>(
-                b =>
-                {
-                    b.Property(e => e.C).HasColumnName("C");
-                    b.Property(e => e.A).HasColumnName("C");
-                }),
+            modelBuilder => modelBuilder.Entity<CreateTableEntity1>(b =>
+            {
+                b.Property(e => e.C).HasColumnName("C");
+                b.Property(e => e.A).HasColumnName("C");
+            }),
             operations =>
             {
                 var operation = Assert.IsType<CreateTableOperation>(Assert.Single(operations));
@@ -756,13 +748,12 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
     public void Create_table_columns_use_explicit_order()
         => Execute(
             _ => { },
-            modelBuilder => modelBuilder.Entity<CreateTableEntity1>(
-                b =>
-                {
-                    b.Property(e => e.C).HasColumnOrder(3);
-                    b.Property(e => e.B).HasColumnOrder(1);
-                    b.Property(e => e.A).HasColumnOrder(2);
-                }),
+            modelBuilder => modelBuilder.Entity<CreateTableEntity1>(b =>
+            {
+                b.Property(e => e.C).HasColumnOrder(3);
+                b.Property(e => e.B).HasColumnOrder(1);
+                b.Property(e => e.A).HasColumnOrder(2);
+            }),
             operations =>
             {
                 var operation = Assert.IsType<CreateTableOperation>(Assert.Single(operations));
@@ -1146,7 +1137,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 var createTableOperation = Assert.IsType<CreateTableOperation>(upOps[0]);
                 Assert.Equal("Animal", createTableOperation.Name);
                 Assert.Equal("Id", createTableOperation.PrimaryKey.Columns.Single());
-                Assert.Equal(new[] { "Id", "MouseId", "BoneId" }, createTableOperation.Columns.Select(c => c.Name));
+                Assert.Equal(["Id", "MouseId", "BoneId"], createTableOperation.Columns.Select(c => c.Name));
                 Assert.Empty(createTableOperation.ForeignKeys);
                 Assert.Empty(createTableOperation.UniqueConstraints);
                 Assert.Empty(createTableOperation.CheckConstraints);
@@ -1395,7 +1386,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                     var m = Assert.IsType<CreateTableOperation>(o);
                     Assert.Equal("Animal", m.Name);
                     Assert.Equal("Id", m.PrimaryKey.Columns.Single());
-                    Assert.Equal(new[] { "Id", "MouseId" }, m.Columns.Select(c => c.Name));
+                    Assert.Equal(["Id", "MouseId"], m.Columns.Select(c => c.Name));
                     Assert.Empty(m.ForeignKeys);
                 },
                 o =>
@@ -1403,7 +1394,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                     var m = Assert.IsType<CreateTableOperation>(o);
                     Assert.Equal("AnimalDetails", m.Name);
                     Assert.Equal("Id", m.PrimaryKey.Columns.Single());
-                    Assert.Equal(new[] { "Id", "BoneId" }, m.Columns.Select(c => c.Name));
+                    Assert.Equal(["Id", "BoneId"], m.Columns.Select(c => c.Name));
                     var fk = m.ForeignKeys.Single();
                     Assert.Equal("Animal", fk.PrincipalTable);
                 },
@@ -1710,13 +1701,8 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 Assert.Equal("GETDATE()", operation.DefaultValueSql);
             });
 
-    [ConditionalTheory]
-    [InlineData(typeof(int), 0)]
-    [InlineData(typeof(int?), 0)]
-    [InlineData(typeof(string), "")]
-    [InlineData(typeof(byte[]), new byte[0])]
-    [InlineData(typeof(SomeEnum), 0)]
-    [InlineData(typeof(SomeEnum?), 0)]
+    [ConditionalTheory, InlineData(typeof(int), 0), InlineData(typeof(int?), 0), InlineData(typeof(string), ""),
+     InlineData(typeof(byte[]), new byte[0]), InlineData(typeof(SomeEnum), 0), InlineData(typeof(SomeEnum?), 0)]
     public void Add_column_not_null(Type type, object expectedDefault)
         => Execute(
             source => source.Entity("Robin").Property<int>("Id"),
@@ -1830,21 +1816,20 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
             RelationalStrings.NullKeyValue(
                 "dbo.Firefly",
                 "Id"),
-            Assert.Throws<InvalidOperationException>(
-                () => Execute(
-                    common => common.Entity(
-                        "Firefly",
-                        x =>
-                        {
-                            x.ToTable("Firefly", "dbo");
-                            x.Property<int>("Id");
-                            x.HasData(
-                                new { Id = (int?)null });
-                        }),
-                    _ => { },
-                    _ => { },
-                    upOps => { },
-                    downOps => { })).Message);
+            Assert.Throws<InvalidOperationException>(() => Execute(
+                common => common.Entity(
+                    "Firefly",
+                    x =>
+                    {
+                        x.ToTable("Firefly", "dbo");
+                        x.Property<int>("Id");
+                        x.HasData(
+                            new { Id = (int?)null });
+                    }),
+                _ => { },
+                _ => { },
+                upOps => { },
+                downOps => { })).Message);
 
     [ConditionalFact]
     public void Throws_on_composite_null_keys_in_seed_data()
@@ -1852,27 +1837,24 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
             RelationalStrings.NullKeyValue(
                 "dbo.Firefly",
                 "Id"),
-            Assert.Throws<InvalidOperationException>(
-                () => Execute(
-                    common => common.Entity(
-                        "Firefly",
-                        x =>
-                        {
-                            x.ToTable("Firefly", "dbo");
-                            x.Property<int>("Id");
-                            x.Property<string>("Name");
-                            x.HasKey("Id", "Name");
-                            x.HasData(
-                                new { Id = (int?)null, Name = "Firefly 1" });
-                        }),
-                    _ => { },
-                    _ => { },
-                    upOps => { },
-                    downOps => { })).Message);
+            Assert.Throws<InvalidOperationException>(() => Execute(
+                common => common.Entity(
+                    "Firefly",
+                    x =>
+                    {
+                        x.ToTable("Firefly", "dbo");
+                        x.Property<int>("Id");
+                        x.Property<string>("Name");
+                        x.HasKey("Id", "Name");
+                        x.HasData(
+                            new { Id = (int?)null, Name = "Firefly 1" });
+                    }),
+                _ => { },
+                _ => { },
+                upOps => { },
+                downOps => { })).Message);
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public void Throws_on_duplicate_seed_data(bool enableSensitiveLogging)
         => Assert.Equal(
             enableSensitiveLogging
@@ -1883,28 +1865,25 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 : RelationalStrings.DuplicateSeedData(
                     "Firefly (Dictionary<string, object>)",
                     "dbo.Firefly"),
-            Assert.Throws<InvalidOperationException>(
-                () => Execute(
-                    common => common.Entity(
-                        "Firefly",
-                        x =>
-                        {
-                            x.ToTable("Firefly", "dbo");
-                            x.Property<int>("Id");
-                            x.HasData(
-                                new { Id = 42 },
-                                new { Id = 42 });
-                        }),
-                    _ => { },
-                    _ => { },
-                    upOps => { },
-                    downOps => { },
-                    _ => { },
-                    enableSensitiveLogging: enableSensitiveLogging)).Message);
+            Assert.Throws<InvalidOperationException>(() => Execute(
+                common => common.Entity(
+                    "Firefly",
+                    x =>
+                    {
+                        x.ToTable("Firefly", "dbo");
+                        x.Property<int>("Id");
+                        x.HasData(
+                            new { Id = 42 },
+                            new { Id = 42 });
+                    }),
+                _ => { },
+                _ => { },
+                upOps => { },
+                downOps => { },
+                _ => { },
+                enableSensitiveLogging: enableSensitiveLogging)).Message);
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public void Throws_on_conflicting_seed_data(bool enableSensitiveLogging)
         => Assert.Equal(
             enableSensitiveLogging
@@ -1919,39 +1898,38 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                     "FireflyDetails (Dictionary<string, object>)",
                     "Firefly",
                     "Name"),
-            Assert.Throws<InvalidOperationException>(
-                () => Execute(
-                    common =>
-                    {
-                        common.Entity(
-                            "Firefly",
-                            x =>
-                            {
-                                x.ToTable("Firefly");
-                                x.Property<int>("Id");
-                                x.Property<string>("Name").HasColumnName("Name");
-                                x.HasData(
-                                    new { Id = 42, Name = "1" });
-                            });
+            Assert.Throws<InvalidOperationException>(() => Execute(
+                common =>
+                {
+                    common.Entity(
+                        "Firefly",
+                        x =>
+                        {
+                            x.ToTable("Firefly");
+                            x.Property<int>("Id");
+                            x.Property<string>("Name").HasColumnName("Name");
+                            x.HasData(
+                                new { Id = 42, Name = "1" });
+                        });
 
-                        common.Entity(
-                            "FireflyDetails",
-                            x =>
-                            {
-                                x.ToTable("Firefly");
-                                x.Property<int>("Id");
-                                x.Property<string>("Name").HasColumnName("Name");
-                                x.HasOne("Firefly", null).WithOne().HasForeignKey("FireflyDetails", "Id");
-                                x.HasData(
-                                    new { Id = 42, Name = "2" });
-                            });
-                    },
-                    _ => { },
-                    _ => { },
-                    upOps => { },
-                    downOps => { },
-                    _ => { },
-                    enableSensitiveLogging: enableSensitiveLogging)).Message);
+                    common.Entity(
+                        "FireflyDetails",
+                        x =>
+                        {
+                            x.ToTable("Firefly");
+                            x.Property<int>("Id");
+                            x.Property<string>("Name").HasColumnName("Name");
+                            x.HasOne("Firefly", null).WithOne().HasForeignKey("FireflyDetails", "Id");
+                            x.HasData(
+                                new { Id = 42, Name = "2" });
+                        });
+                },
+                _ => { },
+                _ => { },
+                upOps => { },
+                downOps => { },
+                _ => { },
+                enableSensitiveLogging: enableSensitiveLogging)).Message);
 
     [ConditionalFact]
     public void Add_column_with_order()
@@ -8626,46 +8604,42 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
         => Execute(
             common =>
             {
-                common.Entity<Animal>(
-                    x =>
-                    {
-                        x.Property<int>("Id");
-                        x.Property<string>("Name");
-
-                        x.HasDiscriminator<int>("Discriminator")
-                            .HasValue(1)
-                            .HasValue<Eagle>(2);
-
-                        x.ToTable("Animal", "dbo");
-                        x.HasData(
-                            new { Id = 42 });
-                    });
-
-                common.Entity<Eagle>(
-                    x =>
-                    {
-                        x.HasBaseType<Animal>();
-                        x.HasData(
-                            new { Id = 41 });
-                    });
-            },
-            source => source.Entity<Animal>(
-                x =>
+                common.Entity<Animal>(x =>
                 {
-                    x.HasData(
-                        new Animal { Id = 43, Name = "Bob" });
-                }),
-            target => target.Entity<Shark>(
-                x =>
-                {
-                    x.HasBaseType<Animal>();
+                    x.Property<int>("Id");
+                    x.Property<string>("Name");
 
                     x.HasDiscriminator<int>("Discriminator")
-                        .HasValue(3);
+                        .HasValue(1)
+                        .HasValue<Eagle>(2);
 
+                    x.ToTable("Animal", "dbo");
                     x.HasData(
-                        new Shark { Id = 43, Name = "Bob" });
-                }),
+                        new { Id = 42 });
+                });
+
+                common.Entity<Eagle>(x =>
+                {
+                    x.HasBaseType<Animal>();
+                    x.HasData(
+                        new { Id = 41 });
+                });
+            },
+            source => source.Entity<Animal>(x =>
+            {
+                x.HasData(
+                    new Animal { Id = 43, Name = "Bob" });
+            }),
+            target => target.Entity<Shark>(x =>
+            {
+                x.HasBaseType<Animal>();
+
+                x.HasDiscriminator<int>("Discriminator")
+                    .HasValue(3);
+
+                x.HasData(
+                    new Shark { Id = 43, Name = "Bob" });
+            }),
             upOps => Assert.Collection(
                 upOps,
                 o =>
@@ -9757,25 +9731,28 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
             },
             source =>
             {
-                source.Entity("Microsoft.EntityFrameworkCore.Migrations.Internal.Account", b =>
-                {
-                    b.Property<string>("Id");
-                    b.HasKey("Id");
-                    b.ToTable("account");
-                });
-
-                source.Entity("Microsoft.EntityFrameworkCore.Migrations.Internal.Account", b =>
-                {
-                    b.OwnsMany("Microsoft.EntityFrameworkCore.Migrations.Internal.AccountHolder", "AccountHolders", b1 =>
+                source.Entity(
+                    "Microsoft.EntityFrameworkCore.Migrations.Internal.Account", b =>
                     {
-                        b1.Property<string>("Id");
-                        b1.Property<string>("account_id");
-                        b1.HasKey("Id");
-                        b1.HasIndex("account_id");
-                        b1.ToTable("account_holder");
-                        b1.WithOwner().HasForeignKey("account_id");
+                        b.Property<string>("Id");
+                        b.HasKey("Id");
+                        b.ToTable("account");
                     });
-                });
+
+                source.Entity(
+                    "Microsoft.EntityFrameworkCore.Migrations.Internal.Account", b =>
+                    {
+                        b.OwnsMany(
+                            "Microsoft.EntityFrameworkCore.Migrations.Internal.AccountHolder", "AccountHolders", b1 =>
+                            {
+                                b1.Property<string>("Id");
+                                b1.Property<string>("account_id");
+                                b1.HasKey("Id");
+                                b1.HasIndex("account_id");
+                                b1.ToTable("account_holder");
+                                b1.WithOwner().HasForeignKey("account_id");
+                            });
+                    });
             },
             target =>
             {
@@ -9783,14 +9760,15 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 {
                     builder.ToTable("account");
                     builder.HasKey("Id");
-                    builder.OwnsMany(a => a.AccountHolders, navigationBuilder =>
-                    {
-                        navigationBuilder.ToTable("account_holder");
-                        navigationBuilder.Property<string>("Id");
-                        navigationBuilder.HasKey("Id");
-                        navigationBuilder.Property<string>("account_id");
-                        navigationBuilder.WithOwner().HasForeignKey("account_id");
-                    });
+                    builder.OwnsMany(
+                        a => a.AccountHolders, navigationBuilder =>
+                        {
+                            navigationBuilder.ToTable("account_holder");
+                            navigationBuilder.Property<string>("Id");
+                            navigationBuilder.HasKey("Id");
+                            navigationBuilder.Property<string>("account_id");
+                            navigationBuilder.WithOwner().HasForeignKey("account_id");
+                        });
                 });
             },
             Assert.Empty);
@@ -9823,16 +9801,18 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                                 o.ToJson();
                                 o.Property<string>("Value").HasJsonPropertyName("custom_value");
                                 o.Property<DateTime>("Date").HasJsonPropertyName("custom_date");
-                                o.OwnsOne("Nested", "nested_reference", n =>
-                                {
-                                    n.Property<int>("Foo");
-                                    n.Property<DateTime>("Bar");
-                                });
-                                o.OwnsMany("Nested2", "nested_collection", n =>
-                                {
-                                    n.Property<int>("Foo");
-                                    n.Property<DateTime>("Bar");
-                                });
+                                o.OwnsOne(
+                                    "Nested", "nested_reference", n =>
+                                    {
+                                        n.Property<int>("Foo");
+                                        n.Property<DateTime>("Bar");
+                                    });
+                                o.OwnsMany(
+                                    "Nested2", "nested_collection", n =>
+                                    {
+                                        n.Property<int>("Foo");
+                                        n.Property<DateTime>("Bar");
+                                    });
                             });
 
                         e.OwnsMany(
@@ -9841,16 +9821,18 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                                 o.ToJson();
                                 o.Property<string>("Value");
                                 o.Property<DateTime>("Date");
-                                o.OwnsOne("Nested3", "NestedReference2", n =>
-                                {
-                                    n.Property<int>("Foo");
-                                    n.Property<DateTime>("Bar");
-                                });
-                                o.OwnsMany("Nested4", "NestedCollection2", n =>
-                                {
-                                    n.Property<int>("Foo");
-                                    n.Property<DateTime>("Bar");
-                                });
+                                o.OwnsOne(
+                                    "Nested3", "NestedReference2", n =>
+                                    {
+                                        n.Property<int>("Foo");
+                                        n.Property<DateTime>("Bar");
+                                    });
+                                o.OwnsMany(
+                                    "Nested4", "NestedCollection2", n =>
+                                    {
+                                        n.Property<int>("Foo");
+                                        n.Property<DateTime>("Bar");
+                                    });
                                 o.Property<DateTime>("Date2");
                             });
                     });
@@ -9870,14 +9852,16 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                                 cp.ToJson("json_reference");
                                 cp.Property(x => x.Value).HasJsonPropertyName("custom_value");
                                 cp.Property(x => x.Date).HasJsonPropertyName("custom_date");
-                                cp.ComplexCollection(x => x.NestedCollection, nc =>
-                                {
-                                    nc.HasJsonPropertyName("nested_collection");
-                                });
-                                cp.ComplexProperty(x => x.Nested, np =>
-                                {
-                                    np.HasJsonPropertyName("nested_reference");
-                                });
+                                cp.ComplexCollection(
+                                    x => x.NestedCollection, nc =>
+                                    {
+                                        nc.HasJsonPropertyName("nested_collection");
+                                    });
+                                cp.ComplexProperty(
+                                    x => x.Nested, np =>
+                                    {
+                                        np.HasJsonPropertyName("nested_reference");
+                                    });
                             });
 
                         e.ComplexCollection<List<MyJsonComplex>, MyJsonComplex>(
@@ -9886,54 +9870,57 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                                 cp.ToJson("json_collection");
                                 cp.Property(x => x.Value);
                                 cp.Property(x => x.Date);
-                                cp.ComplexCollection(x => x.NestedCollection, nc =>
-                                {
-                                    nc.HasJsonPropertyName("nested_collection2");
-                                });
-                                cp.ComplexProperty(x => x.Nested, np =>
-                                {
-                                    np.HasJsonPropertyName("nested_reference2");
-                                });
+                                cp.ComplexCollection(
+                                    x => x.NestedCollection, nc =>
+                                    {
+                                        nc.HasJsonPropertyName("nested_collection2");
+                                    });
+                                cp.ComplexProperty(
+                                    x => x.Nested, np =>
+                                    {
+                                        np.HasJsonPropertyName("nested_reference2");
+                                    });
                             });
                     });
             },
             Assert.Empty);
 
     [ConditionalFact]
-    public virtual void Noop_on_complex_properties() => Execute(
-        builder =>
-        {
-            builder.Entity(
-                "Entity", e =>
-                {
-                    e.Property<int>("Id").ValueGeneratedOnAdd();
-                    e.HasKey("Id");
-                    e.Property<string>("Name");
+    public virtual void Noop_on_complex_properties()
+        => Execute(
+            builder =>
+            {
+                builder.Entity(
+                    "Entity", e =>
+                    {
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.HasKey("Id");
+                        e.Property<string>("Name");
 
-                    e.ComplexProperty<MyJsonComplex>(
-                        "ComplexReference", cp =>
-                        {
-                            cp.IsRequired(false);
-                            cp.Property(x => x.Value).HasJsonPropertyName("custom_value");
-                            cp.Property(x => x.Date).HasJsonPropertyName("custom_date");
-                            cp.ComplexCollection(x => x.NestedCollection).ToJson();
-                            cp.ComplexProperty(x => x.Nested);
-                        });
+                        e.ComplexProperty<MyJsonComplex>(
+                            "ComplexReference", cp =>
+                            {
+                                cp.IsRequired(false);
+                                cp.Property(x => x.Value).HasJsonPropertyName("custom_value");
+                                cp.Property(x => x.Date).HasJsonPropertyName("custom_date");
+                                cp.ComplexCollection(x => x.NestedCollection).ToJson();
+                                cp.ComplexProperty(x => x.Nested);
+                            });
 
-                    e.ComplexCollection<List<MyJsonComplex>, MyJsonComplex>(
-                        "ComplexCollection", cp =>
-                        {
-                            cp.ToJson();
-                            cp.Property(x => x.Value);
-                            cp.Property(x => x.Date);
-                            cp.ComplexCollection(x => x.NestedCollection);
-                            cp.ComplexProperty(x => x.Nested);
-                        });
-                });
-        },
-        source => { },
-        target => { },
-        Assert.Empty);
+                        e.ComplexCollection<List<MyJsonComplex>, MyJsonComplex>(
+                            "ComplexCollection", cp =>
+                            {
+                                cp.ToJson();
+                                cp.Property(x => x.Value);
+                                cp.Property(x => x.Date);
+                                cp.ComplexCollection(x => x.NestedCollection);
+                                cp.ComplexProperty(x => x.Nested);
+                            });
+                    });
+            },
+            source => { },
+            target => { },
+            Assert.Empty);
 
     protected class MyJsonComplex
     {
@@ -9954,32 +9941,30 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
         => Execute(
             target =>
             {
-                target.Entity<SomeEntity>(
-                    builder =>
-                    {
-                        builder.HasAlternateKey(x => x.Guid);
-                        builder.Property(x => x.Id).ValueGeneratedNever();
+                target.Entity<SomeEntity>(builder =>
+                {
+                    builder.HasAlternateKey(x => x.Guid);
+                    builder.Property(x => x.Id).ValueGeneratedNever();
 
-                        var data = new[] { new SomeEntity(1L, new Guid("74520CF7-0C78-447C-8FE0-ED97A16A13F5")) };
+                    var data = new[] { new SomeEntity(1L, new Guid("74520CF7-0C78-447C-8FE0-ED97A16A13F5")) };
 
-                        var owned = data.Select(x => new { SomeEntityId = x.Id, }).ToArray();
+                    var owned = data.Select(x => new { SomeEntityId = x.Id, }).ToArray();
 
-                        builder.OwnsOne(x => x.OwnedEntity).HasData(owned);
-                        builder.HasData(data);
-                    });
+                    builder.OwnsOne(x => x.OwnedEntity).HasData(owned);
+                    builder.HasData(data);
+                });
 
-                target.Entity<ApplicationUser>(
-                    builder =>
-                    {
-                        builder.HasAlternateKey(x => x.Guid);
+                target.Entity<ApplicationUser>(builder =>
+                {
+                    builder.HasAlternateKey(x => x.Guid);
 
-                        var data = new[] { new ApplicationUser { Id = 12345, Guid = new Guid("4C85B629-732A-4724-AA33-6E8108134BAE") } };
+                    var data = new[] { new ApplicationUser { Id = 12345, Guid = new Guid("4C85B629-732A-4724-AA33-6E8108134BAE") } };
 
-                        var owned = data.Select(x => new { ApplicationUserId = x.Id, }).ToArray();
+                    var owned = data.Select(x => new { ApplicationUserId = x.Id, }).ToArray();
 
-                        builder.OwnsOne(x => x.OwnedEntity).HasData(owned);
-                        builder.HasData(data);
-                    });
+                    builder.OwnsOne(x => x.OwnedEntity).HasData(owned);
+                    builder.HasData(data);
+                });
             },
             target => { },
             source => { },
@@ -11050,97 +11035,93 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
 
     [ConditionalFact]
     public void SeedData_with_shadow_navigation_properties()
-        => SeedData_with_navigation_properties(
-            target =>
-            {
-                target.Entity(
-                    "Blog",
-                    x =>
-                    {
-                        x.Property<int>("BlogId");
-                        x.Property<string>("Url");
-                        x.HasData(
-                            new { BlogId = 32, Url = "updated.url" },
-                            new { BlogId = 38, Url = "newblog.url" },
-                            new { BlogId = 316, Url = "nowitexists.blog" });
-                    });
-                target.Entity(
-                    "Post",
-                    x =>
-                    {
-                        x.Property<int>("PostId");
-                        x.Property<string>("Title");
-                        x.HasOne("Blog", "Blog")
-                            .WithMany("Posts")
-                            .HasForeignKey("BlogId")
-                            .OnDelete(DeleteBehavior.Cascade);
-                        x.HasData(
-                            new
-                            {
-                                PostId = 416,
-                                Title = "Post To Non-existent BlogId",
-                                BlogId = 316
-                            },
-                            new
-                            {
-                                PostId = 545,
-                                Title = "Updated Title",
-                                BlogId = 38
-                            },
-                            new
-                            {
-                                PostId = 546,
-                                Title = "New Post",
-                                BlogId = 32
-                            });
-                    });
-            });
+        => SeedData_with_navigation_properties(target =>
+        {
+            target.Entity(
+                "Blog",
+                x =>
+                {
+                    x.Property<int>("BlogId");
+                    x.Property<string>("Url");
+                    x.HasData(
+                        new { BlogId = 32, Url = "updated.url" },
+                        new { BlogId = 38, Url = "newblog.url" },
+                        new { BlogId = 316, Url = "nowitexists.blog" });
+                });
+            target.Entity(
+                "Post",
+                x =>
+                {
+                    x.Property<int>("PostId");
+                    x.Property<string>("Title");
+                    x.HasOne("Blog", "Blog")
+                        .WithMany("Posts")
+                        .HasForeignKey("BlogId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                    x.HasData(
+                        new
+                        {
+                            PostId = 416,
+                            Title = "Post To Non-existent BlogId",
+                            BlogId = 316
+                        },
+                        new
+                        {
+                            PostId = 545,
+                            Title = "Updated Title",
+                            BlogId = 38
+                        },
+                        new
+                        {
+                            PostId = 546,
+                            Title = "New Post",
+                            BlogId = 32
+                        });
+                });
+        });
 
     [ConditionalFact]
     public void SeedData_with_CLR_navigation_properties()
-        => SeedData_with_navigation_properties(
-            target =>
+        => SeedData_with_navigation_properties(target =>
+        {
+            target.Entity<Blog>(x =>
             {
-                target.Entity<Blog>(
-                    x =>
+                x.Property<int>("BlogId");
+                x.Property<string>("Url");
+                x.HasData(
+                    new { BlogId = 32, Url = "updated.url" },
+                    new { BlogId = 38, Url = "newblog.url" },
+                    new { BlogId = 316, Url = "nowitexists.blog" });
+            });
+            target.Entity<Post>(x =>
+            {
+                x.Property<int>("PostId");
+                x.Property<string>("Title");
+                x.HasOne(p => p.Blog)
+                    .WithMany("Posts")
+                    .HasForeignKey("BlogId")
+                    .OnDelete(DeleteBehavior.Cascade);
+                x.HasData(
+                    new
                     {
-                        x.Property<int>("BlogId");
-                        x.Property<string>("Url");
-                        x.HasData(
-                            new { BlogId = 32, Url = "updated.url" },
-                            new { BlogId = 38, Url = "newblog.url" },
-                            new { BlogId = 316, Url = "nowitexists.blog" });
-                    });
-                target.Entity<Post>(
-                    x =>
+                        PostId = 416,
+                        Title = "Post To Non-existent BlogId",
+                        BlogId = 316
+                    },
+                    new
                     {
-                        x.Property<int>("PostId");
-                        x.Property<string>("Title");
-                        x.HasOne(p => p.Blog)
-                            .WithMany("Posts")
-                            .HasForeignKey("BlogId")
-                            .OnDelete(DeleteBehavior.Cascade);
-                        x.HasData(
-                            new
-                            {
-                                PostId = 416,
-                                Title = "Post To Non-existent BlogId",
-                                BlogId = 316
-                            },
-                            new
-                            {
-                                PostId = 545,
-                                Title = "Updated Title",
-                                BlogId = 38
-                            },
-                            new
-                            {
-                                PostId = 546,
-                                Title = "New Post",
-                                BlogId = 32
-                            });
+                        PostId = 545,
+                        Title = "Updated Title",
+                        BlogId = 38
+                    },
+                    new
+                    {
+                        PostId = 546,
+                        Title = "New Post",
+                        BlogId = 32
                     });
             });
+        });
 
     private void SeedData_with_navigation_properties(Action<ModelBuilder> buildTargetAction)
         => Execute(
@@ -11353,12 +11334,11 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
     [ConditionalFact]
     public void Add_property_on_owned_type()
         => Execute(
-            common => common.Entity<Order>(
-                x =>
-                {
-                    x.OwnsOne(y => y.Billing);
-                    x.OwnsOne(y => y.Shipping);
-                }),
+            common => common.Entity<Order>(x =>
+            {
+                x.OwnsOne(y => y.Billing);
+                x.OwnsOne(y => y.Shipping);
+            }),
             source => source.Entity<Order>().OwnsOne(y => y.Shipping).Ignore("AddressLine2"),
             target => { },
             upOperations =>
@@ -11380,12 +11360,11 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
             common => { },
             source => source.Entity<OldOrder>().ToTable("Order").Ignore(x => x.AddressLine1)
                 .Ignore(x => x.AddressLine2).OwnsOne(y => y.Billing),
-            target => target.Entity<Order>(
-                x =>
-                {
-                    x.OwnsOne(y => y.Billing);
-                    x.OwnsOne(y => y.Shipping);
-                }),
+            target => target.Entity<Order>(x =>
+            {
+                x.OwnsOne(y => y.Billing);
+                x.OwnsOne(y => y.Shipping);
+            }),
             upOperations =>
             {
                 Assert.Equal(2, upOperations.Count);
@@ -11419,12 +11398,11 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 .Ignore(c => c.Orders)
                 .OwnsOne(y => y.Mailing),
             target => target
-                .Entity<Order>(
-                    x =>
-                    {
-                        x.OwnsOne(y => y.Billing);
-                        x.OwnsOne(y => y.Shipping);
-                    })
+                .Entity<Order>(x =>
+                {
+                    x.OwnsOne(y => y.Billing);
+                    x.OwnsOne(y => y.Shipping);
+                })
                 .Entity<Customer>()
                 .Ignore(c => c.Orders)
                 .OwnsOne(y => y.Mailing),
@@ -11440,17 +11418,16 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
             common => common.Ignore<Customer>(),
             _ => { },
             target => target
-                .Entity<Order>(
-                    x =>
-                    {
-                        x.Property<int>("_secretId");
-                        x.HasData(
-                            new Order(42) { Id = 1 });
-                        x.OwnsOne(y => y.Billing).HasData(
-                            new { OrderId = 1, AddressLine1 = "billing" });
-                        x.OwnsOne(y => y.Shipping).HasData(
-                            new { OrderId = 1, AddressLine2 = "shipping" });
-                    }),
+                .Entity<Order>(x =>
+                {
+                    x.Property<int>("_secretId");
+                    x.HasData(
+                        new Order(42) { Id = 1 });
+                    x.OwnsOne(y => y.Billing).HasData(
+                        new { OrderId = 1, AddressLine1 = "billing" });
+                    x.OwnsOne(y => y.Shipping).HasData(
+                        new { OrderId = 1, AddressLine2 = "shipping" });
+                }),
             upOps => Assert.Collection(
                 upOps,
                 o =>
@@ -11486,17 +11463,16 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
             common =>
             {
                 common.Ignore<Customer>();
-                common.Entity<Order>(
-                    x =>
-                    {
-                        x.Property<int>("_secretId");
-                        x.HasData(
-                            new Order(42) { Id = 1 });
-                        x.OwnsOne(y => y.Billing).HasData(
-                            new { OrderId = 1, AddressLine1 = "billing" });
-                        x.OwnsOne(y => y.Shipping).HasData(
-                            new { OrderId = 1, AddressLine2 = "shipping" });
-                    });
+                common.Entity<Order>(x =>
+                {
+                    x.Property<int>("_secretId");
+                    x.HasData(
+                        new Order(42) { Id = 1 });
+                    x.OwnsOne(y => y.Billing).HasData(
+                        new { OrderId = 1, AddressLine1 = "billing" });
+                    x.OwnsOne(y => y.Shipping).HasData(
+                        new { OrderId = 1, AddressLine2 = "shipping" });
+                });
             },
             _ => { },
             _ => { },
@@ -11508,27 +11484,26 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
         => Execute(
             common =>
             {
-                common.Entity<Customer>(
-                    c =>
-                    {
-                        c.Ignore(x => x.Mailing);
+                common.Entity<Customer>(c =>
+                {
+                    c.Ignore(x => x.Mailing);
 
-                        c.HasKey(x => x.Id);
-                        c.HasData(new Customer { Id = 1 });
+                    c.HasKey(x => x.Id);
+                    c.HasData(new Customer { Id = 1 });
 
-                        c.OwnsMany(
-                            y => y.Orders, x =>
-                            {
-                                x.Ignore(o => o.Billing);
-                                x.Ignore(o => o.Shipping);
+                    c.OwnsMany(
+                        y => y.Orders, x =>
+                        {
+                            x.Ignore(o => o.Billing);
+                            x.Ignore(o => o.Shipping);
 
-                                x.WithOwner()
-                                    .HasForeignKey("CustomerId");
+                            x.WithOwner()
+                                .HasForeignKey("CustomerId");
 
-                                x.HasKey("CustomerId", "Id");
-                                x.HasData(new { Id = 2, CustomerId = 1 });
-                            });
-                    });
+                            x.HasKey("CustomerId", "Id");
+                            x.HasData(new { Id = 2, CustomerId = 1 });
+                        });
+                });
             },
             _ => { },
             _ => { },
@@ -11541,41 +11516,39 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
         => Execute(
             common =>
             {
-                common.Entity<Customer>(
-                    c =>
-                    {
-                        c.Ignore(x => x.Mailing);
+                common.Entity<Customer>(c =>
+                {
+                    c.Ignore(x => x.Mailing);
 
-                        c.HasKey(x => x.Id);
-                        c.HasData(new Customer { Id = 1 });
+                    c.HasKey(x => x.Id);
+                    c.HasData(new Customer { Id = 1 });
 
-                        c.OwnsMany(
-                            y => y.Orders, x =>
-                            {
-                                x.Ignore(o => o.Billing);
-                                x.Ignore(o => o.Shipping);
+                    c.OwnsMany(
+                        y => y.Orders, x =>
+                        {
+                            x.Ignore(o => o.Billing);
+                            x.Ignore(o => o.Shipping);
 
-                                x.WithOwner()
-                                    .HasForeignKey("CustomerId");
+                            x.WithOwner()
+                                .HasForeignKey("CustomerId");
 
-                                x.HasKey("CustomerId", "Id");
-                                x.HasData(new { Id = 2, CustomerId = 1 });
-                            });
-                    });
+                            x.HasKey("CustomerId", "Id");
+                            x.HasData(new { Id = 2, CustomerId = 1 });
+                        });
+                });
             },
             _ => { },
             target =>
             {
-                target.Entity<Customer>(
-                    c =>
-                    {
-                        c.OwnsMany(
-                            y => y.Orders, x =>
-                            {
-                                x.ToTable("Order", t => t.ExcludeFromMigrations());
-                            });
-                        c.ToTable("Customer", t => t.ExcludeFromMigrations());
-                    });
+                target.Entity<Customer>(c =>
+                {
+                    c.OwnsMany(
+                        y => y.Orders, x =>
+                        {
+                            x.ToTable("Order", t => t.ExcludeFromMigrations());
+                        });
+                    c.ToTable("Customer", t => t.ExcludeFromMigrations());
+                });
             },
             Assert.Empty,
             Assert.Empty,
@@ -11803,12 +11776,11 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
     public void Move_properties_to_owned_type_with_existing_ownership()
         => Execute(
             source => source.Entity<OldOrder>().ToTable("Order").OwnsOne(o => o.Billing),
-            target => target.Entity<Order>(
-                x =>
-                {
-                    x.OwnsOne(o => o.Billing);
-                    x.OwnsOne(o => o.Shipping);
-                }),
+            target => target.Entity<Order>(x =>
+            {
+                x.OwnsOne(o => o.Billing);
+                x.OwnsOne(o => o.Shipping);
+            }),
             operations =>
             {
                 Assert.Equal(2, operations.Count);
@@ -11827,19 +11799,17 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
     [ConditionalFact]
     public void Rename_property_on_owned_type_and_add_similar_to_owner()
         => Execute(
-            source => source.Entity<Order>(
-                x =>
-                {
-                    x.OwnsOne(o => o.Billing).Property<int>("OldZip");
-                    x.Ignore(o => o.Shipping);
-                }),
-            target => target.Entity<Order>(
-                x =>
-                {
-                    x.Property<int>("NotZip");
-                    x.OwnsOne(o => o.Billing).Property<int>("NewZip");
-                    x.Ignore(o => o.Shipping);
-                }),
+            source => source.Entity<Order>(x =>
+            {
+                x.OwnsOne(o => o.Billing).Property<int>("OldZip");
+                x.Ignore(o => o.Shipping);
+            }),
+            target => target.Entity<Order>(x =>
+            {
+                x.Property<int>("NotZip");
+                x.OwnsOne(o => o.Billing).Property<int>("NewZip");
+                x.Ignore(o => o.Shipping);
+            }),
             operations =>
             {
                 Assert.Equal(2, operations.Count);
@@ -11857,20 +11827,18 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
     [ConditionalFact]
     public void Rename_property_on_owning_type_and_add_similar_to_owned()
         => Execute(
-            source => source.Entity<Order>(
-                x =>
-                {
-                    x.Property<DateTime>("OldDate");
-                    x.OwnsOne(o => o.Billing);
-                    x.Ignore(o => o.Shipping);
-                }),
-            target => target.Entity<Order>(
-                x =>
-                {
-                    x.Property<DateTime>("NewDate");
-                    x.OwnsOne(o => o.Billing).Property<DateTime>("AnotherDate");
-                    x.Ignore(o => o.Shipping);
-                }),
+            source => source.Entity<Order>(x =>
+            {
+                x.Property<DateTime>("OldDate");
+                x.OwnsOne(o => o.Billing);
+                x.Ignore(o => o.Shipping);
+            }),
+            target => target.Entity<Order>(x =>
+            {
+                x.Property<DateTime>("NewDate");
+                x.OwnsOne(o => o.Billing).Property<DateTime>("AnotherDate");
+                x.Ignore(o => o.Shipping);
+            }),
             operations =>
             {
                 Assert.Equal(2, operations.Count);
@@ -11944,17 +11912,16 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
     public void Owner_pk_properties_appear_before_owned_pk_which_preserves_annotations()
         => Execute(
             _ => { },
-            target => target.Entity<Customer13300>(
-                builder =>
-                {
-                    builder.OwnsOne(
-                        o => o.Created,
-                        sa => sa.Property(p => p.Reason).HasMaxLength(255).IsUnicode(false));
+            target => target.Entity<Customer13300>(builder =>
+            {
+                builder.OwnsOne(
+                    o => o.Created,
+                    sa => sa.Property(p => p.Reason).HasMaxLength(255).IsUnicode(false));
 
-                    builder.Property(x => x.TenantId).IsRequired();
-                    builder.HasKey(x => new { x.TenantId, x.ProviderKey });
-                    builder.Property(x => x.ProviderKey).HasMaxLength(50).IsUnicode(false);
-                }),
+                builder.Property(x => x.TenantId).IsRequired();
+                builder.HasKey(x => new { x.TenantId, x.ProviderKey });
+                builder.Property(x => x.ProviderKey).HasMaxLength(50).IsUnicode(false);
+            }),
             operations =>
             {
                 var createTableOperation = Assert.IsType<CreateTableOperation>(Assert.Single(operations));
@@ -12024,13 +11991,12 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
             target =>
             {
                 target.Entity<Principal>();
-                target.Entity<Dependent>(
-                    b =>
-                    {
-                        b.Property<int>("ShadowPk");
-                        b.Property<int>("AnotherShadowProperty");
-                        b.HasKey("Id1", "Id2", "Id3", "ShadowPk");
-                    });
+                target.Entity<Dependent>(b =>
+                {
+                    b.Property<int>("ShadowPk");
+                    b.Property<int>("AnotherShadowProperty");
+                    b.HasKey("Id1", "Id2", "Id3", "ShadowPk");
+                });
             },
             operations =>
             {

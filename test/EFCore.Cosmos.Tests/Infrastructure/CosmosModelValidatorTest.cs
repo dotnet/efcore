@@ -34,16 +34,15 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     public virtual void Detects_missing_id_property()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
-        modelBuilder.Entity<Order>(
-            b =>
-            {
-                b.Property(o => o.Id);
-                b.HasKey(o => o.Id);
-                b.Ignore(o => o.PartitionId);
-                b.Ignore(o => o.Customer);
-                b.Ignore(o => o.OrderDetails);
-                b.Ignore(o => o.Products);
-            });
+        modelBuilder.Entity<Order>(b =>
+        {
+            b.Property(o => o.Id);
+            b.HasKey(o => o.Id);
+            b.Ignore(o => o.PartitionId);
+            b.Ignore(o => o.Customer);
+            b.Ignore(o => o.OrderDetails);
+            b.Ignore(o => o.Products);
+        });
 
         VerifyError(CosmosStrings.NoIdProperty(nameof(Order)), modelBuilder);
     }
@@ -52,18 +51,17 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     public virtual void Detects_non_string_id_property()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
-        modelBuilder.Entity<Order>(
-            b =>
-            {
-                b.Property(o => o.Id);
-                b.HasKey(o => o.Id);
-                b.Property<int>("id");
-                b.HasKey("id");
-                b.Ignore(o => o.PartitionId);
-                b.Ignore(o => o.Customer);
-                b.Ignore(o => o.OrderDetails);
-                b.Ignore(o => o.Products);
-            });
+        modelBuilder.Entity<Order>(b =>
+        {
+            b.Property(o => o.Id);
+            b.HasKey(o => o.Id);
+            b.Property<int>("id");
+            b.HasKey("id");
+            b.Ignore(o => o.PartitionId);
+            b.Ignore(o => o.Customer);
+            b.Ignore(o => o.OrderDetails);
+            b.Ignore(o => o.Products);
+        });
 
         VerifyError(CosmosStrings.IdNonStringStoreType("id", nameof(Order), "int"), modelBuilder);
     }
@@ -86,14 +84,13 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     public virtual void Passes_PK_partition_key()
     {
         var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<Order>(
-            b =>
-            {
-                b.HasKey(o => o.PartitionId);
-                b.Ignore(o => o.Customer);
-                b.Ignore(o => o.OrderDetails);
-                b.Ignore(o => o.Products);
-            });
+        modelBuilder.Entity<Order>(b =>
+        {
+            b.HasKey(o => o.PartitionId);
+            b.Ignore(o => o.Customer);
+            b.Ignore(o => o.OrderDetails);
+            b.Ignore(o => o.Products);
+        });
 
         Validate(modelBuilder);
     }
@@ -137,13 +134,12 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     {
         var modelBuilder = CreateConventionModelBuilder();
 
-        modelBuilder.Entity<A>(
-            b =>
-            {
-                b.HasPartitionKey(e => e.P0);
-                b.ToContainer("As");
-                b.HasKey(e => new { e.P0, e.P1 });
-            });
+        modelBuilder.Entity<A>(b =>
+        {
+            b.HasPartitionKey(e => e.P0);
+            b.ToContainer("As");
+            b.HasKey(e => new { e.P0, e.P1 });
+        });
 
         modelBuilder.Entity<B>().HasPartitionKey(e => e.P0).ToContainer("As");
         modelBuilder.Entity<C>().ToContainer("As");
@@ -195,13 +191,12 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     public virtual void Detects_missing_partition_key_properties_composite_less_first()
     {
         var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<Customer>().ToContainer("Orders").HasPartitionKey(
-            c => new
-            {
-                c.PartitionId,
-                c.Id,
-                c.Name
-            });
+        modelBuilder.Entity<Customer>().ToContainer("Orders").HasPartitionKey(c => new
+        {
+            c.PartitionId,
+            c.Id,
+            c.Name
+        });
         modelBuilder.Entity<Order>().ToContainer("Orders").HasPartitionKey(c => new { c.PartitionId, c.Id });
 
         VerifyError(
@@ -224,12 +219,11 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Customer>().ToContainer("Orders").HasPartitionKey(c => new { c.PartitionId, c.Id });
         modelBuilder.Entity<Order>().ToContainer("Orders").HasPartitionKey(c => new { c.PartitionId, c.Id });
-        modelBuilder.Entity<OrderProduct>(
-            b =>
-            {
-                b.HasKey(e => e.OrderId);
-                b.ToContainer("Orders").HasPartitionKey(c => new { c.OrderId });
-            });
+        modelBuilder.Entity<OrderProduct>(b =>
+        {
+            b.HasKey(e => e.OrderId);
+            b.ToContainer("Orders").HasPartitionKey(c => new { c.OrderId });
+        });
 
         VerifyError(
             CosmosStrings.NoPartitionKey(nameof(Customer), "PartitionId,Id", nameof(OrderProduct), "OrderId", "Orders"), modelBuilder);
@@ -257,18 +251,17 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
             CreateValidationLogger(),
             configurationBuilder => configurationBuilder.RemoveAllConventions());
 
-        modelBuilder.Entity<Customer>(
-            b =>
-            {
-                b.ToContainer("Orders");
-                b.Property(e => e.Id).HasConversion<string>().ToJsonProperty("id");
-                b.Ignore(e => e.Name);
-                b.Ignore(e => e.PartitionId);
-                b.Ignore(e => e.Orders);
-                b.Property<JObject>("foo");
-                b.HasPartitionKey("foo");
-                b.HasKey(e => e.Id);
-            });
+        modelBuilder.Entity<Customer>(b =>
+        {
+            b.ToContainer("Orders");
+            b.Property(e => e.Id).HasConversion<string>().ToJsonProperty("id");
+            b.Ignore(e => e.Name);
+            b.Ignore(e => e.PartitionId);
+            b.Ignore(e => e.Orders);
+            b.Property<JObject>("foo");
+            b.HasPartitionKey("foo");
+            b.HasKey(e => e.Id);
+        });
 
         VerifyError(CosmosStrings.PartitionKeyBadStoreType("foo", nameof(Customer), "JObject"), modelBuilder);
     }
@@ -339,12 +332,11 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     {
         var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Customer>();
-        modelBuilder.Entity<Order>(
-            ob =>
-            {
-                ob.Property(o => o.Id).ToJsonProperty("Details");
-                ob.Property(o => o.PartitionId).ToJsonProperty("Details");
-            });
+        modelBuilder.Entity<Order>(ob =>
+        {
+            ob.Property(o => o.Id).ToJsonProperty("Details");
+            ob.Property(o => o.PartitionId).ToJsonProperty("Details");
+        });
 
         VerifyError(
             CosmosStrings.JsonPropertyCollision(
@@ -356,12 +348,11 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     {
         var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Customer>();
-        modelBuilder.Entity<Order>(
-            ob =>
-            {
-                ob.Property(o => o.PartitionId).ToJsonProperty("Details");
-                ob.OwnsOne(o => o.OrderDetails).ToJsonProperty("Details");
-            });
+        modelBuilder.Entity<Order>(ob =>
+        {
+            ob.Property(o => o.PartitionId).ToJsonProperty("Details");
+            ob.OwnsOne(o => o.OrderDetails).ToJsonProperty("Details");
+        });
 
         VerifyError(
             CosmosStrings.JsonPropertyCollision(
@@ -373,13 +364,12 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     {
         var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Customer>();
-        modelBuilder.Entity<Order>(
-            ob => ob.OwnsOne(
-                o => o.OrderDetails, b =>
-                {
-                    b.Property<string>(CosmosJsonIdConvention.DefaultIdPropertyName)
-                        .ToJsonProperty(CosmosJsonIdConvention.IdPropertyJsonName);
-                }));
+        modelBuilder.Entity<Order>(ob => ob.OwnsOne(
+            o => o.OrderDetails, b =>
+            {
+                b.Property<string>(CosmosJsonIdConvention.DefaultIdPropertyName)
+                    .ToJsonProperty(CosmosJsonIdConvention.IdPropertyJsonName);
+            }));
 
         modelBuilder.Model
             .GetEntityTypes()
@@ -405,11 +395,10 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     public virtual void Detects_index()
     {
         var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<Customer>(
-            b =>
-            {
-                b.HasIndex(e => new { e.Name, e.OtherName });
-            });
+        modelBuilder.Entity<Customer>(b =>
+        {
+            b.HasIndex(e => new { e.Name, e.OtherName });
+        });
 
         VerifyError(CosmosStrings.IndexesExist(nameof(Customer), "Name,OtherName"), modelBuilder);
     }
@@ -483,11 +472,10 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     public virtual void Detects_full_text_index_without_full_text_property()
     {
         var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<Customer>(
-            b =>
-            {
-                b.HasIndex(e => e.Name).IsFullTextIndex();
-            });
+        modelBuilder.Entity<Customer>(b =>
+        {
+            b.HasIndex(e => e.Name).IsFullTextIndex();
+        });
 
         VerifyError(
             CosmosStrings.FullTextIndexOnNonFullTextProperty(
@@ -501,11 +489,10 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     public virtual void Detects_vector_index_on_non_vector_property()
     {
         var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<Customer>(
-            b =>
-            {
-                b.HasIndex(e => e.Name).IsVectorIndex(VectorIndexType.Flat);
-            });
+        modelBuilder.Entity<Customer>(b =>
+        {
+            b.HasIndex(e => e.Name).IsVectorIndex(VectorIndexType.Flat);
+        });
 
         VerifyError(CosmosStrings.VectorIndexOnNonVector(nameof(Customer), "Name"), modelBuilder);
     }
@@ -514,11 +501,10 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     public virtual void Detects_vector_property_with_unknown_data_type()
     {
         var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<NonVector>(
-            b =>
-            {
-                b.Property(e => e.Vector).IsVectorProperty(DistanceFunction.Cosine, dimensions: 10);
-            });
+        modelBuilder.Entity<NonVector>(b =>
+        {
+            b.Property(e => e.Vector).IsVectorProperty(DistanceFunction.Cosine, dimensions: 10);
+        });
 
         VerifyError(CosmosStrings.BadVectorDataType("double[]"), modelBuilder);
     }
@@ -559,11 +545,10 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     public virtual void Detects_complex_type_collection()
     {
         var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<EntityWithComplexTypeCollection>(
-            b =>
-            {
-                b.ComplexCollection(e => e.ComplexTypes);
-            });
+        modelBuilder.Entity<EntityWithComplexTypeCollection>(b =>
+        {
+            b.ComplexCollection(e => e.ComplexTypes);
+        });
 
         VerifyError(
             CosmosStrings.ComplexTypeCollectionsNotSupported(

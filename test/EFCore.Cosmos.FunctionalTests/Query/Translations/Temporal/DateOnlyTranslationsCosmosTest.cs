@@ -5,7 +5,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Translations.Temporal;
 
 public class DateOnlyTranslationsCosmosTest : DateOnlyTranslationsTestBase<BasicTypesQueryCosmosFixture>
 {
-    public DateOnlyTranslationsCosmosTest(BasicTypesQueryCosmosFixture fixture, ITestOutputHelper testOutputHelper) : base(fixture)
+    public DateOnlyTranslationsCosmosTest(BasicTypesQueryCosmosFixture fixture, ITestOutputHelper testOutputHelper)
+        : base(fixture)
     {
         Fixture.TestSqlLoggerFactory.Clear();
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);

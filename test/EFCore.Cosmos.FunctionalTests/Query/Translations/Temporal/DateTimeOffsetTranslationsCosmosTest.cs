@@ -7,7 +7,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Translations.Temporal;
 
 public class DateTimeOffsetTranslationsCosmosTest : DateTimeOffsetTranslationsTestBase<BasicTypesQueryCosmosFixture>
 {
-    public DateTimeOffsetTranslationsCosmosTest(BasicTypesQueryCosmosFixture fixture, ITestOutputHelper testOutputHelper) : base(fixture)
+    public DateTimeOffsetTranslationsCosmosTest(BasicTypesQueryCosmosFixture fixture, ITestOutputHelper testOutputHelper)
+        : base(fixture)
     {
         Fixture.TestSqlLoggerFactory.Clear();
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
@@ -126,7 +127,6 @@ FROM root c
 WHERE (DateTimePart("ss", c["DateTimeOffset"]) = 10)
 """);
     }
-
 
     public override async Task Millisecond()
     {

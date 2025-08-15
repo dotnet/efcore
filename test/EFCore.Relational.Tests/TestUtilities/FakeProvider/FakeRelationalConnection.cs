@@ -14,13 +14,13 @@ public class FakeRelationalConnection(IDbContextOptions options = null)
             new DiagnosticsLogger<DbLoggerCategory.Database.Transaction>(
                 new LoggerFactory(),
                 new LoggingOptions(),
-                new ListDiagnosticSource(new List<Tuple<string, object>>()),
+                new ListDiagnosticSource([]),
                 new TestRelationalLoggingDefinitions(),
                 new NullDbContextLogger()),
             new RelationalConnectionDiagnosticsLogger(
                 new LoggerFactory(),
                 new LoggingOptions(),
-                new ListDiagnosticSource(new List<Tuple<string, object>>()),
+                new ListDiagnosticSource([]),
                 new TestRelationalLoggingDefinitions(),
                 new NullDbContextLogger(),
                 CreateOptions()),

@@ -18,20 +18,9 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public class LinqToCSharpSyntaxTranslatorTest(ITestOutputHelper testOutputHelper)
 {
-    [Theory]
-    [InlineData("hello", "\"hello\"")]
-    [InlineData(1, "1")]
-    [InlineData(1L, "1L")]
-    [InlineData((short)1, "1")]
-    [InlineData((sbyte)1, "1")]
-    [InlineData(1U, "1U")]
-    [InlineData(1UL, "1UL")]
-    [InlineData((ushort)1, "1")]
-    [InlineData((byte)1, "1")]
-    [InlineData(1.5, "1.5D")]
-    [InlineData(1.5F, "1.5F")]
-    [InlineData(true, "true")]
-    [InlineData(typeof(string), "typeof(string)")]
+    [Theory, InlineData("hello", "\"hello\""), InlineData(1, "1"), InlineData(1L, "1L"), InlineData((short)1, "1"),
+     InlineData((sbyte)1, "1"), InlineData(1U, "1U"), InlineData(1UL, "1UL"), InlineData((ushort)1, "1"), InlineData((byte)1, "1"),
+     InlineData(1.5, "1.5D"), InlineData(1.5F, "1.5F"), InlineData(true, "true"), InlineData(typeof(string), "typeof(string)")]
     public void Constant_values(object constantValue, string literalRepresentation)
         => AssertExpression(Constant(constantValue), literalRepresentation);
 
@@ -65,23 +54,14 @@ public class LinqToCSharpSyntaxTranslatorTest(ITestOutputHelper testOutputHelper
     public void Enum_with_unknown_value()
         => AssertExpression(Constant((SomeEnum)1000), "(LinqToCSharpSyntaxTranslatorTest.SomeEnum)1000L");
 
-    [Theory]
-    [InlineData(ExpressionType.Add, "+")]
-    [InlineData(ExpressionType.Subtract, "-")]
-    [InlineData(ExpressionType.Assign, "=")]
-    [InlineData(ExpressionType.AddAssign, "+=")]
-    [InlineData(ExpressionType.AddAssignChecked, "+=")]
-    [InlineData(ExpressionType.MultiplyAssign, "*=")]
-    [InlineData(ExpressionType.MultiplyAssignChecked, "*=")]
-    [InlineData(ExpressionType.DivideAssign, "/=")]
-    [InlineData(ExpressionType.ModuloAssign, "%=")]
-    [InlineData(ExpressionType.SubtractAssign, "-=")]
-    [InlineData(ExpressionType.SubtractAssignChecked, "-=")]
-    [InlineData(ExpressionType.AndAssign, "&=")]
-    [InlineData(ExpressionType.OrAssign, "|=")]
-    [InlineData(ExpressionType.LeftShiftAssign, "<<=")]
-    [InlineData(ExpressionType.RightShiftAssign, ">>=")]
-    [InlineData(ExpressionType.ExclusiveOrAssign, "^=")]
+    [Theory, InlineData(ExpressionType.Add, "+"), InlineData(ExpressionType.Subtract, "-"), InlineData(ExpressionType.Assign, "="),
+     InlineData(ExpressionType.AddAssign, "+="), InlineData(ExpressionType.AddAssignChecked, "+="),
+     InlineData(ExpressionType.MultiplyAssign, "*="), InlineData(ExpressionType.MultiplyAssignChecked, "*="),
+     InlineData(ExpressionType.DivideAssign, "/="), InlineData(ExpressionType.ModuloAssign, "%="),
+     InlineData(ExpressionType.SubtractAssign, "-="), InlineData(ExpressionType.SubtractAssignChecked, "-="),
+     InlineData(ExpressionType.AndAssign, "&="), InlineData(ExpressionType.OrAssign, "|="),
+     InlineData(ExpressionType.LeftShiftAssign, "<<="), InlineData(ExpressionType.RightShiftAssign, ">>="),
+     InlineData(ExpressionType.ExclusiveOrAssign, "^=")]
     public void Binary_numeric(ExpressionType expressionType, string op)
         => AssertExpression(
             MakeBinary(expressionType, Parameter(typeof(int), "i"), Constant(3)),
@@ -105,17 +85,11 @@ public class LinqToCSharpSyntaxTranslatorTest(ITestOutputHelper testOutputHelper
             PowerAssign(Parameter(typeof(double), "d"), Constant(3.0)),
             "d = Math.Pow(d, 3D)");
 
-    [Theory]
-    [InlineData(ExpressionType.AddAssign, "+=")]
-    [InlineData(ExpressionType.MultiplyAssign, "*=")]
-    [InlineData(ExpressionType.DivideAssign, "/=")]
-    [InlineData(ExpressionType.ModuloAssign, "%=")]
-    [InlineData(ExpressionType.SubtractAssign, "-=")]
-    [InlineData(ExpressionType.AndAssign, "&=")]
-    [InlineData(ExpressionType.OrAssign, "|=")]
-    [InlineData(ExpressionType.LeftShiftAssign, "<<=")]
-    [InlineData(ExpressionType.RightShiftAssign, ">>=")]
-    [InlineData(ExpressionType.ExclusiveOrAssign, "^=")]
+    [Theory, InlineData(ExpressionType.AddAssign, "+="), InlineData(ExpressionType.MultiplyAssign, "*="),
+     InlineData(ExpressionType.DivideAssign, "/="), InlineData(ExpressionType.ModuloAssign, "%="),
+     InlineData(ExpressionType.SubtractAssign, "-="), InlineData(ExpressionType.AndAssign, "&="), InlineData(ExpressionType.OrAssign, "|="),
+     InlineData(ExpressionType.LeftShiftAssign, "<<="), InlineData(ExpressionType.RightShiftAssign, ">>="),
+     InlineData(ExpressionType.ExclusiveOrAssign, "^=")]
     public void Private_instance_field_AssignOperators(ExpressionType expressionType, string op)
         => AssertExpression(
             MakeBinary(
@@ -131,17 +105,11 @@ private static extern ref int UnsafeAccessor_Microsoft_EntityFrameworkCore_Query
                 Assert.Single(unsafeAccessors),
                 ignoreLineEndingDifferences: true));
 
-    [Theory]
-    [InlineData(ExpressionType.AddAssign, "+=")]
-    [InlineData(ExpressionType.MultiplyAssign, "*=")]
-    [InlineData(ExpressionType.DivideAssign, "/=")]
-    [InlineData(ExpressionType.ModuloAssign, "%=")]
-    [InlineData(ExpressionType.SubtractAssign, "-=")]
-    [InlineData(ExpressionType.AndAssign, "&=")]
-    [InlineData(ExpressionType.OrAssign, "|=")]
-    [InlineData(ExpressionType.LeftShiftAssign, "<<=")]
-    [InlineData(ExpressionType.RightShiftAssign, ">>=")]
-    [InlineData(ExpressionType.ExclusiveOrAssign, "^=")]
+    [Theory, InlineData(ExpressionType.AddAssign, "+="), InlineData(ExpressionType.MultiplyAssign, "*="),
+     InlineData(ExpressionType.DivideAssign, "/="), InlineData(ExpressionType.ModuloAssign, "%="),
+     InlineData(ExpressionType.SubtractAssign, "-="), InlineData(ExpressionType.AndAssign, "&="), InlineData(ExpressionType.OrAssign, "|="),
+     InlineData(ExpressionType.LeftShiftAssign, "<<="), InlineData(ExpressionType.RightShiftAssign, ">>="),
+     InlineData(ExpressionType.ExclusiveOrAssign, "^=")]
     public void Private_instance_field_AssignOperators_with_replacements(ExpressionType expressionType, string op)
         => AssertExpression(
             MakeBinary(
@@ -151,33 +119,22 @@ private static extern ref int UnsafeAccessor_Microsoft_EntityFrameworkCore_Query
             $"""AccessPrivateField(blog) {op} Three""", new Dictionary<object, string> { { 3, "Three" } },
             new Dictionary<MemberInfo, QualifiedName> { { BlogPrivateField, new QualifiedName("AccessPrivateField", "") } });
 
-    [Theory]
-    [InlineData(ExpressionType.Negate, "-(i)")]
-    [InlineData(ExpressionType.NegateChecked, "-(i)")]
-    [InlineData(ExpressionType.Not, "~(i)")]
-    [InlineData(ExpressionType.OnesComplement, "~(i)")]
-    [InlineData(ExpressionType.UnaryPlus, "+i")]
-    [InlineData(ExpressionType.Increment, "i + 1")]
-    [InlineData(ExpressionType.Decrement, "i - 1")]
+    [Theory, InlineData(ExpressionType.Negate, "-(i)"), InlineData(ExpressionType.NegateChecked, "-(i)"),
+     InlineData(ExpressionType.Not, "~(i)"), InlineData(ExpressionType.OnesComplement, "~(i)"), InlineData(ExpressionType.UnaryPlus, "+i"),
+     InlineData(ExpressionType.Increment, "i + 1"), InlineData(ExpressionType.Decrement, "i - 1")]
     public void Unary_expression_int(ExpressionType expressionType, string expected)
         => AssertExpression(
             MakeUnary(expressionType, Parameter(typeof(int), "i"), typeof(int)),
             expected);
 
-    [Theory]
-    [InlineData(ExpressionType.Not, "!(b)")]
-    [InlineData(ExpressionType.IsFalse, "!(b)")]
-    [InlineData(ExpressionType.IsTrue, "b")]
+    [Theory, InlineData(ExpressionType.Not, "!(b)"), InlineData(ExpressionType.IsFalse, "!(b)"), InlineData(ExpressionType.IsTrue, "b")]
     public void Unary_expression_bool(ExpressionType expressionType, string expected)
         => AssertExpression(
             MakeUnary(expressionType, Parameter(typeof(bool), "b"), typeof(bool)),
             expected);
 
-    [Theory]
-    [InlineData(ExpressionType.PostIncrementAssign, "i++")]
-    [InlineData(ExpressionType.PostDecrementAssign, "i--")]
-    [InlineData(ExpressionType.PreIncrementAssign, "++i")]
-    [InlineData(ExpressionType.PreDecrementAssign, "--i")]
+    [Theory, InlineData(ExpressionType.PostIncrementAssign, "i++"), InlineData(ExpressionType.PostDecrementAssign, "i--"),
+     InlineData(ExpressionType.PreIncrementAssign, "++i"), InlineData(ExpressionType.PreDecrementAssign, "--i")]
     public void Unary_statement(ExpressionType expressionType, string expected)
     {
         var i = Parameter(typeof(int), "i");
@@ -253,8 +210,8 @@ private static extern ref int UnsafeAccessor_Microsoft_EntityFrameworkCore_Query
         => AssertExpression(
             Call(
                 New(typeof(List<int>)),
-                typeof(List<int>).GetProperties().Single(
-                        p => p.GetIndexParameters() is { Length: 1 } indexParameters && indexParameters[0].ParameterType == typeof(int))
+                typeof(List<int>).GetProperties().Single(p
+                        => p.GetIndexParameters() is { Length: 1 } indexParameters && indexParameters[0].ParameterType == typeof(int))
                     .GetMethod!,
                 Constant(1)), "new List<int>()[1]");
 
@@ -643,10 +600,9 @@ int () =>
 
     [Fact]
     public void Conditional_without_false_value_fails()
-        => Assert.Throws<NotSupportedException>(
-            () => AssertExpression(
-                IfThen(Constant(true), Constant(8)),
-                "(true ? 8)"));
+        => Assert.Throws<NotSupportedException>(() => AssertExpression(
+            IfThen(Constant(true), Constant(8)),
+            "(true ? 8)"));
 
     [Fact]
     public void Conditional_statement()
@@ -1448,14 +1404,13 @@ int () =>
 
     [Fact]
     public void Cannot_lift_out_of_expression_context()
-        => Assert.Throws<NotSupportedException>(
-            () => AssertExpression(
-                Assign(
-                    Parameter(typeof(int), "i"),
-                    Block(
-                        Call(FooMethod),
-                        Constant(8))),
-                ""));
+        => Assert.Throws<NotSupportedException>(() => AssertExpression(
+            Assign(
+                Parameter(typeof(int), "i"),
+                Block(
+                    Call(FooMethod),
+                    Constant(8))),
+            ""));
 
     [Fact]
     public void Lift_switch_expression()

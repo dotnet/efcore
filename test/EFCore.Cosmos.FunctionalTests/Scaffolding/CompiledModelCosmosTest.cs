@@ -23,21 +23,20 @@ public class CompiledModelCosmosTest(NonSharedFixture fixture) : CompiledModelTe
 
                 modelBuilder.HasDefaultContainer("Default");
 
-                modelBuilder.Entity<Data>(
-                    eb =>
-                    {
-                        eb.Property<int>("Id");
-                        eb.Property<long?>("PartitionId").HasConversion<string>();
-                        eb.HasPartitionKey("PartitionId");
-                        eb.HasKey("Id", "PartitionId");
-                        eb.ToContainer("DataContainer");
-                        eb.Property<Dictionary<string, string[]>>("Map");
-                        eb.Property<List<Dictionary<string, int>>>("List");
-                        eb.Property<ReadOnlyMemory<byte>>("Bytes");
-                        eb.UseETagConcurrency();
-                        eb.HasNoDiscriminator();
-                        eb.Property(d => d.Blob).ToJsonProperty("JsonBlob");
-                    });
+                modelBuilder.Entity<Data>(eb =>
+                {
+                    eb.Property<int>("Id");
+                    eb.Property<long?>("PartitionId").HasConversion<string>();
+                    eb.HasPartitionKey("PartitionId");
+                    eb.HasKey("Id", "PartitionId");
+                    eb.ToContainer("DataContainer");
+                    eb.Property<Dictionary<string, string[]>>("Map");
+                    eb.Property<List<Dictionary<string, int>>>("List");
+                    eb.Property<ReadOnlyMemory<byte>>("Bytes");
+                    eb.UseETagConcurrency();
+                    eb.HasNoDiscriminator();
+                    eb.Property(d => d.Blob).ToJsonProperty("JsonBlob");
+                });
             },
             model =>
             {
@@ -203,140 +202,134 @@ public class CompiledModelCosmosTest(NonSharedFixture fixture) : CompiledModelTe
     {
         base.BuildBigModel(modelBuilder, jsonColumns);
 
-        modelBuilder.Entity<DependentBase<byte?>>(
-            eb => eb.ToContainer("Dependents"));
-        modelBuilder.Entity<DependentDerived<byte?>>(
-            eb => eb.HasDiscriminator().IsComplete(false));
+        modelBuilder.Entity<DependentBase<byte?>>(eb => eb.ToContainer("Dependents"));
+        modelBuilder.Entity<DependentDerived<byte?>>(eb => eb.HasDiscriminator().IsComplete(false));
 
-        modelBuilder.Entity<PrincipalBase>(
-            b =>
-            {
-                // Cosmos provider cannot map collections of elements with converters. See Issue #34026.
-                b.Ignore(e => e.RefTypeList);
-                b.Ignore(e => e.RefTypeArray);
-                b.OwnsOne(
-                    e => e.Owned, b =>
-                    {
-                        b.Ignore(e => e.RefTypeArray);
-                        b.Ignore(e => e.RefTypeList);
-                    });
-            });
+        modelBuilder.Entity<PrincipalBase>(b =>
+        {
+            // Cosmos provider cannot map collections of elements with converters. See Issue #34026.
+            b.Ignore(e => e.RefTypeList);
+            b.Ignore(e => e.RefTypeArray);
+            b.OwnsOne(
+                e => e.Owned, b =>
+                {
+                    b.Ignore(e => e.RefTypeArray);
+                    b.Ignore(e => e.RefTypeList);
+                });
+        });
 
-        modelBuilder.Entity<PrincipalDerived<DependentBase<byte?>>>(
-            b =>
-            {
-                // Cosmos provider cannot map collections of elements with converters. See Issue #34026.
-                b.OwnsMany(
-                    typeof(OwnedType).FullName!, "ManyOwned", b =>
-                    {
-                        b.Ignore("RefTypeArray");
-                        b.Ignore("RefTypeList");
-                    });
-            });
+        modelBuilder.Entity<PrincipalDerived<DependentBase<byte?>>>(b =>
+        {
+            // Cosmos provider cannot map collections of elements with converters. See Issue #34026.
+            b.OwnsMany(
+                typeof(OwnedType).FullName!, "ManyOwned", b =>
+                {
+                    b.Ignore("RefTypeArray");
+                    b.Ignore("RefTypeList");
+                });
+        });
 
-
-        modelBuilder.Entity<ManyTypes>(
-            b =>
-            {
-                b.Property(e => e.Id).HasConversion<ManyTypesIdConverter>().ValueGeneratedNever();
-                // Cosmos provider cannot map collections of elements with converters. See Issue #34026.
-                b.Ignore(e => e.GuidArray);
-                b.Ignore(e => e.DateTimeArray);
-                b.Ignore(e => e.DateOnlyArray);
-                b.Ignore(e => e.TimeOnlyArray);
-                b.Ignore(e => e.TimeSpanArray);
-                b.Ignore(e => e.BytesArray);
-                b.Ignore(e => e.UriArray);
-                b.Ignore(e => e.IPAddressArray);
-                b.Ignore(e => e.PhysicalAddressArray);
-                b.Ignore(e => e.NullableGuidArray);
-                b.Ignore(e => e.NullableDateTimeArray);
-                b.Ignore(e => e.NullableDateOnlyArray);
-                b.Ignore(e => e.NullableTimeOnlyArray);
-                b.Ignore(e => e.NullableTimeSpanArray);
-                b.Ignore(e => e.NullableBytesArray);
-                b.Ignore(e => e.NullableUriArray);
-                b.Ignore(e => e.NullableIPAddressArray);
-                b.Ignore(e => e.NullablePhysicalAddressArray);
-                b.Ignore(e => e.Enum8Collection);
-                b.Ignore(e => e.Enum16Collection);
-                b.Ignore(e => e.Enum32Collection);
-                b.Ignore(e => e.Enum64Collection);
-                b.Ignore(e => e.EnumU8Collection);
-                b.Ignore(e => e.EnumU16Collection);
-                b.Ignore(e => e.EnumU32Collection);
-                b.Ignore(e => e.EnumU64Collection);
-                b.Ignore(e => e.Enum8AsStringCollection);
-                b.Ignore(e => e.Enum16AsStringCollection);
-                b.Ignore(e => e.Enum32AsStringCollection);
-                b.Ignore(e => e.Enum64AsStringCollection);
-                b.Ignore(e => e.EnumU8AsStringCollection);
-                b.Ignore(e => e.EnumU16AsStringCollection);
-                b.Ignore(e => e.EnumU32AsStringCollection);
-                b.Ignore(e => e.EnumU64AsStringCollection);
-                b.Ignore(e => e.NullableEnum8Collection);
-                b.Ignore(e => e.NullableEnum16Collection);
-                b.Ignore(e => e.NullableEnum32Collection);
-                b.Ignore(e => e.NullableEnum64Collection);
-                b.Ignore(e => e.NullableEnumU8Collection);
-                b.Ignore(e => e.NullableEnumU16Collection);
-                b.Ignore(e => e.NullableEnumU32Collection);
-                b.Ignore(e => e.NullableEnumU64Collection);
-                b.Ignore(e => e.NullableEnum8AsStringCollection);
-                b.Ignore(e => e.NullableEnum16AsStringCollection);
-                b.Ignore(e => e.NullableEnum32AsStringCollection);
-                b.Ignore(e => e.NullableEnum64AsStringCollection);
-                b.Ignore(e => e.NullableEnumU8AsStringCollection);
-                b.Ignore(e => e.NullableEnumU16AsStringCollection);
-                b.Ignore(e => e.NullableEnumU32AsStringCollection);
-                b.Ignore(e => e.NullableEnumU64AsStringCollection);
-                b.Ignore(e => e.Enum8Array);
-                b.Ignore(e => e.Enum16Array);
-                b.Ignore(e => e.Enum32Array);
-                b.Ignore(e => e.Enum64Array);
-                b.Ignore(e => e.EnumU8Array);
-                b.Ignore(e => e.EnumU16Array);
-                b.Ignore(e => e.EnumU32Array);
-                b.Ignore(e => e.EnumU64Array);
-                b.Ignore(e => e.Enum8AsStringArray);
-                b.Ignore(e => e.Enum16AsStringArray);
-                b.Ignore(e => e.Enum32AsStringArray);
-                b.Ignore(e => e.Enum64AsStringArray);
-                b.Ignore(e => e.EnumU8AsStringArray);
-                b.Ignore(e => e.EnumU16AsStringArray);
-                b.Ignore(e => e.EnumU32AsStringArray);
-                b.Ignore(e => e.EnumU64AsStringArray);
-                b.Ignore(e => e.NullableEnum8Array);
-                b.Ignore(e => e.NullableEnum16Array);
-                b.Ignore(e => e.NullableEnum32Array);
-                b.Ignore(e => e.NullableEnum64Array);
-                b.Ignore(e => e.NullableEnumU8Array);
-                b.Ignore(e => e.NullableEnumU16Array);
-                b.Ignore(e => e.NullableEnumU32Array);
-                b.Ignore(e => e.NullableEnumU64Array);
-                b.Ignore(e => e.NullableEnum8AsStringArray);
-                b.Ignore(e => e.NullableEnum16AsStringArray);
-                b.Ignore(e => e.NullableEnum32AsStringArray);
-                b.Ignore(e => e.NullableEnum64AsStringArray);
-                b.Ignore(e => e.NullableEnumU8AsStringArray);
-                b.Ignore(e => e.NullableEnumU16AsStringArray);
-                b.Ignore(e => e.NullableEnumU32AsStringArray);
-                b.Ignore(e => e.NullableEnumU64AsStringArray);
-                b.Ignore(e => e.BytesNestedCollection);
-                b.Ignore(e => e.NullableBytesNestedCollection);
-                b.Ignore(e => e.Enum8NestedCollection);
-                b.Ignore(e => e.Enum32NestedCollection);
-                b.Ignore(e => e.EnumU64NestedCollection);
-                b.Ignore(e => e.NullableEnum8NestedCollection);
-                b.Ignore(e => e.NullableEnum32NestedCollection);
-                b.Ignore(e => e.NullableEnumU64NestedCollection);
-                b.Ignore(e => e.NullablePhysicalAddressNestedCollection);
-                b.Ignore(e => e.GuidNestedCollection);
-                b.Ignore(e => e.NullableGuidNestedCollection);
-                b.Ignore(e => e.UInt8NestedCollection);
-                b.Ignore(e => e.NullableUInt8NestedCollection);
-                b.Ignore(e => e.IPAddressReadOnlyCollection);
-            });
+        modelBuilder.Entity<ManyTypes>(b =>
+        {
+            b.Property(e => e.Id).HasConversion<ManyTypesIdConverter>().ValueGeneratedNever();
+            // Cosmos provider cannot map collections of elements with converters. See Issue #34026.
+            b.Ignore(e => e.GuidArray);
+            b.Ignore(e => e.DateTimeArray);
+            b.Ignore(e => e.DateOnlyArray);
+            b.Ignore(e => e.TimeOnlyArray);
+            b.Ignore(e => e.TimeSpanArray);
+            b.Ignore(e => e.BytesArray);
+            b.Ignore(e => e.UriArray);
+            b.Ignore(e => e.IPAddressArray);
+            b.Ignore(e => e.PhysicalAddressArray);
+            b.Ignore(e => e.NullableGuidArray);
+            b.Ignore(e => e.NullableDateTimeArray);
+            b.Ignore(e => e.NullableDateOnlyArray);
+            b.Ignore(e => e.NullableTimeOnlyArray);
+            b.Ignore(e => e.NullableTimeSpanArray);
+            b.Ignore(e => e.NullableBytesArray);
+            b.Ignore(e => e.NullableUriArray);
+            b.Ignore(e => e.NullableIPAddressArray);
+            b.Ignore(e => e.NullablePhysicalAddressArray);
+            b.Ignore(e => e.Enum8Collection);
+            b.Ignore(e => e.Enum16Collection);
+            b.Ignore(e => e.Enum32Collection);
+            b.Ignore(e => e.Enum64Collection);
+            b.Ignore(e => e.EnumU8Collection);
+            b.Ignore(e => e.EnumU16Collection);
+            b.Ignore(e => e.EnumU32Collection);
+            b.Ignore(e => e.EnumU64Collection);
+            b.Ignore(e => e.Enum8AsStringCollection);
+            b.Ignore(e => e.Enum16AsStringCollection);
+            b.Ignore(e => e.Enum32AsStringCollection);
+            b.Ignore(e => e.Enum64AsStringCollection);
+            b.Ignore(e => e.EnumU8AsStringCollection);
+            b.Ignore(e => e.EnumU16AsStringCollection);
+            b.Ignore(e => e.EnumU32AsStringCollection);
+            b.Ignore(e => e.EnumU64AsStringCollection);
+            b.Ignore(e => e.NullableEnum8Collection);
+            b.Ignore(e => e.NullableEnum16Collection);
+            b.Ignore(e => e.NullableEnum32Collection);
+            b.Ignore(e => e.NullableEnum64Collection);
+            b.Ignore(e => e.NullableEnumU8Collection);
+            b.Ignore(e => e.NullableEnumU16Collection);
+            b.Ignore(e => e.NullableEnumU32Collection);
+            b.Ignore(e => e.NullableEnumU64Collection);
+            b.Ignore(e => e.NullableEnum8AsStringCollection);
+            b.Ignore(e => e.NullableEnum16AsStringCollection);
+            b.Ignore(e => e.NullableEnum32AsStringCollection);
+            b.Ignore(e => e.NullableEnum64AsStringCollection);
+            b.Ignore(e => e.NullableEnumU8AsStringCollection);
+            b.Ignore(e => e.NullableEnumU16AsStringCollection);
+            b.Ignore(e => e.NullableEnumU32AsStringCollection);
+            b.Ignore(e => e.NullableEnumU64AsStringCollection);
+            b.Ignore(e => e.Enum8Array);
+            b.Ignore(e => e.Enum16Array);
+            b.Ignore(e => e.Enum32Array);
+            b.Ignore(e => e.Enum64Array);
+            b.Ignore(e => e.EnumU8Array);
+            b.Ignore(e => e.EnumU16Array);
+            b.Ignore(e => e.EnumU32Array);
+            b.Ignore(e => e.EnumU64Array);
+            b.Ignore(e => e.Enum8AsStringArray);
+            b.Ignore(e => e.Enum16AsStringArray);
+            b.Ignore(e => e.Enum32AsStringArray);
+            b.Ignore(e => e.Enum64AsStringArray);
+            b.Ignore(e => e.EnumU8AsStringArray);
+            b.Ignore(e => e.EnumU16AsStringArray);
+            b.Ignore(e => e.EnumU32AsStringArray);
+            b.Ignore(e => e.EnumU64AsStringArray);
+            b.Ignore(e => e.NullableEnum8Array);
+            b.Ignore(e => e.NullableEnum16Array);
+            b.Ignore(e => e.NullableEnum32Array);
+            b.Ignore(e => e.NullableEnum64Array);
+            b.Ignore(e => e.NullableEnumU8Array);
+            b.Ignore(e => e.NullableEnumU16Array);
+            b.Ignore(e => e.NullableEnumU32Array);
+            b.Ignore(e => e.NullableEnumU64Array);
+            b.Ignore(e => e.NullableEnum8AsStringArray);
+            b.Ignore(e => e.NullableEnum16AsStringArray);
+            b.Ignore(e => e.NullableEnum32AsStringArray);
+            b.Ignore(e => e.NullableEnum64AsStringArray);
+            b.Ignore(e => e.NullableEnumU8AsStringArray);
+            b.Ignore(e => e.NullableEnumU16AsStringArray);
+            b.Ignore(e => e.NullableEnumU32AsStringArray);
+            b.Ignore(e => e.NullableEnumU64AsStringArray);
+            b.Ignore(e => e.BytesNestedCollection);
+            b.Ignore(e => e.NullableBytesNestedCollection);
+            b.Ignore(e => e.Enum8NestedCollection);
+            b.Ignore(e => e.Enum32NestedCollection);
+            b.Ignore(e => e.EnumU64NestedCollection);
+            b.Ignore(e => e.NullableEnum8NestedCollection);
+            b.Ignore(e => e.NullableEnum32NestedCollection);
+            b.Ignore(e => e.NullableEnumU64NestedCollection);
+            b.Ignore(e => e.NullablePhysicalAddressNestedCollection);
+            b.Ignore(e => e.GuidNestedCollection);
+            b.Ignore(e => e.NullableGuidNestedCollection);
+            b.Ignore(e => e.UInt8NestedCollection);
+            b.Ignore(e => e.NullableUInt8NestedCollection);
+            b.Ignore(e => e.IPAddressReadOnlyCollection);
+        });
     }
 
     protected override async Task UseBigModel(DbContext context, bool jsonColumns)
@@ -356,7 +349,7 @@ public class CompiledModelCosmosTest(NonSharedFixture fixture) : CompiledModelTe
 
         context.Add(principalDerived);
 
-        var types = new ManyTypes()
+        var types = new ManyTypes
         {
             Bool = true,
             UInt8 = 1,
@@ -380,7 +373,6 @@ public class CompiledModelCosmosTest(NonSharedFixture fixture) : CompiledModelTe
             Uri = new Uri("https://www.example.com"),
             PhysicalAddress = PhysicalAddress.Parse("00-00-00-00-00-01"),
             IPAddress = IPAddress.Parse("127.0.0.1"),
-
             NullableBool = true,
             NullableUInt8 = 1,
             NullableInt16 = 2,
@@ -401,7 +393,6 @@ public class CompiledModelCosmosTest(NonSharedFixture fixture) : CompiledModelTe
             NullableTimeSpan = new TimeSpan(1),
             NullableBytes = [1, 2, 3],
             NullableUri = new Uri("https://www.example.com"),
-
             BoolArray = [true],
             Int8Array = [1],
             Int16Array = [2],
@@ -425,7 +416,6 @@ public class CompiledModelCosmosTest(NonSharedFixture fixture) : CompiledModelTe
             UriArray = [new Uri("https://www.example.com")],
             IPAddressArray = [IPAddress.Parse("127.0.0.1")],
             PhysicalAddressArray = [PhysicalAddress.Parse("00-00-00-00-00-01")],
-
             NullableBoolArray = [true],
             NullableInt8Array = [1],
             NullableInt16Array = [2],
@@ -449,13 +439,11 @@ public class CompiledModelCosmosTest(NonSharedFixture fixture) : CompiledModelTe
             NullableUriArray = [new Uri("https://www.example.com")],
             NullableIPAddressArray = [IPAddress.Parse("127.0.0.1")],
             NullablePhysicalAddressArray = [PhysicalAddress.Parse("00-00-00-00-00-01")],
-
             BoolReadOnlyCollection = [true],
             UInt8ReadOnlyCollection = [1],
             Int32ReadOnlyCollection = [2],
             StringReadOnlyCollection = ["3"],
             IPAddressReadOnlyCollection = [IPAddress.Parse("127.0.0.1")],
-
             Enum8 = Enum8.One,
             Enum16 = Enum16.One,
             Enum32 = Enum32.One,
@@ -464,7 +452,6 @@ public class CompiledModelCosmosTest(NonSharedFixture fixture) : CompiledModelTe
             EnumU16 = EnumU16.One,
             EnumU32 = EnumU32.One,
             EnumU64 = EnumU64.One,
-
             Enum8AsString = Enum8.One,
             Enum16AsString = Enum16.One,
             Enum32AsString = Enum32.One,
@@ -473,7 +460,6 @@ public class CompiledModelCosmosTest(NonSharedFixture fixture) : CompiledModelTe
             EnumU16AsString = EnumU16.One,
             EnumU32AsString = EnumU32.One,
             EnumU64AsString = EnumU64.One,
-
             Enum8Collection = [Enum8.One],
             Enum16Collection = [Enum16.One],
             Enum32Collection = [Enum32.One],
@@ -482,7 +468,6 @@ public class CompiledModelCosmosTest(NonSharedFixture fixture) : CompiledModelTe
             EnumU16Collection = [EnumU16.One],
             EnumU32Collection = [EnumU32.One],
             EnumU64Collection = [EnumU64.One],
-
             Enum8AsStringCollection = [Enum8.One],
             Enum16AsStringCollection = [Enum16.One],
             Enum32AsStringCollection = [Enum32.One],
@@ -491,7 +476,6 @@ public class CompiledModelCosmosTest(NonSharedFixture fixture) : CompiledModelTe
             EnumU16AsStringCollection = [EnumU16.One],
             EnumU32AsStringCollection = [EnumU32.One],
             EnumU64AsStringCollection = [EnumU64.One],
-
             NullableEnum8Collection = [Enum8.One],
             NullableEnum16Collection = [Enum16.One],
             NullableEnum32Collection = [Enum32.One],
@@ -500,7 +484,6 @@ public class CompiledModelCosmosTest(NonSharedFixture fixture) : CompiledModelTe
             NullableEnumU16Collection = [EnumU16.One],
             NullableEnumU32Collection = [EnumU32.One],
             NullableEnumU64Collection = [EnumU64.One],
-
             NullableEnum8AsStringCollection = [Enum8.One],
             NullableEnum16AsStringCollection = [Enum16.One],
             NullableEnum32AsStringCollection = [Enum32.One],
@@ -509,7 +492,6 @@ public class CompiledModelCosmosTest(NonSharedFixture fixture) : CompiledModelTe
             NullableEnumU16AsStringCollection = [EnumU16.One],
             NullableEnumU32AsStringCollection = [EnumU32.One],
             NullableEnumU64AsStringCollection = [EnumU64.One],
-
             Enum8Array = [Enum8.One],
             Enum16Array = [Enum16.One],
             Enum32Array = [Enum32.One],
@@ -518,7 +500,6 @@ public class CompiledModelCosmosTest(NonSharedFixture fixture) : CompiledModelTe
             EnumU16Array = [EnumU16.One],
             EnumU32Array = [EnumU32.One],
             EnumU64Array = [EnumU64.One],
-
             Enum8AsStringArray = [Enum8.One],
             Enum16AsStringArray = [Enum16.One],
             Enum32AsStringArray = [Enum32.One],
@@ -527,7 +508,6 @@ public class CompiledModelCosmosTest(NonSharedFixture fixture) : CompiledModelTe
             EnumU16AsStringArray = [EnumU16.One],
             EnumU32AsStringArray = [EnumU32.One],
             EnumU64AsStringArray = [EnumU64.One],
-
             NullableEnum8Array = [Enum8.One],
             NullableEnum16Array = [Enum16.One],
             NullableEnum32Array = [Enum32.One],
@@ -536,7 +516,6 @@ public class CompiledModelCosmosTest(NonSharedFixture fixture) : CompiledModelTe
             NullableEnumU16Array = [EnumU16.One],
             NullableEnumU32Array = [EnumU32.One],
             NullableEnumU64Array = [EnumU64.One],
-
             NullableEnum8AsStringArray = [Enum8.One],
             NullableEnum16AsStringArray = [Enum16.One],
             NullableEnum32AsStringArray = [Enum32.One],
@@ -545,7 +524,6 @@ public class CompiledModelCosmosTest(NonSharedFixture fixture) : CompiledModelTe
             NullableEnumU16AsStringArray = [EnumU16.One],
             NullableEnumU32AsStringArray = [EnumU32.One],
             NullableEnumU64AsStringArray = [EnumU64.One],
-
             BoolNestedCollection = [[true]],
             UInt8NestedCollection = [[9]],
             Int8NestedCollection = [[[9]]],
@@ -562,14 +540,12 @@ public class CompiledModelCosmosTest(NonSharedFixture fixture) : CompiledModelTe
             NullableGuidNestedCollection = [[Guid.NewGuid()]],
             NullableBytesNestedCollection = [[[1, 2, 3]]],
             NullablePhysicalAddressNestedCollection = [[[PhysicalAddress.Parse("00-00-00-00-00-01")]]],
-
             Enum8NestedCollection = [[Enum8.One]],
             Enum32NestedCollection = [[[Enum32.One]]],
             EnumU64NestedCollection = [[EnumU64.One]],
             NullableEnum8NestedCollection = [[Enum8.One]],
             NullableEnum32NestedCollection = [[[Enum32.One]]],
             NullableEnumU64NestedCollection = [[EnumU64.One]],
-
             BoolToStringConverterProperty = true,
             BoolToTwoValuesConverterProperty = true,
             BoolToZeroOneConverterProperty = true,
@@ -640,25 +616,24 @@ public class CompiledModelCosmosTest(NonSharedFixture fixture) : CompiledModelTe
     {
         base.BuildComplexTypesModel(modelBuilder);
 
-        modelBuilder.Entity<PrincipalBase>(
-            eb =>
-            {
-                // Cosmos provider cannot map collections of elements with converters. See Issue #34026.
-                eb.Ignore(e => e.RefTypeList);
-                eb.Ignore(e => e.RefTypeArray);
-                eb.ComplexProperty(
-                    c => c.Owned, ob =>
-                    {
-                        ob.Ignore(e => e.RefTypeArray);
-                        ob.Ignore(e => e.RefTypeList);
-                        ob.ComplexProperty(
-                            c => c.Principal, cb =>
-                            {
-                                cb.Ignore(e => e.RefTypeList);
-                                cb.Ignore(e => e.RefTypeArray);
-                            });
-                    });
-            });
+        modelBuilder.Entity<PrincipalBase>(eb =>
+        {
+            // Cosmos provider cannot map collections of elements with converters. See Issue #34026.
+            eb.Ignore(e => e.RefTypeList);
+            eb.Ignore(e => e.RefTypeArray);
+            eb.ComplexProperty(
+                c => c.Owned, ob =>
+                {
+                    ob.Ignore(e => e.RefTypeArray);
+                    ob.Ignore(e => e.RefTypeList);
+                    ob.ComplexProperty(
+                        c => c.Principal, cb =>
+                        {
+                            cb.Ignore(e => e.RefTypeList);
+                            cb.Ignore(e => e.RefTypeArray);
+                        });
+                });
+        });
 
         // TODO: Complex collections not supported. Issue #31253
         modelBuilder.Ignore<PrincipalDerived<DependentBase<byte?>>>();

@@ -29,8 +29,7 @@ public class MigrationsAssemblyTest
     public void GetMigrationId_throws_when_no_match()
         => Assert.Equal(
             RelationalStrings.MigrationNotFound("Spike"),
-            Assert.Throws<InvalidOperationException>(
-                    () => CreateMigrationsAssembly().GetMigrationId("Spike"))
+            Assert.Throws<InvalidOperationException>(() => CreateMigrationsAssembly().GetMigrationId("Spike"))
                 .Message);
 
     [ConditionalFact]
@@ -62,8 +61,7 @@ public class MigrationsAssemblyTest
 
     private class Context : DbContext;
 
-    [DbContext(typeof(Context))]
-    [Migration("20150302103100_Flutter")]
+    [DbContext(typeof(Context)), Migration("20150302103100_Flutter")]
     private class Migration1 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -71,8 +69,7 @@ public class MigrationsAssemblyTest
         }
     }
 
-    [DbContext(typeof(Context))]
-    [Migration("20150302103100_FLUTTER")]
+    [DbContext(typeof(Context)), Migration("20150302103100_FLUTTER")]
     private class Migration2 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)

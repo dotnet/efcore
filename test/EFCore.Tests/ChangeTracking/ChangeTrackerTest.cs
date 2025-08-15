@@ -13,11 +13,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 
 public class ChangeTrackerTest
 {
-    [ConditionalTheory]
-    [InlineData(0, 0)]
-    [InlineData(1, 0)]
-    [InlineData(0, 1)]
-    [InlineData(1, 1)]
+    [ConditionalTheory,
+     InlineData(0, 0),
+     InlineData(1, 0),
+     InlineData(0, 1),
+     InlineData(1, 1)]
     public void Can_Add_with_identifying_relationships_dependent_first(int principalKeyValue, int dependentKeyValue)
     {
         using var context = new EarlyLearningCenter();
@@ -45,11 +45,11 @@ public class ChangeTrackerTest
         Assert.Equal(8, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(0, 0)]
-    [InlineData(1, 0)]
-    [InlineData(0, 1)]
-    [InlineData(1, 1)]
+    [ConditionalTheory,
+     InlineData(0, 0),
+     InlineData(1, 0),
+     InlineData(0, 1),
+     InlineData(1, 1)]
     public void Can_Add_with_identifying_relationships_principal_first(int principalKeyValue, int dependentKeyValue)
     {
         using var context = new EarlyLearningCenter();
@@ -304,9 +304,9 @@ public class ChangeTrackerTest
         Assert.Equal(EntityState.Detached, context.Entry(hats[0]).State);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory,
+     InlineData(false),
+     InlineData(true)]
     public async Task Keys_generated_on_behalf_of_a_principal_are_not_saved(bool async)
     {
         using var context = new WeakHerosContext();
@@ -326,14 +326,14 @@ public class ChangeTrackerTest
 
         Assert.Equal(
             CoreStrings.UnknownKeyValue(nameof(Weak), nameof(Weak.HeroId)),
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                async () => _ = async ? await context.SaveChangesAsync() : context.SaveChanges()))
+            (await Assert.ThrowsAsync<InvalidOperationException>(async ()
+                => _ = async ? await context.SaveChangesAsync() : context.SaveChanges()))
             .Message);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory,
+     InlineData(false),
+     InlineData(true)]
     public async Task Attached_owned_entity_without_owner_not_saved(bool async)
     {
         using var context = new WeakHerosContext();
@@ -351,14 +351,14 @@ public class ChangeTrackerTest
 
         Assert.Equal(
             CoreStrings.SaveOwnedWithoutOwner(nameof(Skinner)),
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                async () => _ = async ? await context.SaveChangesAsync() : context.SaveChanges()))
+            (await Assert.ThrowsAsync<InvalidOperationException>(async ()
+                => _ = async ? await context.SaveChangesAsync() : context.SaveChanges()))
             .Message);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory,
+     InlineData(false),
+     InlineData(true)]
     public async Task Attached_owned_collection_entity_without_owner_not_saved(bool async)
     {
         using var context = new WeakHerosContext();
@@ -376,8 +376,8 @@ public class ChangeTrackerTest
 
         Assert.Equal(
             CoreStrings.SaveOwnedWithoutOwner(nameof(TheStreets)),
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                async () => _ = async ? await context.SaveChangesAsync() : context.SaveChanges()))
+            (await Assert.ThrowsAsync<InvalidOperationException>(async ()
+                => _ = async ? await context.SaveChangesAsync() : context.SaveChanges()))
             .Message);
     }
 
@@ -410,19 +410,17 @@ public class ChangeTrackerTest
     {
         protected internal override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Weak>(
-                b =>
-                {
-                    b.HasKey(e => new { e.Id, e.HeroId });
-                    b.HasOne(e => e.Hero).WithMany(e => e.Weaks).HasForeignKey(e => e.HeroId);
-                });
+            modelBuilder.Entity<Weak>(b =>
+            {
+                b.HasKey(e => new { e.Id, e.HeroId });
+                b.HasOne(e => e.Hero).WithMany(e => e.Weaks).HasForeignKey(e => e.HeroId);
+            });
 
-            modelBuilder.Entity<Mike>(
-                b =>
-                {
-                    b.OwnsOne(e => e.TheHero);
-                    b.OwnsMany(e => e.TheStreets);
-                });
+            modelBuilder.Entity<Mike>(b =>
+            {
+                b.OwnsOne(e => e.TheHero);
+                b.OwnsMany(e => e.TheStreets);
+            });
         }
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -452,11 +450,11 @@ public class ChangeTrackerTest
                 .GenerateMessage(nameof(LikeAZooContext)), message);
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
+    [ConditionalTheory,
+     InlineData(false, false),
+     InlineData(true, false),
+     InlineData(false, true),
+     InlineData(true, true)]
     public void Detect_property_change_is_logged(bool sensitive, bool callDetectChangesTwice)
     {
         Seed(sensitive);
@@ -499,11 +497,11 @@ public class ChangeTrackerTest
         Assert.DoesNotContain(_loggerFactory.Log, e => e.Id.Id == CoreEventId.PropertyChangeDetected.Id);
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
+    [ConditionalTheory,
+     InlineData(false, false),
+     InlineData(true, false),
+     InlineData(false, true),
+     InlineData(true, true)]
     public void Detect_nested_property_change_is_logged(bool sensitive, bool callDetectChangesTwice)
     {
         var wocket = new Wocket
@@ -553,11 +551,11 @@ public class ChangeTrackerTest
         Assert.DoesNotContain(_loggerFactory.Log, e => e.Id.Id == CoreEventId.PropertyChangeDetected.Id);
     }
 
-    [ConditionalTheory] // Issue #21896
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
+    [ConditionalTheory,
+     InlineData(false, false),
+     InlineData(true, false),
+     InlineData(false, true),
+     InlineData(true, true)] // Issue #21896
     public void Property_changes_on_Deleted_entities_are_not_continually_detected(bool sensitive, bool callDetectChangesTwice)
     {
         Seed(sensitive);
@@ -594,11 +592,11 @@ public class ChangeTrackerTest
         Assert.DoesNotContain(_loggerFactory.Log, e => e.Id.Id == CoreEventId.PropertyChangeDetected.Id);
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
+    [ConditionalTheory,
+     InlineData(false, false),
+     InlineData(true, false),
+     InlineData(false, true),
+     InlineData(true, true)]
     public void Detect_foreign_key_property_change_is_logged(bool sensitive, bool callDetectChangesTwice)
     {
         Seed(sensitive);
@@ -650,11 +648,11 @@ public class ChangeTrackerTest
             message);
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
+    [ConditionalTheory,
+     InlineData(false, false),
+     InlineData(true, false),
+     InlineData(false, true),
+     InlineData(true, true)]
     public void Detect_collection_change_is_logged(bool sensitive, bool callDetectChangesTwice)
     {
         Seed(sensitive);
@@ -706,11 +704,11 @@ public class ChangeTrackerTest
             message);
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
+    [ConditionalTheory,
+     InlineData(false, false),
+     InlineData(true, false),
+     InlineData(false, true),
+     InlineData(true, true)]
     public void Detect_skip_collection_change_is_logged(bool sensitive, bool callDetectChangesTwice)
     {
         Seed(sensitive);
@@ -762,11 +760,11 @@ public class ChangeTrackerTest
             message);
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
+    [ConditionalTheory,
+     InlineData(false, false),
+     InlineData(true, false),
+     InlineData(false, true),
+     InlineData(true, true)]
     public void Detect_reference_change_is_logged(bool sensitive, bool callDetectChangesTwice)
     {
         Seed(sensitive);
@@ -818,9 +816,9 @@ public class ChangeTrackerTest
             message);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory,
+     InlineData(false),
+     InlineData(true)]
     public void Start_tracking_is_logged_from_query(bool sensitive)
     {
         Seed(sensitive);
@@ -840,9 +838,9 @@ public class ChangeTrackerTest
             message);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory,
+     InlineData(false),
+     InlineData(true)]
     public void Start_tracking_is_logged_from_attach(bool sensitive)
     {
         using var context = sensitive ? new LikeAZooContextSensitive() : new LikeAZooContext();
@@ -860,9 +858,9 @@ public class ChangeTrackerTest
             message);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory,
+     InlineData(false),
+     InlineData(true)]
     public void State_change_is_logged(bool sensitive)
     {
         Seed(sensitive);
@@ -885,15 +883,15 @@ public class ChangeTrackerTest
             message);
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false, false)]
-    [InlineData(true, false, false)]
-    [InlineData(false, true, false)]
-    [InlineData(true, true, false)]
-    [InlineData(false, false, true)]
-    [InlineData(true, false, true)]
-    [InlineData(false, true, true)]
-    [InlineData(true, true, true)]
+    [ConditionalTheory,
+     InlineData(false, false, false),
+     InlineData(true, false, false),
+     InlineData(false, true, false),
+     InlineData(true, true, false),
+     InlineData(false, false, true),
+     InlineData(true, false, true),
+     InlineData(false, true, true),
+     InlineData(true, true, true)]
     public async Task Value_generation_is_logged(bool sensitive, bool async, bool temporary)
     {
         using var context = sensitive ? new LikeAZooContextSensitive() : new LikeAZooContext();
@@ -968,39 +966,39 @@ public class ChangeTrackerTest
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(false, CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges)]
-    [InlineData(false, CascadeTiming.OnSaveChanges, CascadeTiming.Immediate)]
-    [InlineData(false, CascadeTiming.OnSaveChanges, CascadeTiming.Never)]
-    [InlineData(false, CascadeTiming.OnSaveChanges, null)]
-    [InlineData(false, CascadeTiming.Immediate, CascadeTiming.OnSaveChanges)]
-    [InlineData(false, CascadeTiming.Immediate, CascadeTiming.Immediate)]
-    [InlineData(false, CascadeTiming.Immediate, CascadeTiming.Never)]
-    [InlineData(false, CascadeTiming.Immediate, null)]
-    [InlineData(false, CascadeTiming.Never, CascadeTiming.OnSaveChanges)]
-    [InlineData(false, CascadeTiming.Never, CascadeTiming.Immediate)]
-    [InlineData(false, CascadeTiming.Never, CascadeTiming.Never)]
-    [InlineData(false, CascadeTiming.Never, null)]
-    [InlineData(false, null, CascadeTiming.OnSaveChanges)]
-    [InlineData(false, null, CascadeTiming.Immediate)]
-    [InlineData(false, null, CascadeTiming.Never)]
-    [InlineData(false, null, null)]
-    [InlineData(true, CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges)]
-    [InlineData(true, CascadeTiming.OnSaveChanges, CascadeTiming.Immediate)]
-    [InlineData(true, CascadeTiming.OnSaveChanges, CascadeTiming.Never)]
-    [InlineData(true, CascadeTiming.OnSaveChanges, null)]
-    [InlineData(true, CascadeTiming.Immediate, CascadeTiming.OnSaveChanges)]
-    [InlineData(true, CascadeTiming.Immediate, CascadeTiming.Immediate)]
-    [InlineData(true, CascadeTiming.Immediate, CascadeTiming.Never)]
-    [InlineData(true, CascadeTiming.Immediate, null)]
-    [InlineData(true, CascadeTiming.Never, CascadeTiming.OnSaveChanges)]
-    [InlineData(true, CascadeTiming.Never, CascadeTiming.Immediate)]
-    [InlineData(true, CascadeTiming.Never, CascadeTiming.Never)]
-    [InlineData(true, CascadeTiming.Never, null)]
-    [InlineData(true, null, CascadeTiming.OnSaveChanges)]
-    [InlineData(true, null, CascadeTiming.Immediate)]
-    [InlineData(true, null, CascadeTiming.Never)]
-    [InlineData(true, null, null)]
+    [ConditionalTheory,
+     InlineData(false, CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges),
+     InlineData(false, CascadeTiming.OnSaveChanges, CascadeTiming.Immediate),
+     InlineData(false, CascadeTiming.OnSaveChanges, CascadeTiming.Never),
+     InlineData(false, CascadeTiming.OnSaveChanges, null),
+     InlineData(false, CascadeTiming.Immediate, CascadeTiming.OnSaveChanges),
+     InlineData(false, CascadeTiming.Immediate, CascadeTiming.Immediate),
+     InlineData(false, CascadeTiming.Immediate, CascadeTiming.Never),
+     InlineData(false, CascadeTiming.Immediate, null),
+     InlineData(false, CascadeTiming.Never, CascadeTiming.OnSaveChanges),
+     InlineData(false, CascadeTiming.Never, CascadeTiming.Immediate),
+     InlineData(false, CascadeTiming.Never, CascadeTiming.Never),
+     InlineData(false, CascadeTiming.Never, null),
+     InlineData(false, null, CascadeTiming.OnSaveChanges),
+     InlineData(false, null, CascadeTiming.Immediate),
+     InlineData(false, null, CascadeTiming.Never),
+     InlineData(false, null, null),
+     InlineData(true, CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges),
+     InlineData(true, CascadeTiming.OnSaveChanges, CascadeTiming.Immediate),
+     InlineData(true, CascadeTiming.OnSaveChanges, CascadeTiming.Never),
+     InlineData(true, CascadeTiming.OnSaveChanges, null),
+     InlineData(true, CascadeTiming.Immediate, CascadeTiming.OnSaveChanges),
+     InlineData(true, CascadeTiming.Immediate, CascadeTiming.Immediate),
+     InlineData(true, CascadeTiming.Immediate, CascadeTiming.Never),
+     InlineData(true, CascadeTiming.Immediate, null),
+     InlineData(true, CascadeTiming.Never, CascadeTiming.OnSaveChanges),
+     InlineData(true, CascadeTiming.Never, CascadeTiming.Immediate),
+     InlineData(true, CascadeTiming.Never, CascadeTiming.Never),
+     InlineData(true, CascadeTiming.Never, null),
+     InlineData(true, null, CascadeTiming.OnSaveChanges),
+     InlineData(true, null, CascadeTiming.Immediate),
+     InlineData(true, null, CascadeTiming.Never),
+     InlineData(true, null, null)]
     public void Cascade_delete_is_logged(
         bool sensitive,
         CascadeTiming? cascadeDeleteTiming,
@@ -1087,39 +1085,39 @@ public class ChangeTrackerTest
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(false, CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges)]
-    [InlineData(false, CascadeTiming.OnSaveChanges, CascadeTiming.Immediate)]
-    [InlineData(false, CascadeTiming.OnSaveChanges, CascadeTiming.Never)]
-    [InlineData(false, CascadeTiming.OnSaveChanges, null)]
-    [InlineData(false, CascadeTiming.Immediate, CascadeTiming.OnSaveChanges)]
-    [InlineData(false, CascadeTiming.Immediate, CascadeTiming.Immediate)]
-    [InlineData(false, CascadeTiming.Immediate, CascadeTiming.Never)]
-    [InlineData(false, CascadeTiming.Immediate, null)]
-    [InlineData(false, CascadeTiming.Never, CascadeTiming.OnSaveChanges)]
-    [InlineData(false, CascadeTiming.Never, CascadeTiming.Immediate)]
-    [InlineData(false, CascadeTiming.Never, CascadeTiming.Never)]
-    [InlineData(false, CascadeTiming.Never, null)]
-    [InlineData(false, null, CascadeTiming.OnSaveChanges)]
-    [InlineData(false, null, CascadeTiming.Immediate)]
-    [InlineData(false, null, CascadeTiming.Never)]
-    [InlineData(false, null, null)]
-    [InlineData(true, CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges)]
-    [InlineData(true, CascadeTiming.OnSaveChanges, CascadeTiming.Immediate)]
-    [InlineData(true, CascadeTiming.OnSaveChanges, CascadeTiming.Never)]
-    [InlineData(true, CascadeTiming.OnSaveChanges, null)]
-    [InlineData(true, CascadeTiming.Immediate, CascadeTiming.OnSaveChanges)]
-    [InlineData(true, CascadeTiming.Immediate, CascadeTiming.Immediate)]
-    [InlineData(true, CascadeTiming.Immediate, CascadeTiming.Never)]
-    [InlineData(true, CascadeTiming.Immediate, null)]
-    [InlineData(true, CascadeTiming.Never, CascadeTiming.OnSaveChanges)]
-    [InlineData(true, CascadeTiming.Never, CascadeTiming.Immediate)]
-    [InlineData(true, CascadeTiming.Never, CascadeTiming.Never)]
-    [InlineData(true, CascadeTiming.Never, null)]
-    [InlineData(true, null, CascadeTiming.OnSaveChanges)]
-    [InlineData(true, null, CascadeTiming.Immediate)]
-    [InlineData(true, null, CascadeTiming.Never)]
-    [InlineData(true, null, null)]
+    [ConditionalTheory,
+     InlineData(false, CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges),
+     InlineData(false, CascadeTiming.OnSaveChanges, CascadeTiming.Immediate),
+     InlineData(false, CascadeTiming.OnSaveChanges, CascadeTiming.Never),
+     InlineData(false, CascadeTiming.OnSaveChanges, null),
+     InlineData(false, CascadeTiming.Immediate, CascadeTiming.OnSaveChanges),
+     InlineData(false, CascadeTiming.Immediate, CascadeTiming.Immediate),
+     InlineData(false, CascadeTiming.Immediate, CascadeTiming.Never),
+     InlineData(false, CascadeTiming.Immediate, null),
+     InlineData(false, CascadeTiming.Never, CascadeTiming.OnSaveChanges),
+     InlineData(false, CascadeTiming.Never, CascadeTiming.Immediate),
+     InlineData(false, CascadeTiming.Never, CascadeTiming.Never),
+     InlineData(false, CascadeTiming.Never, null),
+     InlineData(false, null, CascadeTiming.OnSaveChanges),
+     InlineData(false, null, CascadeTiming.Immediate),
+     InlineData(false, null, CascadeTiming.Never),
+     InlineData(false, null, null),
+     InlineData(true, CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges),
+     InlineData(true, CascadeTiming.OnSaveChanges, CascadeTiming.Immediate),
+     InlineData(true, CascadeTiming.OnSaveChanges, CascadeTiming.Never),
+     InlineData(true, CascadeTiming.OnSaveChanges, null),
+     InlineData(true, CascadeTiming.Immediate, CascadeTiming.OnSaveChanges),
+     InlineData(true, CascadeTiming.Immediate, CascadeTiming.Immediate),
+     InlineData(true, CascadeTiming.Immediate, CascadeTiming.Never),
+     InlineData(true, CascadeTiming.Immediate, null),
+     InlineData(true, CascadeTiming.Never, CascadeTiming.OnSaveChanges),
+     InlineData(true, CascadeTiming.Never, CascadeTiming.Immediate),
+     InlineData(true, CascadeTiming.Never, CascadeTiming.Never),
+     InlineData(true, CascadeTiming.Never, null),
+     InlineData(true, null, CascadeTiming.OnSaveChanges),
+     InlineData(true, null, CascadeTiming.Immediate),
+     InlineData(true, null, CascadeTiming.Never),
+     InlineData(true, null, null)]
     public void Cascade_delete_orphan_is_logged(
         bool sensitive,
         CascadeTiming? cascadeDeleteTiming,
@@ -1208,9 +1206,9 @@ public class ChangeTrackerTest
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory,
+     InlineData(false),
+     InlineData(true)]
     public async Task SaveChanges_is_logged(bool async)
     {
         Seed();
@@ -1471,9 +1469,9 @@ public class ChangeTrackerTest
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory,
+     InlineData(false),
+     InlineData(true)]
     public void State_change_events_fire_when_saving_changes(bool callDetectChangesTwice)
     {
         var tracking = new List<EntityTrackingEventArgs>();
@@ -2243,9 +2241,8 @@ public class ChangeTrackerTest
 
     private static readonly IServiceProvider _poolProvider
         = new ServiceCollection()
-            .AddDbContextPool<LikeAZooContextPooled>(
-                p => p.UseInMemoryDatabase(nameof(LikeAZooContextPooled))
-                    .UseInternalServiceProvider(InMemoryFixture.BuildServiceProvider(_loggerFactory)))
+            .AddDbContextPool<LikeAZooContextPooled>(p => p.UseInMemoryDatabase(nameof(LikeAZooContextPooled))
+                .UseInternalServiceProvider(InMemoryFixture.BuildServiceProvider(_loggerFactory)))
             .BuildServiceProvider(validateScopes: true);
 
     private class LikeAZooContextPooled(DbContextOptions<LikeAZooContextPooled> options) : LikeAZooContext(options)
@@ -2286,17 +2283,16 @@ public class ChangeTrackerTest
                 .Property(e => e.Id)
                 .HasValueGenerator((_, __) => new ResettableValueGenerator());
 
-            modelBuilder.Entity<Mat>(
-                b =>
-                {
-                    b.Property(e => e.Id).HasValueGenerator((_, __) => new ResettableValueGenerator());
-                    b.HasMany(e => e.Cats)
-                        .WithMany(e => e.Mats)
-                        .UsingEntity<CatMat>(
-                            ts => ts.HasOne<Cat>().WithMany(),
-                            ts => ts.HasOne<Mat>().WithMany())
-                        .HasKey(ts => new { ts.CatId, ts.MatId });
-                });
+            modelBuilder.Entity<Mat>(b =>
+            {
+                b.Property(e => e.Id).HasValueGenerator((_, __) => new ResettableValueGenerator());
+                b.HasMany(e => e.Cats)
+                    .WithMany(e => e.Mats)
+                    .UsingEntity<CatMat>(
+                        ts => ts.HasOne<Cat>().WithMany(),
+                        ts => ts.HasOne<Mat>().WithMany())
+                    .HasKey(ts => new { ts.CatId, ts.MatId });
+            });
 
             modelBuilder.Entity<Wocket>().ComplexProperty(e => e.Pocket);
         }
@@ -2343,9 +2339,9 @@ public class ChangeTrackerTest
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory,
+     InlineData(false),
+     InlineData(true)]
     public void Can_remove_dependent_identifying_one_to_many(bool saveEntities)
     {
         using var context = new EarlyLearningCenter();
@@ -2452,7 +2448,7 @@ public class ChangeTrackerTest
         var product = context.Add(new Product()).Entity;
 
         Assert.Equal(
-            new object[] { category, product },
+            [category, product],
             context.ChangeTracker.Entries().Select(e => e.Entity).OrderBy(e => e.GetType().Name));
     }
 
@@ -2472,7 +2468,7 @@ public class ChangeTrackerTest
             context.ChangeTracker.Entries<Category>().Select(e => e.Entity).OrderBy(e => e.GetType().Name));
 
         Assert.Equal(
-            new object[] { category, product },
+            [category, product],
             context.ChangeTracker.Entries<object>().Select(e => e.Entity).OrderBy(e => e.GetType().Name));
     }
 
@@ -2483,11 +2479,11 @@ public class ChangeTrackerTest
         Assert.Same(context, context.ChangeTracker.Context);
     }
 
-    [ConditionalTheory] // Issue #17828
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
+    [ConditionalTheory,
+     InlineData(false, false),
+     InlineData(true, false),
+     InlineData(false, true),
+     InlineData(true, true)] // Issue #17828
     public void DetectChanges_reparents_even_when_immediate_cascade_enabled(bool delayCascade, bool callDetectChangesTwice)
     {
         using var context = new EarlyLearningCenter();
@@ -2527,11 +2523,11 @@ public class ChangeTrackerTest
         Assert.Equal(EntityState.Modified, context.Entry(child).State);
     }
 
-    [ConditionalTheory] // Issue #19203
-    [InlineData(false, false)]
-    [InlineData(false, true)]
-    [InlineData(true, false)]
-    [InlineData(true, true)]
+    [ConditionalTheory,
+     InlineData(false, false),
+     InlineData(false, true),
+     InlineData(true, false),
+     InlineData(true, true)] // Issue #19203
     public void Dependent_FKs_are_not_nulled_when_principal_is_detached(bool delayCascade, bool trackNewDependents)
     {
         using var context = new EarlyLearningCenter(new UpdatingIdentityResolutionInterceptor());
@@ -2577,12 +2573,11 @@ public class ChangeTrackerTest
         if (trackNewDependents)
         {
             newCategory.Products.AddRange(
-                new OptionalProduct[]
-                {
-                    new() { Id = 1, CategoryId = category.Id },
+            [
+                new() { Id = 1, CategoryId = category.Id },
                     new() { Id = 2, CategoryId = category.Id },
                     new() { Id = 3, CategoryId = category.Id }
-                });
+            ]);
         }
 
         context.Update(newCategory);
@@ -2613,63 +2608,63 @@ public class ChangeTrackerTest
         Assert.Equal(newCategory.Id, product2Entry.Property("CategoryId").CurrentValue);
     }
 
-    [ConditionalTheory] // Issues #16546 #25360; Change reverted in #27174.
-    [InlineData(null, false, false, true, false, false)]
-    [InlineData(null, true, false, true, false, false)]
-    [InlineData(null, false, true, true, false, false)]
-    [InlineData(null, true, false, false, true, false)]
-    [InlineData(null, false, true, false, true, false)]
-    [InlineData(null, true, false, true, true, false)]
-    [InlineData(null, false, true, true, true, false)]
-    [InlineData(CascadeTiming.Immediate, false, false, true, false, false)]
-    [InlineData(CascadeTiming.Immediate, true, false, true, false, false)]
-    [InlineData(CascadeTiming.Immediate, false, true, true, false, false)]
-    [InlineData(CascadeTiming.Immediate, true, false, false, true, false)]
-    [InlineData(CascadeTiming.Immediate, false, true, false, true, false)]
-    [InlineData(CascadeTiming.Immediate, true, false, true, true, false)]
-    [InlineData(CascadeTiming.Immediate, false, true, true, true, false)]
-    [InlineData(CascadeTiming.OnSaveChanges, false, false, true, false, false)]
-    [InlineData(CascadeTiming.OnSaveChanges, true, false, true, false, false)]
-    [InlineData(CascadeTiming.OnSaveChanges, false, true, true, false, false)]
-    [InlineData(CascadeTiming.OnSaveChanges, true, false, false, true, false)]
-    [InlineData(CascadeTiming.OnSaveChanges, false, true, false, true, false)]
-    [InlineData(CascadeTiming.OnSaveChanges, true, false, true, true, false)]
-    [InlineData(CascadeTiming.OnSaveChanges, false, true, true, true, false)]
-    [InlineData(CascadeTiming.Never, false, false, true, false, false)]
-    [InlineData(CascadeTiming.Never, true, false, true, false, false)]
-    [InlineData(CascadeTiming.Never, false, true, true, false, false)]
-    [InlineData(CascadeTiming.Never, true, false, false, true, false)]
-    [InlineData(CascadeTiming.Never, false, true, false, true, false)]
-    [InlineData(CascadeTiming.Never, true, false, true, true, false)]
-    [InlineData(CascadeTiming.Never, false, true, true, true, false)]
-    [InlineData(null, false, false, true, false, true)]
-    [InlineData(null, true, false, true, false, true)]
-    [InlineData(null, false, true, true, false, true)]
-    [InlineData(null, true, false, false, true, true)]
-    [InlineData(null, false, true, false, true, true)]
-    [InlineData(null, true, false, true, true, true)]
-    [InlineData(null, false, true, true, true, true)]
-    [InlineData(CascadeTiming.Immediate, false, false, true, false, true)]
-    [InlineData(CascadeTiming.Immediate, true, false, true, false, true)]
-    [InlineData(CascadeTiming.Immediate, false, true, true, false, true)]
-    [InlineData(CascadeTiming.Immediate, true, false, false, true, true)]
-    [InlineData(CascadeTiming.Immediate, false, true, false, true, true)]
-    [InlineData(CascadeTiming.Immediate, true, false, true, true, true)]
-    [InlineData(CascadeTiming.Immediate, false, true, true, true, true)]
-    [InlineData(CascadeTiming.OnSaveChanges, false, false, true, false, true)]
-    [InlineData(CascadeTiming.OnSaveChanges, true, false, true, false, true)]
-    [InlineData(CascadeTiming.OnSaveChanges, false, true, true, false, true)]
-    [InlineData(CascadeTiming.OnSaveChanges, true, false, false, true, true)]
-    [InlineData(CascadeTiming.OnSaveChanges, false, true, false, true, true)]
-    [InlineData(CascadeTiming.OnSaveChanges, true, false, true, true, true)]
-    [InlineData(CascadeTiming.OnSaveChanges, false, true, true, true, true)]
-    [InlineData(CascadeTiming.Never, false, false, true, false, true)]
-    [InlineData(CascadeTiming.Never, true, false, true, false, true)]
-    [InlineData(CascadeTiming.Never, false, true, true, false, true)]
-    [InlineData(CascadeTiming.Never, true, false, false, true, true)]
-    [InlineData(CascadeTiming.Never, false, true, false, true, true)]
-    [InlineData(CascadeTiming.Never, true, false, true, true, true)]
-    [InlineData(CascadeTiming.Never, false, true, true, true, true)]
+    [ConditionalTheory,
+     InlineData(null, false, false, true, false, false),
+     InlineData(null, true, false, true, false, false),
+     InlineData(null, false, true, true, false, false),
+     InlineData(null, true, false, false, true, false),
+     InlineData(null, false, true, false, true, false),
+     InlineData(null, true, false, true, true, false),
+     InlineData(null, false, true, true, true, false),
+     InlineData(CascadeTiming.Immediate, false, false, true, false, false),
+     InlineData(CascadeTiming.Immediate, true, false, true, false, false),
+     InlineData(CascadeTiming.Immediate, false, true, true, false, false),
+     InlineData(CascadeTiming.Immediate, true, false, false, true, false),
+     InlineData(CascadeTiming.Immediate, false, true, false, true, false),
+     InlineData(CascadeTiming.Immediate, true, false, true, true, false),
+     InlineData(CascadeTiming.Immediate, false, true, true, true, false),
+     InlineData(CascadeTiming.OnSaveChanges, false, false, true, false, false),
+     InlineData(CascadeTiming.OnSaveChanges, true, false, true, false, false),
+     InlineData(CascadeTiming.OnSaveChanges, false, true, true, false, false),
+     InlineData(CascadeTiming.OnSaveChanges, true, false, false, true, false),
+     InlineData(CascadeTiming.OnSaveChanges, false, true, false, true, false),
+     InlineData(CascadeTiming.OnSaveChanges, true, false, true, true, false),
+     InlineData(CascadeTiming.OnSaveChanges, false, true, true, true, false),
+     InlineData(CascadeTiming.Never, false, false, true, false, false),
+     InlineData(CascadeTiming.Never, true, false, true, false, false),
+     InlineData(CascadeTiming.Never, false, true, true, false, false),
+     InlineData(CascadeTiming.Never, true, false, false, true, false),
+     InlineData(CascadeTiming.Never, false, true, false, true, false),
+     InlineData(CascadeTiming.Never, true, false, true, true, false),
+     InlineData(CascadeTiming.Never, false, true, true, true, false),
+     InlineData(null, false, false, true, false, true),
+     InlineData(null, true, false, true, false, true),
+     InlineData(null, false, true, true, false, true),
+     InlineData(null, true, false, false, true, true),
+     InlineData(null, false, true, false, true, true),
+     InlineData(null, true, false, true, true, true),
+     InlineData(null, false, true, true, true, true),
+     InlineData(CascadeTiming.Immediate, false, false, true, false, true),
+     InlineData(CascadeTiming.Immediate, true, false, true, false, true),
+     InlineData(CascadeTiming.Immediate, false, true, true, false, true),
+     InlineData(CascadeTiming.Immediate, true, false, false, true, true),
+     InlineData(CascadeTiming.Immediate, false, true, false, true, true),
+     InlineData(CascadeTiming.Immediate, true, false, true, true, true),
+     InlineData(CascadeTiming.Immediate, false, true, true, true, true),
+     InlineData(CascadeTiming.OnSaveChanges, false, false, true, false, true),
+     InlineData(CascadeTiming.OnSaveChanges, true, false, true, false, true),
+     InlineData(CascadeTiming.OnSaveChanges, false, true, true, false, true),
+     InlineData(CascadeTiming.OnSaveChanges, true, false, false, true, true),
+     InlineData(CascadeTiming.OnSaveChanges, false, true, false, true, true),
+     InlineData(CascadeTiming.OnSaveChanges, true, false, true, true, true),
+     InlineData(CascadeTiming.OnSaveChanges, false, true, true, true, true),
+     InlineData(CascadeTiming.Never, false, false, true, false, true),
+     InlineData(CascadeTiming.Never, true, false, true, false, true),
+     InlineData(CascadeTiming.Never, false, true, true, false, true),
+     InlineData(CascadeTiming.Never, true, false, false, true, true),
+     InlineData(CascadeTiming.Never, false, true, false, true, true),
+     InlineData(CascadeTiming.Never, true, false, true, true, true),
+     InlineData(CascadeTiming.Never, false, true, true, true, true)] // Issues #16546 #25360; Change reverted in #27174.
     public void Optional_relationship_with_cascade_does_not_delete_orphans(
         CascadeTiming? orphanTiming,
         bool setProperty,
@@ -2776,63 +2771,63 @@ public class ChangeTrackerTest
         }
     }
 
-    [ConditionalTheory] // Issues #16546 #25360; Change reverted in #27174.
-    [InlineData(null, false, false, true, false, false)]
-    [InlineData(null, true, false, true, false, false)]
-    [InlineData(null, false, true, true, false, false)]
-    [InlineData(null, true, false, false, true, false)]
-    [InlineData(null, false, true, false, true, false)]
-    [InlineData(null, true, false, true, true, false)]
-    [InlineData(null, false, true, true, true, false)]
-    [InlineData(CascadeTiming.Immediate, false, false, true, false, false)]
-    [InlineData(CascadeTiming.Immediate, true, false, true, false, false)]
-    [InlineData(CascadeTiming.Immediate, false, true, true, false, false)]
-    [InlineData(CascadeTiming.Immediate, true, false, false, true, false)]
-    [InlineData(CascadeTiming.Immediate, false, true, false, true, false)]
-    [InlineData(CascadeTiming.Immediate, true, false, true, true, false)]
-    [InlineData(CascadeTiming.Immediate, false, true, true, true, false)]
-    [InlineData(CascadeTiming.OnSaveChanges, false, false, true, false, false)]
-    [InlineData(CascadeTiming.OnSaveChanges, true, false, true, false, false)]
-    [InlineData(CascadeTiming.OnSaveChanges, false, true, true, false, false)]
-    [InlineData(CascadeTiming.OnSaveChanges, true, false, false, true, false)]
-    [InlineData(CascadeTiming.OnSaveChanges, false, true, false, true, false)]
-    [InlineData(CascadeTiming.OnSaveChanges, true, false, true, true, false)]
-    [InlineData(CascadeTiming.OnSaveChanges, false, true, true, true, false)]
-    [InlineData(CascadeTiming.Never, false, false, true, false, false)]
-    [InlineData(CascadeTiming.Never, true, false, true, false, false)]
-    [InlineData(CascadeTiming.Never, false, true, true, false, false)]
-    [InlineData(CascadeTiming.Never, true, false, false, true, false)]
-    [InlineData(CascadeTiming.Never, false, true, false, true, false)]
-    [InlineData(CascadeTiming.Never, true, false, true, true, false)]
-    [InlineData(CascadeTiming.Never, false, true, true, true, false)]
-    [InlineData(null, false, false, true, false, true)]
-    [InlineData(null, true, false, true, false, true)]
-    [InlineData(null, false, true, true, false, true)]
-    [InlineData(null, true, false, false, true, true)]
-    [InlineData(null, false, true, false, true, true)]
-    [InlineData(null, true, false, true, true, true)]
-    [InlineData(null, false, true, true, true, true)]
-    [InlineData(CascadeTiming.Immediate, false, false, true, false, true)]
-    [InlineData(CascadeTiming.Immediate, true, false, true, false, true)]
-    [InlineData(CascadeTiming.Immediate, false, true, true, false, true)]
-    [InlineData(CascadeTiming.Immediate, true, false, false, true, true)]
-    [InlineData(CascadeTiming.Immediate, false, true, false, true, true)]
-    [InlineData(CascadeTiming.Immediate, true, false, true, true, true)]
-    [InlineData(CascadeTiming.Immediate, false, true, true, true, true)]
-    [InlineData(CascadeTiming.OnSaveChanges, false, false, true, false, true)]
-    [InlineData(CascadeTiming.OnSaveChanges, true, false, true, false, true)]
-    [InlineData(CascadeTiming.OnSaveChanges, false, true, true, false, true)]
-    [InlineData(CascadeTiming.OnSaveChanges, true, false, false, true, true)]
-    [InlineData(CascadeTiming.OnSaveChanges, false, true, false, true, true)]
-    [InlineData(CascadeTiming.OnSaveChanges, true, false, true, true, true)]
-    [InlineData(CascadeTiming.OnSaveChanges, false, true, true, true, true)]
-    [InlineData(CascadeTiming.Never, false, false, true, false, true)]
-    [InlineData(CascadeTiming.Never, true, false, true, false, true)]
-    [InlineData(CascadeTiming.Never, false, true, true, false, true)]
-    [InlineData(CascadeTiming.Never, true, false, false, true, true)]
-    [InlineData(CascadeTiming.Never, false, true, false, true, true)]
-    [InlineData(CascadeTiming.Never, true, false, true, true, true)]
-    [InlineData(CascadeTiming.Never, false, true, true, true, true)]
+    [ConditionalTheory,
+     InlineData(null, false, false, true, false, false),
+     InlineData(null, true, false, true, false, false),
+     InlineData(null, false, true, true, false, false),
+     InlineData(null, true, false, false, true, false),
+     InlineData(null, false, true, false, true, false),
+     InlineData(null, true, false, true, true, false),
+     InlineData(null, false, true, true, true, false),
+     InlineData(CascadeTiming.Immediate, false, false, true, false, false),
+     InlineData(CascadeTiming.Immediate, true, false, true, false, false),
+     InlineData(CascadeTiming.Immediate, false, true, true, false, false),
+     InlineData(CascadeTiming.Immediate, true, false, false, true, false),
+     InlineData(CascadeTiming.Immediate, false, true, false, true, false),
+     InlineData(CascadeTiming.Immediate, true, false, true, true, false),
+     InlineData(CascadeTiming.Immediate, false, true, true, true, false),
+     InlineData(CascadeTiming.OnSaveChanges, false, false, true, false, false),
+     InlineData(CascadeTiming.OnSaveChanges, true, false, true, false, false),
+     InlineData(CascadeTiming.OnSaveChanges, false, true, true, false, false),
+     InlineData(CascadeTiming.OnSaveChanges, true, false, false, true, false),
+     InlineData(CascadeTiming.OnSaveChanges, false, true, false, true, false),
+     InlineData(CascadeTiming.OnSaveChanges, true, false, true, true, false),
+     InlineData(CascadeTiming.OnSaveChanges, false, true, true, true, false),
+     InlineData(CascadeTiming.Never, false, false, true, false, false),
+     InlineData(CascadeTiming.Never, true, false, true, false, false),
+     InlineData(CascadeTiming.Never, false, true, true, false, false),
+     InlineData(CascadeTiming.Never, true, false, false, true, false),
+     InlineData(CascadeTiming.Never, false, true, false, true, false),
+     InlineData(CascadeTiming.Never, true, false, true, true, false),
+     InlineData(CascadeTiming.Never, false, true, true, true, false),
+     InlineData(null, false, false, true, false, true),
+     InlineData(null, true, false, true, false, true),
+     InlineData(null, false, true, true, false, true),
+     InlineData(null, true, false, false, true, true),
+     InlineData(null, false, true, false, true, true),
+     InlineData(null, true, false, true, true, true),
+     InlineData(null, false, true, true, true, true),
+     InlineData(CascadeTiming.Immediate, false, false, true, false, true),
+     InlineData(CascadeTiming.Immediate, true, false, true, false, true),
+     InlineData(CascadeTiming.Immediate, false, true, true, false, true),
+     InlineData(CascadeTiming.Immediate, true, false, false, true, true),
+     InlineData(CascadeTiming.Immediate, false, true, false, true, true),
+     InlineData(CascadeTiming.Immediate, true, false, true, true, true),
+     InlineData(CascadeTiming.Immediate, false, true, true, true, true),
+     InlineData(CascadeTiming.OnSaveChanges, false, false, true, false, true),
+     InlineData(CascadeTiming.OnSaveChanges, true, false, true, false, true),
+     InlineData(CascadeTiming.OnSaveChanges, false, true, true, false, true),
+     InlineData(CascadeTiming.OnSaveChanges, true, false, false, true, true),
+     InlineData(CascadeTiming.OnSaveChanges, false, true, false, true, true),
+     InlineData(CascadeTiming.OnSaveChanges, true, false, true, true, true),
+     InlineData(CascadeTiming.OnSaveChanges, false, true, true, true, true),
+     InlineData(CascadeTiming.Never, false, false, true, false, true),
+     InlineData(CascadeTiming.Never, true, false, true, false, true),
+     InlineData(CascadeTiming.Never, false, true, true, false, true),
+     InlineData(CascadeTiming.Never, true, false, false, true, true),
+     InlineData(CascadeTiming.Never, false, true, false, true, true),
+     InlineData(CascadeTiming.Never, true, false, true, true, true),
+     InlineData(CascadeTiming.Never, false, true, true, true, true)] // Issues #16546 #25360; Change reverted in #27174.
     public void Optional_relationship_with_cascade_can_be_forced_to_delete_orphans(
         CascadeTiming? orphanTiming,
         bool setProperty,
@@ -2956,8 +2951,7 @@ public class ChangeTrackerTest
             {
                 Assert.Equal(
                     CoreStrings.RelationshipConceptualNull(nameof(Troduct), nameof(KontainerRoom)),
-                    Assert.Throws<InvalidOperationException>(
-                        () => context.SaveChanges()).Message);
+                    Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
 
                 Assert.Equal(3, context.ChangeTracker.Entries().Count());
                 Assert.Equal(EntityState.Unchanged, context.Entry(attachedContainer).State);
@@ -3015,9 +3009,9 @@ public class ChangeTrackerTest
                 .UseInMemoryDatabase(nameof(KontainerContext));
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory,
+     InlineData(false),
+     InlineData(true)]
     public void Adding_derived_owned_throws(bool useAdd)
     {
         using var context = new EarlyLearningCenter();
@@ -3035,15 +3029,14 @@ public class ChangeTrackerTest
         {
             Assert.Equal(
                 CoreStrings.TrackingTypeMismatch(nameof(OfThis), "Dreams.Are#AreMade"),
-                Assert.Throws<InvalidOperationException>(
-                    () =>
-                        context.ChangeTracker.TrackGraph(
-                            dreams, e =>
-                            {
-                                e.Entry.State = e.Entry.IsKeySet && !e.Entry.Metadata.IsOwned()
-                                    ? EntityState.Unchanged
-                                    : EntityState.Added;
-                            })).Message);
+                Assert.Throws<InvalidOperationException>(() =>
+                    context.ChangeTracker.TrackGraph(
+                        dreams, e =>
+                        {
+                            e.Entry.State = e.Entry.IsKeySet && !e.Entry.Metadata.IsOwned()
+                                ? EntityState.Unchanged
+                                : EntityState.Added;
+                        })).Message);
         }
     }
 
@@ -3192,9 +3185,9 @@ public class ChangeTrackerTest
         AssertProductAndDetailsFixedUp(context, product1.Details.Tag.TagDetails, product2.Details.Tag.TagDetails);
     }
 
-    [ConditionalTheory] // Issue #1207
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory,
+     InlineData(false),
+     InlineData(true)] // Issue #1207
     public void Can_add_identifying_dependents_and_principal_with_post_nav_fixup_with_key_generation(bool callDetectChangesTwice)
     {
         using var context = new EarlyLearningCenter();
@@ -3235,9 +3228,9 @@ public class ChangeTrackerTest
         AssertProductAndDetailsFixedUp(context, product1.Details.Tag.TagDetails, product2.Details.Tag.TagDetails);
     }
 
-    [ConditionalTheory] // Issue #1207
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory,
+     InlineData(false),
+     InlineData(true)] // Issue #1207
     public void Can_add_identifying_dependents_and_principal_with_reverse_post_nav_fixup_with_key_generation(
         bool callDetectChangesTwice)
     {
@@ -3439,9 +3432,9 @@ public class ChangeTrackerTest
         Assert.Contains(orderDetails2b, orderDetails1b.Product.OrderDetails);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory,
+     InlineData(false),
+     InlineData(true)]
     public void Entries_calls_DetectChanges_by_default(bool useGenericOverload)
     {
         using var context = new EarlyLearningCenter();
@@ -3464,9 +3457,9 @@ public class ChangeTrackerTest
         Assert.Equal(EntityState.Modified, entry.State);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory,
+     InlineData(false),
+     InlineData(true)]
     public void Auto_DetectChanges_for_Entries_can_be_switched_off(bool useGenericOverload)
     {
         using var context = new EarlyLearningCenter();
@@ -3491,9 +3484,9 @@ public class ChangeTrackerTest
         Assert.Equal(EntityState.Unchanged, entry.State);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory,
+     InlineData(false),
+     InlineData(true)]
     public void Explicitly_calling_DetectChanges_works_even_if_auto_DetectChanges_is_switched_off(bool callDetectChangesTwice)
     {
         using var context = new EarlyLearningCenter();
@@ -3627,13 +3620,12 @@ public class ChangeTrackerTest
     private class TheShadows : DbContext
     {
         protected internal override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<Dark>(
-                b =>
-                {
-                    b.Property<int>("Id").ValueGeneratedOnAdd();
-                    b.Property<int>("SomeInt");
-                    b.Property<string>("SomeString");
-                });
+            => modelBuilder.Entity<Dark>(b =>
+            {
+                b.Property<int>("Id").ValueGeneratedOnAdd();
+                b.Property<int>("SomeInt");
+                b.Property<string>("SomeString");
+            });
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -3856,74 +3848,67 @@ public class ChangeTrackerTest
                 .Entity<Product>().HasOne(e => e.Details).WithOne(e => e.Product)
                 .HasForeignKey<ProductDetails>(e => e.Id);
 
-            modelBuilder.Entity<OrderDetails>(
-                b =>
-                {
-                    b.HasKey(
-                        e => new { e.OrderId, e.ProductId });
-                    b.HasOne(e => e.Order).WithMany(e => e.OrderDetails).HasForeignKey(e => e.OrderId);
-                    b.HasOne(e => e.Product).WithMany(e => e.OrderDetails).HasForeignKey(e => e.ProductId);
-                });
+            modelBuilder.Entity<OrderDetails>(b =>
+            {
+                b.HasKey(e => new { e.OrderId, e.ProductId });
+                b.HasOne(e => e.Order).WithMany(e => e.OrderDetails).HasForeignKey(e => e.OrderId);
+                b.HasOne(e => e.Product).WithMany(e => e.OrderDetails).HasForeignKey(e => e.ProductId);
+            });
 
             modelBuilder.Entity<OptionalProduct>();
 
-            modelBuilder.Entity<PrincipalNN>(
-                b =>
-                {
-                    b.HasOne(e => e.DependentNN)
-                        .WithOne(e => e.PrincipalNN)
-                        .HasForeignKey<DependentNN>(e => e.Id);
+            modelBuilder.Entity<PrincipalNN>(b =>
+            {
+                b.HasOne(e => e.DependentNN)
+                    .WithOne(e => e.PrincipalNN)
+                    .HasForeignKey<DependentNN>(e => e.Id);
 
-                    b.Property(e => e.Id).ValueGeneratedNever();
-                });
+                b.Property(e => e.Id).ValueGeneratedNever();
+            });
 
             modelBuilder.Entity<DependentNN>().Property(e => e.Id).ValueGeneratedNever();
 
-            modelBuilder.Entity<PrincipalGG>(
-                b =>
-                {
-                    b.HasOne(e => e.DependentGG)
-                        .WithOne(e => e.PrincipalGG)
-                        .HasForeignKey<DependentGG>(e => e.Id);
+            modelBuilder.Entity<PrincipalGG>(b =>
+            {
+                b.HasOne(e => e.DependentGG)
+                    .WithOne(e => e.PrincipalGG)
+                    .HasForeignKey<DependentGG>(e => e.Id);
 
-                    b.Property(e => e.Id).ValueGeneratedOnAdd();
-                });
+                b.Property(e => e.Id).ValueGeneratedOnAdd();
+            });
 
             modelBuilder.Entity<DependentGG>().Property(e => e.Id).ValueGeneratedOnAdd();
 
-            modelBuilder.Entity<PrincipalNG>(
-                b =>
-                {
-                    b.HasOne(e => e.DependentNG)
-                        .WithOne(e => e.PrincipalNG)
-                        .HasForeignKey<DependentNG>(e => e.Id);
+            modelBuilder.Entity<PrincipalNG>(b =>
+            {
+                b.HasOne(e => e.DependentNG)
+                    .WithOne(e => e.PrincipalNG)
+                    .HasForeignKey<DependentNG>(e => e.Id);
 
-                    b.Property(e => e.Id).ValueGeneratedNever();
-                });
+                b.Property(e => e.Id).ValueGeneratedNever();
+            });
 
             modelBuilder.Entity<DependentNG>().Property(e => e.Id).HasValueGenerator<DummyValueGenerator>();
 
-            modelBuilder.Entity<PrincipalGN>(
-                b =>
-                {
-                    b.HasOne(e => e.DependentGN)
-                        .WithOne(e => e.PrincipalGN)
-                        .HasForeignKey<DependentGN>(e => e.Id);
+            modelBuilder.Entity<PrincipalGN>(b =>
+            {
+                b.HasOne(e => e.DependentGN)
+                    .WithOne(e => e.PrincipalGN)
+                    .HasForeignKey<DependentGN>(e => e.Id);
 
-                    b.Property(e => e.Id).ValueGeneratedOnAdd();
-                });
+                b.Property(e => e.Id).ValueGeneratedOnAdd();
+            });
 
             modelBuilder.Entity<DependentGN>().Property(e => e.Id).ValueGeneratedNever();
 
-            modelBuilder.Entity<Buggy>(
-                entity =>
-                {
-                    entity.Property<int?>("BobbyId");
-                    entity.HasOne<Bobby>()
-                        .WithOne(p => p.Buggy)
-                        .HasForeignKey<Buggy>("BobbyId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
+            modelBuilder.Entity<Buggy>(entity =>
+            {
+                entity.Property<int?>("BobbyId");
+                entity.HasOne<Bobby>()
+                    .WithOne(p => p.Buggy)
+                    .HasForeignKey<Buggy>("BobbyId")
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
 
             modelBuilder.Entity<Stable>()
                 .Property(e => e.Id)

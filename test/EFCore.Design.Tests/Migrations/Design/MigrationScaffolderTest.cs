@@ -146,7 +146,8 @@ public class MigrationsScaffolderTest
 
     private class MockHistoryRepository : IHistoryRepository
     {
-        public virtual LockReleaseBehavior LockReleaseBehavior => LockReleaseBehavior.Explicit;
+        public virtual LockReleaseBehavior LockReleaseBehavior
+            => LockReleaseBehavior.Explicit;
 
         public string GetBeginIfExistsScript(string migrationId)
             => null;

@@ -9,9 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Storage;
 
 public class RelationalParameterBuilderTest
 {
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public void Can_add_type_mapped_parameter_by_type(bool nullable)
     {
         var typeMapper = (IRelationalTypeMappingSource)new TestRelationalTypeMappingSource(
@@ -42,9 +40,7 @@ public class RelationalParameterBuilderTest
         Assert.Equal(nullable, parameter.IsNullable);
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public void Can_add_type_mapped_parameter_by_property(bool nullable)
     {
         var typeMapper = new TestRelationalTypeMappingSource(

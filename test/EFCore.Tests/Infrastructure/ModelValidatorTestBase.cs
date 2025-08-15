@@ -155,7 +155,7 @@ public abstract class ModelValidatorTestBase
         public ReferencedEntity AnotherReferencedEntity { get; set; }
 
         public ICollection<SampleEntity> OtherSamples { get; set; }
- 
+
         protected StructTag Tag { get; set; }
     }
 
