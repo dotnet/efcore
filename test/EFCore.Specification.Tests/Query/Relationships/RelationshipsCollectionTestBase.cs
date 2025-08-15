@@ -84,6 +84,15 @@ public abstract class RelationshipsCollectionTestBase<TFixture>(TFixture fixture
 
     #endregion Index
 
+    #region GroupBy
+
+    [ConditionalFact]
+    public virtual Task GroupBy()
+        => AssertQuery(ss => ss.Set<RootEntity>().Where(e =>
+            e.RelatedCollection.GroupBy(r => r.String).Select(g => g.Sum(int (RelatedType r) => r.Int)).Any(g => g == 16)));
+
+    #endregion GroupBy
+
     [ConditionalFact]
     public virtual Task Select_within_Select_within_Select_with_aggregates()
         => AssertQuery(ss => ss.Set<RootEntity>().Select(e =>

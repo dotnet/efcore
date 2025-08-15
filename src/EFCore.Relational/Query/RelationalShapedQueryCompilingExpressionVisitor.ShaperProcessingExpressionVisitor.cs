@@ -1701,8 +1701,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         shaperEntityParameter,
                         shaperCollectionParameter);
 
-                    innerFixupMap[navigationJsonPropertyName] = fixup;
-                    trackingInnerFixupMap[navigationJsonPropertyName] = trackedFixup;
+                    // With tracking queries, the change tracker performs entity fixup, so we only need to handle fixup in the shaper for
+                    // non-tracking queries; however, complex types always need to be fixed up in the shaper.
+                    trackingInnerFixupMap[navigationJsonPropertyName] = relatedStructuralType is IComplexType ? fixup : trackedFixup;
                 }
                 else
                 {
@@ -1712,6 +1713,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         nestedRelationship,
                         inverseNavigation);
 
+                    // With tracking queries, the change tracker performs entity fixup, so we only need to handle fixup in the shaper for
+                    // non-tracking queries; however, complex types always need to be fixed up in the shaper.
                     innerFixupMap[navigationJsonPropertyName] = fixup;
 
                     if (relatedStructuralType is IComplexType)
