@@ -24,27 +24,17 @@ public abstract class ComplexTableSplittingRelationalFixtureBase : ComplexProper
 
         modelBuilder.Entity<RootEntity>(b =>
         {
-            b.ComplexProperty(
-                e => e.RequiredRelated, rrb =>
-                {
-                    rrb.ComplexProperty(r => r.RequiredNested);
-                    rrb.ComplexProperty(r => r.OptionalNested);
-
-                    // Collections are not supported with table splitting, only JSON
-                    rrb.Ignore(r => r.NestedCollection);
-                });
-
-            b.ComplexProperty(
-                e => e.OptionalRelated, orb =>
-                {
-                    orb.ComplexProperty(o => o.RequiredNested);
-                    orb.ComplexProperty(o => o.OptionalNested);
-
-                    // Collections are not supported with table splitting, only JSON
-                    orb.Ignore(o => o.NestedCollection);
-                });
-
             // Collections are not supported with table splitting, only JSON
+            b.ComplexProperty(e => e.RequiredRelated, rrb => rrb.Ignore(r => r.NestedCollection));
+            b.ComplexProperty(e => e.OptionalRelated, orb => orb.Ignore(o => o.NestedCollection));
+            b.Ignore(r => r.RelatedCollection);
+        });
+
+        modelBuilder.Entity<ValueRootEntity>(b =>
+        {
+            // Collections are not supported with table splitting, only JSON
+            b.ComplexProperty(e => e.RequiredRelated, rrb => rrb.Ignore(r => r.NestedCollection));
+            b.ComplexProperty(e => e.OptionalRelated, orb => orb.Ignore(o => o.NestedCollection));
             b.Ignore(r => r.RelatedCollection);
         });
     }

@@ -336,6 +336,21 @@ OUTER APPLY (
 
     #endregion Subquery
 
+    #region Value types
+
+    public override async Task Select_root_with_value_types(QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Select_root_with_value_types(queryTrackingBehavior);
+
+        AssertSql(
+            """
+SELECT [v].[Id], [v].[Name], [v].[OptionalRelated], [v].[RelatedCollection], [v].[RequiredRelated]
+FROM [ValueRootEntity] AS [v]
+""");
+    }
+
+    #endregion Value types
+
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());

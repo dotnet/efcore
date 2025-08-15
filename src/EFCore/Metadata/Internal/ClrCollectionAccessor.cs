@@ -11,17 +11,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class ClrCollectionAccessor<TEntity, TCollection, TElement> : IClrCollectionAccessor
-    where TEntity : class
+public class ClrCollectionAccessor<TStructural, TCollection, TElement> : IClrCollectionAccessor
     where TCollection : class, IEnumerable<TElement>
     where TElement : class
 {
     private readonly string _propertyName;
     private readonly bool _shadow;
-    private readonly Func<TEntity, TCollection>? _getCollection;
-    private readonly Action<TEntity, TCollection>? _setCollection;
-    private readonly Action<TEntity, TCollection>? _setCollectionForMaterialization;
-    private readonly Func<TEntity, Action<TEntity, TCollection>, TCollection>? _createAndSetCollection;
+    private readonly Func<TStructural, TCollection>? _getCollection;
+    private readonly Action<TStructural, TCollection>? _setCollection;
+    private readonly Action<TStructural, TCollection>? _setCollectionForMaterialization;
+    private readonly Func<TStructural, Action<TStructural, TCollection>, TCollection>? _createAndSetCollection;
     private readonly Func<TCollection>? _createCollection;
 
     /// <summary>
@@ -42,10 +41,10 @@ public class ClrCollectionAccessor<TEntity, TCollection, TElement> : IClrCollect
     public ClrCollectionAccessor(
         string propertyName,
         bool shadow,
-        Func<TEntity, TCollection>? getCollection,
-        Action<TEntity, TCollection>? setCollection,
-        Action<TEntity, TCollection>? setCollectionForMaterialization,
-        Func<TEntity, Action<TEntity, TCollection>, TCollection>? createAndSetCollection,
+        Func<TStructural, TCollection>? getCollection,
+        Action<TStructural, TCollection>? setCollection,
+        Action<TStructural, TCollection>? setCollectionForMaterialization,
+        Func<TStructural, Action<TStructural, TCollection>, TCollection>? createAndSetCollection,
         Func<TCollection>? createCollection)
     {
         _propertyName = propertyName;
@@ -96,7 +95,7 @@ public class ClrCollectionAccessor<TEntity, TCollection, TElement> : IClrCollect
         {
             throw new InvalidOperationException(
                 CoreStrings.NavigationCannotCreateType(
-                    _propertyName, typeof(TEntity).ShortDisplayName(), typeof(TCollection).ShortDisplayName()));
+                    _propertyName, typeof(TStructural).ShortDisplayName(), typeof(TCollection).ShortDisplayName()));
         }
 
         return _createCollection();
@@ -122,17 +121,17 @@ public class ClrCollectionAccessor<TEntity, TCollection, TElement> : IClrCollect
 
             if (setCollection == null)
             {
-                throw new InvalidOperationException(CoreStrings.NavigationNoSetter(_propertyName, typeof(TEntity).ShortDisplayName()));
+                throw new InvalidOperationException(CoreStrings.NavigationNoSetter(_propertyName, typeof(TStructural).ShortDisplayName()));
             }
 
             if (_createAndSetCollection == null)
             {
                 throw new InvalidOperationException(
                     CoreStrings.NavigationCannotCreateType(
-                        _propertyName, typeof(TEntity).ShortDisplayName(), typeof(TCollection).ShortDisplayName()));
+                        _propertyName, typeof(TStructural).ShortDisplayName(), typeof(TCollection).ShortDisplayName()));
             }
 
-            collection = (ICollection<TElement>)_createAndSetCollection((TEntity)instance, setCollection);
+            collection = (ICollection<TElement>)_createAndSetCollection((TStructural)instance, setCollection);
         }
 
         return collection;
@@ -147,7 +146,7 @@ public class ClrCollectionAccessor<TEntity, TCollection, TElement> : IClrCollect
             return (ICollection<TElement>?)_createCollection?.Invoke();
         }
 
-        var enumerable = _getCollection!((TEntity)instance);
+        var enumerable = _getCollection!((TStructural)instance);
         var collection = enumerable as ICollection<TElement>;
 
         if (enumerable != null
@@ -156,7 +155,7 @@ public class ClrCollectionAccessor<TEntity, TCollection, TElement> : IClrCollect
             throw new InvalidOperationException(
                 CoreStrings.NavigationBadType(
                     _propertyName,
-                    typeof(TEntity).ShortDisplayName(),
+                    typeof(TStructural).ShortDisplayName(),
                     enumerable.GetType().ShortDisplayName(),
                     typeof(TElement).ShortDisplayName()));
         }
@@ -171,7 +170,7 @@ public class ClrCollectionAccessor<TEntity, TCollection, TElement> : IClrCollect
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual bool Contains(object entity, object value)
-        => Contains(GetCollection((TEntity)entity), value);
+        => Contains(GetCollection((TStructural)entity), value);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -189,7 +188,7 @@ public class ClrCollectionAccessor<TEntity, TCollection, TElement> : IClrCollect
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual bool Remove(object entity, object value)
-        => RemoveStandalone(GetCollection((TEntity)entity), value);
+        => RemoveStandalone(GetCollection((TStructural)entity), value);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

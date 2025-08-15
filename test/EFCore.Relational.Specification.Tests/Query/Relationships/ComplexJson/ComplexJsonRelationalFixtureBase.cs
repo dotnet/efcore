@@ -20,6 +20,21 @@ public abstract class ComplexJsonRelationalFixtureBase : ComplexPropertiesFixtur
             b.ComplexProperty(e => e.OptionalRelated, orb => orb.ToJson());
             b.ComplexCollection(e => e.RelatedCollection, rcb => rcb.ToJson());
         });
+
+        modelBuilder.Entity<ValueRootEntity>(b =>
+        {
+            b.ComplexProperty(e => e.RequiredRelated, rrb => rrb.ToJson());
+
+            b.ComplexProperty(e => e.OptionalRelated, orb =>
+            {
+                orb.ToJson();
+
+                // TODO: Without the following, we get an ambiguous property error
+                orb.ComplexProperty(r => r.OptionalNested).IsRequired(false);
+            });
+
+            b.ComplexCollection(e => e.RelatedCollection, rcb => rcb.ToJson());
+        });
     }
 
     public TestSqlLoggerFactory TestSqlLoggerFactory

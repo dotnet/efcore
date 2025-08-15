@@ -11,6 +11,8 @@ public class RelationshipsData : ISetSource
         RelatedTypes = [];
         NestedTypes = [];
         RootReferencingEntities = CreateRootReferencingEntities(RootEntities);
+
+        ValueRootEntities = CreateValueRootEntities(RootEntities);
     }
 
     public List<RootEntity> RootEntities { get; }
@@ -21,7 +23,9 @@ public class RelationshipsData : ISetSource
 
     public List<RootReferencingEntity> RootReferencingEntities { get; }
 
-    public static List<RootEntity> CreateRootEntities()
+    public List<ValueRootEntity> ValueRootEntities { get; }
+
+    private static List<RootEntity> CreateRootEntities()
     {
         var id = 1;
 
@@ -314,7 +318,7 @@ public class RelationshipsData : ISetSource
         }
     }
 
-    public static List<RootReferencingEntity> CreateRootReferencingEntities(IEnumerable<RootEntity> rootEntities)
+    private static List<RootReferencingEntity> CreateRootReferencingEntities(IEnumerable<RootEntity> rootEntities)
     {
         var rootReferencingEntities = new List<RootReferencingEntity>();
 
@@ -331,6 +335,9 @@ public class RelationshipsData : ISetSource
         return rootReferencingEntities;
     }
 
+    private static List<ValueRootEntity> CreateValueRootEntities(List<RootEntity> rootEntities)
+        => rootEntities.Select(ValueRootEntity.FromRootEntity).ToList();
+
     public IQueryable<TEntity> Set<TEntity>()
         where TEntity : class
         => typeof(TEntity) switch
@@ -339,6 +346,8 @@ public class RelationshipsData : ISetSource
             var t when t == typeof(RelatedType) => (IQueryable<TEntity>)RelatedTypes.AsQueryable(),
             var t when t == typeof(NestedType) => (IQueryable<TEntity>)NestedTypes.AsQueryable(),
             var t when t == typeof(RootReferencingEntity) => (IQueryable<TEntity>)RootReferencingEntities.AsQueryable(),
+
+            var t when t == typeof(ValueRootEntity) => (IQueryable<TEntity>)ValueRootEntities.AsQueryable(),
 
             _ => throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity))
         };
