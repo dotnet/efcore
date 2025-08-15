@@ -827,6 +827,7 @@ public static class ScaffoldingModelExtensions
                 // Default value is CLR default for property, so exclude it from scaffolded model
                 annotations.Remove(RelationalAnnotationNames.DefaultValueSql);
                 annotations.Remove(RelationalAnnotationNames.DefaultValue);
+                annotations.Remove(RelationalAnnotationNames.DefaultConstraintName);
             }
             else
             {

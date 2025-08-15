@@ -28,8 +28,7 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture>(TFixture fixture
     {
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Client_evaluation_of_uncorrelated_method_call(bool async)
         => AssertQuery(
             async,
@@ -37,16 +36,14 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture>(TFixture fixture
                 .Where(od => od.UnitPrice < 7)
                 .Where(od => Math.Abs(-10) < od.ProductID));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Order_by_length_twice(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<Customer>().OrderBy(c => c.CustomerID.Length).ThenBy(c => c.CustomerID.Length).ThenBy(c => c.CustomerID),
             assertOrder: true);
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Order_by_length_twice_followed_by_projection_of_naked_collection_navigation(bool async)
         => AssertQuery(
             async,
@@ -55,8 +52,7 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture>(TFixture fixture
             assertOrder: true,
             elementAsserter: (e, a) => AssertCollection(e, a));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Sum_over_round_works_correctly_in_projection(bool async)
         => AssertQuery(
             async,
@@ -70,8 +66,7 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture>(TFixture fixture
                 Assert.Equal(e.Sum, a.Sum);
             });
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Sum_over_round_works_correctly_in_projection_2(bool async)
         => AssertQuery(
             async,
@@ -85,8 +80,7 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture>(TFixture fixture
                 Assert.Equal(e.Sum, a.Sum);
             });
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Sum_over_truncate_works_correctly_in_projection(bool async)
         => AssertQuery(
             async,
@@ -100,8 +94,7 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture>(TFixture fixture
                 Assert.Equal(e.Sum, a.Sum);
             });
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Sum_over_truncate_works_correctly_in_projection_2(bool async)
         => AssertQuery(
             async,
@@ -115,15 +108,13 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture>(TFixture fixture
                 Assert.Equal(e.Sum, a.Sum);
             });
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Where_functions_nested(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<Customer>().Where(c => Math.Pow(c.CustomerID.Length, 2) == 25));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Static_equals_nullable_datetime_compared_to_non_nullable(bool async)
     {
         var arg = new DateTime(1996, 7, 4);
@@ -133,8 +124,7 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture>(TFixture fixture
             ss => ss.Set<Order>().Where(o => Equals(o.OrderDate, arg)));
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Static_equals_int_compared_to_long(bool async)
     {
         long arg = 10248;

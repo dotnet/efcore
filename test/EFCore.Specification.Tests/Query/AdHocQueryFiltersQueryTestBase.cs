@@ -5,7 +5,8 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
+public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
+    : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
     protected override string StoreName
         => "AdHocQueryFiltersQueryTests";
@@ -71,7 +72,9 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture) :
     [ConditionalFact]
     public virtual async Task Named_query_filters_combined()
     {
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(async () => await InitializeAsync<Context8576_Combined>(seed: c => c.SeedAsync()));
+        var exception =
+            await Assert.ThrowsAsync<InvalidOperationException>(async ()
+                => await InitializeAsync<Context8576_Combined>(seed: c => c.SeedAsync()));
         Assert.Equal(exception.Message, CoreStrings.AnonymousAndNamedFiltersCombined);
     }
 
@@ -312,16 +315,15 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture) :
     {
         var contextFactory = await InitializeAsync<Context13517>(seed: c => c.SeedAsync());
         using var context = contextFactory.CreateContext();
-        context.Entities.Select(
-            s =>
-                new Context13517.EntityDto13517
-                {
-                    Id = s.Id,
-                    RefEntity = s.RefEntity == null
-                        ? null
-                        : new Context13517.RefEntityDto13517 { Id = s.RefEntity.Id, Public = s.RefEntity.Public },
-                    RefEntityId = s.RefEntityId
-                }).Single(p => p.Id == 1);
+        context.Entities.Select(s =>
+            new Context13517.EntityDto13517
+            {
+                Id = s.Id,
+                RefEntity = s.RefEntity == null
+                    ? null
+                    : new Context13517.RefEntityDto13517 { Id = s.RefEntity.Id, Public = s.RefEntity.Public },
+                RefEntityId = s.RefEntityId
+            }).Single(p => p.Id == 1);
     }
 
     protected class Context13517(DbContextOptions options) : DbContext(options)
@@ -575,8 +577,7 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture) :
 
 #nullable enable
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task IsDeleted_query_filter_with_conversion_to_int_works(bool async)
     {
         var contextFactory = await InitializeAsync<Context26428>(seed: c => c.SeedAsync());
@@ -657,8 +658,7 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture) :
 
     #region 27163
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Group_by_multiple_aggregate_joining_different_tables(bool async)
     {
         var contextFactory = await InitializeAsync<Context27163>();
@@ -666,26 +666,24 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture) :
 
         var query = context.Parents
             .GroupBy(x => new { })
-            .Select(
-                g => new
-                {
-                    Test1 = g
-                        .Select(x => x.Child1.Value1)
-                        .Distinct()
-                        .Count(),
-                    Test2 = g
-                        .Select(x => x.Child2.Value2)
-                        .Distinct()
-                        .Count()
-                });
+            .Select(g => new
+            {
+                Test1 = g
+                    .Select(x => x.Child1.Value1)
+                    .Distinct()
+                    .Count(),
+                Test2 = g
+                    .Select(x => x.Child2.Value2)
+                    .Distinct()
+                    .Count()
+            });
 
         var orders = async
             ? await query.ToListAsync()
             : query.ToList();
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Group_by_multiple_aggregate_joining_different_tables_with_query_filter(bool async)
     {
         var contextFactory = await InitializeAsync<Context27163>();
@@ -693,18 +691,17 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture) :
 
         var query = context.Parents
             .GroupBy(x => new { })
-            .Select(
-                g => new
-                {
-                    Test1 = g
-                        .Select(x => x.ChildFilter1.Value1)
-                        .Distinct()
-                        .Count(),
-                    Test2 = g
-                        .Select(x => x.ChildFilter2.Value2)
-                        .Distinct()
-                        .Count()
-                });
+            .Select(g => new
+            {
+                Test1 = g
+                    .Select(x => x.ChildFilter1.Value1)
+                    .Distinct()
+                    .Count(),
+                Test2 = g
+                    .Select(x => x.ChildFilter2.Value2)
+                    .Distinct()
+                    .Count()
+            });
 
         var orders = async
             ? await query.ToListAsync()
@@ -761,16 +758,15 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture) :
 
     #region 35111
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Query_filter_with_context_accessor_with_constant(bool async)
     {
         var contextFactory = await InitializeAsync<Context35111>();
         using var context = contextFactory.CreateContext();
 
         var data = async
-           ? await context.Set<FooBar35111>().ToListAsync()
-           : context.Set<FooBar35111>().ToList();
+            ? await context.Set<FooBar35111>().ToListAsync()
+            : context.Set<FooBar35111>().ToList();
     }
 
     protected class Context35111(DbContextOptions options) : DbContext(options)
@@ -780,13 +776,11 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture) :
         public List<long> Baz { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<FooBar35111>()
+            => modelBuilder.Entity<FooBar35111>()
                 .HasQueryFilter(e =>
                     Foo == 1
                         ? Baz.Contains(e.Bar)
                         : e.Bar == Bar);
-        }
     }
 
     public class FooBar35111

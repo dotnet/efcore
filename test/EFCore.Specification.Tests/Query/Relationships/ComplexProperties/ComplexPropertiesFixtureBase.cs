@@ -5,7 +5,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Relationships.ComplexProperties;
 
 public abstract class ComplexPropertiesFixtureBase : RelationshipsQueryFixtureBase
 {
-    protected override string StoreName => "ComplexRelationshipsQueryTest";
+    protected override string StoreName
+        => "ComplexRelationshipsQueryTest";
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
@@ -13,26 +14,29 @@ public abstract class ComplexPropertiesFixtureBase : RelationshipsQueryFixtureBa
 
         modelBuilder.Entity<RootEntity>(b =>
         {
-            b.ComplexProperty(e => e.RequiredRelated, rrb =>
-            {
-                rrb.ComplexProperty(r => r.RequiredNested);
-                rrb.ComplexProperty(r => r.OptionalNested);
-                rrb.ComplexCollection(r => r.NestedCollection);
-            });
+            b.ComplexProperty(
+                e => e.RequiredRelated, rrb =>
+                {
+                    rrb.ComplexProperty(r => r.RequiredNested);
+                    rrb.ComplexProperty(r => r.OptionalNested);
+                    rrb.ComplexCollection(r => r.NestedCollection);
+                });
 
-            b.ComplexProperty(e => e.OptionalRelated, orb =>
-            {
-                orb.ComplexProperty(r => r.RequiredNested);
-                orb.ComplexProperty(r => r.OptionalNested);
-                orb.ComplexCollection(r => r.NestedCollection);
-            });
+            b.ComplexProperty(
+                e => e.OptionalRelated, orb =>
+                {
+                    orb.ComplexProperty(r => r.RequiredNested);
+                    orb.ComplexProperty(r => r.OptionalNested);
+                    orb.ComplexCollection(r => r.NestedCollection);
+                });
 
-            b.ComplexCollection(e => e.RelatedCollection, rcb =>
-            {
-                rcb.ComplexProperty(r => r.RequiredNested);
-                rcb.ComplexProperty(r => r.OptionalNested);
-                rcb.ComplexCollection(r => r.NestedCollection);
-            });
+            b.ComplexCollection(
+                e => e.RelatedCollection, rcb =>
+                {
+                    rcb.ComplexProperty(r => r.RequiredNested);
+                    rcb.ComplexProperty(r => r.OptionalNested);
+                    rcb.ComplexCollection(r => r.NestedCollection);
+                });
         });
     }
 
@@ -42,4 +46,3 @@ public abstract class ComplexPropertiesFixtureBase : RelationshipsQueryFixtureBa
         => builder.ConfigureWarnings(b =>
             b.Default(WarningBehavior.Ignore).Log(CoreEventId.MappedComplexPropertyIgnoredWarning));
 }
-

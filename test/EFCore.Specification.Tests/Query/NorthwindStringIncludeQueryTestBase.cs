@@ -18,34 +18,30 @@ public abstract class NorthwindStringIncludeQueryTestBase<TFixture>(TFixture fix
 {
     private static readonly IncludeRewritingExpressionVisitor _includeRewritingExpressionVisitor = new();
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Include_non_existing_navigation(bool async)
         => Assert.Contains(
             CoreResources.LogInvalidIncludePath(new TestLogger<TestLoggingDefinitions>())
                 .GenerateMessage("ArcticMonkeys", "ArcticMonkeys"),
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => AssertQuery(
-                    async,
-                    ss => ss.Set<Order>().Include("ArcticMonkeys")))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => AssertQuery(
+                async,
+                ss => ss.Set<Order>().Include("ArcticMonkeys")))).Message);
 
     public override async Task Include_property(bool async)
         => Assert.Contains(
             CoreResources.LogInvalidIncludePath(new TestLogger<TestLoggingDefinitions>())
                 .GenerateMessage("OrderDate", "OrderDate"),
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => AssertQuery(
-                    async,
-                    ss => ss.Set<Order>().Include(o => o.OrderDate)))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => AssertQuery(
+                async,
+                ss => ss.Set<Order>().Include(o => o.OrderDate)))).Message);
 
     public override async Task Include_property_after_navigation(bool async)
         => Assert.Contains(
             CoreResources.LogInvalidIncludePath(new TestLogger<TestLoggingDefinitions>())
                 .GenerateMessage("CustomerID", "Customer.CustomerID"),
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => AssertQuery(
-                    async,
-                    ss => ss.Set<Order>().Include(o => o.Customer.CustomerID)))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => AssertQuery(
+                async,
+                ss => ss.Set<Order>().Include(o => o.Customer.CustomerID)))).Message);
 
     public override Task Include_property_expression_invalid(bool async)
         // Property expression cannot be converted to string include
@@ -135,10 +131,9 @@ public abstract class NorthwindStringIncludeQueryTestBase<TFixture>(TFixture fix
     public override async Task Include_specified_on_non_entity_not_supported(bool async)
         => Assert.Equal(
             CoreStrings.IncludeOnNonEntity("\"Item1.Orders\""),
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => AssertQuery(
-                    async,
-                    ss => ss.Set<Customer>().Select(c => new Tuple<Customer, int>(c, 5)).Include(t => t.Item1.Orders)))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Select(c => new Tuple<Customer, int>(c, 5)).Include(t => t.Item1.Orders)))).Message);
 
     protected override Expression RewriteServerQueryExpression(Expression serverQueryExpression)
     {
@@ -152,37 +147,31 @@ public abstract class NorthwindStringIncludeQueryTestBase<TFixture>(TFixture fix
         private static readonly MethodInfo _includeMethodInfo
             = typeof(EntityFrameworkQueryableExtensions)
                 .GetTypeInfo().GetDeclaredMethods(nameof(EntityFrameworkQueryableExtensions.Include))
-                .Single(
-                    mi =>
-                        mi.GetGenericArguments().Count() == 2
-                        && mi.GetParameters().Any(
-                            pi => pi.Name == "navigationPropertyPath" && pi.ParameterType != typeof(string)));
+                .Single(mi =>
+                    mi.GetGenericArguments().Count() == 2
+                    && mi.GetParameters().Any(pi => pi.Name == "navigationPropertyPath" && pi.ParameterType != typeof(string)));
 
         private static readonly MethodInfo _stringIncludeMethodInfo
             = typeof(EntityFrameworkQueryableExtensions)
                 .GetTypeInfo().GetDeclaredMethods(nameof(EntityFrameworkQueryableExtensions.Include))
-                .Single(
-                    mi => mi.GetParameters().Any(
-                        pi => pi.Name == "navigationPropertyPath" && pi.ParameterType == typeof(string)));
+                .Single(mi => mi.GetParameters().Any(pi => pi.Name == "navigationPropertyPath" && pi.ParameterType == typeof(string)));
 
         private static readonly MethodInfo _thenIncludeAfterReferenceMethodInfo
             = typeof(EntityFrameworkQueryableExtensions)
                 .GetTypeInfo().GetDeclaredMethods(nameof(EntityFrameworkQueryableExtensions.ThenInclude))
-                .Single(
-                    mi => mi.GetGenericArguments().Count() == 3
-                        && mi.GetParameters()[0].ParameterType.GenericTypeArguments[1].IsGenericParameter);
+                .Single(mi => mi.GetGenericArguments().Count() == 3
+                    && mi.GetParameters()[0].ParameterType.GenericTypeArguments[1].IsGenericParameter);
 
         private static readonly MethodInfo _thenIncludeAfterEnumerableMethodInfo
             = typeof(EntityFrameworkQueryableExtensions)
                 .GetTypeInfo().GetDeclaredMethods(nameof(EntityFrameworkQueryableExtensions.ThenInclude))
                 .Where(mi => mi.GetGenericArguments().Count() == 3)
-                .Single(
-                    mi =>
-                    {
-                        var typeInfo = mi.GetParameters()[0].ParameterType.GenericTypeArguments[1];
-                        return typeInfo.IsGenericType
-                            && typeInfo.GetGenericTypeDefinition() == typeof(IEnumerable<>);
-                    });
+                .Single(mi =>
+                {
+                    var typeInfo = mi.GetParameters()[0].ParameterType.GenericTypeArguments[1];
+                    return typeInfo.IsGenericType
+                        && typeInfo.GetGenericTypeDefinition() == typeof(IEnumerable<>);
+                });
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
@@ -209,10 +198,9 @@ public abstract class NorthwindStringIncludeQueryTestBase<TFixture>(TFixture fix
 
                     return innerIncludeMethodCall.Update(
                         innerIncludeMethodCall.Object,
-                        new[]
-                        {
+                        [
                             innerIncludeMethodCall.Arguments[0], Expression.Constant($"{innerNavigationPath}.{currentNavigationpath}")
-                        });
+                        ]);
                 }
             }
 

@@ -14,7 +14,8 @@ public class NonSharedFixture : IAsyncLifetime
     {
     }
 
-    public Task InitializeAsync() => Task.CompletedTask;
+    public Task InitializeAsync()
+        => Task.CompletedTask;
 
     public virtual async Task DisposeAsync()
     {

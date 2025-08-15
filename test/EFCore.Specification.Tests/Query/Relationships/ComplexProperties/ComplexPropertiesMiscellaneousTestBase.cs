@@ -5,4 +5,4 @@ namespace Microsoft.EntityFrameworkCore.Query.Relationships.ComplexProperties;
 
 public abstract class ComplexPropertiesMiscellaneousTestBase<TFixture>(TFixture fixture)
     : RelationshipsMiscellaneousTestBase<TFixture>(fixture)
-        where TFixture : ComplexPropertiesFixtureBase, new();
+    where TFixture : ComplexPropertiesFixtureBase, new();

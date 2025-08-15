@@ -10,11 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public abstract class NorthwindAsNoTrackingQueryTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(false, true)]
-    [InlineData(true, false)]
-    [InlineData(true, true)]
+    [ConditionalTheory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
     public virtual Task Entity_not_added_to_state_manager(bool useParam, bool async)
         => useParam
             ? AssertQuery(
@@ -24,8 +20,7 @@ public abstract class NorthwindAsNoTrackingQueryTestBase<TFixture>(TFixture fixt
                 async,
                 ss => ss.Set<Customer>().AsNoTracking());
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Applied_to_body_clause(bool async)
         => AssertQuery(
             async,
@@ -35,8 +30,7 @@ public abstract class NorthwindAsNoTrackingQueryTestBase<TFixture>(TFixture fixt
                   where c.CustomerID == "ALFKI"
                   select o);
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Applied_to_multiple_body_clauses(bool async)
         => AssertQuery(
             async,
@@ -46,8 +40,7 @@ public abstract class NorthwindAsNoTrackingQueryTestBase<TFixture>(TFixture fixt
                   select new { c, o },
             elementSorter: e => (e.c.CustomerID, e.o.OrderID));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Applied_to_body_clause_with_projection(bool async)
         => AssertQuery(
             async,
@@ -64,8 +57,7 @@ public abstract class NorthwindAsNoTrackingQueryTestBase<TFixture>(TFixture fixt
                   },
             elementSorter: e => (e.CustomerID, e.o.OrderID));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Applied_to_projection(bool async)
         => AssertQuery(
             async,
@@ -76,8 +68,7 @@ public abstract class NorthwindAsNoTrackingQueryTestBase<TFixture>(TFixture fixt
                    select new { c, o }).AsNoTracking(),
             elementSorter: e => (e.c.CustomerID, e.o.OrderID));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Can_get_current_values(bool async)
     {
         using var db = CreateContext();
@@ -98,8 +89,7 @@ public abstract class NorthwindAsNoTrackingQueryTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_reference_and_collection(bool async)
         => AssertQuery(
             async,
@@ -108,15 +98,13 @@ public abstract class NorthwindAsNoTrackingQueryTestBase<TFixture>(TFixture fixt
                 .Include(o => o.OrderDetails)
                 .AsNoTracking());
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Applied_after_navigation_expansion(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<Order>().Where(o => o.Customer.City != "London").AsNoTracking());
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Where_simple_shadow(bool async)
         => AssertQuery(
             async,
@@ -124,15 +112,13 @@ public abstract class NorthwindAsNoTrackingQueryTestBase<TFixture>(TFixture fixt
                 .Where(e => EF.Property<string>(e, "Title") == "Sales Representative")
                 .AsNoTracking());
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Query_fast_path_when_ctor_binding(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<Customer>().AsNoTracking());
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task SelectMany_simple(bool async)
         => AssertQuery(
             async,

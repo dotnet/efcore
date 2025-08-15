@@ -5,7 +5,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Relationships;
 
 public abstract class RelationshipsQueryFixtureBase : SharedStoreFixtureBase<PoolableDbContext>, IQueryFixtureBase
 {
-    public virtual bool AreCollectionsOrdered => true;
+    public virtual bool AreCollectionsOrdered
+        => true;
 
     private readonly RelationshipsData _data;
 

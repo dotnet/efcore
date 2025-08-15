@@ -10,7 +10,8 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
+public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
+    : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
     protected override string StoreName
         => "AdHocNavigationsQueryTests";
@@ -37,8 +38,7 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture) : 
         using (var context = contextFactory.CreateContext())
         {
             var results = context.Children
-                .Select(
-                    c => new { c.SelfReferenceBackNavigation, c.SelfReferenceBackNavigation.ParentBackNavigation })
+                .Select(c => new { c.SelfReferenceBackNavigation, c.SelfReferenceBackNavigation.ParentBackNavigation })
                 .ToList();
 
             Assert.Equal(3, results.Count);
@@ -49,16 +49,15 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture) : 
         using (var context = contextFactory.CreateContext())
         {
             var results = context.Children
-                .Select(
-                    c => new
-                    {
-                        SelfReferenceBackNavigation
-                            = EF.Property<Context3409.IChild>(c, "SelfReferenceBackNavigation"),
-                        ParentBackNavigationB
-                            = EF.Property<Context3409.IParent>(
-                                EF.Property<Context3409.IChild>(c, "SelfReferenceBackNavigation"),
-                                "ParentBackNavigation")
-                    })
+                .Select(c => new
+                {
+                    SelfReferenceBackNavigation
+                        = EF.Property<Context3409.IChild>(c, "SelfReferenceBackNavigation"),
+                    ParentBackNavigationB
+                        = EF.Property<Context3409.IParent>(
+                            EF.Property<Context3409.IChild>(c, "SelfReferenceBackNavigation"),
+                            "ParentBackNavigation")
+                })
                 .ToList();
 
             Assert.Equal(3, results.Count);
@@ -191,7 +190,7 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture) : 
 
         Assert.Equal(
             CoreStrings.NavigationCannotCreateType(
-                "Orders4", typeof(Context3758.Customer).Name,
+                "Orders4", nameof(Context3758.Customer),
                 typeof(Context3758.MyInvalidCollection<Context3758.Order>).ShortDisplayName()),
             Assert.Throws<InvalidOperationException>(() => query4.ToList()).Message);
     }
@@ -202,14 +201,13 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture) : 
         public DbSet<Order> Orders { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<Customer>(
-                b =>
-                {
-                    b.HasMany(e => e.Orders1).WithOne().HasForeignKey("CustomerId1");
-                    b.HasMany(e => e.Orders2).WithOne().HasForeignKey("CustomerId2");
-                    b.HasMany(e => e.Orders3).WithOne().HasForeignKey("CustomerId3");
-                    b.HasMany(e => e.Orders4).WithOne().HasForeignKey("CustomerId4");
-                });
+            => modelBuilder.Entity<Customer>(b =>
+            {
+                b.HasMany(e => e.Orders1).WithOne().HasForeignKey("CustomerId1");
+                b.HasMany(e => e.Orders2).WithOne().HasForeignKey("CustomerId2");
+                b.HasMany(e => e.Orders3).WithOne().HasForeignKey("CustomerId3");
+                b.HasMany(e => e.Orders4).WithOne().HasForeignKey("CustomerId4");
+            });
 
         public Task SeedAsync()
         {
@@ -238,8 +236,8 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture) : 
                 Orders4 = new MyInvalidCollection<Order>(42)
             };
 
-            c1.Orders2.AddRange(new[] { o121, o122 });
-            c1.Orders3.AddRange(new[] { o131, o132 });
+            c1.Orders2.AddRange([o121, o122]);
+            c1.Orders3.AddRange([o131, o132]);
             c1.Orders4.Add(o141);
 
             var c2 = new Customer
@@ -251,8 +249,8 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture) : 
                 Orders4 = new MyInvalidCollection<Order>(42)
             };
 
-            c2.Orders2.AddRange(new[] { o221, o222 });
-            c2.Orders3.AddRange(new[] { o231, o232 });
+            c2.Orders2.AddRange([o221, o222]);
+            c2.Orders3.AddRange([o231, o232]);
             c2.Orders4.Add(o241);
 
             Customers.AddRange(c1, c2);
@@ -400,17 +398,16 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture) : 
             modelBuilder.Entity<PersonKid9038>().HasBaseType<Person9038>();
             modelBuilder.Entity<PersonFamily9038>();
 
-            modelBuilder.Entity<PersonKid9038>(
-                entity =>
-                {
-                    entity.Property("Discriminator").HasMaxLength(63);
-                    entity.HasIndex("Discriminator");
-                    entity.HasOne(m => m.Teacher)
-                        .WithMany(m => m.Students)
-                        .HasForeignKey(m => m.TeacherId)
-                        .HasPrincipalKey(m => m.Id)
-                        .OnDelete(DeleteBehavior.Restrict);
-                });
+            modelBuilder.Entity<PersonKid9038>(entity =>
+            {
+                entity.Property("Discriminator").HasMaxLength(63);
+                entity.HasIndex("Discriminator");
+                entity.HasOne(m => m.Teacher)
+                    .WithMany(m => m.Students)
+                    .HasForeignKey(m => m.TeacherId)
+                    .HasPrincipalKey(m => m.Id)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
         }
 
         public Task SeedAsync()
@@ -507,8 +504,8 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture) : 
             var c13 = new Child10635 { Name = "Child113" };
             var c21 = new Child10635 { Name = "Child121" };
 
-            var p1 = new Parent10635 { Name = "Parent1", Children = new[] { c11, c12, c13 } };
-            var p2 = new Parent10635 { Name = "Parent2", Children = new[] { c21 } };
+            var p1 = new Parent10635 { Name = "Parent1", Children = [c11, c12, c13] };
+            var p2 = new Parent10635 { Name = "Parent2", Children = [c21] };
             Parents.AddRange(p1, p2);
             Children.AddRange(c11, c12, c13, c21);
             return SaveChangesAsync();
@@ -544,32 +541,28 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture) : 
         var contextFactory = await InitializeAsync<Context11923>(seed: c => c.SeedAsync());
         using var context = contextFactory.CreateContext();
         var query1 = context.Blogs
-            .Select(
-                b => new
-                {
-                    Collection1 = b.Posts1,
-                    Collection2 = b.Posts2,
-                    Collection3 = b.Posts3
-                }).ToList();
+            .Select(b => new
+            {
+                Collection1 = b.Posts1,
+                Collection2 = b.Posts2,
+                Collection3 = b.Posts3
+            }).ToList();
 
         var query2 = context.Blogs
-            .Select(
-                b => new
-                {
-                    Collection1 = b.Posts1.OrderBy(p => p.Id).First().Comments.Count,
-                    Collection2 = b.Posts2.OrderBy(p => p.Id).First().Comments.Count,
-                    Collection3 = b.Posts3.OrderBy(p => p.Id).First().Comments.Count
-                }).ToList();
+            .Select(b => new
+            {
+                Collection1 = b.Posts1.OrderBy(p => p.Id).First().Comments.Count,
+                Collection2 = b.Posts2.OrderBy(p => p.Id).First().Comments.Count,
+                Collection3 = b.Posts3.OrderBy(p => p.Id).First().Comments.Count
+            }).ToList();
 
-        Assert.Throws<InvalidOperationException>(
-            () => context.Blogs
-                .Select(
-                    b => new
-                    {
-                        Collection1 = b.Posts1.OrderBy(p => p.Id),
-                        Collection2 = b.Posts2.OrderBy(p => p.Id),
-                        Collection3 = b.Posts3.OrderBy(p => p.Id)
-                    }).ToList());
+        Assert.Throws<InvalidOperationException>(() => context.Blogs
+            .Select(b => new
+            {
+                Collection1 = b.Posts1.OrderBy(p => p.Id),
+                Collection2 = b.Posts2.OrderBy(p => p.Id),
+                Collection3 = b.Posts3.OrderBy(p => p.Id)
+            }).ToList());
     }
 
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
@@ -581,13 +574,12 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture) : 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Blog>(
-                b =>
-                {
-                    b.HasMany(e => e.Posts1).WithOne().HasForeignKey("BlogId1");
-                    b.HasMany(e => e.Posts2).WithOne().HasForeignKey("BlogId2");
-                    b.HasMany(e => e.Posts3).WithOne().HasForeignKey("BlogId3");
-                });
+            modelBuilder.Entity<Blog>(b =>
+            {
+                b.HasMany(e => e.Posts1).WithOne().HasForeignKey("BlogId1");
+                b.HasMany(e => e.Posts2).WithOne().HasForeignKey("BlogId2");
+                b.HasMany(e => e.Posts3).WithOne().HasForeignKey("BlogId3");
+            });
 
             modelBuilder.Entity<Post>();
         }
@@ -611,12 +603,12 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture) : 
             var b1 = new Blog { Name = "B1" };
             var b2 = new Blog { Name = "B2" };
 
-            b1.Posts1.AddRange(new[] { p111, p112 });
-            b1.Posts2.AddRange(new[] { p121, p122, p123 });
+            b1.Posts1.AddRange([p111, p112]);
+            b1.Posts2.AddRange([p121, p122, p123]);
             b1.Posts3.Add(p131);
 
-            b2.Posts1.AddRange(new[] { p211, p212 });
-            b2.Posts2.AddRange(new[] { p221, p222, p223 });
+            b2.Posts1.AddRange([p211, p212]);
+            b2.Posts2.AddRange([p221, p222, p223]);
             b2.Posts3.Add(p231);
 
             Blogs.AddRange(b1, b2);
@@ -743,23 +735,21 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture) : 
         using (var context = contextFactory.CreateContext())
         {
             var users = context.Activities
-                .Select(
-                    a => new
-                    {
-                        Activity = a,
-                        CompetitionSeason = context.CompetitionSeasons
-                            .First(s => s.StartDate <= a.DateTime && a.DateTime < s.EndDate)
-                    })
-                .Select(
-                    a => new
-                    {
-                        a.Activity,
-                        CompetitionSeasonId = a.CompetitionSeason.Id,
-                        Points = a.Activity.Points
-                            ?? a.Activity.ActivityType.Points
-                                .Where(p => p.CompetitionSeason == a.CompetitionSeason)
-                                .Select(p => p.Points).SingleOrDefault()
-                    }).ToList();
+                .Select(a => new
+                {
+                    Activity = a,
+                    CompetitionSeason = context.CompetitionSeasons
+                        .First(s => s.StartDate <= a.DateTime && a.DateTime < s.EndDate)
+                })
+                .Select(a => new
+                {
+                    a.Activity,
+                    CompetitionSeasonId = a.CompetitionSeason.Id,
+                    Points = a.Activity.Points
+                        ?? a.Activity.ActivityType.Points
+                            .Where(p => p.CompetitionSeason == a.CompetitionSeason)
+                            .Select(p => p.Points).SingleOrDefault()
+                }).ToList();
         }
     }
 
@@ -898,12 +888,7 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture) : 
         var contextFactory = await InitializeAsync<Context12748>(seed: c => c.SeedAsync());
         using var context = contextFactory.CreateContext();
         var query = from blog in context.Blogs
-                    select new
-                    {
-                        blog.Name,
-                        Comments = blog.Comments.Select(
-                            u => new { u.Id }).ToArray()
-                    };
+                    select new { blog.Name, Comments = blog.Comments.Select(u => new { u.Id }).ToArray() };
         var result = query.ToList();
         Assert.Single(result[0].Comments);
     }
@@ -1003,17 +988,15 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture) : 
         var customerId = new Guid("1115c816-6c4c-4016-94df-d8b60a22ffa1");
         var query = context.Orders
             .Where(o => o.ExternalReferenceId == referenceId && o.CustomerId == customerId)
-            .Select(
-                o => new
+            .Select(o => new
+            {
+                IdentityDocuments = o.IdentityDocuments.Select(id => new
                 {
-                    IdentityDocuments = o.IdentityDocuments.Select(
-                        id => new
-                        {
-                            Images = o.IdentityDocuments
-                                .SelectMany(id => id.Images)
-                                .Select(i => new { i.Image }),
-                        })
-                }).SingleOrDefault();
+                    Images = o.IdentityDocuments
+                        .SelectMany(id => id.Images)
+                        .Select(i => new { i.Image }),
+                })
+            }).SingleOrDefault();
     }
 
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
@@ -1081,8 +1064,7 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture) : 
         Expression<Func<Context21768.IBook, Context21768.BookViewModel>> projection =
             b => new Context21768.BookViewModel
             {
-                FirstPage = b.FrontCover.Illustrations.FirstOrDefault(
-                        i => i.State >= Context21768.IllustrationState.Approved)
+                FirstPage = b.FrontCover.Illustrations.FirstOrDefault(i => i.State >= Context21768.IllustrationState.Approved)
                     != null
                         ? new Context21768.PageViewModel
                         {
@@ -1376,8 +1358,7 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture) : 
                     CoreResources.LogNavigationBaseIncludeIgnored(new TestLogger<TestLoggingDefinitions>())
                         .GenerateMessage("ManyDependent.Principal"),
                     "CoreEventId.NavigationBaseIncludeIgnored"),
-                Assert.Throws<InvalidOperationException>(
-                    () => query.ToList()).Message);
+                Assert.Throws<InvalidOperationException>(() => query.ToList()).Message);
         }
     }
 
@@ -1396,8 +1377,7 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture) : 
                     CoreResources.LogNavigationBaseIncludeIgnored(new TestLogger<TestLoggingDefinitions>())
                         .GenerateMessage("SingleDependent.Principal"),
                     "CoreEventId.NavigationBaseIncludeIgnored"),
-                Assert.Throws<InvalidOperationException>(
-                    () => query.ToList()).Message);
+                Assert.Throws<InvalidOperationException>(() => query.ToList()).Message);
         }
     }
 
@@ -1431,8 +1411,7 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture) : 
                     CoreResources.LogNavigationBaseIncludeIgnored(new TestLogger<TestLoggingDefinitions>())
                         .GenerateMessage("ManyDependent.SingleDependent"),
                     "CoreEventId.NavigationBaseIncludeIgnored"),
-                Assert.Throws<InvalidOperationException>(
-                    () => query.ToList()).Message);
+                Assert.Throws<InvalidOperationException>(() => query.ToList()).Message);
         }
     }
 
@@ -1485,39 +1464,36 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture) : 
             .Include(p => p.Director)
             .ThenInclude(a => a.Movies)
             .ThenInclude(p => p.Movie)
-            .Select(
-                x => new
-                {
-                    x.Id,
-                    x.Name,
-                    x.Surname,
-                    x.Birthday,
-                    x.Hometown,
-                    x.Bio,
-                    x.AvatarUrl,
-                    Images = x.Images
-                        .Select(
-                            i => new
-                            {
-                                i.Id,
-                                i.ImageUrl,
-                                i.Height,
-                                i.Width
-                            }).ToList(),
-                    KnownByFilms = x.Actor.Movies
-                        .Select(m => m.Movie)
-                        .Union(
-                            x.Director.Movies
-                                .Select(m => m.Movie))
-                        .Select(
-                            m => new
-                            {
-                                m.Id,
-                                m.Name,
-                                m.PosterUrl,
-                                m.Rating
-                            }).ToList()
-                })
+            .Select(x => new
+            {
+                x.Id,
+                x.Name,
+                x.Surname,
+                x.Birthday,
+                x.Hometown,
+                x.Bio,
+                x.AvatarUrl,
+                Images = x.Images
+                    .Select(i => new
+                    {
+                        i.Id,
+                        i.ImageUrl,
+                        i.Height,
+                        i.Width
+                    }).ToList(),
+                KnownByFilms = x.Actor.Movies
+                    .Select(m => m.Movie)
+                    .Union(
+                        x.Director.Movies
+                            .Select(m => m.Movie))
+                    .Select(m => new
+                    {
+                        m.Id,
+                        m.Name,
+                        m.PosterUrl,
+                        m.Rating
+                    }).ToList()
+            })
             .FirstOrDefaultAsync(x => x.Id == id);
     }
 
@@ -1613,8 +1589,7 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture) : 
 
     #region 26433
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Count_member_over_IReadOnlyCollection_works(bool async)
     {
         var contextFactory = await InitializeAsync<Context26433>(seed: c => c.SeedAsync());
