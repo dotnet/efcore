@@ -760,7 +760,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                     b.ToJson("customer_data");
                     b.Ignore(c => c.Details);
                     b.Ignore(c => c.Orders);
-                    b.HasDiscriminator<string>("Title");
+                    b.HasDiscriminator<string>("CustomerType");
                     // Issue #31250
                     // .HasValue<Customer>("Customer")
                     // .HasValue<SpecialCustomer>("Special")
@@ -776,7 +776,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
             var discriminatorProperty = complexType.FindDiscriminatorProperty();
             Assert.NotNull(discriminatorProperty);
-            Assert.Equal("Title", discriminatorProperty.Name);
+            Assert.Equal("CustomerType", discriminatorProperty.Name);
             Assert.Equal("$type", discriminatorProperty.GetJsonPropertyName());
         }
 
@@ -899,7 +899,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                         });
                     });
                 });
-                
+
             var model = modelBuilder.FinalizeModel();
             var entityType = model.FindEntityType(typeof(JsonEntityWithNesting))!;
 
@@ -907,7 +907,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             Assert.True(complexProperty1.ComplexType.IsMappedToJson());
             Assert.Equal("CustomOwnedReference1", complexProperty1.ComplexType.GetContainerColumnName());
             Assert.Null(complexProperty1.GetJsonPropertyName());
-            
+
             var complexProperty2 = entityType.FindComplexProperty("OwnedReference2")!;
             Assert.True(complexProperty2.ComplexType.IsMappedToJson());
             Assert.Equal("CustomOwnedReference2", complexProperty2.ComplexType.GetContainerColumnName());
@@ -917,7 +917,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             Assert.True(complexCollectionProperty1.ComplexType.IsMappedToJson());
             Assert.Equal("CustomOwnedCollection1", complexCollectionProperty1.ComplexType.GetContainerColumnName());
             Assert.Null(complexCollectionProperty1.GetJsonPropertyName());
-            
+
             var complexCollectionProperty2 = entityType.FindComplexProperty("OwnedCollection2")!;
             Assert.True(complexCollectionProperty2.ComplexType.IsMappedToJson());
             Assert.Equal("CustomOwnedCollection2", complexCollectionProperty2.ComplexType.GetContainerColumnName());
@@ -925,13 +925,13 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
             var nestedRef1 = complexProperty1.ComplexType.FindComplexProperty("Reference1")!;
             Assert.Equal("CustomNestedReference", nestedRef1.GetJsonPropertyName());
-            
+
             var nestedCol1 = complexProperty1.ComplexType.FindComplexProperty("Collection1")!;
             Assert.Equal("CustomNestedCollection", nestedCol1.GetJsonPropertyName());
-            
+
             var nestedRef3 = complexCollectionProperty1.ComplexType.FindComplexProperty("Reference1")!;
             Assert.Equal("CustomNestedReference3", nestedRef3.GetJsonPropertyName());
-            
+
             var nestedCol3 = complexCollectionProperty1.ComplexType.FindComplexProperty("Collection1")!;
             Assert.Equal("CustomNestedCollection3", nestedCol3.GetJsonPropertyName());
         }
@@ -1492,7 +1492,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         public List<OwnedEntity>? OwnedCollection1 { get; set; }
         public List<OwnedEntity>? OwnedCollection2 { get; set; }
     }
-    
+
     protected class OwnedEntity
     {
         public DateTime Date { get; set; }

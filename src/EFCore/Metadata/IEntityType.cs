@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
 /// <summary>
@@ -540,7 +542,8 @@ public interface IEntityType : IReadOnlyEntityType, ITypeBase
     ///     <see cref="EntityState.Added" /> state.
     /// </summary>
     /// <returns>The properties that need a value to be generated on add.</returns>
-    IEnumerable<IProperty> GetValueGeneratingProperties();
+    IEnumerable<IProperty> GetValueGeneratingProperties()
+        => GetProperties().Where(p => p.RequiresValueGenerator());
 
     /// <summary>
     ///     Gets the service property with a given name.

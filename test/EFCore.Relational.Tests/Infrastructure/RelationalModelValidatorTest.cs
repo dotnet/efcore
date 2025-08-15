@@ -109,6 +109,28 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         Validate(modelBuilder);
     }
 
+    public override void Detects_discriminator_property_on_complex_collection()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<SampleEntity>(eb =>
+        {
+            eb.ComplexCollection(e => e.OtherSamples, ccb =>
+            {
+                ccb.ToJson();
+                var complexType = ccb.Metadata.ComplexType;
+                var discriminatorProperty = complexType.AddProperty("Discriminator", typeof(string));
+                complexType.SetDiscriminatorProperty(discriminatorProperty);
+            });
+        });
+
+        VerifyError(
+            CoreStrings.DiscriminatorPropertyNotAllowedOnComplexCollection(
+                "SampleEntity.OtherSamples#SampleEntity",
+                "SampleEntity.OtherSamples#SampleEntity"),
+            modelBuilder);
+    }
+
     [ConditionalFact]
     public virtual void Ignores_bool_with_default_value_false()
     {
