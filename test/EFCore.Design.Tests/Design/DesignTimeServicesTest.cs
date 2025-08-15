@@ -14,9 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Design;
 
 public class DesignTimeServicesTest
 {
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public void Services_are_registered_using_correct_priority(bool useContext)
     {
         using var context = new MyContext(
@@ -192,7 +190,8 @@ public class UserMigrationsIdGenerator : IMigrationsIdGenerator
 
     public class ExtensionHistoryRepository : IHistoryRepository
     {
-        public virtual LockReleaseBehavior LockReleaseBehavior => LockReleaseBehavior.Explicit;
+        public virtual LockReleaseBehavior LockReleaseBehavior
+            => LockReleaseBehavior.Explicit;
 
         public void Create()
             => throw new NotImplementedException();
@@ -266,7 +265,8 @@ public class UserMigrationsIdGenerator : IMigrationsIdGenerator
 
     public class ContextHistoryRepository : IHistoryRepository
     {
-        public virtual LockReleaseBehavior LockReleaseBehavior => LockReleaseBehavior.Explicit;
+        public virtual LockReleaseBehavior LockReleaseBehavior
+            => LockReleaseBehavior.Explicit;
 
         public bool Exists()
             => throw new NotImplementedException();

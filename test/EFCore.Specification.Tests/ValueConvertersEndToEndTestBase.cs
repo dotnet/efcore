@@ -156,7 +156,10 @@ public abstract class ValueConvertersEndToEndTestBase<TFixture>(TFixture fixture
         { typeof(TimeSpan), [_timeSpan1.ToString(), _timeSpan2.ToString(), _timeSpan1.ToString(), _timeSpan2.ToString()] },
     };
 
-    [ConditionalTheory, InlineData(new[] { 0, 1, 2, 3 }), InlineData(new[] { 3, 2, 1, 0 }), InlineData(new[] { 0, 2, 0, 2 })]
+    [ConditionalTheory,
+     InlineData(new[] { 0, 1, 2, 3 }),
+     InlineData(new[] { 3, 2, 1, 0 }),
+     InlineData(new[] { 0, 2, 0, 2 })]
     public virtual async Task Can_insert_and_read_back_with_conversions(int[] valueOrder)
     {
         var id = Guid.Empty;

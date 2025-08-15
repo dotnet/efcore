@@ -217,7 +217,8 @@ ORDER BY c["Id"]
     {
         if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
         {
-            await Assert.ThrowsAsync<NullReferenceException>(() => base.Select_nested_collection_on_required_related(queryTrackingBehavior));
+            await Assert.ThrowsAsync<NullReferenceException>(()
+                => base.Select_nested_collection_on_required_related(queryTrackingBehavior));
 
             AssertSql(
                 """
@@ -232,7 +233,8 @@ ORDER BY c["Id"]
     {
         if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
         {
-            await Assert.ThrowsAsync<NullReferenceException>(() => base.Select_nested_collection_on_optional_related(queryTrackingBehavior));
+            await Assert.ThrowsAsync<NullReferenceException>(()
+                => base.Select_nested_collection_on_optional_related(queryTrackingBehavior));
 
             AssertSql(
                 """
@@ -259,7 +261,8 @@ ORDER BY c["Id"]
         if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
         {
             // The given key 'n' was not present in the dictionary
-            await Assert.ThrowsAsync<KeyNotFoundException>(() => base.SelectMany_nested_collection_on_required_related(queryTrackingBehavior));
+            await Assert.ThrowsAsync<KeyNotFoundException>(()
+                => base.SelectMany_nested_collection_on_required_related(queryTrackingBehavior));
 
             AssertSql();
         }
@@ -270,7 +273,8 @@ ORDER BY c["Id"]
         if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
         {
             // The given key 'n' was not present in the dictionary
-            await Assert.ThrowsAsync<KeyNotFoundException>(() => base.SelectMany_nested_collection_on_optional_related(queryTrackingBehavior));
+            await Assert.ThrowsAsync<KeyNotFoundException>(()
+                => base.SelectMany_nested_collection_on_optional_related(queryTrackingBehavior));
 
             AssertSql();
         }

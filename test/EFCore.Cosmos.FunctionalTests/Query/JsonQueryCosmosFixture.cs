@@ -17,8 +17,7 @@ public class JsonQueryCosmosFixture : JsonQueryFixtureBase
 
     public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
         => base.AddOptions(
-            builder.ConfigureWarnings(
-                w => w.Ignore(CosmosEventId.NoPartitionKeyDefined)));
+            builder.ConfigureWarnings(w => w.Ignore(CosmosEventId.NoPartitionKeyDefined)));
 
     public Task NoSyncTest(bool async, Func<bool, Task> testCode)
         => CosmosTestHelpers.Instance.NoSyncTest(async, testCode);
@@ -116,57 +115,55 @@ public class JsonQueryCosmosFixture : JsonQueryFixtureBase
 
         modelBuilder.Entity<JsonEntityInheritanceBase>().ToContainer("JsonEntitiesInheritance");
 
-        modelBuilder.Entity<JsonEntityInheritanceBase>(
-            b =>
-            {
-                b.OwnsOne(
-                    x => x.ReferenceOnBase, bb =>
-                    {
-                        //issue #34026
-                        bb.Ignore(x => x.Enums);
-                        bb.Ignore(x => x.NullableEnums);
+        modelBuilder.Entity<JsonEntityInheritanceBase>(b =>
+        {
+            b.OwnsOne(
+                x => x.ReferenceOnBase, bb =>
+                {
+                    //issue #34026
+                    bb.Ignore(x => x.Enums);
+                    bb.Ignore(x => x.NullableEnums);
 
-                        // Issue #29380
-                        bb.Ignore(e => e.Id);
-                    });
+                    // Issue #29380
+                    bb.Ignore(e => e.Id);
+                });
 
-                b.OwnsMany(
-                    x => x.CollectionOnBase, bb =>
-                    {
-                        //issue #34026
-                        bb.Ignore(x => x.Enums);
-                        bb.Ignore(x => x.NullableEnums);
+            b.OwnsMany(
+                x => x.CollectionOnBase, bb =>
+                {
+                    //issue #34026
+                    bb.Ignore(x => x.Enums);
+                    bb.Ignore(x => x.NullableEnums);
 
-                        // Issue #29380
-                        bb.Ignore(e => e.Id);
-                    });
-            });
+                    // Issue #29380
+                    bb.Ignore(e => e.Id);
+                });
+        });
 
-        modelBuilder.Entity<JsonEntityInheritanceDerived>(
-            b =>
-            {
-                b.OwnsOne(
-                    x => x.ReferenceOnDerived, bb =>
-                    {
-                        //issue #34026
-                        bb.Ignore(x => x.Enums);
-                        bb.Ignore(x => x.NullableEnums);
+        modelBuilder.Entity<JsonEntityInheritanceDerived>(b =>
+        {
+            b.OwnsOne(
+                x => x.ReferenceOnDerived, bb =>
+                {
+                    //issue #34026
+                    bb.Ignore(x => x.Enums);
+                    bb.Ignore(x => x.NullableEnums);
 
-                        // Issue #29380
-                        bb.Ignore(e => e.Id);
-                    });
+                    // Issue #29380
+                    bb.Ignore(e => e.Id);
+                });
 
-                b.OwnsMany(
-                    x => x.CollectionOnDerived, bb =>
-                    {
-                        //issue #34026
-                        bb.Ignore(x => x.Enums);
-                        bb.Ignore(x => x.NullableEnums);
+            b.OwnsMany(
+                x => x.CollectionOnDerived, bb =>
+                {
+                    //issue #34026
+                    bb.Ignore(x => x.Enums);
+                    bb.Ignore(x => x.NullableEnums);
 
-                        // Issue #29380
-                        bb.Ignore(e => e.Id);
-                    });
-            });
+                    // Issue #29380
+                    bb.Ignore(e => e.Id);
+                });
+        });
 
         modelBuilder.Entity<JsonEntityAllTypes>()
             .ToContainer("JsonEntities")

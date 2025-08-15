@@ -32,16 +32,18 @@ public class ClrIndexedCollectionAccessorFactoryTest
         {
             Items =
             [
-                new() { Number = 10 },
-                new() { Number = 20 },
-                new() { Number = 30 }
+                new TestComplexType { Number = 10 },
+                new TestComplexType { Number = 20 },
+                new TestComplexType { Number = 30 }
             ]
         };
 
         var value = accessor.Get(entity, 1);
         Assert.Equal(20, ((TestComplexType)value!).Number);
 
-        var genericAccessor = Assert.IsType<ClrIndexedCollectionAccessor<TestEntity<List<TestComplexType>>, List<TestComplexType>, TestComplexType>>(accessor);
+        var genericAccessor =
+            Assert.IsType<ClrIndexedCollectionAccessor<TestEntity<List<TestComplexType>>, List<TestComplexType>, TestComplexType>>(
+                accessor);
 
         var genericValue = genericAccessor.Get(entity, 1);
 
@@ -55,14 +57,17 @@ public class ClrIndexedCollectionAccessorFactoryTest
         var accessor = ClrIndexedCollectionAccessorFactory.Instance.Create(property);
         var entity = new TestEntity<List<TestComplexType>>
         {
-            Items = [
-            new() { Number = 10 },
-            new() { Number = 20 },
-            new() { Number = 30 }
-        ]
+            Items =
+            [
+                new TestComplexType { Number = 10 },
+                new TestComplexType { Number = 20 },
+                new TestComplexType { Number = 30 }
+            ]
         };
 
-        var genericAccessor = Assert.IsType<ClrIndexedCollectionAccessor<TestEntity<List<TestComplexType>>, List<TestComplexType>, TestComplexType>>(accessor);
+        var genericAccessor =
+            Assert.IsType<ClrIndexedCollectionAccessor<TestEntity<List<TestComplexType>>, List<TestComplexType>, TestComplexType>>(
+                accessor);
 
         var newValue = new TestComplexType { Number = 42 };
 
@@ -78,14 +83,17 @@ public class ClrIndexedCollectionAccessorFactoryTest
         var accessor = ClrIndexedCollectionAccessorFactory.Instance.Create(property);
         var entity = new TestEntity<List<TestComplexType>>
         {
-            Items = [
-            new() { Number = 10 },
-            new() { Number = 20 },
-            new() { Number = 30 }
-        ]
+            Items =
+            [
+                new TestComplexType { Number = 10 },
+                new TestComplexType { Number = 20 },
+                new TestComplexType { Number = 30 }
+            ]
         };
 
-        var genericAccessor = Assert.IsType<ClrIndexedCollectionAccessor<TestEntity<List<TestComplexType>>, List<TestComplexType>, TestComplexType>>(accessor);
+        var genericAccessor =
+            Assert.IsType<ClrIndexedCollectionAccessor<TestEntity<List<TestComplexType>>, List<TestComplexType>, TestComplexType>>(
+                accessor);
 
         var newValue = new TestComplexType { Number = 42 };
 
@@ -118,7 +126,7 @@ public class ClrIndexedCollectionAccessorFactoryTest
     {
         var property = CreateComplexCollectionProperty<List<TestComplexType>>();
         var accessor = ClrIndexedCollectionAccessorFactory.Instance.Create(property);
-        var entity = new TestEntity<List<TestComplexType>> { Items = [new() { Number = 10 }] };
+        var entity = new TestEntity<List<TestComplexType>> { Items = [new TestComplexType { Number = 10 }] };
 
         Assert.Throws<ArgumentOutOfRangeException>(() => accessor.Get(entity, 5));
     }
@@ -128,7 +136,7 @@ public class ClrIndexedCollectionAccessorFactoryTest
     {
         var property = CreateComplexCollectionProperty<List<TestComplexType>>();
         var accessor = ClrIndexedCollectionAccessorFactory.Instance.Create(property);
-        var entity = new TestEntity<List<TestComplexType>> { Items = [new() { Number = 10 }] };
+        var entity = new TestEntity<List<TestComplexType>> { Items = [new TestComplexType { Number = 10 }] };
         var newValue = new TestComplexType { Number = 42 };
 
         Assert.Throws<ArgumentOutOfRangeException>(() => accessor.Set(entity, 5, newValue, false));
@@ -189,7 +197,8 @@ public class ClrIndexedCollectionAccessorFactoryTest
         accessor.Set(entity, 1, newValue, false);
         Assert.Equal(42, entity.Items[1].Number);
 
-        var genericAccessor = Assert.IsType<ClrIndexedCollectionAccessor<TestEntity<TestComplexType[]>, TestComplexType[], TestComplexType>>(accessor);
+        var genericAccessor =
+            Assert.IsType<ClrIndexedCollectionAccessor<TestEntity<TestComplexType[]>, TestComplexType[], TestComplexType>>(accessor);
 
         var genericValue = genericAccessor.Get(entity, 1);
         Assert.Equal(42, genericValue.Number);
@@ -242,9 +251,10 @@ public class ClrIndexedCollectionAccessorFactoryTest
     {
         var property = CreateReadOnlyComplexCollectionProperty();
         var accessor = ClrIndexedCollectionAccessorFactory.Instance.Create(property);
-        var entity = new TestEntityWithReadOnlyList([
-            new() { Number = 10 },
-            new() { Number = 20 }
+        var entity = new TestEntityWithReadOnlyList(
+        [
+            new TestComplexType { Number = 10 },
+            new TestComplexType { Number = 20 }
         ]);
 
         var value = accessor.Get(entity, 0);
@@ -264,9 +274,9 @@ public class ClrIndexedCollectionAccessorFactoryTest
         {
             Items =
             [
-                new() { Number = 10 },
-                new() { Number = 20 },
-                new() { Number = 30 }
+                new TestComplexType { Number = 10 },
+                new TestComplexType { Number = 20 },
+                new TestComplexType { Number = 30 }
             ]
         };
 
@@ -285,9 +295,10 @@ public class ClrIndexedCollectionAccessorFactoryTest
         var accessor = ClrIndexedCollectionAccessorFactory.Instance.Create(property);
         var entity = new TestEntity<IList<TestComplexType>>
         {
-            Items = [
-                new() { Number = 10 },
-                new() { Number = 20 }
+            Items =
+            [
+                new TestComplexType { Number = 10 },
+                new TestComplexType { Number = 20 }
             ]
         };
 
@@ -348,17 +359,15 @@ public class ClrIndexedCollectionAccessorFactoryTest
         private readonly IList<TestComplexType> _readOnlyItems;
 
         public TestEntityWithReadOnlyList()
-        {
-            _readOnlyItems = [];
-        }
+            => _readOnlyItems = [];
 
         public TestEntityWithReadOnlyList(IList<TestComplexType> readOnlyItems)
-        {
-            _readOnlyItems = readOnlyItems;
-        }
+            => _readOnlyItems = readOnlyItems;
 
         public int Id { get; set; }
-        public IList<TestComplexType> ReadOnlyItems => _readOnlyItems;
+
+        public IList<TestComplexType> ReadOnlyItems
+            => _readOnlyItems;
     }
 
     private class MyList : List<TestComplexType>

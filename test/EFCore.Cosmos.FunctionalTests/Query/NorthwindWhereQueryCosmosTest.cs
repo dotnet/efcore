@@ -1415,8 +1415,7 @@ WHERE (((c["$type"] = "Order") AND (c["CustomerID"] = "QUICK")) AND (c["OrderDat
 
     public override async Task Where_navigation_contains(bool async)
     {
-        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
-            () => base.Where_navigation_contains(async))).Message;
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Where_navigation_contains(async))).Message;
 
         Assert.Equal(
             CosmosStrings.NonEmbeddedIncludeNotSupported(
@@ -2314,24 +2313,23 @@ WHERE (c["id"] = @entity_equality_customer_CustomerID)
     public override async Task EF_Constant(bool async)
     {
         // #34327
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
-            () => base.EF_Constant(async));
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.EF_Constant(async));
         Assert.Equal(CoreStrings.EFConstantNotSupported, exception.Message);
     }
 
     public override async Task EF_Constant_with_subtree(bool async)
     {
         // #34327
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
-            () => base.EF_Constant_with_subtree(async));
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.EF_Constant_with_subtree(async));
         Assert.Equal(CoreStrings.EFConstantNotSupported, exception.Message);
     }
 
     public override async Task EF_Constant_does_not_parameterized_as_part_of_bigger_subtree(bool async)
     {
         // #34327
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
-            () => base.EF_Constant_does_not_parameterized_as_part_of_bigger_subtree(async));
+        var exception =
+            await Assert.ThrowsAsync<InvalidOperationException>(()
+                => base.EF_Constant_does_not_parameterized_as_part_of_bigger_subtree(async));
         Assert.Equal(CoreStrings.EFConstantNotSupported, exception.Message);
     }
 

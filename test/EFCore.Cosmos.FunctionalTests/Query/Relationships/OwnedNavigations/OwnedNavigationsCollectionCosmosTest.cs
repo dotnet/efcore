@@ -57,7 +57,6 @@ WHERE (ARRAY(
 """);
     }
 
-
     #region Distinct
 
     public override Task Distinct()
