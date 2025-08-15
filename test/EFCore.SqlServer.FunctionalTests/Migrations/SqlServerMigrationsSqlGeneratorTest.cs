@@ -57,10 +57,8 @@ CREATE UNIQUE INDEX [IX_People_Name] ON [dbo].[People] ([FirstName], [LastName])
 """);
     }
 
-    [ConditionalTheory]
-    [InlineData(DataCompressionType.None, "NONE")]
-    [InlineData(DataCompressionType.Row, "ROW")]
-    [InlineData(DataCompressionType.Page, "PAGE")]
+    [ConditionalTheory, InlineData(DataCompressionType.None, "NONE"), InlineData(DataCompressionType.Row, "ROW"),
+     InlineData(DataCompressionType.Page, "PAGE")]
     public void CreateIndexOperation_unique_datacompression(DataCompressionType dataCompression, string dataCompressionSql)
     {
         Generate(
@@ -278,12 +276,11 @@ ALTER TABLE [People] ALTER COLUMN [Id] int NOT NULL;
         Generate(
             modelBuilder => modelBuilder
                 .HasAnnotation(CoreAnnotationNames.ProductVersion, "1.0.0-rtm")
-                .Entity<Person>(
-                    x =>
-                    {
-                        x.Property<string>("Name").HasMaxLength(30);
-                        x.HasIndex("Name");
-                    }),
+                .Entity<Person>(x =>
+                {
+                    x.Property<string>("Name").HasMaxLength(30);
+                    x.HasIndex("Name");
+                }),
             new AlterColumnOperation
             {
                 Table = "Person",
@@ -312,12 +309,11 @@ ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(30) NULL;
         Generate(
             modelBuilder => modelBuilder
                 .HasAnnotation(CoreAnnotationNames.ProductVersion, "1.1.0")
-                .Entity<Person>(
-                    x =>
-                    {
-                        x.Property<string>("Name").HasMaxLength(30);
-                        x.HasIndex("Name");
-                    }),
+                .Entity<Person>(x =>
+                {
+                    x.Property<string>("Name").HasMaxLength(30);
+                    x.HasIndex("Name");
+                }),
             new AlterColumnOperation
             {
                 Table = "Person",
@@ -355,12 +351,11 @@ CREATE INDEX [IX_Person_Name] ON [Person] ([Name]);
         Generate(
             modelBuilder => modelBuilder
                 .HasAnnotation(CoreAnnotationNames.ProductVersion, "2.1.0")
-                .Entity<Person>(
-                    x =>
-                    {
-                        x.Property<string>("Name");
-                        x.HasIndex("Name");
-                    }),
+                .Entity<Person>(x =>
+                {
+                    x.Property<string>("Name");
+                    x.HasIndex("Name");
+                }),
             new AlterColumnOperation
             {
                 Table = "Person",
@@ -424,17 +419,16 @@ ALTER TABLE [Person] ALTER COLUMN [Id] bigint NOT NULL;
     [ConditionalFact]
     public virtual void AlterColumnOperation_add_identity_legacy()
     {
-        var ex = Assert.Throws<InvalidOperationException>(
-            () => Generate(
-                modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersion, "1.1.0"),
-                new AlterColumnOperation
-                {
-                    Table = "Person",
-                    Name = "Id",
-                    ClrType = typeof(int),
-                    [SqlServerAnnotationNames.ValueGenerationStrategy] = SqlServerValueGenerationStrategy.IdentityColumn,
-                    OldColumn = new AddColumnOperation { ClrType = typeof(int) }
-                }));
+        var ex = Assert.Throws<InvalidOperationException>(() => Generate(
+            modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersion, "1.1.0"),
+            new AlterColumnOperation
+            {
+                Table = "Person",
+                Name = "Id",
+                ClrType = typeof(int),
+                [SqlServerAnnotationNames.ValueGenerationStrategy] = SqlServerValueGenerationStrategy.IdentityColumn,
+                OldColumn = new AddColumnOperation { ClrType = typeof(int) }
+            }));
 
         Assert.Equal(SqlServerStrings.AlterIdentityColumn, ex.Message);
     }
@@ -442,20 +436,19 @@ ALTER TABLE [Person] ALTER COLUMN [Id] bigint NOT NULL;
     [ConditionalFact]
     public virtual void AlterColumnOperation_remove_identity_legacy()
     {
-        var ex = Assert.Throws<InvalidOperationException>(
-            () => Generate(
-                modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersion, "1.1.0"),
-                new AlterColumnOperation
+        var ex = Assert.Throws<InvalidOperationException>(() => Generate(
+            modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersion, "1.1.0"),
+            new AlterColumnOperation
+            {
+                Table = "Person",
+                Name = "Id",
+                ClrType = typeof(int),
+                OldColumn = new AddColumnOperation
                 {
-                    Table = "Person",
-                    Name = "Id",
                     ClrType = typeof(int),
-                    OldColumn = new AddColumnOperation
-                    {
-                        ClrType = typeof(int),
-                        [SqlServerAnnotationNames.ValueGenerationStrategy] = SqlServerValueGenerationStrategy.IdentityColumn
-                    }
-                }));
+                    [SqlServerAnnotationNames.ValueGenerationStrategy] = SqlServerValueGenerationStrategy.IdentityColumn
+                }
+            }));
 
         Assert.Equal(SqlServerStrings.AlterIdentityColumn, ex.Message);
     }
@@ -639,8 +632,7 @@ DROP DATABASE [Northwind];
         migrationBuilder.DropIndex(
             name: "IX_Name");
 
-        var ex = Assert.Throws<InvalidOperationException>(
-            () => Generate(migrationBuilder.Operations.ToArray()));
+        var ex = Assert.Throws<InvalidOperationException>(() => Generate(migrationBuilder.Operations.ToArray()));
 
         Assert.Equal(SqlServerStrings.IndexTableRequired, ex.Message);
     }
@@ -688,8 +680,7 @@ ALTER SCHEMA [hr] TRANSFER [dbo].[People];
             name: "IX_OldIndex",
             newName: "IX_NewIndex");
 
-        var ex = Assert.Throws<InvalidOperationException>(
-            () => Generate(migrationBuilder.Operations.ToArray()));
+        var ex = Assert.Throws<InvalidOperationException>(() => Generate(migrationBuilder.Operations.ToArray()));
 
         Assert.Equal(SqlServerStrings.IndexTableRequired, ex.Message);
     }

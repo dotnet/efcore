@@ -1605,8 +1605,7 @@ WHERE [c].[CustomerID] LIKE N'F%'
 """);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public override async Task Update_with_two_inner_joins(bool async)
     {
         await base.Update_with_two_inner_joins(async);

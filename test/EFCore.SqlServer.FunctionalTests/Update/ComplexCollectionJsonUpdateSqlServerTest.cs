@@ -3,7 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Update;
 
-public class ComplexCollectionJsonUpdateSqlServerTest : ComplexCollectionJsonUpdateTestBase<ComplexCollectionJsonUpdateSqlServerTest.ComplexCollectionJsonUpdateSqlServerFixture>
+public class ComplexCollectionJsonUpdateSqlServerTest : ComplexCollectionJsonUpdateTestBase<
+    ComplexCollectionJsonUpdateSqlServerTest.ComplexCollectionJsonUpdateSqlServerFixture>
 {
     public ComplexCollectionJsonUpdateSqlServerTest(ComplexCollectionJsonUpdateSqlServerFixture fixture)
         : base(fixture)

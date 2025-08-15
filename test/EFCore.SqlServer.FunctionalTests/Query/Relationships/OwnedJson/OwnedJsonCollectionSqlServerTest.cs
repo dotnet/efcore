@@ -112,7 +112,6 @@ OUTER APPLY (
 ) AS [r1]
 ORDER BY [r].[Id], [r1].[Id0], [r1].[Int], [r1].[Name]
 """);
-
         }
     }
 
@@ -191,7 +190,7 @@ WHERE CAST(JSON_VALUE([r].[RelatedCollection], '$[9999].Int') AS int) = 8
         await base.Select_within_Select_within_Select_with_aggregates();
 
         AssertSql(
-        """
+            """
 SELECT (
     SELECT COALESCE(SUM([s].[value]), 0)
     FROM OPENJSON([r].[RelatedCollection], '$') WITH ([NestedCollection] nvarchar(max) '$.NestedCollection' AS JSON) AS [r0]

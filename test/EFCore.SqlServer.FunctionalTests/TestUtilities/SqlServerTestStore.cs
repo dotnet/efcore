@@ -293,7 +293,7 @@ END
                 var results = Enumerable.Empty<T>();
                 while (dataReader.Read())
                 {
-                    results = results.Concat(new[] { dataReader.GetFieldValue<T>(0) });
+                    results = results.Concat([dataReader.GetFieldValue<T>(0)]);
                 }
 
                 return results;
@@ -310,7 +310,7 @@ END
                 var results = Enumerable.Empty<T>();
                 while (await dataReader.ReadAsync())
                 {
-                    results = results.Concat(new[] { await dataReader.GetFieldValueAsync<T>(0) });
+                    results = results.Concat([await dataReader.GetFieldValueAsync<T>(0)]);
                 }
 
                 return results;

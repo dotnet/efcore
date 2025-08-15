@@ -22,8 +22,7 @@ public class JsonUpdateJsonTypeSqlServerTest : JsonUpdateTestBase<JsonUpdateJson
         // TODO:SQLJSON (See JsonTypeToFunction.cs)
         Assert.Equal(
             "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Add_element_to_json_collection_branch())).InnerException?.Message);
+            (await Assert.ThrowsAsync<DbUpdateException>(() => base.Add_element_to_json_collection_branch())).InnerException?.Message);
 
         AssertSql(
             """
@@ -43,8 +42,7 @@ WHERE [Id] = @p1;
         // TODO:SQLJSON (See JsonTypeToFunction.cs)
         Assert.Equal(
             "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Add_element_to_json_collection_leaf())).InnerException?.Message);
+            (await Assert.ThrowsAsync<DbUpdateException>(() => base.Add_element_to_json_collection_leaf())).InnerException?.Message);
 
         AssertSql(
             """
@@ -153,8 +151,7 @@ FROM [JsonEntitiesBasic] AS [j]
     public override async Task Add_entity_with_json_null_navigations()
     {
         // TODO:SQLJSON Updates to null fail (See UpdateToNull.cs)
-        await Assert.ThrowsAsync<InvalidCastException>(
-            () => base.Add_entity_with_json_null_navigations());
+        await Assert.ThrowsAsync<InvalidCastException>(() => base.Add_entity_with_json_null_navigations());
 
         AssertSql(
             """
@@ -180,8 +177,7 @@ FROM [JsonEntitiesBasic] AS [j]
         // TODO:SQLJSON (See JsonTypeToFunction.cs)
         Assert.Equal(
             "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Add_json_reference_leaf())).InnerException?.Message);
+            (await Assert.ThrowsAsync<DbUpdateException>(() => base.Add_json_reference_leaf())).InnerException?.Message);
 
         AssertSql(
             """
@@ -204,8 +200,7 @@ WHERE [Id] = @p1;
     public override async Task Add_json_reference_root()
     {
         // TODO:SQLJSON Updates to null fail (See UpdateToNull.cs)
-        await Assert.ThrowsAsync<InvalidCastException>(
-            () => base.Add_json_reference_root());
+        await Assert.ThrowsAsync<InvalidCastException>(() => base.Add_json_reference_root());
 
         AssertSql(
             """
@@ -256,8 +251,7 @@ FROM [JsonEntitiesBasic] AS [j]
         // TODO:SQLJSON (See JsonTypeToFunction.cs)
         Assert.Equal(
             "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Delete_json_collection_branch())).InnerException?.Message);
+            (await Assert.ThrowsAsync<DbUpdateException>(() => base.Delete_json_collection_branch())).InnerException?.Message);
 
         AssertSql(
             """
@@ -275,8 +269,7 @@ WHERE [Id] = @p1;
     public override async Task Delete_json_collection_root()
     {
         // TODO:SQLJSON Updates to null fail (See UpdateToNull.cs)
-        await Assert.ThrowsAsync<InvalidCastException>(
-            () => base.Delete_json_collection_root());
+        await Assert.ThrowsAsync<InvalidCastException>(() => base.Delete_json_collection_root());
 
         AssertSql(
             """
@@ -301,8 +294,7 @@ FROM [JsonEntitiesBasic] AS [j]
         // TODO:SQLJSON (See JsonTypeToFunction.cs)
         Assert.Equal(
             "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Delete_json_reference_leaf())).InnerException?.Message);
+            (await Assert.ThrowsAsync<DbUpdateException>(() => base.Delete_json_reference_leaf())).InnerException?.Message);
 
         AssertSql(
             """
@@ -320,8 +312,7 @@ WHERE [Id] = @p1;
     public override async Task Delete_json_reference_root()
     {
         // TODO:SQLJSON Updates to null fail (See UpdateToNull.cs)
-        await Assert.ThrowsAsync<InvalidCastException>(
-            () => base.Delete_json_reference_root());
+        await Assert.ThrowsAsync<InvalidCastException>(() => base.Delete_json_reference_root());
 
         AssertSql(
             """
@@ -412,8 +403,8 @@ FROM [JsonEntitiesBasic] AS [j]
         // TODO:SQLJSON (See JsonTypeToFunction.cs)
         Assert.Equal(
             "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_element_in_json_multiple_levels_partial_update())).InnerException?.Message);
+            (await Assert.ThrowsAsync<DbUpdateException>(() => base.Edit_element_in_json_multiple_levels_partial_update())).InnerException
+            ?.Message);
 
         AssertSql(
             """
@@ -434,8 +425,8 @@ WHERE [Id] = @p2;
         // TODO:SQLJSON (See JsonTypeToFunction.cs)
         Assert.Equal(
             "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_element_in_json_branch_collection_and_add_element_to_the_same_collection())).InnerException?.Message);
+            (await Assert.ThrowsAsync<DbUpdateException>(()
+                => base.Edit_element_in_json_branch_collection_and_add_element_to_the_same_collection())).InnerException?.Message);
 
         AssertSql(
             """
@@ -455,8 +446,8 @@ WHERE [Id] = @p1;
         // TODO:SQLJSON (See JsonTypeToFunction.cs)
         Assert.Equal(
             "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_two_elements_in_the_same_json_collection())).InnerException?.Message);
+            (await Assert.ThrowsAsync<DbUpdateException>(() => base.Edit_two_elements_in_the_same_json_collection())).InnerException
+            ?.Message);
 
         AssertSql(
             """
@@ -498,8 +489,8 @@ FROM [JsonEntitiesBasic] AS [j]
         // TODO:SQLJSON (See JsonTypeToFunction.cs)
         Assert.Equal(
             "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_collection_element_and_reference_at_once())).InnerException?.Message);
+            (await Assert.ThrowsAsync<DbUpdateException>(() => base.Edit_collection_element_and_reference_at_once())).InnerException
+            ?.Message);
 
         AssertSql(
             """
@@ -998,8 +989,7 @@ WHERE [j].[Id] = 1
         // TODO:SQLJSON (See JsonTypeToFunction.cs)
         Assert.Equal(
             "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_single_property_collection_of_string())).InnerException?.Message);
+            (await Assert.ThrowsAsync<DbUpdateException>(() => base.Edit_single_property_collection_of_string())).InnerException?.Message);
 
         AssertSql(
             """
@@ -1260,8 +1250,8 @@ WHERE [j].[Id] = 1
         // TODO:SQLJSON (See JsonTypeToFunction.cs)
         Assert.Equal(
             "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_two_properties_on_same_entity_updates_the_entire_entity())).InnerException?.Message);
+            (await Assert.ThrowsAsync<DbUpdateException>(() => base.Edit_two_properties_on_same_entity_updates_the_entire_entity()))
+            .InnerException?.Message);
 
         AssertSql(
             """
@@ -1282,8 +1272,8 @@ WHERE [Id] = @p2;
         // TODO:SQLJSON (See JsonTypeToFunction.cs)
         Assert.Equal(
             "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_a_scalar_property_and_reference_navigation_on_the_same_entity())).InnerException?.Message);
+            (await Assert.ThrowsAsync<DbUpdateException>(() => base.Edit_a_scalar_property_and_reference_navigation_on_the_same_entity()))
+            .InnerException?.Message);
 
         AssertSql(
             """
@@ -1308,8 +1298,8 @@ WHERE [Id] = @p1;
         // TODO:SQLJSON (See JsonTypeToFunction.cs)
         Assert.Equal(
             "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_a_scalar_property_and_collection_navigation_on_the_same_entity())).InnerException?.Message);
+            (await Assert.ThrowsAsync<DbUpdateException>(() => base.Edit_a_scalar_property_and_collection_navigation_on_the_same_entity()))
+            .InnerException?.Message);
 
         AssertSql(
             """
@@ -1334,8 +1324,8 @@ WHERE [Id] = @p1;
         // TODO:SQLJSON (See JsonTypeToFunction.cs)
         Assert.Equal(
             "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_a_scalar_property_and_another_property_behind_reference_navigation_on_the_same_entity()))
+            (await Assert.ThrowsAsync<DbUpdateException>(()
+                => base.Edit_a_scalar_property_and_another_property_behind_reference_navigation_on_the_same_entity()))
             .InnerException?.Message);
 
         AssertSql(
@@ -1496,8 +1486,7 @@ WHERE [j].[Id] = 1
         // TODO:SQLJSON (See JsonTypeToFunction.cs)
         Assert.Equal(
             "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_single_property_collection_of_numeric())).InnerException?.Message);
+            (await Assert.ThrowsAsync<DbUpdateException>(() => base.Edit_single_property_collection_of_numeric())).InnerException?.Message);
 
         AssertSql(
             """
@@ -1518,8 +1507,7 @@ WHERE [Id] = @p2;
         // TODO:SQLJSON (See JsonTypeToFunction.cs)
         Assert.Equal(
             "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_single_property_collection_of_bool())).InnerException?.Message);
+            (await Assert.ThrowsAsync<DbUpdateException>(() => base.Edit_single_property_collection_of_bool())).InnerException?.Message);
 
         AssertSql(
             """
@@ -1589,8 +1577,8 @@ WHERE [j].[Id] = 1
         // TODO:SQLJSON (See JsonTypeToFunction.cs)
         Assert.Equal(
             "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_single_property_collection_of_datetime())).InnerException?.Message);
+            (await Assert.ThrowsAsync<DbUpdateException>(() => base.Edit_single_property_collection_of_datetime())).InnerException
+            ?.Message);
 
         AssertSql(
             """
@@ -1611,8 +1599,8 @@ WHERE [Id] = @p2;
         // TODO:SQLJSON (See JsonTypeToFunction.cs)
         Assert.Equal(
             "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_single_property_collection_of_datetimeoffset())).InnerException?.Message);
+            (await Assert.ThrowsAsync<DbUpdateException>(() => base.Edit_single_property_collection_of_datetimeoffset())).InnerException
+            ?.Message);
 
         AssertSql(
             """
@@ -1633,8 +1621,7 @@ WHERE [Id] = @p2;
         // TODO:SQLJSON (See JsonTypeToFunction.cs)
         Assert.Equal(
             "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_single_property_collection_of_decimal())).InnerException?.Message);
+            (await Assert.ThrowsAsync<DbUpdateException>(() => base.Edit_single_property_collection_of_decimal())).InnerException?.Message);
 
         AssertSql(
             """
@@ -1655,8 +1642,7 @@ WHERE [Id] = @p2;
         // TODO:SQLJSON (See JsonTypeToFunction.cs)
         Assert.Equal(
             "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_single_property_collection_of_double())).InnerException?.Message);
+            (await Assert.ThrowsAsync<DbUpdateException>(() => base.Edit_single_property_collection_of_double())).InnerException?.Message);
 
         AssertSql(
             """
@@ -1677,8 +1663,7 @@ WHERE [Id] = @p2;
         // TODO:SQLJSON (See JsonTypeToFunction.cs)
         Assert.Equal(
             "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_single_property_collection_of_guid())).InnerException?.Message);
+            (await Assert.ThrowsAsync<DbUpdateException>(() => base.Edit_single_property_collection_of_guid())).InnerException?.Message);
 
         AssertSql(
             """
@@ -1699,8 +1684,7 @@ WHERE [Id] = @p2;
         // TODO:SQLJSON (See JsonTypeToFunction.cs)
         Assert.Equal(
             "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_single_property_collection_of_int16())).InnerException?.Message);
+            (await Assert.ThrowsAsync<DbUpdateException>(() => base.Edit_single_property_collection_of_int16())).InnerException?.Message);
 
         AssertSql(
             """
@@ -1721,8 +1705,7 @@ WHERE [Id] = @p2;
         // TODO:SQLJSON (See JsonTypeToFunction.cs)
         Assert.Equal(
             "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_single_property_collection_of_int32())).InnerException?.Message);
+            (await Assert.ThrowsAsync<DbUpdateException>(() => base.Edit_single_property_collection_of_int32())).InnerException?.Message);
 
         AssertSql(
             """
@@ -1743,8 +1726,7 @@ WHERE [Id] = @p2;
         // TODO:SQLJSON (See JsonTypeToFunction.cs)
         Assert.Equal(
             "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_single_property_collection_of_int64())).InnerException?.Message);
+            (await Assert.ThrowsAsync<DbUpdateException>(() => base.Edit_single_property_collection_of_int64())).InnerException?.Message);
 
         AssertSql(
             """
@@ -1765,8 +1747,8 @@ WHERE [Id] = @p2;
         // TODO:SQLJSON (See JsonTypeToFunction.cs)
         Assert.Equal(
             "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_single_property_collection_of_signed_byte())).InnerException?.Message);
+            (await Assert.ThrowsAsync<DbUpdateException>(() => base.Edit_single_property_collection_of_signed_byte())).InnerException
+            ?.Message);
 
         AssertSql(
             """
@@ -1787,8 +1769,7 @@ WHERE [Id] = @p2;
         // TODO:SQLJSON (See JsonTypeToFunction.cs)
         Assert.Equal(
             "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_single_property_collection_of_single())).InnerException?.Message);
+            (await Assert.ThrowsAsync<DbUpdateException>(() => base.Edit_single_property_collection_of_single())).InnerException?.Message);
 
         AssertSql(
             """
@@ -1809,8 +1790,8 @@ WHERE [Id] = @p2;
         // TODO:SQLJSON (See JsonTypeToFunction.cs)
         Assert.Equal(
             "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_single_property_collection_of_timespan())).InnerException?.Message);
+            (await Assert.ThrowsAsync<DbUpdateException>(() => base.Edit_single_property_collection_of_timespan())).InnerException
+            ?.Message);
 
         AssertSql(
             """
@@ -1831,8 +1812,8 @@ WHERE [Id] = @p2;
         // TODO:SQLJSON (See JsonTypeToFunction.cs)
         Assert.Equal(
             "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_single_property_collection_of_dateonly())).InnerException?.Message);
+            (await Assert.ThrowsAsync<DbUpdateException>(() => base.Edit_single_property_collection_of_dateonly())).InnerException
+            ?.Message);
 
         AssertSql(
             """
@@ -1853,8 +1834,8 @@ WHERE [Id] = @p2;
         // TODO:SQLJSON (See JsonTypeToFunction.cs)
         Assert.Equal(
             "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_single_property_collection_of_timeonly())).InnerException?.Message);
+            (await Assert.ThrowsAsync<DbUpdateException>(() => base.Edit_single_property_collection_of_timeonly())).InnerException
+            ?.Message);
 
         AssertSql(
             """
@@ -1875,8 +1856,7 @@ WHERE [Id] = @p2;
         // TODO:SQLJSON (See JsonTypeToFunction.cs)
         Assert.Equal(
             "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_single_property_collection_of_uint16())).InnerException?.Message);
+            (await Assert.ThrowsAsync<DbUpdateException>(() => base.Edit_single_property_collection_of_uint16())).InnerException?.Message);
 
         AssertSql(
             """
@@ -1897,8 +1877,7 @@ WHERE [Id] = @p2;
         // TODO:SQLJSON (See JsonTypeToFunction.cs)
         Assert.Equal(
             "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_single_property_collection_of_uint32())).InnerException?.Message);
+            (await Assert.ThrowsAsync<DbUpdateException>(() => base.Edit_single_property_collection_of_uint32())).InnerException?.Message);
 
         AssertSql(
             """
@@ -1919,8 +1898,7 @@ WHERE [Id] = @p2;
         // TODO:SQLJSON (See JsonTypeToFunction.cs)
         Assert.Equal(
             "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_single_property_collection_of_uint64())).InnerException?.Message);
+            (await Assert.ThrowsAsync<DbUpdateException>(() => base.Edit_single_property_collection_of_uint64())).InnerException?.Message);
 
         AssertSql(
             """
@@ -1941,8 +1919,8 @@ WHERE [Id] = @p2;
         // TODO:SQLJSON (See JsonTypeToFunction.cs)
         Assert.Equal(
             "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_single_property_collection_of_nullable_int32())).InnerException?.Message);
+            (await Assert.ThrowsAsync<DbUpdateException>(() => base.Edit_single_property_collection_of_nullable_int32())).InnerException
+            ?.Message);
 
         AssertSql(
             """
@@ -1987,8 +1965,7 @@ WHERE [j].[Id] = 1
         // TODO:SQLJSON (See JsonTypeToFunction.cs)
         Assert.Equal(
             "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_single_property_collection_of_enum())).InnerException?.Message);
+            (await Assert.ThrowsAsync<DbUpdateException>(() => base.Edit_single_property_collection_of_enum())).InnerException?.Message);
 
         AssertSql(
             """
@@ -2009,8 +1986,8 @@ WHERE [Id] = @p2;
         // TODO:SQLJSON (See JsonTypeToFunction.cs)
         Assert.Equal(
             "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_single_property_collection_of_enum_with_int_converter())).InnerException?.Message);
+            (await Assert.ThrowsAsync<DbUpdateException>(() => base.Edit_single_property_collection_of_enum_with_int_converter()))
+            .InnerException?.Message);
 
         AssertSql(
             """
@@ -2031,8 +2008,8 @@ WHERE [Id] = @p2;
         // TODO:SQLJSON (See JsonTypeToFunction.cs)
         Assert.Equal(
             "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_single_property_collection_of_nullable_enum())).InnerException?.Message);
+            (await Assert.ThrowsAsync<DbUpdateException>(() => base.Edit_single_property_collection_of_nullable_enum())).InnerException
+            ?.Message);
 
         AssertSql(
             """
@@ -2077,8 +2054,8 @@ WHERE [j].[Id] = 1
         // TODO:SQLJSON (See JsonTypeToFunction.cs)
         Assert.Equal(
             "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_single_property_collection_of_nullable_enum_with_int_converter())).InnerException?.Message);
+            (await Assert.ThrowsAsync<DbUpdateException>(() => base.Edit_single_property_collection_of_nullable_enum_with_int_converter()))
+            .InnerException?.Message);
 
         AssertSql(
             """
@@ -2123,8 +2100,8 @@ WHERE [j].[Id] = 1
         // TODO:SQLJSON (See JsonTypeToFunction.cs)
         Assert.Equal(
             "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_single_property_collection_of_nullable_enum_with_converter_that_handles_nulls())).InnerException?.Message);
+            (await Assert.ThrowsAsync<DbUpdateException>(()
+                => base.Edit_single_property_collection_of_nullable_enum_with_converter_that_handles_nulls())).InnerException?.Message);
 
         AssertSql(
             """
@@ -2166,13 +2143,11 @@ WHERE [j].[Id] = 1
 
     public override Task Add_and_update_nested_optional_owned_collection_to_JSON(bool? value)
         // TODO:SQLJSON Updates to null fail (See UpdateToNull.cs)
-        => Assert.ThrowsAsync<InvalidCastException>(
-            () => base.Add_and_update_nested_optional_owned_collection_to_JSON(value));
+        => Assert.ThrowsAsync<InvalidCastException>(() => base.Add_and_update_nested_optional_owned_collection_to_JSON(value));
 
     public override Task Add_and_update_top_level_optional_owned_collection_to_JSON(bool? value)
         // TODO:SQLJSON Updates to null fail (See UpdateToNull.cs)
-        => Assert.ThrowsAsync<InvalidCastException>(
-            () => base.Add_and_update_top_level_optional_owned_collection_to_JSON(value));
+        => Assert.ThrowsAsync<InvalidCastException>(() => base.Add_and_update_top_level_optional_owned_collection_to_JSON(value));
 
     [ConditionalTheory(Skip = "TODO:SQLJSON Hangs (See InsertsHang.cs")]
     public override async Task Add_and_update_nested_optional_primitive_collection(bool? value)
@@ -2729,8 +2704,8 @@ WHERE [j].[Id] = 1
     public override async Task Edit_single_property_relational_collection_of_nullable_int32_set_to_null()
     {
         // TODO:SQLJSON Updates to null fail (See UpdateToNull.cs)
-        await Assert.ThrowsAsync<InvalidCastException>(
-            () => base.Edit_single_property_relational_collection_of_nullable_int32_set_to_null());
+        await Assert.ThrowsAsync<InvalidCastException>(()
+            => base.Edit_single_property_relational_collection_of_nullable_int32_set_to_null());
 
         AssertSql(
             """
@@ -2823,8 +2798,8 @@ WHERE [j].[Id] = 1
     public override async Task Edit_single_property_relational_collection_of_nullable_enum_set_to_null()
     {
         // TODO:SQLJSON Updates to null fail (See UpdateToNull.cs)
-        await Assert.ThrowsAsync<InvalidCastException>(
-            () => base.Edit_single_property_relational_collection_of_nullable_enum_set_to_null());
+        await Assert.ThrowsAsync<InvalidCastException>(()
+            => base.Edit_single_property_relational_collection_of_nullable_enum_set_to_null());
 
         AssertSql(
             """
@@ -2871,8 +2846,8 @@ WHERE [j].[Id] = 1
     public override async Task Edit_single_property_relational_collection_of_nullable_enum_with_int_converter_set_to_null()
     {
         // TODO:SQLJSON Updates to null fail (See UpdateToNull.cs)
-        await Assert.ThrowsAsync<InvalidCastException>(
-            () => base.Edit_single_property_relational_collection_of_nullable_enum_with_int_converter_set_to_null());
+        await Assert.ThrowsAsync<InvalidCastException>(()
+            => base.Edit_single_property_relational_collection_of_nullable_enum_with_int_converter_set_to_null());
 
         AssertSql(
             """
@@ -2919,8 +2894,8 @@ WHERE [j].[Id] = 1
     public override async Task Edit_single_property_relational_collection_of_nullable_enum_with_converter_that_handles_nulls_set_to_null()
     {
         // TODO:SQLJSON Updates to null fail (See UpdateToNull.cs)
-        await Assert.ThrowsAsync<InvalidCastException>(
-            () => base.Edit_single_property_relational_collection_of_nullable_enum_with_converter_that_handles_nulls_set_to_null());
+        await Assert.ThrowsAsync<InvalidCastException>(()
+            => base.Edit_single_property_relational_collection_of_nullable_enum_with_converter_that_handles_nulls_set_to_null());
 
         AssertSql(
             """

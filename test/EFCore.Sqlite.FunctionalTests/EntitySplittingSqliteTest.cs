@@ -5,7 +5,8 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public class EntitySplittingSqliteTest(NonSharedFixture fixture, ITestOutputHelper testOutputHelper) : EntitySplittingTestBase(fixture, testOutputHelper)
+public class EntitySplittingSqliteTest(NonSharedFixture fixture, ITestOutputHelper testOutputHelper)
+    : EntitySplittingTestBase(fixture, testOutputHelper)
 {
     protected override ITestStoreFactory TestStoreFactory
         => SqliteTestStoreFactory.Instance;

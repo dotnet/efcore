@@ -743,8 +743,7 @@ FROM [ValuedCustomer] AS [v0]
         AssertSql();
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Filter_on_property_inside_complex_type_with_FromSql(bool async)
         => AssertQuery(
             async,
@@ -756,8 +755,7 @@ WHERE [c].[ShippingAddress_ZipCode] = 7728
 """),
             ss => ss.Set<Customer>().Where(c => c.ShippingAddress.ZipCode == 07728));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Filter_on_property_inside_complex_type_after_subquery_with_FromSql(bool async)
         => AssertQuery(
             async,
@@ -778,8 +776,7 @@ WHERE [c].[ShippingAddress_ZipCode] = 7728
                 .Distinct()
                 .Where(c => c.ShippingAddress.ZipCode == 07728));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Load_complex_type_after_subquery_on_entity_type_with_FromSql(bool async)
         => AssertQuery(
             async,
@@ -798,8 +795,7 @@ WHERE [c].[ShippingAddress_ZipCode] = 7728
                 .Skip(1)
                 .Distinct());
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Select_complex_type_with_FromSql(bool async)
         => AssertQuery(
             async,
@@ -810,8 +806,7 @@ WHERE [c].[ShippingAddress_ZipCode] = 7728
                 """).Select(c => c.ShippingAddress),
             ss => ss.Set<Customer>().Select(c => c.ShippingAddress));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Select_nested_complex_type_with_FromSql(bool async)
         => AssertQuery(
             async,
@@ -822,8 +817,7 @@ WHERE [c].[ShippingAddress_ZipCode] = 7728
                 """).Select(c => c.ShippingAddress.Country),
             ss => ss.Set<Customer>().Select(c => c.ShippingAddress.Country));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Select_single_property_on_nested_complex_type_with_FromSql(bool async)
         => AssertQuery(
             async,
@@ -834,8 +828,7 @@ WHERE [c].[ShippingAddress_ZipCode] = 7728
                 """).Select(c => c.ShippingAddress.Country.FullName),
             ss => ss.Set<Customer>().Select(c => c.ShippingAddress.Country.FullName));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Select_complex_type_Where_with_FromSql(bool async)
         => AssertQuery(
             async,
@@ -846,8 +839,7 @@ WHERE [c].[ShippingAddress_ZipCode] = 7728
                 """).Select(c => c.ShippingAddress).Where(a => a.ZipCode == 07728),
             ss => ss.Set<Customer>().Select(c => c.ShippingAddress).Where(a => a.ZipCode == 07728));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Select_complex_type_Distinct_with_FromSql(bool async)
         => AssertQuery(
             async,

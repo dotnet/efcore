@@ -16,8 +16,7 @@ public abstract class NavigationsSetOperationsRelationalTestBase<TFixture> : Nav
     public override async Task On_related_projected(QueryTrackingBehavior queryTrackingBehavior)
     {
         // #33485, #34849
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
-            () => base.On_related_projected(queryTrackingBehavior));
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.On_related_projected(queryTrackingBehavior));
 
         Assert.Equal(
             RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin,

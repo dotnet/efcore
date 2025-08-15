@@ -91,7 +91,7 @@ WHERE (
         await base.Over_different_collection_properties();
 
         AssertSql(
-"""
+            """
 SELECT [r].[Id], [r].[Name], [r].[OptionalRelatedId], [r].[RequiredRelatedId]
 FROM [RootEntity] AS [r]
 INNER JOIN [RelatedType] AS [r0] ON [r].[RequiredRelatedId] = [r0].[Id]

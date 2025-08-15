@@ -7,7 +7,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Relationships.ComplexJson;
 
 public abstract class ComplexJsonRelationalFixtureBase : ComplexPropertiesFixtureBase, ITestSqlLoggerFactory
 {
-    protected override string StoreName => "ComplexJsonQueryTest";
+    protected override string StoreName
+        => "ComplexJsonQueryTest";
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
@@ -15,27 +16,30 @@ public abstract class ComplexJsonRelationalFixtureBase : ComplexPropertiesFixtur
 
         modelBuilder.Entity<RootEntity>(b =>
         {
-            b.ComplexProperty(e => e.RequiredRelated, rrb =>
-            {
-                rrb.ToJson();
+            b.ComplexProperty(
+                e => e.RequiredRelated, rrb =>
+                {
+                    rrb.ToJson();
 
-                rrb.ComplexProperty(r => r.OptionalNested).IsRequired(false);
-            });
+                    rrb.ComplexProperty(r => r.OptionalNested).IsRequired(false);
+                });
 
-            b.ComplexProperty(e => e.OptionalRelated, orb =>
-            {
-                orb.ToJson();
-                orb.IsRequired(false);
+            b.ComplexProperty(
+                e => e.OptionalRelated, orb =>
+                {
+                    orb.ToJson();
+                    orb.IsRequired(false);
 
-                orb.ComplexProperty(r => r.OptionalNested).IsRequired(false);
-            });
+                    orb.ComplexProperty(r => r.OptionalNested).IsRequired(false);
+                });
 
-            b.ComplexCollection(e => e.RelatedCollection,rcb =>
-            {
-                rcb.ToJson();
+            b.ComplexCollection(
+                e => e.RelatedCollection, rcb =>
+                {
+                    rcb.ToJson();
 
-                rcb.ComplexProperty(r => r.OptionalNested).IsRequired(false);
-            });
+                    rcb.ComplexProperty(r => r.OptionalNested).IsRequired(false);
+                });
         });
     }
 

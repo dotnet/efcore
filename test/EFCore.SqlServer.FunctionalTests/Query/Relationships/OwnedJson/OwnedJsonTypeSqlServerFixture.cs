@@ -5,7 +5,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Relationships.OwnedJson;
 
 public class OwnedJsonTypeSqlServerFixture : OwnedJsonRelationalFixtureBase
 {
-    protected override string StoreName => "OwnedJsonTypeRelationshipsQueryTest";
+    protected override string StoreName
+        => "OwnedJsonTypeRelationshipsQueryTest";
 
     protected override ITestStoreFactory TestStoreFactory
         => SqlServerTestStoreFactory.Instance;

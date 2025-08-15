@@ -157,7 +157,8 @@ FROM "RootEntity" AS "r"
     {
         await base.Select_required_related_via_optional_navigation(queryTrackingBehavior);
 
-        AssertSql("""
+        AssertSql(
+            """
 SELECT "r0"."RequiredRelated_Id", "r0"."RequiredRelated_Int", "r0"."RequiredRelated_Name", "r0"."RequiredRelated_String", "r0"."RequiredRelated_OptionalNested_Id", "r0"."RequiredRelated_OptionalNested_Int", "r0"."RequiredRelated_OptionalNested_Name", "r0"."RequiredRelated_OptionalNested_String", "r0"."RequiredRelated_RequiredNested_Id", "r0"."RequiredRelated_RequiredNested_Int", "r0"."RequiredRelated_RequiredNested_Name", "r0"."RequiredRelated_RequiredNested_String"
 FROM "RootReferencingEntity" AS "r"
 LEFT JOIN "RootEntity" AS "r0" ON "r"."RootEntityId" = "r0"."Id"

@@ -18,8 +18,7 @@ public abstract class ComplexJsonCollectionRelationalTestBase<TFixture> : Comple
     public override async Task Distinct_projected(QueryTrackingBehavior queryTrackingBehavior)
     {
         // #36421
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
-            () => base.Distinct_projected(queryTrackingBehavior));
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.Distinct_projected(queryTrackingBehavior));
 
         Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin, exception.Message);
     }

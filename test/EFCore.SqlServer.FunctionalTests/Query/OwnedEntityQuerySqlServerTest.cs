@@ -43,36 +43,35 @@ ORDER BY [u].[Id] DESC
     protected class Context22054(DbContextOptions options) : DbContext(options)
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<User22054>(
-                builder =>
-                {
-                    builder.HasKey(x => x.Id);
+            => modelBuilder.Entity<User22054>(builder =>
+            {
+                builder.HasKey(x => x.Id);
 
-                    builder.OwnsOne(
-                        x => x.Contact, contact =>
-                        {
-                            contact.Property(e => e.SharedProperty).IsRequired().HasColumnName("SharedProperty");
+                builder.OwnsOne(
+                    x => x.Contact, contact =>
+                    {
+                        contact.Property(e => e.SharedProperty).IsRequired().HasColumnName("SharedProperty");
 
-                            contact.OwnsOne(
-                                c => c.Address, address =>
-                                {
-                                    address.Property<string>("SharedProperty").IsRequired().HasColumnName("SharedProperty");
-                                });
-                        });
+                        contact.OwnsOne(
+                            c => c.Address, address =>
+                            {
+                                address.Property<string>("SharedProperty").IsRequired().HasColumnName("SharedProperty");
+                            });
+                    });
 
-                    builder.OwnsOne(e => e.Data)
-                        .Property<byte[]>("RowVersion")
-                        .IsRowVersion()
-                        .IsRequired()
-                        .HasColumnType("TIMESTAMP")
-                        .HasColumnName("RowVersion");
+                builder.OwnsOne(e => e.Data)
+                    .Property<byte[]>("RowVersion")
+                    .IsRowVersion()
+                    .IsRequired()
+                    .HasColumnType("TIMESTAMP")
+                    .HasColumnName("RowVersion");
 
-                    builder.Property(x => x.RowVersion)
-                        .HasColumnType("TIMESTAMP")
-                        .IsRowVersion()
-                        .IsRequired()
-                        .HasColumnName("RowVersion");
-                });
+                builder.Property(x => x.RowVersion)
+                    .HasColumnType("TIMESTAMP")
+                    .IsRowVersion()
+                    .IsRequired()
+                    .HasColumnName("RowVersion");
+            });
 
         public Task SeedAsync()
         {
@@ -203,8 +202,8 @@ ORDER BY [s1].[Id], [s1].[MasterTrunk22340Id], [s1].[MasterTrunk22340Id0], [f0].
         {
             var masterTrunk = new MasterTrunk22340
             {
-                FungibleBag = new CurrencyBag22340 { Currencies = new[] { new Currency22340 { Amount = 10, Code = 999 } } },
-                StaticBag = new CurrencyBag22340 { Currencies = new[] { new Currency22340 { Amount = 555, Code = 111 } } }
+                FungibleBag = new CurrencyBag22340 { Currencies = [new Currency22340 { Amount = 10, Code = 999 }] },
+                StaticBag = new CurrencyBag22340 { Currencies = [new Currency22340 { Amount = 555, Code = 111 }] }
             };
             Add(masterTrunk);
 

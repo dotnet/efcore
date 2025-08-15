@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Relationships.OwnedTableSplitting;
 
 public abstract class OwnedTableSplittingProjectionRelationalTestBase<TFixture>
     : OwnedNavigationsProjectionTestBase<TFixture>
-        where TFixture : OwnedTableSplittingRelationalFixtureBase, new()
+    where TFixture : OwnedTableSplittingRelationalFixtureBase, new()
 {
     public OwnedTableSplittingProjectionRelationalTestBase(TFixture fixture, ITestOutputHelper testOutputHelper)
         : base(fixture)

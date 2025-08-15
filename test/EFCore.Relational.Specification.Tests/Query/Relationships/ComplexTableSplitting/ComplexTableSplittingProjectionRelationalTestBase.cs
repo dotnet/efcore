@@ -34,11 +34,13 @@ public abstract class ComplexTableSplittingProjectionRelationalTestBase<TFixture
 
     // Collections are not supported with table splitting, only JSON
     public override Task SelectMany_nested_collection_on_required_related(QueryTrackingBehavior queryTrackingBehavior)
-        => Assert.ThrowsAsync<InvalidOperationException>(() => base.SelectMany_nested_collection_on_required_related(queryTrackingBehavior));
+        => Assert.ThrowsAsync<InvalidOperationException>(()
+            => base.SelectMany_nested_collection_on_required_related(queryTrackingBehavior));
 
     // Collections are not supported with table splitting, only JSON
     public override Task SelectMany_nested_collection_on_optional_related(QueryTrackingBehavior queryTrackingBehavior)
-        => Assert.ThrowsAsync<InvalidOperationException>(() => base.SelectMany_nested_collection_on_optional_related(queryTrackingBehavior));
+        => Assert.ThrowsAsync<InvalidOperationException>(()
+            => base.SelectMany_nested_collection_on_optional_related(queryTrackingBehavior));
 
     protected void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

@@ -2653,9 +2653,8 @@ ORDER BY [o0].[CustomerID]
         Select_DTO_constructor_distinct_with_collection_projection_translated_to_server_with_binding_after_client_eval(bool async)
     {
         // Allow binding of expressions after projection has turned to client eval. Issue #24478.
-        await Assert.ThrowsAsync<TrueException>(
-            () => base
-                .Select_DTO_constructor_distinct_with_collection_projection_translated_to_server_with_binding_after_client_eval(async));
+        await Assert.ThrowsAsync<TrueException>(() => base
+            .Select_DTO_constructor_distinct_with_collection_projection_translated_to_server_with_binding_after_client_eval(async));
 
         AssertSql(
             """
@@ -5827,9 +5826,8 @@ ORDER BY [c].[CustomerID]
 
     [ConditionalFact]
     public async Task Single_Predicate_Cancellation()
-        => await Assert.ThrowsAnyAsync<OperationCanceledException>(
-            async () =>
-                await Single_Predicate_Cancellation_test(Fixture.TestSqlLoggerFactory.CancelQuery()));
+        => await Assert.ThrowsAnyAsync<OperationCanceledException>(async () =>
+            await Single_Predicate_Cancellation_test(Fixture.TestSqlLoggerFactory.CancelQuery()));
 
     [ConditionalFact]
     public Task Query_compiler_concurrency()
@@ -5840,26 +5838,25 @@ ORDER BY [c].[CustomerID]
 
         for (var i = 0; i < threadCount; i++)
         {
-            tasks[i] = Task.Run(
-                () =>
+            tasks[i] = Task.Run(() =>
+            {
+                using var context = CreateContext();
+                using (context.Customers
+                           .Where(c => c.City == "London")
+                           .OrderBy(c => c.CustomerID)
+                           .Select(c => context.Orders
+                               .Where(o1 => o1.CustomerID == c.CustomerID && o1.OrderDate.Value.Year == 1997)
+                               .OrderBy(o1 => o1.OrderID)
+                               .Select(o1 => context.Orders
+                                   .Where(o2 => o1.CustomerID == c.CustomerID)
+                                   .OrderBy(o2 => o2.OrderID)
+                                   .Select(o2 => o1.OrderID)
+                                   .ToList())
+                               .ToList())
+                           .GetEnumerator())
                 {
-                    using var context = CreateContext();
-                    using (context.Customers
-                        .Where(c => c.City == "London")
-                        .OrderBy(c => c.CustomerID)
-                        .Select(c => context.Orders
-                                .Where(o1 => o1.CustomerID == c.CustomerID && o1.OrderDate.Value.Year == 1997)
-                                .OrderBy(o1 => o1.OrderID)
-                                .Select(o1 => context.Orders
-                                    .Where(o2 => o1.CustomerID == c.CustomerID)
-                                    .OrderBy(o2 => o2.OrderID)
-                                    .Select(o2 => o1.OrderID)
-                                    .ToList())
-                                .ToList())
-                        .GetEnumerator())
-                    {
-                    }
-                });
+                }
+            });
         }
 
         return Task.WhenAll(tasks);
@@ -6681,8 +6678,7 @@ FROM [Orders] AS [o]
             CoreStrings.ClientProjectionCapturingConstantInMethodInstance(
                 "Microsoft.EntityFrameworkCore.Query.NorthwindMiscellaneousQuerySqlServerTest",
                 "InstanceMethod"),
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Client_code_using_instance_method_throws(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Client_code_using_instance_method_throws(async))).Message);
 
         AssertSql();
     }
@@ -6693,8 +6689,7 @@ FROM [Orders] AS [o]
             CoreStrings.ClientProjectionCapturingConstantInMethodArgument(
                 "Microsoft.EntityFrameworkCore.Query.NorthwindMiscellaneousQuerySqlServerTest",
                 "StaticMethod"),
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Client_code_using_instance_in_static_method(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Client_code_using_instance_in_static_method(async))).Message);
 
         AssertSql();
     }
@@ -6704,8 +6699,7 @@ FROM [Orders] AS [o]
         Assert.Equal(
             CoreStrings.ClientProjectionCapturingConstantInTree(
                 "Microsoft.EntityFrameworkCore.Query.NorthwindMiscellaneousQuerySqlServerTest"),
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Client_code_using_instance_in_anonymous_type(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Client_code_using_instance_in_anonymous_type(async))).Message);
 
         AssertSql();
     }
@@ -6877,8 +6871,8 @@ WHERE (
 
     public override async Task Entity_equality_through_subquery_composite_key(bool async)
     {
-        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
-            () => base.Entity_equality_through_subquery_composite_key(async))).Message;
+        var message =
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Entity_equality_through_subquery_composite_key(async))).Message;
 
         Assert.Equal(
             CoreStrings.EntityEqualityOnCompositeKeyEntitySubqueryNotSupported("==", nameof(OrderDetail)),
@@ -7200,7 +7194,8 @@ WHERE (
     {
         await base.Where_nanosecond_and_microsecond_component(async);
 
-        AssertSql("""
+        AssertSql(
+            """
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE (DATEPART(nanosecond, [o].[OrderDate]) % 1000 <> 0 OR [o].[OrderDate] IS NULL) AND (DATEPART(microsecond, [o].[OrderDate]) % 1000 <> 0 OR [o].[OrderDate] IS NULL)

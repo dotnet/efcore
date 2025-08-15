@@ -21,8 +21,7 @@ public class ComplexNavigationsSharedTypeQuerySqlServer160Test
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Distinct_skip_without_orderby(bool async)
     {
         await AssertQuery(
@@ -70,8 +69,7 @@ WHERE [l].[Id] < 3
 """);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Distinct_take_without_orderby(bool async)
     {
         await AssertQuery(
@@ -1511,8 +1509,8 @@ END
     public override async Task Join_with_result_selector_returning_queryable_throws_validation_error(bool async)
     {
         // Expression cannot be used for return type. Issue #23302.
-        await Assert.ThrowsAsync<ArgumentException>(
-            () => base.Join_with_result_selector_returning_queryable_throws_validation_error(async));
+        await Assert.ThrowsAsync<ArgumentException>(()
+            => base.Join_with_result_selector_returning_queryable_throws_validation_error(async));
 
         AssertSql();
     }

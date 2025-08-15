@@ -2,11 +2,11 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Query.Relationships.OwnedNavigations;
-using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Query.Relationships.OwnedTableSplitting;
 
-public abstract class OwnedTableSplittingStructuralEqualityRelationalTestBase<TFixture> : OwnedNavigationsStructuralEqualityTestBase<TFixture>
+public abstract class
+    OwnedTableSplittingStructuralEqualityRelationalTestBase<TFixture> : OwnedNavigationsStructuralEqualityTestBase<TFixture>
     where TFixture : OwnedTableSplittingRelationalFixtureBase, new()
 {
     public OwnedTableSplittingStructuralEqualityRelationalTestBase(TFixture fixture, ITestOutputHelper testOutputHelper)

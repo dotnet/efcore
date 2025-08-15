@@ -866,18 +866,17 @@ public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTy
 
         Assert.Equal(
             SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Min), typeof(DateTimeOffset).ShortDisplayName()),
-            Assert.Throws<NotSupportedException>(
-                () => query.Select(g => g.Min(DateTimeOffset? (BuiltInNullableDataTypes e) => e.TestNullableDateTimeOffset)).ToList()).Message);
+            Assert.Throws<NotSupportedException>(()
+                => query.Select(g => g.Min(DateTimeOffset? (e) => e.TestNullableDateTimeOffset)).ToList()).Message);
 
         Assert.Equal(
             SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Min), typeof(TimeSpan).ShortDisplayName()),
-            Assert.Throws<NotSupportedException>(
-                () => query.Select(g => g.Min(TimeSpan? (BuiltInNullableDataTypes e) => e.TestNullableTimeSpan)).ToList()).Message);
+            Assert.Throws<NotSupportedException>(() => query.Select(g => g.Min(TimeSpan? (e) => e.TestNullableTimeSpan)).ToList()).Message);
 
         Assert.Equal(
             SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Min), typeof(ulong).ShortDisplayName()),
-            Assert.Throws<NotSupportedException>(
-                () => query.Select(g => g.Min(ulong? (BuiltInNullableDataTypes e) => e.TestNullableUnsignedInt64)).ToList()).Message);
+            Assert.Throws<NotSupportedException>(() => query.Select(g => g.Min(ulong? (e) => e.TestNullableUnsignedInt64)).ToList())
+                .Message);
     }
 
     [ConditionalFact]
@@ -916,18 +915,17 @@ public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTy
 
         Assert.Equal(
             SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Max), typeof(DateTimeOffset).ShortDisplayName()),
-            Assert.Throws<NotSupportedException>(
-                () => query.Select(g => g.Max(DateTimeOffset? (BuiltInNullableDataTypes e) => e.TestNullableDateTimeOffset)).ToList()).Message);
+            Assert.Throws<NotSupportedException>(()
+                => query.Select(g => g.Max(DateTimeOffset? (e) => e.TestNullableDateTimeOffset)).ToList()).Message);
 
         Assert.Equal(
             SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Max), typeof(TimeSpan).ShortDisplayName()),
-            Assert.Throws<NotSupportedException>(
-                () => query.Select(g => g.Max(TimeSpan? (BuiltInNullableDataTypes e) => e.TestNullableTimeSpan)).ToList()).Message);
+            Assert.Throws<NotSupportedException>(() => query.Select(g => g.Max(TimeSpan? (e) => e.TestNullableTimeSpan)).ToList()).Message);
 
         Assert.Equal(
             SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Max), typeof(ulong).ShortDisplayName()),
-            Assert.Throws<NotSupportedException>(
-                () => query.Select(g => g.Max(ulong? (BuiltInNullableDataTypes e) => e.TestNullableUnsignedInt64)).ToList()).Message);
+            Assert.Throws<NotSupportedException>(() => query.Select(g => g.Max(ulong? (e) => e.TestNullableUnsignedInt64)).ToList())
+                .Message);
     }
 
     [ConditionalFact]
@@ -1004,13 +1002,12 @@ public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTy
         context.SaveChanges();
 
         var result = context.Set<BuiltInDataTypes>()
-            .Select(
-                e => new BuiltInDataTypes
-                {
-                    Id = e.Id,
-                    TestDecimal = -e.TestDecimal,
-                    TestTimeSpan = -e.TestTimeSpan
-                })
+            .Select(e => new BuiltInDataTypes
+            {
+                Id = e.Id,
+                TestDecimal = -e.TestDecimal,
+                TestTimeSpan = -e.TestTimeSpan
+            })
             .First(e => e.Id == 207);
 
         Assert.Equal(-1.000000000000001m, result.TestDecimal);
@@ -1036,16 +1033,15 @@ public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTy
         context.SaveChanges();
 
         var result = context.Set<BuiltInDataTypes>()
-            .Select(
-                e => new BuiltInDataTypes
-                {
-                    Id = e.Id,
-                    TestDecimal = e.TestDecimal + 1m,
-                    TestDateTime = e.TestDateTime + new TimeSpan(0, 1, 0),
-                    TestDateTimeOffset = e.TestDateTimeOffset + new TimeSpan(0, 1, 0),
-                    TestTimeSpan = e.TestTimeSpan + new TimeSpan(0, 1, 0),
-                    TestUnsignedInt64 = e.TestUnsignedInt64 + 1ul
-                })
+            .Select(e => new BuiltInDataTypes
+            {
+                Id = e.Id,
+                TestDecimal = e.TestDecimal + 1m,
+                TestDateTime = e.TestDateTime + new TimeSpan(0, 1, 0),
+                TestDateTimeOffset = e.TestDateTimeOffset + new TimeSpan(0, 1, 0),
+                TestTimeSpan = e.TestTimeSpan + new TimeSpan(0, 1, 0),
+                TestUnsignedInt64 = e.TestUnsignedInt64 + 1ul
+            })
             .First(e => e.Id == 208);
 
         Assert.Equal(2.000000000000001m, result.TestDecimal);
@@ -1074,18 +1070,17 @@ public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTy
         context.SaveChanges();
 
         var result = context.Set<BuiltInDataTypes>()
-            .Select(
-                e => new
-                {
-                    e.Id,
-                    TestDecimal = e.TestDecimal - 1m,
-                    TestDateTime1 = e.TestDateTime - new TimeSpan(0, 1, 0),
-                    TestDateTime2 = e.TestDateTime - new DateTime(2018, 1, 1, 0, 0, 0),
-                    TestDateTimeOffset1 = e.TestDateTimeOffset - new TimeSpan(0, 1, 0),
-                    TestDateTimeOffset2 = e.TestDateTimeOffset - new DateTimeOffset(2018, 1, 1, 0, 0, 0, TimeSpan.Zero),
-                    TestTimeSpan = e.TestTimeSpan - new TimeSpan(0, 1, 0),
-                    TestUnsignedInt64 = e.TestUnsignedInt64 - 1ul
-                })
+            .Select(e => new
+            {
+                e.Id,
+                TestDecimal = e.TestDecimal - 1m,
+                TestDateTime1 = e.TestDateTime - new TimeSpan(0, 1, 0),
+                TestDateTime2 = e.TestDateTime - new DateTime(2018, 1, 1, 0, 0, 0),
+                TestDateTimeOffset1 = e.TestDateTimeOffset - new TimeSpan(0, 1, 0),
+                TestDateTimeOffset2 = e.TestDateTimeOffset - new DateTimeOffset(2018, 1, 1, 0, 0, 0, TimeSpan.Zero),
+                TestTimeSpan = e.TestTimeSpan - new TimeSpan(0, 1, 0),
+                TestUnsignedInt64 = e.TestUnsignedInt64 - 1ul
+            })
             .First(e => e.Id == 209);
 
         Assert.Equal(1.000000000000001m, result.TestDecimal);
@@ -1117,18 +1112,17 @@ public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTy
         context.SaveChanges();
 
         var result = context.Set<BuiltInDataTypes>()
-            .Select(
-                e => new
-                {
-                    e.Id,
-                    TestDecimal = e.TestDecimal < 10m,
-                    TestDateTime = e.TestDateTime < new DateTime(2018, 10, 10, 0, 0, 0),
-                    TestDateTimeOffset =
-                        e.TestDateTimeOffset < new DateTimeOffset(2018, 1, 1, 11, 0, 0, TimeSpan.FromHours(-2)),
-                    TestTimeSpan = e.TestTimeSpan < new TimeSpan(10, 0, 0, 0),
-                    TestUnsignedInt64 = e.TestUnsignedInt64 < ulong.MaxValue,
-                    TestCharacter = e.TestCharacter < 'B'
-                })
+            .Select(e => new
+            {
+                e.Id,
+                TestDecimal = e.TestDecimal < 10m,
+                TestDateTime = e.TestDateTime < new DateTime(2018, 10, 10, 0, 0, 0),
+                TestDateTimeOffset =
+                    e.TestDateTimeOffset < new DateTimeOffset(2018, 1, 1, 11, 0, 0, TimeSpan.FromHours(-2)),
+                TestTimeSpan = e.TestTimeSpan < new TimeSpan(10, 0, 0, 0),
+                TestUnsignedInt64 = e.TestUnsignedInt64 < ulong.MaxValue,
+                TestCharacter = e.TestCharacter < 'B'
+            })
             .First(e => e.Id == 210);
 
         Assert.True(result.TestDecimal);
@@ -1159,18 +1153,17 @@ public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTy
         context.SaveChanges();
 
         var result = context.Set<BuiltInDataTypes>()
-            .Select(
-                e => new
-                {
-                    e.Id,
-                    TestDecimal = e.TestDecimal <= 10m,
-                    TestDateTime = e.TestDateTime <= new DateTime(2018, 10, 10, 0, 0, 0),
-                    TestDateTimeOffset =
-                        e.TestDateTimeOffset <= new DateTimeOffset(2018, 1, 1, 11, 0, 0, TimeSpan.FromHours(-2)),
-                    TestTimeSpan = e.TestTimeSpan <= new TimeSpan(10, 0, 0, 0),
-                    TestUnsignedInt64 = e.TestUnsignedInt64 <= ulong.MaxValue,
-                    TestCharacter = e.TestCharacter <= 'B'
-                })
+            .Select(e => new
+            {
+                e.Id,
+                TestDecimal = e.TestDecimal <= 10m,
+                TestDateTime = e.TestDateTime <= new DateTime(2018, 10, 10, 0, 0, 0),
+                TestDateTimeOffset =
+                    e.TestDateTimeOffset <= new DateTimeOffset(2018, 1, 1, 11, 0, 0, TimeSpan.FromHours(-2)),
+                TestTimeSpan = e.TestTimeSpan <= new TimeSpan(10, 0, 0, 0),
+                TestUnsignedInt64 = e.TestUnsignedInt64 <= ulong.MaxValue,
+                TestCharacter = e.TestCharacter <= 'B'
+            })
             .First(e => e.Id == 211);
 
         Assert.True(result.TestDecimal);
@@ -1201,18 +1194,17 @@ public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTy
         context.SaveChanges();
 
         var result = context.Set<BuiltInDataTypes>()
-            .Select(
-                e => new
-                {
-                    e.Id,
-                    TestDecimal = e.TestDecimal > 10m,
-                    TestDateTime = e.TestDateTime > new DateTime(2018, 10, 10, 0, 0, 0),
-                    TestDateTimeOffset =
-                        e.TestDateTimeOffset > new DateTimeOffset(2018, 1, 1, 11, 0, 0, TimeSpan.FromHours(-2)),
-                    TestTimeSpan = e.TestTimeSpan > new TimeSpan(10, 0, 0, 0),
-                    TestUnsignedInt64 = e.TestUnsignedInt64 > ulong.MaxValue,
-                    TestCharacter = e.TestCharacter > 'B'
-                })
+            .Select(e => new
+            {
+                e.Id,
+                TestDecimal = e.TestDecimal > 10m,
+                TestDateTime = e.TestDateTime > new DateTime(2018, 10, 10, 0, 0, 0),
+                TestDateTimeOffset =
+                    e.TestDateTimeOffset > new DateTimeOffset(2018, 1, 1, 11, 0, 0, TimeSpan.FromHours(-2)),
+                TestTimeSpan = e.TestTimeSpan > new TimeSpan(10, 0, 0, 0),
+                TestUnsignedInt64 = e.TestUnsignedInt64 > ulong.MaxValue,
+                TestCharacter = e.TestCharacter > 'B'
+            })
             .First(e => e.Id == 212);
 
         Assert.False(result.TestDecimal);
@@ -1243,18 +1235,17 @@ public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTy
         context.SaveChanges();
 
         var result = context.Set<BuiltInDataTypes>()
-            .Select(
-                e => new
-                {
-                    e.Id,
-                    TestDecimal = e.TestDecimal >= 10m,
-                    TestDateTime = e.TestDateTime >= new DateTime(2018, 10, 10, 0, 0, 0),
-                    TestDateTimeOffset =
-                        e.TestDateTimeOffset >= new DateTimeOffset(2018, 1, 1, 11, 0, 0, TimeSpan.FromHours(-2)),
-                    TestTimeSpan = e.TestTimeSpan >= new TimeSpan(10, 0, 0, 0),
-                    TestUnsignedInt64 = e.TestUnsignedInt64 >= ulong.MaxValue,
-                    TestCharacter = e.TestCharacter >= 'B'
-                })
+            .Select(e => new
+            {
+                e.Id,
+                TestDecimal = e.TestDecimal >= 10m,
+                TestDateTime = e.TestDateTime >= new DateTime(2018, 10, 10, 0, 0, 0),
+                TestDateTimeOffset =
+                    e.TestDateTimeOffset >= new DateTimeOffset(2018, 1, 1, 11, 0, 0, TimeSpan.FromHours(-2)),
+                TestTimeSpan = e.TestTimeSpan >= new TimeSpan(10, 0, 0, 0),
+                TestUnsignedInt64 = e.TestUnsignedInt64 >= ulong.MaxValue,
+                TestCharacter = e.TestCharacter >= 'B'
+            })
             .First(e => e.Id == 213);
 
         Assert.False(result.TestDecimal);
@@ -1282,15 +1273,14 @@ public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTy
         context.SaveChanges();
 
         var result = context.Set<BuiltInDataTypes>()
-            .Select(
-                e => new
-                {
-                    e.Id,
-                    TestDecimal = e.TestDecimal / 2m,
-                    TestTimeSpan1 = e.TestTimeSpan / 2.0,
-                    TestTimeSpan2 = e.TestTimeSpan / new TimeSpan(0, 2, 0),
-                    TestUnsignedInt64 = e.TestUnsignedInt64 / 5ul
-                })
+            .Select(e => new
+            {
+                e.Id,
+                TestDecimal = e.TestDecimal / 2m,
+                TestTimeSpan1 = e.TestTimeSpan / 2.0,
+                TestTimeSpan2 = e.TestTimeSpan / new TimeSpan(0, 2, 0),
+                TestUnsignedInt64 = e.TestUnsignedInt64 / 5ul
+            })
             .First(e => e.Id == 214);
 
         Assert.Equal(1.000000000000001m, result.TestDecimal);
@@ -1316,15 +1306,14 @@ public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTy
         context.SaveChanges();
 
         var result = context.Set<BuiltInDataTypes>()
-            .Select(
-                e => new
-                {
-                    e.Id,
-                    TestDecimal = e.TestDecimal * 2m,
-                    TestTimeSpan1 = e.TestTimeSpan * 2.0,
-                    TestTimeSpan2 = 2.0 * e.TestTimeSpan,
-                    TestUnsignedInt64 = e.TestUnsignedInt64 * 5ul
-                })
+            .Select(e => new
+            {
+                e.Id,
+                TestDecimal = e.TestDecimal * 2m,
+                TestTimeSpan1 = e.TestTimeSpan * 2.0,
+                TestTimeSpan2 = 2.0 * e.TestTimeSpan,
+                TestUnsignedInt64 = e.TestUnsignedInt64 * 5ul
+            })
             .First(e => e.Id == 215);
 
         Assert.Equal(2.000000000000002m, result.TestDecimal);
@@ -1351,15 +1340,14 @@ public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTy
         context.SaveChanges();
 
         var result = context.Set<BuiltInDataTypes>()
-            .Select(
-                e => new BuiltInDataTypes
-                {
-                    Id = e.Id,
-                    TestDecimal = e.TestDecimal % 2.000000000000002m,
-                    TestDouble = e.TestDouble % 1.0,
-                    TestSingle = e.TestSingle % 1.0f,
-                    TestUnsignedInt64 = e.TestUnsignedInt64 % 10000000000000000000
-                })
+            .Select(e => new BuiltInDataTypes
+            {
+                Id = e.Id,
+                TestDecimal = e.TestDecimal % 2.000000000000002m,
+                TestDouble = e.TestDouble % 1.0,
+                TestSingle = e.TestSingle % 1.0f,
+                TestUnsignedInt64 = e.TestUnsignedInt64 % 10000000000000000000
+            })
             .First(e => e.Id == 216);
 
         Assert.Equal(1.000000000000001m, result.TestDecimal);
@@ -1399,22 +1387,19 @@ public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTy
         var query = context.Set<BuiltInNullableDataTypes>()
             .Where(e => e.PartitionId == 205);
 
-        var ex = Assert.Throws<NotSupportedException>(
-            () => query
-                .OrderBy(e => e.TestNullableDateTimeOffset)
-                .First());
+        var ex = Assert.Throws<NotSupportedException>(() => query
+            .OrderBy(e => e.TestNullableDateTimeOffset)
+            .First());
         Assert.Equal(SqliteStrings.OrderByNotSupported("DateTimeOffset"), ex.Message);
 
-        ex = Assert.Throws<NotSupportedException>(
-            () => query
-                .OrderBy(e => e.TestNullableTimeSpan)
-                .First());
+        ex = Assert.Throws<NotSupportedException>(() => query
+            .OrderBy(e => e.TestNullableTimeSpan)
+            .First());
         Assert.Equal(SqliteStrings.OrderByNotSupported("TimeSpan"), ex.Message);
 
-        ex = Assert.Throws<NotSupportedException>(
-            () => query
-                .OrderBy(e => e.TestNullableUnsignedInt64)
-                .First());
+        ex = Assert.Throws<NotSupportedException>(() => query
+            .OrderBy(e => e.TestNullableUnsignedInt64)
+            .First());
         Assert.Equal(SqliteStrings.OrderByNotSupported("ulong"), ex.Message);
     }
 
@@ -1450,25 +1435,21 @@ public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTy
             .Where(e => e.PartitionId == 206)
             .OrderBy(e => e.PartitionId);
 
-        var ex = Assert.Throws<NotSupportedException>(
-            () => query
-                .ThenBy(e => e.TestNullableDateTimeOffset)
-                .First());
+        var ex = Assert.Throws<NotSupportedException>(() => query
+            .ThenBy(e => e.TestNullableDateTimeOffset)
+            .First());
         Assert.Equal(SqliteStrings.OrderByNotSupported("DateTimeOffset"), ex.Message);
 
-        ex = Assert.Throws<NotSupportedException>(
-            () => query
-                .ThenBy(e => e.TestNullableTimeSpan)
-                .First());
+        ex = Assert.Throws<NotSupportedException>(() => query
+            .ThenBy(e => e.TestNullableTimeSpan)
+            .First());
         Assert.Equal(SqliteStrings.OrderByNotSupported("TimeSpan"), ex.Message);
 
-        ex = Assert.Throws<NotSupportedException>(
-            () => query
-                .ThenBy(e => e.TestNullableUnsignedInt64)
-                .First());
+        ex = Assert.Throws<NotSupportedException>(() => query
+            .ThenBy(e => e.TestNullableUnsignedInt64)
+            .First());
         Assert.Equal(SqliteStrings.OrderByNotSupported("ulong"), ex.Message);
     }
-
 
     [ConditionalFact]
     public virtual void Can_query_OrderBy_of_converted_types()
@@ -1771,36 +1752,34 @@ WHERE "b"."Id" = 13
         var expected = context.Set<BuiltInDataTypes>()
             .Where(e => e.Id == 290)
             .AsEnumerable()
-            .Select(
-                b => new
-                {
-                    Sbyte = (sbyte)b.TestCharacter,
-                    Byte = (byte)b.TestCharacter,
-                    Short = (short)b.TestCharacter,
-                    Ushort = (ushort)b.TestCharacter,
-                    Int = (int)b.TestCharacter,
-                    Uint = (uint)b.TestCharacter,
-                    Long = (long)b.TestCharacter,
-                    Ulong = (ulong)b.TestCharacter
-                })
+            .Select(b => new
+            {
+                Sbyte = (sbyte)b.TestCharacter,
+                Byte = (byte)b.TestCharacter,
+                Short = (short)b.TestCharacter,
+                Ushort = (ushort)b.TestCharacter,
+                Int = (int)b.TestCharacter,
+                Uint = (uint)b.TestCharacter,
+                Long = (long)b.TestCharacter,
+                Ulong = (ulong)b.TestCharacter
+            })
             .First();
 
         Fixture.ListLoggerFactory.Clear();
 
         var query = context.Set<BuiltInDataTypes>()
             .Where(e => e.Id == 290)
-            .Select(
-                b => new
-                {
-                    Sbyte = (sbyte)b.TestCharacter,
-                    Byte = (byte)b.TestCharacter,
-                    Short = (short)b.TestCharacter,
-                    Ushort = (ushort)b.TestCharacter,
-                    Int = (int)b.TestCharacter,
-                    Uint = (uint)b.TestCharacter,
-                    Long = (long)b.TestCharacter,
-                    Ulong = (ulong)b.TestCharacter
-                })
+            .Select(b => new
+            {
+                Sbyte = (sbyte)b.TestCharacter,
+                Byte = (byte)b.TestCharacter,
+                Short = (short)b.TestCharacter,
+                Ushort = (ushort)b.TestCharacter,
+                Int = (int)b.TestCharacter,
+                Uint = (uint)b.TestCharacter,
+                Long = (long)b.TestCharacter,
+                Ulong = (ulong)b.TestCharacter
+            })
             .ToList();
 
         var actual = Assert.Single(query);
@@ -1845,36 +1824,34 @@ WHERE "b"."Id" = 290
         var expected = context.Set<BuiltInDataTypes>()
             .Where(e => e.Id == 291)
             .AsEnumerable()
-            .Select(
-                b => new
-                {
-                    Sbyte = (char)b.TestSignedByte,
-                    Byte = (char)b.TestByte,
-                    Short = (char)b.TestInt16,
-                    Ushort = (char)b.TestUnsignedInt16,
-                    Int = (char)b.TestInt32,
-                    Uint = (char)b.TestUnsignedInt32,
-                    Long = (char)b.TestInt64,
-                    Ulong = (char)b.TestUnsignedInt64
-                })
+            .Select(b => new
+            {
+                Sbyte = (char)b.TestSignedByte,
+                Byte = (char)b.TestByte,
+                Short = (char)b.TestInt16,
+                Ushort = (char)b.TestUnsignedInt16,
+                Int = (char)b.TestInt32,
+                Uint = (char)b.TestUnsignedInt32,
+                Long = (char)b.TestInt64,
+                Ulong = (char)b.TestUnsignedInt64
+            })
             .First();
 
         Fixture.ListLoggerFactory.Clear();
 
         var query = context.Set<BuiltInDataTypes>()
             .Where(e => e.Id == 291)
-            .Select(
-                b => new
-                {
-                    Sbyte = (char)b.TestSignedByte,
-                    Byte = (char)b.TestByte,
-                    Short = (char)b.TestInt16,
-                    Ushort = (char)b.TestUnsignedInt16,
-                    Int = (char)b.TestInt32,
-                    Uint = (char)b.TestUnsignedInt32,
-                    Long = (char)b.TestInt64,
-                    Ulong = (char)b.TestUnsignedInt64
-                })
+            .Select(b => new
+            {
+                Sbyte = (char)b.TestSignedByte,
+                Byte = (char)b.TestByte,
+                Short = (char)b.TestInt16,
+                Ushort = (char)b.TestUnsignedInt16,
+                Int = (char)b.TestInt32,
+                Uint = (char)b.TestUnsignedInt32,
+                Long = (char)b.TestInt64,
+                Ulong = (char)b.TestUnsignedInt64
+            })
             .ToList();
 
         var actual = Assert.Single(query);
@@ -2040,95 +2017,86 @@ ORDER BY "b"."Id", "b0"."Id"
         {
             base.OnModelCreating(modelBuilder, context);
 
-            modelBuilder.Entity<MappedDataTypes>(
-                b =>
-                {
-                    b.Property(e => e.Id).ValueGeneratedNever();
-                    b.Property(e => e.Integer).HasColumnType("Integer");
-                    b.Property(e => e.Real).HasColumnType("Real");
-                    b.Property(e => e.Text).HasColumnType("Text").IsRequired();
-                    b.Property(e => e.Blob).HasColumnType("Blob").IsRequired();
-                    b.Property(e => e.SomeString).HasColumnType("SomeString").IsRequired();
-                    b.Property(e => e.Int).HasColumnType("Int");
-                });
+            modelBuilder.Entity<MappedDataTypes>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedNever();
+                b.Property(e => e.Integer).HasColumnType("Integer");
+                b.Property(e => e.Real).HasColumnType("Real");
+                b.Property(e => e.Text).HasColumnType("Text").IsRequired();
+                b.Property(e => e.Blob).HasColumnType("Blob").IsRequired();
+                b.Property(e => e.SomeString).HasColumnType("SomeString").IsRequired();
+                b.Property(e => e.Int).HasColumnType("Int");
+            });
 
-            modelBuilder.Entity<MappedNullableDataTypes>(
-                b =>
-                {
-                    b.Property(e => e.Id).ValueGeneratedNever();
-                    b.Property(e => e.Integer).HasColumnType("Integer");
-                    b.Property(e => e.Real).HasColumnType("Real");
-                    b.Property(e => e.Text).HasColumnType("Text");
-                    b.Property(e => e.Blob).HasColumnType("Blob");
-                    b.Property(e => e.SomeString).HasColumnType("SomeString");
-                    b.Property(e => e.Int).HasColumnType("Int");
-                });
+            modelBuilder.Entity<MappedNullableDataTypes>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedNever();
+                b.Property(e => e.Integer).HasColumnType("Integer");
+                b.Property(e => e.Real).HasColumnType("Real");
+                b.Property(e => e.Text).HasColumnType("Text");
+                b.Property(e => e.Blob).HasColumnType("Blob");
+                b.Property(e => e.SomeString).HasColumnType("SomeString");
+                b.Property(e => e.Int).HasColumnType("Int");
+            });
 
-            modelBuilder.Entity<MappedSizedDataTypes>(
-                b =>
-                {
-                    b.Property(e => e.Id).ValueGeneratedNever();
-                    b.Property(e => e.Nvarchar).HasColumnType("nvarchar(3)");
-                    b.Property(e => e.Binary).HasColumnType("varbinary(3)");
-                });
+            modelBuilder.Entity<MappedSizedDataTypes>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedNever();
+                b.Property(e => e.Nvarchar).HasColumnType("nvarchar(3)");
+                b.Property(e => e.Binary).HasColumnType("varbinary(3)");
+            });
 
-            modelBuilder.Entity<MappedScaledDataTypes>(
-                b =>
-                {
-                    b.Property(e => e.Id).ValueGeneratedNever();
-                    b.Property(e => e.Float).HasColumnType("real(3)");
-                    b.Property(e => e.Datetimeoffset).HasColumnType("datetimeoffset(3)");
-                    b.Property(e => e.Datetime2).HasColumnType("datetime2(3)");
-                    b.Property(e => e.Decimal).HasColumnType("decimal(3)");
-                });
+            modelBuilder.Entity<MappedScaledDataTypes>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedNever();
+                b.Property(e => e.Float).HasColumnType("real(3)");
+                b.Property(e => e.Datetimeoffset).HasColumnType("datetimeoffset(3)");
+                b.Property(e => e.Datetime2).HasColumnType("datetime2(3)");
+                b.Property(e => e.Decimal).HasColumnType("decimal(3)");
+            });
 
-            modelBuilder.Entity<MappedPrecisionAndScaledDataTypes>(
-                b =>
-                {
-                    b.Property(e => e.Id).ValueGeneratedNever();
-                    b.Property(e => e.Decimal).HasColumnType("decimal(5, 2)");
-                });
+            modelBuilder.Entity<MappedPrecisionAndScaledDataTypes>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedNever();
+                b.Property(e => e.Decimal).HasColumnType("decimal(5, 2)");
+            });
 
-            modelBuilder.Entity<MappedDataTypesWithIdentity>(
-                b =>
-                {
-                    b.Property(e => e.Integer).HasColumnType("Integer");
-                    b.Property(e => e.Real).HasColumnType("Real");
-                    b.Property(e => e.Text).HasColumnType("Text").IsRequired();
-                    b.Property(e => e.Blob).HasColumnType("Blob").IsRequired();
-                    b.Property(e => e.SomeString).HasColumnType("SomeString").IsRequired();
-                    b.Property(e => e.Int).HasColumnType("Int");
-                });
+            modelBuilder.Entity<MappedDataTypesWithIdentity>(b =>
+            {
+                b.Property(e => e.Integer).HasColumnType("Integer");
+                b.Property(e => e.Real).HasColumnType("Real");
+                b.Property(e => e.Text).HasColumnType("Text").IsRequired();
+                b.Property(e => e.Blob).HasColumnType("Blob").IsRequired();
+                b.Property(e => e.SomeString).HasColumnType("SomeString").IsRequired();
+                b.Property(e => e.Int).HasColumnType("Int");
+            });
 
-            modelBuilder.Entity<MappedNullableDataTypesWithIdentity>(
-                b =>
-                {
-                    b.Property(e => e.Integer).HasColumnType("Integer");
-                    b.Property(e => e.Real).HasColumnType("Real");
-                    b.Property(e => e.Text).HasColumnType("Text");
-                    b.Property(e => e.Blob).HasColumnType("Blob");
-                    b.Property(e => e.SomeString).HasColumnType("SomeString");
-                    b.Property(e => e.Int).HasColumnType("Int");
-                });
+            modelBuilder.Entity<MappedNullableDataTypesWithIdentity>(b =>
+            {
+                b.Property(e => e.Integer).HasColumnType("Integer");
+                b.Property(e => e.Real).HasColumnType("Real");
+                b.Property(e => e.Text).HasColumnType("Text");
+                b.Property(e => e.Blob).HasColumnType("Blob");
+                b.Property(e => e.SomeString).HasColumnType("SomeString");
+                b.Property(e => e.Int).HasColumnType("Int");
+            });
 
-            modelBuilder.Entity<MappedSizedDataTypesWithIdentity>(
-                b =>
-                {
-                    b.Property(e => e.Nvarchar).HasColumnType("nvarchar(3)");
-                    b.Property(e => e.Binary).HasColumnType("varbinary(3)");
-                });
+            modelBuilder.Entity<MappedSizedDataTypesWithIdentity>(b =>
+            {
+                b.Property(e => e.Nvarchar).HasColumnType("nvarchar(3)");
+                b.Property(e => e.Binary).HasColumnType("varbinary(3)");
+            });
 
-            modelBuilder.Entity<MappedScaledDataTypesWithIdentity>(
-                b =>
-                {
-                    b.Property(e => e.Float).HasColumnType("real(3)");
-                    b.Property(e => e.Datetimeoffset).HasColumnType("datetimeoffset(3)");
-                    b.Property(e => e.Datetime2).HasColumnType("datetime2(3)");
-                    b.Property(e => e.Decimal).HasColumnType("decimal(3)");
-                });
+            modelBuilder.Entity<MappedScaledDataTypesWithIdentity>(b =>
+            {
+                b.Property(e => e.Float).HasColumnType("real(3)");
+                b.Property(e => e.Datetimeoffset).HasColumnType("datetimeoffset(3)");
+                b.Property(e => e.Datetime2).HasColumnType("datetime2(3)");
+                b.Property(e => e.Decimal).HasColumnType("decimal(3)");
+            });
 
-            modelBuilder.Entity<MappedPrecisionAndScaledDataTypesWithIdentity>(
-                b => b.Property(e => e.Decimal).HasColumnType("decimal(5, 2)"));
+            modelBuilder.Entity<MappedPrecisionAndScaledDataTypesWithIdentity>(b
+                => b.Property(e => e.Decimal).HasColumnType("decimal(5, 2)"));
         }
 
         public override bool SupportsBinaryKeys

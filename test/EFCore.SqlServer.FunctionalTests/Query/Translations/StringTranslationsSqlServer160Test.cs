@@ -71,8 +71,7 @@ WHERE RTRIM([b].[String], N'le') = N'Seatt'
     {
         // SQL Server trims trailing whitespace for length calculations, making our EndsWith() column translation not work reliably in that
         // case
-        await AssertQuery(
-            ss => ss.Set<BasicTypesEntity>().Where(b => b.String == "Seattle" && b.String.EndsWith(b.String)));
+        await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.String == "Seattle" && b.String.EndsWith(b.String)));
 
         AssertSql(
             """
