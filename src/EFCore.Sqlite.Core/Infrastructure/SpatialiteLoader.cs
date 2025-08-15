@@ -193,11 +193,10 @@ public static class SpatialiteLoader
                 }
 
                 if (currentPath == null
-                    || !currentPath.Split(Path.PathSeparator).Any(
-                        p => string.Equals(
-                            p.TrimEnd(Path.DirectorySeparatorChar),
-                            assetDirectory,
-                            StringComparison.OrdinalIgnoreCase)))
+                    || !currentPath.Split(Path.PathSeparator).Any(p => string.Equals(
+                        p.TrimEnd(Path.DirectorySeparatorChar),
+                        assetDirectory,
+                        StringComparison.OrdinalIgnoreCase)))
                 {
                     Environment.SetEnvironmentVariable(
                         PathVariableName!,

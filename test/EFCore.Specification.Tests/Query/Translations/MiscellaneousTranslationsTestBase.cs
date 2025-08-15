@@ -26,28 +26,23 @@ public abstract class MiscellaneousTranslationsTestBase<TFixture>(TFixture fixtu
 
     [ConditionalFact]
     public virtual Task Random_Shared_Next_with_one_arg()
-        => AssertQuery(
-            ss => ss.Set<BasicTypesEntity>().Where(o => o.Int > Random.Shared.Next(5) - 2147483647));
+        => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(o => o.Int > Random.Shared.Next(5) - 2147483647));
 
     [ConditionalFact]
     public virtual Task Random_Shared_Next_with_two_args()
-        => AssertQuery(
-            ss => ss.Set<BasicTypesEntity>().Where(o => o.Int > Random.Shared.Next(0, 10) - 2147483647));
+        => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(o => o.Int > Random.Shared.Next(0, 10) - 2147483647));
 
     [ConditionalFact]
     public virtual Task Random_new_Next_with_no_args()
-        => AssertQuery(
-            ss => ss.Set<BasicTypesEntity>().Where(o => o.Int > new Random(15).Next() - 2147483647));
+        => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(o => o.Int > new Random(15).Next() - 2147483647));
 
     [ConditionalFact]
     public virtual Task Random_new_Next_with_one_arg()
-        => AssertQuery(
-            ss => ss.Set<BasicTypesEntity>().Where(o => o.Int > new Random(15).Next(5) - 2147483647));
+        => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(o => o.Int > new Random(15).Next(5) - 2147483647));
 
     [ConditionalFact]
     public virtual Task Random_new_Next_with_two_args()
-        => AssertQuery(
-            ss => ss.Set<BasicTypesEntity>().Where(o => o.Int > new Random(15).Next(0, 10) - 2147483647));
+        => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(o => o.Int > new Random(15).Next(0, 10) - 2147483647));
 
     #endregion Random
 
@@ -248,120 +243,86 @@ public abstract class MiscellaneousTranslationsTestBase<TFixture>(TFixture fixtu
     {
         var orderId = 8;
 
-        await AssertQuery(
-            ss => ss.Set<BasicTypesEntity>().Where(c => c.Int.CompareTo(orderId) == 0));
+        await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.Int.CompareTo(orderId) == 0));
 
-        await AssertQuery(
-            ss => ss.Set<BasicTypesEntity>().Where(c => 0 != c.Int.CompareTo(orderId)));
+        await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => 0 != c.Int.CompareTo(orderId)));
 
-        await AssertQuery(
-            ss => ss.Set<BasicTypesEntity>().Where(c => c.Int.CompareTo(orderId) > 0));
+        await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.Int.CompareTo(orderId) > 0));
 
-        await AssertQuery(
-            ss => ss.Set<BasicTypesEntity>().Where(c => 0 >= c.Int.CompareTo(orderId)));
+        await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => 0 >= c.Int.CompareTo(orderId)));
 
-        await AssertQuery(
-            ss => ss.Set<BasicTypesEntity>().Where(c => 0 < c.Int.CompareTo(orderId)));
+        await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => 0 < c.Int.CompareTo(orderId)));
 
-        await AssertQuery(
-            ss => ss.Set<BasicTypesEntity>().Where(c => c.Int.CompareTo(orderId) <= 0));
+        await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.Int.CompareTo(orderId) <= 0));
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task DateTime_Compare_to_simple_zero(bool compareTo)
     {
         var dateTime = new DateTime(1998, 5, 4, 15, 30, 10);
 
         if (compareTo)
         {
-            await AssertQuery(
-                ss => ss.Set<BasicTypesEntity>().Where(c => c.DateTime.CompareTo(dateTime) == 0));
+            await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.DateTime.CompareTo(dateTime) == 0));
 
-            await AssertQuery(
-                ss => ss.Set<BasicTypesEntity>().Where(c => 0 != c.DateTime.CompareTo(dateTime)));
+            await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => 0 != c.DateTime.CompareTo(dateTime)));
 
-            await AssertQuery(
-                ss => ss.Set<BasicTypesEntity>().Where(c => c.DateTime.CompareTo(dateTime) > 0));
+            await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.DateTime.CompareTo(dateTime) > 0));
 
-            await AssertQuery(
-                ss => ss.Set<BasicTypesEntity>().Where(c => 0 >= c.DateTime.CompareTo(dateTime)));
+            await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => 0 >= c.DateTime.CompareTo(dateTime)));
 
-            await AssertQuery(
-                ss => ss.Set<BasicTypesEntity>().Where(c => 0 < c.DateTime.CompareTo(dateTime)));
+            await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => 0 < c.DateTime.CompareTo(dateTime)));
 
-            await AssertQuery(
-                ss => ss.Set<BasicTypesEntity>().Where(c => c.DateTime.CompareTo(dateTime) <= 0));
+            await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.DateTime.CompareTo(dateTime) <= 0));
         }
         else
         {
-            await AssertQuery(
-                ss => ss.Set<BasicTypesEntity>().Where(c => DateTime.Compare(c.DateTime, dateTime) == 0));
+            await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => DateTime.Compare(c.DateTime, dateTime) == 0));
 
-            await AssertQuery(
-                ss => ss.Set<BasicTypesEntity>().Where(c => 0 != DateTime.Compare(c.DateTime, dateTime)));
+            await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => 0 != DateTime.Compare(c.DateTime, dateTime)));
 
-            await AssertQuery(
-                ss => ss.Set<BasicTypesEntity>().Where(c => DateTime.Compare(c.DateTime, dateTime) > 0));
+            await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => DateTime.Compare(c.DateTime, dateTime) > 0));
 
-            await AssertQuery(
-                ss => ss.Set<BasicTypesEntity>().Where(c => 0 >= DateTime.Compare(c.DateTime, dateTime)));
+            await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => 0 >= DateTime.Compare(c.DateTime, dateTime)));
 
-            await AssertQuery(
-                ss => ss.Set<BasicTypesEntity>().Where(c => 0 < DateTime.Compare(c.DateTime, dateTime)));
+            await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => 0 < DateTime.Compare(c.DateTime, dateTime)));
 
-            await AssertQuery(
-                ss => ss.Set<BasicTypesEntity>().Where(c => DateTime.Compare(c.DateTime, dateTime) <= 0));
+            await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => DateTime.Compare(c.DateTime, dateTime) <= 0));
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task TimeSpan_Compare_to_simple_zero(bool compareTo)
     {
         var timeSpan = new TimeSpan(1, 2, 3);
 
         if (compareTo)
         {
-            await AssertQuery(
-                ss => ss.Set<BasicTypesEntity>().Where(c => c.TimeSpan.CompareTo(timeSpan) == 0));
+            await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.TimeSpan.CompareTo(timeSpan) == 0));
 
-            await AssertQuery(
-                ss => ss.Set<BasicTypesEntity>().Where(c => 0 != c.TimeSpan.CompareTo(timeSpan)));
+            await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => 0 != c.TimeSpan.CompareTo(timeSpan)));
 
-            await AssertQuery(
-                ss => ss.Set<BasicTypesEntity>().Where(c => c.TimeSpan.CompareTo(timeSpan) > 0));
+            await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.TimeSpan.CompareTo(timeSpan) > 0));
 
-            await AssertQuery(
-                ss => ss.Set<BasicTypesEntity>().Where(c => 0 >= c.TimeSpan.CompareTo(timeSpan)));
+            await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => 0 >= c.TimeSpan.CompareTo(timeSpan)));
 
-            await AssertQuery(
-                ss => ss.Set<BasicTypesEntity>().Where(c => 0 < c.TimeSpan.CompareTo(timeSpan)));
+            await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => 0 < c.TimeSpan.CompareTo(timeSpan)));
 
-            await AssertQuery(
-                ss => ss.Set<BasicTypesEntity>().Where(c => c.TimeSpan.CompareTo(timeSpan) <= 0));
+            await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.TimeSpan.CompareTo(timeSpan) <= 0));
         }
         else
         {
-            await AssertQuery(
-                ss => ss.Set<BasicTypesEntity>().Where(c => TimeSpan.Compare(c.TimeSpan, timeSpan) == 0));
+            await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => TimeSpan.Compare(c.TimeSpan, timeSpan) == 0));
 
-            await AssertQuery(
-                ss => ss.Set<BasicTypesEntity>().Where(c => 0 != TimeSpan.Compare(c.TimeSpan, timeSpan)));
+            await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => 0 != TimeSpan.Compare(c.TimeSpan, timeSpan)));
 
-            await AssertQuery(
-                ss => ss.Set<BasicTypesEntity>().Where(c => TimeSpan.Compare(c.TimeSpan, timeSpan) > 0));
+            await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => TimeSpan.Compare(c.TimeSpan, timeSpan) > 0));
 
-            await AssertQuery(
-                ss => ss.Set<BasicTypesEntity>().Where(c => 0 >= TimeSpan.Compare(c.TimeSpan, timeSpan)));
+            await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => 0 >= TimeSpan.Compare(c.TimeSpan, timeSpan)));
 
-            await AssertQuery(
-                ss => ss.Set<BasicTypesEntity>().Where(c => 0 < TimeSpan.Compare(c.TimeSpan, timeSpan)));
+            await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => 0 < TimeSpan.Compare(c.TimeSpan, timeSpan)));
 
-            await AssertQuery(
-                ss => ss.Set<BasicTypesEntity>().Where(c => TimeSpan.Compare(c.TimeSpan, timeSpan) <= 0));
+            await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => TimeSpan.Compare(c.TimeSpan, timeSpan) <= 0));
         }
     }
 

@@ -36,7 +36,7 @@ public interface IClrPropertyGetter
     object? GetClrValueUsingContainingEntity(object entity, IReadOnlyList<int> indices);
 
     /// <summary>
-    ///     Checks whether or not the property from the containing entity instance is set to the CLR default for its type.
+    ///     Checks whether the property from the containing entity instance is set to the CLR default for its type.
     /// </summary>
     /// <param name="entity">The entity instance.</param>
     /// <returns><see langword="true" /> if the property value is the CLR default; <see langword="false" /> it is any other value.</returns>
@@ -44,7 +44,7 @@ public interface IClrPropertyGetter
         => HasSentinelValueUsingContainingEntity(entity, []);
 
     /// <summary>
-    ///     Checks whether or not the property from the containing entity instance is set to the CLR default for its type.
+    ///     Checks whether the property from the containing entity instance is set to the CLR default for its type.
     /// </summary>
     /// <param name="entity">The entity instance.</param>
     /// <param name="indices"> The indices corresponding to complex collections used to access the property. </param>
@@ -59,7 +59,7 @@ public interface IClrPropertyGetter
     object? GetClrValue(object structuralObject);
 
     /// <summary>
-    ///     Checks whether or not the property is set to the CLR default for its type.
+    ///     Checks whether the property is set to the CLR default for its type.
     /// </summary>
     /// <param name="structuralObject">The entity or complex type instance.</param>
     /// <returns><see langword="true" /> if the property value is the CLR default; <see langword="false" /> it is any other value.</returns>

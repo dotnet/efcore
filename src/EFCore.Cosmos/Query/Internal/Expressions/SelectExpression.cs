@@ -21,7 +21,7 @@ public sealed class SelectExpression : Expression, IPrintableExpression
     private readonly List<ProjectionExpression> _projection = [];
     private readonly List<OrderingExpression> _orderings = [];
 
-    private readonly List<(Expression ValueExpression, IProperty Property)> _partitionKeyValues = new();
+    private readonly List<(Expression ValueExpression, IProperty Property)> _partitionKeyValues = [];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -407,8 +407,8 @@ public sealed class SelectExpression : Expression, IPrintableExpression
             {
                 throw new InvalidOperationException(
                     appendingScoringFunctionOrdering && existingScoringFunctionOrdering
-                    ? CosmosStrings.OrderByMultipleScoringFunctionWithoutRrf(nameof(CosmosDbFunctionsExtensions.Rrf))
-                    : CosmosStrings.OrderByScoringFunctionMixedWithRegularOrderby);
+                        ? CosmosStrings.OrderByMultipleScoringFunctionWithoutRrf(nameof(CosmosDbFunctionsExtensions.Rrf))
+                        : CosmosStrings.OrderByScoringFunctionMixedWithRegularOrderby);
             }
         }
 
@@ -535,7 +535,7 @@ public sealed class SelectExpression : Expression, IPrintableExpression
 
         return New(
             transparentIdentifierType.GetTypeInfo().DeclaredConstructors.Single(),
-            new[] { outerShaper, innerShaper }, outerMemberInfo, innerMemberInfo);
+            [outerShaper, innerShaper], outerMemberInfo, innerMemberInfo);
     }
 
     /// <summary>

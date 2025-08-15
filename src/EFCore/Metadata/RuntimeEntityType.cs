@@ -1,11 +1,11 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using EntityTypeExtensions = Microsoft.EntityFrameworkCore.Metadata.Internal.EntityTypeExtensions;
 
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
@@ -84,11 +84,13 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
 
         if (servicePropertyCount > 0)
         {
-            _serviceProperties = new Utilities.OrderedDictionary<string, RuntimeServiceProperty>(servicePropertyCount, StringComparer.Ordinal);
+            _serviceProperties =
+                new Utilities.OrderedDictionary<string, RuntimeServiceProperty>(servicePropertyCount, StringComparer.Ordinal);
         }
 
         _unnamedIndexes =
-            new Utilities.OrderedDictionary<IReadOnlyList<IReadOnlyProperty>, RuntimeIndex>(unnamedIndexCount, PropertyListComparer.Instance);
+            new Utilities.OrderedDictionary<IReadOnlyList<IReadOnlyProperty>, RuntimeIndex>(
+                unnamedIndexCount, PropertyListComparer.Instance);
         if (namedIndexCount > 0)
         {
             _namedIndexes = new Utilities.OrderedDictionary<string, RuntimeIndex>(namedIndexCount, StringComparer.Ordinal);
@@ -291,7 +293,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
 
     private IEnumerable<RuntimeForeignKey> GetDerivedForeignKeys()
         => !HasDirectlyDerivedTypes
-            ? Enumerable.Empty<RuntimeForeignKey>()
+            ? []
             : GetDerivedTypes().Cast<RuntimeEntityType>().SelectMany(et => et._foreignKeys);
 
     /// <summary>
@@ -312,7 +314,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     /// <returns>Declared foreign keys.</returns>
     public virtual IEnumerable<RuntimeForeignKey> FindDeclaredForeignKeys(IReadOnlyList<IReadOnlyProperty> properties)
         => _foreignKeys.Count == 0
-            ? Enumerable.Empty<RuntimeForeignKey>()
+            ? []
             : _foreignKeys.Where(fk => PropertyListComparer.Instance.Equals(fk.Properties, properties));
 
     private RuntimeForeignKey? FindDeclaredForeignKey(
@@ -409,7 +411,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
         Check.NotNull(name);
 
         return !HasDirectlyDerivedTypes
-            ? Enumerable.Empty<RuntimeNavigation>()
+            ? []
             : (IEnumerable<RuntimeNavigation>)GetDerivedTypes<RuntimeEntityType>()
                 .Select(et => et.FindDeclaredNavigation(name)).Where(n => n != null);
     }
@@ -494,7 +496,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
 
     private IEnumerable<RuntimeSkipNavigation> GetDerivedSkipNavigations()
         => !HasDirectlyDerivedTypes
-            ? Enumerable.Empty<RuntimeSkipNavigation>()
+            ? []
             : GetDerivedTypes().Cast<RuntimeEntityType>().SelectMany(et => et.GetDeclaredSkipNavigations());
 
     private IEnumerable<RuntimeSkipNavigation> GetSkipNavigations()
@@ -509,7 +511,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
         Check.NotNull(name);
 
         return !HasDirectlyDerivedTypes
-            ? Enumerable.Empty<RuntimeSkipNavigation>()
+            ? []
             : (IEnumerable<RuntimeSkipNavigation>)GetDerivedTypes<RuntimeEntityType>()
                 .Select(et => et.FindDeclaredSkipNavigation(name)).Where(n => n != null);
     }
@@ -599,7 +601,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
 
     private IEnumerable<RuntimeIndex> GetDerivedIndexes()
         => !HasDirectlyDerivedTypes
-            ? Enumerable.Empty<RuntimeIndex>()
+            ? []
             : GetDerivedTypes().Cast<RuntimeEntityType>().SelectMany(et => et.GetDeclaredIndexes());
 
     /// <summary>
@@ -637,7 +639,8 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
             this,
             propertyAccessMode);
 
-        (_serviceProperties ??= new Utilities.OrderedDictionary<string, RuntimeServiceProperty>(StringComparer.Ordinal))[serviceProperty.Name] =
+        (_serviceProperties ??= new Utilities.OrderedDictionary<string, RuntimeServiceProperty>(StringComparer.Ordinal))[
+                serviceProperty.Name] =
             serviceProperty;
 
         return serviceProperty;
@@ -675,7 +678,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
 
     private IEnumerable<RuntimeServiceProperty> GetDerivedServiceProperties()
         => !HasDirectlyDerivedTypes
-            ? Enumerable.Empty<RuntimeServiceProperty>()
+            ? []
             : GetDerivedTypes().Cast<RuntimeEntityType>().SelectMany(et => et.GetDeclaredServiceProperties());
 
     /// <summary>
@@ -689,7 +692,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
         Check.NotNull(propertyName);
 
         return !HasDirectlyDerivedTypes
-            ? Enumerable.Empty<RuntimeServiceProperty>()
+            ? []
             : (IEnumerable<RuntimeServiceProperty>)GetDerivedTypes<RuntimeEntityType>()
                 .Select(et => et.FindDeclaredServiceProperty(propertyName))
                 .Where(p => p != null);
@@ -846,10 +849,10 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    public override PropertyCounts CalculateCounts() =>
-        NonCapturingLazyInitializer.EnsureInitialized(
+    public override PropertyCounts CalculateCounts()
+        => NonCapturingLazyInitializer.EnsureInitialized(
             ref _counts, this, static entityType =>
-                Internal.EntityTypeExtensions.CalculateCounts(entityType));
+                EntityTypeExtensions.CalculateCounts(entityType));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -857,7 +860,8 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void SetCounts(PropertyCounts counts) => _counts = counts;
+    public virtual void SetCounts(PropertyCounts counts)
+        => _counts = counts;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -917,8 +921,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
         => (IReadOnlyCollection<IQueryFilter>?)this[CoreAnnotationNames.QueryFilter] ?? [];
 
     /// <inheritdoc />
-    [DebuggerStepThrough]
-    [Obsolete("Use GetDeclaredQueryFilters() instead.")]
+    [DebuggerStepThrough, Obsolete("Use GetDeclaredQueryFilters() instead.")]
     LambdaExpression? IReadOnlyEntityType.GetQueryFilter()
         => ((IReadOnlyEntityType)this).GetDeclaredQueryFilters().FirstOrDefault(f => f.IsAnonymous)?.Expression;
 
@@ -1133,7 +1136,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     [DebuggerStepThrough]
     IEnumerable<IReadOnlyNavigation> IReadOnlyEntityType.GetDerivedNavigations()
         => !HasDirectlyDerivedTypes
-            ? Enumerable.Empty<RuntimeNavigation>()
+            ? []
             : GetDerivedTypes().Cast<RuntimeEntityType>().SelectMany(et => et.GetDeclaredNavigations());
 
     /// <inheritdoc />
@@ -1270,6 +1273,16 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     [DebuggerStepThrough]
     IEnumerable<ITrigger> IEntityType.GetDeclaredTriggers()
         => GetDeclaredTriggers();
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IEnumerable<IReadOnlyTrigger> IReadOnlyEntityType.GetTriggers()
+        => GetTriggers();
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IEnumerable<ITrigger> IEntityType.GetTriggers()
+        => GetTriggers();
 
     /// <inheritdoc />
     [DebuggerStepThrough]

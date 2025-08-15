@@ -642,8 +642,8 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
         }
 
         conflictingNavigationsFound = compatibleRelationship != null
-            || resolvableRelationships.Any(
-                r => (r.Resolution & (Resolution.ResetToDependent | Resolution.ResetToPrincipal | Resolution.Remove)) != 0);
+            || resolvableRelationships.Any(r
+                => (r.Resolution & (Resolution.ResetToDependent | Resolution.ResetToPrincipal | Resolution.Remove)) != 0);
 
         if (shouldBeUnique == null
             && (Metadata.IsUnique || configurationSource.OverridesStrictly(Metadata.GetIsUniqueConfigurationSource()))
@@ -1515,13 +1515,12 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
         var relationshipBuilder = this;
         using var batch = Metadata.DeclaringEntityType.Model.DelayConventions();
 
-        var temporaryProperties = Metadata.Properties.Where(
-            p => (p.IsShadowProperty() || p.DeclaringType.IsPropertyBag && p.IsIndexerProperty())
-                && ConfigurationSource.Convention.Overrides(p.GetConfigurationSource())).ToList();
+        var temporaryProperties = Metadata.Properties.Where(p
+            => (p.IsShadowProperty() || p.DeclaringType.IsPropertyBag && p.IsIndexerProperty())
+            && ConfigurationSource.Convention.Overrides(p.GetConfigurationSource())).ToList();
 
-        var keysToDetach = temporaryProperties.SelectMany(
-                p => p.GetContainingKeys()
-                    .Where(k => ConfigurationSource.Convention.Overrides(k.GetConfigurationSource())))
+        var keysToDetach = temporaryProperties.SelectMany(p => p.GetContainingKeys()
+                .Where(k => ConfigurationSource.Convention.Overrides(k.GetConfigurationSource())))
             .Distinct().ToList();
 
         List<RelationshipSnapshot>? detachedRelationships = null;
@@ -1725,8 +1724,7 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
     public virtual bool CanSetForeignKey(IReadOnlyList<string>? propertyNames, ConfigurationSource? configurationSource)
     {
         if (propertyNames is not null
-            && ((IReadOnlyEntityType)Metadata.DeclaringEntityType).FindProperties(propertyNames) is IReadOnlyList<IReadOnlyProperty>
-            properties)
+            && ((IReadOnlyEntityType)Metadata.DeclaringEntityType).FindProperties(propertyNames) is { } properties)
         {
             return CanSetForeignKey(
                 properties,
@@ -1938,8 +1936,7 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
     public virtual bool CanSetPrincipalKey(IReadOnlyList<string>? propertyNames, ConfigurationSource? configurationSource)
     {
         if (propertyNames is not null
-            && ((IReadOnlyEntityType)Metadata.PrincipalEntityType).FindProperties(propertyNames) is IReadOnlyList<IReadOnlyProperty>
-            properties)
+            && ((IReadOnlyEntityType)Metadata.PrincipalEntityType).FindProperties(propertyNames) is { } properties)
         {
             return CanSetPrincipalKey(
                 properties,
@@ -2001,9 +1998,8 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
             }
 
             if (Metadata.GetPropertiesConfigurationSource().Overrides(ConfigurationSource.DataAnnotation)
-                && Metadata.Properties.All(
-                    p => ConfigurationSource.Convention.Overrides(p.GetTypeConfigurationSource())
-                        && (p.IsShadowProperty() || p.IsIndexerProperty())))
+                && Metadata.Properties.All(p => ConfigurationSource.Convention.Overrides(p.GetTypeConfigurationSource())
+                    && (p.IsShadowProperty() || p.IsIndexerProperty())))
             {
                 oldNameDependentProperties = Metadata.Properties;
             }
@@ -2776,17 +2772,15 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
         // This workaround prevents the properties to be cleaned away before the new FK is created,
         // this should be replaced with reference counting
         // Issue #15898
-        var temporaryProperties = dependentProperties?.Where(
-            p => p.GetConfigurationSource() == ConfigurationSource.Convention
-                && ((IConventionProperty)p).IsImplicitlyCreated()).ToList();
+        var temporaryProperties = dependentProperties?.Where(p => p.GetConfigurationSource() == ConfigurationSource.Convention
+            && ((IConventionProperty)p).IsImplicitlyCreated()).ToList();
         var tempIndex = temporaryProperties?.Count > 0
             && dependentEntityType.FindIndex(temporaryProperties) == null
                 ? dependentEntityType.Builder.HasIndex(temporaryProperties, ConfigurationSource.Convention)!.Metadata
                 : null;
 
-        var temporaryKeyProperties = principalProperties?.Where(
-            p => p.GetConfigurationSource() == ConfigurationSource.Convention
-                && ((IConventionProperty)p).IsImplicitlyCreated()).ToList();
+        var temporaryKeyProperties = principalProperties?.Where(p => p.GetConfigurationSource() == ConfigurationSource.Convention
+            && ((IConventionProperty)p).IsImplicitlyCreated()).ToList();
         var keyTempIndex = temporaryKeyProperties?.Count > 0
             && principalEntityType.FindIndex(temporaryKeyProperties) == null
                 ? principalEntityType.Builder.HasIndex(temporaryKeyProperties, ConfigurationSource.Convention)!.Metadata
@@ -2896,9 +2890,8 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
                             principalEntityType,
                             dependentEntityType,
                             shouldThrow: false)
-                        && dependentProperties.All(
-                            p => ConfigurationSource.Convention.Overrides(p.GetTypeConfigurationSource())
-                                && (p.IsShadowProperty() || p.IsIndexerProperty()))))
+                        && dependentProperties.All(p => ConfigurationSource.Convention.Overrides(p.GetTypeConfigurationSource())
+                            && (p.IsShadowProperty() || p.IsIndexerProperty()))))
                 {
                     dependentProperties = (oldNameDependentProperties ?? dependentProperties)!;
                     if (principalKey.Properties.Count == dependentProperties.Count)
@@ -2983,7 +2976,7 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
     {
         existingRelationshipInverted = null;
         conflictingRelationshipsFound = false;
-        resolvableRelationships = new List<(InternalForeignKeyBuilder, bool, Resolution, bool)>();
+        resolvableRelationships = [];
 
         var matchingRelationships = FindRelationships(
                 principalEntityType,

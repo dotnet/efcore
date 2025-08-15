@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using Microsoft.EntityFrameworkCore.Internal;
 
@@ -205,7 +204,7 @@ public abstract class InternalTypeBaseBuilder :
             if (memberInfo == null
                 || (memberInfo is PropertyInfo propertyInfo && propertyInfo.IsIndexerProperty()))
             {
-                if (existingProperty.GetTypeConfigurationSource() is ConfigurationSource existingTypeConfigurationSource
+                if (existingProperty.GetTypeConfigurationSource() is { } existingTypeConfigurationSource
                     && typeConfigurationSource != null
                     && !typeConfigurationSource.Overrides(existingTypeConfigurationSource))
                 {
@@ -375,8 +374,8 @@ public abstract class InternalTypeBaseBuilder :
         bool required,
         bool checkType = false)
         => CreateUniqueProperties(
-            new[] { propertyType },
-            new[] { propertyName },
+            [propertyType],
+            [propertyName],
             required,
             checkTypes: checkType)?.First().Builder;
 
@@ -808,7 +807,7 @@ public abstract class InternalTypeBaseBuilder :
                 && (propertyType == null || propertyType == existingProperty.ClrType))
             || ((memberInfo == null
                     || (memberInfo is PropertyInfo propertyInfo && propertyInfo.IsIndexerProperty()))
-                && (existingProperty.GetTypeConfigurationSource() is not ConfigurationSource existingTypeConfigurationSource
+                && (existingProperty.GetTypeConfigurationSource() is not { } existingTypeConfigurationSource
                     || typeConfigurationSource.Overrides(existingTypeConfigurationSource)))
             || configurationSource.Overrides(existingProperty.GetConfigurationSource())
             : configurationSource.HasValue
@@ -1051,9 +1050,6 @@ public abstract class InternalTypeBaseBuilder :
             Debug.Assert(configurationSource.HasValue);
 
             memberInfo ??= existingComplexProperty.PropertyInfo ?? (MemberInfo?)existingComplexProperty.FieldInfo;
-            propertyType ??= existingComplexProperty.ClrType;
-            collection ??= existingComplexProperty.IsCollection;
-            complexType ??= existingComplexType.ClrType;
 
             propertiesToDetach = [existingComplexProperty];
         }
@@ -1067,33 +1063,6 @@ public abstract class InternalTypeBaseBuilder :
                 return null;
             }
 
-            memberInfo ??= Metadata.IsPropertyBag
-                ? null
-                : Metadata.ClrType.GetMembersInHierarchy(propertyName).FirstOrDefault();
-
-            if (propertyType == null)
-            {
-                if (memberInfo == null)
-                {
-                    throw new InvalidOperationException(CoreStrings.NoPropertyType(propertyName, Metadata.DisplayName()));
-                }
-
-                propertyType = memberInfo.GetMemberType();
-            }
-
-            if (collection == false)
-            {
-                complexType = propertyType.UnwrapNullableType();
-            }
-
-            if (collection == null
-                || complexType == null)
-            {
-                var elementType = propertyType.TryGetSequenceType();
-                collection ??= elementType != null;
-                complexType ??= (collection.Value ? elementType : propertyType)?.UnwrapNullableType();
-            }
-
             foreach (var derivedType in Metadata.GetDerivedTypes())
             {
                 var derivedProperty = derivedType.FindDeclaredComplexProperty(propertyName);
@@ -1104,6 +1073,33 @@ public abstract class InternalTypeBaseBuilder :
                     propertiesToDetach.Add(derivedProperty);
                 }
             }
+
+            memberInfo ??= Metadata.IsPropertyBag
+                ? null
+                : Metadata.ClrType.GetMembersInHierarchy(propertyName).FirstOrDefault();
+        }
+
+        if (propertyType == null)
+        {
+            if (memberInfo == null)
+            {
+                throw new InvalidOperationException(CoreStrings.NoPropertyType(propertyName, Metadata.DisplayName()));
+            }
+
+            propertyType = memberInfo.GetMemberType();
+        }
+
+        if (collection == false)
+        {
+            complexType = propertyType.UnwrapNullableType();
+        }
+
+        if (collection == null
+            || complexType == null)
+        {
+            var elementType = propertyType.TryGetSequenceType();
+            collection ??= elementType != null;
+            complexType ??= (collection.Value ? elementType : propertyType)?.UnwrapNullableType();
         }
 
         var model = Metadata.Model;
@@ -1378,7 +1374,10 @@ public abstract class InternalTypeBaseBuilder :
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected virtual InternalPropertyBuilder? GetOrCreateDiscriminatorProperty(
-        Type? type, string? name, MemberInfo? memberInfo, ConfigurationSource configurationSource)
+        Type? type,
+        string? name,
+        MemberInfo? memberInfo,
+        ConfigurationSource configurationSource)
     {
         if (memberInfo != null)
         {
@@ -1404,7 +1403,7 @@ public abstract class InternalTypeBaseBuilder :
             type,
             name,
             memberInfo,
-            typeConfigurationSource: type != null ? ConfigurationSource.Convention : null,
+            typeConfigurationSource: ConfigurationSource.Convention,
             ConfigurationSource.Convention);
 
         if (discriminatorPropertyBuilder == null)
@@ -1416,7 +1415,7 @@ public abstract class InternalTypeBaseBuilder :
                     type,
                     name,
                     memberInfo,
-                    typeConfigurationSource: type != null ? ConfigurationSource.Convention : null,
+                    typeConfigurationSource: ConfigurationSource.Convention,
                     ConfigurationSource.Convention);
             }
 
@@ -1517,7 +1516,8 @@ public abstract class InternalTypeBaseBuilder :
 
         return memberInfo == null
             || propertyType == memberInfo.GetMemberType()
-            || typeConfigurationSource == null;
+            || typeConfigurationSource == null
+            || typeConfigurationSource == ConfigurationSource.Explicit;
     }
 
     /// <summary>
@@ -1863,7 +1863,11 @@ public abstract class InternalTypeBaseBuilder :
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    public IConventionComplexPropertyBuilder? ComplexCollection(Type propertyType, string propertyName, Type? complexType = null, bool fromDataAnnotation = false)
+    public IConventionComplexPropertyBuilder? ComplexCollection(
+        Type propertyType,
+        string propertyName,
+        Type? complexType = null,
+        bool fromDataAnnotation = false)
         => ComplexProperty(
             propertyType,
             propertyName,
@@ -1880,7 +1884,10 @@ public abstract class InternalTypeBaseBuilder :
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    public IConventionComplexPropertyBuilder? ComplexCollection(MemberInfo memberInfo, Type? complexType = null, bool fromDataAnnotation = false)
+    public IConventionComplexPropertyBuilder? ComplexCollection(
+        MemberInfo memberInfo,
+        Type? complexType = null,
+        bool fromDataAnnotation = false)
         => ComplexProperty(
             propertyType: memberInfo.GetMemberType(),
             propertyName: memberInfo.Name,
@@ -1890,7 +1897,11 @@ public abstract class InternalTypeBaseBuilder :
             collection: true,
             configurationSource: fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
-    bool IConventionTypeBaseBuilder.CanHaveComplexCollection(Type? propertyType, string propertyName, Type? complexType, bool fromDataAnnotation)
+    bool IConventionTypeBaseBuilder.CanHaveComplexCollection(
+        Type? propertyType,
+        string propertyName,
+        Type? complexType,
+        bool fromDataAnnotation)
         => CanHaveComplexProperty(
             propertyType,
             propertyName,

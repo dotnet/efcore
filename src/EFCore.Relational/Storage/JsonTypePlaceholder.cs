@@ -4,7 +4,7 @@
 namespace Microsoft.EntityFrameworkCore.Storage;
 
 /// <summary>
-/// A type representing CLR type of the JsonTypeMapping.
+///     A type representing CLR type of the JsonTypeMapping.
 /// </summary>
 public sealed class JsonTypePlaceholder
 {

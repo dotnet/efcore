@@ -204,7 +204,7 @@ public class RuntimeAnnotatableBase : IAnnotatable
     /// </summary>
     public virtual IEnumerable<Annotation> GetRuntimeAnnotations()
         => _runtimeAnnotations?.OrderBy(p => p.Key, StringComparer.Ordinal).Select(p => p.Value)
-            ?? Enumerable.Empty<Annotation>();
+            ?? [];
 
     /// <summary>
     ///     Adds a runtime annotation to this object. Throws if an annotation with the specified name already exists.

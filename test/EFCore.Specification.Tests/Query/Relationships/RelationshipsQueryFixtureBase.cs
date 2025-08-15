@@ -5,7 +5,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Relationships;
 
 public abstract class RelationshipsQueryFixtureBase : SharedStoreFixtureBase<PoolableDbContext>, IQueryFixtureBase
 {
-    public virtual bool AreCollectionsOrdered => true;
+    public virtual bool AreCollectionsOrdered
+        => true;
 
     private readonly RelationshipsData _data;
 
@@ -65,7 +66,7 @@ public abstract class RelationshipsQueryFixtureBase : SharedStoreFixtureBase<Poo
 
     public virtual IReadOnlyDictionary<Type, object> EntityAsserters { get; }
 
-    private void AssertRootEntity(RootEntity e, RootEntity a)
+    protected virtual void AssertRootEntity(RootEntity e, RootEntity a)
     {
         Assert.Equal(e.Id, a.Id);
         Assert.Equal(e.Name, a.Name);
@@ -73,10 +74,26 @@ public abstract class RelationshipsQueryFixtureBase : SharedStoreFixtureBase<Poo
         NullSafeAssert<RelatedType>(e.RequiredRelated, a.RequiredRelated, AssertRelatedType);
         NullSafeAssert<RelatedType>(e.OptionalRelated, a.OptionalRelated, AssertRelatedType);
 
-        // TODO: Complete for collection, mind ordering (how is this done elsewhere?)
+        if (e.RelatedCollection is not null && a.RelatedCollection is not null)
+        {
+            Assert.Equal(e.RelatedCollection.Count, a.RelatedCollection.Count);
+
+            var (orderedExpected, orderedActual) = AreCollectionsOrdered
+                ? (e.RelatedCollection, a.RelatedCollection)
+                : (e.RelatedCollection.OrderBy(n => n.Id).ToList(), a.RelatedCollection.OrderBy(n => n.Id).ToList());
+
+            for (var i = 0; i < e.RelatedCollection.Count; i++)
+            {
+                AssertRelatedType(orderedExpected[i], orderedActual[i]);
+            }
+        }
+        else
+        {
+            Assert.Equal(e.RelatedCollection, a.RelatedCollection);
+        }
     }
 
-    private void AssertRelatedType(RelatedType e, RelatedType a)
+    protected virtual void AssertRelatedType(RelatedType e, RelatedType a)
     {
         Assert.Equal(e.Id, a.Id);
         Assert.Equal(e.Name, a.Name);
@@ -87,10 +104,26 @@ public abstract class RelationshipsQueryFixtureBase : SharedStoreFixtureBase<Poo
         NullSafeAssert<NestedType>(e.RequiredNested, a.RequiredNested, AssertNestedType);
         NullSafeAssert<NestedType>(e.OptionalNested, a.OptionalNested, AssertNestedType);
 
-        // TODO: Complete for collection, mind ordering (how is this done elsewhere?)
+        if (e.NestedCollection is not null && a.NestedCollection != null)
+        {
+            Assert.Equal(e.NestedCollection.Count, a.NestedCollection.Count);
+
+            var (orderedExpected, orderedActual) = AreCollectionsOrdered
+                ? (e.NestedCollection, a.NestedCollection)
+                : (e.NestedCollection.OrderBy(n => n.Id).ToList(), a.NestedCollection.OrderBy(n => n.Id).ToList());
+
+            for (var i = 0; i < e.NestedCollection.Count; i++)
+            {
+                AssertNestedType(orderedExpected[i], orderedActual[i]);
+            }
+        }
+        else
+        {
+            Assert.Equal(e.NestedCollection, a.NestedCollection);
+        }
     }
 
-    private void AssertNestedType(NestedType e, NestedType a)
+    protected virtual void AssertNestedType(NestedType e, NestedType a)
     {
         Assert.Equal(e.Id, a.Id);
         Assert.Equal(e.Name, a.Name);
@@ -106,7 +139,7 @@ public abstract class RelationshipsQueryFixtureBase : SharedStoreFixtureBase<Poo
         NullSafeAssert<RootEntity>(e.Root, a.Root, AssertRootEntity);
     }
 
-    protected virtual void NullSafeAssert<T>(object? e, object? a, Action<T, T> assertAction)
+    private void NullSafeAssert<T>(object? e, object? a, Action<T, T> assertAction)
     {
         if (e is T ee && a is T aa)
         {

@@ -17,7 +17,7 @@ public record Address
     public required string AddressLine1 { get; set; }
     public string? AddressLine2 { get; set; }
     public int ZipCode { get; set; }
-    public List<string> Tags { get; set; } = new();
+    public List<string> Tags { get; set; } = [];
 
     public required Country Country { get; set; }
 }

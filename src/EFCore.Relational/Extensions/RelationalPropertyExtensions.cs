@@ -253,7 +253,10 @@ public static class RelationalPropertyExtensions
         return Uniquifier.Truncate(baseName, property.DeclaringType.Model.GetMaxIdentifierLength());
 
         [return: NotNullIfNotNull("builder")]
-        static StringBuilder? CreateOwnershipPrefix(IReadOnlyEntityType entityType, in StoreObjectIdentifier storeObject, StringBuilder? builder)
+        static StringBuilder? CreateOwnershipPrefix(
+            IReadOnlyEntityType entityType,
+            in StoreObjectIdentifier storeObject,
+            StringBuilder? builder)
         {
             while (true)
             {
@@ -289,7 +292,10 @@ public static class RelationalPropertyExtensions
             }
         }
 
-        static StringBuilder CreateComplexPrefix(IReadOnlyComplexType complexType, in StoreObjectIdentifier storeObject, StringBuilder? builder)
+        static StringBuilder CreateComplexPrefix(
+            IReadOnlyComplexType complexType,
+            in StoreObjectIdentifier storeObject,
+            StringBuilder? builder)
         {
             builder ??= new StringBuilder();
             while (true)
@@ -552,7 +558,7 @@ public static class RelationalPropertyExtensions
         property.DeclaringType.Model.EnsureRelationalModel();
         return (IEnumerable<IColumnMappingBase>?)property.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.DefaultColumnMappings)
-            ?? Enumerable.Empty<IColumnMappingBase>();
+            ?? [];
     }
 
     /// <summary>
@@ -565,7 +571,7 @@ public static class RelationalPropertyExtensions
         property.DeclaringType.Model.EnsureRelationalModel();
         return (IEnumerable<IColumnMapping>?)property.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.TableColumnMappings)
-            ?? Enumerable.Empty<IColumnMapping>();
+            ?? [];
     }
 
     /// <summary>
@@ -578,7 +584,7 @@ public static class RelationalPropertyExtensions
         property.DeclaringType.Model.EnsureRelationalModel();
         return (IEnumerable<IViewColumnMapping>?)property.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.ViewColumnMappings)
-            ?? Enumerable.Empty<IViewColumnMapping>();
+            ?? [];
     }
 
     /// <summary>
@@ -591,7 +597,7 @@ public static class RelationalPropertyExtensions
         property.DeclaringType.Model.EnsureRelationalModel();
         return (IEnumerable<ISqlQueryColumnMapping>?)property.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.SqlQueryColumnMappings)
-            ?? Enumerable.Empty<ISqlQueryColumnMapping>();
+            ?? [];
     }
 
     /// <summary>
@@ -604,7 +610,7 @@ public static class RelationalPropertyExtensions
         property.DeclaringType.Model.EnsureRelationalModel();
         return (IEnumerable<IFunctionColumnMapping>?)property.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.FunctionColumnMappings)
-            ?? Enumerable.Empty<IFunctionColumnMapping>();
+            ?? [];
     }
 
     /// <summary>
@@ -617,7 +623,7 @@ public static class RelationalPropertyExtensions
         property.DeclaringType.Model.EnsureRelationalModel();
         return (IEnumerable<IStoredProcedureResultColumnMapping>?)property.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.InsertStoredProcedureResultColumnMappings)
-            ?? Enumerable.Empty<IStoredProcedureResultColumnMapping>();
+            ?? [];
     }
 
     /// <summary>
@@ -630,7 +636,7 @@ public static class RelationalPropertyExtensions
         property.DeclaringType.Model.EnsureRelationalModel();
         return (IEnumerable<IStoredProcedureParameterMapping>?)property.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.InsertStoredProcedureParameterMappings)
-            ?? Enumerable.Empty<IStoredProcedureParameterMapping>();
+            ?? [];
     }
 
     /// <summary>
@@ -643,7 +649,7 @@ public static class RelationalPropertyExtensions
         property.DeclaringType.Model.EnsureRelationalModel();
         return (IEnumerable<IStoredProcedureParameterMapping>?)property.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.DeleteStoredProcedureParameterMappings)
-            ?? Enumerable.Empty<IStoredProcedureParameterMapping>();
+            ?? [];
     }
 
     /// <summary>
@@ -656,7 +662,7 @@ public static class RelationalPropertyExtensions
         property.DeclaringType.Model.EnsureRelationalModel();
         return (IEnumerable<IStoredProcedureResultColumnMapping>?)property.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.UpdateStoredProcedureResultColumnMappings)
-            ?? Enumerable.Empty<IStoredProcedureResultColumnMapping>();
+            ?? [];
     }
 
     /// <summary>
@@ -669,7 +675,7 @@ public static class RelationalPropertyExtensions
         property.DeclaringType.Model.EnsureRelationalModel();
         return (IEnumerable<IStoredProcedureParameterMapping>?)property.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.UpdateStoredProcedureParameterMappings)
-            ?? Enumerable.Empty<IStoredProcedureParameterMapping>();
+            ?? [];
     }
 
     /// <summary>
@@ -1218,7 +1224,7 @@ public static class RelationalPropertyExtensions
     /// <returns><see langword="true" /> if the mapped column is nullable; <see langword="false" /> otherwise.</returns>
     public static bool IsColumnNullable(this IReadOnlyProperty property)
         => property.IsNullable
-            || (property.DeclaringType.ContainingEntityType is IReadOnlyEntityType entityType
+            || (property.DeclaringType.ContainingEntityType is { } entityType
                 && entityType.BaseType != null
                 && entityType.GetMappingStrategy() == RelationalAnnotationNames.TphMappingStrategy)
             || (property.DeclaringType is IReadOnlyComplexType complexType
@@ -1226,8 +1232,8 @@ public static class RelationalPropertyExtensions
 
     private static bool IsNullable(IReadOnlyComplexProperty complexProperty)
         => complexProperty.IsNullable
-        || (complexProperty.DeclaringType is IReadOnlyComplexType complexType
-            && IsNullable(complexType.ComplexProperty));
+            || (complexProperty.DeclaringType is IReadOnlyComplexType complexType
+                && IsNullable(complexType.ComplexProperty));
 
     /// <summary>
     ///     Checks whether the column mapped to the given property will be nullable
@@ -1255,7 +1261,7 @@ public static class RelationalPropertyExtensions
         }
 
         return property.IsNullable
-            || (property.DeclaringType.ContainingEntityType is IReadOnlyEntityType entityType
+            || (property.DeclaringType.ContainingEntityType is { } entityType
                 && ((entityType.BaseType != null
                         && entityType.GetMappingStrategy() == RelationalAnnotationNames.TphMappingStrategy)
                     || IsOptionalSharingDependent(entityType, storeObject, 0)))
@@ -1643,7 +1649,7 @@ public static class RelationalPropertyExtensions
     /// <returns>The property facet overrides.</returns>
     public static IEnumerable<IMutableRelationalPropertyOverrides> GetOverrides(this IMutableProperty property)
         => RelationalPropertyOverrides.Get(property)?.Cast<IMutableRelationalPropertyOverrides>()
-            ?? Enumerable.Empty<IMutableRelationalPropertyOverrides>();
+            ?? [];
 
     /// <summary>
     ///     <para>
@@ -1658,7 +1664,7 @@ public static class RelationalPropertyExtensions
     /// <returns>The property facet overrides.</returns>
     public static IEnumerable<IConventionRelationalPropertyOverrides> GetOverrides(this IConventionProperty property)
         => RelationalPropertyOverrides.Get(property)?.Cast<IConventionRelationalPropertyOverrides>()
-            ?? Enumerable.Empty<IConventionRelationalPropertyOverrides>();
+            ?? [];
 
     /// <summary>
     ///     <para>
@@ -1673,7 +1679,7 @@ public static class RelationalPropertyExtensions
     /// <returns>The property facet overrides.</returns>
     public static IEnumerable<IRelationalPropertyOverrides> GetOverrides(this IProperty property)
         => RelationalPropertyOverrides.Get(property)?.Cast<IRelationalPropertyOverrides>()
-            ?? Enumerable.Empty<IRelationalPropertyOverrides>();
+            ?? [];
 
     /// <summary>
     ///     <para>
@@ -2054,7 +2060,9 @@ public static class RelationalPropertyExtensions
         => (string?)property.FindAnnotation(RelationalAnnotationNames.JsonPropertyName)?.Value
             ?? (property.IsKey() || !property.DeclaringType.IsMappedToJson()
                 ? null
-                : property == property.DeclaringType.FindDiscriminatorProperty() ? "$type" : property.Name);
+                : property == property.DeclaringType.FindDiscriminatorProperty()
+                    ? "$type"
+                    : property.Name);
 
     /// <summary>
     ///     Sets the value of JSON property name used for the given property of an entity mapped to a JSON column.
@@ -2098,10 +2106,10 @@ public static class RelationalPropertyExtensions
         => property is RuntimeProperty
             ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
             : (string?)property[RelationalAnnotationNames.DefaultConstraintName]
-                ?? (ShouldHaveDefaultConstraintName(property)
-                        && StoreObjectIdentifier.Create(property.DeclaringType, StoreObjectType.Table) is StoreObjectIdentifier table
-                        ? property.GetDefaultDefaultConstraintName(table)
-                        : null);
+            ?? (ShouldHaveDefaultConstraintName(property)
+                && StoreObjectIdentifier.Create(property.DeclaringType, StoreObjectType.Table) is { } table
+                    ? property.GetDefaultDefaultConstraintName(table)
+                    : null);
 
     /// <summary>
     ///     Gets the default constraint name.
@@ -2112,13 +2120,13 @@ public static class RelationalPropertyExtensions
         => property is RuntimeProperty
             ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
             : (string?)property[RelationalAnnotationNames.DefaultConstraintName]
-                ?? (ShouldHaveDefaultConstraintName(property)
-                    ? property.GetDefaultDefaultConstraintName(storeObject)
-                    : null);
+            ?? (ShouldHaveDefaultConstraintName(property)
+                ? property.GetDefaultDefaultConstraintName(storeObject)
+                : null);
 
     private static bool ShouldHaveDefaultConstraintName(IReadOnlyProperty property)
         => property.DeclaringType.Model.AreNamedDefaultConstraintsUsed()
-        && (property[RelationalAnnotationNames.DefaultValue] is not null
+            && (property[RelationalAnnotationNames.DefaultValue] is not null
                 || property[RelationalAnnotationNames.DefaultValueSql] is not null);
 
     /// <summary>

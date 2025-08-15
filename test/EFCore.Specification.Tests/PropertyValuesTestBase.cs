@@ -1041,7 +1041,7 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
         // Complex collection query support. Issue #31411
         var school = CreateSchool();
         context.Set<School>().Attach(school);
-        
+
         var entry = context.Entry(school);
 
         var schoolValues = entry.CurrentValues;
@@ -1260,17 +1260,10 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Equal("Building One Optimal", values["Name"]);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Added, true)]
-    [InlineData(EntityState.Added, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
-    [InlineData(EntityState.Detached, true)]
-    [InlineData(EntityState.Detached, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Added, true),
+     InlineData(EntityState.Added, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
+     InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
     public async Task Values_can_be_reloaded_from_database_for_entity_in_any_state(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -1298,17 +1291,10 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Equal(EntityState.Unchanged, entry.State);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Added, true)]
-    [InlineData(EntityState.Added, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
-    [InlineData(EntityState.Detached, true)]
-    [InlineData(EntityState.Detached, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Added, true),
+     InlineData(EntityState.Added, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
+     InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
     public async Task Reload_when_entity_deleted_in_store_can_happen_for_any_state(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -1359,17 +1345,10 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Contains(office, building.Offices);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Added, true)]
-    [InlineData(EntityState.Added, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
-    [InlineData(EntityState.Detached, true)]
-    [InlineData(EntityState.Detached, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Added, true),
+     InlineData(EntityState.Added, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
+     InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
     public virtual async Task Values_can_be_reloaded_from_database_for_entity_in_any_state_with_inheritance(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -1798,10 +1777,7 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
             Assert.Throws<InvalidOperationException>(() => values["BuildingId"] = new Guid()).Message);
     }
 
-    [ConditionalTheory]
-    [InlineData(CascadeTiming.Immediate)]
-    [InlineData(CascadeTiming.OnSaveChanges)]
-    [InlineData(CascadeTiming.Never)]
+    [ConditionalTheory, InlineData(CascadeTiming.Immediate), InlineData(CascadeTiming.OnSaveChanges), InlineData(CascadeTiming.Never)]
     public virtual void Non_nullable_property_in_current_values_results_in_conceptual_null(CascadeTiming deleteOrphansTiming)
     {
         using var context = CreateContext();
@@ -1843,10 +1819,7 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(CascadeTiming.Immediate)]
-    [InlineData(CascadeTiming.OnSaveChanges)]
-    [InlineData(CascadeTiming.Never)]
+    [ConditionalTheory, InlineData(CascadeTiming.Immediate), InlineData(CascadeTiming.OnSaveChanges), InlineData(CascadeTiming.Never)]
     public virtual void Non_nullable_shadow_property_in_current_values_results_in_conceptual_null(CascadeTiming deleteOrphansTiming)
     {
         using var context = CreateContext();
@@ -2124,8 +2097,8 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
 
     [ConditionalFact]
     public virtual Task NonGeneric_GetDatabaseValues_for_entity_not_in_the_store_returns_null()
-        => NonGeneric_GetDatabaseValues_for_entity_not_in_the_store_returns_null_implementation(
-            e => Task.FromResult(e.GetDatabaseValues()!));
+        => NonGeneric_GetDatabaseValues_for_entity_not_in_the_store_returns_null_implementation(e
+            => Task.FromResult(e.GetDatabaseValues()!));
 
     [ConditionalFact]
     public virtual Task NonGeneric_GetDatabaseValuesAsync_for_entity_not_in_the_store_returns_null()
@@ -2151,8 +2124,7 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
 
     [ConditionalFact]
     public virtual Task GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null()
-        => GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null_implementation(
-            e => Task.FromResult(e.GetDatabaseValues()!));
+        => GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null_implementation(e => Task.FromResult(e.GetDatabaseValues()!));
 
     [ConditionalFact]
     public virtual Task GetDatabaseValuesAsync_for_derived_entity_not_in_the_store_returns_null()
@@ -2177,13 +2149,12 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
 
     [ConditionalFact]
     public virtual Task NonGeneric_GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null()
-        => NonGeneric_GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null_implementation(
-            e => Task.FromResult(e.GetDatabaseValues()!));
+        => NonGeneric_GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null_implementation(e
+            => Task.FromResult(e.GetDatabaseValues()!));
 
     [ConditionalFact]
     public virtual Task NonGeneric_GetDatabaseValuesAsync_for_derived_entity_not_in_the_store_returns_null()
-        => NonGeneric_GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null_implementation(
-            e => e.GetDatabaseValuesAsync()!);
+        => NonGeneric_GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null_implementation(e => e.GetDatabaseValuesAsync()!);
 
     private async Task NonGeneric_GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null_implementation(
         Func<EntityEntry, Task<PropertyValues>> getPropertyValues)
@@ -2204,8 +2175,7 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
 
     [ConditionalFact]
     public virtual Task GetDatabaseValues_for_the_wrong_type_in_the_store_returns_null()
-        => GetDatabaseValues_for_the_wrong_type_in_the_store_returns_null_implementation(
-            e => Task.FromResult(e.GetDatabaseValues()!));
+        => GetDatabaseValues_for_the_wrong_type_in_the_store_returns_null_implementation(e => Task.FromResult(e.GetDatabaseValues()!));
 
     [ConditionalFact]
     public virtual Task GetDatabaseValuesAsync_for_the_wrong_type_in_the_store_returns_null()
@@ -2237,8 +2207,7 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
 
     [ConditionalFact]
     public virtual Task NonGeneric_GetDatabaseValues_for_the_wrong_type_in_the_store_throws()
-        => NonGeneric_GetDatabaseValues_for_the_wrong_type_in_the_store_throws_implementation(
-            e => Task.FromResult(e.GetDatabaseValues()!));
+        => NonGeneric_GetDatabaseValues_for_the_wrong_type_in_the_store_throws_implementation(e => Task.FromResult(e.GetDatabaseValues()!));
 
     [ConditionalFact]
     public virtual Task NonGeneric_GetDatabaseValuesAsync_for_the_wrong_type_in_the_store_throws()
@@ -2270,8 +2239,7 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
 
     [ConditionalFact]
     public Task Store_values_really_are_store_values_not_current_or_original_values()
-        => Store_values_really_are_store_values_not_current_or_original_values_implementation(
-            e => Task.FromResult(e.GetDatabaseValues()!));
+        => Store_values_really_are_store_values_not_current_or_original_values_implementation(e => Task.FromResult(e.GetDatabaseValues()!));
 
     [ConditionalFact]
     public Task Store_values_really_are_store_values_not_current_or_original_values_async()
@@ -2346,16 +2314,17 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
         var originalFirstDepartmentCourses = school.Departments.First().Courses.ToList();
 
         school.Departments.Clear();
-        school.Departments.Add(new Department
-        {
-            Name = "Modified Department",
-            Building = "Modified Building",
-            Courses =
-            [
-                new Course { Name = "Modified Course 1", Credits = 4 },
-                new Course { Name = "Modified Course 2", Credits = 5 }
-            ]
-        });
+        school.Departments.Add(
+            new Department
+            {
+                Name = "Modified Department",
+                Building = "Modified Building",
+                Courses =
+                [
+                    new Course { Name = "Modified Course 1", Credits = 4 },
+                    new Course { Name = "Modified Course 2", Credits = 5 }
+                ]
+            });
 
         var entry = context.Entry(school);
         var values = await getPropertyValues(entry);
@@ -2379,7 +2348,6 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
             Assert.Equal("Building A", dept1.Building);
             Assert.Equal("Computer Science", dept1Object.Name);
             Assert.Equal("Building A", dept1Object.Building);
-
 
             var department1Courses = dept1.Courses;
             Assert.Equal(2, department1Courses.Count);
@@ -2694,18 +2662,14 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
                     ["Building"] = "Dict Building 1",
                     ["Courses"] = new List<Dictionary<string, object>>
                     {
-                        new() { ["Name"] = "Dict Course 1", ["Credits"] = 5 },
-                        new() { ["Name"] = "Dict Course 2", ["Credits"] = 6 }
+                        new() { ["Name"] = "Dict Course 1", ["Credits"] = 5 }, new() { ["Name"] = "Dict Course 2", ["Credits"] = 6 }
                     }
                 },
                 new()
                 {
                     ["Name"] = "Dict Department 2",
                     ["Building"] = "Dict Building 2",
-                    ["Courses"] = new List<Dictionary<string, object>>
-                    {
-                        new() { ["Name"] = "Dict Course 3", ["Credits"] = 7 }
-                    }
+                    ["Courses"] = new List<Dictionary<string, object>> { new() { ["Name"] = "Dict Course 3", ["Credits"] = 7 } }
                 }
             }
         };
@@ -2774,20 +2738,17 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
         {
             Id = school.Id,
             Name = "DTO School",
-            Departments = new List<DepartmentDto?>
-            {
+            Departments =
+            [
                 new()
                 {
                     Name = "DTO Department",
                     Building = "DTO Building",
-                    Courses = new List<CourseDto?>
-                    {
-                        null,
-                        new() { Name = "DTO Course", Credits = 8 }
-                    }
+                    Courses = [null, new() { Name = "DTO Course", Credits = 8 }]
                 },
+
                 null
-            }
+            ]
         };
 
         var entry = context.Entry(school);
@@ -2949,10 +2910,9 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
                     ["Name"] = "Original Dict Department",
                     ["Building"] = "Original Dict Building",
                     ["Courses"] = new List<Dictionary<string, object>?>
-                    {
-                        null,
-                        new() { ["Name"] = "Original Dict Course", ["Credits"] = 2 }
-                    }
+                        {
+                            null, new() { ["Name"] = "Original Dict Course", ["Credits"] = 2 }
+                        }
                 },
                 null
             }
@@ -3028,30 +2988,28 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
         {
             Id = school.Id,
             Name = "Advanced DTO School",
-            Departments = new List<DepartmentDto?>
-            {
+            Departments =
+            [
                 new()
                 {
                     Name = "Advanced DTO Department 1",
                     Building = "Advanced DTO Building 1",
-                    Courses = new List<CourseDto?>
-                    {
+                    Courses =
+                    [
                         new() { Name = "Advanced DTO Course 1", Credits = 10 },
                         null,
                         new() { Name = "Advanced DTO Course 2", Credits = 12 }
-                    }
+                    ]
                 },
+
                 null,
                 new()
                 {
                     Name = "Advanced DTO Department 2",
                     Building = "Advanced DTO Building 2",
-                    Courses = new List<CourseDto?>
-                    {
-                        new() { Name = "Advanced DTO Course 3", Credits = 15 }
-                    }
+                    Courses = [new() { Name = "Advanced DTO Course 3", Credits = 15 }]
                 }
-            }
+            ]
         };
 
         var entry = context.Entry(school);
@@ -3120,11 +3078,7 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
         var school = CreateSchool();
         context.Set<School>().Attach(school);
 
-        var dictionary = new Dictionary<string, object>
-        {
-            ["Name"] = "Test School",
-            ["Departments"] = "Not a list"
-        };
+        var dictionary = new Dictionary<string, object> { ["Name"] = "Test School", ["Departments"] = "Not a list" };
 
         var entry = context.Entry(school);
         var exception = Assert.Throws<InvalidOperationException>(() => entry.OriginalValues.SetValues(dictionary));
@@ -3140,8 +3094,7 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
 
         var dictionary = new Dictionary<string, object>
         {
-            ["Name"] = "Test School",
-            ["Departments"] = new List<object?> { "Not a dictionary", null }
+            ["Name"] = "Test School", ["Departments"] = new List<object?> { "Not a dictionary", null }
         };
 
         var entry = context.Entry(school);
@@ -3207,11 +3160,7 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
         using var context = CreateContext();
         var building = context.Set<Building>().Single(b => b.Name == "Building One");
 
-        var dictionary = new Dictionary<string, object>
-        {
-            ["Name"] = "Building",
-            ["Culture"] = "Not a dictionary"
-        };
+        var dictionary = new Dictionary<string, object> { ["Name"] = "Building", ["Culture"] = "Not a dictionary" };
 
         var entry = context.Entry(building);
         var exception = Assert.Throws<InvalidOperationException>(() => entry.OriginalValues.SetValues(dictionary));
@@ -3810,6 +3759,7 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
     {
         public DateTime TerminationDate { get; set; }
     }
+
     protected class SchoolDto
     {
         public int Id { get; set; }
@@ -3859,11 +3809,12 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
         return context;
     }
 
-    private static School CreateSchool() => new School
-    {
-        Id = 1,
-        Name = "Test School",
-        Departments =
+    private static School CreateSchool()
+        => new()
+        {
+            Id = 1,
+            Name = "Test School",
+            Departments =
             [
                 new Department
                 {
@@ -3886,7 +3837,7 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
                     ]
                 }
             ]
-    };
+        };
 
     public abstract class PropertyValuesFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
     {
@@ -3898,31 +3849,29 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
-            modelBuilder.Entity<Employee>(
-                b =>
-                {
-                    b.Property(e => e.EmployeeId).ValueGeneratedNever();
-                    b.Property<int>("Shadow1");
-                    b.Property<string>("Shadow2");
-                });
+            modelBuilder.Entity<Employee>(b =>
+            {
+                b.Property(e => e.EmployeeId).ValueGeneratedNever();
+                b.Property<int>("Shadow1");
+                b.Property<string>("Shadow2");
+            });
 
-            modelBuilder.Entity<CurrentEmployee>(
-                b =>
-                {
-                    b.Property<int>("Shadow3");
+            modelBuilder.Entity<CurrentEmployee>(b =>
+            {
+                b.Property<int>("Shadow3");
 
-                    b.HasMany(p => p.VirtualTeams)
-                        .WithMany(p => p.Employees)
-                        .UsingEntity<Dictionary<string, object>>(
-                            "VirtualTeamEmployee",
-                            j => j
-                                .HasOne<VirtualTeam>()
-                                .WithMany(),
-                            j => j
-                                .HasOne<CurrentEmployee>()
-                                .WithMany(),
-                            j => j.IndexerProperty<string>("Payload"));
-                });
+                b.HasMany(p => p.VirtualTeams)
+                    .WithMany(p => p.Employees)
+                    .UsingEntity<Dictionary<string, object>>(
+                        "VirtualTeamEmployee",
+                        j => j
+                            .HasOne<VirtualTeam>()
+                            .WithMany(),
+                        j => j
+                            .HasOne<CurrentEmployee>()
+                            .WithMany(),
+                        j => j.IndexerProperty<string>("Payload"));
+            });
 
             modelBuilder.Entity<PastEmployee>(b => b.Property<string>("Shadow4"));
 
@@ -3936,35 +3885,31 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
                 .WithMany(nameof(Building.MailRooms))
                 .HasForeignKey(m => m.BuildingId);
 
-            modelBuilder.Entity<Office>().HasKey(
-                o => new { o.Number, o.BuildingId });
+            modelBuilder.Entity<Office>().HasKey(o => new { o.Number, o.BuildingId });
 
             modelBuilder.Ignore<UnMappedOffice>();
 
-            modelBuilder.Entity<BuildingDetail>(
-                b =>
-                {
-                    b.HasKey(d => d.BuildingId);
-                    b.HasOne(d => d.Building).WithOne().HasPrincipalKey<Building>(e => e.BuildingId);
-                });
+            modelBuilder.Entity<BuildingDetail>(b =>
+            {
+                b.HasKey(d => d.BuildingId);
+                b.HasOne(d => d.Building).WithOne().HasPrincipalKey<Building>(e => e.BuildingId);
+            });
 
-            modelBuilder.Entity<Building>(
-                b =>
-                {
-                    b.Ignore(e => e.NotInModel);
-                    b.Property<int>("Shadow1");
-                    b.Property<string>("Shadow2");
+            modelBuilder.Entity<Building>(b =>
+            {
+                b.Ignore(e => e.NotInModel);
+                b.Property<int>("Shadow1");
+                b.Property<string>("Shadow2");
 
-                    b.ComplexProperty(e => e.Culture);
-                    b.ComplexProperty(e => e.Milk);
-                });
+                b.ComplexProperty(e => e.Culture);
+                b.ComplexProperty(e => e.Milk);
+            });
 
             modelBuilder.Entity<Contact33307>();
             modelBuilder.Entity<Supplier33307>();
             modelBuilder.Entity<Customer33307>();
 
-            modelBuilder.Entity<School>(
-                b => b.ComplexCollection(e => e.Departments));
+            modelBuilder.Entity<School>(b => b.ComplexCollection(e => e.Departments));
         }
 
         protected override Task SeedAsync(PoolableDbContext context)
@@ -4099,7 +4044,8 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
                         Number = 42,
                     },
                     Foo = "F"
-                }); context.Add(
+                });
+            context.Add(
                 new Customer33307
                 {
                     Name = "Bar",

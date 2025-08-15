@@ -43,10 +43,12 @@ public abstract class OwnedNavigationsProjectionTestBase<TFixture>(TFixture fixt
         => AssertOwnedTrackingQuery(queryTrackingBehavior, () => base.SelectMany_related_collection(queryTrackingBehavior));
 
     public override Task SelectMany_nested_collection_on_required_related(QueryTrackingBehavior queryTrackingBehavior)
-        => AssertOwnedTrackingQuery(queryTrackingBehavior, () => base.SelectMany_nested_collection_on_required_related(queryTrackingBehavior));
+        => AssertOwnedTrackingQuery(
+            queryTrackingBehavior, () => base.SelectMany_nested_collection_on_required_related(queryTrackingBehavior));
 
     public override Task SelectMany_nested_collection_on_optional_related(QueryTrackingBehavior queryTrackingBehavior)
-        => AssertOwnedTrackingQuery(queryTrackingBehavior, () => base.SelectMany_nested_collection_on_optional_related(queryTrackingBehavior));
+        => AssertOwnedTrackingQuery(
+            queryTrackingBehavior, () => base.SelectMany_nested_collection_on_optional_related(queryTrackingBehavior));
 
     #endregion Collection
 
@@ -156,10 +158,12 @@ public abstract class OwnedNavigationsProjectionTestBase<TFixture>(TFixture fixt
     #region Subquery
 
     public override Task Select_subquery_required_related_FirstOrDefault(QueryTrackingBehavior queryTrackingBehavior)
-        => AssertOwnedTrackingQuery(queryTrackingBehavior, () => base.Select_subquery_required_related_FirstOrDefault(queryTrackingBehavior));
+        => AssertOwnedTrackingQuery(
+            queryTrackingBehavior, () => base.Select_subquery_required_related_FirstOrDefault(queryTrackingBehavior));
 
     public override Task Select_subquery_optional_related_FirstOrDefault(QueryTrackingBehavior queryTrackingBehavior)
-        => AssertOwnedTrackingQuery(queryTrackingBehavior, () => base.Select_subquery_optional_related_FirstOrDefault(queryTrackingBehavior));
+        => AssertOwnedTrackingQuery(
+            queryTrackingBehavior, () => base.Select_subquery_optional_related_FirstOrDefault(queryTrackingBehavior));
 
     // [ConditionalTheory]
     // [MemberData(nameof(AsyncAndTrackingData))]

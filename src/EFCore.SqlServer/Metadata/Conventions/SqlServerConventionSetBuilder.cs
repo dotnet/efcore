@@ -108,10 +108,9 @@ public class SqlServerConventionSetBuilder : RelationalConventionSetBuilder
     {
         var serviceProvider = new ServiceCollection()
             .AddEntityFrameworkSqlServer()
-            .AddDbContext<DbContext>(
-                (p, o) =>
-                    o.UseSqlServer("Server=.")
-                        .UseInternalServiceProvider(p))
+            .AddDbContext<DbContext>((p, o) =>
+                o.UseSqlServer("Server=.")
+                    .UseInternalServiceProvider(p))
             .BuildServiceProvider();
 
         return serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope();

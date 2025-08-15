@@ -1,9 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Collections;
 using System.Diagnostics.CodeAnalysis;
-using System.Text;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
@@ -130,7 +128,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
         {
             // This is the case of a structural type getting projected out via Select (possibly also an owned entity one day, if we stop
             // expanding them in pre-visitation)
-            StructuralTypeReferenceExpression { Parameter: StructuralTypeShaperExpression shaper }
+            StructuralTypeReferenceExpression { Parameter: { } shaper }
                 => shaper,
 
             // Complex JSON collection getting projected out via Select
@@ -631,12 +629,14 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
     {
         // Fold member access into conditional, i.e. transform
         // (test ? expr1 : expr2).Member -> (test ? expr1.Member : expr2.Member)
-        if (memberExpression.Expression is ConditionalExpression cond) {
-            return Visit(Expression.Condition(
-                cond.Test,
-                Expression.MakeMemberAccess(cond.IfTrue, memberExpression.Member),
-                Expression.MakeMemberAccess(cond.IfFalse, memberExpression.Member)
-            ));
+        if (memberExpression.Expression is ConditionalExpression cond)
+        {
+            return Visit(
+                Expression.Condition(
+                    cond.Test,
+                    Expression.MakeMemberAccess(cond.IfTrue, memberExpression.Member),
+                    Expression.MakeMemberAccess(cond.IfFalse, memberExpression.Member)
+                ));
         }
 
         var innerExpression = Visit(memberExpression.Expression);
@@ -869,7 +869,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
             case
             {
                 Method.Name: nameof(Math.Max) or nameof(Math.Min),
-                Arguments: [Expression argument1, Expression argument2]
+                Arguments: [{ } argument1, { } argument2]
             } when method.DeclaringType == typeof(Math):
             {
                 var translatedArguments = new List<SqlExpression>();
@@ -882,7 +882,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
                         nameof(Math.Max) => GenerateGreatest(translatedArguments, returnType),
                         nameof(Math.Min) => GenerateLeast(translatedArguments, returnType),
                         _ => throw new UnreachableException()
-                    } is SqlExpression translatedFunctionCall
+                    } is { } translatedFunctionCall
                         ? translatedFunctionCall
                         : QueryCompilationContext.NotTranslatedExpression;
 
@@ -1240,7 +1240,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
     {
         switch (typeReference)
         {
-            case { Parameter: StructuralTypeShaperExpression shaper }:
+            case { Parameter: { } shaper }:
             {
                 var valueBufferExpression = Visit(shaper.ValueBufferExpression);
                 if (valueBufferExpression is JsonQueryExpression jsonQueryExpression)
@@ -1292,7 +1292,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
                     // If all non principal shared properties are nullable then we need additional condition
                     var atLeastOneNonNullValueInNullableColumnsCondition = nonPrincipalSharedNonPkProperties
                         .Select(p => projection.BindProperty(p))
-                        .Select(c => (SqlExpression)_sqlExpressionFactory.NotEqual(c, _sqlExpressionFactory.Constant(null, c.Type)))
+                        .Select(c => _sqlExpressionFactory.NotEqual(c, _sqlExpressionFactory.Constant(null, c.Type)))
                         .Aggregate((a, b) => _sqlExpressionFactory.OrElse(a, b));
 
                     condition = condition == null
@@ -1314,7 +1314,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
                 // single result so either it is regular entity or a collection which always have their own table.
             }
 
-            case { Subquery: ShapedQueryExpression subquery }:
+            case { Subquery: { } subquery }:
             {
                 var entityShaper = (StructuralTypeShaperExpression)subquery.ShaperExpression;
                 var subSelectExpression = (SelectExpression)subquery.QueryExpression;
@@ -1337,7 +1337,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
     {
         switch (typeReference)
         {
-            case { Parameter: StructuralTypeShaperExpression shaper }:
+            case { Parameter: { } shaper }:
                 switch (Visit(shaper.ValueBufferExpression))
                 {
                     case StructuralTypeProjectionExpression structuralTypeProjection:
@@ -1356,7 +1356,8 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
                         var nestedJsonQuery = jsonQuery.BindRelationship(complexProperty);
 
                         return complexProperty.IsCollection
-                            ? new CollectionResultExpression(nestedJsonQuery, complexProperty, elementType: complexProperty.ComplexType.ClrType)
+                            ? new CollectionResultExpression(
+                                nestedJsonQuery, complexProperty, elementType: complexProperty.ComplexType.ClrType)
                             : new StructuralTypeReferenceExpression(
                                 new RelationalStructuralTypeShaperExpression(
                                     complexProperty.ComplexType,
@@ -1367,7 +1368,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
                         throw new UnreachableException();
                 }
 
-            case { Subquery: ShapedQueryExpression }:
+            case { Subquery: not null }:
                 throw new InvalidOperationException("Complex property binding over a subquery"); // TODO: #36296
 
             default:
@@ -1746,7 +1747,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
             }
 
             return StructuralType is IEntityType entityType
-                && entityType.GetDerivedTypes().FirstOrDefault(et => et.ClrType == type) is IEntityType derivedEntityType
+                && entityType.GetDerivedTypes().FirstOrDefault(et => et.ClrType == type) is { } derivedEntityType
                     ? new StructuralTypeReferenceExpression(this, derivedEntityType)
                     : QueryCompilationContext.NotTranslatedExpression;
         }

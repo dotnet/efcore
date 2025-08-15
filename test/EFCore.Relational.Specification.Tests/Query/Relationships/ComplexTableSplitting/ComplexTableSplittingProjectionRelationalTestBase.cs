@@ -17,10 +17,6 @@ public abstract class ComplexTableSplittingProjectionRelationalTestBase<TFixture
     }
 
     // Collections are not supported with table splitting, only JSON
-    public override Task Select_related_collection(QueryTrackingBehavior queryTrackingBehavior)
-        => Assert.ThrowsAsync<NotNullException>(() => base.Select_related_collection(queryTrackingBehavior));
-
-    // Collections are not supported with table splitting, only JSON
     public override Task Select_nested_collection_on_required_related(QueryTrackingBehavior queryTrackingBehavior)
         => Assert.ThrowsAsync<InvalidOperationException>(() => base.Select_nested_collection_on_required_related(queryTrackingBehavior));
 

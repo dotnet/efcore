@@ -74,7 +74,8 @@ public static class CosmosIndexExtensions
 
     /// <summary>
     ///     Returns the value indicating whether the index is configured for full-text search.
-    ///     See <see href="https://learn.microsoft.com/azure/cosmos-db/gen-ai/full-text-search">Full-text search in Azure Cosmos DB for NoSQL</see> for more information.
+    ///     See <see href="https://learn.microsoft.com/azure/cosmos-db/gen-ai/full-text-search">Full-text search in Azure Cosmos DB for NoSQL</see>
+    ///     for more information.
     /// </summary>
     /// <param name="index">The index.</param>
     /// <returns>The index type to use, or <see langword="null" /> if none is set.</returns>
@@ -85,7 +86,8 @@ public static class CosmosIndexExtensions
 
     /// <summary>
     ///     Configures the index for full-text search.
-    ///     See <see href="https://learn.microsoft.com/azure/cosmos-db/gen-ai/full-text-search">Full-text search in Azure Cosmos DB for NoSQL</see> for more information.
+    ///     See <see href="https://learn.microsoft.com/azure/cosmos-db/gen-ai/full-text-search">Full-text search in Azure Cosmos DB for NoSQL</see>
+    ///     for more information.
     /// </summary>
     /// <param name="index">The index.</param>
     /// <param name="fullTextIndex">The value indicating whether the index is configured for full-text search.</param>
@@ -94,7 +96,8 @@ public static class CosmosIndexExtensions
 
     /// <summary>
     ///     Configures the index for full-text search.
-    ///     See <see href="https://learn.microsoft.com/azure/cosmos-db/gen-ai/full-text-search">Full-text search in Azure Cosmos DB for NoSQL</see> for more information.
+    ///     See <see href="https://learn.microsoft.com/azure/cosmos-db/gen-ai/full-text-search">Full-text search in Azure Cosmos DB for NoSQL</see>
+    ///     for more information.
     /// </summary>
     /// <param name="index">The index.</param>
     /// <param name="fullTextIndex">The value indicating whether the index is configured for full-text search.</param>

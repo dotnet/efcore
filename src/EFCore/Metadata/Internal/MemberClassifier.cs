@@ -1,7 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
+using System.Collections.ObjectModel;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 
@@ -218,21 +218,26 @@ public class MemberClassifier : IMemberClassifier
         }
 
         var targetType = memberInfo.GetMemberType();
-        if (targetType.TryGetElementType(typeof(IList<>)) is Type sequenceType
-            && IsCandidateComplexType(sequenceType, model, out explicitlyConfigured))
+        if (targetType.TryGetElementType(typeof(IList<>)) is { } sequenceType
+            && IsCandidateComplexType(sequenceType.UnwrapNullableType(), model, out explicitlyConfigured))
         {
             elementType = sequenceType;
             return true;
         }
 
-        return IsCandidateComplexType(targetType, model, out explicitlyConfigured);
+        return IsCandidateComplexType(targetType.UnwrapNullableType(), model, out explicitlyConfigured);
     }
 
     private static bool IsCandidateComplexType(Type targetType, IConventionModel model, out bool explicitlyConfigured)
     {
         if (!targetType.IsValidComplexType()
             || (targetType.IsGenericType
-                && targetType.GetGenericTypeDefinition() == typeof(Dictionary<,>)))
+                && targetType.GetGenericTypeDefinition() is var genericTypeDefinition
+                && (genericTypeDefinition == typeof(Dictionary<,>)
+                    || genericTypeDefinition == typeof(List<>)
+                    || genericTypeDefinition == typeof(HashSet<>)
+                    || genericTypeDefinition == typeof(Collection<>)
+                    || genericTypeDefinition == typeof(ObservableCollection<>))))
         {
             explicitlyConfigured = false;
             return false;

@@ -230,7 +230,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
                                 ? leftTypeMapping
                                 : rightTypeMapping?.Size == inferredSize
                                 && rightTypeMapping?.IsFixedLength == inferredFixedLength
-                                && rightTypeMapping?.IsUnicode == inferredUnicode
+                                && rightTypeMapping.IsUnicode == inferredUnicode
                                     ? rightTypeMapping
                                     : _typeMappingSource.FindMapping(
                                         baseTypeMapping.ClrType,
@@ -288,15 +288,15 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         RelationalTypeMapping? valuesTypeMapping = null;
         switch (inExpression)
         {
-            case { Subquery: SelectExpression subquery }:
+            case { Subquery: { } subquery }:
                 valuesTypeMapping = subquery.Projection[0].Expression.TypeMapping;
                 break;
 
-            case { ValuesParameter: SqlParameterExpression parameter }:
+            case { ValuesParameter: { } parameter }:
                 valuesTypeMapping = (RelationalTypeMapping?)parameter.TypeMapping?.ElementTypeMapping;
                 break;
 
-            case { Values: IReadOnlyList<SqlExpression> values }:
+            case { Values: { } values }:
                 // Note: there could be conflicting type mappings inside the values; we take the first.
                 foreach (var value in values)
                 {
@@ -322,16 +322,17 @@ public class SqlExpressionFactory : ISqlExpressionFactory
 
         switch (inExpression)
         {
-            case { Subquery: SelectExpression subquery }:
+            case { Subquery: { } subquery }:
                 inExpression = inExpression.Update(item, subquery);
                 break;
 
-            case { ValuesParameter: SqlParameterExpression parameter }:
-                var collectionTypeMapping = Dependencies.TypeMappingSource.FindMapping(parameter.Type, Dependencies.Model, item.TypeMapping);
+            case { ValuesParameter: { } parameter }:
+                var collectionTypeMapping =
+                    Dependencies.TypeMappingSource.FindMapping(parameter.Type, Dependencies.Model, item.TypeMapping);
                 inExpression = inExpression.Update(item, (SqlParameterExpression)ApplyTypeMapping(parameter, collectionTypeMapping));
                 break;
 
-            case { Values: IReadOnlyList<SqlExpression> values }:
+            case { Values: { } values }:
                 SqlExpression[]? newValues = null;
 
                 if (missingTypeMappingInValues)
@@ -382,7 +383,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         }
 
         // Resolve the array type mapping for the given element mapping.
-        if (_typeMappingSource.FindMapping(array.Type, Dependencies.Model, elementMapping) is not RelationalTypeMapping arrayMapping)
+        if (_typeMappingSource.FindMapping(array.Type, Dependencies.Model, elementMapping) is not { } arrayMapping)
         {
             throw new UnreachableException($"Couldn't find collection type mapping for element type mapping {elementMapping.ClrType.Name}");
         }
@@ -662,23 +663,23 @@ public class SqlExpressionFactory : ISqlExpressionFactory
                 => AndAlso(Not(binary.Left), Not(binary.Right)),
 
             SqlBinaryExpression
-            {
-                OperatorType: ExpressionType.Equal,
-                Right: SqlConstantExpression { Value: bool },
-                Left: SqlConstantExpression { Value: bool }
+                {
+                    OperatorType: ExpressionType.Equal,
+                    Right: SqlConstantExpression { Value: bool },
+                    Left: SqlConstantExpression { Value: bool }
                     or SqlParameterExpression { IsNullable: false }
                     or ColumnExpression { IsNullable: false }
-            } binary
+                } binary
                 => Equal(binary.Left, Not(binary.Right)),
 
             SqlBinaryExpression
-            {
-                OperatorType: ExpressionType.Equal,
-                Left: SqlConstantExpression { Value: bool },
-                Right: SqlConstantExpression { Value: bool }
+                {
+                    OperatorType: ExpressionType.Equal,
+                    Left: SqlConstantExpression { Value: bool },
+                    Right: SqlConstantExpression { Value: bool }
                     or SqlParameterExpression { IsNullable: false }
                     or ColumnExpression { IsNullable: false }
-            } binary
+                } binary
                 => Equal(Not(binary.Left), binary.Right),
 
             // !(a == b) -> a != b

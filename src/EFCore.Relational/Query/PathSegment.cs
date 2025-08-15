@@ -52,11 +52,11 @@ public readonly struct PathSegment : IRelationalQuotableExpression
     public Expression Quote()
         => this switch
         {
-            { PropertyName: string propertyName }
+            { PropertyName: { } propertyName }
                 => Expression.New(
                     _pathSegmentPropertyConstructor ??= typeof(PathSegment).GetConstructor([typeof(string)])!,
                     Expression.Constant(propertyName)),
-            { ArrayIndex: SqlExpression arrayIndex }
+            { ArrayIndex: { } arrayIndex }
                 => Expression.New(
                     _pathSegmentArrayIndexConstructor ??= typeof(PathSegment).GetConstructor([typeof(SqlExpression)])!,
                     arrayIndex.Quote()),

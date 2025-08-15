@@ -80,7 +80,7 @@ public static class CosmosEntityTypeExtensions
     }
 
     private static string? GetDefaultContainingPropertyName(IReadOnlyEntityType entityType)
-        => entityType.FindOwnership() is IReadOnlyForeignKey ownership
+        => entityType.FindOwnership() is { } ownership
             ? ownership.PrincipalToDependent!.Name
             : null;
 

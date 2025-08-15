@@ -21,7 +21,8 @@ public sealed class InterpolatedStringUsageInRawQueriesDiagnosticAnalyzer : Diag
             defaultSeverity: DiagnosticSeverity.Warning,
             isEnabledByDefault: true);
 
-    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [Descriptor];
+    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
+        => [Descriptor];
 
     public override void Initialize(AnalysisContext context)
     {

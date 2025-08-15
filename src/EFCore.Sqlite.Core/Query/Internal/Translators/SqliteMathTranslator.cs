@@ -152,10 +152,9 @@ public class SqliteMathTranslator : IMethodCallTranslator
 
             return _sqlExpressionFactory.Function(
                 "log",
-                new[]
-                {
+                [
                     _sqlExpressionFactory.ApplyTypeMapping(newBase, typeMapping), _sqlExpressionFactory.ApplyTypeMapping(a, typeMapping)
-                },
+                ],
                 nullable: true,
                 argumentsPropagateNullability: Statics.TrueArrays[2],
                 method.ReturnType,

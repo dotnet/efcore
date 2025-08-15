@@ -24,7 +24,9 @@ public sealed record RelationalParameterBasedSqlProcessorParameters
     /// <param name="useRelationalNulls">A value indicating if relational nulls should be used.</param>
     /// <param name="collectionParameterTranslationMode">Which translation mode should be used.</param>
     [EntityFrameworkInternal]
-    public RelationalParameterBasedSqlProcessorParameters(bool useRelationalNulls, ParameterTranslationMode collectionParameterTranslationMode)
+    public RelationalParameterBasedSqlProcessorParameters(
+        bool useRelationalNulls,
+        ParameterTranslationMode collectionParameterTranslationMode)
     {
         UseRelationalNulls = useRelationalNulls;
         CollectionParameterTranslationMode = collectionParameterTranslationMode;

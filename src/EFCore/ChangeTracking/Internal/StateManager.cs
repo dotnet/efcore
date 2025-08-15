@@ -935,7 +935,7 @@ public class StateManager : IStateManager
             return danglers;
         }
 
-        return Enumerable.Empty<Tuple<INavigationBase, InternalEntityEntry>>();
+        return [];
     }
 
     /// <summary>
@@ -1042,7 +1042,7 @@ public class StateManager : IStateManager
         var dependentIdentityMap = FindIdentityMap(foreignKey.DeclaringEntityType.FindPrimaryKey());
         return dependentIdentityMap != null && foreignKey.PrincipalEntityType.IsAssignableFrom(principalEntry.EntityType)
             ? dependentIdentityMap.GetDependentsMap(foreignKey).GetDependents(principalEntry)
-            : Enumerable.Empty<IUpdateEntry>();
+            : [];
     }
 
     /// <summary>
@@ -1055,7 +1055,7 @@ public class StateManager : IStateManager
     {
         var identityMap = FindIdentityMap(key);
         return identityMap == null
-            ? Enumerable.Empty<InternalEntityEntry>()
+            ? []
             : identityMap.All();
     }
 
@@ -1087,7 +1087,7 @@ public class StateManager : IStateManager
         var dependentIdentityMap = FindIdentityMap(foreignKey.DeclaringEntityType.FindPrimaryKey());
         return dependentIdentityMap != null
             ? dependentIdentityMap.GetDependentsMap(foreignKey).GetDependentsUsingRelationshipSnapshot(principalEntry)
-            : Enumerable.Empty<IUpdateEntry>();
+            : [];
     }
 
     /// <summary>
@@ -1110,7 +1110,7 @@ public class StateManager : IStateManager
         var navigationValue = ((InternalEntityEntry)principalEntry)[navigation];
         if (navigationValue == null)
         {
-            return Enumerable.Empty<InternalEntityEntry>();
+            return [];
         }
 
         if (foreignKey.IsUnique)

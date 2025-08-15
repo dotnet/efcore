@@ -220,6 +220,30 @@ WHERE CAST(JSON_VALUE([r].[RelatedCollection], '$[9999].Int') AS int) = 8
 
     #endregion Index
 
+    #region GroupBy
+
+    [ConditionalFact]
+    public override async Task GroupBy()
+    {
+        await base.GroupBy();
+
+        AssertSql(
+            """
+SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+FROM [RootEntity] AS [r]
+WHERE 16 IN (
+    SELECT COALESCE(SUM([r0].[Int]), 0)
+    FROM OPENJSON([r].[RelatedCollection], '$') WITH (
+        [Int] int '$.Int',
+        [String] nvarchar(max) '$.String'
+    ) AS [r0]
+    GROUP BY [r0].[String]
+)
+""");
+    }
+
+    #endregion GroupBy
+
     public override async Task Select_within_Select_within_Select_with_aggregates()
     {
         await base.Select_within_Select_within_Select_with_aggregates();

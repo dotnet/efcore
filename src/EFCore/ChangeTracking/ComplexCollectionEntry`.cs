@@ -66,18 +66,18 @@ public class ComplexCollectionEntry<TEntity, TElement> : ComplexCollectionEntry
     }
 
     /// <summary>
-    ///     Gets a <see cref="ComplexElementEntry{TEntity, TElement}"/> for the complex item at the specified ordinal.
+    ///     Gets a <see cref="ComplexElementEntry{TEntity, TElement}" /> for the complex item at the specified ordinal.
     /// </summary>
     /// <param name="ordinal">The ordinal of the complex item to access.</param>
-    /// <returns>A <see cref="ComplexElementEntry{TEntity, TElement}"/> for the complex item at the specified ordinal.</returns>
+    /// <returns>A <see cref="ComplexElementEntry{TEntity, TElement}" /> for the complex item at the specified ordinal.</returns>
     public override ComplexElementEntry<TEntity, TElement> this[int ordinal]
         => new(InternalEntry.GetComplexCollectionEntry(Metadata, ordinal));
 
     /// <summary>
-    ///     Gets a <see cref="ComplexElementEntry{TEntity, TElement}"/> for the complex item at the specified original ordinal.
+    ///     Gets a <see cref="ComplexElementEntry{TEntity, TElement}" /> for the complex item at the specified original ordinal.
     /// </summary>
     /// <param name="ordinal">The original ordinal of the complex item to access.</param>
-    /// <returns>A <see cref="ComplexElementEntry{TEntity, TElement}"/> for the original complex item at the specified ordinal.</returns>
+    /// <returns>A <see cref="ComplexElementEntry{TEntity, TElement}" /> for the original complex item at the specified ordinal.</returns>
     public override ComplexElementEntry<TEntity, TElement> GetOriginalEntry(int ordinal)
         => new(InternalEntry.GetComplexCollectionOriginalEntry(Metadata, ordinal));
 }

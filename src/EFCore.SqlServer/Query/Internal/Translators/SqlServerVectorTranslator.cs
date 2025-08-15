@@ -37,7 +37,8 @@ public class SqlServerVectorTranslator(
                 case nameof(SqlServerDbFunctionsExtensions.VectorDistance)
                     when arguments is [_, var distanceMetric, var vector1, var vector2]:
                 {
-                    var vectorTypeMapping = vector1.TypeMapping ?? vector2.TypeMapping
+                    var vectorTypeMapping = vector1.TypeMapping
+                        ?? vector2.TypeMapping
                         ?? throw new InvalidOperationException(
                             "One of the arguments to EF.Functions.VectorDistance must be a vector column.");
 
@@ -94,4 +95,3 @@ public class SqlServerVectorTranslator(
         return null;
     }
 }
-

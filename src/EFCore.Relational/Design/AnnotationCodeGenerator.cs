@@ -3,7 +3,6 @@
 
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 #pragma warning disable EF1001 // Accessing annotation names (internal)
@@ -55,9 +54,8 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
 
     /// <inheritdoc />
     public virtual IEnumerable<IAnnotation> FilterIgnoredAnnotations(IEnumerable<IAnnotation> annotations)
-        => annotations.Where(
-            a => !(CoreAnnotationNames.AllNames.Contains(a.Name)
-                || IgnoredRelationalAnnotations.Contains(a.Name)));
+        => annotations.Where(a => !(CoreAnnotationNames.AllNames.Contains(a.Name)
+            || IgnoredRelationalAnnotations.Contains(a.Name)));
 
     /// <inheritdoc />
     public virtual void RemoveAnnotationsHandledByConventions(IModel model, IDictionary<string, IAnnotation> annotations)
@@ -376,7 +374,8 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
 
         GenerateSimpleFluentApiCall(
             annotations,
-            RelationalAnnotationNames.JsonPropertyName, nameof(RelationalPropertyBuilderExtensions.HasJsonPropertyName), methodCallCodeFragments);
+            RelationalAnnotationNames.JsonPropertyName, nameof(RelationalPropertyBuilderExtensions.HasJsonPropertyName),
+            methodCallCodeFragments);
 
         GenerateSimpleFluentApiCall(
             annotations,
@@ -400,7 +399,8 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
 
         GenerateSimpleFluentApiCall(
             annotations,
-            RelationalAnnotationNames.JsonPropertyName, nameof(RelationalComplexPropertyBuilderExtensions.HasJsonPropertyName), methodCallCodeFragments);
+            RelationalAnnotationNames.JsonPropertyName, nameof(RelationalComplexPropertyBuilderExtensions.HasJsonPropertyName),
+            methodCallCodeFragments);
 
         methodCallCodeFragments.AddRange(GenerateFluentApiCallsHelper(complexProperty, annotations, GenerateFluentApi));
 
@@ -1051,7 +1051,7 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
         if (annotations.TryGetValue(annotationName, out var annotation))
         {
             annotations.Remove(annotationName);
-            if (annotation.Value is object annotationValue)
+            if (annotation.Value is { } annotationValue)
             {
                 methodCallCodeFragments.Add(
                     new MethodCallCodeFragment(method, annotationValue));

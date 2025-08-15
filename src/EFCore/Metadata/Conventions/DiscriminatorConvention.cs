@@ -142,7 +142,5 @@ public class DiscriminatorConvention :
     protected virtual void SetDefaultDiscriminatorValue(
         IConventionComplexType complexType,
         IConventionComplexTypeDiscriminatorBuilder discriminatorBuilder)
-    {
-        discriminatorBuilder.HasValue(complexType.GetDefaultDiscriminatorValue());
-    }
+        => discriminatorBuilder.HasValue(complexType.GetDefaultDiscriminatorValue());
 }

@@ -115,7 +115,7 @@ public sealed record RelationalDatabaseCreatorDependencies
     public ICurrentDbContext CurrentContext { get; init; }
 
     /// <summary>
-    /// Gets the exception detector.
+    ///     Gets the exception detector.
     /// </summary>
     public IExceptionDetector ExceptionDetector { get; init; }
 }

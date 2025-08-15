@@ -863,7 +863,7 @@ public abstract class RelationalConnection : IRelationalConnection, ITransaction
             ambientTransaction.TransactionCompleted -= HandleTransactionCompleted;
         }
 
-        _ambientTransactions.TryPop(out var _);
+        _ambientTransactions.TryPop(out _);
     }
 
     /// <summary>

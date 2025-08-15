@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 
@@ -16,6 +15,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 /// </remarks>
 public abstract class ValueConverter
 {
+    internal static readonly ConstructorInfo MappingHintsCtor
+        = typeof(ConverterMappingHints).GetConstructor(
+            [typeof(int?), typeof(int?), typeof(int?), typeof(bool?), typeof(Func<IProperty, IEntityType, ValueGenerator>)])!;
+
     /// <summary>
     ///     Initializes a new instance of the <see cref="ValueConverter" /> class.
     /// </summary>

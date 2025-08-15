@@ -48,6 +48,7 @@ internal static class SharedTypeExtensions
     public static bool IsValidComplexType(this Type type)
         => !type.IsArray
             && !type.IsInterface
+            && !type.IsNullableValueType()
             && !IsScalarType(type);
 
     public static bool IsScalarType(this Type type)
@@ -62,9 +63,8 @@ internal static class SharedTypeExtensions
         }
 
         var types = GetGenericTypeImplementations(type, typeof(IDictionary<,>));
-        return types.Any(
-            t => t.GetGenericArguments()[0] == typeof(string)
-                && t.GetGenericArguments()[1] == typeof(object));
+        return types.Any(t => t.GetGenericArguments()[0] == typeof(string)
+            && t.GetGenericArguments()[1] == typeof(object));
     }
 
     public static Type MakeNullable(this Type type, bool nullable = true)
@@ -313,9 +313,8 @@ internal static class SharedTypeExtensions
         types ??= [];
 
         return type.GetTypeInfo().DeclaredConstructors
-            .SingleOrDefault(
-                c => !c.IsStatic
-                    && c.GetParameters().Select(p => p.ParameterType).SequenceEqual(types))!;
+            .SingleOrDefault(c => !c.IsStatic
+                && c.GetParameters().Select(p => p.ParameterType).SequenceEqual(types))!;
     }
 
     public static IEnumerable<PropertyInfo> GetPropertiesInHierarchy(this Type type, string name)
@@ -382,15 +381,14 @@ internal static class SharedTypeExtensions
         Func<Type[], Type[], Type[]> parameterGenerator,
         bool? @override = null)
         => type.GetMethods(bindingFlags)
-            .Single(
-                mi => mi.Name == name
-                    && ((genericParameterCount == 0 && !mi.IsGenericMethod)
-                        || (mi.IsGenericMethod && mi.GetGenericArguments().Length == genericParameterCount))
-                    && mi.GetParameters().Select(e => e.ParameterType).SequenceEqual(
-                        parameterGenerator(
-                            type.IsGenericType ? type.GetGenericArguments() : Array.Empty<Type>(),
-                            mi.IsGenericMethod ? mi.GetGenericArguments() : Array.Empty<Type>()))
-                    && (!@override.HasValue || (@override.Value == (mi.GetBaseDefinition().DeclaringType != mi.DeclaringType))));
+            .Single(mi => mi.Name == name
+                && ((genericParameterCount == 0 && !mi.IsGenericMethod)
+                    || (mi.IsGenericMethod && mi.GetGenericArguments().Length == genericParameterCount))
+                && mi.GetParameters().Select(e => e.ParameterType).SequenceEqual(
+                    parameterGenerator(
+                        type.IsGenericType ? type.GetGenericArguments() : [],
+                        mi.IsGenericMethod ? mi.GetGenericArguments() : []))
+                && (!@override.HasValue || (@override.Value == (mi.GetBaseDefinition().DeclaringType != mi.DeclaringType))));
 
     private static readonly Dictionary<Type, object> CommonTypeDictionary = new()
     {
@@ -425,13 +423,14 @@ internal static class SharedTypeExtensions
 
     [RequiresUnreferencedCode("Gets all types from the given assembly - unsafe for trimming")]
     public static IEnumerable<TypeInfo> GetConstructibleTypes(
-        this Assembly assembly, IDiagnosticsLogger<DbLoggerCategory.Model>? logger = null)
-        => assembly.GetLoadableDefinedTypes(logger).Where(
-            t => t is { IsAbstract: false, IsGenericTypeDefinition: false });
+        this Assembly assembly,
+        IDiagnosticsLogger<DbLoggerCategory.Model>? logger = null)
+        => assembly.GetLoadableDefinedTypes(logger).Where(t => t is { IsAbstract: false, IsGenericTypeDefinition: false });
 
     [RequiresUnreferencedCode("Gets all types from the given assembly - unsafe for trimming")]
     public static IEnumerable<TypeInfo> GetLoadableDefinedTypes(
-        this Assembly assembly, IDiagnosticsLogger<DbLoggerCategory.Model>? logger = null)
+        this Assembly assembly,
+        IDiagnosticsLogger<DbLoggerCategory.Model>? logger = null)
     {
         try
         {

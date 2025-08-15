@@ -85,8 +85,8 @@ public class SpatialData(GeometryFactory factory) : ISetSource
     }
 
     public static IReadOnlyList<GeoPointEntity> CreateGeoPointEntities()
-        => new[]
-        {
+        =>
+        [
             new GeoPointEntity
             {
                 Id = Guid.Parse("67A54C9B-4C3B-4B27-8B4E-C0335E50E552"), Location = new GeoPoint(47.6233355, -122.34877)
@@ -95,18 +95,18 @@ public class SpatialData(GeometryFactory factory) : ISetSource
             {
                 Id = Guid.Parse("67A54C9B-4C3B-4B27-8B4E-C0335E50E553"), Location = new GeoPoint(47.5978429, -122.3308366)
             }
-        };
+        ];
 
     public static IReadOnlyList<LineStringEntity> CreateLineStringEntities(GeometryFactory factory)
-        => new[]
-        {
+        =>
+        [
             new LineStringEntity { Id = 1, LineString = factory.CreateLineString([new Coordinate(0, 0), new Coordinate(1, 0)]) },
             new LineStringEntity { Id = 2, LineString = null }
-        };
+        ];
 
     public static IReadOnlyList<PolygonEntity> CreatePolygonEntities(GeometryFactory factory)
-        => new[]
-        {
+        =>
+        [
             new PolygonEntity
             {
                 Id = Guid.Parse("2F39AADE-4D8D-42D2-88CE-775C84AB83B1"),
@@ -114,11 +114,11 @@ public class SpatialData(GeometryFactory factory) : ISetSource
                     [new Coordinate(0, 0), new Coordinate(1, 0), new Coordinate(0, 1), new Coordinate(0, 0)])
             },
             new PolygonEntity { Id = Guid.Parse("F1B00CB9-862B-417B-955A-F1F7688B2AB5"), Polygon = null }
-        };
+        ];
 
     public static IReadOnlyList<MultiLineStringEntity> CreateMultiLineStringEntities(GeometryFactory factory)
-        => new[]
-        {
+        =>
+        [
             new MultiLineStringEntity
             {
                 Id = 1,
@@ -129,5 +129,5 @@ public class SpatialData(GeometryFactory factory) : ISetSource
                 ])
             },
             new MultiLineStringEntity { Id = 2, MultiLineString = null }
-        };
+        ];
 }

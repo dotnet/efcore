@@ -384,7 +384,7 @@ public class DbContextOperations
             ? string.Join(
                 ".",
                 subPath.Split(
-                    new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries))
+                    [Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar], StringSplitOptions.RemoveEmptyEntries))
             : null;
     }
 
@@ -551,8 +551,7 @@ public class DbContextOperations
                 .Concat(_assembly.GetConstructibleTypes())
                 .ToList();
 
-            var contextTypes = types.Where(t => typeof(DbContext).IsAssignableFrom(t)).Select(
-                    t => t.AsType())
+            var contextTypes = types.Where(t => typeof(DbContext).IsAssignableFrom(t)).Select(t => t.AsType())
                 .Concat<Type>(
                     types.Where(t => typeof(Migration).IsAssignableFrom(t))
                         .Select(t => t.GetCustomAttribute<DbContextAttribute>()?.ContextType)
@@ -719,9 +718,8 @@ public class DbContextOperations
         string name,
         StringComparison comparisonType)
         => types
-            .Where(
-                t => string.Equals(t.Key.Name, name, comparisonType)
-                    || string.Equals(t.Key.FullName, name, comparisonType)
-                    || string.Equals(t.Key.AssemblyQualifiedName, name, comparisonType))
+            .Where(t => string.Equals(t.Key.Name, name, comparisonType)
+                || string.Equals(t.Key.FullName, name, comparisonType)
+                || string.Equals(t.Key.AssemblyQualifiedName, name, comparisonType))
             .ToDictionary();
 }

@@ -37,7 +37,9 @@ public sealed class ClrPropertySetter<TEntity, TStructural, TValue> : IClrProper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public ClrPropertySetter(Action<TEntity, IReadOnlyList<int>, TValue> setClrValueUsingContainingEntity, Func<TStructural, TValue, TStructural> setClrValue)
+    public ClrPropertySetter(
+        Action<TEntity, IReadOnlyList<int>, TValue> setClrValueUsingContainingEntity,
+        Func<TStructural, TValue, TStructural> setClrValue)
     {
         _setClrValueUsingContainingEntity = setClrValueUsingContainingEntity;
         _setClrValue = setClrValue;
@@ -76,11 +78,9 @@ public sealed class ClrPropertySetter<TEntity, TStructural, TValue> : IClrProper
         {
             return _setClrValue((TStructural)instance, (TValue)value!) ?? instance;
         }
-        else
-        {
-            // Fallback to the containing entity method with empty indices
-            _setClrValueUsingContainingEntity((TEntity)instance, [], (TValue)value!);
-            return instance;
-        }
+
+        // Fallback to the containing entity method with empty indices
+        _setClrValueUsingContainingEntity((TEntity)instance, [], (TValue)value!);
+        return instance;
     }
 }

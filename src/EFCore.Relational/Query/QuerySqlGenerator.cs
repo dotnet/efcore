@@ -20,7 +20,7 @@ public class QuerySqlGenerator : SqlExpressionVisitor
 {
     private readonly IRelationalCommandBuilderFactory _relationalCommandBuilderFactory;
     private readonly ISqlGenerationHelper _sqlGenerationHelper;
-    private readonly HashSet<string> _parameterNames = new();
+    private readonly HashSet<string> _parameterNames = [];
     private IRelationalCommandBuilder _relationalCommandBuilder;
 
     /// <summary>
@@ -166,10 +166,9 @@ public class QuerySqlGenerator : SqlExpressionVisitor
                 GroupBy: []
             }
             && selectExpression.Projection.Count == s.Source1.Projection.Count
-            && selectExpression.Projection.Select(
-                    (pe, index) => pe.Expression is ColumnExpression column
-                        && column.TableAlias == s.Alias
-                        && column.Name == s.Source1.Projection[index].Alias)
+            && selectExpression.Projection.Select((pe, index) => pe.Expression is ColumnExpression column
+                    && column.TableAlias == s.Alias
+                    && column.Name == s.Source1.Projection[index].Alias)
                 .All(e => e))
         {
             setOperation = s;
@@ -306,9 +305,8 @@ public class QuerySqlGenerator : SqlExpressionVisitor
                 GroupBy.Count: 0,
             }
             && selectExpression.Projection.Count == valuesExpression.ColumnNames.Count
-            && selectExpression.Projection.Select(
-                    (pe, index) => pe.Expression is ColumnExpression column
-                        && column.Name == valuesExpression.ColumnNames[index])
+            && selectExpression.Projection.Select((pe, index) => pe.Expression is ColumnExpression column
+                    && column.Name == valuesExpression.ColumnNames[index])
                 .All(e => e))
         {
             GenerateValues(valuesExpression);
@@ -1577,7 +1575,7 @@ public class QuerySqlGenerator : SqlExpressionVisitor
         // and generate a SELECT for it with the names, and a UNION ALL over the rest of the values.
         _relationalCommandBuilder.Append("SELECT ");
 
-        Check.DebugAssert(rowValues.Count > 0, "rowValues.Count > 0");
+        Check.DebugAssert(rowValues.Count > 0);
         var firstRowValues = rowValues[0].Values;
         for (var i = 0; i < firstRowValues.Count; i++)
         {

@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
-
 namespace Microsoft.EntityFrameworkCore.Query;
 
 #pragma warning disable CS1591
@@ -26,7 +24,7 @@ public class LiftableConstantProcessor : ExpressionVisitor, ILiftableConstantPro
         Expression Expression,
         ParameterExpression? ReplacingParameter = null);
 
-    private readonly List<LiftedConstant> _liftedConstants = new();
+    private readonly List<LiftedConstant> _liftedConstants = [];
     private readonly LiftedExpressionProcessor _liftedExpressionProcessor = new();
     private readonly LiftedConstantOptimizer _liftedConstantOptimizer = new();
     private ParameterExpression? _contextParameter;
@@ -41,7 +39,7 @@ public class LiftableConstantProcessor : ExpressionVisitor, ILiftableConstantPro
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </remarks>
     public virtual IReadOnlyList<(ParameterExpression Parameter, Expression Expression)> LiftedConstants { get; private set; }
-        = Array.Empty<(ParameterExpression Parameter, Expression Expression)>();
+        = [];
 
     public LiftableConstantProcessor(ShapedQueryCompilingExpressionVisitorDependencies dependencies)
     {
@@ -335,8 +333,7 @@ public class LiftableConstantProcessor : ExpressionVisitor, ILiftableConstantPro
                 }
 
                 Check.DebugAssert(
-                    expressionInfo.Status == ExpressionStatus.SeenMultipleTimes,
-                    "expressionInfo.Status == ExpressionStatus.SeenMultipleTimes");
+                    expressionInfo.Status == ExpressionStatus.SeenMultipleTimes);
             }
 
             // Second pass: extract common denominator tree fragments to separate variables
@@ -436,7 +433,7 @@ public class LiftableConstantProcessor : ExpressionVisitor, ILiftableConstantPro
                         expressionInfo = _indexedExpressions[node] = new ExpressionInfo(ExpressionStatus.Extracted, parameter);
                     }
 
-                    Check.DebugAssert(expressionInfo.Parameter is not null, "expressionInfo.Parameter is not null");
+                    Check.DebugAssert(expressionInfo.Parameter is not null);
 
                     return expressionInfo.Parameter;
                 }

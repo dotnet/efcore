@@ -121,8 +121,7 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
         }
 
         Check.DebugAssert(
-            ReferenceEquals(modificationCommand, _modificationCommands[^1]),
-            "ReferenceEquals(modificationCommand, _modificationCommands[^1])");
+            ReferenceEquals(modificationCommand, _modificationCommands[^1]));
 
         RollbackLastCommand(modificationCommand);
 
@@ -273,8 +272,8 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
 
         var modifications = modificationCommand.StoreStoredProcedure is null
             ? modificationCommand.ColumnModifications
-            : modificationCommand.ColumnModifications.Where(
-                c => c.Column is IStoreStoredProcedureParameter or IStoreStoredProcedureReturnValue);
+            : modificationCommand.ColumnModifications.Where(c
+                => c.Column is IStoreStoredProcedureParameter or IStoreStoredProcedureReturnValue);
 
         foreach (var columnModification in modifications)
         {
@@ -310,7 +309,7 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
 
         if (columnModification.UseOriginalValueParameter)
         {
-            Check.DebugAssert(direction.HasFlag(ParameterDirection.Input), "direction.HasFlag(ParameterDirection.Input)");
+            Check.DebugAssert(direction.HasFlag(ParameterDirection.Input));
 
             AddParameterCore(columnModification.OriginalParameterName, columnModification.OriginalValue);
         }

@@ -100,7 +100,7 @@ public class SqlTreePruner : ExpressionVisitor
                 return scalarSubquery.Update(PruneSelect(scalarSubquery.Subquery, preserveProjection: true));
 
             // Same for subqueries inside InExpression
-            case InExpression { Subquery: SelectExpression subquery } inExpression:
+            case InExpression { Subquery: { } subquery } inExpression:
                 var visitedItem = (SqlExpression)Visit(inExpression.Item);
                 var visitedSubquery = PruneSelect(subquery, preserveProjection: true);
                 return inExpression.Update(visitedItem, visitedSubquery);
@@ -350,11 +350,11 @@ public class SqlTreePruner : ExpressionVisitor
             // If we have a value parameter (row values aren't specific in line), we still prune the column names.
             // Later in SqlNullabilityProcessor, when the parameterized collection is inline to constants, we'll take
             // the column names into account.
-            case ValuesExpression { ValuesParameter: not null }:
+            case { ValuesParameter: not null }:
                 return new ValuesExpression(values.Alias, rowValues: null, values.ValuesParameter, newColumnNames);
 
             // Go over the rows and create new ones without the pruned columns.
-            case ValuesExpression { RowValues: IReadOnlyList<RowValueExpression> rowValues }:
+            case { RowValues: { } rowValues }:
                 var newRowValues = new RowValueExpression[rowValues.Count];
 
                 for (var i = 0; i < rowValues.Count; i++)

@@ -52,21 +52,20 @@ public class SqliteLineStringMemberTranslator : IMemberTranslator
         {
             return returnType == typeof(bool)
                 ? _sqlExpressionFactory.Case(
-                    new[]
-                    {
+                    [
                         new CaseWhenClause(
                             _sqlExpressionFactory.IsNotNull(instance),
                             _sqlExpressionFactory.Function(
                                 functionName,
-                                new[] { instance },
+                                [instance],
                                 nullable: false,
                                 argumentsPropagateNullability: Statics.FalseArrays[1],
                                 returnType))
-                    },
+                    ],
                     null)
                 : _sqlExpressionFactory.Function(
                     functionName,
-                    new[] { instance },
+                    [instance],
                     nullable: true,
                     argumentsPropagateNullability: Statics.TrueArrays[1],
                     returnType);

@@ -76,10 +76,9 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
             foreach (var derivedEntityType in entityType.GetDerivedTypes())
             {
                 var entityCheck = derivedEntityType.GetConcreteDerivedTypesInclusive()
-                    .Select(
-                        e => keyValueComparer.ExtractEqualsBody(
-                            propertyExpressionsMap[discriminatorProperty],
-                            Constant(e.GetDiscriminatorValue(), discriminatorProperty.ClrType)))
+                    .Select(e => keyValueComparer.ExtractEqualsBody(
+                        propertyExpressionsMap[discriminatorProperty],
+                        Constant(e.GetDiscriminatorValue(), discriminatorProperty.ClrType)))
                     .Aggregate((l, r) => OrElse(l, r));
 
                 foreach (var property in derivedEntityType.GetDeclaredProperties())
@@ -469,19 +468,20 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
             ServerQueryExpression,
             Constant(new ValueBuffer(Enumerable.Repeat((object?)null, _projectionMappingExpressions.Count).ToArray())));
 
-        ReplaceProjection(_projectionMapping.ToDictionary(
-            kv => kv.Key,
-            kv => kv.Value switch
-            {
-                EntityProjectionExpression p => MakeEntityProjectionNullable(p),
+        ReplaceProjection(
+            _projectionMapping.ToDictionary(
+                kv => kv.Key,
+                kv => kv.Value switch
+                {
+                    EntityProjectionExpression p => MakeEntityProjectionNullable(p),
 
-                var p when !p.Type.IsNullableType()
-                    => Coalesce(
-                        MakeReadValueNullable(p),
-                        p.Type.GetDefaultValueConstant()),
+                    var p when !p.Type.IsNullableType()
+                        => Coalesce(
+                            MakeReadValueNullable(p),
+                            p.Type.GetDefaultValueConstant()),
 
-                var p => p
-            }));
+                    var p => p
+                }));
     }
 
     /// <summary>
@@ -667,8 +667,8 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
         var outerParameter = Parameter(typeof(ValueBuffer), "outer");
         var innerParameter = Parameter(typeof(ValueBuffer), "inner");
         var replacingVisitor = new ReplacingExpressionVisitor(
-            new Expression[] { CurrentParameter, innerQueryExpression.CurrentParameter },
-            new Expression[] { outerParameter, innerParameter });
+            [CurrentParameter, innerQueryExpression.CurrentParameter],
+            [outerParameter, innerParameter]);
 
         var selectorExpressions = _projectionMappingExpressions.Select(e => replacingVisitor.Visit(e)).ToList();
         var outerIndex = selectorExpressions.Count;
@@ -912,8 +912,8 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
         var outerParameter = Parameter(typeof(ValueBuffer), "outer");
         var innerParameter = Parameter(typeof(ValueBuffer), "inner");
         var replacingVisitor = new ReplacingExpressionVisitor(
-            new Expression[] { CurrentParameter, innerQueryExpression.CurrentParameter },
-            new Expression[] { outerParameter, innerParameter });
+            [CurrentParameter, innerQueryExpression.CurrentParameter],
+            [outerParameter, innerParameter]);
         int outerIndex;
 
         if (outerClientEval)
@@ -1030,23 +1030,22 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
             New(
                 ValueBufferConstructor, NewArrayInit(
                     typeof(object),
-                    resultSelectorExpressions.Select(
-                        (e, i) =>
+                    resultSelectorExpressions.Select((e, i) =>
+                    {
+                        var expression = replacingVisitor.Visit(e);
+                        if (innerNullable
+                            && i > outerIndex)
                         {
-                            var expression = replacingVisitor.Visit(e);
-                            if (innerNullable
-                                && i > outerIndex)
-                            {
-                                expression = MakeReadValueNullable(expression);
-                            }
+                            expression = MakeReadValueNullable(expression);
+                        }
 
-                            if (expression.Type.IsValueType)
-                            {
-                                expression = Convert(expression, typeof(object));
-                            }
+                        if (expression.Type.IsValueType)
+                        {
+                            expression = Convert(expression, typeof(object));
+                        }
 
-                            return expression;
-                        }))),
+                        return expression;
+                    }))),
             outerParameter,
             innerParameter);
 
@@ -1116,7 +1115,7 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
 
         return New(
             transparentIdentifierType.GetTypeInfo().DeclaredConstructors.Single(),
-            new[] { outerShaperExpression, innerShaperExpression }, outerMemberInfo, innerMemberInfo);
+            [outerShaperExpression, innerShaperExpression], outerMemberInfo, innerMemberInfo);
 
         static Expression MakeNullable(Expression expression, bool nullable)
             => nullable

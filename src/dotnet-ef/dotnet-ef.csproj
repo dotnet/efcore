@@ -1,16 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Description>Entity Framework Core Tools for the .NET Command-Line Interface.
+    <Description>
+      Entity Framework Core Tools for the .NET Command-Line Interface.
 
-Enables these commonly used dotnet-ef commands:
-dotnet ef migrations add
-dotnet ef migrations list
-dotnet ef migrations script
-dotnet ef dbcontext info
-dotnet ef dbcontext scaffold
-dotnet ef database drop
-dotnet ef database update
+      Enables these commonly used dotnet-ef commands:
+      dotnet ef migrations add
+      dotnet ef migrations list
+      dotnet ef migrations script
+      dotnet ef dbcontext info
+      dotnet ef dbcontext scaffold
+      dotnet ef database drop
+      dotnet ef database update
     </Description>
     <TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
     <OutputType>Exe</OutputType>

@@ -40,7 +40,7 @@ public class SqliteStringLengthTranslator : IMemberTranslator
             && member.Name == nameof(string.Length)
                 ? _sqlExpressionFactory.Function(
                     "length",
-                    new[] { instance! },
+                    [instance!],
                     nullable: true,
                     argumentsPropagateNullability: Statics.TrueArrays[1],
                     returnType)

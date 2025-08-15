@@ -107,8 +107,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [Conditional("DEBUG")]
-    [EntityFrameworkInternal]
+    [Conditional("DEBUG"), EntityFrameworkInternal]
     public virtual void AssertColumnsNotInitialized()
     {
         if (_columnModifications != null
@@ -289,10 +288,10 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
             }
         }
 
-        if (_entries.Any(e => e.EntityType is IEntityType entityType
-            && (entityType.IsMappedToJson()
-                || entityType.GetFlattenedComplexProperties().Any(cp => cp.ComplexType.IsMappedToJson())
-                || entityType.GetNavigations().Any(e => e.IsCollection && e.TargetEntityType.IsMappedToJson()))))
+        if (_entries.Any(e => e.EntityType is { } entityType
+                && (entityType.IsMappedToJson()
+                    || entityType.GetFlattenedComplexProperties().Any(cp => cp.ComplexType.IsMappedToJson())
+                    || entityType.GetNavigations().Any(e => e.IsCollection && e.TargetEntityType.IsMappedToJson()))))
         {
             HandleJson(columnModifications);
         }
@@ -343,7 +342,11 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
         return columnModifications;
 
         void HandleNonJson(
-            IUpdateEntry entry, ITypeBase structuralType, ITableMapping tableMapping, bool nonMainEntry, ref bool optionalDependentWithAllNull)
+            IUpdateEntry entry,
+            ITypeBase structuralType,
+            ITableMapping tableMapping,
+            bool nonMainEntry,
+            ref bool optionalDependentWithAllNull)
         {
             foreach (var columnMapping in tableMapping.ColumnMappings)
             {
@@ -361,7 +364,10 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
         }
 
         void HandleColumn(
-            IUpdateEntry entry, IColumnMappingBase columnMapping, bool nonMainEntry, ref bool optionalDependentWithAllNull)
+            IUpdateEntry entry,
+            IColumnMappingBase columnMapping,
+            bool nonMainEntry,
+            ref bool optionalDependentWithAllNull)
         {
             var property = columnMapping.Property;
             var column = columnMapping.Column;
@@ -614,11 +620,12 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
             var modifiedMembers = entry.EntityType.GetFlattenedProperties().Where(entry.IsModified).ToList();
             if (modifiedMembers.Count == 1)
             {
-                result.Add(new JsonPartialUpdatePathEntry(
-                    modifiedMembers[0].GetJsonPropertyName()!,
-                    null,
-                    entry,
-                    modifiedMembers[0]));
+                result.Add(
+                    new JsonPartialUpdatePathEntry(
+                        modifiedMembers[0].GetJsonPropertyName()!,
+                        null,
+                        entry,
+                        modifiedMembers[0]));
             }
             else
             {
@@ -706,10 +713,9 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                 }
 
                 foreach (var jsonCollectionNavigation in entry.EntityType.GetNavigations()
-                             .Where(
-                                 n => n.IsCollection
-                                     && n.TargetEntityType.IsMappedToJson()
-                                     && (entry.GetCurrentValue(n) as IEnumerable)?.Any() == false))
+                             .Where(n => n.IsCollection
+                                 && n.TargetEntityType.IsMappedToJson()
+                                 && (entry.GetCurrentValue(n) as IEnumerable)?.Any() == false))
                 {
                     var jsonCollectionEntityType = jsonCollectionNavigation.TargetEntityType;
                     var jsonCollectionColumn =
@@ -740,10 +746,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                     var jsonColumn = GetTableMapping(entry.EntityType)!.Table.FindColumn(complexType.GetContainerColumnName()!)!;
                     if (!jsonColumnsUpdateMap.ContainsKey(jsonColumn))
                     {
-                        var jsonPartialUpdateInfo = new List<JsonPartialUpdatePathEntry>
-                        {
-                            new("$", null, entry, complexProperty)
-                        };
+                        var jsonPartialUpdateInfo = new List<JsonPartialUpdatePathEntry> { new("$", null, entry, complexProperty) };
                         jsonColumnsUpdateMap[jsonColumn] = jsonPartialUpdateInfo;
                     }
                 }
@@ -936,7 +939,12 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
     }
 
 #pragma warning disable EF1001 // Internal EF Core API usage.
-    private void WriteJsonObject(Utf8JsonWriter writer, IInternalEntry parentEntry, IInternalEntry entry, ITypeBase structuralType, int? ordinal)
+    private void WriteJsonObject(
+        Utf8JsonWriter writer,
+        IInternalEntry parentEntry,
+        IInternalEntry entry,
+        ITypeBase structuralType,
+        int? ordinal)
 #pragma warning restore EF1001 // Internal EF Core API usage.
     {
         foreach (var property in structuralType.GetProperties())

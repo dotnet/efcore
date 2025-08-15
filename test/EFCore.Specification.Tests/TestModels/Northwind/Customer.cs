@@ -21,12 +21,10 @@ public class Customer : IComparable<Customer>
     public Customer(DbContext context, ILazyLoader lazyLoader, string customerID)
         => CustomerID = customerID;
 
-    [MaxLength(5)]
-    [Required]
+    [MaxLength(5), Required]
     public string CustomerID { get; set; }
 
-    [MaxLength(40)]
-    [Required]
+    [MaxLength(40), Required]
     public string CompanyName { get; set; }
 
     [MaxLength(30)]
@@ -58,8 +56,7 @@ public class Customer : IComparable<Customer>
 
     public virtual List<Order> Orders { get; set; }
 
-    [JsonIgnore]
-    [Newtonsoft.Json.JsonIgnore]
+    [JsonIgnore, Newtonsoft.Json.JsonIgnore]
     public NorthwindContext Context { get; set; }
 
     [NotMapped]

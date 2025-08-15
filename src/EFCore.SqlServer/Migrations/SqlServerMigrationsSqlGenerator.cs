@@ -381,7 +381,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             }
             else
             {
-                Check.DebugAssert(operation.DefaultValue is not null, "operation.DefaultValue is not null");
+                Check.DebugAssert(operation.DefaultValue is not null);
 
                 var typeMapping = (columnType != null
                         ? Dependencies.TypeMappingSource.FindMapping(operation.DefaultValue.GetType(), columnType)
@@ -444,9 +444,8 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                 OldColumn = operation.OldColumn
             };
             definitionOperation.AddAnnotations(
-                operation.GetAnnotations().Where(
-                    a => a.Name != SqlServerAnnotationNames.ValueGenerationStrategy
-                        && a.Name != SqlServerAnnotationNames.Identity));
+                operation.GetAnnotations().Where(a => a.Name != SqlServerAnnotationNames.ValueGenerationStrategy
+                    && a.Name != SqlServerAnnotationNames.Identity));
 
             ColumnDefinition(
                 operation.Schema,
@@ -1446,8 +1445,10 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                                 {
                                     goto LineEnd;
                                 }
+
                                 commentStart = true;
                             }
+
                             break;
                         default:
                             commentStart = false;

@@ -750,141 +750,141 @@ public abstract class MonsterFixupTestBase<TFixture> : IClassFixture<TFixture>, 
     {
         using var context = CreateContext();
         Assert.Equal(
-            new[] { "Eeky Bear", "Sheila Koalie", "Sue Pandy", "Tarquin Tiger" },
+            ["Eeky Bear", "Sheila Koalie", "Sue Pandy", "Tarquin Tiger"],
             context.Customers.Select(c => c.Name).OrderBy(n => n));
 
         Assert.Equal(
-            new[] { "Assorted Dog Treats", "Chocolate Donuts", "Mrs Koalie's Famous Waffles" },
+            ["Assorted Dog Treats", "Chocolate Donuts", "Mrs Koalie's Famous Waffles"],
             context.Products.Select(c => c.Description).OrderBy(n => n));
 
         Assert.Equal(
-            new[] { "Barcode 1 2 3 4", "Barcode 2 2 3 4", "Barcode 3 2 3 4" },
+            ["Barcode 1 2 3 4", "Barcode 2 2 3 4", "Barcode 3 2 3 4"],
             context.Barcodes.Select(c => c.Text).OrderBy(n => n));
 
         Assert.Equal(
-            new[] { "Barcode 1 2 3 4", "Barcode 2 2 3 4", "Barcode 3 2 3 4" },
+            ["Barcode 1 2 3 4", "Barcode 2 2 3 4", "Barcode 3 2 3 4"],
             context.Barcodes.Select(c => c.Text).OrderBy(n => n));
 
         Assert.Equal(
-            new[] { "Eeky Bear", "Trent" },
+            ["Eeky Bear", "Trent"],
             context.BarcodeDetails.Select(c => c.RegisteredTo).OrderBy(n => n));
 
         Assert.Equal(
-            new[] { "Treats not Donuts", "Wot no waffles?" },
+            ["Treats not Donuts", "Wot no waffles?"],
             context.IncorrectScans.Select(c => c.Details).OrderBy(n => n));
 
         Assert.Equal(
-            new[] { "Don't give coffee to Eeky!", "Really! Don't give coffee to Eeky!" },
+            ["Don't give coffee to Eeky!", "Really! Don't give coffee to Eeky!"],
             context.Complaints.Select(c => c.Details).OrderBy(n => n));
 
         Assert.Equal(
-            new[] { "Destroyed all coffee in Redmond area." },
+            ["Destroyed all coffee in Redmond area."],
             context.Resolutions.Select(c => c.Details).OrderBy(n => n));
 
         Assert.Equal(
-            new[] { "MrsBossyPants", "MrsKoalie73", "TheStripedMenace" },
+            ["MrsBossyPants", "MrsKoalie73", "TheStripedMenace"],
             context.Logins.Select(c => c.Username).OrderBy(n => n));
 
         Assert.Equal(
-            new[] { "Crumbs in the cupboard", "Donuts gone missing", "Pig prints on keyboard" },
+            ["Crumbs in the cupboard", "Donuts gone missing", "Pig prints on keyboard"],
             context.SuspiciousActivities.Select(c => c.Activity).OrderBy(n => n));
 
         Assert.Equal(
-            new[] { "1234", "2234" },
+            ["1234", "2234"],
             context.RsaTokens.Select(c => c.Serial).OrderBy(n => n));
 
         Assert.Equal(
-            new[] { "MrsBossyPants", "MrsKoalie73" },
+            ["MrsBossyPants", "MrsKoalie73"],
             context.SmartCards.Select(c => c.Username).OrderBy(n => n));
 
         Assert.Equal(
-            new[] { "Rent-A-Mole" },
+            ["Rent-A-Mole"],
             context.PasswordResets.Select(c => c.TempPassword).OrderBy(n => n));
 
         Assert.Equal(
-            new[] { "somePage1", "somePage2", "somePage3" },
+            ["somePage1", "somePage2", "somePage3"],
             context.PageViews.Select(c => c.PageUrl).OrderBy(n => n));
 
         Assert.Equal(
-            new[] { "MrsBossyPants", "MrsKoalie73" },
+            ["MrsBossyPants", "MrsKoalie73"],
             context.LastLogins.Select(c => c.Username).OrderBy(n => n));
 
         Assert.Equal(
-            new[] { "Fancy a cup of tea?", "I'll put the kettle on.", "Love one!" },
+            ["Fancy a cup of tea?", "I'll put the kettle on.", "Love one!"],
             context.Messages.Select(c => c.Body).OrderBy(n => n));
 
         Assert.Equal(
-            new[] { "MrsBossyPants", "MrsKoalie73", "TheStripedMenace" },
+            ["MrsBossyPants", "MrsKoalie73", "TheStripedMenace"],
             context.Orders.Select(c => c.Username).OrderBy(n => n));
 
         Assert.Equal(
-            new[] { "And donuts!", "But no coffee. :-(", "Must have tea!" },
+            ["And donuts!", "But no coffee. :-(", "Must have tea!"],
             context.OrderNotes.Select(c => c.Note).OrderBy(n => n));
 
         Assert.Equal(
-            new[] { "Eeky Bear", "Eeky Bear", "Eeky Bear" },
+            ["Eeky Bear", "Eeky Bear", "Eeky Bear"],
             context.OrderQualityChecks.Select(c => c.CheckedBy).OrderBy(n => n));
 
         Assert.Equal(
-            new[] { 1, 2, 3, 4, 5, 7 },
+            [1, 2, 3, 4, 5, 7],
             context.OrderLines.Select(c => c.Quantity).OrderBy(n => n));
 
         Assert.Equal(
-            new[] { "A Waffle Cart specialty!", "Eeky Bear's favorite!" },
+            ["A Waffle Cart specialty!", "Eeky Bear's favorite!"],
             context.ProductDetails.Select(c => c.Details).OrderBy(n => n));
 
         Assert.Equal(
-            new[] { "Better than Tarqies!", "Eeky says yes!", "Good with maple syrup." },
+            ["Better than Tarqies!", "Eeky says yes!", "Good with maple syrup."],
             context.ProductReviews.Select(c => c.Review).OrderBy(n => n));
 
         // See issue#16428
         if (context.Database.ProviderName == "Microsoft.EntityFrameworkCore.Sqlite")
         {
             Assert.Equal(
-                new[] { "101", "103", "105" },
+                ["101", "103", "105"],
                 context.ProductPhotos.ToList().Select(c => c.Photo.First().ToString()).OrderBy(n => n));
         }
         else
         {
             Assert.Equal(
-                new[] { "101", "103", "105" },
+                ["101", "103", "105"],
                 context.ProductPhotos.Select(c => c.Photo.First().ToString()).OrderBy(n => n));
         }
 
         Assert.Equal(
-            new[] { "Waffle Style", "What does the waffle say?" },
+            ["Waffle Style", "What does the waffle say?"],
             context.ProductWebFeatures.Select(c => c.Heading).OrderBy(n => n));
 
         Assert.Equal(
-            new[] { "Ants By Boris", "Trading As Trent" },
+            ["Ants By Boris", "Trading As Trent"],
             context.Suppliers.Select(c => c.Name).OrderBy(n => n));
 
         Assert.Equal(
-            new[] { "201", "202" },
+            ["201", "202"],
             context.SupplierLogos.ToList().SelectMany(c => c.Logo).Select(l => l.ToString()).OrderBy(n => n));
 
         Assert.Equal(
-            new[] { "Orange fur?", "Seems a bit dodgy.", "Very expensive!" },
+            ["Orange fur?", "Seems a bit dodgy.", "Very expensive!"],
             context.SupplierInformation.Select(c => c.Information).OrderBy(n => n));
 
         Assert.Equal(
-            new[] { "Mrs Bossy Pants!", "Really likes tea." },
+            ["Mrs Bossy Pants!", "Really likes tea."],
             context.CustomerInformation.Select(c => c.Information).OrderBy(n => n));
 
         Assert.Equal(
-            new[] { "markash420", "unicorns420" },
+            ["markash420", "unicorns420"],
             context.Computers.Select(c => c.Name).OrderBy(n => n));
 
         Assert.Equal(
-            new[] { "It's a Dell!", "It's not a Dell!" },
+            ["It's a Dell!", "It's not a Dell!"],
             context.ComputerDetails.Select(c => c.Specifications).OrderBy(n => n));
 
         Assert.Equal(
-            new[] { "Eeky Bear", "Splash Bear" },
+            ["Eeky Bear", "Splash Bear"],
             context.Drivers.Select(c => c.Name).OrderBy(n => n));
 
         Assert.Equal(
-            new[] { "10", "11" },
+            ["10", "11"],
             context.Licenses.Select(c => c.LicenseNumber).OrderBy(n => n));
     }
 

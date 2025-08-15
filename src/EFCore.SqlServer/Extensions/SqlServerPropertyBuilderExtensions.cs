@@ -907,13 +907,13 @@ public static class SqlServerPropertyBuilderExtensions
         string defaultConstraintName,
         bool fromDataAnnotation = false)
         => propertyBuilder.CanSetAnnotation(
-            RelationalAnnotationNames.DefaultValue,
-            value,
-            fromDataAnnotation)
-        && propertyBuilder.CanSetAnnotation(
-            RelationalAnnotationNames.DefaultConstraintName,
-            defaultConstraintName,
-            fromDataAnnotation);
+                RelationalAnnotationNames.DefaultValue,
+                value,
+                fromDataAnnotation)
+            && propertyBuilder.CanSetAnnotation(
+                RelationalAnnotationNames.DefaultConstraintName,
+                defaultConstraintName,
+                fromDataAnnotation);
 
     /// <summary>
     ///     Configures the default value expression for the column that the property maps to when targeting SQL Server.
@@ -1008,11 +1008,11 @@ public static class SqlServerPropertyBuilderExtensions
         string defaultConstraintName,
         bool fromDataAnnotation = false)
         => propertyBuilder.CanSetAnnotation(
-            RelationalAnnotationNames.DefaultValueSql,
-            sql,
-            fromDataAnnotation)
-        && propertyBuilder.CanSetAnnotation(
-            RelationalAnnotationNames.DefaultConstraintName,
-            defaultConstraintName,
-            fromDataAnnotation);
+                RelationalAnnotationNames.DefaultValueSql,
+                sql,
+                fromDataAnnotation)
+            && propertyBuilder.CanSetAnnotation(
+                RelationalAnnotationNames.DefaultConstraintName,
+                defaultConstraintName,
+                fromDataAnnotation);
 }

@@ -187,7 +187,7 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
                                 valueSelector = unwrappedValueSelector;
                             }
 
-                            setters[i] = new(propertySelector, valueSelector);
+                            setters[i] = new ExecuteUpdateSetter(propertySelector, valueSelector);
                         }
 
                         return TranslateExecuteUpdate(shapedQueryExpression, setters)
@@ -606,7 +606,7 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
 
         // Identify property access, e.g. primitive collection property (context.Blogs.Where(b => b.Tags.Contains(...)))
         if (IsMemberAccess(methodCallExpression, QueryCompilationContext.Model, out var propertyAccessSource, out var propertyName)
-            && TranslateMemberAccess(propertyAccessSource, propertyName) is ShapedQueryExpression translation)
+            && TranslateMemberAccess(propertyAccessSource, propertyName) is { } translation)
         {
             return translation;
         }

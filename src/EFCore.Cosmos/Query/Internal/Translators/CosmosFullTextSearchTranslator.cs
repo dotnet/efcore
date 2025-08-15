@@ -39,23 +39,24 @@ public class CosmosFullTextSearchTranslator(ISqlExpressionFactory sqlExpressionF
                     typeMappingSource.FindMapping(typeof(bool))),
 
             nameof(CosmosDbFunctionsExtensions.FullTextScore)
-                when arguments is [_, SqlExpression property, SqlConstantExpression { Type: var keywordClrType, Value: string[] values } keywords]
-                    && keywordClrType == typeof(string[]) => sqlExpressionFactory.ScoringFunction(
-                        "FullTextScore",
-                        [property, .. values.Select(x => sqlExpressionFactory.Constant(x))],
-                        typeof(double),
-                        typeMappingSource.FindMapping(typeof(double))),
+                when arguments is
+                    [_, { } property, SqlConstantExpression { Type: var keywordClrType, Value: string[] values } keywords]
+                && keywordClrType == typeof(string[]) => sqlExpressionFactory.ScoringFunction(
+                    "FullTextScore",
+                    [property, .. values.Select(x => sqlExpressionFactory.Constant(x))],
+                    typeof(double),
+                    typeMappingSource.FindMapping(typeof(double))),
 
             nameof(CosmosDbFunctionsExtensions.FullTextScore)
-                when arguments is [_, SqlExpression property, SqlParameterExpression { Type: var keywordClrType } keywords]
-                    && keywordClrType == typeof(string[]) => sqlExpressionFactory.ScoringFunction(
-                        "FullTextScore",
-                        [property, keywords],
-                        typeof(double),
-                        typeMappingSource.FindMapping(typeof(double))),
+                when arguments is [_, { } property, SqlParameterExpression { Type: var keywordClrType } keywords]
+                && keywordClrType == typeof(string[]) => sqlExpressionFactory.ScoringFunction(
+                    "FullTextScore",
+                    [property, keywords],
+                    typeof(double),
+                    typeMappingSource.FindMapping(typeof(double))),
 
             nameof(CosmosDbFunctionsExtensions.FullTextScore)
-                when arguments is [_, SqlExpression property, ArrayConstantExpression keywords] => sqlExpressionFactory.ScoringFunction(
+                when arguments is [_, { } property, ArrayConstantExpression keywords] => sqlExpressionFactory.ScoringFunction(
                     "FullTextScore",
                     [property, .. keywords.Items],
                     typeof(double),
@@ -69,23 +70,24 @@ public class CosmosFullTextSearchTranslator(ISqlExpressionFactory sqlExpressionF
                     typeMappingSource.FindMapping(typeof(double))),
 
             nameof(CosmosDbFunctionsExtensions.FullTextContainsAny) or nameof(CosmosDbFunctionsExtensions.FullTextContainsAll)
-                when arguments is [_, SqlExpression property, SqlConstantExpression { Type: var keywordClrType, Value: string[] values } keywords]
-                    && keywordClrType == typeof(string[]) => sqlExpressionFactory.Function(
-                        method.Name == nameof(CosmosDbFunctionsExtensions.FullTextContainsAny) ? "FullTextContainsAny" : "FullTextContainsAll",
-                        [property, .. values.Select(x => sqlExpressionFactory.Constant(x))],
-                        typeof(bool),
-                        typeMappingSource.FindMapping(typeof(bool))),
+                when arguments is
+                    [_, { } property, SqlConstantExpression { Type: var keywordClrType, Value: string[] values }]
+                && keywordClrType == typeof(string[]) => sqlExpressionFactory.Function(
+                    method.Name == nameof(CosmosDbFunctionsExtensions.FullTextContainsAny) ? "FullTextContainsAny" : "FullTextContainsAll",
+                    [property, .. values.Select(x => sqlExpressionFactory.Constant(x))],
+                    typeof(bool),
+                    typeMappingSource.FindMapping(typeof(bool))),
 
             nameof(CosmosDbFunctionsExtensions.FullTextContainsAny) or nameof(CosmosDbFunctionsExtensions.FullTextContainsAll)
-                when arguments is [_, SqlExpression property, SqlParameterExpression { Type: var keywordClrType } keywords]
-                    && keywordClrType == typeof(string[]) => sqlExpressionFactory.Function(
-                        method.Name == nameof(CosmosDbFunctionsExtensions.FullTextContainsAny) ? "FullTextContainsAny" : "FullTextContainsAll",
-                        [property, keywords],
-                        typeof(bool),
-                        typeMappingSource.FindMapping(typeof(bool))),
+                when arguments is [_, { } property, SqlParameterExpression { Type: var keywordClrType } keywords]
+                && keywordClrType == typeof(string[]) => sqlExpressionFactory.Function(
+                    method.Name == nameof(CosmosDbFunctionsExtensions.FullTextContainsAny) ? "FullTextContainsAny" : "FullTextContainsAll",
+                    [property, keywords],
+                    typeof(bool),
+                    typeMappingSource.FindMapping(typeof(bool))),
 
             nameof(CosmosDbFunctionsExtensions.FullTextContainsAny) or nameof(CosmosDbFunctionsExtensions.FullTextContainsAll)
-                when arguments is [_, SqlExpression property, ArrayConstantExpression keywords] => sqlExpressionFactory.Function(
+                when arguments is [_, { } property, ArrayConstantExpression keywords] => sqlExpressionFactory.Function(
                     method.Name == nameof(CosmosDbFunctionsExtensions.FullTextContainsAny) ? "FullTextContainsAny" : "FullTextContainsAll",
                     [property, .. keywords.Items],
                     typeof(bool),

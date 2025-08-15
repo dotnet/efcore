@@ -91,13 +91,12 @@ public class SqlServerStringAggregateMethodTranslator : IAggregateMethodCallTran
                 SqlServerExpression.AggregateFunctionWithOrdering(
                     _sqlExpressionFactory,
                     "STRING_AGG",
-                    new[]
-                    {
+                    [
                         sqlExpression,
                         _sqlExpressionFactory.ApplyTypeMapping(
                             method == StringJoinMethod ? arguments[0] : _sqlExpressionFactory.Constant(string.Empty, typeof(string)),
                             sqlExpression.TypeMapping)
-                    },
+                    ],
                     source,
                     enumerableArgumentIndex: 0,
                     nullable: true,

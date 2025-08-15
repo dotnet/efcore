@@ -9,7 +9,8 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
+public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixture)
+    : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
     protected override string StoreName
         => "AdHocAdvancedMappingsQueryTests";
@@ -29,14 +30,13 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<TipoServicio>(
-                builder =>
-                {
-                    builder.HasKey(ts => ts.Id);
+            modelBuilder.Entity<TipoServicio>(builder =>
+            {
+                builder.HasKey(ts => ts.Id);
 
-                    builder.Property(ts => ts.Id).IsRequired();
-                    builder.Property(ts => ts.Nombre).IsRequired().HasMaxLength(20);
-                });
+                builder.Property(ts => ts.Id).IsRequired();
+                builder.Property(ts => ts.Nombre).IsRequired().HasMaxLength(20);
+            });
 
             foreach (var property in modelBuilder.Model.GetEntityTypes()
                          .SelectMany(e => e.GetProperties().Where(p => p.ClrType == typeof(string))))
@@ -62,24 +62,22 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
         var contextFactory = await InitializeAsync<Context11835>(seed: c => c.SeedAsync());
         using (var context = contextFactory.CreateContext())
         {
-            var result = context.Blogs.Select(
-                e => new
-                {
-                    e.Id,
-                    e.Title,
-                    FirstPostName = e.Posts.Where(i => i.Name.Contains("2")).ToList()
-                }).ToList();
+            var result = context.Blogs.Select(e => new
+            {
+                e.Id,
+                e.Title,
+                FirstPostName = e.Posts.Where(i => i.Name.Contains("2")).ToList()
+            }).ToList();
         }
 
         using (var context = contextFactory.CreateContext())
         {
-            var result = context.Blogs.Select(
-                e => new
-                {
-                    e.Id,
-                    e.Title,
-                    FirstPostName = e.Posts.OrderBy(i => i.Id).FirstOrDefault().Name
-                }).ToList();
+            var result = context.Blogs.Select(e => new
+            {
+                e.Id,
+                e.Title,
+                FirstPostName = e.Posts.OrderBy(i => i.Id).FirstOrDefault().Name
+            }).ToList();
         }
     }
 
@@ -246,6 +244,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
     {
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<RemovableEntity> RemovableEntities { get; set; }
+
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<Parent> Parents { get; set; }
 
@@ -404,8 +403,9 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
             var queryBase = (IQueryable)context.MockEntities;
             var id = 1;
 
-            var message = Assert.Throws<InvalidOperationException>(
-                () => queryBase.Cast<Context18087.IDummyEntity>().FirstOrDefault(x => x.Id == id)).Message;
+            var message = Assert
+                .Throws<InvalidOperationException>(() => queryBase.Cast<Context18087.IDummyEntity>().FirstOrDefault(x => x.Id == id))
+                .Message;
 
             Assert.Equal(
                 CoreStrings.TranslationFailed(
@@ -506,16 +506,9 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
 
     #region 26742
 
-    [ConditionalTheory]
-    [InlineData(null, "")]
+    [ConditionalTheory, InlineData(null, ""), InlineData(1, " (Scale = 1)"), InlineData(2, " (Scale = 2)"), InlineData(3, " (Scale = 3)"),
+     InlineData(4, " (Scale = 4)"), InlineData(5, " (Scale = 5)"), InlineData(6, " (Scale = 6)"), InlineData(7, " (Scale = 7)")]
     //[InlineData(0, " (Scale = 0)")] //https://github.com/dotnet/SqlClient/issues/1380 cause this test to fail, not EF
-    [InlineData(1, " (Scale = 1)")]
-    [InlineData(2, " (Scale = 2)")]
-    [InlineData(3, " (Scale = 3)")]
-    [InlineData(4, " (Scale = 4)")]
-    [InlineData(5, " (Scale = 5)")]
-    [InlineData(6, " (Scale = 6)")]
-    [InlineData(7, " (Scale = 7)")]
     public virtual async Task Query_generates_correct_datetime2_parameter_definition(int? fractionalSeconds, string postfix)
     {
         var contextFactory = await InitializeAsync<Context26742>(
@@ -532,16 +525,9 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
         _ = context.Entities.Where(x => x.DateTime == parameter).Select(e => e.DateTime).FirstOrDefault();
     }
 
-    [ConditionalTheory]
-    [InlineData(null, "")]
+    [ConditionalTheory, InlineData(null, ""), InlineData(1, " (Scale = 1)"), InlineData(2, " (Scale = 2)"), InlineData(3, " (Scale = 3)"),
+     InlineData(4, " (Scale = 4)"), InlineData(5, " (Scale = 5)"), InlineData(6, " (Scale = 6)"), InlineData(7, " (Scale = 7)")]
     //[InlineData(0, " (Scale = 0)")] //https://github.com/dotnet/SqlClient/issues/1380 cause this test to fail, not EF
-    [InlineData(1, " (Scale = 1)")]
-    [InlineData(2, " (Scale = 2)")]
-    [InlineData(3, " (Scale = 3)")]
-    [InlineData(4, " (Scale = 4)")]
-    [InlineData(5, " (Scale = 5)")]
-    [InlineData(6, " (Scale = 6)")]
-    [InlineData(7, " (Scale = 7)")]
     public virtual async Task Query_generates_correct_datetimeoffset_parameter_definition(int? fractionalSeconds, string postfix)
     {
         var contextFactory = await InitializeAsync<Context26742>(
@@ -558,16 +544,9 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
         _ = context.Entities.Where(x => x.DateTimeOffset == parameter).Select(e => e.DateTimeOffset).FirstOrDefault();
     }
 
-    [ConditionalTheory]
-    [InlineData(null, "")]
+    [ConditionalTheory, InlineData(null, ""), InlineData(1, " (Scale = 1)"), InlineData(2, " (Scale = 2)"), InlineData(3, " (Scale = 3)"),
+     InlineData(4, " (Scale = 4)"), InlineData(5, " (Scale = 5)"), InlineData(6, " (Scale = 6)"), InlineData(7, " (Scale = 7)")]
     //[InlineData(0, " (Scale = 0)")] //https://github.com/dotnet/SqlClient/issues/1380 cause this test to fail, not EF
-    [InlineData(1, " (Scale = 1)")]
-    [InlineData(2, " (Scale = 2)")]
-    [InlineData(3, " (Scale = 3)")]
-    [InlineData(4, " (Scale = 4)")]
-    [InlineData(5, " (Scale = 5)")]
-    [InlineData(6, " (Scale = 6)")]
-    [InlineData(7, " (Scale = 7)")]
     public virtual async Task Query_generates_correct_timespan_parameter_definition(int? fractionalSeconds, string postfix)
     {
         var contextFactory = await InitializeAsync<Context26742>(
@@ -602,8 +581,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
 
     #region 28196
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Hierarchy_query_with_abstract_type_sibling(bool async)
         => Hierarchy_query_with_abstract_type_sibling_helper(async, null);
 
@@ -695,8 +673,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
 
     #region 34760
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Projecting_property_with_converter_with_closure(bool async)
     {
         var contextFactory = await InitializeAsync<Context34760>(seed: c => c.SeedAsync());
@@ -708,8 +685,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
         Assert.Equal(2, result.Count);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Projecting_expression_with_converter_with_closure(bool async)
     {
         var contextFactory = await InitializeAsync<Context34760>(seed: c => c.SeedAsync());
@@ -717,17 +693,13 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
 
         var query = context.Books
             .GroupBy(t => t.Id)
-            .Select(g => new
-            {
-                Day = g.Min(t => t.PublishDate)
-            });
+            .Select(g => new { Day = g.Min(t => t.PublishDate) });
 
         var result = await query.ToListAsync();
         Assert.Equal(2, result.Count);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Projecting_property_with_converter_without_closure(bool async)
     {
         var contextFactory = await InitializeAsync<Context34760>(seed: c => c.SeedAsync());
@@ -735,10 +707,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
 
         var query = context.Books
             .GroupBy(t => t.Id)
-            .Select(g => new
-            {
-                Day = g.Min(t => t.AudiobookDate)
-            });
+            .Select(g => new { Day = g.Min(t => t.AudiobookDate) });
 
         var result = await query.ToListAsync();
         Assert.Equal(2, result.Count);
@@ -751,20 +720,23 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Book>().Property(e => e.Id).ValueGeneratedNever();
-            modelBuilder.Entity<Book>().Property(e => e.PublishDate).HasConversion(new MyDateTimeValueConverterWithClosure(new MyDatetimeConverter()));
+            modelBuilder.Entity<Book>().Property(e => e.PublishDate)
+                .HasConversion(new MyDateTimeValueConverterWithClosure(new MyDatetimeConverter()));
             modelBuilder.Entity<Book>().Property(e => e.AudiobookDate).HasConversion(new MyDateTimeValueConverterWithoutClosure());
         }
 
         public Task SeedAsync()
         {
             AddRange(
-                new Book {
+                new Book
+                {
                     Id = 1,
                     Name = "The Blade Itself",
                     PublishDate = new DateTime(2006, 5, 4, 11, 59, 59),
                     AudiobookDate = new DateTime(2015, 9, 8, 23, 59, 59)
                 },
-                new Book {
+                new Book
+                {
                     Id = 2,
                     Name = "Red Rising",
                     PublishDate = new DateTime(2014, 1, 27, 23, 59, 59),

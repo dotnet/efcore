@@ -109,7 +109,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                 _sqlExpressionFactory.GreaterThan(
                     _sqlExpressionFactory.Function(
                         "json_array_length",
-                        new[] { array },
+                        [array],
                         nullable: true,
                         argumentsPropagateNullability: Statics.TrueArrays[1],
                         typeof(int)),
@@ -148,7 +148,8 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
             throw new NotSupportedException(
                 SqliteStrings.OrderByNotSupported(orderingExpressionType.ShortDisplayName()));
         }
-        else if (orderingExpressionType == typeof(decimal))
+
+        if (orderingExpressionType == typeof(decimal))
         {
             translation = new CollateExpression(translation, "EF_DECIMAL");
         }
@@ -183,7 +184,8 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
             throw new NotSupportedException(
                 SqliteStrings.OrderByNotSupported(orderingExpressionType.ShortDisplayName()));
         }
-        else if (orderingExpressionType == typeof(decimal))
+
+        if (orderingExpressionType == typeof(decimal))
         {
             translation = new CollateExpression(translation, "EF_DECIMAL");
         }
@@ -216,7 +218,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         {
             var translation = _sqlExpressionFactory.Function(
                 "json_array_length",
-                new[] { array },
+                [array],
                 nullable: true,
                 argumentsPropagateNullability: Statics.TrueArrays[1],
                 typeof(int));
@@ -381,7 +383,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         // We're only interested in properties which actually exist in the JSON, filter out uninteresting synthetic keys
         foreach (var property in structuralType.GetPropertiesInHierarchy())
         {
-            if (property.GetJsonPropertyName() is string jsonPropertyName)
+            if (property.GetJsonPropertyName() is { } jsonPropertyName)
             {
                 // HACK: currently the only way to project multiple values from a SelectExpression is to simulate a Select out to an anonymous
                 // type; this requires the MethodInfos of the anonymous type properties, from which the projection alias gets taken.
@@ -400,10 +402,9 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         if (structuralType is IEntityType entityType)
         {
             foreach (var navigation in entityType.GetNavigationsInHierarchy()
-                         .Where(
-                             n => n.ForeignKey.IsOwnership
-                                 && n.TargetEntityType.IsMappedToJson()
-                                 && n.ForeignKey.PrincipalToDependent == n))
+                         .Where(n => n.ForeignKey.IsOwnership
+                             && n.TargetEntityType.IsMappedToJson()
+                             && n.ForeignKey.PrincipalToDependent == n))
             {
                 var jsonNavigationName = navigation.TargetEntityType.GetJsonPropertyName();
                 Check.DebugAssert(jsonNavigationName is not null, "Invalid navigation found on JSON-mapped entity");
@@ -492,38 +493,41 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                 // index on parameter using a column
                 // translate via JSON because it is a better translation
                 case SelectExpression
-                {
-                    Tables: [ValuesExpression { ValuesParameter: { } valuesParameter }],
-                    Predicate: null,
-                    GroupBy: [],
-                    Having: null,
-                    IsDistinct: false,
+                    {
+                        Tables: [ValuesExpression { ValuesParameter: { } valuesParameter }],
+                        Predicate: null,
+                        GroupBy: [],
+                        Having: null,
+                        IsDistinct: false,
 #pragma warning disable EF1001
-                    Orderings: [{ Expression: ColumnExpression { Name: ValuesOrderingColumnName }, IsAscending: true }],
+                        Orderings: [{ Expression: ColumnExpression { Name: ValuesOrderingColumnName }, IsAscending: true }],
 #pragma warning restore EF1001
-                    Limit: null,
-                    Offset: null
-                } selectExpression
-                when TranslateExpression(index) is { } translatedIndex
+                        Limit: null,
+                        Offset: null
+                    } selectExpression
+                    when TranslateExpression(index) is { } translatedIndex
                     && TryTranslate(selectExpression, valuesParameter, translatedIndex, out var result):
                     return result;
 
                 // Index on JSON array
                 case SelectExpression
-                {
-                    Tables: [TableValuedFunctionExpression
                     {
-                        Name: "json_each", Schema: null, IsBuiltIn: true, Arguments: [var jsonArrayColumn]
-                    } jsonEachExpression],
-                    Predicate: null,
-                    GroupBy: [],
-                    Having: null,
-                    IsDistinct: false,
-                    Orderings: [{ Expression: ColumnExpression { Name: JsonEachKeyColumnName } orderingColumn, IsAscending: true }],
-                    Limit: null,
-                    Offset: null
-                } selectExpression
-                when orderingColumn.TableAlias == jsonEachExpression.Alias
+                        Tables:
+                        [
+                            TableValuedFunctionExpression
+                            {
+                                Name: "json_each", Schema: null, IsBuiltIn: true, Arguments: [var jsonArrayColumn]
+                            } jsonEachExpression
+                        ],
+                        Predicate: null,
+                        GroupBy: [],
+                        Having: null,
+                        IsDistinct: false,
+                        Orderings: [{ Expression: ColumnExpression { Name: JsonEachKeyColumnName } orderingColumn, IsAscending: true }],
+                        Limit: null,
+                        Offset: null
+                    } selectExpression
+                    when orderingColumn.TableAlias == jsonEachExpression.Alias
                     && TranslateExpression(index) is { } translatedIndex
                     && TryTranslate(selectExpression, jsonArrayColumn, translatedIndex, out var result):
                     return result;
@@ -536,7 +540,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
             SelectExpression selectExpression,
             SqlExpression jsonArrayColumn,
             SqlExpression translatedIndex,
-            [NotNullWhen(true)]out ShapedQueryExpression? result)
+            [NotNullWhen(true)] out ShapedQueryExpression? result)
         {
             // Extract the column projected out of the source, and simplify the subquery to a simple JsonScalarExpression
             var shaperExpression = source.ShaperExpression;
@@ -552,7 +556,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
             {
                 SqlExpression translation = new JsonScalarExpression(
                     jsonArrayColumn,
-                    new[] { new PathSegment(translatedIndex) },
+                    [new PathSegment(translatedIndex)],
                     projectionColumn.Type,
                     projectionColumn.TypeMapping,
                     projectionColumn.IsNullable);
@@ -585,21 +589,21 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
     protected override bool IsNaturallyOrdered(SelectExpression selectExpression)
     {
         return selectExpression is
-        {
-            Tables: [var mainTable, ..],
-            Orderings:
+            {
+                Tables: [var mainTable, ..],
+                Orderings:
                 [
-                {
-                    Expression: ColumnExpression { Name: JsonEachKeyColumnName } orderingColumn,
-                    IsAscending: true
-                }
+                    {
+                        Expression: ColumnExpression { Name: JsonEachKeyColumnName } orderingColumn,
+                        IsAscending: true
+                    }
                 ]
-        }
+            }
             && orderingColumn.TableAlias == mainTable.Alias
             && IsJsonEachKeyColumn(selectExpression, orderingColumn);
 
         bool IsJsonEachKeyColumn(SelectExpression selectExpression, ColumnExpression orderingColumn)
-            => selectExpression.Tables.FirstOrDefault(t => t.Alias == orderingColumn.TableAlias)?.UnwrapJoin() is TableExpressionBase table
+            => selectExpression.Tables.FirstOrDefault(t => t.Alias == orderingColumn.TableAlias)?.UnwrapJoin() is { } table
                 && (table is JsonEachExpression
                     || (table is SelectExpression subquery
                         && subquery.Projection.FirstOrDefault(p => p.Alias == JsonEachKeyColumnName)?.Expression is ColumnExpression
@@ -640,7 +644,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
             ByteArrayTypeMapping
                 => sqlExpressionFactory.Function(
                     "unhex",
-                    new[] { expression },
+                    [expression],
                     nullable: true,
                     argumentsPropagateNullability: Statics.TrueArrays[1],
                     typeof(byte[]),

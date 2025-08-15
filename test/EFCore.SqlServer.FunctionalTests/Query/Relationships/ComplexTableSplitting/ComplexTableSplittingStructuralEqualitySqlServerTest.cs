@@ -52,7 +52,7 @@ WHERE [r].[RequiredRelated_Id] <> [r].[OptionalRelated_Id] OR [r].[OptionalRelat
             """
 SELECT [r].[Id], [r].[Name], [r].[OptionalRelated_Id], [r].[OptionalRelated_Int], [r].[OptionalRelated_Name], [r].[OptionalRelated_String], [r].[OptionalRelated_OptionalNested_Id], [r].[OptionalRelated_OptionalNested_Int], [r].[OptionalRelated_OptionalNested_Name], [r].[OptionalRelated_OptionalNested_String], [r].[OptionalRelated_RequiredNested_Id], [r].[OptionalRelated_RequiredNested_Int], [r].[OptionalRelated_RequiredNested_Name], [r].[OptionalRelated_RequiredNested_String], [r].[RequiredRelated_Id], [r].[RequiredRelated_Int], [r].[RequiredRelated_Name], [r].[RequiredRelated_String], [r].[RequiredRelated_OptionalNested_Id], [r].[RequiredRelated_OptionalNested_Int], [r].[RequiredRelated_OptionalNested_Name], [r].[RequiredRelated_OptionalNested_String], [r].[RequiredRelated_RequiredNested_Id], [r].[RequiredRelated_RequiredNested_Int], [r].[RequiredRelated_RequiredNested_Name], [r].[RequiredRelated_RequiredNested_String]
 FROM [RootEntity] AS [r]
-WHERE [r].[OptionalRelated_Id] IS NULL AND [r].[OptionalRelated_Int] IS NULL AND [r].[OptionalRelated_Name] IS NULL AND [r].[OptionalRelated_String] IS NULL AND [r].[OptionalRelated_OptionalNested_Id] IS NULL AND [r].[OptionalRelated_OptionalNested_Int] IS NULL AND [r].[OptionalRelated_OptionalNested_Name] IS NULL AND [r].[OptionalRelated_OptionalNested_String] IS NULL AND [r].[OptionalRelated_RequiredNested_Id] IS NULL AND [r].[OptionalRelated_RequiredNested_Int] IS NULL AND [r].[OptionalRelated_RequiredNested_Name] IS NULL AND [r].[OptionalRelated_RequiredNested_String] IS NULL
+WHERE [r].[OptionalRelated_Id] IS NULL
 """);
     }
 
@@ -76,7 +76,7 @@ WHERE [r].[OptionalRelated_Id] IS NULL AND [r].[OptionalRelated_Int] IS NULL AND
             """
 SELECT [r].[Id], [r].[Name], [r].[OptionalRelated_Id], [r].[OptionalRelated_Int], [r].[OptionalRelated_Name], [r].[OptionalRelated_String], [r].[OptionalRelated_OptionalNested_Id], [r].[OptionalRelated_OptionalNested_Int], [r].[OptionalRelated_OptionalNested_Name], [r].[OptionalRelated_OptionalNested_String], [r].[OptionalRelated_RequiredNested_Id], [r].[OptionalRelated_RequiredNested_Int], [r].[OptionalRelated_RequiredNested_Name], [r].[OptionalRelated_RequiredNested_String], [r].[RequiredRelated_Id], [r].[RequiredRelated_Int], [r].[RequiredRelated_Name], [r].[RequiredRelated_String], [r].[RequiredRelated_OptionalNested_Id], [r].[RequiredRelated_OptionalNested_Int], [r].[RequiredRelated_OptionalNested_Name], [r].[RequiredRelated_OptionalNested_String], [r].[RequiredRelated_RequiredNested_Id], [r].[RequiredRelated_RequiredNested_Int], [r].[RequiredRelated_RequiredNested_Name], [r].[RequiredRelated_RequiredNested_String]
 FROM [RootEntity] AS [r]
-WHERE [r].[RequiredRelated_OptionalNested_Id] IS NULL AND [r].[RequiredRelated_OptionalNested_Int] IS NULL AND [r].[RequiredRelated_OptionalNested_Name] IS NULL AND [r].[RequiredRelated_OptionalNested_String] IS NULL
+WHERE [r].[RequiredRelated_OptionalNested_Id] IS NULL
 """);
     }
 
