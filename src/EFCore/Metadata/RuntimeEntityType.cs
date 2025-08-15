@@ -34,7 +34,6 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     private PropertyCounts? _counts;
     private Func<IInternalEntry, ISnapshot>? _relationshipSnapshotFactory;
     private IProperty[]? _foreignKeyProperties;
-    private IProperty[]? _valueGeneratingProperties;
     private Func<MaterializationContext, object>? _materializer;
     private Func<MaterializationContext, object>? _emptyMaterializer;
 
@@ -1315,13 +1314,6 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref _foreignKeyProperties, this,
             static entityType => entityType.GetProperties().Where(p => ((IReadOnlyProperty)p).IsForeignKey()).ToArray());
-
-    /// <inheritdoc />
-    [DebuggerStepThrough]
-    IEnumerable<IProperty> IEntityType.GetValueGeneratingProperties()
-        => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _valueGeneratingProperties, this,
-            static entityType => entityType.GetProperties().Where(p => p.RequiresValueGenerator()).ToArray());
 
     /// <inheritdoc />
     [DebuggerStepThrough]

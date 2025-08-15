@@ -31,6 +31,7 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
     private RuntimeProperty[]? _flattenedProperties;
     private RuntimeProperty[]? _flattenedDeclaredProperties;
     private RuntimeComplexProperty[]? _flattenedComplexProperties;
+    private RuntimeProperty[]? _flattenedValueGeneratingProperties;
     private RuntimePropertyBase[]? _snapshottableProperties;
     private Func<IInternalEntry, ISnapshot>? _originalValuesFactory;
     private Func<ISnapshot>? _storeGeneratedValuesFactory;
@@ -346,6 +347,18 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
         => _baseType != null
             ? _baseType.GetProperties().Concat(_properties.Values)
             : _properties.Values;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual IEnumerable<RuntimeProperty> GetFlattenedValueGeneratingProperties()
+        => NonCapturingLazyInitializer.EnsureInitialized(
+            ref _flattenedValueGeneratingProperties, this,
+            static typeBase => [.. typeBase.GetFlattenedProperties().Where(p => p.RequiresValueGenerator())]);
 
     /// <inheritdoc />
     [DebuggerStepThrough]
@@ -952,6 +965,11 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
     [DebuggerStepThrough]
     IEnumerable<IProperty> ITypeBase.GetProperties()
         => GetProperties();
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IEnumerable<IProperty> ITypeBase.GetFlattenedValueGeneratingProperties()
+        => GetFlattenedValueGeneratingProperties();
 
     /// <inheritdoc />
     [DebuggerStepThrough]

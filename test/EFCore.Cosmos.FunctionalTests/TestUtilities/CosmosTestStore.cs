@@ -835,6 +835,9 @@ public class CosmosTestStore : TestStore
         public IEnumerable<IProperty> GetProperties()
             => throw new NotImplementedException();
 
+        public IEnumerable<IProperty> GetFlattenedValueGeneratingProperties()
+            => throw new NotImplementedException();
+
         public PropertyAccessMode GetPropertyAccessMode()
             => throw new NotImplementedException();
 
@@ -857,9 +860,6 @@ public class CosmosTestStore : TestStore
             => throw new NotImplementedException();
 
         public IEnumerable<ISkipNavigation> GetSkipNavigations()
-            => throw new NotImplementedException();
-
-        public IEnumerable<IProperty> GetValueGeneratingProperties()
             => throw new NotImplementedException();
 
         IEnumerable<IReadOnlyForeignKey> IReadOnlyEntityType.FindDeclaredForeignKeys(IReadOnlyList<IReadOnlyProperty> properties)

@@ -14,29 +14,17 @@ public abstract class ComplexPropertiesFixtureBase : RelationshipsQueryFixtureBa
 
         modelBuilder.Entity<RootEntity>(b =>
         {
-            b.ComplexProperty(
-                e => e.RequiredRelated, rrb =>
-                {
-                    rrb.ComplexProperty(r => r.RequiredNested);
-                    rrb.ComplexProperty(r => r.OptionalNested);
-                    rrb.ComplexCollection(r => r.NestedCollection);
-                });
+            b.ComplexProperty(e => e.RequiredRelated, rrb
+                => rrb.ComplexProperty(r => r.OptionalNested).IsRequired(false));
 
-            b.ComplexProperty(
-                e => e.OptionalRelated, orb =>
-                {
-                    orb.ComplexProperty(r => r.RequiredNested);
-                    orb.ComplexProperty(r => r.OptionalNested);
-                    orb.ComplexCollection(r => r.NestedCollection);
-                });
+            b.ComplexProperty(e => e.OptionalRelated, orb =>
+            {
+                orb.IsRequired(false);
+                orb.ComplexProperty(r => r.OptionalNested).IsRequired(false);
+            });
 
-            b.ComplexCollection(
-                e => e.RelatedCollection, rcb =>
-                {
-                    rcb.ComplexProperty(r => r.RequiredNested);
-                    rcb.ComplexProperty(r => r.OptionalNested);
-                    rcb.ComplexCollection(r => r.NestedCollection);
-                });
+            b.ComplexCollection(e => e.RelatedCollection, rcb
+                => rcb.ComplexProperty(r => r.OptionalNested).IsRequired(false));
         });
     }
 

@@ -114,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 complexProperty);
 
         /// <summary>
-        ///     The optional complex property '{type}.{property}' is mapped to columns by flattening the contained properties, but it only contains optional properties. Add a required property or discriminator or map this complex property to a JSON column.
+        ///     The optional complex property '{type}.{property}' is mapped to columns by flattening the contained properties into its container's table; this mapping requires at least one required property - to allow distinguishing between null and empty values - but type '{complexType}' contains only optional properties. Configure the property with a shadow discriminator by adding a call to 'HasDiscriminator()` on the complex property configuration, or map this complex property to a JSON column instead.
         /// </summary>
         public static string ComplexPropertyOptionalTableSharing(object? type, object? property)
             => string.Format(
@@ -2218,7 +2218,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 nodeType, expressionType);
 
         /// <summary>
-        ///     No relational type mapping can be found for property '{entity}.{property}' and the current provider doesn't specify a default store type for the properties of type '{clrType}'. 
+        ///     No relational type mapping can be found for property '{entity}.{property}' and the current provider doesn't specify a default store type for the properties of type '{clrType}'.
         /// </summary>
         public static string UnsupportedPropertyType(object? entity, object? property, object? clrType)
             => string.Format(

@@ -70,13 +70,14 @@ public class RelatedType : IEquatable<RelatedType>
 
     public bool Equals(RelatedType? other)
         => other is not null
-            && Id == other.Id
-            && Name == other.Name
-            && Int == other.Int
-            && String == other.String
-            && RequiredNested.Equals(other.RequiredNested)
-            && (OptionalNested is null && other.OptionalNested is null || OptionalNested?.Equals(other.RequiredNested) == true)
-            && NestedCollection.SequenceEqual(other.NestedCollection);
+           && Id == other.Id
+           && Name == other.Name
+           && Int == other.Int
+           && String == other.String
+           && RequiredNested.Equals(other.RequiredNested)
+           && (OptionalNested is null ? other.OptionalNested is null : OptionalNested.Equals(other.OptionalNested))
+           // NestedCollection is annotated non-nullable, but ComplexTableSplitting doesn't support collections so we null-bang it
+           && (NestedCollection is null ? other.NestedCollection is null : NestedCollection.SequenceEqual(other.NestedCollection));
 
     public RelatedType DeepClone()
         => new()
@@ -87,7 +88,9 @@ public class RelatedType : IEquatable<RelatedType>
             String = String,
             RequiredNested = RequiredNested.DeepClone(),
             OptionalNested = OptionalNested?.DeepClone(),
-            NestedCollection = NestedCollection.Select(n => n.DeepClone()).ToList()
+
+            // NestedCollection is annotated non-nullable, but ComplexTableSplitting doesn't support collections so we null-bang it
+            NestedCollection = NestedCollection is null ? null! : NestedCollection.Select(n => n.DeepClone()).ToList()
         };
 
     public override string ToString()

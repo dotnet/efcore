@@ -24,8 +24,9 @@ public class EntityMaterializerSourceTest
 
         Assert.Equal(
             CoreStrings.CannotMaterializeAbstractType(nameof(SomeAbstractEntity)),
-            Assert.Throws<InvalidOperationException>(() => source.CreateMaterializeExpression(
-                    new StructuralTypeMaterializerSourceParameters((IEntityType)entityType, "", null, null), null!))
+            Assert.Throws<InvalidOperationException>(
+                    () => source.CreateMaterializeExpression(
+                        new StructuralTypeMaterializerSourceParameters((IEntityType)entityType, "", entityType.ClrType, null), null!))
                 .Message);
     }
 
@@ -546,7 +547,7 @@ public class EntityMaterializerSourceTest
         IReadOnlyEntityType entityType)
         => Expression.Lambda<Func<MaterializationContext, object>>(
                 source.CreateMaterializeExpression(
-                    new StructuralTypeMaterializerSourceParameters((IEntityType)entityType, "instance", null, null),
+                    new StructuralTypeMaterializerSourceParameters((IEntityType)entityType, "instance", entityType.ClrType, null),
                     _contextParameter),
                 _contextParameter)
             .Compile();

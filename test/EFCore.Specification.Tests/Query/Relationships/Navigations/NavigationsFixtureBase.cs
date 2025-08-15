@@ -57,23 +57,4 @@ public abstract class NavigationsFixtureBase : RelationshipsQueryFixtureBase
                 .HasForeignKey(r => r.CollectionRelatedId);
         });
     }
-
-    // With navigations, related entities aren't loaded by default (Include is required), so we override the asserters to
-    // ignore unloaded navigations.
-    protected override void NullSafeAssert<T>(object? e, object? a, Action<T, T> assertAction)
-    {
-        if (e is T ee && a is T aa)
-        {
-            assertAction(ee, aa);
-            return;
-        }
-
-        // Ignore unloaded actual
-        if (a is null)
-        {
-            return;
-        }
-
-        Assert.Equal(e, a);
-    }
 }

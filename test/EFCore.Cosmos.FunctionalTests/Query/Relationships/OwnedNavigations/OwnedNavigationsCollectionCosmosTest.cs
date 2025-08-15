@@ -73,6 +73,8 @@ WHERE (ARRAY(
 
     #endregion Distinct
 
+    #region Index
+
     public override async Task Index_constant()
     {
         await base.Index_constant();
@@ -123,6 +125,16 @@ FROM root c
 WHERE (c["RelatedCollection"][9999]["Int"] = 8)
 """);
     }
+
+    #endregion Index
+
+    #region GroupBy
+
+    [ConditionalFact]
+    public override Task GroupBy()
+        => AssertTranslationFailed(base.GroupBy);
+
+    #endregion GroupBy
 
     public override async Task Select_within_Select_within_Select_with_aggregates()
     {
