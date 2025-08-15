@@ -5,9 +5,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Relationships.Navigations;
 
 public abstract class NavigationsFixtureBase : RelationshipsQueryFixtureBase
 {
-    protected override string StoreName => "NavigationsQueryTest";
+    protected override string StoreName
+        => "NavigationsQueryTest";
 
-    public override bool AreCollectionsOrdered => false;
+    public override bool AreCollectionsOrdered
+        => false;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
@@ -22,7 +24,7 @@ public abstract class NavigationsFixtureBase : RelationshipsQueryFixtureBase
             b.HasOne(r => r.RequiredRelated)
                 .WithOne(r => r.RequiredRelatedInverse)
                 .HasForeignKey<RootEntity>(r => r.RequiredRelatedId)
-                .IsRequired(true)
+                .IsRequired()
                 .OnDelete(DeleteBehavior.NoAction); // TODO: Move to SQL Server
 
             b.HasOne(r => r.OptionalRelated)
@@ -41,7 +43,7 @@ public abstract class NavigationsFixtureBase : RelationshipsQueryFixtureBase
             b.HasOne(r => r.RequiredNested)
                 .WithOne(r => r.RequiredNestedInverse)
                 .HasForeignKey<RelatedType>(r => r.RequiredNestedId)
-                .IsRequired(true)
+                .IsRequired()
                 .OnDelete(DeleteBehavior.NoAction); // TODO: Move to SQL Server
 
             b.HasOne(e => e.OptionalNested)

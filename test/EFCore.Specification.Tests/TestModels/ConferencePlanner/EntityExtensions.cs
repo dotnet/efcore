@@ -32,9 +32,8 @@ public static class EntityExtensions
             Bio = speaker.Bio,
             WebSite = speaker.WebSite,
             Sessions = speaker.SessionSpeakers?
-                .Select(
-                    ss =>
-                        new ConferenceDTO.Session { Id = ss.SessionId, Title = ss.Session.Title })
+                .Select(ss =>
+                    new ConferenceDTO.Session { Id = ss.SessionId, Title = ss.Session.Title })
                 .ToList()
         };
 
@@ -47,15 +46,14 @@ public static class EntityExtensions
             UserName = attendee.UserName,
             EmailAddress = attendee.EmailAddress,
             Sessions = attendee.SessionsAttendees?
-                .Select(
-                    sa =>
-                        new ConferenceDTO.Session
-                        {
-                            Id = sa.SessionId,
-                            Title = sa.Session.Title,
-                            StartTime = sa.Session.StartTime,
-                            EndTime = sa.Session.EndTime
-                        })
+                .Select(sa =>
+                    new ConferenceDTO.Session
+                    {
+                        Id = sa.SessionId,
+                        Title = sa.Session.Title,
+                        StartTime = sa.Session.StartTime,
+                        EndTime = sa.Session.EndTime
+                    })
                 .ToList()
         };
 }

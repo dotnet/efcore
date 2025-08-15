@@ -10,31 +10,25 @@ public abstract class ComparisonOperatorTranslationsTestBase<TFixture>(TFixture 
 {
     [ConditionalFact]
     public virtual async Task Equal()
-        => await AssertQuery(
-            ss => ss.Set<BasicTypesEntity>().Where(b => b.Int == 8));
+        => await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Int == 8));
 
     [ConditionalFact]
     public virtual async Task NotEqual()
-        => await AssertQuery(
-            ss => ss.Set<BasicTypesEntity>().Where(b => b.Int != 8));
+        => await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Int != 8));
 
     [ConditionalFact]
     public virtual async Task GreaterThan()
-        => await AssertQuery(
-            ss => ss.Set<BasicTypesEntity>().Where(b => b.Int > 8));
+        => await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Int > 8));
 
     [ConditionalFact]
     public virtual async Task GreaterThanOrEqual()
-        => await AssertQuery(
-            ss => ss.Set<BasicTypesEntity>().Where(b => b.Int >= 8));
+        => await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Int >= 8));
 
     [ConditionalFact]
     public virtual async Task LessThan()
-        => await AssertQuery(
-            ss => ss.Set<BasicTypesEntity>().Where(b => b.Int < 8));
+        => await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Int < 8));
 
     [ConditionalFact]
     public virtual async Task LessThanOrEqual()
-        => await AssertQuery(
-            ss => ss.Set<BasicTypesEntity>().Where(b => b.Int <= 8));
+        => await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Int <= 8));
 }

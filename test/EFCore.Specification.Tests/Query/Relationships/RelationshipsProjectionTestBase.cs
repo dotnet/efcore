@@ -6,8 +6,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Relationships;
 public abstract class RelationshipsProjectionTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : RelationshipsQueryFixtureBase, new()
 {
-    [ConditionalTheory]
-    [MemberData(nameof(TrackingData))]
+    [ConditionalTheory, MemberData(nameof(TrackingData))]
     public virtual Task Select_root(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             ss => ss.Set<RootEntity>(),
@@ -15,22 +14,19 @@ public abstract class RelationshipsProjectionTestBase<TFixture>(TFixture fixture
 
     #region Simple properties
 
-    [ConditionalTheory]
-    [MemberData(nameof(TrackingData))]
+    [ConditionalTheory, MemberData(nameof(TrackingData))]
     public virtual Task Select_property_on_required_related(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             ss => ss.Set<RootEntity>().Select(x => x.RequiredRelated.String),
             queryTrackingBehavior: queryTrackingBehavior);
 
-    [ConditionalTheory]
-    [MemberData(nameof(TrackingData))]
+    [ConditionalTheory, MemberData(nameof(TrackingData))]
     public virtual Task Select_property_on_optional_related(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             ss => ss.Set<RootEntity>().Select(x => x.OptionalRelated!.String),
             queryTrackingBehavior: queryTrackingBehavior);
 
-    [ConditionalTheory]
-    [MemberData(nameof(TrackingData))]
+    [ConditionalTheory, MemberData(nameof(TrackingData))]
     public virtual Task Select_value_type_property_on_null_related_throws(QueryTrackingBehavior queryTrackingBehavior)
         // We have an entity with OptionalRelated null, so projecting a value type property from that throws
         // "Nullable object must have a value"
@@ -39,8 +35,7 @@ public abstract class RelationshipsProjectionTestBase<TFixture>(TFixture fixture
                 ss => ss.Set<RootEntity>().Select(x => x.OptionalRelated!.Int),
                 queryTrackingBehavior: queryTrackingBehavior));
 
-    [ConditionalTheory]
-    [MemberData(nameof(TrackingData))]
+    [ConditionalTheory, MemberData(nameof(TrackingData))]
     public virtual Task Select_nullable_value_type_property_on_null_related(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             ss => ss.Set<RootEntity>().Select(x => (int?)x.OptionalRelated!.Int),
@@ -50,50 +45,43 @@ public abstract class RelationshipsProjectionTestBase<TFixture>(TFixture fixture
 
     #region Non-collection
 
-    [ConditionalTheory]
-    [MemberData(nameof(TrackingData))]
+    [ConditionalTheory, MemberData(nameof(TrackingData))]
     public virtual Task Select_related(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             ss => ss.Set<RootEntity>().Select(x => x.RequiredRelated),
             queryTrackingBehavior: queryTrackingBehavior);
 
-    [ConditionalTheory]
-    [MemberData(nameof(TrackingData))]
+    [ConditionalTheory, MemberData(nameof(TrackingData))]
     public virtual Task Select_optional_related(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             ss => ss.Set<RootEntity>().Select(x => x.OptionalRelated),
             queryTrackingBehavior: queryTrackingBehavior);
 
-    [ConditionalTheory]
-    [MemberData(nameof(TrackingData))]
+    [ConditionalTheory, MemberData(nameof(TrackingData))]
     public virtual Task Select_required_nested_on_required_related(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             ss => ss.Set<RootEntity>().Select(x => x.RequiredRelated.RequiredNested),
             queryTrackingBehavior: queryTrackingBehavior);
 
-    [ConditionalTheory]
-    [MemberData(nameof(TrackingData))]
+    [ConditionalTheory, MemberData(nameof(TrackingData))]
     public virtual Task Select_optional_nested_on_required_related(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             ss => ss.Set<RootEntity>().Select(x => x.RequiredRelated.OptionalNested),
             queryTrackingBehavior: queryTrackingBehavior);
 
-    [ConditionalTheory]
-    [MemberData(nameof(TrackingData))]
+    [ConditionalTheory, MemberData(nameof(TrackingData))]
     public virtual Task Select_required_nested_on_optional_related(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             ss => ss.Set<RootEntity>().Select(x => x.OptionalRelated!.RequiredNested),
             queryTrackingBehavior: queryTrackingBehavior);
 
-    [ConditionalTheory]
-    [MemberData(nameof(TrackingData))]
+    [ConditionalTheory, MemberData(nameof(TrackingData))]
     public virtual Task Select_optional_nested_on_optional_related(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             ss => ss.Set<RootEntity>().Select(x => x.OptionalRelated!.OptionalNested),
             queryTrackingBehavior: queryTrackingBehavior);
 
-    [ConditionalTheory]
-    [MemberData(nameof(TrackingData))]
+    [ConditionalTheory, MemberData(nameof(TrackingData))]
     public virtual Task Select_required_related_via_optional_navigation(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             ss => ss.Set<RootReferencingEntity>().Select(e => e.Root!.RequiredRelated),
@@ -106,8 +94,7 @@ public abstract class RelationshipsProjectionTestBase<TFixture>(TFixture fixture
     // Note we order via the Id (server-side) to ensure the collections come back in deterministic order,
     // otherwise it's difficult/unreliable to compare client-side.
 
-    [ConditionalTheory]
-    [MemberData(nameof(TrackingData))]
+    [ConditionalTheory, MemberData(nameof(TrackingData))]
     public virtual Task Select_related_collection(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             ss => ss.Set<RootEntity>().OrderBy(e => e.Id).Select(x => x.RelatedCollection),
@@ -115,8 +102,7 @@ public abstract class RelationshipsProjectionTestBase<TFixture>(TFixture fixture
             elementAsserter: (e, a) => AssertCollection(e, a, elementSorter: r => r.Id),
             queryTrackingBehavior: queryTrackingBehavior);
 
-    [ConditionalTheory]
-    [MemberData(nameof(TrackingData))]
+    [ConditionalTheory, MemberData(nameof(TrackingData))]
     public virtual Task Select_nested_collection_on_required_related(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             ss => ss.Set<RootEntity>().OrderBy(e => e.Id).Select(x => x.RequiredRelated.NestedCollection),
@@ -124,8 +110,7 @@ public abstract class RelationshipsProjectionTestBase<TFixture>(TFixture fixture
             elementAsserter: (e, a) => AssertCollection(e, a, elementSorter: r => r.Id),
             queryTrackingBehavior: queryTrackingBehavior);
 
-    [ConditionalTheory]
-    [MemberData(nameof(TrackingData))]
+    [ConditionalTheory, MemberData(nameof(TrackingData))]
     public virtual Task Select_nested_collection_on_optional_related(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             ss => ss.Set<RootEntity>().OrderBy(e => e.Id).Select(x => x.OptionalRelated!.NestedCollection),
@@ -133,22 +118,19 @@ public abstract class RelationshipsProjectionTestBase<TFixture>(TFixture fixture
             elementAsserter: (e, a) => AssertCollection(e, a, elementSorter: r => r.Id),
             queryTrackingBehavior: queryTrackingBehavior);
 
-    [ConditionalTheory]
-    [MemberData(nameof(TrackingData))]
+    [ConditionalTheory, MemberData(nameof(TrackingData))]
     public virtual Task SelectMany_related_collection(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             ss => ss.Set<RootEntity>().SelectMany(x => x.RelatedCollection),
             queryTrackingBehavior: queryTrackingBehavior);
 
-    [ConditionalTheory]
-    [MemberData(nameof(TrackingData))]
+    [ConditionalTheory, MemberData(nameof(TrackingData))]
     public virtual Task SelectMany_nested_collection_on_required_related(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             ss => ss.Set<RootEntity>().SelectMany(x => x.RequiredRelated.NestedCollection),
             queryTrackingBehavior: queryTrackingBehavior);
 
-    [ConditionalTheory]
-    [MemberData(nameof(TrackingData))]
+    [ConditionalTheory, MemberData(nameof(TrackingData))]
     public virtual Task SelectMany_nested_collection_on_optional_related(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             ss => ss.Set<RootEntity>()
@@ -161,8 +143,7 @@ public abstract class RelationshipsProjectionTestBase<TFixture>(TFixture fixture
 
     #region Multiple
 
-    [ConditionalTheory]
-    [MemberData(nameof(TrackingData))]
+    [ConditionalTheory, MemberData(nameof(TrackingData))]
     public virtual Task Select_root_duplicated(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             ss => ss.Set<RootEntity>().Select(x => new { First = x, Second = x }),
@@ -273,28 +254,24 @@ public abstract class RelationshipsProjectionTestBase<TFixture>(TFixture fixture
 
     #region Subquery
 
-    [ConditionalTheory]
-    [MemberData(nameof(TrackingData))]
+    [ConditionalTheory, MemberData(nameof(TrackingData))]
     public virtual Task Select_subquery_required_related_FirstOrDefault(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             ss => ss.Set<RootEntity>()
-                .Select(
-                    x => ss.Set<RootEntity>()
-                        .OrderBy(e => e.Id)
-                        .Select(e => e.RequiredRelated)
-                        .FirstOrDefault()!.RequiredNested),
+                .Select(x => ss.Set<RootEntity>()
+                    .OrderBy(e => e.Id)
+                    .Select(e => e.RequiredRelated)
+                    .FirstOrDefault()!.RequiredNested),
             queryTrackingBehavior: queryTrackingBehavior);
 
-    [ConditionalTheory]
-    [MemberData(nameof(TrackingData))]
+    [ConditionalTheory, MemberData(nameof(TrackingData))]
     public virtual Task Select_subquery_optional_related_FirstOrDefault(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             ss => ss.Set<RootEntity>()
-                .Select(
-                    x => ss.Set<RootEntity>()
-                        .OrderBy(e => e.Id)
-                        .Select(e => e.OptionalRelated)
-                        .FirstOrDefault()!.RequiredNested),
+                .Select(x => ss.Set<RootEntity>()
+                    .OrderBy(e => e.Id)
+                    .Select(e => e.OptionalRelated)
+                    .FirstOrDefault()!.RequiredNested),
             queryTrackingBehavior: queryTrackingBehavior);
 
     // [ConditionalTheory]

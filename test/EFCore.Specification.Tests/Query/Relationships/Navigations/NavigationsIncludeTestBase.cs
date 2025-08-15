@@ -6,32 +6,28 @@ namespace Microsoft.EntityFrameworkCore.Query.Relationships.Navigations;
 public abstract class NavigationsIncludeTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : NavigationsFixtureBase, new()
 {
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_required(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<RootEntity>().Include(x => x.RequiredRelated),
             elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<RootEntity>(x => x.RequiredRelated)));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_optional(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<RootEntity>().Include(x => x.OptionalRelated),
             elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<RootEntity>(x => x.OptionalRelated!)));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_collection(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<RootEntity>().Include(x => x.RelatedCollection),
             elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<RootEntity>(x => x.RelatedCollection)));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_required_optional_and_collection(bool async)
         => AssertQuery(
             async,
@@ -47,8 +43,7 @@ public abstract class NavigationsIncludeTestBase<TFixture>(TFixture fixture) : Q
                 new ExpectedInclude<RootEntity>(x => x.OptionalRelated!),
                 new ExpectedInclude<RootEntity>(x => x.RelatedCollection)));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_nested(bool async)
         => AssertQuery(
             async,
@@ -59,8 +54,7 @@ public abstract class NavigationsIncludeTestBase<TFixture>(TFixture fixture) : Q
                 new ExpectedInclude<RootEntity>(x => x.RequiredRelated),
                 new ExpectedInclude<RelatedType>(x => x.RequiredNested, "RequiredRelated")));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_nested_optional(bool async)
         => AssertQuery(
             async,
@@ -71,8 +65,7 @@ public abstract class NavigationsIncludeTestBase<TFixture>(TFixture fixture) : Q
                 new ExpectedInclude<RootEntity>(x => x.OptionalRelated!),
                 new ExpectedInclude<RelatedType>(x => x.OptionalNested!, "OptionalRelated")));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_nested_collection(bool async)
         => AssertQuery(
             async,
@@ -83,8 +76,7 @@ public abstract class NavigationsIncludeTestBase<TFixture>(TFixture fixture) : Q
                 new ExpectedInclude<RootEntity>(x => x.RequiredRelated),
                 new ExpectedInclude<RelatedType>(x => x.NestedCollection, "RequiredRelated")));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_nested_collection_on_optional(bool async)
         => AssertQuery(
             async,
@@ -95,8 +87,7 @@ public abstract class NavigationsIncludeTestBase<TFixture>(TFixture fixture) : Q
                 new ExpectedInclude<RootEntity>(x => x.OptionalRelated!),
                 new ExpectedInclude<RelatedType>(x => x.NestedCollection, "OptionalRelated")));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_nested_collection_on_collection(bool async)
         => AssertQuery(
             async,
