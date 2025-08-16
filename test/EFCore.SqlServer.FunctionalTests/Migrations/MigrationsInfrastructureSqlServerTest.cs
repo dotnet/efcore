@@ -806,7 +806,7 @@ GO
         {
             using var context = new BloggingContext(
                 Fixture.TestStore.AddProviderOptions(
-                        new DbContextOptionsBuilder().EnableServiceProviderCaching(false)).Options);
+                    new DbContextOptionsBuilder().EnableServiceProviderCaching(false)).Options);
 
             context.Database.EnsureDeleted();
             GiveMeSomeTime(context);
@@ -825,9 +825,8 @@ GO
             using var context = new BloggingContext(
                 Fixture.TestStore.AddProviderOptions(
                         new DbContextOptionsBuilder().EnableServiceProviderCaching(false))
-                    .ConfigureWarnings(
-                        e => e.Log(
-                            RelationalEventId.PendingModelChangesWarning, RelationalEventId.NonTransactionalMigrationOperationWarning))
+                    .ConfigureWarnings(e => e.Log(
+                        RelationalEventId.PendingModelChangesWarning, RelationalEventId.NonTransactionalMigrationOperationWarning))
                     .UseLoggerFactory(Fixture.TestSqlLoggerFactory).Options);
 
             context.Database.EnsureDeleted();
@@ -937,9 +936,8 @@ SELECT @result
             using var context = new BloggingContext(
                 Fixture.TestStore.AddProviderOptions(
                         new DbContextOptionsBuilder().EnableServiceProviderCaching(false))
-                    .ConfigureWarnings(
-                        e => e.Log(
-                            RelationalEventId.PendingModelChangesWarning, RelationalEventId.NonTransactionalMigrationOperationWarning))
+                    .ConfigureWarnings(e => e.Log(
+                        RelationalEventId.PendingModelChangesWarning, RelationalEventId.NonTransactionalMigrationOperationWarning))
                     .UseLoggerFactory(Fixture.TestSqlLoggerFactory).Options);
 
             context.Database.EnsureDeleted();
@@ -1069,7 +1067,7 @@ SELECT @result
         }
 
         [DbContext(typeof(BloggingContext))]
-        partial class BloggingContextSnapshot : ModelSnapshot
+        private class BloggingContextSnapshot : ModelSnapshot
         {
             protected override void BuildModel(ModelBuilder modelBuilder)
             {
@@ -1078,29 +1076,29 @@ SELECT @result
                     .HasAnnotation("ProductVersion", "9.0.0")
                     .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
-                SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+                modelBuilder.UseIdentityColumns();
 
-                modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.MigrationsInfrastructureSqlServerTest+BloggingContext+Blog", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                modelBuilder.Entity(
+                    "Microsoft.EntityFrameworkCore.Migrations.MigrationsInfrastructureSqlServerTest+BloggingContext+Blog", b =>
+                    {
+                        b.Property<int>("Id")
+                            .ValueGeneratedOnAdd()
+                            .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        b.Property<int>("Id").UseIdentityColumn();
 
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
+                        b.Property<string>("Name")
+                            .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                        b.HasKey("Id");
 
-                    b.ToTable("Blogs");
-                });
+                        b.ToTable("Blogs");
+                    });
 #pragma warning restore 612, 618
             }
         }
 
-        [DbContext(typeof(BloggingContext))]
-        [Migration("00000000000000_Empty")]
+        [DbContext(typeof(BloggingContext)), Migration("00000000000000_Empty")]
         private class EmptyMigration : Migration
         {
             protected override void Up(MigrationBuilder migrationBuilder)
@@ -1108,8 +1106,7 @@ SELECT @result
             }
         }
 
-        [DbContext(typeof(BloggingContext))]
-        [Migration("00000000000001_Migration1")]
+        [DbContext(typeof(BloggingContext)), Migration("00000000000001_Migration1")]
         private class BloggingMigration1 : Migration
         {
             protected override void Up(MigrationBuilder migrationBuilder)
@@ -1135,8 +1132,7 @@ END
             }
         }
 
-        [DbContext(typeof(BloggingContext))]
-        [Migration("00000000000002_Migration2")]
+        [DbContext(typeof(BloggingContext)), Migration("00000000000002_Migration2")]
         private class BloggingMigration2 : Migration
         {
             protected override void Up(MigrationBuilder migrationBuilder)
@@ -2000,8 +1996,9 @@ DROP DATABASE TransactionSuppressed");
             public override MigrationsContext CreateContext()
             {
                 var options = AddOptions(TestStore.AddProviderOptions(new DbContextOptionsBuilder()))
-                    .UseSqlServer(TestStore.ConnectionString, b => b
-                        .ApplyConfiguration())
+                    .UseSqlServer(
+                        TestStore.ConnectionString, b => b
+                            .ApplyConfiguration())
                     .UseInternalServiceProvider(ServiceProvider)
                     .Options;
                 return new MigrationsContext(options);
@@ -2057,50 +2054,43 @@ namespace Identity30.Data
         {
             base.OnModelCreating(builder);
 
-            builder.Entity<IdentityUser>(
-                b =>
-                {
-                    b.HasIndex(u => u.NormalizedUserName).HasDatabaseName("UserNameIndex").IsUnique();
-                    b.HasIndex(u => u.NormalizedEmail).HasDatabaseName("EmailIndex");
-                    b.ToTable("AspNetUsers");
-                });
+            builder.Entity<IdentityUser>(b =>
+            {
+                b.HasIndex(u => u.NormalizedUserName).HasDatabaseName("UserNameIndex").IsUnique();
+                b.HasIndex(u => u.NormalizedEmail).HasDatabaseName("EmailIndex");
+                b.ToTable("AspNetUsers");
+            });
 
-            builder.Entity<IdentityUserClaim<string>>(
-                b =>
-                {
-                    b.ToTable("AspNetUserClaims");
-                });
+            builder.Entity<IdentityUserClaim<string>>(b =>
+            {
+                b.ToTable("AspNetUserClaims");
+            });
 
-            builder.Entity<IdentityUserLogin<string>>(
-                b =>
-                {
-                    b.ToTable("AspNetUserLogins");
-                });
+            builder.Entity<IdentityUserLogin<string>>(b =>
+            {
+                b.ToTable("AspNetUserLogins");
+            });
 
-            builder.Entity<IdentityUserToken<string>>(
-                b =>
-                {
-                    b.ToTable("AspNetUserTokens");
-                });
+            builder.Entity<IdentityUserToken<string>>(b =>
+            {
+                b.ToTable("AspNetUserTokens");
+            });
 
-            builder.Entity<IdentityRole>(
-                b =>
-                {
-                    b.HasIndex(r => r.NormalizedName).HasDatabaseName("RoleNameIndex").IsUnique();
-                    b.ToTable("AspNetRoles");
-                });
+            builder.Entity<IdentityRole>(b =>
+            {
+                b.HasIndex(r => r.NormalizedName).HasDatabaseName("RoleNameIndex").IsUnique();
+                b.ToTable("AspNetRoles");
+            });
 
-            builder.Entity<IdentityRoleClaim<string>>(
-                b =>
-                {
-                    b.ToTable("AspNetRoleClaims");
-                });
+            builder.Entity<IdentityRoleClaim<string>>(b =>
+            {
+                b.ToTable("AspNetRoleClaims");
+            });
 
-            builder.Entity<IdentityUserRole<string>>(
-                b =>
-                {
-                    b.ToTable("AspNetUserRoles");
-                });
+            builder.Entity<IdentityUserRole<string>>(b =>
+            {
+                b.ToTable("AspNetUserRoles");
+            });
         }
     }
 }

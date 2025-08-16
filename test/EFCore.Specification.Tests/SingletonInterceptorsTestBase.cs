@@ -5,7 +5,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class SingletonInterceptorsTestBase<TContext>(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
+public abstract class SingletonInterceptorsTestBase<TContext>(NonSharedFixture fixture)
+    : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
     where TContext : SingletonInterceptorsTestBase<TContext>.LibraryContext
 {
     protected class Book
@@ -51,17 +52,15 @@ public abstract class SingletonInterceptorsTestBase<TContext>(NonSharedFixture f
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Book>(
-                b =>
-                {
-                    b.Property<string?>("Author");
-                });
+            modelBuilder.Entity<Book>(b =>
+            {
+                b.Property<string?>("Author");
+            });
 
-            modelBuilder.Entity<Pamphlet>(
-                b =>
-                {
-                    b.Property<string?>("Author");
-                });
+            modelBuilder.Entity<Pamphlet>(b =>
+            {
+                b.Property<string?>("Author");
+            });
         }
     }
 

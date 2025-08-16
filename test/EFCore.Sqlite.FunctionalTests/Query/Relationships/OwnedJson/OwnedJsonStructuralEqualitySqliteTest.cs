@@ -85,7 +85,7 @@ WHERE "r"."RequiredRelated" ->> 'OptionalNested' IS NULL
         await base.Nested_with_inline();
 
         AssertSql(
-);
+        );
     }
 
     public override async Task Nested_with_parameter()
@@ -93,7 +93,7 @@ WHERE "r"."RequiredRelated" ->> 'OptionalNested' IS NULL
         await base.Nested_with_parameter();
 
         AssertSql(
-);
+        );
     }
 
     public override async Task Two_nested_collections()
@@ -113,7 +113,7 @@ WHERE 0
         await base.Nested_collection_with_inline();
 
         AssertSql(
-);
+        );
     }
 
     public override async Task Nested_collection_with_parameter()
@@ -121,7 +121,7 @@ WHERE 0
         await base.Nested_collection_with_parameter();
 
         AssertSql(
-);
+        );
     }
 
     [ConditionalFact]

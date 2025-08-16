@@ -19,8 +19,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
 
     #region 21006
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Project_root_with_missing_scalars(bool async)
     {
         var contextFactory = await InitializeAsync<Context21006>(
@@ -50,8 +49,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
         Assert.True(nested.Collection.SelectMany(x => x.NestedCollection).All(x => x.DoB == default));
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Project_top_level_json_entity_with_missing_scalars(bool async)
     {
         var contextFactory = await InitializeAsync<Context21006>(
@@ -87,8 +85,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
         Assert.True(nested.Collection.SelectMany(x => x.NestedCollection).All(x => x.DoB == default));
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Project_nested_json_entity_with_missing_scalars(bool async)
     {
         var contextFactory = await InitializeAsync<Context21006>(
@@ -118,8 +115,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
         Assert.True(nested.NestedCollection.All(x => x.DoB == default));
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Project_top_level_entity_with_null_value_required_scalars(bool async)
     {
         var contextFactory = await InitializeAsync<Context21006>(
@@ -131,8 +127,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
 
         var query = context.Set<Context21006.Entity>().Where(x => x.Id == 4).Select(x => new
         {
-            x.Id,
-            x.RequiredReference,
+            x.Id, x.RequiredReference,
         }).AsNoTracking();
 
         var result = async
@@ -144,8 +139,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
         Assert.Equal(default, nullScalars.RequiredReference.Number);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Project_root_entity_with_missing_required_navigation(bool async)
     {
         var contextFactory = await InitializeAsync<Context21006>(
@@ -168,8 +162,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
         Assert.True(missingRequiredNav.Collection.All(x => x.NestedRequiredReference == default));
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Project_missing_required_navigation(bool async)
     {
         var contextFactory = await InitializeAsync<Context21006>(
@@ -179,7 +172,8 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
 
         await using var context = contextFactory.CreateContext();
 
-        var query = context.Set<Context21006.Entity>().Where(x => x.Id == 5).Select(x => x.RequiredReference.NestedRequiredReference).AsNoTracking();
+        var query = context.Set<Context21006.Entity>().Where(x => x.Id == 5).Select(x => x.RequiredReference.NestedRequiredReference)
+            .AsNoTracking();
 
         var result = async
             ? await query.ToListAsync()
@@ -190,8 +184,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
         Assert.Equal(default, missingRequiredNav);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Project_root_entity_with_null_required_navigation(bool async)
     {
         var contextFactory = await InitializeAsync<Context21006>(
@@ -214,8 +207,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
         Assert.True(nullRequiredNav.Collection.All(x => x.NestedRequiredReference == default));
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Project_null_required_navigation(bool async)
     {
         var contextFactory = await InitializeAsync<Context21006>(
@@ -236,8 +228,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
         Assert.Equal(default, nullRequiredNav.NestedRequiredReference);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Project_missing_required_scalar(bool async)
     {
         var contextFactory = await InitializeAsync<Context21006>(
@@ -249,11 +240,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
 
         var query = context.Set<Context21006.Entity>()
             .Where(x => x.Id == 2)
-            .Select(x => new
-            {
-                x.Id,
-                Number = (double?)x.RequiredReference.Number
-            });
+            .Select(x => new { x.Id, Number = (double?)x.RequiredReference.Number });
 
         var result = async
             ? await query.ToListAsync()
@@ -262,8 +249,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
         Assert.Null(result.Single().Number);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Project_null_required_scalar(bool async)
     {
         var contextFactory = await InitializeAsync<Context21006>(
@@ -277,8 +263,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
             .Where(x => x.Id == 4)
             .Select(x => new
             {
-                x.Id,
-                Number = (double?)x.RequiredReference.Number,
+                x.Id, Number = (double?)x.RequiredReference.Number,
             });
 
         var result = async
@@ -290,31 +275,34 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
 
     protected virtual void OnModelCreating21006(ModelBuilder modelBuilder)
         => modelBuilder.Entity<Context21006.Entity>(b =>
-            {
-                b.Property(x => x.Id).ValueGeneratedNever();
-                b.OwnsOne(x => x.OptionalReference, bb =>
+        {
+            b.Property(x => x.Id).ValueGeneratedNever();
+            b.OwnsOne(
+                x => x.OptionalReference, bb =>
                 {
                     bb.OwnsOne(x => x.NestedOptionalReference);
                     bb.OwnsOne(x => x.NestedRequiredReference);
                     bb.Navigation(x => x.NestedRequiredReference).IsRequired();
                     bb.OwnsMany(x => x.NestedCollection);
                 });
-                b.OwnsOne(x => x.RequiredReference, bb =>
+            b.OwnsOne(
+                x => x.RequiredReference, bb =>
                 {
                     bb.OwnsOne(x => x.NestedOptionalReference);
                     bb.OwnsOne(x => x.NestedRequiredReference);
                     bb.Navigation(x => x.NestedRequiredReference).IsRequired();
                     bb.OwnsMany(x => x.NestedCollection);
                 });
-                b.Navigation(x => x.RequiredReference).IsRequired();
-                b.OwnsMany(x => x.Collection, bb =>
+            b.Navigation(x => x.RequiredReference).IsRequired();
+            b.OwnsMany(
+                x => x.Collection, bb =>
                 {
                     bb.OwnsOne(x => x.NestedOptionalReference);
                     bb.OwnsOne(x => x.NestedRequiredReference);
                     bb.Navigation(x => x.NestedRequiredReference).IsRequired();
                     bb.OwnsMany(x => x.NestedCollection);
                 });
-            });
+        });
 
     protected virtual async Task Seed21006(Context21006 context)
     {
@@ -329,52 +317,53 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
                 Text = "e1 or",
                 NestedOptionalReference = new Context21006.JsonEntityNested { DoB = new DateTime(2000, 1, 1), Text = "e1 or nor" },
                 NestedRequiredReference = new Context21006.JsonEntityNested { DoB = new DateTime(2000, 1, 1), Text = "e1 or nrr" },
-                NestedCollection = new List<Context21006.JsonEntityNested>
-                {
-                    new Context21006.JsonEntityNested { DoB = new DateTime(2000, 1, 1), Text = "e1 or c1" },
-                    new Context21006.JsonEntityNested { DoB = new DateTime(2000, 1, 1), Text = "e1 or c2" },
-                }
+                NestedCollection =
+                [
+                    new() { DoB = new DateTime(2000, 1, 1), Text = "e1 or c1" },
+                    new() { DoB = new DateTime(2000, 1, 1), Text = "e1 or c2" }
+                ]
             },
-
             RequiredReference = new Context21006.JsonEntity
             {
                 Number = 7,
                 Text = "e1 rr",
                 NestedOptionalReference = new Context21006.JsonEntityNested { DoB = new DateTime(2000, 1, 1), Text = "e1 rr nor" },
                 NestedRequiredReference = new Context21006.JsonEntityNested { DoB = new DateTime(2000, 1, 1), Text = "e1 rr nrr" },
-                NestedCollection = new List<Context21006.JsonEntityNested>
-                {
-                    new Context21006.JsonEntityNested { DoB = new DateTime(2000, 1, 1), Text = "e1 rr c1" },
-                    new Context21006.JsonEntityNested { DoB = new DateTime(2000, 1, 1), Text = "e1 rr c2" },
-                }
+                NestedCollection =
+                [
+                    new() { DoB = new DateTime(2000, 1, 1), Text = "e1 rr c1" },
+                    new() { DoB = new DateTime(2000, 1, 1), Text = "e1 rr c2" }
+                ]
             },
-            Collection = new List<Context21006.JsonEntity>
-            {
-                new Context21006.JsonEntity
+            Collection =
+            [
+                new()
                 {
                     Number = 7,
                     Text = "e1 c1",
                     NestedOptionalReference = new Context21006.JsonEntityNested { DoB = new DateTime(2000, 1, 1), Text = "e1 c1 nor" },
                     NestedRequiredReference = new Context21006.JsonEntityNested { DoB = new DateTime(2000, 1, 1), Text = "e1 c1 nrr" },
-                    NestedCollection = new List<Context21006.JsonEntityNested>
-                    {
-                        new Context21006.JsonEntityNested { DoB = new DateTime(2000, 1, 1), Text = "e1 c1 c1" },
-                        new Context21006.JsonEntityNested { DoB = new DateTime(2000, 1, 1), Text = "e1 c1 c2" },
-                    }
+                    NestedCollection =
+                    [
+                        new() { DoB = new DateTime(2000, 1, 1), Text = "e1 c1 c1" },
+                        new() { DoB = new DateTime(2000, 1, 1), Text = "e1 c1 c2" }
+                    ]
                 },
-                new Context21006.JsonEntity
+
+                new()
                 {
                     Number = 7,
                     Text = "e1 c2",
                     NestedOptionalReference = new Context21006.JsonEntityNested { DoB = new DateTime(2000, 1, 1), Text = "e1 c2 nor" },
                     NestedRequiredReference = new Context21006.JsonEntityNested { DoB = new DateTime(2000, 1, 1), Text = "e1 c2 nrr" },
-                    NestedCollection = new List<Context21006.JsonEntityNested>
-                    {
-                        new Context21006.JsonEntityNested { DoB = new DateTime(2000, 1, 1), Text = "e1 c2 c1" },
-                        new Context21006.JsonEntityNested { DoB = new DateTime(2000, 1, 1), Text = "e1 c2 c2" },
-                    }
-                },
-            }
+                    NestedCollection =
+                    [
+                        new() { DoB = new DateTime(2000, 1, 1), Text = "e1 c2 c1" },
+                        new() { DoB = new DateTime(2000, 1, 1), Text = "e1 c2 c2" }
+                    ]
+                }
+
+            ]
         };
 
         context.Add(e1);
@@ -453,11 +442,11 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
 
     protected virtual void OnModelCreating29219(ModelBuilder modelBuilder)
         => modelBuilder.Entity<Context29219.MyEntity>(b =>
-            {
-                b.Property(x => x.Id).ValueGeneratedNever();
-                b.OwnsOne(x => x.Reference);
-                b.OwnsMany(x => x.Collection);
-            });
+        {
+            b.Property(x => x.Id).ValueGeneratedNever();
+            b.OwnsOne(x => x.Reference);
+            b.OwnsMany(x => x.Collection);
+        });
 
     protected virtual async Task Seed29219(DbContext ctx)
     {
@@ -532,8 +521,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
         Assert.Null(result[3].Json.RequiredReference);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Missing_navigation_works_with_deduplication(bool async)
     {
         var contextFactory = await InitializeAsync<DbContext>(
@@ -542,17 +530,16 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
             seed: Seed30028);
 
         using var context = contextFactory.CreateContext();
-        var queryable = context.Set<Context30028.MyEntity>().OrderBy(x => x.Id).Select(
-            x => new
-            {
-                x,
-                x.Json,
-                x.Json.OptionalReference,
-                x.Json.RequiredReference,
-                NestedOptional = x.Json.OptionalReference.Nested,
-                NestedRequired = x.Json.RequiredReference.Nested,
-                x.Json.Collection,
-            }).AsNoTracking();
+        var queryable = context.Set<Context30028.MyEntity>().OrderBy(x => x.Id).Select(x => new
+        {
+            x,
+            x.Json,
+            x.Json.OptionalReference,
+            x.Json.RequiredReference,
+            NestedOptional = x.Json.OptionalReference.Nested,
+            NestedRequired = x.Json.RequiredReference.Nested,
+            x.Json.Collection,
+        }).AsNoTracking();
 
         var result = async ? await queryable.ToListAsync() : queryable.ToList();
 
@@ -584,16 +571,17 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
 
     protected virtual void OnModelCreating30028(ModelBuilder modelBuilder)
         => modelBuilder.Entity<Context30028.MyEntity>(b =>
-            {
-                b.Property(x => x.Id).ValueGeneratedNever();
-                b.OwnsOne(x => x.Json, nb =>
+        {
+            b.Property(x => x.Id).ValueGeneratedNever();
+            b.OwnsOne(
+                x => x.Json, nb =>
                 {
                     nb.OwnsMany(x => x.Collection, nnb => nnb.OwnsOne(x => x.Nested));
                     nb.OwnsOne(x => x.OptionalReference, nnb => nnb.OwnsOne(x => x.Nested));
                     nb.OwnsOne(x => x.RequiredReference, nnb => nnb.OwnsOne(x => x.Nested));
                     nb.Navigation(x => x.RequiredReference).IsRequired();
                 });
-            });
+        });
 
     protected abstract Task Seed30028(DbContext ctx);
 
@@ -649,14 +637,13 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
     }
 
     protected virtual void OnModelCreating32310(ModelBuilder modelBuilder)
-       => modelBuilder.Entity<Context32310.Pub>().OwnsOne(e => e.Visits);
+        => modelBuilder.Entity<Context32310.Pub>().OwnsOne(e => e.Visits);
 
     protected virtual async Task Seed32310(DbContext context)
     {
         var user = new Context32310.Pub
         {
-            Name = "FBI",
-            Visits = new Context32310.Visits { LocationTag = "tag", DaysVisited = [new DateOnly(2023, 1, 1)] }
+            Name = "FBI", Visits = new Context32310.Visits { LocationTag = "tag", DaysVisited = [new DateOnly(2023, 1, 1)] }
         };
 
         context.Add(user);
@@ -748,13 +735,14 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
 
     protected virtual void OnModelCreating33046(ModelBuilder modelBuilder)
         => modelBuilder.Entity<Context33046.Review>(b =>
-            {
-                b.Property(x => x.Id).ValueGeneratedNever();
-                b.OwnsMany(x => x.Rounds, ownedBuilder =>
+        {
+            b.Property(x => x.Id).ValueGeneratedNever();
+            b.OwnsMany(
+                x => x.Rounds, ownedBuilder =>
                 {
                     ownedBuilder.OwnsMany(r => r.SubRounds);
                 });
-            });
+        });
 
     protected abstract Task Seed33046(DbContext ctx);
 
@@ -860,34 +848,38 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
         {
             b.Property(x => x.Id).ValueGeneratedNever();
 
-            b.OwnsOne(x => x.Reference, b =>
-            {
-                b.OwnsOne(x => x.NestedReference);
-                b.OwnsMany(x => x.NestedCollection);
-            });
+            b.OwnsOne(
+                x => x.Reference, b =>
+                {
+                    b.OwnsOne(x => x.NestedReference);
+                    b.OwnsMany(x => x.NestedCollection);
+                });
 
-            b.OwnsMany(x => x.Collection, b =>
-            {
-                b.OwnsOne(x => x.NestedReference);
-                b.OwnsMany(x => x.NestedCollection);
-            });
+            b.OwnsMany(
+                x => x.Collection, b =>
+                {
+                    b.OwnsOne(x => x.NestedReference);
+                    b.OwnsMany(x => x.NestedCollection);
+                });
         });
 
         modelBuilder.Entity<Context34960.JunkEntity>(b =>
         {
             b.Property(x => x.Id).ValueGeneratedNever();
 
-            b.OwnsOne(x => x.Reference, b =>
-            {
-                b.Ignore(x => x.NestedReference);
-                b.Ignore(x => x.NestedCollection);
-            });
+            b.OwnsOne(
+                x => x.Reference, b =>
+                {
+                    b.Ignore(x => x.NestedReference);
+                    b.Ignore(x => x.NestedCollection);
+                });
 
-            b.OwnsMany(x => x.Collection, b =>
-            {
-                b.Ignore(x => x.NestedReference);
-                b.Ignore(x => x.NestedCollection);
-            });
+            b.OwnsMany(
+                x => x.Collection, b =>
+                {
+                    b.Ignore(x => x.NestedReference);
+                    b.Ignore(x => x.NestedCollection);
+                });
         });
     }
 
@@ -901,72 +893,35 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
             {
                 Name = "ref1",
                 Number = 1.5f,
-                NestedReference = new Context34960.JsonEntityNested
-                {
-                    DoB = new DateTime(2000, 1, 1),
-                    Text = "nested ref 1"
-                },
+                NestedReference = new Context34960.JsonEntityNested { DoB = new DateTime(2000, 1, 1), Text = "nested ref 1" },
                 NestedCollection =
                 [
-                    new Context34960.JsonEntityNested
-                    {
-                        DoB = new DateTime(2001, 1, 1),
-                        Text = "nested col 1 1"
-                    },
-                    new Context34960.JsonEntityNested
-                    {
-                        DoB = new DateTime(2001, 2, 2),
-                        Text = "nested col 1 2"
-                    },
+                    new Context34960.JsonEntityNested { DoB = new DateTime(2001, 1, 1), Text = "nested col 1 1" },
+                    new Context34960.JsonEntityNested { DoB = new DateTime(2001, 2, 2), Text = "nested col 1 2" },
                 ],
             },
-
             Collection =
             [
                 new Context34960.JsonEntity
                 {
                     Name = "col 1 1",
                     Number = 2.5f,
-                    NestedReference = new Context34960.JsonEntityNested
-                    {
-                        DoB = new DateTime(2010, 1, 1),
-                        Text = "nested col 1 1 ref 1"
-                    },
+                    NestedReference = new Context34960.JsonEntityNested { DoB = new DateTime(2010, 1, 1), Text = "nested col 1 1 ref 1" },
                     NestedCollection =
                     [
-                        new Context34960.JsonEntityNested
-                        {
-                            DoB = new DateTime(2011, 1, 1),
-                            Text = "nested col 1 1 col 1 1"
-                        },
-                        new Context34960.JsonEntityNested
-                        {
-                            DoB = new DateTime(2011, 2, 2),
-                            Text = "nested col 1 1 col 1 2"
-                        },
+                        new Context34960.JsonEntityNested { DoB = new DateTime(2011, 1, 1), Text = "nested col 1 1 col 1 1" },
+                        new Context34960.JsonEntityNested { DoB = new DateTime(2011, 2, 2), Text = "nested col 1 1 col 1 2" },
                     ],
                 },
                 new Context34960.JsonEntity
                 {
                     Name = "col 1 2",
                     Number = 2.5f,
-                    NestedReference = new Context34960.JsonEntityNested
-                    {
-                        DoB = new DateTime(2020, 1, 1),
-                        Text = "nested col 1 2 ref 1"
-                    },
+                    NestedReference = new Context34960.JsonEntityNested { DoB = new DateTime(2020, 1, 1), Text = "nested col 1 2 ref 1" },
                     NestedCollection =
                     [
-                        new Context34960.JsonEntityNested
-                        {
-                            DoB = new DateTime(2021, 1, 1),
-                            Text = "nested col 1 2 col 1 1"
-                        },
-                        new Context34960.JsonEntityNested
-                        {
-                            DoB = new DateTime(2021, 2, 2),
-                            Text = "nested col 1 2 col 1 2"
-                        },
+                        new Context34960.JsonEntityNested { DoB = new DateTime(2021, 1, 1), Text = "nested col 1 2 col 1 1" },
+                        new Context34960.JsonEntityNested { DoB = new DateTime(2021, 2, 2), Text = "nested col 1 2 col 1 2" },
                     ],
                 },
             ],
@@ -991,7 +946,6 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
                 NestedReference = null,
                 NestedCollection = null
             },
-
             Collection =
             [
                 new Context34960.JsonEntity
@@ -1070,8 +1024,8 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
             seed: SeedArrayOfPrimitives);
 
         using var context = contextFactory.CreateContext();
-        var query = context.Set<ContextArrayOfPrimitives.MyEntity>().OrderBy(x => x.Id).Select(
-            x => new { ArrayElement = x.Reference.IntArray[0], ListElement = x.Reference.ListOfString[1] });
+        var query = context.Set<ContextArrayOfPrimitives.MyEntity>().OrderBy(x => x.Id).Select(x
+            => new { ArrayElement = x.Reference.IntArray[0], ListElement = x.Reference.ListOfString[1] });
         var result = await query.ToListAsync();
     }
 
@@ -1107,8 +1061,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
         Assert.Equal("Bar", result[0].Reference.ListOfString[1]);
     }
 
-    [ConditionalFact]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalFact, MemberData(nameof(IsAsyncData))]
     public virtual async Task Predicate_based_on_element_of_json_array_of_primitives3()
     {
         var contextFactory = await InitializeAsync<ContextArrayOfPrimitives>(
@@ -1247,35 +1200,38 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
     protected abstract Task SeedJunkInJson(DbContext ctx);
 
     protected virtual void OnModelCreatingJunkInJson(ModelBuilder modelBuilder)
-        => modelBuilder.Entity<ContextJunkInJson.MyEntity>(
-            b =>
-            {
-                b.Property(x => x.Id).ValueGeneratedNever();
+        => modelBuilder.Entity<ContextJunkInJson.MyEntity>(b =>
+        {
+            b.Property(x => x.Id).ValueGeneratedNever();
 
-                b.OwnsOne(x => x.Reference, b =>
+            b.OwnsOne(
+                x => x.Reference, b =>
                 {
                     b.OwnsOne(x => x.NestedReference);
                     b.OwnsMany(x => x.NestedCollection);
                 });
 
-                b.OwnsOne(x => x.ReferenceWithCtor, b =>
+            b.OwnsOne(
+                x => x.ReferenceWithCtor, b =>
                 {
                     b.OwnsOne(x => x.NestedReference);
                     b.OwnsMany(x => x.NestedCollection);
                 });
 
-                b.OwnsMany(x => x.Collection, b =>
+            b.OwnsMany(
+                x => x.Collection, b =>
                 {
                     b.OwnsOne(x => x.NestedReference);
                     b.OwnsMany(x => x.NestedCollection);
                 });
 
-                b.OwnsMany(x => x.CollectionWithCtor, b =>
+            b.OwnsMany(
+                x => x.CollectionWithCtor, b =>
                 {
                     b.OwnsOne(x => x.NestedReference);
                     b.OwnsMany(x => x.NestedCollection);
                 });
-            });
+        });
 
     protected class ContextJunkInJson(DbContextOptions options) : DbContext(options)
     {
@@ -1344,14 +1300,15 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
 
     protected virtual void OnModelCreatingTrickyBuffering(ModelBuilder modelBuilder)
         => modelBuilder.Entity<ContextTrickyBuffering.MyEntity>(b =>
-            {
-                b.Property(x => x.Id).ValueGeneratedNever();
-                b.OwnsOne(x => x.Reference, b =>
+        {
+            b.Property(x => x.Id).ValueGeneratedNever();
+            b.OwnsOne(
+                x => x.Reference, b =>
                 {
                     b.OwnsOne(x => x.NestedReference);
                     b.OwnsMany(x => x.NestedCollection);
                 });
-            });
+        });
 
     protected class ContextTrickyBuffering(DbContextOptions options) : DbContext(options)
     {
@@ -1442,12 +1399,11 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
             seed: SeedShadowProperties);
 
         using var context = contextFactory.CreateContext();
-        var query = context.Set<ContextShadowProperties.MyEntity>().Select(
-            x => new
-            {
-                ShadowString = EF.Property<string>(x.Reference, "ShadowString"),
-                ShadowInt = EF.Property<int>(x.ReferenceWithCtor, "Shadow_Int"),
-            });
+        var query = context.Set<ContextShadowProperties.MyEntity>().Select(x => new
+        {
+            ShadowString = EF.Property<string>(x.Reference, "ShadowString"),
+            ShadowInt = EF.Property<int>(x.ReferenceWithCtor, "Shadow_Int"),
+        });
 
         var result = await query.ToListAsync();
 
@@ -1460,29 +1416,33 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
 
     protected virtual void OnModelCreatingShadowProperties(ModelBuilder modelBuilder)
         => modelBuilder.Entity<ContextShadowProperties.MyEntity>(b =>
-            {
-                b.Property(x => x.Id).ValueGeneratedNever();
+        {
+            b.Property(x => x.Id).ValueGeneratedNever();
 
-                b.OwnsOne(x => x.Reference, b =>
+            b.OwnsOne(
+                x => x.Reference, b =>
                 {
                     b.Property<string>("ShadowString");
                 });
 
-                b.OwnsOne(x => x.ReferenceWithCtor, b =>
+            b.OwnsOne(
+                x => x.ReferenceWithCtor, b =>
                 {
                     b.Property<int>("Shadow_Int");
                 });
 
-                b.OwnsMany(x => x.Collection, b =>
+            b.OwnsMany(
+                x => x.Collection, b =>
                 {
                     b.Property<double>("ShadowDouble");
                 });
 
-                b.OwnsMany(x => x.CollectionWithCtor, b =>
+            b.OwnsMany(
+                x => x.CollectionWithCtor, b =>
                 {
                     b.Property<byte?>("ShadowNullableByte");
                 });
-            });
+        });
 
     protected class ContextShadowProperties(DbContextOptions options) : DbContext(options)
     {
@@ -1628,14 +1588,14 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
 
     protected virtual void OnModelCreatingNotICollection(ModelBuilder modelBuilder)
         => modelBuilder.Entity<ContextNotICollection.MyEntity>(b =>
-            {
-                b.Property(x => x.Id).ValueGeneratedNever();
-                b.OwnsOne(cr => cr.Json, nb =>
+        {
+            b.Property(x => x.Id).ValueGeneratedNever();
+            b.OwnsOne(
+                cr => cr.Json, nb =>
                 {
                     nb.OwnsMany(x => x.Collection);
                 });
-            });
-
+        });
 
     protected class ContextNotICollection(DbContextOptions options) : DbContext(options)
     {
@@ -1665,9 +1625,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
 
     #region BadJsonProperties
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public virtual async Task Bad_json_properties_duplicated_navigations(bool noTracking)
     {
         var contextFactory = await InitializeAsync<ContextBadJsonProperties>(
@@ -1702,9 +1660,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
         Assert.Equal(baseline.Collection[1].NestedCollection[1].Text + " dupnav", dupNavs.Collection[1].NestedCollection[1].Text);
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public virtual async Task Bad_json_properties_duplicated_scalars(bool noTracking)
     {
         var contextFactory = await InitializeAsync<ContextBadJsonProperties>(
@@ -1739,9 +1695,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
         Assert.Equal(baseline.Collection[1].NestedCollection[1].Text + " dupprop", dupProps.Collection[1].NestedCollection[1].Text);
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public virtual async Task Bad_json_properties_empty_navigations(bool noTracking)
     {
         var contextFactory = await InitializeAsync<ContextBadJsonProperties>(
@@ -1770,9 +1724,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
         Assert.Null(emptyNavs.Collection[1].NestedCollection);
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public virtual async Task Bad_json_properties_empty_scalars(bool noTracking)
     {
         var contextFactory = await InitializeAsync<ContextBadJsonProperties>(
@@ -1805,9 +1757,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
         Assert.Null(emptyNavs.Collection[1].NestedCollection[1].Text);
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public virtual async Task Bad_json_properties_null_navigations(bool noTracking)
     {
         var contextFactory = await InitializeAsync<ContextBadJsonProperties>(
@@ -1820,9 +1770,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
         var _ = await query.SingleAsync(x => x.Scenario == "null navigation property names");
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public virtual async Task Bad_json_properties_null_scalars(bool noTracking)
     {
         var contextFactory = await InitializeAsync<ContextBadJsonProperties>(
@@ -1839,30 +1787,33 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
 
     protected virtual void OnModelCreatingBadJsonProperties(ModelBuilder modelBuilder)
         => modelBuilder.Entity<ContextBadJsonProperties.Entity>(b =>
-            {
-                b.Property(x => x.Id).ValueGeneratedNever();
+        {
+            b.Property(x => x.Id).ValueGeneratedNever();
 
-                b.OwnsOne(x => x.RequiredReference, b =>
+            b.OwnsOne(
+                x => x.RequiredReference, b =>
                 {
                     b.OwnsOne(x => x.NestedOptional);
                     b.OwnsOne(x => x.NestedRequired);
                     b.OwnsMany(x => x.NestedCollection);
                 });
 
-                b.OwnsOne(x => x.OptionalReference, b =>
+            b.OwnsOne(
+                x => x.OptionalReference, b =>
                 {
                     b.OwnsOne(x => x.NestedOptional);
                     b.OwnsOne(x => x.NestedRequired);
                     b.OwnsMany(x => x.NestedCollection);
                 });
 
-                b.OwnsMany(x => x.Collection, b =>
+            b.OwnsMany(
+                x => x.Collection, b =>
                 {
                     b.OwnsOne(x => x.NestedOptional);
                     b.OwnsOne(x => x.NestedRequired);
                     b.OwnsMany(x => x.NestedCollection);
                 });
-            });
+        });
 
     protected class ContextBadJsonProperties(DbContextOptions options) : DbContext(options)
     {

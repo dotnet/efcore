@@ -5,7 +5,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Relationships.ComplexProperties;
 
 public abstract class ComplexPropertiesFixtureBase : RelationshipsQueryFixtureBase
 {
-    protected override string StoreName => "ComplexRelationshipsQueryTest";
+    protected override string StoreName
+        => "ComplexRelationshipsQueryTest";
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
@@ -13,27 +14,46 @@ public abstract class ComplexPropertiesFixtureBase : RelationshipsQueryFixtureBa
 
         modelBuilder.Entity<RootEntity>(b =>
         {
-            b.ComplexProperty(e => e.RequiredRelated, rrb =>
-            {
-                rrb.ComplexProperty(r => r.RequiredNested);
-                rrb.ComplexProperty(r => r.OptionalNested);
-                rrb.ComplexCollection(r => r.NestedCollection);
-            });
+            b.ComplexProperty(e => e.RequiredRelated, rrb
+                => rrb.ComplexProperty(r => r.OptionalNested).IsRequired(false));
 
             b.ComplexProperty(e => e.OptionalRelated, orb =>
             {
-                orb.ComplexProperty(r => r.RequiredNested);
-                orb.ComplexProperty(r => r.OptionalNested);
-                orb.ComplexCollection(r => r.NestedCollection);
+                orb.IsRequired(false);
+                orb.ComplexProperty(r => r.OptionalNested).IsRequired(false);
             });
 
-            b.ComplexCollection(e => e.RelatedCollection, rcb =>
-            {
-                rcb.ComplexProperty(r => r.RequiredNested);
-                rcb.ComplexProperty(r => r.OptionalNested);
-                rcb.ComplexCollection(r => r.NestedCollection);
-            });
+            b.ComplexCollection(e => e.RelatedCollection, rcb
+                => rcb.ComplexProperty(r => r.OptionalNested).IsRequired(false));
         });
+
+        // Value types are only supported with complex types, so we add them to the model here.
+        modelBuilder.Entity<ValueRootEntity>(b =>
+        {
+            b.Property(x => x.Id).ValueGeneratedNever();
+
+            // Note that all collections below are reference type collections,
+            // as we don't yet support complex collections of value types, #31411
+            b.ComplexProperty(e => e.RequiredRelated);
+
+            b.ComplexProperty(e => e.OptionalRelated, orb =>
+            {
+                orb.IsRequired(false);
+                orb.ComplexProperty(r => r.OptionalNested).IsRequired(false);
+            });
+
+            b.ComplexCollection(e => e.RelatedCollection, rcb
+                => rcb.ComplexProperty(r => r.OptionalNested).IsRequired(false));
+        });
+    }
+
+    protected override async Task SeedAsync(PoolableDbContext context)
+    {
+        await base.SeedAsync(context);
+
+        context.Set<ValueRootEntity>().AddRange(Data.ValueRootEntities);
+
+        await context.SaveChangesAsync();
     }
 
     // Derived fixtures ignore some complex properties that are mapped in this one
@@ -42,4 +62,3 @@ public abstract class ComplexPropertiesFixtureBase : RelationshipsQueryFixtureBa
         => builder.ConfigureWarnings(b =>
             b.Default(WarningBehavior.Ignore).Log(CoreEventId.MappedComplexPropertyIgnoredWarning));
 }
-

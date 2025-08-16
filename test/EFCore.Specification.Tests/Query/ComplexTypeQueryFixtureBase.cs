@@ -27,39 +27,36 @@ public abstract class ComplexTypeQueryFixtureBase : SharedStoreFixtureBase<Poola
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
-        modelBuilder.Entity<Customer>(
-            cb =>
-            {
-                cb.Property(c => c.Id).ValueGeneratedNever();
+        modelBuilder.Entity<Customer>(cb =>
+        {
+            cb.Property(c => c.Id).ValueGeneratedNever();
 
-                cb.ComplexProperty(c => c.ShippingAddress, sab => sab.ComplexProperty(sa => sa.Country));
-                cb.ComplexProperty(c => c.BillingAddress, sab => sab.ComplexProperty(sa => sa.Country));
-            });
+            cb.ComplexProperty(c => c.ShippingAddress, sab => sab.ComplexProperty(sa => sa.Country));
+            cb.ComplexProperty(c => c.BillingAddress, sab => sab.ComplexProperty(sa => sa.Country));
+            cb.ComplexProperty(c => c.OptionalAddress, sab => sab.ComplexProperty(sa => sa.Country));
+        });
 
-        modelBuilder.Entity<CustomerGroup>(
-            cgb =>
-            {
-                cgb.Property(cg => cg.Id).ValueGeneratedNever();
-                cgb.Navigation(cg => cg.RequiredCustomer).AutoInclude();
-                cgb.Navigation(cg => cg.OptionalCustomer).AutoInclude();
-            });
+        modelBuilder.Entity<CustomerGroup>(cgb =>
+        {
+            cgb.Property(cg => cg.Id).ValueGeneratedNever();
+            cgb.Navigation(cg => cg.RequiredCustomer).AutoInclude();
+            cgb.Navigation(cg => cg.OptionalCustomer).AutoInclude();
+        });
 
-        modelBuilder.Entity<ValuedCustomer>(
-            cb =>
-            {
-                cb.Property(c => c.Id).ValueGeneratedNever();
+        modelBuilder.Entity<ValuedCustomer>(cb =>
+        {
+            cb.Property(c => c.Id).ValueGeneratedNever();
 
-                cb.ComplexProperty(c => c.ShippingAddress, sab => sab.ComplexProperty(sa => sa.Country));
-                cb.ComplexProperty(c => c.BillingAddress, sab => sab.ComplexProperty(sa => sa.Country));
-            });
+            cb.ComplexProperty(c => c.ShippingAddress, sab => sab.ComplexProperty(sa => sa.Country));
+            cb.ComplexProperty(c => c.BillingAddress, sab => sab.ComplexProperty(sa => sa.Country));
+        });
 
-        modelBuilder.Entity<ValuedCustomerGroup>(
-            cgb =>
-            {
-                cgb.Property(cg => cg.Id).ValueGeneratedNever();
-                cgb.Navigation(cg => cg.RequiredCustomer).AutoInclude();
-                cgb.Navigation(cg => cg.OptionalCustomer).AutoInclude();
-            });
+        modelBuilder.Entity<ValuedCustomerGroup>(cgb =>
+        {
+            cgb.Property(cg => cg.Id).ValueGeneratedNever();
+            cgb.Navigation(cg => cg.RequiredCustomer).AutoInclude();
+            cgb.Navigation(cg => cg.OptionalCustomer).AutoInclude();
+        });
     }
 
     public Func<DbContext> GetContextCreator()

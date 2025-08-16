@@ -7,7 +7,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Translations;
 
 public class BasicTypesQueryCosmosFixture : BasicTypesQueryFixtureBase
 {
-    protected override ITestStoreFactory TestStoreFactory => CosmosTestStoreFactory.Instance;
+    protected override ITestStoreFactory TestStoreFactory
+        => CosmosTestStoreFactory.Instance;
 
     public TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ListLoggerFactory;
@@ -19,18 +20,16 @@ public class BasicTypesQueryCosmosFixture : BasicTypesQueryFixtureBase
     {
         base.OnModelCreating(modelBuilder, context);
 
-        modelBuilder.Entity<BasicTypesEntity>(
-            builder =>
-            {
-                builder.ToContainer(nameof(BasicTypesEntity));
-                builder.HasPartitionKey(b => b.Id);
-            });
-        modelBuilder.Entity<NullableBasicTypesEntity>(
-            builder =>
-            {
-                builder.ToContainer(nameof(NullableBasicTypesEntity));
-                builder.HasPartitionKey(n => n.Id);
-            });
+        modelBuilder.Entity<BasicTypesEntity>(builder =>
+        {
+            builder.ToContainer(nameof(BasicTypesEntity));
+            builder.HasPartitionKey(b => b.Id);
+        });
+        modelBuilder.Entity<NullableBasicTypesEntity>(builder =>
+        {
+            builder.ToContainer(nameof(NullableBasicTypesEntity));
+            builder.HasPartitionKey(n => n.Id);
+        });
     }
 
     public Task NoSyncTest(bool async, Func<bool, Task> testCode)

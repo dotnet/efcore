@@ -814,8 +814,8 @@ FROM [JsonEntitiesBasic] AS [j]
 
     public override async Task Json_collection_index_in_projection_using_untranslatable_client_method(bool async)
     {
-        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
-            () => base.Json_collection_index_in_projection_using_untranslatable_client_method(async))).Message;
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(()
+            => base.Json_collection_index_in_projection_using_untranslatable_client_method(async))).Message;
 
         Assert.Contains(
             CoreStrings.QueryUnableToTranslateMethod(
@@ -826,8 +826,8 @@ FROM [JsonEntitiesBasic] AS [j]
 
     public override async Task Json_collection_index_in_projection_using_untranslatable_client_method2(bool async)
     {
-        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
-            () => base.Json_collection_index_in_projection_using_untranslatable_client_method2(async))).Message;
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(()
+            => base.Json_collection_index_in_projection_using_untranslatable_client_method2(async))).Message;
 
         Assert.Contains(
             CoreStrings.QueryUnableToTranslateMethod(

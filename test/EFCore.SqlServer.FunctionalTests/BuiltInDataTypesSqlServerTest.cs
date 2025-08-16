@@ -411,28 +411,28 @@ public class BuiltInDataTypesSqlServerTest : BuiltInDataTypesTestBase<BuiltInDat
         // The text, ntext, and image data types are invalid for local variables.
         Assert.Contains(
             "text",
-            Assert.Throws<SqlException>(
-                () => ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.StringAsText == stringAsText))).Message);
+            Assert.Throws<SqlException>(() => ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.StringAsText == stringAsText)))
+                .Message);
 
         Assert.Contains(
             "ntext",
-            Assert.Throws<SqlException>(
-                () => ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.StringAsNtext == gumballRulesOk))).Message);
+            Assert.Throws<SqlException>(() => ExecuteQueryString(
+                context, id, set.Where(e => e.Id == id && e.StringAsNtext == gumballRulesOk))).Message);
 
         Assert.Contains(
             "image",
-            Assert.Throws<SqlException>(
-                () => ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.BytesAsImage == bytesAsImage))).Message);
+            Assert.Throws<SqlException>(() => ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.BytesAsImage == bytesAsImage)))
+                .Message);
 
         Assert.Contains(
             "text",
-            Assert.Throws<SqlException>(
-                () => ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.CharAsText == charAsText))).Message);
+            Assert.Throws<SqlException>(() => ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.CharAsText == charAsText)))
+                .Message);
 
         Assert.Contains(
             "ntext",
-            Assert.Throws<SqlException>(
-                () => ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.CharAsNtext == charAsNtext))).Message);
+            Assert.Throws<SqlException>(() => ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.CharAsNtext == charAsNtext)))
+                .Message);
     }
 
     [ConditionalFact]
@@ -625,8 +625,9 @@ public class BuiltInDataTypesSqlServerTest : BuiltInDataTypesTestBase<BuiltInDat
             var id = entity.Id;
 
             ExecuteQueryString(
-                context, id, context.Set<MappedNullableDataTypesWithIdentity>().Where(
-                    e => e.Id == id && e.DoubleAsFloat == @double && e.FloatAsReal == @float));
+                context, id,
+                context.Set<MappedNullableDataTypesWithIdentity>()
+                    .Where(e => e.Id == id && e.DoubleAsFloat == @double && e.FloatAsReal == @float));
         }
     }
 
@@ -4417,30 +4418,27 @@ FROM INFORMATION_SCHEMA.COLUMNS
         {
             base.OnModelCreating(modelBuilder, context);
 
-            modelBuilder.Entity<MappedDataTypes>(
-                b =>
-                {
-                    b.HasKey(e => e.Int);
-                    b.Property(e => e.Int).ValueGeneratedNever();
-                    b.Property(e => e.StringAsVarcharMaxUtf8).UseCollation("LATIN1_GENERAL_100_CI_AS_SC_UTF8");
-                    b.Property(e => e.StringAsCharVaryingMaxUtf8).UseCollation("LATIN1_GENERAL_100_CI_AS_SC_UTF8");
-                    b.Property(e => e.StringAsCharacterVaryingMaxUtf8).UseCollation("LATIN1_GENERAL_100_CI_AS_SC_UTF8");
-                    b.Property(e => e.StringAsNationalCharacterVaryingMax).HasMaxLength(100);
-                });
+            modelBuilder.Entity<MappedDataTypes>(b =>
+            {
+                b.HasKey(e => e.Int);
+                b.Property(e => e.Int).ValueGeneratedNever();
+                b.Property(e => e.StringAsVarcharMaxUtf8).UseCollation("LATIN1_GENERAL_100_CI_AS_SC_UTF8");
+                b.Property(e => e.StringAsCharVaryingMaxUtf8).UseCollation("LATIN1_GENERAL_100_CI_AS_SC_UTF8");
+                b.Property(e => e.StringAsCharacterVaryingMaxUtf8).UseCollation("LATIN1_GENERAL_100_CI_AS_SC_UTF8");
+                b.Property(e => e.StringAsNationalCharacterVaryingMax).HasMaxLength(100);
+            });
 
-            modelBuilder.Entity<MappedSquareDataTypes>(
-                b =>
-                {
-                    b.HasKey(e => e.Int);
-                    b.Property(e => e.Int).ValueGeneratedNever();
-                });
+            modelBuilder.Entity<MappedSquareDataTypes>(b =>
+            {
+                b.HasKey(e => e.Int);
+                b.Property(e => e.Int).ValueGeneratedNever();
+            });
 
-            modelBuilder.Entity<MappedNullableDataTypes>(
-                b =>
-                {
-                    b.HasKey(e => e.Int);
-                    b.Property(e => e.Int).ValueGeneratedNever();
-                });
+            modelBuilder.Entity<MappedNullableDataTypes>(b =>
+            {
+                b.HasKey(e => e.Int);
+                b.Property(e => e.Int).ValueGeneratedNever();
+            });
 
             modelBuilder.Entity<MappedDataTypesWithIdentity>();
             modelBuilder.Entity<MappedNullableDataTypesWithIdentity>();
@@ -4449,23 +4447,21 @@ FROM INFORMATION_SCHEMA.COLUMNS
                 .Property(e => e.Id)
                 .ValueGeneratedNever();
 
-            modelBuilder.Entity<MappedScaledDataTypes>(
-                b =>
-                {
-                    b.Property(e => e.Id).ValueGeneratedNever();
-                    b.Property(e => e.FloatAsDoublePrecision3).HasPrecision(5);
-                    b.Property(e => e.FloatAsDoublePrecision3).HasPrecision(5);
-                    b.Property(e => e.DecimalAsDec3).HasPrecision(5);
-                    b.Property(e => e.TimeOnlyAsTime3).HasPrecision(5);
-                    b.Property(e => e.TimeSpanAsTime3).HasPrecision(5);
-                });
+            modelBuilder.Entity<MappedScaledDataTypes>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedNever();
+                b.Property(e => e.FloatAsDoublePrecision3).HasPrecision(5);
+                b.Property(e => e.FloatAsDoublePrecision3).HasPrecision(5);
+                b.Property(e => e.DecimalAsDec3).HasPrecision(5);
+                b.Property(e => e.TimeOnlyAsTime3).HasPrecision(5);
+                b.Property(e => e.TimeSpanAsTime3).HasPrecision(5);
+            });
 
-            modelBuilder.Entity<MappedPrecisionAndScaledDataTypes>(
-                b =>
-                {
-                    b.Property(e => e.Id).ValueGeneratedNever();
-                    b.Property(e => e.DecimalAsDec52).HasPrecision(7, 3);
-                });
+            modelBuilder.Entity<MappedPrecisionAndScaledDataTypes>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedNever();
+                b.Property(e => e.DecimalAsDec52).HasPrecision(7, 3);
+            });
 
             MakeRequired<MappedDataTypes>(modelBuilder);
             MakeRequired<MappedSquareDataTypes>(modelBuilder);
@@ -4477,79 +4473,73 @@ FROM INFORMATION_SCHEMA.COLUMNS
             modelBuilder.Entity<MappedSizedDataTypesWithIdentity>();
             modelBuilder.Entity<MappedScaledDataTypesWithIdentity>();
 
-            modelBuilder.Entity<MappedPrecisionAndScaledDataTypesWithIdentity>(
-                b =>
-                {
-                    b.Property(e => e.DecimalAsDecimal52).HasPrecision(7, 3);
-                });
+            modelBuilder.Entity<MappedPrecisionAndScaledDataTypesWithIdentity>(b =>
+            {
+                b.Property(e => e.DecimalAsDecimal52).HasPrecision(7, 3);
+            });
 
-            modelBuilder.Entity<MappedSizedSeparatelyDataTypes>(
-                b =>
-                {
-                    b.Property(e => e.Id).ValueGeneratedNever();
-                    b.Property(e => e.StringAsChar3).HasMaxLength(3);
-                    b.Property(e => e.StringAsCharacter3).HasMaxLength(3);
-                    b.Property(e => e.StringAsVarchar3).HasMaxLength(3);
-                    b.Property(e => e.StringAsCharVarying3).HasMaxLength(3);
-                    b.Property(e => e.StringAsCharacterVarying3).HasMaxLength(3);
-                    b.Property(e => e.StringAsNchar3).HasMaxLength(3);
-                    b.Property(e => e.StringAsNationalCharacter3).HasMaxLength(3);
-                    b.Property(e => e.StringAsNvarchar3).HasMaxLength(3);
-                    b.Property(e => e.StringAsNationalCharVarying3).HasMaxLength(3);
-                    b.Property(e => e.StringAsNationalCharacterVarying3).HasMaxLength(3);
-                    b.Property(e => e.StringAsChar3Utf8).HasMaxLength(3).UseCollation("LATIN1_GENERAL_100_CI_AS_SC_UTF8");
-                    b.Property(e => e.StringAsCharacter3Utf8).HasMaxLength(3).UseCollation("LATIN1_GENERAL_100_CI_AS_SC_UTF8");
-                    b.Property(e => e.StringAsVarchar3Utf8).HasMaxLength(3).UseCollation("LATIN1_GENERAL_100_CI_AS_SC_UTF8");
-                    b.Property(e => e.StringAsCharVarying3Utf8).HasMaxLength(3).UseCollation("LATIN1_GENERAL_100_CI_AS_SC_UTF8");
-                    b.Property(e => e.StringAsCharacterVarying3Utf8).HasMaxLength(3).UseCollation("LATIN1_GENERAL_100_CI_AS_SC_UTF8");
-                    b.Property(e => e.BytesAsBinary3).HasMaxLength(3);
-                    b.Property(e => e.BytesAsVarbinary3).HasMaxLength(3);
-                    b.Property(e => e.BytesAsBinaryVarying3).HasMaxLength(3);
-                    b.Property(e => e.CharAsVarchar3).HasMaxLength(3);
-                    b.Property(e => e.CharAsAsCharVarying3).HasMaxLength(3);
-                    b.Property(e => e.CharAsCharacterVarying3).HasMaxLength(3);
-                    b.Property(e => e.CharAsNvarchar3).HasMaxLength(3);
-                    b.Property(e => e.CharAsNationalCharVarying3).HasMaxLength(3);
-                    b.Property(e => e.CharAsNationalCharacterVarying3).HasMaxLength(3);
-                });
+            modelBuilder.Entity<MappedSizedSeparatelyDataTypes>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedNever();
+                b.Property(e => e.StringAsChar3).HasMaxLength(3);
+                b.Property(e => e.StringAsCharacter3).HasMaxLength(3);
+                b.Property(e => e.StringAsVarchar3).HasMaxLength(3);
+                b.Property(e => e.StringAsCharVarying3).HasMaxLength(3);
+                b.Property(e => e.StringAsCharacterVarying3).HasMaxLength(3);
+                b.Property(e => e.StringAsNchar3).HasMaxLength(3);
+                b.Property(e => e.StringAsNationalCharacter3).HasMaxLength(3);
+                b.Property(e => e.StringAsNvarchar3).HasMaxLength(3);
+                b.Property(e => e.StringAsNationalCharVarying3).HasMaxLength(3);
+                b.Property(e => e.StringAsNationalCharacterVarying3).HasMaxLength(3);
+                b.Property(e => e.StringAsChar3Utf8).HasMaxLength(3).UseCollation("LATIN1_GENERAL_100_CI_AS_SC_UTF8");
+                b.Property(e => e.StringAsCharacter3Utf8).HasMaxLength(3).UseCollation("LATIN1_GENERAL_100_CI_AS_SC_UTF8");
+                b.Property(e => e.StringAsVarchar3Utf8).HasMaxLength(3).UseCollation("LATIN1_GENERAL_100_CI_AS_SC_UTF8");
+                b.Property(e => e.StringAsCharVarying3Utf8).HasMaxLength(3).UseCollation("LATIN1_GENERAL_100_CI_AS_SC_UTF8");
+                b.Property(e => e.StringAsCharacterVarying3Utf8).HasMaxLength(3).UseCollation("LATIN1_GENERAL_100_CI_AS_SC_UTF8");
+                b.Property(e => e.BytesAsBinary3).HasMaxLength(3);
+                b.Property(e => e.BytesAsVarbinary3).HasMaxLength(3);
+                b.Property(e => e.BytesAsBinaryVarying3).HasMaxLength(3);
+                b.Property(e => e.CharAsVarchar3).HasMaxLength(3);
+                b.Property(e => e.CharAsAsCharVarying3).HasMaxLength(3);
+                b.Property(e => e.CharAsCharacterVarying3).HasMaxLength(3);
+                b.Property(e => e.CharAsNvarchar3).HasMaxLength(3);
+                b.Property(e => e.CharAsNationalCharVarying3).HasMaxLength(3);
+                b.Property(e => e.CharAsNationalCharacterVarying3).HasMaxLength(3);
+            });
 
-            modelBuilder.Entity<MappedScaledSeparatelyDataTypes>(
-                b =>
-                {
-                    b.Property(e => e.Id).ValueGeneratedNever();
-                    b.Property(e => e.FloatAsFloat3).HasPrecision(3);
-                    b.Property(e => e.FloatAsDoublePrecision3).HasPrecision(3);
-                    b.Property(e => e.FloatAsFloat25).HasPrecision(25);
-                    b.Property(e => e.FloatAsDoublePrecision25).HasPrecision(25);
-                    b.Property(e => e.DateTimeOffsetAsDatetimeoffset3).HasPrecision(3);
-                    b.Property(e => e.DateTimeAsDatetime23).HasPrecision(3);
-                    b.Property(e => e.DecimalAsDecimal3).HasPrecision(3);
-                    b.Property(e => e.DecimalAsDec3).HasPrecision(3);
-                    b.Property(e => e.DecimalAsNumeric3).HasPrecision(3);
-                });
+            modelBuilder.Entity<MappedScaledSeparatelyDataTypes>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedNever();
+                b.Property(e => e.FloatAsFloat3).HasPrecision(3);
+                b.Property(e => e.FloatAsDoublePrecision3).HasPrecision(3);
+                b.Property(e => e.FloatAsFloat25).HasPrecision(25);
+                b.Property(e => e.FloatAsDoublePrecision25).HasPrecision(25);
+                b.Property(e => e.DateTimeOffsetAsDatetimeoffset3).HasPrecision(3);
+                b.Property(e => e.DateTimeAsDatetime23).HasPrecision(3);
+                b.Property(e => e.DecimalAsDecimal3).HasPrecision(3);
+                b.Property(e => e.DecimalAsDec3).HasPrecision(3);
+                b.Property(e => e.DecimalAsNumeric3).HasPrecision(3);
+            });
 
-            modelBuilder.Entity<DoubleDataTypes>(
-                b =>
-                {
-                    b.Property(e => e.Id).ValueGeneratedNever();
-                    b.Property(e => e.Double3).HasPrecision(3);
-                    b.Property(e => e.Double25).HasPrecision(25);
-                });
+            modelBuilder.Entity<DoubleDataTypes>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedNever();
+                b.Property(e => e.Double3).HasPrecision(3);
+                b.Property(e => e.Double25).HasPrecision(25);
+            });
 
-            modelBuilder.Entity<MappedPrecisionAndScaledSeparatelyDataTypes>(
-                b =>
-                {
-                    b.Property(e => e.Id).ValueGeneratedNever();
-                    b.Property(e => e.DecimalAsDecimal52).HasPrecision(5, 2);
-                    b.Property(e => e.DecimalAsDec52).HasPrecision(5, 2);
-                    b.Property(e => e.DecimalAsNumeric52).HasPrecision(5, 2);
-                });
+            modelBuilder.Entity<MappedPrecisionAndScaledSeparatelyDataTypes>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedNever();
+                b.Property(e => e.DecimalAsDecimal52).HasPrecision(5, 2);
+                b.Property(e => e.DecimalAsDec52).HasPrecision(5, 2);
+                b.Property(e => e.DecimalAsNumeric52).HasPrecision(5, 2);
+            });
         }
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
         {
-            var options = base.AddOptions(builder).ConfigureWarnings(
-                c => c.Log(SqlServerEventId.DecimalTypeDefaultWarning));
+            var options = base.AddOptions(builder).ConfigureWarnings(c => c.Log(SqlServerEventId.DecimalTypeDefaultWarning));
 
             new SqlServerDbContextOptionsBuilder(options).MinBatchSize(1);
 
@@ -4665,16 +4655,13 @@ FROM INFORMATION_SCHEMA.COLUMNS
         [Column(TypeName = "national character varying(max)")]
         public string StringAsNationalCharacterVaryingMax { get; set; }
 
-        [Column(TypeName = "varchar(max)")]
-        [Unicode]
+        [Column(TypeName = "varchar(max)"), Unicode]
         public string StringAsVarcharMaxUtf8 { get; set; }
 
-        [Column(TypeName = "char varying(max)")]
-        [Unicode]
+        [Column(TypeName = "char varying(max)"), Unicode]
         public string StringAsCharVaryingMaxUtf8 { get; set; }
 
-        [Column(TypeName = "character varying(max)")]
-        [Unicode]
+        [Column(TypeName = "character varying(max)"), Unicode]
         public string StringAsCharacterVaryingMaxUtf8 { get; set; }
 
         [Column(TypeName = "text")]
@@ -4925,24 +4912,19 @@ FROM INFORMATION_SCHEMA.COLUMNS
         [Column(TypeName = "national character varying(3)")]
         public string StringAsNationalCharacterVarying3 { get; set; }
 
-        [Column(TypeName = "char(3)")]
-        [Unicode]
+        [Column(TypeName = "char(3)"), Unicode]
         public string StringAsChar3Utf8 { get; set; }
 
-        [Column(TypeName = "character(3)")]
-        [Unicode]
+        [Column(TypeName = "character(3)"), Unicode]
         public string StringAsCharacter3Utf8 { get; set; }
 
-        [Column(TypeName = "varchar(3)")]
-        [Unicode]
+        [Column(TypeName = "varchar(3)"), Unicode]
         public string StringAsVarchar3Utf8 { get; set; }
 
-        [Column(TypeName = "char varying(3)")]
-        [Unicode]
+        [Column(TypeName = "char varying(3)"), Unicode]
         public string StringAsCharVarying3Utf8 { get; set; }
 
-        [Column(TypeName = "character varying(3)")]
-        [Unicode]
+        [Column(TypeName = "character varying(3)"), Unicode]
         public string StringAsCharacterVarying3Utf8 { get; set; }
 
         [Column(TypeName = "binary(3)")]
@@ -5054,37 +5036,31 @@ FROM INFORMATION_SCHEMA.COLUMNS
     {
         public int Id { get; set; }
 
-        [Column(TypeName = "float(3)")]
-        [Precision(5)]
+        [Column(TypeName = "float(3)"), Precision(5)]
         public float FloatAsFloat3 { get; set; }
 
         [Column(TypeName = "double precision(3)")]
         public float FloatAsDoublePrecision3 { get; set; }
 
-        [Column(TypeName = "float(25)")]
-        [Precision(5)]
+        [Column(TypeName = "float(25)"), Precision(5)]
         public float FloatAsFloat25 { get; set; }
 
         [Column(TypeName = "double precision(25)")]
         public float FloatAsDoublePrecision25 { get; set; }
 
-        [Column(TypeName = "datetimeoffset(3)")]
-        [Precision(5)]
+        [Column(TypeName = "datetimeoffset(3)"), Precision(5)]
         public DateTimeOffset DateTimeOffsetAsDatetimeoffset3 { get; set; }
 
-        [Column(TypeName = "datetime2(3)")]
-        [Precision(5)]
+        [Column(TypeName = "datetime2(3)"), Precision(5)]
         public DateTime DateTimeAsDatetime23 { get; set; }
 
-        [Column(TypeName = "decimal(3)")]
-        [Precision(5)]
+        [Column(TypeName = "decimal(3)"), Precision(5)]
         public decimal DecimalAsDecimal3 { get; set; }
 
         [Column(TypeName = "dec(3)")]
         public decimal DecimalAsDec3 { get; set; }
 
-        [Column(TypeName = "numeric(3)")]
-        [Precision(5)]
+        [Column(TypeName = "numeric(3)"), Precision(5)]
         public decimal DecimalAsNumeric3 { get; set; }
 
         [Column(TypeName = "time(3)")]
@@ -5144,8 +5120,7 @@ FROM INFORMATION_SCHEMA.COLUMNS
     {
         public int Id { get; set; }
 
-        [Column(TypeName = "decimal(5,2)")]
-        [Precision(7, 3)]
+        [Column(TypeName = "decimal(5,2)"), Precision(7, 3)]
         public decimal DecimalAsDecimal52 { get; set; }
 
         [Column(TypeName = "dec(5,2)")]
@@ -5249,24 +5224,19 @@ FROM INFORMATION_SCHEMA.COLUMNS
         [Column(TypeName = "nvarchar(max)")]
         public string StringAsNvarcharMax { get; set; }
 
-        [Column(TypeName = "national char varying(max)")]
-        [MaxLength(100)]
+        [Column(TypeName = "national char varying(max)"), MaxLength(100)]
         public string StringAsNationalCharVaryingMax { get; set; }
 
-        [Column(TypeName = "national character varying(max)")]
-        [StringLength(100)]
+        [Column(TypeName = "national character varying(max)"), StringLength(100)]
         public string StringAsNationalCharacterVaryingMax { get; set; }
 
-        [Column(TypeName = "varchar(max)")]
-        [Unicode]
+        [Column(TypeName = "varchar(max)"), Unicode]
         public string StringAsVarcharMaxUtf8 { get; set; }
 
-        [Column(TypeName = "char varying(max)")]
-        [Unicode]
+        [Column(TypeName = "char varying(max)"), Unicode]
         public string StringAsCharVaryingMaxUtf8 { get; set; }
 
-        [Column(TypeName = "character varying(max)")]
-        [Unicode]
+        [Column(TypeName = "character varying(max)"), Unicode]
         public string StringAsCharacterVaryingMaxUtf8 { get; set; }
 
         [Column(TypeName = "text")]
@@ -5436,16 +5406,13 @@ FROM INFORMATION_SCHEMA.COLUMNS
         [Column(TypeName = "national character varying(max)")]
         public string StringAsNationalCharacterVaryingMax { get; set; }
 
-        [Column(TypeName = "varchar(max)")]
-        [Unicode]
+        [Column(TypeName = "varchar(max)"), Unicode]
         public string StringAsVarcharMaxUtf8 { get; set; }
 
-        [Column(TypeName = "char varying(max)")]
-        [Unicode]
+        [Column(TypeName = "char varying(max)"), Unicode]
         public string StringAsCharVaryingMaxUtf8 { get; set; }
 
-        [Column(TypeName = "character varying(max)")]
-        [Unicode]
+        [Column(TypeName = "character varying(max)"), Unicode]
         public string StringAsCharacterVaryingMaxUtf8 { get; set; }
 
         [Column(TypeName = "text")]
@@ -5562,24 +5529,19 @@ FROM INFORMATION_SCHEMA.COLUMNS
         [Column(TypeName = "national character varying(3)")]
         public string StringAsNationalCharacterVarying3 { get; set; }
 
-        [Column(TypeName = "char(3)")]
-        [Unicode]
+        [Column(TypeName = "char(3)"), Unicode]
         public string StringAsChar3Utf8 { get; set; }
 
-        [Column(TypeName = "character(3)")]
-        [Unicode]
+        [Column(TypeName = "character(3)"), Unicode]
         public string StringAsCharacter3Utf8 { get; set; }
 
-        [Column(TypeName = "varchar(3)")]
-        [Unicode]
+        [Column(TypeName = "varchar(3)"), Unicode]
         public string StringAsVarchar3Utf8 { get; set; }
 
-        [Column(TypeName = "char varying(3)")]
-        [Unicode]
+        [Column(TypeName = "char varying(3)"), Unicode]
         public string StringAsCharVarying3Utf8 { get; set; }
 
-        [Column(TypeName = "character varying(3)")]
-        [Unicode]
+        [Column(TypeName = "character varying(3)"), Unicode]
         public string StringAsCharacterVarying3Utf8 { get; set; }
 
         [Column(TypeName = "binary(3)")]
@@ -5657,8 +5619,7 @@ FROM INFORMATION_SCHEMA.COLUMNS
         [Column(TypeName = "decimal(5,2)")]
         public decimal DecimalAsDecimal52 { get; set; }
 
-        [Column(TypeName = "dec(5,2)")]
-        [Precision(7, 3)]
+        [Column(TypeName = "dec(5,2)"), Precision(7, 3)]
         public decimal DecimalAsDec52 { get; set; }
 
         [Column(TypeName = "numeric(5,2)")]
@@ -5753,16 +5714,13 @@ FROM INFORMATION_SCHEMA.COLUMNS
         [Column(TypeName = "national character varying(max)")]
         public string StringAsNationalCharacterVaryingMax { get; set; }
 
-        [Column(TypeName = "varchar(max)")]
-        [Unicode]
+        [Column(TypeName = "varchar(max)"), Unicode]
         public string StringAsVarcharMaxUtf8 { get; set; }
 
-        [Column(TypeName = "char varying(max)")]
-        [Unicode]
+        [Column(TypeName = "char varying(max)"), Unicode]
         public string StringAsCharVaryingMaxUtf8 { get; set; }
 
-        [Column(TypeName = "character varying(max)")]
-        [Unicode]
+        [Column(TypeName = "character varying(max)"), Unicode]
         public string StringAsCharacterVaryingMaxUtf8 { get; set; }
 
         [Column(TypeName = "text")]

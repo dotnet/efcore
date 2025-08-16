@@ -53,7 +53,7 @@ public class RawSqlCommandBuilderTest
     {
         var builder = CreateBuilder();
 
-        var rawSqlCommand = builder.Build("SQL COMMAND TEXT {0} {1} {2}", new object[] { 1, 2L, "three" });
+        var rawSqlCommand = builder.Build("SQL COMMAND TEXT {0} {1} {2}", [1, 2L, "three"]);
 
         Assert.Equal("SQL COMMAND TEXT @p0 @p1 @p2", rawSqlCommand.RelationalCommand.CommandText);
         Assert.Equal(3, rawSqlCommand.RelationalCommand.Parameters.Count);

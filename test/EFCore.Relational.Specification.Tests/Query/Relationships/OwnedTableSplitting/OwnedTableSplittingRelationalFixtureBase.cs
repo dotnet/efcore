@@ -11,7 +11,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Relationships.OwnedTableSplitting;
 /// </summary>
 public abstract class OwnedTableSplittingRelationalFixtureBase : OwnedNavigationsFixtureBase, ITestSqlLoggerFactory
 {
-    protected override string StoreName => "OwnedTableSplittingQueryTest";
+    protected override string StoreName
+        => "OwnedTableSplittingQueryTest";
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
@@ -19,59 +20,65 @@ public abstract class OwnedTableSplittingRelationalFixtureBase : OwnedNavigation
 
         modelBuilder.Entity<RootEntity>(b =>
         {
-            b.OwnsOne(e => e.RequiredRelated, rrb =>
-            {
-                rrb.Property(x => x.Id).ValueGeneratedNever();
-
-                rrb.OwnsOne(r => r.RequiredNested, rnb => rnb.Property(x => x.Id).ValueGeneratedNever());
-                rrb.Navigation(x => x.RequiredNested).IsRequired(true);
-
-                rrb.OwnsOne(r => r.OptionalNested, rnb => rnb.Property(x => x.Id).ValueGeneratedNever());
-                rrb.Navigation(x => x.RequiredNested).IsRequired(false);
-
-                rrb.OwnsMany(r => r.NestedCollection, rcb =>
+            b.OwnsOne(
+                e => e.RequiredRelated, rrb =>
                 {
-                    rcb.Property(x => x.Id).ValueGeneratedNever();
-                    rcb.ToTable("RequiredRelated_NestedCollection");
+                    rrb.Property(x => x.Id).ValueGeneratedNever();
+
+                    rrb.OwnsOne(r => r.RequiredNested, rnb => rnb.Property(x => x.Id).ValueGeneratedNever());
+                    rrb.Navigation(x => x.RequiredNested).IsRequired();
+
+                    rrb.OwnsOne(r => r.OptionalNested, rnb => rnb.Property(x => x.Id).ValueGeneratedNever());
+                    rrb.Navigation(x => x.RequiredNested).IsRequired(false);
+
+                    rrb.OwnsMany(
+                        r => r.NestedCollection, rcb =>
+                        {
+                            rcb.Property(x => x.Id).ValueGeneratedNever();
+                            rcb.ToTable("RequiredRelated_NestedCollection");
+                        });
                 });
-            });
-            b.Navigation(x => x.RequiredRelated).IsRequired(true);
+            b.Navigation(x => x.RequiredRelated).IsRequired();
 
-            b.OwnsOne(e => e.OptionalRelated, orb =>
-            {
-                orb.Property(x => x.Id).ValueGeneratedNever();
-
-                orb.OwnsOne(r => r.RequiredNested, rnb => rnb.Property(x => x.Id).ValueGeneratedNever());
-                orb.Navigation(x => x.RequiredNested).IsRequired(true);
-
-                orb.OwnsOne(r => r.OptionalNested, rnb => rnb.Property(x => x.Id).ValueGeneratedNever());
-                orb.Navigation(x => x.RequiredNested).IsRequired(false);
-
-                orb.OwnsMany(r => r.NestedCollection, rcb =>
+            b.OwnsOne(
+                e => e.OptionalRelated, orb =>
                 {
-                    rcb.Property(x => x.Id).ValueGeneratedNever();
-                    rcb.ToTable("OptionalRelated_NestedCollection");
+                    orb.Property(x => x.Id).ValueGeneratedNever();
+
+                    orb.OwnsOne(r => r.RequiredNested, rnb => rnb.Property(x => x.Id).ValueGeneratedNever());
+                    orb.Navigation(x => x.RequiredNested).IsRequired();
+
+                    orb.OwnsOne(r => r.OptionalNested, rnb => rnb.Property(x => x.Id).ValueGeneratedNever());
+                    orb.Navigation(x => x.RequiredNested).IsRequired(false);
+
+                    orb.OwnsMany(
+                        r => r.NestedCollection, rcb =>
+                        {
+                            rcb.Property(x => x.Id).ValueGeneratedNever();
+                            rcb.ToTable("OptionalRelated_NestedCollection");
+                        });
                 });
-            });
             b.Navigation(x => x.OptionalRelated).IsRequired(false);
 
-            b.OwnsMany(e => e.RelatedCollection, rcb =>
-            {
-                rcb.Property(x => x.Id).ValueGeneratedNever();
-                rcb.ToTable("RelatedCollection");
-
-                rcb.OwnsOne(r => r.RequiredNested, rnb => rnb.Property(x => x.Id).ValueGeneratedNever());
-                rcb.Navigation(x => x.RequiredNested).IsRequired(true);
-
-                rcb.OwnsOne(r => r.OptionalNested, rnb => rnb.Property(x => x.Id).ValueGeneratedNever());
-                rcb.Navigation(x => x.RequiredNested).IsRequired(false);
-
-                rcb.OwnsMany(r => r.NestedCollection, rcb =>
+            b.OwnsMany(
+                e => e.RelatedCollection, rcb =>
                 {
                     rcb.Property(x => x.Id).ValueGeneratedNever();
-                    rcb.ToTable("RelatedCollection_NestedCollection");
+                    rcb.ToTable("RelatedCollection");
+
+                    rcb.OwnsOne(r => r.RequiredNested, rnb => rnb.Property(x => x.Id).ValueGeneratedNever());
+                    rcb.Navigation(x => x.RequiredNested).IsRequired();
+
+                    rcb.OwnsOne(r => r.OptionalNested, rnb => rnb.Property(x => x.Id).ValueGeneratedNever());
+                    rcb.Navigation(x => x.RequiredNested).IsRequired(false);
+
+                    rcb.OwnsMany(
+                        r => r.NestedCollection, rcb =>
+                        {
+                            rcb.Property(x => x.Id).ValueGeneratedNever();
+                            rcb.ToTable("RelatedCollection_NestedCollection");
+                        });
                 });
-            });
         });
     }
 

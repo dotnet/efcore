@@ -22,7 +22,8 @@ public class DbContextOperationsTest
 
     [ConditionalFact]
     public void CreateContext_gets_service_when_context_factory_used()
-        => CreateOperations(typeof(TestProgramWithContextFactory), includeContext: false).CreateContext(typeof(TestContextFromFactory).FullName);
+        => CreateOperations(typeof(TestProgramWithContextFactory), includeContext: false)
+            .CreateContext(typeof(TestContextFromFactory).FullName);
 
     [ConditionalFact]
     public void CreateContext_gets_service_when_context_factory_used_without_name()
@@ -32,8 +33,8 @@ public class DbContextOperationsTest
     public void CreateContext_throws_if_context_type_not_found()
         => Assert.Equal(
             DesignStrings.NoContextWithName(typeof(TestContextFromFactory).FullName),
-            Assert.Throws<OperationException>(
-                () => CreateOperations(typeof(TestProgramRelationalBad)).CreateContext(typeof(TestContextFromFactory).FullName)).Message);
+            Assert.Throws<OperationException>(()
+                => CreateOperations(typeof(TestProgramRelationalBad)).CreateContext(typeof(TestContextFromFactory).FullName)).Message);
 
     [ConditionalFact]
     public void CreateContext_throws_if_ambiguous_context_type_by_case()
@@ -321,8 +322,8 @@ public class DbContextOperationsTest
     public void Useful_exception_if_finding_context_types_throws()
         => Assert.Equal(
             DesignStrings.CannotFindDbContextTypes("Bang!"),
-            Assert.Throws<OperationException>(
-                () => CreateOperations(typeof(ThrowingTestProgram)).CreateContext(typeof(TestContext).FullName)).Message);
+            Assert.Throws<OperationException>(()
+                => CreateOperations(typeof(ThrowingTestProgram)).CreateContext(typeof(TestContext).FullName)).Message);
 
     private static class ThrowingTestProgram
     {
@@ -378,6 +379,7 @@ public class DbContextOperationsTest
         {
             types.Add(typeof(TestContext));
         }
+
         var assembly = MockAssembly.Create([.. types]);
         var reporter = new TestOperationReporter();
         var operations = new TestDbContextOperations(
@@ -402,8 +404,7 @@ public class DbContextOperationsTest
     private static TestWebHost CreateWebHost(Func<DbContextOptionsBuilder, DbContextOptionsBuilder> configureProvider)
         => new(
             new ServiceCollection()
-                .AddDbContext<TestContext>(
-                    b => configureProvider(b.EnableServiceProviderCaching(false)))
+                .AddDbContext<TestContext>(b => configureProvider(b.EnableServiceProviderCaching(false)))
                 .BuildServiceProvider(validateScopes: true));
 
     private class TestContext : DbContext

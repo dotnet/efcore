@@ -57,7 +57,6 @@ WHERE (ARRAY(
 """);
     }
 
-
     #region Distinct
 
     public override Task Distinct()
@@ -73,6 +72,8 @@ WHERE (ARRAY(
         => Assert.ThrowsAsync<InvalidOperationException>(base.Distinct_over_projected_nested_collection);
 
     #endregion Distinct
+
+    #region Index
 
     public override async Task Index_constant()
     {
@@ -124,6 +125,16 @@ FROM root c
 WHERE (c["RelatedCollection"][9999]["Int"] = 8)
 """);
     }
+
+    #endregion Index
+
+    #region GroupBy
+
+    [ConditionalFact]
+    public override Task GroupBy()
+        => AssertTranslationFailed(base.GroupBy);
+
+    #endregion GroupBy
 
     public override async Task Select_within_Select_within_Select_with_aggregates()
     {

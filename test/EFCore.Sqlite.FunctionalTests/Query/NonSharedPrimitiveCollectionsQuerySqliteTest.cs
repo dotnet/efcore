@@ -5,9 +5,12 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public class NonSharedPrimitiveCollectionsQuerySqliteTest(NonSharedFixture fixture) : NonSharedPrimitiveCollectionsQueryRelationalTestBase(fixture)
+public class NonSharedPrimitiveCollectionsQuerySqliteTest(NonSharedFixture fixture)
+    : NonSharedPrimitiveCollectionsQueryRelationalTestBase(fixture)
 {
-    protected override DbContextOptionsBuilder SetParameterizedCollectionMode(DbContextOptionsBuilder optionsBuilder, ParameterTranslationMode parameterizedCollectionMode)
+    protected override DbContextOptionsBuilder SetParameterizedCollectionMode(
+        DbContextOptionsBuilder optionsBuilder,
+        ParameterTranslationMode parameterizedCollectionMode)
     {
         new SqliteDbContextOptionsBuilder(optionsBuilder).UseParameterizedCollectionMode(parameterizedCollectionMode);
 
@@ -466,7 +469,8 @@ WHERE "t"."Id" IN (2, 999)
 """);
     }
 
-    public override async Task Parameter_collection_Count_with_column_predicate_with_default_mode_EF_Parameter(ParameterTranslationMode mode)
+    public override async Task Parameter_collection_Count_with_column_predicate_with_default_mode_EF_Parameter(
+        ParameterTranslationMode mode)
     {
         await base.Parameter_collection_Count_with_column_predicate_with_default_mode_EF_Parameter(mode);
 
@@ -500,7 +504,8 @@ WHERE "t"."Id" IN (
 """);
     }
 
-    public override async Task Parameter_collection_Count_with_column_predicate_with_default_mode_EF_MultipleParameters(ParameterTranslationMode mode)
+    public override async Task Parameter_collection_Count_with_column_predicate_with_default_mode_EF_MultipleParameters(
+        ParameterTranslationMode mode)
     {
         await base.Parameter_collection_Count_with_column_predicate_with_default_mode_EF_MultipleParameters(mode);
 

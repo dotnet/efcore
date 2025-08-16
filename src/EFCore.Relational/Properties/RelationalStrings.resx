@@ -155,7 +155,7 @@
     <value>Complex property '{complexProperty}' cannot use 'HasJsonPropertyName()' because it is not contained within a JSON-mapped type. Use 'ToJson()' to map the complex property to a JSON column, or ensure it is contained within a type that is mapped to JSON.</value>
   </data>
   <data name="ComplexPropertyOptionalTableSharing" xml:space="preserve">
-    <value>The optional complex property '{type}.{property}' is mapped to columns by flattening the contained properties, but it only contains optional properties. Add a required property or discriminator or map this complex property to a JSON column.</value>
+    <value>The optional complex property '{type}.{property}' is mapped to columns by flattening the contained properties into its container's table; this mapping requires at least one required property - to allow distinguishing between null and empty values - but the complex type contains only optional properties. Configure the property with a shadow discriminator by adding a call to 'HasDiscriminator()` on the complex property configuration, or map this complex property to a JSON column instead.</value>
   </data>
   <data name="ComputedColumnSqlUnspecified" xml:space="preserve">
     <value>The computed column SQL has not been specified for the column '{table}.{column}'. Specify the SQL before using Entity Framework to create the database schema.</value>

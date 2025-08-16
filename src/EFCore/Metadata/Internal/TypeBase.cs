@@ -33,6 +33,7 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     private PropertyInfo? _indexerPropertyInfo;
     private SortedDictionary<string, PropertyInfo>? _runtimeProperties;
     private SortedDictionary<string, FieldInfo>? _runtimeFields;
+    private Property[]? _flattenedValueGeneratingProperties;
 
     // _serviceOnlyConstructorBinding needs to be set as well whenever _constructorBinding is set
     private InstantiationBinding? _constructorBinding;
@@ -875,6 +876,21 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
         => _baseType != null
             ? _baseType.GetProperties().Concat(_properties.Values)
             : _properties.Values;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual IEnumerable<Property> GetFlattenedValueGeneratingProperties()
+        => NonCapturingLazyInitializer.EnsureInitialized(
+            ref _flattenedValueGeneratingProperties, this,
+            static typeBase =>
+            {
+                typeBase.EnsureReadOnly();
+                return [.. typeBase.GetFlattenedProperties().Where(p => p.RequiresValueGenerator())];
+            });
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2183,6 +2199,16 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     [DebuggerStepThrough]
     IEnumerable<IProperty> ITypeBase.GetProperties()
         => GetProperties();
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    IEnumerable<IProperty> ITypeBase.GetFlattenedValueGeneratingProperties()
+        => GetFlattenedValueGeneratingProperties();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -112,7 +112,6 @@ OUTER APPLY (
 ) AS [r1]
 ORDER BY [r].[Id], [r1].[Id0], [r1].[Int], [r1].[Name]
 """);
-
         }
     }
 
@@ -186,12 +185,41 @@ WHERE CAST(JSON_VALUE([r].[RelatedCollection], '$[9999].Int') AS int) = 8
 
     #endregion Index
 
+    #region GroupBy
+
+    [ConditionalFact]
+    public override async Task GroupBy()
+    {
+        await base.GroupBy();
+
+        AssertSql(
+            """
+SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+FROM [RootEntity] AS [r]
+WHERE 16 IN (
+    SELECT COALESCE(SUM([r1].[Int]), 0)
+    FROM (
+        SELECT [r0].[Id] AS [Id0], [r0].[Int], [r0].[Name], [r0].[String], [r0].[String] AS [Key0]
+        FROM OPENJSON([r].[RelatedCollection], '$') WITH (
+            [Id] int '$.Id',
+            [Int] int '$.Int',
+            [Name] nvarchar(max) '$.Name',
+            [String] nvarchar(max) '$.String'
+        ) AS [r0]
+    ) AS [r1]
+    GROUP BY [r1].[Key0]
+)
+""");
+    }
+
+    #endregion GroupBy
+
     public override async Task Select_within_Select_within_Select_with_aggregates()
     {
         await base.Select_within_Select_within_Select_with_aggregates();
 
         AssertSql(
-        """
+            """
 SELECT (
     SELECT COALESCE(SUM([s].[value]), 0)
     FROM OPENJSON([r].[RelatedCollection], '$') WITH ([NestedCollection] nvarchar(max) '$.NestedCollection' AS JSON) AS [r0]

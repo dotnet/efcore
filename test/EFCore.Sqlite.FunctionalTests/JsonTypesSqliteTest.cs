@@ -225,10 +225,9 @@ public class JsonTypesSqliteTest(NonSharedFixture fixture) : JsonTypesRelational
     protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
     {
         builder = base.AddOptions(builder)
-            .ConfigureWarnings(
-                w => w
-                    .Ignore(SqliteEventId.SchemaConfiguredWarning)
-                    .Ignore(SqliteEventId.CompositeKeyWithValueGeneration));
+            .ConfigureWarnings(w => w
+                .Ignore(SqliteEventId.SchemaConfiguredWarning)
+                .Ignore(SqliteEventId.CompositeKeyWithValueGeneration));
         new SqliteDbContextOptionsBuilder(builder).UseNetTopologySuite();
         return builder;
     }

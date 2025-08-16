@@ -39,21 +39,21 @@ WHERE ((c["Int"] = 12) | (c["String"] = "Seattle"))
     }
 
     public override async Task And()
-            {
-                await base.And();
+    {
+        await base.And();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Int"] & c["Short"]) = 2)
 """,
-                    //
-                    """
+            //
+            """
 SELECT VALUE (c["Int"] & c["Short"])
 FROM root c
 """);
-            }
+    }
 
     public override async Task And_over_boolean()
     {

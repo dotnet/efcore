@@ -2381,9 +2381,7 @@ LEFT JOIN [Weapons] AS [w] ON [w].[SynergyWithId] IS NOT NULL
 """);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    [SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData)), SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
     public virtual async Task Where_AtTimeZone_datetime_constant(bool async)
     {
         using var context = CreateContext();
@@ -2405,9 +2403,7 @@ WHERE [m].[Timeline] = CAST('0010-05-03T12:00:00.0000000' AS datetime2) AT TIME 
 """);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    [SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData)), SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
     public virtual async Task Where_AtTimeZone_datetime_parameter(bool async)
     {
         using var context = CreateContext();
@@ -2434,9 +2430,7 @@ WHERE [m].[Timeline] = @dateTime AT TIME ZONE @timeZone
 """);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    [SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData)), SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
     public virtual async Task Where_AtTimeZone_datetime_column(bool async)
     {
         using var context = CreateContext();
@@ -7434,8 +7428,7 @@ WHERE @rank = [g].[Rank]
 """);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public async Task DataLength_function_for_string_parameter(bool async)
     {
         await AssertQueryScalar(
@@ -7809,13 +7802,11 @@ WHERE [l].[Discriminator] = N'LocustCommander' AND [g].[Nickname] IS NOT NULL AN
 """);
     }
 
-    [ConditionalFact]
-    [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
     public async Task FreeText_with_binary_column()
     {
         using var context = CreateContext();
-        var result = await context.Missions.SingleAsync(
-            e => EF.Functions.FreeText(EF.Property<byte[]>(e, "BriefingDocument"), "bombing"));
+        var result = await context.Missions.SingleAsync(e => EF.Functions.FreeText(EF.Property<byte[]>(e, "BriefingDocument"), "bombing"));
 
         Assert.Equal(1, result.Id);
 
@@ -7827,13 +7818,12 @@ WHERE FREETEXT([m].[BriefingDocument], N'bombing')
 """);
     }
 
-    [ConditionalFact]
-    [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
     public async Task FreeText_with_binary_column_and_language_term()
     {
         using var context = CreateContext();
-        var result = await context.Missions.SingleAsync(
-            e => EF.Functions.FreeText(EF.Property<byte[]>(e, "BriefingDocument"), "bombing", 1033));
+        var result = await context.Missions.SingleAsync(e => EF.Functions.FreeText(
+            EF.Property<byte[]>(e, "BriefingDocument"), "bombing", 1033));
 
         Assert.Equal(1, result.Id);
 
@@ -7845,8 +7835,7 @@ WHERE FREETEXT([m].[BriefingDocument], N'bombing', LANGUAGE 1033)
 """);
     }
 
-    [ConditionalFact]
-    [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
     public async Task Contains_with_binary_column()
     {
         using var context = CreateContext();
@@ -7862,13 +7851,12 @@ WHERE CONTAINS([m].[BriefingDocument], N'bomb')
 """);
     }
 
-    [ConditionalFact]
-    [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
     public async Task Contains_with_binary_column_and_language_term()
     {
         using var context = CreateContext();
-        var result = await context.Missions.SingleAsync(
-            e => EF.Functions.Contains(EF.Property<byte[]>(e, "BriefingDocument"), "bomb", 1033));
+        var result =
+            await context.Missions.SingleAsync(e => EF.Functions.Contains(EF.Property<byte[]>(e, "BriefingDocument"), "bomb", 1033));
 
         Assert.Equal(1, result.Id);
 

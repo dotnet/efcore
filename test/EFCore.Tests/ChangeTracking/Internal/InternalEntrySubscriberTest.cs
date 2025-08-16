@@ -12,9 +12,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 public class InternalEntrySubscriberTest
 {
-    [ConditionalTheory]
-    [InlineData(ChangeTrackingStrategy.Snapshot)]
-    [InlineData(ChangeTrackingStrategy.ChangedNotifications)]
+    [ConditionalTheory, InlineData(ChangeTrackingStrategy.Snapshot), InlineData(ChangeTrackingStrategy.ChangedNotifications)]
     public void Original_and_relationship_values_recorded_when_no_changing_notifications(
         ChangeTrackingStrategy changeTrackingStrategy)
     {
@@ -27,9 +25,8 @@ public class InternalEntrySubscriberTest
         Assert.True(entry.HasRelationshipSnapshot);
     }
 
-    [ConditionalTheory]
-    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications)]
-    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)]
+    [ConditionalTheory, InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications),
+     InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)]
     public void Original_and_relationship_values_not_recorded_when_full_notifications(
         ChangeTrackingStrategy changeTrackingStrategy)
     {
@@ -53,10 +50,9 @@ public class InternalEntrySubscriberTest
         Assert.Null(((FullNotificationEntity)entry.Entity).RelatedCollection);
     }
 
-    [ConditionalTheory]
-    [InlineData(ChangeTrackingStrategy.ChangedNotifications)]
-    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications)]
-    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)]
+    [ConditionalTheory, InlineData(ChangeTrackingStrategy.ChangedNotifications),
+     InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications),
+     InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)]
     public void Notifying_collections_are_created_when_notification_tracking(
         ChangeTrackingStrategy changeTrackingStrategy)
     {
@@ -83,10 +79,9 @@ public class InternalEntrySubscriberTest
         Assert.Same(collection, ((FullNotificationEntity)entry.Entity).RelatedCollection);
     }
 
-    [ConditionalTheory]
-    [InlineData(ChangeTrackingStrategy.ChangedNotifications)]
-    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications)]
-    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)]
+    [ConditionalTheory, InlineData(ChangeTrackingStrategy.ChangedNotifications),
+     InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications),
+     InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)]
     public void Non_notifying_collections_not_acceptable_when_notification_tracking(
         ChangeTrackingStrategy changeTrackingStrategy)
     {
@@ -98,16 +93,13 @@ public class InternalEntrySubscriberTest
         Assert.Equal(
             CoreStrings.NonNotifyingCollection(
                 "RelatedCollection", "FullNotificationEntity", "List<ChangedOnlyNotificationEntity>", changeTrackingStrategy),
-            Assert.Throws<InvalidOperationException>(
-                () =>
-                {
-                    entry.SetEntityState(EntityState.Unchanged);
-                }).Message);
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                entry.SetEntityState(EntityState.Unchanged);
+            }).Message);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public void Entry_subscribes_to_INotifyCollectionChanged_for_Add(bool ourCollection)
     {
         var collection = CreateCollection(ourCollection);
@@ -121,9 +113,7 @@ public class InternalEntrySubscriberTest
         Assert.Empty(testListener.CollectionChanged.Single().Item4);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public void Entry_subscribes_to_INotifyCollectionChanged_for_Remove(bool ourCollection)
     {
         var item = new ChangedOnlyNotificationEntity();
@@ -474,9 +464,7 @@ public class InternalEntrySubscriberTest
         Assert.Same(entries[5], testListener.CollectionChanged.Skip(3).Single().Item1);
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public void Entries_are_unsubscribed_when_context_is_disposed_or_cleared(bool useClear)
     {
         var context = InMemoryTestHelpers.Instance.CreateContext(
@@ -590,8 +578,11 @@ public class InternalEntrySubscriberTest
         {
         }
 
-        public void DetectChanges(InternalComplexEntry entry) => throw new NotImplementedException();
-        public bool DetectComplexCollectionChanges(InternalEntryBase entry, IComplexProperty complexProperty) => throw new NotImplementedException();
+        public void DetectChanges(InternalComplexEntry entry)
+            => throw new NotImplementedException();
+
+        public bool DetectComplexCollectionChanges(InternalEntryBase entry, IComplexProperty complexProperty)
+            => throw new NotImplementedException();
     }
 
     private class TestNavigationListener : INavigationFixer
@@ -657,13 +648,12 @@ public class InternalEntrySubscriberTest
     {
         var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
 
-        builder.Entity<FullNotificationEntity>(
-            b =>
-            {
-                b.Ignore(e => e.NotMapped);
-                b.HasMany(e => e.RelatedCollection).WithOne(e => e.Related).HasForeignKey(e => e.Fk);
-                b.HasChangeTrackingStrategy(changeTrackingStrategy);
-            });
+        builder.Entity<FullNotificationEntity>(b =>
+        {
+            b.Ignore(e => e.NotMapped);
+            b.HasMany(e => e.RelatedCollection).WithOne(e => e.Related).HasForeignKey(e => e.Fk);
+            b.HasChangeTrackingStrategy(changeTrackingStrategy);
+        });
 
         return builder.Model.FinalizeModel();
     }

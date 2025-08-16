@@ -487,7 +487,6 @@ OFFSET 0 LIMIT 2
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => base.AddOptions(
-                builder.ConfigureWarnings(
-                    w => w.Ignore(CosmosEventId.NoPartitionKeyDefined)));
+                builder.ConfigureWarnings(w => w.Ignore(CosmosEventId.NoPartitionKeyDefined)));
     }
 }

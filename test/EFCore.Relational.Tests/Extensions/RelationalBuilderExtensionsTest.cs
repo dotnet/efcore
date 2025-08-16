@@ -231,7 +231,7 @@ public class RelationalBuilderExtensionsTest
         var modelBuilder = CreateBuilder();
         var entityTypeBuilder = modelBuilder.Entity(typeof(Splot), ConfigurationSource.Convention);
         var idProperty = entityTypeBuilder.Property(typeof(int), "Id", ConfigurationSource.Convention).Metadata;
-        var keyBuilder = entityTypeBuilder.HasKey(new[] { idProperty.Name }, ConfigurationSource.Convention);
+        var keyBuilder = entityTypeBuilder.HasKey([idProperty.Name], ConfigurationSource.Convention);
 
         Assert.NotNull(keyBuilder.HasName("Splew"));
         Assert.Equal("Splew", keyBuilder.Metadata.GetName());
@@ -378,7 +378,7 @@ public class RelationalBuilderExtensionsTest
         var modelBuilder = CreateBuilder();
         var entityTypeBuilder = modelBuilder.Entity(typeof(Splot), ConfigurationSource.Convention);
         entityTypeBuilder.Property(typeof(int), "Id", ConfigurationSource.Convention);
-        var indexBuilder = entityTypeBuilder.HasIndex(new[] { "Id" }, ConfigurationSource.Convention);
+        var indexBuilder = entityTypeBuilder.HasIndex(["Id"], ConfigurationSource.Convention);
 
         Assert.NotNull(indexBuilder.HasFilter("Splew"));
         Assert.Equal("Splew", indexBuilder.Metadata.GetFilter());
@@ -1422,7 +1422,7 @@ public class RelationalBuilderExtensionsTest
         var modelBuilder = CreateBuilder();
         var entityTypeBuilder = modelBuilder.Entity(typeof(Splot), ConfigurationSource.Convention);
         entityTypeBuilder.Property(typeof(int), "Id", ConfigurationSource.Convention);
-        var relationshipBuilder = entityTypeBuilder.HasRelationship("Splot", new[] { "Id" }, ConfigurationSource.Convention);
+        var relationshipBuilder = entityTypeBuilder.HasRelationship("Splot", ["Id"], ConfigurationSource.Convention);
 
         Assert.NotNull(relationshipBuilder.HasConstraintName("Splew"));
         Assert.Equal("Splew", relationshipBuilder.Metadata.GetConstraintName());

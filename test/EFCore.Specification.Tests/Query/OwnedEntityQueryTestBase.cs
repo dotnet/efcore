@@ -157,17 +157,15 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
         using (var context = contextFactory.CreateContext())
         {
             var partners = context.Partners
-                .Select(
-                    x => new
+                .Select(x => new
+                {
+                    Addresses = x.Addresses.Select(y => new
                     {
-                        Addresses = x.Addresses.Select(
-                            y => new
-                            {
-                                Turnovers = y.Turnovers == null
-                                    ? null
-                                    : new { y.Turnovers.AmountIn }
-                            }).ToList()
-                    }).ToList();
+                        Turnovers = y.Turnovers == null
+                            ? null
+                            : new { y.Turnovers.AmountIn }
+                    }).ToList()
+                }).ToList();
 
             Assert.Single(partners);
             Assert.Collection(
@@ -243,54 +241,53 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
     protected class Context14911(DbContextOptions options) : DbContext(options)
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<Aggregate>(
-                builder =>
-                {
-                    builder.HasKey(e => e.Id);
-                    builder.OwnsOne(
-                        e => e.FirstValueObject, dr =>
-                        {
-                            dr.OwnsMany(
-                                d => d.SecondValueObjects, c =>
-                                {
-                                    c.Property<int>("Id").IsRequired();
-                                    c.HasKey("Id");
-                                    c.OwnsOne(
-                                        b => b.FourthValueObject, b =>
-                                        {
-                                            b.OwnsMany(
-                                                t => t.FifthValueObjects, sp =>
-                                                {
-                                                    sp.Property<int>("Id").IsRequired();
-                                                    sp.HasKey("Id");
-                                                    sp.Property(e => e.AnyValue).IsRequired();
-                                                    sp.WithOwner().HasForeignKey("SecondValueObjectId");
-                                                });
-                                        });
-                                    c.OwnsMany(
-                                        b => b.ThirdValueObjects, b =>
-                                        {
-                                            b.Property<int>("Id").IsRequired();
-                                            b.HasKey("Id");
+            => modelBuilder.Entity<Aggregate>(builder =>
+            {
+                builder.HasKey(e => e.Id);
+                builder.OwnsOne(
+                    e => e.FirstValueObject, dr =>
+                    {
+                        dr.OwnsMany(
+                            d => d.SecondValueObjects, c =>
+                            {
+                                c.Property<int>("Id").IsRequired();
+                                c.HasKey("Id");
+                                c.OwnsOne(
+                                    b => b.FourthValueObject, b =>
+                                    {
+                                        b.OwnsMany(
+                                            t => t.FifthValueObjects, sp =>
+                                            {
+                                                sp.Property<int>("Id").IsRequired();
+                                                sp.HasKey("Id");
+                                                sp.Property(e => e.AnyValue).IsRequired();
+                                                sp.WithOwner().HasForeignKey("SecondValueObjectId");
+                                            });
+                                    });
+                                c.OwnsMany(
+                                    b => b.ThirdValueObjects, b =>
+                                    {
+                                        b.Property<int>("Id").IsRequired();
+                                        b.HasKey("Id");
 
-                                            b.OwnsOne(
-                                                d => d.FourthValueObject, dpd =>
-                                                {
-                                                    dpd.OwnsMany(
-                                                        d => d.FifthValueObjects, sp =>
-                                                        {
-                                                            sp.Property<int>("Id").IsRequired();
-                                                            sp.HasKey("Id");
-                                                            sp.Property(e => e.AnyValue).IsRequired();
-                                                            sp.WithOwner().HasForeignKey("ThirdValueObjectId");
-                                                        });
-                                                });
-                                            b.WithOwner().HasForeignKey("SecondValueObjectId");
-                                        });
-                                    c.WithOwner().HasForeignKey("AggregateId");
-                                });
-                        });
-                });
+                                        b.OwnsOne(
+                                            d => d.FourthValueObject, dpd =>
+                                            {
+                                                dpd.OwnsMany(
+                                                    d => d.FifthValueObjects, sp =>
+                                                    {
+                                                        sp.Property<int>("Id").IsRequired();
+                                                        sp.HasKey("Id");
+                                                        sp.Property(e => e.AnyValue).IsRequired();
+                                                        sp.WithOwner().HasForeignKey("ThirdValueObjectId");
+                                                    });
+                                            });
+                                        b.WithOwner().HasForeignKey("SecondValueObjectId");
+                                    });
+                                c.WithOwner().HasForeignKey("AggregateId");
+                            });
+                    });
+            });
 
         public Task SeedAsync()
         {
@@ -362,18 +359,16 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
 
     #region 18582
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Projecting_correlated_collection_property_for_owned_entity(bool async)
     {
         var contextFactory = await InitializeAsync<Context18582>(seed: c => c.SeedAsync());
 
         using var context = contextFactory.CreateContext();
-        var query = context.Warehouses.Select(
-            x => new Context18582.WarehouseModel
-            {
-                WarehouseCode = x.WarehouseCode, DestinationCountryCodes = x.DestinationCountries.Select(c => c.CountryCode).ToArray()
-            }).AsNoTracking();
+        var query = context.Warehouses.Select(x => new Context18582.WarehouseModel
+        {
+            WarehouseCode = x.WarehouseCode, DestinationCountryCodes = x.DestinationCountries.Select(c => c.CountryCode).ToArray()
+        }).AsNoTracking();
 
         var result = async
             ? await query.ToListAsync()
@@ -499,27 +494,25 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
 
     #region 20277
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Multiple_single_result_in_projection_containing_owned_types(bool async)
     {
         var contextFactory = await InitializeAsync<Context20277>();
         using var context = contextFactory.CreateContext();
-        var query = context.Entities.AsNoTracking().Select(
-            e => new
-            {
-                e.Id,
-                FirstChild = e.Children
-                    .Where(c => c.Type == 1)
-                    .AsQueryable()
-                    .Select(_project)
-                    .FirstOrDefault(),
-                SecondChild = e.Children
-                    .Where(c => c.Type == 2)
-                    .AsQueryable()
-                    .Select(_project)
-                    .FirstOrDefault(),
-            });
+        var query = context.Entities.AsNoTracking().Select(e => new
+        {
+            e.Id,
+            FirstChild = e.Children
+                .Where(c => c.Type == 1)
+                .AsQueryable()
+                .Select(_project)
+                .FirstOrDefault(),
+            SecondChild = e.Children
+                .Where(c => c.Type == 2)
+                .AsQueryable()
+                .Select(_project)
+                .FirstOrDefault(),
+        });
 
         var result = async
             ? await query.ToListAsync()
@@ -543,15 +536,14 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Entity>(
-                cfg =>
-                {
-                    cfg.OwnsMany(
-                        e => e.Children, inner =>
-                        {
-                            inner.OwnsOne(e => e.Owned);
-                        });
-                });
+            modelBuilder.Entity<Entity>(cfg =>
+            {
+                cfg.OwnsMany(
+                    e => e.Children, inner =>
+                    {
+                        inner.OwnsOne(e => e.Owned);
+                    });
+            });
         }
 
         public class Entity
@@ -709,19 +701,18 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
     protected class Context21807(DbContextOptions options) : DbContext(options)
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<Entity>(
-                builder =>
-                {
-                    builder.HasKey(x => x.Id);
+            => modelBuilder.Entity<Entity>(builder =>
+            {
+                builder.HasKey(x => x.Id);
 
-                    builder.OwnsOne(
-                        x => x.Contact, contact =>
-                        {
-                            contact.OwnsOne(c => c.Address);
-                        });
+                builder.OwnsOne(
+                    x => x.Contact, contact =>
+                    {
+                        contact.OwnsOne(c => c.Address);
+                    });
 
-                    builder.Navigation(x => x.Contact).IsRequired();
-                });
+                builder.Navigation(x => x.Contact).IsRequired();
+            });
 
         public Task SeedAsync()
         {
@@ -755,14 +746,13 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
 
     #region 22090
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task OwnsMany_correlated_projection(bool async)
     {
         var contextFactory = await InitializeAsync<Context22089>();
         using var context = contextFactory.CreateContext();
-        var results = await context.Contacts.Select(
-                contact => new Context22089.ContactDto
+        var results = await context.Contacts.Select(contact
+                => new Context22089.ContactDto
                 {
                     Id = contact.Id, Names = contact.Names.Select(name => new Context22089.NameDto()).ToArray()
                 })
@@ -809,20 +799,18 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
 
     #region 24133
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Projecting_owned_collection_and_aggregate(bool async)
     {
         var contextFactory = await InitializeAsync<Context24133>();
         using var context = contextFactory.CreateContext();
         var query = context.Set<Context24133.Blog>()
-            .Select(
-                b => new Context24133.BlogDto
-                {
-                    Id = b.Id,
-                    TotalComments = b.Posts.Sum(p => p.CommentsCount),
-                    Posts = b.Posts.Select(p => new Context24133.PostDto { Title = p.Title, CommentsCount = p.CommentsCount })
-                });
+            .Select(b => new Context24133.BlogDto
+            {
+                Id = b.Id,
+                TotalComments = b.Posts.Sum(p => p.CommentsCount),
+                Posts = b.Posts.Select(p => new Context24133.PostDto { Title = p.Title, CommentsCount = p.CommentsCount })
+            });
 
         var result = async
             ? await query.ToListAsync()
@@ -833,16 +821,15 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
     protected class Context24133(DbContextOptions options) : DbContext(options)
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<Blog>(
-                blog =>
-                {
-                    blog.OwnsMany(
-                        b => b.Posts, p =>
-                        {
-                            p.WithOwner().HasForeignKey("BlogId");
-                            p.Property("BlogId").HasMaxLength(40);
-                        });
-                });
+            => modelBuilder.Entity<Blog>(blog =>
+            {
+                blog.OwnsMany(
+                    b => b.Posts, p =>
+                    {
+                        p.WithOwner().HasForeignKey("BlogId");
+                        p.Property("BlogId").HasMaxLength(40);
+                    });
+            });
 
         public class Blog
         {

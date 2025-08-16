@@ -5,9 +5,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Relationships.Navigations;
 
 public abstract class NavigationsFixtureBase : RelationshipsQueryFixtureBase
 {
-    protected override string StoreName => "NavigationsQueryTest";
+    protected override string StoreName
+        => "NavigationsQueryTest";
 
-    public override bool AreCollectionsOrdered => false;
+    public override bool AreCollectionsOrdered
+        => false;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
@@ -22,7 +24,7 @@ public abstract class NavigationsFixtureBase : RelationshipsQueryFixtureBase
             b.HasOne(r => r.RequiredRelated)
                 .WithOne(r => r.RequiredRelatedInverse)
                 .HasForeignKey<RootEntity>(r => r.RequiredRelatedId)
-                .IsRequired(true)
+                .IsRequired()
                 .OnDelete(DeleteBehavior.NoAction); // TODO: Move to SQL Server
 
             b.HasOne(r => r.OptionalRelated)
@@ -41,7 +43,7 @@ public abstract class NavigationsFixtureBase : RelationshipsQueryFixtureBase
             b.HasOne(r => r.RequiredNested)
                 .WithOne(r => r.RequiredNestedInverse)
                 .HasForeignKey<RelatedType>(r => r.RequiredNestedId)
-                .IsRequired(true)
+                .IsRequired()
                 .OnDelete(DeleteBehavior.NoAction); // TODO: Move to SQL Server
 
             b.HasOne(e => e.OptionalNested)
@@ -54,24 +56,5 @@ public abstract class NavigationsFixtureBase : RelationshipsQueryFixtureBase
                 .WithOne(r => r.NestedCollectionInverse)
                 .HasForeignKey(r => r.CollectionRelatedId);
         });
-    }
-
-    // With navigations, related entities aren't loaded by default (Include is required), so we override the asserters to
-    // ignore unloaded navigations.
-    protected override void NullSafeAssert<T>(object? e, object? a, Action<T, T> assertAction)
-    {
-        if (e is T ee && a is T aa)
-        {
-            assertAction(ee, aa);
-            return;
-        }
-
-        // Ignore unloaded actual
-        if (a is null)
-        {
-            return;
-        }
-
-        Assert.Equal(e, a);
     }
 }

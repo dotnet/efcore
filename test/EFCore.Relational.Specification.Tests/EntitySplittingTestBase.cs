@@ -42,8 +42,7 @@ public abstract class EntitySplittingTestBase : NonSharedModelTestBase, IClassFi
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task ExecuteDelete_throws_for_entity_splitting(bool async)
     {
         await InitializeAsync(OnModelCreating, sensitiveLogEnabled: true);
@@ -54,18 +53,17 @@ public abstract class EntitySplittingTestBase : NonSharedModelTestBase, IClassFi
             async context => Assert.Contains(
                 CoreStrings.NonQueryTranslationFailedWithDetails(
                     "", RelationalStrings.ExecuteOperationOnEntitySplitting("ExecuteDelete", "MeterReading"))[21..],
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    async () =>
+                (await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+                {
+                    if (async)
                     {
-                        if (async)
-                        {
-                            await context.MeterReadings.ExecuteDeleteAsync();
-                        }
-                        else
-                        {
-                            context.MeterReadings.ExecuteDelete();
-                        }
-                    })).Message));
+                        await context.MeterReadings.ExecuteDeleteAsync();
+                    }
+                    else
+                    {
+                        context.MeterReadings.ExecuteDelete();
+                    }
+                })).Message));
     }
 
     // See additional tests bulk update tests in NonSharedModelBulkUpdatesTestBase
@@ -85,17 +83,16 @@ public abstract class EntitySplittingTestBase : NonSharedModelTestBase, IClassFi
         => TestSqlLoggerFactory.AssertBaseline(expected);
 
     protected virtual void OnModelCreating(ModelBuilder modelBuilder)
-        => modelBuilder.Entity<MeterReading>(
-            ob =>
-            {
-                ob.ToTable("MeterReadings");
-                ob.SplitToTable(
-                    "MeterReadingDetails", t =>
-                    {
-                        t.Property(o => o.PreviousRead);
-                        t.Property(o => o.CurrentRead);
-                    });
-            });
+        => modelBuilder.Entity<MeterReading>(ob =>
+        {
+            ob.ToTable("MeterReadings");
+            ob.SplitToTable(
+                "MeterReadingDetails", t =>
+                {
+                    t.Property(o => o.PreviousRead);
+                    t.Property(o => o.CurrentRead);
+                });
+        });
 
     protected async Task InitializeAsync(
         Action<ModelBuilder> onModelCreating,

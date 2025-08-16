@@ -51,7 +51,7 @@ public class FakeStateManager : IStateManager
         => throw new NotImplementedException();
 
     public IEnumerable<InternalEntityEntry> Entries
-        => InternalEntries ?? Enumerable.Empty<InternalEntityEntry>();
+        => InternalEntries ?? [];
 
     public IEnumerable<InternalEntityEntry> GetEntriesForState(
         bool added = false,
@@ -252,6 +252,10 @@ public class FakeStateManager : IStateManager
 
     public InternalEntityEntry TryGetEntry(IKey key, object[] keyValues, bool throwOnNullKey, out bool hasNullKey)
         => throw new NotImplementedException();
-    public InternalComplexEntry StartTracking(InternalComplexEntry entry) => throw new NotImplementedException();
-    public void StopTracking(InternalComplexEntry entry, EntityState oldState) => throw new NotImplementedException();
+
+    public InternalComplexEntry StartTracking(InternalComplexEntry entry)
+        => throw new NotImplementedException();
+
+    public void StopTracking(InternalComplexEntry entry, EntityState oldState)
+        => throw new NotImplementedException();
 }

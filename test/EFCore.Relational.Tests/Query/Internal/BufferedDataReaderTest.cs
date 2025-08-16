@@ -10,11 +10,10 @@ public class BufferedDataReaderTest
 {
     public static readonly IEnumerable<object[]> IsAsyncData = [[false], [true]];
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public async Task Metadata_methods_return_expected_results(bool async)
     {
-        var reader = new FakeDbDataReader(["columnName"], new[] { [new object()], new[] { new object() } });
+        var reader = new FakeDbDataReader(["columnName"], [[new object()], [new object()]]);
 #pragma warning disable EF9100 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
         var columns = new ReaderColumn[] { new ReaderColumn<object>(true, null, null, (r, _) => r.GetValue(0)) };
 #pragma warning restore EF9100 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
@@ -36,8 +35,7 @@ public class BufferedDataReaderTest
         Assert.Equal(2, bufferedDataReader.RecordsAffected);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public async Task Manipulation_methods_perform_expected_actions(bool async)
     {
         var reader = new FakeDbDataReader(
@@ -107,11 +105,10 @@ public class BufferedDataReaderTest
         Assert.True(bufferedDataReader.IsClosed);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public async Task Initialize_is_idempotent(bool async)
     {
-        var reader = new FakeDbDataReader(["name"], new[] { new[] { new object() } });
+        var reader = new FakeDbDataReader(["name"], [[new object()]]);
 #pragma warning disable EF9100 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
         var columns = new ReaderColumn[] { new ReaderColumn<object>(true, null, null, (r, _) => r.GetValue(0)) };
 #pragma warning restore EF9100 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
@@ -139,8 +136,7 @@ public class BufferedDataReaderTest
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public async Task Data_methods_return_expected_results(bool async)
     {
         await Verify_get_method_returns_supplied_value(true, async);
@@ -164,10 +160,8 @@ public class BufferedDataReaderTest
         await Verify_method_result(r => r.IsDBNullAsync(0).Result, async, true, [DBNull.Value]);
         await Verify_method_result(r => r.IsDBNullAsync(0).Result, async, false, [true]);
 
-        await Assert.ThrowsAsync<NotSupportedException>(
-            () => Verify_method_result(r => r.GetBytes(0, 0, [], 0, 0), async, 0, [1L]));
-        await Assert.ThrowsAsync<NotSupportedException>(
-            () => Verify_method_result(r => r.GetChars(0, 0, [], 0, 0), async, 0, [1L]));
+        await Assert.ThrowsAsync<NotSupportedException>(() => Verify_method_result(r => r.GetBytes(0, 0, [], 0, 0), async, 0, [1L]));
+        await Assert.ThrowsAsync<NotSupportedException>(() => Verify_method_result(r => r.GetChars(0, 0, [], 0, 0), async, 0, [1L]));
     }
 
     private async Task Verify_method_result<T>(

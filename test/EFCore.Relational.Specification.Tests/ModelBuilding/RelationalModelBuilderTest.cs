@@ -165,11 +165,9 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
             Assert.Equal(
                 RelationalStrings.StoredProcedureRowsAffectedReturnConflictingParameter("BookLabel_Update"),
-                Assert.Throws<InvalidOperationException>(
-                        () => modelBuilder.Entity<BookLabel>()
-                            .UpdateUsingStoredProcedure(
-                                s => s.HasRowsAffectedParameter()
-                                    .HasRowsAffectedReturnValue()))
+                Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<BookLabel>()
+                        .UpdateUsingStoredProcedure(s => s.HasRowsAffectedParameter()
+                            .HasRowsAffectedReturnValue()))
                     .Message);
         }
 
@@ -180,11 +178,9 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
             Assert.Equal(
                 RelationalStrings.StoredProcedureRowsAffectedReturnConflictingParameter("BookLabel_Update"),
-                Assert.Throws<InvalidOperationException>(
-                        () => modelBuilder.Entity<BookLabel>()
-                            .UpdateUsingStoredProcedure(
-                                s => s.HasRowsAffectedResultColumn()
-                                    .HasRowsAffectedReturnValue()))
+                Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<BookLabel>()
+                        .UpdateUsingStoredProcedure(s => s.HasRowsAffectedResultColumn()
+                            .HasRowsAffectedReturnValue()))
                     .Message);
         }
 
@@ -195,11 +191,9 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
             Assert.Equal(
                 RelationalStrings.StoredProcedureDuplicateRowsAffectedParameter("BookLabel_Update"),
-                Assert.Throws<InvalidOperationException>(
-                        () => modelBuilder.Entity<BookLabel>()
-                            .UpdateUsingStoredProcedure(
-                                s => s.HasRowsAffectedReturnValue()
-                                    .HasRowsAffectedParameter()))
+                Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<BookLabel>()
+                        .UpdateUsingStoredProcedure(s => s.HasRowsAffectedReturnValue()
+                            .HasRowsAffectedParameter()))
                     .Message);
         }
 
@@ -210,11 +204,9 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
             Assert.Equal(
                 RelationalStrings.StoredProcedureDuplicateRowsAffectedResultColumn("BookLabel_Update"),
-                Assert.Throws<InvalidOperationException>(
-                        () => modelBuilder.Entity<BookLabel>()
-                            .UpdateUsingStoredProcedure(
-                                s => s.HasRowsAffectedReturnValue()
-                                    .HasRowsAffectedResultColumn()))
+                Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<BookLabel>()
+                        .UpdateUsingStoredProcedure(s => s.HasRowsAffectedReturnValue()
+                            .HasRowsAffectedResultColumn()))
                     .Message);
         }
 
@@ -225,11 +217,9 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
             Assert.Equal(
                 RelationalStrings.StoredProcedureDuplicateRowsAffectedResultColumn("BookLabel_Update"),
-                Assert.Throws<InvalidOperationException>(
-                        () => modelBuilder.Entity<BookLabel>()
-                            .UpdateUsingStoredProcedure(
-                                s => s.HasRowsAffectedParameter()
-                                    .HasRowsAffectedResultColumn()))
+                Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<BookLabel>()
+                        .UpdateUsingStoredProcedure(s => s.HasRowsAffectedParameter()
+                            .HasRowsAffectedResultColumn()))
                     .Message);
         }
 
@@ -239,8 +229,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             var modelBuilder = CreateModelBuilder();
 
             var sproc = modelBuilder.Entity<BookLabel>()
-                .UpdateUsingStoredProcedure(
-                    s => s.HasRowsAffectedResultColumn()).Metadata.GetUpdateStoredProcedure()!;
+                .UpdateUsingStoredProcedure(s => s.HasRowsAffectedResultColumn()).Metadata.GetUpdateStoredProcedure()!;
 
             Assert.Equal(
                 RelationalStrings.StoredProcedureDuplicateRowsAffectedResultColumn("BookLabel_Update"),
@@ -255,11 +244,9 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
             Assert.Equal(
                 RelationalStrings.StoredProcedureDuplicateRowsAffectedParameter("BookLabel_Update"),
-                Assert.Throws<InvalidOperationException>(
-                        () => modelBuilder.Entity<BookLabel>()
-                            .UpdateUsingStoredProcedure(
-                                s => s.HasRowsAffectedResultColumn()
-                                    .HasRowsAffectedParameter()))
+                Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<BookLabel>()
+                        .UpdateUsingStoredProcedure(s => s.HasRowsAffectedResultColumn()
+                            .HasRowsAffectedParameter()))
                     .Message);
         }
 
@@ -269,8 +256,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             var modelBuilder = CreateModelBuilder();
 
             var sproc = modelBuilder.Entity<BookLabel>()
-                .UpdateUsingStoredProcedure(
-                    s => s.HasRowsAffectedParameter()).Metadata.GetUpdateStoredProcedure()!;
+                .UpdateUsingStoredProcedure(s => s.HasRowsAffectedParameter()).Metadata.GetUpdateStoredProcedure()!;
 
             Assert.Equal(
                 RelationalStrings.StoredProcedureDuplicateRowsAffectedParameter("BookLabel_Update"),
@@ -284,8 +270,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             var modelBuilder = CreateModelBuilder();
 
             var sproc = modelBuilder.Entity<BookLabel>()
-                .InsertUsingStoredProcedure(
-                    s => s.HasParameter(b => b.Id)).Metadata.GetInsertStoredProcedure()!;
+                .InsertUsingStoredProcedure(s => s.HasParameter(b => b.Id)).Metadata.GetInsertStoredProcedure()!;
 
             Assert.Equal(
                 RelationalStrings.StoredProcedureDuplicateParameter("Id", "BookLabel_Insert"),
@@ -299,8 +284,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             var modelBuilder = CreateModelBuilder();
 
             var sproc = modelBuilder.Entity<BookLabel>()
-                .InsertUsingStoredProcedure(
-                    s => s.HasOriginalValueParameter(b => b.Id)).Metadata.GetInsertStoredProcedure()!;
+                .InsertUsingStoredProcedure(s => s.HasOriginalValueParameter(b => b.Id)).Metadata.GetInsertStoredProcedure()!;
 
             Assert.Equal(
                 RelationalStrings.StoredProcedureDuplicateOriginalValueParameter("Id", "BookLabel_Insert"),
@@ -314,8 +298,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             var modelBuilder = CreateModelBuilder();
 
             var sproc = modelBuilder.Entity<BookLabel>()
-                .InsertUsingStoredProcedure(
-                    s => s.HasResultColumn(b => b.Id)).Metadata.GetInsertStoredProcedure()!;
+                .InsertUsingStoredProcedure(s => s.HasResultColumn(b => b.Id)).Metadata.GetInsertStoredProcedure()!;
 
             Assert.Equal(
                 RelationalStrings.StoredProcedureDuplicateResultColumn("Id", "BookLabel_Insert"),
@@ -329,8 +312,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             var modelBuilder = CreateModelBuilder();
 
             var param = modelBuilder.Entity<BookLabel>()
-                .InsertUsingStoredProcedure(
-                    s => s.HasRowsAffectedParameter()).Metadata.GetInsertStoredProcedure()!.Parameters.Single();
+                .InsertUsingStoredProcedure(s => s.HasRowsAffectedParameter()).Metadata.GetInsertStoredProcedure()!.Parameters.Single();
 
             Assert.Equal(
                 RelationalStrings.StoredProcedureParameterInvalidConfiguration("Direction", "RowsAffected", "BookLabel_Insert"),
@@ -518,11 +500,9 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
             Assert.Equal(
                 RelationalStrings.StoredProcedureRowsAffectedReturnConflictingParameter("BookLabel_Update"),
-                Assert.Throws<InvalidOperationException>(
-                        () => modelBuilder.Entity<BookLabel>()
-                            .UpdateUsingStoredProcedure(
-                                s => s.HasRowsAffectedParameter()
-                                    .HasRowsAffectedReturnValue()))
+                Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<BookLabel>()
+                        .UpdateUsingStoredProcedure(s => s.HasRowsAffectedParameter()
+                            .HasRowsAffectedReturnValue()))
                     .Message);
         }
 
@@ -533,11 +513,9 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
             Assert.Equal(
                 RelationalStrings.StoredProcedureRowsAffectedReturnConflictingParameter("BookLabel_Update"),
-                Assert.Throws<InvalidOperationException>(
-                        () => modelBuilder.Entity<BookLabel>()
-                            .UpdateUsingStoredProcedure(
-                                s => s.HasRowsAffectedResultColumn()
-                                    .HasRowsAffectedReturnValue()))
+                Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<BookLabel>()
+                        .UpdateUsingStoredProcedure(s => s.HasRowsAffectedResultColumn()
+                            .HasRowsAffectedReturnValue()))
                     .Message);
         }
 
@@ -548,11 +526,9 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
             Assert.Equal(
                 RelationalStrings.StoredProcedureDuplicateRowsAffectedParameter("BookLabel_Update"),
-                Assert.Throws<InvalidOperationException>(
-                        () => modelBuilder.Entity<BookLabel>()
-                            .UpdateUsingStoredProcedure(
-                                s => s.HasRowsAffectedReturnValue()
-                                    .HasRowsAffectedParameter()))
+                Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<BookLabel>()
+                        .UpdateUsingStoredProcedure(s => s.HasRowsAffectedReturnValue()
+                            .HasRowsAffectedParameter()))
                     .Message);
         }
 
@@ -563,11 +539,9 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
             Assert.Equal(
                 RelationalStrings.StoredProcedureDuplicateRowsAffectedResultColumn("BookLabel_Update"),
-                Assert.Throws<InvalidOperationException>(
-                        () => modelBuilder.Entity<BookLabel>()
-                            .UpdateUsingStoredProcedure(
-                                s => s.HasRowsAffectedReturnValue()
-                                    .HasRowsAffectedResultColumn()))
+                Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<BookLabel>()
+                        .UpdateUsingStoredProcedure(s => s.HasRowsAffectedReturnValue()
+                            .HasRowsAffectedResultColumn()))
                     .Message);
         }
 
@@ -578,11 +552,9 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
             Assert.Equal(
                 RelationalStrings.StoredProcedureDuplicateRowsAffectedResultColumn("BookLabel_Update"),
-                Assert.Throws<InvalidOperationException>(
-                        () => modelBuilder.Entity<BookLabel>()
-                            .UpdateUsingStoredProcedure(
-                                s => s.HasRowsAffectedParameter()
-                                    .HasRowsAffectedResultColumn()))
+                Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<BookLabel>()
+                        .UpdateUsingStoredProcedure(s => s.HasRowsAffectedParameter()
+                            .HasRowsAffectedResultColumn()))
                     .Message);
         }
 
@@ -592,8 +564,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             var modelBuilder = CreateModelBuilder();
 
             var sproc = modelBuilder.Entity<BookLabel>()
-                .UpdateUsingStoredProcedure(
-                    s => s.HasRowsAffectedResultColumn()).Metadata.GetUpdateStoredProcedure()!;
+                .UpdateUsingStoredProcedure(s => s.HasRowsAffectedResultColumn()).Metadata.GetUpdateStoredProcedure()!;
 
             Assert.Equal(
                 RelationalStrings.StoredProcedureDuplicateRowsAffectedResultColumn("BookLabel_Update"),
@@ -608,11 +579,9 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
             Assert.Equal(
                 RelationalStrings.StoredProcedureDuplicateRowsAffectedParameter("BookLabel_Update"),
-                Assert.Throws<InvalidOperationException>(
-                        () => modelBuilder.Entity<BookLabel>()
-                            .UpdateUsingStoredProcedure(
-                                s => s.HasRowsAffectedResultColumn()
-                                    .HasRowsAffectedParameter()))
+                Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<BookLabel>()
+                        .UpdateUsingStoredProcedure(s => s.HasRowsAffectedResultColumn()
+                            .HasRowsAffectedParameter()))
                     .Message);
         }
 
@@ -622,8 +591,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             var modelBuilder = CreateModelBuilder();
 
             var sproc = modelBuilder.Entity<BookLabel>()
-                .UpdateUsingStoredProcedure(
-                    s => s.HasRowsAffectedParameter()).Metadata.GetUpdateStoredProcedure()!;
+                .UpdateUsingStoredProcedure(s => s.HasRowsAffectedParameter()).Metadata.GetUpdateStoredProcedure()!;
 
             Assert.Equal(
                 RelationalStrings.StoredProcedureDuplicateRowsAffectedParameter("BookLabel_Update"),
@@ -637,8 +605,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             var modelBuilder = CreateModelBuilder();
 
             var sproc = modelBuilder.Entity<BookLabel>()
-                .InsertUsingStoredProcedure(
-                    s => s.HasParameter(b => b.Id)).Metadata.GetInsertStoredProcedure()!;
+                .InsertUsingStoredProcedure(s => s.HasParameter(b => b.Id)).Metadata.GetInsertStoredProcedure()!;
 
             Assert.Equal(
                 RelationalStrings.StoredProcedureDuplicateParameter("Id", "BookLabel_Insert"),
@@ -652,8 +619,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             var modelBuilder = CreateModelBuilder();
 
             var sproc = modelBuilder.Entity<BookLabel>()
-                .InsertUsingStoredProcedure(
-                    s => s.HasOriginalValueParameter(b => b.Id)).Metadata.GetInsertStoredProcedure()!;
+                .InsertUsingStoredProcedure(s => s.HasOriginalValueParameter(b => b.Id)).Metadata.GetInsertStoredProcedure()!;
 
             Assert.Equal(
                 RelationalStrings.StoredProcedureDuplicateOriginalValueParameter("Id", "BookLabel_Insert"),
@@ -667,8 +633,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             var modelBuilder = CreateModelBuilder();
 
             var sproc = modelBuilder.Entity<BookLabel>()
-                .InsertUsingStoredProcedure(
-                    s => s.HasResultColumn(b => b.Id)).Metadata.GetInsertStoredProcedure()!;
+                .InsertUsingStoredProcedure(s => s.HasResultColumn(b => b.Id)).Metadata.GetInsertStoredProcedure()!;
 
             Assert.Equal(
                 RelationalStrings.StoredProcedureDuplicateResultColumn("Id", "BookLabel_Insert"),
@@ -682,8 +647,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             var modelBuilder = CreateModelBuilder();
 
             var param = modelBuilder.Entity<BookLabel>()
-                .InsertUsingStoredProcedure(
-                    s => s.HasRowsAffectedParameter()).Metadata.GetInsertStoredProcedure()!.Parameters.Single();
+                .InsertUsingStoredProcedure(s => s.HasRowsAffectedParameter()).Metadata.GetInsertStoredProcedure()!.Parameters.Single();
 
             Assert.Equal(
                 RelationalStrings.StoredProcedureParameterInvalidConfiguration("Direction", "RowsAffected", "BookLabel_Insert"),
@@ -700,11 +664,12 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Customer, b =>
-                {
-                    b.ToJson("customer_data");
-                    b.Ignore(c => c.Orders);
-                });
+                .ComplexProperty(
+                    e => e.Customer, b =>
+                    {
+                        b.ToJson("customer_data");
+                        b.Ignore(c => c.Orders);
+                    });
 
             var model = modelBuilder.FinalizeModel();
             var complexProperty = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single();
@@ -727,12 +692,13 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Customer, b =>
-                {
-                    b.ToJson();
-                    b.Ignore(c => c.Details);
-                    b.Ignore(c => c.Orders);
-                });
+                .ComplexProperty(
+                    e => e.Customer, b =>
+                    {
+                        b.ToJson();
+                        b.Ignore(c => c.Details);
+                        b.Ignore(c => c.Orders);
+                    });
 
             var model = modelBuilder.FinalizeModel();
             var complexProperty = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single();
@@ -760,7 +726,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                     b.ToJson("customer_data");
                     b.Ignore(c => c.Details);
                     b.Ignore(c => c.Orders);
-                    b.HasDiscriminator<string>("Title");
+                    b.HasDiscriminator<string>("CustomerType");
                     // Issue #31250
                     // .HasValue<Customer>("Customer")
                     // .HasValue<SpecialCustomer>("Special")
@@ -776,7 +742,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
             var discriminatorProperty = complexType.FindDiscriminatorProperty();
             Assert.NotNull(discriminatorProperty);
-            Assert.Equal("Title", discriminatorProperty.Name);
+            Assert.Equal("CustomerType", discriminatorProperty.Name);
             Assert.Equal("$type", discriminatorProperty.GetJsonPropertyName());
         }
 
@@ -789,13 +755,14 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                 .Ignore<Product>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Customer, b =>
-                {
-                    b.ToJson("customer_data");
-                    b.HasColumnType("jsonb");
-                    b.Ignore(c => c.Details);
-                    b.Ignore(c => c.Orders);
-                });
+                .ComplexProperty(
+                    e => e.Customer, b =>
+                    {
+                        b.ToJson("customer_data");
+                        b.HasColumnType("jsonb");
+                        b.Ignore(c => c.Details);
+                        b.Ignore(c => c.Orders);
+                    });
 
             var model = modelBuilder.FinalizeModel();
             var complexProperty = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single();
@@ -809,7 +776,8 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
     public abstract class RelationalComplexCollectionTestBase(RelationalModelBuilderFixture fixture) : ComplexCollectionTestBase(fixture)
     {
-        protected override TestComplexCollectionBuilder<TElement> ConfigureComplexCollection<TElement>(TestComplexCollectionBuilder<TElement> builder)
+        protected override TestComplexCollectionBuilder<TElement> ConfigureComplexCollection<TElement>(
+            TestComplexCollectionBuilder<TElement> builder)
             => builder.ToJson();
 
         [ConditionalFact]
@@ -821,10 +789,11 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexCollection(e => e.QuarksCollection, b =>
-                {
-                    b.ToJson(); // No column name specified
-                });
+                .ComplexCollection(
+                    e => e.QuarksCollection, b =>
+                    {
+                        b.ToJson(); // No column name specified
+                    });
 
             var model = modelBuilder.FinalizeModel();
             var complexProperty = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single();
@@ -838,68 +807,79 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         public virtual void ComplexCollection_can_have_nested_complex_properties_mapped_to_json()
         {
             var modelBuilder = CreateModelBuilder();
-            modelBuilder.Entity<JsonEntityWithNesting>(
-                b =>
-                {
-                    b.ComplexProperty(e => e.OwnedReference1, cp =>
+            modelBuilder.Entity<JsonEntityWithNesting>(b =>
+            {
+                b.ComplexProperty(
+                    e => e.OwnedReference1, cp =>
                     {
                         cp.ToJson("CustomOwnedReference1");
                         cp.Ignore(x => x.Reference2);
                         cp.Ignore(x => x.Collection2);
-                        cp.ComplexProperty(x => x.Reference1, np =>
-                        {
-                            np.HasJsonPropertyName("CustomNestedReference");
-                        });
-                        cp.ComplexCollection(x => x.Collection1, nc =>
-                        {
-                            nc.HasJsonPropertyName("CustomNestedCollection");
-                        });
+                        cp.ComplexProperty(
+                            x => x.Reference1, np =>
+                            {
+                                np.HasJsonPropertyName("CustomNestedReference");
+                            });
+                        cp.ComplexCollection(
+                            x => x.Collection1, nc =>
+                            {
+                                nc.HasJsonPropertyName("CustomNestedCollection");
+                            });
                     });
-                    b.ComplexProperty(e => e.OwnedReference2, cp =>
+                b.ComplexProperty(
+                    e => e.OwnedReference2, cp =>
                     {
                         cp.ToJson("CustomOwnedReference2");
                         cp.Ignore(x => x.Reference1);
                         cp.Ignore(x => x.Collection1);
-                        cp.ComplexProperty(x => x.Reference2, np =>
-                        {
-                            np.HasJsonPropertyName("CustomNestedReference2");
-                        });
-                        cp.ComplexCollection(x => x.Collection2, nc =>
-                        {
-                            nc.HasJsonPropertyName("CustomNestedCollection2");
-                        });
+                        cp.ComplexProperty(
+                            x => x.Reference2, np =>
+                            {
+                                np.HasJsonPropertyName("CustomNestedReference2");
+                            });
+                        cp.ComplexCollection(
+                            x => x.Collection2, nc =>
+                            {
+                                nc.HasJsonPropertyName("CustomNestedCollection2");
+                            });
                     });
 
-                    b.ComplexCollection(e => e.OwnedCollection1, cp =>
+                b.ComplexCollection(
+                    e => e.OwnedCollection1, cp =>
                     {
                         cp.ToJson("CustomOwnedCollection1");
                         cp.Ignore(x => x.Reference2);
                         cp.Ignore(x => x.Collection2);
-                        cp.ComplexProperty(x => x.Reference1, np =>
-                        {
-                            np.HasJsonPropertyName("CustomNestedReference3");
-                        });
-                        cp.ComplexCollection(x => x.Collection1, nc =>
-                        {
-                            nc.HasJsonPropertyName("CustomNestedCollection3");
-                        });
+                        cp.ComplexProperty(
+                            x => x.Reference1, np =>
+                            {
+                                np.HasJsonPropertyName("CustomNestedReference3");
+                            });
+                        cp.ComplexCollection(
+                            x => x.Collection1, nc =>
+                            {
+                                nc.HasJsonPropertyName("CustomNestedCollection3");
+                            });
                     });
-                    b.ComplexCollection(e => e.OwnedCollection2, cp =>
+                b.ComplexCollection(
+                    e => e.OwnedCollection2, cp =>
                     {
                         cp.ToJson("CustomOwnedCollection2");
                         cp.Ignore(x => x.Reference1);
                         cp.Ignore(x => x.Collection1);
-                        cp.ComplexProperty(x => x.Reference2, np =>
-                        {
-                            np.HasJsonPropertyName("CustomNestedReference4");
-                        });
-                        cp.ComplexCollection(x => x.Collection2, nc =>
-                        {
-                            nc.HasJsonPropertyName("CustomNestedCollection4");
-                        });
+                        cp.ComplexProperty(
+                            x => x.Reference2, np =>
+                            {
+                                np.HasJsonPropertyName("CustomNestedReference4");
+                            });
+                        cp.ComplexCollection(
+                            x => x.Collection2, nc =>
+                            {
+                                nc.HasJsonPropertyName("CustomNestedCollection4");
+                            });
                     });
                 });
-                
+
             var model = modelBuilder.FinalizeModel();
             var entityType = model.FindEntityType(typeof(JsonEntityWithNesting))!;
 
@@ -907,7 +887,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             Assert.True(complexProperty1.ComplexType.IsMappedToJson());
             Assert.Equal("CustomOwnedReference1", complexProperty1.ComplexType.GetContainerColumnName());
             Assert.Null(complexProperty1.GetJsonPropertyName());
-            
+
             var complexProperty2 = entityType.FindComplexProperty("OwnedReference2")!;
             Assert.True(complexProperty2.ComplexType.IsMappedToJson());
             Assert.Equal("CustomOwnedReference2", complexProperty2.ComplexType.GetContainerColumnName());
@@ -917,7 +897,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             Assert.True(complexCollectionProperty1.ComplexType.IsMappedToJson());
             Assert.Equal("CustomOwnedCollection1", complexCollectionProperty1.ComplexType.GetContainerColumnName());
             Assert.Null(complexCollectionProperty1.GetJsonPropertyName());
-            
+
             var complexCollectionProperty2 = entityType.FindComplexProperty("OwnedCollection2")!;
             Assert.True(complexCollectionProperty2.ComplexType.IsMappedToJson());
             Assert.Equal("CustomOwnedCollection2", complexCollectionProperty2.ComplexType.GetContainerColumnName());
@@ -925,13 +905,13 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
             var nestedRef1 = complexProperty1.ComplexType.FindComplexProperty("Reference1")!;
             Assert.Equal("CustomNestedReference", nestedRef1.GetJsonPropertyName());
-            
+
             var nestedCol1 = complexProperty1.ComplexType.FindComplexProperty("Collection1")!;
             Assert.Equal("CustomNestedCollection", nestedCol1.GetJsonPropertyName());
-            
+
             var nestedRef3 = complexCollectionProperty1.ComplexType.FindComplexProperty("Reference1")!;
             Assert.Equal("CustomNestedReference3", nestedRef3.GetJsonPropertyName());
-            
+
             var nestedCol3 = complexCollectionProperty1.ComplexType.FindComplexProperty("Collection1")!;
             Assert.Equal("CustomNestedCollection3", nestedCol3.GetJsonPropertyName());
         }
@@ -945,11 +925,12 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexCollection(e => e.QuarksCollection, b =>
-                {
-                    b.ToJson("quarks_data");
-                    b.HasColumnType("jsonb");
-                });
+                .ComplexCollection(
+                    e => e.QuarksCollection, b =>
+                    {
+                        b.ToJson("quarks_data");
+                        b.HasColumnType("jsonb");
+                    });
 
             var model = modelBuilder.FinalizeModel();
             var complexProperty = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single();
@@ -1018,13 +999,12 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<MotorArt>(
-                entity =>
-                {
-                    entity.HasMany(d => d.MotorBauArt)
-                        .WithMany(p => p.MotorArt)
-                        .UsingEntity<Dictionary<string, object>>("MotorArtXMotorBauart");
-                });
+            modelBuilder.Entity<MotorArt>(entity =>
+            {
+                entity.HasMany(d => d.MotorBauArt)
+                    .WithMany(p => p.MotorArt)
+                    .UsingEntity<Dictionary<string, object>>("MotorArtXMotorBauart");
+            });
 
             var model = modelBuilder.FinalizeModel();
 
@@ -1113,8 +1093,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                 });
         }
 
-        [Table("FuelType", Schema = "dbo")]
-        [Index("Bezeichnung", Name = "Key_Fueltype", IsUnique = true)]
+        [Table("FuelType", Schema = "dbo"), Index("Bezeichnung", Name = "Key_Fueltype", IsUnique = true)]
         protected class FuelType
         {
             [Key]
@@ -1123,8 +1102,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             [StringLength(255)]
             public string Bezeichnung { get; set; } = null!;
 
-            [ForeignKey("FuelTypeId")]
-            [InverseProperty("FuelType")]
+            [ForeignKey("FuelTypeId"), InverseProperty("FuelType")]
             public virtual ICollection<MotorArt> MotorArt { get; set; } = new HashSet<MotorArt>();
         }
 
@@ -1134,13 +1112,10 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             [Key]
             public int MotorArtId { get; set; }
 
-            [StringLength(255)]
-            [ForeignKey("MotorArtId")]
-            [InverseProperty("MotorArt")]
+            [StringLength(255), ForeignKey("MotorArtId"), InverseProperty("MotorArt")]
             public virtual ICollection<FuelType> FuelType { get; set; } = new HashSet<FuelType>();
 
-            [ForeignKey("MotorArtId")]
-            [InverseProperty("MotorArt")]
+            [ForeignKey("MotorArtId"), InverseProperty("MotorArt")]
             public virtual ICollection<MotorBauart> MotorBauArt { get; set; } = new HashSet<MotorBauart>();
         }
 
@@ -1150,8 +1125,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             [Key]
             public int MotorBauartId { get; set; }
 
-            [ForeignKey("MotorBauArtId")]
-            [InverseProperty("MotorBauArt")]
+            [ForeignKey("MotorBauArtId"), InverseProperty("MotorBauArt")]
             public virtual ICollection<MotorArt> MotorArt { get; set; } = new HashSet<MotorArt>();
         }
     }
@@ -1304,32 +1278,29 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
                     lb.Property(l => l.Id).ValueGeneratedOnUpdate();
 
-                    lb.InsertUsingStoredProcedure(
-                            s => s
-                                .HasAnnotation("foo", "bar1")
-                                .HasParameter(b => b.Id)
-                                .HasParameter(b => b.BookId, p => p.HasName("InsertId")))
-                        .UpdateUsingStoredProcedure(
-                            s => s
-                                .HasAnnotation("foo", "bar2")
-                                .HasOriginalValueParameter(b => b.Id)
-                                .HasOriginalValueParameter(
-                                    b => b.BookId, p =>
-                                    {
-                                        var parameterBuilder = p.HasName("UpdateId");
-                                        var nonGenericBuilder = (IInfrastructure<StoredProcedureParameterBuilder>)parameterBuilder;
-                                        Assert.IsAssignableFrom<PropertyBuilder>(nonGenericBuilder.Instance.GetInfrastructure());
-                                    })
-                                .HasResultColumn(
-                                    b => b.Id, p =>
-                                    {
-                                        var nonGenericBuilder = (IInfrastructure<StoredProcedureResultColumnBuilder>)p;
-                                        Assert.IsAssignableFrom<PropertyBuilder>(nonGenericBuilder.Instance.GetInfrastructure());
-                                    }))
-                        .DeleteUsingStoredProcedure(
-                            s => s
-                                .HasAnnotation("foo", "bar3")
-                                .HasOriginalValueParameter(b => b.BookId, p => p.HasName("DeleteId")));
+                    lb.InsertUsingStoredProcedure(s => s
+                            .HasAnnotation("foo", "bar1")
+                            .HasParameter(b => b.Id)
+                            .HasParameter(b => b.BookId, p => p.HasName("InsertId")))
+                        .UpdateUsingStoredProcedure(s => s
+                            .HasAnnotation("foo", "bar2")
+                            .HasOriginalValueParameter(b => b.Id)
+                            .HasOriginalValueParameter(
+                                b => b.BookId, p =>
+                                {
+                                    var parameterBuilder = p.HasName("UpdateId");
+                                    var nonGenericBuilder = (IInfrastructure<StoredProcedureParameterBuilder>)parameterBuilder;
+                                    Assert.IsAssignableFrom<PropertyBuilder>(nonGenericBuilder.Instance.GetInfrastructure());
+                                })
+                            .HasResultColumn(
+                                b => b.Id, p =>
+                                {
+                                    var nonGenericBuilder = (IInfrastructure<StoredProcedureResultColumnBuilder>)p;
+                                    Assert.IsAssignableFrom<PropertyBuilder>(nonGenericBuilder.Instance.GetInfrastructure());
+                                }))
+                        .DeleteUsingStoredProcedure(s => s
+                            .HasAnnotation("foo", "bar3")
+                            .HasOriginalValueParameter(b => b.BookId, p => p.HasName("DeleteId")));
                 });
             modelBuilder.Entity<Book>()
                 .OwnsOne(b => b.AlternateLabel);
@@ -1355,7 +1326,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             var insertSproc = bookOwnership1.DeclaringEntityType.GetInsertStoredProcedure()!;
             Assert.Equal("Insert", insertSproc.Name);
             Assert.Null(insertSproc.Schema);
-            Assert.Equal(new[] { "Id", "BookId" }, insertSproc.Parameters.Select(p => p.PropertyName));
+            Assert.Equal(["Id", "BookId"], insertSproc.Parameters.Select(p => p.PropertyName));
             Assert.Empty(insertSproc.ResultColumns);
             Assert.Equal("bar1", insertSproc["foo"]);
             Assert.Same(bookOwnership1.DeclaringEntityType, insertSproc.EntityType);
@@ -1363,15 +1334,15 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             var updateSproc = bookOwnership1.DeclaringEntityType.GetUpdateStoredProcedure()!;
             Assert.Equal("Update", updateSproc.Name);
             Assert.Equal("dbo", updateSproc.Schema);
-            Assert.Equal(new[] { "Id", "BookId" }, updateSproc.Parameters.Select(p => p.PropertyName));
-            Assert.Equal(new[] { "Id" }, updateSproc.ResultColumns.Select(p => p.Name));
+            Assert.Equal(["Id", "BookId"], updateSproc.Parameters.Select(p => p.PropertyName));
+            Assert.Equal(["Id"], updateSproc.ResultColumns.Select(p => p.Name));
             Assert.Equal("bar2", updateSproc["foo"]);
             Assert.Same(bookOwnership1.DeclaringEntityType, updateSproc.EntityType);
 
             var deleteSproc = bookOwnership1.DeclaringEntityType.GetDeleteStoredProcedure()!;
             Assert.Equal("BookLabel_Delete", deleteSproc.Name);
             Assert.Null(deleteSproc.Schema);
-            Assert.Equal(new[] { "BookId" }, deleteSproc.Parameters.Select(p => p.PropertyName));
+            Assert.Equal(["BookId"], deleteSproc.Parameters.Select(p => p.PropertyName));
             Assert.Empty(deleteSproc.ResultColumns);
             Assert.Equal("bar3", deleteSproc["foo"]);
             Assert.Same(bookOwnership1.DeclaringEntityType, deleteSproc.EntityType);
@@ -1456,7 +1427,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                 Assert.Same(owned, index.DeclaringEntityType);
                 Assert.Equal(nameof(CustomerDetails.CustomerId), index.Properties.Single().Name);
                 Assert.Equal(
-                    new[] { "CustomerAlternateKey", nameof(CustomerDetails.CustomerId), nameof(CustomerDetails.Id) },
+                    ["CustomerAlternateKey", nameof(CustomerDetails.CustomerId), nameof(CustomerDetails.Id)],
                     owned.GetProperties().Select(p => p.Name));
             }
         }
@@ -1492,7 +1463,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         public List<OwnedEntity>? OwnedCollection1 { get; set; }
         public List<OwnedEntity>? OwnedCollection2 { get; set; }
     }
-    
+
     protected class OwnedEntity
     {
         public DateTime Date { get; set; }
@@ -1864,7 +1835,8 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             => Wrap(TableBuilder.HasAnnotation(annotation, value));
     }
 
-    public class NonGenericTestOwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity>(OwnedNavigationSplitTableBuilder tableBuilder) :
+    public class NonGenericTestOwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity>(
+        OwnedNavigationSplitTableBuilder tableBuilder) :
         TestOwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity>,
         IInfrastructure<OwnedNavigationSplitTableBuilder>
         where TOwnerEntity : class
@@ -1881,7 +1853,8 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         OwnedNavigationSplitTableBuilder IInfrastructure<OwnedNavigationSplitTableBuilder>.Instance
             => TableBuilder;
 
-        protected virtual TestOwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity> Wrap(OwnedNavigationSplitTableBuilder tableBuilder)
+        protected virtual TestOwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity> Wrap(
+            OwnedNavigationSplitTableBuilder tableBuilder)
             => new NonGenericTestOwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity>(tableBuilder);
 
         public override TestOwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity> ExcludeFromMigrations(bool excluded = true)
@@ -2204,15 +2177,15 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             => Wrap(ViewBuilder.HasAnnotation(annotation, value));
     }
 
-    public class NonGenericTestOwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity>(OwnedNavigationSplitViewBuilder tableBuilder) :
-        TestOwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity>,
-        IInfrastructure<OwnedNavigationSplitViewBuilder>
+    public class NonGenericTestOwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity>(OwnedNavigationSplitViewBuilder tableBuilder)
+        : TestOwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity>,
+            IInfrastructure<OwnedNavigationSplitViewBuilder>
         where TOwnerEntity : class
         where TDependentEntity : class
     {
         private OwnedNavigationSplitViewBuilder ViewBuilder { get; } = tableBuilder;
 
-        public override string? Name
+        public override string Name
             => ViewBuilder.Name;
 
         public override string? Schema

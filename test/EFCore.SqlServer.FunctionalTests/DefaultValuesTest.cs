@@ -58,17 +58,16 @@ public class DefaultValuesTest : IAsyncLifetime
                 .UseInternalServiceProvider(_serviceProvider);
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<KettleChips>(
-                b =>
-                {
-                    b.Property(e => e.BestBuyDate)
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValue(new DateTime(2035, 9, 25));
+            => modelBuilder.Entity<KettleChips>(b =>
+            {
+                b.Property(e => e.BestBuyDate)
+                    .ValueGeneratedOnAdd()
+                    .HasDefaultValue(new DateTime(2035, 9, 25));
 
-                    b.Property(e => e.ChipperId)
-                        .IsRequired()
-                        .HasDefaultValue("Default");
-                });
+                b.Property(e => e.ChipperId)
+                    .IsRequired()
+                    .HasDefaultValue("Default");
+            });
     }
 
     private class KettleChips

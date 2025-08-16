@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Linq;
-
 namespace Microsoft.EntityFrameworkCore.Query.Relationships;
 
 public abstract class RelationshipsSetOperationsTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
@@ -10,22 +8,20 @@ public abstract class RelationshipsSetOperationsTestBase<TFixture>(TFixture fixt
 {
     [ConditionalFact]
     public virtual Task On_related()
-        => AssertQuery(
-            ss => ss.Set<RootEntity>().Where(e =>
-                e.RelatedCollection.Where(r => r.Int == 8)
-                    .Concat(e.RelatedCollection.Where(r => r.String == "foo"))
-                    .Count() == 4));
+        => AssertQuery(ss => ss.Set<RootEntity>().Where(e =>
+            e.RelatedCollection.Where(r => r.Int == 8)
+                .Concat(e.RelatedCollection.Where(r => r.String == "foo"))
+                .Count()
+            == 4));
 
-    [ConditionalTheory]
-    [MemberData(nameof(TrackingData))]
+    [ConditionalTheory, MemberData(nameof(TrackingData))]
     public virtual Task On_related_projected(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             ss => ss.Set<RootEntity>().Select(e =>
                 e.RelatedCollection.Where(r => r.Int == 8).Concat(e.RelatedCollection.Where(r => r.String == "foo"))),
             queryTrackingBehavior: queryTrackingBehavior);
 
-    [ConditionalTheory]
-    [MemberData(nameof(TrackingData))]
+    [ConditionalTheory, MemberData(nameof(TrackingData))]
     public virtual Task On_related_Select_nested_with_aggregates(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             ss => ss.Set<RootEntity>().Select(e =>
@@ -37,11 +33,11 @@ public abstract class RelationshipsSetOperationsTestBase<TFixture>(TFixture fixt
 
     [ConditionalFact]
     public virtual Task On_nested()
-        => AssertQuery(
-            ss => ss.Set<RootEntity>().Where(e =>
-                e.RequiredRelated.NestedCollection.Where(r => r.Int == 8)
-                    .Concat(e.RequiredRelated.NestedCollection.Where(r => r.String == "foo"))
-                    .Count() == 4));
+        => AssertQuery(ss => ss.Set<RootEntity>().Where(e =>
+            e.RequiredRelated.NestedCollection.Where(r => r.Int == 8)
+                .Concat(e.RequiredRelated.NestedCollection.Where(r => r.String == "foo"))
+                .Count()
+            == 4));
 
     [ConditionalFact]
     public virtual Task Over_different_collection_properties()
@@ -49,5 +45,7 @@ public abstract class RelationshipsSetOperationsTestBase<TFixture>(TFixture fixt
             ss => ss.Set<RootEntity>().Where(e =>
                 e.RequiredRelated.NestedCollection.Concat(e.OptionalRelated!.NestedCollection).Count() == 4),
             ss => ss.Set<RootEntity>().Where(e =>
-                e.RequiredRelated.NestedCollection.Concat(e.OptionalRelated == null ? new() : e.OptionalRelated.NestedCollection).Count() == 4));
+                e.RequiredRelated.NestedCollection
+                    .Concat(e.OptionalRelated == null ? new List<NestedType>() : e.OptionalRelated.NestedCollection).Count()
+                == 4));
 }

@@ -70,8 +70,11 @@ public class CoreEventIdTest : EventIdTestBase
             { typeof(IForeignKey), () => foreignKey },
             { typeof(IReadOnlyForeignKey), () => foreignKey },
             { typeof(InternalEntityEntry), () => new InternalEntityEntry(new FakeStateManager(), entityType, null!) },
-            { typeof(InternalComplexEntry), () => new InternalComplexEntry(complexProperty.ComplexType,
-                new InternalEntityEntry(new FakeStateManager(), entityType, null!), 0) },
+            {
+                typeof(InternalComplexEntry), () => new InternalComplexEntry(
+                    complexProperty.ComplexType,
+                    new InternalEntityEntry(new FakeStateManager(), entityType, null!), 0)
+            },
             { typeof(ISet<object>), () => new HashSet<object>() },
             {
                 typeof(IList<IDictionary<string, string>>),

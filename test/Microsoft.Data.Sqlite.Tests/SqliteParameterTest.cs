@@ -86,8 +86,7 @@ public class SqliteParameterTest
     public void SqliteType_defaults_to_text()
         => Assert.Equal(SqliteType.Text, new SqliteParameter().SqliteType);
 
-    [Theory]
-    [MemberData(nameof(TypesData))]
+    [Theory, MemberData(nameof(TypesData))]
     public void SqliteType_is_inferred_from_value(object value, SqliteType expectedType)
     {
         var parameter = new SqliteParameter { Value = value };
@@ -190,26 +189,26 @@ public class SqliteParameterTest
         }
     }
 
-    [Theory]
-    [InlineData(true, 1L)]
-    [InlineData((byte)1, 1L)]
-    [InlineData('A', 65L, SqliteType.Integer)]
-    [InlineData('A', "A")]
-    [InlineData(3.14, 3.14)]
-    [InlineData(3f, 3.0)]
-    [InlineData(1, 1L)]
-    [InlineData(1L, 1L)]
-    [InlineData((sbyte)1, 1L)]
-    [InlineData((short)1, 1L)]
-    [InlineData("test", "test")]
-    [InlineData(1u, 1L)]
-    [InlineData(1ul, 1L)]
-    [InlineData((ushort)1, 1L)]
-    [InlineData("测试测试测试", "测试测试测试")]
-    [InlineData(double.NegativeInfinity, double.NegativeInfinity)]
-    [InlineData(double.PositiveInfinity, double.PositiveInfinity)]
-    [InlineData(float.NegativeInfinity, double.NegativeInfinity)]
-    [InlineData(float.PositiveInfinity, double.PositiveInfinity)]
+    [Theory,
+     InlineData(true, 1L),
+     InlineData((byte)1, 1L),
+     InlineData('A', 65L, SqliteType.Integer),
+     InlineData('A', "A"),
+     InlineData(3.14, 3.14),
+     InlineData(3f, 3.0),
+     InlineData(1, 1L),
+     InlineData(1L, 1L),
+     InlineData((sbyte)1, 1L),
+     InlineData((short)1, 1L),
+     InlineData("test", "test"),
+     InlineData(1u, 1L),
+     InlineData(1ul, 1L),
+     InlineData((ushort)1, 1L),
+     InlineData("测试测试测试", "测试测试测试"),
+     InlineData(double.NegativeInfinity, double.NegativeInfinity),
+     InlineData(double.PositiveInfinity, double.PositiveInfinity),
+     InlineData(float.NegativeInfinity, double.NegativeInfinity),
+     InlineData(float.PositiveInfinity, double.PositiveInfinity)]
     public void Bind_works(object value, object coercedValue, SqliteType? sqliteType = null)
     {
         using (var connection = new SqliteConnection("Data Source=:memory:"))
@@ -230,9 +229,9 @@ public class SqliteParameterTest
         }
     }
 
-    [Theory]
-    [InlineData(double.NaN)]
-    [InlineData(float.NaN)]
+    [Theory,
+     InlineData(double.NaN),
+     InlineData(float.NaN)]
     public void Bind_throws_for_nan(object value)
     {
         using (var connection = new SqliteConnection("Data Source=:memory:"))
@@ -432,10 +431,10 @@ public class SqliteParameterTest
         }
     }
 
-    [Theory]
-    [InlineData("@Parameter")]
-    [InlineData("$Parameter")]
-    [InlineData(":Parameter")]
+    [Theory,
+     InlineData("@Parameter"),
+     InlineData("$Parameter"),
+     InlineData(":Parameter")]
     public void Bind_does_not_require_prefix(string parameterName)
     {
         using (var connection = new SqliteConnection("Data Source=:memory:"))
@@ -489,8 +488,7 @@ public class SqliteParameterTest
         }
     }
 
-    [Fact]
-    [UseCulture("ar-SA")]
+    [Fact, UseCulture("ar-SA")]
     public void Bind_DateTime_with_Arabic_Culture()
     {
         using (var connection = new SqliteConnection("Data Source=:memory:"))
@@ -517,8 +515,7 @@ public class SqliteParameterTest
         }
     }
 
-    [Fact]
-    [UseCulture("ar-SA")]
+    [Fact, UseCulture("ar-SA")]
     public void Bind_DateTimeOffset_with_Arabic_Culture()
     {
         using (var connection = new SqliteConnection("Data Source=:memory:"))

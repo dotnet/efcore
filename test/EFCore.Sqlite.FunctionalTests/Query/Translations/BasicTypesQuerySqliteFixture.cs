@@ -5,7 +5,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Translations;
 
 public class BasicTypesQuerySqliteFixture : BasicTypesQueryFixtureBase, ITestSqlLoggerFactory
 {
-    protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
+    protected override ITestStoreFactory TestStoreFactory
+        => SqliteTestStoreFactory.Instance;
 
     public TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ListLoggerFactory;

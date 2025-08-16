@@ -1672,7 +1672,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         var elementFixup = Lambda(
                             Block(
                                 typeof(void),
-                                AssignReferenceRelationship(
+                                AssignStructuralProperty(
                                     innerFixupCollectionElementParameter,
                                     innerFixupParentParameter,
                                     inverseNavigation)),
@@ -1701,17 +1701,20 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         shaperEntityParameter,
                         shaperCollectionParameter);
 
-                    innerFixupMap[navigationJsonPropertyName] = fixup;
-                    trackingInnerFixupMap[navigationJsonPropertyName] = trackedFixup;
+                    // With tracking queries, the change tracker performs entity fixup, so we only need to handle fixup in the shaper for
+                    // non-tracking queries; however, complex types always need to be fixed up in the shaper.
+                    trackingInnerFixupMap[navigationJsonPropertyName] = relatedStructuralType is IComplexType ? fixup : trackedFixup;
                 }
                 else
                 {
                     var fixup = GenerateReferenceFixupForJson(
                         structuralType.ClrType,
-                        relatedStructuralType.ClrType,
+                        nestedRelationship.ClrType,
                         nestedRelationship,
                         inverseNavigation);
 
+                    // With tracking queries, the change tracker performs entity fixup, so we only need to handle fixup in the shaper for
+                    // non-tracking queries; however, complex types always need to be fixed up in the shaper.
                     innerFixupMap[navigationJsonPropertyName] = fixup;
 
                     if (relatedStructuralType is IComplexType)
@@ -1844,8 +1847,27 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 return materializeJsonEntityCollectionMethodCall;
             }
 
+
+            // Return the materializer for this JSON object, including null checks which would return null.
+            MethodInfo method;
+
+            if (relationship is not null && Nullable.GetUnderlyingType(relationship.ClrType) is { } underlyingType)
+            {
+                // The association property into which we're assigning has a nullable value type, so generate
+                // a materializer that returns that nullable value type (note that the shaperLambda that
+                // we pass itself always returns a non-nullable value (the null checks are outside of it.))
+                Check.DebugAssert(nullable, "On non-nullable relationship but the relationship's ClrType is Nullable<T>");
+                Check.DebugAssert(underlyingType == structuralType.ClrType);
+
+                method = MaterializeJsonNullableValueStructuralTypeMethodInfo.MakeGenericMethod(structuralType.ClrType);
+            }
+            else
+            {
+                method = MaterializeJsonStructuralTypeMethodInfo.MakeGenericMethod(structuralType.ClrType);
+            }
+
             var materializedRootJsonEntity = Call(
-                MaterializeJsonEntityMethodInfo.MakeGenericMethod(structuralType.ClrType),
+                method,
                 QueryCompilationContext.QueryContextParameter,
                 keyValuesParameter,
                 jsonReaderDataParameter,
@@ -1966,9 +1988,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
                     var managerVariable = Variable(typeof(Utf8JsonReaderManager), "jsonReaderManager");
                     var tokenTypeVariable = Variable(typeof(JsonTokenType), "tokenType");
-                    var jsonEntityTypeVariable = (ParameterExpression)jsonEntityTypeInitializerBlock.Expressions[^1];
+                    var jsonStructuralTypeVariable = (ParameterExpression)jsonEntityTypeInitializerBlock.Expressions[^1];
 
-                    Debug.Assert(jsonEntityTypeVariable.Type == structuralType.ClrType);
+                    Debug.Assert(jsonStructuralTypeVariable.Type == structuralType.ClrType);
 
                     var finalBlockVariables = new List<ParameterExpression>
                     {
@@ -2021,7 +2043,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     // - navigation fixups
                     // - entity instance variable that is returned as end result
                     var propertyAssignmentReplacer = new ValueBufferTryReadValueMethodsReplacer(
-                        jsonEntityTypeVariable, propertyAssignmentMap);
+                        jsonStructuralTypeVariable, propertyAssignmentMap);
 
                     if (body.Expressions[0] is BinaryExpression
                         {
@@ -2048,7 +2070,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     // or for empty/null collections of a tracking queries.
                     ProcessFixup(queryStateManager ? trackingInnerFixupMap : innerFixupMap);
 
-                    finalBlockExpressions.Add(jsonEntityTypeVariable);
+                    finalBlockExpressions.Add(jsonStructuralTypeVariable);
 
                     return Block(
                         finalBlockVariables,
@@ -2060,18 +2082,35 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         {
                             var navigationEntityParameter = _navigationVariableMap[fixup.Key];
 
-                            // we need to add null checks before we run fixup logic. For regular entities, whose fixup is done as part of the "Materialize*" method
-                            // the checks are done there (same will be done for the "optimized" scenario, where we populate properties directly rather than store in variables)
-                            // but in this case fixups are standalone, so the null safety must be added by us directly
-                            finalBlockExpressions.Add(
-                                IfThen(
-                                    NotEqual(
-                                        jsonEntityTypeVariable,
-                                        Constant(null, jsonEntityTypeVariable.Type)),
-                                    Invoke(
-                                        fixup.Value,
-                                        jsonEntityTypeVariable,
-                                        _navigationVariableMap[fixup.Key])));
+                            // Inject the fixup code for each property; we have this as a set of lambdas in the fixup map.
+                            // In the normal case, simply Invoke the lambda, passing it the structural type to be fixed up as a parameter.
+                            // This unfortunately doesn't work on value types (where a copy would be mutated), so for them,
+                            // we unwrap the lambda and integrate its body directly.
+                            // We should ideally do this for all cases (no need for the extra lambda Invoke), but there are some issues around us writing
+                            // to readonly fields.
+                            if (jsonStructuralTypeVariable.Type.IsValueType /*&& Nullable.GetUnderlyingType(jsonStructuralTypeVariable.Type) is null*/)
+                            {
+                                var fixupBody = ReplacingExpressionVisitor.Replace(
+                                    originals: [fixup.Value.Parameters[0], fixup.Value.Parameters[1]],
+                                    replacements: [jsonStructuralTypeVariable, _navigationVariableMap[fixup.Key]],
+                                    fixup.Value.Body);
+
+                                finalBlockExpressions.Add(fixupBody);
+                            }
+                            else
+                            {
+                                // If the structural type being fixed up is nullable, then we need to add null checks before we run fixup logic.
+                                // For regular entities, whose fixup is done as part of the "Materialize*" method, the checks are done there
+                                // (the same will be done for the "optimized" scenario, where we populate properties directly rather than store in variables).
+                                // But in this case fixups are standalone, so the null safety must be added here.
+                                finalBlockExpressions.Add(
+                                    IfThen(
+                                        NotEqual(jsonStructuralTypeVariable, Constant(null, jsonStructuralTypeVariable.Type)),
+                                        Invoke(
+                                            fixup.Value,
+                                            jsonStructuralTypeVariable,
+                                            _navigationVariableMap[fixup.Key])));
+                            }
                         }
                     }
                 }
@@ -2753,7 +2792,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 expressions.Add(
                     relationship.IsCollection
                         ? AddToCollectionRelationship(entityParameter, relatedEntityParameter, relationship)
-                        : AssignReferenceRelationship(entityParameter, relatedEntityParameter, relationship));
+                        : AssignStructuralProperty(entityParameter, relatedEntityParameter, relationship));
             }
 
             if (inverseNavigation != null
@@ -2762,26 +2801,26 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 expressions.Add(
                     inverseNavigation.IsCollection
                         ? AddToCollectionRelationship(relatedEntityParameter, entityParameter, inverseNavigation)
-                        : AssignReferenceRelationship(relatedEntityParameter, entityParameter, inverseNavigation));
+                        : AssignStructuralProperty(relatedEntityParameter, entityParameter, inverseNavigation));
             }
 
             return Lambda(Block(typeof(void), expressions), entityParameter, relatedEntityParameter);
         }
 
         private static LambdaExpression GenerateReferenceFixupForJson(
-            Type entityType,
-            Type relatedEntityType,
+            Type clrType,
+            Type relatedClrType,
             IPropertyBase relationship,
             INavigationBase? inverseNavigation)
         {
-            var entityParameter = Parameter(entityType);
-            var relatedEntityParameter = Parameter(relatedEntityType);
+            var entityParameter = Parameter(clrType);
+            var relatedEntityParameter = Parameter(relatedClrType);
             var expressions = new List<Expression>();
 
             if (!relationship.IsShadowProperty())
             {
                 expressions.Add(
-                    AssignReferenceRelationship(
+                    AssignStructuralProperty(
                         entityParameter,
                         relatedEntityParameter,
                         relationship));
@@ -2791,7 +2830,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 && !inverseNavigation.IsShadowProperty())
             {
                 expressions.Add(
-                    AssignReferenceRelationship(
+                    AssignStructuralProperty(
                         relatedEntityParameter,
                         entityParameter,
                         inverseNavigation));
@@ -2818,11 +2857,21 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             }
         }
 
-        private static Expression AssignReferenceRelationship(
-            ParameterExpression entity,
-            ParameterExpression relatedEntity,
-            IPropertyBase relationship)
-            => entity.MakeMemberAccess(relationship.GetMemberInfo(forMaterialization: true, forSet: true)).Assign(relatedEntity);
+        private static Expression AssignStructuralProperty(
+            ParameterExpression structuralType,
+            ParameterExpression relatedStructuralType,
+            IPropertyBase structuralProperty)
+        {
+            var setter = structuralProperty.GetMemberInfo(forMaterialization: true, forSet: true);
+
+            // If we're assigning a value complex type to a nullable complex property, add an upcast for typing
+            var assignee = structuralProperty.ClrType.IsNullableValueType()
+                && structuralProperty.ClrType.UnwrapNullableType() == relatedStructuralType.Type
+                ? Convert(relatedStructuralType, structuralProperty.ClrType)
+                : (Expression)relatedStructuralType;
+
+            return structuralType.MakeMemberAccess(setter).Assign(assignee);
+        }
 
         private Expression GetOrCreateCollectionObjectLambda(Type entityType, IPropertyBase relationship)
         {

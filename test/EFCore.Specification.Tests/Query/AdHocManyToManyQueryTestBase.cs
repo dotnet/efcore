@@ -5,7 +5,8 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public abstract class AdHocManyToManyQueryTestBase(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
+public abstract class AdHocManyToManyQueryTestBase(NonSharedFixture fixture)
+    : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
     protected override string StoreName
         => "AdHocManyToManyQueryTests";
@@ -78,8 +79,7 @@ public abstract class AdHocManyToManyQueryTestBase(NonSharedFixture fixture) : N
 
     #region 20277
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Many_to_many_load_works_when_join_entity_has_custom_key(bool async)
     {
         var contextFactory = await InitializeAsync<Context20277>();

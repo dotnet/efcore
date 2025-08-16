@@ -4,7 +4,8 @@
 namespace Microsoft.EntityFrameworkCore.Query;
 
 // ReSharper disable ClassNeverInstantiated.Local
-public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
+public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
+    : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
     #region 33449
 
@@ -119,6 +120,60 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture) : 
     }
 
     #endregion
+
+    #region ShadowDiscriminator
+
+    [ConditionalFact]
+    public virtual async Task Optional_complex_type_with_discriminator()
+    {
+        var contextFactory = await InitializeAsync<ContextShadowDiscriminator>(
+            seed: context =>
+            {
+                context.AddRange(
+                    new ContextShadowDiscriminator.EntityType
+                    {
+                        AllOptionalsComplexType = new ContextShadowDiscriminator.AllOptionalsComplexType { OptionalProperty = "Non-null" }
+                    },
+                    new ContextShadowDiscriminator.EntityType
+                    {
+                        AllOptionalsComplexType = new ContextShadowDiscriminator.AllOptionalsComplexType { OptionalProperty = null }
+                    },
+                    new ContextShadowDiscriminator.EntityType
+                    {
+                        AllOptionalsComplexType = null
+                    }
+                    );
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateContext();
+
+        var complexTypeNull = await context.Set<ContextShadowDiscriminator.EntityType>().SingleAsync(b => b.AllOptionalsComplexType == null);
+        Assert.Null(complexTypeNull.AllOptionalsComplexType);
+
+        complexTypeNull.AllOptionalsComplexType = new ContextShadowDiscriminator.AllOptionalsComplexType { OptionalProperty = "New thing" };
+        await context.SaveChangesAsync();
+    }
+
+    private class ContextShadowDiscriminator(DbContextOptions options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<EntityType>()
+                .ComplexProperty(b => b.AllOptionalsComplexType, x => x.HasDiscriminator());
+
+        public class EntityType
+        {
+            public int Id { get; set; }
+            public AllOptionalsComplexType? AllOptionalsComplexType { get; set; }
+        }
+
+        public class AllOptionalsComplexType
+        {
+            public string? OptionalProperty { get; set; }
+        }
+    }
+
+    #endregion ShadowDiscriminator
 
     protected override string StoreName
         => "AdHocComplexTypeQueryTest";

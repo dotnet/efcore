@@ -249,6 +249,57 @@ FROM [Customer] AS [c]
 """);
     }
 
+    public override async Task Update_complex_type_to_null(bool async)
+    {
+        await base.Update_complex_type_to_null(async);
+
+        AssertExecuteUpdateSql(
+            """
+UPDATE [c]
+SET [c].[OptionalAddress_AddressLine1] = NULL,
+    [c].[OptionalAddress_AddressLine2] = NULL,
+    [c].[OptionalAddress_Tags] = NULL,
+    [c].[OptionalAddress_ZipCode] = NULL,
+    [c].[OptionalAddress_Country_Code] = NULL,
+    [c].[OptionalAddress_Country_FullName] = NULL
+FROM [Customer] AS [c]
+""");
+    }
+
+    public override async Task Update_complex_type_to_null_lambda(bool async)
+    {
+        await base.Update_complex_type_to_null_lambda(async);
+
+        AssertExecuteUpdateSql(
+            """
+UPDATE [c]
+SET [c].[OptionalAddress_AddressLine1] = NULL,
+    [c].[OptionalAddress_AddressLine2] = NULL,
+    [c].[OptionalAddress_Tags] = NULL,
+    [c].[OptionalAddress_ZipCode] = NULL,
+    [c].[OptionalAddress_Country_Code] = NULL,
+    [c].[OptionalAddress_Country_FullName] = NULL
+FROM [Customer] AS [c]
+""");
+    }
+
+    public override async Task Update_complex_type_to_null_parameter(bool async)
+    {
+        await base.Update_complex_type_to_null_parameter(async);
+
+        AssertExecuteUpdateSql(
+            """
+UPDATE [c]
+SET [c].[OptionalAddress_AddressLine1] = NULL,
+    [c].[OptionalAddress_AddressLine2] = NULL,
+    [c].[OptionalAddress_Tags] = NULL,
+    [c].[OptionalAddress_ZipCode] = NULL,
+    [c].[OptionalAddress_Country_Code] = NULL,
+    [c].[OptionalAddress_Country_FullName] = NULL
+FROM [Customer] AS [c]
+""");
+    }
+
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());

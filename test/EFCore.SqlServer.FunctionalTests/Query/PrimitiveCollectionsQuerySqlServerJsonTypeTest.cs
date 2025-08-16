@@ -1218,7 +1218,7 @@ WHERE (
         await base.Inline_collection_index_Column_with_EF_Constant();
 
         AssertSql(
-"""
+            """
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE (
@@ -2275,20 +2275,19 @@ WHERE (
         {
             base.OnModelCreating(modelBuilder, context);
 
-            modelBuilder.Entity<PrimitiveCollectionsEntity>(
-                b =>
-                {
-                    // Map DateTime to non-default datetime instead of the default datetime2 to exercise type mapping inference
-                    b.Property(p => p.DateTime).HasColumnType("datetime");
-                    b.PrimitiveCollection(e => e.Strings).HasColumnType("json");
-                    b.PrimitiveCollection(e => e.Ints).HasColumnType("json");
-                    b.PrimitiveCollection(e => e.DateTimes).HasColumnType("json");
-                    b.PrimitiveCollection(e => e.Bools).HasColumnType("json");
-                    b.PrimitiveCollection(e => e.Ints).HasColumnType("json");
-                    b.PrimitiveCollection(e => e.Enums).HasColumnType("json");
-                    b.PrimitiveCollection(e => e.NullableStrings).HasColumnType("json");
-                    b.PrimitiveCollection(e => e.NullableInts).HasColumnType("json");
-                });
+            modelBuilder.Entity<PrimitiveCollectionsEntity>(b =>
+            {
+                // Map DateTime to non-default datetime instead of the default datetime2 to exercise type mapping inference
+                b.Property(p => p.DateTime).HasColumnType("datetime");
+                b.PrimitiveCollection(e => e.Strings).HasColumnType("json");
+                b.PrimitiveCollection(e => e.Ints).HasColumnType("json");
+                b.PrimitiveCollection(e => e.DateTimes).HasColumnType("json");
+                b.PrimitiveCollection(e => e.Bools).HasColumnType("json");
+                b.PrimitiveCollection(e => e.Ints).HasColumnType("json");
+                b.PrimitiveCollection(e => e.Enums).HasColumnType("json");
+                b.PrimitiveCollection(e => e.NullableStrings).HasColumnType("json");
+                b.PrimitiveCollection(e => e.NullableInts).HasColumnType("json");
+            });
         }
     }
 }

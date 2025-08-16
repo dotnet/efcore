@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class DiscriminatorValueGenerator : ValueGenerator
+public class DiscriminatorValueGenerator(IProperty property) : ValueGenerator
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -18,7 +18,9 @@ public class DiscriminatorValueGenerator : ValueGenerator
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override object NextValue(EntityEntry entry)
-        => entry.GetInfrastructure().EntityType.GetDiscriminatorValue()!;
+        => property.DeclaringType is IComplexType complexType
+            ? complexType.GetDiscriminatorValue()! // TODO: Support derived complex types #31250
+            : entry.GetInfrastructure().ContainingEntry.StructuralType.GetDiscriminatorValue()!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -100,9 +100,9 @@ WHERE VECTORPROPERTY([v].[Vector], 'Dimensions') = 3
         {
             var vectorEntities = new VectorEntity[]
             {
-                new() { Id = 1, Vector = new(new float[] { 1, 2, 3 }) },
-                new() { Id = 2, Vector = new(new float[] { 1, 2, 100 }) },
-                new() { Id = 3, Vector = new(new float[] { 1, 2, 1000 }) }
+                new() { Id = 1, Vector = new SqlVector<float>(new float[] { 1, 2, 3 }) },
+                new() { Id = 2, Vector = new SqlVector<float>(new float[] { 1, 2, 100 }) },
+                new() { Id = 3, Vector = new SqlVector<float>(new float[] { 1, 2, 1000 }) }
             };
 
             context.VectorEntities.AddRange(vectorEntities);

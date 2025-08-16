@@ -360,75 +360,69 @@ public class MismatchedKeyTypesSqlServerTest(MismatchedKeyTypesSqlServerTest.Mis
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<PrincipalIntLong>(
-                b =>
-                {
-                    b.Ignore(e => e.OptionalSingle);
-                    b.Ignore(e => e.RequiredSingle);
-                    b.Ignore(e => e.OptionalMany);
-                    b.Ignore(e => e.RequiredMany);
-                });
+            modelBuilder.Entity<PrincipalIntLong>(b =>
+            {
+                b.Ignore(e => e.OptionalSingle);
+                b.Ignore(e => e.RequiredSingle);
+                b.Ignore(e => e.OptionalMany);
+                b.Ignore(e => e.RequiredMany);
+            });
 
             modelBuilder.Entity<OptionalSingleIntLong>().Ignore(e => e.Principal);
             modelBuilder.Entity<RequiredSingleIntLong>().Ignore(e => e.Principal);
             modelBuilder.Entity<OptionalManyIntLong>().Ignore(e => e.Principal);
             modelBuilder.Entity<RequiredManyIntLong>().Ignore(e => e.Principal);
 
-            modelBuilder.Entity<PrincipalShortByte>(
-                b =>
-                {
-                    b.Ignore(e => e.OptionalSingle);
-                    b.Ignore(e => e.RequiredSingle);
-                    b.Ignore(e => e.OptionalMany);
-                    b.Ignore(e => e.RequiredMany);
-                });
+            modelBuilder.Entity<PrincipalShortByte>(b =>
+            {
+                b.Ignore(e => e.OptionalSingle);
+                b.Ignore(e => e.RequiredSingle);
+                b.Ignore(e => e.OptionalMany);
+                b.Ignore(e => e.RequiredMany);
+            });
 
             modelBuilder.Entity<OptionalSingleShortByte>().Ignore(e => e.Principal);
             modelBuilder.Entity<RequiredSingleShortByte>().Ignore(e => e.Principal);
             modelBuilder.Entity<OptionalManyShortByte>().Ignore(e => e.Principal);
             modelBuilder.Entity<RequiredManyShortByte>().Ignore(e => e.Principal);
 
-            modelBuilder.Entity<PrincipalStringGuid>(
-                b =>
-                {
-                    b.Ignore(e => e.OptionalSingle);
-                    b.Ignore(e => e.RequiredSingle);
-                    b.Ignore(e => e.OptionalMany);
-                    b.Ignore(e => e.RequiredMany);
-                });
+            modelBuilder.Entity<PrincipalStringGuid>(b =>
+            {
+                b.Ignore(e => e.OptionalSingle);
+                b.Ignore(e => e.RequiredSingle);
+                b.Ignore(e => e.OptionalMany);
+                b.Ignore(e => e.RequiredMany);
+            });
 
             modelBuilder.Entity<OptionalSingleStringGuid>().Ignore(e => e.Principal);
             modelBuilder.Entity<RequiredSingleStringGuid>().Ignore(e => e.Principal);
             modelBuilder.Entity<OptionalManyStringGuid>().Ignore(e => e.Principal);
             modelBuilder.Entity<RequiredManyStringGuid>().Ignore(e => e.Principal);
 
-            modelBuilder.Entity<PrincipalComposite>(
-                b =>
-                {
-                    b.Ignore(e => e.OptionalSingle);
-                    b.Ignore(e => e.RequiredSingle);
-                    b.Ignore(e => e.OptionalMany);
-                    b.Ignore(e => e.RequiredMany);
-                });
+            modelBuilder.Entity<PrincipalComposite>(b =>
+            {
+                b.Ignore(e => e.OptionalSingle);
+                b.Ignore(e => e.RequiredSingle);
+                b.Ignore(e => e.OptionalMany);
+                b.Ignore(e => e.RequiredMany);
+            });
 
             modelBuilder.Entity<OptionalSingleComposite>().Ignore(e => e.Principal);
             modelBuilder.Entity<RequiredSingleComposite>().Ignore(e => e.Principal);
             modelBuilder.Entity<OptionalManyComposite>().Ignore(e => e.Principal);
             modelBuilder.Entity<RequiredManyComposite>().Ignore(e => e.Principal);
 
-            modelBuilder.Entity<PrincipalBadComposite>(
-                b =>
-                {
-                    b.Ignore(e => e.OptionalSingle);
-                });
+            modelBuilder.Entity<PrincipalBadComposite>(b =>
+            {
+                b.Ignore(e => e.OptionalSingle);
+            });
 
             modelBuilder.Entity<OptionalSingleBadComposite>().Ignore(e => e.Principal);
 
-            modelBuilder.Entity<PrincipalBad>(
-                b =>
-                {
-                    b.Ignore(e => e.OptionalSingle);
-                });
+            modelBuilder.Entity<PrincipalBad>(b =>
+            {
+                b.Ignore(e => e.OptionalSingle);
+            });
 
             modelBuilder.Entity<OptionalSingleBad>().Ignore(e => e.Principal);
 
@@ -463,22 +457,20 @@ public class MismatchedKeyTypesSqlServerTest(MismatchedKeyTypesSqlServerTest.Mis
                 .HasValueGenerator<TemporaryByteValueGenerator>();
 
             modelBuilder.Entity<PrincipalComposite>()
-                .HasKey(
-                    e => new
-                    {
-                        e.Id1,
-                        e.Id2,
-                        e.Id3
-                    });
+                .HasKey(e => new
+                {
+                    e.Id1,
+                    e.Id2,
+                    e.Id3
+                });
 
             modelBuilder.Entity<PrincipalBadComposite>()
-                .HasKey(
-                    e => new
-                    {
-                        e.Id1,
-                        e.Id2,
-                        e.Id3
-                    });
+                .HasKey(e => new
+                {
+                    e.Id1,
+                    e.Id2,
+                    e.Id3
+                });
 
             modelBuilder.Entity<PrincipalBad>().Property(e => e.Id).ValueGeneratedNever();
 
@@ -503,19 +495,17 @@ public class MismatchedKeyTypesSqlServerTest(MismatchedKeyTypesSqlServerTest.Mis
             modelBuilder.Entity<OptionalManyComposite>().Property(e => e.PrincipalId2).HasColumnType("nvarchar(64)");
             modelBuilder.Entity<RequiredManyComposite>().Property(e => e.PrincipalId2).HasColumnType("nvarchar(64)");
 
-            modelBuilder.Entity<OptionalSingleBad>(
-                b =>
-                {
-                    b.Property(e => e.Id).ValueGeneratedNever();
-                    b.Property(e => e.PrincipalId).HasConversion(v => new Guid(), v => 1);
-                });
+            modelBuilder.Entity<OptionalSingleBad>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedNever();
+                b.Property(e => e.PrincipalId).HasConversion(v => new Guid(), v => 1);
+            });
 
-            modelBuilder.Entity<OptionalSingleBadComposite>(
-                b =>
-                {
-                    b.Property(e => e.Id).ValueGeneratedNever();
-                    b.Property(e => e.PrincipalId3).HasConversion(v => new Guid(), v => 1);
-                });
+            modelBuilder.Entity<OptionalSingleBadComposite>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedNever();
+                b.Property(e => e.PrincipalId3).HasConversion(v => new Guid(), v => 1);
+            });
         }
     }
 
