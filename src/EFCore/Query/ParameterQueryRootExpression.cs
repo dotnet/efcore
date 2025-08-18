@@ -71,7 +71,7 @@ public class ParameterQueryRootExpression : QueryRootExpression
             asyncQueryProvider,
             elementType,
             new QueryParameterExpression(
-                parameterExpression.Name ?? throw new ArgumentException($"{parameterExpression} must have a name"),
+                parameterExpression.Name ?? throw new ArgumentException(CoreStrings.ParameterExpressionMustHaveName(parameterExpression)),
                 parameterExpression.Type))
     {
     }
@@ -84,7 +84,7 @@ public class ParameterQueryRootExpression : QueryRootExpression
         : this(
             elementType,
             new QueryParameterExpression(
-                parameterExpression.Name ?? throw new ArgumentException($"{parameterExpression} must have a name"),
+                parameterExpression.Name ?? throw new ArgumentException(CoreStrings.ParameterExpressionMustHaveName(parameterExpression)),
                 parameterExpression.Type))
     {
     }

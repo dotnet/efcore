@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("ArgumentIsEmpty");
 
         /// <summary>
-        ///     The number argument cannot be negative number.
+        ///     The number argument cannot be a negative number.
         /// </summary>
         public static string ArgumentIsNegativeNumber
             => GetString("ArgumentIsNegativeNumber");

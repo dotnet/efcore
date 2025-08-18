@@ -118,13 +118,13 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AbstractLeafEntityType" xml:space="preserve">
-    <value>The corresponding CLR type for entity type '{entityType}' cannot be instantiated, and there is no derived entity type in the model that corresponds to a concrete CLR type.</value>
+    <value>The entity type '{entityType}' cannot be instantiated because its corresponding CLR type is abstract and there is no derived entity type in the model that corresponds to a concrete CLR type. Add a concrete derived entity type to the model or change the entity type to use a concrete CLR type.</value>
   </data>
   <data name="AddingProxyTypeAsEntityType" xml:space="preserve">
-    <value>Cannot add type '{typeName}' to the model as it is a dynamically-generated proxy type.</value>
+    <value>The type '{typeName}' cannot be added to the model because it is a dynamically-generated proxy type. Use the underlying non-proxy type instead.</value>
   </data>
   <data name="AmbiguousDependentEntity" xml:space="preserve">
-    <value>The entity type '{entityType}' uses a shared type and the supplied entity is currently referenced from several owner entities. To access the entry for a particular reference, call '{targetEntryCall}' on the owner entry.</value>
+    <value>The entity type '{entityType}' is a shared-type entity type and the supplied entity is currently referenced from several owner entities. To access the entry for a particular reference, call '{targetEntryCall}' on the owner entry.</value>
   </data>
   <data name="AmbiguousEndRequiredDependent" xml:space="preserve">
     <value>The foreign key {foreignKeyProperties} on entity type '{entityType}' cannot be configured as having a required dependent since the dependent side cannot be determined. To identify the dependent side of the relationship, configure the foreign key property in 'OnModelCreating'. See https://go.microsoft.com/fwlink/?LinkId=724062 for more details.</value>
@@ -148,16 +148,16 @@
     <value>The shared type entity type '{entityType}' cannot be added to the model because its name is the same as the CLR type name. This usually indicates an error, either add it as a non-shared entity type or choose a different name.</value>
   </data>
   <data name="AnnotationNotFound" xml:space="preserve">
-    <value>The annotation '{annotation}' was not found. Ensure that the annotation has been added to the object {annotatable}</value>
+    <value>The annotation '{annotation}' was not found. Ensure that the annotation has been added to the object {annotatable}.</value>
   </data>
   <data name="AnonymousAndNamedFiltersCombined" xml:space="preserve">
-    <value>Cannot apply both anonymous and named query filters simultaneously. Please specify either an anonymous filter or one or more named filters.</value>
+    <value>Both anonymous and named query filters cannot be applied simultaneously. Specify either an anonymous filter or one or more named filters.</value>
   </data>
   <data name="ArgumentNotConstant" xml:space="preserve">
     <value>The '{parameter}' value passed to '{methodName}' must be a constant.</value>
   </data>
   <data name="ArgumentPropertyNull" xml:space="preserve">
-    <value>The property '{property}' of the argument '{argument}' cannot be null.</value>
+    <value>The property '{property}' of the argument '{argument}' cannot be 'null'.</value>
   </data>
   <data name="AttributeNotOnEntityTypeProperty" xml:space="preserve">
     <value>The [{attribute}] attribute may only be specified on entity type properties. Remove the attribute from '{type}.{propertyName}'.</value>
@@ -166,7 +166,7 @@
     <value>Cycle detected while auto-including navigations: {cycleNavigations}. To fix this issue, either don't configure at least one navigation in the cycle as auto included in 'OnModelCreating' or call 'IgnoreAutoInclude' method on the query.</value>
   </data>
   <data name="BackingFieldOnIndexer" xml:space="preserve">
-    <value>Cannot set backing field '{field}' for the indexer property '{entityType}.{property}'. Ensure no backing fields are specified for indexer properties.</value>
+    <value>The backing field '{field}' cannot be set for the indexer property '{entityType}.{property}'. Ensure no backing fields are specified for indexer properties.</value>
   </data>
   <data name="BadBackingFieldType" xml:space="preserve">
     <value>The specified field '{field}' of type '{fieldType}' cannot be used for the property '{entityType}.{property}' of type '{propertyType}'. Only backing fields of types that are compatible with the property type can be used.</value>
@@ -175,19 +175,19 @@
     <value>The service dependencies type '{dependenciesType}' has been registered incorrectly in the service collection. Service dependencies types must only be registered by Entity Framework or database providers.</value>
   </data>
   <data name="BadEnumValue" xml:space="preserve">
-    <value>The value '{enumValue}' could not be parsed as a value of enum {enumType}.</value>
+    <value>The value '{enumValue}' could not be parsed as a value of enum '{enumType}'.</value>
   </data>
   <data name="BadFilterDerivedType" xml:space="preserve">
     <value>The filter expression '{filter}' cannot be specified for entity type '{entityType}'. A filter may only be applied to the root entity type '{rootType}'.</value>
   </data>
   <data name="BadFilterExpression" xml:space="preserve">
-    <value>The filter expression '{filter}' specified for entity type '{entityType}' is invalid. The expression must accept a single parameter of type '{clrType}' and return bool.</value>
+    <value>The filter expression '{filter}' specified for entity type '{entityType}' is invalid. The expression must accept a single parameter of type '{clrType}' and return 'bool'.</value>
   </data>
   <data name="BadFilterOwnedType" xml:space="preserve">
     <value>The filter expression '{filter}' cannot be specified for owned entity type '{entityType}'. A filter may only be applied to an entity type that is not owned. See https://aka.ms/efcore-docs-owned for more information and examples.</value>
   </data>
   <data name="BadJsonValueReaderWriterType" xml:space="preserve">
-    <value>The type '{givenType}' cannot be used as a 'JsonValueReaderWriter' because it does not inherit from the generic 'JsonValueReaderWriter&lt;TValue&gt;'. Make sure to inherit json reader/writers from 'JsonValueReaderWriter&lt;TValue&gt;'.</value>
+    <value>The type '{givenType}' cannot be used as a 'JsonValueReaderWriter' because it does not inherit from the generic 'JsonValueReaderWriter&lt;TValue&gt;'. Make sure to inherit JSON reader/writers from 'JsonValueReaderWriter&lt;TValue&gt;'.</value>
   </data>
   <data name="BadListType" xml:space="preserve">
     <value>The type '{givenType}' cannot be used as a primitive collection because it is not an array and does not implement '{listType}'. Collections of primitive types must be arrays or ordered lists.</value>
@@ -214,7 +214,7 @@
     <value>Cannot convert string value '{value}' from the database to any value in the mapped '{enumType}' enum.</value>
   </data>
   <data name="CannotConvertQueryableToEnumerableMethod" xml:space="preserve">
-    <value>Unable to convert a queryable method to an enumerable method. This is likely an issue in Entity Framework, please file an issue at https://go.microsoft.com/fwlink/?linkid=2142044.</value>
+    <value>Unable to convert a queryable method to an enumerable method. This is likely an issue in Entity Framework, file an issue at https://aka.ms/efcorefeedback.</value>
   </data>
   <data name="CannotCreateJsonValueReaderWriter" xml:space="preserve">
     <value>Cannot create an instance of reader/writer type '{readerWriterType}'. Ensure that the type can be instantiated and has a public parameterless constructor, or has a public static 'Instance' field returning the singleton instance to use.</value>
@@ -232,16 +232,16 @@
     <value>The navigation '{1_entityType}.{0_navigation}' cannot be loaded because one or more of the key or foreign key properties are shadow properties and the entity is not being tracked. Relationships using shadow values can only be loaded for tracked entities.</value>
   </data>
   <data name="CannotMarkNonShared" xml:space="preserve">
-    <value>The type '{type}' cannot be marked as a non-shared type since a shared type entity type with this CLR type exists in the model.</value>
+    <value>The type '{type}' cannot be marked as a non-shared type since a shared-type entity type with this CLR type exists in the model.</value>
   </data>
   <data name="CannotMarkShared" xml:space="preserve">
-    <value>The type '{type}' cannot be marked as a shared type since an entity type with the same CLR type already exists in the model.</value>
+    <value>The type '{type}' cannot be marked as a shared-type since an entity type with the same CLR type already exists in the model.</value>
   </data>
   <data name="CannotMaterializeAbstractType" xml:space="preserve">
     <value>Unable to create an instance of entity type '{entityType}' because it is abstract. Consider making it non-abstract or mapping at least one derived type.</value>
   </data>
   <data name="CanOnlyConfigureExistingNavigations" xml:space="preserve">
-    <value>Navigation '{1_entityType}.{0_navigationName}' was not found. Please add the navigation to the entity type using HasOne, HasMany, or OwnsOne/OwnsMany methods before configuring it.</value>
+    <value>Navigation '{1_entityType}.{0_navigationName}' was not found. Add the navigation to the entity type using 'HasOne', 'HasMany', or 'OwnsOne'/'OwnsMany' methods before configuring it.</value>
   </data>
   <data name="ChangeTrackingInterfaceMissing" xml:space="preserve">
     <value>The entity type '{entityType}' is configured to use the '{changeTrackingStrategy}' change tracking strategy, but does not implement the required '{notificationInterface}' interface. Implement '{notificationInterface}' on '{entityType}' or use a different change tracking strategy.</value>
@@ -316,7 +316,7 @@
     <value>Complex entry ordinal '{ordinal}' is invalid for the collection '{declaringType}.{collection}' as it's outside of the collection of length '{count}'.</value>
   </data>
   <data name="ComplexCollectionEntryOrdinalReadOnly" xml:space="preserve">
-    <value>Cannot change the ordinal of an entry of the  '{collectionDeclaringType}.{collection}' complex collection unless it's detached or deleted.</value>
+    <value>The ordinal of an entry of the '{collectionDeclaringType}.{collection}' complex collection cannot be changed unless it's detached or deleted.</value>
   </data>
   <data name="ComplexCollectionEntryOriginalNull" xml:space="preserve">
     <value>The original entries cannot be accessed for the complex type collection '{declaringType}.{collection}' as it was originally 'null'.</value>
@@ -325,7 +325,7 @@
     <value>Complex entry original ordinal '{ordinal}' is invalid for property '{declaringType}.{collection}' as it's outside of the collection of length '{count}'.</value>
   </data>
   <data name="ComplexCollectionEntryOriginalOrdinalReadOnly" xml:space="preserve">
-    <value>Cannot change the original ordinal of an entry of the '{collectionDeclaringType}.{collection}' complex collection unless it's detached or added.</value>
+    <value>The original ordinal of an entry of the '{collectionDeclaringType}.{collection}' complex collection cannot be changed unless it's detached or added.</value>
   </data>
   <data name="ComplexCollectionIsReference" xml:space="preserve">
     <value>The property '{entityType}.{property}' is being accessed using '{collectionMethod}', but is defined in the model as a non-collection complex property. Use '{referenceMethod}' to access non-collection complex properties.</value>
@@ -337,7 +337,7 @@
     <value>The complex type collection '{entityType}.{collection}' must be initialized to a non-null value before the elements can be accessed.</value>
   </data>
   <data name="ComplexCollectionNullElementSetter" xml:space="preserve">
-    <value>The value for the property '{complexType}.{property}' cannot be set, because it's on the complex type collection element '{collectionDeclaringType}.{collection}[{ordinal}]' that contains a null value.</value>
+    <value>The value for the property '{complexType}.{property}' cannot be set, because it's on the complex type collection element '{collectionDeclaringType}.{collection}[{ordinal}]' that contains a 'null' value.</value>
   </data>
   <data name="ComplexCollectionOriginalEntryAddedEntity" xml:space="preserve">
     <value>The complex entry at the original ordinal '{ordinal}' for the collection '{declaringType}.{collection}' cannot be accessed as the containing entry is in the added state.</value>
@@ -457,7 +457,7 @@
     <value>Cannot create DbSet for entity type '{entityType}' since it is of type '{entityClrType}' but the generic type provided is of type '{genericType}'.</value>
   </data>
   <data name="DebugViewError" xml:space="preserve">
-    <value>Debug view threw {message}. Please report this at https://github.com/dotnet/efcore</value>
+    <value>Debug view threw {message}. File an issue at https://aka.ms/efcorefeedback.</value>
   </data>
   <data name="DebugViewQueryExpressionError" xml:space="preserve">
     <value>Error creating query expression: {message}.</value>
@@ -466,10 +466,10 @@
     <value>Error creating query string: {message}.</value>
   </data>
   <data name="DefaultMethodInvoked" xml:space="preserve">
-    <value>The EF.Default&lt;T&gt; property may only be used within Entity Framework ExecuteUpdate method.</value>
+    <value>The 'EF.Default&lt;T&gt;' property may only be used within Entity Framework 'ExecuteUpdate' method.</value>
   </data>
   <data name="DeleteBehaviorAttributeNotOnNavigationProperty" xml:space="preserve">
-    <value>The [DeleteBehavior] attribute may only be specified on navigation properties, and is not supported on properties making up the foreign key. Remove the attribute from '{type}.{propertyName}'.</value>
+    <value>The [DeleteBehavior] attribute may only be specified on navigations, and is not supported on properties making up the foreign key. Remove the attribute from '{type}.{propertyName}'.</value>
   </data>
   <data name="DeleteBehaviorAttributeOnPrincipalProperty" xml:space="preserve">
     <value>The [DeleteBehavior] attribute may only be specified on the dependent side of the relationship. Remove the attribute from '{entityType}.{navigationName}'.</value>
@@ -487,16 +487,16 @@
     <value>Unable to set '{baseEntityType}' as the base type for entity type '{derivedEntityType}' because '{ownedEntityType}' is configured as owned, while '{nonOwnedEntityType}' is non-owned. All entity types in a hierarchy need to have the same ownership status. See https://aka.ms/efcore-docs-owned for more information and examples.</value>
   </data>
   <data name="DerivedEntityTypeHasNoKey" xml:space="preserve">
-    <value>'{derivedType}' cannot be configured as keyless because it is a derived type; the root type '{rootType}' must be configured as keyless instead. If you did not intend for '{rootType}' to be included in the model, ensure that it is not referenced by a DbSet property on your context, referenced in a configuration call to ModelBuilder in 'OnModelCreating', or referenced from a navigation on a type that is included in the model. For more information on keyless entity types, see https://go.microsoft.com/fwlink/?linkid=2141943.</value>
+    <value>The entity type '{derivedType}' cannot be configured as keyless because it is a derived type; the root type '{rootType}' must be configured as keyless instead. If you did not intend for '{rootType}' to be included in the model, ensure that it is not referenced by a DbSet property on your context instance, referenced in a configuration call to 'ModelBuilder' in 'OnModelCreating', or referenced from a navigation on a type that is included in the model. For more information on keyless entity types, see https://go.microsoft.com/fwlink/?linkid=2141943.</value>
   </data>
   <data name="DerivedEntityTypeKey" xml:space="preserve">
-    <value>A key cannot be configured on '{derivedType}' because it is a derived type. The key must be configured on the root type '{rootType}'. If you did not intend for '{rootType}' to be included in the model, ensure that it is not referenced by a DbSet property on your context, referenced in a configuration call to ModelBuilder, or referenced from a navigation on a type that is included in the model.</value>
+    <value>A key cannot be configured on '{derivedType}' because it is a derived type. The key must be configured on the root type '{rootType}'. If you did not intend for '{rootType}' to be included in the model, ensure that it is not referenced by a DbSet property on your context instance, referenced in a configuration call to 'ModelBuilder', or referenced from a navigation on a type that is included in the model.</value>
   </data>
   <data name="DerivedTypeDefiningQuery" xml:space="preserve">
     <value>The entity type '{entityType}' cannot have a defining query because it is derived from '{baseType}'. Only base entity types can have a defining query.</value>
   </data>
   <data name="DiscriminatorEntityTypeNotDerived" xml:space="preserve">
-    <value>Cannot configure the discriminator value for entity type '{entityType}' because it doesn't derive from '{rootEntityType}'.</value>
+    <value>The discriminator value for entity type '{entityType}' cannot be configured because it doesn't derive from '{rootEntityType}'.</value>
   </data>
   <data name="DiscriminatorPropertyMustBeOnRoot" xml:space="preserve">
     <value>A discriminator property cannot be set for the entity type '{entityType}' because it is not the root of an inheritance hierarchy.</value>
@@ -550,19 +550,19 @@
     <value>The trigger '{trigger}' cannot be added to the entity type '{entityType}' because another trigger with the same name already exists on entity type '{conflictingEntityType}'.</value>
   </data>
   <data name="EFConstantInvoked" xml:space="preserve">
-    <value>The EF.Constant&lt;T&gt; method may only be used within Entity Framework LINQ queries.</value>
+    <value>The 'EF.Constant&lt;T&gt;' method may only be used within Entity Framework LINQ queries.</value>
   </data>
   <data name="EFConstantNotSupported" xml:space="preserve">
     <value>'EF.Constant()' isn't supported by your provider.</value>
   </data>
   <data name="EFConstantNotSupportedInPrecompiledQueries" xml:space="preserve">
-    <value>The EF.Constant&lt;T&gt; method is not supported when using precompiled queries.</value>
+    <value>The 'EF.Constant&lt;T&gt;' method is not supported when using precompiled queries.</value>
   </data>
   <data name="EFMethodWithNonEvaluatableArgument" xml:space="preserve">
-    <value>The {methodName} method may only be used with an argument that can be evaluated client-side and does not contain any reference to database-side entities.</value>
+    <value>The '{methodName}' method may only be used with an argument that can be evaluated client-side and does not contain any reference to database-side entities.</value>
   </data>
   <data name="EFParameterInvoked" xml:space="preserve">
-    <value>The EF.Parameter&lt;T&gt; method may only be used within Entity Framework LINQ queries.</value>
+    <value>The 'EF.Parameter&lt;T&gt;' method may only be used within Entity Framework LINQ queries.</value>
   </data>
   <data name="EmptyComplexType" xml:space="preserve">
     <value>Complex type '{complexType}' has no properties defined. Configure at least one property or don't include this type in the model.</value>
@@ -1435,6 +1435,9 @@
   </data>
   <data name="OwnershipToDependent" xml:space="preserve">
     <value>The navigation '{navigation}' cannot be changed, because the foreign key between '{principalEntityType}' and '{dependentEntityType}' is an ownership. To change the navigation to the owned entity type remove the ownership.</value>
+  </data>
+  <data name="ParameterExpressionMustHaveName" xml:space="preserve">
+    <value>The parameter expression '{parameterExpression}' must have a name.</value>
   </data>
   <data name="PoolingContextCtorError" xml:space="preserve">
     <value>The DbContext of type '{contextType}' cannot be pooled because it does not have a public constructor accepting a single parameter of type DbContextOptions or has more than one constructor.</value>

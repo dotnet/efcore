@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.CoreStrings", typeof(CoreStrings).Assembly);
 
         /// <summary>
-        ///     The corresponding CLR type for entity type '{entityType}' cannot be instantiated, and there is no derived entity type in the model that corresponds to a concrete CLR type.
+        ///     The entity type '{entityType}' cannot be instantiated because its corresponding CLR type is abstract and there is no derived entity type in the model that corresponds to a concrete CLR type. Add a concrete derived entity type to the model or change the entity type to use a concrete CLR type.
         /// </summary>
         public static string AbstractLeafEntityType(object? entityType)
             => string.Format(
@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
-        ///     Cannot add type '{typeName}' to the model as it is a dynamically-generated proxy type.
+        ///     The type '{typeName}' cannot be added to the model because it is a dynamically-generated proxy type. Use the underlying non-proxy type instead.
         /// </summary>
         public static string AddingProxyTypeAsEntityType(object? typeName)
             => string.Format(
@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 typeName);
 
         /// <summary>
-        ///     The entity type '{entityType}' uses a shared type and the supplied entity is currently referenced from several owner entities. To access the entry for a particular reference, call '{targetEntryCall}' on the owner entry.
+        ///     The entity type '{entityType}' is a shared-type entity type and the supplied entity is currently referenced from several owner entities. To access the entry for a particular reference, call '{targetEntryCall}' on the owner entry.
         /// </summary>
         public static string AmbiguousDependentEntity(object? entityType, object? targetEntryCall)
             => string.Format(
@@ -107,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
-        ///     The annotation '{annotation}' was not found. Ensure that the annotation has been added to the object {annotatable}
+        ///     The annotation '{annotation}' was not found. Ensure that the annotation has been added to the object {annotatable}.
         /// </summary>
         public static string AnnotationNotFound(object? annotation, object? annotatable)
             => string.Format(
@@ -115,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 annotation, annotatable);
 
         /// <summary>
-        ///     Cannot apply both anonymous and named query filters simultaneously. Please specify either an anonymous filter or one or more named filters.
+        ///     Both anonymous and named query filters cannot be applied simultaneously. Specify either an anonymous filter or one or more named filters.
         /// </summary>
         public static string AnonymousAndNamedFiltersCombined
             => GetString("AnonymousAndNamedFiltersCombined");
@@ -129,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 parameter, methodName);
 
         /// <summary>
-        ///     The property '{property}' of the argument '{argument}' cannot be null.
+        ///     The property '{property}' of the argument '{argument}' cannot be 'null'.
         /// </summary>
         public static string ArgumentPropertyNull(object? property, object? argument)
             => string.Format(
@@ -153,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 cycleNavigations);
 
         /// <summary>
-        ///     Cannot set backing field '{field}' for the indexer property '{entityType}.{property}'. Ensure no backing fields are specified for indexer properties.
+        ///     The backing field '{field}' cannot be set for the indexer property '{entityType}.{property}'. Ensure no backing fields are specified for indexer properties.
         /// </summary>
         public static string BackingFieldOnIndexer(object? field, object? entityType, object? property)
             => string.Format(
@@ -177,7 +177,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 dependenciesType);
 
         /// <summary>
-        ///     The value '{enumValue}' could not be parsed as a value of enum {enumType}.
+        ///     The value '{enumValue}' could not be parsed as a value of enum '{enumType}'.
         /// </summary>
         public static string BadEnumValue(object? enumValue, object? enumType)
             => string.Format(
@@ -193,7 +193,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 filter, entityType, rootType);
 
         /// <summary>
-        ///     The filter expression '{filter}' specified for entity type '{entityType}' is invalid. The expression must accept a single parameter of type '{clrType}' and return bool.
+        ///     The filter expression '{filter}' specified for entity type '{entityType}' is invalid. The expression must accept a single parameter of type '{clrType}' and return 'bool'.
         /// </summary>
         public static string BadFilterExpression(object? filter, object? entityType, object? clrType)
             => string.Format(
@@ -209,7 +209,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 filter, entityType);
 
         /// <summary>
-        ///     The type '{givenType}' cannot be used as a 'JsonValueReaderWriter' because it does not inherit from the generic 'JsonValueReaderWriter&lt;TValue&gt;'. Make sure to inherit json reader/writers from 'JsonValueReaderWriter&lt;TValue&gt;'.
+        ///     The type '{givenType}' cannot be used as a 'JsonValueReaderWriter' because it does not inherit from the generic 'JsonValueReaderWriter&lt;TValue&gt;'. Make sure to inherit JSON reader/writers from 'JsonValueReaderWriter&lt;TValue&gt;'.
         /// </summary>
         public static string BadJsonValueReaderWriterType(object? givenType)
             => string.Format(
@@ -281,7 +281,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 value, enumType);
 
         /// <summary>
-        ///     Unable to convert a queryable method to an enumerable method. This is likely an issue in Entity Framework, please file an issue at https://go.microsoft.com/fwlink/?linkid=2142044.
+        ///     Unable to convert a queryable method to an enumerable method. This is likely an issue in Entity Framework, file an issue at https://aka.ms/efcorefeedback.
         /// </summary>
         public static string CannotConvertQueryableToEnumerableMethod
             => GetString("CannotConvertQueryableToEnumerableMethod");
@@ -327,7 +327,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 navigation, entityType);
 
         /// <summary>
-        ///     The type '{type}' cannot be marked as a non-shared type since a shared type entity type with this CLR type exists in the model.
+        ///     The type '{type}' cannot be marked as a non-shared type since a shared-type entity type with this CLR type exists in the model.
         /// </summary>
         public static string CannotMarkNonShared(object? type)
             => string.Format(
@@ -335,7 +335,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 type);
 
         /// <summary>
-        ///     The type '{type}' cannot be marked as a shared type since an entity type with the same CLR type already exists in the model.
+        ///     The type '{type}' cannot be marked as a shared-type since an entity type with the same CLR type already exists in the model.
         /// </summary>
         public static string CannotMarkShared(object? type)
             => string.Format(
@@ -351,7 +351,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
-        ///     Navigation '{1_entityType}.{0_navigationName}' was not found. Please add the navigation to the entity type using HasOne, HasMany, or OwnsOne/OwnsMany methods before configuring it.
+        ///     Navigation '{1_entityType}.{0_navigationName}' was not found. Add the navigation to the entity type using 'HasOne', 'HasMany', or 'OwnsOne'/'OwnsMany' methods before configuring it.
         /// </summary>
         public static string CanOnlyConfigureExistingNavigations(object? navigationName, object? entityType)
             => string.Format(
@@ -551,7 +551,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 ordinal, declaringType, collection, count);
 
         /// <summary>
-        ///     Cannot change the ordinal of an entry of the  '{collectionDeclaringType}.{collection}' complex collection unless it's detached or deleted.
+        ///     The ordinal of an entry of the '{collectionDeclaringType}.{collection}' complex collection cannot be changed unless it's detached or deleted.
         /// </summary>
         public static string ComplexCollectionEntryOrdinalReadOnly(object? collectionDeclaringType, object? collection)
             => string.Format(
@@ -575,7 +575,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 ordinal, declaringType, collection, count);
 
         /// <summary>
-        ///     Cannot change the original ordinal of an entry of the '{collectionDeclaringType}.{collection}' complex collection unless it's detached or added.
+        ///     The original ordinal of an entry of the '{collectionDeclaringType}.{collection}' complex collection cannot be changed unless it's detached or added.
         /// </summary>
         public static string ComplexCollectionEntryOriginalOrdinalReadOnly(object? collectionDeclaringType, object? collection)
             => string.Format(
@@ -607,7 +607,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, collection);
 
         /// <summary>
-        ///     The value for the property '{complexType}.{property}' cannot be set, because it's on the complex type collection element '{collectionDeclaringType}.{collection}[{ordinal}]' that contains a null value.
+        ///     The value for the property '{complexType}.{property}' cannot be set, because it's on the complex type collection element '{collectionDeclaringType}.{collection}[{ordinal}]' that contains a 'null' value.
         /// </summary>
         public static string ComplexCollectionNullElementSetter(object? complexType, object? property, object? collectionDeclaringType, object? collection, object? ordinal)
             => string.Format(
@@ -917,7 +917,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, entityClrType, genericType);
 
         /// <summary>
-        ///     Debug view threw {message}. Please report this at https://github.com/dotnet/efcore
+        ///     Debug view threw {message}. File an issue at https://aka.ms/efcorefeedback.
         /// </summary>
         public static string DebugViewError(object? message)
             => string.Format(
@@ -941,13 +941,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 message);
 
         /// <summary>
-        ///     The EF.Default&lt;T&gt; property may only be used within Entity Framework ExecuteUpdate method.
+        ///     The 'EF.Default&lt;T&gt;' property may only be used within Entity Framework 'ExecuteUpdate' method.
         /// </summary>
         public static string DefaultMethodInvoked
             => GetString("DefaultMethodInvoked");
 
         /// <summary>
-        ///     The [DeleteBehavior] attribute may only be specified on navigation properties, and is not supported on properties making up the foreign key. Remove the attribute from '{type}.{propertyName}'.
+        ///     The [DeleteBehavior] attribute may only be specified on navigations, and is not supported on properties making up the foreign key. Remove the attribute from '{type}.{propertyName}'.
         /// </summary>
         public static string DeleteBehaviorAttributeNotOnNavigationProperty(object? type, object? propertyName)
             => string.Format(
@@ -995,7 +995,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 baseEntityType, derivedEntityType, ownedEntityType, nonOwnedEntityType);
 
         /// <summary>
-        ///     '{derivedType}' cannot be configured as keyless because it is a derived type; the root type '{rootType}' must be configured as keyless instead. If you did not intend for '{rootType}' to be included in the model, ensure that it is not referenced by a DbSet property on your context, referenced in a configuration call to ModelBuilder in 'OnModelCreating', or referenced from a navigation on a type that is included in the model. For more information on keyless entity types, see https://go.microsoft.com/fwlink/?linkid=2141943.
+        ///     The entity type '{derivedType}' cannot be configured as keyless because it is a derived type; the root type '{rootType}' must be configured as keyless instead. If you did not intend for '{rootType}' to be included in the model, ensure that it is not referenced by a DbSet property on your context instance, referenced in a configuration call to 'ModelBuilder' in 'OnModelCreating', or referenced from a navigation on a type that is included in the model. For more information on keyless entity types, see https://go.microsoft.com/fwlink/?linkid=2141943.
         /// </summary>
         public static string DerivedEntityTypeHasNoKey(object? derivedType, object? rootType)
             => string.Format(
@@ -1003,7 +1003,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 derivedType, rootType);
 
         /// <summary>
-        ///     A key cannot be configured on '{derivedType}' because it is a derived type. The key must be configured on the root type '{rootType}'. If you did not intend for '{rootType}' to be included in the model, ensure that it is not referenced by a DbSet property on your context, referenced in a configuration call to ModelBuilder, or referenced from a navigation on a type that is included in the model.
+        ///     A key cannot be configured on '{derivedType}' because it is a derived type. The key must be configured on the root type '{rootType}'. If you did not intend for '{rootType}' to be included in the model, ensure that it is not referenced by a DbSet property on your context instance, referenced in a configuration call to 'ModelBuilder', or referenced from a navigation on a type that is included in the model.
         /// </summary>
         public static string DerivedEntityTypeKey(object? derivedType, object? rootType)
             => string.Format(
@@ -1019,7 +1019,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, baseType);
 
         /// <summary>
-        ///     Cannot configure the discriminator value for entity type '{entityType}' because it doesn't derive from '{rootEntityType}'.
+        ///     The discriminator value for entity type '{entityType}' cannot be configured because it doesn't derive from '{rootEntityType}'.
         /// </summary>
         public static string DiscriminatorEntityTypeNotDerived(object? entityType, object? rootEntityType)
             => string.Format(
@@ -1163,7 +1163,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 trigger, entityType, conflictingEntityType);
 
         /// <summary>
-        ///     The EF.Constant&lt;T&gt; method may only be used within Entity Framework LINQ queries.
+        ///     The 'EF.Constant&lt;T&gt;' method may only be used within Entity Framework LINQ queries.
         /// </summary>
         public static string EFConstantInvoked
             => GetString("EFConstantInvoked");
@@ -1175,13 +1175,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("EFConstantNotSupported");
 
         /// <summary>
-        ///     The EF.Constant&lt;T&gt; method is not supported when using precompiled queries.
+        ///     The 'EF.Constant&lt;T&gt;' method is not supported when using precompiled queries.
         /// </summary>
         public static string EFConstantNotSupportedInPrecompiledQueries
             => GetString("EFConstantNotSupportedInPrecompiledQueries");
 
         /// <summary>
-        ///     The {methodName} method may only be used with an argument that can be evaluated client-side and does not contain any reference to database-side entities.
+        ///     The '{methodName}' method may only be used with an argument that can be evaluated client-side and does not contain any reference to database-side entities.
         /// </summary>
         public static string EFMethodWithNonEvaluatableArgument(object? methodName)
             => string.Format(
@@ -1189,7 +1189,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 methodName);
 
         /// <summary>
-        ///     The EF.Parameter&lt;T&gt; method may only be used within Entity Framework LINQ queries.
+        ///     The 'EF.Parameter&lt;T&gt;' method may only be used within Entity Framework LINQ queries.
         /// </summary>
         public static string EFParameterInvoked
             => GetString("EFParameterInvoked");
@@ -2564,6 +2564,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("OwnershipToDependent", nameof(navigation), nameof(principalEntityType), nameof(dependentEntityType)),
                 navigation, principalEntityType, dependentEntityType);
+
+        /// <summary>
+        ///     The parameter expression '{parameterExpression}' must have a name.
+        /// </summary>
+        public static string ParameterExpressionMustHaveName(object? parameterExpression)
+            => string.Format(
+                GetString("ParameterExpressionMustHaveName", nameof(parameterExpression)),
+                parameterExpression);
 
         /// <summary>
         ///     The DbContext of type '{contextType}' cannot be pooled because it does not have a public constructor accepting a single parameter of type DbContextOptions or has more than one constructor.
