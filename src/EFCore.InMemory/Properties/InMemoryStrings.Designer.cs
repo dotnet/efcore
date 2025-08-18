@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Internal
                 entityType);
 
         /// <summary>
-        ///     Cannot apply 'DefaultIfEmpty' after a client-evaluated projection. Consider applying 'DefaultIfEmpty' before last 'Select' or use 'AsEnumerable' before 'DefaultIfEmpty' to apply it on client-side.
+        ///     'DefaultIfEmpty' cannot be applied after a client-evaluated projection. Consider applying 'DefaultIfEmpty' before last 'Select' or use 'AsEnumerable' before 'DefaultIfEmpty' to apply it on client-side.
         /// </summary>
         public static string DefaultIfEmptyAppliedAfterProjection
             => GetString("DefaultIfEmptyAppliedAfterProjection");
