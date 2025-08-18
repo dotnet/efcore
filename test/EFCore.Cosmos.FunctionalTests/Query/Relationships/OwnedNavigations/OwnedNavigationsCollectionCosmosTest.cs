@@ -93,7 +93,7 @@ WHERE (c["RelatedCollection"][0]["Int"] = 8)
 
         AssertSql(
             """
-@i=?
+@i='0'
 
 SELECT VALUE c
 FROM root c
