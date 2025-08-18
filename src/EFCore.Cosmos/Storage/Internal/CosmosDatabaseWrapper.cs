@@ -150,6 +150,7 @@ public class CosmosDatabaseWrapper : Database
             rootEntriesToSave.Add(entry);
         }
 
+        // @TODO: Max 100 entries per batch.
         var batches = rootEntriesToSave
             .Select(x => new RootEntryToSave
             {
