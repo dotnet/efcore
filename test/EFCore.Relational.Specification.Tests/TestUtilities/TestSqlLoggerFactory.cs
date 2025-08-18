@@ -323,9 +323,9 @@ public class TestSqlLoggerFactory : ListLoggerFactory
             TState state,
             Exception? exception)
         {
-            if ((eventId.Id == RelationalEventId.CommandExecuted.Id
-                    || eventId.Id == RelationalEventId.CommandError.Id
-                    || eventId.Id == RelationalEventId.CommandExecuting.Id))
+            if (eventId.Id == RelationalEventId.CommandExecuted.Id
+                || eventId.Id == RelationalEventId.CommandError.Id
+                || eventId.Id == RelationalEventId.CommandExecuting.Id)
             {
                 if (_shouldLogCommands)
                 {
@@ -347,30 +347,21 @@ public class TestSqlLoggerFactory : ListLoggerFactory
 
                         _stringBuilder.Clear();
 
-                        var inQuotes = false;
-                        var inCurlies = false;
                         for (var i = 0; i < parameters.Length; i++)
                         {
                             var c = parameters[i];
-                            switch (c)
+                            if (c == ','
+                                && TryGetChar(parameters, i + 1, out var nextChar1) && nextChar1 == ' '
+                                && TryGetChar(parameters, i - 1, out var prevChar1)
+                                && (prevChar1 == '\'' || prevChar1 == ')'
+                                    // handles NULL (matching only 'LL' as "good enough")
+                                    || (prevChar1 == 'L' && TryGetChar(parameters, i - 2, out var prevChar2) && prevChar2 == 'L')))
                             {
-                                case '\'':
-                                    inQuotes = !inQuotes;
-                                    goto default;
-                                case '{':
-                                    inCurlies = true;
-                                    goto default;
-                                case '}':
-                                    inCurlies = false;
-                                    goto default;
-                                case ',' when parameters[i + 1] == ' ' && !inQuotes && !inCurlies:
-                                    _stringBuilder.Append(_eol);
-                                    i++;
-                                    continue;
-                                default:
-                                    _stringBuilder.Append(c);
-                                    continue;
+                                _stringBuilder.Append(_eol);
+                                i++;
+                                continue;
                             }
+                            _stringBuilder.Append(c);
                         }
 
                         _stringBuilder.Append(_eol).Append(_eol);
@@ -383,6 +374,17 @@ public class TestSqlLoggerFactory : ListLoggerFactory
             else
             {
                 base.UnsafeLog(logLevel, eventId, message, state, exception);
+            }
+
+            static bool TryGetChar(string s, int index, out char c)
+            {
+                if (index < 0 || index >= s.Length)
+                {
+                    c = default;
+                    return false;
+                }
+                c = s[index];
+                return true;
             }
         }
     }

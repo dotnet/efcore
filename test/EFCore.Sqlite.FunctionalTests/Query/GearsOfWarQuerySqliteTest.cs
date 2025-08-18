@@ -755,7 +755,8 @@ FROM "Weapons" AS "w"
         AssertSql(
             """
 @cities1='Unknown' (Size = 7)
-@cities2='Jacinto's location' (Size = 18), @cities3='Ephyra's location' (Size = 17)
+@cities2='Jacinto's location' (Size = 18)
+@cities3='Ephyra's location' (Size = 17)
 
 SELECT "c"."Name", "c"."Location", "c"."Nation"
 FROM "Cities" AS "c"
@@ -8709,7 +8710,8 @@ END IN (@numbers1, @numbers2)
 
         AssertSql(
             """
-@weapons1='Marcus' Lancer' (Size = 14), @weapons2='Dom's Gnasher' (Size = 13)
+@weapons1='Marcus' Lancer' (Size = 14)
+@weapons2='Dom's Gnasher' (Size = 13)
 
 SELECT "g"."Nickname", "g"."SquadId", "g"."AssignedCityName", "g"."CityOfBirthName", "g"."Discriminator", "g"."FullName", "g"."HasSoulPatch", "g"."LeaderNickname", "g"."LeaderSquadId", "g"."Rank"
 FROM "Gears" AS "g"
