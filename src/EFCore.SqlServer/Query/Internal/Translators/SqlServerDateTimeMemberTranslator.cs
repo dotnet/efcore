@@ -69,12 +69,24 @@ public class SqlServerDateTimeMemberTranslator(
                     returnType),
 
             nameof(DateTime.Now)
+                when declaringType == typeof(DateTime)
                 => sqlExpressionFactory.Function(
-                    declaringType == typeof(DateTime) ? "GETDATE" : "SYSDATETIMEOFFSET",
+                    "GETDATE",
                     arguments: [],
                     nullable: false,
                     argumentsPropagateNullability: [],
-                    returnType),
+                    typeof(DateTime),
+                    typeMappingSource.FindMapping("datetime")),
+
+            nameof(DateTimeOffset.Now)
+                when declaringType == typeof(DateTimeOffset)
+                => sqlExpressionFactory.Function(
+                    "SYSDATETIMEOFFSET",
+                    arguments: [],
+                    nullable: false,
+                    argumentsPropagateNullability: [],
+                    typeof(DateTimeOffset),
+                    typeMappingSource.FindMapping("datetimeoffset")),
 
             nameof(DateTime.UtcNow)
                 when declaringType == typeof(DateTime)
@@ -83,9 +95,10 @@ public class SqlServerDateTimeMemberTranslator(
                     arguments: [],
                     nullable: false,
                     argumentsPropagateNullability: [],
-                    returnType),
+                    typeof(DateTime),
+                    typeMappingSource.FindMapping("datetime")),
 
-            nameof(DateTime.UtcNow)
+            nameof(DateTimeOffset.UtcNow)
                 when declaringType == typeof(DateTimeOffset)
                 => sqlExpressionFactory.Convert(
                     sqlExpressionFactory.Function(
@@ -93,7 +106,10 @@ public class SqlServerDateTimeMemberTranslator(
                         arguments: [],
                         nullable: false,
                         argumentsPropagateNullability: [],
-                        returnType), returnType),
+                        typeof(DateTime),
+                        typeMappingSource.FindMapping("datetime2")),
+                    typeof(DateTimeOffset),
+                    typeMappingSource.FindMapping("datetimeoffset")),
 
             nameof(DateTime.Today)
                 => sqlExpressionFactory.Function(
