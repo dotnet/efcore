@@ -170,8 +170,7 @@ public abstract class SnapshotFactoryFactory
                             structuralTypeVariable,
                             (IRuntimeTypeBase)propertyBases[0]!.DeclaringType switch
                             {
-                                IComplexType declaringComplexType when declaringComplexType.ComplexProperty.IsCollection
-                                    => PropertyAccessorsFactory.CreateComplexCollectionElementAccess(
+                                IComplexType { ComplexProperty.IsCollection: true } declaringComplexType => PropertyAccessorsFactory.CreateComplexCollectionElementAccess(
                                         declaringComplexType.ComplexProperty,
                                         Expression.Convert(
                                             Expression.Property(parameter!, nameof(IInternalEntry.Entity)),

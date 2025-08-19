@@ -76,7 +76,7 @@ public interface IConventionTypeBase : IReadOnlyTypeBase, IConventionAnnotatable
     /// </summary>
     /// <returns>The property that will be used for storing a discriminator value.</returns>
     new IConventionProperty? FindDiscriminatorProperty()
-        => (IConventionProperty?)((IReadOnlyEntityType)this).FindDiscriminatorProperty();
+        => (IConventionProperty?)((IReadOnlyTypeBase)this).FindDiscriminatorProperty();
 
     /// <summary>
     ///     Sets the <see cref="IReadOnlyProperty" /> that will be used for storing a discriminator value.

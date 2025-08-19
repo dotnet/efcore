@@ -27,7 +27,7 @@ public class CSharpMigrationOperationGeneratorTest
 
         generator.Generate(
             "mb",
-            new[] { new SqlOperation { Sql = "-- Don't stand so" }, new SqlOperation { Sql = "-- close to me" } },
+            [new SqlOperation { Sql = "-- Don't stand so" }, new SqlOperation { Sql = "-- close to me" }],
             builder);
 
         Assert.Equal(
@@ -3152,7 +3152,7 @@ mb.AlterTable(
                         new SqlServerSingletonOptions()))));
 
         var builder = new IndentedStringBuilder();
-        generator.Generate("mb", new[] { operation }, builder);
+        generator.Generate("mb", [operation], builder);
         var code = builder.ToString();
 
         Assert.Equal(expectedCode, code, ignoreLineEndingDifferences: true);

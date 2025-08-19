@@ -9,5 +9,4 @@ public class ManyToManyNoTrackingSplitQuerySqliteTest(ManyToManySplitQuerySqlite
     : ManyToManyNoTrackingQueryRelationalTestBase<ManyToManySplitQuerySqliteFixture>(fixture)
 {
     // Sqlite does not support Apply operations
-
 }

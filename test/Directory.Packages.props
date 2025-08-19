@@ -24,7 +24,7 @@
     <PackageVersion Include="SQLitePCLRaw.bundle_winsqlite3" Version="$(SQLitePCLRawVersion)" />
 
     <!-- Pinned versions for Component Governance/NuGetAudit - Remove when root dependencies are updated -->
-    <!--Workaround for IdentityServer4.EntityFramework v4.1.2-->    
+    <!--Workaround for IdentityServer4.EntityFramework v4.1.2-->
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="8.0.16" />
     <PackageVersion Include="System.Text.Encodings.Web" Version="$(SystemTextEncodingsWebVersion)" />
   </ItemGroup>

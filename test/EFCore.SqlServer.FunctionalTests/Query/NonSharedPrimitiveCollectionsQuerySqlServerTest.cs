@@ -8,9 +8,12 @@ namespace Microsoft.EntityFrameworkCore.Query;
 #nullable disable
 using static Expression;
 
-public class NonSharedPrimitiveCollectionsQuerySqlServerTest(NonSharedFixture fixture) : NonSharedPrimitiveCollectionsQueryRelationalTestBase(fixture)
+public class NonSharedPrimitiveCollectionsQuerySqlServerTest(NonSharedFixture fixture)
+    : NonSharedPrimitiveCollectionsQueryRelationalTestBase(fixture)
 {
-    protected override DbContextOptionsBuilder SetParameterizedCollectionMode(DbContextOptionsBuilder optionsBuilder, ParameterTranslationMode parameterizedCollectionMode)
+    protected override DbContextOptionsBuilder SetParameterizedCollectionMode(
+        DbContextOptionsBuilder optionsBuilder,
+        ParameterTranslationMode parameterizedCollectionMode)
     {
         new SqlServerDbContextOptionsBuilder(optionsBuilder).UseParameterizedCollectionMode(parameterizedCollectionMode);
 
@@ -608,8 +611,7 @@ WHERE (
     [ConditionalFact]
     public virtual async Task Ordered_array_of_byte_array()
     {
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
-            () => TestOrderedArray([1, 2], new byte[] { 3, 4 }));
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => TestOrderedArray([1, 2], new byte[] { 3, 4 }));
 
         Assert.Equal(SqlServerStrings.QueryingOrderedBinaryJsonCollectionsNotSupported, exception.Message);
     }
@@ -922,7 +924,8 @@ WHERE [t].[Id] IN (2, 999)
 """);
     }
 
-    public override async Task Parameter_collection_Count_with_column_predicate_with_default_mode_EF_Parameter(ParameterTranslationMode mode)
+    public override async Task Parameter_collection_Count_with_column_predicate_with_default_mode_EF_Parameter(
+        ParameterTranslationMode mode)
     {
         await base.Parameter_collection_Count_with_column_predicate_with_default_mode_EF_Parameter(mode);
 
@@ -956,7 +959,8 @@ WHERE [t].[Id] IN (
 """);
     }
 
-    public override async Task Parameter_collection_Count_with_column_predicate_with_default_mode_EF_MultipleParameters(ParameterTranslationMode mode)
+    public override async Task Parameter_collection_Count_with_column_predicate_with_default_mode_EF_MultipleParameters(
+        ParameterTranslationMode mode)
     {
         await base.Parameter_collection_Count_with_column_predicate_with_default_mode_EF_MultipleParameters(mode);
 
@@ -1026,22 +1030,20 @@ WHERE [t].[Id] IN (@ints1, @ints2, @ints3, @ints4, @ints5, @ints6, @ints7, @ints
     public virtual async Task Same_parameter_with_different_type_mappings()
     {
         var contextFactory = await InitializeAsync<TestContext>(
-            onModelCreating: mb => mb.Entity<TestEntity>(
-                b =>
-                {
-                    b.Property(typeof(DateTime), "DateTime").HasColumnType("datetime");
-                    b.Property(typeof(DateTime), "DateTime2").HasColumnType("datetime2");
-                }));
+            onModelCreating: mb => mb.Entity<TestEntity>(b =>
+            {
+                b.Property(typeof(DateTime), "DateTime").HasColumnType("datetime");
+                b.Property(typeof(DateTime), "DateTime2").HasColumnType("datetime2");
+            }));
 
         await using var context = contextFactory.CreateContext();
 
         var dateTimes = new[] { new DateTime(2020, 1, 1, 12, 30, 00), new DateTime(2020, 1, 2, 12, 30, 00) };
 
         _ = await context.Set<TestEntity>()
-            .Where(
-                m =>
-                    dateTimes.Contains(EF.Property<DateTime>(m, "DateTime"))
-                    && dateTimes.Contains(EF.Property<DateTime>(m, "DateTime2")))
+            .Where(m =>
+                dateTimes.Contains(EF.Property<DateTime>(m, "DateTime"))
+                && dateTimes.Contains(EF.Property<DateTime>(m, "DateTime2")))
             .ToArrayAsync();
 
         AssertSql(
@@ -1090,18 +1092,15 @@ WHERE EXISTS (
     public virtual async Task Same_collection_with_non_default_type_mapping_and_uninferrable_context()
     {
         var contextFactory = await InitializeAsync<TestContext>(
-            onModelCreating: mb => mb.Entity<TestEntity>(
-                b => b.Property(typeof(DateTime), "DateTime").HasColumnType("datetime")));
+            onModelCreating: mb => mb.Entity<TestEntity>(b => b.Property(typeof(DateTime), "DateTime").HasColumnType("datetime")));
 
         await using var context = contextFactory.CreateContext();
 
         var dateTimes = new DateTime?[] { new DateTime(2020, 1, 1, 12, 30, 00), new DateTime(2020, 1, 2, 12, 30, 00), null };
 
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
-            () => context.Set<TestEntity>()
-                .Where(
-                    m => dateTimes.Any(d => d == EF.Property<DateTime>(m, "DateTime") && d != null))
-                .ToArrayAsync());
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => context.Set<TestEntity>()
+            .Where(m => dateTimes.Any(d => d == EF.Property<DateTime>(m, "DateTime") && d != null))
+            .ToArrayAsync());
         Assert.Equal(RelationalStrings.ConflictingTypeMappingsInferredForColumn("Value"), exception.Message);
     }
 
@@ -1109,23 +1108,20 @@ WHERE EXISTS (
     public virtual async Task Same_collection_with_conflicting_type_mappings_not_supported()
     {
         var contextFactory = await InitializeAsync<TestContext>(
-            onModelCreating: mb => mb.Entity<TestEntity>(
-                b =>
-                {
-                    b.Property(typeof(DateTime), "DateTime").HasColumnType("datetime");
-                    b.Property(typeof(DateTime), "DateTime2").HasColumnType("datetime2");
-                }));
+            onModelCreating: mb => mb.Entity<TestEntity>(b =>
+            {
+                b.Property(typeof(DateTime), "DateTime").HasColumnType("datetime");
+                b.Property(typeof(DateTime), "DateTime2").HasColumnType("datetime2");
+            }));
 
         await using var context = contextFactory.CreateContext();
 
         var dateTimes = new[] { new DateTime(2020, 1, 1, 12, 30, 00), new DateTime(2020, 1, 2, 12, 30, 00) };
 
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
-            () => context.Set<TestEntity>()
-                .Where(
-                    m => dateTimes
-                        .Any(d => d == EF.Property<DateTime>(m, "DateTime") && d == EF.Property<DateTime>(m, "DateTime2")))
-                .ToArrayAsync());
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => context.Set<TestEntity>()
+            .Where(m => dateTimes
+                .Any(d => d == EF.Property<DateTime>(m, "DateTime") && d == EF.Property<DateTime>(m, "DateTime2")))
+            .ToArrayAsync());
         Assert.Equal(RelationalStrings.ConflictingTypeMappingsInferredForColumn("Value"), exception.Message);
     }
 

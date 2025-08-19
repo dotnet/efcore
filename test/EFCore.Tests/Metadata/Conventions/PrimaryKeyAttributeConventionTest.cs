@@ -62,18 +62,15 @@ public class PrimaryKeyAttributeConventionTest
         Assert.Throws<ArgumentNullException>(() => modelBuilder.Entity<EntityWithInvalidNullAdditionalProperties>());
     }
 
-    [InlineData(typeof(EntityWithInvalidNullAdditionalProperty))]
-    [InlineData(typeof(EntityWithInvalidEmptyPrimaryKeyProperty))]
-    [InlineData(typeof(EntityWithInvalidWhiteSpacePrimaryKeyProperty))]
-    [ConditionalTheory]
+    [InlineData(typeof(EntityWithInvalidNullAdditionalProperty)), InlineData(typeof(EntityWithInvalidEmptyPrimaryKeyProperty)),
+     InlineData(typeof(EntityWithInvalidWhiteSpacePrimaryKeyProperty)), ConditionalTheory]
     public void PrimaryKeyAttribute_properties_cannot_include_whitespace(Type entityTypeWithInvalidPrimaryKey)
     {
         var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
 
         Assert.Equal(
             $"{AbstractionsStrings.CollectionArgumentHasEmptyElements} (Parameter 'additionalPropertyNames')",
-            Assert.Throws<ArgumentException>(
-                () => modelBuilder.Entity(entityTypeWithInvalidPrimaryKey)).Message);
+            Assert.Throws<ArgumentException>(() => modelBuilder.Entity(entityTypeWithInvalidPrimaryKey)).Message);
     }
 
     [ConditionalFact]
@@ -105,8 +102,7 @@ public class PrimaryKeyAttributeConventionTest
 
         Assert.Equal(
             CoreStrings.PrimaryKeyDefinedOnIgnoredProperty(nameof(EntityPrimaryKeyWithIgnoredProperty), "B"),
-            Assert.Throws<InvalidOperationException>(
-                () => modelBuilder.Model.FinalizeModel()).Message);
+            Assert.Throws<InvalidOperationException>(() => modelBuilder.Model.FinalizeModel()).Message);
     }
 
     [ConditionalFact]
@@ -120,8 +116,7 @@ public class PrimaryKeyAttributeConventionTest
                 nameof(EntityPrimaryKeyWithNonExistentProperty),
                 "{'A', 'DoesNotExist'}",
                 "DoesNotExist"),
-            Assert.Throws<InvalidOperationException>(
-                () => modelBuilder.Model.FinalizeModel()).Message);
+            Assert.Throws<InvalidOperationException>(() => modelBuilder.Model.FinalizeModel()).Message);
     }
 
     [ConditionalFact]
@@ -131,8 +126,7 @@ public class PrimaryKeyAttributeConventionTest
 
         Assert.Equal(
             CoreStrings.ConflictingKeylessAndPrimaryKeyAttributes(nameof(EntityPrimaryKeyAndKeyless)),
-            Assert.Throws<InvalidOperationException>(
-                () => modelBuilder.Entity<EntityPrimaryKeyAndKeyless>()).Message);
+            Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<EntityPrimaryKeyAndKeyless>()).Message);
     }
 
     [ConditionalFact]
@@ -236,8 +230,7 @@ public class PrimaryKeyAttributeConventionTest
         public int B { get; set; }
     }
 
-    [PrimaryKey(nameof(A), nameof(B))]
-    [NotMapped]
+    [PrimaryKey(nameof(A), nameof(B)), NotMapped]
     private class BaseUnmappedEntityWithPrimaryKey
     {
         public int Id { get; set; }
@@ -337,8 +330,7 @@ public class PrimaryKeyAttributeConventionTest
         private int Y { get; set; }
     }
 
-    [PrimaryKey("Id")]
-    [Keyless]
+    [PrimaryKey("Id"), Keyless]
     private class EntityPrimaryKeyAndKeyless
     {
         public int Id { get; set; }

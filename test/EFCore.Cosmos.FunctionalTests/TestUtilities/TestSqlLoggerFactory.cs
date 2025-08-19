@@ -350,7 +350,7 @@ public class TestSqlLoggerFactory : ListLoggerFactory
         ///     Contains information on which lines in the file where we've already performed baseline rewriting; we use this to
         ///     avoid processing the same line twice (e.g. when a test is a theory that's executed multiple times).
         /// </summary>
-        public readonly HashSet<int> ProcessedLines = new();
+        public readonly HashSet<int> ProcessedLines = [];
 
         /// <summary>
         ///     Contains information on where previous baseline rewriting caused line numbers to shift; this is used in adjusting line

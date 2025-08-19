@@ -158,21 +158,19 @@ WHERE 0 = 1
 """);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task StandardDeviation(bool async)
     {
         await using var ctx = CreateContext();
 
         var query = ctx.Set<OrderDetail>()
             .GroupBy(od => od.ProductID)
-            .Select(
-                g => new
-                {
-                    ProductID = g.Key,
-                    SampleStandardDeviation = EF.Functions.StandardDeviationSample(g.Select(od => od.UnitPrice)),
-                    PopulationStandardDeviation = EF.Functions.StandardDeviationPopulation(g.Select(od => od.UnitPrice))
-                });
+            .Select(g => new
+            {
+                ProductID = g.Key,
+                SampleStandardDeviation = EF.Functions.StandardDeviationSample(g.Select(od => od.UnitPrice)),
+                PopulationStandardDeviation = EF.Functions.StandardDeviationPopulation(g.Select(od => od.UnitPrice))
+            });
 
         var results = async
             ? await query.ToListAsync()
@@ -190,21 +188,19 @@ GROUP BY [o].[ProductID]
 """);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Variance(bool async)
     {
         await using var ctx = CreateContext();
 
         var query = ctx.Set<OrderDetail>()
             .GroupBy(od => od.ProductID)
-            .Select(
-                g => new
-                {
-                    ProductID = g.Key,
-                    SampleStandardDeviation = EF.Functions.VarianceSample(g.Select(od => od.UnitPrice)),
-                    PopulationStandardDeviation = EF.Functions.VariancePopulation(g.Select(od => od.UnitPrice))
-                });
+            .Select(g => new
+            {
+                ProductID = g.Key,
+                SampleStandardDeviation = EF.Functions.VarianceSample(g.Select(od => od.UnitPrice)),
+                PopulationStandardDeviation = EF.Functions.VariancePopulation(g.Select(od => od.UnitPrice))
+            });
 
         var results = async
             ? await query.ToListAsync()

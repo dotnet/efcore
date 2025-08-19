@@ -61,9 +61,8 @@ public abstract class SharedStoreFixtureBase<TContext> : FixtureBase, IAsyncLife
             _createDbContext
                 = typeof(IDbContextFactory<>).MakeGenericType(ContextType)
                     .GetTypeInfo().GetDeclaredMethods(nameof(IDbContextFactory<TContext>.CreateDbContext))
-                    .Single(
-                        mi => mi.GetParameters().Length == 0
-                            && mi.GetGenericArguments().Length == 0);
+                    .Single(mi => mi.GetParameters().Length == 0
+                        && mi.GetGenericArguments().Length == 0);
         }
 
         _serviceProvider = services.BuildServiceProvider(validateScopes: true);

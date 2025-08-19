@@ -31,13 +31,12 @@ public partial class CSharpMigrationsGeneratorTest
 
         var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
         modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
-        modelBuilder.Entity<EntityWithConstructorBinding>(
-            x =>
-            {
-                x.Property(e => e.Id);
+        modelBuilder.Entity<EntityWithConstructorBinding>(x =>
+        {
+            x.Property(e => e.Id);
 
-                x.Property<Guid>("PropertyWithValueGenerator").HasValueGenerator<GuidValueGenerator>();
-            });
+            x.Property<Guid>("PropertyWithValueGenerator").HasValueGenerator<GuidValueGenerator>();
+        });
         modelBuilder.HasDbFunction(() => MyDbFunction());
 
         var model = modelBuilder.Model;
@@ -128,51 +127,50 @@ namespace MyNamespace
         var generator = CreateMigrationsCodeGenerator();
 
         var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
-        modelBuilder.Entity<EntityWithEveryPrimitive>(
-            eb =>
-            {
-                eb.Property(e => e.Boolean).HasDefaultValue(false);
-                eb.Property(e => e.Byte).HasDefaultValue(byte.MinValue);
-                eb.Property(e => e.ByteArray).HasDefaultValue(new byte[] { 0 });
-                eb.Property(e => e.Char).HasDefaultValue('0');
-                eb.Property(e => e.DateTime).HasDefaultValue(DateTime.MinValue);
-                eb.Property(e => e.DateTimeOffset).HasDefaultValue(DateTimeOffset.MinValue);
-                eb.Property(e => e.Decimal).HasDefaultValue(decimal.MinValue);
-                eb.Property(e => e.Double).HasDefaultValue(double.MinValue); //double.NegativeInfinity
-                eb.Property(e => e.Enum).HasDefaultValue(Enum1.Default);
-                eb.Property(e => e.Guid).HasDefaultValue(Guid.NewGuid());
-                eb.Property(e => e.Int16).HasDefaultValue(short.MaxValue);
-                eb.Property(e => e.Int32).HasDefaultValue(int.MaxValue);
-                eb.Property(e => e.Int64).HasDefaultValue(long.MaxValue);
-                eb.Property(e => e.Single).HasDefaultValue(float.Epsilon);
-                eb.Property(e => e.SByte).HasDefaultValue(sbyte.MinValue);
-                eb.Property(e => e.String).HasDefaultValue("'\"'@\r\\\n");
-                eb.Property(e => e.TimeSpan).HasDefaultValue(TimeSpan.MaxValue);
-                eb.Property(e => e.UInt16).HasDefaultValue(ushort.MinValue);
-                eb.Property(e => e.UInt32).HasDefaultValue(uint.MinValue);
-                eb.Property(e => e.UInt64).HasDefaultValue(ulong.MinValue);
-                eb.Property(e => e.NullableBoolean).HasDefaultValue(true);
-                eb.Property(e => e.NullableByte).HasDefaultValue(byte.MaxValue);
-                eb.Property(e => e.NullableChar).HasDefaultValue('\'');
-                eb.Property(e => e.NullableDateTime).HasDefaultValue(DateTime.MaxValue);
-                eb.Property(e => e.NullableDateTimeOffset).HasDefaultValue(DateTimeOffset.MaxValue);
-                eb.Property(e => e.NullableDecimal).HasDefaultValue(decimal.MaxValue);
-                eb.Property(e => e.NullableDouble).HasDefaultValue(0.6822871999174);
-                eb.Property(e => e.NullableEnum).HasDefaultValue(Enum1.One | Enum1.Two);
-                eb.Property(e => e.NullableStringEnum).HasDefaultValue(Enum1.One).HasConversion<string>();
-                eb.Property(e => e.NullableGuid).HasDefaultValue(new Guid());
-                eb.Property(e => e.NullableInt16).HasDefaultValue(short.MinValue);
-                eb.Property(e => e.NullableInt32).HasDefaultValue(int.MinValue);
-                eb.Property(e => e.NullableInt64).HasDefaultValue(long.MinValue);
-                eb.Property(e => e.NullableSingle).HasDefaultValue(0.3333333f);
-                eb.Property(e => e.NullableSByte).HasDefaultValue(sbyte.MinValue);
-                eb.Property(e => e.NullableTimeSpan).HasDefaultValue(TimeSpan.MinValue.Add(new TimeSpan()));
-                eb.Property(e => e.NullableUInt16).HasDefaultValue(ushort.MaxValue);
-                eb.Property(e => e.NullableUInt32).HasDefaultValue(uint.MaxValue);
-                eb.Property(e => e.NullableUInt64).HasDefaultValue(ulong.MaxValue);
+        modelBuilder.Entity<EntityWithEveryPrimitive>(eb =>
+        {
+            eb.Property(e => e.Boolean).HasDefaultValue(false);
+            eb.Property(e => e.Byte).HasDefaultValue(byte.MinValue);
+            eb.Property(e => e.ByteArray).HasDefaultValue(new byte[] { 0 });
+            eb.Property(e => e.Char).HasDefaultValue('0');
+            eb.Property(e => e.DateTime).HasDefaultValue(DateTime.MinValue);
+            eb.Property(e => e.DateTimeOffset).HasDefaultValue(DateTimeOffset.MinValue);
+            eb.Property(e => e.Decimal).HasDefaultValue(decimal.MinValue);
+            eb.Property(e => e.Double).HasDefaultValue(double.MinValue); //double.NegativeInfinity
+            eb.Property(e => e.Enum).HasDefaultValue(Enum1.Default);
+            eb.Property(e => e.Guid).HasDefaultValue(Guid.NewGuid());
+            eb.Property(e => e.Int16).HasDefaultValue(short.MaxValue);
+            eb.Property(e => e.Int32).HasDefaultValue(int.MaxValue);
+            eb.Property(e => e.Int64).HasDefaultValue(long.MaxValue);
+            eb.Property(e => e.Single).HasDefaultValue(float.Epsilon);
+            eb.Property(e => e.SByte).HasDefaultValue(sbyte.MinValue);
+            eb.Property(e => e.String).HasDefaultValue("'\"'@\r\\\n");
+            eb.Property(e => e.TimeSpan).HasDefaultValue(TimeSpan.MaxValue);
+            eb.Property(e => e.UInt16).HasDefaultValue(ushort.MinValue);
+            eb.Property(e => e.UInt32).HasDefaultValue(uint.MinValue);
+            eb.Property(e => e.UInt64).HasDefaultValue(ulong.MinValue);
+            eb.Property(e => e.NullableBoolean).HasDefaultValue(true);
+            eb.Property(e => e.NullableByte).HasDefaultValue(byte.MaxValue);
+            eb.Property(e => e.NullableChar).HasDefaultValue('\'');
+            eb.Property(e => e.NullableDateTime).HasDefaultValue(DateTime.MaxValue);
+            eb.Property(e => e.NullableDateTimeOffset).HasDefaultValue(DateTimeOffset.MaxValue);
+            eb.Property(e => e.NullableDecimal).HasDefaultValue(decimal.MaxValue);
+            eb.Property(e => e.NullableDouble).HasDefaultValue(0.6822871999174);
+            eb.Property(e => e.NullableEnum).HasDefaultValue(Enum1.One | Enum1.Two);
+            eb.Property(e => e.NullableStringEnum).HasDefaultValue(Enum1.One).HasConversion<string>();
+            eb.Property(e => e.NullableGuid).HasDefaultValue(new Guid());
+            eb.Property(e => e.NullableInt16).HasDefaultValue(short.MinValue);
+            eb.Property(e => e.NullableInt32).HasDefaultValue(int.MinValue);
+            eb.Property(e => e.NullableInt64).HasDefaultValue(long.MinValue);
+            eb.Property(e => e.NullableSingle).HasDefaultValue(0.3333333f);
+            eb.Property(e => e.NullableSByte).HasDefaultValue(sbyte.MinValue);
+            eb.Property(e => e.NullableTimeSpan).HasDefaultValue(TimeSpan.MinValue.Add(new TimeSpan()));
+            eb.Property(e => e.NullableUInt16).HasDefaultValue(ushort.MaxValue);
+            eb.Property(e => e.NullableUInt32).HasDefaultValue(uint.MaxValue);
+            eb.Property(e => e.NullableUInt64).HasDefaultValue(ulong.MaxValue);
 
-                eb.HasKey(e => e.Boolean);
-            });
+            eb.HasKey(e => e.Boolean);
+        });
 
         var finalizedModel = modelBuilder.FinalizeModel(designTime: true);
 
@@ -367,10 +365,13 @@ namespace MyNamespace
         public int Id { get; set; }
 
         public int AlternateId { get; set; }
+
         [NotMapped]
         public List<string> List { get; set; }
+
         [NotMapped]
         public Coordinates Coordinates { get; set; }
+
         public EntityWithOneProperty EntityWithOneProperty { get; set; }
 
         [NotMapped]
@@ -1351,62 +1352,61 @@ namespace RootNamespace
         => Test(
             builder =>
             {
-                builder.Entity<Order>(
-                    b =>
-                    {
-                        b.Ignore(e => e.OrderInfo);
+                builder.Entity<Order>(b =>
+                {
+                    b.Ignore(e => e.OrderInfo);
 
-                        b.Property<int>("Shadow").HasColumnName("Shadow");
-                        b.ToTable(
-                            "Order", "DefaultSchema", tb =>
-                            {
-                                tb.Property(e => e.Id).UseIdentityColumn(2, 3).HasAnnotation("fii", "arr");
-                                tb.Property("Shadow");
-                            });
-                        b.SplitToTable(
-                            "SplitOrder", "DefaultSchema", sb =>
-                            {
-                                sb.Property("Shadow");
-                                sb.HasTrigger("splitTrigger").HasAnnotation("oof", "rab");
-                                sb.HasAnnotation("foo", "bar");
-                            });
+                    b.Property<int>("Shadow").HasColumnName("Shadow");
+                    b.ToTable(
+                        "Order", "DefaultSchema", tb =>
+                        {
+                            tb.Property(e => e.Id).UseIdentityColumn(2, 3).HasAnnotation("fii", "arr");
+                            tb.Property("Shadow");
+                        });
+                    b.SplitToTable(
+                        "SplitOrder", "DefaultSchema", sb =>
+                        {
+                            sb.Property("Shadow");
+                            sb.HasTrigger("splitTrigger").HasAnnotation("oof", "rab");
+                            sb.HasAnnotation("foo", "bar");
+                        });
 
-                        b.OwnsOne(
-                            p => p.OrderBillingDetails, od =>
-                            {
-                                od.OwnsOne(c => c.StreetAddress);
+                    b.OwnsOne(
+                        p => p.OrderBillingDetails, od =>
+                        {
+                            od.OwnsOne(c => c.StreetAddress);
 
-                                od.Property<int>("BillingShadow");
-                                od.ToTable(
-                                    "SplitOrder", "DefaultSchema", tb =>
-                                    {
-                                        tb.Property("BillingShadow").HasColumnName("Shadow");
-                                    });
-                                od.SplitToTable(
-                                    "BillingDetails", "DefaultSchema", sb =>
-                                    {
-                                        sb.Property("BillingShadow").HasColumnName("Shadow");
-                                    });
-                            });
+                            od.Property<int>("BillingShadow");
+                            od.ToTable(
+                                "SplitOrder", "DefaultSchema", tb =>
+                                {
+                                    tb.Property("BillingShadow").HasColumnName("Shadow");
+                                });
+                            od.SplitToTable(
+                                "BillingDetails", "DefaultSchema", sb =>
+                                {
+                                    sb.Property("BillingShadow").HasColumnName("Shadow");
+                                });
+                        });
 
-                        b.OwnsOne(
-                            p => p.OrderShippingDetails, od =>
-                            {
-                                od.OwnsOne(c => c.StreetAddress).ToTable("ShippingDetails");
+                    b.OwnsOne(
+                        p => p.OrderShippingDetails, od =>
+                        {
+                            od.OwnsOne(c => c.StreetAddress).ToTable("ShippingDetails");
 
-                                od.Property<int>("ShippingShadow");
-                                od.ToTable(
-                                    "Order", "DefaultSchema", tb =>
-                                    {
-                                        tb.Property("ShippingShadow").HasColumnName("Shadow");
-                                    });
-                                od.SplitToTable(
-                                    "ShippingDetails", "DefaultSchema", sb =>
-                                    {
-                                        sb.Property("ShippingShadow");
-                                    });
-                            });
-                    });
+                            od.Property<int>("ShippingShadow");
+                            od.ToTable(
+                                "Order", "DefaultSchema", tb =>
+                                {
+                                    tb.Property("ShippingShadow").HasColumnName("Shadow");
+                                });
+                            od.SplitToTable(
+                                "ShippingDetails", "DefaultSchema", sb =>
+                                {
+                                    sb.Property("ShippingShadow");
+                                });
+                        });
+                });
             },
             AddBoilerPlate(
                 GetHeading()
@@ -1605,13 +1605,13 @@ namespace RootNamespace
 
                 var orderTable = relationalModel.FindTable(orderEntityType.GetTableName()!, orderEntityType.GetSchema());
                 Assert.Equal(
-                    new[] { orderEntityType, shippingEntityType },
+                    [orderEntityType, shippingEntityType],
                     orderTable.FindColumn("Shadow").PropertyMappings.Select(m => m.TableMapping.TypeBase));
 
                 var fragment = orderEntityType.GetMappingFragments().Single();
                 var splitTable = relationalModel.FindTable(fragment.StoreObject.Name, fragment.StoreObject.Schema);
                 Assert.Equal(
-                    new[] { orderEntityType, billingEntityType },
+                    [orderEntityType, billingEntityType],
                     splitTable.FindColumn("Shadow").PropertyMappings.Select(m => m.TableMapping.TypeBase));
                 Assert.Equal("bar", fragment["foo"]);
 
@@ -1623,19 +1623,19 @@ namespace RootNamespace
                 var billingFragment = billingEntityType.GetMappingFragments().Single();
                 var billingTable = relationalModel.FindTable(billingFragment.StoreObject.Name, billingFragment.StoreObject.Schema);
                 Assert.Equal(
-                    new[] { billingEntityType },
+                    [billingEntityType],
                     billingTable.FindColumn("Shadow").PropertyMappings.Select(m => m.TableMapping.TypeBase));
 
                 var shippingFragment = shippingEntityType.GetMappingFragments().Single();
                 var shippingTable = relationalModel.FindTable(shippingFragment.StoreObject.Name, shippingFragment.StoreObject.Schema);
                 Assert.Equal(
-                    new[] { shippingEntityType },
+                    [shippingEntityType],
                     shippingTable.FindColumn("ShippingShadow").PropertyMappings.Select(m => m.TableMapping.TypeBase));
 
-                Assert.Equal(new[] { "Id", "Shadow" }, orderTable.Columns.Select(c => c.Name));
-                Assert.Equal(new[] { "Id", "OrderBillingDetails_StreetAddress_City", "Shadow" }, splitTable.Columns.Select(c => c.Name));
-                Assert.Equal(new[] { "OrderId", "Shadow" }, billingTable.Columns.Select(c => c.Name));
-                Assert.Equal(new[] { "OrderId", "ShippingShadow", "StreetAddress_City" }, shippingTable.Columns.Select(c => c.Name));
+                Assert.Equal(["Id", "Shadow"], orderTable.Columns.Select(c => c.Name));
+                Assert.Equal(["Id", "OrderBillingDetails_StreetAddress_City", "Shadow"], splitTable.Columns.Select(c => c.Name));
+                Assert.Equal(["OrderId", "Shadow"], billingTable.Columns.Select(c => c.Name));
+                Assert.Equal(["OrderId", "ShippingShadow", "StreetAddress_City"], shippingTable.Columns.Select(c => c.Name));
             });
 
     [ConditionalFact]
@@ -1643,38 +1643,37 @@ namespace RootNamespace
         => Test(
             builder =>
             {
-                builder.Entity<EntityWithOneProperty>(
-                    b =>
-                    {
-                        b.Property<int>("Shadow");
-                        b.ToView(
-                            "EntityWithOneProperty", tb =>
-                            {
-                                tb.Property("Shadow");
-                            });
-                        b.SplitToView(
-                            "SplitView", sb =>
-                            {
-                                sb.Property("Shadow");
-                            });
+                builder.Entity<EntityWithOneProperty>(b =>
+                {
+                    b.Property<int>("Shadow");
+                    b.ToView(
+                        "EntityWithOneProperty", tb =>
+                        {
+                            tb.Property("Shadow");
+                        });
+                    b.SplitToView(
+                        "SplitView", sb =>
+                        {
+                            sb.Property("Shadow");
+                        });
 
-                        b.OwnsOne(
-                            eo => eo.EntityWithTwoProperties, eb =>
-                            {
-                                eb.Ignore(e => e.EntityWithStringKey);
+                    b.OwnsOne(
+                        eo => eo.EntityWithTwoProperties, eb =>
+                        {
+                            eb.Ignore(e => e.EntityWithStringKey);
 
-                                eb.ToView(
-                                    "EntityWithOneProperty", tb =>
-                                    {
-                                        tb.Property(e => e.AlternateId).HasColumnName("SomeId");
-                                    });
-                                eb.SplitToView(
-                                    "SplitView", sb =>
-                                    {
-                                        sb.Property(e => e.AlternateId).HasColumnName("SomeOtherId");
-                                    });
-                            });
-                    });
+                            eb.ToView(
+                                "EntityWithOneProperty", tb =>
+                                {
+                                    tb.Property(e => e.AlternateId).HasColumnName("SomeId");
+                                });
+                            eb.SplitToView(
+                                "SplitView", sb =>
+                                {
+                                    sb.Property(e => e.AlternateId).HasColumnName("SomeOtherId");
+                                });
+                        });
+                });
             },
             AddBoilerPlate(
                 GetHeading()
@@ -1757,8 +1756,8 @@ namespace RootNamespace
                 var fragment = entityWithOneProperty.GetMappingFragments().Single();
                 var splitView = relationalModel.FindView(fragment.StoreObject.Name, fragment.StoreObject.Schema);
 
-                Assert.Equal(new[] { "Id", "Shadow", "SomeId" }, mainView.Columns.Select(c => c.Name));
-                Assert.Equal(new[] { "Id", "Shadow", "SomeOtherId" }, splitView.Columns.Select(c => c.Name));
+                Assert.Equal(["Id", "Shadow", "SomeId"], mainView.Columns.Select(c => c.Name));
+                Assert.Equal(["Id", "Shadow", "SomeOtherId"], splitView.Columns.Select(c => c.Name));
             });
 
     [ConditionalFact]
@@ -1836,12 +1835,11 @@ namespace RootNamespace
     public void Entity_types_mapped_to_functions_are_stored_in_the_model_snapshot()
         => Test(
             builder =>
-                builder.Entity<TestKeylessType>(
-                    kb =>
-                    {
-                        kb.Property(k => k.Something);
-                        kb.HasNoKey().ToFunction("GetCount");
-                    }),
+                builder.Entity<TestKeylessType>(kb =>
+                {
+                    kb.Property(k => k.Something);
+                    kb.HasNoKey().ToFunction("GetCount");
+                }),
             AddBoilerPlate(
                 GetHeading()
                 + """
@@ -1958,11 +1956,10 @@ namespace RootNamespace
         => Test(
             builder =>
             {
-                builder.Entity<EntityWithTwoProperties>().ToTable(
-                    tb =>
-                        tb.HasCheckConstraint("AlternateId", "AlternateId > Id")
-                            .HasName("CK_Customer_AlternateId")
-                            .HasAnnotation("foo", "bar"));
+                builder.Entity<EntityWithTwoProperties>().ToTable(tb =>
+                    tb.HasCheckConstraint("AlternateId", "AlternateId > Id")
+                        .HasName("CK_Customer_AlternateId")
+                        .HasAnnotation("foo", "bar"));
                 builder.Ignore<EntityWithOneProperty>();
             },
             AddBoilerPlate(
@@ -2096,13 +2093,12 @@ namespace RootNamespace
             builder =>
             {
                 builder.Entity<EntityWithOneProperty>()
-                    .ToTable(
-                        tb =>
-                        {
-                            tb.HasTrigger("SomeTrigger1");
-                            tb.HasTrigger("SomeTrigger2");
-                            tb.ExcludeFromMigrations();
-                        });
+                    .ToTable(tb =>
+                    {
+                        tb.HasTrigger("SomeTrigger1");
+                        tb.HasTrigger("SomeTrigger2");
+                        tb.ExcludeFromMigrations();
+                    });
                 builder.Ignore<EntityWithTwoProperties>();
             },
             AddBoilerPlate(
@@ -2471,20 +2467,19 @@ namespace RootNamespace
             {
                 builder.Entity<DerivedEntityWithStructDiscriminator>().HasBaseType<BaseEntityWithStructDiscriminator>();
                 builder.Entity<AnotherDerivedEntityWithStructDiscriminator>().HasBaseType<BaseEntityWithStructDiscriminator>();
-                builder.Entity<BaseEntityWithStructDiscriminator>(
-                    b =>
-                    {
-                        b.Property(e => e.Discriminator)
-                            .HasConversion(
-                                v => v.Value,
-                                v => new StructDiscriminator { Value = v });
-                        b.HasDiscriminator(e => e.Discriminator)
-                            .IsComplete()
-                            .HasValue(typeof(BaseEntityWithStructDiscriminator), new StructDiscriminator { Value = "Base" })
-                            .HasValue(typeof(DerivedEntityWithStructDiscriminator), new StructDiscriminator { Value = "Derived" })
-                            .HasValue(
-                                typeof(AnotherDerivedEntityWithStructDiscriminator), new StructDiscriminator { Value = "Another" });
-                    });
+                builder.Entity<BaseEntityWithStructDiscriminator>(b =>
+                {
+                    b.Property(e => e.Discriminator)
+                        .HasConversion(
+                            v => v.Value,
+                            v => new StructDiscriminator { Value = v });
+                    b.HasDiscriminator(e => e.Discriminator)
+                        .IsComplete()
+                        .HasValue(typeof(BaseEntityWithStructDiscriminator), new StructDiscriminator { Value = "Base" })
+                        .HasValue(typeof(DerivedEntityWithStructDiscriminator), new StructDiscriminator { Value = "Derived" })
+                        .HasValue(
+                            typeof(AnotherDerivedEntityWithStructDiscriminator), new StructDiscriminator { Value = "Another" });
+                });
             },
             AddBoilerPlate(
                 GetHeading()
@@ -2591,8 +2586,7 @@ namespace RootNamespace
         => Test(
             builder =>
             {
-                builder.Entity<EntityWithTwoProperties>().HasKey(
-                    t => new { t.Id, t.AlternateId });
+                builder.Entity<EntityWithTwoProperties>().HasKey(t => new { t.Id, t.AlternateId });
                 builder.Ignore<EntityWithOneProperty>();
             },
             AddBoilerPlate(
@@ -2649,8 +2643,7 @@ namespace RootNamespace
         => Test(
             builder =>
             {
-                builder.Entity<EntityWithTwoProperties>().HasAlternateKey(
-                    t => new { t.Id, t.AlternateId });
+                builder.Entity<EntityWithTwoProperties>().HasAlternateKey(t => new { t.Id, t.AlternateId });
                 builder.Ignore<EntityWithOneProperty>();
             },
             AddBoilerPlate(
@@ -2723,8 +2716,7 @@ namespace RootNamespace
         => Test(
             builder =>
             {
-                builder.Entity<EntityWithTwoProperties>().HasIndex(
-                    t => new { t.Id, t.AlternateId });
+                builder.Entity<EntityWithTwoProperties>().HasIndex(t => new { t.Id, t.AlternateId });
                 builder.Ignore<EntityWithOneProperty>();
             },
             AddBoilerPlate(
@@ -3162,20 +3154,18 @@ namespace RootNamespace
         => Test(
             builder =>
             {
-                builder.Entity<EntityWithOneProperty>(
-                    b =>
-                    {
-                        b.ToTable("EntityWithProperties");
-                        b.Property<int>("AlternateId").HasColumnName("AlternateId");
-                    });
-                builder.Entity<EntityWithTwoProperties>(
-                    b =>
-                    {
-                        b.ToTable("EntityWithProperties");
-                        b.Property(e => e.AlternateId).HasColumnName("AlternateId");
-                        b.HasOne(e => e.EntityWithOneProperty).WithOne(e => e.EntityWithTwoProperties)
-                            .HasForeignKey<EntityWithTwoProperties>(e => e.Id);
-                    });
+                builder.Entity<EntityWithOneProperty>(b =>
+                {
+                    b.ToTable("EntityWithProperties");
+                    b.Property<int>("AlternateId").HasColumnName("AlternateId");
+                });
+                builder.Entity<EntityWithTwoProperties>(b =>
+                {
+                    b.ToTable("EntityWithProperties");
+                    b.Property(e => e.AlternateId).HasColumnName("AlternateId");
+                    b.HasOne(e => e.EntityWithOneProperty).WithOne(e => e.EntityWithTwoProperties)
+                        .HasForeignKey<EntityWithTwoProperties>(e => e.Id);
+                });
             },
             AddBoilerPlate(
                 GetHeading()
@@ -3351,12 +3341,11 @@ namespace RootNamespace
     [ConditionalFact]
     public virtual void Discriminator_of_enum_to_string()
         => Test(
-            builder => builder.Entity<EntityWithEnumType>(
-                x =>
-                {
-                    x.Property(e => e.Day).HasConversion<string>();
-                    x.HasDiscriminator(e => e.Day);
-                }),
+            builder => builder.Entity<EntityWithEnumType>(x =>
+            {
+                x.Property(e => e.Day).HasConversion<string>();
+                x.HasDiscriminator(e => e.Day);
+            }),
             AddBoilerPlate(
                 GetHeading()
                 + """
@@ -3389,14 +3378,12 @@ namespace RootNamespace
     [ConditionalFact]
     public virtual void Temporal_table_information_is_stored_in_snapshot()
         => Test(
-            builder => builder.Entity<EntityWithStringProperty>().ToTable(
-                tb => tb.IsTemporal(
-                    ttb =>
-                    {
-                        ttb.UseHistoryTable("HistoryTable");
-                        ttb.HasPeriodStart("Start").HasColumnName("PeriodStart");
-                        ttb.HasPeriodEnd("End").HasColumnName("PeriodEnd");
-                    })),
+            builder => builder.Entity<EntityWithStringProperty>().ToTable(tb => tb.IsTemporal(ttb =>
+            {
+                ttb.UseHistoryTable("HistoryTable");
+                ttb.HasPeriodStart("Start").HasColumnName("PeriodStart");
+                ttb.HasPeriodEnd("End").HasColumnName("PeriodEnd");
+            })),
             AddBoilerPlate(
                 GetHeading()
                 + """
@@ -3524,38 +3511,36 @@ namespace RootNamespace
         => Test(
             builder =>
             {
-                builder.Entity<EntityWithOneProperty>(
-                    b =>
-                    {
-                        b.HasKey(e => e.Id).HasName("PK_Custom");
+                builder.Entity<EntityWithOneProperty>(b =>
+                {
+                    b.HasKey(e => e.Id).HasName("PK_Custom");
 
-                        b.OwnsOne(
-                            eo => eo.EntityWithTwoProperties, eb =>
-                            {
-                                eb.HasKey(e => e.AlternateId).HasName("PK_Custom");
-                                eb.WithOwner(e => e.EntityWithOneProperty)
-                                    .HasForeignKey(e => e.AlternateId)
-                                    .HasConstraintName("FK_Custom");
-                                eb.HasIndex(e => e.Id)
-                                    .IncludeProperties(e => e.AlternateId);
-
-                                eb.HasOne(e => e.EntityWithStringKey).WithOne();
-
-                                eb.HasData(
-                                    new EntityWithTwoProperties { AlternateId = 1, Id = -1 });
-                            });
-
-                        b.HasData(
-                            new EntityWithOneProperty { Id = 1 });
-                    });
-
-                builder.Entity<EntityWithStringKey>(
-                    b => b.OwnsMany(
-                        es => es.Properties, es =>
+                    b.OwnsOne(
+                        eo => eo.EntityWithTwoProperties, eb =>
                         {
-                            es.HasKey(e => e.Id);
-                            es.HasOne(e => e.EntityWithOneProperty).WithOne();
-                        }));
+                            eb.HasKey(e => e.AlternateId).HasName("PK_Custom");
+                            eb.WithOwner(e => e.EntityWithOneProperty)
+                                .HasForeignKey(e => e.AlternateId)
+                                .HasConstraintName("FK_Custom");
+                            eb.HasIndex(e => e.Id)
+                                .IncludeProperties(e => e.AlternateId);
+
+                            eb.HasOne(e => e.EntityWithStringKey).WithOne();
+
+                            eb.HasData(
+                                new EntityWithTwoProperties { AlternateId = 1, Id = -1 });
+                        });
+
+                    b.HasData(
+                        new EntityWithOneProperty { Id = 1 });
+                });
+
+                builder.Entity<EntityWithStringKey>(b => b.OwnsMany(
+                    es => es.Properties, es =>
+                    {
+                        es.HasKey(e => e.Id);
+                        es.HasOne(e => e.EntityWithOneProperty).WithOne();
+                    }));
             },
             AddBoilerPlate(
                 GetHeading()
@@ -3686,7 +3671,7 @@ namespace RootNamespace
             {
                 var entityWithOneProperty = o.FindEntityType(typeof(EntityWithOneProperty));
                 Assert.Equal("PK_Custom", entityWithOneProperty.GetKeys().Single().GetName());
-                Assert.Equal(new object[] { 1 }, entityWithOneProperty.GetSeedData().Single().Values);
+                Assert.Equal([1], entityWithOneProperty.GetSeedData().Single().Values);
 
                 var ownership1 = entityWithOneProperty.FindNavigation(nameof(EntityWithOneProperty.EntityWithTwoProperties))
                     .ForeignKey;
@@ -3707,8 +3692,8 @@ namespace RootNamespace
                 Assert.Equal("Id", owned1index2.Properties[0].Name);
                 Assert.False(owned1index2.IsUnique);
                 Assert.Null(owned1index2.GetFilter());
-                Assert.Equal(new[] { nameof(EntityWithTwoProperties.AlternateId) }, owned1index2.GetIncludeProperties());
-                Assert.Equal(new object[] { 1, -1 }, ownedType1.GetSeedData().Single().Values);
+                Assert.Equal([nameof(EntityWithTwoProperties.AlternateId)], owned1index2.GetIncludeProperties());
+                Assert.Equal([1, -1], ownedType1.GetSeedData().Single().Values);
                 Assert.Equal(nameof(EntityWithOneProperty), ownedType1.GetTableName());
                 Assert.False(ownedType1.IsTableExcludedFromMigrations());
 
@@ -3745,46 +3730,44 @@ namespace RootNamespace
         => Test(
             builder =>
             {
-                builder.Entity<EntityWithOneProperty>(
-                    b =>
-                    {
-                        b.HasKey(e => e.Id).HasName("PK_Custom");
+                builder.Entity<EntityWithOneProperty>(b =>
+                {
+                    b.HasKey(e => e.Id).HasName("PK_Custom");
 
-                        b.OwnsOne(
-                            eo => eo.EntityWithTwoProperties, eb =>
-                            {
-                                eb.HasKey(e => e.AlternateId).HasName("PK_Custom");
-                                eb.WithOwner(e => e.EntityWithOneProperty)
-                                    .HasForeignKey(e => e.AlternateId)
-                                    .HasConstraintName("FK_Custom");
-                                eb.HasIndex(e => e.Id);
+                    b.OwnsOne(
+                        eo => eo.EntityWithTwoProperties, eb =>
+                        {
+                            eb.HasKey(e => e.AlternateId).HasName("PK_Custom");
+                            eb.WithOwner(e => e.EntityWithOneProperty)
+                                .HasForeignKey(e => e.AlternateId)
+                                .HasConstraintName("FK_Custom");
+                            eb.HasIndex(e => e.Id);
 
-                                eb.HasOne(e => e.EntityWithStringKey).WithOne();
+                            eb.HasOne(e => e.EntityWithStringKey).WithOne();
 
-                                eb.HasData(
-                                    new EntityWithTwoProperties { AlternateId = 1, Id = -1 });
-                            });
+                            eb.HasData(
+                                new EntityWithTwoProperties { AlternateId = 1, Id = -1 });
+                        });
 
-                        b.HasData(
-                            new EntityWithOneProperty { Id = 1 });
+                    b.HasData(
+                        new EntityWithOneProperty { Id = 1 });
 
-                        b.ToTable("EntityWithOneProperty", "DefaultSchema", e => e.ExcludeFromMigrations());
-                    });
+                    b.ToTable("EntityWithOneProperty", "DefaultSchema", e => e.ExcludeFromMigrations());
+                });
 
-                builder.Entity<EntityWithStringKey>(
-                    b =>
-                    {
-                        b.OwnsMany(
-                            es => es.Properties, es =>
-                            {
-                                es.HasKey(e => e.Id);
-                                es.HasOne(e => e.EntityWithOneProperty).WithOne();
+                builder.Entity<EntityWithStringKey>(b =>
+                {
+                    b.OwnsMany(
+                        es => es.Properties, es =>
+                        {
+                            es.HasKey(e => e.Id);
+                            es.HasOne(e => e.EntityWithOneProperty).WithOne();
 
-                                es.ToTable("EntityWithStringProperty", t => t.ExcludeFromMigrations());
-                            });
+                            es.ToTable("EntityWithStringProperty", t => t.ExcludeFromMigrations());
+                        });
 
-                        b.ToTable("EntityWithStringKey", e => e.ExcludeFromMigrations());
-                    });
+                    b.ToTable("EntityWithStringKey", e => e.ExcludeFromMigrations());
+                });
             },
             AddBoilerPlate(
                 GetHeading()
@@ -3922,7 +3905,7 @@ namespace RootNamespace
             {
                 var entityWithOneProperty = o.FindEntityType(typeof(EntityWithOneProperty));
                 Assert.Equal("PK_Custom", entityWithOneProperty.GetKeys().Single().GetName());
-                Assert.Equal(new object[] { 1 }, entityWithOneProperty.GetSeedData().Single().Values);
+                Assert.Equal([1], entityWithOneProperty.GetSeedData().Single().Values);
 
                 var ownership1 = entityWithOneProperty.FindNavigation(nameof(EntityWithOneProperty.EntityWithTwoProperties))
                     .ForeignKey;
@@ -3942,7 +3925,7 @@ namespace RootNamespace
                 Assert.Equal("Id", owned1index2.Properties[0].Name);
                 Assert.False(owned1index2.IsUnique);
                 Assert.Null(owned1index2.GetFilter());
-                Assert.Equal(new object[] { 1, -1 }, ownedType1.GetSeedData().Single().Values);
+                Assert.Equal([1, -1], ownedType1.GetSeedData().Single().Values);
                 Assert.Equal(nameof(EntityWithOneProperty), ownedType1.GetTableName());
                 Assert.True(ownedType1.IsTableExcludedFromMigrations());
 
@@ -4225,8 +4208,8 @@ namespace RootNamespace
                 modelBuilder.Entity<TestOwner>()
                     .OwnsMany(
                         o => o.OwnedEntities,
-                        ownee => ownee.ToTable(
-                            tb => tb.HasCheckConstraint("CK_TestOwnee_TestEnum_Enum_Constraint", "[TestEnum] IN (0, 1, 2)")));
+                        ownee => ownee.ToTable(tb => tb.HasCheckConstraint(
+                            "CK_TestOwnee_TestEnum_Enum_Constraint", "[TestEnum] IN (0, 1, 2)")));
             },
             """
 // <auto-generated />
@@ -4314,26 +4297,25 @@ namespace RootNamespace
         => Test(
             builder =>
             {
-                builder.Entity<EntityWithOneProperty>(
-                    b =>
-                    {
-                        b.HasKey(x => x.Id).HasName("PK_Custom");
+                builder.Entity<EntityWithOneProperty>(b =>
+                {
+                    b.HasKey(x => x.Id).HasName("PK_Custom");
 
-                        b.OwnsOne(
-                            x => x.EntityWithTwoProperties, bb =>
-                            {
-                                bb.ToJson();
-                                bb.Ignore(x => x.Id);
-                                bb.Property(x => x.AlternateId).HasJsonPropertyName("NotKey");
-                                bb.WithOwner(e => e.EntityWithOneProperty);
-                                bb.OwnsOne(
-                                    x => x.EntityWithStringKey, bbb =>
-                                    {
-                                        bbb.Ignore(x => x.Id);
-                                        bbb.OwnsMany(x => x.Properties, bbbb => bbbb.HasJsonPropertyName("JsonProps"));
-                                    });
-                            });
-                    });
+                    b.OwnsOne(
+                        x => x.EntityWithTwoProperties, bb =>
+                        {
+                            bb.ToJson();
+                            bb.Ignore(x => x.Id);
+                            bb.Property(x => x.AlternateId).HasJsonPropertyName("NotKey");
+                            bb.WithOwner(e => e.EntityWithOneProperty);
+                            bb.OwnsOne(
+                                x => x.EntityWithStringKey, bbb =>
+                                {
+                                    bbb.Ignore(x => x.Id);
+                                    bbb.OwnsMany(x => x.Properties, bbbb => bbbb.HasJsonPropertyName("JsonProps"));
+                                });
+                        });
+                });
             },
             AddBoilerPlate(
                 GetHeading()
@@ -4616,13 +4598,12 @@ namespace RootNamespace
     [ConditionalFact]
     public virtual void Property_ValueGenerated_non_identity()
         => Test(
-            modelBuilder => modelBuilder.Entity<EntityWithEnumType>(
-                x =>
-                {
-                    x.Property(e => e.Id).Metadata.SetValueGenerationStrategy(SqlServerValueGenerationStrategy.None);
-                    x.Property(e => e.Day).ValueGeneratedOnAdd()
-                        .Metadata.SetValueGenerationStrategy(SqlServerValueGenerationStrategy.None);
-                }),
+            modelBuilder => modelBuilder.Entity<EntityWithEnumType>(x =>
+            {
+                x.Property(e => e.Id).Metadata.SetValueGenerationStrategy(SqlServerValueGenerationStrategy.None);
+                x.Property(e => e.Day).ValueGeneratedOnAdd()
+                    .Metadata.SetValueGenerationStrategy(SqlServerValueGenerationStrategy.None);
+            }),
             AddBoilerPlate(
                 GetHeading()
                 + """
@@ -5506,14 +5487,13 @@ namespace RootNamespace
     [ConditionalFact]
     public virtual void Property_enum_type_is_stored_in_snapshot_with_custom_conversion_and_seed_data()
         => Test(
-            builder => builder.Entity<EntityWithEnumType>(
-                eb =>
-                {
-                    eb.Property(e => e.Day).HasDefaultValue(Days.Wed)
-                        .HasConversion(v => v.ToString(), v => (Days)Enum.Parse(typeof(Days), v));
-                    eb.HasData(
-                        new { Id = 1, Day = Days.Fri });
-                }),
+            builder => builder.Entity<EntityWithEnumType>(eb =>
+            {
+                eb.Property(e => e.Day).HasDefaultValue(Days.Wed)
+                    .HasConversion(v => v.ToString(), v => (Days)Enum.Parse(typeof(Days), v));
+                eb.HasData(
+                    new { Id = 1, Day = Days.Fri });
+            }),
             AddBoilerPlate(
                 GetHeading()
                 + """
@@ -6006,6 +5986,7 @@ namespace RootNamespace
                 var property = o.GetEntityTypes().First().FindProperty("List");
                 Assert.Equal("AnnotationValue", property["AnnotationName"]);
             });
+
     #endregion
 
     #region Complex types
@@ -6015,31 +5996,32 @@ namespace RootNamespace
         => Test(
             builder =>
             {
-                builder.Entity<EntityWithOneProperty>(
-                    b =>
-                    {
-                        b.ComplexProperty(
-                            eo => eo.EntityWithTwoProperties, eb =>
-                            {
-                                eb.IsRequired();
-                                eb.Property(e => e.AlternateId).HasColumnOrder(1).IsSparse();
-                                eb.PrimitiveCollection<List<string>>("List")
-                                    .HasColumnType("nvarchar(max)")
-                                    .IsSparse();
-                                eb.ComplexProperty(e => e.Coordinates, cb =>
+                builder.Entity<EntityWithOneProperty>(b =>
+                {
+                    b.ComplexProperty(
+                        eo => eo.EntityWithTwoProperties, eb =>
+                        {
+                            eb.IsRequired();
+                            eb.Property(e => e.AlternateId).HasColumnOrder(1).IsSparse();
+                            eb.PrimitiveCollection<List<string>>("List")
+                                .HasColumnType("nvarchar(max)")
+                                .IsSparse();
+                            eb.ComplexProperty(
+                                e => e.Coordinates, cb =>
                                 {
                                     cb.Property(c => c.Latitude).HasColumnName("Coordinate_X");
                                     cb.Property(c => c.Longitude).HasColumnName("Coordinate_Y");
                                 });
-                                eb.ComplexProperty(e => e.EntityWithStringKey, cb =>
+                            eb.ComplexProperty(
+                                e => e.EntityWithStringKey, cb =>
                                 {
                                     cb.Ignore(e => e.Properties);
                                     cb.HasDiscriminator<string>("Id");
                                 });
-                                eb.HasPropertyAnnotation("PropertyAnnotation", 1);
-                                eb.HasTypeAnnotation("TypeAnnotation", 2);
-                            });
-                    });
+                            eb.HasPropertyAnnotation("PropertyAnnotation", 1);
+                            eb.HasTypeAnnotation("TypeAnnotation", 2);
+                        });
+                });
             },
             AddBoilerPlate(
                 GetHeading()
@@ -6163,28 +6145,28 @@ namespace RootNamespace
         => Test(
             builder =>
             {
-                builder.Entity<EntityWithOneProperty>(
-                    b =>
-                    {
-                        b.HasKey(x => x.Id).HasName("PK_Custom");
+                builder.Entity<EntityWithOneProperty>(b =>
+                {
+                    b.HasKey(x => x.Id).HasName("PK_Custom");
 
-                        b.ComplexProperty(
-                            x => x.EntityWithTwoProperties, bb =>
-                            {
-                                bb.ToJson("TwoProps").HasColumnType("json");
-                                bb.Property(x => x.AlternateId).HasJsonPropertyName("NotKey");
-                                bb.ComplexProperty(
-                                    x => x.EntityWithStringKey, bbb =>
-                                    {
-                                        bbb.ComplexCollection(x => x.Properties, bbbb => bbbb.HasJsonPropertyName("JsonProps"));
-                                    });
-                                bb.ComplexProperty(x => x.Coordinates, bbb =>
+                    b.ComplexProperty(
+                        x => x.EntityWithTwoProperties, bb =>
+                        {
+                            bb.ToJson("TwoProps").HasColumnType("json");
+                            bb.Property(x => x.AlternateId).HasJsonPropertyName("NotKey");
+                            bb.ComplexProperty(
+                                x => x.EntityWithStringKey, bbb =>
+                                {
+                                    bbb.ComplexCollection(x => x.Properties, bbbb => bbbb.HasJsonPropertyName("JsonProps"));
+                                });
+                            bb.ComplexProperty(
+                                x => x.Coordinates, bbb =>
                                 {
                                     bbb.Property(c => c.Latitude).HasJsonPropertyName("Lat");
                                     bbb.Property(c => c.Longitude).HasJsonPropertyName("Lon");
                                 });
-                            });
-                    });
+                        });
+                });
             },
             AddBoilerPlate(
                 GetHeading()
@@ -6264,12 +6246,14 @@ namespace RootNamespace
                 var longitudeProperty = coordinatesComplexType.FindProperty(nameof(Coordinates.Longitude));
                 Assert.Equal("Lon", longitudeProperty.GetJsonPropertyName());
 
-                var entityWithStringKeyComplexProperty = complexType1.FindComplexProperty(nameof(EntityWithTwoProperties.EntityWithStringKey));
+                var entityWithStringKeyComplexProperty =
+                    complexType1.FindComplexProperty(nameof(EntityWithTwoProperties.EntityWithStringKey));
                 Assert.False(entityWithStringKeyComplexProperty.IsCollection);
                 Assert.True(entityWithStringKeyComplexProperty.IsNullable);
                 var entityWithStringKeyComplexType = entityWithStringKeyComplexProperty.ComplexType;
 
-                var propertiesComplexCollection = entityWithStringKeyComplexType.FindComplexProperty(nameof(EntityWithStringKey.Properties));
+                var propertiesComplexCollection =
+                    entityWithStringKeyComplexType.FindComplexProperty(nameof(EntityWithStringKey.Properties));
                 Assert.True(propertiesComplexCollection.IsCollection);
                 Assert.Equal("JsonProps", propertiesComplexCollection.GetJsonPropertyName());
             });
@@ -6586,49 +6570,48 @@ namespace RootNamespace
         => Test(
             builder =>
             {
-                builder.Entity<EntityWithThreeProperties>(
-                    e =>
-                    {
-                        e.HasIndex(
+                builder.Entity<EntityWithThreeProperties>(e =>
+                {
+                    e.HasIndex(
+                        t => new
+                        {
+                            t.X,
+                            t.Y,
+                            t.Z
+                        }, "IX_unspecified");
+                    e.HasIndex(
                             t => new
                             {
                                 t.X,
                                 t.Y,
                                 t.Z
-                            }, "IX_unspecified");
-                        e.HasIndex(
-                                t => new
-                                {
-                                    t.X,
-                                    t.Y,
-                                    t.Z
-                                }, "IX_empty")
-                            .IsDescending();
-                        e.HasIndex(
-                                t => new
-                                {
-                                    t.X,
-                                    t.Y,
-                                    t.Z
-                                }, "IX_all_ascending")
-                            .IsDescending(false, false, false);
-                        e.HasIndex(
-                                t => new
-                                {
-                                    t.X,
-                                    t.Y,
-                                    t.Z
-                                }, "IX_all_descending")
-                            .IsDescending(true, true, true);
-                        e.HasIndex(
-                                t => new
-                                {
-                                    t.X,
-                                    t.Y,
-                                    t.Z
-                                }, "IX_mixed")
-                            .IsDescending(false, true, false);
-                    });
+                            }, "IX_empty")
+                        .IsDescending();
+                    e.HasIndex(
+                            t => new
+                            {
+                                t.X,
+                                t.Y,
+                                t.Z
+                            }, "IX_all_ascending")
+                        .IsDescending(false, false, false);
+                    e.HasIndex(
+                            t => new
+                            {
+                                t.X,
+                                t.Y,
+                                t.Z
+                            }, "IX_all_descending")
+                        .IsDescending(true, true, true);
+                    e.HasIndex(
+                            t => new
+                            {
+                                t.X,
+                                t.Y,
+                                t.Z
+                            }, "IX_mixed")
+                        .IsDescending(false, true, false);
+                });
             },
             AddBoilerPlate(
                 GetHeading()
@@ -6686,7 +6669,7 @@ namespace RootNamespace
                 Assert.Equal([], allDescendingIndex.IsDescending);
 
                 var mixedIndex = Assert.Single(entityType.GetIndexes(), i => i.Name == "IX_mixed");
-                Assert.Equal(new[] { false, true, false }, mixedIndex.IsDescending);
+                Assert.Equal([false, true, false], mixedIndex.IsDescending);
             });
 
     [ConditionalFact]
@@ -6806,14 +6789,13 @@ namespace RootNamespace
     [ConditionalFact]
     public virtual void Index_with_default_constraint_name_exceeding_max()
         => Test(
-            builder => builder.Entity<EntityWithStringProperty>(
-                x =>
-                {
-                    const string propertyName =
-                        "SomePropertyWithAnExceedinglyLongIdentifierThatCausesTheDefaultIndexNameToExceedTheMaximumIdentifierLimit";
-                    x.Property<string>(propertyName);
-                    x.HasIndex(propertyName);
-                }),
+            builder => builder.Entity<EntityWithStringProperty>(x =>
+            {
+                const string propertyName =
+                    "SomePropertyWithAnExceedinglyLongIdentifierThatCausesTheDefaultIndexNameToExceedTheMaximumIdentifierLimit";
+                x.Property<string>(propertyName);
+                x.HasIndex(propertyName);
+            }),
             AddBoilerPlate(
                 GetHeading()
                 + """
@@ -6982,11 +6964,10 @@ namespace RootNamespace
     [ConditionalFact]
     public virtual void IndexAttribute_IncludeProperties_generated_without_fluent_api()
         => Test(
-            builder => builder.Entity<EntityWithStringProperty>(
-                x =>
-                {
-                    x.HasIndex(e => e.Id).IncludeProperties(e => e.Name);
-                }),
+            builder => builder.Entity<EntityWithStringProperty>(x =>
+            {
+                x.HasIndex(e => e.Id).IncludeProperties(e => e.Name);
+            }),
             AddBoilerPlate(
                 GetHeading()
                 + """
@@ -7019,11 +7000,10 @@ namespace RootNamespace
     [ConditionalFact]
     public virtual void IndexAttribute_HasFillFactor_is_stored_in_snapshot()
         => Test(
-            builder => builder.Entity<EntityWithStringProperty>(
-                x =>
-                {
-                    x.HasIndex(e => e.Id).HasFillFactor(29);
-                }),
+            builder => builder.Entity<EntityWithStringProperty>(x =>
+            {
+                x.HasIndex(e => e.Id).HasFillFactor(29);
+            }),
             AddBoilerPlate(
                 GetHeading()
                 + """
@@ -7056,11 +7036,10 @@ namespace RootNamespace
     [ConditionalFact]
     public virtual void IndexAttribute_UseDataCompression_is_stored_in_snapshot()
         => Test(
-            builder => builder.Entity<EntityWithStringProperty>(
-                x =>
-                {
-                    x.HasIndex(e => e.Id).UseDataCompression(DataCompressionType.Row);
-                }),
+            builder => builder.Entity<EntityWithStringProperty>(x =>
+            {
+                x.HasIndex(e => e.Id).UseDataCompression(DataCompressionType.Row);
+            }),
             AddBoilerPlate(
                 GetHeading()
                 + """
@@ -7093,11 +7072,10 @@ namespace RootNamespace
     [ConditionalFact]
     public virtual void IndexAttribute_SortInTempDb_is_stored_in_snapshot()
         => Test(
-            builder => builder.Entity<EntityWithStringProperty>(
-                x =>
-                {
-                    x.HasIndex(e => e.Id).SortInTempDb();
-                }),
+            builder => builder.Entity<EntityWithStringProperty>(x =>
+            {
+                x.HasIndex(e => e.Id).SortInTempDb();
+            }),
             AddBoilerPlate(
                 GetHeading()
                 + """
@@ -8094,93 +8072,92 @@ namespace RootNamespace
         Test(
             builder =>
             {
-                builder.Entity<EntityWithManyProperties>(
-                    eb =>
-                    {
-                        eb.Property<decimal?>("OptionalProperty");
+                builder.Entity<EntityWithManyProperties>(eb =>
+                {
+                    eb.Property<decimal?>("OptionalProperty");
 
-                        eb.HasData(
-                            new EntityWithManyProperties
-                            {
-                                Id = 42,
-                                String = "FortyThree",
-                                Bytes = [44, 45],
-                                Int16 = 46,
-                                Int32 = 47,
-                                Int64 = 48,
-                                Double = 49.0,
-                                Decimal = 50.0m,
-                                DateTime = new DateTime(1973, 9, 3, 12, 10, 42, 344, DateTimeKind.Utc),
-                                DateTimeOffset = new DateTimeOffset(new DateTime(1973, 9, 3, 12, 10, 42, 344), new TimeSpan(1, 0, 0)),
-                                TimeSpan = new TimeSpan(51, 52, 53),
-                                Single = 54.0f,
-                                Boolean = true,
-                                Byte = 55,
-                                UnsignedInt16 = 56,
-                                UnsignedInt32 = 57,
-                                UnsignedInt64 = 58,
-                                Character = '9',
-                                SignedByte = 60,
-                                Enum64 = Enum64.SomeValue,
-                                Enum32 = Enum32.SomeValue,
-                                Enum16 = Enum16.SomeValue,
-                                Enum8 = Enum8.SomeValue,
-                                EnumU64 = EnumU64.SomeValue,
-                                EnumU32 = EnumU32.SomeValue,
-                                EnumU16 = EnumU16.SomeValue,
-                                EnumS8 = EnumS8.SomeValue,
-                                SpatialBGeometryCollection = geometryCollection,
-                                SpatialBLineString = lineString1,
-                                SpatialBMultiLineString = multiLineString,
-                                SpatialBMultiPoint = multiPoint,
-                                SpatialBMultiPolygon = multiPolygon,
-                                SpatialBPoint = point1,
-                                SpatialBPolygon = polygon1,
-                                SpatialCGeometryCollection = geometryCollection,
-                                SpatialCLineString = lineString1,
-                                SpatialCMultiLineString = multiLineString,
-                                SpatialCMultiPoint = multiPoint,
-                                SpatialCMultiPolygon = multiPolygon,
-                                SpatialCPoint = point1,
-                                SpatialCPolygon = polygon1,
-                                Int32Collection = [1, 2, 3, 4],
-                                DoubleCollection = [1.2, 3.4],
-                                StringCollection = ["AB", "CD"],
-                                DateTimeCollection = [new DateTime(2023, 9, 7), new DateTime(2023, 11, 14)],
-                                BoolCollection = [true, false],
-                                BytesCollection = [[1, 2], [3, 4]]
-                            },
-                            new
-                            {
-                                Id = 43,
-                                String = "FortyThree",
-                                Bytes = new byte[] { 44, 45 },
-                                Int16 = (short)-46,
-                                Int32 = -47,
-                                Int64 = (long)-48,
-                                Double = -49.0,
-                                Decimal = -50.0m,
-                                DateTime = new DateTime(1973, 9, 3, 12, 10, 42, 344, DateTimeKind.Utc),
-                                DateTimeOffset = new DateTimeOffset(new DateTime(1973, 9, 3, 12, 10, 42, 344), new TimeSpan(-1, 0, 0)),
-                                TimeSpan = new TimeSpan(-51, 52, 53),
-                                Single = -54.0f,
-                                Boolean = true,
-                                Byte = (byte)55,
-                                UnsignedInt16 = (ushort)56,
-                                UnsignedInt32 = (uint)57,
-                                UnsignedInt64 = (ulong)58,
-                                Character = '9',
-                                SignedByte = (sbyte)-60,
-                                Enum64 = Enum64.SomeValue,
-                                Enum32 = Enum32.SomeValue,
-                                Enum16 = Enum16.SomeValue,
-                                Enum8 = Enum8.SomeValue,
-                                EnumU64 = EnumU64.SomeValue,
-                                EnumU32 = EnumU32.SomeValue,
-                                EnumU16 = EnumU16.SomeValue,
-                                EnumS8 = EnumS8.SomeValue
-                            });
-                    });
+                    eb.HasData(
+                        new EntityWithManyProperties
+                        {
+                            Id = 42,
+                            String = "FortyThree",
+                            Bytes = [44, 45],
+                            Int16 = 46,
+                            Int32 = 47,
+                            Int64 = 48,
+                            Double = 49.0,
+                            Decimal = 50.0m,
+                            DateTime = new DateTime(1973, 9, 3, 12, 10, 42, 344, DateTimeKind.Utc),
+                            DateTimeOffset = new DateTimeOffset(new DateTime(1973, 9, 3, 12, 10, 42, 344), new TimeSpan(1, 0, 0)),
+                            TimeSpan = new TimeSpan(51, 52, 53),
+                            Single = 54.0f,
+                            Boolean = true,
+                            Byte = 55,
+                            UnsignedInt16 = 56,
+                            UnsignedInt32 = 57,
+                            UnsignedInt64 = 58,
+                            Character = '9',
+                            SignedByte = 60,
+                            Enum64 = Enum64.SomeValue,
+                            Enum32 = Enum32.SomeValue,
+                            Enum16 = Enum16.SomeValue,
+                            Enum8 = Enum8.SomeValue,
+                            EnumU64 = EnumU64.SomeValue,
+                            EnumU32 = EnumU32.SomeValue,
+                            EnumU16 = EnumU16.SomeValue,
+                            EnumS8 = EnumS8.SomeValue,
+                            SpatialBGeometryCollection = geometryCollection,
+                            SpatialBLineString = lineString1,
+                            SpatialBMultiLineString = multiLineString,
+                            SpatialBMultiPoint = multiPoint,
+                            SpatialBMultiPolygon = multiPolygon,
+                            SpatialBPoint = point1,
+                            SpatialBPolygon = polygon1,
+                            SpatialCGeometryCollection = geometryCollection,
+                            SpatialCLineString = lineString1,
+                            SpatialCMultiLineString = multiLineString,
+                            SpatialCMultiPoint = multiPoint,
+                            SpatialCMultiPolygon = multiPolygon,
+                            SpatialCPoint = point1,
+                            SpatialCPolygon = polygon1,
+                            Int32Collection = [1, 2, 3, 4],
+                            DoubleCollection = [1.2, 3.4],
+                            StringCollection = ["AB", "CD"],
+                            DateTimeCollection = [new DateTime(2023, 9, 7), new DateTime(2023, 11, 14)],
+                            BoolCollection = [true, false],
+                            BytesCollection = [[1, 2], [3, 4]]
+                        },
+                        new
+                        {
+                            Id = 43,
+                            String = "FortyThree",
+                            Bytes = new byte[] { 44, 45 },
+                            Int16 = (short)-46,
+                            Int32 = -47,
+                            Int64 = (long)-48,
+                            Double = -49.0,
+                            Decimal = -50.0m,
+                            DateTime = new DateTime(1973, 9, 3, 12, 10, 42, 344, DateTimeKind.Utc),
+                            DateTimeOffset = new DateTimeOffset(new DateTime(1973, 9, 3, 12, 10, 42, 344), new TimeSpan(-1, 0, 0)),
+                            TimeSpan = new TimeSpan(-51, 52, 53),
+                            Single = -54.0f,
+                            Boolean = true,
+                            Byte = (byte)55,
+                            UnsignedInt16 = (ushort)56,
+                            UnsignedInt32 = (uint)57,
+                            UnsignedInt64 = (ulong)58,
+                            Character = '9',
+                            SignedByte = (sbyte)-60,
+                            Enum64 = Enum64.SomeValue,
+                            Enum32 = Enum32.SomeValue,
+                            Enum16 = Enum16.SomeValue,
+                            Enum8 = Enum8.SomeValue,
+                            EnumU64 = EnumU64.SomeValue,
+                            EnumU32 = EnumU32.SomeValue,
+                            EnumU16 = EnumU16.SomeValue,
+                            EnumS8 = EnumS8.SomeValue
+                        });
+                });
                 builder.Ignore<EntityWithTwoProperties>();
             },
             """

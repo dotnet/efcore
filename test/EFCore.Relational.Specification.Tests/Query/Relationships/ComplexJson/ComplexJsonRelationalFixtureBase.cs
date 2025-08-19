@@ -7,7 +7,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Relationships.ComplexJson;
 
 public abstract class ComplexJsonRelationalFixtureBase : ComplexPropertiesFixtureBase, ITestSqlLoggerFactory
 {
-    protected override string StoreName => "ComplexJsonQueryTest";
+    protected override string StoreName
+        => "ComplexJsonQueryTest";
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
@@ -15,27 +16,24 @@ public abstract class ComplexJsonRelationalFixtureBase : ComplexPropertiesFixtur
 
         modelBuilder.Entity<RootEntity>(b =>
         {
-            b.ComplexProperty(e => e.RequiredRelated, rrb =>
-            {
-                rrb.ToJson();
+            b.ComplexProperty(e => e.RequiredRelated, rrb => rrb.ToJson());
+            b.ComplexProperty(e => e.OptionalRelated, orb => orb.ToJson());
+            b.ComplexCollection(e => e.RelatedCollection, rcb => rcb.ToJson());
+        });
 
-                rrb.ComplexProperty(r => r.OptionalNested).IsRequired(false);
-            });
+        modelBuilder.Entity<ValueRootEntity>(b =>
+        {
+            b.ComplexProperty(e => e.RequiredRelated, rrb => rrb.ToJson());
 
             b.ComplexProperty(e => e.OptionalRelated, orb =>
             {
                 orb.ToJson();
-                orb.IsRequired(false);
 
+                // TODO: Without the following, we get an ambiguous property error
                 orb.ComplexProperty(r => r.OptionalNested).IsRequired(false);
             });
 
-            b.ComplexCollection(e => e.RelatedCollection,rcb =>
-            {
-                rcb.ToJson();
-
-                rcb.ComplexProperty(r => r.OptionalNested).IsRequired(false);
-            });
+            b.ComplexCollection(e => e.RelatedCollection, rcb => rcb.ToJson());
         });
     }
 

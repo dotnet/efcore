@@ -7,7 +7,8 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public class TableSplittingSqlServerTest(NonSharedFixture fixture, ITestOutputHelper testOutputHelper) : TableSplittingTestBase(fixture, testOutputHelper)
+public class TableSplittingSqlServerTest(NonSharedFixture fixture, ITestOutputHelper testOutputHelper)
+    : TableSplittingTestBase(fixture, testOutputHelper)
 {
     protected override ITestStoreFactory TestStoreFactory
         => SqlServerTestStoreFactory.Instance;

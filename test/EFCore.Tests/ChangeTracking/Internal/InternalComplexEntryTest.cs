@@ -7,11 +7,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 public class InternalComplexEntryTest
 {
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Deleted)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged), InlineData(EntityState.Modified), InlineData(EntityState.Added),
+     InlineData(EntityState.Deleted)]
     public void Complex_entry_can_change_state(EntityState entityState)
     {
         var model = CreateModel();
@@ -89,9 +86,11 @@ public class InternalComplexEntryTest
         Assert.Equal(1, complexEntry.OriginalOrdinal);
         Assert.DoesNotContain(complexEntry, entityEntry.GetComplexCollectionEntries(complexProperty));
         Assert.Same(complexEntry, entityEntry.GetComplexCollectionOriginalEntries(complexProperty)[complexEntry.OriginalOrdinal]);
-        Assert.Equal(entityState == EntityState.Deleted ? [-1, -1, -1] : [0, -1, 1],
+        Assert.Equal(
+            entityState == EntityState.Deleted ? [-1, -1, -1] : [0, -1, 1],
             entityEntry.GetComplexCollectionOriginalEntries(complexProperty).Select(e => e?.Ordinal));
-        Assert.Equal(entityState == EntityState.Deleted ? [null, null, null] : [0, 2],
+        Assert.Equal(
+            entityState == EntityState.Deleted ? [null, null, null] : [0, 2],
             entityEntry.GetComplexCollectionEntries(complexProperty).Select(e => e?.OriginalOrdinal));
         Assert.True(entityEntry.IsModified(complexProperty));
 
@@ -196,9 +195,11 @@ public class InternalComplexEntryTest
         Assert.Equal([0, 2, 4], entityEntry.GetComplexCollectionEntries(complexProperty).Select(e => e?.OriginalOrdinal));
         Assert.Equal([0, -1, 1, -1, 2], entityEntry.GetComplexCollectionOriginalEntries(complexProperty).Select(e => e?.Ordinal));
         Assert.Equal([0, 1, 2, 3, 4], entityEntry.GetComplexCollectionOriginalEntries(complexProperty).Select(e => e?.OriginalOrdinal));
-        Assert.Equal([EntityState.Unchanged, EntityState.Unchanged, EntityState.Unchanged],
+        Assert.Equal(
+            [EntityState.Unchanged, EntityState.Unchanged, EntityState.Unchanged],
             entityEntry.GetComplexCollectionEntries(complexProperty).Select(e => e!.EntityState));
-        Assert.Equal([EntityState.Unchanged, EntityState.Deleted, EntityState.Unchanged, EntityState.Deleted, EntityState.Unchanged],
+        Assert.Equal(
+            [EntityState.Unchanged, EntityState.Deleted, EntityState.Unchanged, EntityState.Deleted, EntityState.Unchanged],
             entityEntry.GetComplexCollectionOriginalEntries(complexProperty).Select(e => e!.EntityState));
         Assert.True(entityEntry.IsModified(complexProperty));
 
@@ -210,9 +211,11 @@ public class InternalComplexEntryTest
         Assert.Equal([0, 1, 2, 4], entityEntry.GetComplexCollectionEntries(complexProperty).Select(e => e?.OriginalOrdinal));
         Assert.Equal([0, 1, 2, -1, 3], entityEntry.GetComplexCollectionOriginalEntries(complexProperty).Select(e => e?.Ordinal));
         Assert.Equal([0, 1, 2, 3, 4], entityEntry.GetComplexCollectionOriginalEntries(complexProperty).Select(e => e?.OriginalOrdinal));
-        Assert.Equal([EntityState.Unchanged, EntityState.Unchanged, EntityState.Unchanged, EntityState.Unchanged],
+        Assert.Equal(
+            [EntityState.Unchanged, EntityState.Unchanged, EntityState.Unchanged, EntityState.Unchanged],
             entityEntry.GetComplexCollectionEntries(complexProperty).Select(e => e!.EntityState));
-        Assert.Equal([EntityState.Unchanged, EntityState.Unchanged, EntityState.Unchanged, EntityState.Deleted, EntityState.Unchanged],
+        Assert.Equal(
+            [EntityState.Unchanged, EntityState.Unchanged, EntityState.Unchanged, EntityState.Deleted, EntityState.Unchanged],
             entityEntry.GetComplexCollectionOriginalEntries(complexProperty).Select(e => e!.EntityState));
         Assert.True(entityEntry.IsModified(complexProperty));
 
@@ -223,9 +226,11 @@ public class InternalComplexEntryTest
         Assert.Equal([0, 2, 1, 3], entityEntry.GetComplexCollectionEntries(complexProperty).Select(e => e?.OriginalOrdinal));
         Assert.Equal([0, 2, 1, 3], entityEntry.GetComplexCollectionOriginalEntries(complexProperty).Select(e => e?.Ordinal));
         Assert.Equal([0, 1, 2, 3], entityEntry.GetComplexCollectionOriginalEntries(complexProperty).Select(e => e?.OriginalOrdinal));
-        Assert.Equal([EntityState.Unchanged, EntityState.Modified, EntityState.Unchanged, EntityState.Unchanged],
+        Assert.Equal(
+            [EntityState.Unchanged, EntityState.Modified, EntityState.Unchanged, EntityState.Unchanged],
             entityEntry.GetComplexCollectionEntries(complexProperty).Select(e => e!.EntityState));
-        Assert.Equal([EntityState.Unchanged, EntityState.Unchanged, EntityState.Modified, EntityState.Unchanged],
+        Assert.Equal(
+            [EntityState.Unchanged, EntityState.Unchanged, EntityState.Modified, EntityState.Unchanged],
             entityEntry.GetComplexCollectionOriginalEntries(complexProperty).Select(e => e!.EntityState));
         Assert.True(entityEntry.IsModified(complexProperty));
 
@@ -237,18 +242,17 @@ public class InternalComplexEntryTest
         Assert.Equal([0, -1, 2, 1, 3], entityEntry.GetComplexCollectionEntries(complexProperty).Select(e => e?.OriginalOrdinal));
         Assert.Equal([0, 3, 2, 4], entityEntry.GetComplexCollectionOriginalEntries(complexProperty).Select(e => e?.Ordinal));
         Assert.Equal([0, 1, 2, 3], entityEntry.GetComplexCollectionOriginalEntries(complexProperty).Select(e => e?.OriginalOrdinal));
-        Assert.Equal([EntityState.Unchanged, EntityState.Added, EntityState.Modified, EntityState.Unchanged, EntityState.Unchanged],
+        Assert.Equal(
+            [EntityState.Unchanged, EntityState.Added, EntityState.Modified, EntityState.Unchanged, EntityState.Unchanged],
             entityEntry.GetComplexCollectionEntries(complexProperty).Select(e => e!.EntityState));
-        Assert.Equal([EntityState.Unchanged, EntityState.Unchanged, EntityState.Modified, EntityState.Unchanged],
+        Assert.Equal(
+            [EntityState.Unchanged, EntityState.Unchanged, EntityState.Modified, EntityState.Unchanged],
             entityEntry.GetComplexCollectionOriginalEntries(complexProperty).Select(e => e!.EntityState));
         Assert.True(entityEntry.IsModified(complexProperty));
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Deleted)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged), InlineData(EntityState.Modified), InlineData(EntityState.Added),
+     InlineData(EntityState.Deleted)]
     public void Complex_collection_detects_additions_and_deletions(EntityState entityState)
     {
         var model = CreateModel();
@@ -286,21 +290,32 @@ public class InternalComplexEntryTest
 
         if (entityState == EntityState.Added)
         {
-            Assert.Equal([-1, -1, -1, -1, -1, -1, -1], entityEntry.GetComplexCollectionEntries(complexProperty).Select(e => e?.OriginalOrdinal));
+            Assert.Equal(
+                [-1, -1, -1, -1, -1, -1, -1], entityEntry.GetComplexCollectionEntries(complexProperty).Select(e => e?.OriginalOrdinal));
             Assert.All(entityEntry.GetComplexCollectionEntries(complexProperty), e => Assert.Equal(EntityState.Added, e!.EntityState));
         }
         else if (entityState == EntityState.Deleted)
         {
-            Assert.Equal([-1, -1, -1, -1, -1, -1, -1], entityEntry.GetComplexCollectionOriginalEntries(complexProperty).Select(e => e?.Ordinal));
-            Assert.All(entityEntry.GetComplexCollectionOriginalEntries(complexProperty), e => Assert.Equal(EntityState.Deleted, e!.EntityState));
+            Assert.Equal(
+                [-1, -1, -1, -1, -1, -1, -1], entityEntry.GetComplexCollectionOriginalEntries(complexProperty).Select(e => e?.Ordinal));
+            Assert.All(
+                entityEntry.GetComplexCollectionOriginalEntries(complexProperty), e => Assert.Equal(EntityState.Deleted, e!.EntityState));
         }
         else
         {
             Assert.Equal([0, 1, 2, 3, 5, 4, 6], entityEntry.GetComplexCollectionEntries(complexProperty).Select(e => e?.OriginalOrdinal));
             Assert.Equal([0, 1, 2, 3, 5, 4, 6], entityEntry.GetComplexCollectionOriginalEntries(complexProperty).Select(e => e?.Ordinal));
-            Assert.Equal([entityState, EntityState.Modified, EntityState.Modified, entityState, EntityState.Modified, EntityState.Modified, entityState],
+            Assert.Equal(
+                [
+                    entityState, EntityState.Modified, EntityState.Modified, entityState, EntityState.Modified, EntityState.Modified,
+                    entityState
+                ],
                 entityEntry.GetComplexCollectionEntries(complexProperty).Select(e => e!.EntityState));
-            Assert.Equal([entityState, EntityState.Modified, EntityState.Modified, entityState, EntityState.Modified, EntityState.Modified, entityState],
+            Assert.Equal(
+                [
+                    entityState, EntityState.Modified, EntityState.Modified, entityState, EntityState.Modified, EntityState.Modified,
+                    entityState
+                ],
                 entityEntry.GetComplexCollectionOriginalEntries(complexProperty).Select(e => e!.EntityState));
         }
 
@@ -322,10 +337,7 @@ public class InternalComplexEntryTest
         var tag2 = new Tag { Name = "Tag2", Priority = 2 };
         var tag3 = new Tag { Name = "Tag3", Priority = 3 };
 
-        var blog = new Blog
-        {
-            Tags = [tag1, tag2]
-        };
+        var blog = new Blog { Tags = [tag1, tag2] };
 
         var entityEntry = stateManager.GetOrCreateEntry(blog);
         entityEntry.SetEntityState(EntityState.Unchanged);
@@ -357,10 +369,7 @@ public class InternalComplexEntryTest
         var tag1 = new Tag { Name = "Tag1", Priority = 1 };
         var tag2 = new Tag { Name = "Tag2", Priority = 2 };
 
-        var blog = new Blog
-        {
-            Tags = [tag1, tag2]
-        };
+        var blog = new Blog { Tags = [tag1, tag2] };
 
         var entityEntry = stateManager.GetOrCreateEntry(blog);
         entityEntry.SetEntityState(EntityState.Unchanged);
@@ -390,10 +399,7 @@ public class InternalComplexEntryTest
         var tag3 = new Tag { Name = "Tag3", Priority = 3 };
         var tag4 = new Tag { Name = "Tag4", Priority = 4 };
 
-        var blog = new Blog
-        {
-            Tags = [tag1, tag2, tag3]
-        };
+        var blog = new Blog { Tags = [tag1, tag2, tag3] };
 
         var entityEntry = stateManager.GetOrCreateEntry(blog);
         entityEntry.SetEntityState(EntityState.Unchanged);
@@ -406,7 +412,8 @@ public class InternalComplexEntryTest
         changeDetector.DetectChanges(entityEntry);
 
         Assert.Equal([-1, 2, 0, 1], entityEntry.GetComplexCollectionEntries(complexProperty).Select(e => e!.OriginalOrdinal));
-        Assert.Equal([EntityState.Added, EntityState.Unchanged, EntityState.Unchanged, EntityState.Unchanged],
+        Assert.Equal(
+            [EntityState.Added, EntityState.Unchanged, EntityState.Unchanged, EntityState.Unchanged],
             entityEntry.GetComplexCollectionEntries(complexProperty).Select(e => e!.EntityState));
         Assert.True(entityEntry.IsModified(complexProperty));
     }
@@ -426,10 +433,7 @@ public class InternalComplexEntryTest
         var tag2 = new Tag { Name = "Tag2", Priority = 2 };
         var tag3 = new Tag { Name = "Tag3", Priority = 3 };
 
-        var blog = new Blog
-        {
-            Tags = [tag1, tag2, tag3]
-        };
+        var blog = new Blog { Tags = [tag1, tag2, tag3] };
 
         var entityEntry = stateManager.GetOrCreateEntry(blog);
         entityEntry.SetEntityState(EntityState.Unchanged);
@@ -441,7 +445,8 @@ public class InternalComplexEntryTest
         changeDetector.DetectChanges(entityEntry);
 
         Assert.Equal([0, 2, 1, -1], entityEntry.GetComplexCollectionEntries(complexProperty).Select(e => e!.OriginalOrdinal));
-        Assert.Equal([EntityState.Unchanged, EntityState.Modified, EntityState.Unchanged, EntityState.Added],
+        Assert.Equal(
+            [EntityState.Unchanged, EntityState.Modified, EntityState.Unchanged, EntityState.Added],
             entityEntry.GetComplexCollectionEntries(complexProperty).Select(e => e!.EntityState));
     }
 
@@ -457,10 +462,7 @@ public class InternalComplexEntryTest
         var changeDetector = serviceProvider.GetRequiredService<IChangeDetector>();
 
         var tag1 = new Tag { Name = "Tag1", Priority = 1 };
-        var blog = new Blog
-        {
-            Tags = [tag1, null!]
-        };
+        var blog = new Blog { Tags = [tag1, null!] };
 
         var entityEntry = stateManager.GetOrCreateEntry(blog);
         entityEntry.SetEntityState(EntityState.Unchanged);
@@ -470,7 +472,9 @@ public class InternalComplexEntryTest
         changeDetector.DetectChanges(entityEntry);
 
         Assert.Equal([0, 1], entityEntry.GetComplexCollectionEntries(complexProperty).Select(e => e!.OriginalOrdinal));
-        Assert.Equal([EntityState.Unchanged, EntityState.Modified], entityEntry.GetComplexCollectionEntries(complexProperty).Select(e => e!.EntityState));
+        Assert.Equal(
+            [EntityState.Unchanged, EntityState.Modified],
+            entityEntry.GetComplexCollectionEntries(complexProperty).Select(e => e!.EntityState));
     }
 
     [ConditionalFact]
@@ -485,10 +489,7 @@ public class InternalComplexEntryTest
         var changeDetector = serviceProvider.GetRequiredService<IChangeDetector>();
 
         var tag1 = new Tag { Name = "Tag1", Priority = 1 };
-        var blog = new Blog
-        {
-            Tags = [tag1, null!]
-        };
+        var blog = new Blog { Tags = [tag1, null!] };
 
         var entityEntry = stateManager.GetOrCreateEntry(blog);
         entityEntry.SetEntityState(EntityState.Unchanged);
@@ -523,10 +524,7 @@ public class InternalComplexEntryTest
         var changeDetector = serviceProvider.GetRequiredService<IChangeDetector>();
 
         var tag1 = new Tag { Name = "Tag1", Priority = 1 };
-        var blog = new Blog
-        {
-            Tags = [tag1, null!]
-        };
+        var blog = new Blog { Tags = [tag1, null!] };
 
         var entityEntry = stateManager.GetOrCreateEntry(blog);
         entityEntry.SetEntityState(EntityState.Unchanged);
@@ -560,14 +558,12 @@ public class InternalComplexEntryTest
         var serviceProvider = InMemoryTestHelpers.Instance.CreateContextServices(model);
         var stateManager = serviceProvider.GetRequiredService<IStateManager>();
 
-        var blog = new Blog
-        {
-            Tags = null!
-        };
+        var blog = new Blog { Tags = null! };
         var entityEntry = stateManager.GetOrCreateEntry(blog);
         entityEntry.SetEntityState(EntityState.Unchanged);
 
-        Assert.Equal(CoreStrings.ComplexCollectionNotInitialized(nameof(Blog), nameof(Blog.Tags)),
+        Assert.Equal(
+            CoreStrings.ComplexCollectionNotInitialized(nameof(Blog), nameof(Blog.Tags)),
             Assert.Throws<InvalidOperationException>(() => entityEntry.GetComplexCollectionEntry(complexProperty, 0)).Message);
     }
 
@@ -580,17 +576,16 @@ public class InternalComplexEntryTest
 
         var serviceProvider = InMemoryTestHelpers.Instance.CreateContextServices(model);
         var stateManager = serviceProvider.GetRequiredService<IStateManager>();
-        var blog = new Blog
-        {
-            Tags = [new Tag { Name = "Test1" }, new Tag { Name = "Test2" }]
-        };
+        var blog = new Blog { Tags = [new Tag { Name = "Test1" }, new Tag { Name = "Test2" }] };
         var entityEntry = stateManager.GetOrCreateEntry(blog);
         entityEntry.SetEntityState(EntityState.Added);
 
-        Assert.Equal(CoreStrings.ComplexCollectionOriginalEntryAddedEntity(0, "Blog", "Tags"),
+        Assert.Equal(
+            CoreStrings.ComplexCollectionOriginalEntryAddedEntity(0, "Blog", "Tags"),
             Assert.Throws<InvalidOperationException>(() => entityEntry.GetComplexCollectionOriginalEntry(complexProperty, 0)).Message);
 
-        Assert.Equal(CoreStrings.ComplexCollectionEntryOrdinalReadOnly("Blog", "Tags"),
+        Assert.Equal(
+            CoreStrings.ComplexCollectionEntryOrdinalReadOnly("Blog", "Tags"),
             Assert.Throws<InvalidOperationException>(() =>
                 entityEntry.GetComplexCollectionEntry(complexProperty, 0).Ordinal = 1).Message);
     }
@@ -605,10 +600,7 @@ public class InternalComplexEntryTest
         var serviceProvider = InMemoryTestHelpers.Instance.CreateContextServices(model);
         var stateManager = serviceProvider.GetRequiredService<IStateManager>();
 
-        var blog = new Blog
-        {
-            Tags = null!
-        };
+        var blog = new Blog { Tags = null! };
         var entityEntry = stateManager.GetOrCreateEntry(blog);
         entityEntry.SetEntityState(EntityState.Unchanged);
         blog.Tags = [new Tag { Name = "Test" }];
@@ -628,10 +620,7 @@ public class InternalComplexEntryTest
         var serviceProvider = InMemoryTestHelpers.Instance.CreateContextServices(model);
         var stateManager = serviceProvider.GetRequiredService<IStateManager>();
 
-        var blog = new Blog
-        {
-            Tags = [new Tag { Name = "Test" }]
-        };
+        var blog = new Blog { Tags = [new Tag { Name = "Test" }] };
         var entityEntry = stateManager.GetOrCreateEntry(blog);
         entityEntry.SetEntityState(EntityState.Unchanged);
         var ex = Assert.Throws<InvalidOperationException>(() => entityEntry.GetComplexCollectionOriginalEntry(complexProperty, -1));
@@ -650,17 +639,16 @@ public class InternalComplexEntryTest
 
         var serviceProvider = InMemoryTestHelpers.Instance.CreateContextServices(model);
         var stateManager = serviceProvider.GetRequiredService<IStateManager>();
-        var blog = new Blog
-        {
-            Tags = [new Tag { Name = "Test1" }, new Tag { Name = "Test2" }]
-        };
+        var blog = new Blog { Tags = [new Tag { Name = "Test1" }, new Tag { Name = "Test2" }] };
         var entityEntry = stateManager.GetOrCreateEntry(blog);
         entityEntry.SetEntityState(EntityState.Deleted);
 
-        Assert.Equal(CoreStrings.ComplexCollectionEntryDeletedEntity(0, "Blog", "Tags"),
+        Assert.Equal(
+            CoreStrings.ComplexCollectionEntryDeletedEntity(0, "Blog", "Tags"),
             Assert.Throws<InvalidOperationException>(() => entityEntry.GetComplexCollectionEntry(complexProperty, 0)).Message);
 
-        Assert.Equal(CoreStrings.ComplexCollectionEntryOriginalOrdinalReadOnly("Blog", "Tags"),
+        Assert.Equal(
+            CoreStrings.ComplexCollectionEntryOriginalOrdinalReadOnly("Blog", "Tags"),
             Assert.Throws<InvalidOperationException>(() =>
                 entityEntry.GetComplexCollectionOriginalEntry(complexProperty, 0).OriginalOrdinal = 1).Message);
     }
@@ -675,10 +663,7 @@ public class InternalComplexEntryTest
         var serviceProvider = InMemoryTestHelpers.Instance.CreateContextServices(model);
         var stateManager = serviceProvider.GetRequiredService<IStateManager>();
 
-        var blog = new Blog
-        {
-            Tags = [new Tag { Name = "Test" }]
-        };
+        var blog = new Blog { Tags = [new Tag { Name = "Test" }] };
         var entityEntry = stateManager.GetOrCreateEntry(blog);
         entityEntry.SetEntityState(EntityState.Unchanged);
 

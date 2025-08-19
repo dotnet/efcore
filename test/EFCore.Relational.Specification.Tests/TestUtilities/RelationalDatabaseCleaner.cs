@@ -163,8 +163,10 @@ public abstract class RelationalDatabaseCleaner
                                 {
                                     goto LineEnd;
                                 }
+
                                 commentStart = true;
                             }
+
                             break;
                         default:
                             commentStart = false;

@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Xunit.Sdk;
-
 namespace Microsoft.EntityFrameworkCore.Query.Relationships.ComplexJson;
 
 public class ComplexJsonCollectionSqlServerTest(ComplexJsonSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
@@ -149,7 +147,7 @@ WHERE CAST(JSON_VALUE([r].[RelatedCollection], '$[0].Int') AS int) = 8
         if (Fixture.UsingJsonType)
         {
             AssertSql(
-                 """
+                """
 @i='?' (DbType = Int32)
 
 SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
@@ -159,8 +157,8 @@ WHERE JSON_VALUE([r].[RelatedCollection], '$[' + CAST(@i AS nvarchar(max)) + ']'
         }
         else
         {
-           AssertSql(
-               """
+            AssertSql(
+                """
 @i='?' (DbType = Int32)
 
 SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
@@ -219,6 +217,30 @@ WHERE CAST(JSON_VALUE([r].[RelatedCollection], '$[9999].Int') AS int) = 8
     }
 
     #endregion Index
+
+    #region GroupBy
+
+    [ConditionalFact]
+    public override async Task GroupBy()
+    {
+        await base.GroupBy();
+
+        AssertSql(
+            """
+SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+FROM [RootEntity] AS [r]
+WHERE 16 IN (
+    SELECT COALESCE(SUM([r0].[Int]), 0)
+    FROM OPENJSON([r].[RelatedCollection], '$') WITH (
+        [Int] int '$.Int',
+        [String] nvarchar(max) '$.String'
+    ) AS [r0]
+    GROUP BY [r0].[String]
+)
+""");
+    }
+
+    #endregion GroupBy
 
     public override async Task Select_within_Select_within_Select_with_aggregates()
     {

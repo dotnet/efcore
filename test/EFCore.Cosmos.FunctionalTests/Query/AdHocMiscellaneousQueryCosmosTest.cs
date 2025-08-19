@@ -27,19 +27,18 @@ public class AdHocMiscellaneousQueryCosmosTest(NonSharedFixture fixture) : NonSh
     }
 
     public void OnModelCreating21006(ModelBuilder modelBuilder)
-    {
-        modelBuilder.Entity<JsonContext21006.Entity>(b =>
+        => modelBuilder.Entity<JsonContext21006.Entity>(b =>
         {
             b.Property(x => x.Id).ValueGeneratedNever();
             b.ToContainer("Entities");
             b.Property(x => x.TestDecimal).HasPrecision(18, 3);
-            b.OwnsOne(x => x.Reference, bb =>
-            {
-                bb.Property(x => x.TestDecimal).HasPrecision(18, 3);
-                bb.Property(x => x.TestEnumWithIntConverter).HasConversion<int>();
-            });
+            b.OwnsOne(
+                x => x.Reference, bb =>
+                {
+                    bb.Property(x => x.TestDecimal).HasPrecision(18, 3);
+                    bb.Property(x => x.TestEnumWithIntConverter).HasConversion<int>();
+                });
         });
-    }
 
     protected async Task Seed21006(JsonContext21006 context)
     {
@@ -48,7 +47,7 @@ public class AdHocMiscellaneousQueryCosmosTest(NonSharedFixture fixture) : NonSh
         var entitiesContainer = singletonWrapper.Client.GetContainer(context.Database.GetCosmosDatabaseId(), containerId: "Entities");
 
         var missingTopLevel =
-$$"""
+            """
 {
   "Id": 1,
   "$type": "Entity",
@@ -285,7 +284,12 @@ $$"""
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Product>().HasData(
-                new Product { Id = 1, NullableRef = "Value", NullableVal = 3.14 },
+                new Product
+                {
+                    Id = 1,
+                    NullableRef = "Value",
+                    NullableVal = 3.14
+                },
                 new Product { Id = 2, NullableVal = 3.14 },
                 new Product { Id = 3, NullableRef = "Value" });
 
@@ -293,6 +297,7 @@ $$"""
         {
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public int Id { get; set; }
+
             public double? NullableVal { get; set; }
             public string NullableRef { get; set; }
         }

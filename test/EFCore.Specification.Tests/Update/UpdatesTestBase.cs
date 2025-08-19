@@ -16,61 +16,56 @@ public abstract class UpdatesTestBase<TFixture>(TFixture fixture) : IClassFixtur
 
     public static readonly IEnumerable<object[]> IsAsyncData = [[false], [true]];
 
-    [ConditionalTheory] // Issue #25905
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)] // Issue #25905
     public virtual async Task Can_delete_and_add_for_same_key(bool async)
-        => await ExecuteWithStrategyInTransactionAsync(
-            async context =>
+        => await ExecuteWithStrategyInTransactionAsync(async context =>
+        {
+            var rodney1 = new Rodney { Id = "SnotAndMarmite", Concurrency = new DateTime(1973, 9, 3) };
+            if (async)
             {
-                var rodney1 = new Rodney { Id = "SnotAndMarmite", Concurrency = new DateTime(1973, 9, 3) };
-                if (async)
-                {
-                    await context.AddAsync(rodney1);
-                    await context.SaveChangesAsync();
-                }
-                else
-                {
-                    context.Add(rodney1);
-                    await context.SaveChangesAsync();
-                }
+                await context.AddAsync(rodney1);
+                await context.SaveChangesAsync();
+            }
+            else
+            {
+                context.Add(rodney1);
+                await context.SaveChangesAsync();
+            }
 
-                context.Remove(rodney1);
+            context.Remove(rodney1);
 
-                var rodney2 = new Rodney { Id = "SnotAndMarmite", Concurrency = new DateTime(1973, 9, 4) };
-                if (async)
-                {
-                    await context.AddAsync(rodney2);
-                    await context.SaveChangesAsync();
-                }
-                else
-                {
-                    context.Add(rodney2);
-                    await context.SaveChangesAsync();
-                }
+            var rodney2 = new Rodney { Id = "SnotAndMarmite", Concurrency = new DateTime(1973, 9, 4) };
+            if (async)
+            {
+                await context.AddAsync(rodney2);
+                await context.SaveChangesAsync();
+            }
+            else
+            {
+                context.Add(rodney2);
+                await context.SaveChangesAsync();
+            }
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
-                Assert.Equal(EntityState.Unchanged, context.Entry(rodney2).State);
-                Assert.Equal(EntityState.Detached, context.Entry(rodney1).State);
-            });
+            Assert.Equal(1, context.ChangeTracker.Entries().Count());
+            Assert.Equal(EntityState.Unchanged, context.Entry(rodney2).State);
+            Assert.Equal(EntityState.Detached, context.Entry(rodney1).State);
+        });
 
-    [ConditionalTheory] // Issue #29789
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)] // Issue #29789
     public virtual async Task Can_change_type_of_pk_to_pk_dependent_by_replacing_with_new_dependent(bool async)
         => await ExecuteWithStrategyInTransactionAsync(
             async context =>
             {
                 var gift = new Gift { Recipient = "Alice", Obscurer = new GiftPaper { Pattern = "Stripes" } };
                 await context.AddAsync(gift);
-                _ = async ? await context.SaveChangesAsync() : await context.SaveChangesAsync();
+                _ = async ? await context.SaveChangesAsync() : context.SaveChanges();
             },
             async context =>
             {
                 var gift = await context.Set<Gift>().Include(e => e.Obscurer).SingleAsync();
                 var bag = new GiftBag { Pattern = "Gold stars" };
                 gift.Obscurer = bag;
-                _ = async ? await context.SaveChangesAsync() : await context.SaveChangesAsync();
+                _ = async ? await context.SaveChangesAsync() : context.SaveChanges();
             },
             async context =>
             {
@@ -81,23 +76,21 @@ public abstract class UpdatesTestBase<TFixture>(TFixture fixture) : IClassFixtur
                 Assert.Single(context.Set<GiftObscurer>());
             });
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task Can_change_type_of__dependent_by_replacing_with_new_dependent(bool async)
         => await ExecuteWithStrategyInTransactionAsync(
             async context =>
             {
                 var lift = new Lift { Recipient = "Alice", Obscurer = new LiftPaper { Pattern = "Stripes" } };
                 await context.AddAsync(lift);
-                _ = async ? await context.SaveChangesAsync() : await context.SaveChangesAsync();
+                _ = async ? await context.SaveChangesAsync() : context.SaveChanges();
             },
             async context =>
             {
                 var lift = await context.Set<Lift>().Include(e => e.Obscurer).SingleAsync();
                 var bag = new LiftBag { Pattern = "Gold stars" };
                 lift.Obscurer = bag;
-                _ = async ? await context.SaveChangesAsync() : await context.SaveChangesAsync();
+                _ = async ? await context.SaveChangesAsync() : context.SaveChanges();
             },
             async context =>
             {
@@ -181,43 +174,39 @@ public abstract class UpdatesTestBase<TFixture>(TFixture fixture) : IClassFixtur
 
     [ConditionalFact]
     public virtual Task Save_partial_update_on_missing_record_throws()
-        => ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                var entry = context.Products.Attach(
-                    new Product { Id = new Guid("3d1302c5-4cf8-4043-9758-de9398f6fe10"), Name = "Apple Fritter" });
+        => ExecuteWithStrategyInTransactionAsync(async context =>
+        {
+            var entry = context.Products.Attach(
+                new Product { Id = new Guid("3d1302c5-4cf8-4043-9758-de9398f6fe10"), Name = "Apple Fritter" });
 
-                entry.Property(c => c.Name).IsModified = true;
+            entry.Property(c => c.Name).IsModified = true;
 
-                Assert.Equal(
-                    UpdateConcurrencyMessage,
-                    (await Assert.ThrowsAsync<DbUpdateConcurrencyException>(
-                        () => context.SaveChangesAsync())).Message);
-            });
+            Assert.Equal(
+                UpdateConcurrencyMessage,
+                (await Assert.ThrowsAsync<DbUpdateConcurrencyException>(() => context.SaveChangesAsync())).Message);
+        });
 
     [ConditionalFact]
     public virtual Task Save_partial_update_on_concurrency_token_original_value_mismatch_throws()
     {
         var productId = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146");
 
-        return ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                var entry = context.Products.Attach(
-                    new Product
-                    {
-                        Id = productId,
-                        Name = "Apple Fritter",
-                        Price = 3.49M // Not the same as the value stored in the database
-                    });
+        return ExecuteWithStrategyInTransactionAsync(async context =>
+        {
+            var entry = context.Products.Attach(
+                new Product
+                {
+                    Id = productId,
+                    Name = "Apple Fritter",
+                    Price = 3.49M // Not the same as the value stored in the database
+                });
 
-                entry.Property(c => c.Name).IsModified = true;
+            entry.Property(c => c.Name).IsModified = true;
 
-                Assert.Equal(
-                    UpdateConcurrencyTokenMessage,
-                    (await Assert.ThrowsAsync<DbUpdateConcurrencyException>(
-                        () => context.SaveChangesAsync())).Message);
-            });
+            Assert.Equal(
+                UpdateConcurrencyTokenMessage,
+                (await Assert.ThrowsAsync<DbUpdateConcurrencyException>(() => context.SaveChangesAsync())).Message);
+        });
     }
 
     [ConditionalFact]
@@ -250,8 +239,7 @@ public abstract class UpdatesTestBase<TFixture>(TFixture fixture) : IClassFixtur
 
                 entry.Entity.Name = "GigaChips";
 
-                await Assert.ThrowsAsync<DbUpdateConcurrencyException>(
-                    () => context.SaveChangesAsync());
+                await Assert.ThrowsAsync<DbUpdateConcurrencyException>(() => context.SaveChangesAsync());
             },
             async context => Assert.Equal("MegaChips", (await context.ProductWithBytes.FindAsync(productId))!.Name));
     }
@@ -321,8 +309,7 @@ public abstract class UpdatesTestBase<TFixture>(TFixture fixture) : IClassFixtur
 
                 entry.State = EntityState.Deleted;
 
-                await Assert.ThrowsAsync<DbUpdateConcurrencyException>(
-                    () => context.SaveChangesAsync());
+                await Assert.ThrowsAsync<DbUpdateConcurrencyException>(() => context.SaveChangesAsync());
             },
             async context => Assert.Equal("MegaChips", (await context.ProductWithBytes.FindAsync(productId))!.Name));
     }
@@ -482,37 +469,33 @@ public abstract class UpdatesTestBase<TFixture>(TFixture fixture) : IClassFixtur
 
     [ConditionalFact]
     public virtual Task Remove_partial_on_missing_record_throws()
-        => ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                context.Products.Remove(
-                    new Product { Id = new Guid("3d1302c5-4cf8-4043-9758-de9398f6fe10") });
+        => ExecuteWithStrategyInTransactionAsync(async context =>
+        {
+            context.Products.Remove(
+                new Product { Id = new Guid("3d1302c5-4cf8-4043-9758-de9398f6fe10") });
 
-                Assert.Equal(
-                    UpdateConcurrencyMessage,
-                    (await Assert.ThrowsAsync<DbUpdateConcurrencyException>(
-                        () => context.SaveChangesAsync())).Message);
-            });
+            Assert.Equal(
+                UpdateConcurrencyMessage,
+                (await Assert.ThrowsAsync<DbUpdateConcurrencyException>(() => context.SaveChangesAsync())).Message);
+        });
 
     [ConditionalFact]
     public virtual Task Remove_partial_on_concurrency_token_original_value_mismatch_throws()
     {
         var productId = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146");
 
-        return ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                context.Products.Remove(
-                    new Product
-                    {
-                        Id = productId, Price = 3.49M // Not the same as the value stored in the database
-                    });
+        return ExecuteWithStrategyInTransactionAsync(async context =>
+        {
+            context.Products.Remove(
+                new Product
+                {
+                    Id = productId, Price = 3.49M // Not the same as the value stored in the database
+                });
 
-                Assert.Equal(
-                    UpdateConcurrencyTokenMessage,
-                    (await Assert.ThrowsAsync<DbUpdateConcurrencyException>(
-                        () => context.SaveChangesAsync())).Message);
-            });
+            Assert.Equal(
+                UpdateConcurrencyTokenMessage,
+                (await Assert.ThrowsAsync<DbUpdateConcurrencyException>(() => context.SaveChangesAsync())).Message);
+        });
     }
 
     [ConditionalFact]
@@ -545,8 +528,7 @@ public abstract class UpdatesTestBase<TFixture>(TFixture fixture) : IClassFixtur
                 Assert.Equal(2, products.Count);
             });
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public Task SaveChanges_processes_all_tracked_entities(bool async)
     {
         var categoryId = 0;
@@ -600,8 +582,7 @@ public abstract class UpdatesTestBase<TFixture>(TFixture fixture) : IClassFixtur
             });
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public Task SaveChanges_false_processes_all_tracked_entities_without_calling_AcceptAllChanges(bool async)
     {
         var categoryId = 0;
@@ -658,8 +639,7 @@ public abstract class UpdatesTestBase<TFixture>(TFixture fixture) : IClassFixtur
             });
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public Task Ignore_before_save_property_is_still_generated(bool async)
         => ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -697,8 +677,7 @@ public abstract class UpdatesTestBase<TFixture>(TFixture fixture) : IClassFixtur
                 Assert.Equal("CC2", ((CupCake)bakedGoods[0]).CupCakeName);
             });
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public Task Ignore_before_save_property_is_still_generated_graph(bool async)
         => ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -939,18 +918,17 @@ public abstract class UpdatesTestBase<TFixture>(TFixture fixture) : IClassFixtur
                 .HasIndex(e => new { e.Name, e.IsPrimaryNormalized })
                 .IsUnique();
 
-            modelBuilder.Entity<Person>(
-                pb =>
-                {
-                    pb.HasOne(p => p.Parent)
-                        .WithMany()
-                        .OnDelete(DeleteBehavior.Restrict);
-                    pb.OwnsOne(p => p.Address)
-                        .Property(p => p.Country)
-                        .HasConversion<string>();
-                    pb.Property(p => p.ZipCode)
-                        .HasConversion<int?>(v => v == null ? null : int.Parse(v), v => v == null ? null : v.ToString()!);
-                });
+            modelBuilder.Entity<Person>(pb =>
+            {
+                pb.HasOne(p => p.Parent)
+                    .WithMany()
+                    .OnDelete(DeleteBehavior.Restrict);
+                pb.OwnsOne(p => p.Address)
+                    .Property(p => p.Country)
+                    .HasConversion<string>();
+                pb.Property(p => p.ZipCode)
+                    .HasConversion<int?>(v => v == null ? null : int.Parse(v), v => v == null ? null : v.ToString()!);
+            });
 
             modelBuilder.Entity<Category>().HasMany(e => e.ProductCategories).WithOne(e => e.Category)
                 .HasForeignKey(e => e.CategoryId);
@@ -964,103 +942,96 @@ public abstract class UpdatesTestBase<TFixture>(TFixture fixture) : IClassFixtur
             modelBuilder
                 .Entity<
                     LoginEntityTypeWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWorkingCorrectly
-                >(
-                    eb =>
+                >(eb =>
+                {
+                    eb.HasKey(l => new
                     {
-                        eb.HasKey(
-                            l => new
-                            {
-                                l.ProfileId,
-                                l.ProfileId1,
-                                l.ProfileId3,
-                                l.ProfileId4,
-                                l.ProfileId5,
-                                l.ProfileId6,
-                                l.ProfileId7,
-                                l.ProfileId8,
-                                l.ProfileId9,
-                                l.ProfileId10,
-                                l.ProfileId11,
-                                l.ProfileId12,
-                                l.ProfileId13,
-                                l.ProfileId14
-                            });
-                        eb.HasIndex(
-                            l => new
-                            {
-                                l.ProfileId,
-                                l.ProfileId1,
-                                l.ProfileId3,
-                                l.ProfileId4,
-                                l.ProfileId5,
-                                l.ProfileId6,
-                                l.ProfileId7,
-                                l.ProfileId8,
-                                l.ProfileId9,
-                                l.ProfileId10,
-                                l.ProfileId11,
-                                l.ProfileId12,
-                                l.ProfileId13,
-                                l.ProfileId14,
-                                l.ExtraProperty
-                            });
+                        l.ProfileId,
+                        l.ProfileId1,
+                        l.ProfileId3,
+                        l.ProfileId4,
+                        l.ProfileId5,
+                        l.ProfileId6,
+                        l.ProfileId7,
+                        l.ProfileId8,
+                        l.ProfileId9,
+                        l.ProfileId10,
+                        l.ProfileId11,
+                        l.ProfileId12,
+                        l.ProfileId13,
+                        l.ProfileId14
                     });
+                    eb.HasIndex(l => new
+                    {
+                        l.ProfileId,
+                        l.ProfileId1,
+                        l.ProfileId3,
+                        l.ProfileId4,
+                        l.ProfileId5,
+                        l.ProfileId6,
+                        l.ProfileId7,
+                        l.ProfileId8,
+                        l.ProfileId9,
+                        l.ProfileId10,
+                        l.ProfileId11,
+                        l.ProfileId12,
+                        l.ProfileId13,
+                        l.ProfileId14,
+                        l.ExtraProperty
+                    });
+                });
 
             modelBuilder
                 .Entity<
                     LoginEntityTypeWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWorkingCorrectlyDetails
-                >(
-                    eb =>
-                    {
-                        eb.HasKey(l => new { l.ProfileId });
-                        eb.HasOne(d => d.Login).WithOne()
-                            .HasForeignKey<
-                                LoginEntityTypeWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWorkingCorrectlyDetails
-                            >(
-                                l => new
-                                {
-                                    l.ProfileId,
-                                    l.ProfileId1,
-                                    l.ProfileId3,
-                                    l.ProfileId4,
-                                    l.ProfileId5,
-                                    l.ProfileId6,
-                                    l.ProfileId7,
-                                    l.ProfileId8,
-                                    l.ProfileId9,
-                                    l.ProfileId10,
-                                    l.ProfileId11,
-                                    l.ProfileId12,
-                                    l.ProfileId13,
-                                    l.ProfileId14
-                                });
-                    });
-
-            modelBuilder.Entity<Profile>(
-                pb =>
+                >(eb =>
                 {
-                    pb.HasKey(
-                        l => new
+                    eb.HasKey(l => new { l.ProfileId });
+                    eb.HasOne(d => d.Login).WithOne()
+                        .HasForeignKey<
+                            LoginEntityTypeWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWorkingCorrectlyDetails
+                        >(l => new
                         {
-                            l.Id,
-                            l.Id1,
-                            l.Id3,
-                            l.Id4,
-                            l.Id5,
-                            l.Id6,
-                            l.Id7,
-                            l.Id8,
-                            l.Id9,
-                            l.Id10,
-                            l.Id11,
-                            l.Id12,
-                            l.Id13,
-                            l.Id14
+                            l.ProfileId,
+                            l.ProfileId1,
+                            l.ProfileId3,
+                            l.ProfileId4,
+                            l.ProfileId5,
+                            l.ProfileId6,
+                            l.ProfileId7,
+                            l.ProfileId8,
+                            l.ProfileId9,
+                            l.ProfileId10,
+                            l.ProfileId11,
+                            l.ProfileId12,
+                            l.ProfileId13,
+                            l.ProfileId14
                         });
-                    pb.HasOne(p => p.User)
-                        .WithOne(l => l.Profile)
-                        .IsRequired();
                 });
+
+            modelBuilder.Entity<Profile>(pb =>
+            {
+                pb.HasKey(l => new
+                {
+                    l.Id,
+                    l.Id1,
+                    l.Id3,
+                    l.Id4,
+                    l.Id5,
+                    l.Id6,
+                    l.Id7,
+                    l.Id8,
+                    l.Id9,
+                    l.Id10,
+                    l.Id11,
+                    l.Id12,
+                    l.Id13,
+                    l.Id14
+                });
+                pb.HasOne(p => p.User)
+                    .WithOne(l => l.Profile)
+                    .IsRequired();
+            });
 
             modelBuilder.Entity<Gift>();
             modelBuilder.Entity<GiftObscurer>().HasOne<Gift>().WithOne(x => x.Obscurer).HasForeignKey<GiftObscurer>(e => e.Id);

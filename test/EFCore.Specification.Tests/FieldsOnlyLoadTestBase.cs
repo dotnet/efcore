@@ -13,10 +13,7 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
 {
     protected TFixture Fixture { get; } = fixture;
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Added)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged), InlineData(EntityState.Modified), InlineData(EntityState.Added)]
     public virtual void Attached_references_to_principal_are_marked_as_loaded(EntityState state)
     {
         using var context = CreateContext();
@@ -54,10 +51,7 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.True(context.Entry(parent).Reference(e => e.SingleCompositeKey).IsLoaded);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Added)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged), InlineData(EntityState.Modified), InlineData(EntityState.Added)]
     public virtual void Attached_references_to_dependents_are_marked_as_loaded(EntityState state)
     {
         using var context = CreateContext();
@@ -95,10 +89,7 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.True(context.Entry(parent.SingleCompositeKey).Reference(e => e.Parent).IsLoaded);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Added)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged), InlineData(EntityState.Modified), InlineData(EntityState.Added)]
     public virtual void Attached_collections_are_not_marked_as_loaded(EntityState state)
     {
         using var context = CreateContext();
@@ -137,25 +128,24 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.False(context.Entry(parent).Collection(e => e.ChildrenCompositeKey).IsLoaded);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
     public virtual async Task Load_collection(EntityState state, QueryTrackingBehavior queryTrackingBehavior, bool async)
     {
         using var context = CreateContext();
@@ -192,13 +182,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Equal(3, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_many_to_one_reference_to_principal(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -241,13 +227,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_one_to_one_reference_to_principal(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -290,13 +272,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_one_to_one_reference_to_principal_when_NoTracking_behavior(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -341,13 +319,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_one_to_one_reference_to_dependent(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -382,13 +356,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Same(parent, single.Parent);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_one_to_one_PK_to_PK_reference_to_principal(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -431,13 +401,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_one_to_one_PK_to_PK_reference_to_dependent(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -472,13 +438,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Same(parent, single.Parent);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_collection_using_Query(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -508,13 +470,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Equal(3, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_many_to_one_reference_to_principal_using_Query(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -552,13 +510,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Equal(2, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_one_to_one_reference_to_principal_using_Query(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -596,13 +550,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Equal(2, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_one_to_one_reference_to_dependent_using_Query(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -631,13 +581,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Equal(2, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_one_to_one_PK_to_PK_reference_to_principal_using_Query(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -675,13 +621,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Equal(2, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_one_to_one_PK_to_PK_reference_to_dependent_using_Query(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -710,13 +652,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Equal(2, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_many_to_one_reference_to_principal_null_FK(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -748,13 +686,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Null(child.Parent);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_one_to_one_reference_to_principal_null_FK(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -787,13 +721,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Null(single.Parent);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_many_to_one_reference_to_principal_using_Query_null_FK(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -822,13 +752,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Single(context.ChangeTracker.Entries());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_one_to_one_reference_to_principal_using_Query_null_FK(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -857,13 +783,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Single(context.ChangeTracker.Entries());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_collection_not_found(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -895,13 +817,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Single(context.ChangeTracker.Entries());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_many_to_one_reference_to_principal_not_found(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -933,13 +851,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Null(child.Parent);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_one_to_one_reference_to_principal_not_found(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -972,13 +886,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Null(single.Parent);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_one_to_one_reference_to_dependent_not_found(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -1011,13 +921,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Null(parent.Single);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_collection_using_Query_not_found(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -1046,13 +952,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Single(context.ChangeTracker.Entries());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_many_to_one_reference_to_principal_using_Query_not_found(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -1081,13 +983,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Single(context.ChangeTracker.Entries());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_one_to_one_reference_to_principal_using_Query_not_found(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -1116,13 +1014,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Single(context.ChangeTracker.Entries());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_one_to_one_reference_to_dependent_using_Query_not_found(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -1151,19 +1045,15 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Single(context.ChangeTracker.Entries());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Unchanged, false, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Modified, true, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Modified, false, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Deleted, true, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Deleted, false, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Unchanged, true, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Unchanged, false, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Modified, true, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Modified, false, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Deleted, true, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Deleted, false, CascadeTiming.OnSaveChanges)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true, CascadeTiming.Immediate),
+     InlineData(EntityState.Unchanged, false, CascadeTiming.Immediate), InlineData(EntityState.Modified, true, CascadeTiming.Immediate),
+     InlineData(EntityState.Modified, false, CascadeTiming.Immediate), InlineData(EntityState.Deleted, true, CascadeTiming.Immediate),
+     InlineData(EntityState.Deleted, false, CascadeTiming.Immediate), InlineData(EntityState.Unchanged, true, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Unchanged, false, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Modified, true, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Modified, false, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Deleted, true, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Deleted, false, CascadeTiming.OnSaveChanges)]
     public virtual async Task Load_collection_already_loaded(EntityState state, bool async, CascadeTiming deleteOrphansTiming)
     {
         using var context = CreateContext();
@@ -1207,13 +1097,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Equal(3, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_many_to_one_reference_to_principal_already_loaded(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -1248,19 +1134,15 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Same(child, parent.Children.Single());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Unchanged, false, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Modified, true, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Modified, false, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Deleted, true, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Deleted, false, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Unchanged, true, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Unchanged, false, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Modified, true, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Modified, false, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Deleted, true, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Deleted, false, CascadeTiming.OnSaveChanges)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true, CascadeTiming.Immediate),
+     InlineData(EntityState.Unchanged, false, CascadeTiming.Immediate), InlineData(EntityState.Modified, true, CascadeTiming.Immediate),
+     InlineData(EntityState.Modified, false, CascadeTiming.Immediate), InlineData(EntityState.Deleted, true, CascadeTiming.Immediate),
+     InlineData(EntityState.Deleted, false, CascadeTiming.Immediate), InlineData(EntityState.Unchanged, true, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Unchanged, false, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Modified, true, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Modified, false, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Deleted, true, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Deleted, false, CascadeTiming.OnSaveChanges)]
     public virtual async Task Load_one_to_one_reference_to_principal_already_loaded(
         EntityState state,
         bool async,
@@ -1300,19 +1182,15 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Same(single, parent.Single);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Unchanged, false, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Modified, true, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Modified, false, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Deleted, true, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Deleted, false, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Unchanged, true, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Unchanged, false, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Modified, true, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Modified, false, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Deleted, true, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Deleted, false, CascadeTiming.OnSaveChanges)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true, CascadeTiming.Immediate),
+     InlineData(EntityState.Unchanged, false, CascadeTiming.Immediate), InlineData(EntityState.Modified, true, CascadeTiming.Immediate),
+     InlineData(EntityState.Modified, false, CascadeTiming.Immediate), InlineData(EntityState.Deleted, true, CascadeTiming.Immediate),
+     InlineData(EntityState.Deleted, false, CascadeTiming.Immediate), InlineData(EntityState.Unchanged, true, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Unchanged, false, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Modified, true, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Modified, false, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Deleted, true, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Deleted, false, CascadeTiming.OnSaveChanges)]
     public virtual async Task Load_one_to_one_reference_to_dependent_already_loaded(
         EntityState state,
         bool async,
@@ -1361,13 +1239,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_one_to_one_PK_to_PK_reference_to_principal_already_loaded(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -1402,13 +1276,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Same(single, parent.SinglePkToPk);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_one_to_one_PK_to_PK_reference_to_dependent_already_loaded(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -1443,19 +1313,15 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Same(parent, single.Parent);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Unchanged, false, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Modified, true, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Modified, false, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Deleted, true, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Deleted, false, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Unchanged, true, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Unchanged, false, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Modified, true, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Modified, false, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Deleted, true, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Deleted, false, CascadeTiming.OnSaveChanges)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true, CascadeTiming.Immediate),
+     InlineData(EntityState.Unchanged, false, CascadeTiming.Immediate), InlineData(EntityState.Modified, true, CascadeTiming.Immediate),
+     InlineData(EntityState.Modified, false, CascadeTiming.Immediate), InlineData(EntityState.Deleted, true, CascadeTiming.Immediate),
+     InlineData(EntityState.Deleted, false, CascadeTiming.Immediate), InlineData(EntityState.Unchanged, true, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Unchanged, false, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Modified, true, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Modified, false, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Deleted, true, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Deleted, false, CascadeTiming.OnSaveChanges)]
     public virtual async Task Load_collection_using_Query_already_loaded(
         EntityState state,
         bool async,
@@ -1490,13 +1356,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Equal(3, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_many_to_one_reference_to_principal_using_Query_already_loaded(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -1525,13 +1387,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Equal(2, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_one_to_one_reference_to_principal_using_Query_already_loaded(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -1560,19 +1418,15 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Equal(2, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Unchanged, false, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Modified, true, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Modified, false, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Deleted, true, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Deleted, false, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Unchanged, true, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Unchanged, false, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Modified, true, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Modified, false, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Deleted, true, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Deleted, false, CascadeTiming.OnSaveChanges)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true, CascadeTiming.Immediate),
+     InlineData(EntityState.Unchanged, false, CascadeTiming.Immediate), InlineData(EntityState.Modified, true, CascadeTiming.Immediate),
+     InlineData(EntityState.Modified, false, CascadeTiming.Immediate), InlineData(EntityState.Deleted, true, CascadeTiming.Immediate),
+     InlineData(EntityState.Deleted, false, CascadeTiming.Immediate), InlineData(EntityState.Unchanged, true, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Unchanged, false, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Modified, true, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Modified, false, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Deleted, true, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Deleted, false, CascadeTiming.OnSaveChanges)]
     public virtual async Task Load_one_to_one_reference_to_dependent_using_Query_already_loaded(
         EntityState state,
         bool async,
@@ -1606,13 +1460,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Equal(2, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_one_to_one_PK_to_PK_reference_to_principal_using_Query_already_loaded(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -1641,13 +1491,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Equal(2, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_one_to_one_PK_to_PK_reference_to_dependent_using_Query_already_loaded(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -1676,13 +1522,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Equal(2, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_collection_untyped(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -1715,13 +1557,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Equal(3, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_many_to_one_reference_to_principal_untyped(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -1764,13 +1602,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_one_to_one_reference_to_principal_untyped(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -1813,13 +1647,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_one_to_one_reference_to_dependent_untyped(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -1854,13 +1684,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Same(parent, single.Parent);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_collection_using_Query_untyped(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -1891,13 +1717,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Equal(3, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_many_to_one_reference_to_principal_using_Query_untyped(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -1936,13 +1758,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Equal(2, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_one_to_one_reference_to_principal_using_Query_untyped(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -1981,13 +1799,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Equal(2, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_one_to_one_reference_to_dependent_using_Query_untyped(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -2017,13 +1831,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Equal(2, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_collection_not_found_untyped(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -2055,13 +1865,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Single(context.ChangeTracker.Entries());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_many_to_one_reference_to_principal_not_found_untyped(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -2093,13 +1899,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Null(child.Parent);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_one_to_one_reference_to_principal_not_found_untyped(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -2132,13 +1934,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Null(single.Parent);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_one_to_one_reference_to_dependent_not_found_untyped(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -2171,13 +1969,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Null(parent.Single);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_collection_using_Query_not_found_untyped(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -2207,13 +2001,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Single(context.ChangeTracker.Entries());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_many_to_one_reference_to_principal_using_Query_not_found_untyped(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -2243,13 +2033,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Single(context.ChangeTracker.Entries());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_one_to_one_reference_to_principal_using_Query_not_found_untyped(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -2279,13 +2065,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Single(context.ChangeTracker.Entries());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_one_to_one_reference_to_dependent_using_Query_not_found_untyped(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -2315,19 +2097,15 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Single(context.ChangeTracker.Entries());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Unchanged, false, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Modified, true, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Modified, false, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Deleted, true, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Deleted, false, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Unchanged, true, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Unchanged, false, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Modified, true, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Modified, false, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Deleted, true, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Deleted, false, CascadeTiming.OnSaveChanges)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true, CascadeTiming.Immediate),
+     InlineData(EntityState.Unchanged, false, CascadeTiming.Immediate), InlineData(EntityState.Modified, true, CascadeTiming.Immediate),
+     InlineData(EntityState.Modified, false, CascadeTiming.Immediate), InlineData(EntityState.Deleted, true, CascadeTiming.Immediate),
+     InlineData(EntityState.Deleted, false, CascadeTiming.Immediate), InlineData(EntityState.Unchanged, true, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Unchanged, false, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Modified, true, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Modified, false, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Deleted, true, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Deleted, false, CascadeTiming.OnSaveChanges)]
     public virtual async Task Load_collection_already_loaded_untyped(EntityState state, bool async, CascadeTiming deleteOrphansTiming)
     {
         using var context = CreateContext();
@@ -2371,13 +2149,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Equal(3, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_many_to_one_reference_to_principal_already_loaded_untyped(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -2412,13 +2186,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Same(child, parent.Children.Single());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_one_to_one_reference_to_principal_already_loaded_untyped(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -2453,19 +2223,15 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Same(single, parent.Single);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Unchanged, false, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Modified, true, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Modified, false, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Deleted, true, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Deleted, false, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Unchanged, true, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Unchanged, false, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Modified, true, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Modified, false, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Deleted, true, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Deleted, false, CascadeTiming.OnSaveChanges)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true, CascadeTiming.Immediate),
+     InlineData(EntityState.Unchanged, false, CascadeTiming.Immediate), InlineData(EntityState.Modified, true, CascadeTiming.Immediate),
+     InlineData(EntityState.Modified, false, CascadeTiming.Immediate), InlineData(EntityState.Deleted, true, CascadeTiming.Immediate),
+     InlineData(EntityState.Deleted, false, CascadeTiming.Immediate), InlineData(EntityState.Unchanged, true, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Unchanged, false, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Modified, true, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Modified, false, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Deleted, true, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Deleted, false, CascadeTiming.OnSaveChanges)]
     public virtual async Task Load_one_to_one_reference_to_dependent_already_loaded_untyped(
         EntityState state,
         bool async,
@@ -2514,19 +2280,15 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Unchanged, false, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Modified, true, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Modified, false, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Deleted, true, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Deleted, false, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Unchanged, true, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Unchanged, false, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Modified, true, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Modified, false, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Deleted, true, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Deleted, false, CascadeTiming.OnSaveChanges)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true, CascadeTiming.Immediate),
+     InlineData(EntityState.Unchanged, false, CascadeTiming.Immediate), InlineData(EntityState.Modified, true, CascadeTiming.Immediate),
+     InlineData(EntityState.Modified, false, CascadeTiming.Immediate), InlineData(EntityState.Deleted, true, CascadeTiming.Immediate),
+     InlineData(EntityState.Deleted, false, CascadeTiming.Immediate), InlineData(EntityState.Unchanged, true, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Unchanged, false, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Modified, true, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Modified, false, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Deleted, true, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Deleted, false, CascadeTiming.OnSaveChanges)]
     public virtual async Task Load_collection_using_Query_already_loaded_untyped(
         EntityState state,
         bool async,
@@ -2562,13 +2324,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Equal(3, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_many_to_one_reference_to_principal_using_Query_already_loaded_untyped(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -2598,13 +2356,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Equal(2, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_one_to_one_reference_to_principal_using_Query_already_loaded_untyped(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -2634,19 +2388,15 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Equal(2, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Unchanged, false, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Modified, true, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Modified, false, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Deleted, true, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Deleted, false, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Unchanged, true, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Unchanged, false, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Modified, true, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Modified, false, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Deleted, true, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Deleted, false, CascadeTiming.OnSaveChanges)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true, CascadeTiming.Immediate),
+     InlineData(EntityState.Unchanged, false, CascadeTiming.Immediate), InlineData(EntityState.Modified, true, CascadeTiming.Immediate),
+     InlineData(EntityState.Modified, false, CascadeTiming.Immediate), InlineData(EntityState.Deleted, true, CascadeTiming.Immediate),
+     InlineData(EntityState.Deleted, false, CascadeTiming.Immediate), InlineData(EntityState.Unchanged, true, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Unchanged, false, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Modified, true, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Modified, false, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Deleted, true, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Deleted, false, CascadeTiming.OnSaveChanges)]
     public virtual async Task Load_one_to_one_reference_to_dependent_using_Query_already_loaded_untyped(
         EntityState state,
         bool async,
@@ -2683,13 +2433,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Equal(2, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_collection_alternate_key(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -2722,13 +2468,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Equal(3, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_many_to_one_reference_to_principal_alternate_key(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -2771,13 +2513,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_one_to_one_reference_to_principal_alternate_key(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -2820,13 +2558,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_one_to_one_reference_to_dependent_alternate_key(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -2861,13 +2595,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Same(parent, single.Parent);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_collection_using_Query_alternate_key(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -2897,13 +2627,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Equal(3, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_many_to_one_reference_to_principal_using_Query_alternate_key(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -2941,13 +2667,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Equal(2, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_one_to_one_reference_to_principal_using_Query_alternate_key(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -2985,13 +2707,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Equal(2, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_one_to_one_reference_to_dependent_using_Query_alternate_key(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -3020,13 +2738,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Equal(2, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_many_to_one_reference_to_principal_null_FK_alternate_key(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -3058,13 +2772,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Null(child.Parent);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_one_to_one_reference_to_principal_null_FK_alternate_key(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -3097,13 +2807,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Null(single.Parent);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_many_to_one_reference_to_principal_using_Query_null_FK_alternate_key(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -3132,13 +2838,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Single(context.ChangeTracker.Entries());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_one_to_one_reference_to_principal_using_Query_null_FK_alternate_key(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -3167,13 +2869,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Single(context.ChangeTracker.Entries());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_collection_shadow_fk(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -3206,13 +2904,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Equal(3, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_many_to_one_reference_to_principal_shadow_fk(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -3255,13 +2949,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_one_to_one_reference_to_principal_shadow_fk(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -3304,13 +2994,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_one_to_one_reference_to_dependent_shadow_fk(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -3345,13 +3031,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Same(parent, single.Parent);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_collection_using_Query_shadow_fk(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -3381,13 +3063,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Equal(3, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_many_to_one_reference_to_principal_using_Query_shadow_fk(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -3425,13 +3103,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Equal(2, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_one_to_one_reference_to_principal_using_Query_shadow_fk(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -3469,13 +3143,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Equal(2, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_one_to_one_reference_to_dependent_using_Query_shadow_fk(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -3504,13 +3174,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Equal(2, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_many_to_one_reference_to_principal_null_FK_shadow_fk(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -3542,13 +3208,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Null(child.Parent);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_one_to_one_reference_to_principal_null_FK_shadow_fk(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -3581,13 +3243,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Null(single.Parent);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_many_to_one_reference_to_principal_using_Query_null_FK_shadow_fk(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -3616,13 +3274,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Single(context.ChangeTracker.Entries());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_one_to_one_reference_to_principal_using_Query_null_FK_shadow_fk(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -3651,13 +3305,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Single(context.ChangeTracker.Entries());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_collection_composite_key(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -3690,13 +3340,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Equal(3, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_many_to_one_reference_to_principal_composite_key(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -3739,13 +3385,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_one_to_one_reference_to_principal_composite_key(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -3788,13 +3430,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_one_to_one_reference_to_dependent_composite_key(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -3829,13 +3467,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Same(parent, single.Parent);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_collection_using_Query_composite_key(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -3865,13 +3499,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Equal(3, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_many_to_one_reference_to_principal_using_Query_composite_key(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -3909,13 +3539,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Equal(2, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_one_to_one_reference_to_principal_using_Query_composite_key(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -3953,13 +3579,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Equal(2, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_one_to_one_reference_to_dependent_using_Query_composite_key(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -3988,13 +3610,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Equal(2, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_many_to_one_reference_to_principal_null_FK_composite_key(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -4026,13 +3644,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Null(child.Parent);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_one_to_one_reference_to_principal_null_FK_composite_key(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -4065,13 +3679,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Null(single.Parent);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_many_to_one_reference_to_principal_using_Query_null_FK_composite_key(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -4100,13 +3710,9 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Single(context.ChangeTracker.Entries());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false)]
     public virtual async Task Load_one_to_one_reference_to_principal_using_Query_null_FK_composite_key(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -4200,15 +3806,11 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         Assert.True(referenceEntry.IsLoaded);
 
         Assert.Equal(
-            CoreStrings.ReferenceMustBeLoaded("Parent", typeof(Child).Name),
+            CoreStrings.ReferenceMustBeLoaded("Parent", nameof(Child)),
             Assert.Throws<InvalidOperationException>(() => referenceEntry.IsLoaded = false).Message);
     }
 
-    [ConditionalTheory]
-    [InlineData(true, false)]
-    [InlineData(false, false)]
-    [InlineData(true, true)]
-    [InlineData(false, true)]
+    [ConditionalTheory, InlineData(true, false), InlineData(false, false), InlineData(true, true), InlineData(false, true)]
     public virtual async Task Load_collection_for_detached_throws(bool async, bool noTracking)
     {
         using var context = CreateContext(noTracking: noTracking);
@@ -4231,11 +3833,7 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(true, false)]
-    [InlineData(false, false)]
-    [InlineData(true, true)]
-    [InlineData(false, true)]
+    [ConditionalTheory, InlineData(true, false), InlineData(false, false), InlineData(true, true), InlineData(false, true)]
     public virtual async Task Load_collection_using_string_for_detached_throws(bool async, bool noTracking)
     {
         using var context = CreateContext(noTracking: noTracking);
@@ -4258,11 +3856,7 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(true, false)]
-    [InlineData(false, false)]
-    [InlineData(true, true)]
-    [InlineData(false, true)]
+    [ConditionalTheory, InlineData(true, false), InlineData(false, false), InlineData(true, true), InlineData(false, true)]
     public virtual async Task Load_collection_with_navigation_for_detached_throws(bool async, bool noTracking)
     {
         using var context = CreateContext(noTracking: noTracking);
@@ -4285,11 +3879,7 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(true, false)]
-    [InlineData(false, false)]
-    [InlineData(true, true)]
-    [InlineData(false, true)]
+    [ConditionalTheory, InlineData(true, false), InlineData(false, false), InlineData(true, true), InlineData(false, true)]
     public virtual async Task Load_reference_to_principal_for_detached_throws(bool async, bool noTracking)
     {
         using var context = CreateContext(noTracking: noTracking);
@@ -4312,11 +3902,7 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(true, false)]
-    [InlineData(false, false)]
-    [InlineData(true, true)]
-    [InlineData(false, true)]
+    [ConditionalTheory, InlineData(true, false), InlineData(false, false), InlineData(true, true), InlineData(false, true)]
     public virtual async Task Load_reference_with_navigation_to_principal_for_detached_throws(bool async, bool noTracking)
     {
         using var context = CreateContext(noTracking: noTracking);
@@ -4339,11 +3925,7 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(true, false)]
-    [InlineData(false, false)]
-    [InlineData(true, true)]
-    [InlineData(false, true)]
+    [ConditionalTheory, InlineData(true, false), InlineData(false, false), InlineData(true, true), InlineData(false, true)]
     public virtual async Task Load_reference_using_string_to_principal_for_detached_throws(bool async, bool noTracking)
     {
         using var context = CreateContext(noTracking: noTracking);
@@ -4366,11 +3948,7 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(true, false)]
-    [InlineData(false, false)]
-    [InlineData(true, true)]
-    [InlineData(false, true)]
+    [ConditionalTheory, InlineData(true, false), InlineData(false, false), InlineData(true, true), InlineData(false, true)]
     public virtual async Task Load_reference_to_dependent_for_detached_throws(bool async, bool noTracking)
     {
         using var context = CreateContext(noTracking: noTracking);
@@ -4393,11 +3971,7 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(true, false)]
-    [InlineData(false, false)]
-    [InlineData(true, true)]
-    [InlineData(false, true)]
+    [ConditionalTheory, InlineData(true, false), InlineData(false, false), InlineData(true, true), InlineData(false, true)]
     public virtual async Task Load_reference_to_dependent_with_navigation_for_detached_throws(bool async, bool noTracking)
     {
         using var context = CreateContext(noTracking: noTracking);
@@ -4420,11 +3994,7 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(true, false)]
-    [InlineData(false, false)]
-    [InlineData(true, true)]
-    [InlineData(false, true)]
+    [ConditionalTheory, InlineData(true, false), InlineData(false, false), InlineData(true, true), InlineData(false, true)]
     public virtual async Task Load_reference_to_dependent_using_string_for_detached_throws(bool async, bool noTracking)
     {
         using var context = CreateContext(noTracking: noTracking);
@@ -4447,9 +4017,7 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public virtual void Query_collection_for_detached_throws(bool noTracking)
     {
         using var context = CreateContext(noTracking: noTracking);
@@ -4465,9 +4033,7 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         var query = collectionEntry.Query();
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public virtual void Query_collection_using_string_for_detached_throws(bool noTracking)
     {
         using var context = CreateContext(noTracking: noTracking);
@@ -4483,9 +4049,7 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         var query = collectionEntry.Query();
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public virtual void Query_collection_with_navigation_for_detached_throws(bool noTracking)
     {
         using var context = CreateContext(noTracking: noTracking);
@@ -4501,9 +4065,7 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         var query = collectionEntry.Query();
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public virtual void Query_reference_to_principal_for_detached_throws(bool noTracking)
     {
         using var context = CreateContext(noTracking: noTracking);
@@ -4519,9 +4081,7 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         var query = referenceEntry.Query();
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public virtual void Query_reference_with_navigation_to_principal_for_detached_throws(bool noTracking)
     {
         using var context = CreateContext(noTracking: noTracking);
@@ -4537,9 +4097,7 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         var query = referenceEntry.Query();
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public virtual void Query_reference_using_string_to_principal_for_detached_throws(bool noTracking)
     {
         using var context = CreateContext(noTracking: noTracking);
@@ -4555,9 +4113,7 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         var query = referenceEntry.Query();
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public virtual void Query_reference_to_dependent_for_detached_throws(bool noTracking)
     {
         using var context = CreateContext(noTracking: noTracking);
@@ -4573,9 +4129,7 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         var query = referenceEntry.Query();
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public virtual void Query_reference_to_dependent_with_navigation_for_detached_throws(bool noTracking)
     {
         using var context = CreateContext(noTracking: noTracking);
@@ -4591,9 +4145,7 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         var query = referenceEntry.Query();
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public virtual void Query_reference_to_dependent_using_string_for_detached_throws(bool noTracking)
     {
         using var context = CreateContext(noTracking: noTracking);
@@ -4733,113 +4285,99 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
             modelBuilder.Entity<SingleShadowFk>()
                 .Property<int?>("ParentId");
 
-            modelBuilder.Entity<Parent>(
-                b =>
-                {
-                    b.Property(e => e.Id).ValueGeneratedNever();
-                    b.Property(e => e.AlternateId).ValueGeneratedOnAdd();
+            modelBuilder.Entity<Parent>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedNever();
+                b.Property(e => e.AlternateId).ValueGeneratedOnAdd();
 
-                    b.HasMany<Child>(nameof(Parent.Children))
-                        .WithOne(nameof(Child.Parent))
-                        .HasForeignKey(e => e.ParentId);
+                b.HasMany<Child>(nameof(Parent.Children))
+                    .WithOne(nameof(Child.Parent))
+                    .HasForeignKey(e => e.ParentId);
 
-                    b.HasOne<SinglePkToPk>(nameof(Parent.SinglePkToPk))
-                        .WithOne(nameof(SinglePkToPk.Parent))
-                        .HasForeignKey<SinglePkToPk>(e => e.Id)
-                        .IsRequired();
+                b.HasOne<SinglePkToPk>(nameof(Parent.SinglePkToPk))
+                    .WithOne(nameof(SinglePkToPk.Parent))
+                    .HasForeignKey<SinglePkToPk>(e => e.Id)
+                    .IsRequired();
 
-                    b.HasOne<Single>(nameof(Parent.Single))
-                        .WithOne(e => e.Parent)
-                        .HasForeignKey<Single>(e => e.ParentId);
+                b.HasOne<Single>(nameof(Parent.Single))
+                    .WithOne(e => e.Parent)
+                    .HasForeignKey<Single>(e => e.ParentId);
 
-                    b.HasMany<ChildAk>(nameof(Parent.ChildrenAk))
-                        .WithOne(e => e.Parent)
-                        .HasPrincipalKey(e => e.AlternateId)
-                        .HasForeignKey(e => e.ParentId);
+                b.HasMany<ChildAk>(nameof(Parent.ChildrenAk))
+                    .WithOne(e => e.Parent)
+                    .HasPrincipalKey(e => e.AlternateId)
+                    .HasForeignKey(e => e.ParentId);
 
-                    b.HasOne<SingleAk>(nameof(Parent.SingleAk))
-                        .WithOne(e => e.Parent)
-                        .HasPrincipalKey<Parent>(e => e.AlternateId)
-                        .HasForeignKey<SingleAk>(e => e.ParentId);
+                b.HasOne<SingleAk>(nameof(Parent.SingleAk))
+                    .WithOne(e => e.Parent)
+                    .HasPrincipalKey<Parent>(e => e.AlternateId)
+                    .HasForeignKey<SingleAk>(e => e.ParentId);
 
-                    b.HasMany(e => e.ChildrenShadowFk)
-                        .WithOne(nameof(ChildShadowFk.Parent))
-                        .HasPrincipalKey(e => e.Id)
-                        .HasForeignKey("ParentId");
+                b.HasMany(e => e.ChildrenShadowFk)
+                    .WithOne(nameof(ChildShadowFk.Parent))
+                    .HasPrincipalKey(e => e.Id)
+                    .HasForeignKey("ParentId");
 
-                    b.HasOne<SingleShadowFk>(nameof(Parent.SingleShadowFk))
-                        .WithOne(e => e.Parent)
-                        .HasPrincipalKey<Parent>(e => e.Id)
-                        .HasForeignKey<SingleShadowFk>("ParentId");
+                b.HasOne<SingleShadowFk>(nameof(Parent.SingleShadowFk))
+                    .WithOne(e => e.Parent)
+                    .HasPrincipalKey<Parent>(e => e.Id)
+                    .HasForeignKey<SingleShadowFk>("ParentId");
 
-                    b.HasMany(e => e.ChildrenCompositeKey)
-                        .WithOne(e => e.Parent)
-                        .HasPrincipalKey(
-                            e => new { e.AlternateId, e.Id })
-                        .HasForeignKey(
-                            e => new { e.ParentAlternateId, e.ParentId });
+                b.HasMany(e => e.ChildrenCompositeKey)
+                    .WithOne(e => e.Parent)
+                    .HasPrincipalKey(e => new { e.AlternateId, e.Id })
+                    .HasForeignKey(e => new { e.ParentAlternateId, e.ParentId });
 
-                    b.HasOne<SingleCompositeKey>(nameof(Parent.SingleCompositeKey))
-                        .WithOne(e => e.Parent)
-                        .HasPrincipalKey<Parent>(
-                            e => new { e.AlternateId, e.Id })
-                        .HasForeignKey<SingleCompositeKey>(
-                            e => new { e.ParentAlternateId, e.ParentId });
-                });
+                b.HasOne<SingleCompositeKey>(nameof(Parent.SingleCompositeKey))
+                    .WithOne(e => e.Parent)
+                    .HasPrincipalKey<Parent>(e => new { e.AlternateId, e.Id })
+                    .HasForeignKey<SingleCompositeKey>(e => new { e.ParentAlternateId, e.ParentId });
+            });
 
-            modelBuilder.Entity<SingleShadowFk>(
-                b =>
-                {
-                    b.Property(e => e.Id).ValueGeneratedNever();
-                });
+            modelBuilder.Entity<SingleShadowFk>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedNever();
+            });
 
-            modelBuilder.Entity<ChildShadowFk>(
-                b =>
-                {
-                    b.Property(e => e.Id).ValueGeneratedNever();
-                });
+            modelBuilder.Entity<ChildShadowFk>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedNever();
+            });
 
-            modelBuilder.Entity<SingleCompositeKey>(
-                b =>
-                {
-                    b.Property(e => e.Id).ValueGeneratedNever();
-                });
+            modelBuilder.Entity<SingleCompositeKey>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedNever();
+            });
 
-            modelBuilder.Entity<ChildCompositeKey>(
-                b =>
-                {
-                    b.Property(e => e.Id).ValueGeneratedNever();
-                });
+            modelBuilder.Entity<ChildCompositeKey>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedNever();
+            });
 
-            modelBuilder.Entity<SingleAk>(
-                b =>
-                {
-                    b.Property(e => e.Id).ValueGeneratedNever();
-                });
+            modelBuilder.Entity<SingleAk>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedNever();
+            });
 
-            modelBuilder.Entity<ChildAk>(
-                b =>
-                {
-                    b.Property(e => e.Id).ValueGeneratedNever();
-                });
+            modelBuilder.Entity<ChildAk>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedNever();
+            });
 
-            modelBuilder.Entity<Single>(
-                b =>
-                {
-                    b.Property(e => e.Id).ValueGeneratedNever();
-                });
+            modelBuilder.Entity<Single>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedNever();
+            });
 
-            modelBuilder.Entity<SinglePkToPk>(
-                b =>
-                {
-                    b.Property(e => e.Id).ValueGeneratedNever();
-                });
+            modelBuilder.Entity<SinglePkToPk>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedNever();
+            });
 
-            modelBuilder.Entity<Child>(
-                b =>
-                {
-                    b.Property(e => e.Id).ValueGeneratedNever();
-                });
+            modelBuilder.Entity<Child>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedNever();
+            });
         }
 
         protected override Task SeedAsync(PoolableDbContext context)

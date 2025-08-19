@@ -880,8 +880,8 @@ FROM [JsonEntitiesBasic] AS [j]
 
     public override async Task Json_collection_index_in_projection_using_untranslatable_client_method(bool async)
     {
-        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
-            () => base.Json_collection_index_in_projection_using_untranslatable_client_method(async))).Message;
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(()
+            => base.Json_collection_index_in_projection_using_untranslatable_client_method(async))).Message;
 
         Assert.Contains(
             CoreStrings.QueryUnableToTranslateMethod(
@@ -892,8 +892,8 @@ FROM [JsonEntitiesBasic] AS [j]
 
     public override async Task Json_collection_index_in_projection_using_untranslatable_client_method2(bool async)
     {
-        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
-            () => base.Json_collection_index_in_projection_using_untranslatable_client_method2(async))).Message;
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(()
+            => base.Json_collection_index_in_projection_using_untranslatable_client_method2(async))).Message;
 
         Assert.Contains(
             CoreStrings.QueryUnableToTranslateMethod(
@@ -1608,8 +1608,7 @@ ORDER BY [j].[Id], [o0].[SomethingSomething]
         // TODO:SQLJSON (See JsonTypeToFunction.cs)
         Assert.Equal(
             "OpenJson support not yet supported for JSON native data type.",
-            (await Assert.ThrowsAsync<SqlException>(
-                () => base.Json_collection_of_primitives_SelectMany(async))).Message);
+            (await Assert.ThrowsAsync<SqlException>(() => base.Json_collection_of_primitives_SelectMany(async))).Message);
 
         AssertSql(
             """
@@ -1660,8 +1659,7 @@ ORDER BY CAST(JSON_VALUE([j].[OwnedReferenceRoot], '$.Numbers[0]') AS int)
         // TODO:SQLJSON (See JsonTypeToFunction.cs)
         Assert.Equal(
             "OpenJson support not yet supported for JSON native data type.",
-            (await Assert.ThrowsAsync<SqlException>(
-                () => base.Json_collection_of_primitives_contains_in_predicate(async))).Message);
+            (await Assert.ThrowsAsync<SqlException>(() => base.Json_collection_of_primitives_contains_in_predicate(async))).Message);
 
         AssertSql(
             """
@@ -2461,8 +2459,7 @@ WHERE CAST(JSON_VALUE([j].[Reference], '$.TestByte') AS tinyint) <> CAST(3 AS ti
         // TODO:SQLJSON (See JsonTypeToFunction.cs)
         Assert.Equal(
             "OpenJson support not yet supported for JSON native data type.",
-            (await Assert.ThrowsAsync<SqlException>(
-                () => base.Json_predicate_on_byte_array(async))).Message);
+            (await Assert.ThrowsAsync<SqlException>(() => base.Json_predicate_on_byte_array(async))).Message);
 
         AssertSql(
             """

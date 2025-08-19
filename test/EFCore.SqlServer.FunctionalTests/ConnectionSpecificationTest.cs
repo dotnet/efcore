@@ -99,9 +99,7 @@ public class ConnectionSpecificationTest
                 .UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString, b => b.ApplyConfiguration());
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public async Task Can_specify_no_connection_in_OnConfiguring(bool contextOwnsConnection)
     {
         var serviceProvider
@@ -134,9 +132,7 @@ public class ConnectionSpecificationTest
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public async Task Can_specify_no_connection_in_OnConfiguring_with_default_service_provider(bool contextOwnsConnection)
     {
         SqlConnection connection;
@@ -466,10 +462,9 @@ public class ConnectionSpecificationTest
         }
     }
 
-    [ConditionalTheory]
-    [InlineData("MyConnectionString", "name=MyConnectionString")]
-    [InlineData("ConnectionStrings:DefaultConnection", "name=ConnectionStrings:DefaultConnection")]
-    [InlineData("ConnectionStrings:DefaultConnection", " NamE   =   ConnectionStrings:DefaultConnection  ")]
+    [ConditionalTheory, InlineData("MyConnectionString", "name=MyConnectionString"),
+     InlineData("ConnectionStrings:DefaultConnection", "name=ConnectionStrings:DefaultConnection"),
+     InlineData("ConnectionStrings:DefaultConnection", " NamE   =   ConnectionStrings:DefaultConnection  ")]
     public async Task Can_use_AddDbContext_and_get_connection_string_from_config(string key, string connectionString)
     {
         var configBuilder = new ConfigurationBuilder()
@@ -479,8 +474,7 @@ public class ConnectionSpecificationTest
         var serviceProvider
             = new ServiceCollection()
                 .AddSingleton<IConfiguration>(configBuilder.Build())
-                .AddDbContext<UseConfigurationContext>(
-                    b => b.UseSqlServer(connectionString).EnableServiceProviderCaching(false))
+                .AddDbContext<UseConfigurationContext>(b => b.UseSqlServer(connectionString).EnableServiceProviderCaching(false))
                 .BuildServiceProvider(validateScopes: true);
 
         await using (await SqlServerTestStore.GetNorthwindStoreAsync())
@@ -507,12 +501,11 @@ public class ConnectionSpecificationTest
         public DbSet<Customer> Customers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<Customer>(
-                b =>
-                {
-                    b.HasKey(c => c.CustomerID);
-                    b.ToTable("Customers");
-                });
+            => modelBuilder.Entity<Customer>(b =>
+            {
+                b.HasKey(c => c.CustomerID);
+                b.ToTable("Customers");
+            });
     }
 
     private class Customer
@@ -526,9 +519,7 @@ public class ConnectionSpecificationTest
         // ReSharper restore UnusedMember.Local
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public async Task Can_use_an_existing_closed_connection_test(bool openConnection)
     {
         var serviceProvider = new ServiceCollection()
@@ -597,11 +588,10 @@ public class ConnectionSpecificationTest
                 .UseInternalServiceProvider(_serviceProvider);
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<Customer>(
-                b =>
-                {
-                    b.HasKey(c => c.CustomerID);
-                    b.ToTable("Customers");
-                });
+            => modelBuilder.Entity<Customer>(b =>
+            {
+                b.HasKey(c => c.CustomerID);
+                b.ToTable("Customers");
+            });
     }
 }

@@ -10,7 +10,8 @@ public class TwoDatabasesSqlServerTest(SqlServerFixture fixture) : TwoDatabasesT
     protected new SqlServerFixture Fixture
         => (SqlServerFixture)base.Fixture;
 
-    [ConditionalTheory(Skip = "In SQL Server specifically, injection of Application Name into the connection string causes this test to fail (#36548)")]
+    [ConditionalTheory(
+        Skip = "In SQL Server specifically, injection of Application Name into the connection string causes this test to fail (#36548)")]
     public override void Can_set_connection_string_in_interceptor(bool withConnectionString, bool withNullConnectionString)
         => base.Can_set_connection_string_in_interceptor(withConnectionString, withNullConnectionString);
 

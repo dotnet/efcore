@@ -3,14 +3,14 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class MaterializationInterceptionTestBase<TContext>(NonSharedFixture fixture) : SingletonInterceptorsTestBase<TContext>(fixture)
+public abstract class MaterializationInterceptionTestBase<TContext>(NonSharedFixture fixture)
+    : SingletonInterceptorsTestBase<TContext>(fixture)
     where TContext : SingletonInterceptorsTestBase<TContext>.LibraryContext
 {
     protected override string StoreName
         => "MaterializationInterception";
 
-    [ConditionalTheory]
-    [ClassData(typeof(DataGenerator<bool, bool>))]
+    [ConditionalTheory, ClassData(typeof(DataGenerator<bool, bool>))]
     public virtual async Task Binding_interceptors_are_used_by_queries(bool inject, bool usePooling)
     {
         var interceptors = new[]
@@ -35,8 +35,7 @@ public abstract class MaterializationInterceptionTestBase<TContext>(NonSharedFix
         Assert.All(interceptors, i => Assert.Equal(1, i.CalledCount));
     }
 
-    [ConditionalTheory]
-    [ClassData(typeof(DataGenerator<bool, bool>))]
+    [ConditionalTheory, ClassData(typeof(DataGenerator<bool, bool>))]
     public virtual async Task Binding_interceptors_are_used_when_creating_instances(bool inject, bool usePooling)
     {
         var interceptors = new[]
@@ -57,8 +56,7 @@ public abstract class MaterializationInterceptionTestBase<TContext>(NonSharedFix
         Assert.All(interceptors, i => Assert.Equal(1, i.CalledCount));
     }
 
-    [ConditionalTheory]
-    [ClassData(typeof(DataGenerator<bool, bool>))]
+    [ConditionalTheory, ClassData(typeof(DataGenerator<bool, bool>))]
     public virtual async Task Intercept_query_materialization_for_empty_constructor(bool inject, bool usePooling)
     {
         var creatingInstanceCount = 0;
@@ -72,60 +70,59 @@ public abstract class MaterializationInterceptionTestBase<TContext>(NonSharedFix
 
         var interceptors = new[]
         {
-            new ValidatingMaterializationInterceptor(
-                (data, instance, method) =>
+            new ValidatingMaterializationInterceptor((data, instance, method) =>
+            {
+                Assert.Same(context, data.Context);
+                Assert.Same(data.Context.Model.FindEntityType(typeof(Book)), data.EntityType);
+                Assert.Equal(QueryTrackingBehavior.TrackAll, data.QueryTrackingBehavior);
+
+                var idProperty = data.EntityType.FindProperty(nameof(Book.Id))!;
+                var id = data.GetPropertyValue<Guid>(nameof(Book.Id))!;
+                Assert.Equal(id, data.GetPropertyValue(nameof(Book.Id)));
+                Assert.Equal(id, data.GetPropertyValue<Guid>(idProperty));
+                Assert.Equal(id, data.GetPropertyValue(idProperty));
+                ids.Add(id);
+
+                var titleProperty = data.EntityType.FindProperty(nameof(Book.Title))!;
+                var title = data.GetPropertyValue<string?>(nameof(Book.Title));
+                Assert.Equal(title, data.GetPropertyValue(nameof(Book.Title)));
+                Assert.Equal(title, data.GetPropertyValue<string?>(titleProperty));
+                Assert.Equal(title, data.GetPropertyValue(titleProperty));
+                titles.Add(title);
+
+                var authorProperty = data.EntityType.FindProperty("Author")!;
+                var author = data.GetPropertyValue<string?>("Author");
+                Assert.Equal(author, data.GetPropertyValue("Author"));
+                Assert.Equal(author, data.GetPropertyValue<string?>(authorProperty));
+                Assert.Equal(author, data.GetPropertyValue(authorProperty));
+                authors.Add(author);
+
+                switch (method)
                 {
-                    Assert.Same(context, data.Context);
-                    Assert.Same(data.Context.Model.FindEntityType(typeof(Book)), data.EntityType);
-                    Assert.Equal(QueryTrackingBehavior.TrackAll, data.QueryTrackingBehavior);
-
-                    var idProperty = data.EntityType.FindProperty(nameof(Book.Id))!;
-                    var id = data.GetPropertyValue<Guid>(nameof(Book.Id))!;
-                    Assert.Equal(id, data.GetPropertyValue(nameof(Book.Id)));
-                    Assert.Equal(id, data.GetPropertyValue<Guid>(idProperty));
-                    Assert.Equal(id, data.GetPropertyValue(idProperty));
-                    ids.Add(id);
-
-                    var titleProperty = data.EntityType.FindProperty(nameof(Book.Title))!;
-                    var title = data.GetPropertyValue<string?>(nameof(Book.Title));
-                    Assert.Equal(title, data.GetPropertyValue(nameof(Book.Title)));
-                    Assert.Equal(title, data.GetPropertyValue<string?>(titleProperty));
-                    Assert.Equal(title, data.GetPropertyValue(titleProperty));
-                    titles.Add(title);
-
-                    var authorProperty = data.EntityType.FindProperty("Author")!;
-                    var author = data.GetPropertyValue<string?>("Author");
-                    Assert.Equal(author, data.GetPropertyValue("Author"));
-                    Assert.Equal(author, data.GetPropertyValue<string?>(authorProperty));
-                    Assert.Equal(author, data.GetPropertyValue(authorProperty));
-                    authors.Add(author);
-
-                    switch (method)
-                    {
-                        case nameof(IMaterializationInterceptor.CreatingInstance):
-                            creatingInstanceCount++;
-                            Assert.Null(instance);
-                            break;
-                        case nameof(IMaterializationInterceptor.CreatedInstance):
-                            createdInstanceCount++;
-                            Assert.IsType<Book>(instance);
-                            Assert.Equal(Guid.Empty, ((Book)instance!).Id);
-                            Assert.Null(((Book)instance!).Title);
-                            break;
-                        case nameof(IMaterializationInterceptor.InitializingInstance):
-                            initializingInstanceCount++;
-                            Assert.IsType<Book>(instance);
-                            Assert.Equal(Guid.Empty, ((Book)instance!).Id);
-                            Assert.Null(((Book)instance!).Title);
-                            break;
-                        case nameof(IMaterializationInterceptor.InitializedInstance):
-                            initializedInstanceCount++;
-                            Assert.IsType<Book>(instance);
-                            Assert.Equal(id, ((Book)instance!).Id);
-                            Assert.Equal(title, ((Book)instance!).Title);
-                            break;
-                    }
-                })
+                    case nameof(IMaterializationInterceptor.CreatingInstance):
+                        creatingInstanceCount++;
+                        Assert.Null(instance);
+                        break;
+                    case nameof(IMaterializationInterceptor.CreatedInstance):
+                        createdInstanceCount++;
+                        Assert.IsType<Book>(instance);
+                        Assert.Equal(Guid.Empty, ((Book)instance!).Id);
+                        Assert.Null(((Book)instance!).Title);
+                        break;
+                    case nameof(IMaterializationInterceptor.InitializingInstance):
+                        initializingInstanceCount++;
+                        Assert.IsType<Book>(instance);
+                        Assert.Equal(Guid.Empty, ((Book)instance!).Id);
+                        Assert.Null(((Book)instance!).Title);
+                        break;
+                    case nameof(IMaterializationInterceptor.InitializedInstance):
+                        initializedInstanceCount++;
+                        Assert.IsType<Book>(instance);
+                        Assert.Equal(id, ((Book)instance!).Id);
+                        Assert.Equal(title, ((Book)instance!).Title);
+                        break;
+                }
+            })
         };
 
         using (context = await CreateContext(interceptors, inject, usePooling))
@@ -165,8 +162,7 @@ public abstract class MaterializationInterceptionTestBase<TContext>(NonSharedFix
 
     private static int _id = 1;
 
-    [ConditionalTheory] // Issue #30244
-    [ClassData(typeof(DataGenerator<bool, bool>))]
+    [ConditionalTheory, ClassData(typeof(DataGenerator<bool, bool>))] // Issue #30244
     public virtual async Task Intercept_query_materialization_with_owned_types(bool async, bool usePooling)
     {
         var creatingInstanceCounts = new Dictionary<Type, int>();
@@ -177,38 +173,37 @@ public abstract class MaterializationInterceptionTestBase<TContext>(NonSharedFix
 
         var interceptors = new[]
         {
-            new ValidatingMaterializationInterceptor(
-                (data, instance, method) =>
-                {
-                    Assert.Same(context, data.Context);
-                    Assert.Equal(QueryTrackingBehavior.TrackAll, data.QueryTrackingBehavior);
+            new ValidatingMaterializationInterceptor((data, instance, method) =>
+            {
+                Assert.Same(context, data.Context);
+                Assert.Equal(QueryTrackingBehavior.TrackAll, data.QueryTrackingBehavior);
 
-                    int count;
-                    var clrType = data.EntityType.ClrType;
-                    switch (method)
-                    {
-                        case nameof(IMaterializationInterceptor.CreatingInstance):
-                            count = creatingInstanceCounts.GetOrAddNew(clrType);
-                            creatingInstanceCounts[clrType] = count + 1;
-                            Assert.Null(instance);
-                            break;
-                        case nameof(IMaterializationInterceptor.CreatedInstance):
-                            count = createdInstanceCounts.GetOrAddNew(clrType);
-                            createdInstanceCounts[clrType] = count + 1;
-                            Assert.Same(clrType, instance!.GetType());
-                            break;
-                        case nameof(IMaterializationInterceptor.InitializingInstance):
-                            count = initializingInstanceCounts.GetOrAddNew(clrType);
-                            initializingInstanceCounts[clrType] = count + 1;
-                            Assert.Same(clrType, instance!.GetType());
-                            break;
-                        case nameof(IMaterializationInterceptor.InitializedInstance):
-                            count = initializedInstanceCounts.GetOrAddNew(clrType);
-                            initializedInstanceCounts[clrType] = count + 1;
-                            Assert.Same(clrType, instance!.GetType());
-                            break;
-                    }
-                })
+                int count;
+                var clrType = data.EntityType.ClrType;
+                switch (method)
+                {
+                    case nameof(IMaterializationInterceptor.CreatingInstance):
+                        count = creatingInstanceCounts.GetOrAddNew(clrType);
+                        creatingInstanceCounts[clrType] = count + 1;
+                        Assert.Null(instance);
+                        break;
+                    case nameof(IMaterializationInterceptor.CreatedInstance):
+                        count = createdInstanceCounts.GetOrAddNew(clrType);
+                        createdInstanceCounts[clrType] = count + 1;
+                        Assert.Same(clrType, instance!.GetType());
+                        break;
+                    case nameof(IMaterializationInterceptor.InitializingInstance):
+                        count = initializingInstanceCounts.GetOrAddNew(clrType);
+                        initializingInstanceCounts[clrType] = count + 1;
+                        Assert.Same(clrType, instance!.GetType());
+                        break;
+                    case nameof(IMaterializationInterceptor.InitializedInstance):
+                        count = initializedInstanceCounts.GetOrAddNew(clrType);
+                        initializedInstanceCounts[clrType] = count + 1;
+                        Assert.Same(clrType, instance!.GetType());
+                        break;
+                }
+            })
         };
 
         using (context = await CreateContext(interceptors, inject: true, usePooling))
@@ -253,8 +248,7 @@ public abstract class MaterializationInterceptionTestBase<TContext>(NonSharedFix
         }
     }
 
-    [ConditionalTheory] // Issue #31365
-    [ClassData(typeof(DataGenerator<bool, bool>))]
+    [ConditionalTheory, ClassData(typeof(DataGenerator<bool, bool>))] // Issue #31365
     public virtual async Task Intercept_query_materialization_with_owned_types_projecting_collection(bool async, bool usePooling)
     {
         var creatingInstanceCounts = new Dictionary<Type, int>();
@@ -265,38 +259,37 @@ public abstract class MaterializationInterceptionTestBase<TContext>(NonSharedFix
 
         var interceptors = new[]
         {
-            new ValidatingMaterializationInterceptor(
-                (data, instance, method) =>
-                {
-                    Assert.Same(context, data.Context);
-                    Assert.Equal(QueryTrackingBehavior.NoTracking, data.QueryTrackingBehavior);
+            new ValidatingMaterializationInterceptor((data, instance, method) =>
+            {
+                Assert.Same(context, data.Context);
+                Assert.Equal(QueryTrackingBehavior.NoTracking, data.QueryTrackingBehavior);
 
-                    int count;
-                    var clrType = data.EntityType.ClrType;
-                    switch (method)
-                    {
-                        case nameof(IMaterializationInterceptor.CreatingInstance):
-                            count = creatingInstanceCounts.GetOrAddNew(clrType);
-                            creatingInstanceCounts[clrType] = count + 1;
-                            Assert.Null(instance);
-                            break;
-                        case nameof(IMaterializationInterceptor.CreatedInstance):
-                            count = createdInstanceCounts.GetOrAddNew(clrType);
-                            createdInstanceCounts[clrType] = count + 1;
-                            Assert.Same(clrType, instance!.GetType());
-                            break;
-                        case nameof(IMaterializationInterceptor.InitializingInstance):
-                            count = initializingInstanceCounts.GetOrAddNew(clrType);
-                            initializingInstanceCounts[clrType] = count + 1;
-                            Assert.Same(clrType, instance!.GetType());
-                            break;
-                        case nameof(IMaterializationInterceptor.InitializedInstance):
-                            count = initializedInstanceCounts.GetOrAddNew(clrType);
-                            initializedInstanceCounts[clrType] = count + 1;
-                            Assert.Same(clrType, instance!.GetType());
-                            break;
-                    }
-                })
+                int count;
+                var clrType = data.EntityType.ClrType;
+                switch (method)
+                {
+                    case nameof(IMaterializationInterceptor.CreatingInstance):
+                        count = creatingInstanceCounts.GetOrAddNew(clrType);
+                        creatingInstanceCounts[clrType] = count + 1;
+                        Assert.Null(instance);
+                        break;
+                    case nameof(IMaterializationInterceptor.CreatedInstance):
+                        count = createdInstanceCounts.GetOrAddNew(clrType);
+                        createdInstanceCounts[clrType] = count + 1;
+                        Assert.Same(clrType, instance!.GetType());
+                        break;
+                    case nameof(IMaterializationInterceptor.InitializingInstance):
+                        count = initializingInstanceCounts.GetOrAddNew(clrType);
+                        initializingInstanceCounts[clrType] = count + 1;
+                        Assert.Same(clrType, instance!.GetType());
+                        break;
+                    case nameof(IMaterializationInterceptor.InitializedInstance):
+                        count = initializedInstanceCounts.GetOrAddNew(clrType);
+                        initializedInstanceCounts[clrType] = count + 1;
+                        Assert.Same(clrType, instance!.GetType());
+                        break;
+                }
+            })
         };
 
         using (context = await CreateContext(interceptors, inject: true, usePooling))
@@ -343,8 +336,7 @@ public abstract class MaterializationInterceptionTestBase<TContext>(NonSharedFix
         }
     }
 
-    [ConditionalTheory]
-    [ClassData(typeof(DataGenerator<bool, bool>))]
+    [ConditionalTheory, ClassData(typeof(DataGenerator<bool, bool>))]
     public virtual async Task Intercept_query_materialization_for_full_constructor(bool inject, bool usePooling)
     {
         var creatingInstanceCount = 0;
@@ -358,60 +350,59 @@ public abstract class MaterializationInterceptionTestBase<TContext>(NonSharedFix
 
         var interceptors = new[]
         {
-            new ValidatingMaterializationInterceptor(
-                (data, instance, method) =>
+            new ValidatingMaterializationInterceptor((data, instance, method) =>
+            {
+                Assert.Same(context, data.Context);
+                Assert.Same(data.Context.Model.FindEntityType(typeof(Pamphlet)), data.EntityType);
+                Assert.Equal(QueryTrackingBehavior.TrackAll, data.QueryTrackingBehavior);
+
+                var idProperty = data.EntityType.FindProperty(nameof(Pamphlet.Id))!;
+                var id = data.GetPropertyValue<Guid>(nameof(Pamphlet.Id))!;
+                Assert.Equal(id, data.GetPropertyValue(nameof(Pamphlet.Id)));
+                Assert.Equal(id, data.GetPropertyValue<Guid>(idProperty));
+                Assert.Equal(id, data.GetPropertyValue(idProperty));
+                ids.Add(id);
+
+                var titleProperty = data.EntityType.FindProperty(nameof(Pamphlet.Title))!;
+                var title = data.GetPropertyValue<string?>(nameof(Pamphlet.Title));
+                Assert.Equal(title, data.GetPropertyValue(nameof(Pamphlet.Title)));
+                Assert.Equal(title, data.GetPropertyValue<string?>(titleProperty));
+                Assert.Equal(title, data.GetPropertyValue(titleProperty));
+                titles.Add(title);
+
+                var authorProperty = data.EntityType.FindProperty("Author")!;
+                var author = data.GetPropertyValue<string?>("Author");
+                Assert.Equal(author, data.GetPropertyValue("Author"));
+                Assert.Equal(author, data.GetPropertyValue<string?>(authorProperty));
+                Assert.Equal(author, data.GetPropertyValue(authorProperty));
+                authors.Add(author);
+
+                switch (method)
                 {
-                    Assert.Same(context, data.Context);
-                    Assert.Same(data.Context.Model.FindEntityType(typeof(Pamphlet)), data.EntityType);
-                    Assert.Equal(QueryTrackingBehavior.TrackAll, data.QueryTrackingBehavior);
-
-                    var idProperty = data.EntityType.FindProperty(nameof(Pamphlet.Id))!;
-                    var id = data.GetPropertyValue<Guid>(nameof(Pamphlet.Id))!;
-                    Assert.Equal(id, data.GetPropertyValue(nameof(Pamphlet.Id)));
-                    Assert.Equal(id, data.GetPropertyValue<Guid>(idProperty));
-                    Assert.Equal(id, data.GetPropertyValue(idProperty));
-                    ids.Add(id);
-
-                    var titleProperty = data.EntityType.FindProperty(nameof(Pamphlet.Title))!;
-                    var title = data.GetPropertyValue<string?>(nameof(Pamphlet.Title));
-                    Assert.Equal(title, data.GetPropertyValue(nameof(Pamphlet.Title)));
-                    Assert.Equal(title, data.GetPropertyValue<string?>(titleProperty));
-                    Assert.Equal(title, data.GetPropertyValue(titleProperty));
-                    titles.Add(title);
-
-                    var authorProperty = data.EntityType.FindProperty("Author")!;
-                    var author = data.GetPropertyValue<string?>("Author");
-                    Assert.Equal(author, data.GetPropertyValue("Author"));
-                    Assert.Equal(author, data.GetPropertyValue<string?>(authorProperty));
-                    Assert.Equal(author, data.GetPropertyValue(authorProperty));
-                    authors.Add(author);
-
-                    switch (method)
-                    {
-                        case nameof(IMaterializationInterceptor.CreatingInstance):
-                            creatingInstanceCount++;
-                            Assert.Null(instance);
-                            break;
-                        case nameof(IMaterializationInterceptor.CreatedInstance):
-                            createdInstanceCount++;
-                            Assert.IsType<Pamphlet>(instance);
-                            Assert.Equal(id, ((Pamphlet)instance!).Id);
-                            Assert.Equal(title, ((Pamphlet)instance!).Title);
-                            break;
-                        case nameof(IMaterializationInterceptor.InitializingInstance):
-                            initializingInstanceCount++;
-                            Assert.IsType<Pamphlet>(instance);
-                            Assert.Equal(id, ((Pamphlet)instance!).Id);
-                            Assert.Equal(title, ((Pamphlet)instance!).Title);
-                            break;
-                        case nameof(IMaterializationInterceptor.InitializedInstance):
-                            initializedInstanceCount++;
-                            Assert.IsType<Pamphlet>(instance);
-                            Assert.Equal(id, ((Pamphlet)instance!).Id);
-                            Assert.Equal(title, ((Pamphlet)instance!).Title);
-                            break;
-                    }
-                })
+                    case nameof(IMaterializationInterceptor.CreatingInstance):
+                        creatingInstanceCount++;
+                        Assert.Null(instance);
+                        break;
+                    case nameof(IMaterializationInterceptor.CreatedInstance):
+                        createdInstanceCount++;
+                        Assert.IsType<Pamphlet>(instance);
+                        Assert.Equal(id, ((Pamphlet)instance!).Id);
+                        Assert.Equal(title, ((Pamphlet)instance!).Title);
+                        break;
+                    case nameof(IMaterializationInterceptor.InitializingInstance):
+                        initializingInstanceCount++;
+                        Assert.IsType<Pamphlet>(instance);
+                        Assert.Equal(id, ((Pamphlet)instance!).Id);
+                        Assert.Equal(title, ((Pamphlet)instance!).Title);
+                        break;
+                    case nameof(IMaterializationInterceptor.InitializedInstance):
+                        initializedInstanceCount++;
+                        Assert.IsType<Pamphlet>(instance);
+                        Assert.Equal(id, ((Pamphlet)instance!).Id);
+                        Assert.Equal(title, ((Pamphlet)instance!).Title);
+                        break;
+                }
+            })
         };
 
         using (context = await CreateContext(interceptors, inject, usePooling))
@@ -446,8 +437,7 @@ public abstract class MaterializationInterceptionTestBase<TContext>(NonSharedFix
         }
     }
 
-    [ConditionalTheory]
-    [ClassData(typeof(DataGenerator<bool, bool>))]
+    [ConditionalTheory, ClassData(typeof(DataGenerator<bool, bool>))]
     public virtual async Task Multiple_materialization_interceptors_can_be_used(bool inject, bool usePooling)
     {
         var interceptors = new ISingletonInterceptor[]

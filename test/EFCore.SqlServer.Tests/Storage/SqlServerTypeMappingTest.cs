@@ -13,13 +13,9 @@ namespace Microsoft.EntityFrameworkCore.Storage;
 
 public class SqlServerTypeMappingTest : RelationalTypeMappingTest
 {
-    [ConditionalTheory]
-    [InlineData(nameof(ChangeTracker.DetectChanges), false)]
-    [InlineData(nameof(PropertyEntry.CurrentValue), false)]
-    [InlineData(nameof(PropertyEntry.OriginalValue), false)]
-    [InlineData(nameof(ChangeTracker.DetectChanges), true)]
-    [InlineData(nameof(PropertyEntry.CurrentValue), true)]
-    [InlineData(nameof(PropertyEntry.OriginalValue), true)]
+    [ConditionalTheory, InlineData(nameof(ChangeTracker.DetectChanges), false), InlineData(nameof(PropertyEntry.CurrentValue), false),
+     InlineData(nameof(PropertyEntry.OriginalValue), false), InlineData(nameof(ChangeTracker.DetectChanges), true),
+     InlineData(nameof(PropertyEntry.CurrentValue), true), InlineData(nameof(PropertyEntry.OriginalValue), true)]
     public void Row_version_is_marked_as_modified_only_if_it_really_changed(string mode, bool changeValue)
     {
         using var context = new OptimisticContext();
@@ -78,11 +74,9 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
     protected override DbCommand CreateTestCommand()
         => new SqlCommand();
 
-    [ConditionalTheory]
-    [InlineData(typeof(SqlServerDateTimeOffsetTypeMapping), typeof(DateTimeOffset))]
-    [InlineData(typeof(SqlServerDoubleTypeMapping), typeof(double))]
-    [InlineData(typeof(SqlServerFloatTypeMapping), typeof(float))]
-    [InlineData(typeof(SqlServerTimeSpanTypeMapping), typeof(TimeSpan))]
+    [ConditionalTheory, InlineData(typeof(SqlServerDateTimeOffsetTypeMapping), typeof(DateTimeOffset)),
+     InlineData(typeof(SqlServerDoubleTypeMapping), typeof(double)), InlineData(typeof(SqlServerFloatTypeMapping), typeof(float)),
+     InlineData(typeof(SqlServerTimeSpanTypeMapping), typeof(TimeSpan))]
     public override void Create_and_clone_with_converter(Type mappingType, Type type)
         => base.Create_and_clone_with_converter(mappingType, type);
 

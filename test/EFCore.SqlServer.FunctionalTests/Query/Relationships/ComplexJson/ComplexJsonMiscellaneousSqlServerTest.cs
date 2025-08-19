@@ -23,7 +23,7 @@ WHERE JSON_VALUE([r].[RequiredRelated], '$.Int' RETURNING int) = 8
         }
         else
         {
-           AssertSql(
+            AssertSql(
                 """
 SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
 FROM [RootEntity] AS [r]

@@ -11,6 +11,8 @@ public class RelationshipsData : ISetSource
         RelatedTypes = [];
         NestedTypes = [];
         RootReferencingEntities = CreateRootReferencingEntities(RootEntities);
+
+        ValueRootEntities = CreateValueRootEntities(RootEntities);
     }
 
     public List<RootEntity> RootEntities { get; }
@@ -21,7 +23,9 @@ public class RelationshipsData : ISetSource
 
     public List<RootReferencingEntity> RootReferencingEntities { get; }
 
-    public static List<RootEntity> CreateRootEntities()
+    public List<ValueRootEntity> ValueRootEntities { get; }
+
+    private static List<RootEntity> CreateRootEntities()
     {
         var id = 1;
 
@@ -31,104 +35,109 @@ public class RelationshipsData : ISetSource
             CreateRootEntity(id++, description: null),
 
             // Second basic entity with all properties set to other values (but same across all properties)
-            CreateRootEntity(id++, description: "With_other_values", e =>
-            {
-                SetRelatedValues(e.RequiredRelated);
-
-                if (e.OptionalRelated is not null)
+            CreateRootEntity(
+                id++, description: "With_other_values", e =>
                 {
-                    SetRelatedValues(e.OptionalRelated);
-                }
+                    SetRelatedValues(e.RequiredRelated);
 
-                foreach (var related in e.RelatedCollection)
-                {
-                    SetRelatedValues(related);
-                }
-
-                void SetRelatedValues(RelatedType related)
-                {
-                    related.Int = 9;
-                    related.String = "bar";
-                    related.RequiredNested.Int = 9;
-                    related.RequiredNested.String = "bar";
-                    related.OptionalNested?.Int = 9;
-                    related.OptionalNested?.String = "bar";
-
-                    foreach (var nested in related.NestedCollection)
+                    if (e.OptionalRelated is not null)
                     {
-                        nested.Int = 9;
-                        nested.String = "bar";
+                        SetRelatedValues(e.OptionalRelated);
                     }
-                }
-            }),
+
+                    foreach (var related in e.RelatedCollection)
+                    {
+                        SetRelatedValues(related);
+                    }
+
+                    void SetRelatedValues(RelatedType related)
+                    {
+                        related.Int = 9;
+                        related.String = "bar";
+                        related.RequiredNested.Int = 9;
+                        related.RequiredNested.String = "bar";
+                        related.OptionalNested?.Int = 9;
+                        related.OptionalNested?.String = "bar";
+
+                        foreach (var nested in related.NestedCollection)
+                        {
+                            nested.Int = 9;
+                            nested.String = "bar";
+                        }
+                    }
+                }),
 
             // Third basic entity with all properties set to completely different values
-            CreateRootEntity(id++, description: "With_different_values", e =>
-            {
-                var intValue = 100;
-                var stringValue = 100;
-
-                SetRelatedValues(e.RequiredRelated);
-
-                if (e.OptionalRelated is not null)
+            CreateRootEntity(
+                id++, description: "With_different_values", e =>
                 {
-                    SetRelatedValues(e.OptionalRelated);
-                }
+                    var intValue = 100;
+                    var stringValue = 100;
 
-                foreach (var related in e.RelatedCollection)
-                {
-                    SetRelatedValues(related);
-                }
+                    SetRelatedValues(e.RequiredRelated);
 
-                void SetRelatedValues(RelatedType related)
-                {
-                    related.Int = intValue++;
-                    related.String = $"foo{stringValue++}";
-                    related.RequiredNested.Int = intValue++;
-                    related.RequiredNested.String = $"foo{stringValue++}";
-                    related.OptionalNested?.Int = intValue++;
-                    related.OptionalNested?.String = $"foo{stringValue++}";
-
-                    foreach (var nested in related.NestedCollection)
+                    if (e.OptionalRelated is not null)
                     {
-                        nested.Int = intValue++;
-                        nested.String = $"foo{stringValue++}";
+                        SetRelatedValues(e.OptionalRelated);
                     }
-                }
-            }),
+
+                    foreach (var related in e.RelatedCollection)
+                    {
+                        SetRelatedValues(related);
+                    }
+
+                    void SetRelatedValues(RelatedType related)
+                    {
+                        related.Int = intValue++;
+                        related.String = $"foo{stringValue++}";
+                        related.RequiredNested.Int = intValue++;
+                        related.RequiredNested.String = $"foo{stringValue++}";
+                        related.OptionalNested?.Int = intValue++;
+                        related.OptionalNested?.String = $"foo{stringValue++}";
+
+                        foreach (var nested in related.NestedCollection)
+                        {
+                            nested.Int = intValue++;
+                            nested.String = $"foo{stringValue++}";
+                        }
+                    }
+                }),
 
             // Entity where values are referentially identical to each other across required/optional, to test various equality sceanarios.
             // Note that this gets overridden for owned navigations .
-            CreateRootEntity(id++, description: "With_referential_identity", e =>
-            {
-                e.OptionalRelated = e.RequiredRelated;
-                e.RequiredRelated.OptionalNested = e.RequiredRelated.RequiredNested;
-                e.OptionalRelated.OptionalNested = e.RequiredRelated.RequiredNested;
+            CreateRootEntity(
+                id++, description: "With_referential_identity", e =>
+                {
+                    e.OptionalRelated = e.RequiredRelated;
+                    e.RequiredRelated.OptionalNested = e.RequiredRelated.RequiredNested;
+                    e.OptionalRelated.OptionalNested = e.RequiredRelated.RequiredNested;
 
-                e.RelatedCollection.Clear();
-                e.RequiredRelated.NestedCollection.Clear();
-                e.OptionalRelated.NestedCollection.Clear();
-            }),
+                    e.RelatedCollection.Clear();
+                    e.RequiredRelated.NestedCollection.Clear();
+                    e.OptionalRelated.NestedCollection.Clear();
+                }),
 
             // Entity where everything optional is null
-            CreateRootEntity(id++, description: "All_optionals_null", e =>
-            {
-                e.RequiredRelated.OptionalNested = null;
-                e.OptionalRelated = null;
-
-                foreach (var related in e.RelatedCollection)
+            CreateRootEntity(
+                id++, description: "All_optionals_null", e =>
                 {
-                    related.OptionalNested = null;
-                }
-            }),
+                    e.RequiredRelated.OptionalNested = null;
+                    e.OptionalRelated = null;
+
+                    foreach (var related in e.RelatedCollection)
+                    {
+                        related.OptionalNested = null;
+                    }
+                }),
 
             // Entity where all collections are empty
-            CreateRootEntity(id++, description: "All_collections_empty", e =>
-            {
-                e.RelatedCollection.Clear();
-                e.RequiredRelated.NestedCollection.Clear();
-                e.OptionalRelated!.NestedCollection.Clear();
-            })
+            CreateRootEntity(
+                id++, description: "All_collections_empty", e =>
+                {
+                    e.RelatedCollection.Clear();
+                    e.RequiredRelated.NestedCollection.Clear();
+                    e.OptionalRelated!.NestedCollection.Clear();
+                })
         ];
 
         return rootEntities;
@@ -146,20 +155,16 @@ public class RelationshipsData : ISetSource
             {
                 Id = id,
                 Name = description is null ? shortName : $"{shortName}_{description}",
-
                 RequiredRelated = new RelatedType
                 {
                     Id = relatedId++,
                     Name = $"{shortName}_RequiredRelated",
-
                     Int = intValue,
                     String = stringValue,
-
                     RequiredNested = new NestedType
                     {
                         Id = nestedId++,
                         Name = $"{shortName}_RequiredRelated_RequiredNested",
-
                         Int = intValue,
                         String = stringValue
                     },
@@ -167,7 +172,6 @@ public class RelationshipsData : ISetSource
                     {
                         Id = nestedId++,
                         Name = $"{shortName}_RequiredRelated_OptionalNested",
-
                         Int = intValue,
                         String = stringValue
                     },
@@ -177,7 +181,6 @@ public class RelationshipsData : ISetSource
                         {
                             Id = nestedId++,
                             Name = $"{shortName}_RequiredRelated_NestedCollection_1",
-
                             Int = intValue,
                             String = stringValue
                         },
@@ -185,7 +188,6 @@ public class RelationshipsData : ISetSource
                         {
                             Id = nestedId++,
                             Name = $"{shortName}_RequiredRelated_NestedCollection_2",
-
                             Int = intValue,
                             String = stringValue
                         }
@@ -195,15 +197,12 @@ public class RelationshipsData : ISetSource
                 {
                     Id = relatedId++,
                     Name = $"{shortName}_OptionalRelated",
-
                     Int = intValue,
                     String = stringValue,
-
                     RequiredNested = new NestedType
                     {
                         Id = nestedId++,
                         Name = $"{shortName}_OptionalRelated_RequiredNested",
-
                         Int = intValue,
                         String = stringValue
                     },
@@ -211,7 +210,6 @@ public class RelationshipsData : ISetSource
                     {
                         Id = nestedId++,
                         Name = $"{shortName}_OptionalRelated_OptionalNested",
-
                         Int = intValue,
                         String = stringValue
                     },
@@ -221,7 +219,6 @@ public class RelationshipsData : ISetSource
                         {
                             Id = nestedId++,
                             Name = $"{shortName}_OptionalRelated_NestedCollection_1",
-
                             Int = intValue,
                             String = stringValue
                         },
@@ -229,7 +226,6 @@ public class RelationshipsData : ISetSource
                         {
                             Id = nestedId++,
                             Name = $"{shortName}_OptionalRelated_NestedCollection_2",
-
                             Int = intValue,
                             String = stringValue
                         }
@@ -241,15 +237,12 @@ public class RelationshipsData : ISetSource
                     {
                         Id = relatedId++,
                         Name = $"{shortName}_RelatedCollection_1",
-
                         Int = intValue,
                         String = stringValue,
-
                         RequiredNested = new NestedType
                         {
                             Id = nestedId++,
                             Name = $"{shortName}_RelatedCollection_1_RequiredNested",
-
                             Int = intValue,
                             String = stringValue
                         },
@@ -257,7 +250,6 @@ public class RelationshipsData : ISetSource
                         {
                             Id = nestedId++,
                             Name = $"{shortName}_RelatedCollection_1_OptionalNested",
-
                             Int = intValue,
                             String = stringValue
                         },
@@ -267,7 +259,6 @@ public class RelationshipsData : ISetSource
                             {
                                 Id = nestedId++,
                                 Name = $"{shortName}_RelatedCollection_1_NestedCollection_1",
-
                                 Int = intValue,
                                 String = stringValue
                             },
@@ -275,7 +266,6 @@ public class RelationshipsData : ISetSource
                             {
                                 Id = nestedId++,
                                 Name = $"{shortName}_RelatedCollection_1_NestedCollection_2",
-
                                 Int = intValue,
                                 String = stringValue
                             }
@@ -285,15 +275,12 @@ public class RelationshipsData : ISetSource
                     {
                         Id = relatedId++,
                         Name = $"{shortName}_RelatedCollection_2",
-
                         Int = intValue,
                         String = stringValue,
-
                         RequiredNested = new NestedType
                         {
                             Id = nestedId++,
                             Name = $"{shortName}_RelatedCollection_2_RequiredNested",
-
                             Int = intValue,
                             String = stringValue
                         },
@@ -301,7 +288,6 @@ public class RelationshipsData : ISetSource
                         {
                             Id = nestedId++,
                             Name = $"{shortName}_RelatedCollection_2_OptionalNested",
-
                             Int = intValue,
                             String = stringValue
                         },
@@ -311,7 +297,6 @@ public class RelationshipsData : ISetSource
                             {
                                 Id = nestedId++,
                                 Name = $"{shortName}_RelatedCollection_2_NestedCollection_1",
-
                                 Int = intValue,
                                 String = stringValue
                             },
@@ -319,7 +304,6 @@ public class RelationshipsData : ISetSource
                             {
                                 Id = nestedId++,
                                 Name = $"{shortName}_Root1_RelatedCollection_2_NestedCollection_2",
-
                                 Int = intValue,
                                 String = stringValue
                             }
@@ -334,13 +318,13 @@ public class RelationshipsData : ISetSource
         }
     }
 
-    public static List<RootReferencingEntity> CreateRootReferencingEntities(IEnumerable<RootEntity> rootEntities)
+    private static List<RootReferencingEntity> CreateRootReferencingEntities(IEnumerable<RootEntity> rootEntities)
     {
         var rootReferencingEntities = new List<RootReferencingEntity>();
 
         var id = 1;
 
-        rootReferencingEntities.Add(new() { Id = id++, Root = null });
+        rootReferencingEntities.Add(new RootReferencingEntity { Id = id++, Root = null });
         foreach (var rootEntity in rootEntities)
         {
             var rootReferencingEntity = new RootReferencingEntity { Id = id++, Root = rootEntity };
@@ -351,6 +335,9 @@ public class RelationshipsData : ISetSource
         return rootReferencingEntities;
     }
 
+    private static List<ValueRootEntity> CreateValueRootEntities(List<RootEntity> rootEntities)
+        => rootEntities.Select(ValueRootEntity.FromRootEntity).ToList();
+
     public IQueryable<TEntity> Set<TEntity>()
         where TEntity : class
         => typeof(TEntity) switch
@@ -359,6 +346,8 @@ public class RelationshipsData : ISetSource
             var t when t == typeof(RelatedType) => (IQueryable<TEntity>)RelatedTypes.AsQueryable(),
             var t when t == typeof(NestedType) => (IQueryable<TEntity>)NestedTypes.AsQueryable(),
             var t when t == typeof(RootReferencingEntity) => (IQueryable<TEntity>)RootReferencingEntities.AsQueryable(),
+
+            var t when t == typeof(ValueRootEntity) => (IQueryable<TEntity>)ValueRootEntities.AsQueryable(),
 
             _ => throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity))
         };

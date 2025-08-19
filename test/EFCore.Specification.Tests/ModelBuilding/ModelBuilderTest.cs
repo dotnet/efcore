@@ -205,7 +205,8 @@ public abstract partial class ModelBuilderTest
             where TProperty : IEnumerable<TElement>
             where TElement : notnull;
 
-        public abstract TestComplexCollectionBuilder<TElement> ComplexCollection<TProperty, TElement>(string propertyName,
+        public abstract TestComplexCollectionBuilder<TElement> ComplexCollection<TProperty, TElement>(
+            string propertyName,
             string complexTypeName)
             where TProperty : IEnumerable<TElement>
             where TElement : notnull;
@@ -908,7 +909,8 @@ public abstract partial class ModelBuilderTest
             ValueComparer? valueComparer,
             ValueComparer? providerComparerType);
 
-        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> HasConversion<TStore>(ValueConverter<TProperty, TStore> converter);
+        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> HasConversion<TStore>(
+            ValueConverter<TProperty, TStore> converter);
 
         public abstract TestComplexCollectionTypePropertyBuilder<TProperty> HasConversion<TStore>(
             ValueConverter<TProperty, TStore> converter,
@@ -920,7 +922,10 @@ public abstract partial class ModelBuilderTest
             ValueComparer? providerComparerType);
 
         public abstract TestComplexCollectionTypePropertyBuilder<TProperty> HasConversion(ValueConverter? converter);
-        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> HasConversion(ValueConverter? converter, ValueComparer? valueComparer);
+
+        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> HasConversion(
+            ValueConverter? converter,
+            ValueComparer? valueComparer);
 
         public abstract TestComplexCollectionTypePropertyBuilder<TProperty> HasConversion(
             ValueConverter? converter,

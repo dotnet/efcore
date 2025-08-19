@@ -20,7 +20,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected void AssertSql(params string[] expected)
             => TestSqlLoggerFactory.AssertBaseline(expected);
 
-        protected abstract DbContextOptionsBuilder SetParameterizedCollectionMode(DbContextOptionsBuilder optionsBuilder, ParameterTranslationMode parameterizedCollectionMode);
+        protected abstract DbContextOptionsBuilder SetParameterizedCollectionMode(
+            DbContextOptionsBuilder optionsBuilder,
+            ParameterTranslationMode parameterizedCollectionMode);
 
         #region 2951
 
@@ -73,8 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                              from a in grouping.DefaultIfEmpty()
                              select new { ename = e.Name, aname = a.Name })
                     .GroupBy(g => g.aname)
-                    .Select(
-                        g => new { g.Key, cnt = g.Count() + 5 })
+                    .Select(g => new { g.Key, cnt = g.Count() + 5 })
                     .ToList();
 
                 Assert.Empty(query);
@@ -90,10 +91,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                                  on e.Id equals m.Id into grouping2
                              from m in grouping2.DefaultIfEmpty()
                              select new { aname = a.Name, mname = m.Name })
-                    .GroupBy(
-                        g => new { g.aname, g.mname })
-                    .Select(
-                        g => new { MyKey = g.Key.aname, cnt = g.Count() + 5 })
+                    .GroupBy(g => new { g.aname, g.mname })
+                    .Select(g => new { MyKey = g.Key.aname, cnt = g.Count() + 5 })
                     .ToList();
 
                 Assert.Empty(query);
@@ -161,8 +160,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region 23981
 
-        [ConditionalTheory]
-        [MemberData(nameof(IsAsyncData))]
+        [ConditionalTheory, MemberData(nameof(IsAsyncData))]
         public virtual async Task Multiple_different_entity_type_from_different_namespaces(bool async)
         {
             var contextFactory = await InitializeAsync<Context23981>();
@@ -194,8 +192,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region 27954
 
-        [ConditionalTheory]
-        [MemberData(nameof(IsAsyncData))]
+        [ConditionalTheory, MemberData(nameof(IsAsyncData))]
         public virtual async Task StoreType_for_UDF_used(bool async)
         {
             var contextFactory = await InitializeAsync<Context27954>();
@@ -247,8 +244,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual async Task Mapping_JsonElement_property_throws_a_meaningful_exception()
         {
-            var message = (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => InitializeAsync<Context34752>())).Message;
+            var message = (await Assert.ThrowsAsync<InvalidOperationException>(() => InitializeAsync<Context34752>())).Message;
 
             Assert.Equal(
                 CoreStrings.PropertyNotAdded(nameof(Context34752.Entity), nameof(Context34752.Entity.Json), nameof(JsonElement)),
@@ -270,8 +266,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region Inlined redacting
 
-        [ConditionalTheory]
-        [MemberData(nameof(InlinedRedactingData))]
+        [ConditionalTheory, MemberData(nameof(InlinedRedactingData))]
         public virtual async Task Check_inlined_constants_redacting(bool async, bool enableSensitiveDataLogging)
         {
             var contextFactory = await InitializeAsync<InlinedRedactingContext>(
@@ -319,15 +314,14 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region 36311
 
-        [ConditionalTheory]
-        [MemberData(nameof(IsAsyncData))]
+        [ConditionalTheory, MemberData(nameof(IsAsyncData))]
         public async Task Entity_equality_with_Contains_and_Parameter(bool async)
         {
             var contextFactory = await InitializeAsync<Context36311>(
                 onConfiguring: o => SetParameterizedCollectionMode(o, ParameterTranslationMode.Parameter));
             using var context = contextFactory.CreateContext();
 
-            List<Context36311.BlogDetails> details = [new Context36311.BlogDetails { Id = 1 }, new Context36311.BlogDetails { Id = 2 }];
+            List<Context36311.BlogDetails> details = [new() { Id = 1 }, new() { Id = 2 }];
             var query = context.Blogs.Where(b => details.Contains(b.Details));
 
             var result = async

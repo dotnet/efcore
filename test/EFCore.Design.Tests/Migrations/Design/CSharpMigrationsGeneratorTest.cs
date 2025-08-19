@@ -369,9 +369,8 @@ public partial class CSharpMigrationsGeneratorTest
         }
 
         var relationalAnnotations = typeof(RelationalAnnotationNames).GetFields()
-            .Where(
-                f => f.FieldType == typeof(string)
-                    && f.Name != "Prefix").ToList();
+            .Where(f => f.FieldType == typeof(string)
+                && f.Name != "Prefix").ToList();
 
         foreach (var field in relationalAnnotations)
         {
@@ -500,14 +499,13 @@ public partial class CSharpMigrationsGeneratorTest
 
         var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
         modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
-        modelBuilder.Entity<WithAnnotations>(
-            eb =>
-            {
-                eb.HasDiscriminator<RawEnum>("EnumDiscriminator")
-                    .HasValue(RawEnum.A)
-                    .HasValue<Derived>(RawEnum.B);
-                eb.Property<RawEnum>("EnumDiscriminator").HasConversion<int>();
-            });
+        modelBuilder.Entity<WithAnnotations>(eb =>
+        {
+            eb.HasDiscriminator<RawEnum>("EnumDiscriminator")
+                .HasValue(RawEnum.A)
+                .HasValue<Derived>(RawEnum.B);
+            eb.Property<RawEnum>("EnumDiscriminator").HasConversion<int>();
+        });
 
         var finalizedModel = modelBuilder.FinalizeModel(designTime: true);
 
@@ -561,8 +559,7 @@ public partial class CSharpMigrationsGeneratorTest
         var migrationCode = generator.GenerateMigration(
             "MyNamespace",
             "MyMigration",
-            new MigrationOperation[]
-            {
+            [
                 new SqlOperation { Sql = "-- TEST", ["Some:EnumValue"] = RegexOptions.Multiline },
                 new AlterColumnOperation
                 {
@@ -583,7 +580,7 @@ public partial class CSharpMigrationsGeneratorTest
                     Columns = ["Id", "C2", "C3"],
                     Values = new object[,] { { 1, null, -1 } }
                 }
-            },
+            ],
             []);
         Assert.Equal(
             """
@@ -778,15 +775,14 @@ namespace MyNamespace
         var migration = generator.GenerateMigration(
             "MyNamespace",
             "MyMigration",
-            new[]
-            {
+            [
                 new InsertDataOperation
                 {
                     Table = "MyTable",
                     Columns = ["Id", "MyColumn"],
                     Values = new object[,] { { 1, null }, { 2, RegexOptions.Multiline } }
                 }
-            },
+            ],
             []);
 
         Assert.Contains("using System.Text.RegularExpressions;", migration);
@@ -800,8 +796,7 @@ namespace MyNamespace
         var migration = generator.GenerateMigration(
             "MyNamespace",
             "MyMigration",
-            new[]
-            {
+            [
                 new UpdateDataOperation
                 {
                     Table = "MyTable",
@@ -810,7 +805,7 @@ namespace MyNamespace
                     Columns = ["MyColumn"],
                     Values = new object[,] { { RegexOptions.Multiline } }
                 }
-            },
+            ],
             []);
 
         Assert.Contains("using System.Text.RegularExpressions;", migration);
@@ -824,8 +819,7 @@ namespace MyNamespace
         var migration = generator.GenerateMigration(
             "MyNamespace",
             "MyMigration",
-            new[]
-            {
+            [
                 new UpdateDataOperation
                 {
                     Table = "MyTable",
@@ -834,7 +828,7 @@ namespace MyNamespace
                     Columns = ["MyColumn"],
                     Values = new object[,] { { 1 } }
                 }
-            },
+            ],
             []);
 
         Assert.Contains("using System.Text.RegularExpressions;", migration);
@@ -848,15 +842,14 @@ namespace MyNamespace
         var migration = generator.GenerateMigration(
             "MyNamespace",
             "MyMigration",
-            new[]
-            {
+            [
                 new DeleteDataOperation
                 {
                     Table = "MyTable",
                     KeyColumns = ["Id"],
                     KeyValues = new object[,] { { RegexOptions.Multiline } }
                 }
-            },
+            ],
             []);
 
         Assert.Contains("using System.Text.RegularExpressions;", migration);
@@ -870,15 +863,14 @@ namespace MyNamespace
         var migration = generator.GenerateMigration(
             "MyNamespace",
             "MyMigration",
-            new[]
-            {
+            [
                 new DeleteDataOperation
                 {
                     Table = "MyTable",
                     KeyColumns = ["Id"],
                     KeyValues = new object[,] { { 1, 2 }, { 3, 4 } }
                 }
-            },
+            ],
             []);
 
         Assert.Contains("#pragma warning disable CA1814", migration);
@@ -892,15 +884,14 @@ namespace MyNamespace
         var migration = generator.GenerateMigration(
             "MyNamespace",
             "MyMigration",
-            new[]
-            {
+            [
                 new DeleteDataOperation
                 {
                     Table = "MyTable",
                     KeyColumns = ["Id"],
                     KeyValues = new object[,] { { 1, 2 } }
                 }
-            },
+            ],
             []);
 
         Assert.DoesNotContain("#pragma warning disable CA1814", migration);

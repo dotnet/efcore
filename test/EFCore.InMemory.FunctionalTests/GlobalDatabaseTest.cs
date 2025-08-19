@@ -45,8 +45,7 @@ public class GlobalDatabaseTest
         }
 
         var serviceProvider = new ServiceCollection()
-            .AddDbContext<BooFooContext>(
-                b => b.UseInMemoryDatabase(nameof(BooFooContext)))
+            .AddDbContext<BooFooContext>(b => b.UseInMemoryDatabase(nameof(BooFooContext)))
             .BuildServiceProvider(validateScopes: true);
 
         using var scope = serviceProvider.CreateScope();
@@ -130,10 +129,9 @@ public class GlobalDatabaseTest
         }
 
         var serviceProvider = new ServiceCollection()
-            .AddDbContext<BooFooContext>(
-                b =>
-                    b.UseInMemoryDatabase(nameof(BooFooContext), _databaseRoot)
-                        .EnableServiceProviderCaching(false))
+            .AddDbContext<BooFooContext>(b =>
+                b.UseInMemoryDatabase(nameof(BooFooContext), _databaseRoot)
+                    .EnableServiceProviderCaching(false))
             .BuildServiceProvider(validateScopes: true);
 
         using var scope = serviceProvider.CreateScope();
@@ -199,19 +197,17 @@ public class GlobalDatabaseTest
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Foo>(
-                b =>
-                {
-                    b.OwnsOne(e => e.Goo1);
-                    b.OwnsOne(e => e.Goo2);
-                });
+            modelBuilder.Entity<Foo>(b =>
+            {
+                b.OwnsOne(e => e.Goo1);
+                b.OwnsOne(e => e.Goo2);
+            });
 
-            modelBuilder.Entity<Boo>(
-                b =>
-                {
-                    b.OwnsOne(e => e.Goo1);
-                    b.OwnsOne(e => e.Goo2);
-                });
+            modelBuilder.Entity<Boo>(b =>
+            {
+                b.OwnsOne(e => e.Goo1);
+                b.OwnsOne(e => e.Goo2);
+            });
         }
 
         public DbSet<Foo> Foos { get; set; }

@@ -24,7 +24,7 @@
     <MicrosoftCodeAnalysisVersion>4.14.0</MicrosoftCodeAnalysisVersion>
     <MicrosoftCodeAnalysisAnalyzerTestingVersion>1.1.3-beta1.24423.1</MicrosoftCodeAnalysisAnalyzerTestingVersion>
     <MicrosoftCodeAnalysisCSharpTestingVersion>1.1.3-beta1.24352.1</MicrosoftCodeAnalysisCSharpTestingVersion>
-    <AzureIdentityVersion>1.14.0</AzureIdentityVersion>
+    <AzureIdentityVersion>1.14.2</AzureIdentityVersion>
     <AzureResourceManagerCosmosDBVersion>1.3.2</AzureResourceManagerCosmosDBVersion>
     <OpenTelemetryExporterInMemoryVersion>1.12.0</OpenTelemetryExporterInMemoryVersion>
     <SQLitePCLRawVersion>2.1.11</SQLitePCLRawVersion>

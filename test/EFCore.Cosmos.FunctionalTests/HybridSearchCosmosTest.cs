@@ -28,12 +28,12 @@ public class HybridSearchCosmosTest : IClassFixture<HybridSearchCosmosTest.Hybri
 
         var result = await context.Set<HybridSearchAnimals>()
             .OrderBy(x => EF.Functions.Rrf(
-                EF.Functions.FullTextScore(x.Description, new string[] { "beaver", "otter" }),
+                EF.Functions.FullTextScore(x.Description, new[] { "beaver", "otter" }),
                 EF.Functions.VectorDistance(x.SBytes, inputVector)))
             .ToListAsync();
 
         AssertSql(
-"""
+            """
 @inputVector='[2,-1,4,3,5,-2,5,-7,3,1]'
 
 SELECT VALUE c
@@ -56,7 +56,7 @@ ORDER BY RANK RRF(FullTextScore(c["Description"], "beaver", "otter"), VectorDist
             .ToListAsync();
 
         AssertSql(
-"""
+            """
 @inputVector='[2,-1,4,3,5,-2,5,-7,3,1]'
 
 SELECT VALUE c
@@ -73,12 +73,12 @@ ORDER BY RANK RRF(FullTextScore(c["Description"], "beaver"), VectorDistance(c["S
         var inputVector = new ReadOnlyMemory<float>([0.33f, -0.52f, 0.45f, -0.67f, 0.89f, -0.34f, 0.86f, -0.78f, 0.86f, -0.78f]);
         var result = await context.Set<HybridSearchAnimals>()
             .OrderBy(x => EF.Functions.Rrf(
-                EF.Functions.FullTextScore(x.Owned.AnotherDescription, new string[] { "beaver" }),
+                EF.Functions.FullTextScore(x.Owned.AnotherDescription, new[] { "beaver" }),
                 EF.Functions.VectorDistance(x.Owned.Singles, inputVector)))
             .ToListAsync();
 
         AssertSql(
-"""
+            """
 @inputVector='[0.33,-0.52,0.45,-0.67,0.89,-0.34,0.86,-0.78,0.86,-0.78]'
 
 SELECT VALUE c
@@ -92,7 +92,7 @@ ORDER BY RANK RRF(FullTextScore(c["Owned"]["AnotherDescription"], "beaver"), Vec
     {
         await using var context = CreateContext();
 
-        var prm = new string[] { "beaver", "otter" };
+        var prm = new[] { "beaver", "otter" };
         var inputVector = new ReadOnlyMemory<float>([0.33f, -0.52f, 0.45f, -0.67f, 0.89f, -0.34f, 0.86f, -0.78f, 0.86f, -0.78f]);
         var result = await context.Set<HybridSearchAnimals>()
             .OrderBy(x => EF.Functions.Rrf(
@@ -101,7 +101,7 @@ ORDER BY RANK RRF(FullTextScore(c["Owned"]["AnotherDescription"], "beaver"), Vec
             .ToListAsync();
 
         AssertSql(
-"""
+            """
 @inputVector='[0.33,-0.52,0.45,-0.67,0.89,-0.34,0.86,-0.78,0.86,-0.78]'
 
 SELECT VALUE c
@@ -149,8 +149,7 @@ ORDER BY RANK RRF(VectorDistance(c["Owned"]["Singles"], @inputVector, false, {'d
             => "HybridSearchTest";
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
-        {
-            modelBuilder.Entity<HybridSearchAnimals>(b =>
+            => modelBuilder.Entity<HybridSearchAnimals>(b =>
             {
                 b.ToContainer("HybridSearchAnimals");
                 b.HasPartitionKey(x => x.PartitionKey);
@@ -170,16 +169,16 @@ ORDER BY RANK RRF(VectorDistance(c["Owned"]["Singles"], @inputVector, false, {'d
                 b.Property(e => e.BytesArray).IsVectorProperty(DistanceFunction.Cosine, 10);
                 b.Property(e => e.SinglesArray).IsVectorProperty(DistanceFunction.Cosine, 10);
 
-                b.OwnsOne(x => x.Owned, bb =>
-                {
-                    bb.HasIndex(e => e.Singles).IsVectorIndex(VectorIndexType.Flat);
-                    bb.Property(e => e.Singles).IsVectorProperty(DistanceFunction.Cosine, 10);
+                b.OwnsOne(
+                    x => x.Owned, bb =>
+                    {
+                        bb.HasIndex(e => e.Singles).IsVectorIndex(VectorIndexType.Flat);
+                        bb.Property(e => e.Singles).IsVectorProperty(DistanceFunction.Cosine, 10);
 
-                    bb.Property(x => x.AnotherDescription).EnableFullTextSearch();
-                    bb.HasIndex(x => x.AnotherDescription).IsFullTextIndex();
-                });
+                        bb.Property(x => x.AnotherDescription).EnableFullTextSearch();
+                        bb.HasIndex(x => x.AnotherDescription).IsFullTextIndex();
+                    });
             });
-        }
 
         protected override Task SeedAsync(PoolableDbContext context)
         {
@@ -189,13 +188,10 @@ ORDER BY RANK RRF(VectorDistance(c["Owned"]["Singles"], @inputVector, false, {'d
                 PartitionKey = "habitat",
                 Name = "List of several land animals",
                 Description = "bison, beaver, moose, fox, wolf, marten, horse, shrew, hare, duck, turtle, frog",
-
                 Bytes = new ReadOnlyMemory<byte>([2, 1, 4, 3, 5, 2, 5, 7, 3, 1]),
                 SBytes = new ReadOnlyMemory<sbyte>([2, -1, 4, 3, 5, -2, 5, -7, 3, 1]),
-
                 BytesArray = [2, 1, 4, 3, 5, 2, 5, 7, 3, 1],
                 SinglesArray = [0.33f, -0.52f, 0.45f, -0.67f, 0.89f, -0.34f, 0.86f, -0.78f, 0.86f, -0.78f],
-
                 Owned = new HybridOwned
                 {
                     AnotherDescription = "bison, beaver, moose, fox, wolf, marten, horse, shrew, hare, duck, turtle, frog",
@@ -203,19 +199,16 @@ ORDER BY RANK RRF(VectorDistance(c["Owned"]["Singles"], @inputVector, false, {'d
                 }
             };
 
-
             var airAnimals = new HybridSearchAnimals
             {
                 Id = 2,
                 PartitionKey = "habitat",
                 Name = "List of several air animals",
                 Description = "duck, bat, eagle, butterfly, sparrow",
-
                 Bytes = new ReadOnlyMemory<byte>([2, 1, 4, 3, 5, 2, 5, 7, 3, 1]),
                 SBytes = new ReadOnlyMemory<sbyte>([2, -1, 4, 3, 5, -2, 5, -7, 3, 1]),
                 BytesArray = [2, 1, 4, 3, 5, 2, 5, 7, 3, 1],
                 SinglesArray = [0.33f, -0.52f, 0.45f, -0.67f, 0.89f, -0.34f, 0.86f, -0.78f, 0.86f, -0.78f],
-
                 Owned = new HybridOwned
                 {
                     AnotherDescription = "duck, bat, eagle, butterfly, sparrow",
@@ -229,13 +222,10 @@ ORDER BY RANK RRF(VectorDistance(c["Owned"]["Singles"], @inputVector, false, {'d
                 PartitionKey = "taxonomy",
                 Name = "List of several mammals",
                 Description = "bison, beaver, moose, fox, wolf, marten, horse, shrew, hare, bat",
-
                 Bytes = new ReadOnlyMemory<byte>([2, 1, 4, 3, 5, 2, 5, 7, 3, 1]),
                 SBytes = new ReadOnlyMemory<sbyte>([2, -1, 4, 3, 5, -2, 5, -7, 3, 1]),
-
                 BytesArray = [2, 1, 4, 3, 5, 2, 5, 7, 3, 1],
                 SinglesArray = [0.33f, -0.52f, 0.45f, -0.67f, 0.89f, -0.34f, 0.86f, -0.78f, 0.86f, -0.78f],
-
                 Owned = new HybridOwned
                 {
                     AnotherDescription = "bison, beaver, moose, fox, wolf, marten, horse, shrew, hare, bat",

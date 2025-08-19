@@ -15,23 +15,27 @@ public abstract class NonSharedModelTestBase : IAsyncLifetime
     protected virtual ITestOutputHelper? TestOutputHelper { get; set; }
 
     private ServiceProvider? _serviceProvider;
+
     protected IServiceProvider ServiceProvider
         => _serviceProvider
             ?? throw new InvalidOperationException(
                 $"You must call `await {nameof(InitializeAsync)}(\"DatabaseName\");` at the beginning of the test.");
 
     private TestStore? _testStore;
+
     protected TestStore TestStore
         => _testStore
             ?? throw new InvalidOperationException(
                 $"You must call `await {nameof(InitializeAsync)}(\"DatabaseName\");` at the beginning of the test.");
 
     private ListLoggerFactory? _listLoggerFactory;
+
     protected ListLoggerFactory ListLoggerFactory
         => _listLoggerFactory ??= (ListLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
 
     protected NonSharedModelTestBase()
-    { }
+    {
+    }
 
     protected NonSharedModelTestBase(NonSharedFixture fixture)
         => Fixture = fixture;
@@ -150,14 +154,13 @@ public abstract class NonSharedModelTestBase : IAsyncLifetime
     protected virtual DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
         => builder
             .EnableSensitiveDataLogging()
-            .ConfigureWarnings(
-                b => b.Default(WarningBehavior.Throw)
-                    .Log(CoreEventId.SensitiveDataLoggingEnabledWarning)
-                    .Log(CoreEventId.PossibleUnintendedReferenceComparisonWarning)
-                    .Ignore(
-                        CoreEventId.MappedEntityTypeIgnoredWarning,
-                        CoreEventId.MappedPropertyIgnoredWarning,
-                        CoreEventId.MappedNavigationIgnoredWarning));
+            .ConfigureWarnings(b => b.Default(WarningBehavior.Throw)
+                .Log(CoreEventId.SensitiveDataLoggingEnabledWarning)
+                .Log(CoreEventId.PossibleUnintendedReferenceComparisonWarning)
+                .Ignore(
+                    CoreEventId.MappedEntityTypeIgnoredWarning,
+                    CoreEventId.MappedPropertyIgnoredWarning,
+                    CoreEventId.MappedNavigationIgnoredWarning));
 
     protected virtual TestStore CreateTestStore()
         => TestStoreFactory.Create(StoreName);

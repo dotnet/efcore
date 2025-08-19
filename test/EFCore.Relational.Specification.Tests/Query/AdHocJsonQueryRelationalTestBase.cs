@@ -13,24 +13,22 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
 
     public override async Task Project_missing_required_navigation(bool async)
     {
-        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
-            () => base.Project_missing_required_navigation(async))).Message;
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Project_missing_required_navigation(async))).Message;
 
         Assert.Equal(RelationalStrings.JsonRequiredEntityWithNullJson(typeof(Context21006.JsonEntityNested).Name), message);
     }
 
     public override async Task Project_null_required_navigation(bool async)
     {
-        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
-            () => base.Project_null_required_navigation(async))).Message;
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Project_null_required_navigation(async))).Message;
 
         Assert.Equal(RelationalStrings.JsonRequiredEntityWithNullJson(typeof(Context21006.JsonEntityNested).Name), message);
     }
 
     public override async Task Project_top_level_entity_with_null_value_required_scalars(bool async)
     {
-        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
-            () => base.Project_top_level_entity_with_null_value_required_scalars(async))).Message;
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(()
+            => base.Project_top_level_entity_with_null_value_required_scalars(async))).Message;
 
         Assert.Equal("Cannot get the value of a token type 'Null' as a number.", message);
     }
@@ -39,14 +37,13 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
     {
         base.OnModelCreating21006(modelBuilder);
 
-        modelBuilder.Entity<Context21006.Entity>(
-            b =>
-            {
-                b.ToTable("Entities");
-                b.OwnsOne(x => x.OptionalReference).ToJson();
-                b.OwnsOne(x => x.RequiredReference).ToJson();
-                b.OwnsMany(x => x.Collection).ToJson();
-            });
+        modelBuilder.Entity<Context21006.Entity>(b =>
+        {
+            b.ToTable("Entities");
+            b.OwnsOne(x => x.OptionalReference).ToJson();
+            b.OwnsOne(x => x.RequiredReference).ToJson();
+            b.OwnsMany(x => x.Collection).ToJson();
+        });
     }
 
     #endregion
@@ -68,13 +65,12 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
     {
         base.OnModelCreating29219(modelBuilder);
 
-        modelBuilder.Entity<Context29219.MyEntity>(
-            b =>
-            {
-                b.ToTable("Entities");
-                b.OwnsOne(x => x.Reference).ToJson().HasColumnType(JsonColumnType);
-                b.OwnsMany(x => x.Collection).ToJson().HasColumnType(JsonColumnType);
-            });
+        modelBuilder.Entity<Context29219.MyEntity>(b =>
+        {
+            b.ToTable("Entities");
+            b.OwnsOne(x => x.Reference).ToJson().HasColumnType(JsonColumnType);
+            b.OwnsMany(x => x.Collection).ToJson().HasColumnType(JsonColumnType);
+        });
     }
 
     #endregion
@@ -88,10 +84,11 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
         modelBuilder.Entity<Context30028.MyEntity>(b =>
         {
             b.ToTable("Entities");
-            b.OwnsOne(x => x.Json, nb =>
-            {
-                nb.ToJson().HasColumnType(JsonColumnType);
-            });
+            b.OwnsOne(
+                x => x.Json, nb =>
+                {
+                    nb.ToJson().HasColumnType(JsonColumnType);
+                });
         });
     }
 
@@ -118,10 +115,11 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
         modelBuilder.Entity<Context33046.Review>(b =>
         {
             b.ToTable("Reviews");
-            b.OwnsMany(x => x.Rounds, ownedBuilder =>
-            {
-                ownedBuilder.ToJson().HasColumnType(JsonColumnType);
-            });
+            b.OwnsMany(
+                x => x.Rounds, ownedBuilder =>
+                {
+                    ownedBuilder.ToJson().HasColumnType(JsonColumnType);
+                });
         });
     }
 
@@ -151,18 +149,20 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
 
         using var context = contextFactory.CreateContext();
 
-        var rootProjection = await context.Set<Context34293.Entity>().AsNoTracking().Where(x => x.Id != 3).Select(x => x.Json).ToListAsync();
+        var rootProjection =
+            await context.Set<Context34293.Entity>().AsNoTracking().Where(x => x.Id != 3).Select(x => x.Json).ToListAsync();
         Assert.Equal(2, rootProjection.Count);
 
-        var branchProjection = await context.Set<Context34293.Entity>().AsNoTracking().Where(x => x.Id != 3).Select(x => x.Json.Required).ToListAsync();
+        var branchProjection = await context.Set<Context34293.Entity>().AsNoTracking().Where(x => x.Id != 3).Select(x => x.Json.Required)
+            .ToListAsync();
         Assert.Equal(2, rootProjection.Count);
 
-        var badRootProjectionMessage = (await Assert.ThrowsAsync<InvalidOperationException>(
-            () => context.Set<Context34293.Entity>().AsNoTracking().Where(x => x.Id == 3).Select(x => x.Json).ToListAsync())).Message;
+        var badRootProjectionMessage = (await Assert.ThrowsAsync<InvalidOperationException>(()
+            => context.Set<Context34293.Entity>().AsNoTracking().Where(x => x.Id == 3).Select(x => x.Json).ToListAsync())).Message;
         Assert.Equal(RelationalStrings.JsonRequiredEntityWithNullJson(nameof(Context34293.JsonBranch)), badRootProjectionMessage);
 
-        var badBranchProjectionMessage = (await Assert.ThrowsAsync<InvalidOperationException>(
-            () => context.Set<Context34293.Entity>().AsNoTracking().Where(x => x.Id == 3).Select(x => x.Json.Required).ToListAsync())).Message;
+        var badBranchProjectionMessage = (await Assert.ThrowsAsync<InvalidOperationException>(()
+            => context.Set<Context34293.Entity>().AsNoTracking().Where(x => x.Id == 3).Select(x => x.Json.Required).ToListAsync())).Message;
         Assert.Equal(RelationalStrings.JsonRequiredEntityWithNullJson(nameof(Context34293.JsonBranch)), badBranchProjectionMessage);
     }
 
@@ -215,11 +215,7 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
                 Json = new JsonRoot
                 {
                     Date = new DateTime(2001, 1, 1),
-                    Required = new JsonBranch
-                    {
-                        Number = 1,
-                        Optional = new JsonLeaf { Name = "optional 1" }
-                    }
+                    Required = new JsonBranch { Number = 1, Optional = new JsonLeaf { Name = "optional 1" } }
                 }
             };
 
@@ -227,15 +223,7 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
             var e2 = new Entity
             {
                 Id = 2,
-                Json = new JsonRoot
-                {
-                    Date = new DateTime(2002, 2, 2),
-                    Required = new JsonBranch
-                    {
-                        Number = 2,
-                        Optional = null
-                    }
-                }
+                Json = new JsonRoot { Date = new DateTime(2002, 2, 2), Required = new JsonBranch { Number = 2, Optional = null } }
             };
 
             // null branch - invalid (required nav)
@@ -244,8 +232,7 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
                 Id = 3,
                 Json = new JsonRoot
                 {
-                    Date = new DateTime(2003, 3, 3),
-                    Required = null,
+                    Date = new DateTime(2003, 3, 3), Required = null,
                 }
             };
 
@@ -255,23 +242,23 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
     }
 
     protected virtual void OnModelCreating34293(ModelBuilder modelBuilder)
-        => modelBuilder.Entity<Context34293.Entity>(
-            b =>
-            {
-                b.Property(x => x.Id).ValueGeneratedNever();
-                b.OwnsOne(
-                    x => x.Json, b =>
-                    {
-                        b.ToJson().HasColumnType(JsonColumnType);
-                        b.OwnsOne(x => x.Required, bb =>
+        => modelBuilder.Entity<Context34293.Entity>(b =>
+        {
+            b.Property(x => x.Id).ValueGeneratedNever();
+            b.OwnsOne(
+                x => x.Json, b =>
+                {
+                    b.ToJson().HasColumnType(JsonColumnType);
+                    b.OwnsOne(
+                        x => x.Required, bb =>
                         {
                             bb.OwnsOne(x => x.Optional);
                             bb.Navigation(x => x.Optional).IsRequired(false);
                         });
-                        b.Navigation(x => x.Required).IsRequired(true);
-                    });
-                b.Navigation(x => x.Json).IsRequired(true);
-            });
+                    b.Navigation(x => x.Required).IsRequired();
+                });
+            b.Navigation(x => x.Json).IsRequired();
+        });
 
     #endregion
 
@@ -279,8 +266,7 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
 
     public override async Task Try_project_collection_but_JSON_is_entity()
     {
-        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
-            () => base.Try_project_collection_but_JSON_is_entity())).Message;
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Try_project_collection_but_JSON_is_entity())).Message;
 
         Assert.Equal(
             CoreStrings.JsonReaderInvalidTokenType(nameof(JsonTokenType.StartObject)),
@@ -289,8 +275,8 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
 
     public override async Task Try_project_reference_but_JSON_is_collection()
     {
-        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
-            () => base.Try_project_reference_but_JSON_is_collection())).Message;
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Try_project_reference_but_JSON_is_collection()))
+            .Message;
 
         Assert.Equal(
             CoreStrings.JsonReaderInvalidTokenType(nameof(JsonTokenType.StartArray)),
@@ -305,30 +291,34 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
         {
             b.ToTable("Entities");
 
-            b.OwnsOne(x => x.Reference, b =>
-            {
-                b.ToJson().HasColumnType(JsonColumnType);
-            });
+            b.OwnsOne(
+                x => x.Reference, b =>
+                {
+                    b.ToJson().HasColumnType(JsonColumnType);
+                });
 
-            b.OwnsMany(x => x.Collection, b =>
-            {
-                b.ToJson().HasColumnType(JsonColumnType);
-            });
+            b.OwnsMany(
+                x => x.Collection, b =>
+                {
+                    b.ToJson().HasColumnType(JsonColumnType);
+                });
         });
 
         modelBuilder.Entity<Context34960.JunkEntity>(b =>
         {
             b.ToTable("Junk");
 
-            b.OwnsOne(x => x.Reference, b =>
-            {
-                b.ToJson().HasColumnType(JsonColumnType);
-            });
+            b.OwnsOne(
+                x => x.Reference, b =>
+                {
+                    b.ToJson().HasColumnType(JsonColumnType);
+                });
 
-            b.OwnsMany(x => x.Collection, b =>
-            {
-                b.ToJson().HasColumnType(JsonColumnType);
-            });
+            b.OwnsMany(
+                x => x.Collection, b =>
+                {
+                    b.ToJson().HasColumnType(JsonColumnType);
+                });
         });
     }
 
@@ -359,25 +349,29 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
         {
             b.ToTable("Entities");
 
-            b.OwnsOne(x => x.Reference, b =>
-            {
-                b.ToJson().HasColumnType(JsonColumnType);
-            });
+            b.OwnsOne(
+                x => x.Reference, b =>
+                {
+                    b.ToJson().HasColumnType(JsonColumnType);
+                });
 
-            b.OwnsOne(x => x.ReferenceWithCtor, b =>
-            {
-                b.ToJson().HasColumnType(JsonColumnType);
-            });
+            b.OwnsOne(
+                x => x.ReferenceWithCtor, b =>
+                {
+                    b.ToJson().HasColumnType(JsonColumnType);
+                });
 
-            b.OwnsMany(x => x.Collection, b =>
-            {
-                b.ToJson().HasColumnType(JsonColumnType);
-            });
+            b.OwnsMany(
+                x => x.Collection, b =>
+                {
+                    b.ToJson().HasColumnType(JsonColumnType);
+                });
 
-            b.OwnsMany(x => x.CollectionWithCtor, b =>
-            {
-                b.ToJson().HasColumnType(JsonColumnType);
-            });
+            b.OwnsMany(
+                x => x.CollectionWithCtor, b =>
+                {
+                    b.ToJson().HasColumnType(JsonColumnType);
+                });
         });
     }
 
@@ -392,10 +386,11 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
         modelBuilder.Entity<ContextTrickyBuffering.MyEntity>(b =>
         {
             b.ToTable("Entities");
-            b.OwnsOne(x => x.Reference, b =>
-            {
-                b.ToJson().HasColumnType(JsonColumnType);
-            });
+            b.OwnsOne(
+                x => x.Reference, b =>
+                {
+                    b.ToJson().HasColumnType(JsonColumnType);
+                });
         });
     }
 
@@ -411,26 +406,30 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
         {
             b.ToTable("Entities");
 
-            b.OwnsOne(x => x.Reference, b =>
-            {
-                b.ToJson().HasColumnType(JsonColumnType);
-            });
+            b.OwnsOne(
+                x => x.Reference, b =>
+                {
+                    b.ToJson().HasColumnType(JsonColumnType);
+                });
 
-            b.OwnsOne(x => x.ReferenceWithCtor, b =>
-            {
-                b.ToJson().HasColumnType(JsonColumnType);
-                b.Property<int>("Shadow_Int").HasJsonPropertyName("ShadowInt");
-            });
+            b.OwnsOne(
+                x => x.ReferenceWithCtor, b =>
+                {
+                    b.ToJson().HasColumnType(JsonColumnType);
+                    b.Property<int>("Shadow_Int").HasJsonPropertyName("ShadowInt");
+                });
 
-            b.OwnsMany(x => x.Collection, b =>
-            {
-                b.ToJson().HasColumnType(JsonColumnType);
-            });
+            b.OwnsMany(
+                x => x.Collection, b =>
+                {
+                    b.ToJson().HasColumnType(JsonColumnType);
+                });
 
-            b.OwnsMany(x => x.CollectionWithCtor, b =>
-            {
-                b.ToJson().HasColumnType(JsonColumnType);
-            });
+            b.OwnsMany(
+                x => x.CollectionWithCtor, b =>
+                {
+                    b.ToJson().HasColumnType(JsonColumnType);
+                });
         });
     }
 
@@ -443,7 +442,8 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
         base.OnModelCreatingLazyLoadingProxies(modelBuilder);
 
         modelBuilder.Entity<ContextLazyLoadingProxies.MyEntity>().OwnsOne(x => x.Reference, b => b.ToJson().HasColumnType(JsonColumnType));
-        modelBuilder.Entity<ContextLazyLoadingProxies.MyEntity>().OwnsMany(x => x.Collection, b => b.ToJson().HasColumnType(JsonColumnType));
+        modelBuilder.Entity<ContextLazyLoadingProxies.MyEntity>()
+            .OwnsMany(x => x.Collection, b => b.ToJson().HasColumnType(JsonColumnType));
     }
 
     //protected void OnConfiguringLazyLoadingProxies(DbContextOptionsBuilder optionsBuilder)
@@ -499,10 +499,11 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
         modelBuilder.Entity<ContextNotICollection.MyEntity>(b =>
         {
             b.ToTable("Entities");
-            b.OwnsOne(cr => cr.Json, nb =>
-            {
-                nb.ToJson().HasColumnType(JsonColumnType);
-            });
+            b.OwnsOne(
+                cr => cr.Json, nb =>
+                {
+                    nb.ToJson().HasColumnType(JsonColumnType);
+                });
         });
     }
 
@@ -520,13 +521,11 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
     }
 
     public override Task Bad_json_properties_null_navigations(bool noTracking)
-        => Assert.ThrowsAnyAsync<JsonException>(
-            () => base.Bad_json_properties_null_navigations(noTracking));
+        => Assert.ThrowsAnyAsync<JsonException>(() => base.Bad_json_properties_null_navigations(noTracking));
 
     public override async Task Bad_json_properties_null_scalars(bool noTracking)
     {
-        var message = (await Assert.ThrowsAnyAsync<JsonException>(
-            () => base.Bad_json_properties_null_scalars(noTracking))).Message;
+        var message = (await Assert.ThrowsAnyAsync<JsonException>(() => base.Bad_json_properties_null_scalars(noTracking))).Message;
 
         Assert.StartsWith("'n' is an invalid start of a property name. Expected a '\"'.", message);
     }
@@ -539,20 +538,23 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
         {
             b.ToTable("Entities");
 
-            b.OwnsOne(x => x.RequiredReference, b =>
-            {
-                b.ToJson().HasColumnType(JsonColumnType);
-            });
+            b.OwnsOne(
+                x => x.RequiredReference, b =>
+                {
+                    b.ToJson().HasColumnType(JsonColumnType);
+                });
 
-            b.OwnsOne(x => x.OptionalReference, b =>
-            {
-                b.ToJson().HasColumnType(JsonColumnType);
-            });
+            b.OwnsOne(
+                x => x.OptionalReference, b =>
+                {
+                    b.ToJson().HasColumnType(JsonColumnType);
+                });
 
-            b.OwnsMany(x => x.Collection, b =>
-            {
-                b.ToJson().HasColumnType(JsonColumnType);
-            });
+            b.OwnsMany(
+                x => x.Collection, b =>
+                {
+                    b.ToJson().HasColumnType(JsonColumnType);
+                });
         });
     }
 
@@ -590,7 +592,7 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
         {
             Id = 1,
             PropertyInOtherTable = "split content",
-            Json = [new() { Foo = "JSON content" }]
+            Json = [new ContextEntitySplitting.JsonEntity { Foo = "JSON content" }]
         };
 
         context.Add(e1);

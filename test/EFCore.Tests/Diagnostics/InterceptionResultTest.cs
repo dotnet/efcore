@@ -9,6 +9,5 @@ public class InterceptionResultTest
     public void InterceptionResult_Result_throws_if_HasResult_is_false()
         => Assert.Equal(
             CoreStrings.NoInterceptionResult,
-            Assert.Throws<InvalidOperationException>(
-                () => default(InterceptionResult<object>).Result).Message);
+            Assert.Throws<InvalidOperationException>(() => default(InterceptionResult<object>).Result).Message);
 }
