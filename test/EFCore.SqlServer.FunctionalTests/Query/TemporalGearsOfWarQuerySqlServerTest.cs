@@ -2913,7 +2913,8 @@ FROM [Weapons] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [w]
 
         AssertSql(
             """
-@place='Ephyra's location' (Size = 4000), @place0='Ephyra's location' (Size = 100) (DbType = AnsiString)
+@place='Ephyra's location' (Size = 4000)
+@place0='Ephyra's location' (Size = 100) (DbType = AnsiString)
 
 SELECT [c].[Name], [c].[Location], [c].[Nation], [c].[PeriodEnd], [c].[PeriodStart]
 FROM [Cities] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [c]
@@ -5915,7 +5916,8 @@ WHERE [t].[Note] <> N'K.I.A.' OR [t].[Note] IS NULL
         AssertSql(
             """
 @cities1='Unknown' (Size = 100) (DbType = AnsiString)
-@cities2='Jacinto's location' (Size = 100) (DbType = AnsiString), @cities3='Ephyra's location' (Size = 100) (DbType = AnsiString)
+@cities2='Jacinto's location' (Size = 100) (DbType = AnsiString)
+@cities3='Ephyra's location' (Size = 100) (DbType = AnsiString)
 
 SELECT [c].[Name], [c].[Location], [c].[Nation], [c].[PeriodEnd], [c].[PeriodStart]
 FROM [Cities] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [c]
@@ -9047,7 +9049,8 @@ END IN (@numbers1, @numbers2)
 
         AssertSql(
             """
-@weapons1='Marcus' Lancer' (Size = 4000), @weapons2='Dom's Gnasher' (Size = 4000)
+@weapons1='Marcus' Lancer' (Size = 4000)
+@weapons2='Dom's Gnasher' (Size = 4000)
 
 SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[PeriodEnd], [g].[PeriodStart], [g].[Rank]
 FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g]
