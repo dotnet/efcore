@@ -64,6 +64,13 @@ public class CosmosFullTextSearchTranslator(ISqlExpressionFactory sqlExpressionF
                     typeof(double),
                     typeMappingSource.FindMapping(typeof(double))),
 
+            nameof(CosmosDbFunctionsExtensions.Rrf) when arguments is [_, ArrayConstantExpression functions, var weights]
+                => sqlExpressionFactory.ScoringFunction(
+                    "RRF",
+                    [.. functions.Items, weights],
+                    typeof(double),
+                    typeMappingSource.FindMapping(typeof(double))),
+
             _ => throw new UnreachableException()
         };
 

@@ -40,6 +40,33 @@ ORDER BY RANK RRF(FullTextScore(c["Description"], "beaver", "otter"), VectorDist
     }
 
     [ConditionalFact]
+    public virtual async Task Rrf_with_FullTextScore_and_VectorDistance_with_weights()
+    {
+        await using var context = CreateContext();
+
+        var inputVector = new ReadOnlyMemory<sbyte>([2, -1, 4, 3, 5, -2, 5, -7, 3, 1]);
+
+        var result = await context.Set<HybridSearchAnimals>()
+            .OrderBy(x => EF.Functions.Rrf(
+                new[]
+                {
+                    EF.Functions.FullTextScore(x.Description, new[] { "beaver", "otter" }),
+                    EF.Functions.VectorDistance(x.SBytes, inputVector)
+                },
+                weights: new[] { 2.5, 1 }))
+            .ToListAsync();
+
+        AssertSql(
+            """
+@inputVector='[2,-1,4,3,5,-2,5,-7,3,1]'
+
+SELECT VALUE c
+FROM root c
+ORDER BY RANK RRF(FullTextScore(c["Description"], "beaver", "otter"), VectorDistance(c["SBytes"], @inputVector), [2.5,1.0])
+""");
+    }
+
+    [ConditionalFact]
     public virtual async Task Rrf_with_FullTextScore_and_FullTextScore_with_owned_type()
     {
         await using var context = CreateContext();
