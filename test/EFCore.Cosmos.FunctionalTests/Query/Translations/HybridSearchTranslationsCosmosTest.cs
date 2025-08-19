@@ -3,7 +3,7 @@
 
 using Microsoft.Azure.Cosmos;
 
-namespace Microsoft.EntityFrameworkCore;
+namespace Microsoft.EntityFrameworkCore.Query.Translations;
 
 [CosmosCondition(CosmosCondition.DoesNotUseTokenCredential | CosmosCondition.IsNotEmulator)]
 public class HybridSearchCosmosTest : IClassFixture<HybridSearchCosmosTest.HybridSearchFixture>
@@ -11,16 +11,13 @@ public class HybridSearchCosmosTest : IClassFixture<HybridSearchCosmosTest.Hybri
     public HybridSearchCosmosTest(HybridSearchFixture fixture, ITestOutputHelper testOutputHelper)
     {
         Fixture = fixture;
-        _testOutputHelper = testOutputHelper;
         fixture.TestSqlLoggerFactory.Clear();
     }
 
     protected HybridSearchFixture Fixture { get; }
 
-    private readonly ITestOutputHelper _testOutputHelper;
-
     [ConditionalFact]
-    public virtual async Task Hybrid_search_vector_distance_and_FullTextScore_in_OrderByRank()
+    public virtual async Task Rrf_with_FullTextScore_and_VectorDistance()
     {
         await using var context = CreateContext();
 
@@ -38,12 +35,12 @@ public class HybridSearchCosmosTest : IClassFixture<HybridSearchCosmosTest.Hybri
 
 SELECT VALUE c
 FROM root c
-ORDER BY RANK RRF(FullTextScore(c["Description"], "beaver", "otter"), VectorDistance(c["SBytes"], @inputVector, false, {'distanceFunction':'dotproduct', 'dataType':'int8'}))
+ORDER BY RANK RRF(FullTextScore(c["Description"], "beaver", "otter"), VectorDistance(c["SBytes"], @inputVector))
 """);
     }
 
     [ConditionalFact]
-    public virtual async Task Hybrid_search_vector_distance_and_FullTextScore_with_single_constant_argument()
+    public virtual async Task Rrf_with_FullTextScore_and_VectorDistance_with_weights()
     {
         await using var context = CreateContext();
 
@@ -51,8 +48,12 @@ ORDER BY RANK RRF(FullTextScore(c["Description"], "beaver", "otter"), VectorDist
 
         var result = await context.Set<HybridSearchAnimals>()
             .OrderBy(x => EF.Functions.Rrf(
-                EF.Functions.FullTextScore(x.Description, "beaver"),
-                EF.Functions.VectorDistance(x.SBytes, inputVector)))
+                new[]
+                {
+                    EF.Functions.FullTextScore(x.Description, new[] { "beaver", "otter" }),
+                    EF.Functions.VectorDistance(x.SBytes, inputVector)
+                },
+                weights: new[] { 2.5, 1 }))
             .ToListAsync();
 
         AssertSql(
@@ -61,12 +62,12 @@ ORDER BY RANK RRF(FullTextScore(c["Description"], "beaver", "otter"), VectorDist
 
 SELECT VALUE c
 FROM root c
-ORDER BY RANK RRF(FullTextScore(c["Description"], "beaver"), VectorDistance(c["SBytes"], @inputVector, false, {'distanceFunction':'dotproduct', 'dataType':'int8'}))
+ORDER BY RANK RRF(FullTextScore(c["Description"], "beaver", "otter"), VectorDistance(c["SBytes"], @inputVector), [2.5,1.0])
 """);
     }
 
     [ConditionalFact]
-    public virtual async Task Hybrid_search_vector_distance_and_FullTextScore_in_OrderByRank_from_owned_type()
+    public virtual async Task Rrf_with_FullTextScore_and_FullTextScore_with_owned_type()
     {
         await using var context = CreateContext();
 
@@ -83,51 +84,20 @@ ORDER BY RANK RRF(FullTextScore(c["Description"], "beaver"), VectorDistance(c["S
 
 SELECT VALUE c
 FROM root c
-ORDER BY RANK RRF(FullTextScore(c["Owned"]["AnotherDescription"], "beaver"), VectorDistance(c["Owned"]["Singles"], @inputVector, false, {'distanceFunction':'cosine', 'dataType':'float32'}))
-""");
-    }
-
-    [ConditionalFact]
-    public virtual async Task Hybrid_search_vector_distance_and_FullTextScore_in_OrderByRank_with_array_args()
-    {
-        await using var context = CreateContext();
-
-        var prm = new[] { "beaver", "otter" };
-        var inputVector = new ReadOnlyMemory<float>([0.33f, -0.52f, 0.45f, -0.67f, 0.89f, -0.34f, 0.86f, -0.78f, 0.86f, -0.78f]);
-        var result = await context.Set<HybridSearchAnimals>()
-            .OrderBy(x => EF.Functions.Rrf(
-                EF.Functions.VectorDistance(x.Owned.Singles, inputVector),
-                EF.Functions.FullTextScore(x.Owned.AnotherDescription, prm)))
-            .ToListAsync();
-
-        AssertSql(
-            """
-@inputVector='[0.33,-0.52,0.45,-0.67,0.89,-0.34,0.86,-0.78,0.86,-0.78]'
-
-SELECT VALUE c
-FROM root c
-ORDER BY RANK RRF(VectorDistance(c["Owned"]["Singles"], @inputVector, false, {'distanceFunction':'cosine', 'dataType':'float32'}), FullTextScore(c["Owned"]["AnotherDescription"], "beaver", "otter"))
+ORDER BY RANK RRF(FullTextScore(c["Owned"]["AnotherDescription"], "beaver"), VectorDistance(c["Owned"]["Singles"], @inputVector))
 """);
     }
 
     private class HybridSearchAnimals
     {
         public int Id { get; set; }
-
         public string PartitionKey { get; set; } = null!;
-
         public string Name { get; set; } = null!;
-
         public string Description { get; set; } = null!;
-
         public ReadOnlyMemory<byte> Bytes { get; set; } = null!;
-
         public ReadOnlyMemory<sbyte> SBytes { get; set; } = null!;
-
         public byte[] BytesArray { get; set; } = null!;
-
         public float[] SinglesArray { get; set; } = null!;
-
         public HybridOwned Owned { get; set; } = null!;
     }
 
