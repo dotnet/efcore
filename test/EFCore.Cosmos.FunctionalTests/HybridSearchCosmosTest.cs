@@ -38,7 +38,7 @@ public class HybridSearchCosmosTest : IClassFixture<HybridSearchCosmosTest.Hybri
 
 SELECT VALUE c
 FROM root c
-ORDER BY RANK RRF(FullTextScore(c["Description"], "beaver", "otter"), VectorDistance(c["SBytes"], @inputVector, false, {'distanceFunction':'dotproduct', 'dataType':'int8'}))
+ORDER BY RANK RRF(FullTextScore(c["Description"], "beaver", "otter"), VectorDistance(c["SBytes"], @inputVector))
 """);
     }
 
@@ -61,7 +61,7 @@ ORDER BY RANK RRF(FullTextScore(c["Description"], "beaver", "otter"), VectorDist
 
 SELECT VALUE c
 FROM root c
-ORDER BY RANK RRF(FullTextScore(c["Description"], "beaver"), VectorDistance(c["SBytes"], @inputVector, false, {'distanceFunction':'dotproduct', 'dataType':'int8'}))
+ORDER BY RANK RRF(FullTextScore(c["Description"], "beaver"), VectorDistance(c["SBytes"], @inputVector))
 """);
     }
 
@@ -83,7 +83,7 @@ ORDER BY RANK RRF(FullTextScore(c["Description"], "beaver"), VectorDistance(c["S
 
 SELECT VALUE c
 FROM root c
-ORDER BY RANK RRF(FullTextScore(c["Owned"]["AnotherDescription"], "beaver"), VectorDistance(c["Owned"]["Singles"], @inputVector, false, {'distanceFunction':'cosine', 'dataType':'float32'}))
+ORDER BY RANK RRF(FullTextScore(c["Owned"]["AnotherDescription"], "beaver"), VectorDistance(c["Owned"]["Singles"], @inputVector))
 """);
     }
 
@@ -106,7 +106,7 @@ ORDER BY RANK RRF(FullTextScore(c["Owned"]["AnotherDescription"], "beaver"), Vec
 
 SELECT VALUE c
 FROM root c
-ORDER BY RANK RRF(VectorDistance(c["Owned"]["Singles"], @inputVector, false, {'distanceFunction':'cosine', 'dataType':'float32'}), FullTextScore(c["Owned"]["AnotherDescription"], "beaver", "otter"))
+ORDER BY RANK RRF(VectorDistance(c["Owned"]["Singles"], @inputVector), FullTextScore(c["Owned"]["AnotherDescription"], "beaver", "otter"))
 """);
     }
 
