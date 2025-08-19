@@ -11,6 +11,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Relationships.OwnedTableSplitting;
 /// </summary>
 public abstract class OwnedTableSplittingRelationalFixtureBase : OwnedNavigationsFixtureBase, ITestSqlLoggerFactory
 {
+    public override bool AreCollectionsOrdered
+        => false;
+
     protected override string StoreName
         => "OwnedTableSplittingQueryTest";
 

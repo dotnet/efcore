@@ -151,7 +151,7 @@ WHERE CAST(JSON_VALUE([r].[RelatedCollection], '$[0].Int') AS int) = 8
 
         AssertSql(
             """
-@i='?' (DbType = Int32)
+@i='0'
 
 SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
 FROM [RootEntity] AS [r]

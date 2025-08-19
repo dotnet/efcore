@@ -14,10 +14,6 @@ public class OwnedNavigationsCollectionSqliteTest(OwnedNavigationsSqliteFixture 
             ? Task.CompletedTask // Base test expects "can't track owned entities" exception, but with SQLite we get "no CROSS APPLY"
             : AssertApplyNotSupported(() => base.Distinct_projected(queryTrackingBehavior));
 
-    // TODO: #36296
-    public override Task Index_column()
-        => Assert.ThrowsAsync<SqliteException>(() => base.Index_column());
-
     private static async Task AssertApplyNotSupported(Func<Task> query)
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,

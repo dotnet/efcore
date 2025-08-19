@@ -12,8 +12,8 @@ public class OwnedNavigationsCosmosFixture : OwnedNavigationsFixtureBase
         => CosmosTestStoreFactory.Instance;
 
     public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-        => base.AddOptions(
-            builder.ConfigureWarnings(w => w.Ignore(CosmosEventId.NoPartitionKeyDefined)));
+        => base.AddOptions(builder)
+            .ConfigureWarnings(w => w.Ignore(CosmosEventId.NoPartitionKeyDefined));
 
     public Task NoSyncTest(bool async, Func<bool, Task> testCode)
         => CosmosTestHelpers.Instance.NoSyncTest(async, testCode);

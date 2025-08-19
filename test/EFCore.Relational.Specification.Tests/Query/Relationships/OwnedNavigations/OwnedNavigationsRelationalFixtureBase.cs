@@ -10,6 +10,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Relationships.OwnedNavigations;
 /// </summary>
 public abstract class OwnedNavigationsRelationalFixtureBase : OwnedTableSplittingRelationalFixtureBase, ITestSqlLoggerFactory
 {
+    public override bool AreCollectionsOrdered
+        => false;
+
     protected override string StoreName
         => "OwnedNavigationsQueryTest";
 

@@ -76,8 +76,11 @@ public abstract class OwnedNavigationsFixtureBase : RelationshipsQueryFixtureBas
         return data;
     }
 
-    // Derived fixtures may need to ignore some owned navigations that are mapped in this fixture.
     public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-        => builder.ConfigureWarnings(b =>
-            b.Default(WarningBehavior.Ignore).Log(CoreEventId.MappedNavigationIgnoredWarning));
+        => base.AddOptions(builder)
+            .ConfigureWarnings(b => b
+                // Derived fixtures may need to ignore some owned navigations that are mapped in this fixture,
+                .Ignore(CoreEventId.MappedNavigationIgnoredWarning)
+                // Cosmos (and possibly others) don't support navigations, so we remove RootReferencingType from the model
+                .Ignore(CoreEventId.MappedEntityTypeIgnoredWarning));
 }
