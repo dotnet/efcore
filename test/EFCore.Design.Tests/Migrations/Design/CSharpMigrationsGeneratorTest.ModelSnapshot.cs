@@ -6201,7 +6201,7 @@ namespace RootNamespace
                                 {
                                     b2.Property<string>("Id");
 
-                                    b2.ComplexCollection(typeof(Dictionary<string, object>), "Properties", "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty.EntityWithTwoProperties#EntityWithTwoProperties.EntityWithStringKey#EntityWithStringKey.Properties#EntityWithStringProperty", b3 =>
+                                    b2.ComplexCollection(typeof(List<Dictionary<string, object>>), "Properties", "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty.EntityWithTwoProperties#EntityWithTwoProperties.EntityWithStringKey#EntityWithStringKey.Properties#EntityWithStringProperty", b3 =>
                                         {
                                             b3.Property<int>("Id");
 
@@ -6256,6 +6256,7 @@ namespace RootNamespace
                     entityWithStringKeyComplexType.FindComplexProperty(nameof(EntityWithStringKey.Properties));
                 Assert.True(propertiesComplexCollection.IsCollection);
                 Assert.Equal("JsonProps", propertiesComplexCollection.GetJsonPropertyName());
+                Assert.Equal(typeof(List<Dictionary<string, object>>), propertiesComplexCollection.ClrType);
             });
 
     #endregion
