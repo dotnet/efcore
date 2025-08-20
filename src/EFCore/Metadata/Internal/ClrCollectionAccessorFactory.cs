@@ -109,11 +109,12 @@ public class ClrCollectionAccessorFactory
     }
 
     [UsedImplicitly]
-    private static IClrCollectionAccessor CreateGeneric<TStructural, TCollection, TElement>(IPropertyBase relationship)
+    private static IClrCollectionAccessor CreateGeneric<TEntity, TCollection, TElement>(IPropertyBase relationship)
+        where TEntity : class
         where TCollection : class, IEnumerable<TElement>
         where TElement : class
     {
-        CreateExpressions<TStructural, TCollection, TElement>(
+        CreateExpressions<TEntity, TCollection, TElement>(
             relationship,
             out var getCollection,
             out var setCollection,
@@ -121,7 +122,7 @@ public class ClrCollectionAccessorFactory
             out var createAndSetCollection,
             out var createCollection);
 
-        return new ClrCollectionAccessor<TStructural, TCollection, TElement>(
+        return new ClrCollectionAccessor<TEntity, TCollection, TElement>(
             relationship.Name,
             relationship.IsShadowProperty(),
             getCollection?.Compile(),
@@ -179,13 +180,14 @@ public class ClrCollectionAccessorFactory
         = typeof(ClrCollectionAccessorFactory).GetMethod(nameof(CreateExpressions), BindingFlags.Static | BindingFlags.NonPublic)!;
 
     [UsedImplicitly]
-    private static void CreateExpressions<TStructural, TCollection, TElement>(
+    private static void CreateExpressions<TEntity, TCollection, TElement>(
         IPropertyBase relationship,
-        out Expression<Func<TStructural, TCollection>>? getCollection,
-        out Expression<Action<TStructural, TCollection>>? setCollection,
-        out Expression<Action<TStructural, TCollection>>? setCollectionForMaterialization,
-        out Expression<Func<TStructural, Action<TStructural, TCollection>, TCollection>>? createAndSetCollection,
+        out Expression<Func<TEntity, TCollection>>? getCollection,
+        out Expression<Action<TEntity, TCollection>>? setCollection,
+        out Expression<Action<TEntity, TCollection>>? setCollectionForMaterialization,
+        out Expression<Func<TEntity, Action<TEntity, TCollection>, TCollection>>? createAndSetCollection,
         out Expression<Func<TCollection>>? createCollection)
+        where TEntity : class
         where TCollection : class, IEnumerable<TElement>
         where TElement : class
     {
@@ -195,7 +197,7 @@ public class ClrCollectionAccessorFactory
         createAndSetCollection = null;
         createCollection = null;
 
-        var entityParameter = Expression.Parameter(typeof(TStructural), "entity");
+        var entityParameter = Expression.Parameter(typeof(TEntity), "entity");
         var valueParameter = Expression.Parameter(typeof(TCollection), "collection");
 
         if (!relationship.IsShadowProperty())
@@ -209,7 +211,7 @@ public class ClrCollectionAccessorFactory
                 memberAccessForRead = Expression.Convert(memberAccessForRead, typeof(TCollection));
             }
 
-            getCollection = Expression.Lambda<Func<TStructural, TCollection>>(
+            getCollection = Expression.Lambda<Func<TEntity, TCollection>>(
                 memberAccessForRead,
                 entityParameter);
 
@@ -225,7 +227,7 @@ public class ClrCollectionAccessorFactory
         }
 
         var concreteType = CollectionTypeFactory.Instance.TryFindTypeToInstantiate(
-            typeof(TStructural),
+            typeof(TEntity),
             typeof(TCollection),
             relationship.DeclaringType.Model[CoreAnnotationNames.FullChangeTrackingNotificationsRequired] != null);
         if (concreteType != null)
@@ -234,18 +236,18 @@ public class ClrCollectionAccessorFactory
             if (setCollection != null
                 || setCollectionForMaterialization != null)
             {
-                var setterParameter = Expression.Parameter(typeof(Action<TStructural, TCollection>), "setter");
+                var setterParameter = Expression.Parameter(typeof(Action<TEntity, TCollection>), "setter");
 
                 var createAndSetCollectionMethod = isHashSet
                     ? CreateAndSetHashSetMethod
-                        .MakeGenericMethod(typeof(TStructural), typeof(TCollection), typeof(TElement))
+                        .MakeGenericMethod(typeof(TEntity), typeof(TCollection), typeof(TElement))
                     : IsObservableHashSet(concreteType)
                         ? CreateAndSetObservableHashSetMethod
-                            .MakeGenericMethod(typeof(TStructural), typeof(TCollection), typeof(TElement))
+                            .MakeGenericMethod(typeof(TEntity), typeof(TCollection), typeof(TElement))
                         : CreateAndSetMethod
-                            .MakeGenericMethod(typeof(TStructural), typeof(TCollection), concreteType);
+                            .MakeGenericMethod(typeof(TEntity), typeof(TCollection), concreteType);
 
-                createAndSetCollection = Expression.Lambda<Func<TStructural, Action<TStructural, TCollection>, TCollection>>(
+                createAndSetCollection = Expression.Lambda<Func<TEntity, Action<TEntity, TCollection>, TCollection>>(
                     Expression.Call(createAndSetCollectionMethod, entityParameter, setterParameter),
                     entityParameter,
                     setterParameter);
@@ -258,11 +260,11 @@ public class ClrCollectionAccessorFactory
                     : Expression.Lambda<Func<TCollection>>(Expression.New(concreteType));
         }
 
-        static Expression<Action<TStructural, TCollection>> CreateSetterDelegate(
+        static Expression<Action<TEntity, TCollection>> CreateSetterDelegate(
             ParameterExpression parameterExpression,
             MemberInfo memberInfo,
             ParameterExpression valueParameter1)
-            => Expression.Lambda<Action<TStructural, TCollection>>(
+            => Expression.Lambda<Action<TEntity, TCollection>>(
                 Expression.MakeMemberAccess(
                     parameterExpression,
                     memberInfo).Assign(
@@ -296,9 +298,10 @@ public class ClrCollectionAccessorFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static TCollection CreateAndSet<TStructural, TCollection, TConcreteCollection>(
-        TStructural entity,
-        Action<TStructural, TCollection> setterDelegate)
+    public static TCollection CreateAndSet<TEntity, TCollection, TConcreteCollection>(
+        TEntity entity,
+        Action<TEntity, TCollection> setterDelegate)
+        where TEntity : class
         where TCollection : class
         where TConcreteCollection : TCollection, new()
     {
@@ -313,9 +316,10 @@ public class ClrCollectionAccessorFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static TCollection CreateAndSetHashSet<TStructural, TCollection, TElement>(
-        TStructural entity,
-        Action<TStructural, TCollection> setterDelegate)
+    public static TCollection CreateAndSetHashSet<TEntity, TCollection, TElement>(
+        TEntity entity,
+        Action<TEntity, TCollection> setterDelegate)
+        where TEntity : class
         where TCollection : class
         where TElement : class
     {
@@ -330,9 +334,10 @@ public class ClrCollectionAccessorFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static TCollection CreateAndSetObservableHashSet<TStructural, TCollection, TElement>(
-        TStructural entity,
-        Action<TStructural, TCollection> setterDelegate)
+    public static TCollection CreateAndSetObservableHashSet<TEntity, TCollection, TElement>(
+        TEntity entity,
+        Action<TEntity, TCollection> setterDelegate)
+        where TEntity : class
         where TCollection : class
         where TElement : class
     {
