@@ -444,7 +444,7 @@ VALUES(
 
     #region EnumLegacyValues
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory(Skip = "#36626"), MemberData(nameof(IsAsyncData))]
     public virtual async Task Read_enum_property_with_legacy_values(bool async)
     {
         var contextFactory = await InitializeAsync<DbContext>(

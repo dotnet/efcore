@@ -1375,6 +1375,9 @@ WHERE CAST(DATALENGTH(N'foo') AS int) = 3
     public class Fixture160 : NorthwindQuerySqlServerFixture<NoopModelCustomizer>
     {
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => base.AddOptions(builder).UseSqlServer(b => b.UseCompatibilityLevel(160));
+        {
+            var options = base.AddOptions(builder);
+            return options.UseSqlServerCompatibilityLevel(160);
+        }
     }
 }
