@@ -14,17 +14,28 @@ public abstract class RelationshipsQueryFixtureBase : SharedStoreFixtureBase<Poo
     {
         Data = CreateData();
 
-        EntityAsserters = new Dictionary<Type, Action<object?, object?>>
+        EntityAsserters = new Dictionary<Type, object>
         {
-            [typeof(RootEntity)] = (e, a) => NullSafeAssert<RootEntity>(e, a, AssertRootEntity),
-            [typeof(RelatedType)] = (e, a) => NullSafeAssert<RelatedType>(e, a, AssertRelatedType),
-            [typeof(NestedType)] = (e, a) => NullSafeAssert<NestedType>(e, a, AssertNestedType),
-            [typeof(RootReferencingEntity)] = (e, a) => NullSafeAssert<RootReferencingEntity>(e, a, AssertPreRootEntity),
+            [typeof(RootEntity)] = (RootEntity e, RootEntity a)
+                => NullSafeAssert<RootEntity>(e, a, AssertRootEntity),
+            [typeof(RelatedType)] = (RelatedType e, RelatedType a)
+                => NullSafeAssert<RelatedType>(e, a, AssertRelatedType),
+            [typeof(NestedType)] = (NestedType e, NestedType a)
+                => NullSafeAssert<NestedType>(e, a, AssertNestedType),
+            [typeof(RootReferencingEntity)] = (RootReferencingEntity e, RootReferencingEntity a)
+                => NullSafeAssert<RootReferencingEntity>(e, a, AssertPreRootEntity),
 
-            [typeof(ValueRootEntity)] = (e, a) => NullSafeAssert<ValueRootEntity>(e, a, AssertValueRootEntity),
-            [typeof(ValueRelatedType)] = (e, a) => NullSafeAssert<ValueRelatedType>(e, a, AssertValueRelatedType),
-            [typeof(ValueNestedType)] = (e, a) => NullSafeAssert<ValueNestedType>(e, a, AssertValueNestedType),
-        }.ToDictionary(e => e.Key, e => (object)e.Value);
+            [typeof(ValueRootEntity)] = (ValueRootEntity e, ValueRootEntity a)
+                => NullSafeAssert<ValueRootEntity>(e, a, AssertValueRootEntity),
+            [typeof(ValueRelatedType)] = (ValueRelatedType e, ValueRelatedType a)
+                => NullSafeAssert<ValueRelatedType>(e, a, AssertValueRelatedType),
+            [typeof(ValueRelatedType?)] = (ValueRelatedType? e, ValueRelatedType? a)
+                => NullSafeAssert<ValueRelatedType>(e, a, AssertValueRelatedType),
+            [typeof(ValueNestedType)] = (ValueNestedType e, ValueNestedType a)
+                => NullSafeAssert<ValueNestedType>(e, a, AssertValueNestedType),
+            [typeof(ValueNestedType?)] = (ValueNestedType? e, ValueNestedType? a)
+                => NullSafeAssert<ValueNestedType>(e, a, AssertValueNestedType)
+        }.ToDictionary(e => e.Key, e => e.Value);
     }
 
     public Func<DbContext> GetContextCreator()
@@ -60,17 +71,19 @@ public abstract class RelationshipsQueryFixtureBase : SharedStoreFixtureBase<Poo
             .IsRequired(false);
     }
 
-    public virtual IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object?, object?>>
+    public virtual IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, object>
     {
-        { typeof(RootEntity), e => ((RootEntity?)e)?.Id },
-        { typeof(RelatedType), e => ((RelatedType?)e)?.Id },
-        { typeof(NestedType), e => ((NestedType?)e)?.Id },
-        { typeof(RootReferencingEntity), e => ((RootReferencingEntity?)e)?.Id },
+        { typeof(RootEntity), object? (RootEntity e) => ((RootEntity?)e)?.Id },
+        { typeof(RelatedType), object? (RelatedType e) => ((RelatedType?)e)?.Id },
+        { typeof(NestedType), object? (NestedType e) => ((NestedType?)e)?.Id },
+        { typeof(RootReferencingEntity), object? (RootReferencingEntity e) => ((RootReferencingEntity?)e)?.Id },
 
-        { typeof(ValueRootEntity), e => ((ValueRootEntity?)e)?.Id },
-        { typeof(ValueRelatedType), e => ((ValueRelatedType?)e)?.Id },
-        { typeof(ValueNestedType), e => ((ValueNestedType?)e)?.Id },
-    }.ToDictionary(e => e.Key, e => (object)e.Value);
+        { typeof(ValueRootEntity), object? (ValueRootEntity e) => ((ValueRootEntity?)e)?.Id },
+        { typeof(ValueRelatedType), object? (ValueRelatedType e) => e.Id },
+        { typeof(ValueRelatedType?), object? (ValueRelatedType? e) => e?.Id },
+        { typeof(ValueNestedType), object? (ValueNestedType e) => e.Id },
+        { typeof(ValueNestedType?), object? (ValueNestedType? e) => e?.Id }
+    }.ToDictionary(e => e.Key, e => e.Value);
 
     public virtual IReadOnlyDictionary<Type, object> EntityAsserters { get; }
 

@@ -1,12 +1,11 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Xunit.Sdk;
+using Microsoft.EntityFrameworkCore.Query.Relationships.ComplexProperties;
 
 namespace Microsoft.EntityFrameworkCore.Query.Relationships.ComplexTableSplitting;
 
-public abstract class ComplexTableSplittingProjectionRelationalTestBase<TFixture>
-    : RelationshipsProjectionTestBase<TFixture>
+public abstract class ComplexTableSplittingProjectionRelationalTestBase<TFixture> : ComplexPropertiesProjectionTestBase<TFixture>
     where TFixture : ComplexTableSplittingRelationalFixtureBase, new()
 {
     public ComplexTableSplittingProjectionRelationalTestBase(TFixture fixture, ITestOutputHelper testOutputHelper)

@@ -241,6 +241,57 @@ OUTER APPLY (
 """);
     }
 
+    #region Value types
+
+    public override async Task Select_root_with_value_types(QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Select_root_with_value_types(queryTrackingBehavior);
+
+        AssertSql(
+            """
+SELECT [v].[Id], [v].[Name], [v].[OptionalRelated_Id], [v].[OptionalRelated_Int], [v].[OptionalRelated_Name], [v].[OptionalRelated_String], [v].[OptionalRelated_OptionalNested_Id], [v].[OptionalRelated_OptionalNested_Int], [v].[OptionalRelated_OptionalNested_Name], [v].[OptionalRelated_OptionalNested_String], [v].[OptionalRelated_RequiredNested_Id], [v].[OptionalRelated_RequiredNested_Int], [v].[OptionalRelated_RequiredNested_Name], [v].[OptionalRelated_RequiredNested_String], [v].[RequiredRelated_Id], [v].[RequiredRelated_Int], [v].[RequiredRelated_Name], [v].[RequiredRelated_String], [v].[RequiredRelated_OptionalNested_Id], [v].[RequiredRelated_OptionalNested_Int], [v].[RequiredRelated_OptionalNested_Name], [v].[RequiredRelated_OptionalNested_String], [v].[RequiredRelated_RequiredNested_Id], [v].[RequiredRelated_RequiredNested_Int], [v].[RequiredRelated_RequiredNested_Name], [v].[RequiredRelated_RequiredNested_String]
+FROM [ValueRootEntity] AS [v]
+""");
+    }
+
+    public override async Task Select_non_nullable_value_type(QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Select_non_nullable_value_type(queryTrackingBehavior);
+
+        AssertSql(
+            """
+SELECT [v].[RequiredRelated_Id], [v].[RequiredRelated_Int], [v].[RequiredRelated_Name], [v].[RequiredRelated_String], [v].[RequiredRelated_OptionalNested_Id], [v].[RequiredRelated_OptionalNested_Int], [v].[RequiredRelated_OptionalNested_Name], [v].[RequiredRelated_OptionalNested_String], [v].[RequiredRelated_RequiredNested_Id], [v].[RequiredRelated_RequiredNested_Int], [v].[RequiredRelated_RequiredNested_Name], [v].[RequiredRelated_RequiredNested_String]
+FROM [ValueRootEntity] AS [v]
+ORDER BY [v].[Id]
+""");
+    }
+
+    public override async Task Select_nullable_value_type(QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Select_nullable_value_type(queryTrackingBehavior);
+
+        AssertSql(
+            """
+SELECT [v].[OptionalRelated_Id], [v].[OptionalRelated_Int], [v].[OptionalRelated_Name], [v].[OptionalRelated_String], [v].[OptionalRelated_OptionalNested_Id], [v].[OptionalRelated_OptionalNested_Int], [v].[OptionalRelated_OptionalNested_Name], [v].[OptionalRelated_OptionalNested_String], [v].[OptionalRelated_RequiredNested_Id], [v].[OptionalRelated_RequiredNested_Int], [v].[OptionalRelated_RequiredNested_Name], [v].[OptionalRelated_RequiredNested_String]
+FROM [ValueRootEntity] AS [v]
+ORDER BY [v].[Id]
+""");
+    }
+
+    public override async Task Select_nullable_value_type_with_Value(QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Select_nullable_value_type_with_Value(queryTrackingBehavior);
+
+        AssertSql(
+            """
+SELECT [v].[OptionalRelated_Id], [v].[OptionalRelated_Int], [v].[OptionalRelated_Name], [v].[OptionalRelated_String], [v].[OptionalRelated_OptionalNested_Id], [v].[OptionalRelated_OptionalNested_Int], [v].[OptionalRelated_OptionalNested_Name], [v].[OptionalRelated_OptionalNested_String], [v].[OptionalRelated_RequiredNested_Id], [v].[OptionalRelated_RequiredNested_Int], [v].[OptionalRelated_RequiredNested_Name], [v].[OptionalRelated_RequiredNested_String]
+FROM [ValueRootEntity] AS [v]
+ORDER BY [v].[Id]
+""");
+    }
+
+    #endregion Value types
+
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());

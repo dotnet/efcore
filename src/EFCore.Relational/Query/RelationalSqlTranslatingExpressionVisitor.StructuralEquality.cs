@@ -369,7 +369,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor
                                 => new JsonScalarExpression(
                                     jsonQuery.JsonColumn,
                                     jsonQuery.Path,
-                                    jsonQuery.Type,
+                                    jsonQuery.Type.UnwrapNullableType(),
                                     jsonQuery.JsonColumn.TypeMapping,
                                     jsonQuery.IsNullable),
 
@@ -378,7 +378,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor
                                 => new JsonScalarExpression(
                                     jsonQuery.JsonColumn,
                                     jsonQuery.Path,
-                                    jsonQuery.Type,
+                                    jsonQuery.Type.UnwrapNullableType(),
                                     jsonQuery.JsonColumn.TypeMapping,
                                     jsonQuery.IsNullable),
 

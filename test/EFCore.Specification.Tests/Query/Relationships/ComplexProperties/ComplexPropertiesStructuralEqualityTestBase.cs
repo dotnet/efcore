@@ -133,4 +133,12 @@ public abstract class ComplexPropertiesStructuralEqualityTestBase<TFixture>(TFix
             ss => ss.Set<RootEntity>().Where(e => e.RequiredRelated.NestedCollection == nestedCollection),
             ss => ss.Set<RootEntity>().Where(e => e.RequiredRelated.NestedCollection.SequenceEqual(nestedCollection)));
     }
+
+    #region Value types
+
+    [ConditionalFact]
+    public virtual Task Nullable_value_type_with_null()
+        => AssertQuery(ss => ss.Set<ValueRootEntity>().Where(e => e.OptionalRelated == null));
+
+    #endregion Value types
 }
