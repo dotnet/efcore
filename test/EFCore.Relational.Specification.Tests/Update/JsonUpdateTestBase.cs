@@ -3624,6 +3624,53 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 }
             });
 
+    [ConditionalFact]
+    public virtual Task Edit_single_property_with_non_ascii_characters()
+       => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+           CreateContext,
+           UseTransaction,
+           async context =>
+           {
+               var query = await context.JsonEntitiesBasic.ToListAsync();
+               var entity = query.Single(x => x.Id == 1);
+               entity.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething = "测试1";
+
+               var newEntity = new JsonEntityBasic
+               {
+                   Id = 3,
+                   Name = "ComprehensiveEntity",
+                   OwnedCollectionRoot = [],
+                   OwnedReferenceRoot = new JsonOwnedRoot
+                   {
+                       Name = "ReferenceRoot",
+                       Number = 300,
+                       OwnedCollectionBranch = [],
+                       OwnedReferenceBranch = new JsonOwnedBranch
+                       {
+                           Id = 15,
+                           Date = new DateTime(2023, 10, 5),
+                           Enum = JsonEnum.Three,
+                           Fraction = 99.99m,
+                           OwnedCollectionLeaf = [],
+                           OwnedReferenceLeaf = new JsonOwnedLeaf { SomethingSomething = "测试1" }
+                       }
+                   }
+               };
+
+               context.Add(newEntity);
+
+               ClearLog();
+               await context.SaveChangesAsync();
+           },
+           async context =>
+           {
+               var result = await context.Set<JsonEntityBasic>().SingleAsync(x => x.Id == 3);
+               Assert.Equal("测试1", result.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething);
+
+               result = await context.Set<JsonEntityBasic>().SingleAsync(x => x.Id == 1);
+               Assert.Equal("测试1", result.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething);
+           });
+
     public void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         => facade.UseTransaction(transaction.GetDbTransaction());
 

@@ -151,9 +151,21 @@ public class SqlServerUpdateSqlGenerator : UpdateAndSelectSqlGenerator, ISqlServ
             stringBuilder.Append(columnModification.JsonPath);
             stringBuilder.Append("', ");
 
-            if (columnModification.Property is { IsPrimitiveCollection: false })
+            if (columnModification.Value is null
+                || (columnModification.Property?.GetRelationalTypeMapping() is { } mapping
+                    && (mapping.Converter?.ProviderClrType ?? columnModification.Property.ClrType).UnwrapNullableType()
+                        is { } propertyProviderClrType
+                    && (propertyProviderClrType == typeof(bool)
+                        || propertyProviderClrType.IsNumeric())))
             {
                 base.AppendUpdateColumnValue(updateSqlGeneratorHelper, columnModification, stringBuilder, name, schema);
+            }
+            else if (columnModification.Property is { IsPrimitiveCollection: false })
+            {
+                // Unwrap the value with JSON_VALUE
+                stringBuilder.Append("JSON_VALUE(");
+                base.AppendUpdateColumnValue(updateSqlGeneratorHelper, columnModification, stringBuilder, name, schema);
+                stringBuilder.Append(", '$.\"\"')");
             }
             else
             {
