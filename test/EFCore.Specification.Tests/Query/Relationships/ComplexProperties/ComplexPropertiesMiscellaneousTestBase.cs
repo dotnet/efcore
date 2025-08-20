@@ -5,4 +5,23 @@ namespace Microsoft.EntityFrameworkCore.Query.Relationships.ComplexProperties;
 
 public abstract class ComplexPropertiesMiscellaneousTestBase<TFixture>(TFixture fixture)
     : RelationshipsMiscellaneousTestBase<TFixture>(fixture)
-    where TFixture : ComplexPropertiesFixtureBase, new();
+    where TFixture : ComplexPropertiesFixtureBase, new()
+{
+    #region Value types
+
+    [ConditionalFact]
+    public virtual Task Where_property_on_non_nullable_value_type()
+        => AssertQuery(ss => ss.Set<ValueRootEntity>().Where(e => e.RequiredRelated.Int == 8));
+
+    [ConditionalFact]
+    public virtual Task Where_property_on_nullable_value_type_Value()
+        => AssertQuery(
+            ss => ss.Set<ValueRootEntity>().Where(e => e.OptionalRelated!.Value.Int == 8),
+            ss => ss.Set<ValueRootEntity>().Where(e => e.OptionalRelated.HasValue && e.OptionalRelated!.Value.Int == 8));
+
+    [ConditionalFact]
+    public virtual Task Where_HasValue_on_nullable_value_type()
+        => AssertQuery(ss => ss.Set<ValueRootEntity>().Where(e => e.OptionalRelated.HasValue));
+
+    #endregion Value types
+}

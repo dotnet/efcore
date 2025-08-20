@@ -320,8 +320,13 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
 
                     _projectionMapping[_projectionMembers.Peek()] = jsonQueryExpression;
 
+#pragma warning disable EF1001
                     return shaper.Update(
-                        new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), typeof(ValueBuffer)));
+                        new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), typeof(ValueBuffer)))
+                            // This is to handle have correct type for the shaper expression. It is later fixed in MatchTypes.
+                            // This mirrors for structural types what we do for scalars.
+                            .MakeClrTypeNullable();
+#pragma warning restore EF1001
                 }
 
                 if (shaper.ValueBufferExpression is ProjectionBindingExpression projectionBindingExpression)
@@ -342,13 +347,23 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                         {
                             var projectionBinding = AddClientProjection(jsonQuery, typeof(ValueBuffer));
 
-                            return shaper.Update(projectionBinding);
+#pragma warning disable EF1001
+                            return shaper.Update(projectionBinding)
+                                // This is to handle have correct type for the shaper expression. It is later fixed in MatchTypes.
+                                // This mirrors for structural types what we do for scalars.
+                                .MakeClrTypeNullable();
+#pragma warning restore EF1001
                         }
 
                         _projectionMapping[_projectionMembers.Peek()] = jsonQuery;
 
+#pragma warning disable EF1001
                         return shaper.Update(
-                            new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), typeof(ValueBuffer)));
+                            new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), typeof(ValueBuffer)))
+                            // This is to handle have correct type for the shaper expression. It is later fixed in MatchTypes.
+                            // This mirrors for structural types what we do for scalars.
+                            .MakeClrTypeNullable();
+#pragma warning restore EF1001
                     }
 
                     projection = (StructuralTypeProjectionExpression)projection2;
@@ -366,14 +381,19 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                         _projectionBindingCache[projection] = entityProjectionBinding;
                     }
 
-                    return shaper.Update(entityProjectionBinding);
+#pragma warning disable EF1001
+                    return shaper.Update(entityProjectionBinding)
+                        // This is to handle have correct type for the shaper expression. It is later fixed in MatchTypes.
+                        // This mirrors for structural types what we do for scalars.
+                        .MakeClrTypeNullable();
+#pragma warning restore EF1001
                 }
 
                 _projectionMapping[_projectionMembers.Peek()] = projection;
 
+#pragma warning disable EF1001
                 return shaper
                     .Update(new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), typeof(ValueBuffer)))
-#pragma warning disable EF1001
                     // This is to handle have correct type for the shaper expression. It is later fixed in MatchTypes.
                     // This mirrors for structural types what we do for scalars.
                     .MakeClrTypeNullable();
