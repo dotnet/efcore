@@ -97,6 +97,39 @@ WHERE false
         AssertSql();
     }
 
+    #region Contains
+
+    public override async Task Contains_with_inline()
+    {
+        // No backing field could be found for property 'RootEntity.RequiredRelated#RelatedType.NestedCollection#NestedType.RelatedTypeRootEntityId' and the property does not have a getter.
+        await Assert.ThrowsAsync<InvalidOperationException>(() => base.Contains_with_inline());
+
+        AssertSql();
+    }
+
+    public override async Task Contains_with_parameter()
+    {
+        await AssertTranslationFailed(base.Contains_with_parameter);
+
+        AssertSql();
+    }
+
+    public override async Task Contains_with_operators_composed_on_the_collection()
+    {
+        await AssertTranslationFailed(base.Contains_with_operators_composed_on_the_collection);
+
+        AssertSql();
+    }
+
+    public override async Task Contains_with_nested_and_composed_operators()
+    {
+        await AssertTranslationFailed(base.Contains_with_nested_and_composed_operators);
+
+        AssertSql();
+    }
+
+    #endregion Contains
+
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());

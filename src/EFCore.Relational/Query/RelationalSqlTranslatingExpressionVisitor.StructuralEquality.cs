@@ -333,66 +333,77 @@ public partial class RelationalSqlTranslatingExpressionVisitor
             // into complex properties to generate a flattened list of comparisons.
             // The moment we reach a a complex property that's mapped to JSON, we stop and generate a single comparison
             // for the whole complex type.
-            bool TryGenerateComparisons(IComplexType type, Expression left, Expression right, [NotNullWhen(true)] ref SqlExpression? comparisons, out bool exitImmediately)
+            bool TryGenerateComparisons(
+                IComplexType type,
+                Expression left,
+                Expression right,
+                [NotNullWhen(true)] ref SqlExpression? comparisons,
+                out bool exitImmediately)
             {
                 exitImmediately = false;
 
                 if (type.IsMappedToJson())
                 {
-                    var leftScalar = Process(left);
-                    var rightScalar = Process(right);
+                    // The fact that a type is mapped to JSON doesn't necessary mean that we simply compare its JSON column/value:
+                    // a JSON *collection* may have been converted to a relational representation via e.g. OPENJSON, at which point
+                    // it behaves just like a table-splitting complex type, where we have to compare column-by-column.
+                    // TryProcessJson() attempts to extract a single JSON column/value from both sides: if we succeed, we just compare
+                    // both sides. Otherwise, we flow down to the column-by-column flow.
+                    if (TryProcessJson(left, out var leftScalar) && TryProcessJson(right, out var rightScalar))
+                    {
+                        var comparison = _sqlExpressionFactory.MakeBinary(nodeType, leftScalar, rightScalar, boolTypeMapping)!;
 
-                    var comparison = _sqlExpressionFactory.MakeBinary(nodeType, leftScalar, rightScalar, boolTypeMapping)!;
+                        // A single JSON-mapped complex type requires only a single comparison for the JSON value/column on each side;
+                        // but the JSON-mapped complex type may be nested inside a non-JSON (table-split) complex type, in which
+                        // case this is just one comparison in several.
+                        comparisons = comparisons is null
+                            ? comparison
+                            : nodeType == ExpressionType.Equal
+                                ? _sqlExpressionFactory.AndAlso(comparisons, comparison)
+                                : _sqlExpressionFactory.OrElse(comparisons, comparison);
 
-                    // A single JSON-mapped complex type requires only a single comparison for the JSON value/column on each side;
-                    // but the JSON-mapped complex type may be nested inside a non-JSON (table-split) complex type, in which
-                    // case this is just one comparison in several.
-                    comparisons = comparisons is null
-                        ? comparison
-                        : nodeType == ExpressionType.Equal
-                            ? _sqlExpressionFactory.AndAlso(comparisons, comparison)
-                            : _sqlExpressionFactory.OrElse(comparisons, comparison);
+                        return true;
+                    }
 
-                    return true;
-
-                    SqlExpression Process(Expression expression)
-                        => expression switch
+                    bool TryProcessJson(Expression expression, [NotNullWhen(true)] out SqlExpression? result)
+                    {
+                        switch (expression)
                         {
                             // When a non-collection JSON column - or a nested complex property within a JSON column - is compared,
                             // we get a StructuralTypeReferenceExpression over a JsonQueryExpression. Convert this to a
                             // JsonScalarExpression, which is our current representation for a complex JSON in the SQL tree
                             // (as opposed to in the shaper) - see #36392.
-                            StructuralTypeReferenceExpression
-                                {
-                                    Parameter: { ValueBufferExpression: JsonQueryExpression jsonQuery }
-                                }
-                                => new JsonScalarExpression(
+                            case StructuralTypeReferenceExpression { Parameter.ValueBufferExpression: JsonQueryExpression jsonQuery }:
+                                result = new JsonScalarExpression(
                                     jsonQuery.JsonColumn,
                                     jsonQuery.Path,
                                     jsonQuery.Type.UnwrapNullableType(),
                                     jsonQuery.JsonColumn.TypeMapping,
-                                    jsonQuery.IsNullable),
+                                    jsonQuery.IsNullable);
+                                return true;
 
                             // As above, but for a complex JSON collection
-                            CollectionResultExpression { QueryExpression: JsonQueryExpression jsonQuery }
-                                => new JsonScalarExpression(
+                            case CollectionResultExpression { QueryExpression: JsonQueryExpression jsonQuery }:
+                                result = new JsonScalarExpression(
                                     jsonQuery.JsonColumn,
                                     jsonQuery.Path,
                                     jsonQuery.Type.UnwrapNullableType(),
                                     jsonQuery.JsonColumn.TypeMapping,
-                                    jsonQuery.IsNullable),
+                                    jsonQuery.IsNullable);
+                                return true;
 
                             // When an object is instantiated inline (e.g. Where(c => c.ShippingAddress == new Address { ... })), we get a SqlConstantExpression
                             // with the .NET instance. Serialize it to JSON and replace the constant (note that the type mapping will be inferred from the
                             // JSON column on other side above - important for e.g. nvarchar vs. json columns)
-                            SqlConstantExpression constant
-                                => new SqlConstantExpression(
+                            case SqlConstantExpression constant:
+                                result = new SqlConstantExpression(
                                     SerializeComplexTypeToJson(complexType, constant.Value, collection),
                                     typeof(string),
-                                    typeMapping: null),
+                                    typeMapping: null);
+                                return true;
 
-                            SqlParameterExpression parameter
-                                => (SqlParameterExpression)Visit(
+                            case SqlParameterExpression parameter:
+                                result = (SqlParameterExpression)Visit(
                                     _queryCompilationContext.RegisterRuntimeParameter(
                                         $"{RuntimeParameterPrefix}{parameter.Name}",
                                         Expression.Lambda(
@@ -405,13 +416,52 @@ public partial class RelationalSqlTranslatingExpressionVisitor
                                                     indexer: typeof(Dictionary<string, object>).GetProperty("Item", [typeof(string)]),
                                                     [Expression.Constant(parameter.Name, typeof(string))]),
                                                 Expression.Constant(collection)),
-                                            QueryCompilationContext.QueryContextParameter))),
+                                            QueryCompilationContext.QueryContextParameter)));
+                                return true;
 
-                            _ => throw new UnreachableException()
+                            case ParameterBasedComplexPropertyChainExpression chainExpression:
+                            {
+                                var lastComplexProperty = chainExpression.ComplexPropertyChain.Last();
+                                var extractComplexPropertyClrType = Expression.Call(
+                                    ParameterValueExtractorMethod.MakeGenericMethod(lastComplexProperty.ClrType.MakeNullable()),
+                                    QueryCompilationContext.QueryContextParameter,
+                                    Expression.Constant(chainExpression.ParameterExpression.Name, typeof(string)),
+                                    Expression.Constant(chainExpression.ComplexPropertyChain, typeof(List<IComplexProperty>)),
+                                    Expression.Constant(null, typeof(IProperty)));
+
+                                var lambda =
+                                    Expression.Lambda(
+                                        Expression.Call(
+                                            SerializeComplexTypeToJsonMethod,
+                                            Expression.Constant(lastComplexProperty.ComplexType),
+                                            extractComplexPropertyClrType,
+                                            Expression.Constant(lastComplexProperty.IsCollection)),
+                                        QueryCompilationContext.QueryContextParameter);
+
+                                var parameterNameBuilder = new StringBuilder(RuntimeParameterPrefix)
+                                    .Append(chainExpression.ParameterExpression.Name);
+
+                                foreach (var complexProperty in chainExpression.ComplexPropertyChain)
+                                {
+                                    parameterNameBuilder.Append('_').Append(complexProperty.Name);
+                                }
+
+                                result = (SqlParameterExpression)Visit(
+                                    _queryCompilationContext.RegisterRuntimeParameter(parameterNameBuilder.ToString(), lambda));
+
+                                return true;
+                            }
+
+                            default:
+                                result = null;
+                                return false;
                         };
+                    }
                 }
 
-                // We handled complex JSON above, from here we handle table splitting
+                // We handled JSON column comparison above.
+                // From here we handle table splitting and JSON types that have been converted to a relational table representation via
+                // e.g. OPENJSON.
                 foreach (var property in type.GetProperties())
                 {
                     if (TryTranslatePropertyAccess(left, property, out var leftTranslation)
@@ -586,7 +636,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor
         QueryContext context,
         string baseParameterName,
         List<IComplexProperty>? complexPropertyChain,
-        IProperty property)
+        IProperty? property)
     {
         var baseValue = context.Parameters[baseParameterName];
 
@@ -603,7 +653,11 @@ public partial class RelationalSqlTranslatingExpressionVisitor
             }
         }
 
-        return baseValue == null ? (T?)(object?)null : (T?)property.GetGetter().GetClrValue(baseValue);
+        return baseValue == null
+            ? (T?)(object?)null
+            : property is null
+                ? (T?)baseValue
+                : (T?)property.GetGetter().GetClrValue(baseValue);
     }
 
     /// <summary>

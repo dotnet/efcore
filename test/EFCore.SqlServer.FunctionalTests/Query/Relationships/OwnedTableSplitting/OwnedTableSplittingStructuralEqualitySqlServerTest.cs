@@ -194,6 +194,38 @@ ORDER BY [r].[Id], [o].[RelatedTypeRootEntityId], [o].[Id], [s].[RootEntityId], 
         AssertSql();
     }
 
+    #region Contains
+
+    public override async Task Contains_with_inline()
+    {
+        await base.Contains_with_inline();
+
+        AssertSql();
+    }
+
+    public override async Task Contains_with_parameter()
+    {
+        await base.Contains_with_parameter();
+
+        AssertSql();
+    }
+
+    public override async Task Contains_with_operators_composed_on_the_collection()
+    {
+        await base.Contains_with_operators_composed_on_the_collection();
+
+        AssertSql();
+    }
+
+    public override async Task Contains_with_nested_and_composed_operators()
+    {
+        await base.Contains_with_nested_and_composed_operators();
+
+        AssertSql();
+    }
+
+    #endregion Contains
+
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
