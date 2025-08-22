@@ -4905,6 +4905,6 @@ ORDER BY [l].[Id], [s0].[Id], [s0].[Id0]
             => "ComplexNavigations160";
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => base.AddOptions(builder).UseSqlServer(b => b.UseCompatibilityLevel(160));
+            => base.AddOptions(builder).UseSqlServerCompatibilityLevel(160);
     }
 }

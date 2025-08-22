@@ -187,7 +187,7 @@ public class SqlServerDatabaseCreatorEnsureCreatedTest : SqlServerDatabaseCreato
         => Creates_schema_in_existing_database_test(async, ambientTransaction, file: true);
 
     private static Task Creates_schema_in_existing_database_test(bool async, bool ambientTransaction, bool file)
-        => TestEnvironment.IsSqlAzure
+        => TestEnvironment.IsAzureSql
             ? new TestSqlServerRetryingExecutionStrategy().ExecuteAsync(
                 (true, async, ambientTransaction, file), Creates_physical_database_and_schema_test)
             : Creates_physical_database_and_schema_test((true, async, ambientTransaction, file));
@@ -201,7 +201,7 @@ public class SqlServerDatabaseCreatorEnsureCreatedTest : SqlServerDatabaseCreato
         => Creates_new_physical_database_and_schema_test(async, ambientTransaction, file: true);
 
     private static Task Creates_new_physical_database_and_schema_test(bool async, bool ambientTransaction, bool file)
-        => TestEnvironment.IsSqlAzure
+        => TestEnvironment.IsAzureSql
             ? new TestSqlServerRetryingExecutionStrategy().ExecuteAsync(
                 (false, async, ambientTransaction, file), Creates_physical_database_and_schema_test)
             : Creates_physical_database_and_schema_test((false, async, ambientTransaction, file));

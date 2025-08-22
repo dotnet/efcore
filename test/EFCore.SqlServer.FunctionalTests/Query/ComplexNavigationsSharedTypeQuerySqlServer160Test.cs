@@ -8525,6 +8525,6 @@ ORDER BY [l].[Id], [s0].[c], [s0].[Id0], [s0].[Id00]
             => "ComplexNavigationsOwned160";
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => base.AddOptions(builder).UseSqlServer(b => b.UseCompatibilityLevel(160));
+            => base.AddOptions(builder).UseSqlServerCompatibilityLevel(160);
     }
 }

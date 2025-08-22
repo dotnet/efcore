@@ -126,7 +126,7 @@ WHERE (
                 """
 SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
 FROM [RootEntity] AS [r]
-WHERE JSON_VALUE([r].[RelatedCollection], '$[0]' RETURNING int) = 8
+WHERE JSON_VALUE([r].[RelatedCollection], '$[0].Int' RETURNING int) = 8
 """);
         }
         else
@@ -152,7 +152,7 @@ WHERE CAST(JSON_VALUE([r].[RelatedCollection], '$[0].Int') AS int) = 8
 
 SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
 FROM [RootEntity] AS [r]
-WHERE JSON_VALUE([r].[RelatedCollection], '$[' + CAST(@i AS nvarchar(max)) + ']' RETURNING int) = 8
+WHERE JSON_VALUE([r].[RelatedCollection], '$[' + CAST(@i AS nvarchar(max)) + '].Int' RETURNING int) = 8
 """);
         }
         else
@@ -178,7 +178,7 @@ WHERE CAST(JSON_VALUE([r].[RelatedCollection], '$[' + CAST(@i AS nvarchar(max)) 
                 """
 SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
 FROM [RootEntity] AS [r]
-WHERE JSON_VALUE([r].[RelatedCollection], '$[' + CAST([r].[Id] - 1 AS nvarchar(max)) + ']' RETURNING int) = 8
+WHERE JSON_VALUE([r].[RelatedCollection], '$[' + CAST([r].[Id] - 1 AS nvarchar(max)) + '].Int' RETURNING int) = 8
 """);
         }
         else
@@ -202,7 +202,7 @@ WHERE CAST(JSON_VALUE([r].[RelatedCollection], '$[' + CAST([r].[Id] - 1 AS nvarc
                 """
 SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
 FROM [RootEntity] AS [r]
-WHERE JSON_VALUE([r].[RelatedCollection], '$[9999]' RETURNING int) = 8
+WHERE JSON_VALUE([r].[RelatedCollection], '$[9999].Int' RETURNING int) = 8
 """);
         }
         else
