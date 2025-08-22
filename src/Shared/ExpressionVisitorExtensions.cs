@@ -51,7 +51,7 @@ internal static class ExpressionVisitorExtensions
     /// <typeparam name="T">The type of the expression.</typeparam>
     /// <param name="visitor">The expression visitor.</param>
     /// <param name="nodes">The expression to visit.</param>
-    /// <param name="callerName">The name of the calling method; used to report to report a better error message.</param>
+    /// <param name="callerName">The name of the calling method; used to report a better error message.</param>
     /// <returns>
     ///     The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.
     /// </returns>
