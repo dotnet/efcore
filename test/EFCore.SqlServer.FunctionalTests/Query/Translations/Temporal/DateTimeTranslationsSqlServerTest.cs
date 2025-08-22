@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.TestModels.BasicTypesModel;
+
 namespace Microsoft.EntityFrameworkCore.Query.Translations.Temporal;
 
 public class DateTimeTranslationsSqlServerTest : DateTimeTranslationsTestBase<BasicTypesQuerySqlServerFixture>
@@ -18,7 +20,7 @@ public class DateTimeTranslationsSqlServerTest : DateTimeTranslationsTestBase<Ba
 
         AssertSql(
             """
-@myDatetime='2015-04-10T00:00:00.0000000'
+@myDatetime='2015-04-10T00:00:00.0000000' (DbType = DateTime)
 
 SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
 FROM [BasicTypesEntities] AS [b]
@@ -32,7 +34,7 @@ WHERE GETDATE() <> @myDatetime
 
         AssertSql(
             """
-@myDatetime='2015-04-10T00:00:00.0000000'
+@myDatetime='2015-04-10T00:00:00.0000000' (DbType = DateTime)
 
 SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
 FROM [BasicTypesEntities] AS [b]
@@ -238,6 +240,34 @@ WHERE [b].[DateTime] = '1998-05-04T15:30:10.0000000'
 SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
 FROM [BasicTypesEntities] AS [b]
 WHERE [b].[DateTime] = @p
+""");
+    }
+
+    [ConditionalFact]
+    public virtual async Task Now_has_proper_type_mapping_for_constant_comparison()
+    {
+        await AssertQuery(
+            ss => ss.Set<BasicTypesEntity>().Where(x => DateTime.Now > new DateTime(2025, 1, 1)));
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE GETDATE() > '2025-01-01T00:00:00.000'
+""");
+    }
+
+    [ConditionalFact]
+    public virtual async Task UtcNow_has_proper_type_mapping_for_constant_comparison()
+    {
+        await AssertQuery(
+            ss => ss.Set<BasicTypesEntity>().Where(x => DateTime.UtcNow > new DateTime(2025, 1, 1)));
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE GETUTCDATE() > '2025-01-01T00:00:00.000'
 """);
     }
 

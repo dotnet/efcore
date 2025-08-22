@@ -187,13 +187,13 @@ public class RelationalStructuralTypeShaperExpression : StructuralTypeShaperExpr
             : this;
 
     /// <inheritdoc />
-    public override StructuralTypeShaperExpression MakeClrTypeNullable()
+    public override RelationalStructuralTypeShaperExpression MakeClrTypeNullable()
         => Type != Type.MakeNullable()
             ? new RelationalStructuralTypeShaperExpression(StructuralType, ValueBufferExpression, IsNullable, MaterializationCondition, Type.MakeNullable())
             : this;
 
     /// <inheritdoc />
-    public override StructuralTypeShaperExpression MakeClrTypeNonNullable()
+    public override RelationalStructuralTypeShaperExpression MakeClrTypeNonNullable()
         => Type != Type.UnwrapNullableType()
             ? new RelationalStructuralTypeShaperExpression(StructuralType, ValueBufferExpression, IsNullable, MaterializationCondition, Type.UnwrapNullableType())
             : this;

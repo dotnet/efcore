@@ -628,6 +628,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
                                 var shaperResult = CreateJsonShapers(
                                     shaper.StructuralType,
+                                    shaper.Type,
                                     shaper.IsNullable,
                                     jsonReaderDataVariable,
                                     keyValuesParameter,
@@ -674,8 +675,10 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                         childProjectionInfo.Navigation.TargetEntityType,
                                         childProjectionInfo.Navigation.IsCollection);
 
+                                    var targetEntityType = childProjectionInfo.Navigation.TargetEntityType;
                                     var shaperResult = CreateJsonShapers(
-                                        childProjectionInfo.Navigation.TargetEntityType,
+                                        targetEntityType,
+                                        targetEntityType.ClrType,
                                         nullable: true,
                                         jsonReaderDataVariable,
                                         keyValuesParameter,
@@ -784,6 +787,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
                     var shaperResult = CreateJsonShapers(
                         relatedStructuralType,
+                        relationship.ClrType,
                         nullable: true,
                         jsonReaderDataVariable,
                         keyValuesParameter,
@@ -1151,8 +1155,10 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                 includeExpression.Navigation.TargetEntityType,
                                 includeExpression.Navigation.IsCollection);
 
+                            var targetEntityType = includeExpression.Navigation.TargetEntityType;
                             var shaperResult = CreateJsonShapers(
-                                includeExpression.Navigation.TargetEntityType,
+                                targetEntityType,
+                                targetEntityType.ClrType,
                                 nullable: true,
                                 jsonReaderDataVariable,
                                 keyValuesParameter,
@@ -1563,6 +1569,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
         private Expression CreateJsonShapers(
             ITypeBase structuralType,
+            Type clrType,
             bool nullable,
             ParameterExpression jsonReaderDataParameter,
             Expression? keyValuesParameter,
@@ -1628,6 +1635,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
                 var innerShaper = CreateJsonShapers(
                     relatedStructuralType,
+                    nestedRelationship.ClrType,
                     nullable || isRelationshipNullable,
                     jsonReaderDataShaperLambdaParameter,
                     keyValuesShaperLambdaParameter,
@@ -1847,15 +1855,13 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 return materializeJsonEntityCollectionMethodCall;
             }
 
-
             // Return the materializer for this JSON object, including null checks which would return null.
             MethodInfo method;
 
-            if (relationship is not null && Nullable.GetUnderlyingType(relationship.ClrType) is { } underlyingType)
+            if (Nullable.GetUnderlyingType(clrType) is { } underlyingType)
             {
-                // The association property into which we're assigning has a nullable value type, so generate
-                // a materializer that returns that nullable value type (note that the shaperLambda that
-                // we pass itself always returns a non-nullable value (the null checks are outside of it.))
+                // We need to project out a nullable value type. Note that the shaperLambda that we pass itself always returns a
+                // non-nullable value (the null checks are outside of it.))
                 Check.DebugAssert(nullable, "On non-nullable relationship but the relationship's ClrType is Nullable<T>");
                 Check.DebugAssert(underlyingType == structuralType.ClrType);
 
@@ -2538,6 +2544,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
                         var shaperResult = CreateJsonShapers(
                             complexType,
+                            complexProperty.ClrType,
                             nullable: shaper.IsNullable || complexProperty.IsNullable,
                             jsonReaderDataVariable,
                             keyValuesParameter: null, // For owned entities only

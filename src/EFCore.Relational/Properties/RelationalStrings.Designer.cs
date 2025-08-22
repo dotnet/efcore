@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.RelationalStrings", typeof(RelationalStrings).Assembly);
 
         /// <summary>
-        ///     The corresponding CLR type for entity type '{entityType}' cannot be instantiated, but the entity type was mapped to '{storeObject}' using the 'TPC' mapping strategy. Only instantiable types should be mapped. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.
+        ///     The entity type '{entityType}' cannot be instantiated because its corresponding CLR type is abstract, but the entity type was mapped to '{storeObject}' using the 'TPC' mapping strategy. Only instantiable types should be mapped. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.
         /// </summary>
         public static string AbstractTpc(object? entityType, object? storeObject)
             => string.Format(
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("BadSequenceString");
 
         /// <summary>
-        ///     Invalid type for sequence. Valid types are long (the default), int, short, byte and decimal.
+        ///     Invalid type for sequence. Valid types are 'long' (the default), 'int', 'short', 'byte' and 'decimal'.
         /// </summary>
         public static string BadSequenceType
             => GetString("BadSequenceType");
@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, property);
 
         /// <summary>
-        ///     Complex property '{complexProperty}' cannot have both a JSON column name ('{columnName}') and a JSON property name ('{propertyName}') configured. Use ToJson() to map to a JSON column or HasJsonPropertyName() to map as a JSON property within a containing JSON column, but not both.
+        ///     Complex property '{complexProperty}' cannot have both a JSON column name ('{columnName}') and a JSON property name ('{propertyName}') configured. Use 'ToJson()' to map to a JSON column or 'HasJsonPropertyName()' to map as a JSON property within a containing JSON column, but not both.
         /// </summary>
         public static string ComplexPropertyBothJsonColumnAndJsonPropertyName(object? complexProperty, object? columnName, object? propertyName)
             => string.Format(
@@ -114,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 complexProperty);
 
         /// <summary>
-        ///     The optional complex property '{type}.{property}' is mapped to columns by flattening the contained properties into its container's table; this mapping requires at least one required property - to allow distinguishing between null and empty values - but type '{complexType}' contains only optional properties. Configure the property with a shadow discriminator by adding a call to 'HasDiscriminator()` on the complex property configuration, or map this complex property to a JSON column instead.
+        ///     The optional complex property '{type}.{property}' is mapped to columns by flattening the contained properties into its container's table; this mapping requires at least one required property - to allow distinguishing between 'null' and empty values - but the complex type contains only optional properties. Configure the property with a shadow discriminator by adding a call to 'HasDiscriminator()' on the complex property configuration, or map this complex property to a JSON column instead.
         /// </summary>
         public static string ComplexPropertyOptionalTableSharing(object? type, object? property)
             => string.Format(
@@ -342,7 +342,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 function, type);
 
         /// <summary>
-        ///     Cannot set custom translation on the DbFunction '{function}' since it is not a scalar function.
+        ///     Custom translation cannot be set on the DbFunction '{function}' since it is not a scalar function.
         /// </summary>
         public static string DbFunctionNonScalarCustomTranslation(object? function)
             => string.Format(
@@ -350,7 +350,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 function);
 
         /// <summary>
-        ///     The DbFunction '{function}' returns a SqlExpression of type '{type}', which is a nullable value type. DbFunctions must return expressions with non-nullable value types, even when they may return null.
+        ///     The DbFunction '{function}' returns a SqlExpression of type '{type}', which is a nullable value type. DbFunctions must return expressions with non-nullable value types, even when they may return 'null'.
         /// </summary>
         public static string DbFunctionNullableValueReturnType(object? function, object? type)
             => string.Format(
@@ -668,7 +668,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, keyValue, table);
 
         /// <summary>
-        ///     The EF.MultipleParameters&lt;T&gt; method may only be used within Entity Framework LINQ queries.
+        ///     The 'EF.MultipleParameters&lt;T&gt;' method may only be used within Entity Framework LINQ queries.
         /// </summary>
         public static string EFMultipleParametersInvoked
             => GetString("EFMultipleParametersInvoked");
@@ -680,7 +680,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("EmptyCollectionNotSupportedAsInlineQueryRoot");
 
         /// <summary>
-        ///     The short name for '{entityType1}' is '{discriminatorValue}' which is the same for '{entityType2}'. Every concrete entity type in the hierarchy must have a unique short name. Either rename one of the types or call modelBuilder.Entity&lt;TEntity&gt;().Metadata.SetDiscriminatorValue("NewShortName").
+        ///     The short name for '{entityType1}' is '{discriminatorValue}' which is the same for '{entityType2}'. Every concrete entity type in the hierarchy must have a unique short name. Either rename one of the types or call 'modelBuilder.Entity&lt;TEntity&gt;().Metadata.SetDiscriminatorValue("NewShortName")'.
         /// </summary>
         public static string EntityShortNameNotUnique(object? entityType1, object? discriminatorValue, object? entityType2)
             => string.Format(
@@ -760,7 +760,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, property);
 
         /// <summary>
-        ///     An error occurred while reading a database value for property '{entityType}.{property}'. The expected type was '{expectedType}' but the actual value was null.
+        ///     An error occurred while reading a database value for property '{entityType}.{property}'. The expected type was '{expectedType}' but the actual value was 'null'.
         /// </summary>
         public static string ErrorMaterializingPropertyNullReference(object? entityType, object? property, object? expectedType)
             => string.Format(
@@ -782,7 +782,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 expectedType, actualType);
 
         /// <summary>
-        ///     An error occurred while reading a database value. The expected type was '{expectedType}' but the actual value was null.
+        ///     An error occurred while reading a database value. The expected type was '{expectedType}' but the actual value was 'null'.
         /// </summary>
         public static string ErrorMaterializingValueNullReference(object? expectedType)
             => string.Format(
@@ -836,7 +836,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 operation, entityType);
 
         /// <summary>
-        ///     The operation '{operation}' contains a select expression feature that isn't supported in the query SQL generator, but has been declared as supported by provider during translation phase. This is a bug in your EF Core provider, please file an issue.
+        ///     The operation '{operation}' contains a select expression feature that isn't supported in the query SQL generator, but has been declared as supported by provider during translation phase. This is a bug in your EF Core provider, file an issue at https://aka.ms/efcorefeedback.
         /// </summary>
         public static string ExecuteOperationWithUnsupportedOperatorInSqlGeneration(object? operation)
             => string.Format(
@@ -844,7 +844,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 operation);
 
         /// <summary>
-        ///     ExecuteUpdate or ExecuteDelete was called on entity type '{entityType}', but that entity type is not mapped to a table.
+        ///     'ExecuteUpdate' or 'ExecuteDelete' was called on entity type '{entityType}', but that entity type is not mapped to a table.
         /// </summary>
         public static string ExecuteUpdateDeleteOnEntityNotMappedToTable(object? entityType)
             => string.Format(
@@ -852,7 +852,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
-        ///     ExecuteUpdate is being used over type '{structuralType}' which is mapped to JSON; ExecuteUpdate on JSON is not supported.
+        ///     'ExecuteUpdate' is being used over type '{structuralType}' which is mapped to JSON; 'ExecuteUpdate' on JSON is not supported.
         /// </summary>
         public static string ExecuteUpdateOverJsonIsNotSupported(object? structuralType)
             => string.Format(
@@ -860,7 +860,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 structuralType);
 
         /// <summary>
-        ///     ExecuteUpdate is being used over a LINQ operator which isn't natively supported by the database; this cannot be translated because complex type '{complexType}' is projected out. Rewrite your query to project out the containing entity type instead.
+        ///     'ExecuteUpdate' is being used over a LINQ operator which isn't natively supported by the database; this cannot be translated because complex type '{complexType}' is projected out. Rewrite your query to project out the containing entity type instead.
         /// </summary>
         public static string ExecuteUpdateSubqueryNotSupportedOverComplexTypes(object? complexType)
             => string.Format(
@@ -898,7 +898,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 propertySpecification, function);
 
         /// <summary>
-        ///     Can't use HasData for entity type '{entity}'. HasData is not supported for entities mapped to JSON.
+        ///     Can't use 'HasData' for entity type '{entity}'. 'HasData' is not supported for entities mapped to JSON.
         /// </summary>
         public static string HasDataNotSupportedForEntitiesMappedToJson(object? entity)
             => string.Format(
@@ -914,7 +914,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 constraintNameCandidate);
 
         /// <summary>
-        ///     Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and the comment '{comment}' does not match the comment '{otherComment}'.
+        ///     The table '{table}' cannot be used for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and the comment '{comment}' does not match the comment '{otherComment}'.
         /// </summary>
         public static string IncompatibleTableCommentMismatch(object? table, object? entityType, object? otherEntityType, object? comment, object? otherComment)
             => string.Format(
@@ -922,7 +922,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 table, entityType, otherEntityType, comment, otherComment);
 
         /// <summary>
-        ///     Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and there is a relationship between their primary keys in which '{entityType}' is the dependent, but '{entityType}' has a base entity type mapped to a different table. Either map '{otherEntityType}' to a different table, or invert the relationship between '{entityType}' and '{otherEntityType}'.
+        ///     The table '{table}' cannot be used for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and there is a relationship between their primary keys in which '{entityType}' is the dependent, but '{entityType}' has a base entity type mapped to a different table. Either map '{otherEntityType}' to a different table, or invert the relationship between '{entityType}' and '{otherEntityType}'.
         /// </summary>
         public static string IncompatibleTableDerivedRelationship(object? table, object? entityType, object? otherEntityType)
             => string.Format(
@@ -930,7 +930,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 table, entityType, otherEntityType);
 
         /// <summary>
-        ///     Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and is excluded from migrations on one entity type but not on the other. Exclude the table from migrations on all entity types mapped to the table.
+        ///     The table '{table}' cannot be used for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and is excluded from migrations on one entity type but not on the other. Exclude the table from migrations on all entity types mapped to the table.
         /// </summary>
         public static string IncompatibleTableExcludedMismatch(object? table, object? entityType, object? otherEntityType)
             => string.Format(
@@ -938,7 +938,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 table, entityType, otherEntityType);
 
         /// <summary>
-        ///     Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and the name '{keyName}' of the primary key {primaryKey} does not match the name '{otherName}' of the primary key {otherPrimaryKey}.
+        ///     The table '{table}' cannot be used for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and the name '{keyName}' of the primary key {primaryKey} does not match the name '{otherName}' of the primary key {otherPrimaryKey}.
         /// </summary>
         public static string IncompatibleTableKeyNameMismatch(object? table, object? entityType, object? otherEntityType, object? keyName, object? primaryKey, object? otherName, object? otherPrimaryKey)
             => string.Format(
@@ -946,7 +946,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 table, entityType, otherEntityType, keyName, primaryKey, otherName, otherPrimaryKey);
 
         /// <summary>
-        ///     Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and potentially other entity types, but there is no linking relationship. Add a foreign key to '{entityType}' on the primary key properties and pointing to the primary key on another entity type mapped to '{table}'.
+        ///     The table '{table}' cannot be used for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and potentially other entity types, but there is no linking relationship. Add a foreign key to '{entityType}' on the primary key properties and pointing to the primary key on another entity type mapped to '{table}'.
         /// </summary>
         public static string IncompatibleTableNoRelationship(object? table, object? entityType, object? otherEntityType)
             => string.Format(
@@ -954,7 +954,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 table, entityType, otherEntityType);
 
         /// <summary>
-        ///     Cannot use view '{view}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and there is a relationship between their primary keys in which '{entityType}' is the dependent, but '{entityType}' has a base entity type mapped to a different view. Either map '{otherEntityType}' to a different view, or invert the relationship between '{entityType}' and '{otherEntityType}'.
+        ///     The view '{view}' cannot be used for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and there is a relationship between their primary keys in which '{entityType}' is the dependent, but '{entityType}' has a base entity type mapped to a different view. Either map '{otherEntityType}' to a different view, or invert the relationship between '{entityType}' and '{otherEntityType}'.
         /// </summary>
         public static string IncompatibleViewDerivedRelationship(object? view, object? entityType, object? otherEntityType)
             => string.Format(
@@ -962,7 +962,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 view, entityType, otherEntityType);
 
         /// <summary>
-        ///     Cannot use view '{view}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and there is no relationship between their primary keys.
+        ///     The view '{view}' cannot be used for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and there is no relationship between their primary keys.
         /// </summary>
         public static string IncompatibleViewNoRelationship(object? view, object? entityType, object? otherEntityType)
             => string.Format(
@@ -978,7 +978,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 name, argumentCount, argumentNullabilityCount);
 
         /// <summary>
-        ///     Cannot set default value '{value}' of type '{valueType}' on property '{property}' of type '{propertyType}' in entity type '{entityType}'.
+        ///     Default value '{value}' of type '{valueType}' cannot be set on property '{property}' of type '{propertyType}' in entity type '{entityType}'.
         /// </summary>
         public static string IncorrectDefaultValueType(object? value, object? valueType, object? property, object? propertyType, object? entityType)
             => string.Format(
@@ -1140,7 +1140,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("JsonEmptyString");
 
         /// <summary>
-        ///     Entity '{jsonType}' is mapped to JSON column '{containingColumn}', but its owner '{ownerType}' is mapped to a different JSON column '{ownerContainingColumn}'. All owned entities must be mapped to the same JSON column. Only call '.ToJson()' on the outermost owned entity type.
+        ///     Entity '{jsonType}' is mapped to JSON column '{containingColumn}', but its owner '{ownerType}' is mapped to a different JSON column '{ownerContainingColumn}'. All owned entities must be mapped to the same JSON column. Only call 'ToJson()' on the outermost owned entity type.
         /// </summary>
         public static string JsonEntityMappedToDifferentColumnThanOwner(object? jsonType, object? containingColumn, object? ownerType, object? ownerContainingColumn)
             => string.Format(
@@ -1250,13 +1250,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, propertyName);
 
         /// <summary>
-        ///     This node should be handled by provider-specific sql generator.
+        ///     This node should be handled by provider-specific SQL generator.
         /// </summary>
         public static string JsonNodeMustBeHandledByProviderSpecificVisitor
             => GetString("JsonNodeMustBeHandledByProviderSpecificVisitor");
 
         /// <summary>
-        ///     Both '{property1}' and '{property2}' on `{type}` are configured to use the same JSON property name '{jsonPropertyName}'. Each property within a JSON-mapped type must have a unique JSON property name.
+        ///     Both '{property1}' and '{property2}' on '{type}' are configured to use the same JSON property name '{jsonPropertyName}'. Each property within a JSON-mapped type must have a unique JSON property name.
         /// </summary>
         public static string JsonObjectWithMultiplePropertiesMappedToSameJsonProperty(object? property1, object? property2, object? type, object? jsonPropertyName)
             => string.Format(
@@ -1300,7 +1300,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("JsonQueryLinqOperatorsNotSupported");
 
         /// <summary>
-        ///     Entity {entity} is required but the JSON element containing it is null.
+        ///     Entity {entity} is required but the JSON element containing it is 'null'.
         /// </summary>
         public static string JsonRequiredEntityWithNullJson(object? entity)
             => string.Format(
@@ -1410,19 +1410,19 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("MissingResultSetWhenSaving");
 
         /// <summary>
-        ///     Cannot add commands to a completed ModificationCommandBatch.
+        ///     Commands cannot be added to a completed 'ModificationCommandBatch'.
         /// </summary>
         public static string ModificationCommandBatchAlreadyComplete
             => GetString("ModificationCommandBatchAlreadyComplete");
 
         /// <summary>
-        ///     Cannot execute an ModificationCommandBatch which hasn't been completed.
+        ///     A 'ModificationCommandBatch' which hasn't been completed cannot be executed.
         /// </summary>
         public static string ModificationCommandBatchNotComplete
             => GetString("ModificationCommandBatchNotComplete");
 
         /// <summary>
-        ///     Cannot save changes for an entity of type '{entityType}' in state '{entityState}'. This may indicate a bug in Entity Framework, please open an issue at https://go.microsoft.com/fwlink/?linkid=2142044. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values of the entity.
+        ///     Cannot save changes for an entity of type '{entityType}' in state '{entityState}'. This may indicate a bug in Entity Framework, file an issue at https://aka.ms/efcorefeedback. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values of the entity.
         /// </summary>
         public static string ModificationCommandInvalidEntityState(object? entityType, object? entityState)
             => string.Format(
@@ -1430,7 +1430,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, entityState);
 
         /// <summary>
-        ///     Cannot save changes for an entity of type '{entityType}' with primary key values {keyValues} in state '{entityState}'. This may indicate a bug in Entity Framework, please open an issue at https://go.microsoft.com/fwlink/?linkid=2142044.
+        ///     Cannot save changes for an entity of type '{entityType}' with primary key values {keyValues} in state '{entityState}'. This may indicate a bug in Entity Framework, file an issue at https://aka.ms/efcorefeedback.
         /// </summary>
         public static string ModificationCommandInvalidEntityStateSensitive(object? entityType, object? keyValues, object? entityState)
             => string.Format(
@@ -1496,7 +1496,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 table);
 
         /// <summary>
-        ///     Cannot create a DbCommand for a non-relational query.
+        ///     A DbCommand cannot be created for a non-relational query.
         /// </summary>
         public static string NoDbCommand
             => GetString("NoDbCommand");
@@ -1516,7 +1516,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("NoneRelationalTypeMappingOnARelationalTypeMappingSource");
 
         /// <summary>
-        ///     Cannot set 'IsNullable' on DbFunction '{functionName}' since the function does not represent a scalar function.
+        ///     'IsNullable' cannot be set on DbFunction '{functionName}' since the function does not represent a scalar function.
         /// </summary>
         public static string NonScalarFunctionCannotBeNullable(object? functionName)
             => string.Format(
@@ -1524,7 +1524,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 functionName);
 
         /// <summary>
-        ///     Cannot set 'PropagatesNullability' on parameter '{parameterName}' of DbFunction '{functionName}' since function does not represent a scalar function.
+        ///     'PropagatesNullability' cannot be set on parameter '{parameterName}' of DbFunction '{functionName}' since function does not represent a scalar function.
         /// </summary>
         public static string NonScalarFunctionParameterCannotPropagatesNullability(object? parameterName, object? functionName)
             => string.Format(
@@ -1584,7 +1584,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("NoSetPropertyInvocation");
 
         /// <summary>
-        ///     Unable to modify a row in table '{table}' because its key column '{keyColumn}' is null.
+        ///     Unable to modify a row in table '{table}' because its key column '{keyColumn}' is 'null'.
         /// </summary>
         public static string NullKeyValue(object? table, object? keyColumn)
             => string.Format(
@@ -1630,7 +1630,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
-        ///     Cannot use the value provided for parameter '{parameter}' because it isn't assignable to type object[].
+        ///     The value provided for parameter '{parameter}' cannot be used because it isn't assignable to type 'object[]'.
         /// </summary>
         public static string ParameterNotObjectArray(object? parameter)
             => string.Format(
@@ -1644,7 +1644,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("PendingAmbientTransaction");
 
         /// <summary>
-        ///     Unable to translate set operations when both sides don't assign values to the same properties in the nominal type. Please make sure that the same properties are included on both sides, and consider assigning default values if a property doesn't require a specific value.
+        ///     Unable to translate set operations when both sides don't assign values to the same properties in the nominal type. Make sure that the same properties are included on both sides, and consider assigning default values if a property doesn't require a specific value.
         /// </summary>
         public static string ProjectionMappingCountMismatch
             => GetString("ProjectionMappingCountMismatch");
@@ -1920,7 +1920,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 direction, parameter, sproc);
 
         /// <summary>
-        ///     No property named '{property}' found on the entity type '{entityType}' corresponding to the parameter on the stored procedure '{sproc}'
+        ///     No property named '{property}' found on the entity type '{entityType}' corresponding to the parameter on the stored procedure '{sproc}'.
         /// </summary>
         public static string StoredProcedureParameterNotFound(object? property, object? entityType, object? sproc)
             => string.Format(
@@ -1944,7 +1944,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, property, sproc);
 
         /// <summary>
-        ///     No property named '{property}' found on the entity type '{entityType}' corresponding to the result column on the stored procedure '{sproc}'
+        ///     No property named '{property}' found on the entity type '{entityType}' corresponding to the result column on the stored procedure '{sproc}'.
         /// </summary>
         public static string StoredProcedureResultColumnNotFound(object? property, object? entityType, object? sproc)
             => string.Format(

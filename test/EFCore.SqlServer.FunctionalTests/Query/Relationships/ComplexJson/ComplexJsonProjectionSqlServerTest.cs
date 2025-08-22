@@ -349,6 +349,42 @@ FROM [ValueRootEntity] AS [v]
 """);
     }
 
+    public override async Task Select_non_nullable_value_type(QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Select_non_nullable_value_type(queryTrackingBehavior);
+
+        AssertSql(
+            """
+SELECT [v].[RequiredRelated]
+FROM [ValueRootEntity] AS [v]
+ORDER BY [v].[Id]
+""");
+    }
+
+    public override async Task Select_nullable_value_type(QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Select_nullable_value_type(queryTrackingBehavior);
+
+        AssertSql(
+            """
+SELECT [v].[OptionalRelated]
+FROM [ValueRootEntity] AS [v]
+ORDER BY [v].[Id]
+""");
+    }
+
+    public override async Task Select_nullable_value_type_with_Value(QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Select_nullable_value_type_with_Value(queryTrackingBehavior);
+
+        AssertSql(
+            """
+SELECT [v].[OptionalRelated]
+FROM [ValueRootEntity] AS [v]
+ORDER BY [v].[Id]
+""");
+    }
+
     #endregion Value types
 
     [ConditionalFact]

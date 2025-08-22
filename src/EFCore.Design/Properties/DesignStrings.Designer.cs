@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 name, characters);
 
         /// <summary>
-        ///     Cannot scaffold sequence '{sequenceName}' because it uses type '{typeName}' which is unsupported.
+        ///     Sequence '{sequenceName}' cannot be scaffolded because it uses type '{typeName}' which is unsupported.
         /// </summary>
         public static string BadSequenceType(object? sequenceName, object? typeName)
             => string.Format(
@@ -551,7 +551,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 file);
 
         /// <summary>
-        ///     The column '{columnName}' would normally be mapped to a non-nullable bool property, but it has a default constraint. Such a column is mapped to a nullable bool property to allow a difference between setting the property to false and invoking the default constraint. See https://go.microsoft.com/fwlink/?linkid=851278 for details.
+        ///     The column '{columnName}' would normally be mapped to a non-nullable bool property, but it has a default constraint. Such a column is mapped to a nullable bool property to allow a difference between setting the property to 'false' and invoking the default constraint. See https://go.microsoft.com/fwlink/?linkid=851278 for details.
         /// </summary>
         public static string NonNullableBoooleanColumnHasDefaultConstraint(object? columnName)
             => string.Format(
@@ -639,7 +639,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 tableName, columnNames);
 
         /// <summary>
-        ///     Metadata model returned should not be null. Provider: {providerTypeName}.
+        ///     Metadata model returned should not be 'null'. Provider: {providerTypeName}.
         /// </summary>
         public static string ProviderReturnedNullModel(object? providerTypeName)
             => string.Format(
@@ -725,7 +725,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("SensitiveInformationWarning");
 
         /// <summary>
-        ///     Sequence name cannot be null or empty. Entity Framework cannot model a sequence that does not have a name.
+        ///     Sequence name cannot be 'null' or empty. Entity Framework cannot model a sequence that does not have a name.
         /// </summary>
         public static string SequencesRequireName
             => GetString("SequencesRequireName");
@@ -747,7 +747,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 indexName, columnNames);
 
         /// <summary>
-        ///     Unable to translate type '{type}'
+        ///     Unable to translate type '{type}'.
         /// </summary>
         public static string UnableToTranslateType(object? type)
             => string.Format(

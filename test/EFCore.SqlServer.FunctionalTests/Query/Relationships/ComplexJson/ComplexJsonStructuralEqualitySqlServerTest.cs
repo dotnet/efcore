@@ -258,6 +258,22 @@ WHERE JSON_QUERY([r].[RequiredRelated], '$.NestedCollection') = @entity_equality
         }
     }
 
+    #region Value types
+
+    public override async Task Nullable_value_type_with_null()
+    {
+        await base.Nullable_value_type_with_null();
+
+        AssertSql(
+            """
+SELECT [v].[Id], [v].[Name], [v].[OptionalRelated], [v].[RelatedCollection], [v].[RequiredRelated]
+FROM [ValueRootEntity] AS [v]
+WHERE [v].[OptionalRelated] IS NULL
+""");
+    }
+
+    #endregion Value types
+
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
