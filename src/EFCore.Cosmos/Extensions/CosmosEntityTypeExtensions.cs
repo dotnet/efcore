@@ -239,7 +239,7 @@ public static class CosmosEntityTypeExtensions
             ?.GetConfigurationSource();
 
     /// <summary>
-    ///     Returns the the properties that are used to store the hierarchical partition key.
+    ///     Returns the properties that are used to store the hierarchical partition key.
     /// </summary>
     /// <param name="entityType">The entity type.</param>
     /// <returns>The hierarchical partition key properties.</returns>
@@ -247,7 +247,7 @@ public static class CosmosEntityTypeExtensions
         => entityType.GetPartitionKeyPropertyNames().Select(n => entityType.FindProperty(n)!).ToList();
 
     /// <summary>
-    ///     Returns the the properties that are used to store the hierarchical partition key.
+    ///     Returns the properties that are used to store the hierarchical partition key.
     /// </summary>
     /// <param name="entityType">The entity type.</param>
     /// <returns>The hierarchical partition key properties.</returns>
@@ -255,7 +255,7 @@ public static class CosmosEntityTypeExtensions
         => entityType.GetPartitionKeyPropertyNames().Select(n => entityType.FindProperty(n)!).ToList();
 
     /// <summary>
-    ///     Returns the the properties that are used to store the hierarchical partition key.
+    ///     Returns the properties that are used to store the hierarchical partition key.
     /// </summary>
     /// <param name="entityType">The entity type.</param>
     /// <returns>The hierarchical partition key properties.</returns>
@@ -263,7 +263,7 @@ public static class CosmosEntityTypeExtensions
         => entityType.GetPartitionKeyPropertyNames().Select(n => entityType.FindProperty(n)!).ToList();
 
     /// <summary>
-    ///     Returns the the properties that are used to store the hierarchical partition key.
+    ///     Returns the properties that are used to store the hierarchical partition key.
     /// </summary>
     /// <param name="entityType">The entity type.</param>
     /// <returns>The hierarchical partition key properties.</returns>
