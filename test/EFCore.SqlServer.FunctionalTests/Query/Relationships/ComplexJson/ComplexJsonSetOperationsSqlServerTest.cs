@@ -39,8 +39,38 @@ WHERE (
     {
         await base.On_related_Select_nested_with_aggregates(queryTrackingBehavior);
 
-        AssertSql(
-            """
+        if (Fixture.UsingJsonType)
+        {
+            AssertSql(
+                """
+SELECT (
+    SELECT COALESCE(SUM([s].[value]), 0)
+    FROM (
+        SELECT [r0].[NestedCollection] AS [NestedCollection]
+        FROM OPENJSON([r].[RelatedCollection], '$') WITH (
+            [Int] int '$.Int',
+            [NestedCollection] json '$.NestedCollection' AS JSON
+        ) AS [r0]
+        WHERE [r0].[Int] = 8
+        UNION ALL
+        SELECT [r1].[NestedCollection] AS [NestedCollection]
+        FROM OPENJSON([r].[RelatedCollection], '$') WITH (
+            [String] nvarchar(max) '$.String',
+            [NestedCollection] json '$.NestedCollection' AS JSON
+        ) AS [r1]
+        WHERE [r1].[String] = N'foo'
+    ) AS [u]
+    OUTER APPLY (
+        SELECT COALESCE(SUM([n].[Int]), 0) AS [value]
+        FROM OPENJSON([u].[NestedCollection], '$') WITH ([Int] int '$.Int') AS [n]
+    ) AS [s])
+FROM [RootEntity] AS [r]
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 SELECT (
     SELECT COALESCE(SUM([s].[value]), 0)
     FROM (
@@ -64,6 +94,7 @@ SELECT (
     ) AS [s])
 FROM [RootEntity] AS [r]
 """);
+        }
     }
 
     public override async Task On_nested()
