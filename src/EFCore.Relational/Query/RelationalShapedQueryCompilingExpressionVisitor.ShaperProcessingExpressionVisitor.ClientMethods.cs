@@ -5,6 +5,7 @@ using System.Collections;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 
@@ -1076,8 +1077,12 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     throw new InvalidOperationException(CoreStrings.JsonReaderInvalidTokenType(tokenType.ToString()));
             }
 
-            var collectionAccessor = relationship.GetCollectionAccessor();
-            var result = (TResult)collectionAccessor!.Create();
+            // var collectionAccessor = relationship.GetCollectionAccessor();
+#pragma warning disable EF1001 // Internal EF Core API usage.
+            var collectionAccessor = ((IRuntimePropertyBase)relationship).GetIndexedCollectionAccessor();
+#pragma warning restore EF1001 // Internal EF Core API usage.
+
+            var result = (TResult)collectionAccessor!.Create(0);
 
             object[]? newKeyPropertyValues = null;
 
@@ -1098,7 +1103,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 {
                     manager.CaptureState();
                     var entity = innerShaper(queryContext, newKeyPropertyValues, jsonReaderData);
-                    collectionAccessor.AddStandalone(result, entity);
+                    // collectionAccessor.AddStandalone(result, entity);
                     manager = new Utf8JsonReaderManager(manager.Data, queryContext.QueryLogger);
 
                     if (manager.CurrentReader.TokenType != JsonTokenType.EndObject)
