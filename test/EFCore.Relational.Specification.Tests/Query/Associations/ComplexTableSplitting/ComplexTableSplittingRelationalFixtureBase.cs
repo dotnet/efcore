@@ -39,7 +39,7 @@ public abstract class ComplexTableSplittingRelationalFixtureBase : ComplexProper
         });
     }
 
-    protected override RelationshipsData CreateData()
+    protected override AssociationsData CreateData()
     {
         var data = base.CreateData();
 
