@@ -26,7 +26,7 @@ public class SqlServerMigrationsAnnotationProvider : MigrationsAnnotationProvide
 
     /// <inheritdoc />
     public override IEnumerable<IAnnotation> ForRemove(IRelationalModel model)
-        => model.GetAnnotations().Where(a => a.Name != SqlServerAnnotationNames.EditionOptions);
+        => model.GetAnnotations();
 
     /// <inheritdoc />
     public override IEnumerable<IAnnotation> ForRemove(ITable table)

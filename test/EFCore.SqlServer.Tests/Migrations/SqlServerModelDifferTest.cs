@@ -43,6 +43,33 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
             });
 
     [ConditionalFact]
+    public void Create_database_with_edition_options()
+        => Execute(
+            _ => { },
+            source => { },
+            target => target.HasDatabaseMaxSize("10"),
+            upOps =>
+            {
+                Assert.Equal(1, upOps.Count);
+
+                var alterDatabaseOperation = Assert.IsType<AlterDatabaseOperation>(upOps[0]);
+                Assert.Equal(
+                    "MAXSIZE = 10",
+                    alterDatabaseOperation[SqlServerAnnotationNames.EditionOptions]);
+                Assert.Null(alterDatabaseOperation.OldDatabase[SqlServerAnnotationNames.EditionOptions]);
+            },
+            downOps =>
+            {
+                Assert.Equal(1, downOps.Count);
+
+                var alterDatabaseOperation = Assert.IsType<AlterDatabaseOperation>(downOps[0]);
+                Assert.Null(alterDatabaseOperation[SqlServerAnnotationNames.EditionOptions]);
+                Assert.Equal(
+                    "MAXSIZE = 10",
+                    alterDatabaseOperation.OldDatabase[SqlServerAnnotationNames.EditionOptions]);
+            });
+
+    [ConditionalFact]
     public void Alter_table_MemoryOptimized()
         => Execute(
             common => common.Entity(
