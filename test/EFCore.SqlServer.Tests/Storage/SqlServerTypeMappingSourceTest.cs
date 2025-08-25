@@ -1588,8 +1588,13 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMappingSourceTestBas
     {
         var typeMappingSource = CreateTypeMappingSource(o => o.UseAzureSql());
 
-        Assert.Equal("json", typeMappingSource.GetMapping(typeof(JsonTypePlaceholder)).StoreType);
-        Assert.Equal("json", typeMappingSource.GetMapping(typeof(int[])).StoreType);
+        // TODO: #36460
+        // At the time of writing, Azure SQL Database does not yet support OPENJSON over the JSON data type.
+        // This should get reenabled by the time we GA.
+        Assert.Equal("nvarchar(max)", typeMappingSource.GetMapping(typeof(JsonTypePlaceholder)).StoreType);
+        Assert.Equal("nvarchar(max)", typeMappingSource.GetMapping(typeof(int[])).StoreType);
+        // Assert.Equal("json", typeMappingSource.GetMapping(typeof(JsonTypePlaceholder)).StoreType);
+        // Assert.Equal("json", typeMappingSource.GetMapping(typeof(int[])).StoreType);
     }
 
     [ConditionalFact]
