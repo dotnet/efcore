@@ -54,7 +54,6 @@
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageVersion Include="mod_spatialite" Version="4.3.0.1" />
     <PackageVersion Include="SQLitePCLRaw.core" Version="$(SQLitePCLRawVersion)" />
-    <PackageVersion Include="SQLitePCLRaw.bundle_sqlite3" Version="$(SQLitePCLRawVersion)" />
     <PackageVersion Include="SQLitePCLRaw.bundle_e_sqlite3" Version="$(SQLitePCLRawVersion)" />
   </ItemGroup>
 </Project>
