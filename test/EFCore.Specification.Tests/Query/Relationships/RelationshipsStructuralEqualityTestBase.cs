@@ -165,5 +165,55 @@ public abstract class RelationshipsStructuralEqualityTestBase<TFixture>(TFixture
                     nestedCollection))); // TODO: Rewrite equality to Equals for the entire test suite for complex
     }
 
+    #region Contains
+
+    [ConditionalFact]
+    public virtual Task Contains_with_inline()
+        => AssertQuery(ss => ss.Set<RootEntity>().Where(e =>
+            e.RequiredRelated.NestedCollection.Contains(
+                new NestedType
+                {
+                    Id = 1002,
+                    Name = "Root1_RequiredRelated_NestedCollection_1",
+                    Int = 8,
+                    String = "foo"
+                })));
+
+    [ConditionalFact]
+    public virtual async Task Contains_with_parameter()
+    {
+        var nested = new NestedType
+        {
+            Id = 1002,
+            Name = "Root1_RequiredRelated_NestedCollection_1",
+            Int = 8,
+            String = "foo"
+        };
+
+        await AssertQuery(ss => ss.Set<RootEntity>().Where(e => e.RequiredRelated.NestedCollection.Contains(nested)));
+    }
+
+    [ConditionalFact]
+    public virtual async Task Contains_with_operators_composed_on_the_collection()
+    {
+        var collection = Fixture.Data.RootEntities.Single(e => e.Name == "Root3_With_different_values").RequiredRelated.NestedCollection;
+
+        await AssertQuery(
+            ss => ss.Set<RootEntity>().Where(
+                e => e.RequiredRelated.NestedCollection.Where(n => n.Int > collection[0].Int).Contains(collection[1])));
+    }
+
+    [ConditionalFact]
+    public virtual async Task Contains_with_nested_and_composed_operators()
+    {
+        var collection = Fixture.Data.RootEntities.Single(e => e.Name == "Root3_With_different_values").RelatedCollection;
+
+        await AssertQuery(
+            ss => ss.Set<RootEntity>()
+                .Where(e => e.RelatedCollection.Where(r => r.Id > collection[0].Id).Contains(collection[1])));
+    }
+
+    #endregion Contains
+
     // TODO: Equality on subquery
 }

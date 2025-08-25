@@ -27,12 +27,12 @@ public sealed class SqlServerConditionAttribute(SqlServerCondition conditions) :
 
         if (Conditions.HasFlag(SqlServerCondition.IsAzureSql))
         {
-            isMet &= TestEnvironment.IsSqlAzure;
+            isMet &= TestEnvironment.IsAzureSql;
         }
 
         if (Conditions.HasFlag(SqlServerCondition.IsNotAzureSql))
         {
-            isMet &= !TestEnvironment.IsSqlAzure;
+            isMet &= !TestEnvironment.IsAzureSql;
         }
 
         if (Conditions.HasFlag(SqlServerCondition.SupportsAttach))

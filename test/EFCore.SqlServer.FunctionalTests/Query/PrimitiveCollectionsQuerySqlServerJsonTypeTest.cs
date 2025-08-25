@@ -90,7 +90,7 @@ SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE (
     SELECT COUNT(*)
-    FROM (VALUES (2), (999), (1000)) AS [i]([Value])
+    FROM (VALUES (CAST(2 AS int)), (999), (1000)) AS [i]([Value])
     WHERE [i].[Value] > [p].[Id]) = 2
 """);
     }
@@ -1130,7 +1130,7 @@ WHERE (
             """
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
 FROM [PrimitiveCollectionsEntity] AS [p]
-WHERE CAST(JSON_VALUE([p].[Ints], '$[1]') AS int) = 10
+WHERE JSON_VALUE([p].[Ints], '$[1]' RETURNING int) = 10
 """);
     }
 
@@ -1142,7 +1142,7 @@ WHERE CAST(JSON_VALUE([p].[Ints], '$[1]') AS int) = 10
             """
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
 FROM [PrimitiveCollectionsEntity] AS [p]
-WHERE JSON_VALUE([p].[Strings], '$[1]') = N'10'
+WHERE JSON_VALUE([p].[Strings], '$[1]' RETURNING nvarchar(max)) = N'10'
 """);
     }
 
@@ -1154,7 +1154,7 @@ WHERE JSON_VALUE([p].[Strings], '$[1]') = N'10'
             """
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
 FROM [PrimitiveCollectionsEntity] AS [p]
-WHERE CAST(JSON_VALUE([p].[DateTimes], '$[1]') AS datetime2) = '2020-01-10T12:30:00.0000000Z'
+WHERE JSON_VALUE([p].[DateTimes], '$[1]' RETURNING datetime2) = '2020-01-10T12:30:00.0000000Z'
 """);
     }
 
@@ -1166,7 +1166,7 @@ WHERE CAST(JSON_VALUE([p].[DateTimes], '$[1]') AS datetime2) = '2020-01-10T12:30
             """
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
 FROM [PrimitiveCollectionsEntity] AS [p]
-WHERE CAST(JSON_VALUE([p].[Ints], '$[999]') AS int) = 10
+WHERE JSON_VALUE([p].[Ints], '$[999]' RETURNING int) = 10
 """);
     }
 
@@ -1179,7 +1179,7 @@ WHERE CAST(JSON_VALUE([p].[Ints], '$[999]') AS int) = 10
             """
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
 FROM [PrimitiveCollectionsEntity] AS [p]
-WHERE JSON_VALUE([p].[NullableStrings], '$[2]') = [p].[NullableString] OR (JSON_VALUE([p].[NullableStrings], '$[2]') IS NULL AND [p].[NullableString] IS NULL)
+WHERE JSON_VALUE([p].[NullableStrings], '$[2]' RETURNING nvarchar(max)) = [p].[NullableString] OR (JSON_VALUE([p].[NullableStrings], '$[2]' RETURNING nvarchar(max)) IS NULL AND [p].[NullableString] IS NULL)
 """);
     }
 
@@ -1193,7 +1193,7 @@ SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE EXISTS (
     SELECT 1
-    FROM OPENJSON([p].[Strings]) AS [s]) AND JSON_VALUE([p].[Strings], '$[1]') = [p].[NullableString]
+    FROM OPENJSON([p].[Strings]) AS [s]) AND JSON_VALUE([p].[Strings], '$[1]' RETURNING nvarchar(max)) = [p].[NullableString]
 """);
     }
 
@@ -1221,11 +1221,7 @@ WHERE (
             """
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
 FROM [PrimitiveCollectionsEntity] AS [p]
-WHERE (
-    SELECT [i].[Value]
-    FROM (VALUES (0, CAST(1 AS int)), (1, 2), (2, 3)) AS [i]([_ord], [Value])
-    ORDER BY [i].[_ord]
-    OFFSET [p].[Int] ROWS FETCH NEXT 1 ROWS ONLY) = 1
+WHERE CAST(JSON_VALUE(N'[1,2,3]', '$[' + CAST([p].[Int] AS nvarchar(max)) + ']') AS int) = 1
 """);
     }
 
@@ -1299,7 +1295,7 @@ WHERE CAST(JSON_VALUE(@ints, '$[' + CAST([p].[Int] AS nvarchar(max)) + ']') AS i
             """
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
 FROM [PrimitiveCollectionsEntity] AS [p]
-WHERE CAST(JSON_VALUE([p].[Ints], '$[1]') AS int) = 10
+WHERE JSON_VALUE([p].[Ints], '$[1]' RETURNING int) = 10
 """);
     }
 
@@ -1827,7 +1823,7 @@ WHERE (
         SELECT [i1].[Value]
         FROM (
             SELECT [i].[Value]
-            FROM (VALUES (1, @ints1), (2, @ints2)) AS [i]([_ord], [Value])
+            FROM (VALUES (0, @ints1), (1, @ints2)) AS [i]([_ord], [Value])
             ORDER BY [i].[_ord]
             OFFSET 1 ROWS
         ) AS [i1]
@@ -1917,7 +1913,7 @@ WHERE (
     SELECT COUNT(*)
     FROM (
         SELECT [i].[Value] AS [Value0]
-        FROM (VALUES (1, @ints1), (2, @ints2)) AS [i]([_ord], [Value])
+        FROM (VALUES (0, @ints1), (1, @ints2)) AS [i]([_ord], [Value])
         ORDER BY [i].[_ord]
         OFFSET 1 ROWS
     ) AS [i0]
@@ -2147,7 +2143,7 @@ ORDER BY [p].[Id], CAST([i].[key] AS int), [i].[key], CAST([i0].[value] AS int) 
 
         AssertSql(
             """
-SELECT CAST(JSON_VALUE([p].[Ints], '$[0]') AS int) AS [Indexer], CAST(JSON_VALUE([p].[DateTimes], '$[0]') AS datetime2) AS [EnumerableElementAt], JSON_VALUE([p].[Strings], '$[1]') AS [QueryableElementAt]
+SELECT JSON_VALUE([p].[Ints], '$[0]' RETURNING int) AS [Indexer], JSON_VALUE([p].[DateTimes], '$[0]' RETURNING datetime2) AS [EnumerableElementAt], JSON_VALUE([p].[Strings], '$[1]' RETURNING nvarchar(max)) AS [QueryableElementAt]
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE [p].[Id] < 4
 ORDER BY [p].[Id]
@@ -2268,8 +2264,10 @@ WHERE (
             => SqlServerTestStoreFactory.Instance;
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => base.AddOptions(builder)
-                .UseSqlServer(b => b.UseCompatibilityLevel(160));
+        {
+            var options = base.AddOptions(builder);
+            return options.UseSqlServerCompatibilityLevel(160);
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {

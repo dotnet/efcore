@@ -103,8 +103,8 @@ public class RelationshipsData : ISetSource
                     }
                 }),
 
-            // Entity where values are referentially identical to each other across required/optional, to test various equality sceanarios.
-            // Note that this gets overridden for owned navigations .
+            // Entity where values are referentially identical to each other across a given entity, to test various equality sceanarios.
+            // Note that this gets overridden for owned navigations.
             CreateRootEntity(
                 id++, description: "With_referential_identity", e =>
                 {
@@ -113,7 +113,7 @@ public class RelationshipsData : ISetSource
                     e.OptionalRelated.OptionalNested = e.RequiredRelated.RequiredNested;
 
                     e.RelatedCollection.Clear();
-                    e.RequiredRelated.NestedCollection.Clear();
+                    e.RequiredRelated.NestedCollection = [e.RequiredRelated.RequiredNested];
                     e.OptionalRelated.NestedCollection.Clear();
                 }),
 

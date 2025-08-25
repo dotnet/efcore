@@ -28,6 +28,44 @@ public abstract class
     public override Task Two_nested_collections()
         => AssertTranslationFailed(() => base.Two_nested_collections());
 
+    #region Contains
+
+    public override async Task Contains_with_inline()
+    {
+        // Collections are not supported with table splitting, only JSON
+        await AssertTranslationFailed(base.Contains_with_inline);
+
+        AssertSql();
+    }
+
+    public override async Task Contains_with_parameter()
+    {
+        // Collections are not supported with table splitting, only JSON
+        await AssertTranslationFailed(base.Contains_with_parameter);
+
+        AssertSql();
+    }
+
+    public override async Task Contains_with_operators_composed_on_the_collection()
+    {
+        // Collections are not supported with table splitting, only JSON
+        // Note that the exception is correct, since the collections in the test data are null for table splitting
+        await Assert.ThrowsAsync<InvalidOperationException>(base.Contains_with_operators_composed_on_the_collection);
+
+        AssertSql();
+    }
+
+    public override async Task Contains_with_nested_and_composed_operators()
+    {
+        // Collections are not supported with table splitting, only JSON
+        // Note that the exception is correct, since the collections in the test data are null for table splitting
+        await Assert.ThrowsAsync<InvalidOperationException>(base.Contains_with_nested_and_composed_operators);
+
+        AssertSql();
+    }
+
+    #endregion Contains
+
     protected void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 }
