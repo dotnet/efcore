@@ -70,7 +70,11 @@ public class SqlServerSingletonOptions : ISqlServerSingletonOptions
         => EngineType switch
         {
             SqlServerEngineType.SqlServer => SqlServerCompatibilityLevel >= 170,
-            SqlServerEngineType.AzureSql => AzureSqlCompatibilityLevel >= 170,
+            // TODO: #36460
+            // At the time of writing, Azure SQL Database does not yet support OPENJSON over the JSON data type.
+            // This should get reenabled by the time we GA.
+            SqlServerEngineType.AzureSql => false,
+            // SqlServerEngineType.AzureSql => AzureSqlCompatibilityLevel >= 170,
             SqlServerEngineType.AzureSynapse => false,
             SqlServerEngineType.Unknown => false, // TODO: We shouldn't observe Unknown here, #36477
             _ => throw new UnreachableException()
