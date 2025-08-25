@@ -140,19 +140,52 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
 
             Sql.AppendLine($"{Dependencies.SqlGenerationHelper.DelimitIdentifier(updateExpression.Table.Alias)}");
             Sql.Append("SET ");
-            Visit(updateExpression.ColumnValueSetters[0].Column);
-            Sql.Append(" = ");
-            Visit(updateExpression.ColumnValueSetters[0].Value);
 
-            using (Sql.Indent())
+            for (var i = 0; i < updateExpression.ColumnValueSetters.Count; i++)
             {
-                foreach (var columnValueSetter in updateExpression.ColumnValueSetters.Skip(1))
+                var (column, value) = updateExpression.ColumnValueSetters[i];
+
+                if (i == 1)
+                {
+                    Sql.IncrementIndent();
+                }
+
+                if (i > 0)
                 {
                     Sql.AppendLine(",");
-                    Visit(columnValueSetter.Column);
-                    Sql.Append(" = ");
-                    Visit(columnValueSetter.Value);
                 }
+
+                // SQL Server 2025 modify method (https://learn.microsoft.com/sql/t-sql/data-types/json-data-type#modify-method)
+                // We generate the syntax here manually rather than just visiting the SqlFunctionExpression because:
+                // 1. The JSON column (function instance) needs to be rendered *without* the column, unlike elsewhere.
+                // 2. The JSON path is packaged as a SqlConstantExpression over IReadOnlyList<PathSegment> which we unpack here
+                //    and from which we generate the jsonpath string.
+                // In any case this isn't a standard setter of the form SET x = y, but rather just SET [x].modify(...).
+                if (value is SqlFunctionExpression
+                    {
+                        Name: "modify",
+                        Instance: ColumnExpression { TypeMapping.StoreType: "json" } jsonColumn,
+                        Arguments: [SqlConstantExpression { Value: IReadOnlyList<PathSegment> jsonPath }, var item]
+                    })
+                {
+                    Sql
+                        .Append(_sqlGenerationHelper.DelimitIdentifier(jsonColumn.Name))
+                        .Append(".modify(");
+                    GenerateJsonPath(jsonPath);
+                    Sql.Append(", ");
+                    Visit(item);
+                    Sql.Append(")");
+                    continue;
+                }
+
+                Visit(column);
+                Sql.Append(" = ");
+                Visit(value);
+            }
+
+            if (updateExpression.ColumnValueSetters.Count > 1)
+            {
+                Sql.DecrementIndent();
             }
 
             _withinTable = true;
@@ -200,6 +233,23 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
         Sql.Append(")");
 
         return valuesExpression;
+    }
+
+    /// <summary>
+    ///     Generates SQL for a constant.
+    /// </summary>
+    /// <param name="sqlConstantExpression">The <see cref="SqlConstantExpression" /> for which to generate SQL.</param>
+    protected override Expression VisitSqlConstant(SqlConstantExpression sqlConstantExpression)
+    {
+        // Certain JSON functions (e.g. JSON_MODIFY()) accept a JSONPATH argument - this is (currently) flown here as a
+        // SqlConstantExpression over IReadOnlyList<PathSegment>. Render that to a string here.
+        if (sqlConstantExpression is { Value: IReadOnlyList<PathSegment> path })
+        {
+            GenerateJsonPath(path);
+            return sqlConstantExpression;
+        }
+
+        return base.VisitSqlConstant(sqlConstantExpression);
     }
 
     /// <summary>

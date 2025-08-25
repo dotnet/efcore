@@ -1410,6 +1410,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("MissingResultSetWhenSaving");
 
         /// <summary>
+        ///     Entity type '{entityType}' is mapped to multiple columns with name '{columnName}', and one of them is configured as a JSON column. Assign different names to the columns.
+        /// </summary>
+        public static string MultipleColumnsWithSameJsonContainerName(object? entityType, object? columnName)
+            => string.Format(
+                GetString("MultipleColumnsWithSameJsonContainerName", nameof(entityType), nameof(columnName)),
+                entityType, columnName);
+
+        /// <summary>
         ///     Commands cannot be added to a completed 'ModificationCommandBatch'.
         /// </summary>
         public static string ModificationCommandBatchAlreadyComplete
@@ -1636,6 +1644,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("ParameterNotObjectArray", nameof(parameter)),
                 parameter);
+
+        /// <summary>
+        ///     The provider in use does not support partial updates within JSON columns.
+        /// </summary>
+        public static string JsonPartialUpdateNotSupportedByProvider
+            => GetString("JsonPartialUpdateNotSupportedByProvider");
 
         /// <summary>
         ///     This connection was used with an ambient transaction. The original ambient transaction needs to be completed before this connection can be used outside of it.

@@ -325,12 +325,12 @@ public class AssociationsData : ISetSource
         var id = 1;
 
         rootReferencingEntities.Add(new RootReferencingEntity { Id = id++, Root = null });
-        foreach (var rootEntity in rootEntities)
-        {
-            var rootReferencingEntity = new RootReferencingEntity { Id = id++, Root = rootEntity };
-            rootEntity.RootReferencingEntity = rootReferencingEntity;
-            rootReferencingEntities.Add(rootReferencingEntity);
-        }
+        // foreach (var rootEntity in rootEntities.Take(2))
+        // {
+        //     var rootReferencingEntity = new RootReferencingEntity { Id = id++, Root = rootEntity };
+        //     rootEntity.RootReferencingEntity = rootReferencingEntity;
+        //     rootReferencingEntities.Add(rootReferencingEntity);
+        // }
 
         return rootReferencingEntities;
     }

@@ -137,50 +137,101 @@ ORDER BY [r].[Id], [r1].[Id0], [r1].[Int], [r1].[Name]
     {
         await base.Index_constant();
 
-        AssertSql(
-            """
+        if (Fixture.UsingJsonType)
+        {
+            AssertSql(
+                """
+SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+FROM [RootEntity] AS [r]
+WHERE JSON_VALUE([r].[RelatedCollection], '$[0].Int' RETURNING int) = 8
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
 FROM [RootEntity] AS [r]
 WHERE CAST(JSON_VALUE([r].[RelatedCollection], '$[0].Int') AS int) = 8
 """);
+        }
     }
+
 
     public override async Task Index_parameter()
     {
         await base.Index_parameter();
 
-        AssertSql(
-            """
+        if (Fixture.UsingJsonType)
+        {
+            AssertSql(
+                """
+@i='0'
+
+SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+FROM [RootEntity] AS [r]
+WHERE JSON_VALUE([r].[RelatedCollection], '$[' + CAST(@i AS nvarchar(max)) + '].Int' RETURNING int) = 8
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 @i='0'
 
 SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
 FROM [RootEntity] AS [r]
 WHERE CAST(JSON_VALUE([r].[RelatedCollection], '$[' + CAST(@i AS nvarchar(max)) + '].Int') AS int) = 8
 """);
+        }
     }
 
     public override async Task Index_column()
     {
         await base.Index_column();
 
-        AssertSql(
-            """
+        if (Fixture.UsingJsonType)
+        {
+            AssertSql(
+                """
+SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+FROM [RootEntity] AS [r]
+WHERE JSON_VALUE([r].[RelatedCollection], '$[' + CAST([r].[Id] - 1 AS nvarchar(max)) + '].Int' RETURNING int) = 8
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
 FROM [RootEntity] AS [r]
 WHERE CAST(JSON_VALUE([r].[RelatedCollection], '$[' + CAST([r].[Id] - 1 AS nvarchar(max)) + '].Int') AS int) = 8
 """);
+        }
     }
 
     public override async Task Index_out_of_bounds()
     {
         await base.Index_out_of_bounds();
 
-        AssertSql(
-            """
+        if (Fixture.UsingJsonType)
+        {
+            AssertSql(
+                """
+SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+FROM [RootEntity] AS [r]
+WHERE JSON_VALUE([r].[RelatedCollection], '$[9999].Int' RETURNING int) = 8
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
 FROM [RootEntity] AS [r]
 WHERE CAST(JSON_VALUE([r].[RelatedCollection], '$[9999].Int') AS int) = 8
 """);
+        }
     }
 
     #endregion Index

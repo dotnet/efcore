@@ -979,6 +979,9 @@
   <data name="MissingResultSetWhenSaving" xml:space="preserve">
     <value>A result set was missing when reading the results of a SaveChanges operation; this may indicate that a stored procedure was configured to return results in the EF model, but did not. Check your stored procedure definitions.</value>
   </data>
+  <data name="MultipleColumnsWithSameJsonContainerName" xml:space="preserve">
+    <value>Entity type '{entityType}' is mapped to multiple columns with name '{columnName}', and one of them is configured as a JSON column. Assign different names to the columns.</value>
+  </data>
   <data name="ModificationCommandBatchAlreadyComplete" xml:space="preserve">
     <value>Commands cannot be added to a completed 'ModificationCommandBatch'.</value>
   </data>
@@ -1071,6 +1074,9 @@
   </data>
   <data name="ParameterNotObjectArray" xml:space="preserve">
     <value>The value provided for parameter '{parameter}' cannot be used because it isn't assignable to type 'object[]'.</value>
+  </data>
+  <data name="JsonPartialUpdateNotSupportedByProvider" xml:space="preserve">
+    <value>The provider in use does not support partial updates within JSON columns.</value>
   </data>
   <data name="PendingAmbientTransaction" xml:space="preserve">
     <value>This connection was used with an ambient transaction. The original ambient transaction needs to be completed before this connection can be used outside of it.</value>

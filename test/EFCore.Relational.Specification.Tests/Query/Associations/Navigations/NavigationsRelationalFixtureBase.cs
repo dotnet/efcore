@@ -8,6 +8,9 @@ public abstract class NavigationsRelationalFixtureBase : NavigationsFixtureBase,
     protected override string StoreName
         => "NavigationsQueryTest";
 
+    public override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
+        => facade.UseTransaction(transaction.GetDbTransaction());
+
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
         base.OnModelCreating(modelBuilder, context);

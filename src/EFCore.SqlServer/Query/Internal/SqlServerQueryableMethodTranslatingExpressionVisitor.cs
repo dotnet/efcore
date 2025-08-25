@@ -2,10 +2,12 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 
@@ -527,6 +529,84 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
 
         tableExpression = null;
         return false;
+    }
+
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override ColumnValueSetter GenerateJsonPartialUpdateSetter(Expression target, SqlExpression value)
+    {
+        var (jsonColumn, path) = target switch
+        {
+            JsonScalarExpression j => ((ColumnExpression)j.Json, j.Path),
+            JsonQueryExpression j => (j.JsonColumn, j.Path),
+
+            _ => throw new UnreachableException(),
+        };
+
+        if (_sqlServerSingletonOptions.SupportsJsonType)
+        {
+            // Generate a SQL Server 2025 modify method invocation(https://learn.microsoft.com/sql/t-sql/data-types/json-data-type#modify-method)
+            // UPDATE ... SET [x].modify('$.a.b', 'foo')
+
+            // Note that the actual SQL generated contains only the modify function: UPDATE ... SET [x].modify(...), but UpdateExpression's
+            // ColumnValueSetter requires both column and value. The column will be ignored in SQL generation,
+            // and only the function call will be rendered.
+            return new ColumnValueSetter(
+                jsonColumn,
+                _sqlExpressionFactory.Function(
+                    jsonColumn,
+                    "modify",
+                    [
+                        // Hack: Rendering of JSONPATH strings happens in value generation. We can have a special expression for modify to hold the
+                        // IReadOnlyList<PathSegment> (just like Json{Scalar,Query}Expression), but instead we do the slight hack of packaging it
+                        // as a constant argument; it will be unpacked and handled in SQL generation.
+                        _sqlExpressionFactory.Constant(path, RelationalTypeMapping.NullMapping),
+
+                        // If an inline JSON object (complex type) is being assigned, it would be rendered here as a simple string:
+                        // [column].modify('$.foo', '{ "x": 8 }')
+                        // Since it's untyped, modify would treat is as a string rather than a JSON object, and insert it as such into
+                        // the enclosing object, escaping all the special JSON characters - that's not what we want.
+                        // We add a cast to JSON to have it interpreted as a JSON object.
+                        value is SqlConstantExpression { TypeMapping.StoreType: "json" }
+                            ? _sqlExpressionFactory.Convert(value, value.Type, _typeMappingSource.FindMapping("json")!)
+                            : value
+                    ],
+                    nullable: true,
+                    instancePropagatesNullability: true,
+                    argumentsPropagateNullability: [true, true],
+                    typeof(void),
+                    RelationalTypeMapping.NullMapping));
+        }
+        else
+        {
+            // We can't use SQL Server 2025 modify; fall back to JSON_MODIFY() instead.
+            return new ColumnValueSetter(
+                jsonColumn,
+                _sqlExpressionFactory.Function(
+                    "JSON_MODIFY",
+                    arguments: [
+                        jsonColumn,
+                        // Hack: Rendering of JSONPATH strings happens in value generation. We can have a special expression for modify to hold the
+                        // IReadOnlyList<PathSegment> (just like Json{Scalar,Query}Expression), but instead we do the slight hack of packaging it
+                        // as a constant argument; it will be unpacked and handled in SQL generation.
+                        _sqlExpressionFactory.Constant(path, RelationalTypeMapping.NullMapping),
+                        // JSON_MODIFY by default assumes nvarchar(max) is text and escapes it.
+                        // In order to set a JSON fragment (for nested JSON objects), we need to wrap the JSON text with JSON_QUERY(), which makes
+                        // JSON_MODIFY understand that it's JSON content and prevents escaping.
+                        target is JsonQueryExpression && value is not JsonScalarExpression
+                            ? _sqlExpressionFactory.Function("JSON_QUERY", [value], nullable: true, argumentsPropagateNullability: [true], typeof(string), value.TypeMapping)
+                            : value
+                    ],
+                    nullable: true,
+                    argumentsPropagateNullability: [true, true, true],
+                    typeof(string),
+                    jsonColumn.TypeMapping));
+        }
     }
 
     private bool TryGetProjection(

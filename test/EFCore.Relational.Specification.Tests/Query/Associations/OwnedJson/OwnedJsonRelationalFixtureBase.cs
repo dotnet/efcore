@@ -10,6 +10,9 @@ public abstract class OwnedJsonRelationalFixtureBase : OwnedNavigationsFixtureBa
     protected override string StoreName
         => "OwnedJsonJsonQueryTest";
 
+    public override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
+        => facade.UseTransaction(transaction.GetDbTransaction());
+
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
         base.OnModelCreating(modelBuilder, context);
