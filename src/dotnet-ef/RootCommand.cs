@@ -80,7 +80,7 @@ internal class RootCommand : CommandBase
                 && _args[0] == "dbcontext"
                 && _args[1] == "optimize"
                 && !_args.Any(a => a == "--no-scaffold");
-            startupProject.Build(skipOptimization ? new[] { "/p:EFOptimizeContext=false" } : null);
+            startupProject.Build(skipOptimization ? new[] { "/p:EFScaffoldModelStage=none", "/p:EFPrecompileQueriesStage=none" } : null);
             Reporter.WriteInformation(Resources.BuildSucceeded);
         }
 

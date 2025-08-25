@@ -4,11 +4,11 @@ This package should be referenced by the project containing the derived `DbConte
 
 ## Usage
 
-Install the package into your project, set `<EFOptimizeContext Condition="'$(Configuration)'=='Release'">true</EFOptimizeContext>` and then run build normally.
-
-If the startup project is different from the current project it needs to be specified: `<EFStartupProject>..\Startup\Startup.csproj</EFStartupProject>`
+Install the package into your project and then run build normally. For solutions where specifying the startup project is necessary, set `<EFStartupProject>..\Startup\Startup.csproj</EFStartupProject>`
 
 The startup project must also reference the `Microsoft.EntityFrameworkCore.Tasks` package.
+
+You can control when code generation occurs by setting `<EFScaffoldModelStage>build</EFScaffoldModelStage>` or `<EFPrecompileQueriesStage>build</EFPrecompileQueriesStage>` to generate during build instead of the default publish stage.
 
 ## Getting started with EF Core
 

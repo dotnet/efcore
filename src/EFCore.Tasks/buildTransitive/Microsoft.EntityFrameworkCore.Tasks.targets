@@ -23,7 +23,6 @@
   <!-- Usage:
   For the compiled model and precompiled queries to be generated when publishing with $(PublishAOT) set to true the only action needed is to reference Microsoft.EntityFrameworkCore.Tasks from all projects containing a derived DbContext or a query.
   For solutions where specifying the startup project is necessary, IDesignTimeDbContextFactory<> should be implemented.
-$(EFOptimizeContext) can be set to true to enable code generation outside of NativeAOT.
 $(EFScaffoldModelStage) and $(EFPrecompileQueriesStage) can be set to either publish or build to control at what stage will the code be generated. Any other value will disable the corresponding generation (in case the code is generated manually using `dotnet ef dbcontext optimize`)
 If there's more than one context and $(DbContextType) is not set, then the compiled model will be generated for all of them.
 $(EFTargetNamespace) and $(EFOutputDir) can be used to further fine-tune the generation.
@@ -39,12 +38,12 @@ $(EFTargetNamespace) and $(EFOutputDir) can be used to further fine-tune the gen
 
 For Publish:
 
-1. If PublishAOT is true _EFPrepareDependenciesForPublishAOT in the startup project invokes _EFGenerateFilesBeforePublish on all dependencies even if they don't set EFOptimizeContext to true. Otherwise _EFGenerateFilesBeforePublish runs on the projects before Publish.
+1. If PublishAOT is true _EFPrepareDependenciesForPublishAOT in the startup project invokes _EFGenerateFilesBeforePublish on all dependencies. Otherwise _EFGenerateFilesBeforePublish runs on the projects before Publish.
 2. _EFGenerateFilesBeforePublish calls _EFGenerateFiles and the rest is similar to the Build flow.
   -->
 
   <Target Name="_EFGenerateFilesAfterBuild"
-          Condition="'$(_EFGenerationStage)'=='' And '$(EFOptimizeContext)'=='true' And ('$(EFScaffoldModelStage)'=='build' Or '$(EFPrecompileQueriesStage)'=='build')">
+          Condition="'$(_EFGenerationStage)'=='' And ('$(EFScaffoldModelStage)'=='build' Or '$(EFPrecompileQueriesStage)'=='build')">
     <MSBuild Projects="$(MSBuildProjectFullPath)"
              Targets="_EFGenerateFiles"
              BuildInParallel="$(BuildInParallel)"
@@ -55,7 +54,7 @@ For Publish:
   <Target Name="_EFGenerateFilesBeforePublish"
           AfterTargets="GetCopyToPublishDirectoryItems"
           BeforeTargets="GeneratePublishDependencyFile"
-          Condition="'$(_EFGenerationStage)'=='' And ('$(EFScaffoldModelStage)'=='publish' Or '$(EFPrecompileQueriesStage)'=='publish') And ('$(EFOptimizeContext)'=='true' Or ('$(EFOptimizeContext)'=='' And ('$(_EFPublishAOT)'=='true' Or '$(PublishAOT)'=='true')))">
+          Condition="'$(_EFGenerationStage)'=='' And ('$(EFScaffoldModelStage)'=='publish' Or '$(EFPrecompileQueriesStage)'=='publish')">>
     <MSBuild Projects="$(MSBuildProjectFullPath)"
              Targets="_EFGenerateFiles"
              BuildInParallel="$(BuildInParallel)"
