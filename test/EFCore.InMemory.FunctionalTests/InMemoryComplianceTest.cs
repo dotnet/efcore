@@ -2,10 +2,10 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.BulkUpdates;
-using Microsoft.EntityFrameworkCore.Query.Relationships;
-using Microsoft.EntityFrameworkCore.Query.Relationships.ComplexProperties;
-using Microsoft.EntityFrameworkCore.Query.Relationships.Navigations;
-using Microsoft.EntityFrameworkCore.Query.Relationships.OwnedNavigations;
+using Microsoft.EntityFrameworkCore.Query.Associations;
+using Microsoft.EntityFrameworkCore.Query.Associations.ComplexProperties;
+using Microsoft.EntityFrameworkCore.Query.Associations.Navigations;
+using Microsoft.EntityFrameworkCore.Query.Associations.OwnedNavigations;
 
 namespace Microsoft.EntityFrameworkCore;
 
@@ -32,11 +32,11 @@ public class InMemoryComplianceTest : ComplianceTestBase
         typeof(AdHocJsonQueryTestBase),
 
         // Relationships tests - not implemented for InMemory
-        typeof(RelationshipsProjectionTestBase<>),
-        typeof(RelationshipsCollectionTestBase<>),
-        typeof(RelationshipsMiscellaneousTestBase<>),
-        typeof(RelationshipsStructuralEqualityTestBase<>),
-        typeof(RelationshipsSetOperationsTestBase<>),
+        typeof(AssociationsProjectionTestBase<>),
+        typeof(AssociationsCollectionTestBase<>),
+        typeof(AssociationsMiscellaneousTestBase<>),
+        typeof(AssociationsStructuralEqualityTestBase<>),
+        typeof(AssociationsSetOperationsTestBase<>),
         typeof(NavigationsIncludeTestBase<>),
         typeof(NavigationsProjectionTestBase<>),
         typeof(NavigationsCollectionTestBase<>),
