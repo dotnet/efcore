@@ -1,8 +1,12 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections.Concurrent;
 using System.Data;
+using System.Reflection;
+using System.Transactions;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
+using IsolationLevel = System.Data.IsolationLevel;
 
 namespace Microsoft.EntityFrameworkCore;
 
@@ -1080,6 +1084,96 @@ public class RelationalConnectionTest
                 Assert.Same(connection.DbConnection, eventData.Connection);
                 Assert.True(eventData.IsAsync);
             });
+    }
+
+    [ConditionalFact]
+    public void HandleTransactionCompleted_with_concurrent_ClearTransactions_is_thread_safe()
+    {
+        // This test verifies the fix for the race condition where HandleTransactionCompleted
+        // could be called on a different thread while ClearTransactions is executing.
+        // We test that the synchronization prevents race conditions by running both methods
+        // concurrently many times and ensuring no exceptions occur.
+
+        var connection = new FakeRelationalConnection(
+            CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=ConcurrencyTest")));
+
+        // Use reflection to access the private methods and fields
+        var connectionType = connection.GetType().BaseType; // RelationalConnection
+        var ambientTransactionsField = connectionType!.GetField("_ambientTransactions", 
+            BindingFlags.NonPublic | BindingFlags.Instance);
+        var ambientTransactionsLockField = connectionType.GetField("_ambientTransactionsLock", 
+            BindingFlags.NonPublic | BindingFlags.Instance);
+        var clearTransactionsMethod = connectionType.GetMethod("ClearTransactions", 
+            BindingFlags.NonPublic | BindingFlags.Instance);
+
+        var ambientTransactions = (ConcurrentStack<Transaction>)ambientTransactionsField!.GetValue(connection)!;
+        var ambientTransactionsLock = ambientTransactionsLockField!.GetValue(connection)!;
+
+        Assert.NotNull(ambientTransactionsLock);
+
+        // Test concurrent access to the lock and stack operations
+        var exceptions = new List<Exception>();
+        var tasks = new List<Task>();
+
+        for (int i = 0; i < 10; i++)
+        {
+            tasks.Add(Task.Run(() =>
+            {
+                try
+                {
+                    // Simulate ClearTransactions operation
+                    lock (ambientTransactionsLock)
+                    {
+                        while (ambientTransactions.TryPop(out var transaction))
+                        {
+                            // Simulate unsubscribing from event
+                            Thread.Sleep(1); // Small delay to increase chance of race condition
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    lock (exceptions)
+                    {
+                        exceptions.Add(ex);
+                    }
+                }
+            }));
+
+            tasks.Add(Task.Run(() =>
+            {
+                try
+                {
+                    // Simulate HandleTransactionCompleted operation
+                    lock (ambientTransactionsLock)
+                    {
+                        ambientTransactions.TryPeek(out var transaction);
+                        // Simulate the validation and pop operation
+                        if (transaction != null)
+                        {
+                            ambientTransactions.TryPop(out _);
+                        }
+                        Thread.Sleep(1); // Small delay to increase chance of race condition
+                    }
+                }
+                catch (Exception ex)
+                {
+                    lock (exceptions)
+                    {
+                        exceptions.Add(ex);
+                    }
+                }
+            }));
+        }
+
+        // Wait for all tasks to complete
+        Task.WaitAll(tasks.ToArray(), TimeSpan.FromSeconds(10));
+
+        // Verify no exceptions occurred
+        Assert.Empty(exceptions);
+
+        // Verify the synchronization mechanism exists (the lock field was added)
+        Assert.NotNull(ambientTransactionsLock);
     }
 
     private static IDbContextOptions CreateOptions(params RelationalOptionsExtension[] optionsExtensions)

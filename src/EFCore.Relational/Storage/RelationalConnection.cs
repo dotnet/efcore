@@ -40,6 +40,7 @@ public abstract class RelationalConnection : IRelationalConnection, ITransaction
     private int? _commandTimeout;
     private readonly int? _defaultCommandTimeout;
     private readonly ConcurrentStack<Transaction> _ambientTransactions = new();
+    private readonly object _ambientTransactionsLock = new();
     private DbConnection? _connection;
     private readonly IRelationalCommandBuilder _relationalCommandBuilder;
     private readonly IExceptionDetector _exceptionDetector;
@@ -686,12 +687,15 @@ public abstract class RelationalConnection : IRelationalConnection, ITransaction
         EnlistedTransaction = null;
         if (clearAmbient && _ambientTransactions.Count > 0)
         {
-            while (_ambientTransactions.Any(t => t != null))
+            lock (_ambientTransactionsLock)
             {
-                _ambientTransactions.TryPop(out var ambientTransaction);
-                if (ambientTransaction != null)
+                while (_ambientTransactions.Any(t => t != null))
                 {
-                    ambientTransaction.TransactionCompleted -= HandleTransactionCompleted;
+                    _ambientTransactions.TryPop(out var ambientTransaction);
+                    if (ambientTransaction != null)
+                    {
+                        ambientTransaction.TransactionCompleted -= HandleTransactionCompleted;
+                    }
                 }
             }
         }
@@ -819,13 +823,16 @@ public abstract class RelationalConnection : IRelationalConnection, ITransaction
 
         if (current == null)
         {
-            var rootTransaction = _ambientTransactions.Count > 0 && _ambientTransactions.TryPeek(out var transaction)
-                ? transaction
-                : null;
-
-            if (rootTransaction != null)
+            lock (_ambientTransactionsLock)
             {
-                throw new InvalidOperationException(RelationalStrings.PendingAmbientTransaction);
+                var rootTransaction = _ambientTransactions.Count > 0 && _ambientTransactions.TryPeek(out var transaction)
+                    ? transaction
+                    : null;
+
+                if (rootTransaction != null)
+                {
+                    throw new InvalidOperationException(RelationalStrings.PendingAmbientTransaction);
+                }
             }
 
             return;
@@ -837,33 +844,39 @@ public abstract class RelationalConnection : IRelationalConnection, ITransaction
             return;
         }
 
-        if (_ambientTransactions.Contains(current))
+        lock (_ambientTransactionsLock)
         {
-            return;
+            if (_ambientTransactions.Contains(current))
+            {
+                return;
+            }
+
+            Dependencies.TransactionLogger.AmbientTransactionEnlisted(this, current);
+            current.TransactionCompleted += HandleTransactionCompleted;
+
+            ConnectionEnlistTransaction(current);
+            _ambientTransactions.Push(current);
         }
-
-        Dependencies.TransactionLogger.AmbientTransactionEnlisted(this, current);
-        current.TransactionCompleted += HandleTransactionCompleted;
-
-        ConnectionEnlistTransaction(current);
-        _ambientTransactions.Push(current);
     }
 
     private void HandleTransactionCompleted(object? sender, TransactionEventArgs e)
     {
         // This could be invoked on a different thread at arbitrary time after the transaction completes
-        _ambientTransactions.TryPeek(out var ambientTransaction);
-        if (e.Transaction != ambientTransaction)
+        lock (_ambientTransactionsLock)
         {
-            throw new InvalidOperationException(RelationalStrings.NestedAmbientTransactionError);
-        }
+            _ambientTransactions.TryPeek(out var ambientTransaction);
+            if (e.Transaction != ambientTransaction)
+            {
+                throw new InvalidOperationException(RelationalStrings.NestedAmbientTransactionError);
+            }
 
-        if (ambientTransaction != null)
-        {
-            ambientTransaction.TransactionCompleted -= HandleTransactionCompleted;
-        }
+            if (ambientTransaction != null)
+            {
+                ambientTransaction.TransactionCompleted -= HandleTransactionCompleted;
+            }
 
-        _ambientTransactions.TryPop(out _);
+            _ambientTransactions.TryPop(out _);
+        }
     }
 
     /// <summary>
