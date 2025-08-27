@@ -4,7 +4,6 @@
 using System.Collections;
 using System.Globalization;
 using System.Text;
-using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Update.Internal;
@@ -2721,12 +2720,6 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
             if (operation is not ITableMigrationOperation tableMigrationOperation)
             {
-                // Check if this is a SqlOperation with SYSTEM_VERSIONING commands that could affect temporal tables
-                if (operation is SqlOperation sqlOperation)
-                {
-                    ProcessSqlOperationForTemporal(sqlOperation, temporalTableInformationMap, model);
-                }
-                
                 operations.Add(operation);
                 continue;
             }
@@ -3011,6 +3004,21 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                                 // as long as their names and types (including nullability) match
                                 // so we remove ComputedColumnSql info, so that the column in history table "appears normal"
                                 addHistoryTableColumnOperation.ComputedColumnSql = null;
+                                
+                                // For computed columns, ensure the history table column has the same nullability
+                                // as the computed column in the main table. For persisted computed columns,
+                                // SQL Server typically treats them as non-nullable if the computation is non-nullable.
+                                // We ensure consistency by making the history table column non-nullable and providing a default value.
+                                addHistoryTableColumnOperation.IsNullable = false;
+                                if (addHistoryTableColumnOperation.DefaultValue == null && addHistoryTableColumnOperation.DefaultValueSql == null)
+                                {
+                                    // Provide a default value that matches the computed column type
+                                    addHistoryTableColumnOperation.DefaultValue = addColumnOperation.ClrType == typeof(int) || addColumnOperation.ClrType == typeof(int?) 
+                                        ? 0 
+                                        : addColumnOperation.ClrType.IsValueType 
+                                            ? Activator.CreateInstance(addColumnOperation.ClrType) 
+                                            : null;
+                                }
                             }
 
                             operations.Add(addHistoryTableColumnOperation);
@@ -3233,75 +3241,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             };
         }
 
-        void ProcessSqlOperationForTemporal(
-            SqlOperation sqlOperation, 
-            Dictionary<(string TableName, string? Schema), TemporalOperationInformation> temporalTableInformationMap,
-            IModel? model)
-        {
-            if (string.IsNullOrEmpty(sqlOperation.Sql))
-                return;
 
-            var sql = sqlOperation.Sql;
-            
-            // Look for SYSTEM_VERSIONING = OFF/ON commands
-            // Pattern explanation:
-            // - ALTER\s+TABLE\s+ : Match "ALTER TABLE" with whitespace
-            // - (?:(?:\[?(?<schema>\w+)\]?\.)?\[?(?<table>\w+)\]?) : Optionally capture schema and table names, with or without brackets
-            // - \s+SET\s*\(\s* : Match "SET(" with optional whitespace
-            // - SYSTEM_VERSIONING\s*=\s*OFF : Match "SYSTEM_VERSIONING = OFF" with optional whitespace
-            // - \s*\) : Match closing parenthesis with optional whitespace
-            var versioningOffMatch = Regex.Match(sql, 
-                @"ALTER\s+TABLE\s+(?:(?:\[?(?<schema>\w+)\]?\.)?\[?(?<table>\w+)\]?)\s+SET\s*\(\s*SYSTEM_VERSIONING\s*=\s*OFF\s*\)", 
-                RegexOptions.IgnoreCase | RegexOptions.Multiline);
-                
-            var versioningOnMatch = Regex.Match(sql, 
-                @"ALTER\s+TABLE\s+(?:(?:\[?(?<schema>\w+)\]?\.)?\[?(?<table>\w+)\]?)\s+SET\s*\(\s*SYSTEM_VERSIONING\s*=\s*ON", 
-                RegexOptions.IgnoreCase | RegexOptions.Multiline);
-
-            // Process SYSTEM_VERSIONING = OFF
-            if (versioningOffMatch.Success)
-            {
-                var tableName = versioningOffMatch.Groups["table"].Value;
-                var schema = versioningOffMatch.Groups["schema"].Success ? versioningOffMatch.Groups["schema"].Value : null;
-                var key = (tableName, schema);
-                
-                if (temporalTableInformationMap.TryGetValue(key, out var temporalInfo))
-                {
-                    temporalInfo.DisabledVersioning = true;
-                }
-                else
-                {
-                    // Create minimal temporal info to track that versioning was manually disabled
-                    temporalTableInformationMap[key] = new TemporalOperationInformation
-                    {
-                        DisabledVersioning = true
-                    };
-                }
-            }
-
-            // Process SYSTEM_VERSIONING = ON
-            if (versioningOnMatch.Success)
-            {
-                var tableName = versioningOnMatch.Groups["table"].Value;
-                var schema = versioningOnMatch.Groups["schema"].Success ? versioningOnMatch.Groups["schema"].Value : null;
-                var key = (tableName, schema);
-                
-                if (temporalTableInformationMap.TryGetValue(key, out var temporalInfo))
-                {
-                    temporalInfo.ShouldEnableVersioning = false; // Don't auto-enable since user is manually enabling
-                    temporalInfo.DisabledVersioning = false; // Mark as not disabled since user is enabling
-                }
-                else
-                {
-                    // Create minimal temporal info to track that versioning was manually enabled
-                    temporalTableInformationMap[key] = new TemporalOperationInformation
-                    {
-                        ShouldEnableVersioning = false,
-                        DisabledVersioning = false
-                    };
-                }
-            }
-        }
 
         void DisableVersioning(
             string tableName,
