@@ -1,9 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Collections.Concurrent;
 using System.Data;
-using System.Reflection;
 using System.Transactions;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 using IsolationLevel = System.Data.IsolationLevel;
@@ -1091,69 +1089,32 @@ public class RelationalConnectionTest
     {
         // This test verifies the fix for the race condition where HandleTransactionCompleted
         // could be called on a different thread while ClearTransactions is executing.
-        // We test that the synchronization prevents race conditions by running both methods
-        // concurrently many times and ensuring no exceptions occur.
-
-        var connection = new FakeRelationalConnection(
-            CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=ConcurrencyTest")));
-
-        // Use reflection to access the private methods and fields
-        var connectionType = connection.GetType().BaseType; // RelationalConnection
-        var ambientTransactionsField = connectionType!.GetField("_ambientTransactions", 
-            BindingFlags.NonPublic | BindingFlags.Instance);
-        var ambientTransactionsLockField = connectionType.GetField("_ambientTransactionsLock", 
-            BindingFlags.NonPublic | BindingFlags.Instance);
-        var clearTransactionsMethod = connectionType.GetMethod("ClearTransactions", 
-            BindingFlags.NonPublic | BindingFlags.Instance);
-
-        var ambientTransactions = (ConcurrentStack<Transaction>)ambientTransactionsField!.GetValue(connection)!;
-        var ambientTransactionsLock = ambientTransactionsLockField!.GetValue(connection)!;
-
-        Assert.NotNull(ambientTransactionsLock);
-
-        // Test concurrent access to the lock and stack operations
         var exceptions = new List<Exception>();
-        var tasks = new List<Task>();
-
-        for (int i = 0; i < 10; i++)
+        for (var i = 0; i < Environment.ProcessorCount; i++)
         {
-            tasks.Add(Task.Run(() =>
-            {
-                try
-                {
-                    // Simulate ClearTransactions operation
-                    lock (ambientTransactionsLock)
-                    {
-                        while (ambientTransactions.TryPop(out var transaction))
-                        {
-                            // Simulate unsubscribing from event
-                            Thread.Sleep(1); // Small delay to increase chance of race condition
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    lock (exceptions)
-                    {
-                        exceptions.Add(ex);
-                    }
-                }
-            }));
+            var connection = new FakeRelationalConnection(
+                CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=ConcurrencyTest")));
 
-            tasks.Add(Task.Run(() =>
+            using var scope = new TransactionScope();
+            connection.Open();
+
+            var random = new Random();
+            var resetFirst = random.Next(0, 1) == 0;
+            var tasks = new Task[2];
+            tasks[0] = Task.Run(async () =>
             {
                 try
                 {
-                    // Simulate HandleTransactionCompleted operation
-                    lock (ambientTransactionsLock)
+                    // Small delay to increase chance of race condition
+                    await Task.Yield();
+
+                    if (resetFirst)
                     {
-                        ambientTransactions.TryPeek(out var transaction);
-                        // Simulate the validation and pop operation
-                        if (transaction != null)
-                        {
-                            ambientTransactions.TryPop(out _);
-                        }
-                        Thread.Sleep(1); // Small delay to increase chance of race condition
+                        ((IResettableService)connection).ResetState();
+                    }
+                    else
+                    {
+                        scope.Complete();
                     }
                 }
                 catch (Exception ex)
@@ -1163,17 +1124,37 @@ public class RelationalConnectionTest
                         exceptions.Add(ex);
                     }
                 }
-            }));
+            });
+
+            tasks[1] = Task.Run(async () =>
+            {
+                try
+                {
+                    // Small delay to increase chance of race condition
+                    await Task.Yield();
+
+                    if (resetFirst)
+                    {
+                        scope.Complete();
+                    }
+                    else
+                    {
+                        ((IResettableService)connection).ResetState();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    lock (exceptions)
+                    {
+                        exceptions.Add(ex);
+                    }
+                }
+            });
+
+            Task.WaitAll(tasks, TimeSpan.FromSeconds(10));
         }
 
-        // Wait for all tasks to complete
-        Task.WaitAll(tasks.ToArray(), TimeSpan.FromSeconds(10));
-
-        // Verify no exceptions occurred
         Assert.Empty(exceptions);
-
-        // Verify the synchronization mechanism exists (the lock field was added)
-        Assert.NotNull(ambientTransactionsLock);
     }
 
     private static IDbContextOptions CreateOptions(params RelationalOptionsExtension[] optionsExtensions)
