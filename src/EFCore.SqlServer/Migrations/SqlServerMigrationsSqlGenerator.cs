@@ -3118,7 +3118,12 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                         var changeToSparse = alterColumnOperation.OldColumn[SqlServerAnnotationNames.Sparse] as bool? != true
                             && alterColumnOperation[SqlServerAnnotationNames.Sparse] as bool? == true;
 
-                        if (changeToNonNullable || changeToSparse)
+                        // for alter column removing default value we also need to disable versioning
+                        // because the default constraint needs to be removed from both main and history tables
+                        var removingDefaultValue = (alterColumnOperation.OldColumn.DefaultValue != null || alterColumnOperation.OldColumn.DefaultValueSql != null)
+                            && alterColumnOperation.DefaultValue == null && alterColumnOperation.DefaultValueSql == null;
+
+                        if (changeToNonNullable || changeToSparse || removingDefaultValue)
                         {
                             DisableVersioning(
                                 tableName!,
@@ -3427,13 +3432,6 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
             foreach (var annotation in source.GetAnnotations())
             {
-                // For history tables in temporal tables, exclude DEFAULT constraint annotations
-                // because history tables should not have DEFAULT constraints
-                if (annotation.Name == RelationalAnnotationNames.DefaultConstraintName)
-                {
-                    continue;
-                }
-                
                 result.AddAnnotation(annotation.Name, annotation.Value);
             }
 

@@ -10201,7 +10201,7 @@ CREATE TABLE [Customers] (
                 "Customer", e =>
                 {
                     e.Property<int>("Id").ValueGeneratedOnAdd();
-                    e.Property<string>("Name").HasMaxLength(100).HasDefaultValue("DefaultName");
+                    e.Property<string>("Name").HasMaxLength(100); // Remove default value
                     e.Property<DateTime>("SystemTimeStart").ValueGeneratedOnAddOrUpdate();
                     e.Property<DateTime>("SystemTimeEnd").ValueGeneratedOnAddOrUpdate();
                     e.HasKey("Id");
@@ -10245,6 +10245,15 @@ EXEC(N'CREATE TABLE [Customer] (
             //
             """
 ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = OFF)
+""",
+            //
+            """
+DECLARE @var sysname;
+SELECT @var = [d].[name]
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customer]') AND [c].[name] = N'Name');
+IF @var IS NOT NULL EXEC(N'ALTER TABLE [Customer] DROP CONSTRAINT [' + @var + '];');
 """,
             //
             """
