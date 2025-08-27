@@ -40,7 +40,7 @@ public class MigrationsAssemblyTest
 
         var result = assembly.Migrations;
 
-        Assert.Equal(2, result.Count);
+        Assert.Equal(3, result.Count);
         Assert.DoesNotContain(result, t => t.GetType() == typeof(MigrationWithoutAttribute));
         Assert.Equal(
             RelationalResources.LogMigrationAttributeMissingWarning(logger).GenerateMessage(nameof(MigrationWithoutAttribute)),
