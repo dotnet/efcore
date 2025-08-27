@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
@@ -1265,6 +1266,51 @@ EXEC(N'UPDATE [Person] SET [Name] = N'''' WHERE [Name] IS NULL');
 ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(max) NOT NULL;
 ALTER TABLE [Person] ADD DEFAULT N'' FOR [Name];
 """);
+    }
+
+    [ConditionalFact]
+    public virtual void User_sql_operations_with_versioning_should_not_cause_duplicates()
+    {
+        // This test verifies the fix for issue #35180
+        Generate(
+            // User manually disables versioning
+            new SqlOperation
+            {
+                Sql = "ALTER TABLE dbo.ProgramEvents SET(SYSTEM_VERSIONING = OFF)"
+            },
+            // Add computed column to temporal table (would normally trigger auto-versioning)
+            new AddColumnOperation
+            {
+                Table = "ProgramEvents",
+                Name = "Virtual",
+                ClrType = typeof(bool),
+                ColumnType = "bit",
+                ComputedColumnSql = "CAST(CASE WHEN (Location IS NULL) THEN 1 ELSE 0 END AS BIT)",
+                IsStored = true,
+                [SqlServerAnnotationNames.IsTemporal] = true,
+                [SqlServerAnnotationNames.TemporalHistoryTableName] = "_ProgramEvents_History",
+                [SqlServerAnnotationNames.TemporalPeriodStartColumnName] = "PeriodStart",
+                [SqlServerAnnotationNames.TemporalPeriodEndColumnName] = "PeriodEnd"
+            },
+            // User manually enables versioning
+            new SqlOperation
+            {
+                Sql = "ALTER TABLE dbo.ProgramEvents SET(SYSTEM_VERSIONING = ON (HISTORY_TABLE = dbo._ProgramEvents_History))"
+            }
+        );
+        
+        // Verify no duplicate SYSTEM_VERSIONING commands are generated
+        var versioningOffCount = Regex.Matches(Sql, @"SYSTEM_VERSIONING\s*=\s*OFF", RegexOptions.IgnoreCase).Count;
+        var versioningOnCount = Regex.Matches(Sql, @"SYSTEM_VERSIONING\s*=\s*ON", RegexOptions.IgnoreCase).Count;
+        
+        // Let's see what SQL is actually generated
+        Console.WriteLine("Generated SQL:");
+        Console.WriteLine(Sql);
+        Console.WriteLine($"OFF count: {versioningOffCount}, ON count: {versioningOnCount}");
+        
+        // Should only have the user's manual commands, no auto-generated duplicates
+        Assert.Equal(1, versioningOffCount);
+        Assert.Equal(1, versioningOnCount);
     }
 
     private static void CreateGotModel(ModelBuilder b)

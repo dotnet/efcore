@@ -4,6 +4,7 @@
 using System.Collections;
 using System.Globalization;
 using System.Text;
+using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Update.Internal;
@@ -2720,6 +2721,12 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
             if (operation is not ITableMigrationOperation tableMigrationOperation)
             {
+                // Check if this is a SqlOperation with SYSTEM_VERSIONING commands that could affect temporal tables
+                if (operation is SqlOperation sqlOperation)
+                {
+                    ProcessSqlOperationForTemporal(sqlOperation, temporalTableInformationMap, model);
+                }
+                
                 operations.Add(operation);
                 continue;
             }
@@ -3224,6 +3231,70 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                 PeriodStartColumnName = periodStartColumnName,
                 PeriodEndColumnName = periodEndColumnName
             };
+        }
+
+        void ProcessSqlOperationForTemporal(
+            SqlOperation sqlOperation, 
+            Dictionary<(string TableName, string? Schema), TemporalOperationInformation> temporalTableInformationMap,
+            IModel? model)
+        {
+            if (string.IsNullOrEmpty(sqlOperation.Sql))
+                return;
+
+            var sql = sqlOperation.Sql;
+            
+            // Look for SYSTEM_VERSIONING = OFF/ON commands
+            var versioningOffMatch = Regex.Match(sql, 
+                @"ALTER\s+TABLE\s+(?:(?:\[?(?<schema>\w+)\]?\.)?\[?(?<table>\w+)\]?)\s+SET\s*\(\s*SYSTEM_VERSIONING\s*=\s*OFF\s*\)", 
+                RegexOptions.IgnoreCase | RegexOptions.Multiline);
+                
+            var versioningOnMatch = Regex.Match(sql, 
+                @"ALTER\s+TABLE\s+(?:(?:\[?(?<schema>\w+)\]?\.)?\[?(?<table>\w+)\]?)\s+SET\s*\(\s*SYSTEM_VERSIONING\s*=\s*ON", 
+                RegexOptions.IgnoreCase | RegexOptions.Multiline);
+
+            // Process SYSTEM_VERSIONING = OFF
+            if (versioningOffMatch.Success)
+            {
+                var tableName = versioningOffMatch.Groups["table"].Value;
+                var schema = versioningOffMatch.Groups["schema"].Success ? versioningOffMatch.Groups["schema"].Value : null;
+                var key = (tableName, schema);
+                
+                if (temporalTableInformationMap.TryGetValue(key, out var temporalInfo))
+                {
+                    temporalInfo.DisabledVersioning = true;
+                }
+                else
+                {
+                    // Create minimal temporal info to track that versioning was manually disabled
+                    temporalTableInformationMap[key] = new TemporalOperationInformation
+                    {
+                        DisabledVersioning = true
+                    };
+                }
+            }
+
+            // Process SYSTEM_VERSIONING = ON
+            if (versioningOnMatch.Success)
+            {
+                var tableName = versioningOnMatch.Groups["table"].Value;
+                var schema = versioningOnMatch.Groups["schema"].Success ? versioningOnMatch.Groups["schema"].Value : null;
+                var key = (tableName, schema);
+                
+                if (temporalTableInformationMap.TryGetValue(key, out var temporalInfo))
+                {
+                    temporalInfo.ShouldEnableVersioning = false; // Don't auto-enable since user is manually enabling
+                    temporalInfo.DisabledVersioning = false; // Mark as not disabled since user is enabling
+                }
+                else
+                {
+                    // Create minimal temporal info to track that versioning was manually enabled
+                    temporalTableInformationMap[key] = new TemporalOperationInformation
+                    {
+                        ShouldEnableVersioning = false,
+                        DisabledVersioning = false
+                    };
+                }
+            }
         }
 
         void DisableVersioning(
