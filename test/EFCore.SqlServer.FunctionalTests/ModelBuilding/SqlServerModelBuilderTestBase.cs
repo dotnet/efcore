@@ -1100,6 +1100,53 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
         }
 
         [ConditionalFact]
+        public virtual void Owned_type_collections_are_mapped_to_same_tables_by_default()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<JsonEntityWithNesting>(b =>
+            {
+                b.OwnsOne(x => x.OwnedReference1, bb =>
+                {
+                    bb.OwnsOne(x => x.Reference1);
+                    bb.OwnsOne(x => x.Reference2);
+                    bb.OwnsMany(x => x.Collection1);
+                    bb.OwnsMany(x => x.Collection2);
+                });
+
+                b.OwnsOne(x => x.OwnedReference2, bb =>
+                {
+                    bb.OwnsOne(x => x.Reference1);
+                    bb.OwnsOne(x => x.Reference2);
+                    bb.OwnsMany(x => x.Collection1);
+                    bb.OwnsMany(x => x.Collection2);
+                });
+
+                b.OwnsMany(x => x.OwnedCollection1, bb =>
+                {
+                    bb.OwnsOne(x => x.Reference1);
+                    bb.OwnsOne(x => x.Reference2);
+                    bb.OwnsMany(x => x.Collection1);
+                    bb.OwnsMany(x => x.Collection2);
+                });
+
+                b.OwnsMany(x => x.OwnedCollection2, bb =>
+                {
+                    bb.OwnsOne(x => x.Reference1);
+                    bb.OwnsOne(x => x.Reference2);
+                    bb.OwnsMany(x => x.Collection1);
+                    bb.OwnsMany(x => x.Collection2);
+                });
+            });
+
+            Assert.Equal(RelationalStrings.IncompatibleTableNoRelationship(
+                "JsonEntityWithNesting_Collection1",
+                "JsonEntityWithNesting.OwnedReference2#OwnedEntityExtraLevel.Collection1#OwnedEntity",
+                "JsonEntityWithNesting.OwnedReference1#OwnedEntityExtraLevel.Collection1#OwnedEntity"),
+                Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
+        }
+
+        [ConditionalFact]
         public virtual void Owned_type_collections_can_be_mapped_to_a_view()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2006,27 +2053,6 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
                 Assert.Equal("InnerFraction", ownedEntity.GetProperty("Fraction").GetJsonPropertyName());
                 Assert.Equal("InnerEnum", ownedEntity.GetProperty("Enum").GetJsonPropertyName());
             }
-        }
-
-        [ConditionalFact]
-        public virtual void Json_entity_and_normal_owned_can_exist_side_to_side_on_same_entity()
-        {
-            var modelBuilder = CreateModelBuilder();
-
-            modelBuilder.Entity<JsonEntity>(b =>
-            {
-                b.OwnsOne(x => x.OwnedReference1);
-                b.OwnsOne(x => x.OwnedReference2, bb => bb.ToJson("reference"));
-                b.OwnsMany(x => x.OwnedCollection1);
-                b.OwnsMany(x => x.OwnedCollection2, bb => bb.ToJson("collection"));
-            });
-
-            var model = modelBuilder.FinalizeModel();
-
-            var ownedEntities = model.FindEntityTypes(typeof(OwnedEntity));
-            Assert.Equal(4, ownedEntities.Count());
-            Assert.Equal(2, ownedEntities.Where(e => e.IsMappedToJson()).Count());
-            Assert.Equal(2, ownedEntities.Where(e => e.IsOwned() && !e.IsMappedToJson()).Count());
         }
     }
 
