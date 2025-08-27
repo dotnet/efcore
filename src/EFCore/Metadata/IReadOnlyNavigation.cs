@@ -165,7 +165,7 @@ public interface IReadOnlyNavigation : IReadOnlyNavigationBase
             }
 
             if ((options & MetadataDebugStringOptions.IncludePropertyIndexes) != 0
-                && ((AnnotatableBase)this).IsReadOnly)
+                && (this is RuntimeAnnotatableBase || this is AnnotatableBase { IsReadOnly: true }))
             {
                 var indexes = ((INavigation)this).GetPropertyIndexes();
                 builder.Append(' ').Append(indexes.Index);

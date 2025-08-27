@@ -91,7 +91,7 @@ public interface IReadOnlyComplexProperty : IReadOnlyPropertyBase
             }
 
             if ((options & MetadataDebugStringOptions.IncludePropertyIndexes) != 0
-                && ((AnnotatableBase)this).IsReadOnly)
+                && (this is RuntimeAnnotatableBase || this is AnnotatableBase { IsReadOnly: true }))
             {
                 var indexes = ((IProperty)this).GetPropertyIndexes();
                 builder.Append(' ').Append(indexes.Index);
