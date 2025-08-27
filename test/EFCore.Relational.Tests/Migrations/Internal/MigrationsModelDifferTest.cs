@@ -12318,6 +12318,127 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
             result => Assert.Equal(0, result.Count),
             skipSourceConventions: true);
 
+    [ConditionalFact]
+    public void Model_differ_ignores_newline_differences_in_DefaultValueSql()
+        => Execute(
+            source => source.Entity("Cat", x => x.Property<string>("Meow").HasDefaultValueSql("SELECT\r\n'test'")),
+            target => target.Entity("Cat", x => x.Property<string>("Meow").HasDefaultValueSql("SELECT\n'test'")),
+            result => Assert.Empty(result));
+
+    [ConditionalFact]
+    public void Model_differ_ignores_newline_differences_in_ComputedColumnSql()
+        => Execute(
+            source => source.Entity("Cat", x => x.Property<string>("Meow").HasComputedColumnSql("UPPER(\r\nName)")),
+            target => target.Entity("Cat", x => x.Property<string>("Meow").HasComputedColumnSql("UPPER(\nName)")),
+            result => Assert.Empty(result));
+
+    [ConditionalFact]
+    public void Model_differ_ignores_newline_differences_in_index_filter()
+        => Execute(
+            source => source.Entity("Cat", x =>
+            {
+                x.Property<string>("Name");
+                x.HasIndex("Name").HasFilter("Name IS NOT\r\nNULL");
+            }),
+            target => target.Entity("Cat", x =>
+            {
+                x.Property<string>("Name");
+                x.HasIndex("Name").HasFilter("Name IS NOT\nNULL");
+            }),
+            result => Assert.Empty(result));
+
+    [ConditionalFact]
+    public void Model_differ_ignores_newline_differences_in_check_constraint()
+        => Execute(
+            source => source.Entity("Cat", x =>
+            {
+                x.Property<int>("Age");
+                x.ToTable(t => t.HasCheckConstraint("CK_Cat_Age", "Age >\r\n0"));
+            }),
+            target => target.Entity("Cat", x =>
+            {
+                x.Property<int>("Age");
+                x.ToTable(t => t.HasCheckConstraint("CK_Cat_Age", "Age >\n0"));
+            }),
+            result => Assert.Empty(result));
+
+    [ConditionalFact]
+    public void Model_differ_ignores_carriage_return_differences_in_DefaultValueSql()
+        => Execute(
+            source => source.Entity("Cat", x => x.Property<string>("Meow").HasDefaultValueSql("SELECT\r'test'")),
+            target => target.Entity("Cat", x => x.Property<string>("Meow").HasDefaultValueSql("SELECT\n'test'")),
+            result => Assert.Empty(result));
+
+    [ConditionalFact]
+    public void Model_differ_ignores_complex_newline_differences_in_ComputedColumnSql()
+        => Execute(
+            source => source.Entity("Cat", x => x.Property<string>("Meow").HasComputedColumnSql("CASE\r\nWHEN Age > 5\r\nTHEN 'Old'\r\nELSE 'Young'\r\nEND")),
+            target => target.Entity("Cat", x => x.Property<string>("Meow").HasComputedColumnSql("CASE\nWHEN Age > 5\nTHEN 'Old'\nELSE 'Young'\nEND")),
+            result => Assert.Empty(result));
+
+    [ConditionalFact]
+    public void Model_differ_ignores_newline_differences_in_table_comments()
+        => Execute(
+            source => source.Entity("Cat", x => x.ToTable(t => t.HasComment("Table for storing\r\ncat information"))),
+            target => target.Entity("Cat", x => x.ToTable(t => t.HasComment("Table for storing\ncat information"))),
+            result => Assert.Empty(result));
+
+    [ConditionalFact]
+    public void Model_differ_ignores_newline_differences_in_column_comments()
+        => Execute(
+            source => source.Entity("Cat", x => x.Property<string>("Name").HasComment("Cat name\r\nfield")),
+            target => target.Entity("Cat", x => x.Property<string>("Name").HasComment("Cat name\nfield")),
+            result => Assert.Empty(result));
+
+    [ConditionalFact]
+    public void Model_differ_ignores_newline_differences_in_DefaultValueSql_annotations()
+        => Execute(
+            source => source.Entity("Cat", x => x.Property<string>("Name").HasAnnotation("Relational:DefaultValueSql", "SELECT\r\n'test'")),
+            target => target.Entity("Cat", x => x.Property<string>("Name").HasAnnotation("Relational:DefaultValueSql", "SELECT\n'test'")),
+            result => Assert.Empty(result));
+
+    [ConditionalFact]
+    public void Model_differ_ignores_newline_differences_in_ComputedColumnSql_annotations()
+        => Execute(
+            source => source.Entity("Cat", x => x.Property<string>("Name").HasAnnotation("Relational:ComputedColumnSql", "UPPER(\r\nName)")),
+            target => target.Entity("Cat", x => x.Property<string>("Name").HasAnnotation("Relational:ComputedColumnSql", "UPPER(\nName)")),
+            result => Assert.Empty(result));
+
+    [ConditionalFact]
+    public void Model_differ_ignores_newline_differences_in_Comment_annotations()
+        => Execute(
+            source => source.Entity("Cat", x => x.Property<string>("Name").HasAnnotation("Relational:Comment", "Multi-line\r\ncomment")),
+            target => target.Entity("Cat", x => x.Property<string>("Name").HasAnnotation("Relational:Comment", "Multi-line\ncomment")),
+            result => Assert.Empty(result));
+
+    [ConditionalFact]
+    public void Model_differ_ignores_newline_differences_in_ViewDefinitionSql_annotations()
+        => Execute(
+            source => source.Entity("Cat", x => x.HasAnnotation("Relational:ViewDefinitionSql", "SELECT Id,\r\nName FROM Cats")),
+            target => target.Entity("Cat", x => x.HasAnnotation("Relational:ViewDefinitionSql", "SELECT Id,\nName FROM Cats")),
+            result => Assert.Empty(result));
+
+    [ConditionalFact]
+    public void Model_differ_ignores_newline_differences_in_Filter_annotations()
+        => Execute(
+            source => source.Entity("Cat", x => x.Property<string>("Name").HasAnnotation("Relational:Filter", "Name IS NOT\r\nNULL")),
+            target => target.Entity("Cat", x => x.Property<string>("Name").HasAnnotation("Relational:Filter", "Name IS NOT\nNULL")),
+            result => Assert.Empty(result));
+
+    [ConditionalFact]
+    public void Model_differ_detects_actual_annotation_sql_changes()
+        => Execute(
+            source => source.Entity("Cat", x => x.Property<string>("Name").HasAnnotation("Relational:DefaultValueSql", "SELECT 'old'")),
+            target => target.Entity("Cat", x => x.Property<string>("Name").HasAnnotation("Relational:DefaultValueSql", "SELECT 'new'")),
+            result => Assert.Single(result));
+
+    [ConditionalFact]
+    public void Model_differ_ignores_newline_differences_in_non_relational_annotations()
+        => Execute(
+            source => source.Entity("Cat", x => x.Property<string>("Name").HasAnnotation("CustomAnnotation", "Value with\r\nnewlines")),
+            target => target.Entity("Cat", x => x.Property<string>("Name").HasAnnotation("CustomAnnotation", "Value with\nnewlines")),
+            result => Assert.Empty(result));
+
     protected override TestHelpers TestHelpers
         => FakeRelationalTestHelpers.Instance;
 }
