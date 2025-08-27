@@ -10181,12 +10181,10 @@ CREATE TABLE [Customers] (
     public virtual async Task Temporal_table_with_default_constraint_can_alter_column()
     {
         await Test(
-            builder => { },
             builder => builder.Entity(
                 "Customer", e =>
                 {
                     e.Property<int>("Id").ValueGeneratedOnAdd();
-                    e.Property<string>("Name").HasMaxLength(50).HasDefaultValue("DefaultName");
                     e.Property<DateTime>("SystemTimeStart").ValueGeneratedOnAddOrUpdate();
                     e.Property<DateTime>("SystemTimeEnd").ValueGeneratedOnAddOrUpdate();
                     e.HasKey("Id");
@@ -10200,17 +10198,12 @@ CREATE TABLE [Customers] (
             builder => builder.Entity(
                 "Customer", e =>
                 {
-                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.Property<string>("Name").HasMaxLength(50).HasDefaultValue("DefaultName");
+                }),
+            builder => builder.Entity(
+                "Customer", e =>
+                {
                     e.Property<string>("Name").HasMaxLength(100); // Remove default value
-                    e.Property<DateTime>("SystemTimeStart").ValueGeneratedOnAddOrUpdate();
-                    e.Property<DateTime>("SystemTimeEnd").ValueGeneratedOnAddOrUpdate();
-                    e.HasKey("Id");
-
-                    e.ToTable(tb => tb.IsTemporal(ttb =>
-                    {
-                        ttb.HasPeriodStart("SystemTimeStart");
-                        ttb.HasPeriodEnd("SystemTimeEnd");
-                    }));
                 }),
             model =>
             {
@@ -10274,12 +10267,10 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
     public virtual async Task Temporal_table_add_default_constraint_to_column()
     {
         await Test(
-            builder => { },
             builder => builder.Entity(
                 "Customer", e =>
                 {
                     e.Property<int>("Id").ValueGeneratedOnAdd();
-                    e.Property<string>("Name").HasMaxLength(50);
                     e.Property<DateTime>("SystemTimeStart").ValueGeneratedOnAddOrUpdate();
                     e.Property<DateTime>("SystemTimeEnd").ValueGeneratedOnAddOrUpdate();
                     e.HasKey("Id");
@@ -10293,17 +10284,12 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
             builder => builder.Entity(
                 "Customer", e =>
                 {
-                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.Property<string>("Name").HasMaxLength(50);
+                }),
+            builder => builder.Entity(
+                "Customer", e =>
+                {
                     e.Property<string>("Name").HasMaxLength(50).HasDefaultValue("DefaultName"); // Add default value
-                    e.Property<DateTime>("SystemTimeStart").ValueGeneratedOnAddOrUpdate();
-                    e.Property<DateTime>("SystemTimeEnd").ValueGeneratedOnAddOrUpdate();
-                    e.HasKey("Id");
-
-                    e.ToTable(tb => tb.IsTemporal(ttb =>
-                    {
-                        ttb.HasPeriodStart("SystemTimeStart");
-                        ttb.HasPeriodEnd("SystemTimeEnd");
-                    }));
                 }),
             model =>
             {
@@ -10362,12 +10348,10 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
     public virtual async Task Temporal_table_change_default_constraint_value()
     {
         await Test(
-            builder => { },
             builder => builder.Entity(
                 "Customer", e =>
                 {
                     e.Property<int>("Id").ValueGeneratedOnAdd();
-                    e.Property<string>("Name").HasMaxLength(50).HasDefaultValue("OldDefault");
                     e.Property<DateTime>("SystemTimeStart").ValueGeneratedOnAddOrUpdate();
                     e.Property<DateTime>("SystemTimeEnd").ValueGeneratedOnAddOrUpdate();
                     e.HasKey("Id");
@@ -10381,17 +10365,12 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
             builder => builder.Entity(
                 "Customer", e =>
                 {
-                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.Property<string>("Name").HasMaxLength(50).HasDefaultValue("OldDefault");
+                }),
+            builder => builder.Entity(
+                "Customer", e =>
+                {
                     e.Property<string>("Name").HasMaxLength(50).HasDefaultValue("NewDefault"); // Change default value
-                    e.Property<DateTime>("SystemTimeStart").ValueGeneratedOnAddOrUpdate();
-                    e.Property<DateTime>("SystemTimeEnd").ValueGeneratedOnAddOrUpdate();
-                    e.HasKey("Id");
-
-                    e.ToTable(tb => tb.IsTemporal(ttb =>
-                    {
-                        ttb.HasPeriodStart("SystemTimeStart");
-                        ttb.HasPeriodEnd("SystemTimeEnd");
-                    }));
                 }),
             model =>
             {
@@ -10447,6 +10426,92 @@ ALTER TABLE [CustomerHistory] ALTER COLUMN [Name] nvarchar(50) NOT NULL;
             //
             """
 ALTER TABLE [Customer] ADD DEFAULT N'NewDefault' FOR [Name];
+""",
+            //
+            """
+DECLARE @historyTableSchema1 nvarchar(max) = QUOTENAME(SCHEMA_NAME())
+EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema1 + N'.[CustomerHistory]))')
+""");
+    }
+
+    [ConditionalFact]
+    public virtual async Task Temporal_table_remove_default_value_sql_from_column()
+    {
+        await Test(
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.Property<DateTime>("SystemTimeStart").ValueGeneratedOnAddOrUpdate();
+                    e.Property<DateTime>("SystemTimeEnd").ValueGeneratedOnAddOrUpdate();
+                    e.HasKey("Id");
+
+                    e.ToTable(tb => tb.IsTemporal(ttb =>
+                    {
+                        ttb.HasPeriodStart("SystemTimeStart");
+                        ttb.HasPeriodEnd("SystemTimeEnd");
+                    }));
+                }),
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<DateTime>("CreatedDate").HasDefaultValueSql("GETDATE()");
+                }),
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<DateTime>("CreatedDate"); // Remove default value SQL
+                }),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                Assert.Equal("Customer", table.Name);
+                Assert.Equal(true, table[SqlServerAnnotationNames.IsTemporal]);
+                Assert.Equal("CustomerHistory", table[SqlServerAnnotationNames.TemporalHistoryTableName]);
+                Assert.Equal("SystemTimeStart", table[SqlServerAnnotationNames.TemporalPeriodStartPropertyName]);
+                Assert.Equal("SystemTimeEnd", table[SqlServerAnnotationNames.TemporalPeriodEndPropertyName]);
+
+                Assert.Collection(
+                    table.Columns,
+                    c => Assert.Equal("Id", c.Name),
+                    c => Assert.Equal("CreatedDate", c.Name));
+                Assert.Same(
+                    table.Columns.Single(c => c.Name == "Id"),
+                    Assert.Single(table.PrimaryKey!.Columns));
+            });
+
+        AssertSql(
+            """
+DECLARE @historyTableSchema nvarchar(max) = QUOTENAME(SCHEMA_NAME())
+EXEC(N'CREATE TABLE [Customer] (
+    [Id] int NOT NULL IDENTITY,
+    [CreatedDate] datetime2 NOT NULL DEFAULT (GETDATE()),
+    [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END HIDDEN NOT NULL,
+    [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
+    CONSTRAINT [PK_Customer] PRIMARY KEY ([Id]),
+    PERIOD FOR SYSTEM_TIME([SystemTimeStart], [SystemTimeEnd])
+) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema + N'.[CustomerHistory]))');
+""",
+            //
+            """
+ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = OFF)
+""",
+            //
+            """
+DECLARE @var sysname;
+SELECT @var = [d].[name]
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customer]') AND [c].[name] = N'CreatedDate');
+IF @var IS NOT NULL EXEC(N'ALTER TABLE [Customer] DROP CONSTRAINT [' + @var + '];');
+""",
+            //
+            """
+ALTER TABLE [Customer] ALTER COLUMN [CreatedDate] datetime2 NOT NULL;
+""",
+            //
+            """
+ALTER TABLE [CustomerHistory] ALTER COLUMN [CreatedDate] datetime2 NOT NULL;
 """,
             //
             """
