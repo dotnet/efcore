@@ -3244,6 +3244,12 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             var sql = sqlOperation.Sql;
             
             // Look for SYSTEM_VERSIONING = OFF/ON commands
+            // Pattern explanation:
+            // - ALTER\s+TABLE\s+ : Match "ALTER TABLE" with whitespace
+            // - (?:(?:\[?(?<schema>\w+)\]?\.)?\[?(?<table>\w+)\]?) : Optionally capture schema and table names, with or without brackets
+            // - \s+SET\s*\(\s* : Match "SET(" with optional whitespace
+            // - SYSTEM_VERSIONING\s*=\s*OFF : Match "SYSTEM_VERSIONING = OFF" with optional whitespace
+            // - \s*\) : Match closing parenthesis with optional whitespace
             var versioningOffMatch = Regex.Match(sql, 
                 @"ALTER\s+TABLE\s+(?:(?:\[?(?<schema>\w+)\]?\.)?\[?(?<table>\w+)\]?)\s+SET\s*\(\s*SYSTEM_VERSIONING\s*=\s*OFF\s*\)", 
                 RegexOptions.IgnoreCase | RegexOptions.Multiline);

@@ -1303,14 +1303,47 @@ ALTER TABLE [Person] ADD DEFAULT N'' FOR [Name];
         var versioningOffCount = Regex.Matches(Sql, @"SYSTEM_VERSIONING\s*=\s*OFF", RegexOptions.IgnoreCase).Count;
         var versioningOnCount = Regex.Matches(Sql, @"SYSTEM_VERSIONING\s*=\s*ON", RegexOptions.IgnoreCase).Count;
         
-        // Let's see what SQL is actually generated
-        Console.WriteLine("Generated SQL:");
-        Console.WriteLine(Sql);
-        Console.WriteLine($"OFF count: {versioningOffCount}, ON count: {versioningOnCount}");
-        
         // Should only have the user's manual commands, no auto-generated duplicates
         Assert.Equal(1, versioningOffCount);
         Assert.Equal(1, versioningOnCount);
+    }
+
+    [ConditionalFact]
+    public virtual void User_sql_operations_various_formatting_styles()
+    {
+        // Test different SQL formatting styles that the regex should handle
+        var testCases = new[]
+        {
+            "ALTER TABLE [dbo].[TestTable] SET (SYSTEM_VERSIONING = OFF)",
+            "ALTER TABLE dbo.TestTable SET(SYSTEM_VERSIONING=OFF)",
+            "alter table [TestTable] set ( system_versioning = off )",
+            "ALTER  TABLE   TestTable   SET  (  SYSTEM_VERSIONING  =  OFF  )"
+        };
+
+        foreach (var sql in testCases)
+        {
+            Generate(
+                new SqlOperation { Sql = sql },
+                new AddColumnOperation
+                {
+                    Table = "TestTable",
+                    Name = "TestColumn",
+                    ClrType = typeof(bool),
+                    ColumnType = "bit",
+                    ComputedColumnSql = "1",
+                    IsStored = true,
+                    [SqlServerAnnotationNames.IsTemporal] = true,
+                    [SqlServerAnnotationNames.TemporalHistoryTableName] = "TestTable_History",
+                    [SqlServerAnnotationNames.TemporalPeriodStartColumnName] = "PeriodStart",
+                    [SqlServerAnnotationNames.TemporalPeriodEndColumnName] = "PeriodEnd"
+                }
+            );
+
+            var versioningOffCount = Regex.Matches(Sql, @"SYSTEM_VERSIONING\s*=\s*OFF", RegexOptions.IgnoreCase).Count;
+            
+            // Should detect the user's manual command and not generate duplicates
+            Assert.Equal(1, versioningOffCount);
+        }
     }
 
     private static void CreateGotModel(ModelBuilder b)
