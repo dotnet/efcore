@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
@@ -1288,8 +1289,7 @@ ALTER TABLE [Person] ADD DEFAULT N'' FOR [Name];
                     }
                 }));
 
-        Assert.Contains("People.FirstName", ex.Message);
-        Assert.Contains("String", ex.Message);
+        Assert.Equal(RelationalStrings.UnsupportedTypeForColumn("People", "FirstName", "String"), ex.Message);
     }
 
     [ConditionalFact]
@@ -1306,8 +1306,7 @@ ALTER TABLE [Person] ADD DEFAULT N'' FOR [Name];
                     IsNullable = false
                 }));
 
-        Assert.Contains("TestTable.TestColumn", ex.Message);
-        Assert.Contains("FileStream", ex.Message);
+        Assert.Equal(RelationalStrings.UnsupportedTypeForColumn("TestTable", "TestColumn", "FileStream"), ex.Message);
     }
 
     [ConditionalFact]
