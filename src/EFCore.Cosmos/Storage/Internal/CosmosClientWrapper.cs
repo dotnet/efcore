@@ -900,14 +900,6 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         return jsonReader;
     }
 
-    private static ResponseMessage ExecuteReadNext((FeedIterator Query, CosmosClientWrapper Wrapper) state)
-        => state.Query.ReadNextAsync().GetAwaiter().GetResult();
-
-    private static Task<ResponseMessage> ExecuteReadNextAsync(
-        (FeedIterator Query, CosmosClientWrapper Wrapper) state,
-        CancellationToken cancellationToken)
-        => state.Query.ReadNextAsync(cancellationToken);
-
     private sealed class DocumentEnumerable(
         CosmosClientWrapper cosmosClient,
         string containerId,
@@ -970,7 +962,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
 
                     _responseMessage = _cosmosClientWrapper._executionStrategy.Execute(
                         (_query, _cosmosClientWrapper),
-                        static (_, state) => ExecuteReadNext(state),
+                        static (_, state) => state._query.ReadNextAsync().GetAwaiter().GetResult(),
                         null);
 
                     _cosmosClientWrapper._commandLogger.ExecutedReadNext(
@@ -1074,7 +1066,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
 
                     _responseMessage = await _cosmosClientWrapper._executionStrategy.ExecuteAsync(
                         (_query, _cosmosClientWrapper),
-                        static (_, state, cancellationToken) => ExecuteReadNextAsync(state, cancellationToken),
+                        static (_, state, cancellationToken) => state._query.ReadNextAsync(cancellationToken),
                         null,
                         cancellationToken).ConfigureAwait(false);
 
