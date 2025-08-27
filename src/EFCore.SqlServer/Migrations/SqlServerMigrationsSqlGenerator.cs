@@ -3427,6 +3427,13 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
             foreach (var annotation in source.GetAnnotations())
             {
+                // For history tables in temporal tables, exclude DEFAULT constraint annotations
+                // because history tables should not have DEFAULT constraints
+                if (annotation.Name == RelationalAnnotationNames.DefaultConstraintName)
+                {
+                    continue;
+                }
+                
                 result.AddAnnotation(annotation.Name, annotation.Value);
             }
 
