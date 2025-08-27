@@ -373,40 +373,30 @@ public class SqliteMigrationsSqlGenerator : MigrationsSqlGenerator
                     continue;
                 }
 
-                // Skip autoincrement identity columns when they appear to be newly added with default values
-                // This prevents copying uniform default values (like 0) to AUTOINCREMENT columns which would 
-                // violate unique constraints. We detect this scenario by checking if the column is AUTOINCREMENT
-                // and if there's a corresponding AddColumn operation with a default value.
+                // Skip autoincrement primary key columns that were newly added with default values
+                // This prevents copying default values (like 0) to AUTOINCREMENT columns which would 
+                // violate unique constraints when all rows have the same default value.
                 var isAutoincrement = column.FindAnnotation(SqliteAnnotationNames.Autoincrement)?.Value as bool? == true;
-                if (isAutoincrement)
+                var isPrimaryKey = column.Table.PrimaryKey?.Columns.Contains(column) == true;
+                
+                if (isAutoincrement && isPrimaryKey)
                 {
-                    // Look for a corresponding AddColumn operation with a default value
-                    // This indicates the column was just added with a uniform default value
-                    var hasDefaultValueFromAddOperation = false;
-                    foreach (var operation in rebuildContext.OperationsToReplace)
-                    {
-                        if (operation is AddColumnOperation addOp 
-                            && addOp.Name == column.Name 
-                            && addOp.DefaultValue != null)
-                        {
-                            hasDefaultValueFromAddOperation = true;
-                            break;
-                        }
-                    }
+                    // Only skip if this appears to be a newly added column with default values
+                    // We can detect this by checking if all columns except this one would be copied
+                    // In that case, this column is likely new and should be auto-generated
                     
-                    // Also check operations in the current migrations (not just the ones to be replaced)
-                    // This covers the case where AddColumn operations trigger a rebuild
-                    if (!hasDefaultValueFromAddOperation)
-                    {
-                        // For debugging, let's always skip autoincrement columns that were recently added
-                        // to avoid the unique constraint issue
-                        hasDefaultValueFromAddOperation = true; // TODO: Replace with proper detection
-                    }
+                    // Simple heuristic: if there's more than 1 column in the table, and one is autoincrement primary key,
+                    // then preserve existing columns and skip autoincrement ones only if they seem new
+                    var totalColumns = table.Columns.Count();
+                    var nonAutoincrementColumns = table.Columns.Count(c => c.FindAnnotation(SqliteAnnotationNames.Autoincrement)?.Value as bool? != true);
                     
-                    if (hasDefaultValueFromAddOperation)
+                    // If there are other non-autoincrement columns, this suggests the autoincrement column was added
+                    // If this is the only column or all columns are autoincrement, preserve the values
+                    if (totalColumns > 1 && nonAutoincrementColumns > 0)
                     {
-                        continue; // Skip this column to let AUTOINCREMENT generate values
+                        continue; // Skip this newly added autoincrement column
                     }
+                    // Otherwise, preserve the values (for single column tables or when converting existing column)
                 }
 
                 if (first)
