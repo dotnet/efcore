@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Linq;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Metadata.Internal;
@@ -373,30 +374,20 @@ public class SqliteMigrationsSqlGenerator : MigrationsSqlGenerator
                     continue;
                 }
 
-                // Skip autoincrement primary key columns that were newly added with default values
-                // This prevents copying default values (like 0) to AUTOINCREMENT columns which would 
-                // violate unique constraints when all rows have the same default value.
+                // Skip autoincrement primary key columns that are being added in this migration
                 var isAutoincrement = column.FindAnnotation(SqliteAnnotationNames.Autoincrement)?.Value as bool? == true;
                 var isPrimaryKey = column.Table.PrimaryKey?.Columns.Contains(column) == true;
                 
                 if (isAutoincrement && isPrimaryKey)
                 {
-                    // Only skip if this appears to be a newly added column with default values
-                    // We can detect this by checking if all columns except this one would be copied
-                    // In that case, this column is likely new and should be auto-generated
+                    // Check if this column is being added in the current migration
+                    var isNewColumn = migrationOperations.OfType<AddColumnOperation>()
+                        .Any(op => op.Table == key.Table && op.Schema == key.Schema && op.Name == column.Name);
                     
-                    // Simple heuristic: if there's more than 1 column in the table, and one is autoincrement primary key,
-                    // then preserve existing columns and skip autoincrement ones only if they seem new
-                    var totalColumns = table.Columns.Count();
-                    var nonAutoincrementColumns = table.Columns.Count(c => c.FindAnnotation(SqliteAnnotationNames.Autoincrement)?.Value as bool? != true);
-                    
-                    // If there are other non-autoincrement columns, this suggests the autoincrement column was added
-                    // If this is the only column or all columns are autoincrement, preserve the values
-                    if (totalColumns > 1 && nonAutoincrementColumns > 0)
+                    if (isNewColumn)
                     {
-                        continue; // Skip this newly added autoincrement column
+                        continue; // Skip newly added autoincrement columns
                     }
-                    // Otherwise, preserve the values (for single column tables or when converting existing column)
                 }
 
                 if (first)
