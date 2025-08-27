@@ -1356,7 +1356,13 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
             return;
         }
 
-        var columnType = operation.ColumnType ?? GetColumnType(schema, table, name, operation, model)!;
+        var columnType = operation.ColumnType ?? GetColumnType(schema, table, name, operation, model);
+        if (columnType == null)
+        {
+            throw new InvalidOperationException(
+                RelationalStrings.UnsupportedType(operation.ClrType?.Name ?? "unknown"));
+        }
+
         builder
             .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(name))
             .Append(" ")
