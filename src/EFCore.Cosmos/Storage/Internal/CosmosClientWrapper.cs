@@ -900,6 +900,14 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         return jsonReader;
     }
 
+    private static ResponseMessage ExecuteReadNext((FeedIterator Query, CosmosClientWrapper Wrapper) state)
+        => state.Query.ReadNextAsync().GetAwaiter().GetResult();
+
+    private static Task<ResponseMessage> ExecuteReadNextAsync(
+        (FeedIterator Query, CosmosClientWrapper Wrapper) state,
+        CancellationToken cancellationToken)
+        => state.Query.ReadNextAsync(cancellationToken);
+
     private sealed class DocumentEnumerable(
         CosmosClientWrapper cosmosClient,
         string containerId,
@@ -960,7 +968,10 @@ public class CosmosClientWrapper : ICosmosClientWrapper
                         return false;
                     }
 
-                    _responseMessage = _query.ReadNextAsync().GetAwaiter().GetResult();
+                    _responseMessage = _cosmosClientWrapper._executionStrategy.Execute(
+                        (_query, _cosmosClientWrapper),
+                        static (_, state) => ExecuteReadNext(state),
+                        null);
 
                     _cosmosClientWrapper._commandLogger.ExecutedReadNext(
                         _responseMessage.Diagnostics.GetClientElapsedTime(),
@@ -1061,7 +1072,11 @@ public class CosmosClientWrapper : ICosmosClientWrapper
                         return false;
                     }
 
-                    _responseMessage = await _query.ReadNextAsync(cancellationToken).ConfigureAwait(false);
+                    _responseMessage = await _cosmosClientWrapper._executionStrategy.ExecuteAsync(
+                        (_query, _cosmosClientWrapper),
+                        static (_, state, cancellationToken) => ExecuteReadNextAsync(state, cancellationToken),
+                        null,
+                        cancellationToken).ConfigureAwait(false);
 
                     _cosmosClientWrapper._commandLogger.ExecutedReadNext(
                         _responseMessage.Diagnostics.GetClientElapsedTime(),
