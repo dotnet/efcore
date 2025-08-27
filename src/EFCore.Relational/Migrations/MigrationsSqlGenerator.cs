@@ -1357,11 +1357,6 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
         }
 
         var columnType = operation.ColumnType ?? GetColumnType(schema, table, name, operation, model);
-        if (columnType == null)
-        {
-            throw new InvalidOperationException(
-                RelationalStrings.UnsupportedType(operation.ClrType?.Name ?? "unknown"));
-        }
 
         builder
             .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(name))
@@ -1407,7 +1402,7 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
     /// <param name="operation">The column metadata.</param>
     /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
     /// <returns>The database/store type for the column.</returns>
-    protected virtual string? GetColumnType(
+    protected virtual string GetColumnType(
         string? schema,
         string tableName,
         string name,
@@ -1435,7 +1430,7 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
                 || table.Indexes.Any(u => u.Columns.Contains(column));
         }
 
-        return Dependencies.TypeMappingSource.FindMapping(
+        var storeType = Dependencies.TypeMappingSource.FindMapping(
                 operation.ClrType,
                 null,
                 keyOrIndex,
@@ -1446,6 +1441,26 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
                 operation.Precision,
                 operation.Scale)
             ?.StoreType;
+
+        if (storeType != null)
+        {
+            return storeType;
+        }
+
+        // Try getting the type from the default value if available
+        if (operation.DefaultValue != null)
+        {
+            var defaultValueMapping = Dependencies.TypeMappingSource.GetMappingForValue(operation.DefaultValue);
+            if (defaultValueMapping?.StoreType != null)
+            {
+                return defaultValueMapping.StoreType;
+            }
+        }
+
+        // If no mapping found, throw with detailed information
+        var fullTableName = schema != null ? $"{schema}.{tableName}" : tableName;
+        throw new InvalidOperationException(
+            RelationalStrings.UnsupportedTypeForColumn(fullTableName, name, operation.ClrType?.Name ?? "unknown"));
     }
 
     /// <summary>

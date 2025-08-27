@@ -1267,6 +1267,69 @@ ALTER TABLE [Person] ADD DEFAULT N'' FOR [Name];
 """);
     }
 
+    [ConditionalFact]
+    public void Invalid_column_type_throws_meaningful_exception()
+    {
+        var ex = Assert.Throws<InvalidOperationException>(() =>
+            Generate(
+                new CreateTableOperation
+                {
+                    Name = "People",
+                    Columns =
+                    {
+                        new AddColumnOperation
+                        {
+                            Name = "FirstName",
+                            Table = "People",
+                            ClrType = typeof(string),
+                            ColumnType = "decimal(18,2)", // Invalid store type for string
+                            IsNullable = false
+                        }
+                    }
+                }));
+
+        Assert.Contains("People.FirstName", ex.Message);
+        Assert.Contains("String", ex.Message);
+    }
+
+    [ConditionalFact]
+    public void Invalid_column_type_for_unmappable_clr_type_throws_meaningful_exception()
+    {
+        var ex = Assert.Throws<InvalidOperationException>(() =>
+            Generate(
+                new AddColumnOperation
+                {
+                    Name = "TestColumn",
+                    Table = "TestTable",
+                    ClrType = typeof(System.IO.FileStream), // Unmappable CLR type
+                    ColumnType = null,
+                    IsNullable = false
+                }));
+
+        Assert.Contains("TestTable.TestColumn", ex.Message);
+        Assert.Contains("FileStream", ex.Message);
+    }
+
+    [ConditionalFact]
+    public void Column_type_found_from_default_value_when_clr_type_unmappable()
+    {
+        Generate(
+            new AddColumnOperation
+            {
+                Name = "TestColumn",
+                Table = "TestTable",
+                ClrType = typeof(System.IO.FileStream), // Unmappable CLR type
+                ColumnType = null,
+                DefaultValue = "test string", // String default value should give us nvarchar mapping
+                IsNullable = false
+            });
+
+        AssertSql(
+            """
+ALTER TABLE [TestTable] ADD [TestColumn] nvarchar(max) NOT NULL DEFAULT N'test string';
+""");
+    }
+
     private static void CreateGotModel(ModelBuilder b)
         => b.HasDefaultSchema("dbo").Entity(
             "Person", pb =>

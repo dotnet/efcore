@@ -58,7 +58,7 @@ public class SqliteMigrationsSqlGenerator : MigrationsSqlGenerator
                 operation.Table,
                 operation.Name,
                 operation,
-                model)!);
+                model));
 
     private IReadOnlyList<MigrationOperation> RewriteOperations(
         IReadOnlyList<MigrationOperation> migrationOperations,

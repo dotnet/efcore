@@ -2242,6 +2242,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 clrType);
 
         /// <summary>
+        ///     Unable to find a store type mapping for column '{table}.{column}' with CLR type '{clrType}'.
+        /// </summary>
+        public static string UnsupportedTypeForColumn(object? table, object? column, object? clrType)
+            => string.Format(
+                GetString("UnsupportedTypeForColumn", nameof(table), nameof(column), nameof(clrType)),
+                table, column, clrType);
+
+        /// <summary>
         ///     The database operation was expected to affect {expectedRows} row(s), but actually affected {actualRows} row(s); data may have been modified or deleted since entities were loaded. See https://go.microsoft.com/fwlink/?LinkId=527962 for information on understanding and handling optimistic concurrency exceptions.
         /// </summary>
         public static string UpdateConcurrencyException(object? expectedRows, object? actualRows)

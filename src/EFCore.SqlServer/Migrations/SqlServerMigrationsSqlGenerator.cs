@@ -1640,7 +1640,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             return;
         }
 
-        var columnType = operation.ColumnType ?? GetColumnType(schema, table, name, operation, model)!;
+        var columnType = operation.ColumnType ?? GetColumnType(schema, table, name, operation, model);
         builder
             .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(name))
             .Append(" ")
