@@ -55,7 +55,6 @@ WHERE [r].[Name] = @deletableEntity_Name
 UPDATE [r]
 SET [RequiredRelated].modify('$.String', @p)
 FROM [RootEntity] AS [r]
-WHERE JSON_VALUE([r].[RequiredRelated], '$.String' RETURNING nvarchar(max)) = N'foo'
 """);
         }
         else
@@ -67,7 +66,6 @@ WHERE JSON_VALUE([r].[RequiredRelated], '$.String' RETURNING nvarchar(max)) = N'
 UPDATE [r]
 SET [r].[RequiredRelated] = JSON_MODIFY([r].[RequiredRelated], '$.String', @p)
 FROM [RootEntity] AS [r]
-WHERE JSON_VALUE([r].[RequiredRelated], '$.String') = N'foo'
 """);
         }
     }
@@ -111,7 +109,6 @@ WHERE JSON_VALUE([r].[RequiredRelated], '$.String') = N'{ this may/look:like JSO
 UPDATE [r]
 SET [RequiredRelated].modify('$.RequiredNested.String', @p)
 FROM [RootEntity] AS [r]
-WHERE JSON_VALUE([r].[RequiredRelated], '$.RequiredNested.String' RETURNING nvarchar(max)) = N'foo'
 """);
         }
         else
@@ -123,7 +120,6 @@ WHERE JSON_VALUE([r].[RequiredRelated], '$.RequiredNested.String' RETURNING nvar
 UPDATE [r]
 SET [r].[RequiredRelated] = JSON_MODIFY([r].[RequiredRelated], '$.RequiredNested.String', @p)
 FROM [RootEntity] AS [r]
-WHERE JSON_VALUE([r].[RequiredRelated], '$.RequiredNested.String') = N'foo'
 """);
         }
     }
@@ -161,72 +157,6 @@ FROM [RootEntity] AS [r]
         await base.Update_property_on_projected_association_with_OrderBy_Skip();
 
         AssertExecuteUpdateSql();
-    }
-
-    public override async Task Update_multiple_properties_inside_associations_and_on_entity_type()
-    {
-        await base.Update_multiple_properties_inside_associations_and_on_entity_type();
-
-        if (Fixture.UsingJsonType)
-        {
-            AssertExecuteUpdateSql(
-                """
-@p='?' (Size = 4000)
-
-UPDATE [r]
-SET [r].[Name] = [r].[Name] + N'Modified',
-    [RequiredRelated].modify('$.String', JSON_VALUE([r].[OptionalRelated], '$.String' RETURNING nvarchar(max))),
-    [OptionalRelated].modify('$.RequiredNested.String', @p)
-FROM [RootEntity] AS [r]
-WHERE [r].[OptionalRelated] IS NOT NULL
-""");
-        }
-        else
-        {
-            AssertExecuteUpdateSql(
-                """
-@p='?' (Size = 4000)
-
-UPDATE [r]
-SET [r].[Name] = [r].[Name] + N'Modified',
-    [r].[RequiredRelated] = JSON_MODIFY([r].[RequiredRelated], '$.String', JSON_VALUE([r].[OptionalRelated], '$.String')),
-    [r].[OptionalRelated] = JSON_MODIFY([r].[OptionalRelated], '$.RequiredNested.String', @p)
-FROM [RootEntity] AS [r]
-WHERE [r].[OptionalRelated] IS NOT NULL
-""");
-        }
-    }
-
-    public override async Task Update_multiple_projected_assocations_via_anonymous_type()
-    {
-        await base.Update_multiple_projected_assocations_via_anonymous_type();
-
-        if (Fixture.UsingJsonType)
-        {
-            AssertExecuteUpdateSql(
-                """
-@p='?' (Size = 4000)
-
-UPDATE [r]
-SET [RequiredRelated].modify('$.String', JSON_VALUE([r].[OptionalRelated], '$.String' RETURNING nvarchar(max))),
-    [OptionalRelated].modify('$.String', @p)
-FROM [RootEntity] AS [r]
-WHERE [r].[OptionalRelated] IS NOT NULL
-""");
-        }
-        else
-        {
-            AssertExecuteUpdateSql(
-                """
-@p='?' (Size = 4000)
-
-UPDATE [r]
-SET [r].[RequiredRelated] = JSON_MODIFY([r].[RequiredRelated], '$.String', JSON_VALUE([r].[OptionalRelated], '$.String')),
-    [r].[OptionalRelated] = JSON_MODIFY([r].[OptionalRelated], '$.String', @p)
-FROM [RootEntity] AS [r]
-WHERE [r].[OptionalRelated] IS NOT NULL
-""");
-        }
     }
 
     #endregion Update properties
@@ -478,6 +408,7 @@ FROM [RootEntity] AS [r]
 UPDATE [r]
 SET [RequiredRelated].modify('$.NestedCollection', JSON_QUERY([r].[OptionalRelated], '$.NestedCollection'))
 FROM [RootEntity] AS [r]
+WHERE [r].[OptionalRelated] IS NOT NULL
 """);
         }
         else
@@ -487,6 +418,7 @@ FROM [RootEntity] AS [r]
 UPDATE [r]
 SET [r].[RequiredRelated] = JSON_MODIFY([r].[RequiredRelated], '$.NestedCollection', JSON_QUERY([r].[OptionalRelated], '$.NestedCollection'))
 FROM [RootEntity] AS [r]
+WHERE [r].[OptionalRelated] IS NOT NULL
 """);
         }
     }
@@ -499,6 +431,93 @@ FROM [RootEntity] AS [r]
     }
 
     #endregion Update collection
+
+    #region Multiple updates
+
+    public override async Task Update_multiple_properties_inside_same_association()
+    {
+        await base.Update_multiple_properties_inside_same_association();
+
+        // Note that since two properties within the same JSON column are updated, SQL Server 2025 modify
+        // is not used (it only supports modifying a single property)
+        AssertExecuteUpdateSql(
+            """
+@p='?' (Size = 4000)
+@p0='?' (DbType = Int32)
+
+UPDATE [r]
+SET [r].[RequiredRelated] = JSON_MODIFY(JSON_MODIFY([r].[RequiredRelated], '$.String', @p), '$.Int', @p0)
+FROM [RootEntity] AS [r]
+""");
+    }
+
+    public override async Task Update_multiple_properties_inside_associations_and_on_entity_type()
+    {
+        await base.Update_multiple_properties_inside_associations_and_on_entity_type();
+
+        if (Fixture.UsingJsonType)
+        {
+            AssertExecuteUpdateSql(
+                """
+@p='?' (Size = 4000)
+
+UPDATE [r]
+SET [r].[Name] = [r].[Name] + N'Modified',
+    [RequiredRelated].modify('$.String', JSON_VALUE([r].[OptionalRelated], '$.String' RETURNING nvarchar(max))),
+    [OptionalRelated].modify('$.RequiredNested.String', @p)
+FROM [RootEntity] AS [r]
+WHERE [r].[OptionalRelated] IS NOT NULL
+""");
+        }
+        else
+        {
+            AssertExecuteUpdateSql(
+                """
+@p='?' (Size = 4000)
+
+UPDATE [r]
+SET [r].[Name] = [r].[Name] + N'Modified',
+    [r].[RequiredRelated] = JSON_MODIFY([r].[RequiredRelated], '$.String', JSON_VALUE([r].[OptionalRelated], '$.String')),
+    [r].[OptionalRelated] = JSON_MODIFY([r].[OptionalRelated], '$.RequiredNested.String', @p)
+FROM [RootEntity] AS [r]
+WHERE [r].[OptionalRelated] IS NOT NULL
+""");
+        }
+    }
+
+    public override async Task Update_multiple_projected_associations_via_anonymous_type()
+    {
+        await base.Update_multiple_projected_associations_via_anonymous_type();
+
+        if (Fixture.UsingJsonType)
+        {
+            AssertExecuteUpdateSql(
+                """
+@p='?' (Size = 4000)
+
+UPDATE [r]
+SET [RequiredRelated].modify('$.String', JSON_VALUE([r].[OptionalRelated], '$.String' RETURNING nvarchar(max))),
+    [OptionalRelated].modify('$.String', @p)
+FROM [RootEntity] AS [r]
+WHERE [r].[OptionalRelated] IS NOT NULL
+""");
+        }
+        else
+        {
+            AssertExecuteUpdateSql(
+                """
+@p='?' (Size = 4000)
+
+UPDATE [r]
+SET [r].[RequiredRelated] = JSON_MODIFY([r].[RequiredRelated], '$.String', JSON_VALUE([r].[OptionalRelated], '$.String')),
+    [r].[OptionalRelated] = JSON_MODIFY([r].[OptionalRelated], '$.String', @p)
+FROM [RootEntity] AS [r]
+WHERE [r].[OptionalRelated] IS NOT NULL
+""");
+        }
+    }
+
+    #endregion Multiple updates
 
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()

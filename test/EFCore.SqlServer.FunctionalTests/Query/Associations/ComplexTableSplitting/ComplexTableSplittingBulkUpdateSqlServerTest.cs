@@ -53,7 +53,6 @@ WHERE [r].[Name] = @deletableEntity_Name
 UPDATE [r]
 SET [r].[RequiredRelated_String] = @p
 FROM [RootEntity] AS [r]
-WHERE [r].[RequiredRelated_String] = N'foo'
 """);
     }
 
@@ -81,7 +80,6 @@ WHERE [r].[RequiredRelated_String] = N'{ this may/look:like JSON but it [isn''t]
 UPDATE [r]
 SET [r].[RequiredRelated_RequiredNested_String] = @p
 FROM [RootEntity] AS [r]
-WHERE [r].[RequiredRelated_RequiredNested_String] = N'foo'
 """);
     }
 
@@ -104,39 +102,6 @@ FROM [RootEntity] AS [r]
         await base.Update_property_on_projected_association_with_OrderBy_Skip();
 
         AssertExecuteUpdateSql();
-    }
-
-    public override async Task Update_multiple_properties_inside_associations_and_on_entity_type()
-    {
-        await base.Update_multiple_properties_inside_associations_and_on_entity_type();
-
-        AssertExecuteUpdateSql(
-            """
-@p='?' (Size = 4000)
-
-UPDATE [r]
-SET [r].[Name] = [r].[Name] + N'Modified',
-    [r].[RequiredRelated_String] = [r].[OptionalRelated_String],
-    [r].[OptionalRelated_RequiredNested_String] = @p
-FROM [RootEntity] AS [r]
-WHERE [r].[OptionalRelated_Id] IS NOT NULL
-""");
-    }
-
-    public override async Task Update_multiple_projected_assocations_via_anonymous_type()
-    {
-        await base.Update_multiple_projected_assocations_via_anonymous_type();
-
-        AssertExecuteUpdateSql(
-            """
-@p='?' (Size = 4000)
-
-UPDATE [r]
-SET [r].[RequiredRelated_String] = [r].[OptionalRelated_String],
-    [r].[OptionalRelated_String] = @p
-FROM [RootEntity] AS [r]
-WHERE [r].[OptionalRelated_Id] IS NOT NULL
-""");
     }
 
     #endregion Update properties
@@ -404,6 +369,59 @@ FROM [RootEntity] AS [r]
     }
 
     #endregion Update collection
+
+    #region Multiple updates
+
+    public override async Task Update_multiple_properties_inside_same_association()
+    {
+        await base.Update_multiple_properties_inside_same_association();
+
+        AssertExecuteUpdateSql(
+            """
+@p='?' (Size = 4000)
+@p0='?' (DbType = Int32)
+
+UPDATE [r]
+SET [r].[RequiredRelated_String] = @p,
+    [r].[RequiredRelated_Int] = @p0
+FROM [RootEntity] AS [r]
+""");
+    }
+
+    public override async Task Update_multiple_properties_inside_associations_and_on_entity_type()
+    {
+        await base.Update_multiple_properties_inside_associations_and_on_entity_type();
+
+        AssertExecuteUpdateSql(
+            """
+@p='?' (Size = 4000)
+
+UPDATE [r]
+SET [r].[Name] = [r].[Name] + N'Modified',
+    [r].[RequiredRelated_String] = [r].[OptionalRelated_String],
+    [r].[OptionalRelated_RequiredNested_String] = @p
+FROM [RootEntity] AS [r]
+WHERE [r].[OptionalRelated_Id] IS NOT NULL
+""");
+    }
+
+    public override async Task Update_multiple_projected_associations_via_anonymous_type()
+    {
+        await base.Update_multiple_projected_associations_via_anonymous_type();
+
+        AssertExecuteUpdateSql(
+            """
+@p='?' (Size = 4000)
+
+UPDATE [r]
+SET [r].[RequiredRelated_String] = [r].[OptionalRelated_String],
+    [r].[OptionalRelated_String] = @p
+FROM [RootEntity] AS [r]
+WHERE [r].[OptionalRelated_Id] IS NOT NULL
+""");
+    }
+
+    #endregion Multiple updates
 
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()

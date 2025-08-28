@@ -586,7 +586,10 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override ColumnValueSetter GenerateJsonPartialUpdateSetter(Expression target, SqlExpression value)
+    protected override SqlExpression? GenerateJsonPartialUpdateSetter(
+        Expression target,
+        SqlExpression value,
+        ref SqlExpression? existingSetterValue)
     {
         var (jsonColumn, path) = target switch
         {
@@ -596,27 +599,35 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
             _ => throw new UnreachableException(),
         };
 
-        return new ColumnValueSetter(
-            jsonColumn,
-            _sqlExpressionFactory.Function(
-                "json_set",
-                arguments: [
-                    jsonColumn,
-                    // Hack: Rendering of JSONPATH strings happens in value generation. We can have a special expression for modify to hold the
-                    // IReadOnlyList<PathSegment> (just like Json{Scalar,Query}Expression), but instead we do the slight hack of packaging it
-                    // as a constant argument; it will be unpacked and handled in SQL generation.
-                    _sqlExpressionFactory.Constant(path, RelationalTypeMapping.NullMapping),
-                    // json_set by default assumes text and escapes it.
-                    // In order to set a JSON fragment (for nested JSON objects), we need to wrap the JSON text with json(), which makes
-                    // json_set understand that it's JSON content and prevents escaping.
-                    target is JsonQueryExpression
-                        ? _sqlExpressionFactory.Function("json", [value], nullable: true, argumentsPropagateNullability: [true], typeof(string), value.TypeMapping)
-                        : value
-                ],
-                nullable: true,
-                argumentsPropagateNullability: [true, true, true],
-                typeof(string),
-                jsonColumn.TypeMapping));
+        var jsonSet = _sqlExpressionFactory.Function(
+            "json_set",
+            arguments: [
+                existingSetterValue ?? jsonColumn,
+                // Hack: Rendering of JSONPATH strings happens in value generation. We can have a special expression for modify to hold the
+                // IReadOnlyList<PathSegment> (just like Json{Scalar,Query}Expression), but instead we do the slight hack of packaging it
+                // as a constant argument; it will be unpacked and handled in SQL generation.
+                _sqlExpressionFactory.Constant(path, RelationalTypeMapping.NullMapping),
+                // json_set by default assumes text and escapes it.
+                // In order to set a JSON fragment (for nested JSON objects), we need to wrap the JSON text with json(), which makes
+                // json_set understand that it's JSON content and prevents escaping.
+                target is JsonQueryExpression
+                    ? _sqlExpressionFactory.Function("json", [value], nullable: true, argumentsPropagateNullability: [true], typeof(string), value.TypeMapping)
+                    : value
+            ],
+            nullable: true,
+            argumentsPropagateNullability: [true, true, true],
+            typeof(string),
+            jsonColumn.TypeMapping);
+
+        if (existingSetterValue is null)
+        {
+            return jsonSet;
+        }
+        else
+        {
+            existingSetterValue = jsonSet;
+            return null;
+        }
     }
 
     /// <summary>
@@ -632,10 +643,10 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
             Tables: [var mainTable, ..],
             Orderings:
             [
-                {
-                    Expression: ColumnExpression { Name: JsonEachKeyColumnName } orderingColumn,
-                    IsAscending: true
-                }
+            {
+                Expression: ColumnExpression { Name: JsonEachKeyColumnName } orderingColumn,
+                IsAscending: true
+            }
             ]
         }
             && orderingColumn.TableAlias == mainTable.Alias

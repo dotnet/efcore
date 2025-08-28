@@ -42,10 +42,10 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
     [ConditionalFact]
     public virtual Task Update_property_inside_association()
         => AssertUpdate(
-            ss => ss.Set<RootEntity>().Where(c => c.RequiredRelated.String == "foo"),
+            ss => ss.Set<RootEntity>(),
             e => e,
             s => s.SetProperty(c => c.RequiredRelated.String, "foo_updated"),
-            rowsAffectedCount: 4);
+            rowsAffectedCount: 7);
 
     [ConditionalFact]
     public virtual Task Update_property_inside_association_with_special_chars()
@@ -58,10 +58,10 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
     [ConditionalFact]
     public virtual Task Update_property_inside_nested()
         => AssertUpdate(
-            ss => ss.Set<RootEntity>().Where(c => c.RequiredRelated.RequiredNested.String == "foo"),
+            ss => ss.Set<RootEntity>(),
             e => e,
             s => s.SetProperty(c => c.RequiredRelated.RequiredNested.String, "foo_updated"),
-            rowsAffectedCount: 4);
+            rowsAffectedCount: 7);
 
     [ConditionalFact]
     public virtual Task Update_property_on_projected_association()
@@ -78,34 +78,6 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
             a => a,
             s => s.SetProperty(c => c.String, "foo_updated"),
             rowsAffectedCount: 3);
-
-    [ConditionalFact]
-    public virtual Task Update_multiple_properties_inside_associations_and_on_entity_type()
-        => AssertUpdate(
-            ss => ss.Set<RootEntity>().Where(c => c.OptionalRelated != null),
-            e => e,
-            s => s
-                .SetProperty(c => c.Name, c => c.Name + "Modified")
-                .SetProperty(c => c.RequiredRelated.String, c => c.OptionalRelated!.String)
-                .SetProperty(c => c.OptionalRelated!.RequiredNested.String, "foo_updated"),
-            rowsAffectedCount: 6);
-
-    [ConditionalFact]
-    public virtual Task Update_multiple_projected_assocations_via_anonymous_type()
-        => AssertUpdate(
-            ss => ss.Set<RootEntity>()
-                .Where(c => c.OptionalRelated != null)
-                .Select(c => new
-                {
-                    c.RequiredRelated,
-                    c.OptionalRelated,
-                    RootEntity = c
-                }),
-            x => x.RootEntity,
-            s => s
-                .SetProperty(c => c.RequiredRelated.String, c => c.OptionalRelated!.String)
-                .SetProperty(c => c.OptionalRelated!.String, "foo_updated"),
-            rowsAffectedCount: 6);
 
     #endregion Update properties
 
@@ -366,14 +338,56 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
     [ConditionalFact]
     public virtual Task Update_nested_collection_to_another_nested_collection()
         => AssertUpdate(
-            ss => ss.Set<RootEntity>(),
+            ss => ss.Set<RootEntity>().Where(e => e.OptionalRelated != null),
             c => c,
             s => s.SetProperty(
                 x => x.RequiredRelated.NestedCollection,
                 x => x.OptionalRelated!.NestedCollection),
-            rowsAffectedCount: 7);
+            rowsAffectedCount: 6);
 
     #endregion Update collection
+
+    #region Multiple updates
+
+    [ConditionalFact]
+    public virtual Task Update_multiple_properties_inside_same_association()
+        => AssertUpdate(
+            ss => ss.Set<RootEntity>(),
+            e => e,
+            s => s
+                .SetProperty(c => c.RequiredRelated.String, "foo_updated")
+                .SetProperty(c => c.RequiredRelated.Int, 20),
+            rowsAffectedCount: 7);
+
+    [ConditionalFact]
+    public virtual Task Update_multiple_properties_inside_associations_and_on_entity_type()
+        => AssertUpdate(
+            ss => ss.Set<RootEntity>().Where(c => c.OptionalRelated != null),
+            e => e,
+            s => s
+                .SetProperty(c => c.Name, c => c.Name + "Modified")
+                .SetProperty(c => c.RequiredRelated.String, c => c.OptionalRelated!.String)
+                .SetProperty(c => c.OptionalRelated!.RequiredNested.String, "foo_updated"),
+            rowsAffectedCount: 6);
+
+    [ConditionalFact]
+    public virtual Task Update_multiple_projected_associations_via_anonymous_type()
+        => AssertUpdate(
+            ss => ss.Set<RootEntity>()
+                .Where(c => c.OptionalRelated != null)
+                .Select(c => new
+                {
+                    c.RequiredRelated,
+                    c.OptionalRelated,
+                    RootEntity = c
+                }),
+            x => x.RootEntity,
+            s => s
+                .SetProperty(c => c.RequiredRelated.String, c => c.OptionalRelated!.String)
+                .SetProperty(c => c.OptionalRelated!.String, "foo_updated"),
+            rowsAffectedCount: 6);
+
+    #endregion Multiple updates
 
     protected static async Task AssertTranslationFailed(Func<Task> query)
         => Assert.Contains(

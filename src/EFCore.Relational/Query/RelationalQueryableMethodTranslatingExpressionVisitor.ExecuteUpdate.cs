@@ -32,6 +32,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
             return null;
         }
 
+        var selectExpression = (SelectExpression)source.QueryExpression;
+
         // Translate the setters: the left (property) selectors get translated to ColumnExpressions, the right (value) selectors to
         // arbitrary SqlExpressions.
         // Note that if the query isn't natively supported, we'll do a pushdown (see PushdownWithPkInnerJoinPredicate below); if that
@@ -53,7 +55,6 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         // Check if the provider has a native translation for the update represented by the select expression.
         // The default relational implementation handles simple, universally-supported cases (i.e. no operators except for predicate).
         // Providers may override IsValidSelectExpressionForExecuteUpdate to add support for more cases via provider-specific UPDATE syntax.
-        var selectExpression = (SelectExpression)source.QueryExpression;
         if (IsValidSelectExpressionForExecuteUpdate(selectExpression, targetTable, out var tableExpression))
         {
             selectExpression.ReplaceProjection(new List<Expression>());
@@ -63,509 +64,6 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         }
 
         return PushdownWithPkInnerJoinPredicate();
-
-        bool TryTranslateSetters(
-            ShapedQueryExpression source,
-            IReadOnlyList<ExecuteUpdateSetter> setters,
-            [NotNullWhen(true)] out List<ColumnValueSetter>? translatedSetters,
-            [NotNullWhen(true)] out TableExpressionBase? targetTable)
-        {
-            var select = (SelectExpression)source.QueryExpression;
-
-            targetTable = null;
-            string? targetTableAlias = null;
-            var tempTranslatedSetters = new List<ColumnValueSetter>();
-            translatedSetters = null;
-
-            LambdaExpression? propertySelector;
-            Expression? targetTablePropertySelector = null;
-
-            foreach (var setter in setters)
-            {
-                (propertySelector, var valueSelector) = setter;
-                var propertySelectorBody = RemapLambdaBody(source, propertySelector).UnwrapTypeConversion(out _);
-
-                // The top-most node on the property selector must be a member access; chop it off to get the base expression and member.
-                // We'll bind the member manually below, so as to get the IPropertyBase it represents - that's important for later.
-                if (!IsMemberAccess(propertySelectorBody, QueryCompilationContext.Model, out var baseExpression, out var member))
-                {
-                    AddTranslationErrorDetails(RelationalStrings.InvalidPropertyInSetProperty(propertySelector.Print()));
-                    return false;
-                }
-
-                if (!_sqlTranslator.TryBindMember(
-                        _sqlTranslator.Visit(baseExpression), member, out var translatedBaseExpression, out var propertyBase))
-                {
-                    AddTranslationErrorDetails(RelationalStrings.InvalidPropertyInSetProperty(propertySelector.Print()));
-                    return false;
-                }
-
-                // Hack: when returning a StructuralTypeShaperExpression, _sqlTranslator returns it wrapped by a
-                // StructuralTypeReferenceExpression, which is supposed to be a private wrapper only with the SQL translator.
-                // Call TranslateProjection to unwrap it (need to look into getting rid StructuralTypeReferenceExpression altogether).
-                if (translatedBaseExpression is not CollectionResultExpression)
-                {
-                    translatedBaseExpression = _sqlTranslator.TranslateProjection(translatedBaseExpression);
-                }
-
-                switch (translatedBaseExpression)
-                {
-                    case ColumnExpression column:
-                    {
-                        Check.DebugAssert(column.TypeMapping is not null);
-
-                        if (!TryProcessColumn(column)
-                            || !TryTranslateScalarSetterValueSelector(
-                                source, valueSelector, column.Type, column.TypeMapping, out var translatedValueSelector))
-                        {
-                            return false;
-                        }
-
-                        tempTranslatedSetters.Add(new ColumnValueSetter(column, translatedValueSelector));
-                        break;
-                    }
-
-                    // A table-split complex type is being assigned a new value.
-                    // Generate setters for each of the columns mapped to the comlex type.
-                    case StructuralTypeShaperExpression
-                    {
-                        StructuralType: IComplexType complexType,
-                        ValueBufferExpression: StructuralTypeProjectionExpression
-                    } shaper:
-                    {
-                        Check.DebugAssert(
-                            propertyBase is IComplexProperty complexProperty && complexProperty.ComplexType == complexType,
-                            "PropertyBase should be a complex property referring to the correct complex type");
-
-                        if (complexType.IsMappedToJson())
-                        {
-                            throw new InvalidOperationException(
-                                RelationalStrings.ExecuteUpdateOverJsonIsNotSupported(complexType.DisplayName()));
-                        }
-
-                        if (!TryTranslateSetterValueSelector(source, valueSelector, shaper.Type, out var translatedValueSelector)
-                            || !TryProcessComplexType(shaper, translatedValueSelector))
-                        {
-                            return false;
-                        }
-
-                        break;
-                    }
-
-                    case JsonScalarExpression { Json: ColumnExpression jsonColumn } jsonScalar:
-                    {
-                        Check.DebugAssert(jsonScalar.TypeMapping is not null);
-
-                        if (!TryProcessColumn(jsonColumn)
-                            || !TryTranslateScalarSetterValueSelector(source, valueSelector, jsonScalar.Type, jsonScalar.TypeMapping, out var translatedValueSelector))
-                        {
-                            return false;
-                        }
-
-                        // If the entire JSON column is being referenced as the target, remove the JsonScalarExpression altogether
-                        // and just add a plain old setter updating the column as a whole; since this scenario doesn't involve any
-                        // partial update, we can just add the setter directly without going through the provider's TranslateJsonSetter
-                        // (see #30768 for stopping producing empty Json{Scalar,Query}Expressions).
-                        // Otherwise, call the TranslateJsonSetter hook to produce the provider-specific syntax for JSON partial update.
-                        tempTranslatedSetters.Add(
-                            jsonScalar.Path is []
-                                ? new ColumnValueSetter(jsonColumn, translatedValueSelector)
-                                : GenerateJsonPartialUpdateSetter(jsonScalar, translatedValueSelector));
-
-                        break;
-                    }
-
-                    case StructuralTypeShaperExpression { ValueBufferExpression: JsonQueryExpression jsonQuery }:
-                        if (!TryProcessStructuralJsonSetter(jsonQuery))
-                        {
-                            return false;
-                        }
-
-                        break;
-
-                    case CollectionResultExpression { QueryExpression: JsonQueryExpression jsonQuery }:
-                        if (!TryProcessStructuralJsonSetter(jsonQuery))
-                        {
-                            return false;
-                        }
-
-                        break;
-
-                    default:
-                        AddTranslationErrorDetails(RelationalStrings.InvalidPropertyInSetProperty(propertySelector.Print()));
-                        return false;
-
-                        bool TryProcessStructuralJsonSetter(JsonQueryExpression jsonQuery)
-                        {
-                            var jsonColumn = jsonQuery.JsonColumn;
-
-                            if (jsonQuery.StructuralType is not IComplexType complexType)
-                            {
-                                throw new InvalidOperationException(RelationalStrings.JsonExecuteUpdateNotSupportedWithOwnedEntities);
-                            }
-
-                            Check.DebugAssert(jsonColumn.TypeMapping is not null);
-
-                            if (!TryProcessColumn(jsonColumn)
-                                || !TryTranslateSetterValueSelector(
-                                    source, valueSelector, jsonQuery.Type, out var translatedValueSelector))
-                            {
-                                return false;
-                            }
-
-                            SqlExpression? serializedValueSelector;
-
-                            switch (translatedValueSelector)
-                            {
-                                // When an object is instantiated inline (e.g. SetProperty(c => c.ShippingAddress, c => new Address { ... })), we get a SqlConstantExpression
-                                // with the .NET instance. Serialize it to JSON and replace the constant (note that the type mapping is inferred from the
-                                // JSON column on other side - important for e.g. nvarchar vs. json columns)
-                                case SqlConstantExpression { Value: var value }:
-                                    serializedValueSelector = new SqlConstantExpression(
-                                        RelationalJsonUtilities.SerializeComplexTypeToJson(complexType, value, jsonQuery.IsCollection),
-                                        typeof(string),
-                                        typeMapping: jsonColumn.TypeMapping);
-                                    break;
-
-                                case SqlParameterExpression parameter:
-                                {
-                                    var queryParameter = _queryCompilationContext.RegisterRuntimeParameter(
-                                        $"{ExecuteUpdateRuntimeParameterPrefix}{parameter.Name}",
-                                        Expression.Lambda(
-                                            Expression.Call(
-                                                RelationalJsonUtilities.SerializeComplexTypeToJsonMethod,
-                                                Expression.Constant(complexType),
-                                                Expression.MakeIndex(
-                                                    Expression.Property(
-                                                        QueryCompilationContext.QueryContextParameter, nameof(QueryContext.Parameters)),
-                                                    indexer: typeof(Dictionary<string, object>).GetProperty("Item", [typeof(string)]),
-                                                    [Expression.Constant(parameter.Name, typeof(string))]),
-                                                Expression.Constant(jsonQuery.IsCollection)),
-                                            QueryCompilationContext.QueryContextParameter));
-
-                                    serializedValueSelector = _sqlExpressionFactory.ApplyTypeMapping(
-                                        _sqlTranslator.Translate(queryParameter, applyDefaultTypeMapping: false),
-                                        jsonColumn.TypeMapping)!;
-                                    break;
-                                }
-
-                                case RelationalStructuralTypeShaperExpression { ValueBufferExpression: JsonQueryExpression valueJsonQuery }:
-                                    serializedValueSelector = ProcessJsonQuery(valueJsonQuery);
-                                    break;
-
-                                case CollectionResultExpression { QueryExpression: JsonQueryExpression valueJsonQuery }:
-                                    serializedValueSelector = ProcessJsonQuery(valueJsonQuery);
-                                    break;
-
-                                default:
-                                    throw new UnreachableException();
-
-                                    // If the entire JSON column is being referenced, remove the JsonQueryExpression altogether and just return
-                                    // the column (no need for special JSON modification functions/syntax).
-                                    // See #30768 for stopping producing empty Json{Scalar,Query}Expressions.
-                                    // Otherwise, convert the JsonQueryExpression to a JsonScalarExpression, which is our current representation for a complex
-                                    // JSON in the SQL tree (as opposed to in the shaper) - see #36392.
-                                    static SqlExpression ProcessJsonQuery(JsonQueryExpression jsonQuery)
-                                        => jsonQuery.Path is []
-                                            ? jsonQuery.JsonColumn
-                                            : new JsonScalarExpression(
-                                                jsonQuery.JsonColumn,
-                                                jsonQuery.Path,
-                                                jsonQuery.Type,
-                                                jsonQuery.JsonColumn.TypeMapping,
-                                                jsonQuery.IsNullable);
-                            }
-
-                            // If the entire JSON column is being referenced as the target, remove the JsonQueryExpression altogether
-                            // and just add a plain old setter updating the column as a whole; since this scenario doesn't involve any
-                            // partial update, we can just add the setter directly without going through the provider's TranslateJsonSetter
-                            // (see #30768 for stopping producing empty Json{Scalar,Query}Expressions).
-                            // Otherwise, call the TranslateJsonSetter hook to produce the provider-specific syntax for JSON partial update.
-                            tempTranslatedSetters.Add(
-                                jsonQuery.Path is []
-                                    ? new ColumnValueSetter(jsonColumn, serializedValueSelector)
-                                    : GenerateJsonPartialUpdateSetter(jsonQuery, serializedValueSelector));
-                            return true;
-                        }
-
-                        bool TryProcessColumn(ColumnExpression column)
-                        {
-                            var tableExpression = select.GetTable(column, out var tableIndex);
-                            if (tableExpression.UnwrapJoin() is TableExpression { Table: not ITable } unwrappedTableExpression)
-                            {
-                                // If the entity is also mapped to a view, the SelectExpression will refer to the view instead, since
-                                // translation happens with the assumption that we're querying, not deleting.
-                                // For this case, we must replace the TableExpression in the SelectExpression - referring to the view - with the
-                                // one that refers to the mutable table.
-
-                                // Get the column on the (mutable) table which corresponds to the property being set
-                                IColumn? targetColumnModel;
-
-                                switch (propertyBase)
-                                {
-                                    case IProperty property:
-                                        targetColumnModel = property.DeclaringType.GetTableMappings()
-                                            .SelectMany(tm => tm.ColumnMappings)
-                                            .Where(cm => cm.Property == property)
-                                            .Select(cm => cm.Column)
-                                            .SingleOrDefault();
-                                        break;
-
-                                    case IComplexProperty { ComplexType: var complexType } complexProperty:
-                                    {
-                                        // Find the container column in the relational model to get its type mapping
-                                        // Note that we assume exactly one column with the given name mapped to the entity (despite entity splitting).
-                                        // See #36647 and #36646 about improving this.
-                                        var containerColumnName = complexType.GetContainerColumnName();
-                                        targetColumnModel = complexType.ContainingEntityType.GetTableMappings()
-                                            .SelectMany(m => m.Table.Columns)
-                                            .Where(c => c.Name == containerColumnName)
-                                            .Single();
-
-                                        break;
-                                    }
-
-                                    default:
-                                        throw new UnreachableException();
-                                }
-
-                                if (targetColumnModel is null)
-                                {
-                                    throw new InvalidOperationException(
-                                        RelationalStrings.ExecuteUpdateDeleteOnEntityNotMappedToTable(propertyBase.DeclaringType.DisplayName()));
-                                }
-
-                                unwrappedTableExpression = new TableExpression(unwrappedTableExpression.Alias, targetColumnModel.Table);
-                                tableExpression = tableExpression is JoinExpressionBase join
-                                    ? join.Update(unwrappedTableExpression)
-                                    : unwrappedTableExpression;
-                                var newTables = select.Tables.ToList();
-                                newTables[tableIndex] = tableExpression;
-
-                                // Note that we need to keep the select mutable, because if IsValidSelectExpressionForExecuteDelete below
-                                // returns false, we need to compose on top of it.
-                                select.SetTables(newTables);
-                            }
-
-                            return IsColumnOnSameTable(column, propertySelector);
-                        }
-                }
-            }
-
-            translatedSetters = tempTranslatedSetters;
-
-            Check.DebugAssert(targetTableAlias is not null, "Target table alias should have a value");
-            var selectExpression = (SelectExpression)source.QueryExpression;
-            targetTable = selectExpression.Tables.First(t => t.GetRequiredAlias() == targetTableAlias);
-
-            return true;
-
-            bool IsColumnOnSameTable(ColumnExpression column, LambdaExpression propertySelector)
-            {
-                if (targetTableAlias is null)
-                {
-                    targetTableAlias = column.TableAlias;
-                    targetTablePropertySelector = propertySelector;
-                }
-                else if (!ReferenceEquals(column.TableAlias, targetTableAlias))
-                {
-                    AddTranslationErrorDetails(
-                        RelationalStrings.MultipleTablesInExecuteUpdate(
-                            propertySelector.Print(), targetTablePropertySelector!.Print()));
-                    return false;
-                }
-
-                return true;
-            }
-
-            // Recursively processes the complex types and all complex types referenced by it, adding setters fo all (non-complex)
-            // properties.
-            // Note that this only supports table splitting (where all columns are flattened to the table), but not JSON complex types (#28766).
-            bool TryProcessComplexType(StructuralTypeShaperExpression shaperExpression, Expression valueExpression)
-            {
-                if (shaperExpression.StructuralType is not IComplexType complexType
-                    || shaperExpression.ValueBufferExpression is not StructuralTypeProjectionExpression projection)
-                {
-                    return false;
-                }
-
-                foreach (var property in complexType.GetProperties())
-                {
-                    var column = projection.BindProperty(property);
-                    if (!IsColumnOnSameTable(column, propertySelector))
-                    {
-                        return false;
-                    }
-
-                    var rewrittenValueSelector = CreatePropertyAccessExpression(valueExpression, property);
-                    if (!TryTranslateScalarSetterValueSelector(
-                        source, rewrittenValueSelector, column.Type, column.TypeMapping!, out var translatedValueSelector))
-                    {
-                        return false;
-                    }
-
-                    tempTranslatedSetters.Add(new ColumnValueSetter(column, translatedValueSelector));
-                }
-
-                foreach (var complexProperty in complexType.GetComplexProperties())
-                {
-                    // Note that TranslateProjection currently returns null for StructuralTypeReferenceExpression with a subquery (as
-                    // opposed to a parameter); this ensures that we don't generate an efficient translation where the subquery is
-                    // duplicated for every property on the complex type.
-                    // TODO: Make this work by using a common table expression (CTE)
-
-                    if (complexProperty.ComplexType.IsMappedToJson())
-                    {
-                        throw new InvalidOperationException(
-                            RelationalStrings.ExecuteUpdateOverJsonIsNotSupported(complexProperty.ComplexType.DisplayName()));
-                    }
-
-                    var nestedShaperExpression = (StructuralTypeShaperExpression)projection.BindComplexProperty(complexProperty);
-                    var nestedValueExpression = CreateComplexPropertyAccessExpression(valueExpression, complexProperty);
-                    if (!TryProcessComplexType(nestedShaperExpression, nestedValueExpression))
-                    {
-                        return false;
-                    }
-                }
-
-                return true;
-            }
-
-            Expression CreatePropertyAccessExpression(Expression target, IProperty property)
-            {
-                return target is LambdaExpression lambda
-                    ? Expression.Lambda(Core(lambda.Body, property), lambda.Parameters[0])
-                    : Core(target, property);
-
-                Expression Core(Expression target, IProperty property)
-                {
-                    switch (target)
-                    {
-                        case SqlConstantExpression constantExpression:
-                            return Expression.Constant(
-                                constantExpression.Value is null
-                                    ? null
-                                    : property.GetGetter().GetClrValue(constantExpression.Value),
-                                property.ClrType.MakeNullable());
-
-                        case SqlParameterExpression parameterExpression:
-                        {
-                            var lambda = Expression.Lambda(
-                                Expression.Call(
-                                    ParameterValueExtractorMethod.MakeGenericMethod(property.ClrType.MakeNullable()),
-                                    QueryCompilationContext.QueryContextParameter,
-                                    Expression.Constant(parameterExpression.Name, typeof(string)),
-                                    Expression.Constant(null, typeof(List<IComplexProperty>)),
-                                    Expression.Constant(property, typeof(IProperty))),
-                                QueryCompilationContext.QueryContextParameter);
-
-                            var newParameterName =
-                                $"{ExecuteUpdateRuntimeParameterPrefix}{parameterExpression.Name}_{property.Name}";
-
-                            return _queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda);
-                        }
-
-                        case ParameterBasedComplexPropertyChainExpression chainExpression:
-                        {
-                            var lambda = Expression.Lambda(
-                                Expression.Call(
-                                    ParameterValueExtractorMethod.MakeGenericMethod(property.ClrType.MakeNullable()),
-                                    QueryCompilationContext.QueryContextParameter,
-                                    Expression.Constant(chainExpression.ParameterExpression.Name, typeof(string)),
-                                    Expression.Constant(chainExpression.ComplexPropertyChain, typeof(List<IComplexProperty>)),
-                                    Expression.Constant(property, typeof(IProperty))),
-                                QueryCompilationContext.QueryContextParameter);
-
-                            var newParameterName =
-                                $"{ExecuteUpdateRuntimeParameterPrefix}{chainExpression.ParameterExpression.Name}_{property.Name}";
-
-                            return _queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda);
-                        }
-
-                        case MemberInitExpression memberInitExpression
-                            when memberInitExpression.Bindings.SingleOrDefault(mb => mb.Member.Name == property.Name) is MemberAssignment
-                                memberAssignment:
-                            return memberAssignment.Expression;
-
-                        default:
-                            return target.CreateEFPropertyExpression(property);
-                    }
-                }
-            }
-
-            Expression CreateComplexPropertyAccessExpression(Expression target, IComplexProperty complexProperty)
-            {
-                return target is LambdaExpression lambda
-                    ? Expression.Lambda(Core(lambda.Body, complexProperty), lambda.Parameters[0])
-                    : Core(target, complexProperty);
-
-                Expression Core(Expression target, IComplexProperty complexProperty)
-                    => target switch
-                    {
-                        SqlConstantExpression constant => _sqlExpressionFactory.Constant(
-                            constant.Value is null ? null : complexProperty.GetGetter().GetClrValue(constant.Value),
-                            complexProperty.ClrType.MakeNullable()),
-
-                        SqlParameterExpression parameter
-                            => new ParameterBasedComplexPropertyChainExpression(parameter, complexProperty),
-
-                        StructuralTypeShaperExpression
-                            {
-                                StructuralType: IComplexType,
-                                ValueBufferExpression: StructuralTypeProjectionExpression projection
-                            }
-                            => projection.BindComplexProperty(complexProperty),
-
-                        _ => throw new UnreachableException()
-                    };
-            }
-        }
-
-        bool TryTranslateScalarSetterValueSelector(
-            ShapedQueryExpression source,
-            Expression valueSelector,
-            Type type,
-            RelationalTypeMapping typeMapping,
-            [NotNullWhen(true)] out SqlExpression? result)
-        {
-            if (TryTranslateSetterValueSelector(source, valueSelector, type, out var tempResult)
-                && tempResult is SqlExpression translatedSelector)
-            {
-                // Apply the type mapping of the column (translated from the property selector above) to the value
-                result = _sqlExpressionFactory.ApplyTypeMapping(translatedSelector, typeMapping);
-                return true;
-            }
-
-            AddTranslationErrorDetails(RelationalStrings.InvalidValueInSetProperty(valueSelector.Print()));
-            result = null;
-            return false;
-        }
-
-        bool TryTranslateSetterValueSelector(
-            ShapedQueryExpression source,
-            Expression valueSelector,
-            Type propertyType,
-            [NotNullWhen(true)] out Expression? result)
-        {
-            var remappedValueSelector = valueSelector is LambdaExpression lambdaExpression
-                ? RemapLambdaBody(source, lambdaExpression)
-                : valueSelector;
-
-            if (remappedValueSelector.Type != propertyType)
-            {
-                remappedValueSelector = Expression.Convert(remappedValueSelector, propertyType);
-            }
-
-            result = _sqlTranslator.TranslateProjection(remappedValueSelector, applyDefaultTypeMapping: false);
-
-            if (result is null)
-            {
-                AddTranslationErrorDetails(RelationalStrings.InvalidValueInSetProperty(valueSelector.Print()));
-                return false;
-            }
-
-            return true;
-        }
 
         UpdateExpression? PushdownWithPkInnerJoinPredicate()
         {
@@ -744,6 +242,534 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
     }
 
     /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    protected virtual bool TryTranslateSetters(
+        ShapedQueryExpression source,
+        IReadOnlyList<ExecuteUpdateSetter> setters,
+        [NotNullWhen(true)] out IReadOnlyList<ColumnValueSetter>? columnSetters,
+        [NotNullWhen(true)] out TableExpressionBase? targetTable)
+    {
+        var select = (SelectExpression)source.QueryExpression;
+
+        targetTable = null;
+        string? targetTableAlias = null;
+        var mutableColumnSetters = new List<ColumnValueSetter>();
+        columnSetters = null;
+
+        Expression? targetTablePropertySelector = null;
+
+        foreach (var setter in setters)
+        {
+            var (propertySelector, valueSelector) = setter;
+            var propertySelectorBody = RemapLambdaBody(source, propertySelector).UnwrapTypeConversion(out _);
+
+            // The top-most node on the property selector must be a member access; chop it off to get the base expression and member.
+            // We'll bind the member manually below, so as to get the IPropertyBase it represents - that's important for later.
+            if (!IsMemberAccess(propertySelectorBody, QueryCompilationContext.Model, out var baseExpression, out var member)
+                || !_sqlTranslator.TryBindMember(
+                    _sqlTranslator.Visit(baseExpression), member, out var target, out var targetProperty))
+            {
+                AddTranslationErrorDetails(RelationalStrings.InvalidPropertyInSetProperty(propertySelector.Print()));
+                return false;
+            }
+
+            // Hack: when returning a StructuralTypeShaperExpression, _sqlTranslator returns it wrapped by a
+            // StructuralTypeReferenceExpression, which is supposed to be a private wrapper only with the SQL translator.
+            // Call TranslateProjection to unwrap it (need to look into getting rid StructuralTypeReferenceExpression altogether).
+            if (target is not CollectionResultExpression)
+            {
+                target = _sqlTranslator.TranslateProjection(target);
+            }
+
+            switch (target)
+            {
+                case ColumnExpression column:
+                {
+                    Check.DebugAssert(column.TypeMapping is not null);
+
+                    if (!TryProcessColumn(column)
+                        || !TryTranslateScalarSetterValueSelector(
+                            source, valueSelector, column.Type, column.TypeMapping, out var translatedValueSelector))
+                    {
+                        return false;
+                    }
+
+                    mutableColumnSetters.Add(new(column, translatedValueSelector));
+                    break;
+                }
+
+                // A table-split complex type is being assigned a new value.
+                // Generate setters for each of the columns mapped to the comlex type.
+                case StructuralTypeShaperExpression
+                {
+                    StructuralType: IComplexType complexType,
+                    ValueBufferExpression: StructuralTypeProjectionExpression
+                } shaper:
+                {
+                    Check.DebugAssert(
+                        targetProperty is IComplexProperty complexProperty && complexProperty.ComplexType == complexType,
+                        "PropertyBase should be a complex property referring to the correct complex type");
+
+                    if (complexType.IsMappedToJson())
+                    {
+                        throw new InvalidOperationException(
+                            RelationalStrings.ExecuteUpdateOverJsonIsNotSupported(complexType.DisplayName()));
+                    }
+
+                    if (!TryTranslateSetterValueSelector(source, valueSelector, shaper.Type, out var translatedValueSelector)
+                        || !TryProcessComplexType(shaper, translatedValueSelector))
+                    {
+                        return false;
+                    }
+
+                    break;
+                }
+
+                case JsonScalarExpression { Json: ColumnExpression jsonColumn } jsonScalar:
+                {
+                    Check.DebugAssert(jsonScalar.TypeMapping is not null);
+
+                    // We should never see a JsonScalarExpression without a path - that means we're mapping a JSON scalar directly to a relational column.
+                    // This is in theory possible (e.g. map a DateTime to a 'json' column with a single string timestamp representation inside, instead of to
+                    // SQL Server datetime2), but contrived and unsupported.
+                    Check.DebugAssert(jsonScalar.Path.Count > 0);
+
+                    if (!TryProcessColumn(jsonColumn)
+                        || !TryTranslateScalarSetterValueSelector(source, valueSelector, jsonScalar.Type, jsonScalar.TypeMapping, out var translatedValue))
+                    {
+                        return false;
+                    }
+
+                    GenerateJsonPartialUpdateSetterWrapper(jsonScalar, jsonColumn, translatedValue);
+
+                    break;
+                }
+
+                case StructuralTypeShaperExpression { ValueBufferExpression: JsonQueryExpression jsonQuery }:
+                    if (!TryProcessStructuralJsonSetter(jsonQuery))
+                    {
+                        return false;
+                    }
+
+                    break;
+
+                case CollectionResultExpression { QueryExpression: JsonQueryExpression jsonQuery }:
+                    if (!TryProcessStructuralJsonSetter(jsonQuery))
+                    {
+                        return false;
+                    }
+
+                    break;
+
+                default:
+                    AddTranslationErrorDetails(RelationalStrings.InvalidPropertyInSetProperty(propertySelector.Print()));
+                    return false;
+            }
+
+            void GenerateJsonPartialUpdateSetterWrapper(Expression target, ColumnExpression jsonColumn, SqlExpression value)
+            {
+                var index = mutableColumnSetters.FindIndex(s => s.Column.Equals(jsonColumn));
+                var origExistingSetterValue = index == -1 ? null : mutableColumnSetters[index].Value;
+                var modifiedExistingSetterValue = index == -1 ? null : mutableColumnSetters[index].Value;
+                var newSetter = GenerateJsonPartialUpdateSetter(target, value, ref modifiedExistingSetterValue);
+
+                if (origExistingSetterValue is null ^ modifiedExistingSetterValue is null)
+                {
+                    throw new UnreachableException(
+                        "existingSetterValue should only be used to compose additional setters on an existing setter");
+                }
+
+                if (!ReferenceEquals(modifiedExistingSetterValue, origExistingSetterValue))
+                {
+                    mutableColumnSetters[index] = new(jsonColumn, modifiedExistingSetterValue!);
+                }
+
+                if (newSetter is not null)
+                {
+                    mutableColumnSetters.Add(new(jsonColumn, newSetter));
+                }
+            }
+
+            bool TryProcessColumn(ColumnExpression column)
+            {
+                var tableExpression = select.GetTable(column, out var tableIndex);
+                if (tableExpression.UnwrapJoin() is TableExpression { Table: not ITable } unwrappedTableExpression)
+                {
+                    // If the entity is also mapped to a view, the SelectExpression will refer to the view instead, since
+                    // translation happens with the assumption that we're querying, not deleting.
+                    // For this case, we must replace the TableExpression in the SelectExpression - referring to the view - with the
+                    // one that refers to the mutable table.
+
+                    // Get the column on the (mutable) table which corresponds to the property being set
+                    IColumn? targetColumnModel;
+
+                    switch (targetProperty)
+                    {
+                        case IProperty property:
+                            targetColumnModel = property.DeclaringType.GetTableMappings()
+                                .SelectMany(tm => tm.ColumnMappings)
+                                .Where(cm => cm.Property == property)
+                                .Select(cm => cm.Column)
+                                .SingleOrDefault();
+                            break;
+
+                        case IComplexProperty { ComplexType: var complexType } complexProperty:
+                        {
+                            // Find the container column in the relational model to get its type mapping
+                            // Note that we assume exactly one column with the given name mapped to the entity (despite entity splitting).
+                            // See #36647 and #36646 about improving this.
+                            var containerColumnName = complexType.GetContainerColumnName();
+                            targetColumnModel = complexType.ContainingEntityType.GetTableMappings()
+                                .SelectMany(m => m.Table.Columns)
+                                .Where(c => c.Name == containerColumnName)
+                                .Single();
+
+                            break;
+                        }
+
+                        default:
+                            throw new UnreachableException();
+                    }
+
+                    if (targetColumnModel is null)
+                    {
+                        throw new InvalidOperationException(
+                            RelationalStrings.ExecuteUpdateDeleteOnEntityNotMappedToTable(targetProperty.DeclaringType.DisplayName()));
+                    }
+
+                    unwrappedTableExpression = new TableExpression(unwrappedTableExpression.Alias, targetColumnModel.Table);
+                    tableExpression = tableExpression is JoinExpressionBase join
+                        ? join.Update(unwrappedTableExpression)
+                        : unwrappedTableExpression;
+                    var newTables = select.Tables.ToList();
+                    newTables[tableIndex] = tableExpression;
+
+                    // Note that we need to keep the select mutable, because if IsValidSelectExpressionForExecuteDelete below
+                    // returns false, we need to compose on top of it.
+                    select.SetTables(newTables);
+                }
+
+                return IsColumnOnSameTable(column, propertySelector);
+            }
+
+            // Recursively processes the complex types and all complex types referenced by it, adding setters fo all (non-complex)
+            // properties.
+            // Note that this only supports table splitting (where all columns are flattened to the table), but not JSON complex types (#28766).
+            bool TryProcessComplexType(StructuralTypeShaperExpression shaperExpression, Expression valueExpression)
+            {
+                if (shaperExpression.StructuralType is not IComplexType complexType
+                    || shaperExpression.ValueBufferExpression is not StructuralTypeProjectionExpression projection)
+                {
+                    return false;
+                }
+
+                foreach (var property in complexType.GetProperties())
+                {
+                    var column = projection.BindProperty(property);
+                    if (!IsColumnOnSameTable(column, propertySelector))
+                    {
+                        return false;
+                    }
+
+                    var rewrittenValueSelector = CreatePropertyAccessExpression(valueExpression, property);
+                    if (!TryTranslateScalarSetterValueSelector(
+                        source, rewrittenValueSelector, column.Type, column.TypeMapping!, out var translatedValueSelector))
+                    {
+                        return false;
+                    }
+
+                    mutableColumnSetters.Add(new ColumnValueSetter(column, translatedValueSelector));
+                }
+
+                foreach (var complexProperty in complexType.GetComplexProperties())
+                {
+                    // Note that TranslateProjection currently returns null for StructuralTypeReferenceExpression with a subquery (as
+                    // opposed to a parameter); this ensures that we don't generate an efficient translation where the subquery is
+                    // duplicated for every property on the complex type.
+                    // TODO: Make this work by using a common table expression (CTE)
+
+                    if (complexProperty.ComplexType.IsMappedToJson())
+                    {
+                        throw new InvalidOperationException(
+                            RelationalStrings.ExecuteUpdateOverJsonIsNotSupported(complexProperty.ComplexType.DisplayName()));
+                    }
+
+                    var nestedShaperExpression = (StructuralTypeShaperExpression)projection.BindComplexProperty(complexProperty);
+                    var nestedValueExpression = CreateComplexPropertyAccessExpression(valueExpression, complexProperty);
+                    if (!TryProcessComplexType(nestedShaperExpression, nestedValueExpression))
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+
+                Expression CreatePropertyAccessExpression(Expression target, IProperty property)
+                {
+                    return target is LambdaExpression lambda
+                        ? Expression.Lambda(Core(lambda.Body, property), lambda.Parameters[0])
+                        : Core(target, property);
+
+                    Expression Core(Expression target, IProperty property)
+                    {
+                        switch (target)
+                        {
+                            case SqlConstantExpression constantExpression:
+                                return Expression.Constant(
+                                    constantExpression.Value is null
+                                        ? null
+                                        : property.GetGetter().GetClrValue(constantExpression.Value),
+                                    property.ClrType.MakeNullable());
+
+                            case SqlParameterExpression parameterExpression:
+                            {
+                                var lambda = Expression.Lambda(
+                                    Expression.Call(
+                                        ParameterValueExtractorMethod.MakeGenericMethod(property.ClrType.MakeNullable()),
+                                        QueryCompilationContext.QueryContextParameter,
+                                        Expression.Constant(parameterExpression.Name, typeof(string)),
+                                        Expression.Constant(null, typeof(List<IComplexProperty>)),
+                                        Expression.Constant(property, typeof(IProperty))),
+                                    QueryCompilationContext.QueryContextParameter);
+
+                                var newParameterName =
+                                    $"{ExecuteUpdateRuntimeParameterPrefix}{parameterExpression.Name}_{property.Name}";
+
+                                return _queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda);
+                            }
+
+                            case ParameterBasedComplexPropertyChainExpression chainExpression:
+                            {
+                                var lambda = Expression.Lambda(
+                                    Expression.Call(
+                                        ParameterValueExtractorMethod.MakeGenericMethod(property.ClrType.MakeNullable()),
+                                        QueryCompilationContext.QueryContextParameter,
+                                        Expression.Constant(chainExpression.ParameterExpression.Name, typeof(string)),
+                                        Expression.Constant(chainExpression.ComplexPropertyChain, typeof(List<IComplexProperty>)),
+                                        Expression.Constant(property, typeof(IProperty))),
+                                    QueryCompilationContext.QueryContextParameter);
+
+                                var newParameterName =
+                                    $"{ExecuteUpdateRuntimeParameterPrefix}{chainExpression.ParameterExpression.Name}_{property.Name}";
+
+                                return _queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda);
+                            }
+
+                            case MemberInitExpression memberInitExpression
+                                when memberInitExpression.Bindings.SingleOrDefault(mb => mb.Member.Name == property.Name) is MemberAssignment
+                                    memberAssignment:
+                                return memberAssignment.Expression;
+
+                            default:
+                                return target.CreateEFPropertyExpression(property);
+                        }
+                    }
+                }
+
+                Expression CreateComplexPropertyAccessExpression(Expression target, IComplexProperty complexProperty)
+                {
+                    return target is LambdaExpression lambda
+                        ? Expression.Lambda(Core(lambda.Body, complexProperty), lambda.Parameters[0])
+                        : Core(target, complexProperty);
+
+                    Expression Core(Expression target, IComplexProperty complexProperty)
+                        => target switch
+                        {
+                            SqlConstantExpression constant => _sqlExpressionFactory.Constant(
+                                constant.Value is null ? null : complexProperty.GetGetter().GetClrValue(constant.Value),
+                                complexProperty.ClrType.MakeNullable()),
+
+                            SqlParameterExpression parameter
+                                => new ParameterBasedComplexPropertyChainExpression(parameter, complexProperty),
+
+                            StructuralTypeShaperExpression
+                            {
+                                StructuralType: IComplexType,
+                                ValueBufferExpression: StructuralTypeProjectionExpression projection
+                            }
+                                => projection.BindComplexProperty(complexProperty),
+
+                            _ => throw new UnreachableException()
+                        };
+                }
+            }
+
+            bool TryProcessStructuralJsonSetter(JsonQueryExpression jsonQuery)
+            {
+                var jsonColumn = jsonQuery.JsonColumn;
+
+                if (jsonQuery.StructuralType is not IComplexType complexType)
+                {
+                    throw new InvalidOperationException(RelationalStrings.JsonExecuteUpdateNotSupportedWithOwnedEntities);
+                }
+
+                Check.DebugAssert(jsonColumn.TypeMapping is not null);
+
+                if (!TryProcessColumn(jsonColumn)
+                    || !TryTranslateSetterValueSelector(
+                        source, valueSelector, jsonQuery.Type, out var translatedValueSelector))
+                {
+                    return false;
+                }
+
+                SqlExpression? serializedValueSelector;
+
+                switch (translatedValueSelector)
+                {
+                    // When an object is instantiated inline (e.g. SetProperty(c => c.ShippingAddress, c => new Address { ... })), we get a SqlConstantExpression
+                    // with the .NET instance. Serialize it to JSON and replace the constant (note that the type mapping is inferred from the
+                    // JSON column on other side - important for e.g. nvarchar vs. json columns)
+                    case SqlConstantExpression { Value: var value }:
+                        serializedValueSelector = new SqlConstantExpression(
+                            RelationalJsonUtilities.SerializeComplexTypeToJson(complexType, value, jsonQuery.IsCollection),
+                            typeof(string),
+                            typeMapping: jsonColumn.TypeMapping);
+                        break;
+
+                    case SqlParameterExpression parameter:
+                    {
+                        var queryParameter = _queryCompilationContext.RegisterRuntimeParameter(
+                            $"{ExecuteUpdateRuntimeParameterPrefix}{parameter.Name}",
+                            Expression.Lambda(
+                                Expression.Call(
+                                    RelationalJsonUtilities.SerializeComplexTypeToJsonMethod,
+                                    Expression.Constant(complexType),
+                                    Expression.MakeIndex(
+                                        Expression.Property(
+                                            QueryCompilationContext.QueryContextParameter, nameof(QueryContext.Parameters)),
+                                        indexer: typeof(Dictionary<string, object>).GetProperty("Item", [typeof(string)]),
+                                        [Expression.Constant(parameter.Name, typeof(string))]),
+                                    Expression.Constant(jsonQuery.IsCollection)),
+                                QueryCompilationContext.QueryContextParameter));
+
+                        serializedValueSelector = _sqlExpressionFactory.ApplyTypeMapping(
+                            _sqlTranslator.Translate(queryParameter, applyDefaultTypeMapping: false),
+                            jsonColumn.TypeMapping)!;
+                        break;
+                    }
+
+                    case RelationalStructuralTypeShaperExpression { ValueBufferExpression: JsonQueryExpression valueJsonQuery }:
+                        serializedValueSelector = ProcessJsonQuery(valueJsonQuery);
+                        break;
+
+                    case CollectionResultExpression { QueryExpression: JsonQueryExpression valueJsonQuery }:
+                        serializedValueSelector = ProcessJsonQuery(valueJsonQuery);
+                        break;
+
+                    default:
+                        throw new UnreachableException();
+
+                        // If the entire JSON column is being referenced, remove the JsonQueryExpression altogether and just return
+                        // the column (no need for special JSON modification functions/syntax).
+                        // See #30768 for stopping producing empty Json{Scalar,Query}Expressions.
+                        // Otherwise, convert the JsonQueryExpression to a JsonScalarExpression, which is our current representation for a complex
+                        // JSON in the SQL tree (as opposed to in the shaper) - see #36392.
+                        static SqlExpression ProcessJsonQuery(JsonQueryExpression jsonQuery)
+                            => jsonQuery.Path is []
+                                ? jsonQuery.JsonColumn
+                                : new JsonScalarExpression(
+                                    jsonQuery.JsonColumn,
+                                    jsonQuery.Path,
+                                    jsonQuery.Type,
+                                    jsonQuery.JsonColumn.TypeMapping,
+                                    jsonQuery.IsNullable);
+                }
+
+                // If the entire JSON column is being referenced as the target, remove the JsonQueryExpression altogether
+                // and just add a plain old setter updating the column as a whole; since this scenario doesn't involve any
+                // partial update, we can just add the setter directly without going through the provider's TranslateJsonSetter
+                // (see #30768 for stopping producing empty Json{Scalar,Query}Expressions).
+                // Otherwise, call the TranslateJsonSetter hook to produce the provider-specific syntax for JSON partial update.
+                if (jsonQuery.Path is [])
+                {
+                    mutableColumnSetters.Add(new ColumnValueSetter(jsonColumn, serializedValueSelector));
+                }
+                else
+                {
+                    GenerateJsonPartialUpdateSetterWrapper(jsonQuery, jsonColumn, serializedValueSelector);
+                }
+
+                return true;
+            }
+
+            bool TryTranslateScalarSetterValueSelector(
+                ShapedQueryExpression source,
+                Expression valueSelector,
+                Type type,
+                RelationalTypeMapping typeMapping,
+                [NotNullWhen(true)] out SqlExpression? result)
+            {
+                if (TryTranslateSetterValueSelector(source, valueSelector, type, out var tempResult)
+                    && tempResult is SqlExpression translatedSelector)
+                {
+                    // Apply the type mapping of the column (translated from the property selector above) to the value
+                    result = _sqlExpressionFactory.ApplyTypeMapping(translatedSelector, typeMapping);
+                    return true;
+                }
+
+                AddTranslationErrorDetails(RelationalStrings.InvalidValueInSetProperty(valueSelector.Print()));
+                result = null;
+                return false;
+            }
+
+            bool TryTranslateSetterValueSelector(
+                ShapedQueryExpression source,
+                Expression valueSelector,
+                Type propertyType,
+                [NotNullWhen(true)] out Expression? result)
+            {
+                var remappedValueSelector = valueSelector is LambdaExpression lambdaExpression
+                    ? RemapLambdaBody(source, lambdaExpression)
+                    : valueSelector;
+
+                if (remappedValueSelector.Type != propertyType)
+                {
+                    remappedValueSelector = Expression.Convert(remappedValueSelector, propertyType);
+                }
+
+                result = _sqlTranslator.TranslateProjection(remappedValueSelector, applyDefaultTypeMapping: false);
+
+                if (result is null)
+                {
+                    AddTranslationErrorDetails(RelationalStrings.InvalidValueInSetProperty(valueSelector.Print()));
+                    return false;
+                }
+
+                return true;
+            }
+
+            bool IsColumnOnSameTable(ColumnExpression column, LambdaExpression propertySelector)
+            {
+                if (targetTableAlias is null)
+                {
+                    targetTableAlias = column.TableAlias;
+                    targetTablePropertySelector = propertySelector;
+                }
+                else if (column.TableAlias != targetTableAlias)
+                {
+                    AddTranslationErrorDetails(
+                        RelationalStrings.MultipleTablesInExecuteUpdate(propertySelector.Print(), targetTablePropertySelector!.Print()));
+                    return false;
+                }
+
+                return true;
+            }
+        }
+
+        Check.DebugAssert(targetTableAlias is not null, "Target table alias should have a value");
+        var selectExpression = (SelectExpression)source.QueryExpression;
+        targetTable = selectExpression.Tables.First(t => t.GetRequiredAlias() == targetTableAlias);
+        columnSetters = mutableColumnSetters;
+
+        return true;
+    }
+
+    /// <summary>
     ///     Provider extension point for implementing partial updates within JSON columns.
     /// </summary>
     /// <param name="target">
@@ -752,7 +778,15 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
     ///     (when an object or collection is being updated).
     /// </param>
     /// <param name="value">The JSON value to be set, ready for use as-is in <see cref="QuerySqlGenerator" />.</param>
-    protected virtual ColumnValueSetter GenerateJsonPartialUpdateSetter(Expression target, SqlExpression value)
+    /// <param name="existingSetterValue">
+    ///     If a setter was previously created for this JSON column, it's value is passed here (this happens when e.g.
+    ///     multiple properties are updated in the same JSON column). Implementations can compose the new setter into
+    ///     the existing one (and return <see langword="null" />), or return a new one.
+    /// </param>
+    protected virtual SqlExpression? GenerateJsonPartialUpdateSetter(
+        Expression target,
+        SqlExpression value,
+        ref SqlExpression? existingSetterValue)
         => throw new InvalidOperationException(RelationalStrings.JsonPartialExecuteUpdateNotSupportedByProvider);
 
     private static T? ParameterValueExtractor<T>(
