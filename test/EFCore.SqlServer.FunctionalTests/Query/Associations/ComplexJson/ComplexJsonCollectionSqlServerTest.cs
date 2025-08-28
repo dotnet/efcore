@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query.Associations.ComplexJson;
 
+using Microsoft.Data.SqlClient;
+
 public class ComplexJsonCollectionSqlServerTest(ComplexJsonSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
     : ComplexJsonCollectionRelationalTestBase<ComplexJsonSqlServerFixture>(fixture, testOutputHelper)
 {
@@ -58,10 +60,37 @@ WHERE (
 
     public override async Task Distinct()
     {
-        await base.Distinct();
+        if (Fixture.UsingJsonType)
+        {
+            // The json data type cannot be selected as DISTINCT because it is not comparable.
+            await Assert.ThrowsAsync<SqlException>(base.Distinct);
 
-        AssertSql(
-            """
+            AssertSql(
+                """
+SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+FROM [RootEntity] AS [r]
+WHERE (
+    SELECT COUNT(*)
+    FROM (
+        SELECT DISTINCT [r0].[Id], [r0].[Int], [r0].[Name], [r0].[String], [r0].[NestedCollection] AS [c], [r0].[OptionalNested] AS [c0], [r0].[RequiredNested] AS [c1]
+        FROM OPENJSON([r].[RelatedCollection], '$') WITH (
+            [Id] int '$.Id',
+            [Int] int '$.Int',
+            [Name] nvarchar(max) '$.Name',
+            [String] nvarchar(max) '$.String',
+            [NestedCollection] json '$.NestedCollection' AS JSON,
+            [OptionalNested] json '$.OptionalNested' AS JSON,
+            [RequiredNested] json '$.RequiredNested' AS JSON
+        ) AS [r0]
+    ) AS [r1]) = 2
+""");
+        }
+        else
+        {
+            await base.Distinct();
+
+            AssertSql(
+                """
 SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
 FROM [RootEntity] AS [r]
 WHERE (
@@ -79,6 +108,7 @@ WHERE (
         ) AS [r0]
     ) AS [r1]) = 2
 """);
+        }
     }
 
     public override async Task Distinct_projected(QueryTrackingBehavior queryTrackingBehavior)
@@ -90,10 +120,29 @@ WHERE (
 
     public override async Task Distinct_over_projected_nested_collection()
     {
-        await base.Distinct_over_projected_nested_collection();
+        if (Fixture.UsingJsonType)
+        {
+            // The json data type cannot be selected as DISTINCT because it is not comparable.
+            await Assert.ThrowsAsync<SqlException>(base.Distinct_over_projected_nested_collection);
 
-        AssertSql(
-            """
+            AssertSql(
+                """
+SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+FROM [RootEntity] AS [r]
+WHERE (
+    SELECT COUNT(*)
+    FROM (
+        SELECT DISTINCT [r0].[NestedCollection] AS [c]
+        FROM OPENJSON([r].[RelatedCollection], '$') WITH ([NestedCollection] json '$.NestedCollection' AS JSON) AS [r0]
+    ) AS [r1]) = 2
+""");
+        }
+        else
+        {
+            await base.Distinct_over_projected_nested_collection();
+
+            AssertSql(
+                """
 SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
 FROM [RootEntity] AS [r]
 WHERE (
@@ -103,6 +152,7 @@ WHERE (
         FROM OPENJSON([r].[RelatedCollection], '$') WITH ([NestedCollection] nvarchar(max) '$.NestedCollection' AS JSON) AS [r0]
     ) AS [r1]) = 2
 """);
+        }
     }
 
     public override async Task Distinct_over_projected_filtered_nested_collection()
@@ -246,8 +296,24 @@ WHERE 16 IN (
     {
         await base.Select_within_Select_within_Select_with_aggregates();
 
-        AssertSql(
-            """
+        if (Fixture.UsingJsonType)
+        {
+            AssertSql(
+                """
+SELECT (
+    SELECT COALESCE(SUM([s].[value]), 0)
+    FROM OPENJSON([r].[RelatedCollection], '$') WITH ([NestedCollection] json '$.NestedCollection' AS JSON) AS [r0]
+    OUTER APPLY (
+        SELECT MAX([n].[Int]) AS [value]
+        FROM OPENJSON([r0].[NestedCollection], '$') WITH ([Int] int '$.Int') AS [n]
+    ) AS [s])
+FROM [RootEntity] AS [r]
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 SELECT (
     SELECT COALESCE(SUM([s].[value]), 0)
     FROM OPENJSON([r].[RelatedCollection], '$') WITH ([NestedCollection] nvarchar(max) '$.NestedCollection' AS JSON) AS [r0]
@@ -257,6 +323,7 @@ SELECT (
     ) AS [s])
 FROM [RootEntity] AS [r]
 """);
+        }
     }
 
     [ConditionalFact]
