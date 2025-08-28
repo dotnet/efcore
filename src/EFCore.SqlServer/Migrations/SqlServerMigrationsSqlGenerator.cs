@@ -3120,8 +3120,8 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
                         // for alter column removing default value we also need to disable versioning
                         // because the default constraint needs to be removed from both main and history tables
-                        var removingDefaultValue = (alterColumnOperation.OldColumn.DefaultValue != null || alterColumnOperation.OldColumn.DefaultValueSql != null)
-                            && alterColumnOperation.DefaultValue == null && alterColumnOperation.DefaultValueSql == null;
+                        var removingDefaultValue = (alterColumnOperation.OldColumn.DefaultValue is not null || alterColumnOperation.OldColumn.DefaultValueSql is not null)
+                            && alterColumnOperation.DefaultValue is null && alterColumnOperation.DefaultValueSql is null;
 
                         if (changeToNonNullable || changeToSparse || removingDefaultValue)
                         {
