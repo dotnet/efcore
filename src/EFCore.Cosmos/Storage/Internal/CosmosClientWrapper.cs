@@ -960,7 +960,10 @@ public class CosmosClientWrapper : ICosmosClientWrapper
                         return false;
                     }
 
-                    _responseMessage = _query.ReadNextAsync().GetAwaiter().GetResult();
+                    _responseMessage = _cosmosClientWrapper._executionStrategy.Execute(
+                        (_query, _cosmosClientWrapper),
+                        static (_, state) => state._query.ReadNextAsync().GetAwaiter().GetResult(),
+                        null);
 
                     _cosmosClientWrapper._commandLogger.ExecutedReadNext(
                         _responseMessage.Diagnostics.GetClientElapsedTime(),
@@ -1061,7 +1064,11 @@ public class CosmosClientWrapper : ICosmosClientWrapper
                         return false;
                     }
 
-                    _responseMessage = await _query.ReadNextAsync(cancellationToken).ConfigureAwait(false);
+                    _responseMessage = await _cosmosClientWrapper._executionStrategy.ExecuteAsync(
+                        (_query, _cosmosClientWrapper),
+                        static (_, state, cancellationToken) => state._query.ReadNextAsync(cancellationToken),
+                        null,
+                        cancellationToken).ConfigureAwait(false);
 
                     _cosmosClientWrapper._commandLogger.ExecutedReadNext(
                         _responseMessage.Diagnostics.GetClientElapsedTime(),

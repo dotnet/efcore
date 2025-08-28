@@ -1173,7 +1173,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual PropertyInfo? FindIndexerPropertyInfo(Type type)
-        => _indexerPropertyInfoMap.GetOrAdd(type, type.FindIndexerProperty());
+        => _indexerPropertyInfoMap.GetOrAdd(type, static t => t.FindIndexerProperty());
 
     /// <summary>
     ///     Gets a value indicating whether the given MethodInfo represents an indexer access.

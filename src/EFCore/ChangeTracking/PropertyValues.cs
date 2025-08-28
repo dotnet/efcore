@@ -226,7 +226,7 @@ public abstract class PropertyValues
     /// <typeparam name="TValue">The type of the property.</typeparam>
     /// <param name="propertyName">The property name.</param>
     /// <param name="value">The property value if any.</param>
-    /// <returns>True if the property exists, otherwise false.</returns>
+    /// <returns><see langword="true" /> if the property exists, otherwise <see langword="false" />.</returns>
     public virtual bool TryGetValue<TValue>(string propertyName, out TValue value)
     {
         var property = Properties.FirstOrDefault(p => p.Name == propertyName);
