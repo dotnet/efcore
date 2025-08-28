@@ -15,13 +15,15 @@ public abstract class ComplexTableSplittingBulkUpdateRelationalTestBase<TFixture
         fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
+    // #36678 - ExecuteDelete on complex type
     public override Task Delete_required_association()
         => AssertTranslationFailedWithDetails(RelationalStrings.ExecuteDeleteOnNonEntityType, base.Delete_required_association);
 
+    // #36678 - ExecuteDelete on complex type
     public override Task Delete_optional_association()
         => Assert.ThrowsAsync<InvalidOperationException>(base.Delete_optional_association);
 
-    // TODO: #36336
+    // #36336
     public override Task Update_property_on_projected_association_with_OrderBy_Skip()
         => AssertTranslationFailedWithDetails(
             RelationalStrings.ExecuteUpdateSubqueryNotSupportedOverComplexTypes("RootEntity.RequiredRelated#RelatedType"),
@@ -49,6 +51,14 @@ public abstract class ComplexTableSplittingBulkUpdateRelationalTestBase<TFixture
     public override async Task Update_nested_collection_to_inline_with_lambda()
     {
         await Assert.ThrowsAsync<InvalidOperationException>(base.Update_nested_collection_to_inline_with_lambda);
+
+        AssertExecuteUpdateSql();
+    }
+
+    // Collections are not supported with table splitting, only JSON
+    public override async Task Update_collection_referencing_the_original_collection()
+    {
+        await Assert.ThrowsAsync<InvalidOperationException>(base.Update_collection_referencing_the_original_collection);
 
         AssertExecuteUpdateSql();
     }

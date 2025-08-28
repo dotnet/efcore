@@ -198,7 +198,11 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                         bool TryProcessStructuralJsonSetter(JsonQueryExpression jsonQuery)
                         {
                             var jsonColumn = jsonQuery.JsonColumn;
-                            var complexType = (IComplexType)jsonQuery.StructuralType;
+
+                            if (jsonQuery.StructuralType is not IComplexType complexType)
+                            {
+                                throw new InvalidOperationException(RelationalStrings.JsonExecuteUpdateNotSupportedWithOwnedEntities);
+                            }
 
                             Check.DebugAssert(jsonColumn.TypeMapping is not null);
 
@@ -261,7 +265,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                                     // See #30768 for stopping producing empty Json{Scalar,Query}Expressions.
                                     // Otherwise, convert the JsonQueryExpression to a JsonScalarExpression, which is our current representation for a complex
                                     // JSON in the SQL tree (as opposed to in the shaper) - see #36392.
-                                    SqlExpression ProcessJsonQuery(JsonQueryExpression jsonQuery)
+                                    static SqlExpression ProcessJsonQuery(JsonQueryExpression jsonQuery)
                                         => jsonQuery.Path is []
                                             ? jsonQuery.JsonColumn
                                             : new JsonScalarExpression(
@@ -309,20 +313,14 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
 
                                     case IComplexProperty { ComplexType: var complexType } complexProperty:
                                     {
-                                        // TODO: Make this better with #36646
+                                        // Find the container column in the relational model to get its type mapping
+                                        // Note that we assume exactly one column with the given name mapped to the entity (despite entity splitting).
+                                        // See #36647 and #36646 about improving this.
                                         var containerColumnName = complexType.GetContainerColumnName();
-                                        var containerColumnCandidates = complexType.ContainingEntityType.GetTableMappings()
+                                        targetColumnModel = complexType.ContainingEntityType.GetTableMappings()
                                             .SelectMany(m => m.Table.Columns)
                                             .Where(c => c.Name == containerColumnName)
-                                            .ToList();
-
-                                        targetColumnModel = containerColumnCandidates switch
-                                        {
-                                            [var c] => c,
-                                            [] => throw new UnreachableException($"No container column found in relational model for {complexType.DisplayName()}"),
-                                            _ => throw new InvalidOperationException(
-                                                RelationalStrings.MultipleColumnsWithSameJsonContainerName(complexType.ContainingEntityType.DisplayName(), containerColumnName))
-                                        };
+                                            .Single();
 
                                         break;
                                     }
@@ -755,7 +753,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
     /// </param>
     /// <param name="value">The JSON value to be set, ready for use as-is in <see cref="QuerySqlGenerator" />.</param>
     protected virtual ColumnValueSetter GenerateJsonPartialUpdateSetter(Expression target, SqlExpression value)
-        => throw new InvalidOperationException(RelationalStrings.JsonPartialUpdateNotSupportedByProvider);
+        => throw new InvalidOperationException(RelationalStrings.JsonPartialExecuteUpdateNotSupportedByProvider);
 
     private static T? ParameterValueExtractor<T>(
         QueryContext context,

@@ -548,7 +548,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
             _ => throw new UnreachableException(),
         };
 
-        if (_sqlServerSingletonOptions.SupportsJsonType)
+        if (jsonColumn.TypeMapping?.StoreType is "json")
         {
             // Generate a SQL Server 2025 modify method invocation(https://learn.microsoft.com/sql/t-sql/data-types/json-data-type#modify-method)
             // UPDATE ... SET [x].modify('$.a.b', 'foo')

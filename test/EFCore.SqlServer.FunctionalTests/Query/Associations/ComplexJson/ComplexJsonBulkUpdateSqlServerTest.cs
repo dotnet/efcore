@@ -72,6 +72,32 @@ WHERE JSON_VALUE([r].[RequiredRelated], '$.String') = N'foo'
         }
     }
 
+    public override async Task Update_property_inside_association_with_special_chars()
+    {
+        await base.Update_property_inside_association_with_special_chars();
+
+        if (Fixture.UsingJsonType)
+        {
+            AssertExecuteUpdateSql(
+                """
+UPDATE [r]
+SET [RequiredRelated].modify('$.String', N'{ Some other/JSON:like text though it [isn''t]: ממש ממש לאéèéè }')
+FROM [RootEntity] AS [r]
+WHERE JSON_VALUE([r].[RequiredRelated], '$.String' RETURNING nvarchar(max)) = N'{ this may/look:like JSON but it [isn''t]: ממש ממש לאéèéè }'
+""");
+        }
+        else
+        {
+            AssertExecuteUpdateSql(
+                """
+UPDATE [r]
+SET [r].[RequiredRelated] = JSON_MODIFY([r].[RequiredRelated], '$.String', N'{ Some other/JSON:like text though it [isn''t]: ממש ממש לאéèéè }')
+FROM [RootEntity] AS [r]
+WHERE JSON_VALUE([r].[RequiredRelated], '$.String') = N'{ this may/look:like JSON but it [isn''t]: ממש ממש לאéèéè }'
+""");
+        }
+    }
+
     public override async Task Update_property_inside_nested()
     {
         await base.Update_property_inside_nested();
@@ -150,7 +176,7 @@ FROM [RootEntity] AS [r]
 UPDATE [r]
 SET [r].[Name] = [r].[Name] + N'Modified',
     [RequiredRelated].modify('$.String', JSON_VALUE([r].[OptionalRelated], '$.String' RETURNING nvarchar(max))),
-    [OptionalRelated].modify('$.String', @p)
+    [OptionalRelated].modify('$.RequiredNested.String', @p)
 FROM [RootEntity] AS [r]
 WHERE [r].[OptionalRelated] IS NOT NULL
 """);
@@ -164,7 +190,7 @@ WHERE [r].[OptionalRelated] IS NOT NULL
 UPDATE [r]
 SET [r].[Name] = [r].[Name] + N'Modified',
     [r].[RequiredRelated] = JSON_MODIFY([r].[RequiredRelated], '$.String', JSON_VALUE([r].[OptionalRelated], '$.String')),
-    [r].[OptionalRelated] = JSON_MODIFY([r].[OptionalRelated], '$.String', @p)
+    [r].[OptionalRelated] = JSON_MODIFY([r].[OptionalRelated], '$.RequiredNested.String', @p)
 FROM [RootEntity] AS [r]
 WHERE [r].[OptionalRelated] IS NOT NULL
 """);
@@ -463,6 +489,13 @@ SET [r].[RequiredRelated] = JSON_MODIFY([r].[RequiredRelated], '$.NestedCollecti
 FROM [RootEntity] AS [r]
 """);
         }
+    }
+
+    public override async Task Update_collection_referencing_the_original_collection()
+    {
+        await base.Update_collection_referencing_the_original_collection();
+
+        AssertExecuteUpdateSql();
     }
 
     #endregion Update collection

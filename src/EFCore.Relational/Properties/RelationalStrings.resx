@@ -1075,8 +1075,11 @@
   <data name="ParameterNotObjectArray" xml:space="preserve">
     <value>The value provided for parameter '{parameter}' cannot be used because it isn't assignable to type 'object[]'.</value>
   </data>
-  <data name="JsonPartialUpdateNotSupportedByProvider" xml:space="preserve">
-    <value>The provider in use does not support partial updates within JSON columns.</value>
+  <data name="JsonPartialExecuteUpdateNotSupportedByProvider" xml:space="preserve">
+    <value>The provider in use does not support partial updates with ExecuteUpdate within JSON columns.</value>
+  </data>
+  <data name="JsonExecuteUpdateNotSupportedWithOwnedEntities" xml:space="preserve">
+    <value>ExecuteUpdate over JSON columns is not supported when the column is mapped as an owned entity. Map the column as a complex type instead.</value>
   </data>
   <data name="PendingAmbientTransaction" xml:space="preserve">
     <value>This connection was used with an ambient transaction. The original ambient transaction needs to be completed before this connection can be used outside of it.</value>

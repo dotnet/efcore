@@ -1646,10 +1646,16 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 parameter);
 
         /// <summary>
-        ///     The provider in use does not support partial updates within JSON columns.
+        ///     The provider in use does not support partial updates with ExecuteUpdate within JSON columns.
         /// </summary>
-        public static string JsonPartialUpdateNotSupportedByProvider
-            => GetString("JsonPartialUpdateNotSupportedByProvider");
+        public static string JsonPartialExecuteUpdateNotSupportedByProvider
+            => GetString("JsonPartialExecuteUpdateNotSupportedByProvider");
+
+        /// <summary>
+        ///     ExecuteUpdate over JSON columns is not supported when the column is mapped as an owned entity. Map the column as a complex type instead.
+        /// </summary>
+        public static string JsonExecuteUpdateNotSupportedWithOwnedEntities
+            => GetString("JsonExecuteUpdateNotSupportedWithOwnedEntities");
 
         /// <summary>
         ///     This connection was used with an ambient transaction. The original ambient transaction needs to be completed before this connection can be used outside of it.

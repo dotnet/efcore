@@ -57,6 +57,19 @@ WHERE [r].[RequiredRelated_String] = N'foo'
 """);
     }
 
+    public override async Task Update_property_inside_association_with_special_chars()
+    {
+        await base.Update_property_inside_association_with_special_chars();
+
+        AssertExecuteUpdateSql(
+            """
+UPDATE [r]
+SET [r].[RequiredRelated_String] = N'{ Some other/JSON:like text though it [isn''t]: ממש ממש לאéèéè }'
+FROM [RootEntity] AS [r]
+WHERE [r].[RequiredRelated_String] = N'{ this may/look:like JSON but it [isn''t]: ממש ממש לאéèéè }'
+""");
+    }
+
     public override async Task Update_property_inside_nested()
     {
         await base.Update_property_inside_nested();
@@ -104,7 +117,7 @@ FROM [RootEntity] AS [r]
 UPDATE [r]
 SET [r].[Name] = [r].[Name] + N'Modified',
     [r].[RequiredRelated_String] = [r].[OptionalRelated_String],
-    [r].[OptionalRelated_String] = @p
+    [r].[OptionalRelated_RequiredNested_String] = @p
 FROM [RootEntity] AS [r]
 WHERE [r].[OptionalRelated_Id] IS NOT NULL
 """);
@@ -372,6 +385,13 @@ FROM [RootEntity] AS [r]
     public override async Task Update_nested_collection_to_inline_with_lambda()
     {
         await base.Update_nested_collection_to_inline_with_lambda();
+
+        AssertExecuteUpdateSql();
+    }
+
+    public override async Task Update_collection_referencing_the_original_collection()
+    {
+        await base.Update_collection_referencing_the_original_collection();
 
         AssertExecuteUpdateSql();
     }

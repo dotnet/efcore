@@ -265,8 +265,27 @@ ORDER BY [r].[Id]
 
         if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
         {
-            AssertSql(
-                """
+            if (Fixture.UsingJsonType)
+            {
+                AssertSql(
+                    """
+SELECT [r].[Id], [r0].[Id], [r0].[Int], [r0].[Name], [r0].[String], [r0].[NestedCollection], [r0].[OptionalNested], [r0].[RequiredNested]
+FROM [RootEntity] AS [r]
+CROSS APPLY OPENJSON([r].[RelatedCollection], '$') WITH (
+    [Id] int '$.Id',
+    [Int] int '$.Int',
+    [Name] nvarchar(max) '$.Name',
+    [String] nvarchar(max) '$.String',
+    [NestedCollection] json '$.NestedCollection' AS JSON,
+    [OptionalNested] json '$.OptionalNested' AS JSON,
+    [RequiredNested] json '$.RequiredNested' AS JSON
+) AS [r0]
+""");
+            }
+            else
+            {
+                AssertSql(
+                    """
 SELECT [r].[Id], [r0].[Id], [r0].[Int], [r0].[Name], [r0].[String], [r0].[NestedCollection], [r0].[OptionalNested], [r0].[RequiredNested]
 FROM [RootEntity] AS [r]
 CROSS APPLY OPENJSON([r].[RelatedCollection], '$') WITH (
@@ -279,6 +298,7 @@ CROSS APPLY OPENJSON([r].[RelatedCollection], '$') WITH (
     [RequiredNested] nvarchar(max) '$.RequiredNested' AS JSON
 ) AS [r0]
 """);
+            }
         }
     }
 
