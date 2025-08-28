@@ -83,8 +83,11 @@ public class SqliteTransaction : DbTransaction
             throw new InvalidOperationException(Resources.TransactionCompleted);
         }
 
-        sqlite3_rollback_hook(_connection.Handle, null, null);
+        // Do commit first and then clear the rollback hook.
+        // Commit itself can fail (i.e. SQLITE_FULL) and then Dispose would throw
+        // confusing "SQLite Error 1: 'cannot rollback - no transaction is active'" exception.
         _connection.ExecuteNonQuery("COMMIT;");
+        sqlite3_rollback_hook(_connection.Handle, null, null);
         Complete();
     }
 
