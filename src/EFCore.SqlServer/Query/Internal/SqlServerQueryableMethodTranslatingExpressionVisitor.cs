@@ -267,19 +267,14 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
             }
         }
 
+        // Find the container column in the relational model to get its type mapping
+        // Note that we assume exactly one column with the given name mapped to the entity (despite entity splitting).
+        // See #36647 and #36646 about improving this.
         var containerColumnName = structuralType.GetContainerColumnName();
-        var containerColumnCandidates = structuralType.ContainingEntityType.GetTableMappings()
+        var containerColumn = structuralType.ContainingEntityType.GetTableMappings()
             .SelectMany(m => m.Table.Columns)
             .Where(c => c.Name == containerColumnName)
-            .ToList();
-
-        var containerColumn = containerColumnCandidates switch
-        {
-            [var c] => c,
-            [] => throw new UnreachableException($"No container column found in relational model for {structuralType.DisplayName()}"),
-            _ => throw new InvalidOperationException(
-                $"Multiple columns with JSON container name '{containerColumnName}' on entity type '{structuralType.ContainingEntityType.DisplayName()}'")
-        };
+            .Single();
 
         var nestedJsonPropertyNames = jsonQueryExpression.StructuralType switch
         {
