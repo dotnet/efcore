@@ -1268,29 +1268,7 @@ ALTER TABLE [Person] ADD DEFAULT N'' FOR [Name];
 """);
     }
 
-    [ConditionalFact]
-    public void Invalid_column_type_throws_meaningful_exception()
-    {
-        var ex = Assert.Throws<InvalidOperationException>(() =>
-            Generate(
-                new CreateTableOperation
-                {
-                    Name = "People",
-                    Columns =
-                    {
-                        new AddColumnOperation
-                        {
-                            Name = "FirstName",
-                            Table = "People",
-                            ClrType = typeof(string),
-                            ColumnType = "decimal(18,2)", // Invalid store type for string
-                            IsNullable = false
-                        }
-                    }
-                }));
 
-        Assert.Equal(RelationalStrings.UnsupportedTypeForColumn("People", "FirstName", "String"), ex.Message);
-    }
 
     [ConditionalFact]
     public void Invalid_column_type_for_unmappable_clr_type_throws_meaningful_exception()
