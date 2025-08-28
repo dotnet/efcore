@@ -10225,41 +10225,32 @@ CREATE TABLE [Customers] (
 
         AssertSql(
             """
-DECLARE @historyTableSchema nvarchar(max) = QUOTENAME(SCHEMA_NAME())
-EXEC(N'CREATE TABLE [Customer] (
-    [Id] int NOT NULL IDENTITY,
-    [Name] nvarchar(50) NOT NULL DEFAULT N''DefaultName'',
-    [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END HIDDEN NOT NULL,
-    [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
-    CONSTRAINT [PK_Customer] PRIMARY KEY ([Id]),
-    PERIOD FOR SYSTEM_TIME([SystemTimeStart], [SystemTimeEnd])
-) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema + N'.[CustomerHistory]))');
-""",
-            //
-            """
 ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = OFF)
 """,
             //
             """
-DECLARE @var sysname;
-SELECT @var = [d].[name]
+DECLARE @var2 nvarchar(max);
+SELECT @var2 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customer]') AND [c].[name] = N'Name');
-IF @var IS NOT NULL EXEC(N'ALTER TABLE [Customer] DROP CONSTRAINT [' + @var + '];');
+IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customer] DROP CONSTRAINT ' + @var2 + ';');
+ALTER TABLE [Customer] ALTER COLUMN [Name] nvarchar(100) NULL;
 """,
             //
             """
-ALTER TABLE [Customer] ALTER COLUMN [Name] nvarchar(100) NOT NULL;
-""",
-            //
-            """
-ALTER TABLE [CustomerHistory] ALTER COLUMN [Name] nvarchar(100) NOT NULL;
+DECLARE @var3 nvarchar(max);
+SELECT @var3 = QUOTENAME([d].[name])
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[CustomerHistory]') AND [c].[name] = N'Name');
+IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [CustomerHistory] DROP CONSTRAINT ' + @var3 + ';');
+ALTER TABLE [CustomerHistory] ALTER COLUMN [Name] nvarchar(100) NULL;
 """,
             //
             """
 DECLARE @historyTableSchema1 nvarchar(max) = QUOTENAME(SCHEMA_NAME())
-EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema1 + N'.[CustomerHistory]))')
+EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema1 + '.[CustomerHistory]))')
 """);
     }
 
@@ -10311,36 +10302,13 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
 
         AssertSql(
             """
-DECLARE @historyTableSchema nvarchar(max) = QUOTENAME(SCHEMA_NAME())
-EXEC(N'CREATE TABLE [Customer] (
-    [Id] int NOT NULL IDENTITY,
-    [Name] nvarchar(50) NULL,
-    [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END HIDDEN NOT NULL,
-    [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
-    CONSTRAINT [PK_Customer] PRIMARY KEY ([Id]),
-    PERIOD FOR SYSTEM_TIME([SystemTimeStart], [SystemTimeEnd])
-) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema + N'.[CustomerHistory]))');
-""",
-            //
-            """
-ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = OFF)
-""",
-            //
-            """
-ALTER TABLE [Customer] ALTER COLUMN [Name] nvarchar(50) NOT NULL;
-""",
-            //
-            """
-ALTER TABLE [CustomerHistory] ALTER COLUMN [Name] nvarchar(50) NOT NULL;
-""",
-            //
-            """
+DECLARE @var1 nvarchar(max);
+SELECT @var1 = QUOTENAME([d].[name])
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customer]') AND [c].[name] = N'Name');
+IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customer] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [Customer] ADD DEFAULT N'DefaultName' FOR [Name];
-""",
-            //
-            """
-DECLARE @historyTableSchema1 nvarchar(max) = QUOTENAME(SCHEMA_NAME())
-EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema1 + N'.[CustomerHistory]))')
 """);
     }
 
@@ -10392,45 +10360,13 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
 
         AssertSql(
             """
-DECLARE @historyTableSchema nvarchar(max) = QUOTENAME(SCHEMA_NAME())
-EXEC(N'CREATE TABLE [Customer] (
-    [Id] int NOT NULL IDENTITY,
-    [Name] nvarchar(50) NOT NULL DEFAULT N'OldDefault',
-    [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END HIDDEN NOT NULL,
-    [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
-    CONSTRAINT [PK_Customer] PRIMARY KEY ([Id]),
-    PERIOD FOR SYSTEM_TIME([SystemTimeStart], [SystemTimeEnd])
-) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema + N'.[CustomerHistory]))');
-""",
-            //
-            """
-ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = OFF)
-""",
-            //
-            """
-DECLARE @var sysname;
-SELECT @var = [d].[name]
+DECLARE @var1 nvarchar(max);
+SELECT @var1 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customer]') AND [c].[name] = N'Name');
-IF @var IS NOT NULL EXEC(N'ALTER TABLE [Customer] DROP CONSTRAINT [' + @var + '];');
-""",
-            //
-            """
-ALTER TABLE [Customer] ALTER COLUMN [Name] nvarchar(50) NOT NULL;
-""",
-            //
-            """
-ALTER TABLE [CustomerHistory] ALTER COLUMN [Name] nvarchar(50) NOT NULL;
-""",
-            //
-            """
+IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customer] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [Customer] ADD DEFAULT N'NewDefault' FOR [Name];
-""",
-            //
-            """
-DECLARE @historyTableSchema1 nvarchar(max) = QUOTENAME(SCHEMA_NAME())
-EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema1 + N'.[CustomerHistory]))')
 """);
     }
 
@@ -10482,41 +10418,30 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
 
         AssertSql(
             """
-DECLARE @historyTableSchema nvarchar(max) = QUOTENAME(SCHEMA_NAME())
-EXEC(N'CREATE TABLE [Customer] (
-    [Id] int NOT NULL IDENTITY,
-    [CreatedDate] datetime2 NOT NULL DEFAULT (GETDATE()),
-    [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END HIDDEN NOT NULL,
-    [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
-    CONSTRAINT [PK_Customer] PRIMARY KEY ([Id]),
-    PERIOD FOR SYSTEM_TIME([SystemTimeStart], [SystemTimeEnd])
-) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema + N'.[CustomerHistory]))');
-""",
-            //
-            """
 ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = OFF)
 """,
             //
             """
-DECLARE @var sysname;
-SELECT @var = [d].[name]
+DECLARE @var2 nvarchar(max);
+SELECT @var2 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customer]') AND [c].[name] = N'CreatedDate');
-IF @var IS NOT NULL EXEC(N'ALTER TABLE [Customer] DROP CONSTRAINT [' + @var + '];');
+IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customer] DROP CONSTRAINT ' + @var2 + ';');
 """,
             //
             """
-ALTER TABLE [Customer] ALTER COLUMN [CreatedDate] datetime2 NOT NULL;
-""",
-            //
-            """
-ALTER TABLE [CustomerHistory] ALTER COLUMN [CreatedDate] datetime2 NOT NULL;
+DECLARE @var3 nvarchar(max);
+SELECT @var3 = QUOTENAME([d].[name])
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[CustomerHistory]') AND [c].[name] = N'CreatedDate');
+IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [CustomerHistory] DROP CONSTRAINT ' + @var3 + ';');
 """,
             //
             """
 DECLARE @historyTableSchema1 nvarchar(max) = QUOTENAME(SCHEMA_NAME())
-EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema1 + N'.[CustomerHistory]))')
+EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema1 + '.[CustomerHistory]))')
 """);
     }
 }
