@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
@@ -1265,6 +1266,25 @@ EXEC(N'UPDATE [Person] SET [Name] = N'''' WHERE [Name] IS NULL');
 ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(max) NOT NULL;
 ALTER TABLE [Person] ADD DEFAULT N'' FOR [Name];
 """);
+    }
+
+
+
+    [ConditionalFact]
+    public void Invalid_column_type_for_unmappable_clr_type_throws_meaningful_exception()
+    {
+        var ex = Assert.Throws<InvalidOperationException>(() =>
+            Generate(
+                new AddColumnOperation
+                {
+                    Name = "TestColumn",
+                    Table = "TestTable",
+                    ClrType = typeof(System.IO.FileStream), // Unmappable CLR type
+                    ColumnType = null,
+                    IsNullable = false
+                }));
+
+        Assert.Equal(RelationalStrings.UnsupportedTypeForColumn("TestTable", "TestColumn", "FileStream"), ex.Message);
     }
 
     private static void CreateGotModel(ModelBuilder b)
