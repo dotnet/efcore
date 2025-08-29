@@ -1287,26 +1287,6 @@ ALTER TABLE [Person] ADD DEFAULT N'' FOR [Name];
         Assert.Equal(RelationalStrings.UnsupportedTypeForColumn("TestTable", "TestColumn", "FileStream"), ex.Message);
     }
 
-    [ConditionalFact]
-    public void Column_type_found_from_default_value_when_clr_type_unmappable()
-    {
-        Generate(
-            new AddColumnOperation
-            {
-                Name = "TestColumn",
-                Table = "TestTable",
-                ClrType = typeof(System.IO.FileStream), // Unmappable CLR type
-                ColumnType = null,
-                DefaultValue = "test string", // String default value should give us nvarchar mapping
-                IsNullable = false
-            });
-
-        AssertSql(
-            """
-ALTER TABLE [TestTable] ADD [TestColumn] nvarchar(max) NOT NULL DEFAULT N'test string';
-""");
-    }
-
     private static void CreateGotModel(ModelBuilder b)
         => b.HasDefaultSchema("dbo").Entity(
             "Person", pb =>

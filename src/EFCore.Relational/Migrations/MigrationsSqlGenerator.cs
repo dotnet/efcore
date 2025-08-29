@@ -1447,17 +1447,6 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
             return storeType;
         }
 
-        // Try getting the type from the default value if available
-        if (operation.DefaultValue != null)
-        {
-            var defaultValueMapping = Dependencies.TypeMappingSource.GetMappingForValue(operation.DefaultValue);
-            if (defaultValueMapping?.StoreType != null)
-            {
-                return defaultValueMapping.StoreType;
-            }
-        }
-
-        // If no mapping found, throw with detailed information
         var fullTableName = schema != null ? $"{schema}.{tableName}" : tableName;
         throw new InvalidOperationException(
             RelationalStrings.UnsupportedTypeForColumn(fullTableName, name, operation.ClrType?.Name ?? "unknown"));

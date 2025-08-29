@@ -383,9 +383,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             {
                 Check.DebugAssert(operation.DefaultValue is not null);
 
-                var typeMapping = (columnType != null
-                        ? Dependencies.TypeMappingSource.FindMapping(operation.DefaultValue.GetType(), columnType)
-                        : null)
+                var typeMapping = Dependencies.TypeMappingSource.FindMapping(operation.DefaultValue.GetType(), columnType)
                     ?? Dependencies.TypeMappingSource.GetMappingForValue(operation.DefaultValue);
 
                 defaultValueSql = typeMapping.GenerateSqlLiteral(operation.DefaultValue);
