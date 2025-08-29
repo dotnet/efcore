@@ -2,7 +2,9 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
+using System.Transactions;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
+using IsolationLevel = System.Data.IsolationLevel;
 
 namespace Microsoft.EntityFrameworkCore;
 
@@ -1080,6 +1082,79 @@ public class RelationalConnectionTest
                 Assert.Same(connection.DbConnection, eventData.Connection);
                 Assert.True(eventData.IsAsync);
             });
+    }
+
+    [ConditionalFact]
+    public void HandleTransactionCompleted_with_concurrent_ClearTransactions_is_thread_safe()
+    {
+        // This test verifies the fix for the race condition where HandleTransactionCompleted
+        // could be called on a different thread while ClearTransactions is executing.
+        var exceptions = new List<Exception>();
+        for (var i = 0; i < Environment.ProcessorCount; i++)
+        {
+            var connection = new FakeRelationalConnection(
+                CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=ConcurrencyTest")));
+
+            using var scope = new TransactionScope();
+            connection.Open();
+
+            var random = new Random();
+            var resetFirst = random.Next(0, 1) == 0;
+            var tasks = new Task[2];
+            tasks[0] = Task.Run(async () =>
+            {
+                try
+                {
+                    // Small delay to increase chance of race condition
+                    await Task.Yield();
+
+                    if (resetFirst)
+                    {
+                        ((IResettableService)connection).ResetState();
+                    }
+                    else
+                    {
+                        scope.Complete();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    lock (exceptions)
+                    {
+                        exceptions.Add(ex);
+                    }
+                }
+            });
+
+            tasks[1] = Task.Run(async () =>
+            {
+                try
+                {
+                    // Small delay to increase chance of race condition
+                    await Task.Yield();
+
+                    if (resetFirst)
+                    {
+                        scope.Complete();
+                    }
+                    else
+                    {
+                        ((IResettableService)connection).ResetState();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    lock (exceptions)
+                    {
+                        exceptions.Add(ex);
+                    }
+                }
+            });
+
+            Task.WaitAll(tasks, TimeSpan.FromSeconds(10));
+        }
+
+        Assert.Empty(exceptions);
     }
 
     private static IDbContextOptions CreateOptions(params RelationalOptionsExtension[] optionsExtensions)
