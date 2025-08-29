@@ -283,7 +283,7 @@ public sealed partial class SelectExpression
                     QueryExpression: ProjectionBindingExpression innerProjectionBindingExpression
                 } collectionResultExpression:
                 {
-                    var navigation = collectionResultExpression.Relationship switch
+                    var navigation = collectionResultExpression.StructuralProperty switch
                     {
                         INavigationBase n => n,
                         null => null,

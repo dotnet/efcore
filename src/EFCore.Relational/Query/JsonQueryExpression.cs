@@ -146,13 +146,13 @@ public class JsonQueryExpression : Expression, IPrintableExpression
     }
 
     /// <summary>
-    ///     Binds a relationship with this JSON query expression to get the SQL representation.
+    ///     Binds a navigation or complex property with this JSON query expression to get the SQL representation.
     /// </summary>
-    /// <param name="relationship">The navigation or complex property to bind.</param>
+    /// <param name="structuralProperty">The navigation or complex property to bind.</param>
     /// <returns>An JSON query expression for the target entity or complex type.</returns>
-    public virtual JsonQueryExpression BindRelationship(IPropertyBase relationship)
+    public virtual JsonQueryExpression BindStructuralProperty(IPropertyBase structuralProperty)
     {
-        switch (relationship)
+        switch (structuralProperty)
         {
             case INavigation navigation:
             {
