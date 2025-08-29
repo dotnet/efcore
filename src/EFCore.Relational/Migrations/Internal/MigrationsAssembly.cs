@@ -60,7 +60,7 @@ public class MigrationsAssembly : IMigrationsAssembly
                 var items
                     = from t in Assembly.GetConstructibleTypes()
                       where t.IsSubclassOf(typeof(Migration))
-                          && t.GetCustomAttribute<DbContextAttribute>()?.ContextType == _contextType
+                          && t.GetCustomAttribute<DbContextAttribute>(inherit: false)?.ContextType == _contextType
                       let id = t.GetCustomAttribute<MigrationAttribute>()?.Id
                       orderby id
                       select (id, t);
@@ -94,7 +94,7 @@ public class MigrationsAssembly : IMigrationsAssembly
         => _modelSnapshot
             ??= (from t in Assembly.GetConstructibleTypes()
                  where t.IsSubclassOf(typeof(ModelSnapshot))
-                     && t.GetCustomAttribute<DbContextAttribute>()?.ContextType == _contextType
+                     && t.GetCustomAttribute<DbContextAttribute>(inherit: false)?.ContextType == _contextType
                  select (ModelSnapshot)Activator.CreateInstance(t.AsType())!)
             .FirstOrDefault();
 

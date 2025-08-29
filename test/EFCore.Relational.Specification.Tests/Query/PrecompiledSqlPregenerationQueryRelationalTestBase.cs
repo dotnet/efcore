@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 ///     SQL pregeneration.
 /// </summary>
 [Collection("PrecompiledQuery")]
-public class PrecompiledSqlPregenerationQueryRelationalTestBase
+public abstract class PrecompiledSqlPregenerationQueryRelationalTestBase
 {
     public PrecompiledSqlPregenerationQueryRelationalTestBase(
         PrecompiledSqlPregenerationQueryRelationalFixture fixture,
