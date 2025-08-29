@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Linq;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Metadata.Internal;
@@ -371,6 +372,22 @@ public class SqliteMigrationsSqlGenerator : MigrationsSqlGenerator
                     || rebuildContext.AddColumnsDeferred.ContainsKey(column.Name))
                 {
                     continue;
+                }
+
+                // Skip autoincrement primary key columns that are being added in this migration
+                var isAutoincrement = column.FindAnnotation(SqliteAnnotationNames.Autoincrement)?.Value as bool? == true;
+                var isPrimaryKey = column.Table.PrimaryKey?.Columns.Contains(column) == true;
+                
+                if (isAutoincrement && isPrimaryKey)
+                {
+                    // Check if this column is being added in the current migration
+                    var isNewColumn = migrationOperations.OfType<AddColumnOperation>()
+                        .Any(op => op.Table == key.Table && op.Schema == key.Schema && op.Name == column.Name);
+                    
+                    if (isNewColumn)
+                    {
+                        continue; // Skip newly added autoincrement columns
+                    }
                 }
 
                 if (first)
