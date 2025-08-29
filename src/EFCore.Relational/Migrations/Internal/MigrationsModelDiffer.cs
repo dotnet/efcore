@@ -595,7 +595,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         var sourceMigrationsAnnotations = source.GetAnnotations();
         var targetMigrationsAnnotations = target.GetAnnotations();
 
-        if (!MultilineEquals(source.Comment, target.Comment)
+        if (source.Comment != target.Comment
             || HasDifferences(sourceMigrationsAnnotations, targetMigrationsAnnotations))
         {
             var alterTableOperation = new AlterTableOperation
@@ -986,11 +986,11 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             && source.MaxLength == target.MaxLength
             && source.IsFixedLength == target.IsFixedLength
             && source.Collation == target.Collation
-            && MultilineEquals(source.Comment, target.Comment)
+            && source.Comment == target.Comment
             && source.IsStored == target.IsStored
-            && MultilineEquals(source.ComputedColumnSql, target.ComputedColumnSql)
+            && source.ComputedColumnSql == target.ComputedColumnSql
             && Equals(sourceDefault, targetDefault)
-            && MultilineEquals(source.DefaultValueSql, target.DefaultValueSql);
+            && source.DefaultValueSql == target.DefaultValueSql;
     }
 
     private static bool EntityTypePathEquals(ITypeBase source, ITypeBase target, DiffContext diffContext)
@@ -1079,12 +1079,12 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
 
         if (isNullableChanged
             || columnTypeChanged
-            || !MultilineEquals(source.DefaultValueSql, target.DefaultValueSql)
-            || !MultilineEquals(source.ComputedColumnSql, target.ComputedColumnSql)
+            || source.DefaultValueSql != target.DefaultValueSql
+            || source.ComputedColumnSql != target.ComputedColumnSql
             || source.IsStored != target.IsStored
             || sourceDefault?.GetType() != targetDefault?.GetType()
             || (sourceDefault != DBNull.Value && !target.ProviderValueComparer.Equals(sourceDefault, targetDefault))
-            || !MultilineEquals(source.Comment, target.Comment)
+            || source.Comment != target.Comment
             || source.Collation != target.Collation
             || source.Order != target.Order
             || HasDifferences(sourceMigrationsAnnotations, targetMigrationsAnnotations))
@@ -1507,7 +1507,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                 || (source.IsDescending is not null
                     && target.IsDescending is not null
                     && source.IsDescending.SequenceEqual(target.IsDescending)))
-            && MultilineEquals(source.Filter, target.Filter)
+            && source.Filter == target.Filter
             && !HasDifferences(source.GetAnnotations(), target.GetAnnotations())
             && source.Columns.Select(p => p.Name).SequenceEqual(
                 target.Columns.Select(p => diffContext.FindSource(p)?.Name));
@@ -1600,7 +1600,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             Remove,
             (s, t, c) => c.FindTable(s.EntityType) == c.FindSource(c.FindTable(t.EntityType))
                 && string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase)
-                && MultilineEquals(s.Sql, t.Sql));
+                && string.Equals(s.Sql, t.Sql, StringComparison.OrdinalIgnoreCase));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2481,7 +2481,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         foreach (var annotation in source)
         {
             var index = unmatched.FindIndex(a
-                => a.Name == annotation.Name && AnnotationValuesEqual(a, annotation));
+                => a.Name == annotation.Name && StructuralComparisons.StructuralEqualityComparer.Equals(a.Value, annotation.Value));
             if (index == -1)
             {
                 return true;
@@ -2491,18 +2491,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         }
 
         return unmatched.Count != 0;
-
-        static bool AnnotationValuesEqual(IAnnotation left, IAnnotation right)
-            => left.Value is string leftString && right.Value is string rightString
-                ? MultilineEquals(leftString, rightString)
-                : StructuralComparisons.StructuralEqualityComparer.Equals(left.Value, right.Value);
     }
-
-    private static bool MultilineEquals(string? sourceString, string? targetString, StringComparison comparisonType = StringComparison.Ordinal)
-        => ReferenceEquals(sourceString, targetString)
-            || (sourceString is not null
-                && targetString is not null
-                && string.Equals(sourceString.ReplaceLineEndings(), targetString.ReplaceLineEndings(), comparisonType));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -57,7 +57,7 @@ public class ListLoggerFactory(Func<string, bool> shouldLogCategory) : ILoggerFa
         => _disposed = true;
 
     public static string NormalizeLineEndings(string expectedString)
-        => expectedString.ReplaceLineEndings();
+        => expectedString.Replace("\r", string.Empty).Replace("\n", Environment.NewLine);
 
     protected class ListLogger : ILogger
     {

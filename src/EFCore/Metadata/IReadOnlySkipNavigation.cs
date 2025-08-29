@@ -99,7 +99,7 @@ public interface IReadOnlySkipNavigation : IReadOnlyNavigationBase
             }
 
             if ((options & MetadataDebugStringOptions.IncludePropertyIndexes) != 0
-                && (this is RuntimeAnnotatableBase || this is AnnotatableBase { IsReadOnly: true }))
+                && ((AnnotatableBase)this).IsReadOnly)
             {
                 var indexes = ((ISkipNavigation)this).GetPropertyIndexes();
                 builder.Append(' ').Append(indexes.Index);

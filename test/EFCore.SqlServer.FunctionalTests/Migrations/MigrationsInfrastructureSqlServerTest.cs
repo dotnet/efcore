@@ -100,10 +100,6 @@ CREATE TABLE [Table1] (
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
 VALUES (N'00000000000001_Migration1', N'7.0.0-test');
 
-COMMIT;
-GO
-
-BEGIN TRANSACTION;
 EXEC sp_rename N'[Table1].[Foo]', N'Bar', 'COLUMN';
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
@@ -162,10 +158,6 @@ Empty Lines')
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
 VALUES (N'00000000000005_Migration5', N'7.0.0-test');
 
-COMMIT;
-GO
-
-BEGIN TRANSACTION;
 INSERT INTO Table1 (Id, Bar, Description) VALUES (-2, 4, 'GO
 Value With
 
@@ -174,10 +166,6 @@ Empty Lines')
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
 VALUES (N'00000000000006_Migration6', N'7.0.0-test');
 
-COMMIT;
-GO
-
-BEGIN TRANSACTION;
 INSERT INTO Table1 (Id, Bar, Description) VALUES (-3, 5, '--Start
 GO
 Value With
@@ -198,47 +186,23 @@ BEGIN TRANSACTION;
 DELETE FROM [__EFMigrationsHistory]
 WHERE [MigrationId] = N'00000000000007_Migration7';
 
-COMMIT;
-GO
-
-BEGIN TRANSACTION;
 DELETE FROM [__EFMigrationsHistory]
 WHERE [MigrationId] = N'00000000000006_Migration6';
 
-COMMIT;
-GO
-
-BEGIN TRANSACTION;
 DELETE FROM [__EFMigrationsHistory]
 WHERE [MigrationId] = N'00000000000005_Migration5';
 
-COMMIT;
-GO
-
-BEGIN TRANSACTION;
 DELETE FROM [__EFMigrationsHistory]
 WHERE [MigrationId] = N'00000000000004_Migration4';
 
-COMMIT;
-GO
-
-BEGIN TRANSACTION;
 DELETE FROM [__EFMigrationsHistory]
 WHERE [MigrationId] = N'00000000000003_Migration3';
 
-COMMIT;
-GO
-
-BEGIN TRANSACTION;
 EXEC sp_rename N'[Table1].[Bar]', N'Foo', 'COLUMN';
 
 DELETE FROM [__EFMigrationsHistory]
 WHERE [MigrationId] = N'00000000000002_Migration2';
 
-COMMIT;
-GO
-
-BEGIN TRANSACTION;
 DROP TABLE [Table1];
 
 DELETE FROM [__EFMigrationsHistory]
@@ -503,10 +467,6 @@ BEGIN
     VALUES (N'00000000000001_Migration1', N'7.0.0-test');
 END;
 
-COMMIT;
-GO
-
-BEGIN TRANSACTION;
 IF NOT EXISTS (
     SELECT * FROM [__EFMigrationsHistory]
     WHERE [MigrationId] = N'00000000000002_Migration2'
@@ -545,10 +505,6 @@ BEGIN
     WHERE [MigrationId] = N'00000000000002_Migration2';
 END;
 
-COMMIT;
-GO
-
-BEGIN TRANSACTION;
 IF EXISTS (
     SELECT * FROM [__EFMigrationsHistory]
     WHERE [MigrationId] = N'00000000000001_Migration1'
