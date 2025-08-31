@@ -38,6 +38,12 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
             => GetString("ApplyNotSupported");
 
         /// <summary>
+        ///     ExecuteUpdate partial updates of ulong properties within JSON columns is not supported.
+        /// </summary>
+        public static string ExecuteUpdateJsonPartialUpdateDoesNotSupportUlong
+            => GetString("ExecuteUpdateJsonPartialUpdateDoesNotSupportUlong");
+
+        /// <summary>
         ///     Translating this operation requires the 'DEFAULT' keyword, which is not supported on SQLite.
         /// </summary>
         public static string DefaultNotSupported

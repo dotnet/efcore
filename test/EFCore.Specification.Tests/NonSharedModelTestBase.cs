@@ -37,7 +37,7 @@ public abstract class NonSharedModelTestBase : IAsyncLifetime
     {
     }
 
-    protected NonSharedModelTestBase(NonSharedFixture fixture)
+    protected NonSharedModelTestBase(NonSharedFixture? fixture)
         => Fixture = fixture;
 
     public virtual Task InitializeAsync()

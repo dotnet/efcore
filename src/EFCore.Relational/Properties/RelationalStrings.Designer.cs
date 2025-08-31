@@ -844,6 +844,18 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 operation);
 
         /// <summary>
+        ///     'ExecuteUpdate' cannot currently set a property in a JSON column to a regular, non-JSON column; see https://github.com/dotnet/efcore/issues/36688.
+        /// </summary>
+        public static string ExecuteUpdateCannotSetJsonPropertyToNonJsonColumn
+            => GetString("ExecuteUpdateCannotSetJsonPropertyToNonJsonColumn");
+
+        /// <summary>
+        ///     'ExecuteUpdate' cannot currently set a property in a JSON column to arbitrary expressions; only constants, parameters and other JSON properties are supported; see https://github.com/dotnet/efcore/issues/36688.
+        /// </summary>
+        public static string ExecuteUpdateCannotSetJsonPropertyToArbitraryExpression
+            => GetString("ExecuteUpdateCannotSetJsonPropertyToArbitraryExpression");
+
+        /// <summary>
         ///     'ExecuteUpdate' or 'ExecuteDelete' was called on entity type '{entityType}', but that entity type is not mapped to a table.
         /// </summary>
         public static string ExecuteUpdateDeleteOnEntityNotMappedToTable(object? entityType)

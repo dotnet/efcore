@@ -586,6 +586,57 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    protected override bool TrySerializeScalarToJson(
+        JsonScalarExpression target,
+        SqlExpression value,
+        [NotNullWhen(true)] out SqlExpression? jsonValue)
+    {
+        var providerClrType = (value.TypeMapping!.Converter?.ProviderClrType ?? value.Type).UnwrapNullableType();
+
+        // SQLite has no bool type, so if we simply sent the bool as-is, we'd get 1/0 in the JSON document.
+        // To get an actual unquoted true/false value, we pass "true"/"false" string through the json() minifier, which does this.
+        // See https://sqlite.org/forum/info/91d09974c3754ea6.
+        if (providerClrType == typeof(bool))
+        {
+            jsonValue = _sqlExpressionFactory.Function(
+                "json",
+                [
+                    value is SqlConstantExpression { Value: bool constant }
+                        ? _sqlExpressionFactory.Constant(constant ? "true" : "false")
+                        : _sqlExpressionFactory.Case(
+                        [
+                            new CaseWhenClause(
+                                _sqlExpressionFactory.Equal(value, _sqlExpressionFactory.Constant(true)),
+                                _sqlExpressionFactory.Constant("true")),
+                            new CaseWhenClause(
+                                _sqlExpressionFactory.Equal(value, _sqlExpressionFactory.Constant(false)),
+                                _sqlExpressionFactory.Constant("false"))
+                        ],
+                        elseResult: _sqlExpressionFactory.Constant("null"))
+                ],
+                nullable: true,
+                argumentsPropagateNullability: [true],
+                typeof(string),
+                _typeMappingSource.FindMapping(typeof(string)));
+
+            return true;
+        }
+
+        if (providerClrType == typeof(ulong))
+        {
+            // See #36689
+            throw new InvalidOperationException(SqliteStrings.ExecuteUpdateJsonPartialUpdateDoesNotSupportUlong);
+        }
+
+        return base.TrySerializeScalarToJson(target, value, out jsonValue);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     protected override SqlExpression? GenerateJsonPartialUpdateSetter(
         Expression target,
         SqlExpression value,
