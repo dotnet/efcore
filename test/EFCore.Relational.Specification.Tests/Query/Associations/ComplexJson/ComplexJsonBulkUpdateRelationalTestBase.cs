@@ -33,6 +33,10 @@ public abstract class ComplexJsonBulkUpdateRelationalTestBase<TFixture> : Comple
     public override Task Update_collection_referencing_the_original_collection()
         => Assert.ThrowsAsync<InvalidOperationException>(base.Update_collection_referencing_the_original_collection);
 
+    // #36722: support ExecuteUpdate inside structural collections mapped to JSON
+    public override Task Update_inside_structural_collection()
+        => Assert.ThrowsAsync<InvalidOperationException>(base.Update_inside_structural_collection);
+
     protected void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

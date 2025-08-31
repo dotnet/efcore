@@ -5,6 +5,4 @@ namespace Microsoft.EntityFrameworkCore.Query.Associations.OwnedNavigations;
 
 public abstract class OwnedNavigationsMiscellaneousTestBase<TFixture>(TFixture fixture)
     : AssociationsMiscellaneousTestBase<TFixture>(fixture)
-    where TFixture : OwnedNavigationsFixtureBase, new()
-{
-}
+    where TFixture : OwnedNavigationsFixtureBase, new();
