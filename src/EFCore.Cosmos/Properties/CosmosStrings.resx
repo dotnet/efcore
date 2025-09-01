@@ -230,6 +230,10 @@
     <value>Executed ReplaceItem ({elapsed} ms, {charge} RU) ActivityId='{activityId}', Container='{container}', Id='{id}', Partition='{partitionKey}'</value>
     <comment>Information CosmosEventId.ExecutedReplaceItem string string string string string string?</comment>
   </data>
+  <data name="LogExecutedTransactionalBatch" xml:space="preserve">
+    <value>Executed TransactionalBatch ({elapsed} ms, {charge} RU) ActivityId='{activityId}', Container='{container}', Partition='{partitionKey}'</value>
+    <comment>Information CosmosEventId.ExecutedTransactionalBatch string string string string string?</comment>
+  </data>
   <data name="LogExecutingReadItem" xml:space="preserve">
     <value>Reading resource '{resourceId}' item from container '{containerId}' in partition '{partitionKey}'.</value>
     <comment>Information CosmosEventId.ExecutingReadItem string string string?</comment>

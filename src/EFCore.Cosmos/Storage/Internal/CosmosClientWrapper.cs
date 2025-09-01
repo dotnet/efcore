@@ -577,6 +577,127 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         CancellationToken cancellationToken = default)
         => _executionStrategy.ExecuteAsync((containerId, documentId, entry, this), DeleteItemOnceAsync, null, cancellationToken);
 
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual PartitionKey GetPartitionKeyValue(IUpdateEntry updateEntry)
+        => ExtractPartitionKeyValue(updateEntry);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual ICosmosTransactionalBatchWrapper CreateTransactionalBatch(string containerId, PartitionKey partitionKeyValue)
+    {
+        var container = Client.GetDatabase(_databaseId).GetContainer(containerId);
+        var batch = container.CreateTransactionalBatch(partitionKeyValue);
+
+        return new CosmosTransactionalBatchWrapper(batch, containerId, partitionKeyValue, _enableContentResponseOnWrite);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual CosmosTransactionalBatchResult ExecuteBatch(ICosmosTransactionalBatchWrapper batch)
+    {
+        _databaseLogger.SyncNotSupported();
+
+        return _executionStrategy.Execute((batch, this), ExecuteBatchOnce, null);
+    }
+
+    private static CosmosTransactionalBatchResult ExecuteBatchOnce(DbContext _,
+        (ICosmosTransactionalBatchWrapper Batch, CosmosClientWrapper Wrapper) parameters)
+        => ExecuteBatchOnceAsync(_, parameters).GetAwaiter().GetResult();
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual Task<CosmosTransactionalBatchResult> ExecuteBatchAsync(ICosmosTransactionalBatchWrapper batch, CancellationToken cancellationToken = default)
+        => _executionStrategy.ExecuteAsync((batch, this), ExecuteBatchOnceAsync, null, cancellationToken);
+
+    private static async Task<CosmosTransactionalBatchResult> ExecuteBatchOnceAsync(DbContext _,
+        (ICosmosTransactionalBatchWrapper Batch, CosmosClientWrapper Wrapper) parameters,
+        CancellationToken cancellationToken = default)
+    {
+        var batch = parameters.Batch;
+        var transactionalBatch = batch.GetTransactionalBatch();
+        var wrapper = parameters.Wrapper;
+
+        using var response = await transactionalBatch.ExecuteAsync(cancellationToken).ConfigureAwait(false);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorCode = response.StatusCode;
+            var errorEntries = response
+                .Select((opResult, index) => (opResult, index))
+                .Where(r => r.opResult.StatusCode == errorCode)
+                .Select(r => batch.Entries[r.index])
+                .ToList();
+
+            return new CosmosTransactionalBatchResult(errorEntries, errorCode);
+        }
+
+        wrapper._commandLogger.ExecutedTransactionalBatch(
+            response.Diagnostics.GetClientElapsedTime(),
+            response.Headers.RequestCharge,
+            response.Headers.ActivityId,
+            batch.Operations,
+            batch.CollectionId,
+            batch.PartitionKeyValue);
+
+        // @TODO: Logging
+        foreach (var operation in batch.Operations)
+        {
+            switch (operation.Value)
+            {
+                case CosmosCudOperation.Create:
+                    wrapper._commandLogger.ExecutedCreateItem(
+                        response.Diagnostics.GetClientElapsedTime(),
+                        response.Headers.RequestCharge,
+                        response.Headers.ActivityId,
+                        operation.Key,
+                        batch.CollectionId,
+                        batch.PartitionKeyValue);
+                    break;
+                case CosmosCudOperation.Update:
+                    wrapper._commandLogger.ExecutedReplaceItem(
+                        response.Diagnostics.GetClientElapsedTime(),
+                        response.Headers.RequestCharge,
+                        response.Headers.ActivityId,
+                        operation.Key,
+                        batch.CollectionId,
+                        batch.PartitionKeyValue);
+                    break;
+                case CosmosCudOperation.Delete:
+                    wrapper._commandLogger.ExecutedDeleteItem(
+                        response.Diagnostics.GetClientElapsedTime(),
+                        response.Headers.RequestCharge,
+                        response.Headers.ActivityId,
+                        operation.Key,
+                        batch.CollectionId,
+                        batch.PartitionKeyValue);
+                    break;
+                default:
+                    throw new UnreachableException();
+            }
+        }
+
+        ProcessResponse(response, batch.Entries);
+
+        return CosmosTransactionalBatchResult.Success;
+    }
+
     private static async Task<bool> DeleteItemOnceAsync(
         DbContext? _,
         (string ContainerId, string ResourceId, IUpdateEntry Entry, CosmosClientWrapper Wrapper) parameters,
@@ -705,17 +826,33 @@ public class CosmosClientWrapper : ICosmosClientWrapper
     private static void ProcessResponse(ResponseMessage response, IUpdateEntry entry)
     {
         response.EnsureSuccessStatusCode();
+        ProcessResponse(entry, response.Headers.ETag, response.Content);
+    }
+
+    private static void ProcessResponse(TransactionalBatchResponse batchResponse, IReadOnlyList<IUpdateEntry> entries)
+    {
+        for (var i = 0; i < batchResponse.Count; i++)
+        {
+            var entry = entries[i];
+            var response = batchResponse[i];
+
+            ProcessResponse(entry, response.ETag, response.ResourceStream);
+        }
+    }
+
+    private static void ProcessResponse(IUpdateEntry entry, string eTag, Stream? content)
+    {
         var etagProperty = entry.EntityType.GetETagProperty();
         if (etagProperty != null && entry.EntityState != EntityState.Deleted)
         {
-            entry.SetStoreGeneratedValue(etagProperty, response.Headers.ETag);
+            entry.SetStoreGeneratedValue(etagProperty, eTag);
         }
 
         var jObjectProperty = entry.EntityType.FindProperty(CosmosPartitionKeyInPrimaryKeyConvention.JObjectPropertyName);
         if (jObjectProperty is { ValueGenerated: ValueGenerated.OnAddOrUpdate }
-            && response.Content != null)
+            && content != null)
         {
-            using var responseStream = response.Content;
+            using var responseStream = content;
             using var reader = new StreamReader(responseStream);
             using var jsonReader = new JsonTextReader(reader);
 
