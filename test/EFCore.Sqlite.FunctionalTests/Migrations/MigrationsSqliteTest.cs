@@ -2275,6 +2275,79 @@ CREATE TABLE "Customers" (
     protected override string NonDefaultCollation
         => "NOCASE";
 
+    [ConditionalFact]
+    public virtual async Task Replace_string_primary_key_with_autoincrement_identity()
+    {
+        await Test(
+            builder => builder.Entity(
+                "Person", e =>
+                {
+                    e.Property<string>("Ssn");
+                    e.HasKey("Ssn");
+                }),
+            builder => { },
+            builder => builder.Entity(
+                "Person", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.Property<string>("Ssn");
+                    e.HasKey("Id");
+                    e.HasIndex("Ssn").IsUnique();
+                }),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                Assert.Equal("Person", table.Name);
+                Assert.Equal(2, table.Columns.Count());
+                
+                var idColumn = Assert.Single(table.Columns, c => c.Name == "Id");
+                Assert.False(idColumn.IsNullable);
+            });
+
+        // Expectation: the INSERT should NOT include the Id column because it's AUTOINCREMENT
+        AssertSql(
+            """
+ALTER TABLE "Person" ADD "Id" INTEGER NOT NULL DEFAULT 0;
+""",
+            //
+            """
+CREATE UNIQUE INDEX "IX_Person_Ssn" ON "Person" ("Ssn");
+""",
+            //
+            """
+CREATE TABLE "ef_temp_Person" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_Person" PRIMARY KEY AUTOINCREMENT,
+    "Ssn" TEXT NULL
+);
+""",
+            //
+            """
+INSERT INTO "ef_temp_Person" ("Ssn")
+SELECT "Ssn"
+FROM "Person";
+""",
+            //
+            """
+PRAGMA foreign_keys = 0;
+""",
+            //
+            """
+DROP TABLE "Person";
+""",
+            //
+            """
+ALTER TABLE "ef_temp_Person" RENAME TO "Person";
+""",
+            //
+            """
+PRAGMA foreign_keys = 1;
+""",
+            //
+            """
+CREATE UNIQUE INDEX "IX_Person_Ssn" ON "Person" ("Ssn");
+""");
+    }
+
     protected virtual async Task AssertNotSupportedAsync(Func<Task> action, string? message = null)
     {
         var ex = await Assert.ThrowsAsync<NotSupportedException>(action);

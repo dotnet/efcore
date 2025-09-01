@@ -1306,6 +1306,9 @@
   <data name="UnsupportedType" xml:space="preserve">
     <value>The current provider doesn't have a store type mapping for properties of type '{clrType}'.</value>
   </data>
+  <data name="UnsupportedTypeForColumn" xml:space="preserve">
+    <value>Unable to find a store type mapping for column '{table}.{column}' with CLR type '{clrType}'.</value>
+  </data>
   <data name="UpdateConcurrencyException" xml:space="preserve">
     <value>The database operation was expected to affect {expectedRows} row(s), but actually affected {actualRows} row(s); data may have been modified or deleted since entities were loaded. See https://go.microsoft.com/fwlink/?LinkId=527962 for information on understanding and handling optimistic concurrency exceptions.</value>
   </data>
