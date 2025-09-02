@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -10,13 +11,13 @@ using Microsoft.CodeAnalysis.Operations;
 namespace Microsoft.EntityFrameworkCore;
 
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
-public sealed class InterpolatedStringUsageInRawQueriesDiagnosticAnalyzer : DiagnosticAnalyzer
+public sealed class StringConcatenationUsageInRawQueriesDiagnosticAnalyzer : DiagnosticAnalyzer
 {
     private static readonly DiagnosticDescriptor Descriptor
         = new(
-            EFDiagnostics.InterpolatedStringUsageInRawQueries,
-            title: AnalyzerStrings.InterpolatedStringUsageInRawQueriesAnalyzerTitle,
-            messageFormat: AnalyzerStrings.InterpolatedStringUsageInRawQueriesMessageFormat,
+            EFDiagnostics.StringConcatenationUsageInRawQueries,
+            title: AnalyzerStrings.StringConcatenationUsageInRawQueriesAnalyzerTitle,
+            messageFormat: AnalyzerStrings.StringConcatenationUsageInRawQueriesMessageFormat,
             category: "Security",
             defaultSeverity: DiagnosticSeverity.Warning,
             isEnabledByDefault: true);
@@ -103,16 +104,16 @@ public sealed class InterpolatedStringUsageInRawQueriesDiagnosticAnalyzer : Diag
 
         Debug.Assert(correctFromSqlRaw is not null, "Unable to find original `FromSqlRaw` method");
 
-        // Verify that the method is the one we analyze and its second argument, which corresponds to `string sql`, is an interpolated string
+        // Verify that the method is the one we analyze and its second argument, which corresponds to `string sql`, is a string concatenation
         if (correctFromSqlRaw is null
             || !targetMethod.ConstructedFrom.Equals(correctFromSqlRaw, SymbolEqualityComparer.Default)
-            || invocation.Arguments[1].Value is not IInterpolatedStringOperation interpolatedString)
+            || !TryGetStringConcatenation(invocation.Arguments[1].Value, out var concatenation))
         {
             return false;
         }
 
-        // Report warning if interpolated string is not a constant and all its interpolations are not constants
-        return AnalyzeInterpolatedString(interpolatedString);
+        // Report warning if string concatenation is not from constants
+        return AnalyzeConcatenation(concatenation);
     }
 
     private static bool AnalyzeExecuteSqlRawInvocation(IInvocationOperation invocation)
@@ -147,14 +148,14 @@ public sealed class InterpolatedStringUsageInRawQueriesDiagnosticAnalyzer : Diag
 
         // At this point assume that the method is correct since both `ExecuteSqlRaw` and `ExecuteSqlRawAsync` have multiple overloads.
         // Checking for every possible one is too much work for almost no gain.
-        // So check whether the second argument, that corresponds to `string sql` parameter, is an interpolated string...
-        if (invocation.Arguments[1].Value is not IInterpolatedStringOperation interpolatedString)
+        // So check whether the second argument, that corresponds to `string sql` parameter, is an string concatenation...
+        if (!TryGetStringConcatenation(invocation.Arguments[1].Value, out var concatenation))
         {
             return false;
         }
 
-        // ...and report warning if interpolated string is not a constant and all its interpolations are not constants
-        return AnalyzeInterpolatedString(interpolatedString);
+        // ...and report warning if string concatenation is not from constants
+        return AnalyzeConcatenation(concatenation);
     }
 
     private static bool AnalyzeSqlQueryRawInvocation(IInvocationOperation invocation)
@@ -168,39 +169,45 @@ public sealed class InterpolatedStringUsageInRawQueriesDiagnosticAnalyzer : Diag
 
         Debug.Assert(correctSqlQueryRaw is not null, "Unable to find original `SqlQueryRaw` method");
 
-        // Verify that the method is the one we analyze and its second argument, which corresponds to `string sql`, is an interpolated string
+        // Verify that the method is the one we analyze and its second argument, which corresponds to `string sql`, is string concatenation
         if (correctSqlQueryRaw is null
             || !targetMethod.ConstructedFrom.Equals(correctSqlQueryRaw, SymbolEqualityComparer.Default)
-            || invocation.Arguments[1].Value is not IInterpolatedStringOperation interpolatedString)
+            || !TryGetStringConcatenation(invocation.Arguments[1].Value, out var concatenation))
         {
             return false;
         }
 
-        // Report warning if interpolated string is not a constant and all its interpolations are not constants
-        return AnalyzeInterpolatedString(interpolatedString);
+        // Report warning if string concatenation is not from constants
+        return AnalyzeConcatenation(concatenation);
     }
 
-    private static bool AnalyzeInterpolatedString(IInterpolatedStringOperation interpolatedString)
+    private static bool TryGetStringConcatenation(IOperation operation, [NotNullWhen(true)] out IBinaryOperation? concatenation)
     {
-        if (interpolatedString.ConstantValue.HasValue)
+        if (operation is IBinaryOperation
+            {
+                OperatorKind: BinaryOperatorKind.Add,
+                Type.SpecialType: SpecialType.System_String,
+            } binaryOperation)
         {
-            return false;
+            concatenation = binaryOperation;
+            return true;
         }
 
-        foreach (var part in interpolatedString.Parts)
-        {
-            if (part is not IInterpolationOperation interpolation)
-            {
-                continue;
-            }
-
-            if (!interpolation.Expression.ConstantValue.HasValue)
-            {
-                // Found non-constant interpolation. Report it
-                return true;
-            }
-        }
-
+        concatenation = default;
         return false;
     }
+
+    private static bool AnalyzeConcatenation(IBinaryOperation operation)
+    {
+        var left = operation.LeftOperand;
+        var right = operation.RightOperand;
+
+        if ((left is IBinaryOperation leftBinary && AnalyzeConcatenation(leftBinary))
+            || (right is IBinaryOperation rightBinary && AnalyzeConcatenation(rightBinary)))
+        {
+            return true;
+        }
+
+        return !left.ConstantValue.HasValue || !right.ConstantValue.HasValue;
+    }    
 }
