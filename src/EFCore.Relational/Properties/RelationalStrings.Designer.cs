@@ -820,6 +820,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 operation, entityType);
 
         /// <summary>
+        ///     '{operation}' used over owned type '{entityType}' which is mapped to JSON; '{operation}' on JSON-mapped owned entities is not supported. Consider mapping your type as a complex type instead.
+        /// </summary>
+        public static string ExecuteOperationOnOwnedJsonIsNotSupported(object? operation, object? entityType)
+            => string.Format(
+                GetString("ExecuteOperationOnOwnedJsonIsNotSupported", nameof(operation), nameof(entityType)),
+                operation, entityType);
+
+        /// <summary>
         ///     The operation '{operation}' is being applied on entity type '{entityType}', which is using the TPC mapping strategy and is not a leaf type. 'ExecuteDelete'/'ExecuteUpdate' operations on entity types participating in TPC hierarchies is only supported for leaf types.
         /// </summary>
         public static string ExecuteOperationOnTPC(object? operation, object? entityType)

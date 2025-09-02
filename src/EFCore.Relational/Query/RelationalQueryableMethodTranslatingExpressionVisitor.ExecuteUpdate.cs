@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage.Json;
@@ -276,6 +277,12 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                     _sqlTranslator.Visit(baseExpression), member, out var target, out var targetProperty))
             {
                 AddTranslationErrorDetails(RelationalStrings.InvalidPropertyInSetProperty(propertySelector.Print()));
+                return false;
+            }
+
+            if (targetProperty.DeclaringType is IEntityType entityType && entityType.IsMappedToJson())
+            {
+                AddTranslationErrorDetails(RelationalStrings.ExecuteOperationOnOwnedJsonIsNotSupported("ExecuteUpdate", entityType.DisplayName()));
                 return false;
             }
 
