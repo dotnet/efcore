@@ -23,9 +23,7 @@ public class StoredProcedureResultColumnMapping : ColumnMappingBase, IStoredProc
         StoreStoredProcedureResultColumn storeResultColumn,
         StoredProcedureMapping storedProcedureMapping)
         : base(property, storeResultColumn, storedProcedureMapping)
-    {
-        ResultColumn = resultColumn;
-    }
+        => ResultColumn = resultColumn;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

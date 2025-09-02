@@ -11,7 +11,9 @@ using System.Runtime.CompilerServices;
 // ReSharper disable ConvertToAutoProperty
 namespace Microsoft.EntityFrameworkCore.TestModels;
 
-public class ChangedOnlyMonsterContext : MonsterContext<
+#nullable disable
+
+public class ChangedOnlyMonsterContext(DbContextOptions options) : MonsterContext<
     ChangedOnlyMonsterContext.Customer, ChangedOnlyMonsterContext.Barcode, ChangedOnlyMonsterContext.IncorrectScan,
     ChangedOnlyMonsterContext.BarcodeDetail, ChangedOnlyMonsterContext.Complaint, ChangedOnlyMonsterContext.Resolution,
     ChangedOnlyMonsterContext.Login, ChangedOnlyMonsterContext.SuspiciousActivity, ChangedOnlyMonsterContext.SmartCard,
@@ -25,13 +27,8 @@ public class ChangedOnlyMonsterContext : MonsterContext<
     ChangedOnlyMonsterContext.License, ChangedOnlyMonsterContext.ConcurrencyInfo, ChangedOnlyMonsterContext.AuditInfo,
     ChangedOnlyMonsterContext.ContactDetails, ChangedOnlyMonsterContext.Dimensions, ChangedOnlyMonsterContext.Phone,
     ChangedOnlyMonsterContext.BackOrderLine, ChangedOnlyMonsterContext.DiscontinuedProduct,
-    ChangedOnlyMonsterContext.ProductPageView>
+    ChangedOnlyMonsterContext.ProductPageView>(options)
 {
-    public ChangedOnlyMonsterContext(DbContextOptions options)
-        : base(options)
-    {
-    }
-
     public class NotificationEntity : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
@@ -49,9 +46,7 @@ public class ChangedOnlyMonsterContext : MonsterContext<
         }
     }
 
-    public class BackOrderLine2 : BackOrderLine
-    {
-    }
+    public class BackOrderLine2 : BackOrderLine;
 
     public class BackOrderLine : OrderLine, IBackOrderLine
     {
@@ -60,9 +55,7 @@ public class ChangedOnlyMonsterContext : MonsterContext<
         private DateTime _eta;
 
         public BackOrderLine()
-        {
-            ETA = DateTime.Now;
-        }
+            => ETA = DateTime.Now;
 
         public DateTime ETA
         {
@@ -215,9 +208,7 @@ public class ChangedOnlyMonsterContext : MonsterContext<
         private IComputer _computer;
 
         public ComputerDetail()
-        {
-            Dimensions = new Dimensions();
-        }
+            => Dimensions = new Dimensions();
 
         public int ComputerDetailId
         {
@@ -560,9 +551,7 @@ public class ChangedOnlyMonsterContext : MonsterContext<
         private IDriver _driver;
 
         public License()
-        {
-            LicenseClass = "C";
-        }
+            => LicenseClass = "C";
 
         public string Name
         {
@@ -684,9 +673,7 @@ public class ChangedOnlyMonsterContext : MonsterContext<
         private IProduct _product;
 
         public OrderLine()
-        {
-            Quantity = 1;
-        }
+            => Quantity = 1;
 
         public int OrderId
         {
@@ -738,9 +725,7 @@ public class ChangedOnlyMonsterContext : MonsterContext<
         private ILogin _login;
 
         public AnOrder()
-        {
-            Concurrency = new ConcurrencyInfo();
-        }
+            => Concurrency = new ConcurrencyInfo();
 
         public void InitializeCollections()
         {
@@ -1628,9 +1613,7 @@ public class ChangedOnlyMonsterContext : MonsterContext<
         private string _phoneNumber;
 
         public Phone()
-        {
-            Extension = "None";
-        }
+            => Extension = "None";
 
         public string PhoneNumber
         {

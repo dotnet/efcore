@@ -5,6 +5,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
+#nullable disable
+
 public class UnmappedEmployee
 {
     public int EmployeeID { get; set; }

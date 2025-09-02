@@ -3,14 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class GraphUpdatesInMemoryTest
-    : GraphUpdatesInMemoryTestBase<GraphUpdatesInMemoryTest.InMemoryFixture>
+public class GraphUpdatesInMemoryTest(GraphUpdatesInMemoryTest.InMemoryFixture fixture)
+    : GraphUpdatesInMemoryTestBase<GraphUpdatesInMemoryTest.InMemoryFixture>(fixture)
 {
-    public GraphUpdatesInMemoryTest(InMemoryFixture fixture)
-        : base(fixture)
-    {
-    }
-
     public class InMemoryFixture : GraphUpdatesInMemoryFixtureBase
     {
         protected override string StoreName

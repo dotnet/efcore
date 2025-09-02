@@ -5,6 +5,7 @@
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <AssemblyName>Microsoft.EntityFrameworkCore.Design.Tests</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
+    <Nullable>disable</Nullable>
     <ImplicitUsings>true</ImplicitUsings>
   </PropertyGroup>
 
@@ -45,7 +46,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\EFCore.Cosmos\EFCore.Cosmos.csproj" />
     <ProjectReference Include="..\..\src\EFCore.InMemory\EFCore.InMemory.csproj" />
     <ProjectReference Include="..\..\src\EFCore.Design\EFCore.Design.csproj" />
     <ProjectReference Include="..\..\src\EFCore.SqlServer.NTS\EFCore.SqlServer.NTS.csproj" />
@@ -56,9 +56,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="$(MicrosoftCodeAnalysisVersion)" />
-    <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="$(MicrosoftExtensionsDependencyModelVersion)" />
-    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.6" />
+    <PackageReference Include="Microsoft.Extensions.DependencyModel" />
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" />
   </ItemGroup>
 
 </Project>
