@@ -29,7 +29,7 @@ public class InMemoryComplianceTest : ComplianceTestBase
         typeof(NorthwindBulkUpdatesTestBase<>),
         typeof(JsonQueryTestBase<>),
         typeof(AdHocJsonQueryTestBase),
-        typeof(StoreTypeTestBase),
+        typeof(TypeTestBase<,>),
 
         // Relationships tests - not implemented for InMemory
         typeof(AssociationsCollectionTestBase<>),
