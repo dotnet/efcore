@@ -366,7 +366,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                                 : RelationalStrings.ExecuteUpdateCannotSetJsonPropertyToArbitraryExpression);
                     }
 
-                    // We now have a serialized JSON value (int, string or bool) - generate a setter for it.
+                    // We now have a serialized JSON value (number, string or bool) - generate a setter for it.
                     GenerateJsonPartialUpdateSetterWrapper(jsonScalar, jsonColumn, jsonValue);
                     continue;
                 }
@@ -827,14 +827,25 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         switch (value)
         {
             // When an object is instantiated inline (e.g. SetProperty(c => c.ShippingAddress, c => new Address { ... })), we get a SqlConstantExpression
-            // with the .NET instance. Serialize it to JSON and replace the constant (note that the type mapping is inferred from the
-            // JSON column on other side - important for e.g. nvarchar vs. json columns)
+            // with the .NET instance. Serialize it to JSON and replace the constant.
             case SqlConstantExpression { Value: var constantValue }:
             {
-                jsonValue = new SqlConstantExpression(
-                    constantValue is null ? null : typeMapping.JsonValueReaderWriter.ToJsonString(constantValue)[1..^1],
-                    typeof(string),
-                    stringTypeMapping);
+                string? jsonString;
+
+                if (constantValue is null)
+                {
+                    jsonString = null;
+                }
+                else
+                {
+                    // We should only be here for things that get serialized to strings.
+                    // Non-string JSON types (number, bool) should have been checked beforehand and handled differently.
+                    jsonString = typeMapping.JsonValueReaderWriter.ToJsonString(constantValue);
+                    Check.DebugAssert(jsonString.StartsWith('"') && jsonString.EndsWith('"'));
+                    jsonString = jsonString[1..^1];
+                }
+
+                jsonValue = new SqlConstantExpression(jsonString, typeof(string), stringTypeMapping);
                 return true;
             }
 
@@ -923,8 +934,17 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
     private static string? ParameterJsonSerializer(QueryContext queryContext, string baseParameterName, JsonValueReaderWriter jsonValueReaderWriter)
     {
         var value = queryContext.Parameters[baseParameterName];
-        var jsonValue = value is null ? null : jsonValueReaderWriter.ToJsonString(value)[1..^1];
-        return jsonValue;
+
+        if (value is null)
+        {
+            return null;
+        }
+
+        // We should only be here for things that get serialized to strings.
+        // Non-string JSON types (number, bool, null) should have been checked beforehand and handled differently.
+        var jsonString = jsonValueReaderWriter.ToJsonString(value);
+        Check.DebugAssert(jsonString.StartsWith('"') && jsonString.EndsWith('"'));
+        return jsonString[1..^1];
     }
 
     private sealed class ParameterBasedComplexPropertyChainExpression(
