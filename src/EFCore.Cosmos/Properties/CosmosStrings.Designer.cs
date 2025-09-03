@@ -480,6 +480,18 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => GetString("ReverseAfterSkipTakeNotSupported");
 
         /// <summary>
+        ///     When using AutoTransactionBehavior.Always with the Cosmos DB provider, all changed entities in a SaveChanges call must be in the same collection and partition and not exceed 100 entities to ensure atomicity.
+        /// </summary>
+        public static string SaveChangesAutoTransactionBehaviorAlwaysAtomicity
+            => GetString("SaveChangesAutoTransactionBehaviorAlwaysAtomicity");
+
+        /// <summary>
+        ///     When using AutoTransactionBehavior.Always with the Cosmos DB provider, only 1 entity can be saved at a time when using pre- or post- triggers to ensure atomicity.
+        /// </summary>
+        public static string SaveChangesAutoTransactionBehaviorAlwaysTriggerAtomicity
+            => GetString("SaveChangesAutoTransactionBehaviorAlwaysTriggerAtomicity");
+
+        /// <summary>
         ///     SingleOrDefault and FirstOrDefault cannot be used Cosmos SQL does not allow Offset without Limit. Consider specifying a 'Take' operation on the query.
         /// </summary>
         public static string SingleFirstOrDefaultNotSupportedOnNonNullableQueries

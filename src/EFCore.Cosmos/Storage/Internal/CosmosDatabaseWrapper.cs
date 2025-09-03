@@ -75,7 +75,20 @@ public class CosmosDatabaseWrapper : Database
         foreach (var batch in groups.Batches)
         {
             var transaction = CreateTransaction(batch);
-            var response = _cosmosClient.ExecuteBatch(transaction);
+
+            CosmosTransactionalBatchResult response;
+            try
+            {
+                response = _cosmosClient.ExecuteBatch(transaction);
+            }
+            catch (CosmosException ex)
+            {
+                var entry = transaction.Entries[0];
+                var documentSource = GetDocumentSource(entry.EntityType);
+                var id = documentSource.GetId(entry.SharedIdentityEntry ?? entry);
+
+                throw new DbUpdateException(CosmosStrings.UpdateStoreException(id), ex, transaction.Entries);
+            }
 
             if (!response.IsSuccess)
             {
@@ -121,7 +134,19 @@ public class CosmosDatabaseWrapper : Database
         foreach (var batch in groups.Batches)
         {
             var transaction = CreateTransaction(batch);
-            var response = await _cosmosClient.ExecuteBatchAsync(transaction, cancellationToken).ConfigureAwait(false);
+
+            CosmosTransactionalBatchResult response;
+            try
+            {
+                response = await _cosmosClient.ExecuteBatchAsync(transaction, cancellationToken).ConfigureAwait(false);
+            }
+            catch (CosmosException ex)
+            {
+                var entry = transaction.Entries[0];
+                var documentSource = GetDocumentSource(entry.EntityType);
+                var id = documentSource.GetId(entry.SharedIdentityEntry ?? entry);
+                throw new DbUpdateException(CosmosStrings.UpdateStoreException(id), ex, transaction.Entries);
+            }
 
             if (!response.IsSuccess)
             {
@@ -225,8 +250,7 @@ public class CosmosDatabaseWrapper : Database
 
         if (_currentDbContext.Context.Database.AutoTransactionBehavior == AutoTransactionBehavior.Always && writesWithTriggers.Count >= 1 && rootEntriesToSave.Count >= 2)
         {
-            // @TODO: string
-            throw new InvalidOperationException("Multiple entities with triggers cannot be saved atomically.");
+            throw new InvalidOperationException(CosmosStrings.SaveChangesAutoTransactionBehaviorAlwaysTriggerAtomicity);
         }
 
         const int maxOperationsPerBatch = 100;
@@ -239,12 +263,11 @@ public class CosmosDatabaseWrapper : Database
                     PartitionKeyValue = _cosmosClient.GetPartitionKeyValue(x.Entry)
                 },
                 maxOperationsPerBatch)
-            .ToArray(); // @TODO optimize memory usage? cleanup PrepareWrite?
+            .ToArray(); // @TODO optimize memory usage? cleanup PrepareWrite? Can it be improved?
 
         if (_currentDbContext.Context.Database.AutoTransactionBehavior == AutoTransactionBehavior.Always && batches.Length > 1)
         {
-            // @TODO: string
-            throw new InvalidOperationException(""); // CosmosStrings.CrossPartitionSaveChangesDisabled
+            throw new InvalidOperationException(CosmosStrings.SaveChangesAutoTransactionBehaviorAlwaysAtomicity);
         }
 
         return new SaveGroups
@@ -252,20 +275,6 @@ public class CosmosDatabaseWrapper : Database
             Batches = batches,
             SingleUpdateEntries = writesWithTriggers
         };
-    }
-
-    // @TODO: Cleanup
-    private sealed class SaveGroups
-    {
-        public required IEnumerable<PreppedWrite> SingleUpdateEntries { get; init; }
-
-        public required IEnumerable<(Grouping Key, List<PreppedWrite> Items)> Batches { get; init; }
-    }
-
-    private readonly struct Grouping
-    {
-        public required string ContainerId { get; init; }
-        public required PartitionKey PartitionKeyValue { get; init; }
     }
 
     private static IEnumerable<(TKey Key, List<T> Items)> GroupByWithMaxSize<T, TKey>(IEnumerable<T> source, Func<T, TKey> keySelector, int maxGroupSize = 100)
@@ -439,44 +448,80 @@ public class CosmosDatabaseWrapper : Database
         };
     }
 
-    private sealed class PreppedWrite
+    private bool Save(PreppedWrite preppedWrite)
     {
-        public required IUpdateEntry Entry { get; init; }
-        public required EntityState State { get; init; }
-        public required string CollectionId { get; init; }
-        public required DocumentSource DocumentSource { get; init; }
+        try
+        {
+            return preppedWrite.State switch
+            {
+                EntityState.Added => _cosmosClient.CreateItem(
+                                    preppedWrite.CollectionId, preppedWrite.Document!, preppedWrite.Entry),
+                EntityState.Modified => _cosmosClient.ReplaceItem(
+                                    preppedWrite.CollectionId,
+                                    preppedWrite.DocumentSource.GetId(preppedWrite.Entry.SharedIdentityEntry ?? preppedWrite.Entry),
+                                    preppedWrite.Document!,
+                                    preppedWrite.Entry),
+                EntityState.Deleted => _cosmosClient.DeleteItem(preppedWrite.CollectionId, preppedWrite.DocumentSource.GetId(preppedWrite.Entry), preppedWrite.Entry),
+                _ => throw new UnreachableException(),
+            };
+        }
+        catch (Exception ex) when (ex is not DbUpdateException and not UnreachableException and not OperationCanceledException)
+        {
+            var errorEntries = new[] { preppedWrite.Entry };
+            var exception = WrapUpdateException(ex, errorEntries);
 
-        public required JObject? Document { get; init; }
+            if (exception is not DbUpdateConcurrencyException
+                || !Dependencies.Logger.OptimisticConcurrencyException(
+                        preppedWrite.Entry.Context, errorEntries, (DbUpdateConcurrencyException)exception, null).IsSuppressed)
+            {
+                throw exception;
+            }
+
+            return false;
+        }
     }
 
-    private bool Save(PreppedWrite preppedWrite)
-        => preppedWrite.State switch
+    private async Task<bool> SaveAsync(PreppedWrite preppedWrite, CancellationToken cancellationToken)
     {
-        EntityState.Added => _cosmosClient.CreateItem(
-                            preppedWrite.CollectionId, preppedWrite.Document!, preppedWrite.Entry),
-        EntityState.Modified => _cosmosClient.ReplaceItem(
-                            preppedWrite.CollectionId,
-                            preppedWrite.DocumentSource.GetId(preppedWrite.Entry.SharedIdentityEntry ?? preppedWrite.Entry),
-                            preppedWrite.Document!,
-                            preppedWrite.Entry),
-        EntityState.Deleted => _cosmosClient.DeleteItem(preppedWrite.CollectionId, preppedWrite.DocumentSource.GetId(preppedWrite.Entry), preppedWrite.Entry),
-        _ => throw new UnreachableException(),
-    };
+        try
+        {
+            return preppedWrite.State switch
+            {
+                EntityState.Added => await _cosmosClient.CreateItemAsync(
+                                    preppedWrite.CollectionId,
+                                    preppedWrite.Document!,
+                                    preppedWrite.Entry,
+                                    cancellationToken).ConfigureAwait(false),
+                EntityState.Modified => await _cosmosClient.ReplaceItemAsync(
+                                    preppedWrite.CollectionId,
+                                    preppedWrite.DocumentSource.GetId(preppedWrite.Entry.SharedIdentityEntry ?? preppedWrite.Entry),
+                                    preppedWrite.Document!,
+                                    preppedWrite.Entry,
+                                    cancellationToken).ConfigureAwait(false),
+                EntityState.Deleted => await _cosmosClient.DeleteItemAsync(
+                                    preppedWrite.CollectionId,
+                                    preppedWrite.DocumentSource.GetId(preppedWrite.Entry),
+                                    preppedWrite.Entry,
+                                    cancellationToken).ConfigureAwait(false),
+                _ => throw new UnreachableException(),
+            };
+        }
+        catch (Exception ex) when (ex is not DbUpdateException and not UnreachableException and not OperationCanceledException)
+        {
+            var errorEntries = new[] { preppedWrite.Entry };
+            var exception = WrapUpdateException(ex, errorEntries);
 
-    private Task<bool> SaveAsync(PreppedWrite preppedWrite, CancellationToken cancellationToken)
-        => preppedWrite.State switch
-    {
-        EntityState.Added => _cosmosClient.CreateItemAsync(
-                            preppedWrite.CollectionId, preppedWrite.Document!, preppedWrite.Entry, cancellationToken),
-        EntityState.Modified => _cosmosClient.ReplaceItemAsync(
-                            preppedWrite.CollectionId,
-                            preppedWrite.DocumentSource.GetId(preppedWrite.Entry.SharedIdentityEntry ?? preppedWrite.Entry),
-                            preppedWrite.Document!,
-                            preppedWrite.Entry,
-                            cancellationToken),
-        EntityState.Deleted => _cosmosClient.DeleteItemAsync(preppedWrite.CollectionId, preppedWrite.DocumentSource.GetId(preppedWrite.Entry), preppedWrite.Entry, cancellationToken),
-        _ => throw new UnreachableException(),
-    };
+            if (exception is not DbUpdateConcurrencyException
+                || !(await Dependencies.Logger.OptimisticConcurrencyExceptionAsync(
+                        preppedWrite.Entry.Context, errorEntries, (DbUpdateConcurrencyException)exception, null, cancellationToken)
+                    .ConfigureAwait(false)).IsSuppressed)
+            {
+                throw exception;
+            }
+
+            return false;
+        }
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -523,6 +568,22 @@ public class CosmosDatabaseWrapper : Database
     }
 #pragma warning restore EF1001 // Internal EF Core API usage.
 
+    private DbUpdateException WrapUpdateException(Exception exception, IUpdateEntry[] entries)
+    {
+        var entry = entries[0];
+        var documentSource = GetDocumentSource(entry.EntityType);
+        var id = documentSource.GetId(entry.SharedIdentityEntry ?? entry);
+
+        return exception switch
+        {
+            CosmosException { StatusCode: HttpStatusCode.PreconditionFailed }
+                => new DbUpdateConcurrencyException(CosmosStrings.UpdateConflict(id), exception, entries),
+            CosmosException { StatusCode: HttpStatusCode.Conflict }
+                => new DbUpdateException(CosmosStrings.UpdateConflict(id), exception, entries),
+            _ => new DbUpdateException(CosmosStrings.UpdateStoreException(id), exception, entries)
+        };
+    }
+
     private DbUpdateException CreateUpdateException(HttpStatusCode statusCode, IReadOnlyList<IUpdateEntry> updateEntries)
     {
         var entry = updateEntries[0];
@@ -535,5 +596,29 @@ public class CosmosDatabaseWrapper : Database
             HttpStatusCode.Conflict => new DbUpdateException(CosmosStrings.UpdateConflict(id), null, updateEntries),
             _ => new DbUpdateException(CosmosStrings.UpdateStoreException(id), null, updateEntries)
         };
+    }
+
+    // @TODO: Cleanup
+    private sealed class SaveGroups
+    {
+        public required IEnumerable<PreppedWrite> SingleUpdateEntries { get; init; }
+
+        public required IEnumerable<(Grouping Key, List<PreppedWrite> Items)> Batches { get; init; }
+    }
+
+    private sealed class PreppedWrite
+    {
+        public required IUpdateEntry Entry { get; init; }
+        public required EntityState State { get; init; }
+        public required string CollectionId { get; init; }
+        public required DocumentSource DocumentSource { get; init; }
+
+        public required JObject? Document { get; init; }
+    }
+
+    private readonly struct Grouping
+    {
+        public required string ContainerId { get; init; }
+        public required PartitionKey PartitionKeyValue { get; init; }
     }
 }
