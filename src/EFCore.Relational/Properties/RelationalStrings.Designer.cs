@@ -820,6 +820,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 operation, entityType);
 
         /// <summary>
+        ///     '{operation}' used over owned type '{entityType}' which is mapped to JSON; '{operation}' on JSON-mapped owned entities is not supported. Consider mapping your type as a complex type instead.
+        /// </summary>
+        public static string ExecuteOperationOnOwnedJsonIsNotSupported(object? operation, object? entityType)
+            => string.Format(
+                GetString("ExecuteOperationOnOwnedJsonIsNotSupported", nameof(operation), nameof(entityType)),
+                operation, entityType);
+
+        /// <summary>
         ///     The operation '{operation}' is being applied on entity type '{entityType}', which is using the TPC mapping strategy and is not a leaf type. 'ExecuteDelete'/'ExecuteUpdate' operations on entity types participating in TPC hierarchies is only supported for leaf types.
         /// </summary>
         public static string ExecuteOperationOnTPC(object? operation, object? entityType)
@@ -842,6 +850,18 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("ExecuteOperationWithUnsupportedOperatorInSqlGeneration", nameof(operation)),
                 operation);
+
+        /// <summary>
+        ///     'ExecuteUpdate' cannot currently set a property in a JSON column to a regular, non-JSON column; see https://github.com/dotnet/efcore/issues/36688.
+        /// </summary>
+        public static string ExecuteUpdateCannotSetJsonPropertyToNonJsonColumn
+            => GetString("ExecuteUpdateCannotSetJsonPropertyToNonJsonColumn");
+
+        /// <summary>
+        ///     'ExecuteUpdate' cannot currently set a property in a JSON column to arbitrary expressions; only constants, parameters and other JSON properties are supported; see https://github.com/dotnet/efcore/issues/36688.
+        /// </summary>
+        public static string ExecuteUpdateCannotSetJsonPropertyToArbitraryExpression
+            => GetString("ExecuteUpdateCannotSetJsonPropertyToArbitraryExpression");
 
         /// <summary>
         ///     'ExecuteUpdate' or 'ExecuteDelete' was called on entity type '{entityType}', but that entity type is not mapped to a table.
@@ -1410,6 +1430,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("MissingResultSetWhenSaving");
 
         /// <summary>
+        ///     Entity type '{entityType}' is mapped to multiple columns with name '{columnName}', and one of them is configured as a JSON column. Assign different names to the columns.
+        /// </summary>
+        public static string MultipleColumnsWithSameJsonContainerName(object? entityType, object? columnName)
+            => string.Format(
+                GetString("MultipleColumnsWithSameJsonContainerName", nameof(entityType), nameof(columnName)),
+                entityType, columnName);
+
+        /// <summary>
         ///     Commands cannot be added to a completed 'ModificationCommandBatch'.
         /// </summary>
         public static string ModificationCommandBatchAlreadyComplete
@@ -1636,6 +1664,18 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("ParameterNotObjectArray", nameof(parameter)),
                 parameter);
+
+        /// <summary>
+        ///     The provider in use does not support partial updates with ExecuteUpdate within JSON columns.
+        /// </summary>
+        public static string JsonPartialExecuteUpdateNotSupportedByProvider
+            => GetString("JsonPartialExecuteUpdateNotSupportedByProvider");
+
+        /// <summary>
+        ///     ExecuteUpdate over JSON columns is not supported when the column is mapped as an owned entity. Map the column as a complex type instead.
+        /// </summary>
+        public static string JsonExecuteUpdateNotSupportedWithOwnedEntities
+            => GetString("JsonExecuteUpdateNotSupportedWithOwnedEntities");
 
         /// <summary>
         ///     This connection was used with an ambient transaction. The original ambient transaction needs to be completed before this connection can be used outside of it.

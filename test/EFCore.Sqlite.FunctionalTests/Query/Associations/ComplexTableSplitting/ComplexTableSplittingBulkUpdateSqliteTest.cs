@@ -3,7 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore.Query.Associations.ComplexTableSplitting;
 
-public class ComplexTableSplittingStructuralEqualitySqliteTest(
+public class ComplexTableSplittingBulkUpdateSqliteTest(
     ComplexTableSplittingSqliteFixture fixture,
     ITestOutputHelper testOutputHelper)
-    : ComplexTableSplittingStructuralEqualityRelationalTestBase<ComplexTableSplittingSqliteFixture>(fixture, testOutputHelper);
+    : ComplexTableSplittingBulkUpdateRelationalTestBase<ComplexTableSplittingSqliteFixture>(fixture, testOutputHelper);

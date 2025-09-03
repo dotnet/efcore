@@ -16,6 +16,9 @@ public abstract class OwnedNavigationsRelationalFixtureBase : OwnedTableSplittin
     protected override string StoreName
         => "OwnedNavigationsQueryTest";
 
+    public override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
+        => facade.UseTransaction(transaction.GetDbTransaction());
+
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
         base.OnModelCreating(modelBuilder, context);

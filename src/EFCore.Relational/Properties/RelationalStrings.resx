@@ -424,6 +424,9 @@
   <data name="ExecuteOperationOnKeylessEntityTypeWithUnsupportedOperator" xml:space="preserve">
     <value>The operation '{operation}' cannot be performed on keyless entity type '{entityType}', since it contains an operator not natively supported by the database provider.</value>
   </data>
+  <data name="ExecuteOperationOnOwnedJsonIsNotSupported" xml:space="preserve">
+    <value>'{operation}' used over owned type '{entityType}' which is mapped to JSON; '{operation}' on JSON-mapped owned entities is not supported. Consider mapping your type as a complex type instead.</value>
+  </data>
   <data name="ExecuteOperationOnTPC" xml:space="preserve">
     <value>The operation '{operation}' is being applied on entity type '{entityType}', which is using the TPC mapping strategy and is not a leaf type. 'ExecuteDelete'/'ExecuteUpdate' operations on entity types participating in TPC hierarchies is only supported for leaf types.</value>
   </data>
@@ -432,6 +435,12 @@
   </data>
   <data name="ExecuteOperationWithUnsupportedOperatorInSqlGeneration" xml:space="preserve">
     <value>The operation '{operation}' contains a select expression feature that isn't supported in the query SQL generator, but has been declared as supported by provider during translation phase. This is a bug in your EF Core provider, file an issue at https://aka.ms/efcorefeedback.</value>
+  </data>
+  <data name="ExecuteUpdateCannotSetJsonPropertyToNonJsonColumn" xml:space="preserve">
+    <value>'ExecuteUpdate' cannot currently set a property in a JSON column to a regular, non-JSON column; see https://github.com/dotnet/efcore/issues/36688.</value>
+  </data>
+  <data name="ExecuteUpdateCannotSetJsonPropertyToArbitraryExpression" xml:space="preserve">
+    <value>'ExecuteUpdate' cannot currently set a property in a JSON column to arbitrary expressions; only constants, parameters and other JSON properties are supported; see https://github.com/dotnet/efcore/issues/36688.</value>
   </data>
   <data name="ExecuteUpdateDeleteOnEntityNotMappedToTable" xml:space="preserve">
     <value>'ExecuteUpdate' or 'ExecuteDelete' was called on entity type '{entityType}', but that entity type is not mapped to a table.</value>
@@ -979,6 +988,9 @@
   <data name="MissingResultSetWhenSaving" xml:space="preserve">
     <value>A result set was missing when reading the results of a SaveChanges operation; this may indicate that a stored procedure was configured to return results in the EF model, but did not. Check your stored procedure definitions.</value>
   </data>
+  <data name="MultipleColumnsWithSameJsonContainerName" xml:space="preserve">
+    <value>Entity type '{entityType}' is mapped to multiple columns with name '{columnName}', and one of them is configured as a JSON column. Assign different names to the columns.</value>
+  </data>
   <data name="ModificationCommandBatchAlreadyComplete" xml:space="preserve">
     <value>Commands cannot be added to a completed 'ModificationCommandBatch'.</value>
   </data>
@@ -1071,6 +1083,12 @@
   </data>
   <data name="ParameterNotObjectArray" xml:space="preserve">
     <value>The value provided for parameter '{parameter}' cannot be used because it isn't assignable to type 'object[]'.</value>
+  </data>
+  <data name="JsonPartialExecuteUpdateNotSupportedByProvider" xml:space="preserve">
+    <value>The provider in use does not support partial updates with ExecuteUpdate within JSON columns.</value>
+  </data>
+  <data name="JsonExecuteUpdateNotSupportedWithOwnedEntities" xml:space="preserve">
+    <value>ExecuteUpdate over JSON columns is not supported when the column is mapped as an owned entity. Map the column as a complex type instead.</value>
   </data>
   <data name="PendingAmbientTransaction" xml:space="preserve">
     <value>This connection was used with an ambient transaction. The original ambient transaction needs to be completed before this connection can be used outside of it.</value>

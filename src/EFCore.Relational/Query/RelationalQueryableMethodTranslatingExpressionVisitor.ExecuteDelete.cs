@@ -19,23 +19,27 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
             return null;
         }
 
-        var mappingStrategy = entityType.GetMappingStrategy();
-        if (mappingStrategy == RelationalAnnotationNames.TptMappingStrategy)
+        if (entityType.IsMappedToJson())
         {
             AddTranslationErrorDetails(
-                RelationalStrings.ExecuteOperationOnTPT(
-                    nameof(EntityFrameworkQueryableExtensions.ExecuteDelete), entityType.DisplayName()));
+                RelationalStrings.ExecuteOperationOnOwnedJsonIsNotSupported("ExecuteDelete", entityType.DisplayName()));
             return null;
         }
 
-        if (mappingStrategy == RelationalAnnotationNames.TpcMappingStrategy
-            && entityType.GetDirectlyDerivedTypes().Any())
+        switch (entityType.GetMappingStrategy())
         {
-            // We allow TPC is it is leaf type
-            AddTranslationErrorDetails(
-                RelationalStrings.ExecuteOperationOnTPC(
-                    nameof(EntityFrameworkQueryableExtensions.ExecuteDelete), entityType.DisplayName()));
-            return null;
+            case RelationalAnnotationNames.TptMappingStrategy:
+                AddTranslationErrorDetails(
+                    RelationalStrings.ExecuteOperationOnTPT(
+                        nameof(EntityFrameworkQueryableExtensions.ExecuteDelete), entityType.DisplayName()));
+                return null;
+
+            // Note that we do allow TPC if the target is a leaf type
+            case RelationalAnnotationNames.TpcMappingStrategy when entityType.GetDirectlyDerivedTypes().Any():
+                AddTranslationErrorDetails(
+                    RelationalStrings.ExecuteOperationOnTPC(
+                        nameof(EntityFrameworkQueryableExtensions.ExecuteDelete), entityType.DisplayName()));
+                return null;
         }
 
         // Find the table model that maps to the entity type; there must be exactly one (e.g. no entity splitting).

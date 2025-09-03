@@ -137,6 +137,39 @@ public class AssociationsData : ISetSource
                     e.RelatedCollection.Clear();
                     e.RequiredRelated.NestedCollection.Clear();
                     e.OptionalRelated!.NestedCollection.Clear();
+                }),
+
+            // Entity with all string properties set to a value with special characters
+            CreateRootEntity(
+                id++, description: "With_special_characters", e =>
+                {
+                    SetRelatedValues(e.RequiredRelated);
+
+                    if (e.OptionalRelated is not null)
+                    {
+                        SetRelatedValues(e.OptionalRelated);
+                    }
+
+                    foreach (var related in e.RelatedCollection)
+                    {
+                        SetRelatedValues(related);
+                    }
+
+                    void SetRelatedValues(RelatedType related)
+                    {
+                        related.Int = 10;
+                        related.String = "{ this may/look:like JSON but it [isn't]: ממש ממש לאéèéè }";
+                        related.RequiredNested.Int = 10;
+                        related.RequiredNested.String = "{ this may/look:like JSON but it [isn't]: ממש ממש לאéèéè }";
+                        related.OptionalNested?.Int = 10;
+                        related.OptionalNested?.String = "{ this may/look:like JSON but it [isn't]: ממש ממש לאéèéè }";
+
+                        foreach (var nested in related.NestedCollection)
+                        {
+                            nested.Int = 10;
+                            nested.String = "{ this may/look:like JSON but it [isn't]: ממש ממש לאéèéè }";
+                        }
+                    }
                 })
         ];
 
@@ -325,7 +358,7 @@ public class AssociationsData : ISetSource
         var id = 1;
 
         rootReferencingEntities.Add(new RootReferencingEntity { Id = id++, Root = null });
-        foreach (var rootEntity in rootEntities)
+        foreach (var rootEntity in rootEntities.Take(2))
         {
             var rootReferencingEntity = new RootReferencingEntity { Id = id++, Root = rootEntity };
             rootEntity.RootReferencingEntity = rootReferencingEntity;
