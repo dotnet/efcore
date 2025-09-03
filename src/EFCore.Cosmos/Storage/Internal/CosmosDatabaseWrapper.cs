@@ -64,7 +64,7 @@ public class CosmosDatabaseWrapper : Database
         }
 
         var rowsAffected = 0;
-        var groups = CreateBatches(entries);
+        var groups = CreateSaveGroups(entries);
 
         foreach (var write in groups.SingleUpdateEntries)
         {
@@ -123,7 +123,7 @@ public class CosmosDatabaseWrapper : Database
         }
 
         var rowsAffected = 0;
-        var groups = CreateBatches(entries);
+        var groups = CreateSaveGroups(entries);
 
         foreach (var write in groups.SingleUpdateEntries)
         {
@@ -166,35 +166,7 @@ public class CosmosDatabaseWrapper : Database
         return rowsAffected;
     }
 
-    private ICosmosTransactionalBatchWrapper CreateTransaction((Grouping Key, List<PreppedWrite> Items) batch)
-    {
-        var transaction = _cosmosClient.CreateTransactionalBatch(batch.Key.ContainerId, batch.Key.PartitionKeyValue);
-
-        foreach (var write in batch.Items)
-        {
-            switch (write.State)
-            {
-                case EntityState.Added:
-                    transaction.CreateItem(write.Document!, write.Entry);
-                    break;
-                case EntityState.Modified:
-                    transaction.ReplaceItem(
-                        write.DocumentSource.GetId(write.Entry.SharedIdentityEntry ?? write.Entry),
-                        write.Document!,
-                        write.Entry);
-                    break;
-                case EntityState.Deleted:
-                    transaction.DeleteItem(write.DocumentSource.GetId(write.Entry), write.Entry);
-                    break;
-                default:
-                    throw new UnreachableException();
-            }
-        }
-
-        return transaction;
-    }
-
-    private SaveGroups CreateBatches(IList<IUpdateEntry> entries)
+    private SaveGroups CreateSaveGroups(IList<IUpdateEntry> entries)
     {
         var count = entries.Count;
         var rootEntriesToSave = new HashSet<IUpdateEntry>();
@@ -223,49 +195,41 @@ public class CosmosDatabaseWrapper : Database
             rootEntriesToSave.Add(entry);
         }
 
-        var writes = rootEntriesToSave.Select(x => PrepareWrite(x)).Where(x => x != null).Cast<PreppedWrite>().ToArray();
+        var cosmosUpdateEntries = rootEntriesToSave.Select(x => CreateCosmosUpdateEntry(x)!).Where(x => x != null);
 
         if (_currentDbContext.Context.Database.AutoTransactionBehavior == AutoTransactionBehavior.Never)
         {
             return new SaveGroups
             {
                 Batches = [],
-                SingleUpdateEntries = writes
+                SingleUpdateEntries = cosmosUpdateEntries
             };
         }
 
-        var writesWithTriggers = new List<PreppedWrite>();
-        var writesWithoutTriggers = new List<PreppedWrite>();
-        foreach (var write in writes)
+        var entriesWithTriggers = new List<CosmosUpdateEntry>();
+        var entriesWithoutTriggers = new List<CosmosUpdateEntry>();
+        foreach (var entry in cosmosUpdateEntries)
         {
-            if (write.Entry.EntityType.GetTriggers().Any())
+            if (entry.Entry.EntityType.GetTriggers().Any())
             {
-                writesWithTriggers.Add(write);
+                entriesWithTriggers.Add(entry);
             }
             else
             {
-                writesWithoutTriggers.Add(write);
+                entriesWithoutTriggers.Add(entry);
             }
         }
 
-        if (_currentDbContext.Context.Database.AutoTransactionBehavior == AutoTransactionBehavior.Always && writesWithTriggers.Count >= 1 && rootEntriesToSave.Count >= 2)
+        if (_currentDbContext.Context.Database.AutoTransactionBehavior == AutoTransactionBehavior.Always &&
+            entriesWithTriggers.Count >= 1 && rootEntriesToSave.Count >= 2)
         {
             throw new InvalidOperationException(CosmosStrings.SaveChangesAutoTransactionBehaviorAlwaysTriggerAtomicity);
         }
 
-        const int maxOperationsPerBatch = 100;
-        var batches =
-            GroupByWithMaxSize(
-                writesWithoutTriggers,
-                x => new Grouping
-                {
-                    ContainerId = x.CollectionId,
-                    PartitionKeyValue = _cosmosClient.GetPartitionKeyValue(x.Entry)
-                },
-                maxOperationsPerBatch)
-            .ToArray(); // @TODO optimize memory usage? cleanup PrepareWrite? Can it be improved?
+        var batches = CreateBatches(entriesWithoutTriggers).ToArray();
 
-        if (_currentDbContext.Context.Database.AutoTransactionBehavior == AutoTransactionBehavior.Always && batches.Length > 1)
+        if (_currentDbContext.Context.Database.AutoTransactionBehavior == AutoTransactionBehavior.Always &&
+            batches.Length > 1)
         {
             throw new InvalidOperationException(CosmosStrings.SaveChangesAutoTransactionBehaviorAlwaysAtomicity);
         }
@@ -273,28 +237,32 @@ public class CosmosDatabaseWrapper : Database
         return new SaveGroups
         {
             Batches = batches,
-            SingleUpdateEntries = writesWithTriggers
+            SingleUpdateEntries = entriesWithTriggers
         };
     }
 
-    private static IEnumerable<(TKey Key, List<T> Items)> GroupByWithMaxSize<T, TKey>(IEnumerable<T> source, Func<T, TKey> keySelector, int maxGroupSize = 100)
-        where TKey : notnull
+    private IEnumerable<(Grouping Key, List<CosmosUpdateEntry> Items)> CreateBatches(List<CosmosUpdateEntry> entries)
     {
-        var buckets = new Dictionary<TKey, List<T>>();
+        const int maxOperationsPerBatch = 100;
+        var buckets = new Dictionary<Grouping, List<CosmosUpdateEntry>>();
 
-        foreach (var item in source)
+        foreach (var entry in entries)
         {
-            var key = keySelector(item);
+            var key = new Grouping
+            {
+                ContainerId = entry.CollectionId,
+                PartitionKeyValue = _cosmosClient.GetPartitionKeyValue(entry.Entry)
+            };
 
             ref var list = ref CollectionsMarshal.GetValueRefOrAddDefault(buckets, key, out var exists);
             if (!exists || list is null)
             {
-                list = new List<T>(5);
+                list = new List<CosmosUpdateEntry>(5);
             }
 
-            list.Add(item);
+            list.Add(entry);
 
-            if (list.Count == maxGroupSize)
+            if (list.Count == maxOperationsPerBatch)
             {
                 var listCopy = list;
                 list = null;
@@ -304,14 +272,14 @@ public class CosmosDatabaseWrapper : Database
 
         foreach (var kvp in buckets)
         {
-            if (kvp.Value.Count > 0)
+            if (kvp.Value != null)
             {
                 yield return (kvp.Key, kvp.Value);
             }
         }
     }
 
-    private PreppedWrite? PrepareWrite(IUpdateEntry entry)
+    private CosmosUpdateEntry? CreateCosmosUpdateEntry(IUpdateEntry entry)
     {
         var entityType = entry.EntityType;
         var documentSource = GetDocumentSource(entityType);
@@ -438,7 +406,7 @@ public class CosmosDatabaseWrapper : Database
                 return null;
         }
 
-        return new PreppedWrite
+        return new CosmosUpdateEntry
         {
             CollectionId = collectionId,
             Document = document,
@@ -448,31 +416,59 @@ public class CosmosDatabaseWrapper : Database
         };
     }
 
-    private bool Save(PreppedWrite preppedWrite)
+    private ICosmosTransactionalBatchWrapper CreateTransaction((Grouping Key, List<CosmosUpdateEntry> Items) batch)
+    {
+        var transaction = _cosmosClient.CreateTransactionalBatch(batch.Key.ContainerId, batch.Key.PartitionKeyValue);
+
+        foreach (var updateEntry in batch.Items)
+        {
+            switch (updateEntry.State)
+            {
+                case EntityState.Added:
+                    transaction.CreateItem(updateEntry.Document!, updateEntry.Entry);
+                    break;
+                case EntityState.Modified:
+                    transaction.ReplaceItem(
+                        updateEntry.DocumentSource.GetId(updateEntry.Entry.SharedIdentityEntry ?? updateEntry.Entry),
+                        updateEntry.Document!,
+                        updateEntry.Entry);
+                    break;
+                case EntityState.Deleted:
+                    transaction.DeleteItem(updateEntry.DocumentSource.GetId(updateEntry.Entry), updateEntry.Entry);
+                    break;
+                default:
+                    throw new UnreachableException();
+            }
+        }
+
+        return transaction;
+    }
+
+    private bool Save(CosmosUpdateEntry updateEntry)
     {
         try
         {
-            return preppedWrite.State switch
+            return updateEntry.State switch
             {
                 EntityState.Added => _cosmosClient.CreateItem(
-                                    preppedWrite.CollectionId, preppedWrite.Document!, preppedWrite.Entry),
+                                    updateEntry.CollectionId, updateEntry.Document!, updateEntry.Entry),
                 EntityState.Modified => _cosmosClient.ReplaceItem(
-                                    preppedWrite.CollectionId,
-                                    preppedWrite.DocumentSource.GetId(preppedWrite.Entry.SharedIdentityEntry ?? preppedWrite.Entry),
-                                    preppedWrite.Document!,
-                                    preppedWrite.Entry),
-                EntityState.Deleted => _cosmosClient.DeleteItem(preppedWrite.CollectionId, preppedWrite.DocumentSource.GetId(preppedWrite.Entry), preppedWrite.Entry),
+                                    updateEntry.CollectionId,
+                                    updateEntry.DocumentSource.GetId(updateEntry.Entry.SharedIdentityEntry ?? updateEntry.Entry),
+                                    updateEntry.Document!,
+                                    updateEntry.Entry),
+                EntityState.Deleted => _cosmosClient.DeleteItem(updateEntry.CollectionId, updateEntry.DocumentSource.GetId(updateEntry.Entry), updateEntry.Entry),
                 _ => throw new UnreachableException(),
             };
         }
         catch (Exception ex) when (ex is not DbUpdateException and not UnreachableException and not OperationCanceledException)
         {
-            var errorEntries = new[] { preppedWrite.Entry };
+            var errorEntries = new[] { updateEntry.Entry };
             var exception = WrapUpdateException(ex, errorEntries);
 
             if (exception is not DbUpdateConcurrencyException
                 || !Dependencies.Logger.OptimisticConcurrencyException(
-                        preppedWrite.Entry.Context, errorEntries, (DbUpdateConcurrencyException)exception, null).IsSuppressed)
+                        updateEntry.Entry.Context, errorEntries, (DbUpdateConcurrencyException)exception, null).IsSuppressed)
             {
                 throw exception;
             }
@@ -481,39 +477,39 @@ public class CosmosDatabaseWrapper : Database
         }
     }
 
-    private async Task<bool> SaveAsync(PreppedWrite preppedWrite, CancellationToken cancellationToken)
+    private async Task<bool> SaveAsync(CosmosUpdateEntry updateEntry, CancellationToken cancellationToken)
     {
         try
         {
-            return preppedWrite.State switch
+            return updateEntry.State switch
             {
                 EntityState.Added => await _cosmosClient.CreateItemAsync(
-                                    preppedWrite.CollectionId,
-                                    preppedWrite.Document!,
-                                    preppedWrite.Entry,
+                                    updateEntry.CollectionId,
+                                    updateEntry.Document!,
+                                    updateEntry.Entry,
                                     cancellationToken).ConfigureAwait(false),
                 EntityState.Modified => await _cosmosClient.ReplaceItemAsync(
-                                    preppedWrite.CollectionId,
-                                    preppedWrite.DocumentSource.GetId(preppedWrite.Entry.SharedIdentityEntry ?? preppedWrite.Entry),
-                                    preppedWrite.Document!,
-                                    preppedWrite.Entry,
+                                    updateEntry.CollectionId,
+                                    updateEntry.DocumentSource.GetId(updateEntry.Entry.SharedIdentityEntry ?? updateEntry.Entry),
+                                    updateEntry.Document!,
+                                    updateEntry.Entry,
                                     cancellationToken).ConfigureAwait(false),
                 EntityState.Deleted => await _cosmosClient.DeleteItemAsync(
-                                    preppedWrite.CollectionId,
-                                    preppedWrite.DocumentSource.GetId(preppedWrite.Entry),
-                                    preppedWrite.Entry,
+                                    updateEntry.CollectionId,
+                                    updateEntry.DocumentSource.GetId(updateEntry.Entry),
+                                    updateEntry.Entry,
                                     cancellationToken).ConfigureAwait(false),
                 _ => throw new UnreachableException(),
             };
         }
         catch (Exception ex) when (ex is not DbUpdateException and not UnreachableException and not OperationCanceledException)
         {
-            var errorEntries = new[] { preppedWrite.Entry };
+            var errorEntries = new[] { updateEntry.Entry };
             var exception = WrapUpdateException(ex, errorEntries);
 
             if (exception is not DbUpdateConcurrencyException
                 || !(await Dependencies.Logger.OptimisticConcurrencyExceptionAsync(
-                        preppedWrite.Entry.Context, errorEntries, (DbUpdateConcurrencyException)exception, null, cancellationToken)
+                        updateEntry.Entry.Context, errorEntries, (DbUpdateConcurrencyException)exception, null, cancellationToken)
                     .ConfigureAwait(false)).IsSuppressed)
             {
                 throw exception;
@@ -598,21 +594,19 @@ public class CosmosDatabaseWrapper : Database
         };
     }
 
-    // @TODO: Cleanup
     private sealed class SaveGroups
     {
-        public required IEnumerable<PreppedWrite> SingleUpdateEntries { get; init; }
+        public required IEnumerable<CosmosUpdateEntry> SingleUpdateEntries { get; init; }
 
-        public required IEnumerable<(Grouping Key, List<PreppedWrite> Items)> Batches { get; init; }
+        public required IEnumerable<(Grouping Key, List<CosmosUpdateEntry> Items)> Batches { get; init; }
     }
 
-    private sealed class PreppedWrite
+    private sealed class CosmosUpdateEntry
     {
         public required IUpdateEntry Entry { get; init; }
         public required EntityState State { get; init; }
         public required string CollectionId { get; init; }
         public required DocumentSource DocumentSource { get; init; }
-
         public required JObject? Document { get; init; }
     }
 

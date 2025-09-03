@@ -148,6 +148,23 @@ public class CosmosTransactionalBatchTest(NonSharedFixture fixture) : NonSharedM
     }
 
     [ConditionalFact]
+    public virtual async Task SaveChanges_transactionbehavior_always_succeeds_for_100_entities_in_same_partition()
+    {
+        var contextFactory = await InitializeAsync<TransactionalBatchContext>();
+
+        using var context = contextFactory.CreateContext();
+        context.Database.AutoTransactionBehavior = AutoTransactionBehavior.Always;
+
+        context.Customers.AddRange(Enumerable.Range(0, 100).Select(x => new Customer { Id = x.ToString(), PartitionKey = "1" }));
+
+        await context.SaveChangesAsync();
+
+        using var assertContext = contextFactory.CreateContext();
+        var customersCount = await assertContext.Customers.CountAsync();
+        Assert.Equal(100, customersCount);
+    }
+
+    [ConditionalFact]
     public virtual async Task SaveChanges_transactionbehavior_always_fails_for_multiple_entities_with_triggers()
     {
         var contextFactory = await InitializeAsync<TransactionalBatchContext>();
