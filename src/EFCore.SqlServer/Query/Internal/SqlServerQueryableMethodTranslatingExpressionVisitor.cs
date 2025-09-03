@@ -22,8 +22,6 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
     private readonly ISqlServerSingletonOptions _sqlServerSingletonOptions;
 
-    private RelationalTypeMapping? _nvarcharMaxTypeMapping;
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -239,6 +237,8 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
     /// </summary>
     protected override ShapedQueryExpression TransformJsonQueryToTable(JsonQueryExpression jsonQueryExpression)
     {
+        var structuralType = jsonQueryExpression.StructuralType;
+
         // Calculate the table alias for the OPENJSON expression based on the last named path segment
         // (or the JSON column name if there are none)
         var lastNamedPathSegment = jsonQueryExpression.Path.LastOrDefault(ps => ps.PropertyName is not null);
@@ -251,7 +251,8 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
         var columnInfos = new List<SqlServerOpenJsonExpression.ColumnInfo>();
 
         // We're only interested in properties which actually exist in the JSON, filter out uninteresting shadow keys
-        foreach (var property in jsonQueryExpression.StructuralType.GetPropertiesInHierarchy())
+        // (for owned JSON entities)
+        foreach (var property in structuralType.GetPropertiesInHierarchy())
         {
             if (property.GetJsonPropertyName() is { } jsonPropertyName)
             {
@@ -266,46 +267,40 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
             }
         }
 
-        switch (jsonQueryExpression.StructuralType)
+        // Find the container column in the relational model to get its type mapping
+        // Note that we assume exactly one column with the given name mapped to the entity (despite entity splitting).
+        // See #36647 and #36646 about improving this.
+        var containerColumnName = structuralType.GetContainerColumnName();
+        var containerColumn = structuralType.ContainingEntityType.GetTableMappings()
+            .SelectMany(m => m.Table.Columns)
+            .Where(c => c.Name == containerColumnName)
+            .Single();
+
+        var nestedJsonPropertyNames = jsonQueryExpression.StructuralType switch
         {
-            case IEntityType entityType:
-                // Navigations represent nested JSON owned entities, which we also add to the OPENJSON WITH clause, but with AS JSON.
-                foreach (var navigation in entityType.GetNavigationsInHierarchy()
-                             .Where(n => n.ForeignKey.IsOwnership
-                                 && n.TargetEntityType.IsMappedToJson()
-                                 && n.ForeignKey.PrincipalToDependent == n))
+            IEntityType entityType
+                => entityType.GetNavigationsInHierarchy()
+                    .Where(n => n.ForeignKey.IsOwnership
+                        && n.TargetEntityType.IsMappedToJson()
+                        && n.ForeignKey.PrincipalToDependent == n)
+                    .Select(n => n.TargetEntityType.GetJsonPropertyName() ?? throw new UnreachableException()),
+
+            IComplexType complexType
+                => complexType.GetComplexProperties().Select(p => p.ComplexType.GetJsonPropertyName() ?? throw new UnreachableException()),
+
+            _ => throw new UnreachableException()
+        };
+
+        foreach (var jsonPropertyName in nestedJsonPropertyNames)
+        {
+            columnInfos.Add(
+                new SqlServerOpenJsonExpression.ColumnInfo
                 {
-                    var jsonPropertyName = navigation.TargetEntityType.GetJsonPropertyName();
-                    Check.DebugAssert(jsonPropertyName is not null, $"No JSON property name for navigation {navigation.Name}");
-
-                    AddStructuralColumnInfo(jsonPropertyName);
-                }
-
-                break;
-
-            case IComplexType complexType:
-                foreach (var complexProperty in complexType.GetComplexProperties())
-                {
-                    var jsonPropertyName = complexProperty.ComplexType.GetJsonPropertyName();
-                    Check.DebugAssert(jsonPropertyName is not null, $"No JSON property name for complex property {complexProperty.Name}");
-
-                    AddStructuralColumnInfo(jsonPropertyName);
-                }
-
-                break;
-
-            default:
-                throw new UnreachableException();
-
-                void AddStructuralColumnInfo(string jsonPropertyName)
-                    => columnInfos.Add(
-                        new SqlServerOpenJsonExpression.ColumnInfo
-                        {
-                            Name = jsonPropertyName,
-                            TypeMapping = _nvarcharMaxTypeMapping ??= _typeMappingSource.FindMapping("nvarchar(max)")!,
-                            Path = [new PathSegment(jsonPropertyName)],
-                            AsJson = true
-                        });
+                    Name = jsonPropertyName,
+                    TypeMapping = containerColumn.StoreTypeMapping,
+                    Path = [new PathSegment(jsonPropertyName)],
+                    AsJson = true
+                });
         }
 
         var openJsonExpression = new SqlServerOpenJsonExpression(

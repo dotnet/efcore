@@ -1814,7 +1814,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
 
                 if (TryGetJsonQueryExpression(shaper, out var jsonQueryExpression))
                 {
-                    var newJsonQueryExpression = jsonQueryExpression.BindRelationship(navigation);
+                    var newJsonQueryExpression = jsonQueryExpression.BindStructuralProperty(navigation);
 
                     Debug.Assert(!navigation.IsOnDependent, "JSON navigations should always be from principal do dependent");
 

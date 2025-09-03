@@ -44,20 +44,20 @@ public class ClrCollectionAccessorFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IClrCollectionAccessor? Create(IPropertyBase relationship)
+    public virtual IClrCollectionAccessor? Create(IPropertyBase structuralProperty)
     {
-        if (!relationship.IsCollection)
+        if (!structuralProperty.IsCollection)
         {
             return null;
         }
 
         // ReSharper disable once SuspiciousTypeConversion.Global
-        if (relationship is IClrCollectionAccessor accessor)
+        if (structuralProperty is IClrCollectionAccessor accessor)
         {
             return accessor;
         }
 
-        var targetType = relationship switch
+        var targetType = structuralProperty switch
         {
             INavigationBase navigation => (ITypeBase)navigation.TargetEntityType,
             IComplexProperty complexProperty => complexProperty.ComplexType,
@@ -70,9 +70,9 @@ public class ClrCollectionAccessorFactory
             return null;
         }
 
-        var memberInfo = GetMostDerivedMemberInfo(relationship);
-        var propertyType = relationship.IsIndexerProperty() || relationship.IsShadowProperty()
-            ? relationship.ClrType
+        var memberInfo = GetMostDerivedMemberInfo(structuralProperty);
+        var propertyType = structuralProperty.IsIndexerProperty() || structuralProperty.IsShadowProperty()
+            ? structuralProperty.ClrType
             : memberInfo!.GetMemberType();
 
         var elementType = propertyType.TryGetElementType(typeof(IEnumerable<>));
@@ -80,8 +80,8 @@ public class ClrCollectionAccessorFactory
         {
             throw new InvalidOperationException(
                 CoreStrings.NavigationBadType( // TODO: Update
-                    relationship.Name,
-                    relationship.DeclaringType.DisplayName(),
+                    structuralProperty.Name,
+                    structuralProperty.DeclaringType.DisplayName(),
                     propertyType.ShortDisplayName(),
                     targetType.DisplayName()));
         }
@@ -90,17 +90,17 @@ public class ClrCollectionAccessorFactory
         {
             throw new InvalidOperationException(
                 CoreStrings.NavigationArray(
-                    relationship.Name,
-                    relationship.DeclaringType.DisplayName(),
+                    structuralProperty.Name,
+                    structuralProperty.DeclaringType.DisplayName(),
                     propertyType.ShortDisplayName()));
         }
 
         var boundMethod = GenericCreate.MakeGenericMethod(
-            memberInfo?.DeclaringType ?? relationship.DeclaringType.ClrType, propertyType, elementType);
+            memberInfo?.DeclaringType ?? structuralProperty.DeclaringType.ClrType, propertyType, elementType);
 
         try
         {
-            return (IClrCollectionAccessor?)boundMethod.Invoke(null, [relationship]);
+            return (IClrCollectionAccessor?)boundMethod.Invoke(null, [structuralProperty]);
         }
         catch (TargetInvocationException invocationException)
         {
@@ -109,12 +109,12 @@ public class ClrCollectionAccessorFactory
     }
 
     [UsedImplicitly]
-    private static IClrCollectionAccessor CreateGeneric<TStructural, TCollection, TElement>(IPropertyBase relationship)
+    private static IClrCollectionAccessor CreateGeneric<TStructural, TCollection, TElement>(IPropertyBase structuralProperty)
         where TCollection : class, IEnumerable<TElement>
         where TElement : class
     {
         CreateExpressions<TStructural, TCollection, TElement>(
-            relationship,
+            structuralProperty,
             out var getCollection,
             out var setCollection,
             out var setCollectionForMaterialization,
@@ -122,8 +122,8 @@ public class ClrCollectionAccessorFactory
             out var createCollection);
 
         return new ClrCollectionAccessor<TStructural, TCollection, TElement>(
-            relationship.Name,
-            relationship.IsShadowProperty(),
+            structuralProperty.Name,
+            structuralProperty.IsShadowProperty(),
             getCollection?.Compile(),
             setCollection?.Compile(),
             setCollectionForMaterialization?.Compile(),
@@ -180,7 +180,7 @@ public class ClrCollectionAccessorFactory
 
     [UsedImplicitly]
     private static void CreateExpressions<TStructural, TCollection, TElement>(
-        IPropertyBase relationship,
+        IPropertyBase structuralProperty,
         out Expression<Func<TStructural, TCollection>>? getCollection,
         out Expression<Action<TStructural, TCollection>>? setCollection,
         out Expression<Action<TStructural, TCollection>>? setCollectionForMaterialization,
@@ -198,11 +198,11 @@ public class ClrCollectionAccessorFactory
         var entityParameter = Expression.Parameter(typeof(TStructural), "entity");
         var valueParameter = Expression.Parameter(typeof(TCollection), "collection");
 
-        if (!relationship.IsShadowProperty())
+        if (!structuralProperty.IsShadowProperty())
         {
-            var memberInfoForRead = relationship.GetMemberInfo(forMaterialization: false, forSet: false);
-            relationship.TryGetMemberInfo(forMaterialization: false, forSet: true, out var memberInfoForWrite, out _);
-            relationship.TryGetMemberInfo(forMaterialization: true, forSet: true, out var memberInfoForMaterialization, out _);
+            var memberInfoForRead = structuralProperty.GetMemberInfo(forMaterialization: false, forSet: false);
+            structuralProperty.TryGetMemberInfo(forMaterialization: false, forSet: true, out var memberInfoForWrite, out _);
+            structuralProperty.TryGetMemberInfo(forMaterialization: true, forSet: true, out var memberInfoForMaterialization, out _);
             var memberAccessForRead = (Expression)Expression.MakeMemberAccess(entityParameter, memberInfoForRead);
             if (memberAccessForRead.Type != typeof(TCollection))
             {
@@ -227,7 +227,7 @@ public class ClrCollectionAccessorFactory
         var concreteType = CollectionTypeFactory.Instance.TryFindTypeToInstantiate(
             typeof(TStructural),
             typeof(TCollection),
-            relationship.DeclaringType.Model[CoreAnnotationNames.FullChangeTrackingNotificationsRequired] != null);
+            structuralProperty.DeclaringType.Model[CoreAnnotationNames.FullChangeTrackingNotificationsRequired] != null);
         if (concreteType != null)
         {
             var isHashSet = concreteType.IsGenericType && concreteType.GetGenericTypeDefinition() == typeof(HashSet<>);
@@ -273,10 +273,10 @@ public class ClrCollectionAccessorFactory
                 valueParameter1);
     }
 
-    private static MemberInfo? GetMostDerivedMemberInfo(IPropertyBase relationship)
+    private static MemberInfo? GetMostDerivedMemberInfo(IPropertyBase structuralProperty)
     {
-        var propertyInfo = relationship.PropertyInfo;
-        var fieldInfo = relationship.FieldInfo;
+        var propertyInfo = structuralProperty.PropertyInfo;
+        var fieldInfo = structuralProperty.FieldInfo;
 
         return fieldInfo == null
             ? propertyInfo

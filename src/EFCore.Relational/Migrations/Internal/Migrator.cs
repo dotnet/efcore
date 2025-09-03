@@ -182,7 +182,7 @@ public class Migrator : IMigrator
                 }
 
                 _migrationCommandExecutor.ExecuteNonQuery(
-                    getCommands(), _connection, state, commitTransaction: false, MigrationTransactionIsolationLevel);
+                    getCommands(), _connection, state, commitTransaction: useTransaction, MigrationTransactionIsolationLevel);
             }
 
             var coreOptionsExtension =
@@ -317,7 +317,7 @@ public class Migrator : IMigrator
                 }
 
                 await _migrationCommandExecutor.ExecuteNonQueryAsync(
-                        getCommands(), _connection, state, commitTransaction: false, MigrationTransactionIsolationLevel, cancellationToken)
+                        getCommands(), _connection, state, commitTransaction: useTransaction, MigrationTransactionIsolationLevel, cancellationToken)
                     .ConfigureAwait(false);
             }
 
@@ -595,7 +595,6 @@ public class Migrator : IMigrator
         var migrationsToApply = migratorData.AppliedMigrations;
         var migrationsToRevert = migratorData.RevertedMigrations;
         var actualTargetMigration = migratorData.TargetMigration;
-        var transactionStarted = false;
         for (var i = 0; i < migrationsToRevert.Count; i++)
         {
             var migration = migrationsToRevert[i];
@@ -611,7 +610,7 @@ public class Migrator : IMigrator
 
             GenerateSqlScript(
                 GenerateDownSql(migration, previousMigration, options),
-                builder, _sqlGenerationHelper, ref transactionStarted, noTransactions, idempotencyCondition, idempotencyEnd);
+                builder, _sqlGenerationHelper, noTransactions, idempotencyCondition, idempotencyEnd);
         }
 
         foreach (var migration in migrationsToApply)
@@ -624,14 +623,7 @@ public class Migrator : IMigrator
 
             GenerateSqlScript(
                 GenerateUpSql(migration, options),
-                builder, _sqlGenerationHelper, ref transactionStarted, noTransactions, idempotencyCondition, idempotencyEnd);
-        }
-
-        if (transactionStarted)
-        {
-            builder
-                .AppendLine(_sqlGenerationHelper.CommitTransactionStatement)
-                .Append(_sqlGenerationHelper.BatchTerminator);
+                builder, _sqlGenerationHelper, noTransactions, idempotencyCondition, idempotencyEnd);
         }
 
         return builder.ToString();
@@ -641,11 +633,11 @@ public class Migrator : IMigrator
         IEnumerable<MigrationCommand> commands,
         IndentedStringBuilder builder,
         ISqlGenerationHelper sqlGenerationHelper,
-        ref bool transactionStarted,
         bool noTransactions = false,
         string? idempotencyCondition = null,
         string? idempotencyEnd = null)
     {
+        var transactionStarted = false;
         foreach (var command in commands)
         {
             if (!noTransactions)
@@ -690,6 +682,13 @@ public class Migrator : IMigrator
             {
                 builder.Append(Environment.NewLine);
             }
+        }
+
+        if (transactionStarted)
+        {
+            builder
+                .AppendLine(sqlGenerationHelper.CommitTransactionStatement)
+                .Append(sqlGenerationHelper.BatchTerminator);
         }
     }
 

@@ -1379,7 +1379,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
                         };
 
                     case JsonQueryExpression jsonQuery:
-                        var nestedJsonQuery = jsonQuery.BindRelationship(complexProperty);
+                        var nestedJsonQuery = jsonQuery.BindStructuralProperty(complexProperty);
 
                         return complexProperty.IsCollection
                             ? new CollectionResultExpression(

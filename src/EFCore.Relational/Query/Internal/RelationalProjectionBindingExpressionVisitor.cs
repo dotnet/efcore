@@ -198,7 +198,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                             // expression.Type here will be List<T>
                             return new CollectionResultExpression(
                                 new ProjectionBindingExpression(_selectExpression, _clientProjections.Count - 1, expression.Type),
-                                relationship: null,
+                                structuralProperty: null,
                                 methodCallExpression.Method.GetGenericArguments()[0]);
                         }
                     }
@@ -219,7 +219,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                                 _selectExpression, _clientProjections.Count - 1, type);
                             return subquery.ResultCardinality == ResultCardinality.Enumerable
                                 ? new CollectionResultExpression(
-                                    projectionBindingExpression, relationship: null, subquery.ShaperExpression.Type)
+                                    projectionBindingExpression, structuralProperty: null, subquery.ShaperExpression.Type)
                                 : projectionBindingExpression;
                         }
                     }

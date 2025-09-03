@@ -341,8 +341,39 @@ WHERE EXISTS (
     {
         await base.Contains_with_nested_and_composed_operators();
 
-        AssertSql(
-            """
+        if (Fixture.UsingJsonType)
+        {
+            AssertSql(
+                """
+@get_Item_Id='?' (DbType = Int32)
+@entity_equality_get_Item_Id='?' (DbType = Int32)
+@entity_equality_get_Item_Int='?' (DbType = Int32)
+@entity_equality_get_Item_Name='?' (Size = 4000)
+@entity_equality_get_Item_String='?' (Size = 4000)
+@entity_equality_get_Item_NestedCollection='?' (Size = 195)
+@entity_equality_get_Item_OptionalNested='?' (Size = 89)
+@entity_equality_get_Item_RequiredNested='?' (Size = 89)
+
+SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+FROM [RootEntity] AS [r]
+WHERE EXISTS (
+    SELECT 1
+    FROM OPENJSON([r].[RelatedCollection], '$') WITH (
+        [Id] int '$.Id',
+        [Int] int '$.Int',
+        [Name] nvarchar(max) '$.Name',
+        [String] nvarchar(max) '$.String',
+        [NestedCollection] json '$.NestedCollection' AS JSON,
+        [OptionalNested] json '$.OptionalNested' AS JSON,
+        [RequiredNested] json '$.RequiredNested' AS JSON
+    ) AS [r0]
+    WHERE [r0].[Id] > @get_Item_Id AND [r0].[Id] = @entity_equality_get_Item_Id AND [r0].[Int] = @entity_equality_get_Item_Int AND [r0].[Name] = @entity_equality_get_Item_Name AND [r0].[String] = @entity_equality_get_Item_String AND CAST([r0].[NestedCollection] AS nvarchar(max)) = CAST(@entity_equality_get_Item_NestedCollection AS nvarchar(max)) AND CAST([r0].[OptionalNested] AS nvarchar(max)) = CAST(@entity_equality_get_Item_OptionalNested AS nvarchar(max)) AND CAST([r0].[RequiredNested] AS nvarchar(max)) = CAST(@entity_equality_get_Item_RequiredNested AS nvarchar(max)))
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 @get_Item_Id='?' (DbType = Int32)
 @entity_equality_get_Item_Id='?' (DbType = Int32)
 @entity_equality_get_Item_Int='?' (DbType = Int32)
@@ -367,6 +398,7 @@ WHERE EXISTS (
     ) AS [r0]
     WHERE [r0].[Id] > @get_Item_Id AND [r0].[Id] = @entity_equality_get_Item_Id AND [r0].[Int] = @entity_equality_get_Item_Int AND [r0].[Name] = @entity_equality_get_Item_Name AND [r0].[String] = @entity_equality_get_Item_String AND [r0].[NestedCollection] = @entity_equality_get_Item_NestedCollection AND [r0].[OptionalNested] = @entity_equality_get_Item_OptionalNested AND [r0].[RequiredNested] = @entity_equality_get_Item_RequiredNested)
 """);
+        }
     }
 
     #endregion Contains

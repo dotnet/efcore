@@ -1055,7 +1055,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             QueryContext queryContext,
             object[]? keyPropertyValues,
             JsonReaderData? jsonReaderData,
-            IPropertyBase relationship,
+            IPropertyBase structuralProperty,
             Func<QueryContext, object[]?, JsonReaderData, TEntity> innerShaper)
             where TEntity : class
         {
@@ -1076,7 +1076,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     throw new InvalidOperationException(CoreStrings.JsonReaderInvalidTokenType(tokenType.ToString()));
             }
 
-            var collectionAccessor = relationship.GetCollectionAccessor();
+            var collectionAccessor = structuralProperty.GetCollectionAccessor();
             var result = (TResult)collectionAccessor!.Create();
 
             object[]? newKeyPropertyValues = null;

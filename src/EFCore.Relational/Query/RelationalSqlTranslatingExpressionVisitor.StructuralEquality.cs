@@ -110,8 +110,8 @@ public partial class RelationalSqlTranslatingExpressionVisitor
             case (_, StructuralTypeReferenceExpression { StructuralType: IComplexType }):
                 return TryRewriteComplexTypeEquality(collection: false, out result);
 
-            case (CollectionResultExpression { Relationship: IComplexProperty }, _):
-            case (_, CollectionResultExpression { Relationship: IComplexProperty }):
+            case (CollectionResultExpression { StructuralProperty: IComplexProperty }, _):
+            case (_, CollectionResultExpression { StructuralProperty: IComplexProperty }):
                 return TryRewriteComplexTypeEquality(collection: true, out result);
 
             default:
@@ -281,14 +281,14 @@ public partial class RelationalSqlTranslatingExpressionVisitor
             var leftComplexType = left switch
             {
                 StructuralTypeReferenceExpression { StructuralType: IComplexType t } => t,
-                CollectionResultExpression { Relationship: IComplexProperty { ComplexType: var t } } => t,
+                CollectionResultExpression { StructuralProperty: IComplexProperty { ComplexType: var t } } => t,
                 _ => null
             };
 
             var rightComplexType = right switch
             {
                 StructuralTypeReferenceExpression { StructuralType: IComplexType t } => t,
-                CollectionResultExpression { Relationship: IComplexProperty { ComplexType: var t } } => t,
+                CollectionResultExpression { StructuralProperty: IComplexProperty { ComplexType: var t } } => t,
                 _ => null
             };
 
