@@ -32,8 +32,7 @@ public abstract class NorthwindBulkUpdatesRelationalTestBase<TFixture> : Northwi
             RelationalStrings.ExecuteDeleteOnNonEntityType,
             () => base.Delete_non_entity_projection_3(async));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Delete_FromSql_converted_to_subquery(bool async)
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             () => Fixture.CreateContext(),
@@ -61,11 +60,6 @@ WHERE [OrderID] < 10300"));
             RelationalStrings.NoSetPropertyInvocation,
             () => base.Update_without_property_to_set_throws(async));
 
-    public override Task Update_with_invalid_lambda_throws(bool async)
-        => AssertTranslationFailed(
-            RelationalStrings.InvalidArgumentToExecuteUpdate,
-            () => base.Update_with_invalid_lambda_throws(async));
-
     public override Task Update_with_invalid_lambda_in_set_property_throws(bool async)
         => AssertTranslationFailed(
             RelationalStrings.InvalidPropertyInSetProperty(
@@ -74,7 +68,7 @@ WHERE [OrderID] < 10300"));
 
     public override Task Update_multiple_tables_throws(bool async)
         => AssertTranslationFailed(
-            RelationalStrings.MultipleTablesInExecuteUpdate("c => c.Customer.ContactName", "c => c.e.OrderDate"),
+            RelationalStrings.MultipleTablesInExecuteUpdate("c => c.e.OrderDate", "c => c.Customer.ContactName"),
             () => base.Update_multiple_tables_throws(async));
 
     public override Task Update_unmapped_property_throws(bool async)
@@ -82,8 +76,7 @@ WHERE [OrderID] < 10300"));
             RelationalStrings.InvalidPropertyInSetProperty("c => c.IsLondon"),
             () => base.Update_unmapped_property_throws(async));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Update_FromSql_set_constant(bool async)
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             () => Fixture.CreateContext(),

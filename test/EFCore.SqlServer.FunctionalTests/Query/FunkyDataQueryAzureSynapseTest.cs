@@ -5,7 +5,8 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public class FunkyDataQueryAzureSynapseTest : FunkyDataQuerySqlServerBaseTest<FunkyDataQueryAzureSynapseTest.FunkyDataQueryAzureSynapseFixture>
+public class FunkyDataQueryAzureSynapseTest : FunkyDataQuerySqlServerBaseTest<
+    FunkyDataQueryAzureSynapseTest.FunkyDataQueryAzureSynapseFixture>
 {
     public FunkyDataQueryAzureSynapseTest(FunkyDataQueryAzureSynapseFixture fixture, ITestOutputHelper testOutputHelper)
         : base(fixture, testOutputHelper)
@@ -22,44 +23,44 @@ SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE [f].[FirstName] IS NOT NULL AND CHARINDEX(N'%B', [f].[FirstName]) > 0
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE [f].[FirstName] IS NOT NULL AND CHARINDEX(N'a_', [f].[FirstName]) > 0
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE 0 = 1
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE [f].[FirstName] IS NOT NULL
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE [f].[FirstName] IS NOT NULL AND CHARINDEX(N'_Ba_', [f].[FirstName]) > 0
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE [f].[FirstName] IS NULL OR CHARINDEX(N'%B%a%r', [f].[FirstName]) <= 0
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE [f].[FirstName] IS NULL
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 """);
@@ -71,60 +72,60 @@ FROM [FunkyCustomers] AS [f]
 
         AssertSql(
             """
-@__prm1_0='%B' (Size = 4000)
+@prm1='%B' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE [f].[FirstName] IS NOT NULL AND (CHARINDEX(@__prm1_0, [f].[FirstName]) > 0 OR @__prm1_0 LIKE N'')
+WHERE [f].[FirstName] IS NOT NULL AND (CHARINDEX(@prm1, [f].[FirstName]) > 0 OR @prm1 LIKE N'')
 """,
-                //
-                """
-@__prm2_0='a_' (Size = 4000)
+            //
+            """
+@prm2='a_' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE [f].[FirstName] IS NOT NULL AND (CHARINDEX(@__prm2_0, [f].[FirstName]) > 0 OR @__prm2_0 LIKE N'')
+WHERE [f].[FirstName] IS NOT NULL AND (CHARINDEX(@prm2, [f].[FirstName]) > 0 OR @prm2 LIKE N'')
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE 0 = 1
 """,
-                //
-                """
-@__prm4_0='' (Size = 4000)
+            //
+            """
+@prm4='' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE [f].[FirstName] IS NOT NULL AND (CHARINDEX(@__prm4_0, [f].[FirstName]) > 0 OR @__prm4_0 LIKE N'')
+WHERE [f].[FirstName] IS NOT NULL AND (CHARINDEX(@prm4, [f].[FirstName]) > 0 OR @prm4 LIKE N'')
 """,
-                //
-                """
-@__prm5_0='_Ba_' (Size = 4000)
+            //
+            """
+@prm5='_Ba_' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE [f].[FirstName] IS NOT NULL AND (CHARINDEX(@__prm5_0, [f].[FirstName]) > 0 OR @__prm5_0 LIKE N'')
+WHERE [f].[FirstName] IS NOT NULL AND (CHARINDEX(@prm5, [f].[FirstName]) > 0 OR @prm5 LIKE N'')
 """,
-                //
-                """
-@__prm6_0='%B%a%r' (Size = 4000)
+            //
+            """
+@prm6='%B%a%r' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE [f].[FirstName] IS NULL OR (CHARINDEX(@__prm6_0, [f].[FirstName]) <= 0 AND @__prm6_0 NOT LIKE N'')
+WHERE [f].[FirstName] IS NULL OR (CHARINDEX(@prm6, [f].[FirstName]) <= 0 AND @prm6 NOT LIKE N'')
 """,
-                //
-                """
-@__prm7_0='' (Size = 4000)
+            //
+            """
+@prm7='' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE [f].[FirstName] IS NULL OR (CHARINDEX(@__prm7_0, [f].[FirstName]) <= 0 AND @__prm7_0 NOT LIKE N'')
+WHERE [f].[FirstName] IS NULL OR (CHARINDEX(@prm7, [f].[FirstName]) <= 0 AND @prm7 NOT LIKE N'')
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 """);
@@ -166,44 +167,44 @@ SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE [f].[FirstName] IS NOT NULL AND LEFT([f].[FirstName], LEN(N'%B')) = N'%B'
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE [f].[FirstName] IS NOT NULL AND LEFT([f].[FirstName], LEN(N'_B')) = N'_B'
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE 0 = 1
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE [f].[FirstName] IS NOT NULL
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE [f].[FirstName] IS NOT NULL AND LEFT([f].[FirstName], LEN(N'_Ba_')) = N'_Ba_'
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE [f].[FirstName] IS NULL OR LEFT([f].[FirstName], LEN(N'%B%a%r')) <> N'%B%a%r'
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE [f].[FirstName] IS NULL
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 """);
@@ -215,60 +216,60 @@ FROM [FunkyCustomers] AS [f]
 
         AssertSql(
             """
-@__prm1_0='%B' (Size = 4000)
+@prm1='%B' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE [f].[FirstName] IS NOT NULL AND LEFT([f].[FirstName], LEN(@__prm1_0)) = @__prm1_0
+WHERE [f].[FirstName] IS NOT NULL AND LEFT([f].[FirstName], LEN(@prm1)) = @prm1
 """,
-                //
-                """
-@__prm2_0='_B' (Size = 4000)
+            //
+            """
+@prm2='_B' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE [f].[FirstName] IS NOT NULL AND LEFT([f].[FirstName], LEN(@__prm2_0)) = @__prm2_0
+WHERE [f].[FirstName] IS NOT NULL AND LEFT([f].[FirstName], LEN(@prm2)) = @prm2
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE 0 = 1
 """,
-                //
-                """
-@__prm4_0='' (Size = 4000)
+            //
+            """
+@prm4='' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE [f].[FirstName] IS NOT NULL AND LEFT([f].[FirstName], LEN(@__prm4_0)) = @__prm4_0
+WHERE [f].[FirstName] IS NOT NULL AND LEFT([f].[FirstName], LEN(@prm4)) = @prm4
 """,
-                //
-                """
-@__prm5_0='_Ba_' (Size = 4000)
+            //
+            """
+@prm5='_Ba_' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE [f].[FirstName] IS NOT NULL AND LEFT([f].[FirstName], LEN(@__prm5_0)) = @__prm5_0
+WHERE [f].[FirstName] IS NOT NULL AND LEFT([f].[FirstName], LEN(@prm5)) = @prm5
 """,
-                //
-                """
-@__prm6_0='%B%a%r' (Size = 4000)
+            //
+            """
+@prm6='%B%a%r' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE [f].[FirstName] IS NULL OR LEFT([f].[FirstName], LEN(@__prm6_0)) <> @__prm6_0
+WHERE [f].[FirstName] IS NULL OR LEFT([f].[FirstName], LEN(@prm6)) <> @prm6
 """,
-                //
-                """
-@__prm7_0='' (Size = 4000)
+            //
+            """
+@prm7='' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE [f].[FirstName] IS NULL OR LEFT([f].[FirstName], LEN(@__prm7_0)) <> @__prm7_0
+WHERE [f].[FirstName] IS NULL OR LEFT([f].[FirstName], LEN(@prm7)) <> @prm7
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 """);
@@ -284,44 +285,44 @@ SELECT [f].[Id], [f].[FirstName], [f].[LastName], [f].[NullableBool]
 FROM [FunkyCustomers] AS [f]
 WHERE [f].[FirstName] IS NOT NULL AND LEFT([f].[FirstName], LEN(N'[')) = N'['
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[Id], [f].[FirstName], [f].[LastName], [f].[NullableBool]
 FROM [FunkyCustomers] AS [f]
 WHERE [f].[FirstName] IS NOT NULL AND LEFT([f].[FirstName], LEN(N'B[')) = N'B['
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[Id], [f].[FirstName], [f].[LastName], [f].[NullableBool]
 FROM [FunkyCustomers] AS [f]
 WHERE [f].[FirstName] IS NOT NULL AND LEFT([f].[FirstName], LEN(N'B[[a^')) = N'B[[a^'
 """,
-                //
-                """
-@__prm1_0='[' (Size = 4000)
+            //
+            """
+@prm1='[' (Size = 4000)
 
 SELECT [f].[Id], [f].[FirstName], [f].[LastName], [f].[NullableBool]
 FROM [FunkyCustomers] AS [f]
-WHERE [f].[FirstName] IS NOT NULL AND LEFT([f].[FirstName], LEN(@__prm1_0)) = @__prm1_0
+WHERE [f].[FirstName] IS NOT NULL AND LEFT([f].[FirstName], LEN(@prm1)) = @prm1
 """,
-                //
-                """
-@__prm2_0='B[' (Size = 4000)
+            //
+            """
+@prm2='B[' (Size = 4000)
 
 SELECT [f].[Id], [f].[FirstName], [f].[LastName], [f].[NullableBool]
 FROM [FunkyCustomers] AS [f]
-WHERE [f].[FirstName] IS NOT NULL AND LEFT([f].[FirstName], LEN(@__prm2_0)) = @__prm2_0
+WHERE [f].[FirstName] IS NOT NULL AND LEFT([f].[FirstName], LEN(@prm2)) = @prm2
 """,
-                //
-                """
-@__prm3_0='B[[a^' (Size = 4000)
+            //
+            """
+@prm3='B[[a^' (Size = 4000)
 
 SELECT [f].[Id], [f].[FirstName], [f].[LastName], [f].[NullableBool]
 FROM [FunkyCustomers] AS [f]
-WHERE [f].[FirstName] IS NOT NULL AND LEFT([f].[FirstName], LEN(@__prm3_0)) = @__prm3_0
+WHERE [f].[FirstName] IS NOT NULL AND LEFT([f].[FirstName], LEN(@prm3)) = @prm3
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[Id], [f].[FirstName], [f].[LastName], [f].[NullableBool]
 FROM [FunkyCustomers] AS [f]
 WHERE [f].[FirstName] IS NOT NULL AND [f].[LastName] IS NOT NULL AND LEFT([f].[FirstName], LEN([f].[LastName])) = [f].[LastName]
@@ -364,44 +365,44 @@ SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE [f].[FirstName] IS NOT NULL AND RIGHT([f].[FirstName], LEN(N'%r')) = N'%r'
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE [f].[FirstName] IS NOT NULL AND RIGHT([f].[FirstName], LEN(N'r_')) = N'r_'
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE 0 = 1
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE [f].[FirstName] IS NOT NULL
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE [f].[FirstName] IS NOT NULL AND RIGHT([f].[FirstName], LEN(N'_r_')) = N'_r_'
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE [f].[FirstName] IS NULL OR RIGHT([f].[FirstName], LEN(N'a%r%')) <> N'a%r%'
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE [f].[FirstName] IS NULL
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 """);
@@ -413,60 +414,60 @@ FROM [FunkyCustomers] AS [f]
 
         AssertSql(
             """
-@__prm1_0='%r' (Size = 4000)
+@prm1='%r' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE [f].[FirstName] IS NOT NULL AND RIGHT([f].[FirstName], LEN(@__prm1_0)) = @__prm1_0
+WHERE [f].[FirstName] IS NOT NULL AND RIGHT([f].[FirstName], LEN(@prm1)) = @prm1
 """,
-                //
-                """
-@__prm2_0='r_' (Size = 4000)
+            //
+            """
+@prm2='r_' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE [f].[FirstName] IS NOT NULL AND RIGHT([f].[FirstName], LEN(@__prm2_0)) = @__prm2_0
+WHERE [f].[FirstName] IS NOT NULL AND RIGHT([f].[FirstName], LEN(@prm2)) = @prm2
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE 0 = 1
 """,
-                //
-                """
-@__prm4_0='' (Size = 4000)
+            //
+            """
+@prm4='' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE [f].[FirstName] IS NOT NULL AND RIGHT([f].[FirstName], LEN(@__prm4_0)) = @__prm4_0
+WHERE [f].[FirstName] IS NOT NULL AND RIGHT([f].[FirstName], LEN(@prm4)) = @prm4
 """,
-                //
-                """
-@__prm5_0='_r_' (Size = 4000)
+            //
+            """
+@prm5='_r_' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE [f].[FirstName] IS NOT NULL AND RIGHT([f].[FirstName], LEN(@__prm5_0)) = @__prm5_0
+WHERE [f].[FirstName] IS NOT NULL AND RIGHT([f].[FirstName], LEN(@prm5)) = @prm5
 """,
-                //
-                """
-@__prm6_0='a%r%' (Size = 4000)
+            //
+            """
+@prm6='a%r%' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE [f].[FirstName] IS NULL OR RIGHT([f].[FirstName], LEN(@__prm6_0)) <> @__prm6_0
+WHERE [f].[FirstName] IS NULL OR RIGHT([f].[FirstName], LEN(@prm6)) <> @prm6
 """,
-                //
-                """
-@__prm7_0='' (Size = 4000)
+            //
+            """
+@prm7='' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE [f].[FirstName] IS NULL OR RIGHT([f].[FirstName], LEN(@__prm7_0)) <> @__prm7_0
+WHERE [f].[FirstName] IS NULL OR RIGHT([f].[FirstName], LEN(@prm7)) <> @prm7
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 """);
@@ -580,11 +581,11 @@ ORDER BY [f].[Id]
 
         AssertSql(
             """
-@__s_0='B' (Size = 4000)
+@s='B' (Size = 4000)
 
 SELECT [f].[Id], [f].[FirstName], [f].[LastName], [f].[NullableBool]
 FROM [FunkyCustomers] AS [f]
-WHERE ([f].[FirstName] IS NOT NULL AND (CHARINDEX(@__s_0, [f].[FirstName]) > 0 OR @__s_0 LIKE N'')) OR ([f].[LastName] IS NOT NULL AND LEFT([f].[LastName], LEN(@__s_0)) = @__s_0)
+WHERE ([f].[FirstName] IS NOT NULL AND (CHARINDEX(@s, [f].[FirstName]) > 0 OR @s LIKE N'')) OR ([f].[LastName] IS NOT NULL AND LEFT([f].[LastName], LEN(@s)) = @s)
 """);
     }
 

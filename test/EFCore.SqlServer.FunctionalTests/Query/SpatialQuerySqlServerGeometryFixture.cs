@@ -1,6 +1,7 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.SpatialModel;
 using NetTopologySuite.Geometries;
@@ -17,15 +18,14 @@ public class SpatialQuerySqlServerGeometryFixture : SpatialQuerySqlServerFixture
 
         modelBuilder.Entity<LineStringEntity>().Property(e => e.LineString).HasColumnType("geometry");
         modelBuilder.Entity<MultiLineStringEntity>().Property(e => e.MultiLineString).HasColumnType("geometry");
-        modelBuilder.Entity<PointEntity>(
-            x =>
-            {
-                x.Property(e => e.Geometry).HasColumnType("geometry");
-                x.Property(e => e.Point).HasColumnType("geometry");
-                x.Property(e => e.PointZ).HasColumnType("geometry");
-                x.Property(e => e.PointM).HasColumnType("geometry");
-                x.Property(e => e.PointZM).HasColumnType("geometry");
-            });
+        modelBuilder.Entity<PointEntity>(x =>
+        {
+            x.Property(e => e.Geometry).HasColumnType("geometry");
+            x.Property(e => e.Point).HasColumnType("geometry");
+            x.Property(e => e.PointZ).HasColumnType("geometry");
+            x.Property(e => e.PointM).HasColumnType("geometry");
+            x.Property(e => e.PointZM).HasColumnType("geometry");
+        });
         modelBuilder.Entity<PolygonEntity>().Property(e => e.Polygon).HasColumnType("geometry");
         modelBuilder.Entity<GeoPointEntity>().Property(e => e.Location).HasColumnType("geometry");
     }
@@ -36,7 +36,9 @@ public class SpatialQuerySqlServerGeometryFixture : SpatialQuerySqlServerFixture
 
     protected class ReplacementTypeMappingSource(
         TypeMappingSourceDependencies dependencies,
-        RelationalTypeMappingSourceDependencies relationalDependencies) : SqlServerTypeMappingSource(dependencies, relationalDependencies)
+        RelationalTypeMappingSourceDependencies relationalDependencies,
+        ISqlServerSingletonOptions sqlServerSingletonOptions)
+        : SqlServerTypeMappingSource(dependencies, relationalDependencies, sqlServerSingletonOptions)
     {
         protected override RelationalTypeMapping FindMapping(in RelationalTypeMappingInfo mappingInfo)
             => mappingInfo.ClrType == typeof(GeoPoint)

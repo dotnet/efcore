@@ -1,9 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
-
 // ReSharper disable once CheckNamespace
+
 namespace Microsoft.EntityFrameworkCore.Internal;
 
 /// <summary>
@@ -231,7 +230,7 @@ public static class ExpressionExtensions
             IReadOnlyProperty property,
             int i)
             => property.ClrType.IsValueType
-                && property.ClrType.UnwrapNullableType() is Type nonNullableType
+                && property.ClrType.UnwrapNullableType() is var nonNullableType
                 && !(nonNullableType == typeof(bool) || nonNullableType.IsNumeric() || nonNullableType.IsEnum)
                     ? Infrastructure.ExpressionExtensions.CreateEqualsExpression(
                         Expression.Call(
@@ -241,7 +240,7 @@ public static class ExpressionExtensions
                         Expression.MakeIndex(
                             keyValuesConstantExpression,
                             ValueBuffer.Indexer,
-                            new[] { Expression.Constant(i) }))
+                            [Expression.Constant(i)]))
                     : Expression.Equal(
                         Expression.Call(
                             EF.MakePropertyMethod(property.ClrType),
@@ -251,7 +250,7 @@ public static class ExpressionExtensions
                             Expression.MakeIndex(
                                 keyValuesConstantExpression,
                                 ValueBuffer.Indexer,
-                                new[] { Expression.Constant(i) }),
+                                [Expression.Constant(i)]),
                             property.ClrType));
     }
 }

@@ -22,7 +22,7 @@ public sealed class InterpolatedStringUsageInRawQueriesDiagnosticAnalyzer : Diag
             isEnabledByDefault: true);
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
-        => ImmutableArray.Create(Descriptor);
+        => [Descriptor];
 
     public override void Initialize(AnalysisContext context)
     {

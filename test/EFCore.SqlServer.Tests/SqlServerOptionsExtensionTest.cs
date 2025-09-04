@@ -14,12 +14,11 @@ public class SqlServerOptionsExtensionTest
         var tasks = new Task[Environment.ProcessorCount];
         for (var i = 0; i < tasks.Length; i++)
         {
-            tasks[i] = Task.Run(
-                () =>
-                {
-                    using var ctx = new EmptyContext();
-                    Assert.NotNull(ctx.Model.GetRelationalDependencies());
-                });
+            tasks[i] = Task.Run(() =>
+            {
+                using var ctx = new EmptyContext();
+                Assert.NotNull(ctx.Model.GetRelationalDependencies());
+            });
         }
 
         Task.WaitAll(tasks);

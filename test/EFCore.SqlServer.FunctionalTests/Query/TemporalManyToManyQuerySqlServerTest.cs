@@ -120,11 +120,11 @@ WHERE EXISTS (
             """
 SELECT [e].[Id], [e].[Name], [e].[PeriodEnd], [e].[PeriodStart]
 FROM [EntityOnes] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e]
-WHERE (
-    SELECT COUNT(*)
+WHERE EXISTS (
+    SELECT 1
     FROM [JoinOneSelfPayload] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [j]
     INNER JOIN [EntityOnes] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e0] ON [j].[LeftId] = [e0].[Id]
-    WHERE [e].[Id] = [j].[RightId]) > 0
+    WHERE [e].[Id] = [j].[RightId])
 """);
     }
 
@@ -333,17 +333,15 @@ LEFT JOIN (
             """
 SELECT [s0].[Id], [s0].[Name], [s0].[PeriodEnd], [s0].[PeriodStart]
 FROM [EntityOnes] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e]
-OUTER APPLY (
-    SELECT TOP(1) [s].[Id], [s].[Name], [s].[PeriodEnd], [s].[PeriodStart]
+LEFT JOIN (
+    SELECT [s].[Id], [s].[Name], [s].[PeriodEnd], [s].[PeriodStart], [s].[LeftId]
     FROM (
-        SELECT TOP(1) [e0].[Id], [e0].[Name], [e0].[PeriodEnd], [e0].[PeriodStart]
+        SELECT [e0].[Id], [e0].[Name], [e0].[PeriodEnd], [e0].[PeriodStart], [j].[LeftId], ROW_NUMBER() OVER(PARTITION BY [j].[LeftId] ORDER BY [e0].[Id]) AS [row]
         FROM [JoinOneSelfPayload] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [j]
         INNER JOIN [EntityOnes] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e0] ON [j].[RightId] = [e0].[Id]
-        WHERE [e].[Id] = [j].[LeftId]
-        ORDER BY [e0].[Id]
     ) AS [s]
-    ORDER BY [s].[Id]
-) AS [s0]
+    WHERE [s].[row] <= 1
+) AS [s0] ON [e].[Id] = [s0].[LeftId]
 """);
     }
 

@@ -96,7 +96,7 @@ public class OptimizeDbContext : OperationTaskBase
                 return false;
             }
 
-            GeneratedFiles = Output.Split(new[] { Environment.NewLine }, StringSplitOptions.None)
+            GeneratedFiles = Output.Split([Environment.NewLine], StringSplitOptions.None)
                 .Select(f => new TaskItem(f)).ToArray();
         }
         catch (Exception e)

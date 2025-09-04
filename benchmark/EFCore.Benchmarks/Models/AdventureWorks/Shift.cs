@@ -9,9 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks;
 public class Shift
 {
     public Shift()
-    {
-        EmployeeDepartmentHistory = new HashSet<EmployeeDepartmentHistory>();
-    }
+        => EmployeeDepartmentHistory = new HashSet<EmployeeDepartmentHistory>();
 
     public byte ShiftID { get; set; }
     public DateTime EndTime { get; set; }
