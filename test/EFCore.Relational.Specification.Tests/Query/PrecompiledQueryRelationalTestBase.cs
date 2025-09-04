@@ -965,7 +965,7 @@ Assert.Collection(blogs, b => Assert.Equal(8, b.Id));
         => Test(
             """
 int[] ids = [1, 2, 3];
-_ = await context.Blogs.Where(b => ids.Contains(b.Id)).ToListAsync();
+_ = await context.Blogs.Where(b => ((IEnumerable<int>)ids).Contains(b.Id)).ToListAsync();
 """);
 
     [ConditionalFact]
