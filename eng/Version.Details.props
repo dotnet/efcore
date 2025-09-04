@@ -24,6 +24,14 @@ This file should be imported by eng/Versions.props
     <SystemRuntimeCachingPackageVersion>10.0.0-rc.2.25427.104</SystemRuntimeCachingPackageVersion>
     <SystemTextEncodingsWebPackageVersion>10.0.0-rc.2.25427.104</SystemTextEncodingsWebPackageVersion>
     <SystemTextJsonPackageVersion>10.0.0-rc.2.25427.104</SystemTextJsonPackageVersion>
+    <!-- dotnet/msbuild dependencies -->
+    <MicrosoftBuildFrameworkPackageVersion>17.15.0-preview-25453-107</MicrosoftBuildFrameworkPackageVersion>
+    <MicrosoftBuildUtilitiesCorePackageVersion>17.15.0-preview-25453-107</MicrosoftBuildUtilitiesCorePackageVersion>
+    <MicrosoftBuildTasksCorePackageVersion>17.15.0-preview-25453-107</MicrosoftBuildTasksCorePackageVersion>
+    <!-- dotnet/roslyn dependencies -->
+    <MicrosoftCodeAnalysisCSharpPackageVersion>5.0.0-2.25453.107</MicrosoftCodeAnalysisCSharpPackageVersion>
+    <MicrosoftCodeAnalysisCSharpWorkspacesPackageVersion>5.0.0-2.25453.107</MicrosoftCodeAnalysisCSharpWorkspacesPackageVersion>
+    <MicrosoftCodeAnalysisWorkspacesMSBuildPackageVersion>5.0.0-2.25453.107</MicrosoftCodeAnalysisWorkspacesMSBuildPackageVersion>
   </PropertyGroup>
   <!--Property group for alternate package version names-->
   <PropertyGroup>
@@ -46,5 +54,13 @@ This file should be imported by eng/Versions.props
     <SystemRuntimeCachingVersion>$(SystemRuntimeCachingPackageVersion)</SystemRuntimeCachingVersion>
     <SystemTextEncodingsWebVersion>$(SystemTextEncodingsWebPackageVersion)</SystemTextEncodingsWebVersion>
     <SystemTextJsonVersion>$(SystemTextJsonPackageVersion)</SystemTextJsonVersion>
+    <!-- dotnet/msbuild dependencies -->
+    <MicrosoftBuildFrameworkVersion>$(MicrosoftBuildFrameworkPackageVersion)</MicrosoftBuildFrameworkVersion>
+    <MicrosoftBuildUtilitiesCoreVersion>$(MicrosoftBuildUtilitiesCorePackageVersion)</MicrosoftBuildUtilitiesCoreVersion>
+    <MicrosoftBuildTasksCoreVersion>$(MicrosoftBuildTasksCorePackageVersion)</MicrosoftBuildTasksCoreVersion>
+    <!-- dotnet/roslyn dependencies -->
+    <MicrosoftCodeAnalysisCSharpVersion>$(MicrosoftCodeAnalysisCSharpPackageVersion)</MicrosoftCodeAnalysisCSharpVersion>
+    <MicrosoftCodeAnalysisCSharpWorkspacesVersion>$(MicrosoftCodeAnalysisCSharpWorkspacesPackageVersion)</MicrosoftCodeAnalysisCSharpWorkspacesVersion>
+    <MicrosoftCodeAnalysisWorkspacesMSBuildVersion>$(MicrosoftCodeAnalysisWorkspacesMSBuildPackageVersion)</MicrosoftCodeAnalysisWorkspacesMSBuildVersion>
   </PropertyGroup>
 </Project>
