@@ -14,6 +14,7 @@ using Microsoft.Data.Sqlite.Properties;
 using Microsoft.Data.Sqlite.Utilities;
 using SQLitePCL;
 using static SQLitePCL.raw;
+using static Microsoft.Data.Sqlite.Utilities.IsBusyHelper;
 
 namespace Microsoft.Data.Sqlite;
 
@@ -140,7 +141,7 @@ public class SqliteDataReader : DbDataReader
 
         if (_record != null)
         {
-            _record.Dispose();
+            _record.DisposeWithBusyHandling(_command.CommandTimeout, _totalElapsedTime);
             _record = null;
         }
 
@@ -205,9 +206,6 @@ public class SqliteDataReader : DbDataReader
 
         return false;
     }
-
-    private static bool IsBusy(int rc)
-        => rc is SQLITE_LOCKED or SQLITE_BUSY or SQLITE_LOCKED_SHAREDCACHE;
 
     private void AddChanges(int changes)
     {
