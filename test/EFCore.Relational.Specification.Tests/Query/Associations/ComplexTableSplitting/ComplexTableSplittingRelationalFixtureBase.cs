@@ -18,6 +18,9 @@ public abstract class ComplexTableSplittingRelationalFixtureBase : ComplexProper
     protected override string StoreName
         => "ComplexTableSplittingQueryTest";
 
+    public override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
+        => facade.UseTransaction(transaction.GetDbTransaction());
+
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
         base.OnModelCreating(modelBuilder, context);

@@ -6,6 +6,4 @@ namespace Microsoft.EntityFrameworkCore.Query.Associations.ComplexTableSplitting
 public class ComplexTableSplittingMiscellaneousSqliteTest(
     ComplexTableSplittingSqliteFixture fixture,
     ITestOutputHelper testOutputHelper)
-    : ComplexTableSplittingMiscellaneousRelationalTestBase<ComplexTableSplittingSqliteFixture>(fixture, testOutputHelper)
-{    
-}
+    : ComplexTableSplittingMiscellaneousRelationalTestBase<ComplexTableSplittingSqliteFixture>(fixture, testOutputHelper);

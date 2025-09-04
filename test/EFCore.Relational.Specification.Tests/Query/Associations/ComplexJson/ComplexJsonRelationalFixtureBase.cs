@@ -10,6 +10,9 @@ public abstract class ComplexJsonRelationalFixtureBase : ComplexPropertiesFixtur
     protected override string StoreName
         => "ComplexJsonQueryTest";
 
+    public override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
+        => facade.UseTransaction(transaction.GetDbTransaction());
+
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
         base.OnModelCreating(modelBuilder, context);

@@ -23,44 +23,88 @@ FROM [RootEntity] AS [r]
     {
         await base.Select_property_on_required_related(queryTrackingBehavior);
 
-        AssertSql(
-            """
+        if (Fixture.UsingJsonType)
+        {
+            AssertSql(
+                """
+SELECT JSON_VALUE([r].[RequiredRelated], '$.String' RETURNING nvarchar(max))
+FROM [RootEntity] AS [r]
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 SELECT JSON_VALUE([r].[RequiredRelated], '$.String')
 FROM [RootEntity] AS [r]
 """);
+        }
     }
 
     public override async Task Select_property_on_optional_related(QueryTrackingBehavior queryTrackingBehavior)
     {
         await base.Select_property_on_optional_related(queryTrackingBehavior);
 
-        AssertSql(
-            """
+        if (Fixture.UsingJsonType)
+        {
+            AssertSql(
+                """
+SELECT JSON_VALUE([r].[OptionalRelated], '$.String' RETURNING nvarchar(max))
+FROM [RootEntity] AS [r]
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 SELECT JSON_VALUE([r].[OptionalRelated], '$.String')
 FROM [RootEntity] AS [r]
 """);
+        }
     }
 
     public override async Task Select_value_type_property_on_null_related_throws(QueryTrackingBehavior queryTrackingBehavior)
     {
         await base.Select_value_type_property_on_null_related_throws(queryTrackingBehavior);
 
-        AssertSql(
-            """
+        if (Fixture.UsingJsonType)
+        {
+            AssertSql(
+                """
+SELECT JSON_VALUE([r].[OptionalRelated], '$.Int' RETURNING int)
+FROM [RootEntity] AS [r]
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 SELECT CAST(JSON_VALUE([r].[OptionalRelated], '$.Int') AS int)
 FROM [RootEntity] AS [r]
 """);
+        }
     }
 
     public override async Task Select_nullable_value_type_property_on_null_related(QueryTrackingBehavior queryTrackingBehavior)
     {
         await base.Select_nullable_value_type_property_on_null_related(queryTrackingBehavior);
 
-        AssertSql(
-            """
+        if (Fixture.UsingJsonType)
+        {
+            AssertSql(
+                """
+SELECT JSON_VALUE([r].[OptionalRelated], '$.Int' RETURNING int)
+FROM [RootEntity] AS [r]
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 SELECT CAST(JSON_VALUE([r].[OptionalRelated], '$.Int') AS int)
 FROM [RootEntity] AS [r]
 """);
+        }
     }
 
     #endregion Simple properties
@@ -221,8 +265,27 @@ ORDER BY [r].[Id]
 
         if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
         {
-            AssertSql(
-                """
+            if (Fixture.UsingJsonType)
+            {
+                AssertSql(
+                    """
+SELECT [r].[Id], [r0].[Id], [r0].[Int], [r0].[Name], [r0].[String], [r0].[NestedCollection], [r0].[OptionalNested], [r0].[RequiredNested]
+FROM [RootEntity] AS [r]
+CROSS APPLY OPENJSON([r].[RelatedCollection], '$') WITH (
+    [Id] int '$.Id',
+    [Int] int '$.Int',
+    [Name] nvarchar(max) '$.Name',
+    [String] nvarchar(max) '$.String',
+    [NestedCollection] json '$.NestedCollection' AS JSON,
+    [OptionalNested] json '$.OptionalNested' AS JSON,
+    [RequiredNested] json '$.RequiredNested' AS JSON
+) AS [r0]
+""");
+            }
+            else
+            {
+                AssertSql(
+                    """
 SELECT [r].[Id], [r0].[Id], [r0].[Int], [r0].[Name], [r0].[String], [r0].[NestedCollection], [r0].[OptionalNested], [r0].[RequiredNested]
 FROM [RootEntity] AS [r]
 CROSS APPLY OPENJSON([r].[RelatedCollection], '$') WITH (
@@ -235,6 +298,7 @@ CROSS APPLY OPENJSON([r].[RelatedCollection], '$') WITH (
     [RequiredNested] nvarchar(max) '$.RequiredNested' AS JSON
 ) AS [r0]
 """);
+            }
         }
     }
 
