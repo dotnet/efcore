@@ -140,19 +140,43 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
 
             Sql.AppendLine($"{Dependencies.SqlGenerationHelper.DelimitIdentifier(updateExpression.Table.Alias)}");
             Sql.Append("SET ");
-            Visit(updateExpression.ColumnValueSetters[0].Column);
-            Sql.Append(" = ");
-            Visit(updateExpression.ColumnValueSetters[0].Value);
 
-            using (Sql.Indent())
+            for (var i = 0; i < updateExpression.ColumnValueSetters.Count; i++)
             {
-                foreach (var columnValueSetter in updateExpression.ColumnValueSetters.Skip(1))
+                var (column, value) = updateExpression.ColumnValueSetters[i];
+
+                if (i == 1)
+                {
+                    Sql.IncrementIndent();
+                }
+
+                if (i > 0)
                 {
                     Sql.AppendLine(",");
-                    Visit(columnValueSetter.Column);
-                    Sql.Append(" = ");
-                    Visit(columnValueSetter.Value);
                 }
+
+                // SQL Server 2025 modify method (https://learn.microsoft.com/sql/t-sql/data-types/json-data-type#modify-method)
+                // This requires special handling since modify isn't a standard setter of the form SET x = y, but rather just
+                // SET [x].modify(...).
+                if (value is SqlFunctionExpression
+                    {
+                        Name: "modify",
+                        IsBuiltIn: true,
+                        Instance: ColumnExpression { TypeMapping.StoreType: "json" } instance
+                    })
+                {
+                    Visit(value);
+                    continue;
+                }
+
+                Visit(column);
+                Sql.Append(" = ");
+                Visit(value);
+            }
+
+            if (updateExpression.ColumnValueSetters.Count > 1)
+            {
+                Sql.DecrementIndent();
             }
 
             _withinTable = true;
@@ -203,6 +227,23 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
     }
 
     /// <summary>
+    ///     Generates SQL for a constant.
+    /// </summary>
+    /// <param name="sqlConstantExpression">The <see cref="SqlConstantExpression" /> for which to generate SQL.</param>
+    protected override Expression VisitSqlConstant(SqlConstantExpression sqlConstantExpression)
+    {
+        // Certain JSON functions (e.g. JSON_MODIFY()) accept a JSONPATH argument - this is (currently) flown here as a
+        // SqlConstantExpression over IReadOnlyList<PathSegment>. Render that to a string here.
+        if (sqlConstantExpression is { Value: IReadOnlyList<PathSegment> path })
+        {
+            GenerateJsonPath(path);
+            return sqlConstantExpression;
+        }
+
+        return base.VisitSqlConstant(sqlConstantExpression);
+    }
+
+    /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
@@ -210,40 +251,68 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
     /// </summary>
     protected override Expression VisitSqlFunction(SqlFunctionExpression sqlFunctionExpression)
     {
-        if (sqlFunctionExpression is { IsBuiltIn: true, Arguments: not null }
-            && string.Equals(sqlFunctionExpression.Name, "COALESCE", StringComparison.OrdinalIgnoreCase))
+        switch (sqlFunctionExpression)
         {
-            var type = sqlFunctionExpression.Type;
-            var typeMapping = sqlFunctionExpression.TypeMapping;
-            var defaultTypeMapping = _typeMappingSource.FindMapping(type);
-
-            // ISNULL always return a value having the same type as its first
-            // argument. Ideally we would convert the argument to have the
-            // desired type and type mapping, but currently EFCore has some
-            // trouble in computing types of non-homogeneous expressions
-            // (tracked in https://github.com/dotnet/efcore/issues/15586). To
-            // stay on the safe side we only use ISNULL if:
-            //  - all sub-expressions have the same type as the expression
-            //  - all sub-expressions have the same type mapping as the expression
-            //  - the expression is using the default type mapping (combined
-            //    with the two above, this implies that all of the expressions
-            //    are using the default type mapping of the type)
-            if (defaultTypeMapping == typeMapping
-                && sqlFunctionExpression.Arguments.All(a => a.Type == type && a.TypeMapping == typeMapping))
+            case { IsBuiltIn: true, Arguments: not null }
+                when string.Equals(sqlFunctionExpression.Name, "COALESCE", StringComparison.OrdinalIgnoreCase):
             {
-                var head = sqlFunctionExpression.Arguments[0];
-                sqlFunctionExpression = (SqlFunctionExpression)sqlFunctionExpression
-                    .Arguments
-                    .Skip(1)
-                    .Aggregate(
-                        head, (l, r) => new SqlFunctionExpression(
-                            "ISNULL",
-                            arguments: [l, r],
-                            nullable: true,
-                            argumentsPropagateNullability: [false, false],
-                            sqlFunctionExpression.Type,
-                            sqlFunctionExpression.TypeMapping
-                        ));
+                var type = sqlFunctionExpression.Type;
+                var typeMapping = sqlFunctionExpression.TypeMapping;
+                var defaultTypeMapping = _typeMappingSource.FindMapping(type);
+
+                // ISNULL always return a value having the same type as its first
+                // argument. Ideally we would convert the argument to have the
+                // desired type and type mapping, but currently EFCore has some
+                // trouble in computing types of non-homogeneous expressions
+                // (tracked in https://github.com/dotnet/efcore/issues/15586). To
+                // stay on the safe side we only use ISNULL if:
+                //  - all sub-expressions have the same type as the expression
+                //  - all sub-expressions have the same type mapping as the expression
+                //  - the expression is using the default type mapping (combined
+                //    with the two above, this implies that all of the expressions
+                //    are using the default type mapping of the type)
+                if (defaultTypeMapping == typeMapping
+                    && sqlFunctionExpression.Arguments.All(a => a.Type == type && a.TypeMapping == typeMapping))
+                {
+                    var head = sqlFunctionExpression.Arguments[0];
+                    sqlFunctionExpression = (SqlFunctionExpression)sqlFunctionExpression
+                        .Arguments
+                        .Skip(1)
+                        .Aggregate(
+                            head, (l, r) => new SqlFunctionExpression(
+                                "ISNULL",
+                                arguments: [l, r],
+                                nullable: true,
+                                argumentsPropagateNullability: [false, false],
+                                sqlFunctionExpression.Type,
+                                sqlFunctionExpression.TypeMapping
+                            ));
+                }
+
+                return base.VisitSqlFunction(sqlFunctionExpression);
+            }
+
+            // SQL Server 2025 modify method (https://learn.microsoft.com/sql/t-sql/data-types/json-data-type#modify-method)
+            // We get here only from within UPDATE setters.
+            // We generate the syntax here manually rather than just using the regular function visitation logic since
+            // the JSON column (function instance) needs to be rendered *without* the column, unlike elsewhere.
+            case
+            {
+                Name: "modify",
+                IsBuiltIn: true,
+                Instance: ColumnExpression { TypeMapping.StoreType: "json" } jsonColumn,
+                Arguments: [SqlConstantExpression { Value: IReadOnlyList<PathSegment> jsonPath }, var item]
+            }:
+            {
+                Sql
+                    .Append(_sqlGenerationHelper.DelimitIdentifier(jsonColumn.Name))
+                    .Append(".modify(");
+                GenerateJsonPath(jsonPath);
+                Sql.Append(", ");
+                Visit(item);
+                Sql.Append(")");
+
+                return sqlFunctionExpression;
             }
         }
 

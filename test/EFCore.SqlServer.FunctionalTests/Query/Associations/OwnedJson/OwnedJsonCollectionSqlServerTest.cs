@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.Data.SqlClient;
+
 namespace Microsoft.EntityFrameworkCore.Query.Associations.OwnedJson;
 
 public class OwnedJsonCollectionSqlServerTest(OwnedJsonSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
@@ -65,10 +67,37 @@ WHERE (
 
     public override async Task Distinct()
     {
-        await base.Distinct();
+        if (Fixture.UsingJsonType)
+        {
+            // The json data type cannot be selected as DISTINCT because it is not comparable.
+            await Assert.ThrowsAsync<SqlException>(base.Distinct);
 
-        AssertSql(
-            """
+            AssertSql(
+                """
+SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+FROM [RootEntity] AS [r]
+WHERE (
+    SELECT COUNT(*)
+    FROM (
+        SELECT DISTINCT [r].[Id], [r0].[Id] AS [Id0], [r0].[Int], [r0].[Name], [r0].[String], [r0].[NestedCollection] AS [c], [r0].[OptionalNested] AS [c0], [r0].[RequiredNested] AS [c1]
+        FROM OPENJSON([r].[RelatedCollection], '$') WITH (
+            [Id] int '$.Id',
+            [Int] int '$.Int',
+            [Name] nvarchar(max) '$.Name',
+            [String] nvarchar(max) '$.String',
+            [NestedCollection] json '$.NestedCollection' AS JSON,
+            [OptionalNested] json '$.OptionalNested' AS JSON,
+            [RequiredNested] json '$.RequiredNested' AS JSON
+        ) AS [r0]
+    ) AS [r1]) = 2
+""");
+        }
+        else
+        {
+            await base.Distinct();
+
+            AssertSql(
+                """
 SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
 FROM [RootEntity] AS [r]
 WHERE (
@@ -86,14 +115,43 @@ WHERE (
         ) AS [r0]
     ) AS [r1]) = 2
 """);
+        }
     }
 
     public override async Task Distinct_projected(QueryTrackingBehavior queryTrackingBehavior)
     {
-        await base.Distinct_projected(queryTrackingBehavior);
-
-        if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
+        if (queryTrackingBehavior is QueryTrackingBehavior.TrackAll)
         {
+            await base.Distinct_projected(queryTrackingBehavior);
+        }
+        else if (Fixture.UsingJsonType)
+        {
+            // The json data type cannot be selected as DISTINCT because it is not comparable.
+            await Assert.ThrowsAsync<SqlException>(() => base.Distinct_projected(queryTrackingBehavior));
+
+            AssertSql(
+                """
+SELECT [r].[Id], [r1].[Id], [r1].[Id0], [r1].[Int], [r1].[Name], [r1].[String], [r1].[c], [r1].[c0], [r1].[c1]
+FROM [RootEntity] AS [r]
+OUTER APPLY (
+    SELECT DISTINCT [r].[Id], [r0].[Id] AS [Id0], [r0].[Int], [r0].[Name], [r0].[String], [r0].[NestedCollection] AS [c], [r0].[OptionalNested] AS [c0], [r0].[RequiredNested] AS [c1]
+    FROM OPENJSON([r].[RelatedCollection], '$') WITH (
+        [Id] int '$.Id',
+        [Int] int '$.Int',
+        [Name] nvarchar(max) '$.Name',
+        [String] nvarchar(max) '$.String',
+        [NestedCollection] json '$.NestedCollection' AS JSON,
+        [OptionalNested] json '$.OptionalNested' AS JSON,
+        [RequiredNested] json '$.RequiredNested' AS JSON
+    ) AS [r0]
+) AS [r1]
+ORDER BY [r].[Id], [r1].[Id0], [r1].[Int], [r1].[Name]
+""");
+        }
+        else
+        {
+            await base.Distinct_projected(queryTrackingBehavior);
+
             AssertSql(
                 """
 SELECT [r].[Id], [r1].[Id], [r1].[Id0], [r1].[Int], [r1].[Name], [r1].[String], [r1].[c], [r1].[c0], [r1].[c1]
@@ -137,50 +195,101 @@ ORDER BY [r].[Id], [r1].[Id0], [r1].[Int], [r1].[Name]
     {
         await base.Index_constant();
 
-        AssertSql(
-            """
+        if (Fixture.UsingJsonType)
+        {
+            AssertSql(
+                """
+SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+FROM [RootEntity] AS [r]
+WHERE JSON_VALUE([r].[RelatedCollection], '$[0].Int' RETURNING int) = 8
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
 FROM [RootEntity] AS [r]
 WHERE CAST(JSON_VALUE([r].[RelatedCollection], '$[0].Int') AS int) = 8
 """);
+        }
     }
+
 
     public override async Task Index_parameter()
     {
         await base.Index_parameter();
 
-        AssertSql(
-            """
+        if (Fixture.UsingJsonType)
+        {
+            AssertSql(
+                """
+@i='0'
+
+SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+FROM [RootEntity] AS [r]
+WHERE JSON_VALUE([r].[RelatedCollection], '$[' + CAST(@i AS nvarchar(max)) + '].Int' RETURNING int) = 8
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 @i='0'
 
 SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
 FROM [RootEntity] AS [r]
 WHERE CAST(JSON_VALUE([r].[RelatedCollection], '$[' + CAST(@i AS nvarchar(max)) + '].Int') AS int) = 8
 """);
+        }
     }
 
     public override async Task Index_column()
     {
         await base.Index_column();
 
-        AssertSql(
-            """
+        if (Fixture.UsingJsonType)
+        {
+            AssertSql(
+                """
+SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+FROM [RootEntity] AS [r]
+WHERE JSON_VALUE([r].[RelatedCollection], '$[' + CAST([r].[Id] - 1 AS nvarchar(max)) + '].Int' RETURNING int) = 8
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
 FROM [RootEntity] AS [r]
 WHERE CAST(JSON_VALUE([r].[RelatedCollection], '$[' + CAST([r].[Id] - 1 AS nvarchar(max)) + '].Int') AS int) = 8
 """);
+        }
     }
 
     public override async Task Index_out_of_bounds()
     {
         await base.Index_out_of_bounds();
 
-        AssertSql(
-            """
+        if (Fixture.UsingJsonType)
+        {
+            AssertSql(
+                """
+SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+FROM [RootEntity] AS [r]
+WHERE JSON_VALUE([r].[RelatedCollection], '$[9999].Int' RETURNING int) = 8
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
 FROM [RootEntity] AS [r]
 WHERE CAST(JSON_VALUE([r].[RelatedCollection], '$[9999].Int') AS int) = 8
 """);
+        }
     }
 
     #endregion Index
@@ -218,8 +327,29 @@ WHERE 16 IN (
     {
         await base.Select_within_Select_within_Select_with_aggregates();
 
-        AssertSql(
-            """
+        if (Fixture.UsingJsonType)
+        {
+            AssertSql(
+                """
+SELECT (
+    SELECT COALESCE(SUM([s].[value]), 0)
+    FROM OPENJSON([r].[RelatedCollection], '$') WITH ([NestedCollection] json '$.NestedCollection' AS JSON) AS [r0]
+    OUTER APPLY (
+        SELECT MAX([n].[Int]) AS [value]
+        FROM OPENJSON([r0].[NestedCollection], '$') WITH (
+            [Id] int '$.Id',
+            [Int] int '$.Int',
+            [Name] nvarchar(max) '$.Name',
+            [String] nvarchar(max) '$.String'
+        ) AS [n]
+    ) AS [s])
+FROM [RootEntity] AS [r]
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 SELECT (
     SELECT COALESCE(SUM([s].[value]), 0)
     FROM OPENJSON([r].[RelatedCollection], '$') WITH ([NestedCollection] nvarchar(max) '$.NestedCollection' AS JSON) AS [r0]
@@ -234,6 +364,7 @@ SELECT (
     ) AS [s])
 FROM [RootEntity] AS [r]
 """);
+        }
     }
 
     [ConditionalFact]

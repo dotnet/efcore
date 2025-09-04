@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Query.Associations.OwnedNavigations;
+using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Query.Associations.OwnedJson;
 

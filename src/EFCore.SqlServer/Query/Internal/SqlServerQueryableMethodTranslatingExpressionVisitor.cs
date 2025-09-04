@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
+using Microsoft.VisualBasic;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 
@@ -21,6 +22,8 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
     private readonly IRelationalTypeMappingSource _typeMappingSource;
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
     private readonly ISqlServerSingletonOptions _sqlServerSingletonOptions;
+
+    private HashSet<ColumnExpression>? _columnsWithMultipleSetters;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -358,18 +361,18 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                 // index on parameter using a column
                 // translate via JSON because it is a better translation
                 case SelectExpression
-                    {
-                        Tables: [ValuesExpression { ValuesParameter: { } valuesParameter }],
-                        Predicate: null,
-                        GroupBy: [],
-                        Having: null,
-                        IsDistinct: false,
+                {
+                    Tables: [ValuesExpression { ValuesParameter: { } valuesParameter }],
+                    Predicate: null,
+                    GroupBy: [],
+                    Having: null,
+                    IsDistinct: false,
 #pragma warning disable EF1001
-                        Orderings: [{ Expression: ColumnExpression { Name: ValuesOrderingColumnName }, IsAscending: true }],
+                    Orderings: [{ Expression: ColumnExpression { Name: ValuesOrderingColumnName }, IsAscending: true }],
 #pragma warning restore EF1001
-                        Limit: null,
-                        Offset: null
-                    } selectExpression
+                    Limit: null,
+                    Offset: null
+                } selectExpression
                     when TranslateExpression(index) is { } translatedIndex
                     && _sqlServerSingletonOptions.SupportsJsonFunctions
                     && TryTranslate(selectExpression, valuesParameter, translatedIndex, out var result):
@@ -377,28 +380,28 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
 
                 // Index on JSON array
                 case SelectExpression
-                    {
-                        Tables: [SqlServerOpenJsonExpression { Arguments: [var jsonArrayColumn] } openJsonExpression],
-                        Predicate: null,
-                        GroupBy: [],
-                        Having: null,
-                        IsDistinct: false,
-                        Limit: null,
-                        Offset: null,
-                        // We can only apply the indexing if the JSON array is ordered by its natural ordered, i.e. by the "key" column that
-                        // we created in TranslateCollection. For example, if another ordering has been applied (e.g. by the JSON elements
-                        // themselves), we can no longer simply index into the original array.
-                        Orderings:
+                {
+                    Tables: [SqlServerOpenJsonExpression { Arguments: [var jsonArrayColumn] } openJsonExpression],
+                    Predicate: null,
+                    GroupBy: [],
+                    Having: null,
+                    IsDistinct: false,
+                    Limit: null,
+                    Offset: null,
+                    // We can only apply the indexing if the JSON array is ordered by its natural ordered, i.e. by the "key" column that
+                    // we created in TranslateCollection. For example, if another ordering has been applied (e.g. by the JSON elements
+                    // themselves), we can no longer simply index into the original array.
+                    Orderings:
                         [
+                        {
+                            Expression: SqlUnaryExpression
                             {
-                                Expression: SqlUnaryExpression
-                                {
-                                    OperatorType: ExpressionType.Convert,
-                                    Operand: ColumnExpression { Name: "key", TableAlias: var orderingTableAlias }
-                                }
+                                OperatorType: ExpressionType.Convert,
+                                Operand: ColumnExpression { Name: "key", TableAlias: var orderingTableAlias }
                             }
+                        }
                         ]
-                    } selectExpression
+                } selectExpression
                     when orderingTableAlias == openJsonExpression.Alias
                     && TranslateExpression(index) is { } translatedIndex
                     && TryTranslate(selectExpression, jsonArrayColumn, translatedIndex, out var result):
@@ -465,20 +468,20 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
     /// </summary>
     protected override bool IsNaturallyOrdered(SelectExpression selectExpression)
         => selectExpression is
-            {
-                Tables: [SqlServerOpenJsonExpression openJsonExpression, ..],
-                Orderings:
+        {
+            Tables: [SqlServerOpenJsonExpression openJsonExpression, ..],
+            Orderings:
                 [
+                {
+                    Expression: SqlUnaryExpression
                     {
-                        Expression: SqlUnaryExpression
-                        {
-                            OperatorType: ExpressionType.Convert,
-                            Operand: ColumnExpression { Name: "key", TableAlias: var orderingTableAlias }
-                        },
-                        IsAscending: true
-                    }
+                        OperatorType: ExpressionType.Convert,
+                        Operand: ColumnExpression { Name: "key", TableAlias: var orderingTableAlias }
+                    },
+                    IsAscending: true
+                }
                 ]
-            }
+        }
             && orderingTableAlias == openJsonExpression.Alias;
 
     /// <summary>
@@ -492,6 +495,8 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
             && selectExpression.GroupBy.Count == 0
             && selectExpression.Having == null
             && selectExpression.Orderings.Count == 0;
+
+    #region ExecuteUpdate
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -528,6 +533,138 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
         tableExpression = null;
         return false;
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+#pragma warning disable EF1001 // Internal EF Core API usage.
+    protected override bool TryTranslateSetters(
+        ShapedQueryExpression source,
+        IReadOnlyList<ExecuteUpdateSetter> setters,
+        [NotNullWhen(true)] out IReadOnlyList<ColumnValueSetter>? columnSetters,
+        [NotNullWhen(true)] out TableExpressionBase? targetTable)
+    {
+        // SQL Server 2025 introduced the modify method (https://learn.microsoft.com/sql/t-sql/data-types/json-data-type#modify-method),
+        // which works only with the JSON data type introduced in that same version.
+        // As of now, modify is only usable if a single property is being modified in the JSON document - it's impossible to modify multiple properties.
+        // To work around this limitation, we do a first translation pass which may generate multiple modify invocations on the same JSON column (and
+        // which would fail if sent to SQL Server); we then detect this case, populate _columnsWithMultipleSetters with the problematic columns, and then
+        // retranslate, using the less efficient JSON_MODIFY() instead for those columns.
+        _columnsWithMultipleSetters = new();
+
+        if (!base.TryTranslateSetters(source, setters, out columnSetters, out targetTable))
+        {
+            return false;
+        }
+
+        _columnsWithMultipleSetters = new(columnSetters.GroupBy(s => s.Column).Where(g => g.Count() > 1).Select(g => g.Key));
+        if (_columnsWithMultipleSetters.Count > 0)
+        {
+            return base.TryTranslateSetters(source, setters, out columnSetters, out targetTable);
+        }
+
+        return true;
+    }
+#pragma warning restore EF1001 // Internal EF Core API usage.
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override SqlExpression? GenerateJsonPartialUpdateSetter(
+        Expression target,
+        SqlExpression value,
+        ref SqlExpression? existingSetterValue)
+    {
+        var (jsonColumn, path) = target switch
+        {
+            JsonScalarExpression j => ((ColumnExpression)j.Json, j.Path),
+            JsonQueryExpression j => (j.JsonColumn, j.Path),
+
+            _ => throw new UnreachableException(),
+        };
+
+        // SQL Server 2025 introduced the modify method (https://learn.microsoft.com/sql/t-sql/data-types/json-data-type#modify-method),
+        // which works only with the JSON data type introduced in that same version.
+        // As of now, modify is only usable if a single property is being modified in the JSON document - it's impossible to modify multiple properties.
+        // To work around this limitation, we do a first translation pass which may generate multiple modify invocations on the same JSON column (and
+        // which would fail if sent to SQL Server); we then detect this case in TranslateExecuteUpdate, populate _columnsWithMultipleSetters with the
+        // problematic columns, and then retranslate, using the less efficient JSON_MODIFY() instead for those columns.
+        if (jsonColumn.TypeMapping!.StoreType is "json"
+            && (_columnsWithMultipleSetters is null || !_columnsWithMultipleSetters.Contains(jsonColumn)))
+        {
+            // UPDATE ... SET [x].modify('$.a.b', 'foo')
+
+            // Note that the actual SQL generated contains only the modify function: UPDATE ... SET [x].modify(...), but UpdateExpression's
+            // ColumnValueSetter requires both column and value. The column will be ignored in SQL generation,
+            // and only the function call will be rendered.
+            var setterValue = _sqlExpressionFactory.Function(
+                existingSetterValue ?? jsonColumn,
+                "modify",
+                [
+                    // Hack: Rendering of JSONPATH strings happens in value generation. We can have a special expression for modify to hold the
+                    // IReadOnlyList<PathSegment> (just like Json{Scalar,Query}Expression), but instead we do the slight hack of packaging it
+                    // as a constant argument; it will be unpacked and handled in SQL generation.
+                    _sqlExpressionFactory.Constant(path, RelationalTypeMapping.NullMapping),
+
+                // If an inline JSON object (complex type) is being assigned, it would be rendered here as a simple string:
+                // [column].modify('$.foo', '{ "x": 8 }')
+                // Since it's untyped, modify would treat is as a string rather than a JSON object, and insert it as such into
+                // the enclosing object, escaping all the special JSON characters - that's not what we want.
+                // We add a cast to JSON to have it interpreted as a JSON object.
+                value is SqlConstantExpression { TypeMapping.StoreType: "json" }
+                    ? _sqlExpressionFactory.Convert(value, value.Type, _typeMappingSource.FindMapping("json")!)
+                    : value
+                ],
+                nullable: true,
+                instancePropagatesNullability: true,
+                argumentsPropagateNullability: [true, true],
+                typeof(void),
+                RelationalTypeMapping.NullMapping);
+
+            return setterValue;
+        }
+
+        Check.DebugAssert(existingSetterValue is null or SqlFunctionExpression { Name: "JSON_MODIFY" });
+
+        var jsonModify = _sqlExpressionFactory.Function(
+            "JSON_MODIFY",
+            arguments:
+            [
+                existingSetterValue ?? jsonColumn,
+                // Hack: Rendering of JSONPATH strings happens in value generation. We can have a special expression for modify to hold the
+                // IReadOnlyList<PathSegment> (just like Json{Scalar,Query}Expression), but instead we do the slight hack of packaging it
+                // as a constant argument; it will be unpacked and handled in SQL generation.
+                _sqlExpressionFactory.Constant(path, RelationalTypeMapping.NullMapping),
+                // JSON_MODIFY by default assumes nvarchar(max) is text and escapes it.
+                // In order to set a JSON fragment (for nested JSON objects), we need to wrap the JSON text with JSON_QUERY(), which makes
+                // JSON_MODIFY understand that it's JSON content and prevents escaping.
+                target is JsonQueryExpression && value is not JsonScalarExpression
+                    ? _sqlExpressionFactory.Function("JSON_QUERY", [value], nullable: true, argumentsPropagateNullability: [true], typeof(string), value.TypeMapping)
+                    : value
+            ],
+            nullable: true,
+            argumentsPropagateNullability: [true, true, true],
+            typeof(string),
+            jsonColumn.TypeMapping);
+
+        if (existingSetterValue is null)
+        {
+            return jsonModify;
+        }
+        else
+        {
+            existingSetterValue = jsonModify;
+            return null;
+        }
+    }
+
+    #endregion ExecuteUpdate
 
     private bool TryGetProjection(
         ShapedQueryExpression shapedQueryExpression,
