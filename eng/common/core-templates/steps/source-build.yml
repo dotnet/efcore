@@ -11,6 +11,10 @@ parameters:
   # for details. The entire object is described in the 'job' template for simplicity, even though
   # the usage of the properties on this object is split between the 'job' and 'steps' templates.
   platform: {}
+
+  # Optional list of directories to ignore for component governance scans.
+  componentGovernanceIgnoreDirectories: []
+
   is1ESPipeline: false
 
 steps:
