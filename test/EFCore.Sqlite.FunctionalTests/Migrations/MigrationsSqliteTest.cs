@@ -2348,6 +2348,220 @@ CREATE UNIQUE INDEX "IX_Person_Ssn" ON "Person" ("Ssn");
 """);
     }
 
+    [ConditionalFact]
+    public virtual async Task Create_table_with_autoincrement_column()
+    {
+        await Test(
+            builder => { },
+            builder => builder.Entity(
+                "Product",
+                x =>
+                {
+                    x.Property<int>("Id").UseAutoincrement();
+                    x.HasKey("Id");
+                    x.Property<string>("Name");
+                }),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                Assert.Equal("Product", table.Name);
+                Assert.Equal(2, table.Columns.Count());
+                
+                var idColumn = Assert.Single(table.Columns, c => c.Name == "Id");
+                Assert.False(idColumn.IsNullable);
+            });
+
+        AssertSql(
+            """
+CREATE TABLE "Product" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_Product" PRIMARY KEY AUTOINCREMENT,
+    "Name" TEXT NULL
+);
+""");
+    }
+
+    [ConditionalFact]
+    public virtual async Task Create_table_with_autoincrement_and_value_converter()
+    {
+        await Test(
+            builder => { },
+            builder => builder.Entity<ProductWithStrongId>(
+                x =>
+                {
+                    x.Property(e => e.Id).HasConversion(
+                        v => v.Value,
+                        v => new ProductId(v)).UseAutoincrement();
+                    x.HasKey(e => e.Id);
+                    x.Property(e => e.Name);
+                }),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                Assert.Equal("ProductWithStrongId", table.Name);
+                Assert.Equal(2, table.Columns.Count());
+                
+                var idColumn = Assert.Single(table.Columns, c => c.Name == "Id");
+                Assert.False(idColumn.IsNullable);
+            });
+
+        AssertSql(
+            """
+CREATE TABLE "ProductWithStrongId" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_ProductWithStrongId" PRIMARY KEY AUTOINCREMENT,
+    "Name" TEXT NULL
+);
+""");
+    }
+
+    [ConditionalFact]
+    public virtual async Task Create_table_with_composite_primary_key_and_autoincrement_fails()
+    {
+        await AssertNotSupportedAsync(
+            () => Test(
+                builder => { },
+                builder => builder.Entity(
+                    "CompositeEntity",
+                    x =>
+                    {
+                        x.Property<int>("Id1").UseAutoincrement();
+                        x.Property<int>("Id2");
+                        x.HasKey("Id1", "Id2");
+                    }),
+                model => { }),
+            "SQLite AUTOINCREMENT can only be used with a single primary key column.");
+    }
+
+    [ConditionalFact]
+    public virtual async Task Alter_column_add_autoincrement()
+    {
+        await Test(
+            builder => builder.Entity(
+                "Product",
+                x =>
+                {
+                    x.Property<int>("Id");
+                    x.HasKey("Id");
+                    x.Property<string>("Name");
+                }),
+            builder => builder.Entity(
+                "Product",
+                x =>
+                {
+                    x.Property<int>("Id").UseAutoincrement();
+                    x.HasKey("Id");
+                    x.Property<string>("Name");
+                }),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                Assert.Equal("Product", table.Name);
+                Assert.Equal(2, table.Columns.Count());
+                
+                var idColumn = Assert.Single(table.Columns, c => c.Name == "Id");
+                Assert.False(idColumn.IsNullable);
+            });
+
+        AssertSql(
+            """
+CREATE TABLE "ef_temp_Product" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_Product" PRIMARY KEY AUTOINCREMENT,
+    "Name" TEXT NULL
+);
+""",
+            //
+            """
+INSERT INTO "ef_temp_Product" ("Name")
+SELECT "Name"
+FROM "Product";
+""",
+            //
+            """
+PRAGMA foreign_keys = 0;
+""",
+            //
+            """
+DROP TABLE "Product";
+""",
+            //
+            """
+ALTER TABLE "ef_temp_Product" RENAME TO "Product";
+""",
+            //
+            """
+PRAGMA foreign_keys = 1;
+""");
+    }
+
+    [ConditionalFact]
+    public virtual async Task Alter_column_remove_autoincrement()
+    {
+        await Test(
+            builder => builder.Entity(
+                "Product",
+                x =>
+                {
+                    x.Property<int>("Id").UseAutoincrement();
+                    x.HasKey("Id");
+                    x.Property<string>("Name");
+                }),
+            builder => builder.Entity(
+                "Product",
+                x =>
+                {
+                    x.Property<int>("Id");
+                    x.HasKey("Id");
+                    x.Property<string>("Name");
+                }),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                Assert.Equal("Product", table.Name);
+                Assert.Equal(2, table.Columns.Count());
+                
+                var idColumn = Assert.Single(table.Columns, c => c.Name == "Id");
+                Assert.False(idColumn.IsNullable);
+            });
+
+        AssertSql(
+            """
+CREATE TABLE "ef_temp_Product" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_Product" PRIMARY KEY,
+    "Name" TEXT NULL
+);
+""",
+            //
+            """
+INSERT INTO "ef_temp_Product" ("Id", "Name")
+SELECT "Id", "Name"
+FROM "Product";
+""",
+            //
+            """
+PRAGMA foreign_keys = 0;
+""",
+            //
+            """
+DROP TABLE "Product";
+""",
+            //
+            """
+ALTER TABLE "ef_temp_Product" RENAME TO "Product";
+""",
+            //
+            """
+PRAGMA foreign_keys = 1;
+""");
+    }
+
+    // Test entities for autoincrement tests
+    public record struct ProductId(int Value);
+
+    public class ProductWithStrongId
+    {
+        public ProductId Id { get; set; }
+        public string? Name { get; set; }
+    }
+
     protected virtual async Task AssertNotSupportedAsync(Func<Task> action, string? message = null)
     {
         var ex = await Assert.ThrowsAsync<NotSupportedException>(action);
