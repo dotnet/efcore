@@ -822,7 +822,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                     writer.Flush();
 
                     var value = writer.BytesCommitted > 0
-                        ? Encoding.UTF8.GetString(stream.ToArray())
+                        ? Encoding.UTF8.GetString(stream.GetBuffer(), 0, (int)stream.Length)
                         : null;
 
                     columnModifications.Add(

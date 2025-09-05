@@ -80,13 +80,11 @@ public class TypeMappingTests
         writer.WriteEndObject();
         writer.Flush();
 
-        var buffer = stream.ToArray();
-
-        var actual = Encoding.UTF8.GetString(buffer);
+        var actual = Encoding.UTF8.GetString(stream.GetBuffer(), 0, (int)stream.Length);
 
         Assert.Equal(json, actual);
 
-        var readerManager = new Utf8JsonReaderManager(new JsonReaderData(buffer), null);
+        var readerManager = new Utf8JsonReaderManager(new JsonReaderData(stream.ToArray()), null);
         readerManager.MoveNext();
         readerManager.MoveNext();
         readerManager.MoveNext();

@@ -3773,9 +3773,7 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         writer.WriteEndObject();
         writer.Flush();
 
-        var buffer = stream.ToArray();
-
-        return Encoding.UTF8.GetString(buffer);
+        return Encoding.UTF8.GetString(stream.GetBuffer(), 0, (int)stream.Length);
     }
 
     protected object? FromJsonPropertyString(JsonValueReaderWriter jsonReaderWriter, string value, object? existingValue = null)

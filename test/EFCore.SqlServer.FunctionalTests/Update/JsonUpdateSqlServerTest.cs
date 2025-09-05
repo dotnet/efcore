@@ -247,7 +247,7 @@ FROM [JsonEntitiesBasic] AS [j]
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenceRoot], 'strict $.OwnedCollectionBranch', JSON_QUERY(@p0))
+UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenceRoot], 'strict $.OwnedCollectionBranch', @p0)
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
@@ -291,7 +291,7 @@ FROM [JsonEntitiesBasic] AS [j]
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenceRoot], 'strict $.OwnedReferenceBranch.OwnedReferenceLeaf', JSON_QUERY(@p0))
+UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenceRoot], 'strict $.OwnedReferenceBranch.OwnedReferenceLeaf', @p0)
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
@@ -330,12 +330,12 @@ FROM [JsonEntitiesBasic] AS [j]
 
         AssertSql(
             """
-@p0='2111-11-11T00:00:00' (Nullable = false) (Size = 4000)
+@p0='{"":"2111-11-11T00:00:00"}' (Nullable = false) (Size = 26)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesBasic] SET [OwnedCollectionRoot] = JSON_MODIFY([OwnedCollectionRoot], 'strict $[0].OwnedCollectionBranch[0].Date', @p0)
+UPDATE [JsonEntitiesBasic] SET [OwnedCollectionRoot] = JSON_MODIFY([OwnedCollectionRoot], 'strict $[0].OwnedCollectionBranch[0].Date', JSON_VALUE(@p0, '$.""'))
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
@@ -352,12 +352,12 @@ FROM [JsonEntitiesBasic] AS [j]
 
         AssertSql(
             """
-@p0='Modified' (Nullable = false) (Size = 4000)
+@p0='{"":"Modified"}' (Nullable = false) (Size = 15)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesBasic] SET [OwnedCollectionRoot] = JSON_MODIFY([OwnedCollectionRoot], 'strict $[0].Name', @p0)
+UPDATE [JsonEntitiesBasic] SET [OwnedCollectionRoot] = JSON_MODIFY([OwnedCollectionRoot], 'strict $[0].Name', JSON_VALUE(@p0, '$.""'))
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
@@ -374,12 +374,12 @@ FROM [JsonEntitiesBasic] AS [j]
 
         AssertSql(
             """
-@p0='Modified' (Nullable = false) (Size = 4000)
+@p0='{"":"Modified"}' (Nullable = false) (Size = 15)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesBasic] SET [OwnedCollectionRoot] = JSON_MODIFY([OwnedCollectionRoot], 'strict $[1].Name', @p0)
+UPDATE [JsonEntitiesBasic] SET [OwnedCollectionRoot] = JSON_MODIFY([OwnedCollectionRoot], 'strict $[1].Name', JSON_VALUE(@p0, '$.""'))
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
@@ -601,12 +601,12 @@ WHERE [j].[Id] = 1
 
         AssertSql(
             """
-@p0='t' (Nullable = false) (Size = 4000)
+@p0='{"":"t"}' (Nullable = false) (Size = 8)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesAllTypes] SET [Reference] = JSON_MODIFY([Reference], 'strict $.TestCharacter', @p0)
+UPDATE [JsonEntitiesAllTypes] SET [Reference] = JSON_MODIFY([Reference], 'strict $.TestCharacter', JSON_VALUE(@p0, '$.""'))
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
@@ -618,19 +618,54 @@ WHERE [j].[Id] = 1
 """);
     }
 
+    public override async Task Edit_single_property_with_non_ascii_characters()
+    {
+        await base.Edit_single_property_with_non_ascii_characters();
+
+        AssertSql(
+            """
+@p0='{"":"\u6D4B\u8BD51"}' (Nullable = false) (Size = 20)
+@p1='1'
+@p2='{"Id":0,"Name":"ReferenceRoot","Names":null,"Number":300,"Numbers":null,"OwnedCollectionBranch":[],"OwnedReferenceBranch":{"Date":"2023-10-05T00:00:00","Enum":-3,"Enums":null,"Fraction":99.99,"Id":15,"NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":[],"OwnedReferenceLeaf":{"SomethingSomething":"\u6D4B\u8BD51"}}}' (Nullable = false) (Size = 327)
+@p3='[]' (Nullable = false) (Size = 2)
+@p4='3'
+@p5=NULL (DbType = Int32)
+@p6='ComprehensiveEntity' (Size = 4000)
+
+SET NOCOUNT ON;
+UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenceRoot], 'strict $.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething', JSON_VALUE(@p0, '$.""'))
+OUTPUT 1
+WHERE [Id] = @p1;
+INSERT INTO [JsonEntitiesBasic] ([OwnedReferenceRoot], [OwnedCollectionRoot], [Id], [EntityBasicId], [Name])
+VALUES (@p2, @p3, @p4, @p5, @p6);
+""",
+            //
+            """
+SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
+WHERE [j].[Id] = 3
+""",
+            //
+            """
+SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
+WHERE [j].[Id] = 1
+""");
+    }
+
     public override async Task Edit_single_property_datetime()
     {
         await base.Edit_single_property_datetime();
 
         AssertSql(
             """
-@p0='3000-01-01T12:34:56' (Nullable = false) (Size = 4000)
-@p1='3000-01-01T12:34:56' (Nullable = false) (Size = 4000)
+@p0='{"":"3000-01-01T12:34:56"}' (Nullable = false) (Size = 26)
+@p1='{"":"3000-01-01T12:34:56"}' (Nullable = false) (Size = 26)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestDateTime', @p0), [Reference] = JSON_MODIFY([Reference], 'strict $.TestDateTime', @p1)
+UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestDateTime', JSON_VALUE(@p0, '$.""')), [Reference] = JSON_MODIFY([Reference], 'strict $.TestDateTime', JSON_VALUE(@p1, '$.""'))
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
@@ -648,13 +683,13 @@ WHERE [j].[Id] = 1
 
         AssertSql(
             """
-@p0='3000-01-01T12:34:56-04:00' (Nullable = false) (Size = 4000)
-@p1='3000-01-01T12:34:56-04:00' (Nullable = false) (Size = 4000)
+@p0='{"":"3000-01-01T12:34:56-04:00"}' (Nullable = false) (Size = 32)
+@p1='{"":"3000-01-01T12:34:56-04:00"}' (Nullable = false) (Size = 32)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestDateTimeOffset', @p0), [Reference] = JSON_MODIFY([Reference], 'strict $.TestDateTimeOffset', @p1)
+UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestDateTimeOffset', JSON_VALUE(@p0, '$.""')), [Reference] = JSON_MODIFY([Reference], 'strict $.TestDateTimeOffset', JSON_VALUE(@p1, '$.""'))
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
@@ -720,13 +755,13 @@ WHERE [j].[Id] = 1
 
         AssertSql(
             """
-@p0='12345678-1234-4321-5555-987654321000' (Nullable = false) (Size = 4000)
-@p1='12345678-1234-4321-5555-987654321000' (Nullable = false) (Size = 4000)
+@p0='{"":"12345678-1234-4321-5555-987654321000"}' (Nullable = false) (Size = 43)
+@p1='{"":"12345678-1234-4321-5555-987654321000"}' (Nullable = false) (Size = 43)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestGuid', @p0), [Reference] = JSON_MODIFY([Reference], 'strict $.TestGuid', @p1)
+UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestGuid', JSON_VALUE(@p0, '$.""')), [Reference] = JSON_MODIFY([Reference], 'strict $.TestGuid', JSON_VALUE(@p1, '$.""'))
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
@@ -864,13 +899,13 @@ WHERE [j].[Id] = 1
 
         AssertSql(
             """
-@p0='10:01:01.007' (Nullable = false) (Size = 4000)
-@p1='10:01:01.007' (Nullable = false) (Size = 4000)
+@p0='{"":"10:01:01.007"}' (Nullable = false) (Size = 19)
+@p1='{"":"10:01:01.007"}' (Nullable = false) (Size = 19)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestTimeSpan', @p0), [Reference] = JSON_MODIFY([Reference], 'strict $.TestTimeSpan', @p1)
+UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestTimeSpan', JSON_VALUE(@p0, '$.""')), [Reference] = JSON_MODIFY([Reference], 'strict $.TestTimeSpan', JSON_VALUE(@p1, '$.""'))
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
@@ -1152,13 +1187,13 @@ WHERE [j].[Id] = 1
 
         AssertSql(
             """
-@p0='Three' (Nullable = false) (Size = 4000)
-@p1='One' (Nullable = false) (Size = 4000)
+@p0='{"":"Three"}' (Nullable = false) (Size = 12)
+@p1='{"":"One"}' (Nullable = false) (Size = 10)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestNullableEnumWithConverterThatHandlesNulls', @p0), [Reference] = JSON_MODIFY([Reference], 'strict $.TestNullableEnumWithConverterThatHandlesNulls', @p1)
+UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestNullableEnumWithConverterThatHandlesNulls', JSON_VALUE(@p0, '$.""')), [Reference] = JSON_MODIFY([Reference], 'strict $.TestNullableEnumWithConverterThatHandlesNulls', JSON_VALUE(@p1, '$.""'))
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
@@ -1313,12 +1348,12 @@ WHERE [j].[Id] = 1
 
         AssertSql(
             """
-@p0='True' (Nullable = false) (Size = 4000)
+@p0='{"":"True"}' (Nullable = false) (Size = 11)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesConverters] SET [Reference] = JSON_MODIFY([Reference], 'strict $.BoolConvertedToStringTrueFalse', @p0)
+UPDATE [JsonEntitiesConverters] SET [Reference] = JSON_MODIFY([Reference], 'strict $.BoolConvertedToStringTrueFalse', JSON_VALUE(@p0, '$.""'))
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
@@ -1336,12 +1371,12 @@ WHERE [j].[Id] = 1
 
         AssertSql(
             """
-@p0='N' (Nullable = false) (Size = 4000)
+@p0='{"":"N"}' (Nullable = false) (Size = 8)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesConverters] SET [Reference] = JSON_MODIFY([Reference], 'strict $.BoolConvertedToStringYN', @p0)
+UPDATE [JsonEntitiesConverters] SET [Reference] = JSON_MODIFY([Reference], 'strict $.BoolConvertedToStringYN', JSON_VALUE(@p0, '$.""'))
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
@@ -1477,13 +1512,13 @@ WHERE [j].[Id] = 1
 
         AssertSql(
             """
-@p0='Dg==' (Nullable = false) (Size = 4000)
-@p1='GRo=' (Nullable = false) (Size = 4000)
+@p0='{"":"Dg=="}' (Nullable = false) (Size = 11)
+@p1='{"":"GRo="}' (Nullable = false) (Size = 11)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestByteCollection', @p0), [Reference] = JSON_MODIFY([Reference], 'strict $.TestByteCollection', @p1)
+UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestByteCollection', JSON_VALUE(@p0, '$.""')), [Reference] = JSON_MODIFY([Reference], 'strict $.TestByteCollection', JSON_VALUE(@p1, '$.""'))
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
@@ -1939,7 +1974,7 @@ WHERE [j].[Id] = 1
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestNullableInt32Collection', JSON_QUERY(@p0)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestNullableInt32Collection', JSON_QUERY(@p1))
+UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestNullableInt32Collection', @p0), [Reference] = JSON_MODIFY([Reference], 'strict $.TestNullableInt32Collection', @p1)
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
@@ -2035,7 +2070,7 @@ WHERE [j].[Id] = 1
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestNullableEnumCollection', JSON_QUERY(@p0)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestNullableEnumCollection', JSON_QUERY(@p1))
+UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestNullableEnumCollection', @p0), [Reference] = JSON_MODIFY([Reference], 'strict $.TestNullableEnumCollection', @p1)
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
@@ -2083,7 +2118,7 @@ WHERE [j].[Id] = 1
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestNullableEnumWithIntConverterCollection', JSON_QUERY(@p0)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestNullableEnumWithIntConverterCollection', JSON_QUERY(@p1))
+UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestNullableEnumWithIntConverterCollection', @p0), [Reference] = JSON_MODIFY([Reference], 'strict $.TestNullableEnumWithIntConverterCollection', @p1)
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
@@ -2131,7 +2166,7 @@ WHERE [j].[Id] = 1
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestNullableEnumWithConverterThatHandlesNullsCollection', JSON_QUERY(@p0)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestNullableEnumWithConverterThatHandlesNullsCollection', JSON_QUERY(@p1))
+UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestNullableEnumWithConverterThatHandlesNullsCollection', @p0), [Reference] = JSON_MODIFY([Reference], 'strict $.TestNullableEnumWithConverterThatHandlesNullsCollection', @p1)
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
@@ -2309,7 +2344,7 @@ WHERE [j].[Id] = 2
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenceRoot], 'strict $.OwnedCollectionBranch', JSON_QUERY(@p0))
+UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenceRoot], 'strict $.OwnedCollectionBranch', @p0)
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
@@ -2429,12 +2464,27 @@ WHERE [j].[Id] = 2
             _ => "'[]'"
         };
 
+        var p0 = @"@p0='[{""TestBoolean"":false,""TestBooleanCollection"":[],""TestByte"":0,""TestByteArray"":null,""TestByteCollection"":null,""TestCharacter"":""\u0000"",""TestCharacterCollection"":"
++ characterCollection
++ @",""TestDateOnly"":""0001-01-01"",""TestDateOnlyCollection"":[],""TestDateTime"":""0001-01-01T00:00:00"",""TestDateTimeCollection"":[],""TestDateTimeOffset"":""0001-01-01T00:00:00+00:00"",""TestDateTimeOffsetCollection"":[],""TestDecimal"":0,""TestDecimalCollection"":[],""TestDefaultString"":null,""TestDefaultStringCollection"":[],""TestDouble"":0,""TestDoubleCollection"":[],""TestEnum"":0,""TestEnumCollection"":[],""TestEnumWithIntConverter"":0,""TestEnumWithIntConverterCollection"":[],""TestGuid"":""00000000-0000-0000-0000-000000000000"",""TestGuidCollection"":[],""TestInt16"":0,""TestInt16Collection"":[],""TestInt32"":0,""TestInt32Collection"":[],""TestInt64"":0,""TestInt64Collection"":[],""TestMaxLengthString"":null,""TestMaxLengthStringCollection"":[],""TestNullableEnum"":null,""TestNullableEnumCollection"":[],""TestNullableEnumWithConverterThatHandlesNulls"":null,""TestNullableEnumWithConverterThatHandlesNullsCollection"":[],""TestNullableEnumWithIntConverter"":null,""TestNullableEnumWithIntConverterCollection"":[],""TestNullableInt32"":null,""TestNullableInt32Collection"":[],""TestSignedByte"":0,""TestSignedByteCollection"":[],""TestSingle"":0,""TestSingleCollection"":[],""TestTimeOnly"":""00:00:00.0000000"",""TestTimeOnlyCollection"":[],""TestTimeSpan"":""0:00:00"",""TestTimeSpanCollection"":[],""TestUnsignedInt16"":0,""TestUnsignedInt16Collection"":[],""TestUnsignedInt32"":0,""TestUnsignedInt32Collection"":[],""TestUnsignedInt64"":0,""TestUnsignedInt64Collection"":[]}]' (Nullable = false) (Size = "
++ parameterSize
++ @")";
+
+        var updatedP0 = "@p0="
+            + updateParameter
+            + @" (Nullable = false) (Size = "
+            + updateParameterSize
+            + @")";
+
+        var updatedP0Reference = value switch
+        {
+            true => "@p0",
+            _ => "JSON_QUERY(@p0)"
+        };
+
         AssertSql(
-            @"@p0='[{""TestBoolean"":false,""TestBooleanCollection"":[],""TestByte"":0,""TestByteArray"":null,""TestByteCollection"":null,""TestCharacter"":""\u0000"",""TestCharacterCollection"":"
-            + characterCollection
-            + @",""TestDateOnly"":""0001-01-01"",""TestDateOnlyCollection"":[],""TestDateTime"":""0001-01-01T00:00:00"",""TestDateTimeCollection"":[],""TestDateTimeOffset"":""0001-01-01T00:00:00+00:00"",""TestDateTimeOffsetCollection"":[],""TestDecimal"":0,""TestDecimalCollection"":[],""TestDefaultString"":null,""TestDefaultStringCollection"":[],""TestDouble"":0,""TestDoubleCollection"":[],""TestEnum"":0,""TestEnumCollection"":[],""TestEnumWithIntConverter"":0,""TestEnumWithIntConverterCollection"":[],""TestGuid"":""00000000-0000-0000-0000-000000000000"",""TestGuidCollection"":[],""TestInt16"":0,""TestInt16Collection"":[],""TestInt32"":0,""TestInt32Collection"":[],""TestInt64"":0,""TestInt64Collection"":[],""TestMaxLengthString"":null,""TestMaxLengthStringCollection"":[],""TestNullableEnum"":null,""TestNullableEnumCollection"":[],""TestNullableEnumWithConverterThatHandlesNulls"":null,""TestNullableEnumWithConverterThatHandlesNullsCollection"":[],""TestNullableEnumWithIntConverter"":null,""TestNullableEnumWithIntConverterCollection"":[],""TestNullableInt32"":null,""TestNullableInt32Collection"":[],""TestSignedByte"":0,""TestSignedByteCollection"":[],""TestSingle"":0,""TestSingleCollection"":[],""TestTimeOnly"":""00:00:00.0000000"",""TestTimeOnlyCollection"":[],""TestTimeSpan"":""0:00:00"",""TestTimeSpanCollection"":[],""TestUnsignedInt16"":0,""TestUnsignedInt16Collection"":[],""TestUnsignedInt32"":0,""TestUnsignedInt32Collection"":[],""TestUnsignedInt64"":0,""TestUnsignedInt64Collection"":[]}]' (Nullable = false) (Size = "
-            + parameterSize
-            + @")
+            $"""
+{p0}
 @p1='7624'
 @p2='[]' (Size = 4000)
 @p3=NULL (Size = 8000) (DbType = Binary)
@@ -2465,7 +2515,8 @@ WHERE [j].[Id] = 2
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 INSERT INTO [JsonEntitiesAllTypes] ([Collection], [Id], [TestBooleanCollection], [TestByteCollection], [TestCharacterCollection], [TestDateTimeCollection], [TestDateTimeOffsetCollection], [TestDecimalCollection], [TestDefaultStringCollection], [TestDoubleCollection], [TestEnumCollection], [TestEnumWithIntConverterCollection], [TestGuidCollection], [TestInt16Collection], [TestInt32Collection], [TestInt64Collection], [TestMaxLengthStringCollection], [TestNullableEnumCollection], [TestNullableEnumWithConverterThatHandlesNullsCollection], [TestNullableEnumWithIntConverterCollection], [TestNullableInt32Collection], [TestSignedByteCollection], [TestSingleCollection], [TestTimeSpanCollection], [TestUnsignedInt16Collection], [TestUnsignedInt32Collection], [TestUnsignedInt64Collection])
-VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17, @p18, @p19, @p20, @p21, @p22, @p23, @p24, @p25, @p26);",
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17, @p18, @p19, @p20, @p21, @p22, @p23, @p24, @p25, @p26);
+""",
             //
             """
 SELECT TOP(2) [j].[Id], [j].[TestBooleanCollection], [j].[TestByteCollection], [j].[TestCharacterCollection], [j].[TestDateTimeCollection], [j].[TestDateTimeOffsetCollection], [j].[TestDecimalCollection], [j].[TestDefaultStringCollection], [j].[TestDoubleCollection], [j].[TestEnumCollection], [j].[TestEnumWithIntConverterCollection], [j].[TestGuidCollection], [j].[TestInt16Collection], [j].[TestInt32Collection], [j].[TestInt64Collection], [j].[TestMaxLengthStringCollection], [j].[TestNullableEnumCollection], [j].[TestNullableEnumWithConverterThatHandlesNullsCollection], [j].[TestNullableEnumWithIntConverterCollection], [j].[TestNullableInt32Collection], [j].[TestSignedByteCollection], [j].[TestSingleCollection], [j].[TestTimeSpanCollection], [j].[TestUnsignedInt16Collection], [j].[TestUnsignedInt32Collection], [j].[TestUnsignedInt64Collection], [j].[Collection], [j].[Reference]
@@ -2473,18 +2524,16 @@ FROM [JsonEntitiesAllTypes] AS [j]
 WHERE [j].[Id] = 7624
 """,
             //
-            "@p0="
-            + updateParameter
-            + @" (Nullable = false) (Size = "
-            + updateParameterSize
-            + @")
+            $"""
+{updatedP0}
 @p1='7624'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestCharacterCollection', JSON_QUERY(@p0))
+UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestCharacterCollection', {updatedP0Reference})
 OUTPUT 1
-WHERE [Id] = @p1;",
+WHERE [Id] = @p1;
+""",
             //
             """
 SELECT TOP(2) [j].[Id], [j].[TestBooleanCollection], [j].[TestByteCollection], [j].[TestCharacterCollection], [j].[TestDateTimeCollection], [j].[TestDateTimeOffsetCollection], [j].[TestDecimalCollection], [j].[TestDefaultStringCollection], [j].[TestDoubleCollection], [j].[TestEnumCollection], [j].[TestEnumWithIntConverterCollection], [j].[TestGuidCollection], [j].[TestInt16Collection], [j].[TestInt32Collection], [j].[TestInt64Collection], [j].[TestMaxLengthStringCollection], [j].[TestNullableEnumCollection], [j].[TestNullableEnumWithConverterThatHandlesNullsCollection], [j].[TestNullableEnumWithIntConverterCollection], [j].[TestNullableInt32Collection], [j].[TestSignedByteCollection], [j].[TestSingleCollection], [j].[TestTimeSpanCollection], [j].[TestUnsignedInt16Collection], [j].[TestUnsignedInt32Collection], [j].[TestUnsignedInt64Collection], [j].[Collection], [j].[Reference]

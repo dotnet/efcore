@@ -86,9 +86,38 @@ public abstract class JsonValueReaderWriter
         ToJson(writer, value);
 
         writer.Flush();
-        var buffer = stream.ToArray();
 
-        return Encoding.UTF8.GetString(buffer);
+        return Encoding.UTF8.GetString(stream.GetBuffer(), 0, (int)stream.Length);
+    }
+
+    /// <summary>
+    ///     Returns a string containg a JSON object whith the specified property and value.
+    /// </summary>
+    /// <param name="propertyName">The property name.</param>
+    /// <param name="value">The value to write.</param>
+    /// <returns>The JSON representation of a JSON object whith the specified property and value.</returns>
+    public virtual string ToJsonObjectString(string propertyName, object? value)
+    {
+        Check.NotNull(propertyName);
+
+        using var stream = new MemoryStream();
+        using var writer = new Utf8JsonWriter(stream);
+
+        writer.WriteStartObject();
+        writer.WritePropertyName(propertyName);
+        if (value == null)
+        {
+            writer.WriteNullValue();
+        }
+        else
+        {
+            ToJson(writer, value);
+        }
+
+        writer.WriteEndObject();
+        writer.Flush();
+
+        return Encoding.UTF8.GetString(stream.GetBuffer(), 0, (int)stream.Length);
     }
 
     /// <summary>
