@@ -16,6 +16,90 @@ namespace Microsoft.EntityFrameworkCore;
 public static class SqlitePropertyExtensions
 {
     /// <summary>
+    ///     Returns the <see cref="SqliteValueGenerationStrategy" /> to use for the property.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <returns>The strategy to use for the property.</returns>
+    public static SqliteValueGenerationStrategy GetValueGenerationStrategy(this IReadOnlyProperty property)
+    {
+        var annotation = property[SqliteAnnotationNames.ValueGenerationStrategy];
+        if (annotation != null)
+        {
+            return (SqliteValueGenerationStrategy)annotation;
+        }
+
+        return GetDefaultValueGenerationStrategy(property);
+    }
+
+    /// <summary>
+    ///     Returns the <see cref="SqliteValueGenerationStrategy" /> to use for the property.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <param name="storeObject">The identifier of the store object.</param>
+    /// <returns>The strategy to use for the property.</returns>
+    public static SqliteValueGenerationStrategy GetValueGenerationStrategy(
+        this IReadOnlyProperty property,
+        in StoreObjectIdentifier storeObject)
+    {
+        var annotation = property.FindAnnotation(SqliteAnnotationNames.ValueGenerationStrategy);
+        if (annotation != null)
+        {
+            return (SqliteValueGenerationStrategy)annotation.Value!;
+        }
+
+        var sharedProperty = property.FindSharedStoreObjectRootProperty(storeObject);
+        return sharedProperty != null
+            ? sharedProperty.GetValueGenerationStrategy(storeObject)
+            : GetDefaultValueGenerationStrategy(property);
+    }
+
+    private static SqliteValueGenerationStrategy GetDefaultValueGenerationStrategy(IReadOnlyProperty property)
+    {
+        var primaryKey = property.DeclaringType.ContainingEntityType.FindPrimaryKey();
+        return primaryKey is { Properties.Count: 1 }
+            && primaryKey.Properties[0] == property
+            && property.ValueGenerated == ValueGenerated.OnAdd
+            && property.ClrType.UnwrapNullableType().IsInteger()
+            && property.FindTypeMapping()?.Converter == null
+                ? SqliteValueGenerationStrategy.Autoincrement
+                : SqliteValueGenerationStrategy.None;
+    }
+
+    /// <summary>
+    ///     Sets the <see cref="SqliteValueGenerationStrategy" /> to use for the property.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <param name="value">The strategy to use.</param>
+    public static void SetValueGenerationStrategy(
+        this IMutableProperty property,
+        SqliteValueGenerationStrategy? value)
+        => property.SetOrRemoveAnnotation(SqliteAnnotationNames.ValueGenerationStrategy, value);
+
+    /// <summary>
+    ///     Sets the <see cref="SqliteValueGenerationStrategy" /> to use for the property.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <param name="value">The strategy to use.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    public static SqliteValueGenerationStrategy? SetValueGenerationStrategy(
+        this IConventionProperty property,
+        SqliteValueGenerationStrategy? value,
+        bool fromDataAnnotation = false)
+        => (SqliteValueGenerationStrategy?)property.SetOrRemoveAnnotation(
+            SqliteAnnotationNames.ValueGenerationStrategy, value, fromDataAnnotation)?.Value;
+
+    /// <summary>
+    ///     Gets the <see cref="ConfigurationSource" /> for the value generation strategy.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <returns>The <see cref="ConfigurationSource" /> for the value generation strategy.</returns>
+    public static ConfigurationSource? GetValueGenerationStrategyConfigurationSource(this IConventionProperty property)
+        => property.FindAnnotation(SqliteAnnotationNames.ValueGenerationStrategy)?.GetConfigurationSource();
+
+    private static bool HasConverter(IProperty property)
+        => property.FindTypeMapping()?.Converter != null;
+    /// <summary>
     ///     Returns the SRID to use when creating a column for this property.
     /// </summary>
     /// <param name="property">The property.</param>
