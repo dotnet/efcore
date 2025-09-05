@@ -141,45 +141,47 @@ public class SqlServerUpdateSqlGenerator : UpdateAndSelectSqlGenerator, ISqlServ
         string name,
         string? schema)
     {
-        if (columnModification.JsonPath is not (null or "$"))
+        if (columnModification.JsonPath is null or "$")
         {
-            stringBuilder.Append("JSON_MODIFY(");
-            updateSqlGeneratorHelper.DelimitIdentifier(stringBuilder, columnModification.ColumnName);
+            base.AppendUpdateColumnValue(updateSqlGeneratorHelper, columnModification, stringBuilder, name, schema);
+            return;
+        }
 
-            // using strict so that we don't remove json elements when they are assigned NULL value
-            stringBuilder.Append(", 'strict ");
-            stringBuilder.Append(columnModification.JsonPath);
-            stringBuilder.Append("', ");
+        stringBuilder.Append("JSON_MODIFY(");
+        updateSqlGeneratorHelper.DelimitIdentifier(stringBuilder, columnModification.ColumnName);
 
-            if (columnModification.Value is null
-                || (columnModification.Property?.GetRelationalTypeMapping() is { } mapping
-                    && (mapping.Converter?.ProviderClrType ?? columnModification.Property.ClrType).UnwrapNullableType()
-                        is { } propertyProviderClrType
-                    && (propertyProviderClrType == typeof(bool)
-                        || propertyProviderClrType.IsNumeric())))
-            {
-                base.AppendUpdateColumnValue(updateSqlGeneratorHelper, columnModification, stringBuilder, name, schema);
-            }
-            else if (columnModification.Property is { IsPrimitiveCollection: false })
-            {
-                // Unwrap the value with JSON_VALUE
-                stringBuilder.Append("JSON_VALUE(");
-                base.AppendUpdateColumnValue(updateSqlGeneratorHelper, columnModification, stringBuilder, name, schema);
-                stringBuilder.Append(", '$.\"\"')");
-            }
-            else
-            {
-                stringBuilder.Append("JSON_QUERY(");
-                base.AppendUpdateColumnValue(updateSqlGeneratorHelper, columnModification, stringBuilder, name, schema);
-                stringBuilder.Append(")");
-            }
+        // using strict so that we don't remove json elements when they are assigned NULL value
+        stringBuilder.Append(", 'strict ");
+        stringBuilder.Append(columnModification.JsonPath);
+        stringBuilder.Append("', ");
+        var mapping = columnModification.Property?.GetRelationalTypeMapping();
+        var propertyProviderClrType = (mapping?.Converter?.ProviderClrType ?? columnModification.Property?.ClrType)?.UnwrapNullableType();
 
+        if (columnModification.Value is null
+            || propertyProviderClrType == typeof(bool)
+            || (propertyProviderClrType != null && propertyProviderClrType.IsNumeric()))
+        {
+            base.AppendUpdateColumnValue(updateSqlGeneratorHelper, columnModification, stringBuilder, name, schema);
+        }
+        else if (columnModification.Property is { IsPrimitiveCollection: false }
+            && propertyProviderClrType != typeof(string))
+        {
+            stringBuilder.Append("JSON_VALUE(");
+            base.AppendUpdateColumnValue(updateSqlGeneratorHelper, columnModification, stringBuilder, name, schema);
+            stringBuilder.Append(", '$.\"\"')");
+        }
+        else if(columnModification.Property == null || columnModification.Property.IsPrimitiveCollection)
+        {
+            stringBuilder.Append("JSON_QUERY(");
+            base.AppendUpdateColumnValue(updateSqlGeneratorHelper, columnModification, stringBuilder, name, schema);
             stringBuilder.Append(")");
         }
         else
         {
             base.AppendUpdateColumnValue(updateSqlGeneratorHelper, columnModification, stringBuilder, name, schema);
         }
+
+        stringBuilder.Append(")");
     }
 
     /// <summary>

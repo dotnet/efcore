@@ -49,10 +49,12 @@ public class SqlServerModificationCommand : ModificationCommand
         var propertyProviderClrType = (mapping.Converter?.ProviderClrType ?? property.ClrType).UnwrapNullableType();
         var value = parameters.Value;
 
-        // JSON-compatible non-string values (bool, numeric, null) are sent directly as non-string parameters.
+        // JSON-compatible values (null, bool, string, numeric) are sent directly as parameters.
         if (value is null
-            || propertyProviderClrType == typeof(bool)
-            || propertyProviderClrType.IsNumeric())
+            || ((propertyProviderClrType == typeof(bool)
+                || propertyProviderClrType == typeof(string)
+                || propertyProviderClrType.IsNumeric())
+                && !property.IsPrimitiveCollection))
         {
             parameters = parameters with { Value = value, TypeMapping = mapping };
 
@@ -65,12 +67,11 @@ public class SqlServerModificationCommand : ModificationCommand
         var jsonValueReaderWriter = mapping.JsonValueReaderWriter;
         if (jsonValueReaderWriter != null)
         {
-            var stringValue = value == null
-                ? "null"
-                : jsonValueReaderWriter.ToJsonString(value);
-            if (stringValue.StartsWith('[') || stringValue.StartsWith('{'))
+            var stringValue = jsonValueReaderWriter.ToJsonString(value);
+            if (!stringValue.StartsWith('"'))
             {
                 // This is a JSON object or an array, so send with the original type mapping, which may indicate the column type is JSON.
+                Check.DebugAssert(property.IsPrimitiveCollection);
                 parameters = parameters with { Value = stringValue };
 
                 return;

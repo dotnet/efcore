@@ -356,12 +356,12 @@ FROM [JsonEntitiesBasic] AS [j]
 
         AssertSql(
             """
-@p0='{"":"Modified"}' (Nullable = false) (Size = 15)
+@p0='Modified' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesBasic] SET [OwnedCollectionRoot] = JSON_MODIFY([OwnedCollectionRoot], 'strict $[0].Name', JSON_VALUE(@p0, '$.""'))
+UPDATE [JsonEntitiesBasic] SET [OwnedCollectionRoot] = JSON_MODIFY([OwnedCollectionRoot], 'strict $[0].Name', @p0)
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
@@ -378,12 +378,12 @@ FROM [JsonEntitiesBasic] AS [j]
 
         AssertSql(
             """
-@p0='{"":"Modified"}' (Nullable = false) (Size = 15)
+@p0='Modified' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesBasic] SET [OwnedCollectionRoot] = JSON_MODIFY([OwnedCollectionRoot], 'strict $[1].Name', JSON_VALUE(@p0, '$.""'))
+UPDATE [JsonEntitiesBasic] SET [OwnedCollectionRoot] = JSON_MODIFY([OwnedCollectionRoot], 'strict $[1].Name', @p0)
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
@@ -605,12 +605,12 @@ WHERE [j].[Id] = 1
 
         AssertSql(
             """
-@p0='{"":"t"}' (Nullable = false) (Size = 8)
+@p0='t' (Nullable = false) (Size = 1)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesAllTypes] SET [Reference] = JSON_MODIFY([Reference], 'strict $.TestCharacter', JSON_VALUE(@p0, '$.""'))
+UPDATE [JsonEntitiesAllTypes] SET [Reference] = JSON_MODIFY([Reference], 'strict $.TestCharacter', @p0)
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
@@ -629,7 +629,7 @@ WHERE [j].[Id] = 1
 
         AssertSql(
             """
-@p0='{"":"\u6D4B\u8BD51"}' (Nullable = false) (Size = 20)
+@p0='测试1' (Nullable = false) (Size = 4000)
 @p1='1'
 @p2='{"Id":0,"Name":"ReferenceRoot","Names":null,"Number":300,"Numbers":null,"OwnedCollectionBranch":[],"OwnedReferenceBranch":{"Date":"2023-10-05T00:00:00","Enum":-3,"Enums":null,"Fraction":99.99,"Id":15,"NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":[],"OwnedReferenceLeaf":{"SomethingSomething":"\u6D4B\u8BD51"}}}' (Nullable = false) (Size = 327)
 @p3='[]' (Nullable = false) (Size = 2)
@@ -638,7 +638,7 @@ WHERE [j].[Id] = 1
 @p6='ComprehensiveEntity' (Size = 4000)
 
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenceRoot], 'strict $.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething', JSON_VALUE(@p0, '$.""'))
+UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenceRoot], 'strict $.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething', @p0)
 OUTPUT 1
 WHERE [Id] = @p1;
 INSERT INTO [JsonEntitiesBasic] ([OwnedReferenceRoot], [OwnedCollectionRoot], [Id], [EntityBasicId], [Name])
@@ -1239,13 +1239,13 @@ WHERE [j].[Id] = 1
 
         AssertSql(
             """
-@p0='{"":"Three"}' (Nullable = false) (Size = 12)
-@p1='{"":"One"}' (Nullable = false) (Size = 10)
+@p0='Three' (Nullable = false) (Size = 4000)
+@p1='One' (Nullable = false) (Size = 4000)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestNullableEnumWithConverterThatHandlesNulls', JSON_VALUE(@p0, '$.""')), [Reference] = JSON_MODIFY([Reference], 'strict $.TestNullableEnumWithConverterThatHandlesNulls', JSON_VALUE(@p1, '$.""'))
+UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestNullableEnumWithConverterThatHandlesNulls', @p0), [Reference] = JSON_MODIFY([Reference], 'strict $.TestNullableEnumWithConverterThatHandlesNulls', @p1)
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
@@ -1400,12 +1400,12 @@ WHERE [j].[Id] = 1
 
         AssertSql(
             """
-@p0='{"":"True"}' (Nullable = false) (Size = 11)
+@p0='True' (Nullable = false) (Size = 5)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesConverters] SET [Reference] = JSON_MODIFY([Reference], 'strict $.BoolConvertedToStringTrueFalse', JSON_VALUE(@p0, '$.""'))
+UPDATE [JsonEntitiesConverters] SET [Reference] = JSON_MODIFY([Reference], 'strict $.BoolConvertedToStringTrueFalse', @p0)
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
@@ -1423,12 +1423,12 @@ WHERE [j].[Id] = 1
 
         AssertSql(
             """
-@p0='{"":"N"}' (Nullable = false) (Size = 8)
+@p0='N' (Nullable = false) (Size = 1)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesConverters] SET [Reference] = JSON_MODIFY([Reference], 'strict $.BoolConvertedToStringYN', JSON_VALUE(@p0, '$.""'))
+UPDATE [JsonEntitiesConverters] SET [Reference] = JSON_MODIFY([Reference], 'strict $.BoolConvertedToStringYN', @p0)
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
