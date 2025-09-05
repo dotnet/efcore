@@ -163,22 +163,17 @@ public class SqlServerUpdateSqlGenerator : UpdateAndSelectSqlGenerator, ISqlServ
         {
             base.AppendUpdateColumnValue(updateSqlGeneratorHelper, columnModification, stringBuilder, name, schema);
         }
-        else if (columnModification.Property is { IsPrimitiveCollection: false }
-            && propertyProviderClrType != typeof(string))
+        else if (columnModification.Property is { IsPrimitiveCollection: false })
         {
             stringBuilder.Append("JSON_VALUE(");
             base.AppendUpdateColumnValue(updateSqlGeneratorHelper, columnModification, stringBuilder, name, schema);
             stringBuilder.Append(", '$.\"\"')");
         }
-        else if(columnModification.Property == null || columnModification.Property.IsPrimitiveCollection)
+        else
         {
             stringBuilder.Append("JSON_QUERY(");
             base.AppendUpdateColumnValue(updateSqlGeneratorHelper, columnModification, stringBuilder, name, schema);
             stringBuilder.Append(")");
-        }
-        else
-        {
-            base.AppendUpdateColumnValue(updateSqlGeneratorHelper, columnModification, stringBuilder, name, schema);
         }
 
         stringBuilder.Append(")");

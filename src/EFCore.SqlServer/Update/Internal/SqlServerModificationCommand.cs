@@ -49,10 +49,9 @@ public class SqlServerModificationCommand : ModificationCommand
         var propertyProviderClrType = (mapping.Converter?.ProviderClrType ?? property.ClrType).UnwrapNullableType();
         var value = parameters.Value;
 
-        // JSON-compatible values (null, bool, string, numeric) are sent directly as parameters.
+        // JSON-compatible non-string values (bool, numeric, null) are sent directly as non-string parameters.
         if (value is null
             || ((propertyProviderClrType == typeof(bool)
-                || propertyProviderClrType == typeof(string)
                 || propertyProviderClrType.IsNumeric())
                 && !property.IsPrimitiveCollection))
         {
@@ -61,27 +60,21 @@ public class SqlServerModificationCommand : ModificationCommand
             return;
         }
 
-        // Everything else must go as either a string parameter or a json parameter, depending on whether the json type
-        // is being used or not. To determine this, we get the JSON value and check if it is a string or some other
-        // type of JSON object.
         var jsonValueReaderWriter = mapping.JsonValueReaderWriter;
         if (jsonValueReaderWriter != null)
         {
-            var stringValue = jsonValueReaderWriter.ToJsonString(value);
-            if (!stringValue.StartsWith('"'))
+            if (property.IsPrimitiveCollection)
             {
-                // This is a JSON object or an array, so send with the original type mapping, which may indicate the column type is JSON.
-                Check.DebugAssert(property.IsPrimitiveCollection);
-                parameters = parameters with { Value = stringValue };
+                // This is a JSON array, so send with the original type mapping, which may indicate the column type is JSON.
+                parameters = parameters with { Value = jsonValueReaderWriter.ToJsonString(value) };
 
                 return;
             }
 
             // Otherwise, wrap the value in a simple JSON object to avoid double escaping.
-            value = "{\"\":" + stringValue + "}";
             parameters = parameters with
             {
-                Value = value,
+                Value = jsonValueReaderWriter.ToJsonObjectString("", value),
                 TypeMapping = parameters.TypeMapping is SqlServerStructuralJsonTypeMapping
                     ? parameters.TypeMapping
                     : SqlServerStructuralJsonTypeMapping.Default
