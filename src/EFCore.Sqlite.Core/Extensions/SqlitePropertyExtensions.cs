@@ -55,10 +55,23 @@ public static class SqlitePropertyExtensions
 
     private static SqliteValueGenerationStrategy GetDefaultValueGenerationStrategy(IReadOnlyProperty property)
     {
+        // Return None if default value, default value sql, or computed value are set
+        if (property.TryGetDefaultValue(out _)
+            || property.GetDefaultValueSql() != null
+            || property.GetComputedColumnSql() != null)
+        {
+            return SqliteValueGenerationStrategy.None;
+        }
+
+        // Return None if the property is part of a foreign key
+        if (property.IsForeignKey())
+        {
+            return SqliteValueGenerationStrategy.None;
+        }
+
         var primaryKey = property.DeclaringType.ContainingEntityType.FindPrimaryKey();
         return primaryKey is { Properties.Count: 1 }
             && primaryKey.Properties[0] == property
-            && property.ValueGenerated == ValueGenerated.OnAdd
             && property.ClrType.UnwrapNullableType().IsInteger()
                 ? SqliteValueGenerationStrategy.Autoincrement
                 : SqliteValueGenerationStrategy.None;

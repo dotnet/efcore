@@ -40,9 +40,7 @@ public class SqliteValueGenerationConvention : ValueGenerationConvention
     /// <returns>The strategy to set for the property.</returns>
     protected override ValueGenerated? GetValueGenerated(IConventionProperty property)
     {
-        var declaringType = property.DeclaringType;
-        
-        var strategy = GetValueGenerationStrategy(property);
+        var strategy = property.GetValueGenerationStrategy();
         if (strategy == SqliteValueGenerationStrategy.Autoincrement)
         {
             return ValueGenerated.OnAdd;
@@ -51,8 +49,27 @@ public class SqliteValueGenerationConvention : ValueGenerationConvention
         return base.GetValueGenerated(property);
     }
 
-    private static SqliteValueGenerationStrategy GetValueGenerationStrategy(IConventionProperty property)
+    /// <summary>
+    ///     Returns the default value generation strategy for the property.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <returns>The default strategy for the property.</returns>
+    private static SqliteValueGenerationStrategy GetDefaultValueGenerationStrategy(IConventionProperty property)
     {
+        // Return None if default value, default value sql, or computed value are set
+        if (property.TryGetDefaultValue(out _)
+            || property.GetDefaultValueSql() != null
+            || property.GetComputedColumnSql() != null)
+        {
+            return SqliteValueGenerationStrategy.None;
+        }
+
+        // Return None if the property is part of a foreign key
+        if (property.IsForeignKey())
+        {
+            return SqliteValueGenerationStrategy.None;
+        }
+
         var entityType = (IConventionEntityType)property.DeclaringType;
         var primaryKey = entityType.FindPrimaryKey();
         if (primaryKey is { Properties.Count: 1 }
