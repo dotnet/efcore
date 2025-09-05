@@ -124,6 +124,32 @@ public class SqliteModelDifferTest : MigrationsModelDifferTestBase
                 Assert.Empty(upOps);
             });
 
+    [ConditionalFact]
+    public void No_migration_operations_when_string_api_matches_convention_with_converter()
+        => Execute(
+            source => source.Entity(
+                "Product",
+                x =>
+                {
+                    x.Property<int>("Id");
+                    x.HasKey("Id");
+                    x.Property<int>("Id").HasAnnotation(SqliteAnnotationNames.ValueGenerationStrategy, SqliteValueGenerationStrategy.Autoincrement);
+                }),
+            target => target.Entity<ProductWithConverter>(
+                x =>
+                {
+                    x.Property(e => e.Id).HasConversion(
+                        v => v.Value,
+                        v => new ProductId(v));
+                    x.HasKey(e => e.Id);
+                    // No explicit UseAutoincrement() - should be set by convention
+                }),
+            upOps =>
+            {
+                // Should have no operations since both have autoincrement strategy
+                Assert.Empty(upOps);
+            });
+
     protected override TestHelpers TestHelpers => SqliteTestHelpers.Instance;
 
     // Test entities
