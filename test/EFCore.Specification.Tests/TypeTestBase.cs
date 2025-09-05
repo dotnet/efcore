@@ -9,7 +9,7 @@ public abstract class TypeTestBase<T, TFixture>(TFixture fixture) : IClassFixtur
     where T : notnull
 {
     [ConditionalFact]
-    public async Task Equality_in_query()
+    public async virtual Task Equality_in_query()
     {
         await using var context = Fixture.CreateContext();
 
@@ -28,13 +28,19 @@ public abstract class TypeTestBase<T, TFixture>(TFixture fixture) : IClassFixtur
 
     protected TFixture Fixture { get; } = fixture;
 
-    public abstract class TypeTestFixture(T value, T otherValue)
-        : SharedStoreFixtureBase<DbContext>
+    public abstract class TypeTestFixture : SharedStoreFixtureBase<DbContext>
     {
-        protected override string StoreName => "TypeTest";
+        /// <summary>
+        ///     The main value used in the tests.
+        /// </summary>
+        public abstract T Value { get; }
 
-        public T Value { get; } = value;
-        public T OtherValue { get; } = otherValue;
+        /// <summary>
+        ///     An additional value that is different from <see cref="Value" />.
+        /// </summary>
+        public abstract T OtherValue { get; }
+
+        protected override string StoreName => "TypeTest";
 
         public virtual Func<T, T, bool> Comparer { get; } = EqualityComparer<T>.Default.Equals;
 
