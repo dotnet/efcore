@@ -60,7 +60,6 @@ public static class SqlitePropertyExtensions
             && primaryKey.Properties[0] == property
             && property.ValueGenerated == ValueGenerated.OnAdd
             && property.ClrType.UnwrapNullableType().IsInteger()
-            && property.FindTypeMapping()?.Converter == null
                 ? SqliteValueGenerationStrategy.Autoincrement
                 : SqliteValueGenerationStrategy.None;
     }
@@ -97,8 +96,7 @@ public static class SqlitePropertyExtensions
     public static ConfigurationSource? GetValueGenerationStrategyConfigurationSource(this IConventionProperty property)
         => property.FindAnnotation(SqliteAnnotationNames.ValueGenerationStrategy)?.GetConfigurationSource();
 
-    private static bool HasConverter(IProperty property)
-        => property.FindTypeMapping()?.Converter != null;
+
     /// <summary>
     ///     Returns the SRID to use when creating a column for this property.
     /// </summary>

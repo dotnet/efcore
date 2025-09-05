@@ -57,8 +57,7 @@ public class SqliteValueGenerationConvention : ValueGenerationConvention
         var primaryKey = entityType.FindPrimaryKey();
         if (primaryKey is { Properties.Count: 1 }
             && primaryKey.Properties[0] == property
-            && property.ClrType.UnwrapNullableType().IsInteger()
-            && property.FindTypeMapping()?.Converter == null)
+            && property.ClrType.UnwrapNullableType().IsInteger())
         {
             return SqliteValueGenerationStrategy.Autoincrement;
         }
