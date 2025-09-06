@@ -642,31 +642,31 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             var errorEntries = response
                 .Select((opResult, index) => (opResult, index))
                 .Where(r => r.opResult.StatusCode == errorCode)
-                .Select(r => batch.Entries[r.index])
+                .Select(r => batch.Entries[r.index].Entry)
                 .ToList();
 
             return new CosmosTransactionalBatchResult(errorEntries, errorCode);
         }
 
+        // @TODO: Logging?
         wrapper._commandLogger.ExecutedTransactionalBatch(
             response.Diagnostics.GetClientElapsedTime(),
             response.Headers.RequestCharge,
             response.Headers.ActivityId,
-            batch.Operations,
+            batch.Entries,
             batch.CollectionId,
             batch.PartitionKeyValue);
 
-        // @TODO: Logging
-        foreach (var operation in batch.Operations)
+        foreach (var entry in batch.Entries)
         {
-            switch (operation.Value)
+            switch (entry.Operation)
             {
                 case CosmosCudOperation.Create:
                     wrapper._commandLogger.ExecutedCreateItem(
                         response.Diagnostics.GetClientElapsedTime(),
                         response.Headers.RequestCharge,
                         response.Headers.ActivityId,
-                        operation.Key,
+                        entry.Id,
                         batch.CollectionId,
                         batch.PartitionKeyValue);
                     break;
@@ -675,7 +675,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
                         response.Diagnostics.GetClientElapsedTime(),
                         response.Headers.RequestCharge,
                         response.Headers.ActivityId,
-                        operation.Key,
+                        entry.Id,
                         batch.CollectionId,
                         batch.PartitionKeyValue);
                     break;
@@ -684,7 +684,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
                         response.Diagnostics.GetClientElapsedTime(),
                         response.Headers.RequestCharge,
                         response.Headers.ActivityId,
-                        operation.Key,
+                        entry.Id,
                         batch.CollectionId,
                         batch.PartitionKeyValue);
                     break;
@@ -829,14 +829,14 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         ProcessResponse(entry, response.Headers.ETag, response.Content);
     }
 
-    private static void ProcessResponse(TransactionalBatchResponse batchResponse, IReadOnlyList<IUpdateEntry> entries)
+    private static void ProcessResponse(TransactionalBatchResponse batchResponse, IReadOnlyList<CosmosTransactionalBatchEntry> entries)
     {
         for (var i = 0; i < batchResponse.Count; i++)
         {
             var entry = entries[i];
             var response = batchResponse[i];
 
-            ProcessResponse(entry, response.ETag, response.ResourceStream);
+            ProcessResponse(entry.Entry, response.ETag, response.ResourceStream);
         }
     }
 

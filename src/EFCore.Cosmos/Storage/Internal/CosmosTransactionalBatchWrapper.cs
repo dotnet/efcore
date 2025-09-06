@@ -19,10 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         private readonly string _collectionId;
         private readonly PartitionKey _partitionKeyValue;
         private readonly bool? _enableContentResponseOnWrite;
-
-        // @TODO: 1 list instead of 2?
-        private readonly List<IUpdateEntry> _updateEntries = [];
-        private readonly Dictionary<string, CosmosCudOperation> _operations = [];
+        private readonly List<CosmosTransactionalBatchEntry> _entries = new(5);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -44,15 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public IReadOnlyList<IUpdateEntry> Entries => _updateEntries;
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public IReadOnlyDictionary<string, CosmosCudOperation> Operations => _operations;
+        public IReadOnlyList<CosmosTransactionalBatchEntry> Entries => _entries;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -88,8 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 
             var itemRequestOptions = CreateItemRequestOptions(updateEntry, _enableContentResponseOnWrite);
             _transactionalBatch.CreateItemStream(stream, itemRequestOptions);
-            _updateEntries.Add(updateEntry);
-            _operations.Add(document["id"]!.ToString(), CosmosCudOperation.Create);
+            _entries.Add(new CosmosTransactionalBatchEntry(updateEntry, CosmosCudOperation.Create, document["id"]!.ToString()));
         }
 
         /// <summary>
@@ -111,8 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             var itemRequestOptions = CreateItemRequestOptions(updateEntry, _enableContentResponseOnWrite);
 
             _transactionalBatch.ReplaceItemStream(documentId, stream, itemRequestOptions);
-            _updateEntries.Add(updateEntry);
-            _operations.Add(document["id"]!.ToString(), CosmosCudOperation.Update);
+            _entries.Add(new CosmosTransactionalBatchEntry(updateEntry, CosmosCudOperation.Update, document["id"]!.ToString()));
         }
 
         /// <summary>
@@ -125,8 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         {
             var itemRequestOptions = CreateItemRequestOptions(updateEntry, _enableContentResponseOnWrite);
             _transactionalBatch.DeleteItem(documentId, itemRequestOptions);
-            _updateEntries.Add(updateEntry);
-            _operations.Add(documentId, CosmosCudOperation.Delete);
+            _entries.Add(new CosmosTransactionalBatchEntry(updateEntry, CosmosCudOperation.Delete, documentId));
         }
 
         /// <summary>

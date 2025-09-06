@@ -83,11 +83,11 @@ public class CosmosDatabaseWrapper : Database
             }
             catch (CosmosException ex)
             {
-                var entry = transaction.Entries[0];
+                var entry = transaction.Entries[0].Entry;
                 var documentSource = GetDocumentSource(entry.EntityType);
                 var id = documentSource.GetId(entry.SharedIdentityEntry ?? entry);
 
-                throw new DbUpdateException(CosmosStrings.UpdateStoreException(id), ex, transaction.Entries);
+                throw new DbUpdateException(CosmosStrings.UpdateStoreException(id), ex, transaction.Entries.Select(x => x.Entry).ToArray());
             }
 
             if (!response.IsSuccess)
@@ -142,10 +142,10 @@ public class CosmosDatabaseWrapper : Database
             }
             catch (CosmosException ex)
             {
-                var entry = transaction.Entries[0];
+                var entry = transaction.Entries[0].Entry;
                 var documentSource = GetDocumentSource(entry.EntityType);
                 var id = documentSource.GetId(entry.SharedIdentityEntry ?? entry);
-                throw new DbUpdateException(CosmosStrings.UpdateStoreException(id), ex, transaction.Entries);
+                throw new DbUpdateException(CosmosStrings.UpdateStoreException(id), ex, transaction.Entries.Select(x => x.Entry).ToArray());
             }
 
             if (!response.IsSuccess)
@@ -248,11 +248,7 @@ public class CosmosDatabaseWrapper : Database
 
         foreach (var entry in entries)
         {
-            var key = new Grouping
-            {
-                ContainerId = entry.CollectionId,
-                PartitionKeyValue = _cosmosClient.GetPartitionKeyValue(entry.Entry)
-            };
+            var key = new Grouping(entry.CollectionId, _cosmosClient.GetPartitionKeyValue(entry.Entry));
 
             ref var list = ref CollectionsMarshal.GetValueRefOrAddDefault(buckets, key, out var exists);
             if (!exists || list is null)
@@ -610,9 +606,5 @@ public class CosmosDatabaseWrapper : Database
         public required JObject? Document { get; init; }
     }
 
-    private readonly struct Grouping
-    {
-        public required string ContainerId { get; init; }
-        public required PartitionKey PartitionKeyValue { get; init; }
-    }
+    private record Grouping(string ContainerId, PartitionKey PartitionKeyValue);
 }

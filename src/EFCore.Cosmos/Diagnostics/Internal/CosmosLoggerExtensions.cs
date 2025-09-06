@@ -289,7 +289,7 @@ public static class CosmosLoggerExtensions
         TimeSpan elapsed,
         double requestCharge,
         string activityId,
-        IReadOnlyDictionary<string, CosmosCudOperation> operations,
+        IReadOnlyList<CosmosTransactionalBatchEntry> entries,
         string containerId,
         PartitionKey partitionKeyValue)
     {
@@ -316,7 +316,7 @@ public static class CosmosLoggerExtensions
                 requestCharge,
                 activityId,
                 containerId,
-                operations,
+                entries,
                 partitionKeyValue,
                 diagnostics.ShouldLogSensitiveData());
 
