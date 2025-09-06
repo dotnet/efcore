@@ -68,27 +68,17 @@ public class CosmosDatabaseWrapper : Database
 
         foreach (var write in groups.SingleUpdateEntries)
         {
-            Save(write);
-            rowsAffected++;
+            if (Save(write))
+            {
+                rowsAffected++;
+            }
         }
 
         foreach (var batch in groups.Batches)
         {
             var transaction = CreateTransaction(batch);
 
-            CosmosTransactionalBatchResult response;
-            try
-            {
-                response = _cosmosClient.ExecuteBatch(transaction);
-            }
-            catch (CosmosException ex)
-            {
-                var entry = transaction.Entries[0].Entry;
-                var documentSource = GetDocumentSource(entry.EntityType);
-                var id = documentSource.GetId(entry.SharedIdentityEntry ?? entry);
-
-                throw new DbUpdateException(CosmosStrings.UpdateStoreException(id), ex, transaction.Entries.Select(x => x.Entry).ToArray());
-            }
+            var response = _cosmosClient.ExecuteBatch(transaction);
 
             if (!response.IsSuccess)
             {
@@ -99,6 +89,8 @@ public class CosmosDatabaseWrapper : Database
                 {
                     throw exception;
                 }
+
+                // @TODO: Should we recreate the transaction without ErroredEntries and retry?
             }
 
             rowsAffected += batch.Items.Count;
@@ -127,27 +119,17 @@ public class CosmosDatabaseWrapper : Database
 
         foreach (var write in groups.SingleUpdateEntries)
         {
-            await SaveAsync(write, cancellationToken).ConfigureAwait(false);
-            rowsAffected++;
+            if (await SaveAsync(write, cancellationToken).ConfigureAwait(false))
+            {
+                rowsAffected++;
+            }
         }
 
         foreach (var batch in groups.Batches)
         {
             var transaction = CreateTransaction(batch);
 
-            CosmosTransactionalBatchResult response;
-            try
-            {
-                response = await _cosmosClient.ExecuteBatchAsync(transaction, cancellationToken).ConfigureAwait(false);
-            }
-            catch (CosmosException ex)
-            {
-                var entry = transaction.Entries[0].Entry;
-                var documentSource = GetDocumentSource(entry.EntityType);
-                var id = documentSource.GetId(entry.SharedIdentityEntry ?? entry);
-                throw new DbUpdateException(CosmosStrings.UpdateStoreException(id), ex, transaction.Entries.Select(x => x.Entry).ToArray());
-            }
-
+            var response = await _cosmosClient.ExecuteBatchAsync(transaction, cancellationToken).ConfigureAwait(false);
             if (!response.IsSuccess)
             {
                 var exception = CreateUpdateException(response.StatusCode, response.ErroredEntries!);
@@ -158,6 +140,8 @@ public class CosmosDatabaseWrapper : Database
                 {
                     throw exception;
                 }
+
+                // @TODO: Should we recreate the transaction without ErroredEntries and retry?
             }
 
             rowsAffected += batch.Items.Count;
@@ -253,7 +237,7 @@ public class CosmosDatabaseWrapper : Database
             ref var list = ref CollectionsMarshal.GetValueRefOrAddDefault(buckets, key, out var exists);
             if (!exists || list is null)
             {
-                list = new List<CosmosUpdateEntry>(5);
+                list = new();
             }
 
             list.Add(entry);
@@ -600,11 +584,12 @@ public class CosmosDatabaseWrapper : Database
     private sealed class CosmosUpdateEntry
     {
         public required IUpdateEntry Entry { get; init; }
+        // @TODO: CosmosCudOperation?
         public required EntityState State { get; init; }
         public required string CollectionId { get; init; }
         public required DocumentSource DocumentSource { get; init; }
         public required JObject? Document { get; init; }
     }
 
-    private record Grouping(string ContainerId, PartitionKey PartitionKeyValue);
+    private sealed record Grouping(string ContainerId, PartitionKey PartitionKeyValue);
 }

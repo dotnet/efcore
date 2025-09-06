@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         private readonly string _collectionId;
         private readonly PartitionKey _partitionKeyValue;
         private readonly bool? _enableContentResponseOnWrite;
-        private readonly List<CosmosTransactionalBatchEntry> _entries = new(5);
+        private readonly List<CosmosTransactionalBatchEntry> _entries = new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
