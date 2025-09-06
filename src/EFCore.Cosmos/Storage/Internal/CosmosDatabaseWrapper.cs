@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections.Generic;
 using System.Net;
 using System.Runtime.InteropServices;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
@@ -82,7 +83,7 @@ public class CosmosDatabaseWrapper : Database
 
             if (!response.IsSuccess)
             {
-                var exception = CreateUpdateException(response.StatusCode, response.ErroredEntries!);
+                var exception = WrapUpdateException(response.Exception, response.ErroredEntries);
                 if (exception is not DbUpdateConcurrencyException
                     || !Dependencies.Logger.OptimisticConcurrencyException(
                             response.ErroredEntries!.First().Context, response.ErroredEntries!, (DbUpdateConcurrencyException)exception, null).IsSuppressed)
@@ -90,7 +91,7 @@ public class CosmosDatabaseWrapper : Database
                     throw exception;
                 }
 
-                // @TODO: Should we recreate the transaction without ErroredEntries and retry?
+                // @TODO: Should we recreate the transaction without ErroredEntries and retry? How often should we retry?
             }
 
             rowsAffected += batch.Items.Count;
@@ -132,7 +133,7 @@ public class CosmosDatabaseWrapper : Database
             var response = await _cosmosClient.ExecuteBatchAsync(transaction, cancellationToken).ConfigureAwait(false);
             if (!response.IsSuccess)
             {
-                var exception = CreateUpdateException(response.StatusCode, response.ErroredEntries!);
+                var exception = WrapUpdateException(response.Exception, response.ErroredEntries);
                 if (exception is not DbUpdateConcurrencyException
                     || !(await Dependencies.Logger.OptimisticConcurrencyExceptionAsync(
                             response.ErroredEntries!.First().Context, response.ErroredEntries!, (DbUpdateConcurrencyException)exception, null, cancellationToken)
@@ -141,7 +142,7 @@ public class CosmosDatabaseWrapper : Database
                     throw exception;
                 }
 
-                // @TODO: Should we recreate the transaction without ErroredEntries and retry?
+                // @TODO: Should we recreate the transaction without ErroredEntries and retry? how often should we retry?
             }
 
             rowsAffected += batch.Items.Count;
@@ -544,7 +545,7 @@ public class CosmosDatabaseWrapper : Database
     }
 #pragma warning restore EF1001 // Internal EF Core API usage.
 
-    private DbUpdateException WrapUpdateException(Exception exception, IUpdateEntry[] entries)
+    private DbUpdateException WrapUpdateException(Exception exception, IReadOnlyList<IUpdateEntry> entries)
     {
         var entry = entries[0];
         var documentSource = GetDocumentSource(entry.EntityType);
@@ -557,20 +558,6 @@ public class CosmosDatabaseWrapper : Database
             CosmosException { StatusCode: HttpStatusCode.Conflict }
                 => new DbUpdateException(CosmosStrings.UpdateConflict(id), exception, entries),
             _ => new DbUpdateException(CosmosStrings.UpdateStoreException(id), exception, entries)
-        };
-    }
-
-    private DbUpdateException CreateUpdateException(HttpStatusCode statusCode, IReadOnlyList<IUpdateEntry> updateEntries)
-    {
-        var entry = updateEntries[0];
-        var documentSource = GetDocumentSource(entry.EntityType);
-        var id = documentSource.GetId(entry.SharedIdentityEntry ?? entry);
-
-        return statusCode switch
-        {
-            HttpStatusCode.PreconditionFailed => new DbUpdateConcurrencyException(CosmosStrings.UpdateConflict(id), null, updateEntries),
-            HttpStatusCode.Conflict => new DbUpdateException(CosmosStrings.UpdateConflict(id), null, updateEntries),
-            _ => new DbUpdateException(CosmosStrings.UpdateStoreException(id), null, updateEntries)
         };
     }
 

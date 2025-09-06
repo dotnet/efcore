@@ -645,7 +645,8 @@ public class CosmosClientWrapper : ICosmosClientWrapper
                 .Select(r => batch.Entries[r.index].Entry)
                 .ToList();
 
-            return new CosmosTransactionalBatchResult(errorEntries, errorCode);
+            var exception = new CosmosException(response.ErrorMessage, errorCode, 0, response.ActivityId, response.RequestCharge);
+            return new CosmosTransactionalBatchResult(errorEntries, exception);
         }
 
         // @TODO: Logging?
