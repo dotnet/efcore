@@ -265,7 +265,19 @@ public class CosmosDatabaseWrapper : Database
         var entityType = entry.EntityType;
         var documentSource = GetDocumentSource(entityType);
         var collectionId = documentSource.GetContainerId();
-        var state = entry.EntityState;
+        var operation = entry.EntityState switch
+        {
+            EntityState.Added => CosmosCudOperation.Create,
+            EntityState.Modified => CosmosCudOperation.Update,
+            EntityState.Deleted => CosmosCudOperation.Delete,
+            _ => (CosmosCudOperation?)null
+        };
+
+        if (operation == null)
+        {
+            return null;
+        }
+
         JObject? document = null;
 
         if (entry.SharedIdentityEntry != null)
@@ -275,15 +287,15 @@ public class CosmosDatabaseWrapper : Database
                 return null;
             }
 
-            if (state == EntityState.Added)
+            if (operation == CosmosCudOperation.Create)
             {
-                state = EntityState.Modified;
+                operation = CosmosCudOperation.Update;
             }
         }
 
-        switch (state)
+        switch (operation)
         {
-            case EntityState.Added:
+            case CosmosCudOperation.Create:
                 var primaryKey = entityType.FindPrimaryKey();
                 if (primaryKey != null)
                 {
@@ -358,7 +370,7 @@ public class CosmosDatabaseWrapper : Database
                 }
                 break;
 
-            case EntityState.Modified:
+            case CosmosCudOperation.Update:
                 document = documentSource.GetCurrentDocument(entry);
                 if (document != null)
                 {
@@ -380,11 +392,11 @@ public class CosmosDatabaseWrapper : Database
                 }
                 break;
 
-            case EntityState.Deleted:
+            case CosmosCudOperation.Delete:
                 break;
 
             default:
-                return null;
+                throw new UnreachableException();
         }
 
         return new CosmosUpdateEntry
@@ -393,7 +405,7 @@ public class CosmosDatabaseWrapper : Database
             Document = document,
             DocumentSource = documentSource,
             Entry = entry,
-            State = state
+            Operation = operation.Value
         };
     }
 
@@ -403,18 +415,18 @@ public class CosmosDatabaseWrapper : Database
 
         foreach (var updateEntry in batch.Items)
         {
-            switch (updateEntry.State)
+            switch (updateEntry.Operation)
             {
-                case EntityState.Added:
+                case CosmosCudOperation.Create:
                     transaction.CreateItem(updateEntry.Document!, updateEntry.Entry);
                     break;
-                case EntityState.Modified:
+                case CosmosCudOperation.Update:
                     transaction.ReplaceItem(
                         updateEntry.DocumentSource.GetId(updateEntry.Entry.SharedIdentityEntry ?? updateEntry.Entry),
                         updateEntry.Document!,
                         updateEntry.Entry);
                     break;
-                case EntityState.Deleted:
+                case CosmosCudOperation.Delete:
                     transaction.DeleteItem(updateEntry.DocumentSource.GetId(updateEntry.Entry), updateEntry.Entry);
                     break;
                 default:
@@ -429,16 +441,16 @@ public class CosmosDatabaseWrapper : Database
     {
         try
         {
-            return updateEntry.State switch
+            return updateEntry.Operation switch
             {
-                EntityState.Added => _cosmosClient.CreateItem(
+                CosmosCudOperation.Create => _cosmosClient.CreateItem(
                                     updateEntry.CollectionId, updateEntry.Document!, updateEntry.Entry),
-                EntityState.Modified => _cosmosClient.ReplaceItem(
+                CosmosCudOperation.Update => _cosmosClient.ReplaceItem(
                                     updateEntry.CollectionId,
                                     updateEntry.DocumentSource.GetId(updateEntry.Entry.SharedIdentityEntry ?? updateEntry.Entry),
                                     updateEntry.Document!,
                                     updateEntry.Entry),
-                EntityState.Deleted => _cosmosClient.DeleteItem(updateEntry.CollectionId, updateEntry.DocumentSource.GetId(updateEntry.Entry), updateEntry.Entry),
+                CosmosCudOperation.Delete => _cosmosClient.DeleteItem(updateEntry.CollectionId, updateEntry.DocumentSource.GetId(updateEntry.Entry), updateEntry.Entry),
                 _ => throw new UnreachableException(),
             };
         }
@@ -462,20 +474,20 @@ public class CosmosDatabaseWrapper : Database
     {
         try
         {
-            return updateEntry.State switch
+            return updateEntry.Operation switch
             {
-                EntityState.Added => await _cosmosClient.CreateItemAsync(
+                CosmosCudOperation.Create => await _cosmosClient.CreateItemAsync(
                                     updateEntry.CollectionId,
                                     updateEntry.Document!,
                                     updateEntry.Entry,
                                     cancellationToken).ConfigureAwait(false),
-                EntityState.Modified => await _cosmosClient.ReplaceItemAsync(
+                CosmosCudOperation.Update => await _cosmosClient.ReplaceItemAsync(
                                     updateEntry.CollectionId,
                                     updateEntry.DocumentSource.GetId(updateEntry.Entry.SharedIdentityEntry ?? updateEntry.Entry),
                                     updateEntry.Document!,
                                     updateEntry.Entry,
                                     cancellationToken).ConfigureAwait(false),
-                EntityState.Deleted => await _cosmosClient.DeleteItemAsync(
+                CosmosCudOperation.Delete => await _cosmosClient.DeleteItemAsync(
                                     updateEntry.CollectionId,
                                     updateEntry.DocumentSource.GetId(updateEntry.Entry),
                                     updateEntry.Entry,
@@ -571,8 +583,7 @@ public class CosmosDatabaseWrapper : Database
     private sealed class CosmosUpdateEntry
     {
         public required IUpdateEntry Entry { get; init; }
-        // @TODO: CosmosCudOperation?
-        public required EntityState State { get; init; }
+        public required CosmosCudOperation Operation { get; init; }
         public required string CollectionId { get; init; }
         public required DocumentSource DocumentSource { get; init; }
         public required JObject? Document { get; init; }
