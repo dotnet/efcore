@@ -47,13 +47,19 @@ public static class SqlitePropertyExtensions
             : GetDefaultValueGenerationStrategy(property);
     }
 
-    internal static SqliteValueGenerationStrategy GetDefaultValueGenerationStrategy(IReadOnlyProperty property)
+    /// <summary>
+    ///     Returns the default <see cref="SqliteValueGenerationStrategy" /> to use for the property.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <returns>The default strategy for the property.</returns>
+    public static SqliteValueGenerationStrategy GetDefaultValueGenerationStrategy(IReadOnlyProperty property)
     {
-        // Return None if default value, default value sql, computed value are set, or the property is part of a foreign key
+        // Return None if default value, default value sql, computed value are set, the property is part of a foreign key, or ValueGenerated is Never
         if (property.TryGetDefaultValue(out _)
             || property.GetDefaultValueSql() != null
             || property.GetComputedColumnSql() != null
-            || property.IsForeignKey())
+            || property.IsForeignKey()
+            || property.ValueGenerated == ValueGenerated.Never)
         {
             return SqliteValueGenerationStrategy.None;
         }

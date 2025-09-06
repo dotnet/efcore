@@ -13,7 +13,7 @@ using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Design;
 
-public class SqliteCSharpMigrationsGeneratorModelSnapshotTest
+public class CSharpMigrationsGeneratorModelSnapshotSqliteTest
 {
     [ConditionalFact]
     public void Autoincrement_annotation_is_replaced_by_extension_method_call_in_snapshot()
@@ -64,15 +64,15 @@ public class SqliteCSharpMigrationsGeneratorModelSnapshotTest
         Test(
             builder =>
             {
-                builder.Entity<EntityWithStringKey>(e =>
+                builder.Entity<EntityWithAutoincrement>(e =>
                 {
-                    // String primary key should not get autoincrement
+                    e.Property(p => p.Id).ValueGeneratedNever();
                 });
             },
-            "b.Property<string>(\"Id\")",  // Check that string property is generated but no UseAutoincrement call
+            "b.Property<int>(\"Id\")",  // Check that int property is generated but no UseAutoincrement call
             model =>
             {
-                var entity = model.FindEntityType(typeof(EntityWithStringKey));
+                var entity = model.FindEntityType(typeof(EntityWithAutoincrement));
                 var property = entity!.FindProperty("Id");
                 Assert.Equal(SqliteValueGenerationStrategy.None, property!.GetValueGenerationStrategy());
             });

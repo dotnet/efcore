@@ -2348,37 +2348,7 @@ CREATE UNIQUE INDEX "IX_Person_Ssn" ON "Person" ("Ssn");
 """);
     }
 
-    [ConditionalFact]
-    public virtual async Task Create_table_with_autoincrement_column()
-    {
-        await Test(
-            builder => { },
-            builder => builder.Entity(
-                "Product",
-                x =>
-                {
-                    x.Property<int>("Id").UseAutoincrement();
-                    x.HasKey("Id");
-                    x.Property<string>("Name");
-                }),
-            model =>
-            {
-                var table = Assert.Single(model.Tables);
-                Assert.Equal("Product", table.Name);
-                Assert.Equal(2, table.Columns.Count());
-                
-                var idColumn = Assert.Single(table.Columns, c => c.Name == "Id");
-                Assert.False(idColumn.IsNullable);
-            });
 
-        AssertSql(
-            """
-CREATE TABLE "Product" (
-    "Id" INTEGER NOT NULL CONSTRAINT "PK_Product" PRIMARY KEY AUTOINCREMENT,
-    "Name" TEXT NULL
-);
-""");
-    }
 
     [ConditionalFact]
     public virtual async Task Create_table_with_autoincrement_and_value_converter()

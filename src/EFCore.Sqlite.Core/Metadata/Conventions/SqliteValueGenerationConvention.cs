@@ -48,37 +48,4 @@ public class SqliteValueGenerationConvention : ValueGenerationConvention
 
         return base.GetValueGenerated(property);
     }
-
-    /// <summary>
-    ///     Returns the default value generation strategy for the property.
-    /// </summary>
-    /// <param name="property">The property.</param>
-    /// <returns>The default strategy for the property.</returns>
-    private static SqliteValueGenerationStrategy GetDefaultValueGenerationStrategy(IConventionProperty property)
-    {
-        // Return None if default value, default value sql, or computed value are set
-        if (property.TryGetDefaultValue(out _)
-            || property.GetDefaultValueSql() != null
-            || property.GetComputedColumnSql() != null)
-        {
-            return SqliteValueGenerationStrategy.None;
-        }
-
-        // Return None if the property is part of a foreign key
-        if (property.IsForeignKey())
-        {
-            return SqliteValueGenerationStrategy.None;
-        }
-
-        var entityType = (IConventionEntityType)property.DeclaringType;
-        var primaryKey = entityType.FindPrimaryKey();
-        if (primaryKey is { Properties.Count: 1 }
-            && primaryKey.Properties[0] == property
-            && property.ClrType.UnwrapNullableType().IsInteger())
-        {
-            return SqliteValueGenerationStrategy.Autoincrement;
-        }
-
-        return SqliteValueGenerationStrategy.None;
-    }
 }
