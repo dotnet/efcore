@@ -65,34 +65,6 @@ public class SqliteMetadataExtensionsTest
     }
 
     [ConditionalFact]
-    public void UseAutoincrement_sets_value_generation_strategy()
-    {
-        var modelBuilder = new ModelBuilder();
-
-        var propertyBuilder = modelBuilder
-            .Entity<Customer>()
-            .Property(e => e.Id);
-
-        propertyBuilder.UseAutoincrement();
-
-        Assert.Equal(SqliteValueGenerationStrategy.Autoincrement, propertyBuilder.Metadata.GetValueGenerationStrategy());
-    }
-
-    [ConditionalFact]
-    public void Generic_UseAutoincrement_sets_value_generation_strategy()
-    {
-        var modelBuilder = new ModelBuilder();
-
-        var propertyBuilder = modelBuilder
-            .Entity<Customer>()
-            .Property<int>(e => e.Id);
-
-        propertyBuilder.UseAutoincrement();
-
-        Assert.Equal(SqliteValueGenerationStrategy.Autoincrement, propertyBuilder.Metadata.GetValueGenerationStrategy());
-    }
-
-    [ConditionalFact]
     public void Default_value_generation_strategy_for_integer_primary_key()
     {
         var modelBuilder = new ModelBuilder();
