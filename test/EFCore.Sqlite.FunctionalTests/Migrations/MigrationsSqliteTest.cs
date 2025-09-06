@@ -2391,7 +2391,7 @@ CREATE TABLE "ProductWithStrongId" (
                 {
                     x.Property(e => e.Id).HasConversion(
                         v => v.Value,
-                        v => new ProductId(v)); // No explicit UseAutoincrement() call - relies on convention
+                        v => new ProductId(v));
                     x.HasKey(e => e.Id);
                     x.Property(e => e.Name);
                 }),
@@ -2431,8 +2431,6 @@ CREATE TABLE "ProductWithStrongId" (
                 model => { }),
             "SQLite AUTOINCREMENT can only be used with a single primary key column.");
     }
-
-
 
     [ConditionalFact]
     public virtual async Task Alter_column_remove_autoincrement()

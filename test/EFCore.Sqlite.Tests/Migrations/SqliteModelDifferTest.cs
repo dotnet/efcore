@@ -43,7 +43,7 @@ public class SqliteModelDifferTest : MigrationsModelDifferTestBase
                     x.Property<int>("Id");
                     x.HasKey("Id");
                 }),
-            source => source.Entity("Person").Property<int>("Id"),
+            source => { },
             target => target.Entity("Person").Property<int>("Id").UseAutoincrement(),
             upOps =>
             {
@@ -65,7 +65,7 @@ public class SqliteModelDifferTest : MigrationsModelDifferTestBase
                     x.HasKey("Id");
                 }),
             source => source.Entity("Person").Property<int>("Id").UseAutoincrement(),
-            target => target.Entity("Person").Property<int>("Id"),
+            target => { },
             upOps =>
             {
                 Assert.Equal(1, upOps.Count);
@@ -86,7 +86,7 @@ public class SqliteModelDifferTest : MigrationsModelDifferTestBase
                         v => new ProductId(v));
                     x.HasKey(e => e.Id);
                 }),
-            source => source.Entity<ProductWithConverter>().Property(e => e.Id),
+            source => { },
             target => target.Entity<ProductWithConverter>().Property(e => e.Id).UseAutoincrement(),
             upOps =>
             {
@@ -121,7 +121,7 @@ public class SqliteModelDifferTest : MigrationsModelDifferTestBase
     public void Noop_when_changing_to_autoincrement_property_with_converter()
         => Execute(
             source => source.Entity(
-                "Product",
+                "ProductWithConverter",
                 x =>
                 {
                     x.Property<int>("Id");
