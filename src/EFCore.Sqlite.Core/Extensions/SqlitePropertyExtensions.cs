@@ -23,7 +23,7 @@ public static class SqlitePropertyExtensions
     public static SqliteValueGenerationStrategy GetValueGenerationStrategy(this IReadOnlyProperty property)
         => property[SqliteAnnotationNames.ValueGenerationStrategy] is SqliteValueGenerationStrategy strategy
             ? strategy
-            : GetDefaultValueGenerationStrategy(property);
+            : property.GetDefaultValueGenerationStrategy();
 
     /// <summary>
     ///     Returns the <see cref="SqliteValueGenerationStrategy" /> to use for the property.
@@ -44,7 +44,7 @@ public static class SqlitePropertyExtensions
         var sharedProperty = property.FindSharedStoreObjectRootProperty(storeObject);
         return sharedProperty != null
             ? sharedProperty.GetValueGenerationStrategy(storeObject)
-            : GetDefaultValueGenerationStrategy(property);
+            : property.GetDefaultValueGenerationStrategy();
     }
 
     /// <summary>
@@ -52,9 +52,8 @@ public static class SqlitePropertyExtensions
     /// </summary>
     /// <param name="property">The property.</param>
     /// <returns>The default strategy for the property.</returns>
-    public static SqliteValueGenerationStrategy GetDefaultValueGenerationStrategy(IReadOnlyProperty property)
+    public static SqliteValueGenerationStrategy GetDefaultValueGenerationStrategy(this IReadOnlyProperty property)
     {
-        // Return None if default value, default value sql, computed value are set, the property is part of a foreign key, or ValueGenerated is Never
         if (property.TryGetDefaultValue(out _)
             || property.GetDefaultValueSql() != null
             || property.GetComputedColumnSql() != null

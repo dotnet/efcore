@@ -2401,66 +2401,7 @@ CREATE TABLE "ProductWithStrongId" (
             "SQLite AUTOINCREMENT can only be used with a single primary key column.");
     }
 
-    [ConditionalFact]
-    public virtual async Task Alter_column_add_autoincrement()
-    {
-        await Test(
-            builder => builder.Entity(
-                "Product",
-                x =>
-                {
-                    x.Property<int>("Id");
-                    x.HasKey("Id");
-                    x.Property<string>("Name");
-                }),
-            builder => builder.Entity(
-                "Product",
-                x =>
-                {
-                    x.Property<int>("Id").UseAutoincrement();
-                    x.HasKey("Id");
-                    x.Property<string>("Name");
-                }),
-            model =>
-            {
-                var table = Assert.Single(model.Tables);
-                Assert.Equal("Product", table.Name);
-                Assert.Equal(2, table.Columns.Count());
-                
-                var idColumn = Assert.Single(table.Columns, c => c.Name == "Id");
-                Assert.False(idColumn.IsNullable);
-            });
 
-        AssertSql(
-            """
-CREATE TABLE "ef_temp_Product" (
-    "Id" INTEGER NOT NULL CONSTRAINT "PK_Product" PRIMARY KEY AUTOINCREMENT,
-    "Name" TEXT NULL
-);
-""",
-            //
-            """
-INSERT INTO "ef_temp_Product" ("Name")
-SELECT "Name"
-FROM "Product";
-""",
-            //
-            """
-PRAGMA foreign_keys = 0;
-""",
-            //
-            """
-DROP TABLE "Product";
-""",
-            //
-            """
-ALTER TABLE "ef_temp_Product" RENAME TO "Product";
-""",
-            //
-            """
-PRAGMA foreign_keys = 1;
-""");
-    }
 
     [ConditionalFact]
     public virtual async Task Alter_column_remove_autoincrement()

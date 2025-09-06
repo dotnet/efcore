@@ -31,7 +31,6 @@ public class CompiledModelSqliteTest(NonSharedFixture fixture) : CompiledModelRe
         {
             eb.Property<int>("Id");
             eb.HasKey("Id");
-            // This should be auto-configured by convention to use AUTOINCREMENT
             eb.Property<string>("Name");
         });
 

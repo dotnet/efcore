@@ -71,7 +71,7 @@ public class SqliteAnnotationCodeGenerator : AnnotationCodeGenerator
     {
         if (annotation.Name == SqliteAnnotationNames.ValueGenerationStrategy)
         {
-            return (SqliteValueGenerationStrategy)annotation.Value! == SqlitePropertyExtensions.GetDefaultValueGenerationStrategy(property);
+            return (SqliteValueGenerationStrategy)annotation.Value! == property.GetDefaultValueGenerationStrategy();
         }
 
         return base.IsHandledByConvention(property, annotation);
