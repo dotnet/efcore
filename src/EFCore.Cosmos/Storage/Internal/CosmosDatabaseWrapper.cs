@@ -92,6 +92,7 @@ public class CosmosDatabaseWrapper : Database
                 }
 
                 // @TODO: Should we recreate the transaction without ErroredEntries and retry? How often should we retry?
+                // And add tests for this aswell..
             }
 
             rowsAffected += batch.Items.Count;
@@ -143,6 +144,7 @@ public class CosmosDatabaseWrapper : Database
                 }
 
                 // @TODO: Should we recreate the transaction without ErroredEntries and retry? how often should we retry?
+                // And add tests for this aswell..
             }
 
             rowsAffected += batch.Items.Count;
