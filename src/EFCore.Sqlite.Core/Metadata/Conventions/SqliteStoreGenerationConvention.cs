@@ -1,0 +1,106 @@
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
+using Microsoft.EntityFrameworkCore.Sqlite.Metadata.Internal;
+
+// ReSharper disable once CheckNamespace
+namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
+
+/// <summary>
+///     A convention that ensures that properties aren't configured to have a default value, as computed column
+///     or using a <see cref="SqliteValueGenerationStrategy" /> at the same time.
+/// </summary>
+/// <remarks>
+///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see>, and
+///     <see href="https://aka.ms/efcore-docs-sqlite">Accessing SQLite databases with EF Core</see>
+///     for more information and examples.
+/// </remarks>
+public class SqliteStoreGenerationConvention : StoreGenerationConvention
+{
+    /// <summary>
+    ///     Creates a new instance of <see cref="SqliteStoreGenerationConvention" />.
+    /// </summary>
+    /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
+    /// <param name="relationalDependencies"> Parameter object containing relational dependencies for this convention.</param>
+    public SqliteStoreGenerationConvention(
+        ProviderConventionSetBuilderDependencies dependencies,
+        RelationalConventionSetBuilderDependencies relationalDependencies)
+        : base(dependencies, relationalDependencies)
+    {
+    }
+
+    /// <summary>
+    ///     Called after an annotation is changed on a property.
+    /// </summary>
+    /// <param name="propertyBuilder">The builder for the property.</param>
+    /// <param name="name">The annotation name.</param>
+    /// <param name="annotation">The new annotation.</param>
+    /// <param name="oldAnnotation">The old annotation.</param>
+    /// <param name="context">Additional information associated with convention execution.</param>
+    public override void ProcessPropertyAnnotationChanged(
+        IConventionPropertyBuilder propertyBuilder,
+        string name,
+        IConventionAnnotation? annotation,
+        IConventionAnnotation? oldAnnotation,
+        IConventionContext<IConventionAnnotation> context)
+    {
+        if (annotation == null
+            || oldAnnotation?.Value != null)
+        {
+            return;
+        }
+
+        var configurationSource = annotation.GetConfigurationSource();
+        var fromDataAnnotation = configurationSource != ConfigurationSource.Convention;
+        switch (name)
+        {
+            case RelationalAnnotationNames.DefaultValue:
+                if (propertyBuilder.HasValueGenerationStrategy(null, fromDataAnnotation) == null
+                    && propertyBuilder.HasDefaultValue(null, fromDataAnnotation) != null)
+                {
+                    context.StopProcessing();
+                    return;
+                }
+
+                break;
+            case RelationalAnnotationNames.DefaultValueSql:
+                if (propertyBuilder.HasValueGenerationStrategy(null, fromDataAnnotation) == null
+                    && propertyBuilder.HasDefaultValueSql(null, fromDataAnnotation) != null)
+                {
+                    context.StopProcessing();
+                    return;
+                }
+
+                break;
+            case RelationalAnnotationNames.ComputedColumnSql:
+                if (propertyBuilder.HasValueGenerationStrategy(null, fromDataAnnotation) == null
+                    && propertyBuilder.HasComputedColumnSql(null, fromDataAnnotation) != null)
+                {
+                    context.StopProcessing();
+                    return;
+                }
+
+                break;
+            case SqliteAnnotationNames.ValueGenerationStrategy:
+                if ((propertyBuilder.HasDefaultValue(null, fromDataAnnotation) == null
+                        || propertyBuilder.HasDefaultValueSql(null, fromDataAnnotation) == null
+                        || propertyBuilder.HasComputedColumnSql(null, fromDataAnnotation) == null)
+                    && propertyBuilder.HasValueGenerationStrategy(null, fromDataAnnotation) != null)
+                {
+                    context.StopProcessing();
+                    return;
+                }
+
+                break;
+        }
+
+        base.ProcessPropertyAnnotationChanged(propertyBuilder, name, annotation, oldAnnotation, context);
+    }
+
+    /// <inheritdoc />
+    protected override void Validate(IConventionProperty property, in StoreObjectIdentifier storeObject)
+    {
+        // Simple validation without detailed warnings for now
+        base.Validate(property, storeObject);
+    }
+}
