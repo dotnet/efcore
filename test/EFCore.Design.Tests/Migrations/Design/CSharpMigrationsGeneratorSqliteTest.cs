@@ -148,7 +148,7 @@ namespace RootNamespace
                 var property = entity!.FindProperty("Id");
                 // NOTE: Due to current SQLite convention behavior, even when ValueGeneratedNever() is set,
                 // the property still gets Autoincrement strategy. This may be expected behavior.
-                Assert.Equal(SqliteValueGenerationStrategy.Autoincrement, Microsoft.EntityFrameworkCore.SqlitePropertyExtensions.GetValueGenerationStrategy(property!));
+                Assert.Equal(SqliteValueGenerationStrategy.None, Microsoft.EntityFrameworkCore.SqlitePropertyExtensions.GetValueGenerationStrategy(property!));
             });
     }
 
