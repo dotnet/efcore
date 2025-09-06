@@ -6,36 +6,40 @@ This file should be imported by eng/Versions.props
 <Project>
   <PropertyGroup>
     <!-- dotnet/dotnet dependencies -->
-    <MicrosoftDotNetArcadeSdkPackageVersion>10.0.0-beta.25427.104</MicrosoftDotNetArcadeSdkPackageVersion>
-    <MicrosoftDotNetBuildTasksTemplatingPackageVersion>10.0.0-beta.25427.104</MicrosoftDotNetBuildTasksTemplatingPackageVersion>
-    <MicrosoftDotNetHelixSdkPackageVersion>10.0.0-beta.25427.104</MicrosoftDotNetHelixSdkPackageVersion>
-    <MicrosoftExtensionsCachingMemoryPackageVersion>10.0.0-rc.2.25427.104</MicrosoftExtensionsCachingMemoryPackageVersion>
-    <MicrosoftExtensionsConfigurationPackageVersion>10.0.0-rc.2.25427.104</MicrosoftExtensionsConfigurationPackageVersion>
-    <MicrosoftExtensionsConfigurationAbstractionsPackageVersion>10.0.0-rc.2.25427.104</MicrosoftExtensionsConfigurationAbstractionsPackageVersion>
-    <MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>10.0.0-rc.2.25427.104</MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>
-    <MicrosoftExtensionsConfigurationJsonPackageVersion>10.0.0-rc.2.25427.104</MicrosoftExtensionsConfigurationJsonPackageVersion>
-    <MicrosoftExtensionsDependencyInjectionPackageVersion>10.0.0-rc.2.25427.104</MicrosoftExtensionsDependencyInjectionPackageVersion>
-    <MicrosoftExtensionsDependencyModelPackageVersion>10.0.0-rc.2.25427.104</MicrosoftExtensionsDependencyModelPackageVersion>
-    <MicrosoftExtensionsHostFactoryResolverSourcesPackageVersion>10.0.0-rc.2.25427.104</MicrosoftExtensionsHostFactoryResolverSourcesPackageVersion>
-    <MicrosoftExtensionsLoggingPackageVersion>10.0.0-rc.2.25427.104</MicrosoftExtensionsLoggingPackageVersion>
-    <MicrosoftNETCoreAppRefPackageVersion>10.0.0-rc.2.25427.104</MicrosoftNETCoreAppRefPackageVersion>
-    <MicrosoftNETCorePlatformsPackageVersion>10.0.0-rc.2.25427.104</MicrosoftNETCorePlatformsPackageVersion>
-    <SystemFormatsAsn1PackageVersion>10.0.0-rc.2.25427.104</SystemFormatsAsn1PackageVersion>
-    <SystemRuntimeCachingPackageVersion>10.0.0-rc.2.25427.104</SystemRuntimeCachingPackageVersion>
-    <SystemTextEncodingsWebPackageVersion>10.0.0-rc.2.25427.104</SystemTextEncodingsWebPackageVersion>
-    <SystemTextJsonPackageVersion>10.0.0-rc.2.25427.104</SystemTextJsonPackageVersion>
-    <!-- dotnet/msbuild dependencies -->
-    <MicrosoftBuildFrameworkPackageVersion>17.15.0-preview-25453-107</MicrosoftBuildFrameworkPackageVersion>
-    <MicrosoftBuildUtilitiesCorePackageVersion>17.15.0-preview-25453-107</MicrosoftBuildUtilitiesCorePackageVersion>
-    <MicrosoftBuildTasksCorePackageVersion>17.15.0-preview-25453-107</MicrosoftBuildTasksCorePackageVersion>
-    <!-- dotnet/roslyn dependencies -->
-    <MicrosoftCodeAnalysisCSharpPackageVersion>5.0.0-2.25453.107</MicrosoftCodeAnalysisCSharpPackageVersion>
-    <MicrosoftCodeAnalysisCSharpWorkspacesPackageVersion>5.0.0-2.25453.107</MicrosoftCodeAnalysisCSharpWorkspacesPackageVersion>
-    <MicrosoftCodeAnalysisWorkspacesMSBuildPackageVersion>5.0.0-2.25453.107</MicrosoftCodeAnalysisWorkspacesMSBuildPackageVersion>
+    <MicrosoftBuildFrameworkPackageVersion>17.15.0-preview-25454-107</MicrosoftBuildFrameworkPackageVersion>
+    <MicrosoftBuildTasksCorePackageVersion>17.15.0-preview-25454-107</MicrosoftBuildTasksCorePackageVersion>
+    <MicrosoftBuildUtilitiesCorePackageVersion>17.15.0-preview-25454-107</MicrosoftBuildUtilitiesCorePackageVersion>
+    <MicrosoftCodeAnalysisCSharpPackageVersion>5.0.0-2.25454.107</MicrosoftCodeAnalysisCSharpPackageVersion>
+    <MicrosoftCodeAnalysisCSharpWorkspacesPackageVersion>5.0.0-2.25454.107</MicrosoftCodeAnalysisCSharpWorkspacesPackageVersion>
+    <MicrosoftCodeAnalysisWorkspacesMSBuildPackageVersion>5.0.0-2.25454.107</MicrosoftCodeAnalysisWorkspacesMSBuildPackageVersion>
+    <MicrosoftDotNetArcadeSdkPackageVersion>10.0.0-beta.25454.107</MicrosoftDotNetArcadeSdkPackageVersion>
+    <MicrosoftDotNetBuildTasksTemplatingPackageVersion>10.0.0-beta.25454.107</MicrosoftDotNetBuildTasksTemplatingPackageVersion>
+    <MicrosoftDotNetHelixSdkPackageVersion>10.0.0-beta.25454.107</MicrosoftDotNetHelixSdkPackageVersion>
+    <MicrosoftExtensionsCachingMemoryPackageVersion>10.0.0-rc.2.25454.107</MicrosoftExtensionsCachingMemoryPackageVersion>
+    <MicrosoftExtensionsConfigurationPackageVersion>10.0.0-rc.2.25454.107</MicrosoftExtensionsConfigurationPackageVersion>
+    <MicrosoftExtensionsConfigurationAbstractionsPackageVersion>10.0.0-rc.2.25454.107</MicrosoftExtensionsConfigurationAbstractionsPackageVersion>
+    <MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>10.0.0-rc.2.25454.107</MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>
+    <MicrosoftExtensionsConfigurationJsonPackageVersion>10.0.0-rc.2.25454.107</MicrosoftExtensionsConfigurationJsonPackageVersion>
+    <MicrosoftExtensionsDependencyInjectionPackageVersion>10.0.0-rc.2.25454.107</MicrosoftExtensionsDependencyInjectionPackageVersion>
+    <MicrosoftExtensionsDependencyModelPackageVersion>10.0.0-rc.2.25454.107</MicrosoftExtensionsDependencyModelPackageVersion>
+    <MicrosoftExtensionsHostFactoryResolverSourcesPackageVersion>10.0.0-rc.2.25454.107</MicrosoftExtensionsHostFactoryResolverSourcesPackageVersion>
+    <MicrosoftExtensionsLoggingPackageVersion>10.0.0-rc.2.25454.107</MicrosoftExtensionsLoggingPackageVersion>
+    <MicrosoftNETCoreAppRefPackageVersion>10.0.0-rc.2.25454.107</MicrosoftNETCoreAppRefPackageVersion>
+    <MicrosoftNETCorePlatformsPackageVersion>10.0.0-rc.2.25454.107</MicrosoftNETCorePlatformsPackageVersion>
+    <SystemFormatsAsn1PackageVersion>10.0.0-rc.2.25454.107</SystemFormatsAsn1PackageVersion>
+    <SystemRuntimeCachingPackageVersion>10.0.0-rc.2.25454.107</SystemRuntimeCachingPackageVersion>
+    <SystemTextEncodingsWebPackageVersion>10.0.0-rc.2.25454.107</SystemTextEncodingsWebPackageVersion>
+    <SystemTextJsonPackageVersion>10.0.0-rc.2.25454.107</SystemTextJsonPackageVersion>
   </PropertyGroup>
   <!--Property group for alternate package version names-->
   <PropertyGroup>
     <!-- dotnet/dotnet dependencies -->
+    <MicrosoftBuildFrameworkVersion>$(MicrosoftBuildFrameworkPackageVersion)</MicrosoftBuildFrameworkVersion>
+    <MicrosoftBuildTasksCoreVersion>$(MicrosoftBuildTasksCorePackageVersion)</MicrosoftBuildTasksCoreVersion>
+    <MicrosoftBuildUtilitiesCoreVersion>$(MicrosoftBuildUtilitiesCorePackageVersion)</MicrosoftBuildUtilitiesCoreVersion>
+    <MicrosoftCodeAnalysisCSharpVersion>$(MicrosoftCodeAnalysisCSharpPackageVersion)</MicrosoftCodeAnalysisCSharpVersion>
+    <MicrosoftCodeAnalysisCSharpWorkspacesVersion>$(MicrosoftCodeAnalysisCSharpWorkspacesPackageVersion)</MicrosoftCodeAnalysisCSharpWorkspacesVersion>
+    <MicrosoftCodeAnalysisWorkspacesMSBuildVersion>$(MicrosoftCodeAnalysisWorkspacesMSBuildPackageVersion)</MicrosoftCodeAnalysisWorkspacesMSBuildVersion>
     <MicrosoftDotNetArcadeSdkVersion>$(MicrosoftDotNetArcadeSdkPackageVersion)</MicrosoftDotNetArcadeSdkVersion>
     <MicrosoftDotNetBuildTasksTemplatingVersion>$(MicrosoftDotNetBuildTasksTemplatingPackageVersion)</MicrosoftDotNetBuildTasksTemplatingVersion>
     <MicrosoftDotNetHelixSdkVersion>$(MicrosoftDotNetHelixSdkPackageVersion)</MicrosoftDotNetHelixSdkVersion>
@@ -54,13 +58,5 @@ This file should be imported by eng/Versions.props
     <SystemRuntimeCachingVersion>$(SystemRuntimeCachingPackageVersion)</SystemRuntimeCachingVersion>
     <SystemTextEncodingsWebVersion>$(SystemTextEncodingsWebPackageVersion)</SystemTextEncodingsWebVersion>
     <SystemTextJsonVersion>$(SystemTextJsonPackageVersion)</SystemTextJsonVersion>
-    <!-- dotnet/msbuild dependencies -->
-    <MicrosoftBuildFrameworkVersion>$(MicrosoftBuildFrameworkPackageVersion)</MicrosoftBuildFrameworkVersion>
-    <MicrosoftBuildUtilitiesCoreVersion>$(MicrosoftBuildUtilitiesCorePackageVersion)</MicrosoftBuildUtilitiesCoreVersion>
-    <MicrosoftBuildTasksCoreVersion>$(MicrosoftBuildTasksCorePackageVersion)</MicrosoftBuildTasksCoreVersion>
-    <!-- dotnet/roslyn dependencies -->
-    <MicrosoftCodeAnalysisCSharpVersion>$(MicrosoftCodeAnalysisCSharpPackageVersion)</MicrosoftCodeAnalysisCSharpVersion>
-    <MicrosoftCodeAnalysisCSharpWorkspacesVersion>$(MicrosoftCodeAnalysisCSharpWorkspacesPackageVersion)</MicrosoftCodeAnalysisCSharpWorkspacesVersion>
-    <MicrosoftCodeAnalysisWorkspacesMSBuildVersion>$(MicrosoftCodeAnalysisWorkspacesMSBuildPackageVersion)</MicrosoftCodeAnalysisWorkspacesMSBuildVersion>
   </PropertyGroup>
 </Project>
