@@ -2348,7 +2348,6 @@ CREATE UNIQUE INDEX "IX_Person_Ssn" ON "Person" ("Ssn");
 """);
     }
 
-
     [ConditionalFact]
     public virtual async Task Create_table_with_autoincrement_and_value_converter()
     {
@@ -2360,6 +2359,39 @@ CREATE UNIQUE INDEX "IX_Person_Ssn" ON "Person" ("Ssn");
                     x.Property(e => e.Id).HasConversion(
                         v => v.Value,
                         v => new ProductId(v)).UseAutoincrement();
+                    x.HasKey(e => e.Id);
+                    x.Property(e => e.Name);
+                }),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                Assert.Equal("ProductWithStrongId", table.Name);
+                Assert.Equal(2, table.Columns.Count());
+                
+                var idColumn = Assert.Single(table.Columns, c => c.Name == "Id");
+                Assert.False(idColumn.IsNullable);
+            });
+
+        AssertSql(
+            """
+CREATE TABLE "ProductWithStrongId" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_ProductWithStrongId" PRIMARY KEY AUTOINCREMENT,
+    "Name" TEXT NULL
+);
+""");
+    }
+
+    [ConditionalFact]
+    public virtual async Task Create_table_with_autoincrement_and_value_converter_by_convention()
+    {
+        await Test(
+            builder => { },
+            builder => builder.Entity<ProductWithStrongId>(
+                x =>
+                {
+                    x.Property(e => e.Id).HasConversion(
+                        v => v.Value,
+                        v => new ProductId(v)); // No explicit UseAutoincrement() call - relies on convention
                     x.HasKey(e => e.Id);
                     x.Property(e => e.Name);
                 }),
