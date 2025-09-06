@@ -49,7 +49,7 @@ public class SqliteAnnotationCodeGenerator : AnnotationCodeGenerator
     {
         var fragments = new List<MethodCallCodeFragment>(base.GenerateFluentApiCalls(property, annotations));
 
-        if (TryGetAndRemove<SqliteValueGenerationStrategy>(annotations, SqliteAnnotationNames.ValueGenerationStrategy, out var strategy)
+        if (GetAndRemove<SqliteValueGenerationStrategy>(annotations, SqliteAnnotationNames.ValueGenerationStrategy) is { } strategy
             && strategy == SqliteValueGenerationStrategy.Autoincrement)
         {
             var methodInfo = property.DeclaringType is IComplexType
@@ -77,20 +77,15 @@ public class SqliteAnnotationCodeGenerator : AnnotationCodeGenerator
         return base.IsHandledByConvention(property, annotation);
     }
 
-    private static bool TryGetAndRemove<T>(
-        IDictionary<string, IAnnotation> annotations,
-        string annotationName,
-        [NotNullWhen(true)] out T? annotationValue)
+    private static T? GetAndRemove<T>(IDictionary<string, IAnnotation> annotations, string annotationName)
     {
         if (annotations.TryGetValue(annotationName, out var annotation)
             && annotation.Value != null)
         {
             annotations.Remove(annotationName);
-            annotationValue = (T)annotation.Value;
-            return true;
+            return (T)annotation.Value;
         }
 
-        annotationValue = default;
-        return false;
+        return default;
     }
 }
