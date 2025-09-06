@@ -288,6 +288,12 @@ Consider changing your target project to the DbContext project by using the Pack
 Change your migrations assembly by using DbContextOptionsBuilder. E.g. options.UseSqlServer(connection, b =&gt; b.MigrationsAssembly("{assembly}")). By default, the migrations assembly is the assembly containing the DbContext.
 Change your target project to the migrations project by using the Package Manager Console's Default project drop-down list, or by executing "dotnet ef" from the directory containing the migrations project.</value>
   </data>
+  <data name="MSBuildWorkspaceDiagnostics" xml:space="preserve">
+    <value>MSBuild Workspace diagnostics:{diagnostics}</value>
+  </data>
+  <data name="MSBuildWorkspaceFailure" xml:space="preserve">
+    <value>MSBuild Workspace failure: {kind} - {message}</value>
+  </data>
   <data name="MultipleAnnotationConflict" xml:space="preserve">
     <value>The annotation '{annotationName}' was specified twice with potentially different values. Specifying the same annotation multiple times for different providers is no longer supported. Review the generated Migration to ensure it is correct and, if necessary, edit the Migration to fix any issues.</value>
   </data>
@@ -383,6 +389,9 @@ Change your target project to the migrations project by using the Package Manage
   </data>
   <data name="QueryPrecompilationErrors" xml:space="preserve">
     <value>Query precompilation failed with errors:</value>
+  </data>
+  <data name="QueryPrecompilationProjectLoadFailed" xml:space="preserve">
+    <value>Failed to load project for query precompilation. Project: {project}. Error: {error}</value>
   </data>
   <data name="ReadOnlyFiles" xml:space="preserve">
     <value>No files were generated in directory '{outputDirectoryName}'. The following file(s) already exist(s) and must be made writeable to continue: {readOnlyFiles}.</value>

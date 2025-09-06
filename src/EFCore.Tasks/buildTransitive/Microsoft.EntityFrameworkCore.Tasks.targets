@@ -5,10 +5,7 @@
   <PropertyGroup>
     <_FullOutputPath>$([MSBuild]::NormalizePath('$(MSBuildProjectDirectory)', '$(OutputPath)'))</_FullOutputPath>
     <_FullIntermediateOutputPath>$([MSBuild]::NormalizePath('$(MSBuildProjectDirectory)', '$(IntermediateOutputPath)'))</_FullIntermediateOutputPath>
-    <_FullIntermediateOutputPath Condition="'$(AppendRuntimeIdentifierToOutputPath)' == 'true' And '$(RuntimeIdentifier)' != '' And '$(_UsingDefaultRuntimeIdentifier)' != 'true' And '$(UseArtifactsIntermediateOutput)' != 'true'">
-      $([MSBuild]::NormalizePath('$(_FullIntermediateOutputPath)',
-      '../'))
-    </_FullIntermediateOutputPath>
+    <_FullIntermediateOutputPath Condition="'$(AppendRuntimeIdentifierToOutputPath)' == 'true' And '$(RuntimeIdentifier)' != '' And '$(_UsingDefaultRuntimeIdentifier)' != 'true' And '$(UseArtifactsIntermediateOutput)' != 'true'">$([MSBuild]::NormalizePath('$(_FullIntermediateOutputPath)', '../'))</_FullIntermediateOutputPath>
     <EFGeneratedSourcesBuildFile Condition="'$(EFGeneratedSourcesBuildFile)' == ''">$(_FullIntermediateOutputPath)$(AssemblyName).EFGeneratedSources.Build.txt</EFGeneratedSourcesBuildFile>
     <EFGeneratedSourcesPublishFile Condition="'$(EFGeneratedSourcesPublishFile)' == ''">$(_FullIntermediateOutputPath)$(AssemblyName).EFGeneratedSources.Publish.txt</EFGeneratedSourcesPublishFile>
     <_AssemblyFullName>$(_FullOutputPath)$(AssemblyName).dll</_AssemblyFullName>
