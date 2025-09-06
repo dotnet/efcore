@@ -21,15 +21,9 @@ public static class SqlitePropertyExtensions
     /// <param name="property">The property.</param>
     /// <returns>The strategy to use for the property.</returns>
     public static SqliteValueGenerationStrategy GetValueGenerationStrategy(this IReadOnlyProperty property)
-    {
-        var annotation = property[SqliteAnnotationNames.ValueGenerationStrategy];
-        if (annotation != null)
-        {
-            return (SqliteValueGenerationStrategy)annotation;
-        }
-
-        return GetDefaultValueGenerationStrategy(property);
-    }
+        => property[SqliteAnnotationNames.ValueGenerationStrategy] is SqliteValueGenerationStrategy strategy
+            ? strategy
+            : GetDefaultValueGenerationStrategy(property);
 
     /// <summary>
     ///     Returns the <see cref="SqliteValueGenerationStrategy" /> to use for the property.
@@ -53,18 +47,13 @@ public static class SqlitePropertyExtensions
             : GetDefaultValueGenerationStrategy(property);
     }
 
-    private static SqliteValueGenerationStrategy GetDefaultValueGenerationStrategy(IReadOnlyProperty property)
+    internal static SqliteValueGenerationStrategy GetDefaultValueGenerationStrategy(IReadOnlyProperty property)
     {
-        // Return None if default value, default value sql, or computed value are set
+        // Return None if default value, default value sql, computed value are set, or the property is part of a foreign key
         if (property.TryGetDefaultValue(out _)
             || property.GetDefaultValueSql() != null
-            || property.GetComputedColumnSql() != null)
-        {
-            return SqliteValueGenerationStrategy.None;
-        }
-
-        // Return None if the property is part of a foreign key
-        if (property.IsForeignKey())
+            || property.GetComputedColumnSql() != null
+            || property.IsForeignKey())
         {
             return SqliteValueGenerationStrategy.None;
         }
