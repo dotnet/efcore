@@ -100,7 +100,7 @@ public class SqliteModelDifferTest : MigrationsModelDifferTestBase
     [ConditionalFact]
     public void No_repeated_alter_column_for_autoincrement_with_converter()
         => Execute(
-            source => source.Entity<ProductWithConverter>(
+            common => common.Entity<ProductWithConverter>(
                 x =>
                 {
                     x.Property(e => e.Id).HasConversion(
@@ -109,15 +109,8 @@ public class SqliteModelDifferTest : MigrationsModelDifferTestBase
                     x.HasKey(e => e.Id);
                     x.Property(e => e.Id).UseAutoincrement();
                 }),
-            target => target.Entity<ProductWithConverter>(
-                x =>
-                {
-                    x.Property(e => e.Id).HasConversion(
-                        v => v.Value,
-                        v => new ProductId(v));
-                    x.HasKey(e => e.Id);
-                    x.Property(e => e.Id).UseAutoincrement();
-                }),
+            source => { },
+            target => { },
             upOps =>
             {
                 // Should have no operations since the models are the same
@@ -125,7 +118,7 @@ public class SqliteModelDifferTest : MigrationsModelDifferTestBase
             });
 
     [ConditionalFact]
-    public void No_migration_operations_when_string_api_matches_convention_with_converter()
+    public void Noop_when_changing_to_autoincrement_property_with_converter()
         => Execute(
             source => source.Entity(
                 "Product",
@@ -133,7 +126,6 @@ public class SqliteModelDifferTest : MigrationsModelDifferTestBase
                 {
                     x.Property<int>("Id");
                     x.HasKey("Id");
-                    x.Property<int>("Id").HasAnnotation(SqliteAnnotationNames.ValueGenerationStrategy, SqliteValueGenerationStrategy.Autoincrement);
                 }),
             target => target.Entity<ProductWithConverter>(
                 x =>
@@ -142,7 +134,7 @@ public class SqliteModelDifferTest : MigrationsModelDifferTestBase
                         v => v.Value,
                         v => new ProductId(v));
                     x.HasKey(e => e.Id);
-                    // No explicit UseAutoincrement() - should be set by convention
+                    x.Property(e => e.Id).UseAutoincrement();
                 }),
             upOps =>
             {
