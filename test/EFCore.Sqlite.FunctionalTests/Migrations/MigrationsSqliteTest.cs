@@ -2349,7 +2349,6 @@ CREATE UNIQUE INDEX "IX_Person_Ssn" ON "Person" ("Ssn");
     }
 
 
-
     [ConditionalFact]
     public virtual async Task Create_table_with_autoincrement_and_value_converter()
     {

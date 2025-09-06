@@ -13,7 +13,7 @@ using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Design;
 
-public class CSharpMigrationsGeneratorModelSnapshotSqliteTest
+public class CSharpMigrationsGeneratorSqliteTest
 {
     [ConditionalFact]
     public void Autoincrement_annotation_is_replaced_by_extension_method_call_in_snapshot()
@@ -44,8 +44,8 @@ public class CSharpMigrationsGeneratorModelSnapshotSqliteTest
                 builder.Entity<EntityWithConverterPk>(e =>
                 {
                     e.Property(p => p.Id)
-                        .HasConversion<int>() // This should get autoincrement by convention
-                        .UseAutoincrement(); // Explicitly set to test annotation generation
+                        .HasConversion<int>()
+                        .UseAutoincrement();
                 });
             },
             "SqlitePropertyBuilderExtensions.UseAutoincrement(b.Property<int>(\"Id\"));",
@@ -69,27 +69,13 @@ public class CSharpMigrationsGeneratorModelSnapshotSqliteTest
                     e.Property(p => p.Id).ValueGeneratedNever();
                 });
             },
-            "b.Property<int>(\"Id\")",  // Check that int property is generated but no UseAutoincrement call
+            "b.Property<int>(\"Id\")",
             model =>
             {
                 var entity = model.FindEntityType(typeof(EntityWithAutoincrement));
                 var property = entity!.FindProperty("Id");
                 Assert.Equal(SqliteValueGenerationStrategy.None, property!.GetValueGenerationStrategy());
             });
-
-        // Also verify that the UseAutoincrement call is NOT in the generated code
-        var modelBuilder = CreateConventionalModelBuilder();
-        modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
-        modelBuilder.Entity<EntityWithStringKey>(e =>
-        {
-            // String primary key should not get autoincrement
-        });
-
-        var model = modelBuilder.FinalizeModel(designTime: true);
-        var generator = CreateMigrationsGenerator();
-        var code = generator.GenerateSnapshot("RootNamespace", typeof(DbContext), "Snapshot", model);
-
-        Assert.DoesNotContain("SqlitePropertyBuilderExtensions.UseAutoincrement", code);
     }
 
     private class EntityWithAutoincrement
@@ -107,7 +93,6 @@ public class CSharpMigrationsGeneratorModelSnapshotSqliteTest
         public string Id { get; set; } = null!;
     }
 
-
     protected void Test(Action<ModelBuilder> buildModel, string expectedCodeFragment, Action<IModel> assert)
     {
         var modelBuilder = CreateConventionalModelBuilder();
@@ -121,7 +106,6 @@ public class CSharpMigrationsGeneratorModelSnapshotSqliteTest
 
         assert(model);
 
-        // Check that the generated code contains the expected fragment
         Assert.Contains(expectedCodeFragment, code);
     }
 

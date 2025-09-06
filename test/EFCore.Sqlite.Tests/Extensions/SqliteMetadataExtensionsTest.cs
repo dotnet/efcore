@@ -92,6 +92,8 @@ public class SqliteMetadataExtensionsTest
         Assert.Equal(SqliteValueGenerationStrategy.Autoincrement, propertyBuilder.Metadata.GetValueGenerationStrategy());
     }
 
+
+
     [ConditionalFact]
     public void Default_value_generation_strategy_for_integer_primary_key()
     {
