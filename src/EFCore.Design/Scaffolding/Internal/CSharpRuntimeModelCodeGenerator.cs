@@ -1769,7 +1769,9 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         Dictionary<Type, HashSet<MemberInfo>> unsafeAccessorTypes,
         ref Dictionary<MemberInfo, QualifiedName>? memberAccessReplacements)
     {
-        var member = property.GetMemberInfo(forMaterialization, forSet);
+        var member = property.GetMemberInfo(forMaterialization, forSet) ?? throw new InvalidOperationException(
+                DesignStrings.CompiledModelBackingFieldNotFound(property.DeclaringType.ShortName(), property.Name));
+
         switch (member)
         {
             case FieldInfo field:
@@ -1799,7 +1801,9 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         }
 
         memberAccessReplacements ??= [];
-        var methodName = LinqToCSharpSyntaxTranslator.GetUnsafeAccessorName(member);
+
+        var methodName = LinqToCSharpSyntaxTranslator.GetUnsafeAccessorName(member) ?? throw new InvalidOperationException(
+                DesignStrings.CompiledModelUnsafeAccessorNull(property.DeclaringType.ShortName(), property.Name));
 
         var declaringType = member.DeclaringType!;
         if (declaringType.IsGenericType
