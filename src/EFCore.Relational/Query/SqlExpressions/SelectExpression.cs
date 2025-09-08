@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -52,9 +51,6 @@ public sealed partial class SelectExpression : TableExpressionBase
     private List<(ColumnExpression Column, ValueComparer Comparer)>? _preGroupByIdentifier;
 
     private static ConstructorInfo? _quotingConstructor;
-
-    private static readonly bool UseOldBehavior35118 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue35118", out var enabled35118) && enabled35118;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1554,8 +1550,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                         Left: ColumnExpression leftColumn,
                         Right: SqlConstantExpression { Value: string s1 }
                     }
-                    when (UseOldBehavior35118 ? GetTable(leftColumn) : TryGetTable(leftColumn, out var table, out _) ? table : null)
-                    is TpcTablesExpression
+                    when GetTable(leftColumn) is TpcTablesExpression
                     {
                         DiscriminatorColumn: var discriminatorColumn,
                         DiscriminatorValues: var discriminatorValues
@@ -1578,8 +1573,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                         Left: SqlConstantExpression { Value: string s2 },
                         Right: ColumnExpression rightColumn
                     }
-                    when (UseOldBehavior35118 ? GetTable(rightColumn) : TryGetTable(rightColumn, out var table, out _) ? table : null)
-                    is TpcTablesExpression
+                    when GetTable(rightColumn) is TpcTablesExpression
                     {
                         DiscriminatorColumn: var discriminatorColumn,
                         DiscriminatorValues: var discriminatorValues
@@ -1603,8 +1597,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                         Item: ColumnExpression itemColumn,
                         Values: IReadOnlyList<SqlExpression> valueExpressions
                     }
-                    when (UseOldBehavior35118 ? GetTable(itemColumn) : TryGetTable(itemColumn, out var table, out _) ? table : null)
-                    is TpcTablesExpression
+                    when GetTable(itemColumn) is TpcTablesExpression
                     {
                         DiscriminatorColumn: var discriminatorColumn,
                         DiscriminatorValues: var discriminatorValues
@@ -2728,24 +2721,6 @@ public sealed partial class SelectExpression : TableExpressionBase
             }
         }
 
-        return false;
-    }
-
-    private bool TryGetTable(ColumnExpression column, [NotNullWhen(true)] out TableExpressionBase? table, out int tableIndex)
-    {
-        for (var i = 0; i < _tables.Count; i++)
-        {
-            var t = _tables[i];
-            if (t.UnwrapJoin().Alias == column.TableAlias)
-            {
-                table = t;
-                tableIndex = i;
-                return true;
-            }
-        }
-
-        table = null;
-        tableIndex = 0;
         return false;
     }
 

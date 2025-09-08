@@ -9,9 +9,6 @@ namespace Microsoft.EntityFrameworkCore.Query;
 /// <inheritdoc />
 public class SqlExpressionFactory : ISqlExpressionFactory
 {
-    private static readonly bool UseOldBehavior35393 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue35393", out var enabled35393) && enabled35393;
-
     private readonly IRelationalTypeMappingSource _typeMappingSource;
     private readonly RelationalTypeMapping _boolTypeMapping;
 
@@ -663,45 +660,20 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             SqlBinaryExpression { OperatorType: ExpressionType.OrElse } binary
                 => AndAlso(Not(binary.Left), Not(binary.Right)),
 
-            // use equality where possible - we can only do this when we know a is not null
-            // at this point we are limited to constants, parameters and columns
-            // see issue #35393
+            // use equality where possible
             // !(a == true) -> a == false
             // !(a == false) -> a == true
             SqlBinaryExpression { OperatorType: ExpressionType.Equal, Right: SqlConstantExpression { Value: bool } } binary
-                when UseOldBehavior35393
-                => Equal(binary.Left, Not(binary.Right)),
-
-            SqlBinaryExpression
-            {
-                OperatorType: ExpressionType.Equal,
-                Right: SqlConstantExpression { Value: bool },
-                Left: SqlConstantExpression { Value: bool }
-                    or SqlParameterExpression { IsNullable: false }
-                    or ColumnExpression { IsNullable: false }
-            } binary
                 => Equal(binary.Left, Not(binary.Right)),
 
             // !(true == a) -> false == a
             // !(false == a) -> true == a
             SqlBinaryExpression { OperatorType: ExpressionType.Equal, Left: SqlConstantExpression { Value: bool } } binary
-                when UseOldBehavior35393
-                => Equal(Not(binary.Left), binary.Right),
-
-            SqlBinaryExpression
-            {
-                OperatorType: ExpressionType.Equal,
-                Left: SqlConstantExpression { Value: bool },
-                Right: SqlConstantExpression { Value: bool }
-                    or SqlParameterExpression { IsNullable: false }
-                    or ColumnExpression { IsNullable: false }
-            } binary
                 => Equal(Not(binary.Left), binary.Right),
 
             // !(a == b) -> a != b
             SqlBinaryExpression { OperatorType: ExpressionType.Equal } sqlBinaryOperand => NotEqual(
                 sqlBinaryOperand.Left, sqlBinaryOperand.Right),
-
             // !(a != b) -> a == b
             SqlBinaryExpression { OperatorType: ExpressionType.NotEqual } sqlBinaryOperand => Equal(
                 sqlBinaryOperand.Left, sqlBinaryOperand.Right),

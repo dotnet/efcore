@@ -43,8 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             var reporter = new TestOperationReporter();
 
-            var processor = new SnapshotModelProcessor(reporter, DummyModelRuntimeInitializer.Instance);
-            processor.Process(model);
+            new SnapshotModelProcessor(reporter, DummyModelRuntimeInitializer.Instance).Process(model);
 
             AssertAnnotations(model);
             AssertAnnotations(entityType);
@@ -54,8 +53,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             AssertAnnotations(nav1);
             AssertAnnotations(nav2);
             AssertAnnotations(index);
-
-            Assert.Same(model, processor.Process(model));
 
             Assert.Empty(reporter.Messages);
         }

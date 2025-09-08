@@ -5021,7 +5021,7 @@ INNER JOIN (
     FROM [Factions] AS [f]
     WHERE [f].[Name] = N'Swarm'
 ) AS [f0] ON [l].[Name] = [f0].[CommanderName]
-WHERE [f0].[Eradicated] <> CAST(1 AS bit) OR [f0].[Eradicated] IS NULL
+WHERE [f0].[Eradicated] = CAST(0 AS bit) OR [f0].[Eradicated] IS NULL
 """);
     }
 
@@ -5038,7 +5038,7 @@ LEFT JOIN (
     FROM [Factions] AS [f]
     WHERE [f].[Name] = N'Swarm'
 ) AS [f0] ON [l].[Name] = [f0].[CommanderName]
-WHERE [f0].[Eradicated] <> CAST(1 AS bit) OR [f0].[Eradicated] IS NULL
+WHERE [f0].[Eradicated] = CAST(0 AS bit) OR [f0].[Eradicated] IS NULL
 """);
     }
 
@@ -7592,7 +7592,7 @@ FROM [LocustLeaders] AS [l]
 INNER JOIN [Factions] AS [f] ON [l].[Name] = [f].[CommanderName]
 WHERE CASE
     WHEN [f].[Name] = N'Locust' THEN CAST(1 AS bit)
-END <> CAST(1 AS bit) OR CASE
+END = CAST(0 AS bit) OR CASE
     WHEN [f].[Name] = N'Locust' THEN CAST(1 AS bit)
 END IS NULL
 """);
@@ -9377,20 +9377,6 @@ FROM [Gears] AS [g]
 SELECT [f].[Id], [f].[CapitalName], [f].[Discriminator], [f].[Name], [f].[ServerAddress], [f].[CommanderName], [f].[Eradicated]
 FROM [Factions] AS [f]
 WHERE [f].[ServerAddress] = CAST(N'127.0.0.1' AS nvarchar(45))
-""");
-    }
-
-    public override async Task Project_equality_with_value_converted_property(bool async)
-    {
-        await base.Project_equality_with_value_converted_property(async);
-
-        AssertSql(
-            """
-SELECT CASE
-    WHEN [m].[Difficulty] = N'Unknown' THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END
-FROM [Missions] AS [m]
 """);
     }
 

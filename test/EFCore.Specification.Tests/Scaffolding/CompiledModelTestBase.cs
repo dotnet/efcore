@@ -221,15 +221,6 @@ namespace TestNamespace
                 b.PrimitiveCollection(e => e.EnumU32AsStringArray).ElementType(b => b.HasConversion<string>());
                 b.PrimitiveCollection(e => e.EnumU64AsStringArray).ElementType(b => b.HasConversion<string>());
 
-                b.Property(e => e.BoolReadOnlyCollection);
-                b.Property(e => e.UInt8ReadOnlyCollection).HasField("_uInt8ReadOnlyCollection");
-                b.Property(e => e.Int32ReadOnlyCollection);
-                b.Property(e => e.StringReadOnlyCollection).HasField("_stringReadOnlyCollection");
-
-                b.PrimitiveCollection(e => e.IPAddressReadOnlyCollection)
-                    .ElementType(b => b.HasConversion<string>())
-                    .HasField("_ipAddressReadOnlyCollection");
-
                 b.Property(e => e.BoolToStringConverterProperty).HasConversion(new BoolToStringConverter("A", "B"));
                 b.Property(e => e.BoolToTwoValuesConverterProperty).HasConversion(new BoolToTwoValuesConverter<byte>(0, 1));
                 b.Property(e => e.BoolToZeroOneConverterProperty).HasConversion<BoolToZeroOneConverter<short>>();
@@ -919,27 +910,6 @@ namespace TestNamespace
         public Uri?[] NullableUriArray { get; set; } = null!;
         public IPAddress?[] NullableIPAddressArray { get; set; } = null!;
         public PhysicalAddress?[] NullablePhysicalAddressArray { get; set; } = null!;
-
-        private List<bool> _boolReadOnlyCollection = [];
-        private List<byte> _uInt8ReadOnlyCollection = [];
-        private List<int> _int32ReadOnlyCollection = [];
-        private List<string> _stringReadOnlyCollection = [];
-        private List<IPAddress> _ipAddressReadOnlyCollection = [];
-
-        public IReadOnlyCollection<bool> BoolReadOnlyCollection
-            => _boolReadOnlyCollection.ToList();
-
-        public IReadOnlyCollection<byte> UInt8ReadOnlyCollection
-            => _uInt8ReadOnlyCollection.ToList();
-
-        public IReadOnlyCollection<int> Int32ReadOnlyCollection
-            => _int32ReadOnlyCollection.ToList();
-
-        public IReadOnlyCollection<string> StringReadOnlyCollection
-            => _stringReadOnlyCollection.ToList();
-
-        public IReadOnlyCollection<IPAddress> IPAddressReadOnlyCollection
-            => _ipAddressReadOnlyCollection.ToList();
 
         public Enum8 Enum8 { get; set; }
         public Enum16 Enum16 { get; set; }

@@ -7461,32 +7461,6 @@ WHERE (
 """);
     }
 
-    public override async Task Column_access_inside_subquery_predicate(bool async)
-    {
-        await base.Column_access_inside_subquery_predicate(async);
-
-        AssertSql(
-            """
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE EXISTS (
-    SELECT 1
-    FROM [Orders] AS [o]
-    WHERE [c].[CustomerID] = N'ALFKI')
-""");
-    }
-
-    public override async Task Cast_to_object_over_parameter_directly_in_lambda(bool async)
-    {
-        await base.Cast_to_object_over_parameter_directly_in_lambda(async);
-
-        AssertSql(
-            """
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-""");
-    }
-
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

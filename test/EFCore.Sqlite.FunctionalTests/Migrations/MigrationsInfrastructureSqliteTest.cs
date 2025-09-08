@@ -12,9 +12,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     public class MigrationsInfrastructureSqliteTest(MigrationsInfrastructureSqliteTest.MigrationsInfrastructureSqliteFixture fixture)
         : MigrationsInfrastructureTestBase<MigrationsInfrastructureSqliteTest.MigrationsInfrastructureSqliteFixture>(fixture)
     {
-        public override async Task Can_generate_migration_from_initial_database_to_initial()
+        public override void Can_generate_migration_from_initial_database_to_initial()
         {
-            await base.Can_generate_migration_from_initial_database_to_initial();
+            base.Can_generate_migration_from_initial_database_to_initial();
 
             Assert.Equal(
                 """
@@ -29,9 +29,9 @@ CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
                 ignoreLineEndingDifferences: true);
         }
 
-        public override async Task Can_generate_no_migration_script()
+        public override void Can_generate_no_migration_script()
         {
-            await base.Can_generate_no_migration_script();
+            base.Can_generate_no_migration_script();
 
             Assert.Equal(
                 """

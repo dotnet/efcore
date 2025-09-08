@@ -92,7 +92,6 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
     public virtual async Task Rewrite_compare_bool_with_bool(bool async)
     {
         var bools = new[] { false, true };
-        var onetwothree = new[] { 1, 2, 3 };
 
         foreach (var neq in bools)
         {
@@ -100,18 +99,15 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
             {
                 foreach (var negateB in bools)
                 {
-                    foreach (var nullableA in onetwothree)
+                    foreach (var nullableA in bools)
                     {
                         foreach (var negateA in bools)
                         {
-                            foreach (var nullableB in onetwothree)
+                            foreach (var nullableB in bools)
                             {
-                                // filter out tests comparing two constants
-                                if (nullableA == 3 && nullableB == 3) continue;
-
                                 var queryBuilder = (ISetSource ss) =>
                                 {
-                                    var data = nullableA == 2
+                                    var data = nullableA
                                         ? ss.Set<NullSemanticsEntity1>().Select(
                                             e => new
                                             {
@@ -120,25 +116,16 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
                                                 e.BoolB,
                                                 e.NullableBoolB
                                             })
-                                        : nullableA == 1
-                                            ? ss.Set<NullSemanticsEntity1>().Select(
-                                                e => new
-                                                {
-                                                    e.Id,
-                                                    A = (bool?)e.BoolA,
-                                                    e.BoolB,
-                                                    e.NullableBoolB
-                                                })
-                                            : ss.Set<NullSemanticsEntity1>().Select(
-                                                e => new
-                                                {
-                                                    e.Id,
-                                                    A = (bool?)true,
-                                                    e.BoolB,
-                                                    e.NullableBoolB
-                                                });
+                                        : ss.Set<NullSemanticsEntity1>().Select(
+                                            e => new
+                                            {
+                                                e.Id,
+                                                A = (bool?)e.BoolA,
+                                                e.BoolB,
+                                                e.NullableBoolB
+                                            });
 
-                                    var query = nullableB == 2
+                                    var query = nullableB
                                         ? data.Select(
                                             e => new
                                             {
@@ -146,21 +133,13 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
                                                 e.A,
                                                 B = e.NullableBoolB
                                             })
-                                        : nullableB == 1
-                                            ? data.Select(
-                                                e => new
-                                                {
-                                                    e.Id,
-                                                    e.A,
-                                                    B = (bool?)e.BoolB
-                                                })
-                                            : data.Select(
-                                                e => new
-                                                {
-                                                    e.Id,
-                                                    e.A,
-                                                    B = (bool?)true
-                                                });
+                                        : data.Select(
+                                            e => new
+                                            {
+                                                e.Id,
+                                                e.A,
+                                                B = (bool?)e.BoolB
+                                            });
 
                                     query = negateA
                                         ? query.Select(
@@ -2481,18 +2460,6 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
             async,
             ss => ss.Set<NullSemanticsEntity1>().Where(e => !EF.Functions.Like(e.StringA, e.StringB, null)).Select(e => e.Id),
             ss => ss.Set<NullSemanticsEntity1>().Where(e => true).Select(e => e.Id));
-    }
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Compare_constant_true_to_expression_which_evaluates_to_null(bool async)
-    {
-        var prm = default(bool?);
-
-        await AssertQueryScalar(
-            async,
-            ss => ss.Set<NullSemanticsEntity1>().Where(x => x.NullableBoolA != null
-                && !object.Equals(true, x.NullableBoolA == null ? null : prm)).Select(x => x.Id));
     }
 
     // We can't client-evaluate Like (for the expected results).

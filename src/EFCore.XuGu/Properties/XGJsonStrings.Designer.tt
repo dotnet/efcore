@@ -1,0 +1,6 @@
+﻿<#
+    Session["ResourceFile"] = "XGJsonStrings.resx";
+    Session["LoggingDefinitionsClass"] = "XGJsonLoggingDefinitions";
+    Session["NoDiagnostics"] = true;
+#>
+<#@ include file="..\..\..\tools\Resources.tt" #>

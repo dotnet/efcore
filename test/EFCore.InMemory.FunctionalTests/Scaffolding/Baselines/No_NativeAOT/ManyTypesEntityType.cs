@@ -27,7 +27,7 @@ namespace TestNamespace
                 "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+ManyTypes",
                 typeof(CompiledModelTestBase.ManyTypes),
                 baseEntityType,
-                propertyCount: 263,
+                propertyCount: 258,
                 keyCount: 1);
 
             var id = runtimeEntityType.AddProperty(
@@ -58,12 +58,6 @@ namespace TestNamespace
                 typeof(bool[][]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("BoolNestedCollection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<BoolNestedCollection>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
-
-            var boolReadOnlyCollection = runtimeEntityType.AddProperty(
-                "BoolReadOnlyCollection",
-                typeof(IReadOnlyCollection<bool>),
-                propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("BoolReadOnlyCollection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("_boolReadOnlyCollection", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
 
             var boolToStringConverterProperty = runtimeEntityType.AddProperty(
                 "BoolToStringConverterProperty",
@@ -717,12 +711,6 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("IPAddressArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<IPAddressArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
 
-            var iPAddressReadOnlyCollection = runtimeEntityType.AddProperty(
-                "IPAddressReadOnlyCollection",
-                typeof(IReadOnlyCollection<IPAddress>),
-                propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("IPAddressReadOnlyCollection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("_ipAddressReadOnlyCollection", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
-
             var iPAddressToBytesConverterProperty = runtimeEntityType.AddProperty(
                 "IPAddressToBytesConverterProperty",
                 typeof(IPAddress),
@@ -768,12 +756,6 @@ namespace TestNamespace
                 typeof(int[][]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Int32NestedCollection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Int32NestedCollection>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
-
-            var int32ReadOnlyCollection = runtimeEntityType.AddProperty(
-                "Int32ReadOnlyCollection",
-                typeof(IReadOnlyCollection<int>),
-                propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Int32ReadOnlyCollection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("_int32ReadOnlyCollection", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
 
             var int64 = runtimeEntityType.AddProperty(
                 "Int64",
@@ -1544,12 +1526,6 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("StringNestedCollection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<StringNestedCollection>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
 
-            var stringReadOnlyCollection = runtimeEntityType.AddProperty(
-                "StringReadOnlyCollection",
-                typeof(IReadOnlyCollection<string>),
-                propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("StringReadOnlyCollection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("_stringReadOnlyCollection", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
-
             var stringToBoolConverterProperty = runtimeEntityType.AddProperty(
                 "StringToBoolConverterProperty",
                 typeof(string),
@@ -1765,12 +1741,6 @@ namespace TestNamespace
                 typeof(List<byte[]>),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("UInt8NestedCollection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<UInt8NestedCollection>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
-
-            var uInt8ReadOnlyCollection = runtimeEntityType.AddProperty(
-                "UInt8ReadOnlyCollection",
-                typeof(IReadOnlyCollection<byte>),
-                propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("UInt8ReadOnlyCollection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("_uInt8ReadOnlyCollection", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
 
             var uri = runtimeEntityType.AddProperty(
                 "Uri",

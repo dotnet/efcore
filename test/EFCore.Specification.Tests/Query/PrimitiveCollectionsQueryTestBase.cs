@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Collections.Immutable;
-
 namespace Microsoft.EntityFrameworkCore.Query;
 
 public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
@@ -356,20 +354,6 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
     public virtual async Task Parameter_collection_HashSet_of_ints_Contains_int(bool async)
     {
         var ints = new HashSet<int> { 10, 999 };
-
-        await AssertQuery(
-            async,
-            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => ints.Contains(c.Int)));
-        await AssertQuery(
-            async,
-            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !ints.Contains(c.Int)));
-    }
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Parameter_collection_ImmutableArray_of_ints_Contains_int(bool async)
-    {
-        var ints = ImmutableArray.Create([10, 999]);
 
         await AssertQuery(
             async,

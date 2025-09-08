@@ -272,14 +272,17 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             AnalyticalStoreTimeToLiveInSeconds = parameters.AnalyticalStoreTimeToLiveInSeconds,
         };
 
+        // TODO: Enable these once they are available in the Cosmos SDK. See #33783.
         if (embeddings.Any())
         {
-            containerProperties.VectorEmbeddingPolicy = new VectorEmbeddingPolicy(embeddings);
+            throw new InvalidOperationException(CosmosStrings.NoVectorContainerConfig);
+            //containerProperties.VectorEmbeddingPolicy = new VectorEmbeddingPolicy(embeddings);
         }
 
         if (vectorIndexes.Any())
         {
-            containerProperties.IndexingPolicy = new IndexingPolicy { VectorIndexes = vectorIndexes };
+            throw new InvalidOperationException(CosmosStrings.NoVectorContainerConfig);
+            //containerProperties.IndexingPolicy = new IndexingPolicy { VectorIndexes = vectorIndexes };
         }
 
         var response = await wrapper.Client.GetDatabase(wrapper._databaseId).CreateContainerIfNotExistsAsync(

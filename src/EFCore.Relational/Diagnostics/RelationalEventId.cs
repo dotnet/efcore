@@ -81,7 +81,6 @@ public static class RelationalEventId
         NonTransactionalMigrationOperationWarning,
         AcquiringMigrationLock,
         MigrationsUserTransactionWarning,
-        ModelSnapshotNotFound,
 
         // Query events
         QueryClientEvaluationWarning = CoreEventId.RelationalBaseId + 500,
@@ -778,19 +777,6 @@ public static class RelationalEventId
     ///     </para>
     /// </remarks>
     public static readonly EventId MigrationsUserTransactionWarning = MakeMigrationsId(Id.MigrationsUserTransactionWarning);
-
-    /// <summary>
-    ///     Model snapshot was not found.
-    /// </summary>
-    /// <remarks>
-    ///     <para>
-    ///         This event is in the <see cref="DbLoggerCategory.Migrations" /> category.
-    ///     </para>
-    ///     <para>
-    ///         This event uses the <see cref="MigrationAssemblyEventData" /> payload when used with a <see cref="DiagnosticSource" />.
-    ///     </para>
-    /// </remarks>
-    public static readonly EventId ModelSnapshotNotFound = MakeMigrationsId(Id.ModelSnapshotNotFound);
 
     private static readonly string _queryPrefix = DbLoggerCategory.Query.Name + ".";
 

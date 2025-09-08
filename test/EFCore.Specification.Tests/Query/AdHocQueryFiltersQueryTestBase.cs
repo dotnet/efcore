@@ -730,42 +730,4 @@ public abstract class AdHocQueryFiltersQueryTestBase : NonSharedModelTestBase
     }
 
     #endregion
-
-    #region 35111
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Query_filter_with_context_accessor_with_constant(bool async)
-    {
-        var contextFactory = await InitializeAsync<Context35111>();
-        using var context = contextFactory.CreateContext();
-
-        var data = async
-           ? await context.Set<FooBar35111>().ToListAsync()
-           : context.Set<FooBar35111>().ToList();
-    }
-
-    protected class Context35111(DbContextOptions options) : DbContext(options)
-    {
-        public int Foo { get; set; }
-        public long? Bar { get; set; }
-        public List<long> Baz { get; set; }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<FooBar35111>()
-                .HasQueryFilter(e =>
-                    Foo == 1
-                        ? Baz.Contains(e.Bar)
-                        : e.Bar == Bar);
-        }
-    }
-
-    public class FooBar35111
-    {
-        public long Id { get; set; }
-        public long Bar { get; set; }
-    }
-
-    #endregion
 }

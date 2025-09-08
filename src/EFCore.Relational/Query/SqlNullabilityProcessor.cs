@@ -19,9 +19,6 @@ namespace Microsoft.EntityFrameworkCore.Query;
 /// </summary>
 public class SqlNullabilityProcessor
 {
-    private static readonly bool UseOldBehavior35393 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue35393", out var enabled35393) && enabled35393;
-
     private readonly List<ColumnExpression> _nonNullableColumns;
     private readonly List<ColumnExpression> _nullValueColumns;
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
@@ -1346,7 +1343,7 @@ public class SqlNullabilityProcessor
             // we assume that NullSemantics rewrite is only needed (on the current level)
             // if the optimization didn't make any changes.
             // Reason is that optimization can/will change the nullability of the resulting expression
-            // and that information is not tracked/stored anywhere
+            // and that inforation is not tracked/stored anywhere
             // so we can no longer rely on nullabilities that we computed earlier (leftNullable, rightNullable)
             // when performing null semantics rewrite.
             // It should be fine because current optimizations *radically* change the expression

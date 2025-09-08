@@ -1,11 +1,11 @@
 {
   "sdk": {
-    "version": "9.0.103",
+    "version": "9.0.100-rc.2.24474.11",
     "allowPrerelease": true,
     "rollForward": "latestMajor"
   },
   "tools": {
-    "dotnet": "9.0.103",
+    "dotnet": "9.0.100-rc.2.24474.11",
     "runtimes": {
       "dotnet": [
         "$(MicrosoftNETCoreBrowserDebugHostTransportVersion)"
@@ -13,7 +13,7 @@
     }
   },
   "msbuild-sdks": {
-    "Microsoft.DotNet.Arcade.Sdk": "9.0.0-beta.25111.5",
-    "Microsoft.DotNet.Helix.Sdk": "9.0.0-beta.25111.5"
+    "Microsoft.DotNet.Arcade.Sdk": "9.0.0-beta.24516.2",
+    "Microsoft.DotNet.Helix.Sdk": "9.0.0-beta.24516.2"
   }
 }

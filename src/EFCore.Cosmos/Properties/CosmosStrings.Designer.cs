@@ -306,6 +306,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => GetString("NoSubqueryPushdown");
 
         /// <summary>
+        ///     Container configuration for embeddings is not yet supported by the Cosmos SDK. Instead, configure the container manually. See https://aka.ms/ef-cosmos-vectors for more information.
+        /// </summary>
+        public static string NoVectorContainerConfig
+            => GetString("NoVectorContainerConfig");
+
+        /// <summary>
         ///     The expression '{sqlExpression}' in the SQL tree does not have a type mapping assigned.
         /// </summary>
         public static string NullTypeMappingInSqlTree(object? sqlExpression)

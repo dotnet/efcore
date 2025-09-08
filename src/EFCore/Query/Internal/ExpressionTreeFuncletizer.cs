@@ -100,15 +100,6 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
 
     private static readonly IReadOnlySet<string> EmptyStringSet = new HashSet<string>();
 
-    private static readonly bool UseOldBehavior35095 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue35095", out var enabled35095) && enabled35095;
-
-    private static readonly bool UseOldBehavior35152 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue35152", out var enabled35152) && enabled35152;
-
-    private static readonly bool UseOldBehavior35111 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue35111", out var enabled35111) && enabled35111;
-
     private static readonly MethodInfo ReadOnlyCollectionIndexerGetter = typeof(ReadOnlyCollection<Expression>).GetProperties()
         .Single(p => p.GetIndexParameters() is { Length: 1 } indexParameters && indexParameters[0].ParameterType == typeof(int)).GetMethod!;
 
@@ -388,22 +379,16 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 case ExpressionType.Coalesce:
                     leftValue = Evaluate(left);
 
-                    Expression returnValue;
                     switch (leftValue)
                     {
                         case null:
-                            returnValue = Visit(binary.Right, out _state);
-                            break;
+                            return Visit(binary.Right, out _state);
                         case bool b:
                             _state = leftState with { StateType = StateType.EvaluatableWithoutCapturedVariable };
-                            returnValue = Constant(b);
-                            break;
+                            return Constant(b);
                         default:
-                            returnValue = left;
-                            break;
+                            return left;
                     }
-
-                    return UseOldBehavior35095 ? returnValue : ConvertIfNeeded(returnValue, binary.Type);
 
                 case ExpressionType.OrElse or ExpressionType.AndAlso when Evaluate(left) is bool leftBoolValue:
                 {
@@ -526,10 +511,9 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
         // If the test evaluates, simplify the conditional away by bubbling up the leg that remains
         if (testState.IsEvaluatable && Evaluate(test) is bool testBoolValue)
         {
-            var returnValue = testBoolValue
+            return testBoolValue
                 ? Visit(conditional.IfTrue, out _state)
                 : Visit(conditional.IfFalse, out _state);
-            return UseOldBehavior35095 ? returnValue : ConvertIfNeeded(returnValue, conditional.Type);
         }
 
         var ifTrue = Visit(conditional.IfTrue, out var ifTrueState);
@@ -555,11 +539,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 goto case StateType.ContainsEvaluatable;
 
             case StateType.ContainsEvaluatable:
-                if (testState.IsEvaluatable)
-                {
-                    test = UseOldBehavior35111 ? test : ProcessEvaluatableRoot(test, ref testState);
-                }
-
+                // The case where the test is evaluatable has been handled above
                 if (ifTrueState.IsEvaluatable)
                 {
                     ifTrue = ProcessEvaluatableRoot(ifTrue, ref ifTrueState);
@@ -1568,20 +1548,9 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 operand = ProcessEvaluatableRoot(operand, ref operandState);
             }
 
-            if (UseOldBehavior35152)
+            if (_state.ContainsEvaluatable)
             {
-                if (_state.ContainsEvaluatable)
-                {
-                    _state = _calculatingPath
-                        ? State.CreateContainsEvaluatable(
-                            typeof(UnaryExpression),
-                            [_state.Path! with { PathFromParent = static e => Property(e, nameof(UnaryExpression.Operand)) }])
-                        : State.NoEvaluatability;
-                }
-            }
-            else
-            {
-                _state = operandState.ContainsEvaluatable && _calculatingPath
+                _state = _calculatingPath
                     ? State.CreateContainsEvaluatable(
                         typeof(UnaryExpression),
                         [_state.Path! with { PathFromParent = static e => Property(e, nameof(UnaryExpression.Operand)) }])
@@ -2131,9 +2100,6 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
             }
         }
     }
-
-    private static Expression ConvertIfNeeded(Expression expression, Type type)
-        => expression.Type == type ? expression : Convert(expression, type);
 
     private bool IsGenerallyEvaluatable(Expression expression)
         => _evaluatableExpressionFilter.IsEvaluatableExpression(expression, _model)

@@ -31,9 +31,6 @@ public class LiftableConstantProcessor : ExpressionVisitor, ILiftableConstantPro
     private readonly LiftedConstantOptimizer _liftedConstantOptimizer = new();
     private ParameterExpression? _contextParameter;
 
-    protected static readonly bool UseOldBehavior35208 =
-           AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue35208", out var enabled35208) && enabled35208;
-
     /// <summary>
     ///     Exposes all constants that have been lifted during the last invocation of <see cref="LiftedConstants" />.
     /// </summary>
@@ -201,7 +198,7 @@ public class LiftableConstantProcessor : ExpressionVisitor, ILiftableConstantPro
             // Make sure there aren't any problematic un-lifted constants within the resolver expression.
             _unsupportedConstantChecker.Check(resolverExpression);
 
-            var resolver = resolverExpression.Compile(preferInterpretation: UseOldBehavior35208);
+            var resolver = resolverExpression.Compile(preferInterpretation: true);
             var value = resolver(_materializerLiftableConstantContext);
 
             return Expression.Constant(value, liftableConstant.Type);

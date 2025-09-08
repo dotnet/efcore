@@ -6824,7 +6824,7 @@ INNER JOIN (
     FROM [LocustHordes] AS [l1]
     WHERE [l1].[Name] = N'Swarm'
 ) AS [l2] ON [u].[Name] = [l2].[CommanderName]
-WHERE [l2].[Eradicated] <> CAST(1 AS bit) OR [l2].[Eradicated] IS NULL
+WHERE [l2].[Eradicated] = CAST(0 AS bit) OR [l2].[Eradicated] IS NULL
 """);
     }
 
@@ -6847,7 +6847,7 @@ LEFT JOIN (
     FROM [LocustHordes] AS [l1]
     WHERE [l1].[Name] = N'Swarm'
 ) AS [l2] ON [u].[Name] = [l2].[CommanderName]
-WHERE [l2].[Eradicated] <> CAST(1 AS bit) OR [l2].[Eradicated] IS NULL
+WHERE [l2].[Eradicated] = CAST(0 AS bit) OR [l2].[Eradicated] IS NULL
 """);
     }
 
@@ -10136,7 +10136,7 @@ FROM (
 INNER JOIN [LocustHordes] AS [l1] ON [u].[Name] = [l1].[CommanderName]
 WHERE CASE
     WHEN [l1].[Name] = N'Locust' THEN CAST(1 AS bit)
-END <> CAST(1 AS bit) OR CASE
+END = CAST(0 AS bit) OR CASE
     WHEN [l1].[Name] = N'Locust' THEN CAST(1 AS bit)
 END IS NULL
 """);
@@ -12338,20 +12338,6 @@ FROM [Officers] AS [o]
 SELECT [l].[Id], [l].[CapitalName], [l].[Name], [l].[ServerAddress], [l].[CommanderName], [l].[Eradicated]
 FROM [LocustHordes] AS [l]
 WHERE [l].[ServerAddress] = CAST(N'127.0.0.1' AS nvarchar(45))
-""");
-    }
-
-    public override async Task Project_equality_with_value_converted_property(bool async)
-    {
-        await base.Project_equality_with_value_converted_property(async);
-
-        AssertSql(
-            """
-SELECT CASE
-    WHEN [m].[Difficulty] = N'Unknown' THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END
-FROM [Missions] AS [m]
 """);
     }
 

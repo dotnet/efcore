@@ -22,9 +22,6 @@ namespace TestNamespace
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<BoolArray>k__BackingField")]
         public static extern ref bool[] BoolArray(CompiledModelTestBase.ManyTypes @this);
 
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_boolReadOnlyCollection")]
-        public static extern ref List<bool> _boolReadOnlyCollection(CompiledModelTestBase.ManyTypes @this);
-
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<BoolToStringConverterProperty>k__BackingField")]
         public static extern ref bool BoolToStringConverterProperty(CompiledModelTestBase.ManyTypes @this);
 
@@ -286,9 +283,6 @@ namespace TestNamespace
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<IPAddressArray>k__BackingField")]
         public static extern ref IPAddress[] IPAddressArray(CompiledModelTestBase.ManyTypes @this);
 
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_ipAddressReadOnlyCollection")]
-        public static extern ref List<IPAddress> _ipAddressReadOnlyCollection(CompiledModelTestBase.ManyTypes @this);
-
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<IPAddressToBytesConverterProperty>k__BackingField")]
         public static extern ref IPAddress IPAddressToBytesConverterProperty(CompiledModelTestBase.ManyTypes @this);
 
@@ -306,9 +300,6 @@ namespace TestNamespace
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Int32Array>k__BackingField")]
         public static extern ref int[] Int32Array(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_int32ReadOnlyCollection")]
-        public static extern ref List<int> _int32ReadOnlyCollection(CompiledModelTestBase.ManyTypes @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Int64>k__BackingField")]
         public static extern ref long Int64(CompiledModelTestBase.ManyTypes @this);
@@ -631,9 +622,6 @@ namespace TestNamespace
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<StringArray>k__BackingField")]
         public static extern ref string[] StringArray(CompiledModelTestBase.ManyTypes @this);
 
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_stringReadOnlyCollection")]
-        public static extern ref List<string> _stringReadOnlyCollection(CompiledModelTestBase.ManyTypes @this);
-
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<StringToBoolConverterProperty>k__BackingField")]
         public static extern ref string StringToBoolConverterProperty(CompiledModelTestBase.ManyTypes @this);
 
@@ -723,9 +711,6 @@ namespace TestNamespace
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<UInt8Array>k__BackingField")]
         public static extern ref byte[] UInt8Array(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_uInt8ReadOnlyCollection")]
-        public static extern ref List<byte> _uInt8ReadOnlyCollection(CompiledModelTestBase.ManyTypes @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Uri>k__BackingField")]
         public static extern ref Uri Uri(CompiledModelTestBase.ManyTypes @this);

@@ -2874,7 +2874,7 @@ FROM "LocustLeaders" AS "l"
 INNER JOIN "Factions" AS "f" ON "l"."Name" = "f"."CommanderName"
 WHERE CASE
     WHEN "f"."Name" = 'Locust' THEN 1
-END <> 1 OR CASE
+END = 0 OR CASE
     WHEN "f"."Name" = 'Locust' THEN 1
 END IS NULL
 """);
@@ -3073,17 +3073,6 @@ ORDER BY "g"."SquadId"
 SELECT "f"."Id", "f"."CapitalName", "f"."Discriminator", "f"."Name", "f"."ServerAddress", "f"."CommanderName", "f"."Eradicated"
 FROM "Factions" AS "f"
 WHERE "f"."ServerAddress" = CAST('127.0.0.1' AS TEXT)
-""");
-    }
-
-    public override async Task Project_equality_with_value_converted_property(bool async)
-    {
-        await base.Project_equality_with_value_converted_property(async);
-
-        AssertSql(
-            """
-SELECT "m"."Difficulty" = 'Unknown'
-FROM "Missions" AS "m"
 """);
     }
 
@@ -5481,7 +5470,7 @@ LEFT JOIN (
     FROM "Factions" AS "f"
     WHERE "f"."Name" = 'Swarm'
 ) AS "f0" ON "l"."Name" = "f0"."CommanderName"
-WHERE "f0"."Eradicated" <> 1 OR "f0"."Eradicated" IS NULL
+WHERE "f0"."Eradicated" = 0 OR "f0"."Eradicated" IS NULL
 """);
     }
 
@@ -5549,7 +5538,7 @@ INNER JOIN (
     FROM "Factions" AS "f"
     WHERE "f"."Name" = 'Swarm'
 ) AS "f0" ON "l"."Name" = "f0"."CommanderName"
-WHERE "f0"."Eradicated" <> 1 OR "f0"."Eradicated" IS NULL
+WHERE "f0"."Eradicated" = 0 OR "f0"."Eradicated" IS NULL
 """);
     }
 

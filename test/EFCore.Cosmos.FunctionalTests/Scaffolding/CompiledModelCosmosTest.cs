@@ -331,7 +331,6 @@ public class CompiledModelCosmosTest : CompiledModelTestBase
                 b.Ignore(e => e.NullableGuidNestedCollection);
                 b.Ignore(e => e.UInt8NestedCollection);
                 b.Ignore(e => e.NullableUInt8NestedCollection);
-                b.Ignore(e => e.IPAddressReadOnlyCollection);
             });
     }
 

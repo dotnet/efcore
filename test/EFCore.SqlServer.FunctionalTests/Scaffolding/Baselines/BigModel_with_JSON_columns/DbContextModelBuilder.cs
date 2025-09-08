@@ -193,8 +193,6 @@ namespace TestNamespace
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("Bool", boolColumnBase);
             var boolArrayColumnBase = new ColumnBase<ColumnMappingBase>("BoolArray", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("BoolArray", boolArrayColumnBase);
-            var boolReadOnlyCollectionColumnBase = new ColumnBase<ColumnMappingBase>("BoolReadOnlyCollection", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
-            microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("BoolReadOnlyCollection", boolReadOnlyCollectionColumnBase);
             var boolToStringConverterPropertyColumnBase = new ColumnBase<ColumnMappingBase>("BoolToStringConverterProperty", "nvarchar(1)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("BoolToStringConverterProperty", boolToStringConverterPropertyColumnBase);
             var boolToTwoValuesConverterPropertyColumnBase = new ColumnBase<ColumnMappingBase>("BoolToTwoValuesConverterProperty", "tinyint", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
@@ -369,8 +367,6 @@ namespace TestNamespace
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("IPAddress", iPAddressColumnBase);
             var iPAddressArrayColumnBase = new ColumnBase<ColumnMappingBase>("IPAddressArray", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("IPAddressArray", iPAddressArrayColumnBase);
-            var iPAddressReadOnlyCollectionColumnBase = new ColumnBase<ColumnMappingBase>("IPAddressReadOnlyCollection", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
-            microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("IPAddressReadOnlyCollection", iPAddressReadOnlyCollectionColumnBase);
             var iPAddressToBytesConverterPropertyColumnBase = new ColumnBase<ColumnMappingBase>("IPAddressToBytesConverterProperty", "varbinary(16)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("IPAddressToBytesConverterProperty", iPAddressToBytesConverterPropertyColumnBase);
             var iPAddressToStringConverterPropertyColumnBase = new ColumnBase<ColumnMappingBase>("IPAddressToStringConverterProperty", "nvarchar(45)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
@@ -385,8 +381,6 @@ namespace TestNamespace
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("Int32", int32ColumnBase);
             var int32ArrayColumnBase = new ColumnBase<ColumnMappingBase>("Int32Array", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("Int32Array", int32ArrayColumnBase);
-            var int32ReadOnlyCollectionColumnBase = new ColumnBase<ColumnMappingBase>("Int32ReadOnlyCollection", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
-            microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("Int32ReadOnlyCollection", int32ReadOnlyCollectionColumnBase);
             var int64ColumnBase = new ColumnBase<ColumnMappingBase>("Int64", "bigint", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("Int64", int64ColumnBase);
             var int64ArrayColumnBase = new ColumnBase<ColumnMappingBase>("Int64Array", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
@@ -721,8 +715,6 @@ namespace TestNamespace
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("String", stringColumnBase);
             var stringArrayColumnBase = new ColumnBase<ColumnMappingBase>("StringArray", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("StringArray", stringArrayColumnBase);
-            var stringReadOnlyCollectionColumnBase = new ColumnBase<ColumnMappingBase>("StringReadOnlyCollection", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
-            microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("StringReadOnlyCollection", stringReadOnlyCollectionColumnBase);
             var stringToBoolConverterPropertyColumnBase = new ColumnBase<ColumnMappingBase>("StringToBoolConverterProperty", "bit", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("StringToBoolConverterProperty", stringToBoolConverterPropertyColumnBase);
             var stringToBytesConverterPropertyColumnBase = new ColumnBase<ColumnMappingBase>("StringToBytesConverterProperty", "varbinary(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase)
@@ -786,8 +778,6 @@ namespace TestNamespace
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("UInt8", uInt8ColumnBase);
             var uInt8ArrayColumnBase = new ColumnBase<ColumnMappingBase>("UInt8Array", "varbinary(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("UInt8Array", uInt8ArrayColumnBase);
-            var uInt8ReadOnlyCollectionColumnBase = new ColumnBase<ColumnMappingBase>("UInt8ReadOnlyCollection", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
-            microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("UInt8ReadOnlyCollection", uInt8ReadOnlyCollectionColumnBase);
             var uriColumnBase = new ColumnBase<ColumnMappingBase>("Uri", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("Uri", uriColumnBase);
             var uriArrayColumnBase = new ColumnBase<ColumnMappingBase>("UriArray", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
@@ -801,7 +791,6 @@ namespace TestNamespace
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)idColumnBase0, manyTypes.FindProperty("Id")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)boolColumnBase, manyTypes.FindProperty("Bool")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)boolArrayColumnBase, manyTypes.FindProperty("BoolArray")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
-            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)boolReadOnlyCollectionColumnBase, manyTypes.FindProperty("BoolReadOnlyCollection")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)boolToStringConverterPropertyColumnBase, manyTypes.FindProperty("BoolToStringConverterProperty")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)boolToTwoValuesConverterPropertyColumnBase, manyTypes.FindProperty("BoolToTwoValuesConverterProperty")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)boolToZeroOneConverterPropertyColumnBase, manyTypes.FindProperty("BoolToZeroOneConverterProperty")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
@@ -889,14 +878,12 @@ namespace TestNamespace
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)guidToStringConverterPropertyColumnBase, manyTypes.FindProperty("GuidToStringConverterProperty")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)iPAddressColumnBase, manyTypes.FindProperty("IPAddress")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)iPAddressArrayColumnBase, manyTypes.FindProperty("IPAddressArray")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
-            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)iPAddressReadOnlyCollectionColumnBase, manyTypes.FindProperty("IPAddressReadOnlyCollection")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)iPAddressToBytesConverterPropertyColumnBase, manyTypes.FindProperty("IPAddressToBytesConverterProperty")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)iPAddressToStringConverterPropertyColumnBase, manyTypes.FindProperty("IPAddressToStringConverterProperty")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)int16ColumnBase, manyTypes.FindProperty("Int16")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)int16ArrayColumnBase, manyTypes.FindProperty("Int16Array")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)int32ColumnBase, manyTypes.FindProperty("Int32")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)int32ArrayColumnBase, manyTypes.FindProperty("Int32Array")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
-            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)int32ReadOnlyCollectionColumnBase, manyTypes.FindProperty("Int32ReadOnlyCollection")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)int64ColumnBase, manyTypes.FindProperty("Int64")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)int64ArrayColumnBase, manyTypes.FindProperty("Int64Array")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)int8ColumnBase, manyTypes.FindProperty("Int8")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
@@ -1004,7 +991,6 @@ namespace TestNamespace
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)physicalAddressToStringConverterPropertyColumnBase, manyTypes.FindProperty("PhysicalAddressToStringConverterProperty")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)stringColumnBase, manyTypes.FindProperty("String")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)stringArrayColumnBase, manyTypes.FindProperty("StringArray")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
-            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)stringReadOnlyCollectionColumnBase, manyTypes.FindProperty("StringReadOnlyCollection")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)stringToBoolConverterPropertyColumnBase, manyTypes.FindProperty("StringToBoolConverterProperty")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)stringToBytesConverterPropertyColumnBase, manyTypes.FindProperty("StringToBytesConverterProperty")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)stringToCharConverterPropertyColumnBase, manyTypes.FindProperty("StringToCharConverterProperty")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
@@ -1035,7 +1021,6 @@ namespace TestNamespace
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)uInt64ArrayColumnBase, manyTypes.FindProperty("UInt64Array")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)uInt8ColumnBase, manyTypes.FindProperty("UInt8")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)uInt8ArrayColumnBase, manyTypes.FindProperty("UInt8Array")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
-            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)uInt8ReadOnlyCollectionColumnBase, manyTypes.FindProperty("UInt8ReadOnlyCollection")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)uriColumnBase, manyTypes.FindProperty("Uri")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)uriArrayColumnBase, manyTypes.FindProperty("UriArray")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)uriToStringConverterPropertyColumnBase, manyTypes.FindProperty("UriToStringConverterProperty")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
@@ -1052,9 +1037,6 @@ namespace TestNamespace
             var boolArrayColumn = new Column("BoolArray", "nvarchar(max)", manyTypesTable);
             manyTypesTable.Columns.Add("BoolArray", boolArrayColumn);
             boolArrayColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<string>(boolArrayColumn);
-            var boolReadOnlyCollectionColumn = new Column("BoolReadOnlyCollection", "nvarchar(max)", manyTypesTable);
-            manyTypesTable.Columns.Add("BoolReadOnlyCollection", boolReadOnlyCollectionColumn);
-            boolReadOnlyCollectionColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<string>(boolReadOnlyCollectionColumn);
             var boolToStringConverterPropertyColumn = new Column("BoolToStringConverterProperty", "nvarchar(1)", manyTypesTable);
             manyTypesTable.Columns.Add("BoolToStringConverterProperty", boolToStringConverterPropertyColumn);
             boolToStringConverterPropertyColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<string>(boolToStringConverterPropertyColumn);
@@ -1316,9 +1298,6 @@ namespace TestNamespace
             var iPAddressArrayColumn = new Column("IPAddressArray", "nvarchar(max)", manyTypesTable);
             manyTypesTable.Columns.Add("IPAddressArray", iPAddressArrayColumn);
             iPAddressArrayColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<string>(iPAddressArrayColumn);
-            var iPAddressReadOnlyCollectionColumn = new Column("IPAddressReadOnlyCollection", "nvarchar(max)", manyTypesTable);
-            manyTypesTable.Columns.Add("IPAddressReadOnlyCollection", iPAddressReadOnlyCollectionColumn);
-            iPAddressReadOnlyCollectionColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<string>(iPAddressReadOnlyCollectionColumn);
             var iPAddressToBytesConverterPropertyColumn = new Column("IPAddressToBytesConverterProperty", "varbinary(16)", manyTypesTable);
             manyTypesTable.Columns.Add("IPAddressToBytesConverterProperty", iPAddressToBytesConverterPropertyColumn);
             iPAddressToBytesConverterPropertyColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<byte[]>(iPAddressToBytesConverterPropertyColumn);
@@ -1337,9 +1316,6 @@ namespace TestNamespace
             var int32ArrayColumn = new Column("Int32Array", "nvarchar(max)", manyTypesTable);
             manyTypesTable.Columns.Add("Int32Array", int32ArrayColumn);
             int32ArrayColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<string>(int32ArrayColumn);
-            var int32ReadOnlyCollectionColumn = new Column("Int32ReadOnlyCollection", "nvarchar(max)", manyTypesTable);
-            manyTypesTable.Columns.Add("Int32ReadOnlyCollection", int32ReadOnlyCollectionColumn);
-            int32ReadOnlyCollectionColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<string>(int32ReadOnlyCollectionColumn);
             var int64Column = new Column("Int64", "bigint", manyTypesTable);
             manyTypesTable.Columns.Add("Int64", int64Column);
             int64Column.Accessors = ColumnAccessorsFactory.CreateGeneric<long>(int64Column);
@@ -1781,9 +1757,6 @@ namespace TestNamespace
             var stringArrayColumn = new Column("StringArray", "nvarchar(max)", manyTypesTable);
             manyTypesTable.Columns.Add("StringArray", stringArrayColumn);
             stringArrayColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<string>(stringArrayColumn);
-            var stringReadOnlyCollectionColumn = new Column("StringReadOnlyCollection", "nvarchar(max)", manyTypesTable);
-            manyTypesTable.Columns.Add("StringReadOnlyCollection", stringReadOnlyCollectionColumn);
-            stringReadOnlyCollectionColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<string>(stringReadOnlyCollectionColumn);
             var stringToBoolConverterPropertyColumn = new Column("StringToBoolConverterProperty", "bit", manyTypesTable);
             manyTypesTable.Columns.Add("StringToBoolConverterProperty", stringToBoolConverterPropertyColumn);
             stringToBoolConverterPropertyColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<bool>(stringToBoolConverterPropertyColumn);
@@ -1877,9 +1850,6 @@ namespace TestNamespace
             var uInt8ArrayColumn = new Column("UInt8Array", "varbinary(max)", manyTypesTable);
             manyTypesTable.Columns.Add("UInt8Array", uInt8ArrayColumn);
             uInt8ArrayColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<byte[]>(uInt8ArrayColumn);
-            var uInt8ReadOnlyCollectionColumn = new Column("UInt8ReadOnlyCollection", "nvarchar(max)", manyTypesTable);
-            manyTypesTable.Columns.Add("UInt8ReadOnlyCollection", uInt8ReadOnlyCollectionColumn);
-            uInt8ReadOnlyCollectionColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<string>(uInt8ReadOnlyCollectionColumn);
             var uriColumn = new Column("Uri", "nvarchar(max)", manyTypesTable);
             manyTypesTable.Columns.Add("Uri", uriColumn);
             uriColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<string>(uriColumn);
@@ -1896,7 +1866,6 @@ namespace TestNamespace
             RelationalModel.CreateColumnMapping(idColumn0, manyTypes.FindProperty("Id")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(boolColumn, manyTypes.FindProperty("Bool")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(boolArrayColumn, manyTypes.FindProperty("BoolArray")!, manyTypesTableMapping);
-            RelationalModel.CreateColumnMapping(boolReadOnlyCollectionColumn, manyTypes.FindProperty("BoolReadOnlyCollection")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(boolToStringConverterPropertyColumn, manyTypes.FindProperty("BoolToStringConverterProperty")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(boolToTwoValuesConverterPropertyColumn, manyTypes.FindProperty("BoolToTwoValuesConverterProperty")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(boolToZeroOneConverterPropertyColumn, manyTypes.FindProperty("BoolToZeroOneConverterProperty")!, manyTypesTableMapping);
@@ -1984,14 +1953,12 @@ namespace TestNamespace
             RelationalModel.CreateColumnMapping(guidToStringConverterPropertyColumn, manyTypes.FindProperty("GuidToStringConverterProperty")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(iPAddressColumn, manyTypes.FindProperty("IPAddress")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(iPAddressArrayColumn, manyTypes.FindProperty("IPAddressArray")!, manyTypesTableMapping);
-            RelationalModel.CreateColumnMapping(iPAddressReadOnlyCollectionColumn, manyTypes.FindProperty("IPAddressReadOnlyCollection")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(iPAddressToBytesConverterPropertyColumn, manyTypes.FindProperty("IPAddressToBytesConverterProperty")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(iPAddressToStringConverterPropertyColumn, manyTypes.FindProperty("IPAddressToStringConverterProperty")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(int16Column, manyTypes.FindProperty("Int16")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(int16ArrayColumn, manyTypes.FindProperty("Int16Array")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(int32Column, manyTypes.FindProperty("Int32")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(int32ArrayColumn, manyTypes.FindProperty("Int32Array")!, manyTypesTableMapping);
-            RelationalModel.CreateColumnMapping(int32ReadOnlyCollectionColumn, manyTypes.FindProperty("Int32ReadOnlyCollection")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(int64Column, manyTypes.FindProperty("Int64")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(int64ArrayColumn, manyTypes.FindProperty("Int64Array")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(int8Column, manyTypes.FindProperty("Int8")!, manyTypesTableMapping);
@@ -2099,7 +2066,6 @@ namespace TestNamespace
             RelationalModel.CreateColumnMapping(physicalAddressToStringConverterPropertyColumn, manyTypes.FindProperty("PhysicalAddressToStringConverterProperty")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(stringColumn, manyTypes.FindProperty("String")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(stringArrayColumn, manyTypes.FindProperty("StringArray")!, manyTypesTableMapping);
-            RelationalModel.CreateColumnMapping(stringReadOnlyCollectionColumn, manyTypes.FindProperty("StringReadOnlyCollection")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(stringToBoolConverterPropertyColumn, manyTypes.FindProperty("StringToBoolConverterProperty")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(stringToBytesConverterPropertyColumn, manyTypes.FindProperty("StringToBytesConverterProperty")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(stringToCharConverterPropertyColumn, manyTypes.FindProperty("StringToCharConverterProperty")!, manyTypesTableMapping);
@@ -2130,7 +2096,6 @@ namespace TestNamespace
             RelationalModel.CreateColumnMapping(uInt64ArrayColumn, manyTypes.FindProperty("UInt64Array")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(uInt8Column, manyTypes.FindProperty("UInt8")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(uInt8ArrayColumn, manyTypes.FindProperty("UInt8Array")!, manyTypesTableMapping);
-            RelationalModel.CreateColumnMapping(uInt8ReadOnlyCollectionColumn, manyTypes.FindProperty("UInt8ReadOnlyCollection")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(uriColumn, manyTypes.FindProperty("Uri")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(uriArrayColumn, manyTypes.FindProperty("UriArray")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(uriToStringConverterPropertyColumn, manyTypes.FindProperty("UriToStringConverterProperty")!, manyTypesTableMapping);

@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Collections;
 using System.Globalization;
 using System.Text;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
@@ -30,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations;
 public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 {
     private IReadOnlyList<MigrationOperation> _operations = null!;
-    private int _variableCounter = -1;
+    private int _variableCounter;
 
     private readonly ICommandBatchPreparer _commandBatchPreparer;
 
@@ -644,8 +643,6 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
             subBuilder.Append(")");
 
-            var historyTableName = operation[SqlServerAnnotationNames.TemporalHistoryTableName] as string;
-            string historyTable;
             if (needsExec)
             {
                 subBuilder
@@ -653,14 +650,18 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
                 var execBody = subBuilder.GetCommandList().Single().CommandText.Replace("'", "''");
 
-                var schemaVariable = Uniquify("@historyTableSchema");
                 builder
-                    .AppendLine($"DECLARE {schemaVariable} sysname = SCHEMA_NAME()")
+                    .AppendLine("DECLARE @historyTableSchema sysname = SCHEMA_NAME()")
                     .Append("EXEC(N'")
                     .Append(execBody);
+            }
 
+            var historyTableName = operation[SqlServerAnnotationNames.TemporalHistoryTableName] as string;
+            string historyTable;
+            if (needsExec)
+            {
                 historyTable = Dependencies.SqlGenerationHelper.DelimitIdentifier(historyTableName!);
-                tableCreationOptions.Add($"SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + {schemaVariable} + N'].{historyTable})");
+                tableCreationOptions.Add($"SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + N'].{historyTable})");
             }
             else
             {
@@ -1115,11 +1116,10 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
     {
         if (operation[SqlServerAnnotationNames.EditionOptions] is string editionOptions)
         {
-            var dbVariable = Uniquify("@db_name");
             builder
                 .AppendLine("BEGIN")
-                .AppendLine($"DECLARE {dbVariable} nvarchar(max) = DB_NAME();")
-                .AppendLine($"EXEC(N'ALTER DATABASE [' + {dbVariable} + '] MODIFY ( ")
+                .AppendLine("DECLARE @db_name nvarchar(max) = DB_NAME();")
+                .AppendLine("EXEC(N'ALTER DATABASE [' + @db_name + '] MODIFY ( ")
                 .Append(editionOptions.Replace("'", "''"))
                 .AppendLine(" );');")
                 .AppendLine("END")
@@ -1128,21 +1128,19 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
         if (operation.Collation != operation.OldDatabase.Collation)
         {
-            var dbVariable = Uniquify("@db_name");
             builder
                 .AppendLine("BEGIN")
-                .AppendLine($"DECLARE {dbVariable} nvarchar(max) = DB_NAME();");
+                .AppendLine("DECLARE @db_name nvarchar(max) = DB_NAME();");
 
-            var collation = operation.Collation;
             if (operation.Collation == null)
             {
-                var collationVariable = Uniquify("@defaultCollation");
-                builder.AppendLine($"DECLARE {collationVariable} nvarchar(max) = CAST(SERVERPROPERTY('Collation') AS nvarchar(max));");
-                collation = "' + " + collationVariable + " + N'";
+                builder.AppendLine("DECLARE @defaultCollation nvarchar(max) = CAST(SERVERPROPERTY('Collation') AS nvarchar(max));");
             }
 
             builder
-                .AppendLine($"EXEC(N'ALTER DATABASE [' + {dbVariable} + '] COLLATE {collation};');")
+                .Append("EXEC(N'ALTER DATABASE [' + @db_name + '] COLLATE ")
+                .Append(operation.Collation ?? "' + @defaultCollation + N'")
+                .AppendLine(";');")
                 .AppendLine("END")
                 .AppendLine();
         }
@@ -1169,11 +1167,10 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
             using (builder.Indent())
             {
-                var dbVariable = Uniquify("@db_name");
                 builder
                     .AppendLine("BEGIN")
                     .AppendLine("ALTER DATABASE CURRENT SET AUTO_CLOSE OFF;")
-                    .AppendLine($"DECLARE {dbVariable} nvarchar(max) = DB_NAME();")
+                    .AppendLine("DECLARE @db_name nvarchar(max) = DB_NAME();")
                     .AppendLine("DECLARE @fg_name nvarchar(max);")
                     .AppendLine("SELECT TOP(1) @fg_name = [name] FROM [sys].[filegroups] WHERE [type] = N'FX';")
                     .AppendLine()
@@ -1183,21 +1180,20 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                 {
                     builder
                         .AppendLine("BEGIN")
-                        .AppendLine($"SET @fg_name = {dbVariable} + N'_MODFG';")
+                        .AppendLine("SET @fg_name = @db_name + N'_MODFG';")
                         .AppendLine("EXEC(N'ALTER DATABASE CURRENT ADD FILEGROUP [' + @fg_name + '] CONTAINS MEMORY_OPTIMIZED_DATA;');")
                         .AppendLine("END");
                 }
 
-                var pathVariable = Uniquify("@path");
                 builder
                     .AppendLine()
-                    .AppendLine($"DECLARE {pathVariable} nvarchar(max);")
-                    .Append($"SELECT TOP(1) {pathVariable} = [physical_name] FROM [sys].[database_files] ")
+                    .AppendLine("DECLARE @path nvarchar(max);")
+                    .Append("SELECT TOP(1) @path = [physical_name] FROM [sys].[database_files] ")
                     .AppendLine("WHERE charindex('\\', [physical_name]) > 0 ORDER BY [file_id];")
-                    .AppendLine($"IF ({pathVariable} IS NULL)")
-                    .IncrementIndent().AppendLine($"SET {pathVariable} = '\\' + {dbVariable};").DecrementIndent()
+                    .AppendLine("IF (@path IS NULL)")
+                    .IncrementIndent().AppendLine("SET @path = '\\' + @db_name;").DecrementIndent()
                     .AppendLine()
-                    .AppendLine($"DECLARE @filename nvarchar(max) = right({pathVariable}, charindex('\\', reverse({pathVariable})) - 1);")
+                    .AppendLine("DECLARE @filename nvarchar(max) = right(@path, charindex('\\', reverse(@path)) - 1);")
                     .AppendLine(
                         "SET @filename = REPLACE(left(@filename, len(@filename) - charindex('.', reverse(@filename))), '''', '''''') + N'_MOD';")
                     .AppendLine(
@@ -1600,6 +1596,17 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         var isPeriodStartColumn = operation[SqlServerAnnotationNames.TemporalIsPeriodStartColumn] as bool? == true;
         var isPeriodEndColumn = operation[SqlServerAnnotationNames.TemporalIsPeriodEndColumn] as bool? == true;
 
+        // falling back to legacy annotations, in case the migration was generated using pre-9.0 bits
+        if (!isPeriodStartColumn && !isPeriodEndColumn)
+        {
+            if (operation[SqlServerAnnotationNames.TemporalPeriodStartColumnName] is string periodStartColumnName
+                && operation[SqlServerAnnotationNames.TemporalPeriodEndColumnName] is string periodEndColumnName)
+            {
+                isPeriodStartColumn = operation.Name == periodStartColumnName;
+                isPeriodEndColumn = operation.Name == periodEndColumnName;
+            }
+        }
+
         if (isPeriodStartColumn || isPeriodEndColumn)
         {
             builder.Append(" GENERATED ALWAYS AS ROW ");
@@ -1732,11 +1739,10 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         {
             var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
 
-            var schemaVariable = Uniquify("@defaultSchema");
             builder
-                .AppendLine($"DECLARE {schemaVariable} sysname = SCHEMA_NAME();")
+                .AppendLine("DECLARE @defaultSchema sysname = SCHEMA_NAME();")
                 .Append("EXEC(")
-                .Append($"N'ALTER SCHEMA [' + {schemaVariable} + ")
+                .Append("N'ALTER SCHEMA [' + @defaultSchema + ")
                 .Append(
                     stringTypeMapping.GenerateSqlLiteral(
                         "] TRANSFER " + Dependencies.SqlGenerationHelper.DelimitIdentifier(name, schema) + ";"))
@@ -1902,7 +1908,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
     {
         var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
 
-        var variable = Uniquify("@var");
+        var variable = "@var" + _variableCounter++;
 
         builder
             .Append("DECLARE ")
@@ -2033,18 +2039,18 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         string? column = null,
         bool omitVariableDeclarations = false)
     {
-        var schemaLiteral = Uniquify("@defaultSchema", increase: !omitVariableDeclarations);
-        var descriptionVariable = Uniquify("@description", increase: false);
-
+        string schemaLiteral;
         if (schema == null)
         {
             if (!omitVariableDeclarations)
             {
-                builder.Append($"DECLARE {schemaLiteral} AS sysname")
+                builder.Append("DECLARE @defaultSchema AS sysname")
                     .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
-                builder.Append($"SET {schemaLiteral} = SCHEMA_NAME()")
+                builder.Append("SET @defaultSchema = SCHEMA_NAME()")
                     .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
             }
+
+            schemaLiteral = "@defaultSchema";
         }
         else
         {
@@ -2053,15 +2059,16 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
         if (!omitVariableDeclarations)
         {
-            builder.Append($"DECLARE {descriptionVariable} AS sql_variant")
+            builder.Append("DECLARE @description AS sql_variant")
                 .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
         }
 
-        builder.Append($"SET {descriptionVariable} = {Literal(description)}")
+        builder.Append("SET @description = ")
+            .Append(Literal(description))
             .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
         builder
             .Append("EXEC sp_addextendedproperty 'MS_Description', ")
-            .Append(descriptionVariable)
+            .Append("@description")
             .Append(", 'SCHEMA', ")
             .Append(schemaLiteral)
             .Append(", 'TABLE', ")
@@ -2214,17 +2221,18 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
     {
         var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
 
-        var schemaLiteral = Uniquify("@defaultSchema", increase: !omitVariableDeclarations);
-        var descriptionVariable = Uniquify("@description", increase: false);
+        string schemaLiteral;
         if (schema == null)
         {
             if (!omitVariableDeclarations)
             {
-                builder.Append($"DECLARE {schemaLiteral} AS sysname")
+                builder.Append("DECLARE @defaultSchema AS sysname")
                     .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
-                builder.Append($"SET {schemaLiteral} = SCHEMA_NAME()")
+                builder.Append("SET @defaultSchema = SCHEMA_NAME()")
                     .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
             }
+
+            schemaLiteral = "@defaultSchema";
         }
         else
         {
@@ -2233,7 +2241,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
         if (!omitVariableDeclarations)
         {
-            builder.Append($"DECLARE {descriptionVariable} AS sql_variant")
+            builder.Append("DECLARE @description AS sql_variant")
                 .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
         }
 
@@ -2343,150 +2351,11 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         return count != targetAnnotations.Count;
     }
 
-    private string Uniquify(string variableName, bool increase = true)
-    {
-        if (increase)
-        {
-            _variableCounter++;
-        }
-
-        return _variableCounter == 0 ? variableName : variableName + _variableCounter;
-    }
-
-    private IReadOnlyList<MigrationOperation> FixLegacyTemporalAnnotations(IReadOnlyList<MigrationOperation> migrationOperations)
-    {
-        // short-circuit for non-temporal migrations (which is the majority)
-        if (migrationOperations.All(o => o[SqlServerAnnotationNames.IsTemporal] as bool? != true))
-        {
-            return migrationOperations;
-        }
-
-        var resultOperations = new List<MigrationOperation>(migrationOperations.Count);
-        foreach (var migrationOperation in migrationOperations)
-        {
-            var isTemporal = migrationOperation[SqlServerAnnotationNames.IsTemporal] as bool? == true;
-            if (!isTemporal)
-            {
-                resultOperations.Add(migrationOperation);
-                continue;
-            }
-
-            switch (migrationOperation)
-            {
-                case CreateTableOperation createTableOperation:
-
-                    foreach (var column in createTableOperation.Columns)
-                    {
-                        NormalizeTemporalAnnotationsForAddColumnOperation(column);
-                    }
-
-                    resultOperations.Add(migrationOperation);
-                    break;
-
-                case AddColumnOperation addColumnOperation:
-                    NormalizeTemporalAnnotationsForAddColumnOperation(addColumnOperation);
-                    resultOperations.Add(addColumnOperation);
-                    break;
-
-                case AlterColumnOperation alterColumnOperation:
-                    RemoveLegacyTemporalColumnAnnotations(alterColumnOperation);
-                    RemoveLegacyTemporalColumnAnnotations(alterColumnOperation.OldColumn);
-                    if (!CanSkipAlterColumnOperation(alterColumnOperation, alterColumnOperation.OldColumn))
-                    {
-                        resultOperations.Add(alterColumnOperation);
-                    }
-
-                    break;
-
-                case DropColumnOperation dropColumnOperation:
-                    RemoveLegacyTemporalColumnAnnotations(dropColumnOperation);
-                    resultOperations.Add(dropColumnOperation);
-                    break;
-
-                case RenameColumnOperation renameColumnOperation:
-                    RemoveLegacyTemporalColumnAnnotations(renameColumnOperation);
-                    resultOperations.Add(renameColumnOperation);
-                    break;
-
-                default:
-                    resultOperations.Add(migrationOperation);
-                    break;
-            }
-        }
-
-        return resultOperations;
-
-        static void NormalizeTemporalAnnotationsForAddColumnOperation(AddColumnOperation addColumnOperation)
-        {
-            var periodStartColumnName = addColumnOperation[SqlServerAnnotationNames.TemporalPeriodStartColumnName] as string;
-            var periodEndColumnName = addColumnOperation[SqlServerAnnotationNames.TemporalPeriodEndColumnName] as string;
-            if (periodStartColumnName == addColumnOperation.Name)
-            {
-                addColumnOperation.AddAnnotation(SqlServerAnnotationNames.TemporalIsPeriodStartColumn, true);
-            }
-            else if (periodEndColumnName == addColumnOperation.Name)
-            {
-                addColumnOperation.AddAnnotation(SqlServerAnnotationNames.TemporalIsPeriodEndColumn, true);
-            }
-
-            RemoveLegacyTemporalColumnAnnotations(addColumnOperation);
-        }
-
-        static void RemoveLegacyTemporalColumnAnnotations(MigrationOperation operation)
-        {
-            operation.RemoveAnnotation(SqlServerAnnotationNames.IsTemporal);
-            operation.RemoveAnnotation(SqlServerAnnotationNames.TemporalHistoryTableName);
-            operation.RemoveAnnotation(SqlServerAnnotationNames.TemporalHistoryTableSchema);
-            operation.RemoveAnnotation(SqlServerAnnotationNames.TemporalPeriodStartColumnName);
-            operation.RemoveAnnotation(SqlServerAnnotationNames.TemporalPeriodEndColumnName);
-        }
-
-        static bool CanSkipAlterColumnOperation(ColumnOperation column, ColumnOperation oldColumn)
-            => ColumnPropertiesAreTheSame(column, oldColumn) && AnnotationsAreTheSame(column, oldColumn);
-
-        // don't compare name, table or schema - they are not being set in the model differ (since they should always be the same)
-        static bool ColumnPropertiesAreTheSame(ColumnOperation column, ColumnOperation oldColumn)
-            => column.ClrType == oldColumn.ClrType
-                && column.Collation == oldColumn.Collation
-                && column.ColumnType == oldColumn.ColumnType
-                && column.Comment == oldColumn.Comment
-                && column.ComputedColumnSql == oldColumn.ComputedColumnSql
-                && Equals(column.DefaultValue, oldColumn.DefaultValue)
-                && column.DefaultValueSql == oldColumn.DefaultValueSql
-                && column.IsDestructiveChange == oldColumn.IsDestructiveChange
-                && column.IsFixedLength == oldColumn.IsFixedLength
-                && column.IsNullable == oldColumn.IsNullable
-                && column.IsReadOnly == oldColumn.IsReadOnly
-                && column.IsRowVersion == oldColumn.IsRowVersion
-                && column.IsStored == oldColumn.IsStored
-                && column.IsUnicode == oldColumn.IsUnicode
-                && column.MaxLength == oldColumn.MaxLength
-                && column.Precision == oldColumn.Precision
-                && column.Scale == oldColumn.Scale;
-
-        static bool AnnotationsAreTheSame(ColumnOperation column, ColumnOperation oldColumn)
-        {
-            var columnAnnotations = column.GetAnnotations().ToList();
-            var oldColumnAnnotations = oldColumn.GetAnnotations().ToList();
-
-            if (columnAnnotations.Count != oldColumnAnnotations.Count)
-            {
-                return false;
-            }
-
-            return columnAnnotations.Zip(oldColumnAnnotations)
-                .All(x => x.First.Name == x.Second.Name
-                    && StructuralComparisons.StructuralEqualityComparer.Equals(x.First.Value, x.Second.Value));
-        }
-    }
-
     private IReadOnlyList<MigrationOperation> RewriteOperations(
         IReadOnlyList<MigrationOperation> migrationOperations,
         IModel? model,
         MigrationsSqlGenerationOptions options)
     {
-        migrationOperations = FixLegacyTemporalAnnotations(migrationOperations);
-
         var operations = new List<MigrationOperation>();
         var availableSchemas = new List<string>();
 
@@ -3174,12 +3043,10 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         {
             var stringBuilder = new StringBuilder();
 
-            string? schemaVariable = null;
             if (historyTableSchema == null)
             {
-                schemaVariable = Uniquify("@historyTableSchema");
                 // need to run command using EXEC to inject default schema
-                stringBuilder.AppendLine($"DECLARE {schemaVariable} sysname = SCHEMA_NAME()");
+                stringBuilder.AppendLine("DECLARE @historyTableSchema sysname = SCHEMA_NAME()");
                 stringBuilder.Append("EXEC(N'");
             }
 
@@ -3198,7 +3065,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             else
             {
                 stringBuilder.AppendLine(
-                    $" SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + {schemaVariable} + '].{historyTable}))')");
+                    $" SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].{historyTable}))')");
             }
 
             operations.Add(

@@ -811,20 +811,12 @@
     <comment>Information RelationalEventId.MigrationsNotApplied</comment>
   </data>
   <data name="LogNoMigrationsFound" xml:space="preserve">
-    <value>No migrations were found in assembly '{migrationsAssembly}'. A migration needs to be added before the database can be updated.</value>
-    <comment>Information RelationalEventId.MigrationsNotFound string</comment>
-  </data>
-  <data name="LogNoModelSnapshotFound" xml:space="preserve">
-    <value>Model snapshot was not found in assembly '{migrationsAssembly}'. Skipping pending model changes check.</value>
-    <comment>Information RelationalEventId.ModelSnapshotNotFound string</comment>
-  </data>
-  <data name="LogNonDeterministicModel" xml:space="preserve">
-    <value>The model for context '{contextType}' changes each time it is built. This is usually caused by dynamic values used in a 'HasData' call (e.g. `new DateTime()`, `Guid.NewGuid()`). Add a new migration and examine its contents to locate the cause, and replace the dynamic call with a static, hardcoded value. See https://aka.ms/efcore-docs-pending-changes.</value>
-    <comment>Error RelationalEventId.PendingModelChangesWarning string</comment>
+    <value>No migrations were found in assembly '{migrationsAssembly}'.</value>
+    <comment>Debug RelationalEventId.MigrationsNotFound string</comment>
   </data>
   <data name="LogNonTransactionalMigrationOperationWarning" xml:space="preserve">
     <value>The migration operation '{operation}' from migration '{migration}' cannot be executed in a transaction. If the app is terminated or an unrecoverable error occurs while this operation is being executed then the migration will be left in a partially applied state and would need to be reverted manually before it can be applied again. Create a separate migration that contains just this operation.</value>
-    <comment>Warning RelationalEventId.NonTransactionalMigrationOperationWarning string string</comment>
+    <comment>Error RelationalEventId.NonTransactionalMigrationOperationWarning string string</comment>
   </data>
   <data name="LogOpenedConnection" xml:space="preserve">
     <value>Opened connection to database '{database}' on server '{server}'.</value>
@@ -847,7 +839,7 @@
     <comment>Warning RelationalEventId.OptionalDependentWithoutIdentifyingPropertyWarning string</comment>
   </data>
   <data name="LogPendingModelChanges" xml:space="preserve">
-    <value>The model for context '{contextType}' has pending changes. Add a new migration before updating the database. See https://aka.ms/efcore-docs-pending-changes.</value>
+    <value>The model for context '{contextType}' has pending changes. Add a new migration before updating the database.</value>
     <comment>Error RelationalEventId.PendingModelChangesWarning string</comment>
   </data>
   <data name="LogPossibleUnintendedUseOfEquals" xml:space="preserve">
