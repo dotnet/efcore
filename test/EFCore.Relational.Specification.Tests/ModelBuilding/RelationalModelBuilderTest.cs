@@ -760,7 +760,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                     b.ToJson("customer_data");
                     b.Ignore(c => c.Details);
                     b.Ignore(c => c.Orders);
-                    b.HasDiscriminator<string>("CustomerType");
+                    b.HasDiscriminator<string>("Title");
                     // Issue #31250
                     // .HasValue<Customer>("Customer")
                     // .HasValue<SpecialCustomer>("Special")
@@ -776,7 +776,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
             var discriminatorProperty = complexType.FindDiscriminatorProperty();
             Assert.NotNull(discriminatorProperty);
-            Assert.Equal("CustomerType", discriminatorProperty.Name);
+            Assert.Equal("Title", discriminatorProperty.Name);
             Assert.Equal("$type", discriminatorProperty.GetJsonPropertyName());
         }
 
