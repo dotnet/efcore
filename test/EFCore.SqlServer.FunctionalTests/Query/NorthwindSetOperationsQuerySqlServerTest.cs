@@ -204,8 +204,8 @@ WHERE [c1].[ContactName] LIKE N'%Thomas%'
     {
         await base.Union_inside_Concat(async);
 
-AssertSql(
-"""
+        AssertSql(
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] = N'Berlin'
@@ -1252,7 +1252,7 @@ FROM (
         await base.Except_nested(async);
 
         AssertSql(
-"""
+            """
 (
     SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
@@ -1274,7 +1274,7 @@ WHERE [c1].[City] = N'Seattle'
         await base.Except_nested2(async);
 
         AssertSql(
-"""
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 EXCEPT
@@ -1576,14 +1576,12 @@ WHERE [c1].[CustomerID] LIKE N'A%'
         // Client evaluation in projection. Issue #16243.
         Assert.Equal(
             RelationalStrings.SetOperationsNotAllowedAfterClientEvaluation,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Client_eval_Union_FirstOrDefault(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Client_eval_Union_FirstOrDefault(async))).Message);
 
         AssertSql();
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Union_with_different_store_types_is_fine_if_database_can_translate_it(bool async)
     {
         await AssertQuery(
@@ -1602,8 +1600,7 @@ FROM [Customers] AS [c0]
 """);
     }
 
-    [ConditionalTheory] // Issue #29020
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))] // Issue #29020
     public virtual async Task Union_with_type_mappings_to_same_store_type(bool async)
     {
         await AssertQuery(

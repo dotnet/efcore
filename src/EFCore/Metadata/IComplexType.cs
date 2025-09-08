@@ -56,7 +56,8 @@ public interface IComplexType : IReadOnlyComplexType, ITypeBase
         => GetDeclaredProperties();
 
     /// <summary>
-    ///     Gets all properties declared on the base types and types derived from this entity type, including those on non-collection complex types.
+    ///     Gets all properties declared on the base types and types derived from this entity type, including those on non-collection complex
+    ///     types.
     /// </summary>
     /// <returns>The properties.</returns>
     IEnumerable<IProperty> ITypeBase.GetFlattenedPropertiesInHierarchy()

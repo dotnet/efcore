@@ -98,7 +98,8 @@ public class ComplexTypeDiscriminatorBuilder : IConventionComplexTypeDiscriminat
 
     /// <inheritdoc />
     bool IConventionComplexTypeDiscriminatorBuilder.CanSetValue(object? value, bool fromDataAnnotation)
-        => ((IConventionComplexTypeBuilder)ComplexTypeBuilder).CanSetAnnotation(CoreAnnotationNames.DiscriminatorValue, value, fromDataAnnotation);
+        => ((IConventionComplexTypeBuilder)ComplexTypeBuilder).CanSetAnnotation(
+            CoreAnnotationNames.DiscriminatorValue, value, fromDataAnnotation);
 
     #region Hidden System.Object members
 

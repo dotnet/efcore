@@ -418,7 +418,7 @@ public class CosmosSqlTranslatingExpressionVisitor(
 
                 var subquery = (SelectExpression)shapedQuery.QueryExpression;
 
-                var projection = mappedProjectionBindingExpression.ProjectionMember is ProjectionMember projectionMember
+                var projection = mappedProjectionBindingExpression.ProjectionMember is { } projectionMember
                     ? subquery.GetMappedProjection(projectionMember)
                     : throw new NotImplementedException("Subquery with index projection binding");
                 if (projection is not SqlExpression sqlExpression)
@@ -768,7 +768,7 @@ public class CosmosSqlTranslatingExpressionVisitor(
 
         for (var i = 0; i < expressions.Count; i++)
         {
-            if (Translate(expressions[i]) is not SqlExpression translatedItem)
+            if (Translate(expressions[i]) is not { } translatedItem)
             {
                 return QueryCompilationContext.NotTranslatedExpression;
             }
@@ -907,17 +907,17 @@ public class CosmosSqlTranslatingExpressionVisitor(
 
         switch (typeReference)
         {
-            case { Parameter: StructuralTypeShaperExpression shaper }:
+            case { Parameter: { } shaper }:
                 var valueBufferExpression = Visit(shaper.ValueBufferExpression);
                 var entityProjection = (EntityProjectionExpression)valueBufferExpression;
 
                 expression = member switch
                 {
-                    { MemberInfo: MemberInfo memberInfo }
+                    { MemberInfo: { } memberInfo }
                         => entityProjection.BindMember(
                             memberInfo, typeReference.Type, clientEval: false, out property),
 
-                    { Name: string name }
+                    { Name: { } name }
                         => entityProjection.BindMember(
                             name, typeReference.Type, clientEval: false, out property),
 
@@ -926,7 +926,7 @@ public class CosmosSqlTranslatingExpressionVisitor(
 
                 break;
 
-            case { Subquery: ShapedQueryExpression }:
+            case { Subquery: not null }:
                 throw new NotImplementedException("Bind property on structural type coming out of scalar subquery");
 
             default:
@@ -1094,11 +1094,10 @@ public class CosmosSqlTranslatingExpressionVisitor(
             }
 
             result = Visit(
-                primaryKeyProperties1.Select(
-                        p =>
-                            Expression.MakeBinary(
-                                nodeType, CreatePropertyAccessExpression(nonNullEntityReference, p),
-                                Expression.Constant(null, p.ClrType.MakeNullable())))
+                primaryKeyProperties1.Select(p =>
+                        Expression.MakeBinary(
+                            nodeType, CreatePropertyAccessExpression(nonNullEntityReference, p),
+                            Expression.Constant(null, p.ClrType.MakeNullable())))
                     .Aggregate((l, r) => nodeType == ExpressionType.Equal ? Expression.OrElse(l, r) : Expression.AndAlso(l, r)));
 
             return true;
@@ -1132,16 +1131,14 @@ public class CosmosSqlTranslatingExpressionVisitor(
         }
 
         result = Visit(
-            primaryKeyProperties.Select(
-                    p =>
-                        Expression.MakeBinary(
-                            nodeType,
-                            CreatePropertyAccessExpression(left, p),
-                            CreatePropertyAccessExpression(right, p)))
-                .Aggregate(
-                    (l, r) => nodeType == ExpressionType.Equal
-                        ? Expression.AndAlso(l, r)
-                        : Expression.OrElse(l, r)));
+            primaryKeyProperties.Select(p =>
+                    Expression.MakeBinary(
+                        nodeType,
+                        CreatePropertyAccessExpression(left, p),
+                        CreatePropertyAccessExpression(right, p)))
+                .Aggregate((l, r) => nodeType == ExpressionType.Equal
+                    ? Expression.AndAlso(l, r)
+                    : Expression.OrElse(l, r)));
 
         return true;
     }
@@ -1168,8 +1165,8 @@ public class CosmosSqlTranslatingExpressionVisitor(
                 return queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda);
 
             case MemberInitExpression memberInitExpression
-                when memberInitExpression.Bindings.SingleOrDefault(
-                    mb => mb.Member.Name == property.Name) is MemberAssignment memberAssignment:
+                when memberInitExpression.Bindings.SingleOrDefault(mb => mb.Member.Name == property.Name) is MemberAssignment
+                    memberAssignment:
                 return memberAssignment.Expression;
 
             default:
@@ -1283,8 +1280,8 @@ public class CosmosSqlTranslatingExpressionVisitor(
                 return this;
             }
 
-            return EntityType is IEntityType entityType
-                && entityType.GetDerivedTypes().FirstOrDefault(et => et.ClrType == type) is IEntityType derivedEntityType
+            return EntityType is { } entityType
+                && entityType.GetDerivedTypes().FirstOrDefault(et => et.ClrType == type) is { } derivedEntityType
                     ? new EntityReferenceExpression(this, derivedEntityType)
                     : QueryCompilationContext.NotTranslatedExpression;
         }

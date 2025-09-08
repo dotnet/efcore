@@ -79,18 +79,17 @@ public class SqliteStringMethodTranslator : IMethodCallTranslator
 
     private static readonly MethodInfo ContainsMethodInfoString
         = typeof(string).GetRuntimeMethod(nameof(string.Contains), [typeof(string)])!;
+
     private static readonly MethodInfo ContainsMethodInfoChar
         = typeof(string).GetRuntimeMethod(nameof(string.Contains), [typeof(char)])!;
 
     private static readonly MethodInfo FirstOrDefaultMethodInfoWithoutArgs
-        = typeof(Enumerable).GetRuntimeMethods().Single(
-            m => m.Name == nameof(Enumerable.FirstOrDefault)
-                && m.GetParameters().Length == 1).MakeGenericMethod(typeof(char));
+        = typeof(Enumerable).GetRuntimeMethods().Single(m => m.Name == nameof(Enumerable.FirstOrDefault)
+            && m.GetParameters().Length == 1).MakeGenericMethod(typeof(char));
 
     private static readonly MethodInfo LastOrDefaultMethodInfoWithoutArgs
-        = typeof(Enumerable).GetRuntimeMethods().Single(
-            m => m.Name == nameof(Enumerable.LastOrDefault)
-                && m.GetParameters().Length == 1).MakeGenericMethod(typeof(char));
+        = typeof(Enumerable).GetRuntimeMethods().Single(m => m.Name == nameof(Enumerable.LastOrDefault)
+            && m.GetParameters().Length == 1).MakeGenericMethod(typeof(char));
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
@@ -125,11 +124,11 @@ public class SqliteStringMethodTranslator : IMethodCallTranslator
                 return _sqlExpressionFactory.Subtract(
                     _sqlExpressionFactory.Function(
                         "instr",
-                        new[]
-                        {
+                        [
                             _sqlExpressionFactory.ApplyTypeMapping(instance, stringTypeMapping),
-                            _sqlExpressionFactory.ApplyTypeMapping(argument, argument.Type == typeof(char) ? CharTypeMapping.Default : stringTypeMapping)
-                        },
+                            _sqlExpressionFactory.ApplyTypeMapping(
+                                argument, argument.Type == typeof(char) ? CharTypeMapping.Default : stringTypeMapping)
+                        ],
                         nullable: true,
                         argumentsPropagateNullability: Statics.TrueArrays[2],
                         method.ReturnType),
@@ -142,7 +141,7 @@ public class SqliteStringMethodTranslator : IMethodCallTranslator
                 var stringTypeMapping = ExpressionExtensions.InferTypeMapping(instance, argument);
                 instance = _sqlExpressionFactory.Function(
                     "substr",
-                    new[] { instance, _sqlExpressionFactory.Add(arguments[1], _sqlExpressionFactory.Constant(1)) },
+                    [instance, _sqlExpressionFactory.Add(arguments[1], _sqlExpressionFactory.Constant(1))],
                     nullable: true,
                     argumentsPropagateNullability: Statics.TrueArrays[2],
                     method.ReturnType,
@@ -152,11 +151,11 @@ public class SqliteStringMethodTranslator : IMethodCallTranslator
                     _sqlExpressionFactory.Subtract(
                         _sqlExpressionFactory.Function(
                             "instr",
-                            new[]
-                            {
+                            [
                                 _sqlExpressionFactory.ApplyTypeMapping(instance, stringTypeMapping),
-                                _sqlExpressionFactory.ApplyTypeMapping(argument, argument.Type == typeof(char) ? CharTypeMapping.Default : stringTypeMapping)
-                            },
+                                _sqlExpressionFactory.ApplyTypeMapping(
+                                    argument, argument.Type == typeof(char) ? CharTypeMapping.Default : stringTypeMapping)
+                            ],
                             nullable: true,
                             argumentsPropagateNullability: Statics.TrueArrays[2],
                             method.ReturnType),
@@ -172,12 +171,13 @@ public class SqliteStringMethodTranslator : IMethodCallTranslator
 
                 return _sqlExpressionFactory.Function(
                     "replace",
-                    new[]
-                    {
+                    [
                         _sqlExpressionFactory.ApplyTypeMapping(instance, stringTypeMapping),
-                        _sqlExpressionFactory.ApplyTypeMapping(firstArgument, firstArgument.Type == typeof(char) ? CharTypeMapping.Default : stringTypeMapping),
-                        _sqlExpressionFactory.ApplyTypeMapping(secondArgument, secondArgument.Type == typeof(char) ? CharTypeMapping.Default : stringTypeMapping)
-                    },
+                        _sqlExpressionFactory.ApplyTypeMapping(
+                            firstArgument, firstArgument.Type == typeof(char) ? CharTypeMapping.Default : stringTypeMapping),
+                        _sqlExpressionFactory.ApplyTypeMapping(
+                            secondArgument, secondArgument.Type == typeof(char) ? CharTypeMapping.Default : stringTypeMapping)
+                    ],
                     nullable: true,
                     argumentsPropagateNullability: Statics.TrueArrays[3],
                     method.ReturnType,
@@ -189,7 +189,7 @@ public class SqliteStringMethodTranslator : IMethodCallTranslator
             {
                 return _sqlExpressionFactory.Function(
                     ToLowerMethodInfo.Equals(method) ? "lower" : "upper",
-                    new[] { instance },
+                    [instance],
                     nullable: true,
                     argumentsPropagateNullability: Statics.TrueArrays[1],
                     method.ReturnType,
@@ -200,7 +200,7 @@ public class SqliteStringMethodTranslator : IMethodCallTranslator
             {
                 return _sqlExpressionFactory.Function(
                     "substr",
-                    new[] { instance, _sqlExpressionFactory.Add(arguments[0], _sqlExpressionFactory.Constant(1)) },
+                    [instance, _sqlExpressionFactory.Add(arguments[0], _sqlExpressionFactory.Constant(1))],
                     nullable: true,
                     argumentsPropagateNullability: Statics.TrueArrays[2],
                     method.ReturnType,
@@ -211,7 +211,7 @@ public class SqliteStringMethodTranslator : IMethodCallTranslator
             {
                 return _sqlExpressionFactory.Function(
                     "substr",
-                    new[] { instance, _sqlExpressionFactory.Add(arguments[0], _sqlExpressionFactory.Constant(1)), arguments[1] },
+                    [instance, _sqlExpressionFactory.Add(arguments[0], _sqlExpressionFactory.Constant(1)), arguments[1]],
                     nullable: true,
                     argumentsPropagateNullability: Statics.TrueArrays[3],
                     method.ReturnType,
@@ -245,13 +245,14 @@ public class SqliteStringMethodTranslator : IMethodCallTranslator
                 var stringTypeMapping = ExpressionExtensions.InferTypeMapping(instance, pattern);
 
                 instance = _sqlExpressionFactory.ApplyTypeMapping(instance, stringTypeMapping);
-                pattern = _sqlExpressionFactory.ApplyTypeMapping(pattern, pattern.Type == typeof(char) ? CharTypeMapping.Default : stringTypeMapping);
+                pattern = _sqlExpressionFactory.ApplyTypeMapping(
+                    pattern, pattern.Type == typeof(char) ? CharTypeMapping.Default : stringTypeMapping);
 
                 return
                     _sqlExpressionFactory.GreaterThan(
                         _sqlExpressionFactory.Function(
                             "instr",
-                            new[] { instance, pattern },
+                            [instance, pattern],
                             nullable: true,
                             argumentsPropagateNullability: Statics.TrueArrays[2],
                             typeof(int)),
@@ -268,9 +269,9 @@ public class SqliteStringMethodTranslator : IMethodCallTranslator
                 _sqlExpressionFactory.Equal(
                     _sqlExpressionFactory.Function(
                         "trim",
-                        new[] { argument },
+                        [argument],
                         nullable: true,
-                        argumentsPropagateNullability: new[] { true },
+                        argumentsPropagateNullability: [true],
                         argument.Type,
                         argument.TypeMapping),
                     _sqlExpressionFactory.Constant(string.Empty)));
@@ -281,7 +282,7 @@ public class SqliteStringMethodTranslator : IMethodCallTranslator
             var argument = arguments[0];
             return _sqlExpressionFactory.Function(
                 "substr",
-                new[] { argument, _sqlExpressionFactory.Constant(1), _sqlExpressionFactory.Constant(1) },
+                [argument, _sqlExpressionFactory.Constant(1), _sqlExpressionFactory.Constant(1)],
                 nullable: true,
                 argumentsPropagateNullability: Statics.TrueArrays[3],
                 method.ReturnType);
@@ -292,17 +293,16 @@ public class SqliteStringMethodTranslator : IMethodCallTranslator
             var argument = arguments[0];
             return _sqlExpressionFactory.Function(
                 "substr",
-                new[]
-                {
+                [
                     argument,
                     _sqlExpressionFactory.Function(
                         "length",
-                        new[] { argument },
+                        [argument],
                         nullable: true,
                         argumentsPropagateNullability: Statics.TrueArrays[1],
                         typeof(int)),
                     _sqlExpressionFactory.Constant(1)
-                },
+                ],
                 nullable: true,
                 argumentsPropagateNullability: Statics.TrueArrays[3],
                 method.ReturnType);

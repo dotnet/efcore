@@ -65,7 +65,8 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
 
     private static readonly MethodInfo ComplexTypePrimitiveCollectionIsSparseMethodInfo
         = typeof(SqlServerComplexTypePrimitiveCollectionBuilderExtensions).GetRuntimeMethod(
-            nameof(SqlServerComplexTypePrimitiveCollectionBuilderExtensions.IsSparse), [typeof(ComplexTypePrimitiveCollectionBuilder), typeof(bool)])!;
+            nameof(SqlServerComplexTypePrimitiveCollectionBuilderExtensions.IsSparse),
+            [typeof(ComplexTypePrimitiveCollectionBuilder), typeof(bool)])!;
 
     private static readonly MethodInfo PropertyUseIdentityColumnsMethodInfo
         = typeof(SqlServerPropertyBuilderExtensions).GetRuntimeMethod(
@@ -73,7 +74,8 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
 
     private static readonly MethodInfo ComplexTypePropertyUseIdentityColumnsMethodInfo
         = typeof(SqlServerComplexTypePropertyBuilderExtensions).GetRuntimeMethod(
-            nameof(SqlServerComplexTypePropertyBuilderExtensions.UseIdentityColumn), [typeof(ComplexTypePropertyBuilder), typeof(long), typeof(int)])!;
+            nameof(SqlServerComplexTypePropertyBuilderExtensions.UseIdentityColumn),
+            [typeof(ComplexTypePropertyBuilder), typeof(long), typeof(int)])!;
 
     private static readonly MethodInfo PropertyUseHiLoMethodInfo
         = typeof(SqlServerPropertyBuilderExtensions).GetRuntimeMethod(
@@ -81,7 +83,8 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
 
     private static readonly MethodInfo ComplexTypePropertyUseHiLoMethodInfo
         = typeof(SqlServerComplexTypePropertyBuilderExtensions).GetRuntimeMethod(
-            nameof(SqlServerComplexTypePropertyBuilderExtensions.UseHiLo), [typeof(ComplexTypePropertyBuilder), typeof(string), typeof(string)])!;
+            nameof(SqlServerComplexTypePropertyBuilderExtensions.UseHiLo),
+            [typeof(ComplexTypePropertyBuilder), typeof(string), typeof(string)])!;
 
     private static readonly MethodInfo PropertyUseSequenceMethodInfo
         = typeof(SqlServerPropertyBuilderExtensions).GetRuntimeMethod(
@@ -89,7 +92,8 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
 
     private static readonly MethodInfo ComplexTypePropertyUseSequenceMethodInfo
         = typeof(SqlServerComplexTypePropertyBuilderExtensions).GetRuntimeMethod(
-            nameof(SqlServerComplexTypePropertyBuilderExtensions.UseSequence), [typeof(ComplexTypePropertyBuilder), typeof(string), typeof(string)])!;
+            nameof(SqlServerComplexTypePropertyBuilderExtensions.UseSequence),
+            [typeof(ComplexTypePropertyBuilder), typeof(string), typeof(string)])!;
 
     private static readonly MethodInfo IndexIsClusteredMethodInfo
         = typeof(SqlServerIndexBuilderExtensions).GetRuntimeMethod(
@@ -168,7 +172,7 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
     {
         var fragments = new List<MethodCallCodeFragment>(base.GenerateFluentApiCalls(model, annotations));
 
-        if (GenerateValueGenerationStrategy(annotations, model, onModel: true, complexType: false) is MethodCallCodeFragment valueGenerationStrategy)
+        if (GenerateValueGenerationStrategy(annotations, model, onModel: true, complexType: false) is { } valueGenerationStrategy)
         {
             fragments.Add(valueGenerationStrategy);
         }
@@ -201,25 +205,17 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
         IProperty property,
         IDictionary<string, IAnnotation> annotations)
     {
-        var defaultConstraintNameAnnotation = default(IAnnotation);
         var defaultValueAnnotation = default(IAnnotation);
         var defaultValueSqlAnnotation = default(IAnnotation);
 
         // named default constraint must be handled on the provider level - model builder methods live on provider rather than relational
         // so removing the annotations before calling base
-        if (annotations.TryGetValue(RelationalAnnotationNames.DefaultConstraintName, out defaultConstraintNameAnnotation))
+        if (annotations.TryGetValue(RelationalAnnotationNames.DefaultConstraintName, out var defaultConstraintNameAnnotation))
         {
             if (defaultConstraintNameAnnotation.Value as string != string.Empty)
             {
-                if (annotations.TryGetValue(RelationalAnnotationNames.DefaultValue, out defaultValueAnnotation))
-                {
-                    annotations.Remove(RelationalAnnotationNames.DefaultValue);
-                }
-                else
-                {
-                    var defaultValueSqlAnnotationExists = annotations.TryGetValue(RelationalAnnotationNames.DefaultValueSql, out defaultValueSqlAnnotation);
-                    annotations.Remove(RelationalAnnotationNames.DefaultValueSql);
-                }
+                annotations.Remove(RelationalAnnotationNames.DefaultValue, out defaultValueAnnotation);
+                annotations.Remove(RelationalAnnotationNames.DefaultValueSql, out defaultValueSqlAnnotation);
             }
 
             annotations.Remove(RelationalAnnotationNames.DefaultConstraintName);
@@ -239,7 +235,9 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
             }
             else
             {
-                Check.DebugAssert(defaultValueSqlAnnotation != null, $"Default constraint name was set for {property.Name}, but DefaultValue and DefaultValueSql are both null.");
+                Check.DebugAssert(
+                    defaultValueSqlAnnotation != null,
+                    $"Default constraint name was set for {property.Name}, but DefaultValue and DefaultValueSql are both null.");
                 fragments.Add(
                     new MethodCallCodeFragment(
                         nameof(SqlServerPropertyBuilderExtensions.HasDefaultValueSql),
@@ -250,13 +248,14 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
 
         var isPrimitiveCollection = property.IsPrimitiveCollection;
 
-        if (GenerateValueGenerationStrategy(annotations, property.DeclaringType.Model, onModel: false, complexType: property.DeclaringType is IComplexType) is MethodCallCodeFragment
-            valueGenerationStrategy)
+        if (GenerateValueGenerationStrategy(
+                annotations, property.DeclaringType.Model, onModel: false,
+                complexType: property.DeclaringType is IComplexType) is { } valueGenerationStrategy)
         {
             fragments.Add(valueGenerationStrategy);
         }
 
-        if (GetAndRemove<bool?>(annotations, SqlServerAnnotationNames.Sparse) is bool isSparse)
+        if (GetAndRemove<bool?>(annotations, SqlServerAnnotationNames.Sparse) is { } isSparse)
         {
             var methodInfo = isPrimitiveCollection
                 ? property.DeclaringType is IComplexType
@@ -286,7 +285,7 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
     {
         var fragments = new List<MethodCallCodeFragment>(base.GenerateFluentApiCalls(entityType, annotations));
 
-        if (GetAndRemove<bool?>(annotations, SqlServerAnnotationNames.MemoryOptimized) is bool isMemoryOptimized)
+        if (GetAndRemove<bool?>(annotations, SqlServerAnnotationNames.MemoryOptimized) is { } isMemoryOptimized)
         {
             fragments.Add(
                 isMemoryOptimized
@@ -566,7 +565,7 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
     {
         if (annotations.Remove(annotationName, out var annotation))
         {
-            if (annotation.Value is object annotationValue)
+            if (annotation.Value is { } annotationValue)
             {
                 methodCallCodeFragments.Add(
                     new MethodCallCodeFragment(methodInfo, annotationValue));

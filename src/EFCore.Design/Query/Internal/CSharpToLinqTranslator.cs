@@ -69,7 +69,7 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
     }
 
     private readonly Stack<ImmutableDictionary<string, ParameterExpression>> _parameterStack
-        = new(new[] { ImmutableDictionary<string, ParameterExpression>.Empty });
+        = new([ImmutableDictionary<string, ParameterExpression>.Empty]);
 
     private readonly Dictionary<ISymbol, MemberExpression?> _dataFlowsIn = new(SymbolEqualityComparer.Default);
 
@@ -242,7 +242,7 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
         }
 
         var elementType = ResolveType(arrayTypeSymbol.ElementType);
-        Check.DebugAssert(elementType is not null, "elementType is not null");
+        Check.DebugAssert(elementType is not null);
 
         return arrayCreation.Initializer is null
             ? NewArrayBounds(elementType, Visit(arrayCreation.Type.RankSpecifiers[0].Sizes[0]))
@@ -278,7 +278,7 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
                 => Add(
                     left, right,
                     _stringConcatMethod ??=
-                        typeof(string).GetMethod(nameof(string.Concat), new[] { typeof(string), typeof(string) })),
+                        typeof(string).GetMethod(nameof(string.Concat), [typeof(string), typeof(string)])),
 
             SyntaxKind.AddExpression => Add(left, right),
             SyntaxKind.SubtractExpression => Subtract(left, right),
@@ -374,11 +374,10 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
                 var property = visitedExpression.Type
                     .GetProperties()
                     .Select(p => new { Property = p, IndexParameters = p.GetIndexParameters() })
-                    .Where(
-                        t => t.IndexParameters.Length == arguments.Count
-                            && t.IndexParameters
-                                .Select(p => p.ParameterType)
-                                .SequenceEqual(arguments.Select(a => ResolveType(a.Expression))))
+                    .Where(t => t.IndexParameters.Length == arguments.Count
+                        && t.IndexParameters
+                            .Select(p => p.ParameterType)
+                            .SequenceEqual(arguments.Select(a => ResolveType(a.Expression))))
                     .Select(t => t.Property)
                     .FirstOrDefault();
 
@@ -484,7 +483,7 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
         }
 
         var elementType = ResolveType(arrayTypeSymbol.ElementType);
-        Check.DebugAssert(elementType is not null, "elementType is not null");
+        Check.DebugAssert(elementType is not null);
 
         var initializers = implicitArrayCreation.Initializer.Expressions.Select(e => Visit(e));
 
@@ -589,45 +588,44 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
             var typeTypeParameterMap = new Dictionary<string, Type>(GetTypeTypeParameters(methodSymbol.ContainingType));
 
             var definitionMethodInfos = declaringType.GetMethods()
-                .Where(
-                    m =>
+                .Where(m =>
+                {
+                    if (m.Name == methodSymbol.Name
+                        && m.IsGenericMethodDefinition
+                        && m.GetGenericArguments() is var candidateGenericArguments
+                        && candidateGenericArguments.Length == originalDefinition.TypeParameters.Length
+                        && m.GetParameters() is var candidateParams
+                        && candidateParams.Length == originalDefinition.Parameters.Length)
                     {
-                        if (m.Name == methodSymbol.Name
-                            && m.IsGenericMethodDefinition
-                            && m.GetGenericArguments() is var candidateGenericArguments
-                            && candidateGenericArguments.Length == originalDefinition.TypeParameters.Length
-                            && m.GetParameters() is var candidateParams
-                            && candidateParams.Length == originalDefinition.Parameters.Length)
+                        var methodTypeParameterMap = new Dictionary<string, Type>(typeTypeParameterMap);
+
+                        // Prepare a dictionary that will be used to resolve generic type parameters (ITypeParameterSymbol) to the
+                        // corresponding reflection Type. This is needed to correctly (and recursively) resolve the type of parameters
+                        // below.
+                        foreach (var (symbol, type) in methodSymbol.TypeParameters.Zip(candidateGenericArguments))
                         {
-                            var methodTypeParameterMap = new Dictionary<string, Type>(typeTypeParameterMap);
-
-                            // Prepare a dictionary that will be used to resolve generic type parameters (ITypeParameterSymbol) to the
-                            // corresponding reflection Type. This is needed to correctly (and recursively) resolve the type of parameters
-                            // below.
-                            foreach (var (symbol, type) in methodSymbol.TypeParameters.Zip(candidateGenericArguments))
+                            if (symbol.Name != type.Name)
                             {
-                                if (symbol.Name != type.Name)
-                                {
-                                    return false;
-                                }
-
-                                methodTypeParameterMap[symbol.Name] = type;
+                                return false;
                             }
 
-                            for (var i = 0; i < candidateParams.Length; i++)
-                            {
-                                var translatedParamType = ResolveType(originalDefinition.Parameters[i].Type, methodTypeParameterMap);
-                                if (translatedParamType != candidateParams[i].ParameterType)
-                                {
-                                    return false;
-                                }
-                            }
-
-                            return true;
+                            methodTypeParameterMap[symbol.Name] = type;
                         }
 
-                        return false;
-                    }).ToArray();
+                        for (var i = 0; i < candidateParams.Length; i++)
+                        {
+                            var translatedParamType = ResolveType(originalDefinition.Parameters[i].Type, methodTypeParameterMap);
+                            if (translatedParamType != candidateParams[i].ParameterType)
+                            {
+                                return false;
+                            }
+                        }
+
+                        return true;
+                    }
+
+                    return false;
+                }).ToArray();
 
             if (definitionMethodInfos.Length != 1)
             {
@@ -732,7 +730,7 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
         {
             // TODO: We match Roslyn type parameters by name, not sure that's right; also for the method's generic type parameters
 
-            if (typeSymbol.ContainingType is INamedTypeSymbol containingTypeSymbol)
+            if (typeSymbol.ContainingType is { } containingTypeSymbol)
             {
                 foreach (var kvp in GetTypeTypeParameters(containingTypeSymbol))
                 {
@@ -744,8 +742,7 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
             var genericArguments = type.GetGenericArguments();
 
             Check.DebugAssert(
-                genericArguments.Length == typeSymbol.TypeParameters.Length,
-                "genericArguments.Length == typeSymbol.TypeParameters.Length");
+                genericArguments.Length == typeSymbol.TypeParameters.Length);
 
             foreach (var (typeParamSymbol, typeParamType) in typeSymbol.TypeParameters.Zip(genericArguments))
             {
@@ -761,7 +758,7 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override Expression VisitLiteralExpression(LiteralExpressionSyntax literal)
-        => _semanticModel.GetTypeInfo(literal) is { ConvertedType: ITypeSymbol type }
+        => _semanticModel.GetTypeInfo(literal) is { ConvertedType: { } type }
             ? Constant(literal.Token.Value, ResolveType(type))
             : Constant(literal.Token.Value);
 
@@ -775,7 +772,7 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
     {
         var expression = Visit(memberAccess.Expression);
 
-        if (_semanticModel.GetSymbolInfo(memberAccess).Symbol is not ISymbol memberSymbol)
+        if (_semanticModel.GetSymbolInfo(memberAccess).Symbol is not { } memberSymbol)
         {
             throw new InvalidOperationException($"MemberAccess: Couldn't find symbol for member: {memberAccess}");
         }
@@ -835,7 +832,7 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
             throw new InvalidOperationException($"ObjectCreation: couldn't find IMethodSymbol for constructor: {objectCreation}");
         }
 
-        Check.DebugAssert(constructorSymbol.MethodKind == MethodKind.Constructor, "constructorSymbol.MethodKind == MethodKind.Constructor");
+        Check.DebugAssert(constructorSymbol.MethodKind == MethodKind.Constructor);
 
         var type = ResolveType(constructorSymbol.ContainingType);
 
@@ -846,7 +843,7 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
         var newExpression = constructor is not null
             ? New(
                 constructor,
-                objectCreation.ArgumentList?.Arguments.Select(a => Visit(a)) ?? Array.Empty<Expression>())
+                objectCreation.ArgumentList?.Arguments.Select(a => Visit(a)) ?? [])
             : parameterTypes.Length == 0 // For structs, there's no actual parameterless constructor
                 ? New(type)
                 : throw new InvalidOperationException($"ObjectCreation: Missing constructor: {objectCreation}");
@@ -861,33 +858,32 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
             case { Expressions: [AssignmentExpressionSyntax, ..] }:
                 return MemberInit(
                     newExpression,
-                    objectCreation.Initializer.Expressions.Select(
-                        e =>
+                    objectCreation.Initializer.Expressions.Select(e =>
+                    {
+                        if (e is not AssignmentExpressionSyntax { Left: var lValue, Right: var value })
                         {
-                            if (e is not AssignmentExpressionSyntax { Left: var lValue, Right: var value })
-                            {
-                                throw new NotSupportedException(
-                                    $"ObjectCreation: non-assignment initializer expression of type '{e.GetType().Name}': {objectCreation}");
-                            }
+                            throw new NotSupportedException(
+                                $"ObjectCreation: non-assignment initializer expression of type '{e.GetType().Name}': {objectCreation}");
+                        }
 
-                            var lValueSymbol = _semanticModel.GetSymbolInfo(lValue).Symbol;
-                            var memberInfo = lValueSymbol switch
-                            {
-                                IPropertySymbol p => (MemberInfo?)type.GetProperty(p.Name),
-                                IFieldSymbol f => type.GetField(f.Name),
+                        var lValueSymbol = _semanticModel.GetSymbolInfo(lValue).Symbol;
+                        var memberInfo = lValueSymbol switch
+                        {
+                            IPropertySymbol p => (MemberInfo?)type.GetProperty(p.Name),
+                            IFieldSymbol f => type.GetField(f.Name),
 
-                                _ => throw new InvalidOperationException(
-                                    $"ObjectCreation: unsupported initializer for member of type '{lValueSymbol?.GetType().Name}': {e}")
-                            };
+                            _ => throw new InvalidOperationException(
+                                $"ObjectCreation: unsupported initializer for member of type '{lValueSymbol?.GetType().Name}': {e}")
+                        };
 
-                            if (memberInfo is null)
-                            {
-                                throw new InvalidOperationException(
-                                    $"ObjectCreation: couldn't find initialized member '{lValueSymbol.Name}': {e}");
-                            }
+                        if (memberInfo is null)
+                        {
+                            throw new InvalidOperationException(
+                                $"ObjectCreation: couldn't find initialized member '{lValueSymbol.Name}': {e}");
+                        }
 
-                            return Bind(memberInfo, Visit(value));
-                        }));
+                        return Bind(memberInfo, Visit(value));
+                    }));
 
             // Non-assignment initializer => list initializer (new List<int> { 1, 2, 3 })
             default:
@@ -1083,8 +1079,8 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
         _parameterStack.Push(
             _parameterStack.Peek()
                 .AddRange(
-                    translatedParameters.Select(
-                        p => new KeyValuePair<string, ParameterExpression>(p.Name ?? throw new NotImplementedException(), p))));
+                    translatedParameters.Select(p
+                        => new KeyValuePair<string, ParameterExpression>(p.Name ?? throw new NotImplementedException(), p))));
 
         try
         {

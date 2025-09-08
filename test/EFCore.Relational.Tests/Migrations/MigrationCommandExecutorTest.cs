@@ -9,9 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations;
 
 public class MigrationCommandExecutorTest
 {
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public async Task Executes_migration_commands_in_same_transaction(bool async)
     {
         var fakeConnection = CreateConnection();
@@ -50,9 +48,7 @@ public class MigrationCommandExecutorTest
             fakeConnection.DbConnections[0].DbCommands[1].Transaction);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public async Task Executes_migration_commands_in_user_transaction(bool async)
     {
         var fakeConnection = CreateConnection();
@@ -100,9 +96,7 @@ public class MigrationCommandExecutorTest
             fakeConnection.DbConnections[0].DbTransactions[0]);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public async Task Executes_transaction_suppressed_migration_commands_in_user_transaction(bool async)
     {
         var fakeConnection = CreateConnection();
@@ -122,15 +116,15 @@ public class MigrationCommandExecutorTest
             {
                 Assert.Equal(
                     RelationalStrings.TransactionSuppressedMigrationInUserTransaction,
-                    (await Assert.ThrowsAsync<NotSupportedException>(
-                        async () => await migrationCommandExecutor.ExecuteNonQueryAsync(commandList, fakeConnection))).Message);
+                    (await Assert.ThrowsAsync<NotSupportedException>(async ()
+                        => await migrationCommandExecutor.ExecuteNonQueryAsync(commandList, fakeConnection))).Message);
             }
             else
             {
                 Assert.Equal(
                     RelationalStrings.TransactionSuppressedMigrationInUserTransaction,
-                    Assert.Throws<NotSupportedException>(
-                        () => migrationCommandExecutor.ExecuteNonQuery(commandList, fakeConnection)).Message);
+                    Assert.Throws<NotSupportedException>(() => migrationCommandExecutor.ExecuteNonQuery(commandList, fakeConnection))
+                        .Message);
             }
 
             tx.Rollback();
@@ -150,9 +144,7 @@ public class MigrationCommandExecutorTest
             fakeConnection.DbConnections[0].DbTransactions[0]);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public async Task Executes_migration_commands_with_transaction_suppressed_outside_of_transaction(bool async)
     {
         var fakeConnection = CreateConnection();
@@ -186,9 +178,7 @@ public class MigrationCommandExecutorTest
         Assert.Null(fakeConnection.DbConnections[0].DbCommands[1].Transaction);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public async Task Ends_transaction_when_transaction_is_suppressed(bool async)
     {
         var fakeConnection = CreateConnection();
@@ -226,9 +216,7 @@ public class MigrationCommandExecutorTest
             fakeConnection.DbConnections[0].DbCommands[1].Transaction);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public async Task Begins_new_transaction_when_transaction_nolonger_suppressed(bool async)
     {
         var fakeConnection = CreateConnection();
@@ -266,9 +254,7 @@ public class MigrationCommandExecutorTest
             fakeConnection.DbConnections[0].DbCommands[1].Transaction);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public async Task Executes_commands_in_order_regardless_of_transaction_suppression(bool async)
     {
         var fakeConnection = CreateConnection();
@@ -330,9 +316,7 @@ public class MigrationCommandExecutorTest
             command.CommandText);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public async Task Disposes_transaction_on_exception(bool async)
     {
         var fakeDbConnection =
@@ -355,15 +339,13 @@ public class MigrationCommandExecutorTest
 
         if (async)
         {
-            await Assert.ThrowsAsync<InvalidOperationException>(
-                async ()
-                    => await migrationCommandExecutor.ExecuteNonQueryAsync(commandList, fakeConnection));
+            await Assert.ThrowsAsync<InvalidOperationException>(async ()
+                => await migrationCommandExecutor.ExecuteNonQueryAsync(commandList, fakeConnection));
         }
         else
         {
-            Assert.Throws<InvalidOperationException>(
-                ()
-                    => migrationCommandExecutor.ExecuteNonQuery(commandList, fakeConnection));
+            Assert.Throws<InvalidOperationException>(()
+                => migrationCommandExecutor.ExecuteNonQuery(commandList, fakeConnection));
         }
 
         Assert.Equal(1, fakeDbConnection.OpenCount);

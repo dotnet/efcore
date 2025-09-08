@@ -26,7 +26,7 @@ WHERE [e].[ComplexContainer_Id] = @entity_equality_container_Id AND [e].[Complex
         await base.Projecting_complex_property_does_not_auto_include_owned_types();
 
         AssertSql(
-"""
+            """
 SELECT [e].[Complex_Name], [e].[Complex_Number]
 FROM [EntityType] AS [e]
 """);

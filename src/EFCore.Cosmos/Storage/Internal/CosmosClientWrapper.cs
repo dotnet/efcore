@@ -6,10 +6,10 @@ using System.Collections.ObjectModel;
 using System.Net;
 using System.Runtime.CompilerServices;
 using System.Text;
+using Microsoft.Azure.Cosmos.Scripts;
 using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
-using Microsoft.Azure.Cosmos.Scripts;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Newtonsoft.Json;
@@ -322,19 +322,14 @@ public class CosmosClientWrapper : ICosmosClientWrapper
 
         if (vectorIndexes.Count != 0 || fullTextIndexPaths.Count != 0)
         {
-            containerProperties.IndexingPolicy = new IndexingPolicy
-            {
-                VectorIndexes = vectorIndexes,
-                FullTextIndexes = fullTextIndexPaths
-            };
+            containerProperties.IndexingPolicy = new IndexingPolicy { VectorIndexes = vectorIndexes, FullTextIndexes = fullTextIndexPaths };
         }
 
         if (fullTextPaths.Count != 0)
         {
             containerProperties.FullTextPolicy = new FullTextPolicy
             {
-                DefaultLanguage = parameters.DefaultFullTextLanguage,
-                FullTextPaths = fullTextPaths
+                DefaultLanguage = parameters.DefaultFullTextLanguage, FullTextPaths = fullTextPaths
             };
         }
 
@@ -355,16 +350,16 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         if (entityType.IsOwned())
         {
             var ownership = entityType.FindOwnership()!;
-            var resultPath = GetPathFromRoot(ownership.PrincipalEntityType) + "/" + ownership.GetNavigation(pointsToPrincipal: false)!.TargetEntityType.GetContainingPropertyName();
+            var resultPath = GetPathFromRoot(ownership.PrincipalEntityType)
+                + "/"
+                + ownership.GetNavigation(pointsToPrincipal: false)!.TargetEntityType.GetContainingPropertyName();
 
             return !ownership.IsUnique
                 ? throw new NotSupportedException(CosmosStrings.CreatingContainerWithFullTextOrVectorOnCollectionNotSupported(resultPath))
                 : resultPath;
         }
-        else
-        {
-            return "";
-        }
+
+        return "";
     }
 
     /// <summary>
@@ -429,6 +424,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             {
                 itemRequestOptions.PreTriggers = preTriggers;
             }
+
             if (postTriggers != null)
             {
                 itemRequestOptions.PostTriggers = postTriggers;
@@ -519,6 +515,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             {
                 itemRequestOptions.PreTriggers = preTriggers;
             }
+
             if (postTriggers != null)
             {
                 itemRequestOptions.PostTriggers = postTriggers;
@@ -600,6 +597,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             {
                 itemRequestOptions.PreTriggers = preTriggers;
             }
+
             if (postTriggers != null)
             {
                 itemRequestOptions.PostTriggers = postTriggers;
@@ -684,9 +682,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
     private static bool ShouldExecuteTrigger(ITrigger trigger, TriggerOperation currentOperation)
     {
         var triggerOperation = trigger.GetTriggerOperation();
-        return triggerOperation == null || 
-               triggerOperation == TriggerOperation.All || 
-               triggerOperation == currentOperation;
+        return triggerOperation == null || triggerOperation == TriggerOperation.All || triggerOperation == currentOperation;
     }
 
     private static PartitionKey ExtractPartitionKeyValue(IUpdateEntry entry)
@@ -964,7 +960,10 @@ public class CosmosClientWrapper : ICosmosClientWrapper
                         return false;
                     }
 
-                    _responseMessage = _query.ReadNextAsync().GetAwaiter().GetResult();
+                    _responseMessage = _cosmosClientWrapper._executionStrategy.Execute(
+                        (_query, _cosmosClientWrapper),
+                        static (_, state) => state._query.ReadNextAsync().GetAwaiter().GetResult(),
+                        null);
 
                     _cosmosClientWrapper._commandLogger.ExecutedReadNext(
                         _responseMessage.Diagnostics.GetClientElapsedTime(),
@@ -1065,7 +1064,11 @@ public class CosmosClientWrapper : ICosmosClientWrapper
                         return false;
                     }
 
-                    _responseMessage = await _query.ReadNextAsync(cancellationToken).ConfigureAwait(false);
+                    _responseMessage = await _cosmosClientWrapper._executionStrategy.ExecuteAsync(
+                        (_query, _cosmosClientWrapper),
+                        static (_, state, cancellationToken) => state._query.ReadNextAsync(cancellationToken),
+                        null,
+                        cancellationToken).ConfigureAwait(false);
 
                     _cosmosClientWrapper._commandLogger.ExecutedReadNext(
                         _responseMessage.Diagnostics.GetClientElapsedTime(),

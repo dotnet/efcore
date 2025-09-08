@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -56,7 +55,8 @@ public class RuntimeComplexType : RuntimeTypeBase, IRuntimeComplexType
         };
         ContainingEntryType = ComplexProperty.DeclaringType switch
         {
-            RuntimeComplexType declaringComplexType when !declaringComplexType.ComplexProperty.IsCollection => declaringComplexType.ContainingEntryType,
+            RuntimeComplexType declaringComplexType when !declaringComplexType.ComplexProperty.IsCollection => declaringComplexType
+                .ContainingEntryType,
             _ => ComplexProperty.DeclaringType
         };
     }
@@ -167,6 +167,7 @@ public class RuntimeComplexType : RuntimeTypeBase, IRuntimeComplexType
             // This will calculate the _counts for all contained complex collections
             var _ = ContainingEntityType.CalculateCounts();
         }
+
         return _counts!;
     }
 
@@ -176,7 +177,8 @@ public class RuntimeComplexType : RuntimeTypeBase, IRuntimeComplexType
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void SetCounts(PropertyCounts value) => _counts = value;
+    public virtual void SetCounts(PropertyCounts value)
+        => _counts = value;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

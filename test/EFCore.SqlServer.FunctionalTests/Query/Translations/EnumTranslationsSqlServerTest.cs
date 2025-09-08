@@ -234,38 +234,38 @@ WHERE [b].[FlagsEnum] & 8 = 8
     {
         await base.HasFlag();
 
-AssertSql(
-"""
+        AssertSql(
+            """
 SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
 FROM [BasicTypesEntities] AS [b]
 WHERE [b].[FlagsEnum] & 8 = 8
 """,
-                //
-                """
+            //
+            """
 SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
 FROM [BasicTypesEntities] AS [b]
 WHERE [b].[FlagsEnum] & 12 = 12
 """,
-                //
-                """
+            //
+            """
 SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
 FROM [BasicTypesEntities] AS [b]
 WHERE [b].[FlagsEnum] & 8 = 8
 """,
-                //
-                """
+            //
+            """
 SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
 FROM [BasicTypesEntities] AS [b]
 WHERE [b].[FlagsEnum] & 8 = 8
 """,
-                //
-                """
+            //
+            """
 SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
 FROM [BasicTypesEntities] AS [b]
 WHERE 8 & [b].[FlagsEnum] = [b].[FlagsEnum]
 """,
-                //
-                """
+            //
+            """
 SELECT TOP(1) ~CAST(([b].[FlagsEnum] & 8) ^ 8 AS bit) AS [hasFlagTrue], ~CAST(([b].[FlagsEnum] & 4) ^ 4 AS bit) AS [hasFlagFalse]
 FROM [BasicTypesEntities] AS [b]
 WHERE [b].[FlagsEnum] & 8 = 8

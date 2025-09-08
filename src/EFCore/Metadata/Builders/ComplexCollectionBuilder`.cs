@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
-
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 /// <summary>
@@ -31,7 +29,6 @@ public class ComplexCollectionBuilder<[DynamicallyAccessedMembers(IEntityType.Dy
         : base(complexProperty)
     {
     }
-
 
     /// <summary>
     ///     Adds or updates an annotation on the complex property. If an annotation with the key specified in
@@ -72,7 +69,8 @@ public class ComplexCollectionBuilder<[DynamicallyAccessedMembers(IEntityType.Dy
     ///     <c>blog => blog.Url</c>).
     /// </param>
     /// <returns>An object that can be used to configure the property.</returns>
-    public virtual ComplexCollectionTypePropertyBuilder<TProperty> Property<TProperty>(Expression<Func<TComplex, TProperty>> propertyExpression)
+    public virtual ComplexCollectionTypePropertyBuilder<TProperty> Property<TProperty>(
+        Expression<Func<TComplex, TProperty>> propertyExpression)
         => new(
             TypeBuilder.Property(
                     Check.NotNull(propertyExpression).GetMemberAccess(), ConfigurationSource.Explicit)!
@@ -446,7 +444,9 @@ public class ComplexCollectionBuilder<[DynamicallyAccessedMembers(IEntityType.Dy
     /// <param name="propertyName">The name of the property to be configured.</param>
     /// <param name="buildAction">An action that performs configuration of the property.</param>
     /// <returns>An object that can be used to configure the property.</returns>
-    public new virtual ComplexCollectionBuilder<TComplex> ComplexCollection(string propertyName, Action<ComplexCollectionBuilder> buildAction)
+    public new virtual ComplexCollectionBuilder<TComplex> ComplexCollection(
+        string propertyName,
+        Action<ComplexCollectionBuilder> buildAction)
         => (ComplexCollectionBuilder<TComplex>)base.ComplexCollection(propertyName, buildAction);
 
     /// <summary>
@@ -466,7 +466,8 @@ public class ComplexCollectionBuilder<[DynamicallyAccessedMembers(IEntityType.Dy
     /// <param name="buildAction">An action that performs configuration of the property.</param>
     /// <returns>An object that can be used to configure the property.</returns>
     public new virtual ComplexCollectionBuilder<TComplex> ComplexCollection<TProperty, TElement>(
-        string propertyName, Action<ComplexCollectionBuilder<TElement>> buildAction)
+        string propertyName,
+        Action<ComplexCollectionBuilder<TElement>> buildAction)
         where TProperty : IEnumerable<TElement>
         where TElement : notnull
         => (ComplexCollectionBuilder<TComplex>)base.ComplexCollection<TProperty, TElement>(propertyName, buildAction);
@@ -511,7 +512,10 @@ public class ComplexCollectionBuilder<[DynamicallyAccessedMembers(IEntityType.Dy
     /// <param name="propertyName">The name of the property to be configured.</param>
     /// <param name="buildAction">An action that performs configuration of the property.</param>
     /// <returns>An object that can be used to configure the property.</returns>
-    public new virtual ComplexCollectionBuilder<TComplex> ComplexCollection(Type propertyType, string propertyName, Action<ComplexCollectionBuilder> buildAction)
+    public new virtual ComplexCollectionBuilder<TComplex> ComplexCollection(
+        Type propertyType,
+        string propertyName,
+        Action<ComplexCollectionBuilder> buildAction)
         => (ComplexCollectionBuilder<TComplex>)base.ComplexCollection(propertyType, propertyName, buildAction);
 
     /// <summary>
@@ -531,7 +535,10 @@ public class ComplexCollectionBuilder<[DynamicallyAccessedMembers(IEntityType.Dy
     /// <param name="buildAction">An action that performs configuration of the property.</param>
     /// <returns>An object that can be used to configure the property.</returns>
     public new virtual ComplexCollectionBuilder<TComplex> ComplexCollection(
-        Type propertyType, string propertyName, string complexTypeName, Action<ComplexCollectionBuilder> buildAction)
+        Type propertyType,
+        string propertyName,
+        string complexTypeName,
+        Action<ComplexCollectionBuilder> buildAction)
         => (ComplexCollectionBuilder<TComplex>)base.ComplexCollection(propertyType, complexTypeName, propertyName, buildAction);
 
     /// <summary>

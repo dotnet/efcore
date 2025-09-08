@@ -293,8 +293,7 @@ public class CosmosTestStore : TestStore
         {
             sqlDatabaseCreateUpdateContent.Options = new CosmosDBCreateUpdateConfig
             {
-                Throughput = modelThroughput.Throughput,
-                AutoscaleMaxThroughput = modelThroughput.AutoscaleMaxThroughput
+                Throughput = modelThroughput.Throughput, AutoscaleMaxThroughput = modelThroughput.AutoscaleMaxThroughput
             };
         }
 
@@ -402,8 +401,7 @@ public class CosmosTestStore : TestStore
             {
                 content.Options = new CosmosDBCreateUpdateConfig
                 {
-                    AutoscaleMaxThroughput = container.Throughput.AutoscaleMaxThroughput,
-                    Throughput = container.Throughput.Throughput
+                    AutoscaleMaxThroughput = container.Throughput.AutoscaleMaxThroughput, Throughput = container.Throughput.Throughput
                 };
             }
 
@@ -438,7 +436,7 @@ public class CosmosTestStore : TestStore
         var fullTextDefaultLanguage = model.GetDefaultFullTextSearchLanguage();
         foreach (var (containerName, mappedTypes) in containers)
         {
-            IReadOnlyList<string> partitionKeyStoreNames = Array.Empty<string>();
+            IReadOnlyList<string> partitionKeyStoreNames = [];
             int? analyticalTtl = null;
             int? defaultTtl = null;
             ThroughputProperties? throughput = null;
@@ -494,8 +492,8 @@ public class CosmosTestStore : TestStore
             }
 
             foreach (var ownedType in entityType.GetNavigations()
-                .Where(x => x.ForeignKey.IsOwnership && !x.IsOnDependent && !x.TargetEntityType.IsDocumentRoot())
-                .Select(x => x.TargetEntityType))
+                         .Where(x => x.ForeignKey.IsOwnership && !x.IsOnDependent && !x.TargetEntityType.IsDocumentRoot())
+                         .Select(x => x.TargetEntityType))
             {
                 ProcessEntityType(ownedType, indexes, vectors, fullTextProperties);
             }
@@ -653,7 +651,9 @@ public class CosmosTestStore : TestStore
 
         public bool IsConceptualNull(IProperty property)
             => throw new NotImplementedException();
-        public bool IsModified(IComplexProperty property) => throw new NotImplementedException();
+
+        public bool IsModified(IComplexProperty property)
+            => throw new NotImplementedException();
     }
 
     public class FakeEntityType : Annotatable, IEntityType
@@ -835,6 +835,9 @@ public class CosmosTestStore : TestStore
         public IEnumerable<IProperty> GetProperties()
             => throw new NotImplementedException();
 
+        public IEnumerable<IProperty> GetFlattenedValueGeneratingProperties()
+            => throw new NotImplementedException();
+
         public PropertyAccessMode GetPropertyAccessMode()
             => throw new NotImplementedException();
 
@@ -857,9 +860,6 @@ public class CosmosTestStore : TestStore
             => throw new NotImplementedException();
 
         public IEnumerable<ISkipNavigation> GetSkipNavigations()
-            => throw new NotImplementedException();
-
-        public IEnumerable<IProperty> GetValueGeneratingProperties()
             => throw new NotImplementedException();
 
         IEnumerable<IReadOnlyForeignKey> IReadOnlyEntityType.FindDeclaredForeignKeys(IReadOnlyList<IReadOnlyProperty> properties)
@@ -962,10 +962,10 @@ public class CosmosTestStore : TestStore
             => throw new NotImplementedException();
 
         IEnumerable<IReadOnlyTrigger> IReadOnlyEntityType.GetDeclaredTriggers()
-            => Enumerable.Empty<IReadOnlyTrigger>();
+            => [];
 
         IEnumerable<ITrigger> IEntityType.GetDeclaredTriggers()
-            => Enumerable.Empty<ITrigger>();
+            => [];
 
         public IComplexProperty FindComplexProperty(string name)
             => throw new NotImplementedException();
@@ -1035,8 +1035,14 @@ public class CosmosTestStore : TestStore
 
         IEnumerable<IReadOnlyTypeBase> IReadOnlyTypeBase.GetDirectlyDerivedTypes()
             => GetDirectlyDerivedTypes();
-        IReadOnlyCollection<IQueryFilter> IReadOnlyEntityType.GetDeclaredQueryFilters() => throw new NotImplementedException();
-        public LambdaExpression? GetQueryFilter() => throw new NotImplementedException();
-        public IQueryFilter? FindDeclaredQueryFilter(string? filterKey) => throw new NotImplementedException();
+
+        IReadOnlyCollection<IQueryFilter> IReadOnlyEntityType.GetDeclaredQueryFilters()
+            => throw new NotImplementedException();
+
+        public LambdaExpression? GetQueryFilter()
+            => throw new NotImplementedException();
+
+        public IQueryFilter? FindDeclaredQueryFilter(string? filterKey)
+            => throw new NotImplementedException();
     }
 }

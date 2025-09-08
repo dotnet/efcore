@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -16,8 +15,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 /// </remarks>
 public class RuntimeServiceProperty : RuntimePropertyBase, IRuntimeServiceProperty
 {
-    private ServiceParameterBinding? _parameterBinding;
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -61,15 +58,17 @@ public class RuntimeServiceProperty : RuntimePropertyBase, IRuntimeServiceProper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override bool IsCollection => false;
+    public override bool IsCollection
+        => false;
 
     /// <summary>
     ///     The <see cref="ServiceParameterBinding" /> for this property.
     /// </summary>
+    [field: AllowNull, MaybeNull]
     public virtual ServiceParameterBinding ParameterBinding
     {
         get => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _parameterBinding, (IServiceProperty)this, static property =>
+            ref field, (IServiceProperty)this, static property =>
             {
                 var entityType = property.DeclaringEntityType;
                 var factory = entityType.Model.GetModelDependencies().ParameterBindingFactories
@@ -78,7 +77,7 @@ public class RuntimeServiceProperty : RuntimePropertyBase, IRuntimeServiceProper
             });
 
         [DebuggerStepThrough]
-        set => _parameterBinding = value;
+        set;
     }
 
     /// <inheritdoc />

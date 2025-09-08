@@ -23,117 +23,111 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
     {
         base.BuildBigModel(modelBuilder, jsonColumns);
 
-        modelBuilder.Entity<PrincipalBase>(
-            eb =>
+        modelBuilder.Entity<PrincipalBase>(eb =>
+        {
+            if (!jsonColumns)
             {
-                if (!jsonColumns)
+                eb.Property(e => e.Id)
+                    .Metadata.SetColumnName("DerivedId", StoreObjectIdentifier.Table("PrincipalDerived"));
+            }
+
+            eb.HasIndex(e => new { e.AlternateId, e.Id });
+
+            eb.HasKey(e => new { e.Id, e.AlternateId })
+                .HasName("PK");
+
+            eb.OwnsOne(
+                e => e.Owned, ob =>
                 {
-                    eb.Property(e => e.Id)
-                        .Metadata.SetColumnName("DerivedId", StoreObjectIdentifier.Table("PrincipalDerived"));
-                }
+                    ob.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues);
+                    ob.UsePropertyAccessMode(PropertyAccessMode.Field);
 
-                eb.HasIndex(e => new { e.AlternateId, e.Id });
-
-                eb.HasKey(e => new { e.Id, e.AlternateId })
-                    .HasName("PK");
-
-                eb.OwnsOne(
-                    e => e.Owned, ob =>
+                    if (jsonColumns)
                     {
-                        ob.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues);
-                        ob.UsePropertyAccessMode(PropertyAccessMode.Field);
-
-                        if (jsonColumns)
-                        {
-                            ob.ToJson();
-                        }
-                        else
-                        {
-                            ob.ToTable(
-                                "PrincipalBase", "mySchema",
-                                t => t.Property("PrincipalBaseId"));
-
-                            ob.SplitToTable("Details", s => s.Property(e => e.Details));
-                        }
-                    });
-
-                if (!jsonColumns)
-                {
-                    eb.ToTable("PrincipalBase", "mySchema");
-                }
-            });
-
-        modelBuilder.Entity<PrincipalDerived<DependentBase<byte?>>>(
-            eb =>
-            {
-                eb.OwnsMany(
-                    typeof(OwnedType).FullName!, "ManyOwned", ob =>
+                        ob.ToJson();
+                    }
+                    else
                     {
-                        if (jsonColumns)
-                        {
-                            ob.ToJson();
-                        }
-                        else
-                        {
-                            ob.ToTable("ManyOwned");
-                        }
-                    });
+                        ob.ToTable(
+                            "PrincipalBase", "mySchema",
+                            t => t.Property("PrincipalBaseId"));
 
-                eb.HasMany(e => e.Principals).WithMany(e => (ICollection<PrincipalDerived<DependentBase<byte?>>>)e.Deriveds)
-                    .UsingEntity(
-                        jb =>
-                        {
-                            jb.ToTable(
-                                tb =>
-                                {
-                                    tb.HasComment("Join table");
-                                    tb.ExcludeFromMigrations();
-                                });
-                            jb.Property<byte[]>("rowid")
-                                .IsRowVersion()
-                                .HasComment("RowVersion")
-                                .HasColumnOrder(1);
-                        });
+                        ob.SplitToTable("Details", s => s.Property(e => e.Details));
+                    }
+                });
 
-                if (!jsonColumns)
+            if (!jsonColumns)
+            {
+                eb.ToTable("PrincipalBase", "mySchema");
+            }
+        });
+
+        modelBuilder.Entity<PrincipalDerived<DependentBase<byte?>>>(eb =>
+        {
+            eb.OwnsMany(
+                typeof(OwnedType).FullName!, "ManyOwned", ob =>
                 {
-                    eb.ToTable("PrincipalDerived");
-                }
-            });
+                    if (jsonColumns)
+                    {
+                        ob.ToJson();
+                    }
+                    else
+                    {
+                        ob.ToTable("ManyOwned");
+                    }
+                });
 
-        modelBuilder.Entity<DependentDerived<byte?>>(
-            eb =>
-            {
-                eb.Property<string>("Data")
-                    .IsFixedLength();
-            });
+            eb.HasMany(e => e.Principals).WithMany(e => (ICollection<PrincipalDerived<DependentBase<byte?>>>)e.Deriveds)
+                .UsingEntity(jb =>
+                {
+                    jb.ToTable(tb =>
+                    {
+                        tb.HasComment("Join table");
+                        tb.ExcludeFromMigrations();
+                    });
+                    jb.Property<byte[]>("rowid")
+                        .IsRowVersion()
+                        .HasComment("RowVersion")
+                        .HasColumnOrder(1);
+                });
 
-        modelBuilder.Entity<ManyTypes>(
-            b =>
+            if (!jsonColumns)
             {
-                b.Ignore(e => e.BoolNestedCollection);
-                b.Ignore(e => e.UInt8NestedCollection);
-                b.Ignore(e => e.Int8NestedCollection);
-                b.Ignore(e => e.Int32NestedCollection);
-                b.Ignore(e => e.Int64NestedCollection);
-                b.Ignore(e => e.CharNestedCollection);
-                b.Ignore(e => e.GuidNestedCollection);
-                b.Ignore(e => e.StringNestedCollection);
-                b.Ignore(e => e.BytesNestedCollection);
-                b.Ignore(e => e.NullableUInt8NestedCollection);
-                b.Ignore(e => e.NullableInt32NestedCollection);
-                b.Ignore(e => e.NullableInt64NestedCollection);
-                b.Ignore(e => e.NullableGuidNestedCollection);
-                b.Ignore(e => e.NullableStringNestedCollection);
-                b.Ignore(e => e.NullableBytesNestedCollection);
-                b.Ignore(e => e.NullablePhysicalAddressNestedCollection);
-                b.Ignore(e => e.Enum8NestedCollection);
-                b.Ignore(e => e.Enum32NestedCollection);
-                b.Ignore(e => e.EnumU64NestedCollection);
-                b.Ignore(e => e.NullableEnum8NestedCollection);
-                b.Ignore(e => e.NullableEnum32NestedCollection);
-                b.Ignore(e => e.NullableEnumU64NestedCollection);
-            });
+                eb.ToTable("PrincipalDerived");
+            }
+        });
+
+        modelBuilder.Entity<DependentDerived<byte?>>(eb =>
+        {
+            eb.Property<string>("Data")
+                .IsFixedLength();
+        });
+
+        modelBuilder.Entity<ManyTypes>(b =>
+        {
+            b.Ignore(e => e.BoolNestedCollection);
+            b.Ignore(e => e.UInt8NestedCollection);
+            b.Ignore(e => e.Int8NestedCollection);
+            b.Ignore(e => e.Int32NestedCollection);
+            b.Ignore(e => e.Int64NestedCollection);
+            b.Ignore(e => e.CharNestedCollection);
+            b.Ignore(e => e.GuidNestedCollection);
+            b.Ignore(e => e.StringNestedCollection);
+            b.Ignore(e => e.BytesNestedCollection);
+            b.Ignore(e => e.NullableUInt8NestedCollection);
+            b.Ignore(e => e.NullableInt32NestedCollection);
+            b.Ignore(e => e.NullableInt64NestedCollection);
+            b.Ignore(e => e.NullableGuidNestedCollection);
+            b.Ignore(e => e.NullableStringNestedCollection);
+            b.Ignore(e => e.NullableBytesNestedCollection);
+            b.Ignore(e => e.NullablePhysicalAddressNestedCollection);
+            b.Ignore(e => e.Enum8NestedCollection);
+            b.Ignore(e => e.Enum32NestedCollection);
+            b.Ignore(e => e.EnumU64NestedCollection);
+            b.Ignore(e => e.NullableEnum8NestedCollection);
+            b.Ignore(e => e.NullableEnum32NestedCollection);
+            b.Ignore(e => e.NullableEnumU64NestedCollection);
+        });
     }
 
     protected override void AssertBigModel(IModel model, bool jsonColumns)
@@ -331,15 +325,14 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
         else
         {
             Assert.Equal(
-                new[]
-                {
+                [
                     derivedSkipNavigation.ForeignKey,
                     tptForeignKey,
                     referenceOwnership,
                     collectionOwnership,
                     dependentForeignKey,
                     derivedSkipNavigation.Inverse.ForeignKey
-                },
+                ],
                 principalKey.GetReferencingForeignKeys());
 
             Assert.Equal(
@@ -352,77 +345,71 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
     {
         base.BuildComplexTypesModel(modelBuilder);
 
-        modelBuilder.Entity<PrincipalBase>(
-            eb =>
-            {
-                eb.Property("FlagsEnum2");
-                eb.ComplexProperty(
-                    e => e.Owned, eb =>
-                    {
-                        eb.Property(c => c.Details)
-                            .IsRowVersion()
-                            .HasColumnName("Deets")
-                            .HasColumnOrder(1)
-                            .HasColumnType("varchar")
-                            .HasComment("Dt");
-                    });
+        modelBuilder.Entity<PrincipalBase>(eb =>
+        {
+            eb.Property("FlagsEnum2");
+            eb.ComplexProperty(
+                e => e.Owned, eb =>
+                {
+                    eb.Property(c => c.Details)
+                        .IsRowVersion()
+                        .HasColumnName("Deets")
+                        .HasColumnOrder(1)
+                        .HasColumnType("varchar")
+                        .HasComment("Dt");
+                });
 
-                eb.ToTable("PrincipalBase");
-                eb.ToView("PrincipalBaseView");
-                eb.ToSqlQuery("select * from PrincipalBase");
-                eb.ToFunction("PrincipalBaseTvf");
+            eb.ToTable("PrincipalBase");
+            eb.ToView("PrincipalBaseView");
+            eb.ToSqlQuery("select * from PrincipalBase");
+            eb.ToFunction("PrincipalBaseTvf");
 
-                eb.InsertUsingStoredProcedure(
-                    s => s
-                        .HasParameter("PrincipalBaseId")
-                        .HasParameter("Enum1")
-                        .HasParameter("Enum2")
-                        .HasParameter("FlagsEnum1")
-                        .HasParameter("FlagsEnum2")
-                        .HasParameter("ValueTypeList")
-                        .HasParameter("ValueTypeIList")
-                        .HasParameter("ValueTypeArray")
-                        .HasParameter("ValueTypeEnumerable")
-                        .HasParameter("RefTypeList")
-                        .HasParameter("RefTypeIList")
-                        .HasParameter("RefTypeArray")
-                        .HasParameter("RefTypeEnumerable")
-                        .HasParameter("Discriminator")
-                        .HasParameter(p => p.Id, p => p.IsOutput()));
-                eb.UpdateUsingStoredProcedure(
-                    s => s
-                        .HasParameter("PrincipalBaseId")
-                        .HasParameter("Enum1")
-                        .HasParameter("Enum2")
-                        .HasParameter("FlagsEnum1")
-                        .HasParameter("FlagsEnum2")
-                        .HasParameter("ValueTypeList")
-                        .HasParameter("ValueTypeIList")
-                        .HasParameter("ValueTypeArray")
-                        .HasParameter("ValueTypeEnumerable")
-                        .HasParameter("RefTypeList")
-                        .HasParameter("RefTypeIList")
-                        .HasParameter("RefTypeArray")
-                        .HasParameter("RefTypeEnumerable")
-                        .HasOriginalValueParameter(p => p.Id));
-                eb.DeleteUsingStoredProcedure(
-                    s => s.HasRowsAffectedParameter()
-                        .HasOriginalValueParameter(p => p.Id));
-            });
+            eb.InsertUsingStoredProcedure(s => s
+                .HasParameter("PrincipalBaseId")
+                .HasParameter("Enum1")
+                .HasParameter("Enum2")
+                .HasParameter("FlagsEnum1")
+                .HasParameter("FlagsEnum2")
+                .HasParameter("ValueTypeList")
+                .HasParameter("ValueTypeIList")
+                .HasParameter("ValueTypeArray")
+                .HasParameter("ValueTypeEnumerable")
+                .HasParameter("RefTypeList")
+                .HasParameter("RefTypeIList")
+                .HasParameter("RefTypeArray")
+                .HasParameter("RefTypeEnumerable")
+                .HasParameter("Discriminator")
+                .HasParameter(p => p.Id, p => p.IsOutput()));
+            eb.UpdateUsingStoredProcedure(s => s
+                .HasParameter("PrincipalBaseId")
+                .HasParameter("Enum1")
+                .HasParameter("Enum2")
+                .HasParameter("FlagsEnum1")
+                .HasParameter("FlagsEnum2")
+                .HasParameter("ValueTypeList")
+                .HasParameter("ValueTypeIList")
+                .HasParameter("ValueTypeArray")
+                .HasParameter("ValueTypeEnumerable")
+                .HasParameter("RefTypeList")
+                .HasParameter("RefTypeIList")
+                .HasParameter("RefTypeArray")
+                .HasParameter("RefTypeEnumerable")
+                .HasOriginalValueParameter(p => p.Id));
+            eb.DeleteUsingStoredProcedure(s => s.HasRowsAffectedParameter()
+                .HasOriginalValueParameter(p => p.Id));
+        });
 
-        modelBuilder.Entity<PrincipalDerived<DependentBase<byte?>>>(
-            eb =>
-            {
-                eb.ToTable("PrincipalBase");
-                eb.ToFunction((string?)null);
-            });
+        modelBuilder.Entity<PrincipalDerived<DependentBase<byte?>>>(eb =>
+        {
+            eb.ToTable("PrincipalBase");
+            eb.ToFunction((string?)null);
+        });
 
-        modelBuilder.Entity<PrincipalDerived<DependentBase<byte?>>>(
-            eb =>
-            {
-                eb.ComplexCollection<IList<OwnedType>, OwnedType>(
-                    "ManyOwned", "OwnedCollection", eb => eb.ToJson());
-            });
+        modelBuilder.Entity<PrincipalDerived<DependentBase<byte?>>>(eb =>
+        {
+            eb.ComplexCollection<IList<OwnedType>, OwnedType>(
+                "ManyOwned", "OwnedCollection", eb => eb.ToJson());
+        });
     }
 
     [ConditionalFact]
@@ -527,132 +514,126 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
     {
         modelBuilder.HasDefaultSchema("TPC");
 
-        modelBuilder.Entity<PrincipalBase>(
-            eb =>
+        modelBuilder.Entity<PrincipalBase>(eb =>
+        {
+            eb.Ignore(e => e.Owned);
+            eb.Property("FlagsEnum2");
+
+            eb.UseTpcMappingStrategy();
+
+            eb.ToTable("PrincipalBase");
+            eb.ToView("PrincipalBaseView", tb => tb.Property(e => e.Id).HasAnnotation("foo", "bar2"));
+
+            eb.Property(p => p.Id).ValueGeneratedNever();
+            eb.Property(p => p.Enum1).HasDefaultValue(AnEnum.A).HasSentinel(AnEnum.A);
+            eb.InsertUsingStoredProcedure(s => s
+                .HasParameter(p => p.Id)
+                .HasParameter("PrincipalBaseId")
+                .HasParameter("PrincipalDerivedId")
+                .HasParameter("Enum2")
+                .HasParameter("FlagsEnum1")
+                .HasParameter("FlagsEnum2")
+                .HasParameter("ValueTypeList")
+                .HasParameter("ValueTypeIList")
+                .HasParameter("ValueTypeArray")
+                .HasParameter("ValueTypeEnumerable")
+                .HasParameter("RefTypeList")
+                .HasParameter("RefTypeIList")
+                .HasParameter("RefTypeArray")
+                .HasParameter("RefTypeEnumerable")
+                .HasParameter(p => p.Enum1, pb => pb.HasName("BaseEnum").IsOutput().HasAnnotation("foo", "bar"))
+                .HasAnnotation("foo", "bar1"));
+            eb.UpdateUsingStoredProcedure(s => s
+                .HasParameter("PrincipalBaseId")
+                .HasParameter("PrincipalDerivedId")
+                .HasParameter("Enum1")
+                .HasParameter("Enum2")
+                .HasParameter("FlagsEnum1")
+                .HasParameter("FlagsEnum2")
+                .HasParameter("ValueTypeList")
+                .HasParameter("ValueTypeIList")
+                .HasParameter("ValueTypeArray")
+                .HasParameter("ValueTypeEnumerable")
+                .HasParameter("RefTypeList")
+                .HasParameter("RefTypeIList")
+                .HasParameter("RefTypeArray")
+                .HasParameter("RefTypeEnumerable")
+                .HasOriginalValueParameter(p => p.Id));
+            eb.DeleteUsingStoredProcedure(s =>
             {
-                eb.Ignore(e => e.Owned);
-                eb.Property("FlagsEnum2");
-
-                eb.UseTpcMappingStrategy();
-
-                eb.ToTable("PrincipalBase");
-                eb.ToView("PrincipalBaseView", tb => tb.Property(e => e.Id).HasAnnotation("foo", "bar2"));
-
-                eb.Property(p => p.Id).ValueGeneratedNever();
-                eb.Property(p => p.Enum1).HasDefaultValue(AnEnum.A).HasSentinel(AnEnum.A);
-                eb.InsertUsingStoredProcedure(
-                    s => s
-                        .HasParameter(p => p.Id)
-                        .HasParameter("PrincipalBaseId")
-                        .HasParameter("PrincipalDerivedId")
-                        .HasParameter("Enum2")
-                        .HasParameter("FlagsEnum1")
-                        .HasParameter("FlagsEnum2")
-                        .HasParameter("ValueTypeList")
-                        .HasParameter("ValueTypeIList")
-                        .HasParameter("ValueTypeArray")
-                        .HasParameter("ValueTypeEnumerable")
-                        .HasParameter("RefTypeList")
-                        .HasParameter("RefTypeIList")
-                        .HasParameter("RefTypeArray")
-                        .HasParameter("RefTypeEnumerable")
-                        .HasParameter(p => p.Enum1, pb => pb.HasName("BaseEnum").IsOutput().HasAnnotation("foo", "bar"))
-                        .HasAnnotation("foo", "bar1"));
-                eb.UpdateUsingStoredProcedure(
-                    s => s
-                        .HasParameter("PrincipalBaseId")
-                        .HasParameter("PrincipalDerivedId")
-                        .HasParameter("Enum1")
-                        .HasParameter("Enum2")
-                        .HasParameter("FlagsEnum1")
-                        .HasParameter("FlagsEnum2")
-                        .HasParameter("ValueTypeList")
-                        .HasParameter("ValueTypeIList")
-                        .HasParameter("ValueTypeArray")
-                        .HasParameter("ValueTypeEnumerable")
-                        .HasParameter("RefTypeList")
-                        .HasParameter("RefTypeIList")
-                        .HasParameter("RefTypeArray")
-                        .HasParameter("RefTypeEnumerable")
-                        .HasOriginalValueParameter(p => p.Id));
-                eb.DeleteUsingStoredProcedure(
-                    s =>
-                    {
-                        s.HasOriginalValueParameter(p => p.Id);
-                        if (UseSprocReturnValue)
-                        {
-                            s.HasRowsAffectedReturnValue();
-                        }
-                        else
-                        {
-                            s.HasRowsAffectedParameter(p => p.HasName("RowsAffected"));
-                        }
-                    });
-
-                eb.HasIndex(["PrincipalBaseId"], "PrincipalIndex")
-                    .IsUnique()
-                    .HasDatabaseName("PIX")
-                    .HasFilter("AlternateId <> NULL");
+                s.HasOriginalValueParameter(p => p.Id);
+                if (UseSprocReturnValue)
+                {
+                    s.HasRowsAffectedReturnValue();
+                }
+                else
+                {
+                    s.HasRowsAffectedParameter(p => p.HasName("RowsAffected"));
+                }
             });
 
-        modelBuilder.Entity<PrincipalDerived<DependentBase<byte?>>>(
-            eb =>
-            {
-                eb.HasOne(e => e.Dependent).WithOne(e => e.Principal)
-                    .HasForeignKey<DependentBase<byte?>>()
-                    .OnDelete(DeleteBehavior.ClientCascade);
+            eb.HasIndex(["PrincipalBaseId"], "PrincipalIndex")
+                .IsUnique()
+                .HasDatabaseName("PIX")
+                .HasFilter("AlternateId <> NULL");
+        });
 
-                eb.Navigation(e => e.Dependent).IsRequired();
+        modelBuilder.Entity<PrincipalDerived<DependentBase<byte?>>>(eb =>
+        {
+            eb.HasOne(e => e.Dependent).WithOne(e => e.Principal)
+                .HasForeignKey<DependentBase<byte?>>()
+                .OnDelete(DeleteBehavior.ClientCascade);
 
-                eb.ToTable("PrincipalDerived");
-                eb.ToView("PrincipalDerivedView");
+            eb.Navigation(e => e.Dependent).IsRequired();
 
-                eb.Property(p => p.Id).ValueGeneratedNever();
-                eb.Property(p => p.Enum1).HasDefaultValue(AnEnum.A).HasSentinel(AnEnum.A);
-                eb.InsertUsingStoredProcedure(
-                    "Derived_Insert", s => s
-                        .HasParameter(p => p.Id)
-                        .HasParameter("PrincipalBaseId")
-                        .HasParameter("PrincipalDerivedId")
-                        .HasParameter("Enum2")
-                        .HasParameter("FlagsEnum1")
-                        .HasParameter("FlagsEnum2")
-                        .HasParameter("ValueTypeList")
-                        .HasParameter("ValueTypeIList")
-                        .HasParameter("ValueTypeArray")
-                        .HasParameter("ValueTypeEnumerable")
-                        .HasParameter("RefTypeList")
-                        .HasParameter("RefTypeIList")
-                        .HasParameter("RefTypeArray")
-                        .HasParameter("RefTypeEnumerable")
-                        .HasResultColumn(p => p.Enum1, pb => pb.HasName("DerivedEnum").HasAnnotation("foo", "bar3")));
-                eb.UpdateUsingStoredProcedure(
-                    "Derived_Update", "Derived", s => s
-                        .HasParameter("PrincipalBaseId")
-                        .HasParameter("PrincipalDerivedId")
-                        .HasParameter("Enum1")
-                        .HasParameter("Enum2")
-                        .HasParameter("FlagsEnum1")
-                        .HasParameter("FlagsEnum2")
-                        .HasParameter("ValueTypeList")
-                        .HasParameter("ValueTypeIList")
-                        .HasParameter("ValueTypeArray")
-                        .HasParameter("ValueTypeEnumerable")
-                        .HasParameter("RefTypeList")
-                        .HasParameter("RefTypeIList")
-                        .HasParameter("RefTypeArray")
-                        .HasParameter("RefTypeEnumerable")
-                        .HasOriginalValueParameter(p => p.Id));
-                eb.DeleteUsingStoredProcedure(
-                    "Derived_Delete", s => s
-                        .HasOriginalValueParameter(p => p.Id));
-            });
+            eb.ToTable("PrincipalDerived");
+            eb.ToView("PrincipalDerivedView");
 
-        modelBuilder.Entity<DependentBase<byte?>>(
-            eb =>
-            {
-                eb.Property<byte?>("Id");
-            });
+            eb.Property(p => p.Id).ValueGeneratedNever();
+            eb.Property(p => p.Enum1).HasDefaultValue(AnEnum.A).HasSentinel(AnEnum.A);
+            eb.InsertUsingStoredProcedure(
+                "Derived_Insert", s => s
+                    .HasParameter(p => p.Id)
+                    .HasParameter("PrincipalBaseId")
+                    .HasParameter("PrincipalDerivedId")
+                    .HasParameter("Enum2")
+                    .HasParameter("FlagsEnum1")
+                    .HasParameter("FlagsEnum2")
+                    .HasParameter("ValueTypeList")
+                    .HasParameter("ValueTypeIList")
+                    .HasParameter("ValueTypeArray")
+                    .HasParameter("ValueTypeEnumerable")
+                    .HasParameter("RefTypeList")
+                    .HasParameter("RefTypeIList")
+                    .HasParameter("RefTypeArray")
+                    .HasParameter("RefTypeEnumerable")
+                    .HasResultColumn(p => p.Enum1, pb => pb.HasName("DerivedEnum").HasAnnotation("foo", "bar3")));
+            eb.UpdateUsingStoredProcedure(
+                "Derived_Update", "Derived", s => s
+                    .HasParameter("PrincipalBaseId")
+                    .HasParameter("PrincipalDerivedId")
+                    .HasParameter("Enum1")
+                    .HasParameter("Enum2")
+                    .HasParameter("FlagsEnum1")
+                    .HasParameter("FlagsEnum2")
+                    .HasParameter("ValueTypeList")
+                    .HasParameter("ValueTypeIList")
+                    .HasParameter("ValueTypeArray")
+                    .HasParameter("ValueTypeEnumerable")
+                    .HasParameter("RefTypeList")
+                    .HasParameter("RefTypeIList")
+                    .HasParameter("RefTypeArray")
+                    .HasParameter("RefTypeEnumerable")
+                    .HasOriginalValueParameter(p => p.Id));
+            eb.DeleteUsingStoredProcedure(
+                "Derived_Delete", s => s
+                    .HasOriginalValueParameter(p => p.Id));
+        });
+
+        modelBuilder.Entity<DependentBase<byte?>>(eb =>
+        {
+            eb.Property<byte?>("Id");
+        });
     }
 
     protected virtual bool UseSprocReturnValue
@@ -936,15 +917,14 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
     [ConditionalFact]
     public virtual Task CheckConstraints()
         => Test(
-            modelBuilder => modelBuilder.Entity<Data>(
-                eb =>
-                {
-                    eb.Property<int>("Id");
-                    eb.HasKey("Id");
+            modelBuilder => modelBuilder.Entity<Data>(eb =>
+            {
+                eb.Property<int>("Id");
+                eb.HasKey("Id");
 
-                    eb.ToTable(tb => tb.HasCheckConstraint("idConstraint", "Id <> 0"));
-                    eb.ToTable(tb => tb.HasCheckConstraint("anotherConstraint", "Id <> -1"));
-                }),
+                eb.ToTable(tb => tb.HasCheckConstraint("idConstraint", "Id <> 0"));
+                eb.ToTable(tb => tb.HasCheckConstraint("anotherConstraint", "Id <> -1"));
+            }),
             model =>
             {
                 var dataEntity = model.GetEntityTypes().Single();
@@ -957,19 +937,17 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
     [ConditionalFact]
     public virtual Task Triggers()
         => Test(
-            modelBuilder => modelBuilder.Entity<Data>(
-                eb =>
-                {
-                    eb.Property<int>("Id");
-                    eb.HasKey("Id");
+            modelBuilder => modelBuilder.Entity<Data>(eb =>
+            {
+                eb.Property<int>("Id");
+                eb.HasKey("Id");
 
-                    eb.ToTable(
-                        tb =>
-                        {
-                            tb.HasTrigger("Trigger1");
-                            tb.HasTrigger("Trigger2");
-                        });
-                }),
+                eb.ToTable(tb =>
+                {
+                    tb.HasTrigger("Trigger1");
+                    tb.HasTrigger("Trigger2");
+                });
+            }),
             model =>
             {
                 var dataEntity = model.GetEntityTypes().Single();
@@ -1273,12 +1251,11 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
     [ConditionalFact]
     public virtual Task Dynamic_schema()
         => Test(
-            modelBuilder => modelBuilder.Entity<Data>(
-                eb =>
-                {
-                    eb.Property<int>("Id");
-                    eb.HasKey("Id");
-                }),
+            modelBuilder => modelBuilder.Entity<Data>(eb =>
+            {
+                eb.Property<int>("Id");
+                eb.HasKey("Id");
+            }),
             model =>
             {
                 Assert.Equal("custom", model.GetDefaultSchema());

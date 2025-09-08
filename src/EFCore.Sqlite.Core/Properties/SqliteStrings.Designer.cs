@@ -38,7 +38,13 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
             => GetString("ApplyNotSupported");
 
         /// <summary>
-        ///     Translating this operation requires the 'DEFAULT', which is not supported on SQLite.
+        ///     ExecuteUpdate partial updates of ulong properties within JSON columns is not supported.
+        /// </summary>
+        public static string ExecuteUpdateJsonPartialUpdateDoesNotSupportUlong
+            => GetString("ExecuteUpdateJsonPartialUpdateDoesNotSupportUlong");
+
+        /// <summary>
+        ///     Translating this operation requires the 'DEFAULT' keyword, which is not supported on SQLite.
         /// </summary>
         public static string DefaultNotSupported
             => GetString("DefaultNotSupported");
@@ -52,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
                 entityType1, property1, entityType2, property2, columnName, table);
 
         /// <summary>
-        ///     Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and entity type '{entityTypeWithSqlReturningClause}' is configured to use the SQL RETURNING clause, but entity type '{entityTypeWithoutSqlReturningClause}' is not.
+        ///     Table '{table}' cannot be used for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and entity type '{entityTypeWithSqlReturningClause}' is configured to use the SQL RETURNING clause, but entity type '{entityTypeWithoutSqlReturningClause}' is not.
         /// </summary>
         public static string IncompatibleSqlReturningClauseMismatch(object? table, object? entityType, object? otherEntityType, object? entityTypeWithSqlReturningClause, object? entityTypeWithoutSqlReturningClause)
             => string.Format(

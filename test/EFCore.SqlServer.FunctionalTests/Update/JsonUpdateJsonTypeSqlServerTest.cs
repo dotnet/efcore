@@ -19,15 +19,11 @@ public class JsonUpdateJsonTypeSqlServerTest : JsonUpdateTestBase<JsonUpdateJson
 
     public override async Task Add_element_to_json_collection_branch()
     {
-        // TODO:SQLJSON (See JsonTypeToFunction.cs)
-        Assert.Equal(
-            "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Add_element_to_json_collection_branch())).InnerException?.Message);
+        await base.Add_element_to_json_collection_branch();
 
         AssertSql(
             """
-@p0='[{"Date":"2101-01-01T00:00:00","Enum":2,"Enums":[-1,-1,2],"Fraction":10.1,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_r_c1_c1"},{"SomethingSomething":"e1_r_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_r_c1_r"}},{"Date":"2102-01-01T00:00:00","Enum":-3,"Enums":[-1,-1,2],"Fraction":10.2,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_r_c2_c1"},{"SomethingSomething":"e1_r_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_r_c2_r"}},{"Date":"2010-10-10T00:00:00","Enum":-3,"Enums":null,"Fraction":42.42,"NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":[{"SomethingSomething":"ss1"},{"SomethingSomething":"ss2"}],"OwnedReferenceLeaf":{"SomethingSomething":"ss3"}}]' (Nullable = false) (Size = 789)
+@p0='[{"Date":"2101-01-01T00:00:00","Enum":2,"Enums":[-1,-1,2],"Fraction":10.1,"Id":89,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_r_c1_c1"},{"SomethingSomething":"e1_r_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_r_c1_r"}},{"Date":"2102-01-01T00:00:00","Enum":-3,"Enums":[-1,-1,2],"Fraction":10.2,"Id":90,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_r_c2_c1"},{"SomethingSomething":"e1_r_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_r_c2_r"}},{"Date":"2010-10-10T00:00:00","Enum":-3,"Enums":null,"Fraction":42.42,"Id":77,"NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":[{"SomethingSomething":"ss1"},{"SomethingSomething":"ss2"}],"OwnedReferenceLeaf":{"SomethingSomething":"ss3"}}]' (Nullable = false) (Size = 813)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -35,16 +31,17 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenceRoot], 'strict $.OwnedCollectionBranch', JSON_QUERY(@p0))
 OUTPUT 1
 WHERE [Id] = @p1;
+""",
+            //
+            """
+SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
     public override async Task Add_element_to_json_collection_leaf()
     {
-        // TODO:SQLJSON (See JsonTypeToFunction.cs)
-        Assert.Equal(
-            "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Add_element_to_json_collection_leaf())).InnerException?.Message);
+        await base.Add_element_to_json_collection_leaf();
 
         AssertSql(
             """
@@ -56,6 +53,11 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenceRoot], 'strict $.OwnedReferenceBranch.OwnedCollectionLeaf', JSON_QUERY(@p0))
 OUTPUT 1
 WHERE [Id] = @p1;
+""",
+            //
+            """
+SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
@@ -65,7 +67,7 @@ WHERE [Id] = @p1;
 
         AssertSql(
             """
-@p0='[{"Date":"2221-01-01T00:00:00","Enum":2,"Enums":[-1,-1,2],"Fraction":221.1,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"d2_r_c1"},{"SomethingSomething":"d2_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"d2_r_r"}},{"Date":"2222-01-01T00:00:00","Enum":-3,"Enums":[-1,-1,2],"Fraction":222.1,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"d2_r_c1"},{"SomethingSomething":"d2_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"d2_r_r"}},{"Date":"2010-10-10T00:00:00","Enum":-3,"Enums":null,"Fraction":42.42,"NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":[{"SomethingSomething":"ss1"},{"SomethingSomething":"ss2"}],"OwnedReferenceLeaf":{"SomethingSomething":"ss3"}}]' (Nullable = false) (Size = 773)
+@p0='[{"Date":"2221-01-01T00:00:00","Enum":2,"Enums":[-1,-1,2],"Fraction":221.1,"Id":104,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"d2_r_c1"},{"SomethingSomething":"d2_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"d2_r_r"}},{"Date":"2222-01-01T00:00:00","Enum":-3,"Enums":[-1,-1,2],"Fraction":222.1,"Id":105,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"d2_r_c1"},{"SomethingSomething":"d2_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"d2_r_r"}},{"Date":"2010-10-10T00:00:00","Enum":-3,"Enums":null,"Fraction":42.42,"Id":77,"NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":[{"SomethingSomething":"ss1"},{"SomethingSomething":"ss2"}],"OwnedReferenceLeaf":{"SomethingSomething":"ss3"}}]' (Nullable = false) (Size = 799)
 @p1='2'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -88,7 +90,7 @@ WHERE [j].[Discriminator] = N'JsonEntityInheritanceDerived'
 
         AssertSql(
             """
-@p0='[{"Name":"e1_c1","Names":["e1_c11","e1_c12"],"Number":11,"Numbers":[-1000,0,1000],"OwnedCollectionBranch":[{"Date":"2111-01-01T00:00:00","Enum":2,"Enums":[-1,-1,2],"Fraction":11.1,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c1_c1_c1"},{"SomethingSomething":"e1_c1_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_c1_r"}},{"Date":"2112-01-01T00:00:00","Enum":-3,"Enums":[-1,-1,2],"Fraction":11.2,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c1_c2_c1"},{"SomethingSomething":"e1_c1_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_c2_r"}}],"OwnedReferenceBranch":{"Date":"2110-01-01T00:00:00","Enum":-1,"Enums":[-1,-1,2],"Fraction":11.0,"NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c1_r_c1"},{"SomethingSomething":"e1_c1_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_r_r"}}},{"Name":"e1_c2","Names":["e1_c21","e1_c22"],"Number":12,"Numbers":[-1001,0,1001],"OwnedCollectionBranch":[{"Date":"2121-01-01T00:00:00","Enum":2,"Enums":[-1,-1,2],"Fraction":12.1,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_c1_c1"},{"SomethingSomething":"e1_c2_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_c1_r"}},{"Date":"2122-01-01T00:00:00","Enum":-1,"Enums":[-1,-1,2],"Fraction":12.2,"NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_c2_c1"},{"SomethingSomething":"e1_c2_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_c2_r"}}],"OwnedReferenceBranch":{"Date":"2120-01-01T00:00:00","Enum":-3,"Enums":[-1,-1,2],"Fraction":12.0,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_r_c1"},{"SomethingSomething":"e1_c2_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_r_r"}}},{"Name":"new Name","Names":null,"Number":142,"Numbers":null,"OwnedCollectionBranch":[],"OwnedReferenceBranch":{"Date":"2010-10-10T00:00:00","Enum":-3,"Enums":null,"Fraction":42.42,"NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":[{"SomethingSomething":"ss1"},{"SomethingSomething":"ss2"}],"OwnedReferenceLeaf":{"SomethingSomething":"ss3"}}}]' (Nullable = false) (Size = 2268)
+@p0='[{"Id":0,"Name":"e1_c1","Names":["e1_c11","e1_c12"],"Number":11,"Numbers":[-1000,0,1000],"OwnedCollectionBranch":[{"Date":"2111-01-01T00:00:00","Enum":2,"Enums":[-1,-1,2],"Fraction":11.1,"Id":92,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c1_c1_c1"},{"SomethingSomething":"e1_c1_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_c1_r"}},{"Date":"2112-01-01T00:00:00","Enum":-3,"Enums":[-1,-1,2],"Fraction":11.2,"Id":93,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c1_c2_c1"},{"SomethingSomething":"e1_c1_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_c2_r"}}],"OwnedReferenceBranch":{"Date":"2110-01-01T00:00:00","Enum":-1,"Enums":[-1,-1,2],"Fraction":11.0,"Id":91,"NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c1_r_c1"},{"SomethingSomething":"e1_c1_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_r_r"}}},{"Id":0,"Name":"e1_c2","Names":["e1_c21","e1_c22"],"Number":12,"Numbers":[-1001,0,1001],"OwnedCollectionBranch":[{"Date":"2121-01-01T00:00:00","Enum":2,"Enums":[-1,-1,2],"Fraction":12.1,"Id":95,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_c1_c1"},{"SomethingSomething":"e1_c2_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_c1_r"}},{"Date":"2122-01-01T00:00:00","Enum":-1,"Enums":[-1,-1,2],"Fraction":12.2,"Id":96,"NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_c2_c1"},{"SomethingSomething":"e1_c2_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_c2_r"}}],"OwnedReferenceBranch":{"Date":"2120-01-01T00:00:00","Enum":-3,"Enums":[-1,-1,2],"Fraction":12.0,"Id":94,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_r_c1"},{"SomethingSomething":"e1_c2_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_r_r"}}},{"Id":0,"Name":"new Name","Names":null,"Number":142,"Numbers":null,"OwnedCollectionBranch":[],"OwnedReferenceBranch":{"Date":"2010-10-10T00:00:00","Enum":-3,"Enums":null,"Fraction":42.42,"Id":7,"NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":[{"SomethingSomething":"ss1"},{"SomethingSomething":"ss2"}],"OwnedReferenceLeaf":{"SomethingSomething":"ss3"}}}]' (Nullable = false) (Size = 2344)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -110,7 +112,7 @@ FROM [JsonEntitiesBasic] AS [j]
 
         AssertSql(
             """
-@p0='[{"Name":"e1_c1","Names":["e1_c11","e1_c12"],"Number":11,"Numbers":[-1000,0,1000],"OwnedCollectionBranch":[{"Date":"2111-01-01T00:00:00","Enum":2,"Enums":[-1,-1,2],"Fraction":11.1,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c1_c1_c1"},{"SomethingSomething":"e1_c1_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_c1_r"}},{"Date":"2112-01-01T00:00:00","Enum":-3,"Enums":[-1,-1,2],"Fraction":11.2,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c1_c2_c1"},{"SomethingSomething":"e1_c1_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_c2_r"}}],"OwnedReferenceBranch":{"Date":"2110-01-01T00:00:00","Enum":-1,"Enums":[-1,-1,2],"Fraction":11.0,"NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c1_r_c1"},{"SomethingSomething":"e1_c1_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_r_r"}}},{"Name":"e1_c2","Names":["e1_c21","e1_c22"],"Number":12,"Numbers":[-1001,0,1001],"OwnedCollectionBranch":[{"Date":"2121-01-01T00:00:00","Enum":2,"Enums":[-1,-1,2],"Fraction":12.1,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_c1_c1"},{"SomethingSomething":"e1_c2_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_c1_r"}},{"Date":"2122-01-01T00:00:00","Enum":-1,"Enums":[-1,-1,2],"Fraction":12.2,"NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_c2_c1"},{"SomethingSomething":"e1_c2_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_c2_r"}}],"OwnedReferenceBranch":{"Date":"2120-01-01T00:00:00","Enum":-3,"Enums":[-1,-1,2],"Fraction":12.0,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_r_c1"},{"SomethingSomething":"e1_c2_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_r_r"}}},{"Name":"new Name","Names":null,"Number":142,"Numbers":null,"OwnedCollectionBranch":null,"OwnedReferenceBranch":{"Date":"2010-10-10T00:00:00","Enum":-3,"Enums":null,"Fraction":42.42,"NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":null,"OwnedReferenceLeaf":null}}]' (Nullable = false) (Size = 2191)
+@p0='[{"Id":0,"Name":"e1_c1","Names":["e1_c11","e1_c12"],"Number":11,"Numbers":[-1000,0,1000],"OwnedCollectionBranch":[{"Date":"2111-01-01T00:00:00","Enum":2,"Enums":[-1,-1,2],"Fraction":11.1,"Id":92,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c1_c1_c1"},{"SomethingSomething":"e1_c1_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_c1_r"}},{"Date":"2112-01-01T00:00:00","Enum":-3,"Enums":[-1,-1,2],"Fraction":11.2,"Id":93,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c1_c2_c1"},{"SomethingSomething":"e1_c1_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_c2_r"}}],"OwnedReferenceBranch":{"Date":"2110-01-01T00:00:00","Enum":-1,"Enums":[-1,-1,2],"Fraction":11.0,"Id":91,"NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c1_r_c1"},{"SomethingSomething":"e1_c1_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_r_r"}}},{"Id":0,"Name":"e1_c2","Names":["e1_c21","e1_c22"],"Number":12,"Numbers":[-1001,0,1001],"OwnedCollectionBranch":[{"Date":"2121-01-01T00:00:00","Enum":2,"Enums":[-1,-1,2],"Fraction":12.1,"Id":95,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_c1_c1"},{"SomethingSomething":"e1_c2_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_c1_r"}},{"Date":"2122-01-01T00:00:00","Enum":-1,"Enums":[-1,-1,2],"Fraction":12.2,"Id":96,"NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_c2_c1"},{"SomethingSomething":"e1_c2_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_c2_r"}}],"OwnedReferenceBranch":{"Date":"2120-01-01T00:00:00","Enum":-3,"Enums":[-1,-1,2],"Fraction":12.0,"Id":94,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_r_c1"},{"SomethingSomething":"e1_c2_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_r_r"}}},{"Id":0,"Name":"new Name","Names":null,"Number":142,"Numbers":null,"OwnedCollectionBranch":null,"OwnedReferenceBranch":{"Date":"2010-10-10T00:00:00","Enum":-3,"Enums":null,"Fraction":42.42,"Id":7,"NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":null,"OwnedReferenceLeaf":null}}]' (Nullable = false) (Size = 2267)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -132,7 +134,7 @@ FROM [JsonEntitiesBasic] AS [j]
 
         AssertSql(
             """
-@p0='{"Name":"RootName","Names":null,"Number":42,"Numbers":null,"OwnedCollectionBranch":[],"OwnedReferenceBranch":{"Date":"2010-10-10T00:00:00","Enum":-3,"Enums":null,"Fraction":42.42,"NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":[{"SomethingSomething":"ss1"},{"SomethingSomething":"ss2"}],"OwnedReferenceLeaf":{"SomethingSomething":"ss3"}}}' (Nullable = false) (Size = 353)
+@p0='{"Id":0,"Name":"RootName","Names":null,"Number":42,"Numbers":null,"OwnedCollectionBranch":[],"OwnedReferenceBranch":{"Date":"2010-10-10T00:00:00","Enum":-3,"Enums":null,"Fraction":42.42,"Id":7,"NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":[{"SomethingSomething":"ss1"},{"SomethingSomething":"ss2"}],"OwnedReferenceLeaf":{"SomethingSomething":"ss3"}}}' (Nullable = false) (Size = 367)
 @p1='[]' (Nullable = false) (Size = 2)
 @p2='2'
 @p3=NULL (DbType = Int32)
@@ -152,13 +154,11 @@ FROM [JsonEntitiesBasic] AS [j]
 
     public override async Task Add_entity_with_json_null_navigations()
     {
-        // TODO:SQLJSON Updates to null fail (See UpdateToNull.cs)
-        await Assert.ThrowsAsync<InvalidCastException>(
-            () => base.Add_entity_with_json_null_navigations());
+        await base.Add_entity_with_json_null_navigations();
 
         AssertSql(
             """
-@p0='{"Name":"RootName","Names":null,"Number":42,"Numbers":null,"OwnedCollectionBranch":null,"OwnedReferenceBranch":{"Date":"2010-10-10T00:00:00","Enum":-3,"Enums":null,"Fraction":42.42,"NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":[{"SomethingSomething":"ss1"},{"SomethingSomething":"ss2"}],"OwnedReferenceLeaf":null}}' (Nullable = false) (Size = 331)
+@p0='{"Id":0,"Name":"RootName","Names":null,"Number":42,"Numbers":null,"OwnedCollectionBranch":null,"OwnedReferenceBranch":{"Date":"2010-10-10T00:00:00","Enum":-3,"Enums":null,"Fraction":42.42,"Id":7,"NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":[{"SomethingSomething":"ss1"},{"SomethingSomething":"ss2"}],"OwnedReferenceLeaf":null}}' (Nullable = false) (Size = 345)
 @p1='2'
 @p2=NULL (DbType = Int32)
 @p3='NewEntity' (Size = 4000)
@@ -177,20 +177,11 @@ FROM [JsonEntitiesBasic] AS [j]
 
     public override async Task Add_json_reference_leaf()
     {
-        // TODO:SQLJSON (See JsonTypeToFunction.cs)
-        Assert.Equal(
-            "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Add_json_reference_leaf())).InnerException?.Message);
+        await base.Add_json_reference_leaf();
 
         AssertSql(
             """
-SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
-FROM [JsonEntitiesBasic] AS [j]
-""",
-            //
-            """
-@p0=NULL (Nullable = false)
+@p0='{"SomethingSomething":"ss3"}' (Nullable = false) (Size = 28)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -198,23 +189,21 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenceRoot], 'strict $.OwnedCollectionBranch[0].OwnedReferenceLeaf', JSON_QUERY(@p0))
 OUTPUT 1
 WHERE [Id] = @p1;
+""",
+            //
+            """
+SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
     public override async Task Add_json_reference_root()
     {
-        // TODO:SQLJSON Updates to null fail (See UpdateToNull.cs)
-        await Assert.ThrowsAsync<InvalidCastException>(
-            () => base.Add_json_reference_root());
+        await base.Add_json_reference_root();
 
         AssertSql(
             """
-SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
-FROM [JsonEntitiesBasic] AS [j]
-""",
-            //
-            """
-@p0=NULL (Nullable = false)
+@p0='{"Id":0,"Name":"RootName","Names":null,"Number":42,"Numbers":null,"OwnedCollectionBranch":[],"OwnedReferenceBranch":{"Date":"2010-10-10T00:00:00","Enum":-3,"Enums":null,"Fraction":42.42,"Id":7,"NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":[{"SomethingSomething":"ss1"},{"SomethingSomething":"ss2"}],"OwnedReferenceLeaf":{"SomethingSomething":"ss3"}}}' (Nullable = false) (Size = 367)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -225,7 +214,7 @@ WHERE [Id] = @p1;
 """,
             //
             """
-SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
 FROM [JsonEntitiesBasic] AS [j]
 """);
     }
@@ -253,11 +242,7 @@ FROM [JsonEntitiesBasic] AS [j]
 
     public override async Task Delete_json_collection_branch()
     {
-        // TODO:SQLJSON (See JsonTypeToFunction.cs)
-        Assert.Equal(
-            "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Delete_json_collection_branch())).InnerException?.Message);
+        await base.Delete_json_collection_branch();
 
         AssertSql(
             """
@@ -269,14 +254,17 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenceRoot], 'strict $.OwnedCollectionBranch', JSON_QUERY(@p0))
 OUTPUT 1
 WHERE [Id] = @p1;
+""",
+            //
+            """
+SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
     public override async Task Delete_json_collection_root()
     {
-        // TODO:SQLJSON Updates to null fail (See UpdateToNull.cs)
-        await Assert.ThrowsAsync<InvalidCastException>(
-            () => base.Delete_json_collection_root());
+        await base.Delete_json_collection_root();
 
         AssertSql(
             """
@@ -298,11 +286,7 @@ FROM [JsonEntitiesBasic] AS [j]
 
     public override async Task Delete_json_reference_leaf()
     {
-        // TODO:SQLJSON (See JsonTypeToFunction.cs)
-        Assert.Equal(
-            "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Delete_json_reference_leaf())).InnerException?.Message);
+        await base.Delete_json_reference_leaf();
 
         AssertSql(
             """
@@ -314,14 +298,17 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenceRoot], 'strict $.OwnedReferenceBranch.OwnedReferenceLeaf', JSON_QUERY(@p0))
 OUTPUT 1
 WHERE [Id] = @p1;
+""",
+            //
+            """
+SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
     public override async Task Delete_json_reference_root()
     {
-        // TODO:SQLJSON Updates to null fail (See UpdateToNull.cs)
-        await Assert.ThrowsAsync<InvalidCastException>(
-            () => base.Delete_json_reference_root());
+        await base.Delete_json_reference_root();
 
         AssertSql(
             """
@@ -409,16 +396,12 @@ FROM [JsonEntitiesBasic] AS [j]
 
     public override async Task Edit_element_in_json_multiple_levels_partial_update()
     {
-        // TODO:SQLJSON (See JsonTypeToFunction.cs)
-        Assert.Equal(
-            "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_element_in_json_multiple_levels_partial_update())).InnerException?.Message);
+        await base.Edit_element_in_json_multiple_levels_partial_update();
 
         AssertSql(
             """
-@p0='[{"Date":"2111-01-01T00:00:00","Enum":2,"Enums":[-1,-1,2],"Fraction":11.1,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"...and another"},{"SomethingSomething":"e1_c1_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_c1_r"}},{"Date":"2112-01-01T00:00:00","Enum":-3,"Enums":[-1,-1,2],"Fraction":11.2,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"yet another change"},{"SomethingSomething":"and another"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_c2_r"}}]' (Nullable = false) (Size = 561)
-@p1='{"Name":"edit","Names":["e1_r1","e1_r2"],"Number":10,"Numbers":[-2147483648,-1,0,1,2147483647],"OwnedCollectionBranch":[{"Date":"2101-01-01T00:00:00","Enum":2,"Enums":[-1,-1,2],"Fraction":10.1,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_r_c1_c1"},{"SomethingSomething":"e1_r_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_r_c1_r"}},{"Date":"2102-01-01T00:00:00","Enum":-3,"Enums":[-1,-1,2],"Fraction":10.2,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_r_c2_c1"},{"SomethingSomething":"e1_r_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_r_c2_r"}}],"OwnedReferenceBranch":{"Date":"2111-11-11T00:00:00","Enum":-1,"Enums":[-1,-1,2],"Fraction":10.0,"NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_r_r_c1"},{"SomethingSomething":"e1_r_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_r_r_r"}}}' (Nullable = false) (Size = 960)
+@p0='[{"Date":"2111-01-01T00:00:00","Enum":2,"Enums":[-1,-1,2],"Fraction":11.1,"Id":92,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"...and another"},{"SomethingSomething":"e1_c1_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_c1_r"}},{"Date":"2112-01-01T00:00:00","Enum":-3,"Enums":[-1,-1,2],"Fraction":11.2,"Id":93,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"yet another change"},{"SomethingSomething":"and another"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_c2_r"}}]' (Nullable = false) (Size = 577)
+@p1='{"Id":0,"Name":"edit","Names":["e1_r1","e1_r2"],"Number":10,"Numbers":[-2147483648,-1,0,1,2147483647],"OwnedCollectionBranch":[{"Date":"2101-01-01T00:00:00","Enum":2,"Enums":[-1,-1,2],"Fraction":10.1,"Id":89,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_r_c1_c1"},{"SomethingSomething":"e1_r_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_r_c1_r"}},{"Date":"2102-01-01T00:00:00","Enum":-3,"Enums":[-1,-1,2],"Fraction":10.2,"Id":90,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_r_c2_c1"},{"SomethingSomething":"e1_r_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_r_c2_r"}}],"OwnedReferenceBranch":{"Date":"2111-11-11T00:00:00","Enum":-1,"Enums":[-1,-1,2],"Fraction":10.0,"Id":88,"NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_r_r_c1"},{"SomethingSomething":"e1_r_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_r_r_r"}}}' (Nullable = false) (Size = 991)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -426,20 +409,21 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesBasic] SET [OwnedCollectionRoot] = JSON_MODIFY([OwnedCollectionRoot], 'strict $[0].OwnedCollectionBranch', JSON_QUERY(@p0)), [OwnedReferenceRoot] = @p1
 OUTPUT 1
 WHERE [Id] = @p2;
+""",
+            //
+            """
+SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
     public override async Task Edit_element_in_json_branch_collection_and_add_element_to_the_same_collection()
     {
-        // TODO:SQLJSON (See JsonTypeToFunction.cs)
-        Assert.Equal(
-            "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_element_in_json_branch_collection_and_add_element_to_the_same_collection())).InnerException?.Message);
+        await base.Edit_element_in_json_branch_collection_and_add_element_to_the_same_collection();
 
         AssertSql(
             """
-@p0='[{"Date":"2101-01-01T00:00:00","Enum":2,"Enums":[-1,-1,2],"Fraction":4321.3,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_r_c1_c1"},{"SomethingSomething":"e1_r_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_r_c1_r"}},{"Date":"2102-01-01T00:00:00","Enum":-3,"Enums":[-1,-1,2],"Fraction":10.2,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_r_c2_c1"},{"SomethingSomething":"e1_r_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_r_c2_r"}},{"Date":"2222-11-11T00:00:00","Enum":-3,"Enums":null,"Fraction":45.32,"NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":null,"OwnedReferenceLeaf":{"SomethingSomething":"cc"}}]' (Nullable = false) (Size = 735)
+@p0='[{"Date":"2101-01-01T00:00:00","Enum":2,"Enums":[-1,-1,2],"Fraction":4321.3,"Id":89,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_r_c1_c1"},{"SomethingSomething":"e1_r_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_r_c1_r"}},{"Date":"2102-01-01T00:00:00","Enum":-3,"Enums":[-1,-1,2],"Fraction":10.2,"Id":90,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_r_c2_c1"},{"SomethingSomething":"e1_r_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_r_c2_r"}},{"Date":"2222-11-11T00:00:00","Enum":-3,"Enums":null,"Fraction":45.32,"Id":77,"NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":null,"OwnedReferenceLeaf":{"SomethingSomething":"cc"}}]' (Nullable = false) (Size = 759)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -447,16 +431,17 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenceRoot], 'strict $.OwnedCollectionBranch', JSON_QUERY(@p0))
 OUTPUT 1
 WHERE [Id] = @p1;
+""",
+            //
+            """
+SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
     public override async Task Edit_two_elements_in_the_same_json_collection()
     {
-        // TODO:SQLJSON (See JsonTypeToFunction.cs)
-        Assert.Equal(
-            "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_two_elements_in_the_same_json_collection())).InnerException?.Message);
+        await base.Edit_two_elements_in_the_same_json_collection();
 
         AssertSql(
             """
@@ -468,6 +453,11 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenceRoot], 'strict $.OwnedCollectionBranch[0].OwnedCollectionLeaf', JSON_QUERY(@p0))
 OUTPUT 1
 WHERE [Id] = @p1;
+""",
+            //
+            """
+SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
@@ -477,7 +467,7 @@ WHERE [Id] = @p1;
 
         AssertSql(
             """
-@p0='[{"Name":"edit1","Names":["e1_c11","e1_c12"],"Number":11,"Numbers":[-1000,0,1000],"OwnedCollectionBranch":[{"Date":"2111-01-01T00:00:00","Enum":2,"Enums":[-1,-1,2],"Fraction":11.1,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c1_c1_c1"},{"SomethingSomething":"e1_c1_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_c1_r"}},{"Date":"2112-01-01T00:00:00","Enum":-3,"Enums":[-1,-1,2],"Fraction":11.2,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c1_c2_c1"},{"SomethingSomething":"e1_c1_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_c2_r"}}],"OwnedReferenceBranch":{"Date":"2110-01-01T00:00:00","Enum":-1,"Enums":[-1,-1,2],"Fraction":11.0,"NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c1_r_c1"},{"SomethingSomething":"e1_c1_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_r_r"}}},{"Name":"edit2","Names":["e1_c21","e1_c22"],"Number":12,"Numbers":[-1001,0,1001],"OwnedCollectionBranch":[{"Date":"2121-01-01T00:00:00","Enum":2,"Enums":[-1,-1,2],"Fraction":12.1,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_c1_c1"},{"SomethingSomething":"e1_c2_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_c1_r"}},{"Date":"2122-01-01T00:00:00","Enum":-1,"Enums":[-1,-1,2],"Fraction":12.2,"NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_c2_c1"},{"SomethingSomething":"e1_c2_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_c2_r"}}],"OwnedReferenceBranch":{"Date":"2120-01-01T00:00:00","Enum":-3,"Enums":[-1,-1,2],"Fraction":12.0,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_r_c1"},{"SomethingSomething":"e1_c2_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_r_r"}}}]' (Nullable = false) (Size = 1913)
+@p0='[{"Id":0,"Name":"edit1","Names":["e1_c11","e1_c12"],"Number":11,"Numbers":[-1000,0,1000],"OwnedCollectionBranch":[{"Date":"2111-01-01T00:00:00","Enum":2,"Enums":[-1,-1,2],"Fraction":11.1,"Id":92,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c1_c1_c1"},{"SomethingSomething":"e1_c1_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_c1_r"}},{"Date":"2112-01-01T00:00:00","Enum":-3,"Enums":[-1,-1,2],"Fraction":11.2,"Id":93,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c1_c2_c1"},{"SomethingSomething":"e1_c1_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_c2_r"}}],"OwnedReferenceBranch":{"Date":"2110-01-01T00:00:00","Enum":-1,"Enums":[-1,-1,2],"Fraction":11.0,"Id":91,"NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c1_r_c1"},{"SomethingSomething":"e1_c1_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c1_r_r"}}},{"Id":0,"Name":"edit2","Names":["e1_c21","e1_c22"],"Number":12,"Numbers":[-1001,0,1001],"OwnedCollectionBranch":[{"Date":"2121-01-01T00:00:00","Enum":2,"Enums":[-1,-1,2],"Fraction":12.1,"Id":95,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_c1_c1"},{"SomethingSomething":"e1_c2_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_c1_r"}},{"Date":"2122-01-01T00:00:00","Enum":-1,"Enums":[-1,-1,2],"Fraction":12.2,"Id":96,"NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_c2_c1"},{"SomethingSomething":"e1_c2_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_c2_r"}}],"OwnedReferenceBranch":{"Date":"2120-01-01T00:00:00","Enum":-3,"Enums":[-1,-1,2],"Fraction":12.0,"Id":94,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_r_c1"},{"SomethingSomething":"e1_c2_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_r_r"}}}]' (Nullable = false) (Size = 1975)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -495,15 +485,11 @@ FROM [JsonEntitiesBasic] AS [j]
 
     public override async Task Edit_collection_element_and_reference_at_once()
     {
-        // TODO:SQLJSON (See JsonTypeToFunction.cs)
-        Assert.Equal(
-            "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_collection_element_and_reference_at_once())).InnerException?.Message);
+        await base.Edit_collection_element_and_reference_at_once();
 
         AssertSql(
             """
-@p0='{"Date":"2102-01-01T00:00:00","Enum":-3,"Enums":[-1,-1,2],"Fraction":10.2,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"edit1"},{"SomethingSomething":"e1_r_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"edit2"}}' (Nullable = false) (Size = 262)
+@p0='{"Date":"2102-01-01T00:00:00","Enum":-3,"Enums":[-1,-1,2],"Fraction":10.2,"Id":90,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"edit1"},{"SomethingSomething":"e1_r_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"edit2"}}' (Nullable = false) (Size = 270)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -511,6 +497,11 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenceRoot], 'strict $.OwnedCollectionBranch[1]', JSON_QUERY(@p0))
 OUTPUT 1
 WHERE [Id] = @p1;
+""",
+            //
+            """
+SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
@@ -681,8 +672,7 @@ WHERE [j].[Id] = 1
 
     public override async Task Edit_single_property_decimal()
     {
-        // TODO:SQLJSON Cannot insert decimal (See DecimalParameters.cs)
-        await Assert.ThrowsAsync<EqualException>(() => base.Edit_single_property_decimal());
+        await base.Edit_single_property_decimal();
 
         AssertSql(
             """
@@ -946,8 +936,7 @@ WHERE [j].[Id] = 1
 
     public override async Task Edit_single_property_uint64()
     {
-        // TODO:SQLJSON Cannot insert decimal (See DecimalParameters.cs)
-        await Assert.ThrowsAsync<EqualException>(() => base.Edit_single_property_uint64());
+        await base.Edit_single_property_uint64();
 
         AssertSql(
             """
@@ -995,11 +984,7 @@ WHERE [j].[Id] = 1
 
     public override async Task Edit_single_property_collection_of_string()
     {
-        // TODO:SQLJSON (See JsonTypeToFunction.cs)
-        Assert.Equal(
-            "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_single_property_collection_of_string())).InnerException?.Message);
+        await base.Edit_single_property_collection_of_string();
 
         AssertSql(
             """
@@ -1012,6 +997,11 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesBasic] SET [OwnedCollectionRoot] = JSON_MODIFY([OwnedCollectionRoot], 'strict $[1].Names', JSON_QUERY(@p0)), [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenceRoot], 'strict $.Names', JSON_QUERY(@p1))
 OUTPUT 1
 WHERE [Id] = @p2;
+""",
+            //
+            """
+SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
@@ -1257,16 +1247,12 @@ WHERE [j].[Id] = 1
 
     public override async Task Edit_two_properties_on_same_entity_updates_the_entire_entity()
     {
-        // TODO:SQLJSON (See JsonTypeToFunction.cs)
-        Assert.Equal(
-            "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_two_properties_on_same_entity_updates_the_entire_entity())).InnerException?.Message);
+        await base.Edit_two_properties_on_same_entity_updates_the_entire_entity();
 
         AssertSql(
             """
-@p0='{"TestBoolean":false,"TestBooleanCollection":[true,false],"TestByte":25,"TestByteArray":"","TestByteCollection":null,"TestCharacter":"h","TestCharacterCollection":["A","B","\u0022"],"TestDateOnly":"2323-04-03","TestDateOnlyCollection":["3234-01-23","4331-01-21"],"TestDateTime":"2100-11-11T12:34:56","TestDateTimeCollection":["2000-01-01T12:34:56","3000-01-01T12:34:56"],"TestDateTimeOffset":"2200-11-11T12:34:56-05:00","TestDateTimeOffsetCollection":["2000-01-01T12:34:56-08:00"],"TestDecimal":-123450.01,"TestDecimalCollection":[-1234567890.01],"TestDefaultString":"MyDefaultStringInCollection1","TestDefaultStringCollection":["S1","\u0022S2\u0022","S3"],"TestDouble":-1.2345,"TestDoubleCollection":[-1.23456789,1.23456789,0],"TestEnum":-1,"TestEnumCollection":[-1,-3,-7],"TestEnumWithIntConverter":2,"TestEnumWithIntConverterCollection":[-1,-3,-7],"TestGuid":"00000000-0000-0000-0000-000000000000","TestGuidCollection":["12345678-1234-4321-7777-987654321000"],"TestInt16":-12,"TestInt16Collection":[-32768,0,32767],"TestInt32":32,"TestInt32Collection":[-2147483648,0,2147483647],"TestInt64":64,"TestInt64Collection":[-9223372036854775808,0,9223372036854775807],"TestMaxLengthString":"Baz","TestMaxLengthStringCollection":["S1","S2","S3"],"TestNullableEnum":-1,"TestNullableEnumCollection":[-1,null,-3,-7],"TestNullableEnumWithConverterThatHandlesNulls":"Two","TestNullableEnumWithConverterThatHandlesNullsCollection":[-1,null,-7],"TestNullableEnumWithIntConverter":-3,"TestNullableEnumWithIntConverterCollection":[-1,null,-3,-7],"TestNullableInt32":90,"TestNullableInt32Collection":[null,-2147483648,0,null,2147483647,null],"TestSignedByte":-18,"TestSignedByteCollection":[-128,0,127],"TestSingle":-1.4,"TestSingleCollection":[-1.234,0,-1.234],"TestTimeOnly":"05:07:08.0000000","TestTimeOnlyCollection":["13:42:23.0000000","07:17:25.0000000"],"TestTimeSpan":"6:05:04.003","TestTimeSpanCollection":["10:09:08.007","-9:50:51.993"],"TestUnsignedInt16":12,"TestUnsignedInt16Collection":[0,0,65535],"TestUnsignedInt32":12345,"TestUnsignedInt32Collection":[0,0,4294967295],"TestUnsignedInt64":1234567867,"TestUnsignedInt64Collection":[0,0,18446744073709551615]}' (Nullable = false) (Size = 2158)
-@p1='{"TestBoolean":true,"TestBooleanCollection":[true,false],"TestByte":255,"TestByteArray":"AQID","TestByteCollection":null,"TestCharacter":"a","TestCharacterCollection":["A","B","\u0022"],"TestDateOnly":"2023-10-10","TestDateOnlyCollection":["1234-01-23","4321-01-21"],"TestDateTime":"2000-01-01T12:34:56","TestDateTimeCollection":["2000-01-01T12:34:56","3000-01-01T12:34:56"],"TestDateTimeOffset":"2000-01-01T12:34:56-08:00","TestDateTimeOffsetCollection":["2000-01-01T12:34:56-08:00"],"TestDecimal":-1234567890.01,"TestDecimalCollection":[-1234567890.01],"TestDefaultString":"MyDefaultStringInReference1","TestDefaultStringCollection":["S1","\u0022S2\u0022","S3"],"TestDouble":-1.23456789,"TestDoubleCollection":[-1.23456789,1.23456789,0],"TestEnum":-1,"TestEnumCollection":[-1,-3,-7],"TestEnumWithIntConverter":2,"TestEnumWithIntConverterCollection":[-1,-3,-7],"TestGuid":"12345678-1234-4321-7777-987654321000","TestGuidCollection":["12345678-1234-4321-7777-987654321000"],"TestInt16":-1234,"TestInt16Collection":[-32768,0,32767],"TestInt32":32,"TestInt32Collection":[-2147483648,0,2147483647],"TestInt64":64,"TestInt64Collection":[-9223372036854775808,0,9223372036854775807],"TestMaxLengthString":"Foo","TestMaxLengthStringCollection":["S1","S2","S3"],"TestNullableEnum":-1,"TestNullableEnumCollection":[-1,null,-3,-7],"TestNullableEnumWithConverterThatHandlesNulls":"Three","TestNullableEnumWithConverterThatHandlesNullsCollection":[-1,null,-7],"TestNullableEnumWithIntConverter":2,"TestNullableEnumWithIntConverterCollection":[-1,null,-3,-7],"TestNullableInt32":78,"TestNullableInt32Collection":[null,-2147483648,0,null,2147483647,null],"TestSignedByte":-128,"TestSignedByteCollection":[-128,0,127],"TestSingle":-1.234,"TestSingleCollection":[-1.234,0,-1.234],"TestTimeOnly":"11:12:13.0000000","TestTimeOnlyCollection":["11:42:23.0000000","07:17:27.0000000"],"TestTimeSpan":"10:09:08.007","TestTimeSpanCollection":["10:09:08.007","-9:50:51.993"],"TestUnsignedInt16":1234,"TestUnsignedInt16Collection":[0,0,65535],"TestUnsignedInt32":1234565789,"TestUnsignedInt32Collection":[0,0,4294967295],"TestUnsignedInt64":1234567890123456789,"TestUnsignedInt64Collection":[0,0,18446744073709551615]}' (Nullable = false) (Size = 2192)
+@p0='{"TestBoolean":false,"TestBooleanCollection":[true,false],"TestByte":25,"TestByteArray":"","TestByteCollection":null,"TestCharacter":"h","TestCharacterCollection":["A","B","\u0022"],"TestDateOnly":"2323-04-03","TestDateOnlyCollection":["3234-01-23","4331-01-21"],"TestDateTime":"2100-11-11T12:34:56","TestDateTimeCollection":["2000-01-01T12:34:56","3000-01-01T12:34:56"],"TestDateTimeOffset":"2200-11-11T12:34:56-05:00","TestDateTimeOffsetCollection":["2000-01-01T12:34:56-08:00"],"TestDecimal":-123450.01,"TestDecimalCollection":[-1234567890.01],"TestDefaultString":"MyDefaultStringInCollection1","TestDefaultStringCollection":["S1","\u0022S2\u0022","S3"],"TestDouble":-1.2345,"TestDoubleCollection":[-1.23456789,1.23456789,0],"TestEnum":-1,"TestEnumCollection":[-1,-3,-7],"TestEnumWithIntConverter":2,"TestEnumWithIntConverterCollection":[-1,-3,-7],"TestGuid":"00000000-0000-0000-0000-000000000000","TestGuidCollection":["12345678-1234-4321-7777-987654321000"],"TestInt16":-12,"TestInt16Collection":[-32768,0,32767],"TestInt32":32,"TestInt32Collection":[-2147483648,0,2147483647],"TestInt64":64,"TestInt64Collection":[-9223372036854775808,0,9223372036854775807],"TestMaxLengthString":"Baz","TestMaxLengthStringCollection":["S1","S2","S3"],"TestNullableEnum":-1,"TestNullableEnumCollection":[-1,null,-3,-7],"TestNullableEnumWithConverterThatHandlesNulls":"Two","TestNullableEnumWithConverterThatHandlesNullsCollection":[-1,null,-7],"TestNullableEnumWithIntConverter":-3,"TestNullableEnumWithIntConverterCollection":[-1,null,-3,-7],"TestNullableInt32":90,"TestNullableInt32Collection":[null,-2147483648,0,null,2147483647,null],"TestSignedByte":-18,"TestSignedByteCollection":[-128,0,127],"TestSingle":-1.4,"TestSingleCollection":[-1.234,0,-1.234],"TestTimeOnly":"05:07:08.0000000","TestTimeOnlyCollection":["13:42:23.0000000","07:17:25.0000000"],"TestTimeSpan":"6:05:04.003","TestTimeSpanCollection":["10:09:08.007","-9:50:51.993"],"TestUnsignedInt16":12,"TestUnsignedInt16Collection":[0,0,65535],"TestUnsignedInt32":12345,"TestUnsignedInt32Collection":[0,0,4294967295],"TestUnsignedInt64":1234567867,"TestUnsignedInt64Collection":[0,0,9223372036854775807]}' (Nullable = false) (Size = 2157)
+@p1='{"TestBoolean":true,"TestBooleanCollection":[true,false],"TestByte":255,"TestByteArray":"AQID","TestByteCollection":null,"TestCharacter":"a","TestCharacterCollection":["A","B","\u0022"],"TestDateOnly":"2023-10-10","TestDateOnlyCollection":["1234-01-23","4321-01-21"],"TestDateTime":"2000-01-01T12:34:56","TestDateTimeCollection":["2000-01-01T12:34:56","3000-01-01T12:34:56"],"TestDateTimeOffset":"2000-01-01T12:34:56-08:00","TestDateTimeOffsetCollection":["2000-01-01T12:34:56-08:00"],"TestDecimal":-1234567890.01,"TestDecimalCollection":[-1234567890.01],"TestDefaultString":"MyDefaultStringInReference1","TestDefaultStringCollection":["S1","\u0022S2\u0022","S3"],"TestDouble":-1.23456789,"TestDoubleCollection":[-1.23456789,1.23456789,0],"TestEnum":-1,"TestEnumCollection":[-1,-3,-7],"TestEnumWithIntConverter":2,"TestEnumWithIntConverterCollection":[-1,-3,-7],"TestGuid":"12345678-1234-4321-7777-987654321000","TestGuidCollection":["12345678-1234-4321-7777-987654321000"],"TestInt16":-1234,"TestInt16Collection":[-32768,0,32767],"TestInt32":32,"TestInt32Collection":[-2147483648,0,2147483647],"TestInt64":64,"TestInt64Collection":[-9223372036854775808,0,9223372036854775807],"TestMaxLengthString":"Foo","TestMaxLengthStringCollection":["S1","S2","S3"],"TestNullableEnum":-1,"TestNullableEnumCollection":[-1,null,-3,-7],"TestNullableEnumWithConverterThatHandlesNulls":"Three","TestNullableEnumWithConverterThatHandlesNullsCollection":[-1,null,-7],"TestNullableEnumWithIntConverter":2,"TestNullableEnumWithIntConverterCollection":[-1,null,-3,-7],"TestNullableInt32":78,"TestNullableInt32Collection":[null,-2147483648,0,null,2147483647,null],"TestSignedByte":-128,"TestSignedByteCollection":[-128,0,127],"TestSingle":-1.234,"TestSingleCollection":[-1.234,0,-1.234],"TestTimeOnly":"11:12:13.0000000","TestTimeOnlyCollection":["11:42:23.0000000","07:17:27.0000000"],"TestTimeSpan":"10:09:08.007","TestTimeSpanCollection":["10:09:08.007","-9:50:51.993"],"TestUnsignedInt16":1234,"TestUnsignedInt16Collection":[0,0,65535],"TestUnsignedInt32":1234565789,"TestUnsignedInt32Collection":[0,0,4294967295],"TestUnsignedInt64":1234567890123456789,"TestUnsignedInt64Collection":[0,0,9223372036854775807]}' (Nullable = false) (Size = 2191)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -1274,25 +1260,22 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0]', JSON_QUERY(@p0)), [Reference] = @p1
 OUTPUT 1
 WHERE [Id] = @p2;
+""",
+            //
+            """
+SELECT TOP(2) [j].[Id], [j].[TestBooleanCollection], [j].[TestByteCollection], [j].[TestCharacterCollection], [j].[TestDateTimeCollection], [j].[TestDateTimeOffsetCollection], [j].[TestDecimalCollection], [j].[TestDefaultStringCollection], [j].[TestDoubleCollection], [j].[TestEnumCollection], [j].[TestEnumWithIntConverterCollection], [j].[TestGuidCollection], [j].[TestInt16Collection], [j].[TestInt32Collection], [j].[TestInt64Collection], [j].[TestMaxLengthStringCollection], [j].[TestNullableEnumCollection], [j].[TestNullableEnumWithConverterThatHandlesNullsCollection], [j].[TestNullableEnumWithIntConverterCollection], [j].[TestNullableInt32Collection], [j].[TestSignedByteCollection], [j].[TestSingleCollection], [j].[TestTimeSpanCollection], [j].[TestUnsignedInt16Collection], [j].[TestUnsignedInt32Collection], [j].[TestUnsignedInt64Collection], [j].[Collection], [j].[Reference]
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE [j].[Id] = 1
 """);
     }
 
     public override async Task Edit_a_scalar_property_and_reference_navigation_on_the_same_entity()
     {
-        // TODO:SQLJSON (See JsonTypeToFunction.cs)
-        Assert.Equal(
-            "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_a_scalar_property_and_reference_navigation_on_the_same_entity())).InnerException?.Message);
+        await base.Edit_a_scalar_property_and_reference_navigation_on_the_same_entity();
 
         AssertSql(
             """
-SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
-FROM [JsonEntitiesBasic] AS [j]
-""",
-            //
-            """
-@p0='{"Date":"2100-01-01T00:00:00","Enum":-1,"Enums":[-1,-1,2],"Fraction":123.532,"NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_r_r_c1"},{"SomethingSomething":"e1_r_r_c2"}],"OwnedReferenceLeaf":null}' (Nullable = false) (Size = 245)
+@p0='{"Date":"2100-01-01T00:00:00","Enum":-1,"Enums":[-1,-1,2],"Fraction":523.532,"Id":88,"NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_r_r_c1"},{"SomethingSomething":"e1_r_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"edit"}}' (Nullable = false) (Size = 278)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -1300,25 +1283,21 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenceRoot], 'strict $.OwnedReferenceBranch', JSON_QUERY(@p0))
 OUTPUT 1
 WHERE [Id] = @p1;
+""",
+            //
+            """
+SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
     public override async Task Edit_a_scalar_property_and_collection_navigation_on_the_same_entity()
     {
-        // TODO:SQLJSON (See JsonTypeToFunction.cs)
-        Assert.Equal(
-            "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_a_scalar_property_and_collection_navigation_on_the_same_entity())).InnerException?.Message);
+        await base.Edit_a_scalar_property_and_collection_navigation_on_the_same_entity();
 
         AssertSql(
             """
-SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
-FROM [JsonEntitiesBasic] AS [j]
-""",
-            //
-            """
-@p0='{"Date":"2100-01-01T00:00:00","Enum":-1,"Enums":[-1,-1,2],"Fraction":123.532,"NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":null,"OwnedReferenceLeaf":{"SomethingSomething":"e1_r_r_r"}}' (Nullable = false) (Size = 207)
+@p0='{"Date":"2100-01-01T00:00:00","Enum":-1,"Enums":[-1,-1,2],"Fraction":523.532,"Id":88,"NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"edit"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_r_r_r"}}' (Nullable = false) (Size = 242)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -1326,21 +1305,21 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenceRoot], 'strict $.OwnedReferenceBranch', JSON_QUERY(@p0))
 OUTPUT 1
 WHERE [Id] = @p1;
+""",
+            //
+            """
+SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
     public override async Task Edit_a_scalar_property_and_another_property_behind_reference_navigation_on_the_same_entity()
     {
-        // TODO:SQLJSON (See JsonTypeToFunction.cs)
-        Assert.Equal(
-            "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_a_scalar_property_and_another_property_behind_reference_navigation_on_the_same_entity()))
-            .InnerException?.Message);
+        await base.Edit_a_scalar_property_and_another_property_behind_reference_navigation_on_the_same_entity();
 
         AssertSql(
             """
-@p0='{"Date":"2100-01-01T00:00:00","Enum":-1,"Enums":[-1,-1,2],"Fraction":523.532,"NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_r_r_c1"},{"SomethingSomething":"e1_r_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"edit"}}' (Nullable = false) (Size = 270)
+@p0='{"Date":"2100-01-01T00:00:00","Enum":-1,"Enums":[-1,-1,2],"Fraction":523.532,"Id":88,"NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_r_r_c1"},{"SomethingSomething":"e1_r_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"edit"}}' (Nullable = false) (Size = 278)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -1348,6 +1327,11 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenceRoot], 'strict $.OwnedReferenceBranch', JSON_QUERY(@p0))
 OUTPUT 1
 WHERE [Id] = @p1;
+""",
+            //
+            """
+SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
@@ -1493,11 +1477,7 @@ WHERE [j].[Id] = 1
 
     public override async Task Edit_single_property_collection_of_numeric()
     {
-        // TODO:SQLJSON (See JsonTypeToFunction.cs)
-        Assert.Equal(
-            "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_single_property_collection_of_numeric())).InnerException?.Message);
+        await base.Edit_single_property_collection_of_numeric();
 
         AssertSql(
             """
@@ -1510,16 +1490,17 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesBasic] SET [OwnedCollectionRoot] = JSON_MODIFY([OwnedCollectionRoot], 'strict $[1].Numbers', JSON_QUERY(@p0)), [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenceRoot], 'strict $.Numbers', JSON_QUERY(@p1))
 OUTPUT 1
 WHERE [Id] = @p2;
+""",
+            //
+            """
+SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
     public override async Task Edit_single_property_collection_of_bool()
     {
-        // TODO:SQLJSON (See JsonTypeToFunction.cs)
-        Assert.Equal(
-            "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_single_property_collection_of_bool())).InnerException?.Message);
+        await base.Edit_single_property_collection_of_bool();
 
         AssertSql(
             """
@@ -1532,6 +1513,12 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestBooleanCollection', JSON_QUERY(@p0)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestBooleanCollection', JSON_QUERY(@p1))
 OUTPUT 1
 WHERE [Id] = @p2;
+""",
+            //
+            """
+SELECT TOP(2) [j].[Id], [j].[TestBooleanCollection], [j].[TestByteCollection], [j].[TestCharacterCollection], [j].[TestDateTimeCollection], [j].[TestDateTimeOffsetCollection], [j].[TestDecimalCollection], [j].[TestDefaultStringCollection], [j].[TestDoubleCollection], [j].[TestEnumCollection], [j].[TestEnumWithIntConverterCollection], [j].[TestGuidCollection], [j].[TestInt16Collection], [j].[TestInt32Collection], [j].[TestInt64Collection], [j].[TestMaxLengthStringCollection], [j].[TestNullableEnumCollection], [j].[TestNullableEnumWithConverterThatHandlesNullsCollection], [j].[TestNullableEnumWithIntConverterCollection], [j].[TestNullableInt32Collection], [j].[TestSignedByteCollection], [j].[TestSingleCollection], [j].[TestTimeSpanCollection], [j].[TestUnsignedInt16Collection], [j].[TestUnsignedInt32Collection], [j].[TestUnsignedInt64Collection], [j].[Collection], [j].[Reference]
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE [j].[Id] = 1
 """);
     }
 
@@ -1586,11 +1573,7 @@ WHERE [j].[Id] = 1
 
     public override async Task Edit_single_property_collection_of_datetime()
     {
-        // TODO:SQLJSON (See JsonTypeToFunction.cs)
-        Assert.Equal(
-            "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_single_property_collection_of_datetime())).InnerException?.Message);
+        await base.Edit_single_property_collection_of_datetime();
 
         AssertSql(
             """
@@ -1603,16 +1586,18 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestDateTimeCollection', JSON_QUERY(@p0)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestDateTimeCollection', JSON_QUERY(@p1))
 OUTPUT 1
 WHERE [Id] = @p2;
+""",
+            //
+            """
+SELECT TOP(2) [j].[Id], [j].[TestBooleanCollection], [j].[TestByteCollection], [j].[TestCharacterCollection], [j].[TestDateTimeCollection], [j].[TestDateTimeOffsetCollection], [j].[TestDecimalCollection], [j].[TestDefaultStringCollection], [j].[TestDoubleCollection], [j].[TestEnumCollection], [j].[TestEnumWithIntConverterCollection], [j].[TestGuidCollection], [j].[TestInt16Collection], [j].[TestInt32Collection], [j].[TestInt64Collection], [j].[TestMaxLengthStringCollection], [j].[TestNullableEnumCollection], [j].[TestNullableEnumWithConverterThatHandlesNullsCollection], [j].[TestNullableEnumWithIntConverterCollection], [j].[TestNullableInt32Collection], [j].[TestSignedByteCollection], [j].[TestSingleCollection], [j].[TestTimeSpanCollection], [j].[TestUnsignedInt16Collection], [j].[TestUnsignedInt32Collection], [j].[TestUnsignedInt64Collection], [j].[Collection], [j].[Reference]
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE [j].[Id] = 1
 """);
     }
 
     public override async Task Edit_single_property_collection_of_datetimeoffset()
     {
-        // TODO:SQLJSON (See JsonTypeToFunction.cs)
-        Assert.Equal(
-            "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_single_property_collection_of_datetimeoffset())).InnerException?.Message);
+        await base.Edit_single_property_collection_of_datetimeoffset();
 
         AssertSql(
             """
@@ -1625,16 +1610,18 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestDateTimeOffsetCollection', JSON_QUERY(@p0)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestDateTimeOffsetCollection', JSON_QUERY(@p1))
 OUTPUT 1
 WHERE [Id] = @p2;
+""",
+            //
+            """
+SELECT TOP(2) [j].[Id], [j].[TestBooleanCollection], [j].[TestByteCollection], [j].[TestCharacterCollection], [j].[TestDateTimeCollection], [j].[TestDateTimeOffsetCollection], [j].[TestDecimalCollection], [j].[TestDefaultStringCollection], [j].[TestDoubleCollection], [j].[TestEnumCollection], [j].[TestEnumWithIntConverterCollection], [j].[TestGuidCollection], [j].[TestInt16Collection], [j].[TestInt32Collection], [j].[TestInt64Collection], [j].[TestMaxLengthStringCollection], [j].[TestNullableEnumCollection], [j].[TestNullableEnumWithConverterThatHandlesNullsCollection], [j].[TestNullableEnumWithIntConverterCollection], [j].[TestNullableInt32Collection], [j].[TestSignedByteCollection], [j].[TestSingleCollection], [j].[TestTimeSpanCollection], [j].[TestUnsignedInt16Collection], [j].[TestUnsignedInt32Collection], [j].[TestUnsignedInt64Collection], [j].[Collection], [j].[Reference]
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE [j].[Id] = 1
 """);
     }
 
     public override async Task Edit_single_property_collection_of_decimal()
     {
-        // TODO:SQLJSON (See JsonTypeToFunction.cs)
-        Assert.Equal(
-            "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_single_property_collection_of_decimal())).InnerException?.Message);
+        await base.Edit_single_property_collection_of_decimal();
 
         AssertSql(
             """
@@ -1647,16 +1634,18 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestDecimalCollection', JSON_QUERY(@p0)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestDecimalCollection', JSON_QUERY(@p1))
 OUTPUT 1
 WHERE [Id] = @p2;
+""",
+            //
+            """
+SELECT TOP(2) [j].[Id], [j].[TestBooleanCollection], [j].[TestByteCollection], [j].[TestCharacterCollection], [j].[TestDateTimeCollection], [j].[TestDateTimeOffsetCollection], [j].[TestDecimalCollection], [j].[TestDefaultStringCollection], [j].[TestDoubleCollection], [j].[TestEnumCollection], [j].[TestEnumWithIntConverterCollection], [j].[TestGuidCollection], [j].[TestInt16Collection], [j].[TestInt32Collection], [j].[TestInt64Collection], [j].[TestMaxLengthStringCollection], [j].[TestNullableEnumCollection], [j].[TestNullableEnumWithConverterThatHandlesNullsCollection], [j].[TestNullableEnumWithIntConverterCollection], [j].[TestNullableInt32Collection], [j].[TestSignedByteCollection], [j].[TestSingleCollection], [j].[TestTimeSpanCollection], [j].[TestUnsignedInt16Collection], [j].[TestUnsignedInt32Collection], [j].[TestUnsignedInt64Collection], [j].[Collection], [j].[Reference]
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE [j].[Id] = 1
 """);
     }
 
     public override async Task Edit_single_property_collection_of_double()
     {
-        // TODO:SQLJSON (See JsonTypeToFunction.cs)
-        Assert.Equal(
-            "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_single_property_collection_of_double())).InnerException?.Message);
+        await base.Edit_single_property_collection_of_double();
 
         AssertSql(
             """
@@ -1669,16 +1658,18 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestDoubleCollection', JSON_QUERY(@p0)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestDoubleCollection', JSON_QUERY(@p1))
 OUTPUT 1
 WHERE [Id] = @p2;
+""",
+            //
+            """
+SELECT TOP(2) [j].[Id], [j].[TestBooleanCollection], [j].[TestByteCollection], [j].[TestCharacterCollection], [j].[TestDateTimeCollection], [j].[TestDateTimeOffsetCollection], [j].[TestDecimalCollection], [j].[TestDefaultStringCollection], [j].[TestDoubleCollection], [j].[TestEnumCollection], [j].[TestEnumWithIntConverterCollection], [j].[TestGuidCollection], [j].[TestInt16Collection], [j].[TestInt32Collection], [j].[TestInt64Collection], [j].[TestMaxLengthStringCollection], [j].[TestNullableEnumCollection], [j].[TestNullableEnumWithConverterThatHandlesNullsCollection], [j].[TestNullableEnumWithIntConverterCollection], [j].[TestNullableInt32Collection], [j].[TestSignedByteCollection], [j].[TestSingleCollection], [j].[TestTimeSpanCollection], [j].[TestUnsignedInt16Collection], [j].[TestUnsignedInt32Collection], [j].[TestUnsignedInt64Collection], [j].[Collection], [j].[Reference]
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE [j].[Id] = 1
 """);
     }
 
     public override async Task Edit_single_property_collection_of_guid()
     {
-        // TODO:SQLJSON (See JsonTypeToFunction.cs)
-        Assert.Equal(
-            "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_single_property_collection_of_guid())).InnerException?.Message);
+        await base.Edit_single_property_collection_of_guid();
 
         AssertSql(
             """
@@ -1691,16 +1682,18 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestGuidCollection', JSON_QUERY(@p0)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestGuidCollection', JSON_QUERY(@p1))
 OUTPUT 1
 WHERE [Id] = @p2;
+""",
+            //
+            """
+SELECT TOP(2) [j].[Id], [j].[TestBooleanCollection], [j].[TestByteCollection], [j].[TestCharacterCollection], [j].[TestDateTimeCollection], [j].[TestDateTimeOffsetCollection], [j].[TestDecimalCollection], [j].[TestDefaultStringCollection], [j].[TestDoubleCollection], [j].[TestEnumCollection], [j].[TestEnumWithIntConverterCollection], [j].[TestGuidCollection], [j].[TestInt16Collection], [j].[TestInt32Collection], [j].[TestInt64Collection], [j].[TestMaxLengthStringCollection], [j].[TestNullableEnumCollection], [j].[TestNullableEnumWithConverterThatHandlesNullsCollection], [j].[TestNullableEnumWithIntConverterCollection], [j].[TestNullableInt32Collection], [j].[TestSignedByteCollection], [j].[TestSingleCollection], [j].[TestTimeSpanCollection], [j].[TestUnsignedInt16Collection], [j].[TestUnsignedInt32Collection], [j].[TestUnsignedInt64Collection], [j].[Collection], [j].[Reference]
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE [j].[Id] = 1
 """);
     }
 
     public override async Task Edit_single_property_collection_of_int16()
     {
-        // TODO:SQLJSON (See JsonTypeToFunction.cs)
-        Assert.Equal(
-            "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_single_property_collection_of_int16())).InnerException?.Message);
+        await base.Edit_single_property_collection_of_int16();
 
         AssertSql(
             """
@@ -1713,16 +1706,18 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestInt16Collection', JSON_QUERY(@p0)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestInt16Collection', JSON_QUERY(@p1))
 OUTPUT 1
 WHERE [Id] = @p2;
+""",
+            //
+            """
+SELECT TOP(2) [j].[Id], [j].[TestBooleanCollection], [j].[TestByteCollection], [j].[TestCharacterCollection], [j].[TestDateTimeCollection], [j].[TestDateTimeOffsetCollection], [j].[TestDecimalCollection], [j].[TestDefaultStringCollection], [j].[TestDoubleCollection], [j].[TestEnumCollection], [j].[TestEnumWithIntConverterCollection], [j].[TestGuidCollection], [j].[TestInt16Collection], [j].[TestInt32Collection], [j].[TestInt64Collection], [j].[TestMaxLengthStringCollection], [j].[TestNullableEnumCollection], [j].[TestNullableEnumWithConverterThatHandlesNullsCollection], [j].[TestNullableEnumWithIntConverterCollection], [j].[TestNullableInt32Collection], [j].[TestSignedByteCollection], [j].[TestSingleCollection], [j].[TestTimeSpanCollection], [j].[TestUnsignedInt16Collection], [j].[TestUnsignedInt32Collection], [j].[TestUnsignedInt64Collection], [j].[Collection], [j].[Reference]
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE [j].[Id] = 1
 """);
     }
 
     public override async Task Edit_single_property_collection_of_int32()
     {
-        // TODO:SQLJSON (See JsonTypeToFunction.cs)
-        Assert.Equal(
-            "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_single_property_collection_of_int32())).InnerException?.Message);
+        await base.Edit_single_property_collection_of_int32();
 
         AssertSql(
             """
@@ -1735,16 +1730,18 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestInt32Collection', JSON_QUERY(@p0)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestInt32Collection', JSON_QUERY(@p1))
 OUTPUT 1
 WHERE [Id] = @p2;
+""",
+            //
+            """
+SELECT TOP(2) [j].[Id], [j].[TestBooleanCollection], [j].[TestByteCollection], [j].[TestCharacterCollection], [j].[TestDateTimeCollection], [j].[TestDateTimeOffsetCollection], [j].[TestDecimalCollection], [j].[TestDefaultStringCollection], [j].[TestDoubleCollection], [j].[TestEnumCollection], [j].[TestEnumWithIntConverterCollection], [j].[TestGuidCollection], [j].[TestInt16Collection], [j].[TestInt32Collection], [j].[TestInt64Collection], [j].[TestMaxLengthStringCollection], [j].[TestNullableEnumCollection], [j].[TestNullableEnumWithConverterThatHandlesNullsCollection], [j].[TestNullableEnumWithIntConverterCollection], [j].[TestNullableInt32Collection], [j].[TestSignedByteCollection], [j].[TestSingleCollection], [j].[TestTimeSpanCollection], [j].[TestUnsignedInt16Collection], [j].[TestUnsignedInt32Collection], [j].[TestUnsignedInt64Collection], [j].[Collection], [j].[Reference]
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE [j].[Id] = 1
 """);
     }
 
     public override async Task Edit_single_property_collection_of_int64()
     {
-        // TODO:SQLJSON (See JsonTypeToFunction.cs)
-        Assert.Equal(
-            "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_single_property_collection_of_int64())).InnerException?.Message);
+        await base.Edit_single_property_collection_of_int64();
 
         AssertSql(
             """
@@ -1757,16 +1754,18 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestInt64Collection', JSON_QUERY(@p0)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestInt64Collection', JSON_QUERY(@p1))
 OUTPUT 1
 WHERE [Id] = @p2;
+""",
+            //
+            """
+SELECT TOP(2) [j].[Id], [j].[TestBooleanCollection], [j].[TestByteCollection], [j].[TestCharacterCollection], [j].[TestDateTimeCollection], [j].[TestDateTimeOffsetCollection], [j].[TestDecimalCollection], [j].[TestDefaultStringCollection], [j].[TestDoubleCollection], [j].[TestEnumCollection], [j].[TestEnumWithIntConverterCollection], [j].[TestGuidCollection], [j].[TestInt16Collection], [j].[TestInt32Collection], [j].[TestInt64Collection], [j].[TestMaxLengthStringCollection], [j].[TestNullableEnumCollection], [j].[TestNullableEnumWithConverterThatHandlesNullsCollection], [j].[TestNullableEnumWithIntConverterCollection], [j].[TestNullableInt32Collection], [j].[TestSignedByteCollection], [j].[TestSingleCollection], [j].[TestTimeSpanCollection], [j].[TestUnsignedInt16Collection], [j].[TestUnsignedInt32Collection], [j].[TestUnsignedInt64Collection], [j].[Collection], [j].[Reference]
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE [j].[Id] = 1
 """);
     }
 
     public override async Task Edit_single_property_collection_of_signed_byte()
     {
-        // TODO:SQLJSON (See JsonTypeToFunction.cs)
-        Assert.Equal(
-            "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_single_property_collection_of_signed_byte())).InnerException?.Message);
+        await base.Edit_single_property_collection_of_signed_byte();
 
         AssertSql(
             """
@@ -1779,16 +1778,18 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestSignedByteCollection', JSON_QUERY(@p0)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestSignedByteCollection', JSON_QUERY(@p1))
 OUTPUT 1
 WHERE [Id] = @p2;
+""",
+            //
+            """
+SELECT TOP(2) [j].[Id], [j].[TestBooleanCollection], [j].[TestByteCollection], [j].[TestCharacterCollection], [j].[TestDateTimeCollection], [j].[TestDateTimeOffsetCollection], [j].[TestDecimalCollection], [j].[TestDefaultStringCollection], [j].[TestDoubleCollection], [j].[TestEnumCollection], [j].[TestEnumWithIntConverterCollection], [j].[TestGuidCollection], [j].[TestInt16Collection], [j].[TestInt32Collection], [j].[TestInt64Collection], [j].[TestMaxLengthStringCollection], [j].[TestNullableEnumCollection], [j].[TestNullableEnumWithConverterThatHandlesNullsCollection], [j].[TestNullableEnumWithIntConverterCollection], [j].[TestNullableInt32Collection], [j].[TestSignedByteCollection], [j].[TestSingleCollection], [j].[TestTimeSpanCollection], [j].[TestUnsignedInt16Collection], [j].[TestUnsignedInt32Collection], [j].[TestUnsignedInt64Collection], [j].[Collection], [j].[Reference]
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE [j].[Id] = 1
 """);
     }
 
     public override async Task Edit_single_property_collection_of_single()
     {
-        // TODO:SQLJSON (See JsonTypeToFunction.cs)
-        Assert.Equal(
-            "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_single_property_collection_of_single())).InnerException?.Message);
+        await base.Edit_single_property_collection_of_single();
 
         AssertSql(
             """
@@ -1801,16 +1802,18 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestSingleCollection', JSON_QUERY(@p0)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestSingleCollection', JSON_QUERY(@p1))
 OUTPUT 1
 WHERE [Id] = @p2;
+""",
+            //
+            """
+SELECT TOP(2) [j].[Id], [j].[TestBooleanCollection], [j].[TestByteCollection], [j].[TestCharacterCollection], [j].[TestDateTimeCollection], [j].[TestDateTimeOffsetCollection], [j].[TestDecimalCollection], [j].[TestDefaultStringCollection], [j].[TestDoubleCollection], [j].[TestEnumCollection], [j].[TestEnumWithIntConverterCollection], [j].[TestGuidCollection], [j].[TestInt16Collection], [j].[TestInt32Collection], [j].[TestInt64Collection], [j].[TestMaxLengthStringCollection], [j].[TestNullableEnumCollection], [j].[TestNullableEnumWithConverterThatHandlesNullsCollection], [j].[TestNullableEnumWithIntConverterCollection], [j].[TestNullableInt32Collection], [j].[TestSignedByteCollection], [j].[TestSingleCollection], [j].[TestTimeSpanCollection], [j].[TestUnsignedInt16Collection], [j].[TestUnsignedInt32Collection], [j].[TestUnsignedInt64Collection], [j].[Collection], [j].[Reference]
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE [j].[Id] = 1
 """);
     }
 
     public override async Task Edit_single_property_collection_of_timespan()
     {
-        // TODO:SQLJSON (See JsonTypeToFunction.cs)
-        Assert.Equal(
-            "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_single_property_collection_of_timespan())).InnerException?.Message);
+        await base.Edit_single_property_collection_of_timespan();
 
         AssertSql(
             """
@@ -1823,16 +1826,18 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestTimeSpanCollection', JSON_QUERY(@p0)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestTimeSpanCollection', JSON_QUERY(@p1))
 OUTPUT 1
 WHERE [Id] = @p2;
+""",
+            //
+            """
+SELECT TOP(2) [j].[Id], [j].[TestBooleanCollection], [j].[TestByteCollection], [j].[TestCharacterCollection], [j].[TestDateTimeCollection], [j].[TestDateTimeOffsetCollection], [j].[TestDecimalCollection], [j].[TestDefaultStringCollection], [j].[TestDoubleCollection], [j].[TestEnumCollection], [j].[TestEnumWithIntConverterCollection], [j].[TestGuidCollection], [j].[TestInt16Collection], [j].[TestInt32Collection], [j].[TestInt64Collection], [j].[TestMaxLengthStringCollection], [j].[TestNullableEnumCollection], [j].[TestNullableEnumWithConverterThatHandlesNullsCollection], [j].[TestNullableEnumWithIntConverterCollection], [j].[TestNullableInt32Collection], [j].[TestSignedByteCollection], [j].[TestSingleCollection], [j].[TestTimeSpanCollection], [j].[TestUnsignedInt16Collection], [j].[TestUnsignedInt32Collection], [j].[TestUnsignedInt64Collection], [j].[Collection], [j].[Reference]
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE [j].[Id] = 1
 """);
     }
 
     public override async Task Edit_single_property_collection_of_dateonly()
     {
-        // TODO:SQLJSON (See JsonTypeToFunction.cs)
-        Assert.Equal(
-            "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_single_property_collection_of_dateonly())).InnerException?.Message);
+        await base.Edit_single_property_collection_of_dateonly();
 
         AssertSql(
             """
@@ -1845,16 +1850,18 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestDateOnlyCollection', JSON_QUERY(@p0)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestDateOnlyCollection', JSON_QUERY(@p1))
 OUTPUT 1
 WHERE [Id] = @p2;
+""",
+            //
+            """
+SELECT TOP(2) [j].[Id], [j].[TestBooleanCollection], [j].[TestByteCollection], [j].[TestCharacterCollection], [j].[TestDateTimeCollection], [j].[TestDateTimeOffsetCollection], [j].[TestDecimalCollection], [j].[TestDefaultStringCollection], [j].[TestDoubleCollection], [j].[TestEnumCollection], [j].[TestEnumWithIntConverterCollection], [j].[TestGuidCollection], [j].[TestInt16Collection], [j].[TestInt32Collection], [j].[TestInt64Collection], [j].[TestMaxLengthStringCollection], [j].[TestNullableEnumCollection], [j].[TestNullableEnumWithConverterThatHandlesNullsCollection], [j].[TestNullableEnumWithIntConverterCollection], [j].[TestNullableInt32Collection], [j].[TestSignedByteCollection], [j].[TestSingleCollection], [j].[TestTimeSpanCollection], [j].[TestUnsignedInt16Collection], [j].[TestUnsignedInt32Collection], [j].[TestUnsignedInt64Collection], [j].[Collection], [j].[Reference]
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE [j].[Id] = 1
 """);
     }
 
     public override async Task Edit_single_property_collection_of_timeonly()
     {
-        // TODO:SQLJSON (See JsonTypeToFunction.cs)
-        Assert.Equal(
-            "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_single_property_collection_of_timeonly())).InnerException?.Message);
+        await base.Edit_single_property_collection_of_timeonly();
 
         AssertSql(
             """
@@ -1867,16 +1874,18 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestTimeOnlyCollection', JSON_QUERY(@p0)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestTimeOnlyCollection', JSON_QUERY(@p1))
 OUTPUT 1
 WHERE [Id] = @p2;
+""",
+            //
+            """
+SELECT TOP(2) [j].[Id], [j].[TestBooleanCollection], [j].[TestByteCollection], [j].[TestCharacterCollection], [j].[TestDateTimeCollection], [j].[TestDateTimeOffsetCollection], [j].[TestDecimalCollection], [j].[TestDefaultStringCollection], [j].[TestDoubleCollection], [j].[TestEnumCollection], [j].[TestEnumWithIntConverterCollection], [j].[TestGuidCollection], [j].[TestInt16Collection], [j].[TestInt32Collection], [j].[TestInt64Collection], [j].[TestMaxLengthStringCollection], [j].[TestNullableEnumCollection], [j].[TestNullableEnumWithConverterThatHandlesNullsCollection], [j].[TestNullableEnumWithIntConverterCollection], [j].[TestNullableInt32Collection], [j].[TestSignedByteCollection], [j].[TestSingleCollection], [j].[TestTimeSpanCollection], [j].[TestUnsignedInt16Collection], [j].[TestUnsignedInt32Collection], [j].[TestUnsignedInt64Collection], [j].[Collection], [j].[Reference]
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE [j].[Id] = 1
 """);
     }
 
     public override async Task Edit_single_property_collection_of_uint16()
     {
-        // TODO:SQLJSON (See JsonTypeToFunction.cs)
-        Assert.Equal(
-            "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_single_property_collection_of_uint16())).InnerException?.Message);
+        await base.Edit_single_property_collection_of_uint16();
 
         AssertSql(
             """
@@ -1889,16 +1898,18 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestUnsignedInt16Collection', JSON_QUERY(@p0)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestUnsignedInt16Collection', JSON_QUERY(@p1))
 OUTPUT 1
 WHERE [Id] = @p2;
+""",
+            //
+            """
+SELECT TOP(2) [j].[Id], [j].[TestBooleanCollection], [j].[TestByteCollection], [j].[TestCharacterCollection], [j].[TestDateTimeCollection], [j].[TestDateTimeOffsetCollection], [j].[TestDecimalCollection], [j].[TestDefaultStringCollection], [j].[TestDoubleCollection], [j].[TestEnumCollection], [j].[TestEnumWithIntConverterCollection], [j].[TestGuidCollection], [j].[TestInt16Collection], [j].[TestInt32Collection], [j].[TestInt64Collection], [j].[TestMaxLengthStringCollection], [j].[TestNullableEnumCollection], [j].[TestNullableEnumWithConverterThatHandlesNullsCollection], [j].[TestNullableEnumWithIntConverterCollection], [j].[TestNullableInt32Collection], [j].[TestSignedByteCollection], [j].[TestSingleCollection], [j].[TestTimeSpanCollection], [j].[TestUnsignedInt16Collection], [j].[TestUnsignedInt32Collection], [j].[TestUnsignedInt64Collection], [j].[Collection], [j].[Reference]
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE [j].[Id] = 1
 """);
     }
 
     public override async Task Edit_single_property_collection_of_uint32()
     {
-        // TODO:SQLJSON (See JsonTypeToFunction.cs)
-        Assert.Equal(
-            "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_single_property_collection_of_uint32())).InnerException?.Message);
+        await base.Edit_single_property_collection_of_uint32();
 
         AssertSql(
             """
@@ -1911,16 +1922,18 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestUnsignedInt32Collection', JSON_QUERY(@p0)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestUnsignedInt32Collection', JSON_QUERY(@p1))
 OUTPUT 1
 WHERE [Id] = @p2;
+""",
+            //
+            """
+SELECT TOP(2) [j].[Id], [j].[TestBooleanCollection], [j].[TestByteCollection], [j].[TestCharacterCollection], [j].[TestDateTimeCollection], [j].[TestDateTimeOffsetCollection], [j].[TestDecimalCollection], [j].[TestDefaultStringCollection], [j].[TestDoubleCollection], [j].[TestEnumCollection], [j].[TestEnumWithIntConverterCollection], [j].[TestGuidCollection], [j].[TestInt16Collection], [j].[TestInt32Collection], [j].[TestInt64Collection], [j].[TestMaxLengthStringCollection], [j].[TestNullableEnumCollection], [j].[TestNullableEnumWithConverterThatHandlesNullsCollection], [j].[TestNullableEnumWithIntConverterCollection], [j].[TestNullableInt32Collection], [j].[TestSignedByteCollection], [j].[TestSingleCollection], [j].[TestTimeSpanCollection], [j].[TestUnsignedInt16Collection], [j].[TestUnsignedInt32Collection], [j].[TestUnsignedInt64Collection], [j].[Collection], [j].[Reference]
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE [j].[Id] = 1
 """);
     }
 
     public override async Task Edit_single_property_collection_of_uint64()
     {
-        // TODO:SQLJSON (See JsonTypeToFunction.cs)
-        Assert.Equal(
-            "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_single_property_collection_of_uint64())).InnerException?.Message);
+        await base.Edit_single_property_collection_of_uint64();
 
         AssertSql(
             """
@@ -1933,16 +1946,18 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestUnsignedInt64Collection', JSON_QUERY(@p0)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestUnsignedInt64Collection', JSON_QUERY(@p1))
 OUTPUT 1
 WHERE [Id] = @p2;
+""",
+            //
+            """
+SELECT TOP(2) [j].[Id], [j].[TestBooleanCollection], [j].[TestByteCollection], [j].[TestCharacterCollection], [j].[TestDateTimeCollection], [j].[TestDateTimeOffsetCollection], [j].[TestDecimalCollection], [j].[TestDefaultStringCollection], [j].[TestDoubleCollection], [j].[TestEnumCollection], [j].[TestEnumWithIntConverterCollection], [j].[TestGuidCollection], [j].[TestInt16Collection], [j].[TestInt32Collection], [j].[TestInt64Collection], [j].[TestMaxLengthStringCollection], [j].[TestNullableEnumCollection], [j].[TestNullableEnumWithConverterThatHandlesNullsCollection], [j].[TestNullableEnumWithIntConverterCollection], [j].[TestNullableInt32Collection], [j].[TestSignedByteCollection], [j].[TestSingleCollection], [j].[TestTimeSpanCollection], [j].[TestUnsignedInt16Collection], [j].[TestUnsignedInt32Collection], [j].[TestUnsignedInt64Collection], [j].[Collection], [j].[Reference]
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE [j].[Id] = 1
 """);
     }
 
     public override async Task Edit_single_property_collection_of_nullable_int32()
     {
-        // TODO:SQLJSON (See JsonTypeToFunction.cs)
-        Assert.Equal(
-            "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_single_property_collection_of_nullable_int32())).InnerException?.Message);
+        await base.Edit_single_property_collection_of_nullable_int32();
 
         AssertSql(
             """
@@ -1955,6 +1970,12 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestNullableInt32Collection', JSON_QUERY(@p0)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestNullableInt32Collection', JSON_QUERY(@p1))
 OUTPUT 1
 WHERE [Id] = @p2;
+""",
+            //
+            """
+SELECT TOP(2) [j].[Id], [j].[TestBooleanCollection], [j].[TestByteCollection], [j].[TestCharacterCollection], [j].[TestDateTimeCollection], [j].[TestDateTimeOffsetCollection], [j].[TestDecimalCollection], [j].[TestDefaultStringCollection], [j].[TestDoubleCollection], [j].[TestEnumCollection], [j].[TestEnumWithIntConverterCollection], [j].[TestGuidCollection], [j].[TestInt16Collection], [j].[TestInt32Collection], [j].[TestInt64Collection], [j].[TestMaxLengthStringCollection], [j].[TestNullableEnumCollection], [j].[TestNullableEnumWithConverterThatHandlesNullsCollection], [j].[TestNullableEnumWithIntConverterCollection], [j].[TestNullableInt32Collection], [j].[TestSignedByteCollection], [j].[TestSingleCollection], [j].[TestTimeSpanCollection], [j].[TestUnsignedInt16Collection], [j].[TestUnsignedInt32Collection], [j].[TestUnsignedInt64Collection], [j].[Collection], [j].[Reference]
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE [j].[Id] = 1
 """);
     }
 
@@ -1984,11 +2005,7 @@ WHERE [j].[Id] = 1
 
     public override async Task Edit_single_property_collection_of_enum()
     {
-        // TODO:SQLJSON (See JsonTypeToFunction.cs)
-        Assert.Equal(
-            "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_single_property_collection_of_enum())).InnerException?.Message);
+        await base.Edit_single_property_collection_of_enum();
 
         AssertSql(
             """
@@ -2001,16 +2018,18 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestEnumCollection', JSON_QUERY(@p0)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestEnumCollection', JSON_QUERY(@p1))
 OUTPUT 1
 WHERE [Id] = @p2;
+""",
+            //
+            """
+SELECT TOP(2) [j].[Id], [j].[TestBooleanCollection], [j].[TestByteCollection], [j].[TestCharacterCollection], [j].[TestDateTimeCollection], [j].[TestDateTimeOffsetCollection], [j].[TestDecimalCollection], [j].[TestDefaultStringCollection], [j].[TestDoubleCollection], [j].[TestEnumCollection], [j].[TestEnumWithIntConverterCollection], [j].[TestGuidCollection], [j].[TestInt16Collection], [j].[TestInt32Collection], [j].[TestInt64Collection], [j].[TestMaxLengthStringCollection], [j].[TestNullableEnumCollection], [j].[TestNullableEnumWithConverterThatHandlesNullsCollection], [j].[TestNullableEnumWithIntConverterCollection], [j].[TestNullableInt32Collection], [j].[TestSignedByteCollection], [j].[TestSingleCollection], [j].[TestTimeSpanCollection], [j].[TestUnsignedInt16Collection], [j].[TestUnsignedInt32Collection], [j].[TestUnsignedInt64Collection], [j].[Collection], [j].[Reference]
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE [j].[Id] = 1
 """);
     }
 
     public override async Task Edit_single_property_collection_of_enum_with_int_converter()
     {
-        // TODO:SQLJSON (See JsonTypeToFunction.cs)
-        Assert.Equal(
-            "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_single_property_collection_of_enum_with_int_converter())).InnerException?.Message);
+        await base.Edit_single_property_collection_of_enum_with_int_converter();
 
         AssertSql(
             """
@@ -2023,16 +2042,18 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestEnumWithIntConverterCollection', JSON_QUERY(@p0)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestEnumWithIntConverterCollection', JSON_QUERY(@p1))
 OUTPUT 1
 WHERE [Id] = @p2;
+""",
+            //
+            """
+SELECT TOP(2) [j].[Id], [j].[TestBooleanCollection], [j].[TestByteCollection], [j].[TestCharacterCollection], [j].[TestDateTimeCollection], [j].[TestDateTimeOffsetCollection], [j].[TestDecimalCollection], [j].[TestDefaultStringCollection], [j].[TestDoubleCollection], [j].[TestEnumCollection], [j].[TestEnumWithIntConverterCollection], [j].[TestGuidCollection], [j].[TestInt16Collection], [j].[TestInt32Collection], [j].[TestInt64Collection], [j].[TestMaxLengthStringCollection], [j].[TestNullableEnumCollection], [j].[TestNullableEnumWithConverterThatHandlesNullsCollection], [j].[TestNullableEnumWithIntConverterCollection], [j].[TestNullableInt32Collection], [j].[TestSignedByteCollection], [j].[TestSingleCollection], [j].[TestTimeSpanCollection], [j].[TestUnsignedInt16Collection], [j].[TestUnsignedInt32Collection], [j].[TestUnsignedInt64Collection], [j].[Collection], [j].[Reference]
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE [j].[Id] = 1
 """);
     }
 
     public override async Task Edit_single_property_collection_of_nullable_enum()
     {
-        // TODO:SQLJSON (See JsonTypeToFunction.cs)
-        Assert.Equal(
-            "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_single_property_collection_of_nullable_enum())).InnerException?.Message);
+        await base.Edit_single_property_collection_of_nullable_enum();
 
         AssertSql(
             """
@@ -2045,6 +2066,12 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestEnumCollection', JSON_QUERY(@p0)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestEnumCollection', JSON_QUERY(@p1))
 OUTPUT 1
 WHERE [Id] = @p2;
+""",
+            //
+            """
+SELECT TOP(2) [j].[Id], [j].[TestBooleanCollection], [j].[TestByteCollection], [j].[TestCharacterCollection], [j].[TestDateTimeCollection], [j].[TestDateTimeOffsetCollection], [j].[TestDecimalCollection], [j].[TestDefaultStringCollection], [j].[TestDoubleCollection], [j].[TestEnumCollection], [j].[TestEnumWithIntConverterCollection], [j].[TestGuidCollection], [j].[TestInt16Collection], [j].[TestInt32Collection], [j].[TestInt64Collection], [j].[TestMaxLengthStringCollection], [j].[TestNullableEnumCollection], [j].[TestNullableEnumWithConverterThatHandlesNullsCollection], [j].[TestNullableEnumWithIntConverterCollection], [j].[TestNullableInt32Collection], [j].[TestSignedByteCollection], [j].[TestSingleCollection], [j].[TestTimeSpanCollection], [j].[TestUnsignedInt16Collection], [j].[TestUnsignedInt32Collection], [j].[TestUnsignedInt64Collection], [j].[Collection], [j].[Reference]
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE [j].[Id] = 1
 """);
     }
 
@@ -2074,11 +2101,7 @@ WHERE [j].[Id] = 1
 
     public override async Task Edit_single_property_collection_of_nullable_enum_with_int_converter()
     {
-        // TODO:SQLJSON (See JsonTypeToFunction.cs)
-        Assert.Equal(
-            "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_single_property_collection_of_nullable_enum_with_int_converter())).InnerException?.Message);
+        await base.Edit_single_property_collection_of_nullable_enum_with_int_converter();
 
         AssertSql(
             """
@@ -2091,6 +2114,12 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestNullableEnumWithIntConverterCollection', JSON_QUERY(@p0)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestNullableEnumWithIntConverterCollection', JSON_QUERY(@p1))
 OUTPUT 1
 WHERE [Id] = @p2;
+""",
+            //
+            """
+SELECT TOP(2) [j].[Id], [j].[TestBooleanCollection], [j].[TestByteCollection], [j].[TestCharacterCollection], [j].[TestDateTimeCollection], [j].[TestDateTimeOffsetCollection], [j].[TestDecimalCollection], [j].[TestDefaultStringCollection], [j].[TestDoubleCollection], [j].[TestEnumCollection], [j].[TestEnumWithIntConverterCollection], [j].[TestGuidCollection], [j].[TestInt16Collection], [j].[TestInt32Collection], [j].[TestInt64Collection], [j].[TestMaxLengthStringCollection], [j].[TestNullableEnumCollection], [j].[TestNullableEnumWithConverterThatHandlesNullsCollection], [j].[TestNullableEnumWithIntConverterCollection], [j].[TestNullableInt32Collection], [j].[TestSignedByteCollection], [j].[TestSingleCollection], [j].[TestTimeSpanCollection], [j].[TestUnsignedInt16Collection], [j].[TestUnsignedInt32Collection], [j].[TestUnsignedInt64Collection], [j].[Collection], [j].[Reference]
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE [j].[Id] = 1
 """);
     }
 
@@ -2120,11 +2149,7 @@ WHERE [j].[Id] = 1
 
     public override async Task Edit_single_property_collection_of_nullable_enum_with_converter_that_handles_nulls()
     {
-        // TODO:SQLJSON (See JsonTypeToFunction.cs)
-        Assert.Equal(
-            "Argument data type json is invalid for argument 3 of json_modify function.",
-            (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Edit_single_property_collection_of_nullable_enum_with_converter_that_handles_nulls())).InnerException?.Message);
+        await base.Edit_single_property_collection_of_nullable_enum_with_converter_that_handles_nulls();
 
         AssertSql(
             """
@@ -2137,6 +2162,12 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestNullableEnumWithConverterThatHandlesNullsCollection', JSON_QUERY(@p0)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestNullableEnumWithConverterThatHandlesNullsCollection', JSON_QUERY(@p1))
 OUTPUT 1
 WHERE [Id] = @p2;
+""",
+            //
+            """
+SELECT TOP(2) [j].[Id], [j].[TestBooleanCollection], [j].[TestByteCollection], [j].[TestCharacterCollection], [j].[TestDateTimeCollection], [j].[TestDateTimeOffsetCollection], [j].[TestDecimalCollection], [j].[TestDefaultStringCollection], [j].[TestDoubleCollection], [j].[TestEnumCollection], [j].[TestEnumWithIntConverterCollection], [j].[TestGuidCollection], [j].[TestInt16Collection], [j].[TestInt32Collection], [j].[TestInt64Collection], [j].[TestMaxLengthStringCollection], [j].[TestNullableEnumCollection], [j].[TestNullableEnumWithConverterThatHandlesNullsCollection], [j].[TestNullableEnumWithIntConverterCollection], [j].[TestNullableInt32Collection], [j].[TestSignedByteCollection], [j].[TestSingleCollection], [j].[TestTimeSpanCollection], [j].[TestUnsignedInt16Collection], [j].[TestUnsignedInt32Collection], [j].[TestUnsignedInt64Collection], [j].[Collection], [j].[Reference]
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE [j].[Id] = 1
 """);
     }
 
@@ -2164,15 +2195,258 @@ WHERE [j].[Id] = 1
 """);
     }
 
-    public override Task Add_and_update_nested_optional_owned_collection_to_JSON(bool? value)
-        // TODO:SQLJSON Updates to null fail (See UpdateToNull.cs)
-        => Assert.ThrowsAsync<InvalidCastException>(
-            () => base.Add_and_update_nested_optional_owned_collection_to_JSON(value));
+    public override async Task Add_and_update_nested_optional_owned_collection_to_JSON(bool? value)
+    {
+        await base.Add_and_update_nested_optional_owned_collection_to_JSON(value);
 
-    public override Task Add_and_update_top_level_optional_owned_collection_to_JSON(bool? value)
-        // TODO:SQLJSON Updates to null fail (See UpdateToNull.cs)
-        => Assert.ThrowsAsync<InvalidCastException>(
-            () => base.Add_and_update_top_level_optional_owned_collection_to_JSON(value));
+        if (value == null)
+        {
+            AssertSql(
+                """
+@p0='{"Id":0,"Name":null,"Names":null,"Number":0,"Numbers":null,"OwnedCollectionBranch":null,"OwnedReferenceBranch":null}' (Nullable = false) (Size = 116)
+@p1='2'
+@p2=NULL (DbType = Int32)
+@p3='NewEntity' (Size = 4000)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [JsonEntitiesBasic] ([OwnedReferenceRoot], [Id], [EntityBasicId], [Name])
+VALUES (@p0, @p1, @p2, @p3);
+""",
+                //
+                """
+SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
+WHERE [j].[Id] = 2
+""",
+                //
+                """
+@p0='{"Id":0,"Name":null,"Names":null,"Number":0,"Numbers":null,"OwnedCollectionBranch":[],"OwnedReferenceBranch":null}' (Nullable = false) (Size = 114)
+@p1='2'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = @p0
+OUTPUT 1
+WHERE [Id] = @p1;
+""",
+                //
+                """
+SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
+WHERE [j].[Id] = 2
+""");
+        }
+        else if (value.Value)
+        {
+            AssertSql(
+                """
+@p0='{"Id":0,"Name":null,"Names":null,"Number":0,"Numbers":null,"OwnedCollectionBranch":[{"Date":"0001-01-01T00:00:00","Enum":0,"Enums":null,"Fraction":0,"Id":0,"NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":null,"OwnedReferenceLeaf":null}],"OwnedReferenceBranch":null}' (Nullable = false) (Size = 280)
+@p1='2'
+@p2=NULL (DbType = Int32)
+@p3='NewEntity' (Size = 4000)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [JsonEntitiesBasic] ([OwnedReferenceRoot], [Id], [EntityBasicId], [Name])
+VALUES (@p0, @p1, @p2, @p3);
+""",
+                //
+                """
+SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
+WHERE [j].[Id] = 2
+""",
+                //
+                """
+@p0=NULL (Nullable = false)
+@p1='2'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenceRoot], 'strict $.OwnedCollectionBranch', JSON_QUERY(@p0))
+OUTPUT 1
+WHERE [Id] = @p1;
+""",
+                //
+                """
+SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
+WHERE [j].[Id] = 2
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
+@p0='{"Id":0,"Name":null,"Names":null,"Number":0,"Numbers":null,"OwnedCollectionBranch":[],"OwnedReferenceBranch":null}' (Nullable = false) (Size = 114)
+@p1='2'
+@p2=NULL (DbType = Int32)
+@p3='NewEntity' (Size = 4000)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [JsonEntitiesBasic] ([OwnedReferenceRoot], [Id], [EntityBasicId], [Name])
+VALUES (@p0, @p1, @p2, @p3);
+""",
+                //
+                """
+SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
+WHERE [j].[Id] = 2
+""",
+                //
+                """
+@p0='[{"Date":"0001-01-01T00:00:00","Enum":0,"Enums":null,"Fraction":0,"Id":0,"NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":null,"OwnedReferenceLeaf":null}]' (Nullable = false) (Size = 168)
+@p1='2'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenceRoot], 'strict $.OwnedCollectionBranch', JSON_QUERY(@p0))
+OUTPUT 1
+WHERE [Id] = @p1;
+""",
+                //
+                """
+SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
+WHERE [j].[Id] = 2
+""");
+        }
+    }
+
+    public override async Task Add_and_update_top_level_optional_owned_collection_to_JSON(bool? value)
+    {
+        await base.Add_and_update_top_level_optional_owned_collection_to_JSON(value);
+
+        if (value == null)
+        {
+            AssertSql(
+                """
+@p0='2'
+@p1=NULL (DbType = Int32)
+@p2='NewEntity' (Size = 4000)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [JsonEntitiesBasic] ([Id], [EntityBasicId], [Name])
+VALUES (@p0, @p1, @p2);
+""",
+                //
+                """
+SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
+WHERE [j].[Id] = 2
+""",
+                //
+                """
+@p0='[]' (Nullable = false) (Size = 2)
+@p3='2'
+@p1=NULL (DbType = Int32)
+@p2='NewEntity' (Size = 4000)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [JsonEntitiesBasic] SET [OwnedCollectionRoot] = @p0, [EntityBasicId] = @p1, [Name] = @p2
+OUTPUT 1
+WHERE [Id] = @p3;
+""",
+                //
+                """
+select OwnedCollectionRoot from JsonEntitiesBasic where Id = 2
+""",
+                //
+                """
+SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
+WHERE [j].[Id] = 2
+""");
+        }
+        else if (value.Value)
+        {
+            AssertSql(
+                """
+@p0='[{"Id":0,"Name":null,"Names":null,"Number":0,"Numbers":null,"OwnedCollectionBranch":null,"OwnedReferenceBranch":null}]' (Nullable = false) (Size = 118)
+@p1='2'
+@p2=NULL (DbType = Int32)
+@p3='NewEntity' (Size = 4000)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [JsonEntitiesBasic] ([OwnedCollectionRoot], [Id], [EntityBasicId], [Name])
+VALUES (@p0, @p1, @p2, @p3);
+""",
+                //
+                """
+SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
+WHERE [j].[Id] = 2
+""",
+                //
+                """
+@p0=NULL (Nullable = false)
+@p1='2'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [JsonEntitiesBasic] SET [OwnedCollectionRoot] = @p0
+OUTPUT 1
+WHERE [Id] = @p1;
+""",
+                //
+                """
+select OwnedCollectionRoot from JsonEntitiesBasic where Id = 2
+""",
+                //
+                """
+SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
+WHERE [j].[Id] = 2
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
+@p0='[]' (Nullable = false) (Size = 2)
+@p1='2'
+@p2=NULL (DbType = Int32)
+@p3='NewEntity' (Size = 4000)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [JsonEntitiesBasic] ([OwnedCollectionRoot], [Id], [EntityBasicId], [Name])
+VALUES (@p0, @p1, @p2, @p3);
+""",
+                //
+                """
+SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
+WHERE [j].[Id] = 2
+""",
+                //
+                """
+@p0='[{"Id":0,"Name":null,"Names":null,"Number":0,"Numbers":null,"OwnedCollectionBranch":null,"OwnedReferenceBranch":null}]' (Nullable = false) (Size = 118)
+@p1='2'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [JsonEntitiesBasic] SET [OwnedCollectionRoot] = @p0
+OUTPUT 1
+WHERE [Id] = @p1;
+""",
+                //
+                """
+select OwnedCollectionRoot from JsonEntitiesBasic where Id = 2
+""",
+                //
+                """
+SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
+WHERE [j].[Id] = 2
+""");
+        }
+    }
 
     [ConditionalTheory(Skip = "TODO:SQLJSON Hangs (See InsertsHang.cs")]
     public override async Task Add_and_update_nested_optional_primitive_collection(bool? value)
@@ -2728,9 +3002,7 @@ WHERE [j].[Id] = 1
 
     public override async Task Edit_single_property_relational_collection_of_nullable_int32_set_to_null()
     {
-        // TODO:SQLJSON Updates to null fail (See UpdateToNull.cs)
-        await Assert.ThrowsAsync<InvalidCastException>(
-            () => base.Edit_single_property_relational_collection_of_nullable_int32_set_to_null());
+        await base.Edit_single_property_relational_collection_of_nullable_int32_set_to_null();
 
         AssertSql(
             """
@@ -2822,9 +3094,7 @@ WHERE [j].[Id] = 1
 
     public override async Task Edit_single_property_relational_collection_of_nullable_enum_set_to_null()
     {
-        // TODO:SQLJSON Updates to null fail (See UpdateToNull.cs)
-        await Assert.ThrowsAsync<InvalidCastException>(
-            () => base.Edit_single_property_relational_collection_of_nullable_enum_set_to_null());
+        await base.Edit_single_property_relational_collection_of_nullable_enum_set_to_null();
 
         AssertSql(
             """
@@ -2870,9 +3140,7 @@ WHERE [j].[Id] = 1
 
     public override async Task Edit_single_property_relational_collection_of_nullable_enum_with_int_converter_set_to_null()
     {
-        // TODO:SQLJSON Updates to null fail (See UpdateToNull.cs)
-        await Assert.ThrowsAsync<InvalidCastException>(
-            () => base.Edit_single_property_relational_collection_of_nullable_enum_with_int_converter_set_to_null());
+        await base.Edit_single_property_relational_collection_of_nullable_enum_with_int_converter_set_to_null();
 
         AssertSql(
             """
@@ -2918,9 +3186,7 @@ WHERE [j].[Id] = 1
 
     public override async Task Edit_single_property_relational_collection_of_nullable_enum_with_converter_that_handles_nulls_set_to_null()
     {
-        // TODO:SQLJSON Updates to null fail (See UpdateToNull.cs)
-        await Assert.ThrowsAsync<InvalidCastException>(
-            () => base.Edit_single_property_relational_collection_of_nullable_enum_with_converter_that_handles_nulls_set_to_null());
+        await base.Edit_single_property_relational_collection_of_nullable_enum_with_converter_that_handles_nulls_set_to_null();
 
         AssertSql(
             """

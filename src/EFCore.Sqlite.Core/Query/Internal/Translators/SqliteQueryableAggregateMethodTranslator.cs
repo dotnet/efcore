@@ -76,7 +76,8 @@ public class SqliteQueryableAggregateMethodTranslator : IAggregateMethodCallTran
                         throw new NotSupportedException(
                             SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Max), maxArgumentType.ShortDisplayName()));
                     }
-                    else if (maxArgumentType == typeof(decimal))
+
+                    if (maxArgumentType == typeof(decimal))
                     {
                         maxSqlExpression = CombineTerms(source, maxSqlExpression);
                         return _sqlExpressionFactory.Function(
@@ -102,7 +103,8 @@ public class SqliteQueryableAggregateMethodTranslator : IAggregateMethodCallTran
                         throw new NotSupportedException(
                             SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Min), minArgumentType.ShortDisplayName()));
                     }
-                    else if (minArgumentType == typeof(decimal))
+
+                    if (minArgumentType == typeof(decimal))
                     {
                         minSqlExpression = CombineTerms(source, minSqlExpression);
                         return _sqlExpressionFactory.Function(

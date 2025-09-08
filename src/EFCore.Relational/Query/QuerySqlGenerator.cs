@@ -20,7 +20,7 @@ public class QuerySqlGenerator : SqlExpressionVisitor
 {
     private readonly IRelationalCommandBuilderFactory _relationalCommandBuilderFactory;
     private readonly ISqlGenerationHelper _sqlGenerationHelper;
-    private readonly HashSet<string> _parameterNames = new();
+    private readonly HashSet<string> _parameterNames = [];
     private IRelationalCommandBuilder _relationalCommandBuilder;
 
     /// <summary>
@@ -166,10 +166,9 @@ public class QuerySqlGenerator : SqlExpressionVisitor
                 GroupBy: []
             }
             && selectExpression.Projection.Count == s.Source1.Projection.Count
-            && selectExpression.Projection.Select(
-                    (pe, index) => pe.Expression is ColumnExpression column
-                        && column.TableAlias == s.Alias
-                        && column.Name == s.Source1.Projection[index].Alias)
+            && selectExpression.Projection.Select((pe, index) => pe.Expression is ColumnExpression column
+                    && column.TableAlias == s.Alias
+                    && column.Name == s.Source1.Projection[index].Alias)
                 .All(e => e))
         {
             setOperation = s;
@@ -306,9 +305,8 @@ public class QuerySqlGenerator : SqlExpressionVisitor
                 GroupBy.Count: 0,
             }
             && selectExpression.Projection.Count == valuesExpression.ColumnNames.Count
-            && selectExpression.Projection.Select(
-                    (pe, index) => pe.Expression is ColumnExpression column
-                        && column.Name == valuesExpression.ColumnNames[index])
+            && selectExpression.Projection.Select((pe, index) => pe.Expression is ColumnExpression column
+                    && column.Name == valuesExpression.ColumnNames[index])
                 .All(e => e))
         {
             GenerateValues(valuesExpression);
@@ -1461,20 +1459,33 @@ public class QuerySqlGenerator : SqlExpressionVisitor
                 || selectExpression.Tables[1] is CrossJoinExpression))
         {
             _relationalCommandBuilder.Append("UPDATE ");
+
             Visit(updateExpression.Table);
+
             _relationalCommandBuilder.AppendLine();
             _relationalCommandBuilder.Append("SET ");
-            _relationalCommandBuilder.Append(
-                $"{_sqlGenerationHelper.DelimitIdentifier(updateExpression.ColumnValueSetters[0].Column.Name)} = ");
-            Visit(updateExpression.ColumnValueSetters[0].Value);
-            using (_relationalCommandBuilder.Indent())
+
+            for (var i = 0; i < updateExpression.ColumnValueSetters.Count; i++)
             {
-                foreach (var columnValueSetter in updateExpression.ColumnValueSetters.Skip(1))
+                if (i == 1)
+                {
+                    Sql.IncrementIndent();
+                }
+
+                if (i > 0)
                 {
                     _relationalCommandBuilder.AppendLine(",");
-                    _relationalCommandBuilder.Append($"{_sqlGenerationHelper.DelimitIdentifier(columnValueSetter.Column.Name)} = ");
-                    Visit(columnValueSetter.Value);
                 }
+
+                var (column, value) = updateExpression.ColumnValueSetters[i];
+
+                _relationalCommandBuilder.Append(_sqlGenerationHelper.DelimitIdentifier(column.Name)).Append(" = ");
+                Visit(value);
+            }
+
+            if (updateExpression.ColumnValueSetters.Count > 1)
+            {
+                Sql.DecrementIndent();
             }
 
             var predicate = selectExpression.Predicate;
@@ -1577,7 +1588,7 @@ public class QuerySqlGenerator : SqlExpressionVisitor
         // and generate a SELECT for it with the names, and a UNION ALL over the rest of the values.
         _relationalCommandBuilder.Append("SELECT ");
 
-        Check.DebugAssert(rowValues.Count > 0, "rowValues.Count > 0");
+        Check.DebugAssert(rowValues.Count > 0);
         var firstRowValues = rowValues[0].Values;
         for (var i = 0; i < firstRowValues.Count; i++)
         {

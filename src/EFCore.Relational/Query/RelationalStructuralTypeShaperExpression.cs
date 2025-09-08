@@ -24,7 +24,7 @@ public class RelationalStructuralTypeShaperExpression : StructuralTypeShaperExpr
     /// <param name="valueBufferExpression">An expression of ValueBuffer to get values for properties of the entity.</param>
     /// <param name="nullable">A bool value indicating whether this entity instance can be null.</param>
     public RelationalStructuralTypeShaperExpression(ITypeBase structuralType, Expression valueBufferExpression, bool nullable)
-        : base(structuralType, valueBufferExpression, nullable, materializationCondition: null)
+        : base(structuralType, valueBufferExpression, nullable)
     {
     }
 
@@ -38,12 +38,14 @@ public class RelationalStructuralTypeShaperExpression : StructuralTypeShaperExpr
     ///     An expression of <see cref="Func{T,TResult}" /> to determine which entity type to
     ///     materialize.
     /// </param>
+    /// <param name="clrType">CLR type for this expression as returned from <see cref="Type"/>.</param>
     protected RelationalStructuralTypeShaperExpression(
         ITypeBase type,
         Expression valueBufferExpression,
         bool nullable,
-        LambdaExpression? materializationCondition)
-        : base(type, valueBufferExpression, nullable, materializationCondition)
+        LambdaExpression? materializationCondition,
+        Type clrType)
+        : base(type, valueBufferExpression, nullable, materializationCondition, clrType)
     {
     }
 
@@ -85,7 +87,7 @@ public class RelationalStructuralTypeShaperExpression : StructuralTypeShaperExpr
                 : Constant(entityType, typeof(IEntityType));
 
             expressions.Add(Switch(discriminatorValueVariable, defaultBlock, switchCases));
-            baseCondition = Lambda(Block(new[] { discriminatorValueVariable }, expressions), valueBufferParameter);
+            baseCondition = Lambda(Block([discriminatorValueVariable], expressions), valueBufferParameter);
         }
         else
         {
@@ -113,10 +115,9 @@ public class RelationalStructuralTypeShaperExpression : StructuralTypeShaperExpr
             if (requiredNonPkProperties.Count > 0)
             {
                 condition = requiredNonPkProperties
-                    .Select(
-                        p => NotEqual(
-                            valueBufferParameter.CreateValueBufferReadValueExpression(typeof(object), p.GetIndex(), p),
-                            Constant(null)))
+                    .Select(p => NotEqual(
+                        valueBufferParameter.CreateValueBufferReadValueExpression(typeof(object), p.GetIndex(), p),
+                        Constant(null)))
                     .Aggregate(AndAlso);
             }
 
@@ -126,10 +127,9 @@ public class RelationalStructuralTypeShaperExpression : StructuralTypeShaperExpr
                 && allNonPrincipalSharedNonPkProperties.All(p => p.IsNullable))
             {
                 var atLeastOneNonNullValueInNullablePropertyCondition = allNonPrincipalSharedNonPkProperties
-                    .Select(
-                        p => NotEqual(
-                            valueBufferParameter.CreateValueBufferReadValueExpression(typeof(object), p.GetIndex(), p),
-                            Constant(null)))
+                    .Select(p => NotEqual(
+                        valueBufferParameter.CreateValueBufferReadValueExpression(typeof(object), p.GetIndex(), p),
+                        Constant(null)))
                     .Aggregate(OrElse);
 
                 condition = condition == null
@@ -151,7 +151,7 @@ public class RelationalStructuralTypeShaperExpression : StructuralTypeShaperExpr
     /// <inheritdoc />
     public override StructuralTypeShaperExpression WithType(ITypeBase type)
         => type != StructuralType
-            ? new RelationalStructuralTypeShaperExpression(type, ValueBufferExpression, IsNullable)
+            ? new RelationalStructuralTypeShaperExpression(type, ValueBufferExpression, IsNullable, materializationCondition: null, type.ClrType)
             : this;
 
     /// <inheritdoc />
@@ -177,12 +177,24 @@ public class RelationalStructuralTypeShaperExpression : StructuralTypeShaperExpr
         }
 
         // Marking nullable requires re-computation of Discriminator condition
-        return new RelationalStructuralTypeShaperExpression(StructuralType, newValueBufferExpression, true);
+        return new RelationalStructuralTypeShaperExpression(StructuralType, newValueBufferExpression, true, materializationCondition: null, Type);
     }
 
     /// <inheritdoc />
     public override StructuralTypeShaperExpression Update(Expression valueBufferExpression)
         => valueBufferExpression != ValueBufferExpression
-            ? new RelationalStructuralTypeShaperExpression(StructuralType, valueBufferExpression, IsNullable, MaterializationCondition)
+            ? new RelationalStructuralTypeShaperExpression(StructuralType, valueBufferExpression, IsNullable, MaterializationCondition, Type)
+            : this;
+
+    /// <inheritdoc />
+    public override RelationalStructuralTypeShaperExpression MakeClrTypeNullable()
+        => Type != Type.MakeNullable()
+            ? new RelationalStructuralTypeShaperExpression(StructuralType, ValueBufferExpression, IsNullable, MaterializationCondition, Type.MakeNullable())
+            : this;
+
+    /// <inheritdoc />
+    public override RelationalStructuralTypeShaperExpression MakeClrTypeNonNullable()
+        => Type != Type.UnwrapNullableType()
+            ? new RelationalStructuralTypeShaperExpression(StructuralType, ValueBufferExpression, IsNullable, MaterializationCondition, Type.UnwrapNullableType())
             : this;
 }

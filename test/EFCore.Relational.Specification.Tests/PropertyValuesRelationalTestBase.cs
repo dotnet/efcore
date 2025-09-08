@@ -15,8 +15,7 @@ public abstract class PropertyValuesRelationalTestBase<TFixture>(TFixture fixtur
         {
             base.OnModelCreating(modelBuilder, context);
 
-            modelBuilder.Entity<School>(
-                b => b.ComplexCollection(e => e.Departments, b => b.ToJson()));
+            modelBuilder.Entity<School>(b => b.ComplexCollection(e => e.Departments, b => b.ToJson()));
         }
     }
 }

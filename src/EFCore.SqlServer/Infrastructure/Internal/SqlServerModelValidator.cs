@@ -62,9 +62,8 @@ public class SqlServerModelValidator : RelationalModelValidator
     {
         foreach (IConventionProperty property in model.GetEntityTypes()
                      .SelectMany(t => t.GetDeclaredProperties())
-                     .Where(
-                         p => p.ClrType.UnwrapNullableType() == typeof(decimal)
-                             && !p.IsForeignKey()))
+                     .Where(p => p.ClrType.UnwrapNullableType() == typeof(decimal)
+                         && !p.IsForeignKey()))
         {
             var valueConverterConfigurationSource = property.GetValueConverterConfigurationSource();
             var valueConverterProviderType = property.GetValueConverter()?.ProviderClrType;
@@ -103,17 +102,19 @@ public class SqlServerModelValidator : RelationalModelValidator
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
         foreach (IConventionProperty property in model.GetEntityTypes()
-            .SelectMany(t => t.GetDeclaredProperties())
-            .Where(p => p.ClrType.UnwrapNullableType() == typeof(SqlVector<float>)))
+                     .SelectMany(t => t.GetDeclaredProperties())
+                     .Where(p => p.ClrType.UnwrapNullableType() == typeof(SqlVector<float>)))
         {
             if (property.GetTypeMapping() is not SqlServerVectorTypeMapping { Size: not null } vectorTypeMapping)
             {
-                throw new InvalidOperationException(SqlServerStrings.VectorDimensionsMissing(property.DeclaringType.DisplayName(), property.Name));
+                throw new InvalidOperationException(
+                    SqlServerStrings.VectorDimensionsMissing(property.DeclaringType.DisplayName(), property.Name));
             }
 
             if (property.DeclaringType.IsMappedToJson())
             {
-                throw new InvalidOperationException(SqlServerStrings.VectorPropertiesNotSupportedInJson(property.DeclaringType.DisplayName(), property.Name));
+                throw new InvalidOperationException(
+                    SqlServerStrings.VectorPropertiesNotSupportedInJson(property.DeclaringType.DisplayName(), property.Name));
             }
         }
     }
@@ -132,9 +133,8 @@ public class SqlServerModelValidator : RelationalModelValidator
         {
             // TODO: Validate this per table
             foreach (var property in entityType.GetDeclaredProperties()
-                         .Where(
-                             p => p.ClrType.UnwrapNullableType() == typeof(byte)
-                                 && p.GetValueGenerationStrategy() == SqlServerValueGenerationStrategy.IdentityColumn))
+                         .Where(p => p.ClrType.UnwrapNullableType() == typeof(byte)
+                             && p.GetValueGenerationStrategy() == SqlServerValueGenerationStrategy.IdentityColumn))
             {
                 logger.ByteIdentityColumnWarning(property);
             }
@@ -155,9 +155,8 @@ public class SqlServerModelValidator : RelationalModelValidator
         if (entityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy
             && entityType.BaseType == null)
         {
-            foreach (var storeGeneratedProperty in key.Properties.Where(
-                         p => (p.ValueGenerated & ValueGenerated.OnAdd) != 0
-                             && p.GetValueGenerationStrategy() == SqlServerValueGenerationStrategy.IdentityColumn))
+            foreach (var storeGeneratedProperty in key.Properties.Where(p => (p.ValueGenerated & ValueGenerated.OnAdd) != 0
+                         && p.GetValueGenerationStrategy() == SqlServerValueGenerationStrategy.IdentityColumn))
             {
                 logger.TpcStoreGeneratedIdentityWarning(storeGeneratedProperty);
             }
@@ -335,7 +334,7 @@ public class SqlServerModelValidator : RelationalModelValidator
                     temporalEntityType.DisplayName(), periodProperty.Name, expectedPeriodColumnName));
         }
 
-        if (periodProperty.TryGetDefaultValue(out var _))
+        if (periodProperty.TryGetDefaultValue(out _))
         {
             throw new InvalidOperationException(
                 SqlServerStrings.TemporalPeriodPropertyCantHaveDefaultValue(

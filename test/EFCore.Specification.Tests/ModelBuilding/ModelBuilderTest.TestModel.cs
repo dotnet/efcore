@@ -660,8 +660,7 @@ public abstract partial class ModelBuilderTest
         public int OneToOneDependentEntityWithAnnotationId { get; set; }
         public int FkProperty { get; set; }
 
-        [NotMapped]
-        [ForeignKey("FkProperty")]
+        [NotMapped, ForeignKey("FkProperty")]
         public required OneToOneDependentEntityWithAnnotation NavOneToOneDependentEntityWithAnnotation { get; set; }
     }
 
@@ -789,8 +788,11 @@ public abstract partial class ModelBuilderTest
     {
         public int Id { get; set; }
 
-        public IEnumerator<byte> GetEnumerator() => throw new NotImplementedException();
-        IEnumerator IEnumerable.GetEnumerator() => throw new NotImplementedException();
+        public IEnumerator<byte> GetEnumerator()
+            => throw new NotImplementedException();
+
+        IEnumerator IEnumerable.GetEnumerator()
+            => throw new NotImplementedException();
     }
 
     protected class ValueCategory

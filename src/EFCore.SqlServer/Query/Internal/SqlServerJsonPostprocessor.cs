@@ -31,7 +31,7 @@ public sealed class SqlServerJsonPostprocessor(
     SqlAliasManager? sqlAliasManager)
     : ExpressionVisitor
 {
-    private readonly List<OuterApplyExpression> _openjsonOuterAppliesToAdd = new();
+    private readonly List<OuterApplyExpression> _openjsonOuterAppliesToAdd = [];
     private readonly Dictionary<(string, string), ColumnInfo> _columnsToRewrite = new();
 
     private RelationalTypeMapping? _nvarcharMaxTypeMapping;
@@ -261,13 +261,14 @@ public sealed class SqlServerJsonPostprocessor(
             // IS NULL operator"). So we find comparisons that involve the json type, and apply a conversion to string (nvarchar(max))
             // to both sides. We exempt this when one of the sides is a constant null (not required).
             case SqlBinaryExpression
-            {
-                OperatorType: ExpressionType.Equal or ExpressionType.NotEqual,
-                Left: var left,
-                Right: var right
-            } comparison
+                {
+                    OperatorType: ExpressionType.Equal or ExpressionType.NotEqual,
+                    Left: var left,
+                    Right: var right
+                } comparison
                 when (left.TypeMapping?.StoreType is "json" || right.TypeMapping?.StoreType is "json")
-                    && left is not SqlConstantExpression { Value: null } && right is not SqlConstantExpression { Value: null }:
+                && left is not SqlConstantExpression { Value: null }
+                && right is not SqlConstantExpression { Value: null }:
             {
                 return comparison.Update(
                     sqlExpressionFactory.Convert(
@@ -289,7 +290,7 @@ public sealed class SqlServerJsonPostprocessor(
                 || (sqlExpression is SqlUnaryExpression
                     {
                         OperatorType: ExpressionType.Convert,
-                        Operand: SqlExpression operand
+                        Operand: var operand
                     }
                     && IsKeyColumn(operand, openJsonTableAlias));
 

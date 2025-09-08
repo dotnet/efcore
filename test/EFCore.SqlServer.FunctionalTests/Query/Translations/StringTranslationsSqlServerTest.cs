@@ -175,7 +175,6 @@ WHERE CAST(CHARINDEX(@pattern, [b].[String]) AS int) - CASE
     ELSE 1
 END = 1
 """);
-
     }
 
     public override async Task IndexOf_with_one_parameter_arg_char()
@@ -193,7 +192,6 @@ WHERE CAST(CHARINDEX(@pattern, [b].[String]) AS int) - CASE
     ELSE 1
 END = 1
 """);
-
     }
 
     public override async Task IndexOf_with_constant_starting_position()
@@ -636,8 +634,7 @@ WHERE [b].[String] LIKE @pattern_endswith ESCAPE N'\'
     {
         // SQL Server trims trailing whitespace for length calculations, making our EndsWith() column translation not work reliably in that
         // case
-        await AssertQuery(
-            ss => ss.Set<BasicTypesEntity>().Where(b => b.String == "Seattle" && b.String.EndsWith(b.String)));
+        await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.String == "Seattle" && b.String.EndsWith(b.String)));
 
         AssertSql(
             """
@@ -688,8 +685,7 @@ WHERE [b].[String] LIKE N'%eattl%'
 
     public override async Task Contains_Literal_Char()
     {
-        await AssertQuery(
-            ss => ss.Set<BasicTypesEntity>().Where(c => c.String.Contains('e')));
+        await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.String.Contains('e')));
 
         AssertSql(
             """
@@ -1045,37 +1041,37 @@ END
         await base.Compare_nested();
 
         AssertSql(
-"""
+            """
 SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
 FROM [BasicTypesEntities] AS [b]
 WHERE [b].[String] = N'M' + [b].[String]
 """,
-                //
-                """
+            //
+            """
 SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
 FROM [BasicTypesEntities] AS [b]
 WHERE [b].[String] <> SUBSTRING([b].[String], 0 + 1, 0)
 """,
-                //
-                """
+            //
+            """
 SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
 FROM [BasicTypesEntities] AS [b]
 WHERE [b].[String] > REPLACE(N'Seattle', N'Sea', [b].[String])
 """,
-                //
-                """
+            //
+            """
 SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
 FROM [BasicTypesEntities] AS [b]
 WHERE [b].[String] <= N'M' + [b].[String]
 """,
-                //
-                """
+            //
+            """
 SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
 FROM [BasicTypesEntities] AS [b]
 WHERE [b].[String] > SUBSTRING([b].[String], 0 + 1, 0)
 """,
-                //
-                """
+            //
+            """
 SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
 FROM [BasicTypesEntities] AS [b]
 WHERE [b].[String] < REPLACE(N'Seattle', N'Sea', [b].[String])
@@ -1273,37 +1269,37 @@ END
         await base.CompareTo_nested();
 
         AssertSql(
-"""
+            """
 SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
 FROM [BasicTypesEntities] AS [b]
 WHERE [b].[String] = N'M' + [b].[String]
 """,
-                //
-                """
+            //
+            """
 SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
 FROM [BasicTypesEntities] AS [b]
 WHERE [b].[String] <> SUBSTRING([b].[String], 0 + 1, 0)
 """,
-                //
-                """
+            //
+            """
 SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
 FROM [BasicTypesEntities] AS [b]
 WHERE [b].[String] > REPLACE(N'Seattle', N'Sea', [b].[String])
 """,
-                //
-                """
+            //
+            """
 SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
 FROM [BasicTypesEntities] AS [b]
 WHERE [b].[String] <= N'M' + [b].[String]
 """,
-                //
-                """
+            //
+            """
 SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
 FROM [BasicTypesEntities] AS [b]
 WHERE [b].[String] > SUBSTRING([b].[String], 0 + 1, 0)
 """,
-                //
-                """
+            //
+            """
 SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
 FROM [BasicTypesEntities] AS [b]
 WHERE [b].[String] < REPLACE(N'Seattle', N'Sea', [b].[String])

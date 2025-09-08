@@ -5,7 +5,8 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public class EntitySplittingSqlServerTest(NonSharedFixture fixture, ITestOutputHelper testOutputHelper) : EntitySplittingTestBase(fixture, testOutputHelper)
+public class EntitySplittingSqlServerTest(NonSharedFixture fixture, ITestOutputHelper testOutputHelper)
+    : EntitySplittingTestBase(fixture, testOutputHelper)
 {
     [ConditionalFact]
     public virtual async Task Can_roundtrip_with_triggers()
@@ -15,15 +16,14 @@ public class EntitySplittingSqlServerTest(NonSharedFixture fixture, ITestOutputH
             {
                 OnModelCreating(modelBuilder);
 
-                modelBuilder.Entity<MeterReading>(
-                    ob =>
-                    {
-                        ob.SplitToTable(
-                            "MeterReadingDetails", t =>
-                            {
-                                t.HasTrigger("MeterReadingsDetails_Trigger");
-                            });
-                    });
+                modelBuilder.Entity<MeterReading>(ob =>
+                {
+                    ob.SplitToTable(
+                        "MeterReadingDetails", t =>
+                        {
+                            t.HasTrigger("MeterReadingsDetails_Trigger");
+                        });
+                });
             },
             sensitiveLogEnabled: false,
             seed: c => c.Database.ExecuteSqlRawAsync(

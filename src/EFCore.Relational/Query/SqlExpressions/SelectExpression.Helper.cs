@@ -278,11 +278,12 @@ public sealed partial class SelectExpression
                     };
                 }
 
-                case CollectionResultExpression {
-                    QueryExpression: ProjectionBindingExpression innerProjectionBindingExpression
-                }  collectionResultExpression:
+                case CollectionResultExpression
                 {
-                    var navigation = collectionResultExpression.Relationship switch
+                    QueryExpression: ProjectionBindingExpression innerProjectionBindingExpression
+                } collectionResultExpression:
+                {
+                    var navigation = collectionResultExpression.StructuralProperty switch
                     {
                         INavigationBase n => n,
                         null => null,
@@ -453,8 +454,8 @@ public sealed partial class SelectExpression
                     var identityMap = true;
                     for (var j = 0; j < selectExpression.Projection.Count; j++)
                     {
-                        var newIndex = innerProjections.FindIndex(
-                            e => string.Equals(e, selectExpression.Projection[j].Alias, StringComparison.Ordinal));
+                        var newIndex = innerProjections.FindIndex(e => string.Equals(
+                            e, selectExpression.Projection[j].Alias, StringComparison.Ordinal));
                         if (newIndex == -1)
                         {
                             // If for whatever reason outer has additional projection which cannot be remapped we avoid lift

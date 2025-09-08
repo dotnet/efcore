@@ -108,7 +108,8 @@ public class ClrPropertySetterFactoryTest
 
         public bool IsPrimitiveCollection { get; }
 
-        public bool IsCollection => throw new NotImplementedException();
+        public bool IsCollection
+            => throw new NotImplementedException();
 
         public IElementType GetElementType()
             => throw new NotImplementedException();
@@ -315,14 +316,12 @@ public class ClrPropertySetterFactoryTest
         var entityType = CreateModel().AddEntityType(typeof(ConcreteEntity1));
         var property = entityType.AddProperty(typeof(ConcreteEntity1).GetProperty(nameof(ConcreteEntity1.NoSetterProperty)));
 
-        Assert.Throws<InvalidOperationException>(
-            () => ClrPropertySetterFactory.Instance.Create((IProperty)property));
+        Assert.Throws<InvalidOperationException>(() => ClrPropertySetterFactory.Instance.Create((IProperty)property));
 
         entityType = CreateModel().AddEntityType(typeof(ConcreteEntity2));
         property = entityType.AddProperty(typeof(ConcreteEntity2).GetProperty(nameof(ConcreteEntity2.NoSetterProperty)));
 
-        Assert.Throws<InvalidOperationException>(
-            () => ClrPropertySetterFactory.Instance.Create((IProperty)property));
+        Assert.Throws<InvalidOperationException>(() => ClrPropertySetterFactory.Instance.Create((IProperty)property));
     }
 
     [ConditionalFact]

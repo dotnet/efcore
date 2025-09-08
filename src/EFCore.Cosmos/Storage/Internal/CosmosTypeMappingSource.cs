@@ -51,7 +51,8 @@ public class CosmosTypeMappingSource : TypeMappingSource
         => base.FindMapping(property) switch
         {
             CosmosTypeMapping mapping
-                when property.GetVectorDistanceFunction() is DistanceFunction distanceFunction && property.GetVectorDimensions() is int dimensions
+                when property.GetVectorDistanceFunction() is { } distanceFunction
+                && property.GetVectorDimensions() is { } dimensions
                 => new CosmosVectorTypeMapping(mapping, new CosmosVectorType(distanceFunction, dimensions)),
             var other => other
         };

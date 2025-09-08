@@ -19,11 +19,8 @@ namespace Microsoft.EntityFrameworkCore;
 
 public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
-    [ConditionalTheory]
-    [InlineData(sbyte.MinValue, """{"Prop":-128}""")]
-    [InlineData(sbyte.MaxValue, """{"Prop":127}""")]
-    [InlineData((sbyte)0, """{"Prop":0}""")]
-    [InlineData((sbyte)1, """{"Prop":1}""")]
+    [ConditionalTheory, InlineData(sbyte.MinValue, """{"Prop":-128}"""), InlineData(sbyte.MaxValue, """{"Prop":127}"""),
+     InlineData((sbyte)0, """{"Prop":0}"""), InlineData((sbyte)1, """{"Prop":1}""")]
     public virtual Task Can_read_write_sbyte_JSON_values(sbyte value, string json)
         => Can_read_and_write_JSON_value<Int8Type, sbyte>(nameof(Int8Type.Int8), value, json);
 
@@ -32,11 +29,8 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public sbyte Int8 { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData(short.MinValue, """{"Prop":-32768}""")]
-    [InlineData(short.MaxValue, """{"Prop":32767}""")]
-    [InlineData((short)0, """{"Prop":0}""")]
-    [InlineData((short)1, """{"Prop":1}""")]
+    [ConditionalTheory, InlineData(short.MinValue, """{"Prop":-32768}"""), InlineData(short.MaxValue, """{"Prop":32767}"""),
+     InlineData((short)0, """{"Prop":0}"""), InlineData((short)1, """{"Prop":1}""")]
     public virtual Task Can_read_write_short_JSON_values(short value, string json)
         => Can_read_and_write_JSON_value<Int16Type, short>(nameof(Int16Type.Int16), value, json);
 
@@ -45,11 +39,8 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public short Int16 { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData(int.MinValue, """{"Prop":-2147483648}""")]
-    [InlineData(int.MaxValue, """{"Prop":2147483647}""")]
-    [InlineData(0, """{"Prop":0}""")]
-    [InlineData(1, """{"Prop":1}""")]
+    [ConditionalTheory, InlineData(int.MinValue, """{"Prop":-2147483648}"""), InlineData(int.MaxValue, """{"Prop":2147483647}"""),
+     InlineData(0, """{"Prop":0}"""), InlineData(1, """{"Prop":1}""")]
     public virtual Task Can_read_write_int_JSON_values(int value, string json)
         => Can_read_and_write_JSON_value<Int32Type, int>(nameof(Int32Type.Int32), value, json);
 
@@ -58,11 +49,9 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public int Int32 { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData(long.MinValue, """{"Prop":-9223372036854775808}""")]
-    [InlineData(long.MaxValue, """{"Prop":9223372036854775807}""")]
-    [InlineData((long)0, """{"Prop":0}""")]
-    [InlineData((long)1, """{"Prop":1}""")]
+    [ConditionalTheory, InlineData(long.MinValue, """{"Prop":-9223372036854775808}"""),
+     InlineData(long.MaxValue, """{"Prop":9223372036854775807}"""), InlineData((long)0, """{"Prop":0}"""),
+     InlineData((long)1, """{"Prop":1}""")]
     public virtual Task Can_read_write_long_JSON_values(long value, string json)
         => Can_read_and_write_JSON_value<Int64Type, long>(nameof(Int64Type.Int64), value, json);
 
@@ -71,10 +60,8 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public long Int64 { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData(byte.MinValue, """{"Prop":0}""")]
-    [InlineData(byte.MaxValue, """{"Prop":255}""")]
-    [InlineData((byte)1, """{"Prop":1}""")]
+    [ConditionalTheory, InlineData(byte.MinValue, """{"Prop":0}"""), InlineData(byte.MaxValue, """{"Prop":255}"""),
+     InlineData((byte)1, """{"Prop":1}""")]
     public virtual Task Can_read_write_byte_JSON_values(byte value, string json)
         => Can_read_and_write_JSON_value<UInt8Type, byte>(nameof(UInt8Type.UInt8), value, json);
 
@@ -83,10 +70,8 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public byte UInt8 { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData(ushort.MinValue, """{"Prop":0}""")]
-    [InlineData(ushort.MaxValue, """{"Prop":65535}""")]
-    [InlineData((ushort)1, """{"Prop":1}""")]
+    [ConditionalTheory, InlineData(ushort.MinValue, """{"Prop":0}"""), InlineData(ushort.MaxValue, """{"Prop":65535}"""),
+     InlineData((ushort)1, """{"Prop":1}""")]
     public virtual Task Can_read_write_ushort_JSON_values(ushort value, string json)
         => Can_read_and_write_JSON_value<UInt16Type, ushort>(nameof(UInt16Type.UInt16), value, json);
 
@@ -95,10 +80,8 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public ushort UInt16 { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData(uint.MinValue, """{"Prop":0}""")]
-    [InlineData(uint.MaxValue, """{"Prop":4294967295}""")]
-    [InlineData((uint)1, """{"Prop":1}""")]
+    [ConditionalTheory, InlineData(uint.MinValue, """{"Prop":0}"""), InlineData(uint.MaxValue, """{"Prop":4294967295}"""),
+     InlineData((uint)1, """{"Prop":1}""")]
     public virtual Task Can_read_write_uint_JSON_values(uint value, string json)
         => Can_read_and_write_JSON_value<UInt32Type, uint>(nameof(UInt32Type.UInt32), value, json);
 
@@ -107,10 +90,8 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public uint UInt32 { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData(ulong.MinValue, """{"Prop":0}""")]
-    [InlineData(ulong.MaxValue, """{"Prop":18446744073709551615}""")]
-    [InlineData((ulong)1, """{"Prop":1}""")]
+    [ConditionalTheory, InlineData(ulong.MinValue, """{"Prop":0}"""), InlineData(ulong.MaxValue, """{"Prop":18446744073709551615}"""),
+     InlineData((ulong)1, """{"Prop":1}""")]
     public virtual Task Can_read_write_ulong_JSON_values(ulong value, string json)
         => Can_read_and_write_JSON_value<UInt64Type, ulong>(nameof(UInt64Type.UInt64), value, json);
 
@@ -119,11 +100,8 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public ulong UInt64 { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData(float.MinValue, """{"Prop":-3.4028235E+38}""")]
-    [InlineData(float.MaxValue, """{"Prop":3.4028235E+38}""")]
-    [InlineData((float)0.0, """{"Prop":0}""")]
-    [InlineData((float)1.1, """{"Prop":1.1}""")]
+    [ConditionalTheory, InlineData(float.MinValue, """{"Prop":-3.4028235E+38}"""), InlineData(float.MaxValue, """{"Prop":3.4028235E+38}"""),
+     InlineData((float)0.0, """{"Prop":0}"""), InlineData((float)1.1, """{"Prop":1.1}""")]
     public virtual Task Can_read_write_float_JSON_values(float value, string json)
         => Can_read_and_write_JSON_value<FloatType, float>(nameof(FloatType.Float), value, json);
 
@@ -132,11 +110,9 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public float Float { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData(double.MinValue, """{"Prop":-1.7976931348623157E+308}""")]
-    [InlineData(double.MaxValue, """{"Prop":1.7976931348623157E+308}""")]
-    [InlineData(0.0, """{"Prop":0}""")]
-    [InlineData(1.1, """{"Prop":1.1}""")]
+    [ConditionalTheory, InlineData(double.MinValue, """{"Prop":-1.7976931348623157E+308}"""),
+     InlineData(double.MaxValue, """{"Prop":1.7976931348623157E+308}"""), InlineData(0.0, """{"Prop":0}"""),
+     InlineData(1.1, """{"Prop":1.1}""")]
     public virtual Task Can_read_write_double_JSON_values(double value, string json)
         => Can_read_and_write_JSON_value<DoubleType, double>(nameof(DoubleType.Double), value, json);
 
@@ -145,11 +121,9 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public double Double { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData("-79228162514264337593543950335", """{"Prop":-79228162514264337593543950335}""")]
-    [InlineData("79228162514264337593543950335", """{"Prop":79228162514264337593543950335}""")]
-    [InlineData("0.0", """{"Prop":0.0}""")]
-    [InlineData("1.1", """{"Prop":1.1}""")]
+    [ConditionalTheory, InlineData("-79228162514264337593543950335", """{"Prop":-79228162514264337593543950335}"""),
+     InlineData("79228162514264337593543950335", """{"Prop":79228162514264337593543950335}"""), InlineData("0.0", """{"Prop":0.0}"""),
+     InlineData("1.1", """{"Prop":1.1}""")]
     public virtual Task Can_read_write_decimal_JSON_values(decimal value, string json)
         => Can_read_and_write_JSON_value<DecimalType, decimal>(nameof(DecimalType.Decimal), value, json);
 
@@ -158,10 +132,8 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public decimal Decimal { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData("1/1/0001", """{"Prop":"0001-01-01"}""")]
-    [InlineData("12/31/9999", """{"Prop":"9999-12-31"}""")]
-    [InlineData("5/29/2023", """{"Prop":"2023-05-29"}""")]
+    [ConditionalTheory, InlineData("1/1/0001", """{"Prop":"0001-01-01"}"""), InlineData("12/31/9999", """{"Prop":"9999-12-31"}"""),
+     InlineData("5/29/2023", """{"Prop":"2023-05-29"}""")]
     public virtual Task Can_read_write_DateOnly_JSON_values(string value, string json)
         => Can_read_and_write_JSON_value<DateOnlyType, DateOnly>(
             nameof(DateOnlyType.DateOnly),
@@ -172,10 +144,8 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public DateOnly DateOnly { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData("00:00:00.0000000", """{"Prop":"00:00:00.0000000"}""")]
-    [InlineData("23:59:59.9999999", """{"Prop":"23:59:59.9999999"}""")]
-    [InlineData("11:05:12.3456789", """{"Prop":"11:05:12.3456789"}""")]
+    [ConditionalTheory, InlineData("00:00:00.0000000", """{"Prop":"00:00:00.0000000"}"""),
+     InlineData("23:59:59.9999999", """{"Prop":"23:59:59.9999999"}"""), InlineData("11:05:12.3456789", """{"Prop":"11:05:12.3456789"}""")]
     public virtual Task Can_read_write_TimeOnly_JSON_values(string value, string json)
         => Can_read_and_write_JSON_value<TimeOnlyType, TimeOnly>(
             nameof(TimeOnlyType.TimeOnly),
@@ -186,10 +156,9 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public TimeOnly TimeOnly { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData("0001-01-01T00:00:00.0000000", """{"Prop":"0001-01-01T00:00:00"}""")]
-    [InlineData("9999-12-31T23:59:59.9999999", """{"Prop":"9999-12-31T23:59:59.9999999"}""")]
-    [InlineData("2023-05-29T10:52:47.2064353", """{"Prop":"2023-05-29T10:52:47.2064353"}""")]
+    [ConditionalTheory, InlineData("0001-01-01T00:00:00.0000000", """{"Prop":"0001-01-01T00:00:00"}"""),
+     InlineData("9999-12-31T23:59:59.9999999", """{"Prop":"9999-12-31T23:59:59.9999999"}"""),
+     InlineData("2023-05-29T10:52:47.2064353", """{"Prop":"2023-05-29T10:52:47.2064353"}""")]
     public virtual Task Can_read_write_DateTime_JSON_values(string value, string json)
         => Can_read_and_write_JSON_value<DateTimeType, DateTime>(
             nameof(DateTimeType.DateTime),
@@ -200,11 +169,10 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public DateTime DateTime { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData("0001-01-01T00:00:00.0000000-01:00", """{"Prop":"0001-01-01T00:00:00-01:00"}""")]
-    [InlineData("9999-12-31T23:59:59.9999999+02:00", """{"Prop":"9999-12-31T23:59:59.9999999+02:00"}""")]
-    [InlineData("0001-01-01T00:00:00.0000000-03:00", """{"Prop":"0001-01-01T00:00:00-03:00"}""")]
-    [InlineData("2023-05-29T11:11:15.5672854+04:00", """{"Prop":"2023-05-29T11:11:15.5672854+04:00"}""")]
+    [ConditionalTheory, InlineData("0001-01-01T00:00:00.0000000-01:00", """{"Prop":"0001-01-01T00:00:00-01:00"}"""),
+     InlineData("9999-12-31T23:59:59.9999999+02:00", """{"Prop":"9999-12-31T23:59:59.9999999+02:00"}"""),
+     InlineData("0001-01-01T00:00:00.0000000-03:00", """{"Prop":"0001-01-01T00:00:00-03:00"}"""),
+     InlineData("2023-05-29T11:11:15.5672854+04:00", """{"Prop":"2023-05-29T11:11:15.5672854+04:00"}""")]
     public virtual Task Can_read_write_DateTimeOffset_JSON_values(string value, string json)
         => Can_read_and_write_JSON_value<DateTimeOffsetType, DateTimeOffset>(
             nameof(DateTimeOffsetType.DateTimeOffset),
@@ -215,11 +183,9 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public DateTimeOffset DateTimeOffset { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData("-10675199.02:48:05.4775808", """{"Prop":"-10675199:2:48:05.4775808"}""")]
-    [InlineData("10675199.02:48:05.4775807", """{"Prop":"10675199:2:48:05.4775807"}""")]
-    [InlineData("00:00:00", """{"Prop":"0:00:00"}""")]
-    [InlineData("12:23:23.8018854", """{"Prop":"12:23:23.8018854"}""")]
+    [ConditionalTheory, InlineData("-10675199.02:48:05.4775808", """{"Prop":"-10675199:2:48:05.4775808"}"""),
+     InlineData("10675199.02:48:05.4775807", """{"Prop":"10675199:2:48:05.4775807"}"""), InlineData("00:00:00", """{"Prop":"0:00:00"}"""),
+     InlineData("12:23:23.8018854", """{"Prop":"12:23:23.8018854"}""")]
     public virtual Task Can_read_write_TimeSpan_JSON_values(string value, string json)
         => Can_read_and_write_JSON_value<TimeSpanType, TimeSpan>(
             nameof(TimeSpanType.TimeSpan),
@@ -230,9 +196,7 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public TimeSpan TimeSpan { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData(false, """{"Prop":false}""")]
-    [InlineData(true, """{"Prop":true}""")]
+    [ConditionalTheory, InlineData(false, """{"Prop":false}"""), InlineData(true, """{"Prop":true}""")]
     public virtual Task Can_read_write_bool_JSON_values(bool value, string json)
         => Can_read_and_write_JSON_value<BooleanType, bool>(nameof(BooleanType.Boolean), value, json);
 
@@ -241,11 +205,8 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public bool Boolean { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData(char.MinValue, """{"Prop":"\u0000"}""")]
-    [InlineData(char.MaxValue, """{"Prop":"\uFFFF"}""")]
-    [InlineData(' ', """{"Prop":" "}""")]
-    [InlineData("Z", """{"Prop":"Z"}""")]
+    [ConditionalTheory, InlineData(char.MinValue, """{"Prop":"\u0000"}"""), InlineData(char.MaxValue, """{"Prop":"\uFFFF"}"""),
+     InlineData(' ', """{"Prop":" "}"""), InlineData("Z", """{"Prop":"Z"}""")]
     public virtual Task Can_read_write_char_JSON_values(char value, string json)
         => Can_read_and_write_JSON_value<CharacterType, char>(nameof(CharacterType.Character), value, json);
 
@@ -254,10 +215,9 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public char Character { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData("00000000-0000-0000-0000-000000000000", """{"Prop":"00000000-0000-0000-0000-000000000000"}""")]
-    [InlineData("FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF", """{"Prop":"ffffffff-ffff-ffff-ffff-ffffffffffff"}""")]
-    [InlineData("8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD", """{"Prop":"8c44242f-8e3f-4a20-8be8-98c7c1aadebd"}""")]
+    [ConditionalTheory, InlineData("00000000-0000-0000-0000-000000000000", """{"Prop":"00000000-0000-0000-0000-000000000000"}"""),
+     InlineData("FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF", """{"Prop":"ffffffff-ffff-ffff-ffff-ffffffffffff"}"""),
+     InlineData("8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD", """{"Prop":"8c44242f-8e3f-4a20-8be8-98c7c1aadebd"}""")]
     public virtual Task Can_read_write_GUID_JSON_values(string value, string json)
         => Can_read_and_write_JSON_value<GuidType, Guid>(nameof(GuidType.Guid), new Guid(value), json);
 
@@ -266,13 +226,10 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public Guid Guid { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData("MinValue", """{"Prop":"MinValue"}""")]
-    [InlineData("MaxValue", """{"Prop":"MaxValue"}""")]
-    [InlineData("", """{"Prop":""}""")]
-    [InlineData(
-        "❤❥웃유♋☮✌☏☢☠✔☑♚▲♪฿Ɖ⛏♥❣♂♀☿👍✍✉☣☤✘☒♛▼♫⌘⌛¡♡ღツ☼☁❅♾️✎©®™Σ✪✯☭➳Ⓐ✞℃℉°✿⚡☃☂✄¢€£∞✫★½☯✡☪",
-        @"{""Prop"":""\u2764\u2765\uC6C3\uC720\u264B\u262E\u270C\u260F\u2622\u2620\u2714\u2611\u265A\u25B2\u266A\u0E3F\u0189\u26CF\u2665\u2763\u2642\u2640\u263F\uD83D\uDC4D\u270D\u2709\u2623\u2624\u2718\u2612\u265B\u25BC\u266B\u2318\u231B\u00A1\u2661\u10E6\u30C4\u263C\u2601\u2745\u267E\uFE0F\u270E\u00A9\u00AE\u2122\u03A3\u272A\u272F\u262D\u27B3\u24B6\u271E\u2103\u2109\u00B0\u273F\u26A1\u2603\u2602\u2704\u00A2\u20AC\u00A3\u221E\u272B\u2605\u00BD\u262F\u2721\u262A""}")]
+    [ConditionalTheory, InlineData("MinValue", """{"Prop":"MinValue"}"""), InlineData("MaxValue", """{"Prop":"MaxValue"}"""),
+     InlineData("", """{"Prop":""}"""), InlineData(
+         "❤❥웃유♋☮✌☏☢☠✔☑♚▲♪฿Ɖ⛏♥❣♂♀☿👍✍✉☣☤✘☒♛▼♫⌘⌛¡♡ღツ☼☁❅♾️✎©®™Σ✪✯☭➳Ⓐ✞℃℉°✿⚡☃☂✄¢€£∞✫★½☯✡☪",
+         @"{""Prop"":""\u2764\u2765\uC6C3\uC720\u264B\u262E\u270C\u260F\u2622\u2620\u2714\u2611\u265A\u25B2\u266A\u0E3F\u0189\u26CF\u2665\u2763\u2642\u2640\u263F\uD83D\uDC4D\u270D\u2709\u2623\u2624\u2718\u2612\u265B\u25BC\u266B\u2318\u231B\u00A1\u2661\u10E6\u30C4\u263C\u2601\u2745\u267E\uFE0F\u270E\u00A9\u00AE\u2122\u03A3\u272A\u272F\u262D\u27B3\u24B6\u271E\u2103\u2109\u00B0\u273F\u26A1\u2603\u2602\u2704\u00A2\u20AC\u00A3\u221E\u272B\u2605\u00BD\u262F\u2721\u262A""}")]
     public virtual Task Can_read_write_string_JSON_values(string value, string json)
         => Can_read_and_write_JSON_value<StringType, string>(nameof(StringType.String), value, json);
 
@@ -281,11 +238,8 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public string String { get; set; } = null!;
     }
 
-    [ConditionalTheory]
-    [InlineData("0,0,0,1", """{"Prop":"AAAAAQ=="}""")]
-    [InlineData("255,255,255,255", """{"Prop":"/////w=="}""")]
-    [InlineData("", """{"Prop":""}""")]
-    [InlineData("1,2,3,4", """{"Prop":"AQIDBA=="}""")]
+    [ConditionalTheory, InlineData("0,0,0,1", """{"Prop":"AAAAAQ=="}"""), InlineData("255,255,255,255", """{"Prop":"/////w=="}"""),
+     InlineData("", """{"Prop":""}"""), InlineData("1,2,3,4", """{"Prop":"AQIDBA=="}""")]
     public virtual Task Can_read_write_binary_JSON_values(string value, string json)
         => Can_read_and_write_JSON_value<BytesType, byte[]>(
             nameof(BytesType.Bytes),
@@ -296,11 +250,10 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public byte[] Bytes { get; set; } = null!;
     }
 
-    [ConditionalTheory]
-    [InlineData(
-        "https://user:password@www.contoso.com:80/Home/Index.htm?q1=v1&q2=v2#FragmentName",
-        """{"Prop":"https://user:password@www.contoso.com:80/Home/Index.htm?q1=v1\u0026q2=v2#FragmentName"}""")]
-    [InlineData("file:///C:/test/path/file.txt", """{"Prop":"file:///C:/test/path/file.txt"}""")]
+    [ConditionalTheory, InlineData(
+         "https://user:password@www.contoso.com:80/Home/Index.htm?q1=v1&q2=v2#FragmentName",
+         """{"Prop":"https://user:password@www.contoso.com:80/Home/Index.htm?q1=v1\u0026q2=v2#FragmentName"}"""),
+     InlineData("file:///C:/test/path/file.txt", """{"Prop":"file:///C:/test/path/file.txt"}""")]
     public virtual Task Can_read_write_URI_JSON_values(string value, string json)
         => Can_read_and_write_JSON_value<UriType, Uri>(nameof(UriType.Uri), new Uri(value), json);
 
@@ -309,14 +262,10 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public Uri Uri { get; set; } = null!;
     }
 
-    [ConditionalTheory]
-    [InlineData("127.0.0.1", """{"Prop":"127.0.0.1"}""")]
-    [InlineData("0.0.0.0", """{"Prop":"0.0.0.0"}""")]
-    [InlineData("255.255.255.255", """{"Prop":"255.255.255.255"}""")]
-    [InlineData("192.168.1.156", """{"Prop":"192.168.1.156"}""")]
-    [InlineData("::1", """{"Prop":"::1"}""")]
-    [InlineData("::", """{"Prop":"::"}""")]
-    [InlineData("2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577", """{"Prop":"2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577"}""")]
+    [ConditionalTheory, InlineData("127.0.0.1", """{"Prop":"127.0.0.1"}"""), InlineData("0.0.0.0", """{"Prop":"0.0.0.0"}"""),
+     InlineData("255.255.255.255", """{"Prop":"255.255.255.255"}"""), InlineData("192.168.1.156", """{"Prop":"192.168.1.156"}"""),
+     InlineData("::1", """{"Prop":"::1"}"""), InlineData("::", """{"Prop":"::"}"""),
+     InlineData("2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577", """{"Prop":"2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577"}""")]
     public virtual Task Can_read_write_IP_address_JSON_values(string value, string json)
         => Can_read_and_write_JSON_value<IPAddressType, IPAddress>(nameof(IPAddressType.IpAddress), IPAddress.Parse(value), json);
 
@@ -325,10 +274,8 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public IPAddress IpAddress { get; set; } = null!;
     }
 
-    [ConditionalTheory]
-    [InlineData("001122334455", """{"Prop":"001122334455"}""")]
-    [InlineData("00-11-22-33-44-55", """{"Prop":"001122334455"}""")]
-    [InlineData("0011.2233.4455", """{"Prop":"001122334455"}""")]
+    [ConditionalTheory, InlineData("001122334455", """{"Prop":"001122334455"}"""),
+     InlineData("00-11-22-33-44-55", """{"Prop":"001122334455"}"""), InlineData("0011.2233.4455", """{"Prop":"001122334455"}""")]
     public virtual Task Can_read_write_physical_address_JSON_values(string value, string json)
         => Can_read_and_write_JSON_value<PhysicalAddressType, PhysicalAddress>(
             nameof(PhysicalAddressType.PhysicalAddress),
@@ -339,11 +286,8 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public PhysicalAddress PhysicalAddress { get; set; } = null!;
     }
 
-    [ConditionalTheory]
-    [InlineData((sbyte)Enum8.Min, """{"Prop":-128}""")]
-    [InlineData((sbyte)Enum8.Max, """{"Prop":127}""")]
-    [InlineData((sbyte)Enum8.Default, """{"Prop":0}""")]
-    [InlineData((sbyte)Enum8.One, """{"Prop":1}""")]
+    [ConditionalTheory, InlineData((sbyte)Enum8.Min, """{"Prop":-128}"""), InlineData((sbyte)Enum8.Max, """{"Prop":127}"""),
+     InlineData((sbyte)Enum8.Default, """{"Prop":0}"""), InlineData((sbyte)Enum8.One, """{"Prop":1}""")]
     public virtual Task Can_read_write_sbyte_enum_JSON_values(Enum8 value, string json)
         => Can_read_and_write_JSON_value<Enum8Type, Enum8>(nameof(Enum8Type.Enum8), value, json);
 
@@ -352,11 +296,8 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public Enum8 Enum8 { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData((short)Enum16.Min, """{"Prop":-32768}""")]
-    [InlineData((short)Enum16.Max, """{"Prop":32767}""")]
-    [InlineData((short)Enum16.Default, """{"Prop":0}""")]
-    [InlineData((short)Enum16.One, """{"Prop":1}""")]
+    [ConditionalTheory, InlineData((short)Enum16.Min, """{"Prop":-32768}"""), InlineData((short)Enum16.Max, """{"Prop":32767}"""),
+     InlineData((short)Enum16.Default, """{"Prop":0}"""), InlineData((short)Enum16.One, """{"Prop":1}""")]
     public virtual Task Can_read_write_short_enum_JSON_values(Enum16 value, string json)
         => Can_read_and_write_JSON_value<Enum16Type, Enum16>(nameof(Enum16Type.Enum16), value, json);
 
@@ -365,11 +306,8 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public Enum16 Enum16 { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData((int)Enum32.Min, """{"Prop":-2147483648}""")]
-    [InlineData((int)Enum32.Max, """{"Prop":2147483647}""")]
-    [InlineData((int)Enum32.Default, """{"Prop":0}""")]
-    [InlineData((int)Enum32.One, """{"Prop":1}""")]
+    [ConditionalTheory, InlineData((int)Enum32.Min, """{"Prop":-2147483648}"""), InlineData((int)Enum32.Max, """{"Prop":2147483647}"""),
+     InlineData((int)Enum32.Default, """{"Prop":0}"""), InlineData((int)Enum32.One, """{"Prop":1}""")]
     public virtual Task Can_read_write_int_enum_JSON_values(Enum32 value, string json)
         => Can_read_and_write_JSON_value<Enum32Type, Enum32>(nameof(Enum32Type.Enum32), value, json);
 
@@ -378,11 +316,9 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public Enum32 Enum32 { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData((long)Enum64.Min, """{"Prop":-9223372036854775808}""")]
-    [InlineData((long)Enum64.Max, """{"Prop":9223372036854775807}""")]
-    [InlineData((long)Enum64.Default, """{"Prop":0}""")]
-    [InlineData((long)Enum64.One, """{"Prop":1}""")]
+    [ConditionalTheory, InlineData((long)Enum64.Min, """{"Prop":-9223372036854775808}"""),
+     InlineData((long)Enum64.Max, """{"Prop":9223372036854775807}"""), InlineData((long)Enum64.Default, """{"Prop":0}"""),
+     InlineData((long)Enum64.One, """{"Prop":1}""")]
     public virtual Task Can_read_write_long_enum_JSON_values(Enum64 value, string json)
         => Can_read_and_write_JSON_value<Enum64Type, Enum64>(nameof(Enum64Type.Enum64), value, json);
 
@@ -391,10 +327,8 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public Enum64 Enum64 { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData((byte)EnumU8.Min, """{"Prop":0}""")]
-    [InlineData((byte)EnumU8.Max, """{"Prop":255}""")]
-    [InlineData((byte)EnumU8.One, """{"Prop":1}""")]
+    [ConditionalTheory, InlineData((byte)EnumU8.Min, """{"Prop":0}"""), InlineData((byte)EnumU8.Max, """{"Prop":255}"""),
+     InlineData((byte)EnumU8.One, """{"Prop":1}""")]
     public virtual Task Can_read_write_byte_enum_JSON_values(EnumU8 value, string json)
         => Can_read_and_write_JSON_value<EnumU8Type, EnumU8>(nameof(EnumU8Type.EnumU8), value, json);
 
@@ -403,10 +337,8 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public EnumU8 EnumU8 { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData((ushort)EnumU16.Min, """{"Prop":0}""")]
-    [InlineData((ushort)EnumU16.Max, """{"Prop":65535}""")]
-    [InlineData((ushort)EnumU16.One, """{"Prop":1}""")]
+    [ConditionalTheory, InlineData((ushort)EnumU16.Min, """{"Prop":0}"""), InlineData((ushort)EnumU16.Max, """{"Prop":65535}"""),
+     InlineData((ushort)EnumU16.One, """{"Prop":1}""")]
     public virtual Task Can_read_write_ushort_enum_JSON_values(EnumU16 value, string json)
         => Can_read_and_write_JSON_value<EnumU16Type, EnumU16>(nameof(EnumU16Type.EnumU16), value, json);
 
@@ -415,10 +347,8 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public EnumU16 EnumU16 { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData((uint)EnumU32.Min, """{"Prop":0}""")]
-    [InlineData((uint)EnumU32.Max, """{"Prop":4294967295}""")]
-    [InlineData((uint)EnumU32.One, """{"Prop":1}""")]
+    [ConditionalTheory, InlineData((uint)EnumU32.Min, """{"Prop":0}"""), InlineData((uint)EnumU32.Max, """{"Prop":4294967295}"""),
+     InlineData((uint)EnumU32.One, """{"Prop":1}""")]
     public virtual Task Can_read_write_uint_enum_JSON_values(EnumU32 value, string json)
         => Can_read_and_write_JSON_value<EnumU32Type, EnumU32>(nameof(EnumU32Type.EnumU32), value, json);
 
@@ -427,10 +357,8 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public EnumU32 EnumU32 { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData((ulong)EnumU64.Min, """{"Prop":0}""")]
-    [InlineData((ulong)EnumU64.Max, """{"Prop":18446744073709551615}""")]
-    [InlineData((ulong)EnumU64.One, """{"Prop":1}""")]
+    [ConditionalTheory, InlineData((ulong)EnumU64.Min, """{"Prop":0}"""),
+     InlineData((ulong)EnumU64.Max, """{"Prop":18446744073709551615}"""), InlineData((ulong)EnumU64.One, """{"Prop":1}""")]
     public virtual Task Can_read_write_ulong_enum_JSON_values(EnumU64 value, string json)
         => Can_read_and_write_JSON_value<EnumU64Type, EnumU64>(nameof(EnumU64Type.EnumU64), value, json);
 
@@ -439,12 +367,8 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public EnumU64 EnumU64 { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData(sbyte.MinValue, """{"Prop":-128}""")]
-    [InlineData(sbyte.MaxValue, """{"Prop":127}""")]
-    [InlineData((sbyte)0, """{"Prop":0}""")]
-    [InlineData((sbyte)1, """{"Prop":1}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData(sbyte.MinValue, """{"Prop":-128}"""), InlineData(sbyte.MaxValue, """{"Prop":127}"""),
+     InlineData((sbyte)0, """{"Prop":0}"""), InlineData((sbyte)1, """{"Prop":1}"""), InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_sbyte_JSON_values(sbyte? value, string json)
         => Can_read_and_write_JSON_value<NullableInt8Type, sbyte?>(nameof(NullableInt8Type.Int8), value, json);
 
@@ -453,12 +377,8 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public sbyte? Int8 { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData(short.MinValue, """{"Prop":-32768}""")]
-    [InlineData(short.MaxValue, """{"Prop":32767}""")]
-    [InlineData((short)0, """{"Prop":0}""")]
-    [InlineData((short)1, """{"Prop":1}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData(short.MinValue, """{"Prop":-32768}"""), InlineData(short.MaxValue, """{"Prop":32767}"""),
+     InlineData((short)0, """{"Prop":0}"""), InlineData((short)1, """{"Prop":1}"""), InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_short_JSON_values(short? value, string json)
         => Can_read_and_write_JSON_value<NullableInt16Type, short?>(nameof(NullableInt16Type.Int16), value, json);
 
@@ -467,12 +387,8 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public short? Int16 { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData(int.MinValue, """{"Prop":-2147483648}""")]
-    [InlineData(int.MaxValue, """{"Prop":2147483647}""")]
-    [InlineData(0, """{"Prop":0}""")]
-    [InlineData(1, """{"Prop":1}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData(int.MinValue, """{"Prop":-2147483648}"""), InlineData(int.MaxValue, """{"Prop":2147483647}"""),
+     InlineData(0, """{"Prop":0}"""), InlineData(1, """{"Prop":1}"""), InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_int_JSON_values(int? value, string json)
         => Can_read_and_write_JSON_value<NullableInt32Type, int?>(nameof(NullableInt32Type.Int32), value, json);
 
@@ -481,12 +397,9 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public int? Int32 { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData(long.MinValue, """{"Prop":-9223372036854775808}""")]
-    [InlineData(long.MaxValue, """{"Prop":9223372036854775807}""")]
-    [InlineData((long)0, """{"Prop":0}""")]
-    [InlineData((long)1, """{"Prop":1}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData(long.MinValue, """{"Prop":-9223372036854775808}"""),
+     InlineData(long.MaxValue, """{"Prop":9223372036854775807}"""), InlineData((long)0, """{"Prop":0}"""),
+     InlineData((long)1, """{"Prop":1}"""), InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_long_JSON_values(long? value, string json)
         => Can_read_and_write_JSON_value<NullableInt64Type, long?>(nameof(NullableInt64Type.Int64), value, json);
 
@@ -495,11 +408,8 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public long? Int64 { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData(byte.MinValue, """{"Prop":0}""")]
-    [InlineData(byte.MaxValue, """{"Prop":255}""")]
-    [InlineData((byte)1, """{"Prop":1}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData(byte.MinValue, """{"Prop":0}"""), InlineData(byte.MaxValue, """{"Prop":255}"""),
+     InlineData((byte)1, """{"Prop":1}"""), InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_byte_JSON_values(byte? value, string json)
         => Can_read_and_write_JSON_value<NullableUInt8Type, byte?>(nameof(NullableUInt8Type.UInt8), value, json);
 
@@ -508,11 +418,8 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public byte? UInt8 { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData(ushort.MinValue, """{"Prop":0}""")]
-    [InlineData(ushort.MaxValue, """{"Prop":65535}""")]
-    [InlineData((ushort)1, """{"Prop":1}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData(ushort.MinValue, """{"Prop":0}"""), InlineData(ushort.MaxValue, """{"Prop":65535}"""),
+     InlineData((ushort)1, """{"Prop":1}"""), InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_ushort_JSON_values(ushort? value, string json)
         => Can_read_and_write_JSON_value<NullableUInt16Type, ushort?>(nameof(NullableUInt16Type.UInt16), value, json);
 
@@ -521,11 +428,8 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public ushort? UInt16 { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData(uint.MinValue, """{"Prop":0}""")]
-    [InlineData(uint.MaxValue, """{"Prop":4294967295}""")]
-    [InlineData((uint)1, """{"Prop":1}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData(uint.MinValue, """{"Prop":0}"""), InlineData(uint.MaxValue, """{"Prop":4294967295}"""),
+     InlineData((uint)1, """{"Prop":1}"""), InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_uint_JSON_values(uint? value, string json)
         => Can_read_and_write_JSON_value<NullableUInt32Type, uint?>(nameof(NullableUInt32Type.UInt32), value, json);
 
@@ -534,11 +438,8 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public uint? UInt32 { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData(ulong.MinValue, """{"Prop":0}""")]
-    [InlineData(ulong.MaxValue, """{"Prop":18446744073709551615}""")]
-    [InlineData((ulong)1, """{"Prop":1}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData(ulong.MinValue, """{"Prop":0}"""), InlineData(ulong.MaxValue, """{"Prop":18446744073709551615}"""),
+     InlineData((ulong)1, """{"Prop":1}"""), InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_ulong_JSON_values(ulong? value, string json)
         => Can_read_and_write_JSON_value<NullableUInt64Type, ulong?>(nameof(NullableUInt64Type.UInt64), value, json);
 
@@ -547,12 +448,8 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public ulong? UInt64 { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData(float.MinValue, """{"Prop":-3.4028235E+38}""")]
-    [InlineData(float.MaxValue, """{"Prop":3.4028235E+38}""")]
-    [InlineData((float)0.0, """{"Prop":0}""")]
-    [InlineData((float)1.1, """{"Prop":1.1}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData(float.MinValue, """{"Prop":-3.4028235E+38}"""), InlineData(float.MaxValue, """{"Prop":3.4028235E+38}"""),
+     InlineData((float)0.0, """{"Prop":0}"""), InlineData((float)1.1, """{"Prop":1.1}"""), InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_float_JSON_values(float? value, string json)
         => Can_read_and_write_JSON_value<NullableFloatType, float?>(nameof(NullableFloatType.Float), value, json);
 
@@ -561,12 +458,9 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public float? Float { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData(double.MinValue, """{"Prop":-1.7976931348623157E+308}""")]
-    [InlineData(double.MaxValue, """{"Prop":1.7976931348623157E+308}""")]
-    [InlineData(0.0, """{"Prop":0}""")]
-    [InlineData(1.1, """{"Prop":1.1}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData(double.MinValue, """{"Prop":-1.7976931348623157E+308}"""),
+     InlineData(double.MaxValue, """{"Prop":1.7976931348623157E+308}"""), InlineData(0.0, """{"Prop":0}"""),
+     InlineData(1.1, """{"Prop":1.1}"""), InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_double_JSON_values(double? value, string json)
         => Can_read_and_write_JSON_value<NullableDoubleType, double?>(nameof(NullableDoubleType.Double), value, json);
 
@@ -575,12 +469,9 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public double? Double { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData("-79228162514264337593543950335", """{"Prop":-79228162514264337593543950335}""")]
-    [InlineData("79228162514264337593543950335", """{"Prop":79228162514264337593543950335}""")]
-    [InlineData("0.0", """{"Prop":0.0}""")]
-    [InlineData("1.1", """{"Prop":1.1}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData("-79228162514264337593543950335", """{"Prop":-79228162514264337593543950335}"""),
+     InlineData("79228162514264337593543950335", """{"Prop":79228162514264337593543950335}"""), InlineData("0.0", """{"Prop":0.0}"""),
+     InlineData("1.1", """{"Prop":1.1}"""), InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_decimal_JSON_values(string? value, string json)
         => Can_read_and_write_JSON_value<NullableDecimalType, decimal?>(
             nameof(NullableDecimalType.Decimal),
@@ -591,11 +482,8 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public decimal? Decimal { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData("1/1/0001", """{"Prop":"0001-01-01"}""")]
-    [InlineData("12/31/9999", """{"Prop":"9999-12-31"}""")]
-    [InlineData("5/29/2023", """{"Prop":"2023-05-29"}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData("1/1/0001", """{"Prop":"0001-01-01"}"""), InlineData("12/31/9999", """{"Prop":"9999-12-31"}"""),
+     InlineData("5/29/2023", """{"Prop":"2023-05-29"}"""), InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_DateOnly_JSON_values(string? value, string json)
         => Can_read_and_write_JSON_value<NullableDateOnlyType, DateOnly?>(
             nameof(NullableDateOnlyType.DateOnly),
@@ -606,11 +494,9 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public DateOnly? DateOnly { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData("00:00:00.0000000", """{"Prop":"00:00:00.0000000"}""")]
-    [InlineData("23:59:59.9999999", """{"Prop":"23:59:59.9999999"}""")]
-    [InlineData("11:05:12.3456789", """{"Prop":"11:05:12.3456789"}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData("00:00:00.0000000", """{"Prop":"00:00:00.0000000"}"""),
+     InlineData("23:59:59.9999999", """{"Prop":"23:59:59.9999999"}"""), InlineData("11:05:12.3456789", """{"Prop":"11:05:12.3456789"}"""),
+     InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_TimeOnly_JSON_values(string? value, string json)
         => Can_read_and_write_JSON_value<NullableTimeOnlyType, TimeOnly?>(
             nameof(NullableTimeOnlyType.TimeOnly),
@@ -621,11 +507,9 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public TimeOnly? TimeOnly { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData("0001-01-01T00:00:00.0000000", """{"Prop":"0001-01-01T00:00:00"}""")]
-    [InlineData("9999-12-31T23:59:59.9999999", """{"Prop":"9999-12-31T23:59:59.9999999"}""")]
-    [InlineData("2023-05-29T10:52:47.2064353", """{"Prop":"2023-05-29T10:52:47.2064353"}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData("0001-01-01T00:00:00.0000000", """{"Prop":"0001-01-01T00:00:00"}"""),
+     InlineData("9999-12-31T23:59:59.9999999", """{"Prop":"9999-12-31T23:59:59.9999999"}"""),
+     InlineData("2023-05-29T10:52:47.2064353", """{"Prop":"2023-05-29T10:52:47.2064353"}"""), InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_DateTime_JSON_values(string? value, string json)
         => Can_read_and_write_JSON_value<NullableDateTimeType, DateTime?>(
             nameof(NullableDateTimeType.DateTime),
@@ -636,12 +520,11 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public DateTime? DateTime { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData("0001-01-01T00:00:00.0000000-01:00", """{"Prop":"0001-01-01T00:00:00-01:00"}""")]
-    [InlineData("9999-12-31T23:59:59.9999999+02:00", """{"Prop":"9999-12-31T23:59:59.9999999+02:00"}""")]
-    [InlineData("0001-01-01T00:00:00.0000000-03:00", """{"Prop":"0001-01-01T00:00:00-03:00"}""")]
-    [InlineData("2023-05-29T11:11:15.5672854+04:00", """{"Prop":"2023-05-29T11:11:15.5672854+04:00"}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData("0001-01-01T00:00:00.0000000-01:00", """{"Prop":"0001-01-01T00:00:00-01:00"}"""),
+     InlineData("9999-12-31T23:59:59.9999999+02:00", """{"Prop":"9999-12-31T23:59:59.9999999+02:00"}"""),
+     InlineData("0001-01-01T00:00:00.0000000-03:00", """{"Prop":"0001-01-01T00:00:00-03:00"}"""),
+     InlineData("2023-05-29T11:11:15.5672854+04:00", """{"Prop":"2023-05-29T11:11:15.5672854+04:00"}"""),
+     InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_DateTimeOffset_JSON_values(string? value, string json)
         => Can_read_and_write_JSON_value<NullableDateTimeOffsetType, DateTimeOffset?>(
             nameof(NullableDateTimeOffsetType.DateTimeOffset),
@@ -652,12 +535,9 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public DateTimeOffset? DateTimeOffset { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData("-10675199.02:48:05.4775808", """{"Prop":"-10675199:2:48:05.4775808"}""")]
-    [InlineData("10675199.02:48:05.4775807", """{"Prop":"10675199:2:48:05.4775807"}""")]
-    [InlineData("00:00:00", """{"Prop":"0:00:00"}""")]
-    [InlineData("12:23:23.8018854", """{"Prop":"12:23:23.8018854"}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData("-10675199.02:48:05.4775808", """{"Prop":"-10675199:2:48:05.4775808"}"""),
+     InlineData("10675199.02:48:05.4775807", """{"Prop":"10675199:2:48:05.4775807"}"""), InlineData("00:00:00", """{"Prop":"0:00:00"}"""),
+     InlineData("12:23:23.8018854", """{"Prop":"12:23:23.8018854"}"""), InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_TimeSpan_JSON_values(string? value, string json)
         => Can_read_and_write_JSON_value<NullableTimeSpanType, TimeSpan?>(
             nameof(NullableTimeSpanType.TimeSpan),
@@ -668,10 +548,8 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public TimeSpan? TimeSpan { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData(false, """{"Prop":false}""")]
-    [InlineData(true, """{"Prop":true}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData(false, """{"Prop":false}"""), InlineData(true, """{"Prop":true}"""),
+     InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_bool_JSON_values(bool? value, string json)
         => Can_read_and_write_JSON_value<NullableBooleanType, bool?>(nameof(NullableBooleanType.Boolean), value, json);
 
@@ -680,12 +558,8 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public bool? Boolean { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData(char.MinValue, """{"Prop":"\u0000"}""")]
-    [InlineData(char.MaxValue, """{"Prop":"\uFFFF"}""")]
-    [InlineData(' ', """{"Prop":" "}""")]
-    [InlineData('Z', """{"Prop":"Z"}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData(char.MinValue, """{"Prop":"\u0000"}"""), InlineData(char.MaxValue, """{"Prop":"\uFFFF"}"""),
+     InlineData(' ', """{"Prop":" "}"""), InlineData('Z', """{"Prop":"Z"}"""), InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_char_JSON_values(char? value, string json)
         => Can_read_and_write_JSON_value<NullableCharacterType, char?>(nameof(NullableCharacterType.Character), value, json);
 
@@ -694,11 +568,10 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public char? Character { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData("00000000-0000-0000-0000-000000000000", """{"Prop":"00000000-0000-0000-0000-000000000000"}""")]
-    [InlineData("FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF", """{"Prop":"ffffffff-ffff-ffff-ffff-ffffffffffff"}""")]
-    [InlineData("8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD", """{"Prop":"8c44242f-8e3f-4a20-8be8-98c7c1aadebd"}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData("00000000-0000-0000-0000-000000000000", """{"Prop":"00000000-0000-0000-0000-000000000000"}"""),
+     InlineData("FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF", """{"Prop":"ffffffff-ffff-ffff-ffff-ffffffffffff"}"""),
+     InlineData("8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD", """{"Prop":"8c44242f-8e3f-4a20-8be8-98c7c1aadebd"}"""),
+     InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_GUID_JSON_values(string? value, string json)
         => Can_read_and_write_JSON_value<NullableGuidType, Guid?>(
             nameof(NullableGuidType.Guid),
@@ -709,14 +582,11 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public Guid? Guid { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData("MinValue", """{"Prop":"MinValue"}""")]
-    [InlineData("MaxValue", """{"Prop":"MaxValue"}""")]
-    [InlineData("", """{"Prop":""}""")]
-    [InlineData(
-        "❤❥웃유♋☮✌☏☢☠✔☑♚▲♪฿Ɖ⛏♥❣♂♀☿👍✍✉☣☤✘☒♛▼♫⌘⌛¡♡ღツ☼☁❅♾️✎©®™Σ✪✯☭➳Ⓐ✞℃℉°✿⚡☃☂✄¢€£∞✫★½☯✡☪",
-        @"{""Prop"":""\u2764\u2765\uC6C3\uC720\u264B\u262E\u270C\u260F\u2622\u2620\u2714\u2611\u265A\u25B2\u266A\u0E3F\u0189\u26CF\u2665\u2763\u2642\u2640\u263F\uD83D\uDC4D\u270D\u2709\u2623\u2624\u2718\u2612\u265B\u25BC\u266B\u2318\u231B\u00A1\u2661\u10E6\u30C4\u263C\u2601\u2745\u267E\uFE0F\u270E\u00A9\u00AE\u2122\u03A3\u272A\u272F\u262D\u27B3\u24B6\u271E\u2103\u2109\u00B0\u273F\u26A1\u2603\u2602\u2704\u00A2\u20AC\u00A3\u221E\u272B\u2605\u00BD\u262F\u2721\u262A""}")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData("MinValue", """{"Prop":"MinValue"}"""), InlineData("MaxValue", """{"Prop":"MaxValue"}"""),
+     InlineData("", """{"Prop":""}"""), InlineData(
+         "❤❥웃유♋☮✌☏☢☠✔☑♚▲♪฿Ɖ⛏♥❣♂♀☿👍✍✉☣☤✘☒♛▼♫⌘⌛¡♡ღツ☼☁❅♾️✎©®™Σ✪✯☭➳Ⓐ✞℃℉°✿⚡☃☂✄¢€£∞✫★½☯✡☪",
+         @"{""Prop"":""\u2764\u2765\uC6C3\uC720\u264B\u262E\u270C\u260F\u2622\u2620\u2714\u2611\u265A\u25B2\u266A\u0E3F\u0189\u26CF\u2665\u2763\u2642\u2640\u263F\uD83D\uDC4D\u270D\u2709\u2623\u2624\u2718\u2612\u265B\u25BC\u266B\u2318\u231B\u00A1\u2661\u10E6\u30C4\u263C\u2601\u2745\u267E\uFE0F\u270E\u00A9\u00AE\u2122\u03A3\u272A\u272F\u262D\u27B3\u24B6\u271E\u2103\u2109\u00B0\u273F\u26A1\u2603\u2602\u2704\u00A2\u20AC\u00A3\u221E\u272B\u2605\u00BD\u262F\u2721\u262A""}"),
+     InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_string_JSON_values(string? value, string json)
         => Can_read_and_write_JSON_value<NullableStringType, string?>(nameof(NullableStringType.String), value, json);
 
@@ -725,12 +595,8 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public string? String { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData("0,0,0,1", """{"Prop":"AAAAAQ=="}""")]
-    [InlineData("255,255,255,255", """{"Prop":"/////w=="}""")]
-    [InlineData("", """{"Prop":""}""")]
-    [InlineData("1,2,3,4", """{"Prop":"AQIDBA=="}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData("0,0,0,1", """{"Prop":"AAAAAQ=="}"""), InlineData("255,255,255,255", """{"Prop":"/////w=="}"""),
+     InlineData("", """{"Prop":""}"""), InlineData("1,2,3,4", """{"Prop":"AQIDBA=="}"""), InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_binary_JSON_values(string? value, string json)
         => Can_read_and_write_JSON_value<NullableBytesType, byte[]?>(
             nameof(NullableBytesType.Bytes),
@@ -745,12 +611,10 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public byte[]? Bytes { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData(
-        "https://user:password@www.contoso.com:80/Home/Index.htm?q1=v1&q2=v2#FragmentName",
-        """{"Prop":"https://user:password@www.contoso.com:80/Home/Index.htm?q1=v1\u0026q2=v2#FragmentName"}""")]
-    [InlineData("file:///C:/test/path/file.txt", """{"Prop":"file:///C:/test/path/file.txt"}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData(
+         "https://user:password@www.contoso.com:80/Home/Index.htm?q1=v1&q2=v2#FragmentName",
+         """{"Prop":"https://user:password@www.contoso.com:80/Home/Index.htm?q1=v1\u0026q2=v2#FragmentName"}"""),
+     InlineData("file:///C:/test/path/file.txt", """{"Prop":"file:///C:/test/path/file.txt"}"""), InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_URI_JSON_values(string? value, string json)
         => Can_read_and_write_JSON_value<NullableUriType, Uri?>(
             nameof(NullableUriType.Uri),
@@ -761,15 +625,11 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public Uri? Uri { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData("127.0.0.1", """{"Prop":"127.0.0.1"}""")]
-    [InlineData("0.0.0.0", """{"Prop":"0.0.0.0"}""")]
-    [InlineData("255.255.255.255", """{"Prop":"255.255.255.255"}""")]
-    [InlineData("192.168.1.156", """{"Prop":"192.168.1.156"}""")]
-    [InlineData("::1", """{"Prop":"::1"}""")]
-    [InlineData("::", """{"Prop":"::"}""")]
-    [InlineData("2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577", """{"Prop":"2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577"}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData("127.0.0.1", """{"Prop":"127.0.0.1"}"""), InlineData("0.0.0.0", """{"Prop":"0.0.0.0"}"""),
+     InlineData("255.255.255.255", """{"Prop":"255.255.255.255"}"""), InlineData("192.168.1.156", """{"Prop":"192.168.1.156"}"""),
+     InlineData("::1", """{"Prop":"::1"}"""), InlineData("::", """{"Prop":"::"}"""),
+     InlineData("2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577", """{"Prop":"2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577"}"""),
+     InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_IP_address_JSON_values(string? value, string json)
         => Can_read_and_write_JSON_value<NullableIPAddressType, IPAddress?>(
             nameof(NullableIPAddressType.IpAddress),
@@ -780,11 +640,9 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public IPAddress? IpAddress { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData("001122334455", """{"Prop":"001122334455"}""")]
-    [InlineData("00-11-22-33-44-55", """{"Prop":"001122334455"}""")]
-    [InlineData("0011.2233.4455", """{"Prop":"001122334455"}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData("001122334455", """{"Prop":"001122334455"}"""),
+     InlineData("00-11-22-33-44-55", """{"Prop":"001122334455"}"""), InlineData("0011.2233.4455", """{"Prop":"001122334455"}"""),
+     InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_physical_address_JSON_values(string? value, string json)
         => Can_read_and_write_JSON_value<NullablePhysicalAddressType, PhysicalAddress?>(
             nameof(NullablePhysicalAddressType.PhysicalAddress),
@@ -795,12 +653,9 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public PhysicalAddress? PhysicalAddress { get; set; } = null!;
     }
 
-    [ConditionalTheory]
-    [InlineData((sbyte)Enum8.Min, """{"Prop":-128}""")]
-    [InlineData((sbyte)Enum8.Max, """{"Prop":127}""")]
-    [InlineData((sbyte)Enum8.Default, """{"Prop":0}""")]
-    [InlineData((sbyte)Enum8.One, """{"Prop":1}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData((sbyte)Enum8.Min, """{"Prop":-128}"""), InlineData((sbyte)Enum8.Max, """{"Prop":127}"""),
+     InlineData((sbyte)Enum8.Default, """{"Prop":0}"""), InlineData((sbyte)Enum8.One, """{"Prop":1}"""),
+     InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_sbyte_enum_JSON_values(object? value, string json)
         => Can_read_and_write_JSON_value<NullableEnum8Type, Enum8?>(
             nameof(NullableEnum8Type.Enum8),
@@ -811,12 +666,9 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public Enum8? Enum8 { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData((short)Enum16.Min, """{"Prop":-32768}""")]
-    [InlineData((short)Enum16.Max, """{"Prop":32767}""")]
-    [InlineData((short)Enum16.Default, """{"Prop":0}""")]
-    [InlineData((short)Enum16.One, """{"Prop":1}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData((short)Enum16.Min, """{"Prop":-32768}"""), InlineData((short)Enum16.Max, """{"Prop":32767}"""),
+     InlineData((short)Enum16.Default, """{"Prop":0}"""), InlineData((short)Enum16.One, """{"Prop":1}"""),
+     InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_short_enum_JSON_values(object? value, string json)
         => Can_read_and_write_JSON_value<NullableEnum16Type, Enum16?>(
             nameof(NullableEnum16Type.Enum16),
@@ -827,12 +679,9 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public Enum16? Enum16 { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData((int)Enum32.Min, """{"Prop":-2147483648}""")]
-    [InlineData((int)Enum32.Max, """{"Prop":2147483647}""")]
-    [InlineData((int)Enum32.Default, """{"Prop":0}""")]
-    [InlineData((int)Enum32.One, """{"Prop":1}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData((int)Enum32.Min, """{"Prop":-2147483648}"""), InlineData((int)Enum32.Max, """{"Prop":2147483647}"""),
+     InlineData((int)Enum32.Default, """{"Prop":0}"""), InlineData((int)Enum32.One, """{"Prop":1}"""),
+     InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_int_enum_JSON_values(object? value, string json)
         => Can_read_and_write_JSON_value<NullableEnum32Type, Enum32?>(
             nameof(NullableEnum32Type.Enum32),
@@ -843,12 +692,9 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public Enum32? Enum32 { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData((long)Enum64.Min, """{"Prop":-9223372036854775808}""")]
-    [InlineData((long)Enum64.Max, """{"Prop":9223372036854775807}""")]
-    [InlineData((long)Enum64.Default, """{"Prop":0}""")]
-    [InlineData((long)Enum64.One, """{"Prop":1}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData((long)Enum64.Min, """{"Prop":-9223372036854775808}"""),
+     InlineData((long)Enum64.Max, """{"Prop":9223372036854775807}"""), InlineData((long)Enum64.Default, """{"Prop":0}"""),
+     InlineData((long)Enum64.One, """{"Prop":1}"""), InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_long_enum_JSON_values(object? value, string json)
         => Can_read_and_write_JSON_value<NullableEnum64Type, Enum64?>(
             nameof(NullableEnum64Type.Enum64),
@@ -859,11 +705,8 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public Enum64? Enum64 { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData((byte)EnumU8.Min, """{"Prop":0}""")]
-    [InlineData((byte)EnumU8.Max, """{"Prop":255}""")]
-    [InlineData((byte)EnumU8.One, """{"Prop":1}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData((byte)EnumU8.Min, """{"Prop":0}"""), InlineData((byte)EnumU8.Max, """{"Prop":255}"""),
+     InlineData((byte)EnumU8.One, """{"Prop":1}"""), InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_byte_enum_JSON_values(object? value, string json)
         => Can_read_and_write_JSON_value<NullableEnumU8Type, EnumU8?>(
             nameof(NullableEnumU8Type.EnumU8),
@@ -874,11 +717,8 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public EnumU8? EnumU8 { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData((ushort)EnumU16.Min, """{"Prop":0}""")]
-    [InlineData((ushort)EnumU16.Max, """{"Prop":65535}""")]
-    [InlineData((ushort)EnumU16.One, """{"Prop":1}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData((ushort)EnumU16.Min, """{"Prop":0}"""), InlineData((ushort)EnumU16.Max, """{"Prop":65535}"""),
+     InlineData((ushort)EnumU16.One, """{"Prop":1}"""), InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_ushort_enum_JSON_values(object? value, string json)
         => Can_read_and_write_JSON_value<NullableEnumU16Type, EnumU16?>(
             nameof(NullableEnumU16Type.EnumU16),
@@ -889,11 +729,8 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public EnumU16? EnumU16 { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData((uint)EnumU32.Min, """{"Prop":0}""")]
-    [InlineData((uint)EnumU32.Max, """{"Prop":4294967295}""")]
-    [InlineData((uint)EnumU32.One, """{"Prop":1}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData((uint)EnumU32.Min, """{"Prop":0}"""), InlineData((uint)EnumU32.Max, """{"Prop":4294967295}"""),
+     InlineData((uint)EnumU32.One, """{"Prop":1}"""), InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_uint_enum_JSON_values(object? value, string json)
         => Can_read_and_write_JSON_value<NullableEnumU32Type, EnumU32?>(
             nameof(NullableEnumU32Type.EnumU32),
@@ -904,11 +741,9 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public EnumU32? EnumU32 { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData((ulong)EnumU64.Min, """{"Prop":0}""")]
-    [InlineData((ulong)EnumU64.Max, """{"Prop":18446744073709551615}""")]
-    [InlineData((ulong)EnumU64.One, """{"Prop":1}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData((ulong)EnumU64.Min, """{"Prop":0}"""),
+     InlineData((ulong)EnumU64.Max, """{"Prop":18446744073709551615}"""), InlineData((ulong)EnumU64.One, """{"Prop":1}"""),
+     InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_ulong_enum_JSON_values(object? value, string json)
         => Can_read_and_write_JSON_value<NullableEnumU64Type, EnumU64?>(
             nameof(NullableEnumU64Type.EnumU64),
@@ -919,231 +754,169 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public EnumU64? EnumU64 { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData(sbyte.MinValue, """{"Prop":"-128"}""")]
-    [InlineData(sbyte.MaxValue, """{"Prop":"127"}""")]
-    [InlineData((sbyte)0, """{"Prop":"0"}""")]
-    [InlineData((sbyte)1, """{"Prop":"1"}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData(sbyte.MinValue, """{"Prop":"-128"}"""), InlineData(sbyte.MaxValue, """{"Prop":"127"}"""),
+     InlineData((sbyte)0, """{"Prop":"0"}"""), InlineData((sbyte)1, """{"Prop":"1"}"""), InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_sbyte_as_string_JSON_values(sbyte? value, string json)
         => Can_read_and_write_JSON_property_value<NullableInt8Type, sbyte?>(
             b => b.HasConversion<string>(),
             nameof(NullableInt8Type.Int8), value, json);
 
-    [ConditionalTheory]
-    [InlineData(short.MinValue, """{"Prop":"-32768"}""")]
-    [InlineData(short.MaxValue, """{"Prop":"32767"}""")]
-    [InlineData((short)0, """{"Prop":"0"}""")]
-    [InlineData((short)1, """{"Prop":"1"}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData(short.MinValue, """{"Prop":"-32768"}"""), InlineData(short.MaxValue, """{"Prop":"32767"}"""),
+     InlineData((short)0, """{"Prop":"0"}"""), InlineData((short)1, """{"Prop":"1"}"""), InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_short_as_string_JSON_values(short? value, string json)
         => Can_read_and_write_JSON_property_value<NullableInt16Type, short?>(
             b => b.HasConversion<string>(),
             nameof(NullableInt16Type.Int16), value, json);
 
-    [ConditionalTheory]
-    [InlineData(int.MinValue, """{"Prop":"-2147483648"}""")]
-    [InlineData(int.MaxValue, """{"Prop":"2147483647"}""")]
-    [InlineData(0, """{"Prop":"0"}""")]
-    [InlineData(1, """{"Prop":"1"}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData(int.MinValue, """{"Prop":"-2147483648"}"""), InlineData(int.MaxValue, """{"Prop":"2147483647"}"""),
+     InlineData(0, """{"Prop":"0"}"""), InlineData(1, """{"Prop":"1"}"""), InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_int_as_string_JSON_values(int? value, string json)
         => Can_read_and_write_JSON_property_value<NullableInt32Type, int?>(
             b => b.HasConversion<string>(),
             nameof(NullableInt32Type.Int32), value, json);
 
-    [ConditionalTheory]
-    [InlineData(long.MinValue, """{"Prop":"-9223372036854775808"}""")]
-    [InlineData(long.MaxValue, """{"Prop":"9223372036854775807"}""")]
-    [InlineData((long)0, """{"Prop":"0"}""")]
-    [InlineData((long)1, """{"Prop":"1"}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData(long.MinValue, """{"Prop":"-9223372036854775808"}"""),
+     InlineData(long.MaxValue, """{"Prop":"9223372036854775807"}"""), InlineData((long)0, """{"Prop":"0"}"""),
+     InlineData((long)1, """{"Prop":"1"}"""), InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_long_as_string_JSON_values(long? value, string json)
         => Can_read_and_write_JSON_property_value<NullableInt64Type, long?>(
             b => b.HasConversion<string>(),
             nameof(NullableInt64Type.Int64), value, json);
 
-    [ConditionalTheory]
-    [InlineData(byte.MinValue, """{"Prop":"0"}""")]
-    [InlineData(byte.MaxValue, """{"Prop":"255"}""")]
-    [InlineData((byte)1, """{"Prop":"1"}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData(byte.MinValue, """{"Prop":"0"}"""), InlineData(byte.MaxValue, """{"Prop":"255"}"""),
+     InlineData((byte)1, """{"Prop":"1"}"""), InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_byte_as_string_JSON_values(byte? value, string json)
         => Can_read_and_write_JSON_property_value<NullableUInt8Type, byte?>(
             b => b.HasConversion<string>(),
             nameof(NullableUInt8Type.UInt8), value, json);
 
-    [ConditionalTheory]
-    [InlineData(ushort.MinValue, """{"Prop":"0"}""")]
-    [InlineData(ushort.MaxValue, """{"Prop":"65535"}""")]
-    [InlineData((ushort)1, """{"Prop":"1"}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData(ushort.MinValue, """{"Prop":"0"}"""), InlineData(ushort.MaxValue, """{"Prop":"65535"}"""),
+     InlineData((ushort)1, """{"Prop":"1"}"""), InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_ushort_as_string_JSON_values(ushort? value, string json)
         => Can_read_and_write_JSON_property_value<NullableUInt16Type, ushort?>(
             b => b.HasConversion<string>(),
             nameof(NullableUInt16Type.UInt16), value, json);
 
-    [ConditionalTheory]
-    [InlineData(uint.MinValue, """{"Prop":"0"}""")]
-    [InlineData(uint.MaxValue, """{"Prop":"4294967295"}""")]
-    [InlineData((uint)1, """{"Prop":"1"}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData(uint.MinValue, """{"Prop":"0"}"""), InlineData(uint.MaxValue, """{"Prop":"4294967295"}"""),
+     InlineData((uint)1, """{"Prop":"1"}"""), InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_uint_as_string_JSON_values(uint? value, string json)
         => Can_read_and_write_JSON_property_value<NullableUInt32Type, uint?>(
             b => b.HasConversion<string>(),
             nameof(NullableUInt32Type.UInt32), value, json);
 
-    [ConditionalTheory]
-    [InlineData(ulong.MinValue, """{"Prop":"0"}""")]
-    [InlineData(ulong.MaxValue, """{"Prop":"18446744073709551615"}""")]
-    [InlineData((ulong)1, """{"Prop":"1"}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData(ulong.MinValue, """{"Prop":"0"}"""), InlineData(ulong.MaxValue, """{"Prop":"18446744073709551615"}"""),
+     InlineData((ulong)1, """{"Prop":"1"}"""), InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_ulong_as_string_JSON_values(ulong? value, string json)
         => Can_read_and_write_JSON_property_value<NullableUInt64Type, ulong?>(
             b => b.HasConversion<string>(),
             nameof(NullableUInt64Type.UInt64), value, json);
 
-    [ConditionalTheory]
-    [InlineData(float.MinValue, """{"Prop":"-3.4028235E\u002B38"}""")]
-    [InlineData(float.MaxValue, """{"Prop":"3.4028235E\u002B38"}""")]
-    [InlineData((float)0.0, """{"Prop":"0"}""")]
-    [InlineData((float)1.1, """{"Prop":"1.1"}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData(float.MinValue, """{"Prop":"-3.4028235E\u002B38"}"""),
+     InlineData(float.MaxValue, """{"Prop":"3.4028235E\u002B38"}"""), InlineData((float)0.0, """{"Prop":"0"}"""),
+     InlineData((float)1.1, """{"Prop":"1.1"}"""), InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_float_as_string_JSON_values(float? value, string json)
         => Can_read_and_write_JSON_property_value<NullableFloatType, float?>(
             b => b.HasConversion<string>(),
             nameof(NullableFloatType.Float), value, json);
 
-    [ConditionalTheory]
-    [InlineData(double.MinValue, """{"Prop":"-1.7976931348623157E\u002B308"}""")]
-    [InlineData(double.MaxValue, """{"Prop":"1.7976931348623157E\u002B308"}""")]
-    [InlineData(0.0, """{"Prop":"0"}""")]
-    [InlineData(1.1, """{"Prop":"1.1"}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData(double.MinValue, """{"Prop":"-1.7976931348623157E\u002B308"}"""),
+     InlineData(double.MaxValue, """{"Prop":"1.7976931348623157E\u002B308"}"""), InlineData(0.0, """{"Prop":"0"}"""),
+     InlineData(1.1, """{"Prop":"1.1"}"""), InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_double_as_string_JSON_values(double? value, string json)
         => Can_read_and_write_JSON_property_value<NullableDoubleType, double?>(
             b => b.HasConversion<string>(),
             nameof(NullableDoubleType.Double), value, json);
 
-    [ConditionalTheory]
-    [InlineData("-79228162514264337593543950335", """{"Prop":"-79228162514264337593543950335"}""")]
-    [InlineData("79228162514264337593543950335", """{"Prop":"79228162514264337593543950335"}""")]
-    [InlineData("0.0", """{"Prop":"0.0"}""")]
-    [InlineData("1.1", """{"Prop":"1.1"}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData("-79228162514264337593543950335", """{"Prop":"-79228162514264337593543950335"}"""),
+     InlineData("79228162514264337593543950335", """{"Prop":"79228162514264337593543950335"}"""), InlineData("0.0", """{"Prop":"0.0"}"""),
+     InlineData("1.1", """{"Prop":"1.1"}"""), InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_decimal_as_string_JSON_values(string? value, string json)
         => Can_read_and_write_JSON_property_value<NullableDecimalType, decimal?>(
             b => b.HasConversion<string>(),
             nameof(NullableDecimalType.Decimal),
             value == null ? default(decimal?) : decimal.Parse(value, CultureInfo.InvariantCulture), json);
 
-    [ConditionalTheory]
-    [InlineData("1/1/0001", """{"Prop":"0001-01-01"}""")]
-    [InlineData("12/31/9999", """{"Prop":"9999-12-31"}""")]
-    [InlineData("5/29/2023", """{"Prop":"2023-05-29"}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData("1/1/0001", """{"Prop":"0001-01-01"}"""), InlineData("12/31/9999", """{"Prop":"9999-12-31"}"""),
+     InlineData("5/29/2023", """{"Prop":"2023-05-29"}"""), InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_DateOnly_as_string_JSON_values(string? value, string json)
         => Can_read_and_write_JSON_property_value<NullableDateOnlyType, DateOnly?>(
             b => b.HasConversion<string>(),
             nameof(NullableDateOnlyType.DateOnly),
             value == null ? default(DateOnly?) : DateOnly.Parse(value, CultureInfo.InvariantCulture), json);
 
-    [ConditionalTheory]
-    [InlineData("00:00:00.0000000", """{"Prop":"00:00:00"}""")]
-    [InlineData("23:59:59.9999999", """{"Prop":"23:59:59.9999999"}""")]
-    [InlineData("11:05:12.3456789", """{"Prop":"11:05:12.3456789"}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData("00:00:00.0000000", """{"Prop":"00:00:00"}"""),
+     InlineData("23:59:59.9999999", """{"Prop":"23:59:59.9999999"}"""), InlineData("11:05:12.3456789", """{"Prop":"11:05:12.3456789"}"""),
+     InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_TimeOnly_as_string_JSON_values(string? value, string json)
         => Can_read_and_write_JSON_property_value<NullableTimeOnlyType, TimeOnly?>(
             b => b.HasConversion<string>(),
             nameof(NullableTimeOnlyType.TimeOnly),
             value == null ? default(TimeOnly?) : TimeOnly.Parse(value, CultureInfo.InvariantCulture), json);
 
-    [ConditionalTheory]
-    [InlineData("0001-01-01T00:00:00.0000000", """{"Prop":"0001-01-01 00:00:00"}""")]
-    [InlineData("9999-12-31T23:59:59.9999999", """{"Prop":"9999-12-31 23:59:59.9999999"}""")]
-    [InlineData("2023-05-29T10:52:47.2064353", """{"Prop":"2023-05-29 10:52:47.2064353"}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData("0001-01-01T00:00:00.0000000", """{"Prop":"0001-01-01 00:00:00"}"""),
+     InlineData("9999-12-31T23:59:59.9999999", """{"Prop":"9999-12-31 23:59:59.9999999"}"""),
+     InlineData("2023-05-29T10:52:47.2064353", """{"Prop":"2023-05-29 10:52:47.2064353"}"""), InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_DateTime_as_string_JSON_values(string? value, string json)
         => Can_read_and_write_JSON_property_value<NullableDateTimeType, DateTime?>(
             b => b.HasConversion<string>(),
             nameof(NullableDateTimeType.DateTime),
             value == null ? default(DateTime?) : DateTime.Parse(value, CultureInfo.InvariantCulture), json);
 
-    [ConditionalTheory]
-    [InlineData("0001-01-01T00:00:00.0000000-01:00", """{"Prop":"0001-01-01 00:00:00-01:00"}""")]
-    [InlineData("9999-12-31T23:59:59.9999999+02:00", """{"Prop":"9999-12-31 23:59:59.9999999\u002B02:00"}""")]
-    [InlineData("0001-01-01T00:00:00.0000000-03:00", """{"Prop":"0001-01-01 00:00:00-03:00"}""")]
-    [InlineData("2023-05-29T11:11:15.5672854+04:00", """{"Prop":"2023-05-29 11:11:15.5672854\u002B04:00"}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData("0001-01-01T00:00:00.0000000-01:00", """{"Prop":"0001-01-01 00:00:00-01:00"}"""),
+     InlineData("9999-12-31T23:59:59.9999999+02:00", """{"Prop":"9999-12-31 23:59:59.9999999\u002B02:00"}"""),
+     InlineData("0001-01-01T00:00:00.0000000-03:00", """{"Prop":"0001-01-01 00:00:00-03:00"}"""),
+     InlineData("2023-05-29T11:11:15.5672854+04:00", """{"Prop":"2023-05-29 11:11:15.5672854\u002B04:00"}"""),
+     InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_DateTimeOffset_as_string_JSON_values(string? value, string json)
         => Can_read_and_write_JSON_property_value<NullableDateTimeOffsetType, DateTimeOffset?>(
             b => b.HasConversion<string>(),
             nameof(NullableDateTimeOffsetType.DateTimeOffset),
             value == null ? default(DateTimeOffset?) : DateTimeOffset.Parse(value, CultureInfo.InvariantCulture), json);
 
-    [ConditionalTheory]
-    [InlineData("-10675199.02:48:05.4775808", """{"Prop":"-10675199.02:48:05.4775808"}""")]
-    [InlineData("10675199.02:48:05.4775807", """{"Prop":"10675199.02:48:05.4775807"}""")]
-    [InlineData("00:00:00", """{"Prop":"00:00:00"}""")]
-    [InlineData("12:23:23.8018854", """{"Prop":"12:23:23.8018854"}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData("-10675199.02:48:05.4775808", """{"Prop":"-10675199.02:48:05.4775808"}"""),
+     InlineData("10675199.02:48:05.4775807", """{"Prop":"10675199.02:48:05.4775807"}"""), InlineData("00:00:00", """{"Prop":"00:00:00"}"""),
+     InlineData("12:23:23.8018854", """{"Prop":"12:23:23.8018854"}"""), InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_TimeSpan_as_string_JSON_values(string? value, string json)
         => Can_read_and_write_JSON_property_value<NullableTimeSpanType, TimeSpan?>(
             b => b.HasConversion<string>(),
             nameof(NullableTimeSpanType.TimeSpan),
             value == null ? default(TimeSpan?) : TimeSpan.Parse(value), json);
 
-    [ConditionalTheory]
-    [InlineData(false, """{"Prop":"0"}""")]
-    [InlineData(true, """{"Prop":"1"}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData(false, """{"Prop":"0"}"""), InlineData(true, """{"Prop":"1"}"""), InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_bool_as_string_JSON_values(bool? value, string json)
         => Can_read_and_write_JSON_property_value<NullableBooleanType, bool?>(
             b => b.HasConversion<string>(),
             nameof(NullableBooleanType.Boolean), value, json);
 
-    [ConditionalTheory]
-    [InlineData(char.MinValue, """{"Prop":"\u0000"}""")]
-    [InlineData(char.MaxValue, """{"Prop":"\uFFFF"}""")]
-    [InlineData(' ', """{"Prop":" "}""")]
-    [InlineData('Z', """{"Prop":"Z"}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData(char.MinValue, """{"Prop":"\u0000"}"""), InlineData(char.MaxValue, """{"Prop":"\uFFFF"}"""),
+     InlineData(' ', """{"Prop":" "}"""), InlineData('Z', """{"Prop":"Z"}"""), InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_char_as_string_JSON_values(char? value, string json)
         => Can_read_and_write_JSON_property_value<NullableCharacterType, char?>(
             b => b.HasConversion<string>(),
             nameof(NullableCharacterType.Character), value, json);
 
-    [ConditionalTheory]
-    [InlineData("00000000-0000-0000-0000-000000000000", """{"Prop":"00000000-0000-0000-0000-000000000000"}""")]
-    [InlineData("FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF", """{"Prop":"ffffffff-ffff-ffff-ffff-ffffffffffff"}""")]
-    [InlineData("8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD", """{"Prop":"8c44242f-8e3f-4a20-8be8-98c7c1aadebd"}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData("00000000-0000-0000-0000-000000000000", """{"Prop":"00000000-0000-0000-0000-000000000000"}"""),
+     InlineData("FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF", """{"Prop":"ffffffff-ffff-ffff-ffff-ffffffffffff"}"""),
+     InlineData("8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD", """{"Prop":"8c44242f-8e3f-4a20-8be8-98c7c1aadebd"}"""),
+     InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_as_string_GUID_JSON_values(string? value, string json)
         => Can_read_and_write_JSON_property_value<NullableGuidType, Guid?>(
             b => b.HasConversion<string>(),
             nameof(NullableGuidType.Guid),
             value == null ? default(Guid?) : Guid.Parse(value, CultureInfo.InvariantCulture), json);
 
-    [ConditionalTheory]
-    [InlineData("MinValue", """{"Prop":"MinValue"}""")]
-    [InlineData("MaxValue", """{"Prop":"MaxValue"}""")]
-    [InlineData("", """{"Prop":""}""")]
-    [InlineData(
-        "❤❥웃유♋☮✌☏☢☠✔☑♚▲♪฿Ɖ⛏♥❣♂♀☿👍✍✉☣☤✘☒♛▼♫⌘⌛¡♡ღツ☼☁❅♾️✎©®™Σ✪✯☭➳Ⓐ✞℃℉°✿⚡☃☂✄¢€£∞✫★½☯✡☪",
-        @"{""Prop"":""\u2764\u2765\uC6C3\uC720\u264B\u262E\u270C\u260F\u2622\u2620\u2714\u2611\u265A\u25B2\u266A\u0E3F\u0189\u26CF\u2665\u2763\u2642\u2640\u263F\uD83D\uDC4D\u270D\u2709\u2623\u2624\u2718\u2612\u265B\u25BC\u266B\u2318\u231B\u00A1\u2661\u10E6\u30C4\u263C\u2601\u2745\u267E\uFE0F\u270E\u00A9\u00AE\u2122\u03A3\u272A\u272F\u262D\u27B3\u24B6\u271E\u2103\u2109\u00B0\u273F\u26A1\u2603\u2602\u2704\u00A2\u20AC\u00A3\u221E\u272B\u2605\u00BD\u262F\u2721\u262A""}")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData("MinValue", """{"Prop":"MinValue"}"""), InlineData("MaxValue", """{"Prop":"MaxValue"}"""),
+     InlineData("", """{"Prop":""}"""), InlineData(
+         "❤❥웃유♋☮✌☏☢☠✔☑♚▲♪฿Ɖ⛏♥❣♂♀☿👍✍✉☣☤✘☒♛▼♫⌘⌛¡♡ღツ☼☁❅♾️✎©®™Σ✪✯☭➳Ⓐ✞℃℉°✿⚡☃☂✄¢€£∞✫★½☯✡☪",
+         @"{""Prop"":""\u2764\u2765\uC6C3\uC720\u264B\u262E\u270C\u260F\u2622\u2620\u2714\u2611\u265A\u25B2\u266A\u0E3F\u0189\u26CF\u2665\u2763\u2642\u2640\u263F\uD83D\uDC4D\u270D\u2709\u2623\u2624\u2718\u2612\u265B\u25BC\u266B\u2318\u231B\u00A1\u2661\u10E6\u30C4\u263C\u2601\u2745\u267E\uFE0F\u270E\u00A9\u00AE\u2122\u03A3\u272A\u272F\u262D\u27B3\u24B6\u271E\u2103\u2109\u00B0\u273F\u26A1\u2603\u2602\u2704\u00A2\u20AC\u00A3\u221E\u272B\u2605\u00BD\u262F\u2721\u262A""}"),
+     InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_string_as_string_JSON_values(string? value, string json)
         => Can_read_and_write_JSON_property_value<NullableStringType, string?>(
             b => b.HasConversion<string>(),
             nameof(NullableStringType.String), value, json);
 
-    [ConditionalTheory]
-    [InlineData("0,0,0,1", """{"Prop":"AAAAAQ=="}""")]
-    [InlineData("255,255,255,255", """{"Prop":"/////w=="}""")]
-    [InlineData("", """{"Prop":""}""")]
-    [InlineData("1,2,3,4", """{"Prop":"AQIDBA=="}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData("0,0,0,1", """{"Prop":"AAAAAQ=="}"""), InlineData("255,255,255,255", """{"Prop":"/////w=="}"""),
+     InlineData("", """{"Prop":""}"""), InlineData("1,2,3,4", """{"Prop":"AQIDBA=="}"""), InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_binary_as_string_JSON_values(string? value, string json)
         => Can_read_and_write_JSON_property_value<NullableBytesType, byte[]?>(
             b => b.HasConversion<string>(),
@@ -1154,138 +927,100 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
                     ? []
                     : value.Split(',').Select(e => byte.Parse(e)).ToArray(), json);
 
-    [ConditionalTheory]
-    [InlineData(
-        "https://user:password@www.contoso.com:80/Home/Index.htm?q1=v1&q2=v2#FragmentName",
-        """{"Prop":"https://user:password@www.contoso.com:80/Home/Index.htm?q1=v1\u0026q2=v2#FragmentName"}""")]
-    [InlineData("file:///C:/test/path/file.txt", """{"Prop":"file:///C:/test/path/file.txt"}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData(
+         "https://user:password@www.contoso.com:80/Home/Index.htm?q1=v1&q2=v2#FragmentName",
+         """{"Prop":"https://user:password@www.contoso.com:80/Home/Index.htm?q1=v1\u0026q2=v2#FragmentName"}"""),
+     InlineData("file:///C:/test/path/file.txt", """{"Prop":"file:///C:/test/path/file.txt"}"""), InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_URI_as_string_JSON_values(string? value, string json)
         => Can_read_and_write_JSON_property_value<NullableUriType, Uri?>(
             b => b.HasConversion<string>(),
             nameof(NullableUriType.Uri),
             value == null ? default : new Uri(value), json);
 
-    [ConditionalTheory]
-    [InlineData("127.0.0.1", """{"Prop":"127.0.0.1"}""")]
-    [InlineData("0.0.0.0", """{"Prop":"0.0.0.0"}""")]
-    [InlineData("255.255.255.255", """{"Prop":"255.255.255.255"}""")]
-    [InlineData("192.168.1.156", """{"Prop":"192.168.1.156"}""")]
-    [InlineData("::1", """{"Prop":"::1"}""")]
-    [InlineData("::", """{"Prop":"::"}""")]
-    [InlineData("2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577", """{"Prop":"2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577"}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData("127.0.0.1", """{"Prop":"127.0.0.1"}"""), InlineData("0.0.0.0", """{"Prop":"0.0.0.0"}"""),
+     InlineData("255.255.255.255", """{"Prop":"255.255.255.255"}"""), InlineData("192.168.1.156", """{"Prop":"192.168.1.156"}"""),
+     InlineData("::1", """{"Prop":"::1"}"""), InlineData("::", """{"Prop":"::"}"""),
+     InlineData("2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577", """{"Prop":"2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577"}"""),
+     InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_IP_address_as_string_JSON_values(string? value, string json)
         => Can_read_and_write_JSON_property_value<NullableIPAddressType, IPAddress?>(
             b => b.HasConversion<string>(),
             nameof(NullableIPAddressType.IpAddress),
             value == null ? default : IPAddress.Parse(value), json);
 
-    [ConditionalTheory]
-    [InlineData("001122334455", """{"Prop":"001122334455"}""")]
-    [InlineData("00-11-22-33-44-55", """{"Prop":"001122334455"}""")]
-    [InlineData("0011.2233.4455", """{"Prop":"001122334455"}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData("001122334455", """{"Prop":"001122334455"}"""),
+     InlineData("00-11-22-33-44-55", """{"Prop":"001122334455"}"""), InlineData("0011.2233.4455", """{"Prop":"001122334455"}"""),
+     InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_physical_address_as_string_JSON_values(string? value, string json)
         => Can_read_and_write_JSON_property_value<NullablePhysicalAddressType, PhysicalAddress?>(
             b => b.HasConversion<string>(),
             nameof(NullablePhysicalAddressType.PhysicalAddress),
             value == null ? default : PhysicalAddress.Parse(value), json);
 
-    [ConditionalTheory]
-    [InlineData((sbyte)Enum8.Min, """{"Prop":"Min"}""")]
-    [InlineData((sbyte)Enum8.Max, """{"Prop":"Max"}""")]
-    [InlineData((sbyte)Enum8.Default, """{"Prop":"Default"}""")]
-    [InlineData((sbyte)Enum8.One, """{"Prop":"One"}""")]
-    [InlineData((sbyte)77, """{"Prop":"77"}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData((sbyte)Enum8.Min, """{"Prop":"Min"}"""), InlineData((sbyte)Enum8.Max, """{"Prop":"Max"}"""),
+     InlineData((sbyte)Enum8.Default, """{"Prop":"Default"}"""), InlineData((sbyte)Enum8.One, """{"Prop":"One"}"""),
+     InlineData((sbyte)77, """{"Prop":"77"}"""), InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_sbyte_enum_as_string_JSON_values(object? value, string json)
         => Can_read_and_write_JSON_property_value<NullableEnum8Type, Enum8?>(
             b => b.HasConversion<string>(),
             nameof(NullableEnum8Type.Enum8),
             value == null ? default(Enum8?) : (Enum8)value, json);
 
-    [ConditionalTheory]
-    [InlineData((short)Enum16.Min, """{"Prop":"Min"}""")]
-    [InlineData((short)Enum16.Max, """{"Prop":"Max"}""")]
-    [InlineData((short)Enum16.Default, """{"Prop":"Default"}""")]
-    [InlineData((short)Enum16.One, """{"Prop":"One"}""")]
-    [InlineData((short)77, """{"Prop":"77"}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData((short)Enum16.Min, """{"Prop":"Min"}"""), InlineData((short)Enum16.Max, """{"Prop":"Max"}"""),
+     InlineData((short)Enum16.Default, """{"Prop":"Default"}"""), InlineData((short)Enum16.One, """{"Prop":"One"}"""),
+     InlineData((short)77, """{"Prop":"77"}"""), InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_short_enum_as_string_JSON_values(object? value, string json)
         => Can_read_and_write_JSON_property_value<NullableEnum16Type, Enum16?>(
             b => b.HasConversion<string>(),
             nameof(NullableEnum16Type.Enum16),
             value == null ? default(Enum16?) : (Enum16)value, json);
 
-    [ConditionalTheory]
-    [InlineData((int)Enum32.Min, """{"Prop":"Min"}""")]
-    [InlineData((int)Enum32.Max, """{"Prop":"Max"}""")]
-    [InlineData((int)Enum32.Default, """{"Prop":"Default"}""")]
-    [InlineData((int)Enum32.One, """{"Prop":"One"}""")]
-    [InlineData(77, """{"Prop":"77"}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData((int)Enum32.Min, """{"Prop":"Min"}"""), InlineData((int)Enum32.Max, """{"Prop":"Max"}"""),
+     InlineData((int)Enum32.Default, """{"Prop":"Default"}"""), InlineData((int)Enum32.One, """{"Prop":"One"}"""),
+     InlineData(77, """{"Prop":"77"}"""), InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_int_enum_as_string_JSON_values(object? value, string json)
         => Can_read_and_write_JSON_property_value<NullableEnum32Type, Enum32?>(
             b => b.HasConversion<string>(),
             nameof(NullableEnum32Type.Enum32),
             value == null ? default(Enum32?) : (Enum32)value, json);
 
-    [ConditionalTheory]
-    [InlineData((long)Enum64.Min, """{"Prop":"Min"}""")]
-    [InlineData((long)Enum64.Max, """{"Prop":"Max"}""")]
-    [InlineData((long)Enum64.Default, """{"Prop":"Default"}""")]
-    [InlineData((long)Enum64.One, """{"Prop":"One"}""")]
-    [InlineData((long)77, """{"Prop":"77"}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData((long)Enum64.Min, """{"Prop":"Min"}"""), InlineData((long)Enum64.Max, """{"Prop":"Max"}"""),
+     InlineData((long)Enum64.Default, """{"Prop":"Default"}"""), InlineData((long)Enum64.One, """{"Prop":"One"}"""),
+     InlineData((long)77, """{"Prop":"77"}"""), InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_long_enum_as_string_JSON_values(object? value, string json)
         => Can_read_and_write_JSON_property_value<NullableEnum64Type, Enum64?>(
             b => b.HasConversion<string>(),
             nameof(NullableEnum64Type.Enum64),
             value == null ? default(Enum64?) : (Enum64)value, json);
 
-    [ConditionalTheory]
-    [InlineData((byte)EnumU8.Min, """{"Prop":"Min"}""")]
-    [InlineData((byte)EnumU8.Max, """{"Prop":"Max"}""")]
-    [InlineData((byte)EnumU8.One, """{"Prop":"One"}""")]
-    [InlineData((byte)77, """{"Prop":"77"}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData((byte)EnumU8.Min, """{"Prop":"Min"}"""), InlineData((byte)EnumU8.Max, """{"Prop":"Max"}"""),
+     InlineData((byte)EnumU8.One, """{"Prop":"One"}"""), InlineData((byte)77, """{"Prop":"77"}"""), InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_byte_enum_as_string_JSON_values(object? value, string json)
         => Can_read_and_write_JSON_property_value<NullableEnumU8Type, EnumU8?>(
             b => b.HasConversion<string>(),
             nameof(NullableEnumU8Type.EnumU8),
             value == null ? default(EnumU8?) : (EnumU8)value, json);
 
-    [ConditionalTheory]
-    [InlineData((ushort)EnumU16.Min, """{"Prop":"Min"}""")]
-    [InlineData((ushort)EnumU16.Max, """{"Prop":"Max"}""")]
-    [InlineData((ushort)EnumU16.One, """{"Prop":"One"}""")]
-    [InlineData((ushort)77, """{"Prop":"77"}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData((ushort)EnumU16.Min, """{"Prop":"Min"}"""), InlineData((ushort)EnumU16.Max, """{"Prop":"Max"}"""),
+     InlineData((ushort)EnumU16.One, """{"Prop":"One"}"""), InlineData((ushort)77, """{"Prop":"77"}"""),
+     InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_ushort_enum_as_string_JSON_values(object? value, string json)
         => Can_read_and_write_JSON_property_value<NullableEnumU16Type, EnumU16?>(
             b => b.HasConversion<string>(),
             nameof(NullableEnumU16Type.EnumU16),
             value == null ? default(EnumU16?) : (EnumU16)value, json);
 
-    [ConditionalTheory]
-    [InlineData((uint)EnumU32.Min, """{"Prop":"Min"}""")]
-    [InlineData((uint)EnumU32.Max, """{"Prop":"Max"}""")]
-    [InlineData((uint)EnumU32.One, """{"Prop":"One"}""")]
-    [InlineData((uint)77, """{"Prop":"77"}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData((uint)EnumU32.Min, """{"Prop":"Min"}"""), InlineData((uint)EnumU32.Max, """{"Prop":"Max"}"""),
+     InlineData((uint)EnumU32.One, """{"Prop":"One"}"""), InlineData((uint)77, """{"Prop":"77"}"""), InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_uint_enum_as_string_JSON_values(object? value, string json)
         => Can_read_and_write_JSON_property_value<NullableEnumU32Type, EnumU32?>(
             b => b.HasConversion<string>(),
             nameof(NullableEnumU32Type.EnumU32),
             value == null ? default(EnumU32?) : (EnumU32)value, json);
 
-    [ConditionalTheory]
-    [InlineData((ulong)EnumU64.Min, """{"Prop":"Min"}""")]
-    [InlineData((ulong)EnumU64.Max, """{"Prop":"Max"}""")]
-    [InlineData((ulong)EnumU64.One, """{"Prop":"One"}""")]
-    [InlineData((ulong)77, """{"Prop":"77"}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData((ulong)EnumU64.Min, """{"Prop":"Min"}"""), InlineData((ulong)EnumU64.Max, """{"Prop":"Max"}"""),
+     InlineData((ulong)EnumU64.One, """{"Prop":"One"}"""), InlineData((ulong)77, """{"Prop":"77"}"""),
+     InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_ulong_enum_as_string_JSON_values(object? value, string json)
         => Can_read_and_write_JSON_property_value<NullableEnumU64Type, EnumU64?>(
             b => b.HasConversion<string>(),
@@ -1628,11 +1363,8 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
             null,
             """{"Prop":null}""");
 
-    [ConditionalTheory]
-    [InlineData(int.MinValue, """{"Prop":-2147483648}""")]
-    [InlineData(int.MaxValue, """{"Prop":2147483647}""")]
-    [InlineData(0, """{"Prop":0}""")]
-    [InlineData(1, """{"Prop":1}""")]
+    [ConditionalTheory, InlineData(int.MinValue, """{"Prop":-2147483648}"""), InlineData(int.MaxValue, """{"Prop":2147483647}"""),
+     InlineData(0, """{"Prop":0}"""), InlineData(1, """{"Prop":1}""")]
     public virtual Task Can_read_write_converted_type_JSON_values(int value, string json)
         => Can_read_and_write_JSON_value<DddIdType, DddId>(
             b => b.Entity<DddIdType>().HasNoKey().Property(e => e.DddId),
@@ -1645,12 +1377,8 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public DddId DddId { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData(int.MinValue, """{"Prop":-2147483648}""")]
-    [InlineData(int.MaxValue, """{"Prop":2147483647}""")]
-    [InlineData(0, """{"Prop":0}""")]
-    [InlineData(1, """{"Prop":1}""")]
-    [InlineData(null, """{"Prop":null}""")]
+    [ConditionalTheory, InlineData(int.MinValue, """{"Prop":-2147483648}"""), InlineData(int.MaxValue, """{"Prop":2147483647}"""),
+     InlineData(0, """{"Prop":0}"""), InlineData(1, """{"Prop":1}"""), InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_converted_type_JSON_values(int? value, string json)
         => Can_read_and_write_JSON_value<NullableDddIdType, DddId?>(
             b => b.Entity<NullableDddIdType>().HasNoKey().Property(e => e.DddId),
@@ -1663,9 +1391,7 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public DddId? DddId { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData(EnumProperty.FieldA, """{"Prop":"A"}""")]
-    [InlineData(EnumProperty.FieldB, """{"Prop":"B"}""")]
+    [ConditionalTheory, InlineData(EnumProperty.FieldA, """{"Prop":"A"}"""), InlineData(EnumProperty.FieldB, """{"Prop":"B"}""")]
     public virtual Task Can_read_write_enum_char_converted_type_JSON_values(int value, string json)
         => Can_read_and_write_JSON_value<EnumCharType, EnumProperty>(
             b => b.Entity<EnumCharType>().HasNoKey().Property(e => e.EnumProperty),
@@ -1690,14 +1416,10 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         FieldC = 'C',
     }
 
-    [ConditionalTheory]
-    [InlineData("127.0.0.1", """{"Prop":"127.0.0.1"}""")]
-    [InlineData("0.0.0.0", """{"Prop":"0.0.0.0"}""")]
-    [InlineData("255.255.255.255", """{"Prop":"255.255.255.255"}""")]
-    [InlineData("192.168.1.156", """{"Prop":"192.168.1.156"}""")]
-    [InlineData("::1", """{"Prop":"::1"}""")]
-    [InlineData("::", """{"Prop":"::"}""")]
-    [InlineData("2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577", """{"Prop":"2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577"}""")]
+    [ConditionalTheory, InlineData("127.0.0.1", """{"Prop":"127.0.0.1"}"""), InlineData("0.0.0.0", """{"Prop":"0.0.0.0"}"""),
+     InlineData("255.255.255.255", """{"Prop":"255.255.255.255"}"""), InlineData("192.168.1.156", """{"Prop":"192.168.1.156"}"""),
+     InlineData("::1", """{"Prop":"::1"}"""), InlineData("::", """{"Prop":"::"}"""),
+     InlineData("2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577", """{"Prop":"2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577"}""")]
     public virtual Task Can_read_write_custom_converted_type_JSON_values(string value, string json)
         => Can_read_and_write_JSON_value<IpAddressType, IpAddress>(
             b => b.Entity<IpAddressType>().HasNoKey().Property(e => e.Address),
@@ -1901,8 +1623,7 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public double[] Double { get; set; } = null!;
     }
 
-    [ConditionalTheory]
-    [InlineData("""{"Prop":[-79228162514264337593543950335,0,79228162514264337593543950335]}""")]
+    [ConditionalTheory, InlineData("""{"Prop":[-79228162514264337593543950335,0,79228162514264337593543950335]}""")]
     public virtual Task Can_read_write_collection_of_decimal_JSON_values(string expected)
         => Can_read_and_write_JSON_value<DecimalCollectionType, List<decimal>>(
             nameof(DecimalCollectionType.Decimal),
@@ -1954,8 +1675,7 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public IReadOnlyCollection<TimeOnly> TimeOnly { get; set; } = null!;
     }
 
-    [ConditionalTheory]
-    [InlineData("""{"Prop":["0001-01-01T00:00:00","2023-05-29T10:52:47","9999-12-31T23:59:59.9999999"]}""")]
+    [ConditionalTheory, InlineData("""{"Prop":["0001-01-01T00:00:00","2023-05-29T10:52:47","9999-12-31T23:59:59.9999999"]}""")]
     public virtual Task Can_read_write_collection_of_DateTime_JSON_values(string expected)
         => Can_read_and_write_JSON_value<DateTimeCollectionType, List<DateTime>>(
             nameof(DateTimeCollectionType.DateTime),
@@ -1972,9 +1692,8 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public IList<DateTime> DateTime { get; set; } = null!;
     }
 
-    [ConditionalTheory]
-    [InlineData(
-        """{"Prop":["0001-01-01T00:00:00+00:00","2023-05-29T10:52:47-02:00","2023-05-29T10:52:47+00:00","2023-05-29T10:52:47+02:00","9999-12-31T23:59:59.9999999+00:00"]}""")]
+    [ConditionalTheory, InlineData(
+         """{"Prop":["0001-01-01T00:00:00+00:00","2023-05-29T10:52:47-02:00","2023-05-29T10:52:47+00:00","2023-05-29T10:52:47+02:00","9999-12-31T23:59:59.9999999+00:00"]}""")]
     public virtual Task Can_read_write_collection_of_DateTimeOffset_JSON_values(string expected)
         => Can_read_and_write_JSON_value<DateTimeOffsetCollectionType, List<DateTimeOffset>>(
             nameof(DateTimeOffsetCollectionType.DateTimeOffset),
@@ -2040,9 +1759,8 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public IList<char> Character { get; set; } = null!;
     }
 
-    [ConditionalTheory]
-    [InlineData(
-        """{"Prop":["00000000-0000-0000-0000-000000000000","8c44242f-8e3f-4a20-8be8-98c7c1aadebd","ffffffff-ffff-ffff-ffff-ffffffffffff"]}""")]
+    [ConditionalTheory, InlineData(
+         """{"Prop":["00000000-0000-0000-0000-000000000000","8c44242f-8e3f-4a20-8be8-98c7c1aadebd","ffffffff-ffff-ffff-ffff-ffffffffffff"]}""")]
     public virtual Task Can_read_write_collection_of_GUID_JSON_values(string expected)
         => Can_read_and_write_JSON_value<GuidCollectionType, List<Guid>>(
             nameof(GuidCollectionType.Guid),
@@ -2076,8 +1794,7 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public IReadOnlyCollection<string> String { get; set; } = null!;
     }
 
-    [ConditionalTheory]
-    [InlineData("""{"Prop":["AAAAAQ==","/////w==","","AQIDBA=="]}""")]
+    [ConditionalTheory, InlineData("""{"Prop":["AAAAAQ==","/////w==","","AQIDBA=="]}""")]
     public virtual Task Can_read_write_collection_of_binary_JSON_values(string expected)
         => Can_read_and_write_JSON_value<BytesCollectionType, List<byte[]>>(
             nameof(BytesCollectionType.Bytes),
@@ -2485,8 +2202,7 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public double?[] Double { get; set; } = null!;
     }
 
-    [ConditionalTheory]
-    [InlineData("""{"Prop":[-79228162514264337593543950335,0,null,79228162514264337593543950335]}""")]
+    [ConditionalTheory, InlineData("""{"Prop":[-79228162514264337593543950335,0,null,79228162514264337593543950335]}""")]
     public virtual Task Can_read_write_collection_of_nullable_decimal_JSON_values(string expected)
         => Can_read_and_write_JSON_value<NullableDecimalCollectionType, List<decimal?>>(
             nameof(NullableDecimalCollectionType.Decimal),
@@ -2540,8 +2256,7 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public IReadOnlyList<TimeOnly?> TimeOnly { get; set; } = null!;
     }
 
-    [ConditionalTheory]
-    [InlineData("""{"Prop":["0001-01-01T00:00:00",null,"2023-05-29T10:52:47","9999-12-31T23:59:59.9999999"]}""")]
+    [ConditionalTheory, InlineData("""{"Prop":["0001-01-01T00:00:00",null,"2023-05-29T10:52:47","9999-12-31T23:59:59.9999999"]}""")]
     public virtual Task Can_read_write_collection_of_nullable_DateTime_JSON_values(string expected)
         => Can_read_and_write_JSON_value<NullableDateTimeCollectionType, List<DateTime?>>(
             nameof(NullableDateTimeCollectionType.DateTime),
@@ -2559,9 +2274,8 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public IList<DateTime?> DateTime { get; set; } = null!;
     }
 
-    [ConditionalTheory]
-    [InlineData(
-        """{"Prop":["0001-01-01T00:00:00+00:00","2023-05-29T10:52:47-02:00","2023-05-29T10:52:47+00:00",null,"2023-05-29T10:52:47+02:00","9999-12-31T23:59:59.9999999+00:00"]}""")]
+    [ConditionalTheory, InlineData(
+         """{"Prop":["0001-01-01T00:00:00+00:00","2023-05-29T10:52:47-02:00","2023-05-29T10:52:47+00:00",null,"2023-05-29T10:52:47+02:00","9999-12-31T23:59:59.9999999+00:00"]}""")]
     public virtual Task Can_read_write_collection_of_nullable_DateTimeOffset_JSON_values(string expected)
         => Can_read_and_write_JSON_value<NullableDateTimeOffsetCollectionType, List<DateTimeOffset?>>(
             nameof(NullableDateTimeOffsetCollectionType.DateTimeOffset),
@@ -2635,9 +2349,8 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public IList<char?> Character { get; set; } = null!;
     }
 
-    [ConditionalTheory]
-    [InlineData(
-        """{"Prop":["00000000-0000-0000-0000-000000000000",null,"8c44242f-8e3f-4a20-8be8-98c7c1aadebd","ffffffff-ffff-ffff-ffff-ffffffffffff"]}""")]
+    [ConditionalTheory, InlineData(
+         """{"Prop":["00000000-0000-0000-0000-000000000000",null,"8c44242f-8e3f-4a20-8be8-98c7c1aadebd","ffffffff-ffff-ffff-ffff-ffffffffffff"]}""")]
     public virtual Task Can_read_write_collection_of_nullable_GUID_JSON_values(string expected)
         => Can_read_and_write_JSON_value<NullableGuidCollectionType, List<Guid?>>(
             nameof(NullableGuidCollectionType.Guid),
@@ -2673,8 +2386,7 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public IList<string> String { get; set; } = null!;
     }
 
-    [ConditionalTheory]
-    [InlineData("""{"Prop":["AAAAAQ==",null,"/////w==","","AQIDBA=="]}""")]
+    [ConditionalTheory, InlineData("""{"Prop":["AAAAAQ==",null,"/////w==","","AQIDBA=="]}""")]
     public virtual Task Can_read_write_collection_of_nullable_binary_JSON_values(string expected)
         => Can_read_and_write_JSON_value<NullableBytesCollectionType, List<byte[]?>>(
             nameof(NullableBytesCollectionType.Bytes),
@@ -3189,7 +2901,7 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
             new List<DateOnly?>
             {
                 DateOnly.MinValue,
-                new(2023, 5, 29),
+                new DateOnly(2023, 5, 29),
                 DateOnly.MaxValue,
                 null
             },
@@ -3211,7 +2923,7 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
             {
                 DateTime.MinValue,
                 null,
-                new(2023, 5, 29, 10, 52, 47),
+                new DateTime(2023, 5, 29, 10, 52, 47),
                 DateTime.MaxValue
             },
             """{"Prop":"[\u00220001-01-01T00:00:00\u0022,null,\u00222023-05-29T10:52:47\u0022,\u00229999-12-31T23:59:59.9999999\u0022]"}""");
@@ -3342,12 +3054,11 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
     [ConditionalFact]
     public virtual Task Can_read_write_collection_of_int_with_converter_JSON_values()
         => Can_read_and_write_JSON_collection_value<DddIdCollectionType, List<DddId>>(
-            b => b.ElementType(
-                b =>
-                {
-                    b.HasConversion<DddIdConverter>();
-                    b.IsRequired();
-                }),
+            b => b.ElementType(b =>
+            {
+                b.HasConversion<DddIdConverter>();
+                b.IsRequired();
+            }),
             nameof(DddIdCollectionType.DddId),
             [
                 new DddId { Id = int.MinValue },
@@ -3395,8 +3106,7 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public byte[] BinaryAsJson { get; set; } = null!;
     }
 
-    [ConditionalTheory]
-    [InlineData("""{"Prop":[-79228162514264337593543950335,0,79228162514264337593543950335]}""")]
+    [ConditionalTheory, InlineData("""{"Prop":[-79228162514264337593543950335,0,79228162514264337593543950335]}""")]
     public virtual Task Can_read_write_collection_of_decimal_with_precision_and_scale_JSON_values(string expected)
         => Can_read_and_write_JSON_collection_value<DecimalCollectionType, List<decimal>>(
             b => b.ElementType().HasPrecision(12, 6),
@@ -3409,8 +3119,7 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
             expected,
             facets: new Dictionary<string, object?> { { CoreAnnotationNames.Precision, 12 }, { CoreAnnotationNames.Scale, 6 } });
 
-    [ConditionalTheory]
-    [InlineData("""{"Prop":["AAAAAAAAAAAAAAAAAAAAAA==","LyREjD+OIEqL6JjHwarevQ==","/////////////////////w=="]}""")]
+    [ConditionalTheory, InlineData("""{"Prop":["AAAAAAAAAAAAAAAAAAAAAA==","LyREjD+OIEqL6JjHwarevQ==","/////////////////////w=="]}""")]
     public virtual Task Can_read_write_collection_of_Guid_converted_to_bytes_JSON_values(string expected)
         => Can_read_and_write_JSON_collection_value<GuidCollectionType, List<Guid>>(
             b => b.ElementType().HasConversion<byte[]>(),
@@ -3427,13 +3136,12 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
     public virtual Task Can_read_write_list_of_array_of_int_JSON_values()
         => Can_read_and_write_JSON_value<Int32ArrayListType, List<int[]?>>(
             nameof(Int32ArrayListType.Prop),
-            new List<int[]?>
-            {
+            [
                 new[] { int.MinValue, 0, int.MaxValue },
                 Array.Empty<int>(),
                 null,
                 new[] { 77 }
-            },
+            ],
             """{"Prop":[[-2147483648,0,2147483647],[],null,[77]]}""",
             mappedCollection: true);
 
@@ -3446,13 +3154,12 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
     public virtual Task Can_read_write_list_of_array_of_nullable_int_JSON_values()
         => Can_read_and_write_JSON_value<NullableInt32ArrayListType, List<int?[]?>>(
             nameof(NullableInt32ArrayListType.Prop),
-            new List<int?[]?>
-            {
+            [
                 new int?[] { int.MinValue, null, int.MaxValue },
                 Array.Empty<int?>(),
                 null,
                 new int?[] { 77 }
-            },
+            ],
             """{"Prop":[[-2147483648,null,2147483647],[],null,[77]]}""",
             mappedCollection: true);
 
@@ -3465,12 +3172,11 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
     public virtual Task Can_read_write_list_of_array_of_string_JSON_values()
         => Can_read_and_write_JSON_value<StringArrayListType, List<string[]>>(
             nameof(StringArrayListType.Prop),
-            new List<string[]>
-            {
+            [
                 new[] { "X", "Y", "" },
                 Array.Empty<string>(),
                 new[] { "77" }
-            },
+            ],
             """{"Prop":[["X","Y",""],[],["77"]]}""",
             mappedCollection: true);
 
@@ -3483,12 +3189,11 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
     public virtual Task Can_read_write_list_of_array_of_IPAddress_JSON_values()
         => Can_read_and_write_JSON_value<IpAddressArrayListType, ObservableCollection<IPAddress[]>>(
             nameof(IpAddressArrayListType.Prop),
-            new ObservableCollection<IPAddress[]>
-            {
+            [
                 new[] { IPAddress.Parse("127.0.0.1"), IPAddress.Parse("2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577") },
                 Array.Empty<IPAddress>(),
                 new[] { new IPAddress(0) }
-            },
+            ],
             """{"Prop":[["127.0.0.1","2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577"],[],["0.0.0.0"]]}""",
             mappedCollection: true);
 
@@ -3501,12 +3206,11 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
     public virtual Task Can_read_write_list_of_array_of_ulong_JSON_values()
         => Can_read_and_write_JSON_value<ULongArrayListType, List<ulong[]>>(
             nameof(ULongArrayListType.Prop),
-            new List<ulong[]>
-            {
+            [
                 new[] { ulong.MinValue, 1UL, ulong.MaxValue },
                 Array.Empty<ulong>(),
                 new[] { 77UL }
-            },
+            ],
             """{"Prop":[[0,1,18446744073709551615],[],[77]]}""",
             mappedCollection: true);
 
@@ -3519,12 +3223,11 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
     public virtual Task Can_read_write_list_of_array_of_nullable_ulong_JSON_values()
         => Can_read_and_write_JSON_value<NullableULongArrayListType, List<ulong?[]>>(
             nameof(NullableULongArrayListType.Prop),
-            new List<ulong?[]>
-            {
+            [
                 new ulong?[] { ulong.MinValue, null, ulong.MaxValue },
                 Array.Empty<ulong?>(),
                 new ulong?[] { 77UL }
-            },
+            ],
             """{"Prop":[[0,null,18446744073709551615],[],[77]]}""",
             mappedCollection: true);
 
@@ -3533,8 +3236,7 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public List<ulong?[]> Prop { get; set; } = null!;
     }
 
-    [ConditionalTheory]
-    [InlineData("""{"Prop":[["AAEC","AQ==","TQ=="],[],["Tg=="]]}""")]
+    [ConditionalTheory, InlineData("""{"Prop":[["AAEC","AQ==","TQ=="],[],["Tg=="]]}""")]
     public virtual Task Can_read_write_list_of_array_of_binary_JSON_values(string expected)
         => Can_read_and_write_JSON_value<BinaryArrayListType, IEnumerable<byte[][]>>(
             nameof(BinaryArrayListType.Prop),
@@ -3552,18 +3254,16 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public IEnumerable<byte[][]> Prop { get; set; } = null!;
     }
 
-    [ConditionalTheory]
-    [InlineData(
-        """{"Prop":[["00000000-0000-0000-0000-000000000000","8c44242f-8e3f-4a20-8be8-98c7c1aadebd"],[],["ffffffff-ffff-ffff-ffff-ffffffffffff"]]}""")]
+    [ConditionalTheory, InlineData(
+         """{"Prop":[["00000000-0000-0000-0000-000000000000","8c44242f-8e3f-4a20-8be8-98c7c1aadebd"],[],["ffffffff-ffff-ffff-ffff-ffffffffffff"]]}""")]
     public virtual Task Can_read_write_list_of_array_of_GUID_JSON_values(string expected)
         => Can_read_and_write_JSON_value<GuidArrayListType, List<Guid[]>>(
             nameof(GuidArrayListType.Prop),
-            new List<Guid[]>
-            {
+            [
                 new[] { new Guid("00000000-0000-0000-0000-000000000000"), new Guid("8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD") },
                 Array.Empty<Guid>(),
                 new[] { new Guid("FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF") }
-            },
+            ],
             expected,
             mappedCollection: true);
 
@@ -3572,21 +3272,17 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public List<Guid[]> Prop { get; set; } = null!;
     }
 
-    [ConditionalTheory]
-    [InlineData(
-        """{"Prop":[["00000000-0000-0000-0000-000000000000",null,"8c44242f-8e3f-4a20-8be8-98c7c1aadebd"],[],["ffffffff-ffff-ffff-ffff-ffffffffffff"]]}""")]
+    [ConditionalTheory, InlineData(
+         """{"Prop":[["00000000-0000-0000-0000-000000000000",null,"8c44242f-8e3f-4a20-8be8-98c7c1aadebd"],[],["ffffffff-ffff-ffff-ffff-ffffffffffff"]]}""")]
     public virtual Task Can_read_write_list_of_array_of_nullable_GUID_JSON_values(string expected)
         => Can_read_and_write_JSON_value<NullableGuidArrayListType, List<Guid?[]>>(
             nameof(NullableGuidArrayListType.Prop),
-            new List<Guid?[]>
-            {
-                new Guid?[]
-                {
-                    new Guid("00000000-0000-0000-0000-000000000000"), null, new Guid("8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD")
-                },
+            [
+                new Guid?[] { new Guid("00000000-0000-0000-0000-000000000000"), null, new Guid("8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD") },
+
                 Array.Empty<Guid?>(),
                 new Guid?[] { new Guid("FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF") }
-            },
+            ],
             expected,
             mappedCollection: true);
 
@@ -3601,14 +3297,13 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
             nameof(Int32ListArrayType.Prop),
             new List<int>[]
             {
-                new()
-                {
+                [
                     int.MinValue,
                     0,
                     int.MaxValue
-                },
-                new(),
-                new() { 77 }
+                ],
+                [],
+                [77]
             },
             """{"Prop":[[-2147483648,0,2147483647],[],[77]]}""",
             mappedCollection: true);
@@ -3622,17 +3317,15 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
     public virtual Task Can_read_write_array_of_list_of_string_JSON_values()
         => Can_read_and_write_JSON_value<StringListArrayType, List<string>[]>(
             nameof(StringListArrayType.Prop),
-            new List<string>[]
-            {
-                new()
-                {
+            [
+                [
                     "X",
                     "Y",
                     ""
-                },
-                new(),
-                new() { "77" }
-            },
+                ],
+                [],
+                ["77"]
+            ],
             """{"Prop":[["X","Y",""],[],["77"]]}""",
             mappedCollection: true);
 
@@ -3645,12 +3338,11 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
     public virtual Task Can_read_write_array_of_list_of_IPAddress_JSON_values()
         => Can_read_and_write_JSON_value<IpAddressListArrayType, Collection<IPAddress>[]>(
             nameof(IpAddressListArrayType.Prop),
-            new Collection<IPAddress>[]
-            {
-                new() { IPAddress.Parse("127.0.0.1"), IPAddress.Parse("2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577") },
-                new(),
-                new() { new IPAddress(0) }
-            },
+            [
+                [IPAddress.Parse("127.0.0.1"), IPAddress.Parse("2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577")],
+                [],
+                [new IPAddress(0)]
+            ],
             """{"Prop":[["127.0.0.1","2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577"],[],["0.0.0.0"]]}""",
             mappedCollection: true);
 
@@ -3663,17 +3355,15 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
     public virtual Task Can_read_write_array_of_list_of_ulong_JSON_values()
         => Can_read_and_write_JSON_value<ULongListArrayType, List<ulong>[]>(
             nameof(ULongListArrayType.Prop),
-            new List<ulong>[]
-            {
-                new()
-                {
+            [
+                [
                     ulong.MinValue,
                     1UL,
                     ulong.MaxValue
-                },
-                new(),
-                new() { 77UL }
-            },
+                ],
+                [],
+                [77UL]
+            ],
             """{"Prop":[[0,1,18446744073709551615],[],[77]]}""",
             mappedCollection: true);
 
@@ -3682,22 +3372,19 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public List<ulong>[] Prop { get; set; } = null!;
     }
 
-    [ConditionalTheory]
-    [InlineData("""{"Prop":[["AAEC","AQ==","TQ=="],[],["Tg=="]]}""")]
+    [ConditionalTheory, InlineData("""{"Prop":[["AAEC","AQ==","TQ=="],[],["Tg=="]]}""")]
     public virtual Task Can_read_write_array_of_list_of_binary_JSON_values(string expected)
         => Can_read_and_write_JSON_value<BinaryListArrayType, List<byte[]>[]>(
             nameof(BinaryListArrayType.Prop),
-            new List<byte[]>[]
-            {
-                new()
-                {
+            [
+                [
                     new byte[] { 0, 1, 2 },
                     new byte[] { 1 },
                     new byte[] { 77 }
-                },
-                new(),
-                new() { new byte[] { 78 } }
-            },
+                ],
+                [],
+                [new byte[] { 78 }]
+            ],
             expected,
             mappedCollection: true);
 
@@ -3706,17 +3393,16 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public List<byte[]>[] Prop { get; set; } = null!;
     }
 
-    [ConditionalTheory]
-    [InlineData(
-        """{"Prop":[["00000000-0000-0000-0000-000000000000","8c44242f-8e3f-4a20-8be8-98c7c1aadebd"],[],["ffffffff-ffff-ffff-ffff-ffffffffffff"]]}""")]
+    [ConditionalTheory, InlineData(
+         """{"Prop":[["00000000-0000-0000-0000-000000000000","8c44242f-8e3f-4a20-8be8-98c7c1aadebd"],[],["ffffffff-ffff-ffff-ffff-ffffffffffff"]]}""")]
     public virtual Task Can_read_write_array_of_list_of_GUID_JSON_values(string expected)
         => Can_read_and_write_JSON_value<GuidListArrayType, ICollection<Guid>[]>(
             nameof(GuidListArrayType.Prop),
             new List<Guid>[]
             {
-                new() { new Guid("00000000-0000-0000-0000-000000000000"), new Guid("8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD") },
-                new(),
-                new() { new Guid("FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF") }
+                [new Guid("00000000-0000-0000-0000-000000000000"), new Guid("8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD")],
+                [],
+                [new Guid("FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF")]
             },
             expected,
             mappedCollection: true);
@@ -3730,26 +3416,26 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
     public virtual Task Can_read_write_list_of_list_of_list_of_int_JSON_values()
         => Can_read_and_write_JSON_value<Int32ListListListType, List<List<List<int>>>>(
             nameof(Int32ListListListType.Prop),
-            new List<List<List<int>>>
-            {
-                new()
+            [
+                new List<List<int>>
                 {
-                    new List<int>
+                    new()
                     {
                         int.MinValue,
                         0,
                         int.MaxValue
                     },
-                    new List<int> { 77 }
+                    new() { 77 }
                 },
-                new(),
-                new()
+
+                new List<List<int>>(),
+                new List<List<int>>
                 {
-                    new List<int> { 1, 2 },
-                    new List<int>(),
-                    new List<int> { 78, 79 }
+                    new() { 1, 2 },
+                    new(),
+                    new() { 78, 79 }
                 }
-            },
+            ],
             """{"Prop":[[[-2147483648,0,2147483647],[77]],[],[[1,2],[],[78,79]]]}""",
             mappedCollection: true);
 
@@ -3765,7 +3451,7 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
             [
                 [[int.MinValue, 0, int.MaxValue], [77]],
                 [],
-                [[1, 2], Array.Empty<int>(), [78, 79]]
+                [[1, 2], [], [78, 79]]
             ],
             """{"Prop":[[[-2147483648,0,2147483647],[77]],[],[[1,2],[],[78,79]]]}""",
             mappedCollection: true);
@@ -3779,21 +3465,20 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
     public virtual Task Can_read_write_list_of_array_of_list_of_string_JSON_values()
         => Can_read_and_write_JSON_value<StringListArrayListType, List<List<string>[]>>(
             nameof(StringListArrayListType.Prop),
-            new List<List<string>[]>
-            {
+            [
                 new List<string>[]
                 {
-                    new()
-                    {
+                    [
                         "int.MinValue",
                         "",
                         "int.MaxValue"
-                    },
-                    new() { "77" }
+                    ],
+                    ["77"]
                 },
+
                 Array.Empty<List<string>>(),
-                new List<string>[] { new() { "1", "2" }, new(), new() { "78", "79" } }
-            },
+                new List<string>[] { ["1", "2"], [], ["78", "79"] }
+            ],
             """{"Prop":[[["int.MinValue","","int.MaxValue"],["77"]],[],[["1","2"],[],["78","79"]]]}""",
             mappedCollection: true);
 
@@ -3806,17 +3491,15 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
     public virtual Task Can_read_write_array_of_list_of_array_of_string_JSON_values()
         => Can_read_and_write_JSON_value<StringArrayListArrayType, List<string[]>[]>(
             nameof(StringArrayListArrayType.Prop),
-            new List<string[]>[]
-            {
-                new() { new[] { "int.MinValue", "", "int.MaxValue" }, new[] { "77" } },
-                new(),
-                new()
-                {
+            [
+                [new[] { "int.MinValue", "", "int.MaxValue" }, new[] { "77" }],
+                [],
+                [
                     new[] { "1", "2" },
                     Array.Empty<string>(),
                     new[] { "78", "79" }
-                }
-            },
+                ]
+            ],
             """{"Prop":[[["int.MinValue","","int.MaxValue"],["77"]],[],[["1","2"],[],["78","79"]]]}""",
             mappedCollection: true);
 
@@ -3829,12 +3512,11 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
     public virtual Task Can_read_write_array_of_list_of_array_of_IPAddress_JSON_values()
         => Can_read_and_write_JSON_value<IpAddressArrayListArrayType, List<IPAddress[]>[]>(
             nameof(IpAddressArrayListArrayType.Prop),
-            new List<IPAddress[]>[]
-            {
-                new() { new[] { IPAddress.Parse("127.0.0.1"), IPAddress.Parse("2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577") } },
-                new(),
-                new() { new[] { new IPAddress(0) } }
-            },
+            [
+                [new[] { IPAddress.Parse("127.0.0.1"), IPAddress.Parse("2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577") }],
+                [],
+                [new[] { new IPAddress(0) }]
+            ],
             """{"Prop":[[["127.0.0.1","2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577"]],[],[["0.0.0.0"]]]}""",
             mappedCollection: true);
 
@@ -3847,15 +3529,12 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
     public virtual Task Can_read_write_list_of_array_of_list_of_IPAddress_JSON_values()
         => Can_read_and_write_JSON_value<IpAddressListArrayListType, List<List<IPAddress>[]>>(
             nameof(IpAddressListArrayListType.Prop),
-            new List<List<IPAddress>[]>
-            {
-                new List<IPAddress>[]
-                {
-                    new() { IPAddress.Parse("127.0.0.1"), IPAddress.Parse("2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577") }
-                },
+            [
+                new List<IPAddress>[] { [IPAddress.Parse("127.0.0.1"), IPAddress.Parse("2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577")] },
+
                 Array.Empty<List<IPAddress>>(),
-                new List<IPAddress>[] { new() { new IPAddress(0) } }
-            },
+                new List<IPAddress>[] { [new IPAddress(0)] }
+            ],
             """{"Prop":[[["127.0.0.1","2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577"]],[],[["0.0.0.0"]]]}""",
             mappedCollection: true);
 
@@ -3868,12 +3547,11 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
     public virtual Task Can_read_write_list_of_array_of_list_of_ulong_JSON_values()
         => Can_read_and_write_JSON_value<ULongListArrayListType, List<List<ulong[]>>>(
             nameof(ULongListArrayListType.Prop),
-            new List<List<ulong[]>>
-            {
-                new() { new[] { ulong.MinValue, 1UL, ulong.MaxValue } },
-                new(),
-                new() { new[] { 77UL } }
-            },
+            [
+                new List<ulong[]> { new[] { ulong.MinValue, 1UL, ulong.MaxValue } },
+                new List<ulong[]>(),
+                new List<ulong[]> { new[] { 77UL } }
+            ],
             """{"Prop":[[[0,1,18446744073709551615]],[],[[77]]]}""",
             mappedCollection: true);
 
@@ -3882,20 +3560,16 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public List<List<ulong[]>> Prop { get; set; } = null!;
     }
 
-    [ConditionalTheory]
-    [InlineData("""{"Prop":[[[["AAEC","AQ==","TQ=="]],[],[[],[]]],[],[[[]],[["AAEC","AQ==","TQ=="]]]]}""")]
+    [ConditionalTheory, InlineData("""{"Prop":[[[["AAEC","AQ==","TQ=="]],[],[[],[]]],[],[[[]],[["AAEC","AQ==","TQ=="]]]]}""")]
     public virtual Task Can_read_write_list_of_array_of_list_of_array_of_binary_JSON_values(string expected)
         => Can_read_and_write_JSON_value<BinaryListArrayArrayListType, List<List<byte[][]>[]>>(
             nameof(BinaryListArrayArrayListType.Prop),
-            new List<List<byte[][]>[]>
-            {
-                new List<byte[][]>[]
-                {
-                    new() { new[] { new byte[] { 0, 1, 2 }, [1], [77] } }, new(), new() { new byte[][] { }, Array.Empty<byte[]>() }
-                },
+            [
+                new List<byte[][]>[] { [new[] { new byte[] { 0, 1, 2 }, [1], [77] }], [], [new byte[][] { }, Array.Empty<byte[]>()] },
+
                 Array.Empty<List<byte[][]>>(),
-                new List<byte[][]>[] { new() { new byte[][] { } }, new() { new[] { new byte[] { 0, 1, 2 }, [1], [77] } } },
-            },
+                new List<byte[][]>[] { [new byte[][] { }], [new[] { new byte[] { 0, 1, 2 }, [1], [77] }] }
+            ],
             expected,
             mappedCollection: true);
 

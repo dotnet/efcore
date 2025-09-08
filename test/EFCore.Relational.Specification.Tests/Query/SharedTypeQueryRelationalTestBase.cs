@@ -16,8 +16,7 @@ public abstract class SharedTypeQueryRelationalTestBase(NonSharedFixture fixture
     protected void AssertSql(params string[] expected)
         => TestSqlLoggerFactory.AssertBaseline(expected);
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Can_use_shared_type_entity_type_in_query_filter_with_from_sql(bool async)
     {
         var contextFactory = await InitializeAsync<MyContextRelational24601>(
@@ -56,8 +55,8 @@ public abstract class SharedTypeQueryRelationalTestBase(NonSharedFixture fixture
 
         Assert.Equal(
             CoreStrings.ClashingSharedType("Dictionary<string, object>"),
-            Assert.Throws<InvalidOperationException>(
-                () => context.Database.SqlQueryRaw<Dictionary<string, object>>(@"SELECT * FROM X")).Message);
+            Assert.Throws<InvalidOperationException>(() => context.Database.SqlQueryRaw<Dictionary<string, object>>(@"SELECT * FROM X"))
+                .Message);
     }
 
     protected class MyContextRelational24601(DbContextOptions options) : MyContext24601(options)
@@ -66,9 +65,8 @@ public abstract class SharedTypeQueryRelationalTestBase(NonSharedFixture fixture
         {
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<ViewQuery24601>()
-                .HasQueryFilter(
-                    e => Set<Dictionary<string, object>>("STET")
-                        .FromSqlRaw("Select * from STET").Select(i => (string)i["Value"]).Contains(e.Value));
+                .HasQueryFilter(e => Set<Dictionary<string, object>>("STET")
+                    .FromSqlRaw("Select * from STET").Select(i => (string)i["Value"]).Contains(e.Value));
         }
     }
 }

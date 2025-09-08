@@ -94,7 +94,7 @@ DEFAULT VALUES;
         var command = CreateInsertCommand();
 
         var sqlGenerator = (ISqlServerUpdateSqlGenerator)CreateSqlGenerator();
-        var grouping = sqlGenerator.AppendBulkInsertOperation(stringBuilder, new[] { command, command }, 0);
+        var grouping = sqlGenerator.AppendBulkInsertOperation(stringBuilder, [command, command], 0);
 
         AssertBaseline(
             """
@@ -117,7 +117,7 @@ OUTPUT INSERTED.[Id], INSERTED.[Computed], i._Position;
         var command = CreateInsertCommand(identityKey: false, isComputed: false);
 
         var sqlGenerator = (ISqlServerUpdateSqlGenerator)CreateSqlGenerator();
-        var grouping = sqlGenerator.AppendBulkInsertOperation(stringBuilder, new[] { command, command }, 0);
+        var grouping = sqlGenerator.AppendBulkInsertOperation(stringBuilder, [command, command], 0);
 
         AssertBaseline(
             """
@@ -136,7 +136,7 @@ VALUES (@p0, @p1, @p2, @p3),
         var command = CreateInsertCommand(identityKey: true, isComputed: true, defaultsOnly: true);
 
         var sqlGenerator = (ISqlServerUpdateSqlGenerator)CreateSqlGenerator();
-        var grouping = sqlGenerator.AppendBulkInsertOperation(stringBuilder, new[] { command, command }, 0);
+        var grouping = sqlGenerator.AppendBulkInsertOperation(stringBuilder, [command, command], 0);
 
         AssertBaseline(
             """
@@ -160,7 +160,7 @@ INNER JOIN @inserted0 i ON ([t].[Id] = [i].[Id]);
         var command = CreateInsertCommand(identityKey: false, isComputed: false, defaultsOnly: true);
 
         var sqlGenerator = (ISqlServerUpdateSqlGenerator)CreateSqlGenerator();
-        var grouping = sqlGenerator.AppendBulkInsertOperation(stringBuilder, new[] { command, command }, 0);
+        var grouping = sqlGenerator.AppendBulkInsertOperation(stringBuilder, [command, command], 0);
 
         var expectedText =
             """

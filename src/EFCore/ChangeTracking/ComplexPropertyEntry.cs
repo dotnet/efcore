@@ -166,7 +166,8 @@ public class ComplexPropertyEntry : MemberEntry
     ///     examples.
     /// </remarks>
     public virtual IEnumerable<ComplexPropertyEntry> ComplexProperties
-        => Metadata.ComplexType.GetComplexProperties().Where(p => !p.IsCollection).Select(property => new ComplexPropertyEntry(InternalEntry, property));
+        => Metadata.ComplexType.GetComplexProperties().Where(p => !p.IsCollection)
+            .Select(property => new ComplexPropertyEntry(InternalEntry, property));
 
     /// <summary>
     ///     Provides access to change tracking information and operations for a given collection property of a complex type on this complex type.
@@ -208,5 +209,6 @@ public class ComplexPropertyEntry : MemberEntry
     ///     examples.
     /// </remarks>
     public virtual IEnumerable<ComplexCollectionEntry> ComplexCollections
-        => Metadata.ComplexType.GetComplexProperties().Where(p => p.IsCollection).Select(property => new ComplexCollectionEntry(InternalEntry, property));
+        => Metadata.ComplexType.GetComplexProperties().Where(p => p.IsCollection)
+            .Select(property => new ComplexCollectionEntry(InternalEntry, property));
 }

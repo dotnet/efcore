@@ -10,16 +10,14 @@ public abstract class GuidTranslationsTestBase<TFixture>(TFixture fixture) : Que
 {
     [ConditionalFact]
     public virtual Task New_with_constant()
-        => AssertQuery(
-            ss => ss.Set<BasicTypesEntity>().Where(b => b.Guid == new Guid("DF36F493-463F-4123-83F9-6B135DEEB7BA")));
+        => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Guid == new Guid("DF36F493-463F-4123-83F9-6B135DEEB7BA")));
 
     [ConditionalFact]
     public virtual async Task New_with_parameter()
     {
         var guid = "DF36F493-463F-4123-83F9-6B135DEEB7BA";
 
-        await AssertQuery(
-            ss => ss.Set<BasicTypesEntity>().Where(b => b.Guid == new Guid(guid)));
+        await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Guid == new Guid(guid)));
     }
 
     [ConditionalFact]
@@ -30,6 +28,5 @@ public abstract class GuidTranslationsTestBase<TFixture>(TFixture fixture) : Que
 
     [ConditionalFact]
     public virtual Task NewGuid()
-        => AssertQuery(
-            ss => ss.Set<BasicTypesEntity>().Where(od => Guid.NewGuid() != default));
+        => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(od => Guid.NewGuid() != default));
 }

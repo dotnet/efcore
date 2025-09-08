@@ -32,8 +32,7 @@ public abstract class NorthwindBulkUpdatesRelationalTestBase<TFixture> : Northwi
             RelationalStrings.ExecuteDeleteOnNonEntityType,
             () => base.Delete_non_entity_projection_3(async));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Delete_FromSql_converted_to_subquery(bool async)
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             () => Fixture.CreateContext(),
@@ -77,8 +76,7 @@ WHERE [OrderID] < 10300"));
             RelationalStrings.InvalidPropertyInSetProperty("c => c.IsLondon"),
             () => base.Update_unmapped_property_throws(async));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Update_FromSql_set_constant(bool async)
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             () => Fixture.CreateContext(),

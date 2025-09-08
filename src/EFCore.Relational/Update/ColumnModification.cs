@@ -207,14 +207,15 @@ public class ColumnModification : IColumnModification
     public static object? GetCurrentValue(IUpdateEntry entry, IProperty property)
         => property.DeclaringType is IComplexType { ComplexProperty: var complexProperty }
             && IsNull(complexProperty, entry)
-            ? null
-            : entry.GetCurrentValue(property);
+                ? null
+                : entry.GetCurrentValue(property);
 
     private static bool IsNull(IComplexProperty complexProperty, IUpdateEntry entry)
         => (complexProperty.DeclaringType is IComplexType { ComplexProperty: var parentComplexProperty }
-            && IsNull(parentComplexProperty, entry))
-           || (complexProperty.IsNullable && !complexProperty.IsCollection
-               && entry.GetCurrentValue(complexProperty) == null);
+                && IsNull(parentComplexProperty, entry))
+            || (complexProperty.IsNullable
+                && !complexProperty.IsCollection
+                && entry.GetCurrentValue(complexProperty) == null);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -258,10 +259,10 @@ public class ColumnModification : IColumnModification
     /// <inheritdoc />
     public virtual void AddSharedColumnModification(IColumnModification modification)
     {
-        Check.DebugAssert(Entry is not null, "Entry is not null");
-        Check.DebugAssert(Property is not null, "Property is not null");
-        Check.DebugAssert(modification.Entry is not null, "modification.Entry is not null");
-        Check.DebugAssert(modification.Property is not null, "modification.Property is not null");
+        Check.DebugAssert(Entry is not null);
+        Check.DebugAssert(Property is not null);
+        Check.DebugAssert(modification.Entry is not null);
+        Check.DebugAssert(modification.Property is not null);
 
         _sharedColumnModifications ??= [];
 
@@ -280,8 +281,8 @@ public class ColumnModification : IColumnModification
                         existingEntry.EntityType.DisplayName(),
                         newEntry.EntityType.DisplayName(),
                         Entry.BuildCurrentValuesString(Entry.EntityType.FindPrimaryKey()!.Properties),
-                        Entry.BuildCurrentValuesString(new[] { Property }),
-                        newEntry.BuildCurrentValuesString(new[] { modification.Property }),
+                        Entry.BuildCurrentValuesString([Property]),
+                        newEntry.BuildCurrentValuesString([modification.Property]),
                         ColumnName));
             }
 
@@ -333,8 +334,8 @@ public class ColumnModification : IColumnModification
                             existingEntry.EntityType.DisplayName(),
                             newEntry.EntityType.DisplayName(),
                             Entry.BuildCurrentValuesString(Entry.EntityType.FindPrimaryKey()!.Properties),
-                            existingEntry.BuildOriginalValuesString(new[] { Property }),
-                            newEntry.BuildOriginalValuesString(new[] { modification.Property }),
+                            existingEntry.BuildOriginalValuesString([Property]),
+                            newEntry.BuildOriginalValuesString([modification.Property]),
                             ColumnName));
                 }
 

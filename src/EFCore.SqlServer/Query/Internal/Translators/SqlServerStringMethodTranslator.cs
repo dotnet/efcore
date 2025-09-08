@@ -80,14 +80,12 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
         = typeof(string).GetRuntimeMethod(nameof(string.TrimEnd), [typeof(char)])!;
 
     private static readonly MethodInfo FirstOrDefaultMethodInfoWithoutArgs
-        = typeof(Enumerable).GetRuntimeMethods().Single(
-            m => m.Name == nameof(Enumerable.FirstOrDefault)
-                && m.GetParameters().Length == 1).MakeGenericMethod(typeof(char));
+        = typeof(Enumerable).GetRuntimeMethods().Single(m => m.Name == nameof(Enumerable.FirstOrDefault)
+            && m.GetParameters().Length == 1).MakeGenericMethod(typeof(char));
 
     private static readonly MethodInfo LastOrDefaultMethodInfoWithoutArgs
-        = typeof(Enumerable).GetRuntimeMethods().Single(
-            m => m.Name == nameof(Enumerable.LastOrDefault)
-                && m.GetParameters().Length == 1).MakeGenericMethod(typeof(char));
+        = typeof(Enumerable).GetRuntimeMethods().Single(m => m.Name == nameof(Enumerable.LastOrDefault)
+            && m.GetParameters().Length == 1).MakeGenericMethod(typeof(char));
 
     private static readonly MethodInfo PatIndexMethodInfo
         = typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
@@ -142,12 +140,14 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
                 var stringTypeMapping = ExpressionExtensions.InferTypeMapping(instance, firstArgument, secondArgument);
 
                 instance = _sqlExpressionFactory.ApplyTypeMapping(instance, stringTypeMapping);
-                firstArgument = _sqlExpressionFactory.ApplyTypeMapping(firstArgument, firstArgument.Type == typeof(char) ? CharTypeMapping.Default : stringTypeMapping);
-                secondArgument = _sqlExpressionFactory.ApplyTypeMapping(secondArgument, secondArgument.Type == typeof(char) ? CharTypeMapping.Default : stringTypeMapping);
+                firstArgument = _sqlExpressionFactory.ApplyTypeMapping(
+                    firstArgument, firstArgument.Type == typeof(char) ? CharTypeMapping.Default : stringTypeMapping);
+                secondArgument = _sqlExpressionFactory.ApplyTypeMapping(
+                    secondArgument, secondArgument.Type == typeof(char) ? CharTypeMapping.Default : stringTypeMapping);
 
                 return _sqlExpressionFactory.Function(
                     "REPLACE",
-                    new[] { instance, firstArgument, secondArgument },
+                    [instance, firstArgument, secondArgument],
                     nullable: true,
                     argumentsPropagateNullability: Statics.TrueArrays[3],
                     method.ReturnType,
@@ -159,7 +159,7 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
             {
                 return _sqlExpressionFactory.Function(
                     ToLowerMethodInfo.Equals(method) ? "LOWER" : "UPPER",
-                    new[] { instance },
+                    [instance],
                     nullable: true,
                     argumentsPropagateNullability: Statics.TrueArrays[1],
                     method.ReturnType,
@@ -170,19 +170,18 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
             {
                 return _sqlExpressionFactory.Function(
                     "SUBSTRING",
-                    new[]
-                    {
+                    [
                         instance,
                         _sqlExpressionFactory.Add(
                             arguments[0],
                             _sqlExpressionFactory.Constant(1)),
                         _sqlExpressionFactory.Function(
                             "LEN",
-                            new[] { instance },
+                            [instance],
                             nullable: true,
                             argumentsPropagateNullability: Statics.TrueArrays[1],
                             typeof(int))
-                    },
+                    ],
                     nullable: true,
                     argumentsPropagateNullability: Statics.TrueArrays[3],
                     method.ReturnType,
@@ -193,14 +192,13 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
             {
                 return _sqlExpressionFactory.Function(
                     "SUBSTRING",
-                    new[]
-                    {
+                    [
                         instance,
                         _sqlExpressionFactory.Add(
                             arguments[0],
                             _sqlExpressionFactory.Constant(1)),
                         arguments[1]
-                    },
+                    ],
                     nullable: true,
                     argumentsPropagateNullability: Statics.TrueArrays[3],
                     method.ReturnType,
@@ -238,16 +236,15 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
             {
                 return _sqlExpressionFactory.Function(
                     "LTRIM",
-                    new[]
-                    {
+                    [
                         _sqlExpressionFactory.Function(
                             "RTRIM",
-                            new[] { instance },
+                            [instance],
                             nullable: true,
                             argumentsPropagateNullability: Statics.TrueArrays[1],
                             instance.Type,
                             instance.TypeMapping)
-                    },
+                    ],
                     nullable: true,
                     argumentsPropagateNullability: Statics.TrueArrays[1],
                     instance.Type,
@@ -282,7 +279,7 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
             var argument = arguments[0];
             return _sqlExpressionFactory.Function(
                 "SUBSTRING",
-                new[] { argument, _sqlExpressionFactory.Constant(1), _sqlExpressionFactory.Constant(1) },
+                [argument, _sqlExpressionFactory.Constant(1), _sqlExpressionFactory.Constant(1)],
                 nullable: true,
                 argumentsPropagateNullability: Statics.TrueArrays[3],
                 method.ReturnType);
@@ -293,17 +290,16 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
             var argument = arguments[0];
             return _sqlExpressionFactory.Function(
                 "SUBSTRING",
-                new[]
-                {
+                [
                     argument,
                     _sqlExpressionFactory.Function(
                         "LEN",
-                        new[] { argument },
+                        [argument],
                         nullable: true,
                         argumentsPropagateNullability: Statics.TrueArrays[1],
                         typeof(int)),
                     _sqlExpressionFactory.Constant(1)
-                },
+                ],
                 nullable: true,
                 argumentsPropagateNullability: Statics.TrueArrays[3],
                 method.ReturnType);
@@ -316,7 +312,7 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
 
             return _sqlExpressionFactory.Function(
                 "PATINDEX",
-                new[] { pattern, expression },
+                [pattern, expression],
                 nullable: true,
                 argumentsPropagateNullability: Statics.TrueArrays[2],
                 method.ReturnType
@@ -333,7 +329,8 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
         SqlExpression? startIndex)
     {
         var stringTypeMapping = ExpressionExtensions.InferTypeMapping(instance, searchExpression)!;
-        searchExpression = _sqlExpressionFactory.ApplyTypeMapping(searchExpression, searchExpression.Type == typeof(char) ? CharTypeMapping.Default : stringTypeMapping);
+        searchExpression = _sqlExpressionFactory.ApplyTypeMapping(
+            searchExpression, searchExpression.Type == typeof(char) ? CharTypeMapping.Default : stringTypeMapping);
 
         instance = _sqlExpressionFactory.ApplyTypeMapping(instance, stringTypeMapping);
 
@@ -386,14 +383,13 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
         var offsetExpression = searchExpression is SqlConstantExpression
             ? _sqlExpressionFactory.Constant(1)
             : _sqlExpressionFactory.Case(
-                new[]
-                {
+                [
                     new CaseWhenClause(
                         _sqlExpressionFactory.Equal(
                             searchExpression,
                             _sqlExpressionFactory.Constant(string.Empty, stringTypeMapping)),
                         _sqlExpressionFactory.Constant(0))
-                },
+                ],
                 _sqlExpressionFactory.Constant(1));
 
         return _sqlExpressionFactory.Subtract(charIndexExpression, offsetExpression);

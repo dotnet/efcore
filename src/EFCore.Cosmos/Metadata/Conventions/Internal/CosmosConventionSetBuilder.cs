@@ -81,10 +81,9 @@ public class CosmosConventionSetBuilder : ProviderConventionSetBuilder
     {
         var serviceProvider = new ServiceCollection()
             .AddEntityFrameworkCosmos()
-            .AddDbContext<DbContext>(
-                (p, o) =>
-                    o.UseCosmos("localhost", "_", "_")
-                        .UseInternalServiceProvider(p))
+            .AddDbContext<DbContext>((p, o) =>
+                o.UseCosmos("localhost", "_", "_")
+                    .UseInternalServiceProvider(p))
             .BuildServiceProvider();
 
         return serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope();

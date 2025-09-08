@@ -142,7 +142,8 @@ public class ClrPropertyGetterFactoryTest
         IReadOnlyTypeBase IReadOnlyPropertyBase.DeclaringType
             => throw new NotImplementedException();
 
-        public bool IsCollection => throw new NotImplementedException();
+        public bool IsCollection
+            => throw new NotImplementedException();
     }
 
     [ConditionalFact]
@@ -209,12 +210,11 @@ public class ClrPropertyGetterFactoryTest
     public void Delegate_getter_is_returned_for_IProperty_complex_property()
     {
         var modelBuilder = CreateModelBuilder();
-        modelBuilder.Entity<Customer>(
-            b =>
-            {
-                b.Property(e => e.Id);
-                b.ComplexProperty(e => e.Fuel).Property(e => e.Volume);
-            });
+        modelBuilder.Entity<Customer>(b =>
+        {
+            b.Property(e => e.Id);
+            b.ComplexProperty(e => e.Fuel).Property(e => e.Volume);
+        });
 
         var model = modelBuilder.FinalizeModel();
 

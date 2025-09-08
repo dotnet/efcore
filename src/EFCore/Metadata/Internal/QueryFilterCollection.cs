@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -14,8 +13,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 /// </summary>
 public sealed class QueryFilterCollection : IReadOnlyCollection<IQueryFilter>
 {
-    private IQueryFilter? anonymousFilter;    
-    private Dictionary<string, IQueryFilter>? filters;
+    private IQueryFilter? _anonymousFilter;
+    private Dictionary<string, IQueryFilter>? _filters;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -33,10 +32,12 @@ public sealed class QueryFilterCollection : IReadOnlyCollection<IQueryFilter>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public QueryFilterCollection(IEnumerable<IQueryFilter> filters) => SetRange(filters);
+    public QueryFilterCollection(IEnumerable<IQueryFilter> filters)
+        => SetRange(filters);
 
-    [MemberNotNullWhen(true, nameof(anonymousFilter))]
-    private bool HasAnonymousFilter => anonymousFilter != null;
+    [MemberNotNullWhen(true, nameof(_anonymousFilter))]
+    private bool HasAnonymousFilter
+        => _anonymousFilter != null;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -44,9 +45,10 @@ public sealed class QueryFilterCollection : IReadOnlyCollection<IQueryFilter>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public int Count => HasAnonymousFilter
-        ? 1
-        : filters?.Count
+    public int Count
+        => HasAnonymousFilter
+            ? 1
+            : _filters?.Count
             ?? 0;
 
     /// <summary>
@@ -55,11 +57,14 @@ public sealed class QueryFilterCollection : IReadOnlyCollection<IQueryFilter>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public IEnumerator<IQueryFilter> GetEnumerator() => HasAnonymousFilter
-        ? new AnonymousFilterEnumerator(anonymousFilter)
-        : filters?.Values.GetEnumerator()
+    public IEnumerator<IQueryFilter> GetEnumerator()
+        => HasAnonymousFilter
+            ? new AnonymousFilterEnumerator(_anonymousFilter)
+            : _filters?.Values.GetEnumerator()
             ?? Enumerable.Empty<IQueryFilter>().GetEnumerator();
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    IEnumerator IEnumerable.GetEnumerator()
+        => GetEnumerator();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -68,16 +73,7 @@ public sealed class QueryFilterCollection : IReadOnlyCollection<IQueryFilter>
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public IQueryFilter? this[string? filterKey]
-    {
-        get
-        {
-            if(filterKey == null)
-            {
-                return anonymousFilter;
-            }
-            return filters?.GetValueOrDefault(filterKey);
-        }
-    }
+        => filterKey == null ? _anonymousFilter : _filters?.GetValueOrDefault(filterKey);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -86,7 +82,7 @@ public sealed class QueryFilterCollection : IReadOnlyCollection<IQueryFilter>
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public IQueryFilter? Set(IQueryFilter? filter)
-    {        
+    {
         if (filter == null)
         {
             Remove();
@@ -97,11 +93,12 @@ public sealed class QueryFilterCollection : IReadOnlyCollection<IQueryFilter>
         }
         else if (filter.IsAnonymous)
         {
-            if(filters?.Count > 0)
+            if (_filters?.Count > 0)
             {
                 throw new InvalidOperationException(CoreStrings.AnonymousAndNamedFiltersCombined);
             }
-            anonymousFilter = filter;
+
+            _anonymousFilter = filter;
         }
         else
         {
@@ -109,7 +106,8 @@ public sealed class QueryFilterCollection : IReadOnlyCollection<IQueryFilter>
             {
                 throw new InvalidOperationException(CoreStrings.AnonymousAndNamedFiltersCombined);
             }
-            (filters ??= [])[filter.Key] = filter;
+
+            (_filters ??= [])[filter.Key] = filter;
         }
 
         return filter;
@@ -123,9 +121,9 @@ public sealed class QueryFilterCollection : IReadOnlyCollection<IQueryFilter>
     /// </summary>
     public void SetRange(IEnumerable<IQueryFilter> newFilters)
     {
-        if(filters == null && newFilters.TryGetNonEnumeratedCount(out var count) && count > 1)
+        if (_filters == null && newFilters.TryGetNonEnumeratedCount(out var count) && count > 1)
         {
-            filters = new(count);
+            _filters = new Dictionary<string, IQueryFilter>(count);
         }
 
         foreach (var filter in newFilters)
@@ -136,35 +134,35 @@ public sealed class QueryFilterCollection : IReadOnlyCollection<IQueryFilter>
 
     private void Remove(string? key = null)
     {
-        if(key == null)
+        if (key == null)
         {
-            anonymousFilter = null;
+            _anonymousFilter = null;
         }
         else
         {
-            filters?.Remove(key);
+            _filters?.Remove(key);
         }
     }
 
-    sealed class AnonymousFilterEnumerator(IQueryFilter filter) : IEnumerator<IQueryFilter>
+    private sealed class AnonymousFilterEnumerator(IQueryFilter filter) : IEnumerator<IQueryFilter>
     {
-        private readonly IQueryFilter _filter = filter;
+        private int _position = -1;
 
-        int position = -1;
+        public IQueryFilter Current
+            => _position == 0 ? filter : null!;
 
-        public IQueryFilter Current => position == 0 ? _filter : null!;
-
-        object IEnumerator.Current => Current;
+        object IEnumerator.Current
+            => Current;
 
         public void Dispose() { }
+
         public bool MoveNext()
         {
-            position++;
-            return position < 1;
+            _position++;
+            return _position < 1;
         }
+
         public void Reset()
-        {
-            position = -1;
-        }
+            => _position = -1;
     }
 }

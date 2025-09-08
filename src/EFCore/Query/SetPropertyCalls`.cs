@@ -25,7 +25,8 @@ public sealed class UpdateSettersBuilder<TSource> : UpdateSettersBuilder
     /// <param name="valueExpression">A value expression.</param>
     /// <returns>
     ///     The same instance so that multiple calls to
-    ///     <see cref="UpdateSettersBuilder{TSource}.SetProperty{TProperty}(Expression{Func{TSource, TProperty}}, Expression{Func{TSource, TProperty}})" />
+    ///     <see
+    ///         cref="UpdateSettersBuilder{TSource}.SetProperty{TProperty}(Expression{Func{TSource, TProperty}}, Expression{Func{TSource, TProperty}})" />
     ///     can be chained.
     /// </returns>
     public UpdateSettersBuilder<TSource> SetProperty<TProperty>(

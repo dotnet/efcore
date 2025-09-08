@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -119,15 +118,14 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IRu
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public static bool AreCompatible(IReadOnlyList<Property> properties, EntityType entityType)
-        => properties.All(
-            property =>
-                property.IsShadowProperty()
-                || (property.IsIndexerProperty()
-                    ? property.PropertyInfo == entityType.FindIndexerPropertyInfo()
-                    : ((property.PropertyInfo != null
-                            && entityType.GetRuntimeProperties().ContainsKey(property.Name))
-                        || (property.FieldInfo != null
-                            && entityType.GetRuntimeFields().ContainsKey(property.Name)))));
+        => properties.All(property =>
+            property.IsShadowProperty()
+            || (property.IsIndexerProperty()
+                ? property.PropertyInfo == entityType.FindIndexerPropertyInfo()
+                : ((property.PropertyInfo != null
+                        && entityType.GetRuntimeProperties().ContainsKey(property.Name))
+                    || (property.FieldInfo != null
+                        && entityType.GetRuntimeFields().ContainsKey(property.Name)))));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -170,7 +168,8 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IRu
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override bool IsCollection => IsPrimitiveCollection;
+    public override bool IsCollection
+        => IsPrimitiveCollection;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -895,7 +894,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IRu
                                 new Queue<(Property CurrentProperty, Property CycleBreakingProperty, int CyclePosition, int MaxCycleLength
                                     )>();
                             queue.Enqueue(currentNode.Value);
-                            visitedProperties = new HashSet<Property> { property };
+                            visitedProperties = [property];
                         }
 
                         if (visitedProperties?.Contains(principalProperty) == true)
@@ -1177,7 +1176,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IRu
     /// </summary>
     public virtual ValueComparer? GetValueComparer()
         => IsReadOnly
-            ? _valueComparer = (GetValueComparer(null) ?? TypeMapping?.Comparer).ToNullableComparer(ClrType)
+            ? _valueComparer ??= (GetValueComparer(null) ?? TypeMapping?.Comparer).ToNullableComparer(ClrType)
             : (GetValueComparer(null) ?? TypeMapping?.Comparer).ToNullableComparer(ClrType);
 
     private ValueComparer? GetValueComparer(HashSet<Property>? checkedProperties)

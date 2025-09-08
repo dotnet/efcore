@@ -10,23 +10,19 @@ public abstract class LogicalOperatorTranslationsTestBase<TFixture>(TFixture fix
 {
     [ConditionalFact]
     public virtual async Task And()
-        => await AssertQuery(
-            ss => ss.Set<BasicTypesEntity>().Where(b => b.Int == 8 && b.String == "Seattle"));
+        => await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Int == 8 && b.String == "Seattle"));
 
     [ConditionalFact]
     public virtual async Task And_with_bool_property()
-        => await AssertQuery(
-            ss => ss.Set<BasicTypesEntity>().Where(b => b.Bool && b.String == "Seattle"));
+        => await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Bool && b.String == "Seattle"));
 
     [ConditionalFact]
     public virtual async Task Or()
-        => await AssertQuery(
-            ss => ss.Set<BasicTypesEntity>().Where(b => b.Int == 999 || b.String == "Seattle"));
+        => await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Int == 999 || b.String == "Seattle"));
 
     [ConditionalFact]
     public virtual async Task Or_with_bool_property()
-        => await AssertQuery(
-            ss => ss.Set<BasicTypesEntity>().Where(b => b.Bool || b.String == "Seattle"));
+        => await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Bool || b.String == "Seattle"));
 
     [ConditionalFact]
     public virtual async Task Not()

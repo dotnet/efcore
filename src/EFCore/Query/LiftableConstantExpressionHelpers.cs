@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Internal;
 using static System.Linq.Expressions.Expression;
@@ -201,19 +200,19 @@ public static class LiftableConstantExpressionHelpers
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static Expression BuildRelationshipAccess(IPropertyBase? relationship, ParameterExpression liftableConstantContextParameter)
+    public static Expression BuildStructuralPropertyAccess(IPropertyBase? structuralProperty, ParameterExpression liftableConstantContextParameter)
     {
-        if (relationship is null)
+        if (structuralProperty is null)
         {
             return Default(typeof(INavigationBase));
         }
 
-        var declaringType = relationship.DeclaringType;
+        var declaringType = structuralProperty.DeclaringType;
         var declaringTypeExpression = BuildMemberAccessForEntityOrComplexType(declaringType, liftableConstantContextParameter);
 
         var result = Call(
             declaringTypeExpression,
-            relationship switch
+            structuralProperty switch
             {
                 ISkipNavigation => EntityTypeFindSkipNavigationMethod,
                 INavigation => EntityTypeFindNavigationMethod,
@@ -221,7 +220,7 @@ public static class LiftableConstantExpressionHelpers
 
                 _ => throw new UnreachableException()
             },
-            Constant(relationship.Name));
+            Constant(structuralProperty.Name));
 
         return result;
     }
@@ -232,10 +231,10 @@ public static class LiftableConstantExpressionHelpers
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static Expression<Func<MaterializerLiftableConstantContext, object>> BuildRelationshipAccessLambda(IPropertyBase? relationship)
+    public static Expression<Func<MaterializerLiftableConstantContext, object>> BuildStructuralPropertyAccessLambda(IPropertyBase? structuralProperty)
     {
         var prm = Parameter(typeof(MaterializerLiftableConstantContext));
-        var body = BuildRelationshipAccess(relationship, prm);
+        var body = BuildStructuralPropertyAccess(structuralProperty, prm);
 
         return Lambda<Func<MaterializerLiftableConstantContext, object>>(body, prm);
     }
@@ -246,15 +245,15 @@ public static class LiftableConstantExpressionHelpers
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static Expression BuildClrCollectionAccessor(IPropertyBase? relationship, ParameterExpression liftableConstantContextParameter)
+    public static Expression BuildClrCollectionAccessor(IPropertyBase? structuralProperty, ParameterExpression liftableConstantContextParameter)
     {
-        if (relationship is null)
+        if (structuralProperty is null)
         {
             return Default(typeof(IClrCollectionAccessor));
         }
 
-        var relationshipAccessExpression = BuildRelationshipAccess(relationship, liftableConstantContextParameter);
-        var result = Call(relationshipAccessExpression, PropertyBaseClrCollectionAccessorMethod);
+        var structuralPropertyAccessExpression = BuildStructuralPropertyAccess(structuralProperty, liftableConstantContextParameter);
+        var result = Call(structuralPropertyAccessExpression, PropertyBaseClrCollectionAccessorMethod);
 
         return result;
     }
@@ -266,10 +265,10 @@ public static class LiftableConstantExpressionHelpers
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public static Expression<Func<MaterializerLiftableConstantContext, object>> BuildClrCollectionAccessorLambda(
-        IPropertyBase? relationship)
+        IPropertyBase? structuralProperty)
     {
         var prm = Parameter(typeof(MaterializerLiftableConstantContext));
-        var body = BuildClrCollectionAccessor(relationship, prm);
+        var body = BuildClrCollectionAccessor(structuralProperty, prm);
 
         return Lambda<Func<MaterializerLiftableConstantContext, object>>(body, prm);
     }

@@ -32,7 +32,10 @@
           Outputs="$(EFCoreSqlServerNetTopologySuiteFile)">
     <ItemGroup>
       <EFCoreSqlServerNetTopologySuiteServices Include="Microsoft.EntityFrameworkCore.Design.DesignTimeServicesReferenceAttribute">
-        <_Parameter1>Microsoft.EntityFrameworkCore.SqlServer.Design.Internal.SqlServerNetTopologySuiteDesignTimeServices, Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite</_Parameter1>
+        <_Parameter1>
+          Microsoft.EntityFrameworkCore.SqlServer.Design.Internal.SqlServerNetTopologySuiteDesignTimeServices,
+          Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite
+        </_Parameter1>
         <_Parameter2>Microsoft.EntityFrameworkCore.SqlServer</_Parameter2>
       </EFCoreSqlServerNetTopologySuiteServices>
     </ItemGroup>

@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -677,7 +676,9 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     /// <param name="propertyName">The name of the property to be configured.</param>
     /// <param name="buildAction">An action that performs configuration of the property.</param>
     /// <returns>An object that can be used to configure the property.</returns>
-    public virtual EntityTypeBuilder ComplexCollection<TProperty, TElement>(string propertyName, Action<ComplexCollectionBuilder<TElement>> buildAction)
+    public virtual EntityTypeBuilder ComplexCollection<TProperty, TElement>(
+        string propertyName,
+        Action<ComplexCollectionBuilder<TElement>> buildAction)
         where TProperty : IEnumerable<TElement>
         where TElement : notnull
     {
@@ -706,7 +707,9 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     /// <param name="buildAction">An action that performs configuration of the property.</param>
     /// <returns>An object that can be used to configure the property.</returns>
     public virtual EntityTypeBuilder ComplexCollection<TProperty, TElement>(
-        string propertyName, string complexTypeName, Action<ComplexCollectionBuilder<TElement>> buildAction)
+        string propertyName,
+        string complexTypeName,
+        Action<ComplexCollectionBuilder<TElement>> buildAction)
         where TProperty : IEnumerable<TElement>
         where TElement : notnull
     {
@@ -757,7 +760,11 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     /// <param name="complexTypeName">The name of the complex type.</param>
     /// <param name="buildAction">An action that performs configuration of the property.</param>
     /// <returns>An object that can be used to configure the property.</returns>
-    public virtual EntityTypeBuilder ComplexCollection(Type propertyType, string propertyName, string complexTypeName, Action<ComplexCollectionBuilder> buildAction)
+    public virtual EntityTypeBuilder ComplexCollection(
+        Type propertyType,
+        string propertyName,
+        string complexTypeName,
+        Action<ComplexCollectionBuilder> buildAction)
     {
         Check.NotNull(buildAction);
 
@@ -772,7 +779,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     /// </summary>
     /// <param name="navigationName">The name of the navigation property to be configured.</param>
     /// <returns>An object that can be used to configure the navigation property.</returns>
-        /// <remarks>
+    /// <remarks>
     ///     Navigation properties must first be added to the entity type using methods like HasOne, HasMany,
     ///     or OwnsOne/OwnsMany before they can be configured with this method.
     /// </remarks>
@@ -813,7 +820,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     /// <param name="filterKey">The filter key</param>
     /// <param name="filter">The LINQ predicate expression.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
-    public virtual EntityTypeBuilder HasQueryFilter(string filterKey,LambdaExpression? filter)
+    public virtual EntityTypeBuilder HasQueryFilter(string filterKey, LambdaExpression? filter)
     {
         Builder.HasQueryFilter(new QueryFilter(filterKey, filter));
 

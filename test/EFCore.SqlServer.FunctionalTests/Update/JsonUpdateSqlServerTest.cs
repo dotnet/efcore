@@ -2221,7 +2221,6 @@ OUTPUT 1
 WHERE [Id] = @p1;
 """,
                     //
-
                     """
 select OwnedCollectionRoot from JsonEntitiesBasic where Id = 2
 """,

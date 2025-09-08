@@ -114,8 +114,8 @@ FROM (
     public override async Task Multiple_collection_navigation_with_FirstOrDefault_chained(bool async)
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Multiple_collection_navigation_with_FirstOrDefault_chained(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(()
+                => base.Multiple_collection_navigation_with_FirstOrDefault_chained(async))).Message);
 
     public override async Task Contains_with_local_anonymous_type_array_closure(bool async)
         => await AssertTranslationFailed(() => base.Contains_with_local_anonymous_type_array_closure(async));

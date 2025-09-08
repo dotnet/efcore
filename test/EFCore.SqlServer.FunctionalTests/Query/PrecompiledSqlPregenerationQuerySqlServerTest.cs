@@ -254,16 +254,9 @@ WHERE [b].[Name] IN (@names1, @names2)
             => SqlServerTestStoreFactory.Instance;
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-        {
-            builder = base.AddOptions(builder);
-
             // TODO: Figure out if there's a nice way to continue using the retrying strategy
-            var sqlServerOptionsBuilder = new SqlServerDbContextOptionsBuilder(builder);
-            sqlServerOptionsBuilder
-                .UseCompatibilityLevel(120)
-                .ExecutionStrategy(d => new NonRetryingExecutionStrategy(d));
-            return builder;
-        }
+            => base.AddOptions(builder).UseSqlServerCompatibilityLevel(120)
+                .ConfigureSqlEngine(b => b.ExecutionStrategy(d => new NonRetryingExecutionStrategy(d)));
 
         public override PrecompiledQueryTestHelpers PrecompiledQueryTestHelpers
             => SqlServerPrecompiledQueryTestHelpers.Instance;

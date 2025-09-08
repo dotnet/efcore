@@ -381,11 +381,9 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             }
             else
             {
-                Check.DebugAssert(operation.DefaultValue is not null, "operation.DefaultValue is not null");
+                Check.DebugAssert(operation.DefaultValue is not null);
 
-                var typeMapping = (columnType != null
-                        ? Dependencies.TypeMappingSource.FindMapping(operation.DefaultValue.GetType(), columnType)
-                        : null)
+                var typeMapping = Dependencies.TypeMappingSource.FindMapping(operation.DefaultValue.GetType(), columnType)
                     ?? Dependencies.TypeMappingSource.GetMappingForValue(operation.DefaultValue);
 
                 defaultValueSql = typeMapping.GenerateSqlLiteral(operation.DefaultValue);
@@ -444,9 +442,8 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                 OldColumn = operation.OldColumn
             };
             definitionOperation.AddAnnotations(
-                operation.GetAnnotations().Where(
-                    a => a.Name != SqlServerAnnotationNames.ValueGenerationStrategy
-                        && a.Name != SqlServerAnnotationNames.Identity));
+                operation.GetAnnotations().Where(a => a.Name != SqlServerAnnotationNames.ValueGenerationStrategy
+                    && a.Name != SqlServerAnnotationNames.Identity));
 
             ColumnDefinition(
                 operation.Schema,
@@ -1446,8 +1443,10 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                                 {
                                     goto LineEnd;
                                 }
+
                                 commentStart = true;
                             }
+
                             break;
                         default:
                             commentStart = false;
@@ -1639,7 +1638,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             return;
         }
 
-        var columnType = operation.ColumnType ?? GetColumnType(schema, table, name, operation, model)!;
+        var columnType = operation.ColumnType ?? GetColumnType(schema, table, name, operation, model);
         builder
             .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(name))
             .Append(" ")
@@ -3117,7 +3116,12 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                         var changeToSparse = alterColumnOperation.OldColumn[SqlServerAnnotationNames.Sparse] as bool? != true
                             && alterColumnOperation[SqlServerAnnotationNames.Sparse] as bool? == true;
 
-                        if (changeToNonNullable || changeToSparse)
+                        // for alter column removing default value we also need to disable versioning
+                        // because the default constraint needs to be removed from both main and history tables
+                        var removingDefaultValue = (alterColumnOperation.OldColumn.DefaultValue is not null || alterColumnOperation.OldColumn.DefaultValueSql is not null)
+                            && alterColumnOperation.DefaultValue is null && alterColumnOperation.DefaultValueSql is null;
+
+                        if (changeToNonNullable || changeToSparse || removingDefaultValue)
                         {
                             DisableVersioning(
                                 tableName!,

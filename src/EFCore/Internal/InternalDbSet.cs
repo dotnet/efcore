@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -26,10 +25,7 @@ public class InternalDbSet<[DynamicallyAccessedMembers(IEntityType.DynamicallyAc
 {
     private readonly DbContext _context;
     private readonly string? _entityTypeName;
-    private IEntityType? _entityType;
-    private EntityQueryable<TEntity>? _entityQueryable;
     private LocalView<TEntity>? _localView;
-    private IEntityFinder<TEntity>? _finder;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -51,20 +47,21 @@ public class InternalDbSet<[DynamicallyAccessedMembers(IEntityType.DynamicallyAc
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    [field: AllowNull, MaybeNull]
     public override IEntityType EntityType
     {
         get
         {
-            if (_entityType != null)
+            if (field != null)
             {
-                return _entityType;
+                return field;
             }
 
-            _entityType = _entityTypeName != null
+            field = _entityTypeName != null
                 ? _context.Model.FindEntityType(_entityTypeName)
                 : _context.Model.FindEntityType(typeof(TEntity));
 
-            if (_entityType == null)
+            if (field == null)
             {
                 if (_context.Model.IsShared(typeof(TEntity)))
                 {
@@ -82,25 +79,25 @@ public class InternalDbSet<[DynamicallyAccessedMembers(IEntityType.DynamicallyAc
                 throw new InvalidOperationException(CoreStrings.InvalidSetType(typeof(TEntity).ShortDisplayName()));
             }
 
-            if (_entityType.IsOwned())
+            if (field.IsOwned())
             {
                 var message = CoreStrings.InvalidSetTypeOwned(
-                    _entityType.DisplayName(), _entityType.FindOwnership()!.PrincipalEntityType.DisplayName());
-                _entityType = null;
+                    field.DisplayName(), field.FindOwnership()!.PrincipalEntityType.DisplayName());
+                field = null;
 
                 throw new InvalidOperationException(message);
             }
 
-            if (_entityType.ClrType != typeof(TEntity))
+            if (field.ClrType != typeof(TEntity))
             {
                 var message = CoreStrings.DbSetIncorrectGenericType(
-                    _entityType.ShortName(), _entityType.ClrType.ShortDisplayName(), typeof(TEntity).ShortDisplayName());
-                _entityType = null;
+                    field.ShortName(), field.ClrType.ShortDisplayName(), typeof(TEntity).ShortDisplayName());
+                field = null;
 
                 throw new InvalidOperationException(message);
             }
 
-            return _entityType;
+            return field;
         }
     }
 
@@ -116,6 +113,7 @@ public class InternalDbSet<[DynamicallyAccessedMembers(IEntityType.DynamicallyAc
         }
     }
 
+    [field: AllowNull, MaybeNull]
     private EntityQueryable<TEntity> EntityQueryable
     {
         get
@@ -123,7 +121,7 @@ public class InternalDbSet<[DynamicallyAccessedMembers(IEntityType.DynamicallyAc
             CheckState();
 
             return NonCapturingLazyInitializer.EnsureInitialized(
-                ref _entityQueryable,
+                ref field,
                 this,
                 static internalSet => internalSet.CreateEntityQueryable());
         }
@@ -449,21 +447,22 @@ public class InternalDbSet<[DynamicallyAccessedMembers(IEntityType.DynamicallyAc
         return entry;
     }
 
+    [field: AllowNull, MaybeNull]
     private IEntityFinder<TEntity> Finder
     {
         get
         {
-            if (_finder == null)
+            if (field == null)
             {
                 if (EntityType.FindPrimaryKey() == null)
                 {
                     throw new InvalidOperationException(CoreStrings.InvalidSetKeylessOperation(EntityType.DisplayName()));
                 }
 
-                _finder = (IEntityFinder<TEntity>)_context.GetDependencies().EntityFinderFactory.Create(EntityType);
+                field = (IEntityFinder<TEntity>)_context.GetDependencies().EntityFinderFactory.Create(EntityType);
             }
 
-            return _finder;
+            return field;
         }
     }
 

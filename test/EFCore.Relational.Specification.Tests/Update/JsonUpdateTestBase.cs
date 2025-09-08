@@ -1691,8 +1691,8 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
             {
                 var query = await context.JsonEntitiesAllTypes.ToListAsync();
                 var entity = query.Single(x => x.Id == 1);
-                entity.Reference.TestBooleanCollection = new[] { true, true, false };
-                entity.Collection[0].TestBooleanCollection = new[] { true, true, true, false };
+                entity.Reference.TestBooleanCollection = [true, true, false];
+                entity.Collection[0].TestBooleanCollection = [true, true, true, false];
 
                 ClearLog();
                 await context.SaveChangesAsync();
@@ -1700,8 +1700,8 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
             async context =>
             {
                 var result = await context.Set<JsonEntityAllTypes>().SingleAsync(x => x.Id == 1);
-                Assert.Equal(new[] { true, true, false }, result.Reference.TestBooleanCollection);
-                Assert.Equal(new[] { true, true, true, false }, result.Collection[0].TestBooleanCollection);
+                Assert.Equal([true, true, false], result.Reference.TestBooleanCollection);
+                Assert.Equal([true, true, true, false], result.Collection[0].TestBooleanCollection);
 
                 Assert.False(result.Reference.NewCollectionSet);
                 Assert.False(result.Collection[0].NewCollectionSet);
@@ -1882,8 +1882,8 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
             async context =>
             {
                 var result = await context.Set<JsonEntityAllTypes>().SingleAsync(x => x.Id == 1);
-                Assert.Equal(new[] { -1.23456789, 1.23456789, 0.0, -1.23579 }, result.Reference.TestDoubleCollection);
-                Assert.Equal(new[] { -1.23456789, 1.23456789, 0.0, -1.23579 }, result.Collection[0].TestDoubleCollection);
+                Assert.Equal([-1.23456789, 1.23456789, 0.0, -1.23579], result.Reference.TestDoubleCollection);
+                Assert.Equal([-1.23456789, 1.23456789, 0.0, -1.23579], result.Collection[0].TestDoubleCollection);
 
                 Assert.False(result.Reference.NewCollectionSet);
                 Assert.False(result.Collection[0].NewCollectionSet);
@@ -1923,8 +1923,8 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
             {
                 var query = await context.JsonEntitiesAllTypes.ToListAsync();
                 var entity = query.Single(x => x.Id == 1);
-                entity.Reference.TestInt16Collection = new short[] { -3234 };
-                entity.Collection[0].TestInt16Collection = new short[] { -3234 };
+                entity.Reference.TestInt16Collection = [-3234];
+                entity.Collection[0].TestInt16Collection = [-3234];
 
                 ClearLog();
                 await context.SaveChangesAsync();
@@ -1932,8 +1932,8 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
             async context =>
             {
                 var result = await context.Set<JsonEntityAllTypes>().SingleAsync(x => x.Id == 1);
-                Assert.Equal(new short[] { -3234 }, result.Reference.TestInt16Collection);
-                Assert.Equal(new short[] { -3234 }, result.Collection[0].TestInt16Collection);
+                Assert.Equal([-3234], result.Reference.TestInt16Collection);
+                Assert.Equal([-3234], result.Collection[0].TestInt16Collection);
 
                 Assert.False(result.Reference.NewCollectionSet);
                 Assert.False(result.Collection[0].NewCollectionSet);
@@ -2256,8 +2256,8 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
             {
                 var query = await context.JsonEntitiesAllTypes.ToListAsync();
                 var entity = query.Single(x => x.Id == 1);
-                entity.Reference.TestEnumCollection = new[] { JsonEnum.Three };
-                entity.Collection[0].TestEnumCollection = new[] { JsonEnum.Three };
+                entity.Reference.TestEnumCollection = [JsonEnum.Three];
+                entity.Collection[0].TestEnumCollection = [JsonEnum.Three];
 
                 ClearLog();
                 await context.SaveChangesAsync();
@@ -2265,8 +2265,8 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
             async context =>
             {
                 var result = await context.Set<JsonEntityAllTypes>().SingleAsync(x => x.Id == 1);
-                Assert.Equal(new[] { JsonEnum.Three }, result.Reference.TestEnumCollection);
-                Assert.Equal(new[] { JsonEnum.Three }, result.Collection[0].TestEnumCollection);
+                Assert.Equal([JsonEnum.Three], result.Reference.TestEnumCollection);
+                Assert.Equal([JsonEnum.Three], result.Collection[0].TestEnumCollection);
 
                 Assert.False(result.Reference.NewCollectionSet);
                 Assert.False(result.Collection[0].NewCollectionSet);
@@ -2306,8 +2306,8 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
             {
                 var query = await context.JsonEntitiesAllTypes.ToListAsync();
                 var entity = query.Single(x => x.Id == 1);
-                entity.Reference.TestEnumCollection = new[] { JsonEnum.Three };
-                entity.Collection[0].TestEnumCollection = new[] { JsonEnum.Three };
+                entity.Reference.TestEnumCollection = [JsonEnum.Three];
+                entity.Collection[0].TestEnumCollection = [JsonEnum.Three];
 
                 ClearLog();
                 await context.SaveChangesAsync();
@@ -2315,8 +2315,8 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
             async context =>
             {
                 var result = await context.Set<JsonEntityAllTypes>().SingleAsync(x => x.Id == 1);
-                Assert.Equal(new[] { JsonEnum.Three }, result.Reference.TestEnumCollection);
-                Assert.Equal(new[] { JsonEnum.Three }, result.Collection[0].TestEnumCollection);
+                Assert.Equal([JsonEnum.Three], result.Reference.TestEnumCollection);
+                Assert.Equal([JsonEnum.Three], result.Collection[0].TestEnumCollection);
 
                 Assert.False(result.Reference.NewCollectionSet);
                 Assert.False(result.Collection[0].NewCollectionSet);
@@ -2463,7 +2463,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
             {
                 var query = await context.JsonEntitiesAllTypes.ToListAsync();
                 var entity = query.Single(x => x.Id == 1);
-                entity.TestBooleanCollection = new[] { true, true, false };
+                entity.TestBooleanCollection = [true, true, false];
 
                 ClearLog();
                 await context.SaveChangesAsync();
@@ -2471,7 +2471,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
             async context =>
             {
                 var result = await context.Set<JsonEntityAllTypes>().SingleAsync(x => x.Id == 1);
-                Assert.Equal(new[] { true, true, false }, result.TestBooleanCollection);
+                Assert.Equal([true, true, false], result.TestBooleanCollection);
 
                 Assert.False(result.NewCollectionSet);
             });
@@ -2624,7 +2624,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
             async context =>
             {
                 var result = await context.Set<JsonEntityAllTypes>().SingleAsync(x => x.Id == 1);
-                Assert.Equal(new[] { -1.23456789, 1.23456789, 0.0, -1.23579 }, result.TestDoubleCollection);
+                Assert.Equal([-1.23456789, 1.23456789, 0.0, -1.23579], result.TestDoubleCollection);
 
                 Assert.False(result.NewCollectionSet);
             });
@@ -2660,7 +2660,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
             {
                 var query = await context.JsonEntitiesAllTypes.ToListAsync();
                 var entity = query.Single(x => x.Id == 1);
-                entity.TestInt16Collection = new short[] { -3234 };
+                entity.TestInt16Collection = [-3234];
 
                 ClearLog();
                 await context.SaveChangesAsync();
@@ -2668,7 +2668,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
             async context =>
             {
                 var result = await context.Set<JsonEntityAllTypes>().SingleAsync(x => x.Id == 1);
-                Assert.Equal(new short[] { -3234 }, result.TestInt16Collection);
+                Assert.Equal([-3234], result.TestInt16Collection);
 
                 Assert.False(result.NewCollectionSet);
             });
@@ -2748,7 +2748,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
             {
                 var query = await context.JsonEntitiesAllTypes.ToListAsync();
                 var entity = query.Single(x => x.Id == 1);
-                entity.TestSingleCollection = new[] { 0.0F, -1.234F };
+                entity.TestSingleCollection = [0.0F, -1.234F];
 
                 ClearLog();
                 await context.SaveChangesAsync();
@@ -2756,7 +2756,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
             async context =>
             {
                 var result = await context.Set<JsonEntityAllTypes>().SingleAsync(x => x.Id == 1);
-                Assert.Equal(new[] { 0.0F, -1.234F }, result.TestSingleCollection);
+                Assert.Equal([0.0F, -1.234F], result.TestSingleCollection);
 
                 Assert.False(result.NewCollectionSet);
             });
@@ -2905,7 +2905,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
             {
                 var query = await context.JsonEntitiesAllTypes.ToListAsync();
                 var entity = query.Single(x => x.Id == 1);
-                entity.TestEnumCollection = new[] { JsonEnum.Three };
+                entity.TestEnumCollection = [JsonEnum.Three];
 
                 ClearLog();
                 await context.SaveChangesAsync();
@@ -2913,7 +2913,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
             async context =>
             {
                 var result = await context.Set<JsonEntityAllTypes>().SingleAsync(x => x.Id == 1);
-                Assert.Equal(new[] { JsonEnum.Three }, result.TestEnumCollection);
+                Assert.Equal([JsonEnum.Three], result.TestEnumCollection);
 
                 Assert.False(result.NewCollectionSet);
             });
@@ -2949,7 +2949,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
             {
                 var query = await context.JsonEntitiesAllTypes.ToListAsync();
                 var entity = query.Single(x => x.Id == 1);
-                entity.TestEnumCollection = new[] { JsonEnum.Three };
+                entity.TestEnumCollection = [JsonEnum.Three];
 
                 ClearLog();
                 await context.SaveChangesAsync();
@@ -2957,7 +2957,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
             async context =>
             {
                 var result = await context.Set<JsonEntityAllTypes>().SingleAsync(x => x.Id == 1);
-                Assert.Equal(new[] { JsonEnum.Three }, result.TestEnumCollection);
+                Assert.Equal([JsonEnum.Three], result.TestEnumCollection);
 
                 Assert.False(result.NewCollectionSet);
             });
@@ -3341,10 +3341,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.Equal([[null, [null, null]], null], result.Collection[0].TestNullableEnumWithIntConverterCollectionCollection);
             });
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
-    [InlineData(null)]
+    [ConditionalTheory, InlineData(false), InlineData(true), InlineData(null)]
     public virtual Task Add_and_update_top_level_optional_owned_collection_to_JSON(bool? value)
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -3418,10 +3415,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 }
             });
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
-    [InlineData(null)]
+    [ConditionalTheory, InlineData(false), InlineData(true), InlineData(null)]
     public virtual Task Add_and_update_nested_optional_owned_collection_to_JSON(bool? value)
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -3496,10 +3490,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 }
             });
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
-    [InlineData(null)]
+    [ConditionalTheory, InlineData(false), InlineData(true), InlineData(null)]
     public virtual Task Add_and_update_nested_optional_primitive_collection(bool? value)
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -3572,7 +3563,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                             TestEnumWithIntConverterCollection = [],
                             TestNullableEnumCollection = [],
                             TestNullableEnumWithIntConverterCollection = [],
-                            TestNullableEnumWithConverterThatHandlesNullsCollection = Array.Empty<JsonEnum?>(),
+                            TestNullableEnumWithConverterThatHandlesNullsCollection = [],
                             TestCharacterCollection =
                                 value.HasValue
                                     ? value.Value

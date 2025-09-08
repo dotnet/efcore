@@ -52,7 +52,7 @@ public class SqlServerDateTimeMemberTranslator(
             nameof(DateTime.Date)
                 => sqlExpressionFactory.Function(
                     "CONVERT",
-                    new[] { sqlExpressionFactory.Fragment("date"), instance! },
+                    [sqlExpressionFactory.Fragment("date"), instance!],
                     nullable: true,
                     argumentsPropagateNullability: Statics.FalseTrue,
                     returnType,
@@ -63,18 +63,30 @@ public class SqlServerDateTimeMemberTranslator(
             nameof(DateTime.TimeOfDay)
                 => sqlExpressionFactory.Function(
                     "CONVERT",
-                    new[] { sqlExpressionFactory.Fragment("time"), instance! },
+                    [sqlExpressionFactory.Fragment("time"), instance!],
                     nullable: true,
                     argumentsPropagateNullability: Statics.FalseTrue,
                     returnType),
 
             nameof(DateTime.Now)
+                when declaringType == typeof(DateTime)
                 => sqlExpressionFactory.Function(
-                    declaringType == typeof(DateTime) ? "GETDATE" : "SYSDATETIMEOFFSET",
+                    "GETDATE",
                     arguments: [],
                     nullable: false,
                     argumentsPropagateNullability: [],
-                    returnType),
+                    typeof(DateTime),
+                    typeMappingSource.FindMapping("datetime")),
+
+            nameof(DateTimeOffset.Now)
+                when declaringType == typeof(DateTimeOffset)
+                => sqlExpressionFactory.Function(
+                    "SYSDATETIMEOFFSET",
+                    arguments: [],
+                    nullable: false,
+                    argumentsPropagateNullability: [],
+                    typeof(DateTimeOffset),
+                    typeMappingSource.FindMapping("datetimeoffset")),
 
             nameof(DateTime.UtcNow)
                 when declaringType == typeof(DateTime)
@@ -83,9 +95,10 @@ public class SqlServerDateTimeMemberTranslator(
                     arguments: [],
                     nullable: false,
                     argumentsPropagateNullability: [],
-                    returnType),
+                    typeof(DateTime),
+                    typeMappingSource.FindMapping("datetime")),
 
-            nameof(DateTime.UtcNow)
+            nameof(DateTimeOffset.UtcNow)
                 when declaringType == typeof(DateTimeOffset)
                 => sqlExpressionFactory.Convert(
                     sqlExpressionFactory.Function(
@@ -93,13 +106,15 @@ public class SqlServerDateTimeMemberTranslator(
                         arguments: [],
                         nullable: false,
                         argumentsPropagateNullability: [],
-                        returnType), returnType),
+                        typeof(DateTime),
+                        typeMappingSource.FindMapping("datetime2")),
+                    typeof(DateTimeOffset),
+                    typeMappingSource.FindMapping("datetimeoffset")),
 
             nameof(DateTime.Today)
                 => sqlExpressionFactory.Function(
                     "CONVERT",
-                    new[]
-                    {
+                    [
                         sqlExpressionFactory.Fragment("date"),
                         sqlExpressionFactory.Function(
                             "GETDATE",
@@ -107,7 +122,7 @@ public class SqlServerDateTimeMemberTranslator(
                             nullable: false,
                             argumentsPropagateNullability: [],
                             typeof(DateTime))
-                    },
+                    ],
                     nullable: true,
                     argumentsPropagateNullability: Statics.FalseTrue,
                     returnType),

@@ -18,25 +18,23 @@ public class CompiledModelSqliteTest(NonSharedFixture fixture) : CompiledModelRe
     {
         base.BuildBigModel(modelBuilder, jsonColumns);
 
-        modelBuilder.Entity<Data>(
-            eb =>
-            {
-                eb.Property<int>("Id");
-                eb.HasKey("Id");
+        modelBuilder.Entity<Data>(eb =>
+        {
+            eb.Property<int>("Id");
+            eb.HasKey("Id");
 
-                eb.Property<Point>("Point")
-                    .HasSrid(1101);
-            });
+            eb.Property<Point>("Point")
+                .HasSrid(1101);
+        });
 
-        modelBuilder.Entity<PrincipalBase>(
-            eb =>
-            {
-                eb.Property<Point>("Point")
-                    .HasColumnType("geometry")
-                    .HasDefaultValue(
-                        NtsGeometryServices.Instance.CreateGeometryFactory(srid: 0).CreatePoint(new CoordinateZM(0, 0, 0, 0)))
-                    .HasConversion<CastingConverter<Point, Point>, CustomValueComparer<Point>, CustomValueComparer<Point>>();
-            });
+        modelBuilder.Entity<PrincipalBase>(eb =>
+        {
+            eb.Property<Point>("Point")
+                .HasColumnType("geometry")
+                .HasDefaultValue(
+                    NtsGeometryServices.Instance.CreateGeometryFactory(srid: 0).CreatePoint(new CoordinateZM(0, 0, 0, 0)))
+                .HasConversion<CastingConverter<Point, Point>, CustomValueComparer<Point>, CustomValueComparer<Point>>();
+        });
     }
 
     protected override void AssertBigModel(IModel model, bool jsonColumns)
@@ -101,10 +99,9 @@ public class CompiledModelSqliteTest(NonSharedFixture fixture) : CompiledModelRe
     protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
     {
         builder = base.AddOptions(builder)
-            .ConfigureWarnings(
-                w => w
-                    .Ignore(SqliteEventId.SchemaConfiguredWarning)
-                    .Ignore(SqliteEventId.CompositeKeyWithValueGeneration));
+            .ConfigureWarnings(w => w
+                .Ignore(SqliteEventId.SchemaConfiguredWarning)
+                .Ignore(SqliteEventId.CompositeKeyWithValueGeneration));
         new SqliteDbContextOptionsBuilder(builder).UseNetTopologySuite();
         return builder;
     }

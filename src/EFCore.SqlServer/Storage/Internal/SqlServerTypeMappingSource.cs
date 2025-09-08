@@ -310,19 +310,19 @@ public class SqlServerTypeMappingSource(
 
             switch (clrType)
             {
-                case Type t when t == typeof(ulong) && mappingInfo.IsRowVersion is true:
+                case { } t when t == typeof(ulong) && mappingInfo.IsRowVersion is true:
                     return UlongRowversion;
 
-                case Type t when t == typeof(long) && mappingInfo.IsRowVersion is true:
+                case { } t when t == typeof(long) && mappingInfo.IsRowVersion is true:
                     return LongRowversion;
 
-                case Type t when t == typeof(byte[]) && mappingInfo.IsRowVersion is true:
+                case { } t when t == typeof(byte[]) && mappingInfo.IsRowVersion is true:
                     return Rowversion;
 
-                case Type t when t == typeof(string) && storeTypeName == "json":
+                case { } t when t == typeof(string) && storeTypeName == "json":
                     return SqlServerStringTypeMapping.JsonTypeDefault;
 
-                case Type t when t == typeof(string):
+                case { } t when t == typeof(string):
                 {
                     var isAnsi = mappingInfo.IsUnicode == false;
                     var isFixedLength = mappingInfo.IsFixedLength == true;
@@ -355,7 +355,7 @@ public class SqlServerTypeMappingSource(
                         useKeyComparison: mappingInfo.IsKey);
                 }
 
-                case Type t when t == typeof(byte[]) && mappingInfo.ElementTypeMapping is null:
+                case { } t when t == typeof(byte[]) && mappingInfo.ElementTypeMapping is null:
                 {
                     var isFixedLength = mappingInfo.IsFixedLength == true;
 
@@ -373,7 +373,7 @@ public class SqlServerTypeMappingSource(
                             storeTypePostfix: storeTypeName == null ? StoreTypePostfix.Size : StoreTypePostfix.None);
                 }
 
-                case Type t when t == typeof(SqlVector<float>):
+                case { } t when t == typeof(SqlVector<float>):
                     return new SqlServerVectorTypeMapping(mappingInfo.Size);
             }
         }
@@ -401,10 +401,10 @@ public class SqlServerTypeMappingSource(
                 info.CoreTypeMappingInfo, modelType, providerType, ref elementMapping, out var comparer, out var collectionReaderWriter))
         {
             var jsonTypeMappingInfo = new RelationalTypeMappingInfo(
-                info.CoreTypeMappingInfo.ClrType,
-                (RelationalTypeMapping?)info.CoreTypeMappingInfo.ElementTypeMapping,
-                storeTypeName: "json",
-                storeTypeNameBase: "json")
+                    info.CoreTypeMappingInfo.ClrType,
+                    (RelationalTypeMapping?)info.CoreTypeMappingInfo.ElementTypeMapping,
+                    storeTypeName: "json",
+                    storeTypeNameBase: "json")
                 // Note that the converter info is only used temporarily here and never creates an instance.
                 .WithConverter(new ValueConverterInfo(modelType, typeof(string), _ => null!));
 

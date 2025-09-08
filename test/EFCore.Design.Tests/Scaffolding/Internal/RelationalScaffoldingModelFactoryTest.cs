@@ -138,16 +138,9 @@ public class RelationalScaffoldingModelFactoryTest
         Assert.Equal(2, model.GetEntityTypes().Select(et => et.Name).Distinct(StringComparer.OrdinalIgnoreCase).Count());
     }
 
-    [ConditionalTheory]
-    [InlineData("PascalCase")]
-    [InlineData("camelCase")]
-    [InlineData("snake-case")]
-    [InlineData("MixedCASE")]
-    [InlineData("separated_by_underscores")]
-    [InlineData("PascalCase_withUnderscore")]
-    [InlineData("ALL_CAPS")]
-    [InlineData("numbers0Dont1Affect23Upper45Case678To9LowerCase10Boundary999")]
-    [InlineData("We1!*~&%rdCh@r^act()0rs")]
+    [ConditionalTheory, InlineData("PascalCase"), InlineData("camelCase"), InlineData("snake-case"), InlineData("MixedCASE"),
+     InlineData("separated_by_underscores"), InlineData("PascalCase_withUnderscore"), InlineData("ALL_CAPS"),
+     InlineData("numbers0Dont1Affect23Upper45Case678To9LowerCase10Boundary999"), InlineData("We1!*~&%rdCh@r^act()0rs")]
     public void Get_DatabaseName(string expectedValue)
     {
         var options = new ModelReverseEngineerOptions { UseDatabaseNames = true };
@@ -355,10 +348,7 @@ public class RelationalScaffoldingModelFactoryTest
             col3 => Assert.Equal("VendorDiscount", col3.Name));
     }
 
-    [ConditionalTheory]
-    [InlineData("nvarchar(450)", null)]
-    [InlineData("datetime2(4)", null)]
-    [InlineData("DateTime2(4)", "DateTime2(4)")]
+    [ConditionalTheory, InlineData("nvarchar(450)", null), InlineData("datetime2(4)", null), InlineData("DateTime2(4)", "DateTime2(4)")]
     public void Column_type_annotation(string storeType, string expectedColumnType)
     {
         var column = new DatabaseColumn
@@ -445,9 +435,7 @@ public class RelationalScaffoldingModelFactoryTest
         Assert.Equal(2, property3.GetColumnOrder());
     }
 
-    [ConditionalTheory]
-    [InlineData("cheese")]
-    [InlineData(null)]
+    [ConditionalTheory, InlineData("cheese"), InlineData(null)]
     public void Unmappable_column_type(string StoreType)
     {
         var info = new DatabaseModel
@@ -479,9 +467,7 @@ public class RelationalScaffoldingModelFactoryTest
         Assert.Equal(DesignStrings.CannotFindTypeMappingForColumn("E.Coli", StoreType), message);
     }
 
-    [ConditionalTheory]
-    [InlineData(new[] { "Id" }, 1)]
-    [InlineData(new[] { "Id", "AltId" }, 2)]
+    [ConditionalTheory, InlineData(new[] { "Id" }, 1), InlineData(new[] { "Id", "AltId" }, 2)]
 #pragma warning disable xUnit1026 // Theory methods should use all of their parameters
     public void Primary_key(string[] keyProps, int length)
 #pragma warning restore xUnit1026 // Theory methods should use all of their parameters
@@ -498,13 +484,12 @@ public class RelationalScaffoldingModelFactoryTest
                 }
             }
         };
-        foreach (var column in keyProps.Select(
-                     k => new DatabaseColumn
-                     {
-                         Table = Table,
-                         Name = k,
-                         StoreType = "int"
-                     }))
+        foreach (var column in keyProps.Select(k => new DatabaseColumn
+                 {
+                     Table = Table,
+                     Name = k,
+                     StoreType = "int"
+                 }))
         {
             info.Tables[0].Columns.Add(column);
             info.Tables[0].PrimaryKey.Columns.Add(column);
@@ -1518,7 +1503,7 @@ public class RelationalScaffoldingModelFactoryTest
         Assert.Equal([], allDescendingIndex.IsDescending);
 
         var mixedIndex = Assert.Single(entityType.GetIndexes(), i => i.Name == "IX_mixed");
-        Assert.Equal(new[] { false, true, false }, mixedIndex.IsDescending);
+        Assert.Equal([false, true, false], mixedIndex.IsDescending);
     }
 
     [ConditionalFact]
@@ -2245,15 +2230,9 @@ public class RelationalScaffoldingModelFactoryTest
         Assert.Equal("SomeColumnCollation", column.GetCollation());
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false, false)]
-    [InlineData(false, false, true)]
-    [InlineData(false, true, false)]
-    [InlineData(false, true, true)]
-    [InlineData(true, false, false)]
-    [InlineData(true, false, true)]
-    [InlineData(true, true, false)]
-    [InlineData(true, true, true)]
+    [ConditionalTheory, InlineData(false, false, false), InlineData(false, false, true), InlineData(false, true, false),
+     InlineData(false, true, true), InlineData(true, false, false), InlineData(true, false, true), InlineData(true, true, false),
+     InlineData(true, true, true)]
     public void UseDatabaseNames_and_NoPluralize_work_together(
         bool useDatabaseNames,
         bool noPluralize,
@@ -2596,7 +2575,7 @@ public class RelationalScaffoldingModelFactoryTest
             {
                 Assert.Empty(t2.GetNavigations());
                 Assert.Equal(2, t2.GetForeignKeys().Count());
-                var fk = Assert.Single(t2.FindDeclaredForeignKeys(new[] { t2.GetProperty("BlogKey") }));
+                var fk = Assert.Single(t2.FindDeclaredForeignKeys([t2.GetProperty("BlogKey")]));
                 Assert.False(fk.PrincipalKey.IsPrimaryKey());
             },
             t3 =>

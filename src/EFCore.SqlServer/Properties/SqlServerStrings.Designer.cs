@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             = new ResourceManager("Microsoft.EntityFrameworkCore.SqlServer.Properties.SqlServerStrings", typeof(SqlServerStrings).Assembly);
 
         /// <summary>
-        ///     Cannot configure engine type '{newEngineType}', because engine type was already configured as '{oldEngineType}'.
+        ///     Engine type '{newEngineType}' cannot be configured, because engine type was already configured as '{oldEngineType}'.
         /// </summary>
         public static string AlreadyConfiguredEngineType(object? newEngineType, object? oldEngineType)
             => string.Format(
@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             => GetString("AlterMemoryOptimizedTable");
 
         /// <summary>
-        ///     Can't produce unterminated SQL with comments when generating migrations SQL for {operation}.
+        ///     Cannot produce unterminated SQL with comments when generating migrations SQL for '{operation}'.
         /// </summary>
         public static string CannotProduceUnterminatedSQLWithComments(object? operation)
             => string.Format(
@@ -434,10 +434,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         /// <summary>
         ///     Vector property '{propertyName}' is on '{structuralType}' which is mapped to JSON. Vector properties are not supported within JSON documents.
         /// </summary>
-        public static string VectorPropertiesNotSupportedInJson(object? structuralType, object? propertyName)
+        public static string VectorPropertiesNotSupportedInJson(object? propertyName, object? structuralType)
             => string.Format(
-                GetString("VectorPropertiesNotSupportedInJson", nameof(structuralType), nameof(propertyName)),
-                structuralType, propertyName);
+                GetString("VectorPropertiesNotSupportedInJson", nameof(propertyName), nameof(structuralType)),
+                propertyName, structuralType);
 
         private static string GetString(string name, params string[] formatterNames)
         {

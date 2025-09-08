@@ -1841,8 +1841,7 @@ ORDER BY [m].[Id]
 """);
     }
 
-    [ConditionalFact]
-    [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
+    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
     public virtual async Task SqlServerAggregateFunctionExpression()
     {
         await Test(

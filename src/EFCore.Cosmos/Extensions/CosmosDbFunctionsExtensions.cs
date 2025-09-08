@@ -99,6 +99,16 @@ public static class CosmosDbFunctionsExtensions
     public static double Rrf(this DbFunctions _, params double[] scores)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Rrf)));
 
+    /// <summary>
+    ///     Combines scores provided by two or more specified functions.
+    /// </summary>
+    /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
+    /// <param name="scores">Scoring function calls to be combined.</param>
+    /// <param name="weights">An array of numbers defining an importance weight for each scoring function.</param>
+    /// <returns>The combined score.</returns>
+    public static double Rrf(this DbFunctions _, double[] scores, double[] weights)
+        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Rrf)));
+
     #region VectorDistance
 
     /// <summary>
@@ -109,7 +119,7 @@ public static class CosmosDbFunctionsExtensions
     /// <param name="vector2">The second vector.</param>
     /// <param name="useBruteForce">
     ///     An optional boolean specifying how the computed value is used in an <c>ORDER BY</c> expression.
-    ///     If <see langword="true"/>, then brute force is used. A value of <see langword="false" /> uses any index defined on the vector
+    ///     If <see langword="true" />, then brute force is used. A value of <see langword="false" /> uses any index defined on the vector
     ///     property, if it exists. Default value is <see langword="false" />.
     /// </param>
     /// <param name="options">An optional object used to specify options for the vector distance calculation.</param>
@@ -129,7 +139,7 @@ public static class CosmosDbFunctionsExtensions
     /// <param name="vector2">The second vector.</param>
     /// <param name="useBruteForce">
     ///     An optional boolean specifying how the computed value is used in an <c>ORDER BY</c> expression.
-    ///     If <see langword="true"/>, then brute force is used. A value of <see langword="false" /> uses any index defined on the vector
+    ///     If <see langword="true" />, then brute force is used. A value of <see langword="false" /> uses any index defined on the vector
     ///     property, if it exists. Default value is <see langword="false" />.
     /// </param>
     /// <param name="options">An optional object used to specify options for the vector distance calculation.</param>
@@ -149,7 +159,7 @@ public static class CosmosDbFunctionsExtensions
     /// <param name="vector2">The second vector.</param>
     /// <param name="useBruteForce">
     ///     An optional boolean specifying how the computed value is used in an <c>ORDER BY</c> expression.
-    ///     If <see langword="true"/>, then brute force is used. A value of <see langword="false" /> uses any index defined on the vector
+    ///     If <see langword="true" />, then brute force is used. A value of <see langword="false" /> uses any index defined on the vector
     ///     property, if it exists. Default value is <see langword="false" />.
     /// </param>
     /// <param name="options">An optional object used to specify options for the vector distance calculation.</param>

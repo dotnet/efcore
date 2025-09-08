@@ -84,7 +84,7 @@ public class SqlServerAggregateOverSubqueryPostprocessor(SqlAliasManager sqlAlia
                 var parentAggregateArgumentContainsSubquery = _aggregateArgumentContainsSubquery;
                 _inAggregateInvocation = true;
                 _isCorrelatedSubquery = false;
-                _tableAliasesInScope = new HashSet<string>();
+                _tableAliasesInScope = [];
                 _aggregateArgumentContainsSubquery = false;
 
                 var result = base.VisitExtension(function);
@@ -139,20 +139,20 @@ public class SqlServerAggregateOverSubqueryPostprocessor(SqlAliasManager sqlAlia
 #pragma warning disable EF1001 // SelectExpression constructor is internal
                         liftedSubquery = new SelectExpression(
                             subqueryAlias,
-                            tables: Array.Empty<TableExpressionBase>(),
+                            tables: [],
                             predicate: null,
-                            groupBy: Array.Empty<SqlExpression>(),
+                            groupBy: [],
                             having: null,
-                            projections: new[] { new ProjectionExpression(argument, "value") },
+                            projections: [new ProjectionExpression(argument, "value")],
                             distinct: false,
-                            orderings: Array.Empty<OrderingExpression>(),
+                            orderings: [],
                             offset: null,
                             limit: null,
                             sqlAliasManager: sqlAliasManager);
 #pragma warning restore EF1001
                     }
 
-                    _joinsToAdd ??= new List<JoinExpressionBase>();
+                    _joinsToAdd ??= [];
                     _joinsToAdd.Add(
                         _isCorrelatedSubquery ? new OuterApplyExpression(liftedSubquery) : new CrossJoinExpression(liftedSubquery));
 

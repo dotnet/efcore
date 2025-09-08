@@ -165,15 +165,9 @@ public class ChangeDetectorTest
         Assert.True(entry.IsModified(entry.EntityType.FindProperty("Name")));
     }
 
-    [ConditionalTheory]
-    [InlineData(true, true, true)]
-    [InlineData(false, true, true)]
-    [InlineData(true, false, true)]
-    [InlineData(false, false, true)]
-    [InlineData(true, true, false)]
-    [InlineData(false, true, false)]
-    [InlineData(true, false, false)]
-    [InlineData(false, false, false)]
+    [ConditionalTheory, InlineData(true, true, true), InlineData(false, true, true), InlineData(true, false, true),
+     InlineData(false, false, true), InlineData(true, true, false), InlineData(false, true, false), InlineData(true, false, false),
+     InlineData(false, false, false)]
     public void Can_insert_with_array_comparer(bool useTypeMapping, bool useStateChange, bool nullValue)
     {
         using var context = useTypeMapping ? new BaxterWithMappingContext() : new BaxterContext();
@@ -214,9 +208,7 @@ public class ChangeDetectorTest
         Assert.Equal(new[] { 1, 767, 3, 4 }, entityEntry.Property(e => e.Demands).CurrentValue);
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public void Detects_scalar_property_change_with_custom_comparer(bool useTypeMapping)
     {
         using var context = useTypeMapping ? new BaxterWithMappingContext() : new BaxterContext();
@@ -240,9 +232,7 @@ public class ChangeDetectorTest
         Assert.Equal(new[] { 1, 767, 3, 4 }, entityEntry.Property(e => e.Demands).CurrentValue);
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public void Detects_scalar_shadow_property_change_with_custom_comparer(bool useTypeMapping)
     {
         using var context = useTypeMapping ? new BaxterWithMappingContext() : new BaxterContext();
@@ -806,9 +796,7 @@ public class ChangeDetectorTest
         Assert.Equal(2, testListener.KeyChange.Item6);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public void Detects_reference_navigation_changing_back_to_original_value(bool useNull)
     {
         var contextServices = CreateContextServices();
@@ -918,7 +906,7 @@ public class ChangeDetectorTest
 
         Assert.Same(entry, testListener.CollectionChange.Item1);
         Assert.Same(entry.EntityType.FindNavigation("Products"), testListener.CollectionChange.Item2);
-        Assert.Equal(new[] { product3 }, testListener.CollectionChange.Item3);
+        Assert.Equal([product3], testListener.CollectionChange.Item3);
         Assert.Empty(testListener.CollectionChange.Item4);
 
         var productEntry = stateManager.GetOrCreateEntry(product3);
@@ -958,7 +946,7 @@ public class ChangeDetectorTest
         Assert.Same(entry, testListener.CollectionChange.Item1);
         Assert.Same(entry.EntityType.FindNavigation("Products"), testListener.CollectionChange.Item2);
         Assert.Empty(testListener.CollectionChange.Item3);
-        Assert.Equal(new[] { product1 }, testListener.CollectionChange.Item4);
+        Assert.Equal([product1], testListener.CollectionChange.Item4);
 
         Assert.Null(testListener.KeyChange);
         Assert.Null(testListener.ReferenceChange);
@@ -1090,7 +1078,7 @@ public class ChangeDetectorTest
 
         Assert.Same(entry, testListener.CollectionChange.Item1);
         Assert.Same(entry.EntityType.FindNavigation("Products"), testListener.CollectionChange.Item2);
-        Assert.Equal(new[] { product3 }, testListener.CollectionChange.Item3);
+        Assert.Equal([product3], testListener.CollectionChange.Item3);
         Assert.Empty(testListener.CollectionChange.Item4);
 
         var productEntry = stateManager.GetOrCreateEntry(product3);
@@ -1467,9 +1455,7 @@ public class ChangeDetectorTest
         Assert.Equal(2, testListener.KeyChange.Item6);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public void Handles_notification_of_reference_navigation_changing_back_to_original_value(bool useNull)
     {
         var contextServices = CreateContextServices(BuildNotifyingModel());
@@ -1566,7 +1552,7 @@ public class ChangeDetectorTest
 
         Assert.Same(entry, testListener.CollectionChange.Item1);
         Assert.Same(entry.EntityType.FindNavigation("Products"), testListener.CollectionChange.Item2);
-        Assert.Equal(new[] { product3 }, testListener.CollectionChange.Item3);
+        Assert.Equal([product3], testListener.CollectionChange.Item3);
         Assert.Empty(testListener.CollectionChange.Item4);
 
         var productEntry = stateManager.GetOrCreateEntry(product3);
@@ -1606,7 +1592,7 @@ public class ChangeDetectorTest
         Assert.Same(entry, testListener.CollectionChange.Item1);
         Assert.Same(entry.EntityType.FindNavigation("Products"), testListener.CollectionChange.Item2);
         Assert.Empty(testListener.CollectionChange.Item3);
-        Assert.Equal(new[] { product1 }, testListener.CollectionChange.Item4);
+        Assert.Equal([product1], testListener.CollectionChange.Item4);
 
         Assert.Null(testListener.ReferenceChange);
         Assert.Null(testListener.KeyChange);
@@ -1803,28 +1789,26 @@ public class ChangeDetectorTest
     {
         var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
 
-        builder.Entity<Product>(
-            b =>
-            {
-                b.HasOne(e => e.Tag).WithOne(e => e.Product)
-                    .HasPrincipalKey<Product>(e => e.TagId)
-                    .HasForeignKey<ProductTag>(e => e.ProductId);
-                b.Property(e => e.TagId).ValueGeneratedNever();
-            });
+        builder.Entity<Product>(b =>
+        {
+            b.HasOne(e => e.Tag).WithOne(e => e.Product)
+                .HasPrincipalKey<Product>(e => e.TagId)
+                .HasForeignKey<ProductTag>(e => e.ProductId);
+            b.Property(e => e.TagId).ValueGeneratedNever();
+        });
 
-        builder.Entity<Category>(
-            b =>
-            {
-                b.HasMany(e => e.Products).WithOne(e => e.Category)
-                    .HasForeignKey(e => e.DependentId)
-                    .HasPrincipalKey(e => e.PrincipalId);
-                b.Property(e => e.PrincipalId).ValueGeneratedNever();
+        builder.Entity<Category>(b =>
+        {
+            b.HasMany(e => e.Products).WithOne(e => e.Category)
+                .HasForeignKey(e => e.DependentId)
+                .HasPrincipalKey(e => e.PrincipalId);
+            b.Property(e => e.PrincipalId).ValueGeneratedNever();
 
-                b.HasOne(e => e.Tag).WithOne(e => e.Category)
-                    .HasForeignKey<CategoryTag>(e => e.CategoryId)
-                    .HasPrincipalKey<Category>(e => e.TagId);
-                b.Property(e => e.TagId).ValueGeneratedNever();
-            });
+            b.HasOne(e => e.Tag).WithOne(e => e.Category)
+                .HasForeignKey<CategoryTag>(e => e.CategoryId)
+                .HasPrincipalKey<Category>(e => e.TagId);
+            b.Property(e => e.TagId).ValueGeneratedNever();
+        });
 
         builder.Entity<Person>()
             .HasOne(e => e.Husband).WithOne(e => e.Wife)
@@ -2027,28 +2011,26 @@ public class ChangeDetectorTest
         var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder()
             .HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotifications);
 
-        builder.Entity<NotifyingProduct>(
-            b =>
-            {
-                b.HasOne(e => e.Tag).WithOne(e => e.Product)
-                    .HasPrincipalKey<NotifyingProduct>(e => e.TagId)
-                    .HasForeignKey<NotifyingProductTag>(e => e.ProductId);
-                b.Property(e => e.TagId).ValueGeneratedNever();
-            });
+        builder.Entity<NotifyingProduct>(b =>
+        {
+            b.HasOne(e => e.Tag).WithOne(e => e.Product)
+                .HasPrincipalKey<NotifyingProduct>(e => e.TagId)
+                .HasForeignKey<NotifyingProductTag>(e => e.ProductId);
+            b.Property(e => e.TagId).ValueGeneratedNever();
+        });
 
-        builder.Entity<NotifyingCategory>(
-            b =>
-            {
-                b.HasMany(e => e.Products).WithOne(e => e.Category)
-                    .HasForeignKey(e => e.DependentId)
-                    .HasPrincipalKey(e => e.PrincipalId);
-                b.Property(e => e.PrincipalId).ValueGeneratedNever();
+        builder.Entity<NotifyingCategory>(b =>
+        {
+            b.HasMany(e => e.Products).WithOne(e => e.Category)
+                .HasForeignKey(e => e.DependentId)
+                .HasPrincipalKey(e => e.PrincipalId);
+            b.Property(e => e.PrincipalId).ValueGeneratedNever();
 
-                b.HasOne(e => e.Tag).WithOne(e => e.Category)
-                    .HasForeignKey<NotifyingCategoryTag>(e => e.CategoryId)
-                    .HasPrincipalKey<NotifyingCategory>(e => e.TagId);
-                b.Property(e => e.TagId).ValueGeneratedNever();
-            });
+            b.HasOne(e => e.Tag).WithOne(e => e.Category)
+                .HasForeignKey<NotifyingCategoryTag>(e => e.CategoryId)
+                .HasPrincipalKey<NotifyingCategory>(e => e.TagId);
+            b.Property(e => e.TagId).ValueGeneratedNever();
+        });
 
         builder.Entity<NotifyingPerson>()
             .HasOne(e => e.Husband).WithOne(e => e.Wife)
@@ -2132,7 +2114,7 @@ public class ChangeDetectorTest
 
     private class TestRelationshipListener(IEntityGraphAttacher attacher) : NavigationFixer(
         attacher, new StructuralTypeMaterializerSource(
-            new StructuralTypeMaterializerSourceDependencies(Enumerable.Empty<ISingletonInterceptor>())))
+            new StructuralTypeMaterializerSourceDependencies([])))
     {
         public Tuple<InternalEntityEntry, IProperty, IEnumerable<IKey>, IEnumerable<IForeignKey>, object, object> KeyChange
         {

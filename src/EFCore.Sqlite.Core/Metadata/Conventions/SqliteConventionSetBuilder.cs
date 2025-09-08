@@ -84,10 +84,9 @@ public class SqliteConventionSetBuilder : RelationalConventionSetBuilder
     {
         var serviceProvider = new ServiceCollection()
             .AddEntityFrameworkSqlite()
-            .AddDbContext<DbContext>(
-                (p, o) =>
-                    o.UseSqlite("Filename=_.db")
-                        .UseInternalServiceProvider(p))
+            .AddDbContext<DbContext>((p, o) =>
+                o.UseSqlite("Filename=_.db")
+                    .UseInternalServiceProvider(p))
             .BuildServiceProvider();
         return serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope();
     }

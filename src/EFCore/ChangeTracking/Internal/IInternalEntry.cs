@@ -67,7 +67,8 @@ public interface IInternalEntry
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public object Entity => EntityEntry.Entity;
+    public object Entity
+        => EntityEntry.Entity;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -331,7 +332,12 @@ public interface IInternalEntry
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    void SetProperty(IPropertyBase propertyBase, object? value, bool isMaterialization, bool setModified = true, bool isCascadeDelete = false);
+    void SetProperty(
+        IPropertyBase propertyBase,
+        object? value,
+        bool isMaterialization,
+        bool setModified = true,
+        bool isCascadeDelete = false);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -339,7 +345,12 @@ public interface IInternalEntry
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    void SetPropertyModified(IProperty property, bool changeState = true, bool isModified = true, bool isConceptualNull = false, bool acceptChanges = false);
+    void SetPropertyModified(
+        IProperty property,
+        bool changeState = true,
+        bool isModified = true,
+        bool isConceptualNull = false,
+        bool acceptChanges = false);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

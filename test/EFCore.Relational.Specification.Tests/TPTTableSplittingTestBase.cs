@@ -8,7 +8,8 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public abstract class TPTTableSplittingTestBase(NonSharedFixture fixture, ITestOutputHelper testOutputHelper) : TableSplittingTestBase(fixture, testOutputHelper)
+public abstract class TPTTableSplittingTestBase(NonSharedFixture fixture, ITestOutputHelper testOutputHelper)
+    : TableSplittingTestBase(fixture, testOutputHelper)
 {
     public override Task Can_use_optional_dependents_with_shared_concurrency_tokens()
         // TODO: Issue #22060
@@ -27,19 +28,18 @@ public abstract class TPTTableSplittingTestBase(NonSharedFixture fixture, ITestO
         modelBuilder.Entity<PoweredVehicle>().ToTable("PoweredVehicles");
         modelBuilder.Entity<CompositeVehicle>().ToTable("CompositeVehicles");
 
-        modelBuilder.Entity<Operator>(
-            eb =>
-            {
-                eb.ToTable("Vehicles");
-                eb.HasOne(e => e.Vehicle)
-                    .WithOne(e => e.Operator)
-                    .HasForeignKey<Operator>(e => e.VehicleName)
-                    .OnDelete(DeleteBehavior.ClientCascade);
-                eb.HasOne(e => e.Details)
-                    .WithOne()
-                    .HasForeignKey<OperatorDetails>(e => e.VehicleName)
-                    .OnDelete(DeleteBehavior.ClientCascade);
-            });
+        modelBuilder.Entity<Operator>(eb =>
+        {
+            eb.ToTable("Vehicles");
+            eb.HasOne(e => e.Vehicle)
+                .WithOne(e => e.Operator)
+                .HasForeignKey<Operator>(e => e.VehicleName)
+                .OnDelete(DeleteBehavior.ClientCascade);
+            eb.HasOne(e => e.Details)
+                .WithOne()
+                .HasForeignKey<OperatorDetails>(e => e.VehicleName)
+                .OnDelete(DeleteBehavior.ClientCascade);
+        });
 
         modelBuilder.Entity<LicensedOperator>().ToTable("LicensedOperators");
 
@@ -52,20 +52,19 @@ public abstract class TPTTableSplittingTestBase(NonSharedFixture fixture, ITestO
         modelBuilder.Entity<ContinuousCombustionEngine>().ToTable("ContinuousCombustionEngines");
         modelBuilder.Entity<SolidRocket>().ToTable("SolidRockets").Ignore(e => e.SolidFuelTank);
 
-        modelBuilder.Entity<FuelTank>(
-            eb =>
-            {
-                eb.ToTable("CombustionEngines");
+        modelBuilder.Entity<FuelTank>(eb =>
+        {
+            eb.ToTable("CombustionEngines");
 
-                eb.HasOne(e => e.Engine)
-                    .WithOne(e => e.FuelTank)
-                    .HasForeignKey<FuelTank>(e => e.VehicleName)
-                    .OnDelete(DeleteBehavior.ClientCascade);
-                eb.HasOne(e => e.Vehicle)
-                    .WithOne()
-                    .HasForeignKey<FuelTank>(e => e.VehicleName)
-                    .OnDelete(DeleteBehavior.ClientCascade);
-            });
+            eb.HasOne(e => e.Engine)
+                .WithOne(e => e.FuelTank)
+                .HasForeignKey<FuelTank>(e => e.VehicleName)
+                .OnDelete(DeleteBehavior.ClientCascade);
+            eb.HasOne(e => e.Vehicle)
+                .WithOne()
+                .HasForeignKey<FuelTank>(e => e.VehicleName)
+                .OnDelete(DeleteBehavior.ClientCascade);
+        });
         modelBuilder.Entity<SolidFuelTank>().ToTable("SolidFuelTanks").Ignore(e => e.Rocket);
     }
 }

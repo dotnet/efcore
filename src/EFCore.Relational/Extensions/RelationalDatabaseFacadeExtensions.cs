@@ -561,7 +561,7 @@ public static class RelationalDatabaseFacadeExtensions
         this DatabaseFacade databaseFacade,
         string sql,
         CancellationToken cancellationToken = default)
-        => ExecuteSqlRawAsync(databaseFacade, sql, Enumerable.Empty<object>(), cancellationToken);
+        => ExecuteSqlRawAsync(databaseFacade, sql, [], cancellationToken);
 
     /// <summary>
     ///     Executes the given SQL against the database and returns the number of rows affected.

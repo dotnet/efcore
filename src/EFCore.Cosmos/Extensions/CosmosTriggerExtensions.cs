@@ -79,7 +79,8 @@ public static class CosmosTriggerExtensions
         this IConventionTrigger trigger,
         TriggerOperation? triggerOperation,
         bool fromDataAnnotation = false)
-        => (TriggerOperation?)trigger.SetOrRemoveAnnotation(CosmosAnnotationNames.TriggerOperation, triggerOperation, fromDataAnnotation)?.Value;
+        => (TriggerOperation?)trigger.SetOrRemoveAnnotation(CosmosAnnotationNames.TriggerOperation, triggerOperation, fromDataAnnotation)
+            ?.Value;
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> for the Cosmos DB trigger operation.

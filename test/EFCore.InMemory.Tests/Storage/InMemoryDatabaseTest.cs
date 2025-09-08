@@ -89,7 +89,7 @@ public class InMemoryDatabaseTest
 
         var inMemoryDatabase = serviceProvider.GetRequiredService<IInMemoryDatabase>();
 
-        await inMemoryDatabase.SaveChangesAsync(new[] { entityEntry });
+        await inMemoryDatabase.SaveChangesAsync([entityEntry]);
 
         Assert.Single(inMemoryDatabase.Store.GetTables(entityEntry.EntityType).SelectMany(t => t.Rows));
         Assert.Equal([42, "Unikorn"], inMemoryDatabase.Store.GetTables(entityEntry.EntityType).Single().Rows.Single());
@@ -106,12 +106,12 @@ public class InMemoryDatabaseTest
 
         var inMemoryDatabase = serviceProvider.GetRequiredService<IInMemoryDatabase>();
 
-        await inMemoryDatabase.SaveChangesAsync(new[] { entityEntry });
+        await inMemoryDatabase.SaveChangesAsync([entityEntry]);
 
         customer.Name = "Unikorn, The Return";
         entityEntry.SetEntityState(EntityState.Modified);
 
-        await inMemoryDatabase.SaveChangesAsync(new[] { entityEntry });
+        await inMemoryDatabase.SaveChangesAsync([entityEntry]);
 
         Assert.Single(inMemoryDatabase.Store.GetTables(entityEntry.EntityType).SelectMany(t => t.Rows));
         Assert.Equal(
@@ -130,7 +130,7 @@ public class InMemoryDatabaseTest
 
         var inMemoryDatabase = serviceProvider.GetRequiredService<IInMemoryDatabase>();
 
-        await inMemoryDatabase.SaveChangesAsync(new[] { entityEntry });
+        await inMemoryDatabase.SaveChangesAsync([entityEntry]);
 
         // Because the database is being used directly the entity state must be manually changed after saving.
         entityEntry.SetEntityState(EntityState.Unchanged);
@@ -138,7 +138,7 @@ public class InMemoryDatabaseTest
         customer.Name = "Unikorn, The Return";
         entityEntry.SetEntityState(EntityState.Deleted);
 
-        await inMemoryDatabase.SaveChangesAsync(new[] { entityEntry });
+        await inMemoryDatabase.SaveChangesAsync([entityEntry]);
 
         Assert.Empty(inMemoryDatabase.Store.GetTables(entityEntry.EntityType).SelectMany(t => t.Rows));
     }
@@ -159,7 +159,7 @@ public class InMemoryDatabaseTest
 
         var inMemoryDatabase = scopedServices.GetRequiredService<IInMemoryDatabase>();
 
-        await inMemoryDatabase.SaveChangesAsync(new[] { entityEntry });
+        await inMemoryDatabase.SaveChangesAsync([entityEntry]);
 
         var (Level, _, Message, _, _) = loggerFactory.Log.Single(t => t.Id.Id == InMemoryEventId.ChangesSaved.Id);
 
@@ -171,12 +171,11 @@ public class InMemoryDatabaseTest
     {
         var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
 
-        modelBuilder.Entity<Customer>(
-            b =>
-            {
-                b.HasKey(c => c.Id);
-                b.Property(c => c.Name);
-            });
+        modelBuilder.Entity<Customer>(b =>
+        {
+            b.HasKey(c => c.Id);
+            b.Property(c => c.Name);
+        });
 
         return modelBuilder.Model.FinalizeModel();
     }

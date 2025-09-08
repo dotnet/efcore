@@ -118,35 +118,35 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AbstractTpc" xml:space="preserve">
-    <value>The corresponding CLR type for entity type '{entityType}' cannot be instantiated, but the entity type was mapped to '{storeObject}' using the 'TPC' mapping strategy. Only instantiable types should be mapped. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.</value>
+    <value>The entity type '{entityType}' cannot be instantiated because its corresponding CLR type is abstract, but the entity type was mapped to '{storeObject}' using the 'TPC' mapping strategy. Only instantiable types should be mapped. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.</value>
   </data>
   <data name="BadSequenceString" xml:space="preserve">
     <value>Unable to deserialize a sequence from model metadata. See inner exception for details.</value>
     <comment>Obsolete</comment>
   </data>
   <data name="BadSequenceType" xml:space="preserve">
-    <value>Invalid type for sequence. Valid types are long (the default), int, short, byte and decimal.</value>
+    <value>Invalid type for sequence. Valid types are 'long' (the default), 'int', 'short', 'byte' and 'decimal'.</value>
   </data>
   <data name="CannotChangeWhenOpen" xml:space="preserve">
     <value>The instance of DbConnection is currently in use. The connection can only be changed when the existing connection is not being used.</value>
   </data>
   <data name="CannotSetAliasOnJoin" xml:space="preserve">
-    <value>Join expressions have no aliases; set the alias on the enclosed table expression.</value>
+    <value>Aliases cannot be set on join expressions; set the alias on the enclosed table expression.</value>
   </data>
   <data name="CannotTranslateNonConstantNewArrayExpression" xml:space="preserve">
-    <value>The query contained a new array expression containing non-constant elements, which could not be translated: '{newArrayExpression}'.</value>
+    <value>The query contains a new array expression with non-constant elements that cannot be translated: '{newArrayExpression}'.</value>
   </data>
   <data name="ClientGroupByNotSupported" xml:space="preserve">
     <value>Unable to translate the given 'GroupBy' pattern. Call 'AsEnumerable' before 'GroupBy' to evaluate it client-side.</value>
   </data>
   <data name="CompiledModelFunctionTranslation" xml:space="preserve">
-    <value>The function '{function}' has a custom translation. Compiled model can't be generated, because custom function translations are not supported.</value>
+    <value>The function '{function}' has a custom translation. A compiled model cannot be generated because custom function translations are not supported.</value>
   </data>
   <data name="ComplexCollectionNotMappedToJson" xml:space="preserve">
     <value>The complex collection property '{entityType}.{property}' must be mapped to a JSON column. Use 'ToJson()' to configure this complex collection as mapped to a JSON column.</value>
   </data>
   <data name="ComplexPropertyBothJsonColumnAndJsonPropertyName" xml:space="preserve">
-    <value>Complex property '{complexProperty}' cannot have both a JSON column name ('{columnName}') and a JSON property name ('{propertyName}') configured. Use ToJson() to map to a JSON column or HasJsonPropertyName() to map as a JSON property within a containing JSON column, but not both.</value>
+    <value>Complex property '{complexProperty}' cannot have both a JSON column name ('{columnName}') and a JSON property name ('{propertyName}') configured. Use 'ToJson()' to map to a JSON column or 'HasJsonPropertyName()' to map as a JSON property within a containing JSON column, but not both.</value>
   </data>
   <data name="ComplexPropertyJsonPropertyNameConflict" xml:space="preserve">
     <value>Complex property '{property1}' and '{property2}' are both configured to use the same JSON property name '{jsonPropertyName}'. Each property within a JSON-mapped type must have a unique JSON property name.</value>
@@ -155,7 +155,7 @@
     <value>Complex property '{complexProperty}' cannot use 'HasJsonPropertyName()' because it is not contained within a JSON-mapped type. Use 'ToJson()' to map the complex property to a JSON column, or ensure it is contained within a type that is mapped to JSON.</value>
   </data>
   <data name="ComplexPropertyOptionalTableSharing" xml:space="preserve">
-    <value>The optional complex property '{type}.{property}' is mapped to columns by flattening the contained properties, but it only contains optional properties. Add a required property or discriminator or map this complex property to a JSON column.</value>
+    <value>The optional complex property '{type}.{property}' is mapped to columns by flattening the contained properties into its container's table; this mapping requires at least one required property - to allow distinguishing between 'null' and empty values - but the complex type contains only optional properties. Configure the property with a shadow discriminator by adding a call to 'HasDiscriminator()' on the complex property configuration, or map this complex property to a JSON column instead.</value>
   </data>
   <data name="ComputedColumnSqlUnspecified" xml:space="preserve">
     <value>The computed column SQL has not been specified for the column '{table}.{column}'. Specify the SQL before using Entity Framework to create the database schema.</value>
@@ -167,7 +167,7 @@
     <value>An ambient transaction has been detected. The ambient transaction needs to be completed before starting a new transaction on this connection.</value>
   </data>
   <data name="ConflictingColumnServerGeneration" xml:space="preserve">
-    <value>{conflictingConfiguration} cannot be set for '{property}' at the same time as {existingConfiguration}. Remove one of these configurations.</value>
+    <value>'{conflictingConfiguration}' cannot be set for '{property}' at the same time as '{existingConfiguration}'. Remove one of these configurations.</value>
   </data>
   <data name="ConflictingEnlistedTransaction" xml:space="preserve">
     <value>The connection is currently enlisted in a transaction. The enlisted transaction needs to be completed before starting a new transaction.</value>
@@ -215,7 +215,7 @@
     <value>There is no entity type mapped to the table '{table}' which is used in a data operation. Either add the corresponding entity type to the model, or specify the column types in the data operation.</value>
   </data>
   <data name="DbFunctionExpressionIsNotMethodCall" xml:space="preserve">
-    <value>The provided DbFunction expression '{expression}' is invalid. The expression must be a lambda expression containing a single method call to the target static method. Default values can be provided as arguments if required, e.g. '() =&gt; SomeClass.SomeMethod(null, 0)'</value>
+    <value>The provided DbFunction expression '{expression}' is invalid. The expression must be a lambda expression containing a single method call to the target static method. Default values can be provided as arguments if required, e.g. '() =&gt; SomeClass.SomeMethod(null, 0)'.</value>
   </data>
   <data name="DbFunctionGenericMethodNotSupported" xml:space="preserve">
     <value>The DbFunction '{function}' is generic. Mapping generic methods as a DbFunction is not supported.</value>
@@ -242,10 +242,10 @@
     <value>The DbFunction '{function}' has an invalid return type '{type}'. Ensure that the return type can be mapped by the current provider.</value>
   </data>
   <data name="DbFunctionNonScalarCustomTranslation" xml:space="preserve">
-    <value>Cannot set custom translation on the DbFunction '{function}' since it is not a scalar function.</value>
+    <value>Custom translation cannot be set on the DbFunction '{function}' since it is not a scalar function.</value>
   </data>
   <data name="DbFunctionNullableValueReturnType" xml:space="preserve">
-    <value>The DbFunction '{function}' returns a SqlExpression of type '{type}', which is a nullable value type. DbFunctions must return expressions with non-nullable value types, even when they may return null.</value>
+    <value>The DbFunction '{function}' returns a SqlExpression of type '{type}', which is a nullable value type. DbFunctions must return expressions with non-nullable value types, even when they may return 'null'.</value>
   </data>
   <data name="DefaultValueSqlUnspecified" xml:space="preserve">
     <value>The default value SQL has not been specified for the column '{table}.{column}'. Specify the SQL before using Entity Framework to create the database schema.</value>
@@ -308,7 +308,7 @@
     <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different precisions ('{precision1}' and '{precision2}').</value>
   </data>
   <data name="DuplicateColumnNameProviderTypeMismatch" xml:space="preserve">
-    <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured to use differing provider types ('{type1}' and '{type2}').</value>
+    <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured to use different provider types ('{type1}' and '{type2}').</value>
   </data>
   <data name="DuplicateColumnNameSameHierarchy" xml:space="preserve">
     <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but the properties are contained within the same hierarchy. All properties on an entity type must be mapped to different columns.</value>
@@ -365,13 +365,13 @@
     <value>A seed entity for entity type '{entityType}' has the same key value {keyValue} as another seed entity mapped to the same table '{table}'. Key values should be unique across seed entities.</value>
   </data>
   <data name="EFMultipleParametersInvoked" xml:space="preserve">
-    <value>The EF.MultipleParameters&lt;T&gt; method may only be used within Entity Framework LINQ queries.</value>
+    <value>The 'EF.MultipleParameters&lt;T&gt;' method may only be used within Entity Framework LINQ queries.</value>
   </data>
   <data name="EmptyCollectionNotSupportedAsInlineQueryRoot" xml:space="preserve">
     <value>Empty collections are not supported as inline query roots.</value>
   </data>
   <data name="EntityShortNameNotUnique" xml:space="preserve">
-    <value>The short name for '{entityType1}' is '{discriminatorValue}' which is the same for '{entityType2}'. Every concrete entity type in the hierarchy must have a unique short name. Either rename one of the types or call modelBuilder.Entity&lt;TEntity&gt;().Metadata.SetDiscriminatorValue("NewShortName").</value>
+    <value>The short name for '{entityType1}' is '{discriminatorValue}' which is the same for '{entityType2}'. Every concrete entity type in the hierarchy must have a unique short name. Either rename one of the types or call 'modelBuilder.Entity&lt;TEntity&gt;().Metadata.SetDiscriminatorValue("NewShortName")'.</value>
   </data>
   <data name="EntitySplittingConflictingMainFragment" xml:space="preserve">
     <value>Entity type '{entityType}' has a split mapping for '{storeObject}', but is it also mapped to the same object. Split mappings should not duplicate the main mapping.</value>
@@ -401,7 +401,7 @@
     <value>An error occurred while reading a database value for property '{entityType}.{property}'. See the inner exception for more information.</value>
   </data>
   <data name="ErrorMaterializingPropertyNullReference" xml:space="preserve">
-    <value>An error occurred while reading a database value for property '{entityType}.{property}'. The expected type was '{expectedType}' but the actual value was null.</value>
+    <value>An error occurred while reading a database value for property '{entityType}.{property}'. The expected type was '{expectedType}' but the actual value was 'null'.</value>
   </data>
   <data name="ErrorMaterializingValue" xml:space="preserve">
     <value>An error occurred while reading a database value. See the inner exception for more information.</value>
@@ -410,7 +410,7 @@
     <value>An error occurred while reading a database value. The expected type was '{expectedType}' but the actual value was of type '{actualType}'.</value>
   </data>
   <data name="ErrorMaterializingValueNullReference" xml:space="preserve">
-    <value>An error occurred while reading a database value. The expected type was '{expectedType}' but the actual value was null.</value>
+    <value>An error occurred while reading a database value. The expected type was '{expectedType}' but the actual value was 'null'.</value>
   </data>
   <data name="ExecuteDeleteOnNonEntityType" xml:space="preserve">
     <value>The operation 'ExecuteDelete' requires an entity type which corresponds to the database table to be modified. The current operation is being applied on a non-entity projection. Remove any projection to non-entity types.</value>
@@ -419,31 +419,40 @@
     <value>The operation 'ExecuteDelete' is being applied on the table '{tableName}' which contains data for multiple entity types. Applying this delete operation will also delete data for other entity type(s), hence it is not supported.</value>
   </data>
   <data name="ExecuteOperationOnEntitySplitting" xml:space="preserve">
-    <value>The operation '{operation}' is being applied on entity type '{entityType}', which uses entity splitting. 'ExecuteDelete'/'ExecuteUpdate' operations on entity types using entity splitting is not supported.</value>
+    <value>The operation '{operation}' is being applied on entity type '{entityType}', which uses entity splitting. 'ExecuteDelete'/'ExecuteUpdate' operations on entity types using entity splitting are not supported.</value>
   </data>
   <data name="ExecuteOperationOnKeylessEntityTypeWithUnsupportedOperator" xml:space="preserve">
     <value>The operation '{operation}' cannot be performed on keyless entity type '{entityType}', since it contains an operator not natively supported by the database provider.</value>
+  </data>
+  <data name="ExecuteOperationOnOwnedJsonIsNotSupported" xml:space="preserve">
+    <value>'{operation}' used over owned type '{entityType}' which is mapped to JSON; '{operation}' on JSON-mapped owned entities is not supported. Consider mapping your type as a complex type instead.</value>
   </data>
   <data name="ExecuteOperationOnTPC" xml:space="preserve">
     <value>The operation '{operation}' is being applied on entity type '{entityType}', which is using the TPC mapping strategy and is not a leaf type. 'ExecuteDelete'/'ExecuteUpdate' operations on entity types participating in TPC hierarchies is only supported for leaf types.</value>
   </data>
   <data name="ExecuteOperationOnTPT" xml:space="preserve">
-    <value>The operation '{operation}' is being applied on entity type '{entityType}', which is using the TPT mapping strategy. 'ExecuteDelete'/'ExecuteUpdate' operations on hierarchies mapped as TPT is not supported.</value>
+    <value>The operation '{operation}' is being applied on entity type '{entityType}', which is using the TPT mapping strategy. 'ExecuteDelete'/'ExecuteUpdate' operations on hierarchies mapped as TPT are not supported.</value>
   </data>
   <data name="ExecuteOperationWithUnsupportedOperatorInSqlGeneration" xml:space="preserve">
-    <value>The operation '{operation}' contains a select expression feature that isn't supported in the query SQL generator, but has been declared as supported by provider during translation phase. This is a bug in your EF Core provider, please file an issue.</value>
+    <value>The operation '{operation}' contains a select expression feature that isn't supported in the query SQL generator, but has been declared as supported by provider during translation phase. This is a bug in your EF Core provider, file an issue at https://aka.ms/efcorefeedback.</value>
+  </data>
+  <data name="ExecuteUpdateCannotSetJsonPropertyToNonJsonColumn" xml:space="preserve">
+    <value>'ExecuteUpdate' cannot currently set a property in a JSON column to a regular, non-JSON column; see https://github.com/dotnet/efcore/issues/36688.</value>
+  </data>
+  <data name="ExecuteUpdateCannotSetJsonPropertyToArbitraryExpression" xml:space="preserve">
+    <value>'ExecuteUpdate' cannot currently set a property in a JSON column to arbitrary expressions; only constants, parameters and other JSON properties are supported; see https://github.com/dotnet/efcore/issues/36688.</value>
   </data>
   <data name="ExecuteUpdateDeleteOnEntityNotMappedToTable" xml:space="preserve">
-    <value>ExecuteUpdate or ExecuteDelete was called on entity type '{entityType}', but that entity type is not mapped to a table.</value>
+    <value>'ExecuteUpdate' or 'ExecuteDelete' was called on entity type '{entityType}', but that entity type is not mapped to a table.</value>
   </data>
   <data name="ExecuteUpdateOverJsonIsNotSupported" xml:space="preserve">
-    <value>ExecuteUpdate is being used over type '{structuralType}' which is mapped to JSON; ExecuteUpdate on JSON is not supported.</value>
+    <value>'ExecuteUpdate' is being used over type '{structuralType}' which is mapped to JSON; 'ExecuteUpdate' on JSON is not supported.</value>
   </data>
   <data name="ExecuteUpdateSubqueryNotSupportedOverComplexTypes" xml:space="preserve">
-    <value>ExecuteUpdate is being used over a LINQ operator which isn't natively supported by the database; this cannot be translated because complex type '{complexType}' is projected out. Rewrite your query to project out the containing entity type instead.</value>
+    <value>'ExecuteUpdate' is being used over a LINQ operator which isn't natively supported by the database; this cannot be translated because complex type '{complexType}' is projected out. Rewrite your query to project out the containing entity type instead.</value>
   </data>
   <data name="ExplicitDefaultConstraintNamesNotSupportedForTpc" xml:space="preserve">
-    <value>Can't use explicitly named default constraints with TPC inheritance or entity splitting. Constraint name: '{explicitDefaultConstraintName}'.</value>
+    <value>Explicitly named default constraints cannot be used with TPC inheritance or entity splitting. Constraint name: '{explicitDefaultConstraintName}'.</value>
   </data>
   <data name="FromSqlMissingColumn" xml:space="preserve">
     <value>The required column '{column}' was not present in the results of a 'FromSql' operation.</value>
@@ -455,37 +464,37 @@
     <value>The property '{propertySpecification}' has specific configuration for the function '{function}', but it isn't mapped to a column on that function return. Remove the specific configuration, or map an entity type that contains this property to '{function}'.</value>
   </data>
   <data name="HasDataNotSupportedForEntitiesMappedToJson" xml:space="preserve">
-    <value>Can't use HasData for entity type '{entity}'. HasData is not supported for entities mapped to JSON.</value>
+    <value>'HasData' cannot be used for entity type '{entity}'. 'HasData' is not supported for entities mapped to JSON.</value>
   </data>
   <data name="ImplicitDefaultNamesNotSupportedForTpcWhenNamesClash" xml:space="preserve">
-    <value>Named default constraints can't be used with TPC or entity splitting if they result in non-unique constraint name. Constraint name: '{constraintNameCandidate}'.</value>
+    <value>Named default constraints cannot be used with TPC or entity splitting if they result in non-unique constraint names. Constraint name: '{constraintNameCandidate}'.</value>
   </data>
   <data name="IncompatibleTableCommentMismatch" xml:space="preserve">
-    <value>Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and the comment '{comment}' does not match the comment '{otherComment}'.</value>
+    <value>The table '{table}' cannot be used for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and the comment '{comment}' does not match the comment '{otherComment}'.</value>
   </data>
   <data name="IncompatibleTableDerivedRelationship" xml:space="preserve">
-    <value>Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and there is a relationship between their primary keys in which '{entityType}' is the dependent, but '{entityType}' has a base entity type mapped to a different table. Either map '{otherEntityType}' to a different table, or invert the relationship between '{entityType}' and '{otherEntityType}'.</value>
+    <value>The table '{table}' cannot be used for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and there is a relationship between their primary keys in which '{entityType}' is the dependent, but '{entityType}' has a base entity type mapped to a different table. Either map '{otherEntityType}' to a different table, or invert the relationship between '{entityType}' and '{otherEntityType}'.</value>
   </data>
   <data name="IncompatibleTableExcludedMismatch" xml:space="preserve">
-    <value>Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and is excluded from migrations on one entity type but not on the other. Exclude the table from migrations on all entity types mapped to the table.</value>
+    <value>The table '{table}' cannot be used for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and is excluded from migrations on one entity type but not on the other. Exclude the table from migrations on all entity types mapped to the table.</value>
   </data>
   <data name="IncompatibleTableKeyNameMismatch" xml:space="preserve">
-    <value>Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and the name '{keyName}' of the primary key {primaryKey} does not match the name '{otherName}' of the primary key {otherPrimaryKey}.</value>
+    <value>The table '{table}' cannot be used for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and the name '{keyName}' of the primary key {primaryKey} does not match the name '{otherName}' of the primary key {otherPrimaryKey}.</value>
   </data>
   <data name="IncompatibleTableNoRelationship" xml:space="preserve">
-    <value>Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and potentially other entity types, but there is no linking relationship. Add a foreign key to '{entityType}' on the primary key properties and pointing to the primary key on another entity type mapped to '{table}'.</value>
+    <value>The table '{table}' cannot be used for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and potentially other entity types, but there is no linking relationship. Add a foreign key to '{entityType}' on the primary key properties and pointing to the primary key on another entity type mapped to '{table}'.</value>
   </data>
   <data name="IncompatibleViewDerivedRelationship" xml:space="preserve">
-    <value>Cannot use view '{view}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and there is a relationship between their primary keys in which '{entityType}' is the dependent, but '{entityType}' has a base entity type mapped to a different view. Either map '{otherEntityType}' to a different view, or invert the relationship between '{entityType}' and '{otherEntityType}'.</value>
+    <value>The view '{view}' cannot be used for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and there is a relationship between their primary keys in which '{entityType}' is the dependent, but '{entityType}' has a base entity type mapped to a different view. Either map '{otherEntityType}' to a different view, or invert the relationship between '{entityType}' and '{otherEntityType}'.</value>
   </data>
   <data name="IncompatibleViewNoRelationship" xml:space="preserve">
-    <value>Cannot use view '{view}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and there is no relationship between their primary keys.</value>
+    <value>The view '{view}' cannot be used for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and there is no relationship between their primary keys.</value>
   </data>
   <data name="InconsistentNumberOfArguments" xml:space="preserve">
     <value>'{name}' was constructed with {argumentCount} arguments, but the nullability was defined for {argumentNullabilityCount} arguments. When in doubt use 'false' for nullability argument.</value>
   </data>
   <data name="IncorrectDefaultValueType" xml:space="preserve">
-    <value>Cannot set default value '{value}' of type '{valueType}' on property '{property}' of type '{propertyType}' in entity type '{entityType}'.</value>
+    <value>Default value '{value}' of type '{valueType}' cannot be set on property '{property}' of type '{propertyType}' in entity type '{entityType}'.</value>
   </data>
   <data name="InsertDataOperationNoModel" xml:space="preserve">
     <value>The data insertion operation on '{table}' is not associated with a model. Either add a model to the migration, or specify the column types in all data operations.</value>
@@ -542,19 +551,19 @@
     <value>The following lambda argument to 'SetProperty' does not represent a valid value: '{valueExpression}'.</value>
   </data>
   <data name="JsonCantNavigateToParentEntity" xml:space="preserve">
-    <value>Can't navigate from JSON-mapped entity '{jsonEntity}' to its parent entity '{parentEntity}' using navigation '{navigation}'. Entities mapped to JSON can only navigate to their children.</value>
+    <value>Navigation from JSON-mapped entity '{jsonEntity}' to its parent entity '{parentEntity}' using navigation '{navigation}' is not supported. Entities mapped to JSON can only navigate to their children.</value>
   </data>
   <data name="JsonEmptyString" xml:space="preserve">
     <value>The database returned the empty string when a JSON object was expected.</value>
   </data>
   <data name="JsonEntityMappedToDifferentColumnThanOwner" xml:space="preserve">
-    <value>Entity '{jsonType}' is mapped to JSON column '{containingColumn}', but its owner '{ownerType}' is mapped to a different JSON column '{ownerContainingColumn}'. All owned entities must be mapped to the same JSON column. Only call '.ToJson()' on the outermost owned entity type.</value>
+    <value>Entity '{jsonType}' is mapped to JSON column '{containingColumn}', but its owner '{ownerType}' is mapped to a different JSON column '{ownerContainingColumn}'. All owned entities must be mapped to the same JSON column. Only call 'ToJson()' on the outermost owned entity type.</value>
   </data>
   <data name="JsonEntityMappedToDifferentTableOrViewThanOwner" xml:space="preserve">
     <value>Entity '{jsonType}' is mapped to JSON and also to a table or view '{tableOrViewName}', but its owner '{ownerType}' is mapped to a different table or view '{ownerTableOrViewName}'. Every entity mapped to JSON must also map to the same table or view as its owner.</value>
   </data>
   <data name="JsonEntityMissingKeyInformation" xml:space="preserve">
-    <value>JSON entity '{jsonEntity}' is missing key information. This is not allowed for tracking queries since EF can't correctly build identity for this entity object.</value>
+    <value>JSON entity '{jsonEntity}' is missing key information. This is not allowed for tracking queries since Entity Framework cannot correctly build identity for this entity object.</value>
   </data>
   <data name="JsonEntityMultipleRootsMappedToTheSameJsonColumn" xml:space="preserve">
     <value>Multiple owned root entities are mapped to the same JSON column '{column}' in table '{table}'. Each owned root entity must map to a different column.</value>
@@ -590,10 +599,10 @@
     <value>An error occurred while reading a JSON value for property '{entityType}.{propertyName}'. See the inner exception for more information.</value>
   </data>
   <data name="JsonNodeMustBeHandledByProviderSpecificVisitor" xml:space="preserve">
-    <value>This node should be handled by provider-specific sql generator.</value>
+    <value>This node should be handled by provider-specific SQL generator.</value>
   </data>
   <data name="JsonObjectWithMultiplePropertiesMappedToSameJsonProperty" xml:space="preserve">
-    <value>Both '{property1}' and '{property2}' on `{type}` are configured to use the same JSON property name '{jsonPropertyName}'. Each property within a JSON-mapped type must have a unique JSON property name.</value>
+    <value>Both '{property1}' and '{property2}' on '{type}' are configured to use the same JSON property name '{jsonPropertyName}'. Each property within a JSON-mapped type must have a unique JSON property name.</value>
   </data>
   <data name="JsonProjectingCollectionElementAccessedUsingParmeterNoTrackingWithIdentityResolution" xml:space="preserve">
     <value>Using a parameter to access the element of a JSON collection '{entityTypeName}' is not supported when using '{asNoTrackingWithIdentityResolution}'. Use a constant, or project the entire JSON entity collection instead.</value>
@@ -611,7 +620,7 @@
     <value>Composing LINQ operators over collections inside JSON documents isn't supported or hasn't been implemented by your EF provider.</value>
   </data>
   <data name="JsonRequiredEntityWithNullJson" xml:space="preserve">
-    <value>Entity {entity} is required but the JSON element containing it is null.</value>
+    <value>Entity {entity} is required but the JSON element containing it is 'null'.</value>
   </data>
   <data name="JsonValueReadWriterMissingOnTypeMapping" xml:space="preserve">
     <value>Type mapping type '{typeMapping}', which is being used on property '{property}' on entity type '{entityType}' in a JSON document, has not defined a JsonValueReaderWriter.</value>
@@ -627,7 +636,7 @@
     <comment>Information RelationalEventId.AcquiringMigrationLock</comment>
   </data>
   <data name="LogAmbientTransaction" xml:space="preserve">
-    <value>An ambient transaction has been detected, but the current provider does not support ambient transactions. See https://go.microsoft.com/fwlink/?LinkId=800142</value>
+    <value>An ambient transaction has been detected, but the current provider does not support ambient transactions. See https://go.microsoft.com/fwlink/?LinkId=800142.</value>
     <comment>Warning RelationalEventId.AmbientTransactionWarning</comment>
   </data>
   <data name="LogAmbientTransactionEnlisted" xml:space="preserve">
@@ -755,7 +764,7 @@
     <comment>Debug RelationalEventId.TransactionDisposed</comment>
   </data>
   <data name="LogDuplicateColumnOrders" xml:space="preserve">
-    <value>The configured column orders for the table '{table}' contains duplicates. Ensure the specified column order values are distinct. Conflicting columns: {columns}</value>
+    <value>The configured column orders for the table '{table}' contains duplicates. Ensure the specified column order values are distinct. Conflicting columns: {columns}.</value>
     <comment>Error RelationalEventId.DuplicateColumnOrders string string</comment>
   </data>
   <data name="LogExceptionDuringExecuteDelete" xml:space="preserve">
@@ -811,7 +820,7 @@
     <comment>Debug RelationalEventId.MigrateUsingConnection string string</comment>
   </data>
   <data name="LogMigrationAttributeMissingWarning" xml:space="preserve">
-    <value>A [Migration] attribute isn't specified on the '{class}' class.</value>
+    <value>A [Migration] attribute is not specified on the '{class}' class.</value>
     <comment>Warning RelationalEventId.MigrationAttributeMissingWarning string</comment>
   </data>
   <data name="LogMigrationsUserTransaction" xml:space="preserve">
@@ -871,7 +880,7 @@
     <comment>Warning RelationalEventId.OptionalDependentWithAllNullPropertiesWarning string string</comment>
   </data>
   <data name="LogOptionalDependentWithoutIdentifyingProperty" xml:space="preserve">
-    <value>The entity type '{entityType}' is an optional dependent using table sharing without any required non shared property that could be used to identify whether the entity exists. If all nullable properties contain a null value in database then an object instance won't be created in the query. Add a required property to create instances with null values for other properties or mark the incoming navigation as required to always create an instance.</value>
+    <value>The entity type '{entityType}' is an optional dependent using table sharing without any required non shared column that could be used to identify whether the entity exists. If all nullable properties contain a 'null' value in database then an object instance won't be created in the query. Add a required property to create instances with 'null' values for other properties or mark the incoming navigation as required to always create an instance.</value>
     <comment>Warning RelationalEventId.OptionalDependentWithoutIdentifyingPropertyWarning string</comment>
   </data>
   <data name="LogPendingModelChanges" xml:space="preserve">
@@ -923,7 +932,7 @@
     <comment>Error RelationalEventId.TransactionError</comment>
   </data>
   <data name="LogTriggerOnNonRootTphEntity" xml:space="preserve">
-    <value>Can't configure a trigger on entity type '{entityType}', which is in a TPH hierarchy and isn't the root. Configure the trigger on the TPH root entity type '{rootEntityType}' instead.</value>
+    <value>A trigger cannot be configured on entity type '{entityType}', which is in a TPH hierarchy and is not the root. Configure the trigger on the TPH root entity type '{rootEntityType}' instead.</value>
     <comment>Warning RelationalEventId.TriggerOnNonRootTphEntity string string</comment>
   </data>
   <data name="LogUnexpectedTrailingResultSetWhenSaving" xml:space="preserve">
@@ -979,17 +988,20 @@
   <data name="MissingResultSetWhenSaving" xml:space="preserve">
     <value>A result set was missing when reading the results of a SaveChanges operation; this may indicate that a stored procedure was configured to return results in the EF model, but did not. Check your stored procedure definitions.</value>
   </data>
+  <data name="MultipleColumnsWithSameJsonContainerName" xml:space="preserve">
+    <value>Entity type '{entityType}' is mapped to multiple columns with name '{columnName}', and one of them is configured as a JSON column. Assign different names to the columns.</value>
+  </data>
   <data name="ModificationCommandBatchAlreadyComplete" xml:space="preserve">
-    <value>Cannot add commands to a completed ModificationCommandBatch.</value>
+    <value>Commands cannot be added to a completed 'ModificationCommandBatch'.</value>
   </data>
   <data name="ModificationCommandBatchNotComplete" xml:space="preserve">
-    <value>Cannot execute an ModificationCommandBatch which hasn't been completed.</value>
+    <value>A 'ModificationCommandBatch' which hasn't been completed cannot be executed.</value>
   </data>
   <data name="ModificationCommandInvalidEntityState" xml:space="preserve">
-    <value>Cannot save changes for an entity of type '{entityType}' in state '{entityState}'. This may indicate a bug in Entity Framework, please open an issue at https://go.microsoft.com/fwlink/?linkid=2142044. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values of the entity.</value>
+    <value>Cannot save changes for an entity of type '{entityType}' in state '{entityState}'. This may indicate a bug in Entity Framework, file an issue at https://aka.ms/efcorefeedback. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values of the entity.</value>
   </data>
   <data name="ModificationCommandInvalidEntityStateSensitive" xml:space="preserve">
-    <value>Cannot save changes for an entity of type '{entityType}' with primary key values {keyValues} in state '{entityState}'. This may indicate a bug in Entity Framework, please open an issue at https://go.microsoft.com/fwlink/?linkid=2142044.</value>
+    <value>Cannot save changes for an entity of type '{entityType}' with primary key values {keyValues} in state '{entityState}'. This may indicate a bug in Entity Framework, file an issue at https://aka.ms/efcorefeedback.</value>
   </data>
   <data name="MultipleProvidersConfigured" xml:space="preserve">
     <value>Multiple relational database provider configurations found. A context can only be configured to use a single database provider.</value>
@@ -1007,7 +1019,7 @@
     <value>The property '{propertyType} {type}.{property}' is a primitive collection of a primitive collection. Nested primitive collections are not yet supported with relational database providers.</value>
   </data>
   <data name="NestedComplexPropertyJsonWithTableSharing" xml:space="preserve">
-    <value>Complex property '{complexProperty}' is mapped to JSON but its containing type '{containingType}' is not. Map the root complex type to JSON. See https://github.com/dotnet/efcore/issues/36558</value>
+    <value>Complex property '{complexProperty}' is mapped to JSON but its containing type '{containingType}' is not. Map the root complex type to JSON. See https://github.com/dotnet/efcore/issues/36558.</value>
   </data>
   <data name="NoActiveTransaction" xml:space="preserve">
     <value>The connection does not have any active transactions.</value>
@@ -1016,7 +1028,7 @@
     <value>No alias is defined on table: '{table}'.</value>
   </data>
   <data name="NoDbCommand" xml:space="preserve">
-    <value>Cannot create a DbCommand for a non-relational query.</value>
+    <value>A DbCommand cannot be created for a non-relational query.</value>
   </data>
   <data name="NonConstantOrParameterAsInExpressionValue" xml:space="preserve">
     <value>Expression of type '{type}' isn't supported in the values of an InExpression; only constants and parameters are supported.</value>
@@ -1025,10 +1037,10 @@
     <value>'FindMapping' was called on a 'RelationalTypeMappingSource' with a non-relational 'TypeMappingInfo'.</value>
   </data>
   <data name="NonScalarFunctionCannotBeNullable" xml:space="preserve">
-    <value>Cannot set 'IsNullable' on DbFunction '{functionName}' since the function does not represent a scalar function.</value>
+    <value>'IsNullable' cannot be set on DbFunction '{functionName}' since the function does not represent a scalar function.</value>
   </data>
   <data name="NonScalarFunctionParameterCannotPropagatesNullability" xml:space="preserve">
-    <value>Cannot set 'PropagatesNullability' on parameter '{parameterName}' of DbFunction '{functionName}' since function does not represent a scalar function.</value>
+    <value>'PropagatesNullability' cannot be set on parameter '{parameterName}' of DbFunction '{functionName}' since function does not represent a scalar function.</value>
   </data>
   <data name="NonTphDiscriminatorValueNotString" xml:space="preserve">
     <value>The specified discriminator value '{value}' for '{entityType}' is not a string. Configure a string discriminator value instead.</value>
@@ -1052,7 +1064,7 @@
     <value>An 'ExecuteUpdate' call must specify at least one 'SetProperty' invocation, to indicate the properties to be updated.</value>
   </data>
   <data name="NullKeyValue" xml:space="preserve">
-    <value>Unable to modify a row in table '{table}' because its key column '{keyColumn}' is null.</value>
+    <value>Unable to modify a row in table '{table}' because its key column '{keyColumn}' is 'null'.</value>
   </data>
   <data name="NullTypeMappingInSqlTree" xml:space="preserve">
     <value>Expression '{sqlExpression}' in the SQL tree does not have a type mapping assigned.</value>
@@ -1067,16 +1079,22 @@
     <value>Only constants are supported inside inline collection query roots.</value>
   </data>
   <data name="OptionalDependentWithDependentWithoutIdentifyingProperty" xml:space="preserve">
-    <value>Entity type '{entityType}' is an optional dependent using table sharing and containing other dependents without any required non shared property to identify whether the entity exists. If all nullable properties contain a null value in database then an object instance won't be created in the query causing nested dependent's values to be lost. Add a required property to create instances with null values for other properties or mark the incoming navigation as required to always create an instance.</value>
+    <value>Entity type '{entityType}' is an optional dependent using table sharing and containing other dependents without any required non shared property to identify whether the entity exists. If all nullable properties contain a 'null' value in database then an object instance won't be created in the query causing nested dependent's values to be lost. Add a required property to create instances with 'null' values for other properties or mark the incoming navigation as required to always create an instance.</value>
   </data>
   <data name="ParameterNotObjectArray" xml:space="preserve">
-    <value>Cannot use the value provided for parameter '{parameter}' because it isn't assignable to type object[].</value>
+    <value>The value provided for parameter '{parameter}' cannot be used because it isn't assignable to type 'object[]'.</value>
+  </data>
+  <data name="JsonPartialExecuteUpdateNotSupportedByProvider" xml:space="preserve">
+    <value>The provider in use does not support partial updates with ExecuteUpdate within JSON columns.</value>
+  </data>
+  <data name="JsonExecuteUpdateNotSupportedWithOwnedEntities" xml:space="preserve">
+    <value>ExecuteUpdate over JSON columns is not supported when the column is mapped as an owned entity. Map the column as a complex type instead.</value>
   </data>
   <data name="PendingAmbientTransaction" xml:space="preserve">
     <value>This connection was used with an ambient transaction. The original ambient transaction needs to be completed before this connection can be used outside of it.</value>
   </data>
   <data name="ProjectionMappingCountMismatch" xml:space="preserve">
-    <value>Unable to translate set operations when both sides don't assign values to the same properties in the nominal type. Please make sure that the same properties are included on both sides, and consider assigning default values if a property doesn't require a specific value.</value>
+    <value>Unable to translate set operations when both sides don't assign values to the same properties in the nominal type. Make sure that the same properties are included on both sides, and consider assigning default values if a property doesn't require a specific value.</value>
   </data>
   <data name="PropertyBothColumnNameAndJsonPropertyName" xml:space="preserve">
     <value>Property '{property}' cannot have both a column name ('{columnName}') and a JSON property name ('{jsonPropertyName}') configured. Properties in JSON-mapped types should use JSON property names, not column names.</value>
@@ -1184,7 +1202,7 @@
     <value>Unsupported direction '{direction}' was specified for the parameter '{parameter}' of the stored procedure '{sproc}'.</value>
   </data>
   <data name="StoredProcedureParameterNotFound" xml:space="preserve">
-    <value>No property named '{property}' found on the entity type '{entityType}' corresponding to the parameter on the stored procedure '{sproc}'</value>
+    <value>No property named '{property}' found on the entity type '{entityType}' corresponding to the parameter on the stored procedure '{sproc}'.</value>
   </data>
   <data name="StoredProcedurePropertiesNotMapped" xml:space="preserve">
     <value>The entity type '{entityType}' is mapped to the stored procedure '{sproc}', however the properties {properties} are not mapped to any parameter or result column.</value>
@@ -1193,7 +1211,7 @@
     <value>The property '{entityType}.{property}' is mapped to a result column of the stored procedure '{sproc}', but store-generated values are not supported for Delete stored procedures.</value>
   </data>
   <data name="StoredProcedureResultColumnNotFound" xml:space="preserve">
-    <value>No property named '{property}' found on the entity type '{entityType}' corresponding to the result column on the stored procedure '{sproc}'</value>
+    <value>No property named '{property}' found on the entity type '{entityType}' corresponding to the result column on the stored procedure '{sproc}'.</value>
   </data>
   <data name="StoredProcedureResultColumnNotGenerated" xml:space="preserve">
     <value>The property '{entityType}.{property}' is mapped to a result column of the stored procedure '{sproc}', but it is not configured as store-generated.</value>
@@ -1298,13 +1316,16 @@
     <value>Unsupported operator '{nodeType}' specified for expression of type '{expressionType}'.</value>
   </data>
   <data name="UnsupportedPropertyType" xml:space="preserve">
-    <value>No relational type mapping can be found for property '{entity}.{property}' and the current provider doesn't specify a default store type for the properties of type '{clrType}'. </value>
+    <value>No relational type mapping can be found for property '{entity}.{property}' and the current provider doesn't specify a default store type for the properties of type '{clrType}'.</value>
   </data>
   <data name="UnsupportedStoreType" xml:space="preserve">
     <value>The store type '{type}' is not supported by the current provider.</value>
   </data>
   <data name="UnsupportedType" xml:space="preserve">
     <value>The current provider doesn't have a store type mapping for properties of type '{clrType}'.</value>
+  </data>
+  <data name="UnsupportedTypeForColumn" xml:space="preserve">
+    <value>Unable to find a store type mapping for column '{table}.{column}' with CLR type '{clrType}'.</value>
   </data>
   <data name="UpdateConcurrencyException" xml:space="preserve">
     <value>The database operation was expected to affect {expectedRows} row(s), but actually affected {actualRows} row(s); data may have been modified or deleted since entities were loaded. See https://go.microsoft.com/fwlink/?LinkId=527962 for information on understanding and handling optimistic concurrency exceptions.</value>

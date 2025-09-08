@@ -10,26 +10,21 @@ public abstract class ArithmeticOperatorTranslationsTestBase<TFixture>(TFixture 
 {
     [ConditionalFact]
     public virtual async Task Add()
-        => await AssertQuery(
-            ss => ss.Set<BasicTypesEntity>().Where(b => b.Int + 2 == 10));
+        => await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Int + 2 == 10));
 
     [ConditionalFact]
     public virtual async Task Subtract()
-        => await AssertQuery(
-            ss => ss.Set<BasicTypesEntity>().Where(b => b.Int - 3 == 5));
+        => await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Int - 3 == 5));
 
     [ConditionalFact]
     public virtual async Task Multiply()
-        => await AssertQuery(
-            ss => ss.Set<BasicTypesEntity>().Where(b => b.Int * 2 == 16));
+        => await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Int * 2 == 16));
 
     [ConditionalFact]
     public virtual async Task Modulo()
-        => await AssertQuery(
-            ss => ss.Set<BasicTypesEntity>().Where(b => b.Int % 3 == 2));
+        => await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Int % 3 == 2));
 
     [ConditionalFact]
     public virtual async Task Minus()
-        => await AssertQuery(
-            ss => ss.Set<BasicTypesEntity>().Where(b => -b.Int == -8));
+        => await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => -b.Int == -8));
 }

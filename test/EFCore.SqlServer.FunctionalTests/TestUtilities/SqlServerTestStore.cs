@@ -116,8 +116,12 @@ public class SqlServerTestStore : RelationalTestStore
 
     public override DbContextOptionsBuilder AddProviderOptions(DbContextOptionsBuilder builder)
         => (UseConnectionString
-                ? builder.UseSqlServer(ConnectionString, b => b.ApplyConfiguration())
-                : builder.UseSqlServer(Connection, b => b.ApplyConfiguration()))
+                ? TestEnvironment.IsAzureSql
+                    ? builder.UseAzureSql(ConnectionString, b => b.ApplyConfiguration())
+                    : builder.UseSqlServer(ConnectionString, b => b.ApplyConfiguration())
+                : TestEnvironment.IsAzureSql
+                    ? builder.UseAzureSql(Connection, b => b.ApplyConfiguration())
+                    : builder.UseSqlServer(Connection, b => b.ApplyConfiguration()))
             .ConfigureWarnings(b => b.Ignore(SqlServerEventId.SavepointsDisabledBecauseOfMARS));
 
     private async Task<bool> CleanDatabaseAsync(Func<DbContext, Task>? clean)
@@ -213,7 +217,7 @@ public class SqlServerTestStore : RelationalTestStore
     {
         var result = $"CREATE DATABASE [{name}]";
 
-        if (TestEnvironment.IsSqlAzure)
+        if (TestEnvironment.IsAzureSql)
         {
             var elasticGroupName = TestEnvironment.ElasticPoolName;
             result += Environment.NewLine
@@ -293,7 +297,7 @@ END
                 var results = Enumerable.Empty<T>();
                 while (dataReader.Read())
                 {
-                    results = results.Concat(new[] { dataReader.GetFieldValue<T>(0) });
+                    results = results.Concat([dataReader.GetFieldValue<T>(0)]);
                 }
 
                 return results;
@@ -310,7 +314,7 @@ END
                 var results = Enumerable.Empty<T>();
                 while (await dataReader.ReadAsync())
                 {
-                    results = results.Concat(new[] { await dataReader.GetFieldValueAsync<T>(0) });
+                    results = results.Concat([await dataReader.GetFieldValueAsync<T>(0)]);
                 }
 
                 return results;
@@ -450,7 +454,7 @@ END
         await base.DisposeAsync();
 
         if (_fileName != null // Clean up the database using a local file, as it might get deleted later
-            || (TestEnvironment.IsSqlAzure && !Shared))
+            || (TestEnvironment.IsAzureSql && !Shared))
         {
             await DeleteDatabaseAsync();
         }

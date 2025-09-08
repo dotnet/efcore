@@ -325,9 +325,7 @@ WHERE [b].[Id] = 1
             CoreStrings.TranslationFailed("")[47..],
             Assert.Throws<InvalidOperationException>(() => base.Value_conversion_on_enum_collection_contains()).Message);
 
-    [ConditionalTheory(Skip = "Issue #30730: TODO need to find the default type mapping.")]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory(Skip = "Issue #30730: TODO need to find the default type mapping."), InlineData(true), InlineData(false)]
     public virtual async Task SqlQuery_with_converted_type_using_model_configuration_builder_works(bool async)
     {
         using var context = CreateContext();
@@ -398,8 +396,7 @@ WHERE N'Yeps' IN (
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => base
                 .AddOptions(builder)
-                .ConfigureWarnings(
-                    c => c.Log(SqlServerEventId.DecimalTypeDefaultWarning));
+                .ConfigureWarnings(c => c.Log(SqlServerEventId.DecimalTypeDefaultWarning));
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {

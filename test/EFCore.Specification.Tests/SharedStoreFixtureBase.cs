@@ -19,6 +19,7 @@ public abstract class SharedStoreFixtureBase<TContext> : FixtureBase, IAsyncLife
 
     protected abstract string StoreName { get; }
     protected abstract ITestStoreFactory TestStoreFactory { get; }
+    protected virtual bool RecreateStore { get; } = false;
 
     private TestStore? _testStore;
 
@@ -45,7 +46,14 @@ public abstract class SharedStoreFixtureBase<TContext> : FixtureBase, IAsyncLife
 
     public virtual async Task InitializeAsync()
     {
-        _testStore = TestStoreFactory.GetOrCreate(StoreName);
+        if (RecreateStore)
+        {
+            _testStore = TestStoreFactory.Create(StoreName);
+        }
+        else
+        {
+            _testStore = TestStoreFactory.GetOrCreate(StoreName);
+        }
 
         var services = AddServices(TestStoreFactory.AddProviderServices(new ServiceCollection()));
         services = UsePooling
@@ -61,9 +69,8 @@ public abstract class SharedStoreFixtureBase<TContext> : FixtureBase, IAsyncLife
             _createDbContext
                 = typeof(IDbContextFactory<>).MakeGenericType(ContextType)
                     .GetTypeInfo().GetDeclaredMethods(nameof(IDbContextFactory<TContext>.CreateDbContext))
-                    .Single(
-                        mi => mi.GetParameters().Length == 0
-                            && mi.GetGenericArguments().Length == 0);
+                    .Single(mi => mi.GetParameters().Length == 0
+                        && mi.GetGenericArguments().Length == 0);
         }
 
         _serviceProvider = services.BuildServiceProvider(validateScopes: true);

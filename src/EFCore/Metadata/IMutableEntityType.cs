@@ -170,7 +170,7 @@ public interface IMutableEntityType : IReadOnlyEntityType, IMutableTypeBase
     /// <param name="property">The property to use as an alternate key.</param>
     /// <returns>The newly created key.</returns>
     IMutableKey AddKey(IMutableProperty property)
-        => AddKey(new[] { property });
+        => AddKey([property]);
 
     /// <summary>
     ///     Adds a new alternate key to this entity type.
@@ -186,7 +186,7 @@ public interface IMutableEntityType : IReadOnlyEntityType, IMutableTypeBase
     /// <param name="property">The property that the key is defined on.</param>
     /// <returns>The key, or null if none is defined.</returns>
     new IMutableKey? FindKey(IReadOnlyProperty property)
-        => FindKey(new[] { property });
+        => FindKey([property]);
 
     /// <summary>
     ///     Gets the primary or alternate key that is defined on the given properties.
@@ -243,7 +243,7 @@ public interface IMutableEntityType : IReadOnlyEntityType, IMutableTypeBase
         IMutableProperty property,
         IMutableKey principalKey,
         IMutableEntityType principalEntityType)
-        => AddForeignKey(new[] { property }, principalKey, principalEntityType);
+        => AddForeignKey([property], principalKey, principalEntityType);
 
     /// <summary>
     ///     Adds a new relationship to this entity type.
@@ -268,7 +268,7 @@ public interface IMutableEntityType : IReadOnlyEntityType, IMutableTypeBase
     /// <param name="property">The property to find the foreign keys on.</param>
     /// <returns>The foreign keys.</returns>
     new IEnumerable<IMutableForeignKey> FindForeignKeys(IReadOnlyProperty property)
-        => FindForeignKeys(new[] { property });
+        => FindForeignKeys([property]);
 
     /// <summary>
     ///     Gets the foreign keys defined on the given properties. Only foreign keys that are defined on exactly the specified
@@ -295,7 +295,7 @@ public interface IMutableEntityType : IReadOnlyEntityType, IMutableTypeBase
         IReadOnlyProperty property,
         IReadOnlyKey principalKey,
         IReadOnlyEntityType principalEntityType)
-        => FindForeignKey(new[] { property }, principalKey, principalEntityType);
+        => FindForeignKey([property], principalKey, principalEntityType);
 
     /// <summary>
     ///     Gets the foreign key for the given properties that points to a given primary or alternate key.
@@ -576,7 +576,7 @@ public interface IMutableEntityType : IReadOnlyEntityType, IMutableTypeBase
     /// <param name="property">The property to be indexed.</param>
     /// <returns>The newly created index.</returns>
     IMutableIndex AddIndex(IMutableProperty property)
-        => AddIndex(new[] { property });
+        => AddIndex([property]);
 
     /// <summary>
     ///     Adds an unnamed index to this entity type.
@@ -592,7 +592,7 @@ public interface IMutableEntityType : IReadOnlyEntityType, IMutableTypeBase
     /// <param name="name">The name of the index.</param>
     /// <returns>The newly created index.</returns>
     IMutableIndex AddIndex(IMutableProperty property, string name)
-        => AddIndex(new[] { property }, name);
+        => AddIndex([property], name);
 
     /// <summary>
     ///     Adds a named index to this entity type.
@@ -608,7 +608,7 @@ public interface IMutableEntityType : IReadOnlyEntityType, IMutableTypeBase
     /// <param name="property">The property to find the index on.</param>
     /// <returns>The index, or <see langword="null" /> if none is found.</returns>
     new IMutableIndex? FindIndex(IReadOnlyProperty property)
-        => FindIndex(new[] { property });
+        => FindIndex([property]);
 
     /// <summary>
     ///     Gets the unnamed index defined on the given properties. Returns <see langword="null" /> if no such index is defined.
@@ -749,7 +749,7 @@ public interface IMutableEntityType : IReadOnlyEntityType, IMutableTypeBase
     /// </summary>
     /// <returns>The triggers defined on this entity type.</returns>
     new IEnumerable<IMutableTrigger> GetTriggers()
-        => (BaseType?.GetTriggers() ?? Enumerable.Empty<IMutableTrigger>()).Concat(GetDeclaredTriggers());
+        => (BaseType?.GetTriggers() ?? []).Concat(GetDeclaredTriggers());
 
     /// <summary>
     ///     Creates a new trigger with the given name on entity type. Throws an exception if a trigger with the same name exists on the same

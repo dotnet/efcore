@@ -526,8 +526,8 @@ public class RelationshipDiscoveryConvention :
                 filteredRelationshipCandidates.Add(relationshipCandidate);
             }
             else if (IsImplicitlyCreatedUnusedType(relationshipCandidate.TargetTypeBuilder.Metadata)
-                     && filteredRelationshipCandidates.All(
-                         c => c.TargetTypeBuilder.Metadata != relationshipCandidate.TargetTypeBuilder.Metadata))
+                     && filteredRelationshipCandidates.All(c
+                         => c.TargetTypeBuilder.Metadata != relationshipCandidate.TargetTypeBuilder.Metadata))
             {
                 entityTypeBuilder.ModelBuilder
                     .HasNoEntityType(relationshipCandidate.TargetTypeBuilder.Metadata);
@@ -636,13 +636,12 @@ public class RelationshipDiscoveryConvention :
         if (inverseCandidate != null)
         {
             var relationshipsToDerivedTypes = relationshipCandidatesHierarchy
-                .Where(
-                    r => r.TargetTypeBuilder != relationshipCandidate.TargetTypeBuilder
-                        && relationshipCandidate.TargetTypeBuilder.Metadata.IsAssignableFrom(r.TargetTypeBuilder.Metadata));
+                .Where(r => r.TargetTypeBuilder != relationshipCandidate.TargetTypeBuilder
+                    && relationshipCandidate.TargetTypeBuilder.Metadata.IsAssignableFrom(r.TargetTypeBuilder.Metadata));
             foreach (var relationshipToDerivedType in relationshipsToDerivedTypes)
             {
-                relationshipToDerivedType.InverseProperties.RemoveAll(
-                    i => i.GetSimpleMemberName() == inverseCandidate.GetSimpleMemberName());
+                relationshipToDerivedType.InverseProperties.RemoveAll(i
+                    => i.GetSimpleMemberName() == inverseCandidate.GetSimpleMemberName());
 
                 if (!filteredRelationshipCandidates.Contains(relationshipToDerivedType))
                 {
@@ -686,8 +685,8 @@ public class RelationshipDiscoveryConvention :
                 filteredRelationshipCandidates.Add(relationshipCandidate);
             }
             else if (IsImplicitlyCreatedUnusedType(relationshipCandidate.TargetTypeBuilder.Metadata)
-                     && filteredRelationshipCandidates.All(
-                         c => c.TargetTypeBuilder.Metadata != relationshipCandidate.TargetTypeBuilder.Metadata))
+                     && filteredRelationshipCandidates.All(c
+                         => c.TargetTypeBuilder.Metadata != relationshipCandidate.TargetTypeBuilder.Metadata))
             {
                 entityTypeBuilder.ModelBuilder
                     .HasNoEntityType(relationshipCandidate.TargetTypeBuilder.Metadata);
@@ -864,9 +863,8 @@ public class RelationshipDiscoveryConvention :
                 }
             }
 
-            relationshipCandidate.NavigationProperties.RemoveAll(
-                p =>
-                    p.GetMemberType().IsAssignableFrom(mostDerivedType) && p.GetMemberType() != mostDerivedType);
+            relationshipCandidate.NavigationProperties.RemoveAll(p =>
+                p.GetMemberType().IsAssignableFrom(mostDerivedType) && p.GetMemberType() != mostDerivedType);
         }
 
         if (relationshipCandidate.InverseProperties.Count > 1
@@ -887,9 +885,8 @@ public class RelationshipDiscoveryConvention :
                 }
             }
 
-            relationshipCandidate.InverseProperties.RemoveAll(
-                p =>
-                    p.GetMemberType().IsAssignableFrom(mostDerivedType) && p.GetMemberType() != mostDerivedType);
+            relationshipCandidate.InverseProperties.RemoveAll(p =>
+                p.GetMemberType().IsAssignableFrom(mostDerivedType) && p.GetMemberType() != mostDerivedType);
         }
     }
 
@@ -931,13 +928,11 @@ public class RelationshipDiscoveryConvention :
             {
                 Dependencies.Logger.MultipleNavigationProperties(
                     relationshipCandidate.NavigationProperties.Count == 0
-                        ? new[] { new Tuple<MemberInfo?, Type>(null, targetEntityType.ClrType) }
-                        : relationshipCandidate.NavigationProperties.Select(
-                            n => new Tuple<MemberInfo?, Type>(n, entityType.ClrType)),
+                        ? [new Tuple<MemberInfo?, Type>(null, targetEntityType.ClrType)]
+                        : relationshipCandidate.NavigationProperties.Select(n => new Tuple<MemberInfo?, Type>(n, entityType.ClrType)),
                     relationshipCandidate.InverseProperties.Count == 0
-                        ? new[] { new Tuple<MemberInfo?, Type>(null, targetEntityType.ClrType) }
-                        : relationshipCandidate.InverseProperties.Select(
-                            n => new Tuple<MemberInfo?, Type>(n, targetEntityType.ClrType)));
+                        ? [new Tuple<MemberInfo?, Type>(null, targetEntityType.ClrType)]
+                        : relationshipCandidate.InverseProperties.Select(n => new Tuple<MemberInfo?, Type>(n, targetEntityType.ClrType)));
             }
 
             foreach (var navigationProperty in relationshipCandidate.NavigationProperties.ToList())

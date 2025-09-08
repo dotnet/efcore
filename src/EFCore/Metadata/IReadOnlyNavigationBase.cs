@@ -35,7 +35,7 @@ public interface IReadOnlyNavigationBase : IReadOnlyPropertyBase
         => (bool?)this[CoreAnnotationNames.EagerLoaded] ?? false;
 
     /// <summary>
-    ///     Determines whether or not this navigation should lazy-load if lazy-loading is enabled and a mechanism for lazy-loading
+    ///     Determines whether this navigation should lazy-load if lazy-loading is enabled and a mechanism for lazy-loading
     ///     has been configured in the model.
     /// </summary>
     /// <remarks>

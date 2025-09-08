@@ -14,11 +14,11 @@ namespace Microsoft.EntityFrameworkCore.Query;
 ///     </para>
 /// </summary>
 /// <param name="queryExpression">Represents the server-side query expression for the collection.</param>
-/// <param name="relationship">A navigation associated with this collection, if any.</param>
-/// <param name="elementType">The clr type of individual elements in the collection.</param>
+/// <param name="structuralProperty">The navigation or complex property associated with the collection, if any.</param>
+/// <param name="elementType">The .NET type of individual elements in the collection.</param>
 public class CollectionResultExpression(
     Expression queryExpression,
-    IPropertyBase? relationship,
+    IPropertyBase? structuralProperty,
     Type elementType)
     : Expression, IPrintableExpression
 {
@@ -28,12 +28,12 @@ public class CollectionResultExpression(
     public virtual Expression QueryExpression { get; } = queryExpression;
 
     /// <summary>
-    ///     The relationship associated with the collection, if any.
+    ///     The navigation or complex property associated with the collection, if any.
     /// </summary>
-    public virtual IPropertyBase? Relationship { get; } = relationship;
+    public virtual IPropertyBase? StructuralProperty { get; } = structuralProperty;
 
     /// <summary>
-    ///     The clr type of elements of the collection.
+    ///     The .NET type of elements of the collection.
     /// </summary>
     public virtual Type ElementType { get; } = elementType;
 
@@ -58,7 +58,7 @@ public class CollectionResultExpression(
     public virtual CollectionResultExpression Update(Expression queryExpression)
         => queryExpression == QueryExpression
             ? this
-            : new CollectionResultExpression(queryExpression, Relationship, ElementType);
+            : new CollectionResultExpression(queryExpression, StructuralProperty, ElementType);
 
     /// <inheritdoc />
     public virtual void Print(ExpressionPrinter expressionPrinter)
@@ -70,9 +70,9 @@ public class CollectionResultExpression(
             expressionPrinter.Visit(QueryExpression);
             expressionPrinter.AppendLine();
 
-            if (Relationship is not null)
+            if (StructuralProperty is not null)
             {
-                expressionPrinter.Append("Relationship:").AppendLine(Relationship.ToString()!);
+                expressionPrinter.Append("Structural Property:").AppendLine(StructuralProperty.ToString()!);
             }
 
             expressionPrinter.Append("ElementType:").AppendLine(ElementType.ShortDisplayName());
@@ -88,6 +88,6 @@ public class CollectionResultExpression(
     /// <summary>
     ///     The navigation if associated with the collection.
     /// </summary>
-    [Obsolete("Use Relationship instead.", error: true)]
+    [Obsolete("Use StructuralProperty instead.", error: true)]
     public virtual INavigationBase? Navigation { get; }
 }

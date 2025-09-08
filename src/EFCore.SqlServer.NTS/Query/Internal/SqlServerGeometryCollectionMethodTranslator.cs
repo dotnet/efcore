@@ -47,7 +47,7 @@ public class SqlServerGeometryCollectionMethodTranslator : IMethodCallTranslator
             && method.GetGenericMethodDefinition() == EnumerableMethods.ElementAt
             && method.ReturnType == typeof(Geometry)
             && arguments is [var collection, var index]
-            && _typeMappingSource.FindMapping(typeof(Geometry), collection.TypeMapping!.StoreType) is RelationalTypeMapping geometryTypeMapping)
+            && _typeMappingSource.FindMapping(typeof(Geometry), collection.TypeMapping!.StoreType) is { } geometryTypeMapping)
         {
             return _sqlExpressionFactory.Function(
                 collection,

@@ -1021,7 +1021,7 @@ public static class RelationalEntityTypeExtensions
     /// <param name="entityType">The entity type.</param>
     /// <returns>The configured entity type mapping fragments.</returns>
     public static IEnumerable<IReadOnlyEntityTypeMappingFragment> GetMappingFragments(this IReadOnlyEntityType entityType)
-        => EntityTypeMappingFragment.Get(entityType) ?? Enumerable.Empty<IReadOnlyEntityTypeMappingFragment>();
+        => EntityTypeMappingFragment.Get(entityType) ?? [];
 
     /// <summary>
     ///     <para>
@@ -1036,7 +1036,7 @@ public static class RelationalEntityTypeExtensions
     /// <returns>The configured entity type mapping fragments.</returns>
     public static IEnumerable<IMutableEntityTypeMappingFragment> GetMappingFragments(this IMutableEntityType entityType)
         => EntityTypeMappingFragment.Get(entityType)?.Cast<IMutableEntityTypeMappingFragment>()
-            ?? Enumerable.Empty<IMutableEntityTypeMappingFragment>();
+            ?? [];
 
     /// <summary>
     ///     <para>
@@ -1051,7 +1051,7 @@ public static class RelationalEntityTypeExtensions
     /// <returns>The configured entity type mapping fragments.</returns>
     public static IEnumerable<IConventionEntityTypeMappingFragment> GetMappingFragments(this IConventionEntityType entityType)
         => EntityTypeMappingFragment.Get(entityType)?.Cast<IConventionEntityTypeMappingFragment>()
-            ?? Enumerable.Empty<IConventionEntityTypeMappingFragment>();
+            ?? [];
 
     /// <summary>
     ///     <para>
@@ -1066,7 +1066,7 @@ public static class RelationalEntityTypeExtensions
     /// <returns>The configured entity type mapping fragments.</returns>
     public static IEnumerable<IEntityTypeMappingFragment> GetMappingFragments(this IEntityType entityType)
         => EntityTypeMappingFragment.Get(entityType)?.Cast<IEntityTypeMappingFragment>()
-            ?? Enumerable.Empty<IEntityTypeMappingFragment>();
+            ?? [];
 
     /// <summary>
     ///     <para>
@@ -1086,7 +1086,7 @@ public static class RelationalEntityTypeExtensions
     {
         var fragments = EntityTypeMappingFragment.Get(entityType);
         return fragments == null
-            ? Enumerable.Empty<IReadOnlyEntityTypeMappingFragment>()
+            ? []
             : fragments.Where(f => f.StoreObject.StoreObjectType == storeObjectType);
     }
 
@@ -1640,10 +1640,10 @@ public static class RelationalEntityTypeExtensions
     {
         var propertyName = entityType.FindAnnotation(RelationalAnnotationNames.JsonPropertyName);
         return propertyName == null
-                ? (entityType.IsMappedToJson()
-                    ? entityType.FindOwnership()!.GetNavigation(pointsToPrincipal: false)!.Name
-                    : null)
-                : (string?)propertyName.Value;
+            ? (entityType.IsMappedToJson()
+                ? entityType.FindOwnership()!.GetNavigation(pointsToPrincipal: false)!.Name
+                : null)
+            : (string?)propertyName.Value;
     }
 
     /// <summary>
