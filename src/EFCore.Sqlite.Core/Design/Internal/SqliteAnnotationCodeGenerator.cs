@@ -71,6 +71,16 @@ public class SqliteAnnotationCodeGenerator : AnnotationCodeGenerator
     {
         if (annotation.Name == SqliteAnnotationNames.ValueGenerationStrategy)
         {
+            // If the annotation was set explicitly (not by convention), always include it in migrations
+            if (property is IConventionProperty conventionProperty)
+            {
+                var configurationSource = conventionProperty.GetValueGenerationStrategyConfigurationSource();
+                if (configurationSource.HasValue && configurationSource.Value != ConfigurationSource.Convention)
+                {
+                    return false;
+                }
+            }
+            
             return (SqliteValueGenerationStrategy)annotation.Value! == property.GetDefaultValueGenerationStrategy();
         }
 
