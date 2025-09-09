@@ -75,7 +75,9 @@ public static class SqlitePropertyExtensions
         var typeMapping = property.FindRelationalTypeMapping();
         var providerType = typeMapping?.Converter?.ProviderClrType ?? typeMapping?.ClrType ?? property.ClrType;
         
-        return providerType.UnwrapNullableType().IsInteger()
+        // Only apply autoincrement by convention if this is a strongly-typed ID with a value converter
+        // or other specific scenarios where autoincrement is expected
+        return providerType.UnwrapNullableType().IsInteger() && typeMapping?.Converter != null
             ? SqliteValueGenerationStrategy.Autoincrement
             : SqliteValueGenerationStrategy.None;
     }
@@ -129,7 +131,9 @@ public static class SqlitePropertyExtensions
             ?? typeMappingSource?.FindMapping((IProperty)property);
         var providerType = typeMapping?.Converter?.ProviderClrType ?? typeMapping?.ClrType ?? property.ClrType;
         
-        return providerType.UnwrapNullableType().IsInteger()
+        // Only apply autoincrement by convention if this is a strongly-typed ID with a value converter
+        // or other specific scenarios where autoincrement is expected
+        return providerType.UnwrapNullableType().IsInteger() && typeMapping?.Converter != null
             ? SqliteValueGenerationStrategy.Autoincrement
             : SqliteValueGenerationStrategy.None;
     }
