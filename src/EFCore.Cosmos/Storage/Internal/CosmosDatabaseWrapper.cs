@@ -86,13 +86,10 @@ public class CosmosDatabaseWrapper : Database
                 var exception = WrapUpdateException(response.Exception, response.ErroredEntries);
                 if (exception is not DbUpdateConcurrencyException
                     || !Dependencies.Logger.OptimisticConcurrencyException(
-                            response.ErroredEntries!.First().Context, response.ErroredEntries!, (DbUpdateConcurrencyException)exception, null).IsSuppressed)
+                            batch.Items.First().Entry.Context, batch.Items.Select(x => x.Entry).ToArray(), (DbUpdateConcurrencyException)exception, null).IsSuppressed)
                 {
                     throw exception;
                 }
-
-                // @TODO: Should we recreate the transaction without ErroredEntries and retry? How often should we retry?
-                // And add tests for this aswell..
             }
 
             rowsAffected += batch.Items.Count;
@@ -137,14 +134,11 @@ public class CosmosDatabaseWrapper : Database
                 var exception = WrapUpdateException(response.Exception, response.ErroredEntries);
                 if (exception is not DbUpdateConcurrencyException
                     || !(await Dependencies.Logger.OptimisticConcurrencyExceptionAsync(
-                            response.ErroredEntries!.First().Context, response.ErroredEntries!, (DbUpdateConcurrencyException)exception, null, cancellationToken)
+                            batch.Items.First().Entry.Context, batch.Items.Select(x => x.Entry).ToArray(), (DbUpdateConcurrencyException)exception, null, cancellationToken)
                         .ConfigureAwait(false)).IsSuppressed)
                 {
                     throw exception;
                 }
-
-                // @TODO: Should we recreate the transaction without ErroredEntries and retry? how often should we retry?
-                // And add tests for this aswell..
             }
 
             rowsAffected += batch.Items.Count;

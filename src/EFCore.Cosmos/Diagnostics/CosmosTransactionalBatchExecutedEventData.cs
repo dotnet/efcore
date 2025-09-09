@@ -19,12 +19,12 @@ public class CosmosTransactionalBatchExecutedEventData : EventData
     /// </summary>
     /// <param name="eventDefinition">The event definition.</param>
     /// <param name="messageGenerator">A delegate that generates a log message for this event.</param>
-    /// <param name="elapsed">The time elapsed since the command was sent to the database.</param>
+    /// <param name="elapsed">The time elapsed since the batch was sent to the database.</param>
     /// <param name="requestCharge">The request charge in RU.</param>
     /// <param name="activityId">The activity ID.</param>
-    /// <param name="entries">A dictionary containing the ids as keys and the operation type on the entity as value.</param>
     /// <param name="containerId">The ID of the Cosmos container being queried.</param>
-    /// <param name="partitionKeyValue">The key of the Cosmos partition that the command is using.</param>
+    /// <param name="partitionKeyValue">The key of the Cosmos partition that the batch is using.</param>
+    /// <param name="documentIds">The ids of the documents that were written to in the transactional batch.</param>
     /// <param name="logSensitiveData">Indicates whether the application allows logging of sensitive data.</param>
     public CosmosTransactionalBatchExecutedEventData(
         EventDefinitionBase eventDefinition,
@@ -33,8 +33,8 @@ public class CosmosTransactionalBatchExecutedEventData : EventData
         double requestCharge,
         string activityId,
         string containerId,
-        IReadOnlyList<CosmosTransactionalBatchEntry> entries,
         PartitionKey partitionKeyValue,
+        string documentIds,
         bool logSensitiveData)
         : base(eventDefinition, messageGenerator)
     {
@@ -42,8 +42,8 @@ public class CosmosTransactionalBatchExecutedEventData : EventData
         RequestCharge = requestCharge;
         ActivityId = activityId;
         ContainerId = containerId;
-        Entries = entries;
         PartitionKeyValue = partitionKeyValue;
+        DocumentIds = documentIds;
         LogSensitiveData = logSensitiveData;
     }
 
@@ -68,14 +68,14 @@ public class CosmosTransactionalBatchExecutedEventData : EventData
     public virtual string ContainerId { get; }
 
     /// <summary>
-    ///     A list containing the operations applied on the update entries of the transactional batch.
-    /// </summary>
-    public virtual IReadOnlyList<CosmosTransactionalBatchEntry> Entries { get; }
-
-    /// <summary>
     ///     The key of the Cosmos partition that the query is using.
     /// </summary>
     public virtual PartitionKey PartitionKeyValue { get; }
+
+    /// <summary>
+    ///     The ids of the documents that were written to in the transactional batch.
+    /// </summary>
+    public string DocumentIds { get; }
 
     /// <summary>
     ///     Indicates whether the application allows logging of sensitive data.

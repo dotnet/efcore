@@ -14,8 +14,8 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
-    [ConditionalFact]
-    public async Task Can_add_update_delete_end_to_end()
+    [ConditionalTheory, InlineData(false), InlineData(true)]
+    public async Task Can_add_update_delete_end_to_end(bool transactionalBatch)
     {
         var contextFactory = await InitializeAsync<DbContext>(
             b => b.Entity<Customer>(),
@@ -24,7 +24,7 @@ public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBa
 
         var customer = new Customer { Id = 42, Name = "Theon" };
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = CreateContext(contextFactory, transactionalBatch))
         {
             ListLoggerFactory.Clear();
 
@@ -32,14 +32,23 @@ public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBa
 
             context.SaveChanges();
 
-            var logEntry = ListLoggerFactory.Log.Single(e => e.Id == CosmosEventId.ExecutedCreateItem);
-            Assert.Equal(LogLevel.Information, logEntry.Level);
-            Assert.Contains("CreateItem", logEntry.Message);
+            if (transactionalBatch)
+            {
+                var logEntry = ListLoggerFactory.Log.Single(e => e.Id == CosmosEventId.ExecutedTransactionalBatch);
+                Assert.Equal(LogLevel.Information, logEntry.Level);
+                Assert.Contains("TransactionalBatch", logEntry.Message);
+            }
+            else
+            {
+                var logEntry = ListLoggerFactory.Log.Single(e => e.Id == CosmosEventId.ExecutedCreateItem);
+                Assert.Equal(LogLevel.Information, logEntry.Level);
+                Assert.Contains("CreateItem", logEntry.Message);
+            }
 
             Assert.Equal(1, ListLoggerFactory.Log.Count(l => l.Id == CosmosEventId.SyncNotSupported));
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = CreateContext(contextFactory, transactionalBatch))
         {
             ListLoggerFactory.Clear();
             var customerFromStore = context.Set<Customer>().Single();
@@ -57,14 +66,23 @@ public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBa
 
             context.SaveChanges();
 
-            logEntry = ListLoggerFactory.Log.Single(e => e.Id == CosmosEventId.ExecutedReplaceItem);
-            Assert.Equal(LogLevel.Information, logEntry.Level);
-            Assert.Contains("ReplaceItem", logEntry.Message);
+            if (transactionalBatch)
+            {
+                logEntry = ListLoggerFactory.Log.Single(e => e.Id == CosmosEventId.ExecutedTransactionalBatch);
+                Assert.Equal(LogLevel.Information, logEntry.Level);
+                Assert.Contains("TransactionalBatch", logEntry.Message);
+            }
+            else
+            {
+                logEntry = ListLoggerFactory.Log.Single(e => e.Id == CosmosEventId.ExecutedReplaceItem);
+                Assert.Equal(LogLevel.Information, logEntry.Level);
+                Assert.Contains("ReplaceItem", logEntry.Message);
+            }
 
             Assert.Single(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = CreateContext(contextFactory, transactionalBatch))
         {
             ListLoggerFactory.Clear();
             var customerFromStore = context.Find<Customer>(42);
@@ -82,14 +100,23 @@ public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBa
 
             context.SaveChanges();
 
-            logEntry = ListLoggerFactory.Log.Single(e => e.Id == CosmosEventId.ExecutedDeleteItem);
-            Assert.Equal(LogLevel.Information, logEntry.Level);
-            Assert.Contains("DeleteItem", logEntry.Message);
+            if (transactionalBatch)
+            {
+                logEntry = ListLoggerFactory.Log.Single(e => e.Id == CosmosEventId.ExecutedTransactionalBatch);
+                Assert.Equal(LogLevel.Information, logEntry.Level);
+                Assert.Contains("TransactionalBatch", logEntry.Message);
+            }
+            else
+            {
+                logEntry = ListLoggerFactory.Log.Single(e => e.Id == CosmosEventId.ExecutedDeleteItem);
+                Assert.Equal(LogLevel.Information, logEntry.Level);
+                Assert.Contains("DeleteItem", logEntry.Message);
+            }
 
             Assert.Single(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = CreateContext(contextFactory, transactionalBatch))
         {
             ListLoggerFactory.Clear();
             Assert.Empty(context.Set<Customer>().ToList());
@@ -98,8 +125,8 @@ public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBa
         }
     }
 
-    [ConditionalFact]
-    public async Task Can_add_update_delete_end_to_end_async()
+    [ConditionalTheory, InlineData(false), InlineData(true)]
+    public async Task Can_add_update_delete_end_to_end_async(bool transactionalBatch)
     {
         var contextFactory = await InitializeAsync<DbContext>(
             b => b.Entity<Customer>(),
@@ -108,20 +135,29 @@ public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBa
 
         var customer = new Customer { Id = 42, Name = "Theon" };
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = CreateContext(contextFactory, transactionalBatch))
         {
             await context.AddAsync(customer);
 
             await context.SaveChangesAsync();
 
-            var logEntry = ListLoggerFactory.Log.Single(e => e.Id == CosmosEventId.ExecutedCreateItem);
-            Assert.Equal(LogLevel.Information, logEntry.Level);
-            Assert.Contains("CreateItem", logEntry.Message);
+            if (transactionalBatch)
+            {
+                var logEntry = ListLoggerFactory.Log.Single(e => e.Id == CosmosEventId.ExecutedTransactionalBatch);
+                Assert.Equal(LogLevel.Information, logEntry.Level);
+                Assert.Contains("TransactionalBatch", logEntry.Message);
+            }
+            else
+            {
+                var logEntry = ListLoggerFactory.Log.Single(e => e.Id == CosmosEventId.ExecutedCreateItem);
+                Assert.Equal(LogLevel.Information, logEntry.Level);
+                Assert.Contains("CreateItem", logEntry.Message);
+            }
 
             Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = CreateContext(contextFactory, transactionalBatch))
         {
             var customerFromStore = await context.Set<Customer>().SingleAsync();
 
@@ -138,13 +174,22 @@ public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBa
 
             await context.SaveChangesAsync();
 
-            logEntry = ListLoggerFactory.Log.Single(e => e.Id == CosmosEventId.ExecutedReplaceItem);
-            Assert.Equal(LogLevel.Information, logEntry.Level);
-            Assert.Contains("ReplaceItem", logEntry.Message);
+            if (transactionalBatch)
+            {
+                logEntry = ListLoggerFactory.Log.Single(e => e.Id == CosmosEventId.ExecutedTransactionalBatch);
+                Assert.Equal(LogLevel.Information, logEntry.Level);
+                Assert.Contains("TransactionalBatch", logEntry.Message);
+            }
+            else
+            {
+                logEntry = ListLoggerFactory.Log.Single(e => e.Id == CosmosEventId.ExecutedReplaceItem);
+                Assert.Equal(LogLevel.Information, logEntry.Level);
+                Assert.Contains("ReplaceItem", logEntry.Message);
+            }
             Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = CreateContext(contextFactory, transactionalBatch))
         {
             var customerFromStore = await context.FindAsync<Customer>(42);
 
@@ -161,13 +206,22 @@ public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBa
 
             await context.SaveChangesAsync();
 
-            logEntry = ListLoggerFactory.Log.Single(e => e.Id == CosmosEventId.ExecutedDeleteItem);
-            Assert.Equal(LogLevel.Information, logEntry.Level);
-            Assert.Contains("DeleteItem", logEntry.Message);
+            if (transactionalBatch)
+            {
+                logEntry = ListLoggerFactory.Log.Single(e => e.Id == CosmosEventId.ExecutedTransactionalBatch);
+                Assert.Equal(LogLevel.Information, logEntry.Level);
+                Assert.Contains("TransactionalBatch", logEntry.Message);
+            }
+            else
+            {
+                logEntry = ListLoggerFactory.Log.Single(e => e.Id == CosmosEventId.ExecutedDeleteItem);
+                Assert.Equal(LogLevel.Information, logEntry.Level);
+                Assert.Contains("DeleteItem", logEntry.Message);
+            }
             Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = CreateContext(contextFactory, transactionalBatch))
         {
             Assert.Empty(await context.Set<Customer>().ToListAsync());
             Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
@@ -1750,6 +1804,16 @@ FROM root c
 ORDER BY c["Id"]
 OFFSET 0 LIMIT 1
 """);
+    }
+
+    private DbContext CreateContext(ContextFactory<DbContext> factory, bool transactionalBatch)
+    {
+        var context = factory.CreateContext();
+        if (!transactionalBatch)
+        {
+            context.Database.AutoTransactionBehavior = AutoTransactionBehavior.Never;
+        }
+        return context;
     }
 
     private class NonStringDiscriminator

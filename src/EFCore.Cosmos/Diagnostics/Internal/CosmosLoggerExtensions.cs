@@ -289,9 +289,9 @@ public static class CosmosLoggerExtensions
         TimeSpan elapsed,
         double requestCharge,
         string activityId,
-        IReadOnlyList<CosmosTransactionalBatchEntry> entries,
-        string containerId,
-        PartitionKey partitionKeyValue)
+        string documentIds,
+        PartitionKey partitionKeyValue,
+        string containerId)
     {
         var definition = CosmosResources.LogExecutedTransactionalBatch(diagnostics);
 
@@ -304,7 +304,8 @@ public static class CosmosLoggerExtensions
                 requestCharge.ToString(),
                 activityId,
                 containerId,
-                logSensitiveData ? partitionKeyValue.ToString() : "?");
+                logSensitiveData ? partitionKeyValue.ToString() : "?",
+                logSensitiveData ? documentIds : "?");
         }
 
         if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -316,8 +317,8 @@ public static class CosmosLoggerExtensions
                 requestCharge,
                 activityId,
                 containerId,
-                entries,
                 partitionKeyValue,
+                documentIds,
                 diagnostics.ShouldLogSensitiveData());
 
             diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
@@ -326,13 +327,14 @@ public static class CosmosLoggerExtensions
 
     private static string ExecutedTransactionalBatch(EventDefinitionBase definition, EventData payload)
     {
-        var d = (EventDefinition<string, string, string, string, string?>)definition;
+        var d = (EventDefinition<string, string, string, string, string, string?>)definition;
         var p = (CosmosTransactionalBatchExecutedEventData)payload;
         return d.GenerateMessage(
             p.Elapsed.Milliseconds.ToString(),
             p.RequestCharge.ToString(),
             p.ActivityId,
             p.ContainerId,
+            p.LogSensitiveData ? p.DocumentIds.ToString() : "?",
             p.LogSensitiveData ? p.PartitionKeyValue.ToString() : "?");
     }
 

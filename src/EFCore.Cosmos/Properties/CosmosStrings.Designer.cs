@@ -768,9 +768,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
         }
 
         /// <summary>
-        ///     Executed TransactionalBatch ({elapsed} ms, {charge} RU) ActivityId='{activityId}', Container='{container}', Partition='{partitionKey}'
+        ///     Executed TransactionalBatch ({elapsed} ms, {charge} RU) ActivityId='{activityId}', Container='{container}', Partition='{partitionKey}', DocumentIds='{documentIds}'
         /// </summary>
-        public static EventDefinition<string, string, string, string, string?> LogExecutedTransactionalBatch(IDiagnosticsLogger logger)
+        public static EventDefinition<string, string, string, string, string, string?> LogExecutedTransactionalBatch(IDiagnosticsLogger logger)
         {
             var definition = ((Diagnostics.Internal.CosmosLoggingDefinitions)logger.Definitions).LogExecutedTransactionalBatch;
             if (definition == null)
@@ -778,18 +778,18 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.CosmosLoggingDefinitions)logger.Definitions).LogExecutedTransactionalBatch,
                     logger,
-                    static logger => new EventDefinition<string, string, string, string, string?>(
+                    static logger => new EventDefinition<string, string, string, string, string, string?>(
                         logger.Options,
                         CosmosEventId.ExecutedTransactionalBatch,
                         LogLevel.Information,
                         "CosmosEventId.ExecutedTransactionalBatch",
-                        level => LoggerMessage.Define<string, string, string, string, string?>(
+                        level => LoggerMessage.Define<string, string, string, string, string, string?>(
                             level,
                             CosmosEventId.ExecutedTransactionalBatch,
                             _resourceManager.GetString("LogExecutedTransactionalBatch")!)));
             }
 
-            return (EventDefinition<string, string, string, string, string?>)definition;
+            return (EventDefinition<string, string, string, string, string, string?>)definition;
         }
 
         /// <summary>

@@ -649,50 +649,13 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             return new CosmosTransactionalBatchResult(errorEntries, exception);
         }
 
-        // @TODO: Logging?
         wrapper._commandLogger.ExecutedTransactionalBatch(
             response.Diagnostics.GetClientElapsedTime(),
             response.Headers.RequestCharge,
             response.Headers.ActivityId,
-            batch.Entries,
             batch.CollectionId,
-            batch.PartitionKeyValue);
-
-        foreach (var entry in batch.Entries)
-        {
-            switch (entry.Operation)
-            {
-                case CosmosCudOperation.Create:
-                    wrapper._commandLogger.ExecutedCreateItem(
-                        response.Diagnostics.GetClientElapsedTime(),
-                        response.Headers.RequestCharge,
-                        response.Headers.ActivityId,
-                        entry.Id,
-                        batch.CollectionId,
-                        batch.PartitionKeyValue);
-                    break;
-                case CosmosCudOperation.Update:
-                    wrapper._commandLogger.ExecutedReplaceItem(
-                        response.Diagnostics.GetClientElapsedTime(),
-                        response.Headers.RequestCharge,
-                        response.Headers.ActivityId,
-                        entry.Id,
-                        batch.CollectionId,
-                        batch.PartitionKeyValue);
-                    break;
-                case CosmosCudOperation.Delete:
-                    wrapper._commandLogger.ExecutedDeleteItem(
-                        response.Diagnostics.GetClientElapsedTime(),
-                        response.Headers.RequestCharge,
-                        response.Headers.ActivityId,
-                        entry.Id,
-                        batch.CollectionId,
-                        batch.PartitionKeyValue);
-                    break;
-                default:
-                    throw new UnreachableException();
-            }
-        }
+            batch.PartitionKeyValue,
+            "[ \"" + string.Join("\", \"", batch.Entries.Select(x => x.Id)) + "\" ]");
 
         ProcessResponse(response, batch.Entries);
 
