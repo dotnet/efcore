@@ -64,13 +64,74 @@ public static class SqlitePropertyExtensions
         }
 
         var primaryKey = property.DeclaringType.ContainingEntityType.FindPrimaryKey();
-        return primaryKey is { Properties.Count: 1 }
-            && primaryKey.Properties[0] == property
-            && property.ClrType.UnwrapNullableType().IsInteger()
-            && (property.FindRelationalTypeMapping()?.Converter?.ProviderClrType
-                ?? property.FindRelationalTypeMapping()?.ClrType)?.IsInteger() == true
-                ? SqliteValueGenerationStrategy.Autoincrement
-                : SqliteValueGenerationStrategy.None;
+        if (primaryKey is not { Properties.Count: 1 }
+            || primaryKey.Properties[0] != property
+            || !property.ClrType.UnwrapNullableType().IsInteger())
+        {
+            return SqliteValueGenerationStrategy.None;
+        }
+
+        // Check if provider type is also integer (important for value converters)
+        var typeMapping = property.FindRelationalTypeMapping();
+        var providerType = typeMapping?.Converter?.ProviderClrType ?? typeMapping?.ClrType ?? property.ClrType;
+        
+        return providerType.UnwrapNullableType().IsInteger()
+            ? SqliteValueGenerationStrategy.Autoincrement
+            : SqliteValueGenerationStrategy.None;
+    }
+
+    internal static SqliteValueGenerationStrategy GetValueGenerationStrategy(
+        this IReadOnlyProperty property,
+        in StoreObjectIdentifier storeObject,
+        ITypeMappingSource? typeMappingSource)
+    {
+        var @override = property.FindOverrides(storeObject)?.FindAnnotation(SqliteAnnotationNames.ValueGenerationStrategy);
+        if (@override != null)
+        {
+            return (SqliteValueGenerationStrategy?)@override.Value ?? SqliteValueGenerationStrategy.None;
+        }
+
+        var annotation = property.FindAnnotation(SqliteAnnotationNames.ValueGenerationStrategy);
+        if (annotation?.Value != null
+            && StoreObjectIdentifier.Create(property.DeclaringType, storeObject.StoreObjectType) == storeObject)
+        {
+            return (SqliteValueGenerationStrategy)annotation.Value;
+        }
+
+        var sharedProperty = property.FindSharedStoreObjectRootProperty(storeObject);
+        return sharedProperty != null
+            ? sharedProperty.GetValueGenerationStrategy(storeObject, typeMappingSource)
+            : GetDefaultValueGenerationStrategy(property, storeObject, typeMappingSource);
+    }
+
+    private static SqliteValueGenerationStrategy GetDefaultValueGenerationStrategy(
+        IReadOnlyProperty property,
+        in StoreObjectIdentifier storeObject,
+        ITypeMappingSource? typeMappingSource)
+    {
+        if (storeObject.StoreObjectType != StoreObjectType.Table
+            || property.IsForeignKey()
+            || property.ValueGenerated == ValueGenerated.Never)
+        {
+            return SqliteValueGenerationStrategy.None;
+        }
+
+        var primaryKey = property.DeclaringType.ContainingEntityType.FindPrimaryKey();
+        if (primaryKey is not { Properties.Count: 1 }
+            || primaryKey.Properties[0] != property
+            || !property.ClrType.UnwrapNullableType().IsInteger())
+        {
+            return SqliteValueGenerationStrategy.None;
+        }
+
+        // Check if provider type is also integer (important for value converters)
+        var typeMapping = property.FindRelationalTypeMapping(storeObject) 
+            ?? typeMappingSource?.FindMapping((IProperty)property);
+        var providerType = typeMapping?.Converter?.ProviderClrType ?? typeMapping?.ClrType ?? property.ClrType;
+        
+        return providerType.UnwrapNullableType().IsInteger()
+            ? SqliteValueGenerationStrategy.Autoincrement
+            : SqliteValueGenerationStrategy.None;
     }
 
     /// <summary>
