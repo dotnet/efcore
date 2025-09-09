@@ -289,9 +289,9 @@ public static class CosmosLoggerExtensions
         TimeSpan elapsed,
         double requestCharge,
         string activityId,
-        string documentIds,
+        string containerId,
         PartitionKey partitionKeyValue,
-        string containerId)
+        string documentIds)
     {
         var definition = CosmosResources.LogExecutedTransactionalBatch(diagnostics);
 

@@ -135,10 +135,9 @@ public class CosmosDatabaseWrapper : Database
         {
             var transaction = CreateTransaction(batch);
 
-            CosmosTransactionalBatchResult response;
             try
             {
-                response = await _cosmosClient.ExecuteBatchAsync(transaction, cancellationToken).ConfigureAwait(false);
+                var response = await _cosmosClient.ExecuteBatchAsync(transaction, cancellationToken).ConfigureAwait(false);
                 if (!response.IsSuccess)
                 {
                     var exception = WrapUpdateException(response.Exception, response.ErroredEntries);
