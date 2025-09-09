@@ -79,17 +79,24 @@ public class CosmosDatabaseWrapper : Database
         {
             var transaction = CreateTransaction(batch);
 
-            var response = _cosmosClient.ExecuteBatch(transaction);
-
-            if (!response.IsSuccess)
+            try
             {
-                var exception = WrapUpdateException(response.Exception, response.ErroredEntries);
-                if (exception is not DbUpdateConcurrencyException
-                    || !Dependencies.Logger.OptimisticConcurrencyException(
-                            batch.Items.First().Entry.Context, batch.Items.Select(x => x.Entry).ToArray(), (DbUpdateConcurrencyException)exception, null).IsSuppressed)
+                var response = _cosmosClient.ExecuteBatch(transaction);
+                if (!response.IsSuccess)
                 {
-                    throw exception;
+                    var exception = WrapUpdateException(response.Exception, response.ErroredEntries);
+                    if (exception is not DbUpdateConcurrencyException
+                        || !Dependencies.Logger.OptimisticConcurrencyException(
+                                batch.Items.First().Entry.Context, batch.Items.Select(x => x.Entry).ToArray(), (DbUpdateConcurrencyException)exception, null).IsSuppressed)
+                    {
+                        throw exception;
+                    }
                 }
+            }
+            catch (Exception ex) when (ex is not DbUpdateException and not OperationCanceledException)
+            {
+                var exception = WrapUpdateException(ex, batch.Items.Select(x => x.Entry).ToArray());
+                throw exception;
             }
 
             rowsAffected += batch.Items.Count;
@@ -128,17 +135,26 @@ public class CosmosDatabaseWrapper : Database
         {
             var transaction = CreateTransaction(batch);
 
-            var response = await _cosmosClient.ExecuteBatchAsync(transaction, cancellationToken).ConfigureAwait(false);
-            if (!response.IsSuccess)
+            CosmosTransactionalBatchResult response;
+            try
             {
-                var exception = WrapUpdateException(response.Exception, response.ErroredEntries);
-                if (exception is not DbUpdateConcurrencyException
-                    || !(await Dependencies.Logger.OptimisticConcurrencyExceptionAsync(
-                            batch.Items.First().Entry.Context, batch.Items.Select(x => x.Entry).ToArray(), (DbUpdateConcurrencyException)exception, null, cancellationToken)
-                        .ConfigureAwait(false)).IsSuppressed)
+                response = await _cosmosClient.ExecuteBatchAsync(transaction, cancellationToken).ConfigureAwait(false);
+                if (!response.IsSuccess)
                 {
-                    throw exception;
+                    var exception = WrapUpdateException(response.Exception, response.ErroredEntries);
+                    if (exception is not DbUpdateConcurrencyException
+                        || !(await Dependencies.Logger.OptimisticConcurrencyExceptionAsync(
+                                batch.Items.First().Entry.Context, batch.Items.Select(x => x.Entry).ToArray(), (DbUpdateConcurrencyException)exception, null, cancellationToken)
+                            .ConfigureAwait(false)).IsSuppressed)
+                    {
+                        throw exception;
+                    }
                 }
+            }
+            catch (Exception ex) when (ex is not DbUpdateException and not OperationCanceledException)
+            {
+                var exception = WrapUpdateException(ex, batch.Items.Select(x => x.Entry).ToArray());
+                throw exception;
             }
 
             rowsAffected += batch.Items.Count;

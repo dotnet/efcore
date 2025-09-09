@@ -1593,8 +1593,8 @@ OFFSET 0 LIMIT 1
             => modelBuilder.Entity<Customer>().Property(c => c.Name).ToJsonProperty("");
     }
 
-    [ConditionalFact(Skip = "Fails only on C.I. See #33402")]
-    public async Task Add_update_delete_query_throws_if_no_container()
+    [ConditionalTheory, InlineData(false, Skip = "Fails only on C.I. See #33402"), InlineData(true, Skip = "Fails only on C.I. See #33402")]
+    public async Task Add_update_delete_query_throws_if_no_container(bool transactionalBatch)
     {
         await using var testDatabase = await CosmosTestStore.CreateInitializedAsync("EndToEndEmpty");
 
@@ -1605,6 +1605,10 @@ OFFSET 0 LIMIT 1
         var customer = new Customer { Id = 42, Name = "Theon" };
         using (var context = new EndToEndEmptyContext(options))
         {
+            if (!transactionalBatch)
+            {
+                context.Database.AutoTransactionBehavior = AutoTransactionBehavior.Never;
+            }
             await context.AddAsync(customer);
 
             Assert.StartsWith(
@@ -1614,6 +1618,11 @@ OFFSET 0 LIMIT 1
 
         using (var context = new EndToEndEmptyContext(options))
         {
+            if (!transactionalBatch)
+            {
+                context.Database.AutoTransactionBehavior = AutoTransactionBehavior.Never;
+            }
+
             (await context.AddAsync(customer)).State = EntityState.Modified;
 
             Assert.StartsWith(
@@ -1623,6 +1632,11 @@ OFFSET 0 LIMIT 1
 
         using (var context = new EndToEndEmptyContext(options))
         {
+            if (!transactionalBatch)
+            {
+                context.Database.AutoTransactionBehavior = AutoTransactionBehavior.Never;
+            }
+
             (await context.AddAsync(customer)).State = EntityState.Deleted;
 
             Assert.StartsWith(
@@ -1632,6 +1646,11 @@ OFFSET 0 LIMIT 1
 
         using (var context = new EndToEndEmptyContext(options))
         {
+            if (!transactionalBatch)
+            {
+                context.Database.AutoTransactionBehavior = AutoTransactionBehavior.Never;
+            }
+
             Assert.StartsWith(
                 "Response status code does not indicate success: NotFound (404); Substatus: 0",
                 (await Assert.ThrowsAsync<CosmosException>(() => context.Set<Customer>().SingleAsync())).Message);
