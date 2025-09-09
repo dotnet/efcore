@@ -13,7 +13,7 @@ public class DateTimeTypeTest(DateTimeTypeTest.DateTimeTypeFixture fixture)
         Assert.Equal(RelationalStrings.ExecuteUpdateCannotSetJsonPropertyToNonJsonColumn, exception.Message);
     }
 
-    public class DateTimeTypeFixture : RelationalTypeTestFixture
+    public class DateTimeTypeFixture : RelationalTypeFixtureBase<DateTime>
     {
         public override DateTime Value { get; } = new DateTime(2020, 1, 5, 12, 30, 45, DateTimeKind.Unspecified);
         public override DateTime OtherValue { get; } = new DateTime(2022, 5, 3, 0, 0, 0, DateTimeKind.Unspecified);
@@ -32,7 +32,7 @@ public class DateTimeOffsetTypeTest(DateTimeOffsetTypeTest.DateTimeOffsetTypeFix
         Assert.Equal(RelationalStrings.ExecuteUpdateCannotSetJsonPropertyToNonJsonColumn, exception.Message);
     }
 
-    public class DateTimeOffsetTypeFixture : RelationalTypeTestFixture
+    public class DateTimeOffsetTypeFixture : RelationalTypeFixtureBase<DateTimeOffset>
     {
         public override DateTimeOffset Value { get; } = new DateTimeOffset(2020, 1, 5, 12, 30, 45, TimeSpan.FromHours(2));
         public override DateTimeOffset OtherValue { get; } = new DateTimeOffset(2020, 1, 5, 12, 30, 45, TimeSpan.FromHours(3));
@@ -50,7 +50,7 @@ public class DateOnlyTypeTest(DateOnlyTypeTest.DateTypeFixture fixture) : Relati
         Assert.Equal(RelationalStrings.ExecuteUpdateCannotSetJsonPropertyToNonJsonColumn, exception.Message);
     }
 
-    public class DateTypeFixture : RelationalTypeTestFixture
+    public class DateTypeFixture : RelationalTypeFixtureBase<DateOnly>
     {
         public override DateOnly Value { get; } = new DateOnly(2020, 1, 5);
         public override DateOnly OtherValue { get; } = new DateOnly(2022, 5, 3);
@@ -69,7 +69,7 @@ public class TimeOnlyTypeTest(TimeOnlyTypeTest.TimeTypeFixture fixture)
         Assert.Equal(RelationalStrings.ExecuteUpdateCannotSetJsonPropertyToNonJsonColumn, exception.Message);
     }
 
-    public class TimeTypeFixture : RelationalTypeTestFixture
+    public class TimeTypeFixture : RelationalTypeFixtureBase<TimeOnly>
     {
         public override TimeOnly Value { get; } = new TimeOnly(12, 30, 45);
         public override TimeOnly OtherValue { get; } = new TimeOnly(14, 0, 0);
@@ -87,7 +87,7 @@ public class TimeSpanTypeTest(TimeSpanTypeTest.TimeSpanTypeFixture fixture) : Re
         Assert.Equal(RelationalStrings.ExecuteUpdateCannotSetJsonPropertyToNonJsonColumn, exception.Message);
     }
 
-    public class TimeSpanTypeFixture : RelationalTypeTestFixture
+    public class TimeSpanTypeFixture : RelationalTypeFixtureBase<TimeSpan>
     {
         public override TimeSpan Value { get; } = new TimeSpan(12, 30, 45);
         public override TimeSpan OtherValue { get; } = new TimeSpan(14, 0, 0);

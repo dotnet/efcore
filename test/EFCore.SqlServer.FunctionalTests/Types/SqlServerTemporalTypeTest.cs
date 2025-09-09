@@ -1,14 +1,12 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.SqlServer.Internal;
-
 namespace Microsoft.EntityFrameworkCore.Types.Temporal;
 
 public class DateTimeTypeTest(DateTimeTypeTest.DateTimeTypeFixture fixture, ITestOutputHelper testOutputHelper)
     : RelationalTypeTestBase<DateTime, DateTimeTypeTest.DateTimeTypeFixture>(fixture, testOutputHelper)
 {
-    public class DateTimeTypeFixture : RelationalTypeTestFixture
+    public class DateTimeTypeFixture : SqlServerTypeFixture<DateTime>
     {
         public override DateTime Value { get; } = new DateTime(2020, 1, 5, 12, 30, 45, DateTimeKind.Unspecified);
         public override DateTime OtherValue { get; } = new DateTime(2022, 5, 3, 0, 0, 0, DateTimeKind.Unspecified);
@@ -37,12 +35,24 @@ WHERE [Id] = @p1;
     {
         await base.ExecuteUpdate_within_json_to_constant();
 
-        AssertSql(
-            """
+        if (Fixture.UsingJsonType)
+        {
+            AssertSql(
+                """
+UPDATE [j]
+SET [JsonContainer].modify('$.Value', N'2022-05-03T00:00:00')
+FROM [JsonTypeEntity] AS [j]
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 UPDATE [j]
 SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', N'2022-05-03T00:00:00')
 FROM [JsonTypeEntity] AS [j]
 """);
+        }
     }
 
     [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
@@ -50,12 +60,24 @@ FROM [JsonTypeEntity] AS [j]
     {
         await base.ExecuteUpdate_within_json_to_nonjson_column();
 
-        AssertSql(
-            """
+        if (Fixture.UsingJsonType)
+        {
+            AssertSql(
+                """
 UPDATE [j]
-SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', JSON_VALUE(JSON_OBJECT('v': [j].[OtherValue]), '$.v'))
+SET [JsonContainer].modify('$.Value', JSON_VALUE(JSON_OBJECT('v': [j].[OtherValue]), '$.v'))
 FROM [JsonTypeEntity] AS [j]
 """);
+        }
+        else
+        {
+            AssertSql(
+                """
+    UPDATE [j]
+    SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', JSON_VALUE(JSON_OBJECT('v': [j].[OtherValue]), '$.v'))
+    FROM [JsonTypeEntity] AS [j]
+    """);
+        }
     }
 }
 
@@ -83,12 +105,24 @@ WHERE [Id] = @p1;
     {
         await base.ExecuteUpdate_within_json_to_constant();
 
-        AssertSql(
-            """
+        if (Fixture.UsingJsonType)
+        {
+            AssertSql(
+                """
+UPDATE [j]
+SET [JsonContainer].modify('$.Value', N'2020-01-05T12:30:45+03:00')
+FROM [JsonTypeEntity] AS [j]
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 UPDATE [j]
 SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', N'2020-01-05T12:30:45+03:00')
 FROM [JsonTypeEntity] AS [j]
 """);
+        }
     }
 
     [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
@@ -96,15 +130,27 @@ FROM [JsonTypeEntity] AS [j]
     {
         await base.ExecuteUpdate_within_json_to_nonjson_column();
 
-        AssertSql(
-            """
+        if (Fixture.UsingJsonType)
+        {
+            AssertSql(
+                """
+UPDATE [j]
+SET [JsonContainer].modify('$.Value', JSON_VALUE(JSON_OBJECT('v': [j].[OtherValue]), '$.v'))
+FROM [JsonTypeEntity] AS [j]
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 UPDATE [j]
 SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', JSON_VALUE(JSON_OBJECT('v': [j].[OtherValue]), '$.v'))
 FROM [JsonTypeEntity] AS [j]
 """);
+        }
     }
 
-    public class DateTimeOffsetTypeFixture : RelationalTypeTestFixture
+    public class DateTimeOffsetTypeFixture : SqlServerTypeFixture<DateTimeOffset>
     {
         public override DateTimeOffset Value { get; } = new DateTimeOffset(2020, 1, 5, 12, 30, 45, TimeSpan.FromHours(2));
         public override DateTimeOffset OtherValue { get; } = new DateTimeOffset(2020, 1, 5, 12, 30, 45, TimeSpan.FromHours(3));
@@ -137,12 +183,24 @@ WHERE [Id] = @p1;
     {
         await base.ExecuteUpdate_within_json_to_constant();
 
-        AssertSql(
-            """
+        if (Fixture.UsingJsonType)
+        {
+            AssertSql(
+                """
+UPDATE [j]
+SET [JsonContainer].modify('$.Value', N'2022-05-03')
+FROM [JsonTypeEntity] AS [j]
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 UPDATE [j]
 SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', N'2022-05-03')
 FROM [JsonTypeEntity] AS [j]
 """);
+        }
     }
 
     [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
@@ -150,15 +208,27 @@ FROM [JsonTypeEntity] AS [j]
     {
         await base.ExecuteUpdate_within_json_to_nonjson_column();
 
-        AssertSql(
-            """
+        if (Fixture.UsingJsonType)
+        {
+            AssertSql(
+                """
 UPDATE [j]
-SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', JSON_VALUE(JSON_OBJECT('v': [j].[OtherValue]), '$.v'))
+SET [JsonContainer].modify('$.Value', JSON_VALUE(JSON_OBJECT('v': [j].[OtherValue]), '$.v'))
 FROM [JsonTypeEntity] AS [j]
 """);
+        }
+        else
+        {
+            AssertSql(
+                """
+    UPDATE [j]
+    SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', JSON_VALUE(JSON_OBJECT('v': [j].[OtherValue]), '$.v'))
+    FROM [JsonTypeEntity] AS [j]
+    """);
+        }
     }
 
-    public class DateTypeFixture : RelationalTypeTestFixture
+    public class DateTypeFixture : SqlServerTypeFixture<DateOnly>
     {
         public override DateOnly Value { get; } = new DateOnly(2020, 1, 5);
         public override DateOnly OtherValue { get; } = new DateOnly(2022, 5, 3);
@@ -167,8 +237,8 @@ FROM [JsonTypeEntity] AS [j]
     }
 }
 
-public class TimeOnlyTypeTest(TimeOnlyTypeTest.TimeTypeFixture fixture, ITestOutputHelper testOutputHelper)
-    : RelationalTypeTestBase<TimeOnly, TimeOnlyTypeTest.TimeTypeFixture>(fixture, testOutputHelper)
+public class TimeOnlyTypeTest(TimeOnlyTypeTest.TimeOnlyTypeFixture fixture, ITestOutputHelper testOutputHelper)
+    : RelationalTypeTestBase<TimeOnly, TimeOnlyTypeTest.TimeOnlyTypeFixture>(fixture, testOutputHelper)
 {
     public override async Task SaveChanges_within_json()
     {
@@ -191,12 +261,24 @@ WHERE [Id] = @p1;
     {
         await base.ExecuteUpdate_within_json_to_constant();
 
-        AssertSql(
-            """
+        if (Fixture.UsingJsonType)
+        {
+            AssertSql(
+                """
+UPDATE [j]
+SET [JsonContainer].modify('$.Value', N'14:00:00.0000000')
+FROM [JsonTypeEntity] AS [j]
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 UPDATE [j]
 SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', N'14:00:00.0000000')
 FROM [JsonTypeEntity] AS [j]
 """);
+        }
     }
 
     [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
@@ -204,15 +286,27 @@ FROM [JsonTypeEntity] AS [j]
     {
         await base.ExecuteUpdate_within_json_to_nonjson_column();
 
-        AssertSql(
-            """
+        if (Fixture.UsingJsonType)
+        {
+            AssertSql(
+                """
+UPDATE [j]
+SET [JsonContainer].modify('$.Value', JSON_VALUE(JSON_OBJECT('v': [j].[OtherValue]), '$.v'))
+FROM [JsonTypeEntity] AS [j]
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 UPDATE [j]
 SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', JSON_VALUE(JSON_OBJECT('v': [j].[OtherValue]), '$.v'))
 FROM [JsonTypeEntity] AS [j]
 """);
+        }
     }
 
-    public class TimeTypeFixture : RelationalTypeTestFixture
+    public class TimeOnlyTypeFixture : SqlServerTypeFixture<TimeOnly>
     {
         public override TimeOnly Value { get; } = new TimeOnly(12, 30, 45);
         public override TimeOnly OtherValue { get; } = new TimeOnly(14, 0, 0);
@@ -245,12 +339,24 @@ WHERE [Id] = @p1;
     {
         await base.ExecuteUpdate_within_json_to_constant();
 
-        AssertSql(
-            """
+        if (Fixture.UsingJsonType)
+        {
+            AssertSql(
+                """
+UPDATE [j]
+SET [JsonContainer].modify('$.Value', N'14:00:00')
+FROM [JsonTypeEntity] AS [j]
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 UPDATE [j]
 SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', N'14:00:00')
 FROM [JsonTypeEntity] AS [j]
 """);
+        }
     }
 
     [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
@@ -258,15 +364,27 @@ FROM [JsonTypeEntity] AS [j]
     {
         await base.ExecuteUpdate_within_json_to_nonjson_column();
 
-        AssertSql(
-            """
+        if (Fixture.UsingJsonType)
+        {
+            AssertSql(
+                """
+UPDATE [j]
+SET [JsonContainer].modify('$.Value', JSON_VALUE(JSON_OBJECT('v': [j].[OtherValue]), '$.v'))
+FROM [JsonTypeEntity] AS [j]
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 UPDATE [j]
 SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', JSON_VALUE(JSON_OBJECT('v': [j].[OtherValue]), '$.v'))
 FROM [JsonTypeEntity] AS [j]
 """);
+        }
     }
 
-    public class TimeSpanTypeFixture : RelationalTypeTestFixture
+    public class TimeSpanTypeFixture : SqlServerTypeFixture<TimeSpan>
     {
         public override TimeSpan Value { get; } = new TimeSpan(12, 30, 45);
         public override TimeSpan OtherValue { get; } = new TimeSpan(14, 0, 0);

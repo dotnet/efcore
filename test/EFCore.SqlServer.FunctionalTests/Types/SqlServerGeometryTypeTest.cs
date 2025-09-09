@@ -15,7 +15,7 @@ public abstract class GeometryTypeTestBase<T, TFixture>(TFixture fixture, ITestO
     {
         await using var context = Fixture.CreateContext();
 
-        var result = await context.Set<TypeEntity>().Where(e => e.Value.EqualsTopologically(Fixture.Value)).SingleAsync();
+        var result = await context.Set<TypeEntity<T>>().Where(e => e.Value.EqualsTopologically(Fixture.Value)).SingleAsync();
 
         Assert.Equal(Fixture.Value, result.Value, Fixture.Comparer);
     }
@@ -24,15 +24,27 @@ public abstract class GeometryTypeTestBase<T, TFixture>(TFixture fixture, ITestO
     {
         await base.ExecuteUpdate_within_json_to_nonjson_column();
 
-        AssertSql(
-            """
+        if (Fixture.UsingJsonType)
+        {
+            AssertSql(
+                """
+UPDATE [j]
+SET [JsonContainer].modify('$.Value', [j].[OtherValue].STAsText())
+FROM [JsonTypeEntity] AS [j]
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 UPDATE [j]
 SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', [j].[OtherValue].STAsText())
 FROM [JsonTypeEntity] AS [j]
 """);
+        }
     }
 
-    public abstract class GeometryTypeFixture : RelationalTypeTestFixture
+    public abstract class GeometryTypeFixture : SqlServerTypeFixture<T>
     {
         public override string? StoreType => "geometry";
 
@@ -201,12 +213,24 @@ public class GeometryCollectionTypeTest(GeometryCollectionTypeTest.GeometryColle
     {
         await base.ExecuteUpdate_within_json_to_constant();
 
-        AssertSql(
-            """
+        if (Fixture.UsingJsonType)
+        {
+            AssertSql(
+                """
+UPDATE [j]
+SET [JsonContainer].modify('$.Value', N'GEOMETRYCOLLECTION (POINT (-120.9 46.95), LINESTRING (-120.9 46.95, -120.4 46.82), POLYGON ((-120.8 46.94, -120.8 46.92, -120.78 46.92, -120.78 46.94, -120.8 46.94)))')
+FROM [JsonTypeEntity] AS [j]
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 UPDATE [j]
 SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', N'GEOMETRYCOLLECTION (POINT (-120.9 46.95), LINESTRING (-120.9 46.95, -120.4 46.82), POLYGON ((-120.8 46.94, -120.8 46.92, -120.78 46.92, -120.78 46.94, -120.8 46.94)))')
 FROM [JsonTypeEntity] AS [j]
 """);
+        }
     }
 
     public class GeometryCollectionTypeFixture() : GeometryTypeFixture

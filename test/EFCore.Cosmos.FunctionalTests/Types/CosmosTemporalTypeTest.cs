@@ -6,72 +6,57 @@ namespace Microsoft.EntityFrameworkCore.Types.Temporal;
 public class DateTimeTypeTest(DateTimeTypeTest.DateTimeTypeFixture fixture)
     : TypeTestBase<DateTime, DateTimeTypeTest.DateTimeTypeFixture>(fixture)
 {
-    public class DateTimeTypeFixture : TypeTestFixture
+    public class DateTimeTypeFixture : CosmosTypeFixtureBase<DateTime>
     {
         public override DateTime Value { get; } = new DateTime(2020, 1, 5, 12, 30, 45, DateTimeKind.Unspecified);
         public override DateTime OtherValue { get; } = new DateTime(2022, 5, 3, 0, 0, 0, DateTimeKind.Unspecified);
 
         protected override ITestStoreFactory TestStoreFactory => CosmosTestStoreFactory.Instance;
-
-        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => base.AddOptions(builder).ConfigureWarnings(c => c.Log(CosmosEventId.NoPartitionKeyDefined));
     }
 }
 
 public class DateTimeOffsetTypeTest(DateTimeOffsetTypeTest.DateTimeOffsetTypeFixture fixture)
     : TypeTestBase<DateTimeOffset, DateTimeOffsetTypeTest.DateTimeOffsetTypeFixture>(fixture)
 {
-    public class DateTimeOffsetTypeFixture : TypeTestFixture
+    public class DateTimeOffsetTypeFixture : CosmosTypeFixtureBase<DateTimeOffset>
     {
         public override DateTimeOffset Value { get; } = new DateTimeOffset(2020, 1, 5, 12, 30, 45, TimeSpan.FromHours(2));
         public override DateTimeOffset OtherValue { get; } = new DateTimeOffset(2020, 1, 5, 12, 30, 45, TimeSpan.FromHours(3));
 
         protected override ITestStoreFactory TestStoreFactory => CosmosTestStoreFactory.Instance;
-
-        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => base.AddOptions(builder).ConfigureWarnings(c => c.Log(CosmosEventId.NoPartitionKeyDefined));
     }
 }
 
-public class DateOnlyTypeTest(DateOnlyTypeTest.DateTypeFixture fixture) : TypeTestBase<DateOnly, DateOnlyTypeTest.DateTypeFixture>(fixture)
+public class DateOnlyTypeTest(DateOnlyTypeTest.DateOnlyTypeFixture fixture) : TypeTestBase<DateOnly, DateOnlyTypeTest.DateOnlyTypeFixture>(fixture)
 {
-    public class DateTypeFixture : TypeTestFixture
+    public class DateOnlyTypeFixture : CosmosTypeFixtureBase<DateOnly>
     {
         public override DateOnly Value { get; } = new DateOnly(2020, 1, 5);
         public override DateOnly OtherValue { get; } = new DateOnly(2022, 5, 3);
 
         protected override ITestStoreFactory TestStoreFactory => CosmosTestStoreFactory.Instance;
-
-        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => base.AddOptions(builder).ConfigureWarnings(c => c.Log(CosmosEventId.NoPartitionKeyDefined));
     }
 }
 
-public class TimeOnlyTypeTest(TimeOnlyTypeTest.TimeTypeFixture fixture)
-    : TypeTestBase<TimeOnly, TimeOnlyTypeTest.TimeTypeFixture>(fixture)
+public class TimeOnlyTypeTest(TimeOnlyTypeTest.TimeOnlyTypeFixture fixture)
+    : TypeTestBase<TimeOnly, TimeOnlyTypeTest.TimeOnlyTypeFixture>(fixture)
 {
-    public class TimeTypeFixture : TypeTestFixture
+    public class TimeOnlyTypeFixture : CosmosTypeFixtureBase<TimeOnly>
     {
         public override TimeOnly Value { get; } = new TimeOnly(12, 30, 45);
         public override TimeOnly OtherValue { get; } = new TimeOnly(14, 0, 0);
 
         protected override ITestStoreFactory TestStoreFactory => CosmosTestStoreFactory.Instance;
-
-        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => base.AddOptions(builder).ConfigureWarnings(c => c.Log(CosmosEventId.NoPartitionKeyDefined));
     }
 }
 
 public class TimeSpanTypeTest(TimeSpanTypeTest.TimeSpanTypeFixture fixture) : TypeTestBase<TimeSpan, TimeSpanTypeTest.TimeSpanTypeFixture>(fixture)
 {
-    public class TimeSpanTypeFixture : TypeTestFixture
+    public class TimeSpanTypeFixture : CosmosTypeFixtureBase<TimeSpan>
     {
         public override TimeSpan Value { get; } = new TimeSpan(12, 30, 45);
         public override TimeSpan OtherValue { get; } = new TimeSpan(14, 0, 0);
 
         protected override ITestStoreFactory TestStoreFactory => CosmosTestStoreFactory.Instance;
-
-        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => base.AddOptions(builder).ConfigureWarnings(c => c.Log(CosmosEventId.NoPartitionKeyDefined));
     }
 }

@@ -14,7 +14,7 @@ public abstract class GeographyTypeTestBase<T, TFixture>(TFixture fixture) : Rel
     {
         await using var context = Fixture.CreateContext();
 
-        var result = await context.Set<TypeEntity>().Where(e => e.Value.EqualsTopologically(Fixture.Value)).SingleAsync();
+        var result = await context.Set<TypeEntity<T>>().Where(e => e.Value.EqualsTopologically(Fixture.Value)).SingleAsync();
 
         Assert.Equal(Fixture.Value, result.Value, Fixture.Comparer);
     }
@@ -23,15 +23,27 @@ public abstract class GeographyTypeTestBase<T, TFixture>(TFixture fixture) : Rel
     {
         await base.ExecuteUpdate_within_json_to_nonjson_column();
 
-        AssertSql(
-            """
+        if (Fixture.UsingJsonType)
+        {
+            AssertSql(
+                """
+UPDATE [j]
+SET [JsonContainer].modify('$.Value', [j].[OtherValue].STAsText())
+FROM [JsonTypeEntity] AS [j]
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 UPDATE [j]
 SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', [j].[OtherValue].STAsText())
 FROM [JsonTypeEntity] AS [j]
 """);
+        }
     }
 
-    public abstract class GeographyTypeFixture() : RelationalTypeTestFixture
+    public abstract class GeographyTypeFixture : SqlServerTypeFixture<T>
     {
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => base.AddOptions(builder).UseSqlServer(o => o.UseNetTopologySuite());
