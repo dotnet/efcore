@@ -17,11 +17,6 @@
     <UsingToolXliff>False</UsingToolXliff>
   </PropertyGroup>
   <PropertyGroup Label="Other dependencies">
-    <MicrosoftBuildFrameworkVersion>17.14.8</MicrosoftBuildFrameworkVersion>
-    <MicrosoftBuildUtilitiesCoreVersion>17.14.8</MicrosoftBuildUtilitiesCoreVersion>
-    <MicrosoftBuildTasksCoreVersion>17.14.8</MicrosoftBuildTasksCoreVersion>
-    <!-- NB: This version affects Visual Studio compatibility. See https://github.com/dotnet/roslyn/blob/main/docs/wiki/NuGet-packages.md and https://learn.microsoft.com/visualstudio/extensibility/roslyn-version-support -->
-    <MicrosoftCodeAnalysisVersion>4.14.0</MicrosoftCodeAnalysisVersion>
     <MicrosoftCodeAnalysisAnalyzerTestingVersion>1.1.3-beta1.24423.1</MicrosoftCodeAnalysisAnalyzerTestingVersion>
     <MicrosoftCodeAnalysisCSharpTestingVersion>1.1.3-beta1.24352.1</MicrosoftCodeAnalysisCSharpTestingVersion>
     <AzureIdentityVersion>1.14.2</AzureIdentityVersion>

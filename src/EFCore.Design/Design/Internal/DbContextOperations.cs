@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Text;
-using Microsoft.Build.Locator;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Editing;
 using Microsoft.CodeAnalysis.MSBuild;
@@ -298,15 +297,33 @@ public class DbContextOperations
     {
         outputDir = Path.GetFullPath(Path.Combine(_projectDir, outputDir ?? "Generated"));
 
-        if (!MSBuildLocator.IsRegistered)
+        // TODO: pass through properties
+        MSBuildWorkspace workspace = null!;
+        Project project;
+        
+        try
         {
-            MSBuildLocator.RegisterDefaults();
+            workspace = MSBuildWorkspace.Create();
+            workspace.LoadMetadataForReferencedProjects = true;
+            workspace.RegisterWorkspaceFailedHandler(e =>
+            {
+                _reporter.WriteError(DesignStrings.MSBuildWorkspaceFailure(e.Diagnostic.Kind, e.Diagnostic.Message));
+            });
+            project = workspace.OpenProjectAsync(_project).GetAwaiter().GetResult();
+        }
+        catch (Exception ex)
+        {
+            if (workspace != null && !workspace.Diagnostics.IsEmpty)
+            {
+                var diagnosticMessages = Environment.NewLine + string.Join(Environment.NewLine, 
+                    workspace.Diagnostics.Select(d => $"  {d.Kind}: {d.Message}"));
+                _reporter.WriteVerbose(DesignStrings.MSBuildWorkspaceDiagnostics(diagnosticMessages));
+            }
+
+            throw new InvalidOperationException(
+                DesignStrings.QueryPrecompilationProjectLoadFailed(_project, ex.Message), ex);
         }
 
-        // TODO: pass through properties
-        var workspace = MSBuildWorkspace.Create();
-        workspace.LoadMetadataForReferencedProjects = true;
-        var project = workspace.OpenProjectAsync(_project).GetAwaiter().GetResult();
         if (!project.SupportsCompilation)
         {
             throw new NotSupportedException(DesignStrings.UncompilableProject(_project));
@@ -314,7 +331,7 @@ public class DbContextOperations
 
         var compilation = project.GetCompilationAsync().GetAwaiter().GetResult()!;
         var errorDiagnostics = compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).ToArray();
-        if (errorDiagnostics.Any())
+        if (errorDiagnostics.Length != 0)
         {
             var errorBuilder = new StringBuilder();
             errorBuilder.AppendLine(DesignStrings.CompilationErrors);
