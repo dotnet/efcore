@@ -39,13 +39,7 @@ public class SqliteValueGenerationConvention : ValueGenerationConvention
     /// <param name="property">The property.</param>
     /// <returns>The strategy to set for the property.</returns>
     protected override ValueGenerated? GetValueGenerated(IConventionProperty property)
-    {
-        var strategy = property.GetValueGenerationStrategy();
-        if (strategy == SqliteValueGenerationStrategy.Autoincrement)
-        {
-            return ValueGenerated.OnAdd;
-        }
-
-        return base.GetValueGenerated(property);
-    }
+        => property.GetValueGenerationStrategy() == SqliteValueGenerationStrategy.Autoincrement
+            ? ValueGenerated.OnAdd
+            : base.GetValueGenerated(property);
 }

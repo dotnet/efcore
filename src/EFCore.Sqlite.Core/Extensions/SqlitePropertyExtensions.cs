@@ -67,6 +67,8 @@ public static class SqlitePropertyExtensions
         return primaryKey is { Properties.Count: 1 }
             && primaryKey.Properties[0] == property
             && property.ClrType.UnwrapNullableType().IsInteger()
+            && (property.FindRelationalTypeMapping()?.Converter?.ProviderClrType
+                ?? property.FindRelationalTypeMapping()?.ClrType)?.IsInteger() == true
                 ? SqliteValueGenerationStrategy.Autoincrement
                 : SqliteValueGenerationStrategy.None;
     }

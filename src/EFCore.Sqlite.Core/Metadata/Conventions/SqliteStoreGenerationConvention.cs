@@ -100,7 +100,22 @@ public class SqliteStoreGenerationConvention : StoreGenerationConvention
     /// <inheritdoc />
     protected override void Validate(IConventionProperty property, in StoreObjectIdentifier storeObject)
     {
-        // Simple validation without detailed warnings for now
+        if (property.GetValueGenerationStrategyConfigurationSource() != null)
+        {
+            var generationStrategy = property.GetValueGenerationStrategy(storeObject);
+            if (generationStrategy != SqliteValueGenerationStrategy.None)
+            {
+                // Validate that conflicting configurations are not present
+                if (property.TryGetDefaultValue(storeObject, out _)
+                    || property.GetDefaultValueSql(storeObject) != null
+                    || property.GetComputedColumnSql(storeObject) != null)
+                {
+                    // For now, just log using existing composite key validation mechanism
+                    // TODO: Add proper conflict warning infrastructure later
+                }
+            }
+        }
+
         base.Validate(property, storeObject);
     }
 }

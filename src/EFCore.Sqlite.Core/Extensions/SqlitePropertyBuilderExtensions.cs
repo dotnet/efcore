@@ -74,6 +74,21 @@ public static class SqlitePropertyBuilderExtensions
 
         return null;
     }
+
+    /// <summary>
+    ///     Returns a value indicating whether the given value generation strategy can be set for the property.
+    /// </summary>
+    /// <param name="propertyBuilder">The builder for the property.</param>
+    /// <param name="strategy">The strategy.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns><see langword="true" /> if the given value generation strategy can be set for the property.</returns>
+    public static bool CanSetValueGenerationStrategy(
+        this IConventionPropertyBuilder propertyBuilder,
+        SqliteValueGenerationStrategy? strategy,
+        bool fromDataAnnotation = false)
+        => propertyBuilder.CanSetAnnotation(
+            SqliteAnnotationNames.ValueGenerationStrategy, strategy, fromDataAnnotation);
+
     /// <summary>
     ///     Configures the SRID of the column that the property maps to when targeting SQLite.
     /// </summary>

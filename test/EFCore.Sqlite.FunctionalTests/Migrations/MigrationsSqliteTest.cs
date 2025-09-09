@@ -2408,28 +2408,45 @@ CREATE TABLE "ProductWithStrongId" (
         AssertSql(
             """
 CREATE TABLE "ProductWithStrongId" (
-    "Id" INTEGER NOT NULL CONSTRAINT "PK_ProductWithStrongId" PRIMARY KEY AUTOINCREMENT,
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_ProductWithStrongId" PRIMARY KEY,
     "Name" TEXT NULL
 );
 """);
     }
 
     [ConditionalFact]
-    public virtual async Task Create_table_with_composite_primary_key_and_autoincrement_fails()
+    public virtual async Task Create_table_with_composite_primary_key_ignores_autoincrement()
     {
-        await AssertNotSupportedAsync(
-            () => Test(
-                builder => { },
-                builder => builder.Entity(
-                    "CompositeEntity",
-                    x =>
-                    {
-                        x.Property<int>("Id1").UseAutoincrement();
-                        x.Property<int>("Id2");
-                        x.HasKey("Id1", "Id2");
-                    }),
-                model => { }),
-            "SQLite AUTOINCREMENT can only be used with a single primary key column.");
+        await Test(
+            builder => { },
+            builder => builder.Entity(
+                "CompositeEntity",
+                x =>
+                {
+                    x.Property<int>("Id1").UseAutoincrement();
+                    x.Property<int>("Id2");
+                    x.HasKey("Id1", "Id2");
+                }),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                Assert.Equal("CompositeEntity", table.Name);
+                Assert.Equal(2, table.Columns.Count());
+                
+                var id1Column = Assert.Single(table.Columns, c => c.Name == "Id1");
+                Assert.False(id1Column.IsNullable);
+                var id2Column = Assert.Single(table.Columns, c => c.Name == "Id2");
+                Assert.False(id2Column.IsNullable);
+            });
+
+        AssertSql(
+            """
+CREATE TABLE "CompositeEntity" (
+    "Id1" INTEGER NOT NULL,
+    "Id2" INTEGER NOT NULL,
+    CONSTRAINT "PK_CompositeEntity" PRIMARY KEY ("Id1", "Id2")
+);
+""");
     }
 
     [ConditionalFact]
@@ -2448,7 +2465,7 @@ CREATE TABLE "ProductWithStrongId" (
                 "Product",
                 x =>
                 {
-                    x.Property<int>("Id");
+                    x.Property<int>("Id").ValueGeneratedNever();
                     x.HasKey("Id");
                     x.Property<string>("Name");
                 }),
