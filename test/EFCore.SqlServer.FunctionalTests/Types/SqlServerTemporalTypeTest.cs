@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.SqlServer.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Types.Temporal;
 
 public class DateTimeTypeTest(DateTimeTypeTest.DateTimeTypeFixture fixture, ITestOutputHelper testOutputHelper)
@@ -43,6 +45,7 @@ FROM [JsonTypeEntity] AS [j]
 """);
     }
 
+    [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
     public override async Task ExecuteUpdate_within_json_to_nonjson_column()
     {
         await base.ExecuteUpdate_within_json_to_nonjson_column();
@@ -88,6 +91,7 @@ FROM [JsonTypeEntity] AS [j]
 """);
     }
 
+    [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
     public override async Task ExecuteUpdate_within_json_to_nonjson_column()
     {
         await base.ExecuteUpdate_within_json_to_nonjson_column();
@@ -141,6 +145,7 @@ FROM [JsonTypeEntity] AS [j]
 """);
     }
 
+    [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
     public override async Task ExecuteUpdate_within_json_to_nonjson_column()
     {
         await base.ExecuteUpdate_within_json_to_nonjson_column();
@@ -194,6 +199,7 @@ FROM [JsonTypeEntity] AS [j]
 """);
     }
 
+    [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
     public override async Task ExecuteUpdate_within_json_to_nonjson_column()
     {
         await base.ExecuteUpdate_within_json_to_nonjson_column();
@@ -247,6 +253,7 @@ FROM [JsonTypeEntity] AS [j]
 """);
     }
 
+    [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
     public override async Task ExecuteUpdate_within_json_to_nonjson_column()
     {
         await base.ExecuteUpdate_within_json_to_nonjson_column();

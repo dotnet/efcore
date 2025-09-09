@@ -610,18 +610,25 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
         }
 
         // We have some arbitrary relational expression that isn't an int/string/bool; it needs to be converted
-        // to JSON. Do this by generating JSON_VALUE(JSON_OBJECT('v': foo), '$.v')
-        jsonValue = new JsonScalarExpression(
-            new SqlServerJsonObjectExpression(
-                propertyNames: ["v"],
-                propertyValues: [value],
-                _typeMappingSource.FindMapping("nvarchar(max)")!
-            ),
-            [new("v")],
-            typeof(string),
-            _typeMappingSource.FindMapping("nvarchar(max)"),
-            nullable: value is ColumnExpression column ? column.IsNullable : true);
-        return true;
+        // to JSON. Do this by generating JSON_VALUE(JSON_OBJECT('v': foo), '$.v') (supported since SQL Server 2022)
+        if (_sqlServerSingletonOptions.SupportsJsonObjectArray)
+        {
+            jsonValue = new JsonScalarExpression(
+                new SqlServerJsonObjectExpression(
+                    propertyNames: ["v"],
+                    propertyValues: [value],
+                    _typeMappingSource.FindMapping("nvarchar(max)")!
+                ),
+                [new("v")],
+                typeof(string),
+                _typeMappingSource.FindMapping("nvarchar(max)"),
+                nullable: value is ColumnExpression column ? column.IsNullable : true);
+            return true;
+        }
+        else
+        {
+            throw new InvalidOperationException(SqlServerStrings.ExecuteUpdateCannotSetJsonPropertyOnOldSqlServer);
+        }
     }
 
     /// <summary>

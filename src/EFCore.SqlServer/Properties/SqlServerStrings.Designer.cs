@@ -156,6 +156,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 key1, entityType1, key2, entityType2, table, keyName);
 
         /// <summary>
+        ///     'ExecuteUpdate' cannot set a property in a JSON column to an expression containing a column on SQL Server versions before 2022.
+        /// </summary>
+        public static string ExecuteUpdateCannotSetJsonPropertyOnOldSqlServer
+            => GetString("ExecuteUpdateCannotSetJsonPropertyOnOldSqlServer");
+
+        /// <summary>
         ///     Identity value generation cannot be used for the property '{property}' on entity type '{entityType}' because the property type is '{propertyType}'. Identity value generation can only be used with signed integer properties.
         /// </summary>
         public static string IdentityBadType(object? property, object? entityType, object? propertyType)
