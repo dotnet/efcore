@@ -91,8 +91,7 @@ namespace TestNamespace
             var __synthesizedOrdinal = runtimeEntityType.AddProperty(
                 "__synthesizedOrdinal",
                 typeof(int),
-                valueGenerated: ValueGenerated.OnAddOrUpdate,
-                beforeSaveBehavior: PropertySaveBehavior.Ignore,
+                valueGenerated: ValueGenerated.OnAdd,
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 sentinel: 0);
             __synthesizedOrdinal.SetAccessors(
