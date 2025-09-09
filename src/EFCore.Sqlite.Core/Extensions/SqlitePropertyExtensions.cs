@@ -54,32 +54,9 @@ public static class SqlitePropertyExtensions
     /// <returns>The default strategy for the property.</returns>
     public static SqliteValueGenerationStrategy GetDefaultValueGenerationStrategy(this IReadOnlyProperty property)
     {
-        if (property.TryGetDefaultValue(out _)
-            || property.GetDefaultValueSql() != null
-            || property.GetComputedColumnSql() != null
-            || property.IsForeignKey()
-            || property.ValueGenerated == ValueGenerated.Never)
-        {
-            return SqliteValueGenerationStrategy.None;
-        }
-
-        var primaryKey = property.DeclaringType.ContainingEntityType.FindPrimaryKey();
-        if (primaryKey is not { Properties.Count: 1 }
-            || primaryKey.Properties[0] != property
-            || !property.ClrType.UnwrapNullableType().IsInteger())
-        {
-            return SqliteValueGenerationStrategy.None;
-        }
-
-        // Check if provider type is also integer (important for value converters)
-        var typeMapping = property.FindRelationalTypeMapping();
-        var providerType = typeMapping?.Converter?.ProviderClrType ?? typeMapping?.ClrType ?? property.ClrType;
-        
-        // Only apply autoincrement by convention if this is a strongly-typed ID with a value converter
-        // or other specific scenarios where autoincrement is expected
-        return providerType.UnwrapNullableType().IsInteger() && typeMapping?.Converter != null
-            ? SqliteValueGenerationStrategy.Autoincrement
-            : SqliteValueGenerationStrategy.None;
+        // By default, don't apply any value generation strategy
+        // Autoincrement should only be applied when explicitly requested
+        return SqliteValueGenerationStrategy.None;
     }
 
     internal static SqliteValueGenerationStrategy GetValueGenerationStrategy(
@@ -111,31 +88,9 @@ public static class SqlitePropertyExtensions
         in StoreObjectIdentifier storeObject,
         ITypeMappingSource? typeMappingSource)
     {
-        if (storeObject.StoreObjectType != StoreObjectType.Table
-            || property.IsForeignKey()
-            || property.ValueGenerated == ValueGenerated.Never)
-        {
-            return SqliteValueGenerationStrategy.None;
-        }
-
-        var primaryKey = property.DeclaringType.ContainingEntityType.FindPrimaryKey();
-        if (primaryKey is not { Properties.Count: 1 }
-            || primaryKey.Properties[0] != property
-            || !property.ClrType.UnwrapNullableType().IsInteger())
-        {
-            return SqliteValueGenerationStrategy.None;
-        }
-
-        // Check if provider type is also integer (important for value converters)
-        var typeMapping = property.FindRelationalTypeMapping(storeObject) 
-            ?? typeMappingSource?.FindMapping((IProperty)property);
-        var providerType = typeMapping?.Converter?.ProviderClrType ?? typeMapping?.ClrType ?? property.ClrType;
-        
-        // Only apply autoincrement by convention if this is a strongly-typed ID with a value converter
-        // or other specific scenarios where autoincrement is expected
-        return providerType.UnwrapNullableType().IsInteger() && typeMapping?.Converter != null
-            ? SqliteValueGenerationStrategy.Autoincrement
-            : SqliteValueGenerationStrategy.None;
+        // By default, don't apply any value generation strategy
+        // Autoincrement should only be applied when explicitly requested
+        return SqliteValueGenerationStrategy.None;
     }
 
     /// <summary>
