@@ -45,9 +45,14 @@ FROM [JsonTypeEntity] AS [j]
 
     public override async Task ExecuteUpdate_within_json_to_nonjson_column()
     {
-        // See #36688 for supporting this for SQL Server types other than string/numeric/bool
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.ExecuteUpdate_within_json_to_nonjson_column());
-        Assert.Equal(RelationalStrings.ExecuteUpdateCannotSetJsonPropertyToNonJsonColumn, exception.Message);
+        await base.ExecuteUpdate_within_json_to_nonjson_column();
+
+        AssertSql(
+            """
+UPDATE [j]
+SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', JSON_VALUE(JSON_OBJECT('v': [j].[OtherValue]), '$.v'))
+FROM [JsonTypeEntity] AS [j]
+""");
     }
 }
 
@@ -85,9 +90,14 @@ FROM [JsonTypeEntity] AS [j]
 
     public override async Task ExecuteUpdate_within_json_to_nonjson_column()
     {
-        // See #36688 for supporting this for SQL Server types other than string/numeric/bool
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.ExecuteUpdate_within_json_to_nonjson_column());
-        Assert.Equal(RelationalStrings.ExecuteUpdateCannotSetJsonPropertyToNonJsonColumn, exception.Message);
+        await base.ExecuteUpdate_within_json_to_nonjson_column();
+
+        AssertSql(
+            """
+UPDATE [j]
+SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', JSON_VALUE(JSON_OBJECT('v': [j].[OtherValue]), '$.v'))
+FROM [JsonTypeEntity] AS [j]
+""");
     }
 
     public class DateTimeOffsetTypeFixture : RelationalTypeTestFixture
@@ -133,9 +143,14 @@ FROM [JsonTypeEntity] AS [j]
 
     public override async Task ExecuteUpdate_within_json_to_nonjson_column()
     {
-        // See #36688 for supporting this for SQL Server types other than string/numeric/bool
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.ExecuteUpdate_within_json_to_nonjson_column());
-        Assert.Equal(RelationalStrings.ExecuteUpdateCannotSetJsonPropertyToNonJsonColumn, exception.Message);
+        await base.ExecuteUpdate_within_json_to_nonjson_column();
+
+        AssertSql(
+            """
+UPDATE [j]
+SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', JSON_VALUE(JSON_OBJECT('v': [j].[OtherValue]), '$.v'))
+FROM [JsonTypeEntity] AS [j]
+""");
     }
 
     public class DateTypeFixture : RelationalTypeTestFixture
@@ -181,9 +196,14 @@ FROM [JsonTypeEntity] AS [j]
 
     public override async Task ExecuteUpdate_within_json_to_nonjson_column()
     {
-        // See #36688 for supporting this for SQL Server types other than string/numeric/bool
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.ExecuteUpdate_within_json_to_nonjson_column());
-        Assert.Equal(RelationalStrings.ExecuteUpdateCannotSetJsonPropertyToNonJsonColumn, exception.Message);
+        await base.ExecuteUpdate_within_json_to_nonjson_column();
+
+        AssertSql(
+            """
+UPDATE [j]
+SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', JSON_VALUE(JSON_OBJECT('v': [j].[OtherValue]), '$.v'))
+FROM [JsonTypeEntity] AS [j]
+""");
     }
 
     public class TimeTypeFixture : RelationalTypeTestFixture
@@ -229,9 +249,14 @@ FROM [JsonTypeEntity] AS [j]
 
     public override async Task ExecuteUpdate_within_json_to_nonjson_column()
     {
-        // See #36688 for supporting this for SQL Server types other than string/numeric/bool
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.ExecuteUpdate_within_json_to_nonjson_column());
-        Assert.Equal(RelationalStrings.ExecuteUpdateCannotSetJsonPropertyToNonJsonColumn, exception.Message);
+        await base.ExecuteUpdate_within_json_to_nonjson_column();
+
+        AssertSql(
+            """
+UPDATE [j]
+SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', JSON_VALUE(JSON_OBJECT('v': [j].[OtherValue]), '$.v'))
+FROM [JsonTypeEntity] AS [j]
+""");
     }
 
     public class TimeSpanTypeFixture : RelationalTypeTestFixture

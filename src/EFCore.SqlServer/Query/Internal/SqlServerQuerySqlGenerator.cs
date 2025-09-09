@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal.SqlExpressions;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
@@ -290,6 +291,26 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
                 }
 
                 return base.VisitSqlFunction(sqlFunctionExpression);
+            }
+
+            case SqlServerJsonObjectExpression jsonObject:
+            {
+                Sql.Append("JSON_OBJECT(");
+
+                for (var i = 0; i < jsonObject.PropertyNames.Count; i++)
+                {
+                    if (i > 0)
+                    {
+                        Sql.Append(", ");
+                    }
+
+                    Sql.Append("'").Append(jsonObject.PropertyNames[i]).Append("': ");
+                    Visit(jsonObject.Arguments![i]);
+                }
+
+                Sql.Append(")");
+
+                return sqlFunctionExpression;
             }
 
             // SQL Server 2025 modify method (https://learn.microsoft.com/sql/t-sql/data-types/json-data-type#modify-method)

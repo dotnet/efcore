@@ -22,9 +22,14 @@ public abstract class GeometryTypeTestBase<T, TFixture>(TFixture fixture, ITestO
 
     public override async Task ExecuteUpdate_within_json_to_nonjson_column()
     {
-        // See #36688 for supporting this for SQL Server types other than string/numeric/bool
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.ExecuteUpdate_within_json_to_nonjson_column());
-        Assert.Equal(RelationalStrings.ExecuteUpdateCannotSetJsonPropertyToNonJsonColumn, exception.Message);
+        await base.ExecuteUpdate_within_json_to_nonjson_column();
+
+        AssertSql(
+            """
+UPDATE [j]
+SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', [j].[OtherValue].STAsText())
+FROM [JsonTypeEntity] AS [j]
+""");
     }
 
     public abstract class GeometryTypeFixture : RelationalTypeTestFixture

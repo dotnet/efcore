@@ -25,10 +25,9 @@ public abstract class RelationalTypeTestBase<T, TFixture>(TFixture fixture) : Ty
             {
                 JsonTypeEntity entity;
 
-                using (Fixture.TestSqlLoggerFactory.SuspendRecordingEvents())
-                {
-                    entity = await context.Set<JsonTypeEntity>().SingleAsync(e => e.Id == 1);
-                }
+                entity = await context.Set<JsonTypeEntity>().SingleAsync(e => e.Id == 1);
+
+                Fixture.TestSqlLoggerFactory.Clear();
 
                 entity.JsonContainer.Value = Fixture.OtherValue;
                 await context.SaveChangesAsync();
@@ -51,6 +50,8 @@ public abstract class RelationalTypeTestBase<T, TFixture>(TFixture fixture) : Ty
             Fixture.UseTransaction,
             async context =>
             {
+                Fixture.TestSqlLoggerFactory.Clear();
+
                 await context.Set<JsonTypeEntity>().ExecuteUpdateAsync(s => s.SetProperty(e => e.JsonContainer.Value, e => Fixture.OtherValue));
 
                 using (Fixture.TestSqlLoggerFactory.SuspendRecordingEvents())
@@ -67,6 +68,8 @@ public abstract class RelationalTypeTestBase<T, TFixture>(TFixture fixture) : Ty
             Fixture.UseTransaction,
             async context =>
             {
+                Fixture.TestSqlLoggerFactory.Clear();
+
                 // Manually inject a constant node into the query tree
                 var parameter = Expression.Parameter(typeof(JsonTypeEntity));
                 var valueExpression = Expression.Lambda<Func<JsonTypeEntity, T>>(
@@ -89,6 +92,8 @@ public abstract class RelationalTypeTestBase<T, TFixture>(TFixture fixture) : Ty
             Fixture.UseTransaction,
             async context =>
             {
+                Fixture.TestSqlLoggerFactory.Clear();
+
                 await context.Set<JsonTypeEntity>().ExecuteUpdateAsync(s => s.SetProperty(e => e.JsonContainer.Value, e => e.JsonContainer.OtherValue));
 
                 using (Fixture.TestSqlLoggerFactory.SuspendRecordingEvents())
@@ -105,6 +110,8 @@ public abstract class RelationalTypeTestBase<T, TFixture>(TFixture fixture) : Ty
             Fixture.UseTransaction,
             async context =>
             {
+                Fixture.TestSqlLoggerFactory.Clear();
+
                 await context.Set<JsonTypeEntity>().ExecuteUpdateAsync(s => s.SetProperty(e => e.JsonContainer.Value, e => e.OtherValue));
 
                 using (Fixture.TestSqlLoggerFactory.SuspendRecordingEvents())

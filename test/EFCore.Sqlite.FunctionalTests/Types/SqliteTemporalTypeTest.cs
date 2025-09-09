@@ -6,19 +6,19 @@ namespace Microsoft.EntityFrameworkCore.Types.Temporal;
 public class DateTimeTypeTest(DateTimeTypeTest.DateTimeTypeFixture fixture)
     : RelationalTypeTestBase<DateTime, DateTimeTypeTest.DateTimeTypeFixture>(fixture)
 {
+    public override async Task ExecuteUpdate_within_json_to_nonjson_column()
+    {
+        // See #36688 for supporting this for Sqlite types other than string/numeric/bool
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.ExecuteUpdate_within_json_to_nonjson_column());
+        Assert.Equal(RelationalStrings.ExecuteUpdateCannotSetJsonPropertyToNonJsonColumn, exception.Message);
+    }
+
     public class DateTimeTypeFixture : RelationalTypeTestFixture
     {
         public override DateTime Value { get; } = new DateTime(2020, 1, 5, 12, 30, 45, DateTimeKind.Unspecified);
         public override DateTime OtherValue { get; } = new DateTime(2022, 5, 3, 0, 0, 0, DateTimeKind.Unspecified);
 
         protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
-    }
-
-    public override async Task ExecuteUpdate_within_json_to_nonjson_column()
-    {
-        // See #36688 for supporting this for SQL Server types other than string/numeric/bool
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.ExecuteUpdate_within_json_to_nonjson_column());
-        Assert.Equal(RelationalStrings.ExecuteUpdateCannotSetJsonPropertyToNonJsonColumn, exception.Message);
     }
 }
 
@@ -27,7 +27,7 @@ public class DateTimeOffsetTypeTest(DateTimeOffsetTypeTest.DateTimeOffsetTypeFix
 {
     public override async Task ExecuteUpdate_within_json_to_nonjson_column()
     {
-        // See #36688 for supporting this for SQL Server types other than string/numeric/bool
+        // See #36688 for supporting this for Sqlite types other than string/numeric/bool
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.ExecuteUpdate_within_json_to_nonjson_column());
         Assert.Equal(RelationalStrings.ExecuteUpdateCannotSetJsonPropertyToNonJsonColumn, exception.Message);
     }
@@ -45,7 +45,7 @@ public class DateOnlyTypeTest(DateOnlyTypeTest.DateTypeFixture fixture) : Relati
 {
     public override async Task ExecuteUpdate_within_json_to_nonjson_column()
     {
-        // See #36688 for supporting this for SQL Server types other than string/numeric/bool
+        // See #36688 for supporting this for Sqlite types other than string/numeric/bool
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.ExecuteUpdate_within_json_to_nonjson_column());
         Assert.Equal(RelationalStrings.ExecuteUpdateCannotSetJsonPropertyToNonJsonColumn, exception.Message);
     }
@@ -64,7 +64,7 @@ public class TimeOnlyTypeTest(TimeOnlyTypeTest.TimeTypeFixture fixture)
 {
     public override async Task ExecuteUpdate_within_json_to_nonjson_column()
     {
-        // See #36688 for supporting this for SQL Server types other than string/numeric/bool
+        // See #36688 for supporting this for Sqlite types other than string/numeric/bool
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.ExecuteUpdate_within_json_to_nonjson_column());
         Assert.Equal(RelationalStrings.ExecuteUpdateCannotSetJsonPropertyToNonJsonColumn, exception.Message);
     }
@@ -82,7 +82,7 @@ public class TimeSpanTypeTest(TimeSpanTypeTest.TimeSpanTypeFixture fixture) : Re
 {
     public override async Task ExecuteUpdate_within_json_to_nonjson_column()
     {
-        // See #36688 for supporting this for SQL Server types other than string/numeric/bool
+        // See #36688 for supporting this for Sqlite types other than string/numeric/bool
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.ExecuteUpdate_within_json_to_nonjson_column());
         Assert.Equal(RelationalStrings.ExecuteUpdateCannotSetJsonPropertyToNonJsonColumn, exception.Message);
     }

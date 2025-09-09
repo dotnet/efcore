@@ -32,9 +32,14 @@ public class GuidTypeTest(GuidTypeTest.GuidTypeFixture fixture)
 {
     public override async Task ExecuteUpdate_within_json_to_nonjson_column()
     {
-        // See #36688 for supporting this for SQL Server types other than string/numeric/bool
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.ExecuteUpdate_within_json_to_nonjson_column());
-        Assert.Equal(RelationalStrings.ExecuteUpdateCannotSetJsonPropertyToNonJsonColumn, exception.Message);
+        await base.ExecuteUpdate_within_json_to_nonjson_column();
+
+        AssertSql(
+            """
+UPDATE [j]
+SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', JSON_VALUE(JSON_OBJECT('v': [j].[OtherValue]), '$.v'))
+FROM [JsonTypeEntity] AS [j]
+""");
     }
 
     public class GuidTypeFixture : RelationalTypeTestFixture
@@ -51,9 +56,14 @@ public class ByteArrayTypeTest(ByteArrayTypeTest.ByteArrayTypeFixture fixture)
 {
     public override async Task ExecuteUpdate_within_json_to_nonjson_column()
     {
-        // See #36688 for supporting this for SQL Server types other than string/numeric/bool
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.ExecuteUpdate_within_json_to_nonjson_column());
-        Assert.Equal(RelationalStrings.ExecuteUpdateCannotSetJsonPropertyToNonJsonColumn, exception.Message);
+        await base.ExecuteUpdate_within_json_to_nonjson_column();
+
+        AssertSql(
+            """
+UPDATE [j]
+SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', JSON_VALUE(JSON_OBJECT('v': [j].[OtherValue]), '$.v'))
+FROM [JsonTypeEntity] AS [j]
+""");
     }
 
     public class ByteArrayTypeFixture() : RelationalTypeTestFixture
