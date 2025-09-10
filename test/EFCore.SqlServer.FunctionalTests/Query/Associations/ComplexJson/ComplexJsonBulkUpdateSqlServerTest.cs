@@ -169,7 +169,7 @@ FROM [RootEntity] AS [r]
 
         AssertExecuteUpdateSql(
             """
-@complex_type_p='?' (Size = 201)
+@complex_type_p='?' (Size = 257)
 
 UPDATE [r]
 SET [r].[RequiredRelated] = @complex_type_p
@@ -185,7 +185,7 @@ FROM [RootEntity] AS [r]
         {
             AssertExecuteUpdateSql(
                 """
-@complex_type_p='?' (Size = 79)
+@complex_type_p='?' (Size = 97)
 
 UPDATE [r]
 SET [RequiredRelated].modify('$.RequiredNested', @complex_type_p)
@@ -196,7 +196,7 @@ FROM [RootEntity] AS [r]
         {
             AssertExecuteUpdateSql(
                 """
-@complex_type_p='?' (Size = 79)
+@complex_type_p='?' (Size = 97)
 
 UPDATE [r]
 SET [r].[RequiredRelated] = JSON_MODIFY([r].[RequiredRelated], '$.RequiredNested', JSON_QUERY(@complex_type_p))
@@ -247,7 +247,7 @@ FROM [RootEntity] AS [r]
 
         AssertExecuteUpdateSql(
             """
-@complex_type_p='?' (Size = 222)
+@complex_type_p='?' (Size = 258)
 
 UPDATE [r]
 SET [r].[RequiredRelated] = @complex_type_p
@@ -262,7 +262,7 @@ FROM [RootEntity] AS [r]
         AssertExecuteUpdateSql(
             """
 UPDATE [r]
-SET [r].[RequiredRelated] = '{"Id":0,"Int":70,"Name":"Updated related name","String":"Updated related string","NestedCollection":[],"OptionalNested":null,"RequiredNested":{"Id":0,"Int":80,"Name":"Updated nested name","String":"Updated nested string"}}'
+SET [r].[RequiredRelated] = '{"Id":1000,"Int":70,"Ints":[1,2,4],"Name":"Updated related name","String":"Updated related string","NestedCollection":[],"OptionalNested":null,"RequiredNested":{"Id":1000,"Int":80,"Ints":[1,2,4],"Name":"Updated nested name","String":"Updated nested string"}}'
 FROM [RootEntity] AS [r]
 """);
     }
@@ -276,7 +276,7 @@ FROM [RootEntity] AS [r]
             AssertExecuteUpdateSql(
                 """
 UPDATE [r]
-SET [RequiredRelated].modify('$.RequiredNested', CAST('{"Id":0,"Int":80,"Name":"Updated nested name","String":"Updated nested string"}' AS json))
+SET [RequiredRelated].modify('$.RequiredNested', CAST('{"Id":1000,"Int":80,"Ints":[1,2,4],"Name":"Updated nested name","String":"Updated nested string"}' AS json))
 FROM [RootEntity] AS [r]
 """);
         }
@@ -285,7 +285,7 @@ FROM [RootEntity] AS [r]
             AssertExecuteUpdateSql(
                 """
 UPDATE [r]
-SET [r].[RequiredRelated] = JSON_MODIFY([r].[RequiredRelated], '$.RequiredNested', JSON_QUERY('{"Id":0,"Int":80,"Name":"Updated nested name","String":"Updated nested string"}'))
+SET [r].[RequiredRelated] = JSON_MODIFY([r].[RequiredRelated], '$.RequiredNested', JSON_QUERY('{"Id":1000,"Int":80,"Ints":[1,2,4],"Name":"Updated nested name","String":"Updated nested string"}'))
 FROM [RootEntity] AS [r]
 """);
         }
@@ -337,7 +337,7 @@ FROM [RootEntity] AS [r]
 
         AssertExecuteUpdateSql(
             """
-@complex_type_p='?' (Size = 411)
+@complex_type_p='?' (Size = 527)
 
 UPDATE [r]
 SET [r].[RelatedCollection] = @complex_type_p
@@ -353,7 +353,7 @@ FROM [RootEntity] AS [r]
         {
             AssertExecuteUpdateSql(
                 """
-@complex_type_p='?' (Size = 165)
+@complex_type_p='?' (Size = 201)
 
 UPDATE [r]
 SET [RequiredRelated].modify('$.NestedCollection', @complex_type_p)
@@ -364,7 +364,7 @@ FROM [RootEntity] AS [r]
         {
             AssertExecuteUpdateSql(
                 """
-@complex_type_p='?' (Size = 165)
+@complex_type_p='?' (Size = 201)
 
 UPDATE [r]
 SET [r].[RequiredRelated] = JSON_MODIFY([r].[RequiredRelated], '$.NestedCollection', JSON_QUERY(@complex_type_p))
@@ -382,7 +382,7 @@ FROM [RootEntity] AS [r]
             AssertExecuteUpdateSql(
                 """
 UPDATE [r]
-SET [RequiredRelated].modify('$.NestedCollection', CAST('[{"Id":0,"Int":80,"Name":"Updated nested name1","String":"Updated nested string1"},{"Id":0,"Int":81,"Name":"Updated nested name2","String":"Updated nested string2"}]' AS json))
+SET [RequiredRelated].modify('$.NestedCollection', CAST('[{"Id":1000,"Int":80,"Ints":[1,2,4],"Name":"Updated nested name1","String":"Updated nested string1"},{"Id":1001,"Int":81,"Ints":[1,2,4],"Name":"Updated nested name2","String":"Updated nested string2"}]' AS json))
 FROM [RootEntity] AS [r]
 """);
         }
@@ -391,7 +391,7 @@ FROM [RootEntity] AS [r]
             AssertExecuteUpdateSql(
                 """
 UPDATE [r]
-SET [r].[RequiredRelated] = JSON_MODIFY([r].[RequiredRelated], '$.NestedCollection', JSON_QUERY('[{"Id":0,"Int":80,"Name":"Updated nested name1","String":"Updated nested string1"},{"Id":0,"Int":81,"Name":"Updated nested name2","String":"Updated nested string2"}]'))
+SET [r].[RequiredRelated] = JSON_MODIFY([r].[RequiredRelated], '$.NestedCollection', JSON_QUERY('[{"Id":1000,"Int":80,"Ints":[1,2,4],"Name":"Updated nested name1","String":"Updated nested string1"},{"Id":1001,"Int":81,"Ints":[1,2,4],"Name":"Updated nested name2","String":"Updated nested string2"}]'))
 FROM [RootEntity] AS [r]
 """);
         }
@@ -430,7 +430,128 @@ WHERE [r].[OptionalRelated] IS NOT NULL
         AssertExecuteUpdateSql();
     }
 
+    public override async Task Update_inside_structural_collection()
+    {
+        await base.Update_inside_structural_collection();
+
+        AssertExecuteUpdateSql();
+    }
+
     #endregion Update collection
+
+    #region Update primitive collection
+
+    public override async Task Update_primitive_collection_to_constant()
+    {
+        await base.Update_primitive_collection_to_constant();
+
+        if (Fixture.UsingJsonType)
+        {
+            AssertExecuteUpdateSql(
+                """
+UPDATE [r]
+SET [RequiredRelated].modify('$.Ints', CAST('[1,2,4]' AS json))
+FROM [RootEntity] AS [r]
+""");
+        }
+        else
+        {
+            AssertExecuteUpdateSql(
+                """
+UPDATE [r]
+SET [r].[RequiredRelated] = JSON_MODIFY([r].[RequiredRelated], '$.Ints', JSON_QUERY(N'[1,2,4]'))
+FROM [RootEntity] AS [r]
+""");
+        }
+    }
+
+    public override async Task Update_primitive_collection_to_parameter()
+    {
+        await base.Update_primitive_collection_to_parameter();
+
+        if (Fixture.UsingJsonType)
+        {
+            AssertExecuteUpdateSql(
+                """
+@ints='?' (Size = 8000)
+
+UPDATE [r]
+SET [RequiredRelated].modify('$.Ints', @ints)
+FROM [RootEntity] AS [r]
+""");
+        }
+        else
+        {
+            AssertExecuteUpdateSql(
+                """
+@ints='?' (Size = 4000)
+
+UPDATE [r]
+SET [r].[RequiredRelated] = JSON_MODIFY([r].[RequiredRelated], '$.Ints', JSON_QUERY(@ints))
+FROM [RootEntity] AS [r]
+""");
+        }
+    }
+
+    public override async Task Update_primitive_collection_to_another_collection()
+    {
+        await base.Update_primitive_collection_to_another_collection();
+
+        if (Fixture.UsingJsonType)
+        {
+            AssertExecuteUpdateSql(
+                """
+UPDATE [r]
+SET [RequiredRelated].modify('$.OptionalNested.Ints', JSON_QUERY([r].[RequiredRelated], '$.RequiredNested.Ints'))
+FROM [RootEntity] AS [r]
+""");
+        }
+        else
+        {
+            AssertExecuteUpdateSql(
+                """
+UPDATE [r]
+SET [r].[RequiredRelated] = JSON_MODIFY([r].[RequiredRelated], '$.OptionalNested.Ints', JSON_QUERY([r].[RequiredRelated], '$.RequiredNested.Ints'))
+FROM [RootEntity] AS [r]
+""");
+        }
+    }
+
+    public override async Task Update_inside_primitive_collection()
+    {
+        await base.Update_inside_primitive_collection();
+
+        if (Fixture.UsingJsonType)
+        {
+            AssertExecuteUpdateSql(
+                """
+@p='?' (DbType = Int32)
+
+UPDATE [r]
+SET [RequiredRelated].modify('$.Ints[1]', @p)
+FROM [RootEntity] AS [r]
+WHERE (
+    SELECT COUNT(*)
+    FROM OPENJSON(JSON_QUERY([r].[RequiredRelated], '$.Ints')) AS [i]) >= 2
+""");
+        }
+        else
+        {
+            AssertExecuteUpdateSql(
+                """
+@p='?' (DbType = Int32)
+
+UPDATE [r]
+SET [r].[RequiredRelated] = JSON_MODIFY([r].[RequiredRelated], '$.Ints[1]', @p)
+FROM [RootEntity] AS [r]
+WHERE (
+    SELECT COUNT(*)
+    FROM OPENJSON(JSON_QUERY([r].[RequiredRelated], '$.Ints')) AS [i]) >= 2
+""");
+        }
+    }
+
+    #endregion Update primitive collection
 
     #region Multiple updates
 

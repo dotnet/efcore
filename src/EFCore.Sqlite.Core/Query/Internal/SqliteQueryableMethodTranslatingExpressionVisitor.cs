@@ -554,9 +554,16 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
             if (shaperExpression is ProjectionBindingExpression projectionBindingExpression
                 && selectExpression.GetProjection(projectionBindingExpression) is ColumnExpression projectionColumn)
             {
+                // If the inner expression happens to itself be a JsonScalarExpression, simply append the two paths to avoid creating
+                // JSON_VALUE within JSON_VALUE.
+                var (json, path) = jsonArrayColumn is JsonScalarExpression innerJsonScalarExpression
+                    ? (innerJsonScalarExpression.Json,
+                        innerJsonScalarExpression.Path.Append(new(translatedIndex)).ToArray())
+                    : (jsonArrayColumn, [new(translatedIndex)]);
+
                 SqlExpression translation = new JsonScalarExpression(
-                    jsonArrayColumn,
-                    [new PathSegment(translatedIndex)],
+                    json,
+                    path,
                     projectionColumn.Type,
                     projectionColumn.TypeMapping,
                     projectionColumn.IsNullable);
@@ -642,10 +649,11 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         SqlExpression value,
         ref SqlExpression? existingSetterValue)
     {
-        var (jsonColumn, path) = target switch
+        var (jsonColumn, path, isJsonScalar) = target switch
         {
-            JsonScalarExpression j => ((ColumnExpression)j.Json, j.Path),
-            JsonQueryExpression j => (j.JsonColumn, j.Path),
+            JsonScalarExpression { TypeMapping.ElementTypeMapping: null } j => ((ColumnExpression)j.Json, j.Path, true),
+            JsonScalarExpression { TypeMapping.ElementTypeMapping: not null } j => ((ColumnExpression)j.Json, j.Path, false),
+            JsonQueryExpression j => (j.JsonColumn, j.Path, false),
 
             _ => throw new UnreachableException(),
         };
@@ -661,9 +669,9 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                 // json_set by default assumes text and escapes it.
                 // In order to set a JSON fragment (for nested JSON objects), we need to wrap the JSON text with json(), which makes
                 // json_set understand that it's JSON content and prevents escaping.
-                target is JsonQueryExpression
-                    ? _sqlExpressionFactory.Function("json", [value], nullable: true, argumentsPropagateNullability: [true], typeof(string), value.TypeMapping)
-                    : value
+                isJsonScalar
+                    ? value
+                    : _sqlExpressionFactory.Function("json", [value], nullable: true, argumentsPropagateNullability: [true], typeof(string), value.TypeMapping)
             ],
             nullable: true,
             argumentsPropagateNullability: [true, true, true],

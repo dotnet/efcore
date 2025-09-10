@@ -269,11 +269,12 @@ ORDER BY [r].[Id]
             {
                 AssertSql(
                     """
-SELECT [r].[Id], [r0].[Id], [r0].[Int], [r0].[Name], [r0].[String], [r0].[NestedCollection], [r0].[OptionalNested], [r0].[RequiredNested]
+SELECT [r].[Id], [r0].[Id], [r0].[Int], [r0].[Ints], [r0].[Name], [r0].[String], [r0].[NestedCollection], [r0].[OptionalNested], [r0].[RequiredNested]
 FROM [RootEntity] AS [r]
 CROSS APPLY OPENJSON([r].[RelatedCollection], '$') WITH (
     [Id] int '$.Id',
     [Int] int '$.Int',
+    [Ints] json '$.Ints' AS JSON,
     [Name] nvarchar(max) '$.Name',
     [String] nvarchar(max) '$.String',
     [NestedCollection] json '$.NestedCollection' AS JSON,
@@ -286,11 +287,12 @@ CROSS APPLY OPENJSON([r].[RelatedCollection], '$') WITH (
             {
                 AssertSql(
                     """
-SELECT [r].[Id], [r0].[Id], [r0].[Int], [r0].[Name], [r0].[String], [r0].[NestedCollection], [r0].[OptionalNested], [r0].[RequiredNested]
+SELECT [r].[Id], [r0].[Id], [r0].[Int], [r0].[Ints], [r0].[Name], [r0].[String], [r0].[NestedCollection], [r0].[OptionalNested], [r0].[RequiredNested]
 FROM [RootEntity] AS [r]
 CROSS APPLY OPENJSON([r].[RelatedCollection], '$') WITH (
     [Id] int '$.Id',
     [Int] int '$.Int',
+    [Ints] nvarchar(max) '$.Ints' AS JSON,
     [Name] nvarchar(max) '$.Name',
     [String] nvarchar(max) '$.String',
     [NestedCollection] nvarchar(max) '$.NestedCollection' AS JSON,
@@ -308,17 +310,36 @@ CROSS APPLY OPENJSON([r].[RelatedCollection], '$') WITH (
 
         if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
         {
-            AssertSql(
-                """
-SELECT [r].[Id], [n].[Id], [n].[Int], [n].[Name], [n].[String]
+            if (Fixture.UsingJsonType)
+            {
+                AssertSql(
+                    """
+SELECT [r].[Id], [n].[Id], [n].[Int], [n].[Ints], [n].[Name], [n].[String]
 FROM [RootEntity] AS [r]
 CROSS APPLY OPENJSON([r].[RequiredRelated], '$.NestedCollection') WITH (
     [Id] int '$.Id',
     [Int] int '$.Int',
+    [Ints] json '$.Ints' AS JSON,
     [Name] nvarchar(max) '$.Name',
     [String] nvarchar(max) '$.String'
 ) AS [n]
 """);
+            }
+            else
+            {
+                AssertSql(
+                    """
+SELECT [r].[Id], [n].[Id], [n].[Int], [n].[Ints], [n].[Name], [n].[String]
+FROM [RootEntity] AS [r]
+CROSS APPLY OPENJSON([r].[RequiredRelated], '$.NestedCollection') WITH (
+    [Id] int '$.Id',
+    [Int] int '$.Int',
+    [Ints] nvarchar(max) '$.Ints' AS JSON,
+    [Name] nvarchar(max) '$.Name',
+    [String] nvarchar(max) '$.String'
+) AS [n]
+""");
+            }
         }
     }
 
@@ -328,17 +349,36 @@ CROSS APPLY OPENJSON([r].[RequiredRelated], '$.NestedCollection') WITH (
 
         if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
         {
-            AssertSql(
-                """
-SELECT [r].[Id], [n].[Id], [n].[Int], [n].[Name], [n].[String]
+            if (Fixture.UsingJsonType)
+            {
+                AssertSql(
+                    """
+SELECT [r].[Id], [n].[Id], [n].[Int], [n].[Ints], [n].[Name], [n].[String]
 FROM [RootEntity] AS [r]
 CROSS APPLY OPENJSON([r].[OptionalRelated], '$.NestedCollection') WITH (
     [Id] int '$.Id',
     [Int] int '$.Int',
+    [Ints] json '$.Ints' AS JSON,
     [Name] nvarchar(max) '$.Name',
     [String] nvarchar(max) '$.String'
 ) AS [n]
 """);
+            }
+            else
+            {
+                AssertSql(
+                    """
+SELECT [r].[Id], [n].[Id], [n].[Int], [n].[Ints], [n].[Name], [n].[String]
+FROM [RootEntity] AS [r]
+CROSS APPLY OPENJSON([r].[OptionalRelated], '$.NestedCollection') WITH (
+    [Id] int '$.Id',
+    [Int] int '$.Int',
+    [Ints] nvarchar(max) '$.Ints' AS JSON,
+    [Name] nvarchar(max) '$.Name',
+    [String] nvarchar(max) '$.String'
+) AS [n]
+""");
+            }
         }
     }
 
