@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Metadata.Internal;
 
 // ReSharper disable once CheckNamespace
@@ -105,13 +106,22 @@ public class SqliteStoreGenerationConvention : StoreGenerationConvention
             var generationStrategy = property.GetValueGenerationStrategy(storeObject);
             if (generationStrategy != SqliteValueGenerationStrategy.None)
             {
-                // Validate that conflicting configurations are not present
-                if (property.TryGetDefaultValue(storeObject, out _)
-                    || property.GetDefaultValueSql(storeObject) != null
-                    || property.GetComputedColumnSql(storeObject) != null)
+                if (property.TryGetDefaultValue(storeObject, out _))
                 {
-                    // For now, just log using existing composite key validation mechanism
-                    // TODO: Add proper conflict warning infrastructure later
+                    Dependencies.ValidationLogger.ConflictingValueGenerationStrategiesWarning(
+                        generationStrategy, "DefaultValue", property);
+                }
+
+                if (property.GetDefaultValueSql(storeObject) != null)
+                {
+                    Dependencies.ValidationLogger.ConflictingValueGenerationStrategiesWarning(
+                        generationStrategy, "DefaultValueSql", property);
+                }
+
+                if (property.GetComputedColumnSql(storeObject) != null)
+                {
+                    Dependencies.ValidationLogger.ConflictingValueGenerationStrategiesWarning(
+                        generationStrategy, "ComputedColumnSql", property);
                 }
             }
         }

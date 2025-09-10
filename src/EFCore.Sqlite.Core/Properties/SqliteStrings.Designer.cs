@@ -161,6 +161,31 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         }
 
         /// <summary>
+        ///     Both the SqliteValueGenerationStrategy '{generationStrategy}' and '{otherGenerationStrategy}' have been set on property '{propertyName}' on entity type '{entityName}'. Configuring two strategies is usually unintentional and will likely result in a database error.
+        /// </summary>
+        public static EventDefinition<string, string, string, string> LogConflictingValueGenerationStrategies(IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogConflictingValueGenerationStrategies;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogConflictingValueGenerationStrategies,
+                    logger,
+                    static logger => new EventDefinition<string, string, string, string>(
+                        logger.Options,
+                        SqliteEventId.ConflictingValueGenerationStrategiesWarning,
+                        LogLevel.Warning,
+                        "SqliteEventId.ConflictingValueGenerationStrategiesWarning",
+                        level => LoggerMessage.Define<string, string, string, string>(
+                            level,
+                            SqliteEventId.ConflictingValueGenerationStrategiesWarning,
+                            _resourceManager.GetString("LogConflictingValueGenerationStrategies")!)));
+            }
+
+            return (EventDefinition<string, string, string, string>)definition;
+        }
+
+        /// <summary>
         ///     Skipping foreign key with identity '{id}' on table '{tableName}' since principal table '{principalTableName}' was not found in the model. This usually happens when the principal table was not included in the selection set.
         /// </summary>
         public static EventDefinition<string?, string?, string?> LogForeignKeyScaffoldErrorPrincipalTableNotFound(IDiagnosticsLogger logger)
