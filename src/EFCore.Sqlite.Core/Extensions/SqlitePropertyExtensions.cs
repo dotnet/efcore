@@ -38,7 +38,7 @@ public static class SqlitePropertyExtensions
         var annotation = property.FindAnnotation(SqliteAnnotationNames.ValueGenerationStrategy);
         if (annotation != null)
         {
-            return (SqliteValueGenerationStrategy)annotation.Value!;
+            return (SqliteValueGenerationStrategy?)annotation.Value ?? SqliteValueGenerationStrategy.None;
         }
 
         var sharedProperty = property.FindSharedStoreObjectRootProperty(storeObject);

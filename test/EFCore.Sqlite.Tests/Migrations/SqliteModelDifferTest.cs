@@ -3,7 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Migrations;
@@ -24,13 +23,11 @@ public class SqliteModelDifferTest : MigrationsModelDifferTestBase
                 }),
             upOps =>
             {
-                Assert.Equal(2, upOps.Count);
+                Assert.Equal(1, upOps.Count);
 
                 var createTableOperation = Assert.IsType<CreateTableOperation>(upOps[0]);
                 var idColumn = createTableOperation.Columns.Single(c => c.Name == "Id");
-                Assert.Equal(SqliteValueGenerationStrategy.Autoincrement, idColumn[SqliteAnnotationNames.ValueGenerationStrategy]);
-
-                Assert.IsType<CreateIndexOperation>(upOps[1]);
+                Assert.Equal(true, idColumn[SqliteAnnotationNames.Autoincrement]);
             });
 
     [ConditionalFact]
@@ -40,18 +37,18 @@ public class SqliteModelDifferTest : MigrationsModelDifferTestBase
                 "Person",
                 x =>
                 {
-                    x.Property<int>("Id");
+                    x.Property<int>("Id").ValueGeneratedNever();
                     x.HasKey("Id");
                 }),
             source => { },
-            target => target.Entity("Person").Property<int>("Id").UseAutoincrement(),
+            target => target.Entity("Person").Property<int>("Id").ValueGeneratedOnAdd().UseAutoincrement(),
             upOps =>
             {
                 Assert.Equal(1, upOps.Count);
 
                 var alterColumnOperation = Assert.IsType<AlterColumnOperation>(upOps[0]);
-                Assert.Equal(SqliteValueGenerationStrategy.Autoincrement, alterColumnOperation[SqliteAnnotationNames.ValueGenerationStrategy]);
-                Assert.Null(alterColumnOperation.OldColumn[SqliteAnnotationNames.ValueGenerationStrategy]);
+                Assert.Equal(true, alterColumnOperation[SqliteAnnotationNames.Autoincrement]);
+                Assert.Null(alterColumnOperation.OldColumn[SqliteAnnotationNames.Autoincrement]);
             });
 
     [ConditionalFact]
@@ -64,15 +61,15 @@ public class SqliteModelDifferTest : MigrationsModelDifferTestBase
                     x.Property<int>("Id");
                     x.HasKey("Id");
                 }),
-            source => source.Entity("Person").Property<int>("Id").UseAutoincrement(),
-            target => { },
+            source => { },
+            target => target.Entity("Person").Property<int>("Id").ValueGeneratedNever(),
             upOps =>
             {
                 Assert.Equal(1, upOps.Count);
 
                 var alterColumnOperation = Assert.IsType<AlterColumnOperation>(upOps[0]);
-                Assert.Null(alterColumnOperation[SqliteAnnotationNames.ValueGenerationStrategy]);
-                Assert.Equal(SqliteValueGenerationStrategy.Autoincrement, alterColumnOperation.OldColumn[SqliteAnnotationNames.ValueGenerationStrategy]);
+                Assert.Null(alterColumnOperation[SqliteAnnotationNames.Autoincrement]);
+                Assert.Equal(true, alterColumnOperation.OldColumn[SqliteAnnotationNames.Autoincrement]);
             });
 
     [ConditionalFact]
@@ -93,8 +90,8 @@ public class SqliteModelDifferTest : MigrationsModelDifferTestBase
                 Assert.Equal(1, upOps.Count);
 
                 var alterColumnOperation = Assert.IsType<AlterColumnOperation>(upOps[0]);
-                Assert.Equal(SqliteValueGenerationStrategy.Autoincrement, alterColumnOperation[SqliteAnnotationNames.ValueGenerationStrategy]);
-                Assert.Null(alterColumnOperation.OldColumn[SqliteAnnotationNames.ValueGenerationStrategy]);
+                Assert.Equal(true, alterColumnOperation[SqliteAnnotationNames.Autoincrement]);
+                Assert.Null(alterColumnOperation.OldColumn[SqliteAnnotationNames.Autoincrement]);
             });
 
     [ConditionalFact]
@@ -111,11 +108,7 @@ public class SqliteModelDifferTest : MigrationsModelDifferTestBase
                 }),
             source => { },
             target => { },
-            upOps =>
-            {
-                // Should have no operations since the models are the same
-                Assert.Empty(upOps);
-            });
+            Assert.Empty);
 
     [ConditionalFact]
     public void Noop_when_changing_to_autoincrement_property_with_converter()
@@ -132,15 +125,12 @@ public class SqliteModelDifferTest : MigrationsModelDifferTestBase
                 {
                     x.Property(e => e.Id).HasConversion(
                         v => v.Value,
-                        v => new ProductId(v));
+                        v => new ProductId(v))
+                        .UseAutoincrement();
                     x.HasKey(e => e.Id);
-                    x.Property(e => e.Id).UseAutoincrement();
+                    x.Ignore(e => e.Name);
                 }),
-            upOps =>
-            {
-                // Should have no operations since both have autoincrement strategy
-                Assert.Empty(upOps);
-            });
+            Assert.Empty);
 
     protected override TestHelpers TestHelpers => SqliteTestHelpers.Instance;
 

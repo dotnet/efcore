@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Metadata.Internal;
 
 // ReSharper disable once CheckNamespace
@@ -63,19 +64,27 @@ public class SqliteValueGenerationConvention : RelationalValueGenerationConventi
     /// <returns>The store value generation strategy to set for the given property.</returns>
     protected override ValueGenerated? GetValueGenerated(IConventionProperty property)
     {
-        var declaringTable = property.GetMappedStoreObjects(StoreObjectType.Table).FirstOrDefault();
-        return declaringTable.Name == null
+        var table = property.GetMappedStoreObjects(StoreObjectType.Table).FirstOrDefault();
+        return !MappingStrategyAllowsValueGeneration(property, property.DeclaringType.GetMappingStrategy())
             ? null
-            : GetValueGenerated(property, declaringTable, Dependencies.TypeMappingSource);
+            : table.Name != null
+                ? GetValueGenerated(property, table, Dependencies.TypeMappingSource)
+                : property.DeclaringType.IsMappedToJson()
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                && property.IsOrdinalKeyProperty()
+#pragma warning restore EF1001 // Internal EF Core API usage.
+                && (property.DeclaringType as IReadOnlyEntityType)?.FindOwnership()!.IsUnique == false
+                    ? ValueGenerated.OnAddOrUpdate
+                    : property.GetMappedStoreObjects(StoreObjectType.InsertStoredProcedure).Any()
+                        ? GetValueGenerated((IReadOnlyProperty)property)
+                        : null;
     }
-
-
 
     private static ValueGenerated? GetValueGenerated(
         IReadOnlyProperty property,
         in StoreObjectIdentifier storeObject,
         ITypeMappingSource typeMappingSource)
-        => RelationalValueGenerationConvention.GetValueGenerated(property, storeObject)
+        => GetValueGenerated(property, storeObject)
             ?? (property.GetValueGenerationStrategy(storeObject, typeMappingSource) != SqliteValueGenerationStrategy.None
                 ? ValueGenerated.OnAdd
                 : null);

@@ -151,21 +151,6 @@ public class SqliteModelValidatorTest : RelationalModelValidatorTest
     }
 
     [ConditionalFact]
-    public void Detects_conflicting_autoincrement_and_default_value()
-    {
-        var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<Person>()
-            .Property(e => e.Id)
-            .UseAutoincrement()
-            .HasDefaultValue(42);
-
-        VerifyWarning(
-            SqliteResources.LogConflictingValueGenerationStrategies(
-                new TestLogger<SqliteLoggingDefinitions>()).GenerateMessage("Autoincrement", "DefaultValue", "Id", nameof(Person)),
-            modelBuilder);
-    }
-
-    [ConditionalFact]
     public void Detects_conflicting_autoincrement_and_default_value_sql()
     {
         var modelBuilder = CreateConventionModelBuilder();

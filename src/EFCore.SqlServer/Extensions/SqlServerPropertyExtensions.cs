@@ -979,9 +979,9 @@ public static class SqlServerPropertyExtensions
 
         var type = (valueConverter?.ProviderClrType ?? property.ClrType).UnwrapNullableType();
 
-        return (type.IsInteger()
+        return type.IsInteger()
             || type.IsEnum
-            || type == typeof(decimal));
+            || type == typeof(decimal);
     }
 
     /// <summary>
