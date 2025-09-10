@@ -76,6 +76,8 @@ public abstract class SharedStoreFixtureBase<TContext> : FixtureBase, IAsyncLife
         _serviceProvider = services.BuildServiceProvider(validateScopes: true);
 
         await TestStore.InitializeAsync(ServiceProvider, CreateContext, c => SeedAsync((TContext)c), CleanAsync);
+
+        ListLoggerFactory.Clear();
     }
 
     public virtual TContext CreateContext()
