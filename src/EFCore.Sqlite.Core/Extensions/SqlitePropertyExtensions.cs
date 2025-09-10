@@ -53,28 +53,7 @@ public static class SqlitePropertyExtensions
     /// <param name="property">The property.</param>
     /// <returns>The default strategy for the property.</returns>
     public static SqliteValueGenerationStrategy GetDefaultValueGenerationStrategy(this IReadOnlyProperty property)
-    {
-        if (property.TryGetDefaultValue(out _)
-            || property.GetDefaultValueSql() != null
-            || property.GetComputedColumnSql() != null
-            || property.IsForeignKey()
-            || property.ValueGenerated == ValueGenerated.Never)
-        {
-            return SqliteValueGenerationStrategy.None;
-        }
-
-        var primaryKey = property.DeclaringType.ContainingEntityType.FindPrimaryKey();
-        if (primaryKey is not { Properties.Count: 1 }
-            || primaryKey.Properties[0] != property
-            || !property.ClrType.UnwrapNullableType().IsInteger()
-            || (property.FindRelationalTypeMapping()?.Converter?.ProviderClrType
-                ?? property.FindRelationalTypeMapping()?.ClrType)?.IsInteger() != true)
-        {
-            return SqliteValueGenerationStrategy.None;
-        }
-
-        return SqliteValueGenerationStrategy.Autoincrement;
-    }
+        => GetDefaultValueGenerationStrategyInternal(property, property.FindRelationalTypeMapping());
 
     internal static SqliteValueGenerationStrategy GetValueGenerationStrategy(
         this IReadOnlyProperty property,
@@ -107,7 +86,25 @@ public static class SqlitePropertyExtensions
     {
         if (storeObject.StoreObjectType != StoreObjectType.Table
             || property.IsForeignKey()
-            || property.ValueGenerated == ValueGenerated.Never)
+            || property.ValueGenerated == ValueGenerated.Never
+            || property.DeclaringType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy)
+        {
+            return SqliteValueGenerationStrategy.None;
+        }
+
+        return GetDefaultValueGenerationStrategyInternal(property, property.FindRelationalTypeMapping(storeObject));
+    }
+
+    private static SqliteValueGenerationStrategy GetDefaultValueGenerationStrategyInternal(
+        IReadOnlyProperty property,
+        RelationalTypeMapping? typeMapping)
+    {
+        if (property.TryGetDefaultValue(out _)
+            || property.GetDefaultValueSql() != null
+            || property.GetComputedColumnSql() != null
+            || property.IsForeignKey()
+            || property.ValueGenerated == ValueGenerated.Never
+            || property.DeclaringType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy)
         {
             return SqliteValueGenerationStrategy.None;
         }
@@ -116,8 +113,8 @@ public static class SqlitePropertyExtensions
         if (primaryKey is not { Properties.Count: 1 }
             || primaryKey.Properties[0] != property
             || !property.ClrType.UnwrapNullableType().IsInteger()
-            || (property.FindRelationalTypeMapping(storeObject)?.Converter?.ProviderClrType
-                ?? property.FindRelationalTypeMapping(storeObject)?.ClrType)?.IsInteger() != true)
+            || (typeMapping?.Converter?.ProviderClrType
+                ?? typeMapping?.ClrType)?.IsInteger() != true)
         {
             return SqliteValueGenerationStrategy.None;
         }
