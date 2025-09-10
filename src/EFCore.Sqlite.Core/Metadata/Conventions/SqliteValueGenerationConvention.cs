@@ -69,17 +69,7 @@ public class SqliteValueGenerationConvention : RelationalValueGenerationConventi
             : GetValueGenerated(property, declaringTable, Dependencies.TypeMappingSource);
     }
 
-    /// <summary>
-    ///     Returns the store value generation strategy to set for the given property.
-    /// </summary>
-    /// <param name="property">The property.</param>
-    /// <param name="storeObject">The identifier of the store object.</param>
-    /// <returns>The store value generation strategy to set for the given property.</returns>
-    public static new ValueGenerated? GetValueGenerated(IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
-        => RelationalValueGenerationConvention.GetValueGenerated(property, storeObject)
-            ?? (property.GetValueGenerationStrategy(storeObject) != SqliteValueGenerationStrategy.None
-                ? ValueGenerated.OnAdd
-                : null);
+
 
     private static ValueGenerated? GetValueGenerated(
         IReadOnlyProperty property,

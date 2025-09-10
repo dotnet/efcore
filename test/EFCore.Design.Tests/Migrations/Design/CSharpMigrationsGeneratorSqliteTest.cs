@@ -52,7 +52,7 @@ namespace RootNamespace
             },
             AddBoilerPlate("""
 
-                        modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorSqliteTest+EntityWithAutoincrement", b =>
+                        modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTestBase+EntityWithAutoincrement", b =>
                             {
                                 b.Property<int>("Id")
                                     .ValueGeneratedOnAdd()
@@ -86,7 +86,7 @@ namespace RootNamespace
             },
             AddBoilerPlate("""
 
-                        modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorSqliteTest+EntityWithConverterPk", b =>
+                        modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTestBase+EntityWithConverterPk", b =>
                             {
                                 b.Property<int>("Id")
                                     .ValueGeneratedOnAdd()
@@ -120,13 +120,11 @@ namespace RootNamespace
             },
             AddBoilerPlate("""
 
-                        modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorSqliteTest+EntityWithAutoincrement", b =>
+                        modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTestBase+EntityWithAutoincrement", b =>
                             {
                                 b.Property<int>("Id")
                                     .ValueGeneratedNever()
                                     .HasColumnType("INTEGER");
-
-                                SqlitePropertyBuilderExtensions.UseAutoincrement(b.Property<int>("Id"));
 
                                 b.HasKey("Id");
 
@@ -137,8 +135,6 @@ namespace RootNamespace
             {
                 var entity = model.FindEntityType(typeof(EntityWithAutoincrement));
                 var property = entity!.FindProperty("Id");
-                // NOTE: Due to current SQLite convention behavior, even when ValueGeneratedNever() is set,
-                // the property still gets Autoincrement strategy. This may be expected behavior.
                 Assert.Equal(SqliteValueGenerationStrategy.None, Microsoft.EntityFrameworkCore.SqlitePropertyExtensions.GetValueGenerationStrategy(property!));
             });
     }

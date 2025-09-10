@@ -73,9 +73,18 @@ public static class SqlitePropertyExtensions
             return (SqliteValueGenerationStrategy)annotation.Value;
         }
 
+        var table = storeObject;
         var sharedProperty = property.FindSharedStoreObjectRootProperty(storeObject);
         return sharedProperty != null
-            ? sharedProperty.GetValueGenerationStrategy(storeObject, typeMappingSource)
+            ? sharedProperty.GetValueGenerationStrategy(storeObject, typeMappingSource) == SqliteValueGenerationStrategy.Autoincrement
+            && storeObject.StoreObjectType == StoreObjectType.Table
+                && !property.GetContainingForeignKeys().Any(fk =>
+                    !fk.IsBaseLinking()
+                    || (StoreObjectIdentifier.Create(fk.PrincipalEntityType, StoreObjectType.Table)
+                            is { } principal
+                        && fk.GetConstraintName(table, principal) != null))
+                    ? SqliteValueGenerationStrategy.Autoincrement
+                    : SqliteValueGenerationStrategy.None
             : GetDefaultValueGenerationStrategy(property, storeObject, typeMappingSource);
     }
 
@@ -153,7 +162,6 @@ public static class SqlitePropertyExtensions
     /// <returns>The <see cref="ConfigurationSource" /> for the value generation strategy.</returns>
     public static ConfigurationSource? GetValueGenerationStrategyConfigurationSource(this IConventionProperty property)
         => property.FindAnnotation(SqliteAnnotationNames.ValueGenerationStrategy)?.GetConfigurationSource();
-
 
     /// <summary>
     ///     Returns the SRID to use when creating a column for this property.
