@@ -4368,7 +4368,7 @@ namespace RootNamespace
                                             b3.Property<int>("EntityWithStringKeyEntityWithTwoPropertiesEntityWithOnePropertyId");
 
                                             b3.Property<int>("__synthesizedOrdinal")
-                                                .ValueGeneratedOnAdd();
+                                                .ValueGeneratedOnAddOrUpdate();
 
                                             b3.Property<int>("Id");
 

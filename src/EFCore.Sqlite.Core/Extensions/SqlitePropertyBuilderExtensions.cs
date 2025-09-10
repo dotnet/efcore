@@ -28,8 +28,7 @@ public static class SqlitePropertyBuilderExtensions
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public static PropertyBuilder UseAutoincrement(this PropertyBuilder propertyBuilder)
     {
-        var property = propertyBuilder.Metadata;
-        property.SetValueGenerationStrategy(SqliteValueGenerationStrategy.Autoincrement);
+        propertyBuilder.Metadata.SetValueGenerationStrategy(SqliteValueGenerationStrategy.Autoincrement);
 
         return propertyBuilder;
     }
@@ -51,6 +50,25 @@ public static class SqlitePropertyBuilderExtensions
         => (PropertyBuilder<TProperty>)UseAutoincrement((PropertyBuilder)propertyBuilder);
 
     /// <summary>
+    ///     Configures the property to use SQLite AUTOINCREMENT feature to generate values for new entities,
+    ///     when targeting SQLite. This method sets the property to be <see cref="ValueGenerated.OnAdd" />.
+    /// </summary>
+    /// <remarks>
+    ///     AUTOINCREMENT can only be used on integer primary key columns in SQLite.
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlite">Accessing SQLite databases with EF Core</see> for more information and examples.
+    /// </remarks>
+    /// <param name="columnBuilder">The builder for the column being configured.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public static ColumnBuilder UseAutoincrement(
+        this ColumnBuilder columnBuilder)
+    {
+        columnBuilder.Overrides.SetValueGenerationStrategy(SqliteValueGenerationStrategy.Autoincrement);
+
+        return columnBuilder;
+    }
+
+    /// <summary>
     ///     Configures the value generation strategy for the property when targeting SQLite.
     /// </summary>
     /// <param name="propertyBuilder">The builder for the property being configured.</param>
@@ -65,8 +83,7 @@ public static class SqlitePropertyBuilderExtensions
         SqliteValueGenerationStrategy? strategy,
         bool fromDataAnnotation = false)
     {
-        if (propertyBuilder.CanSetAnnotation(
-            SqliteAnnotationNames.ValueGenerationStrategy, strategy, fromDataAnnotation))
+        if (propertyBuilder.CanSetValueGenerationStrategy(strategy, fromDataAnnotation))
         {
             propertyBuilder.Metadata.SetValueGenerationStrategy(strategy, fromDataAnnotation);
             return propertyBuilder;

@@ -807,7 +807,6 @@ public static class SqlServerPropertyExtensions
     private static SqlServerValueGenerationStrategy GetDefaultValueGenerationStrategy(IReadOnlyProperty property)
     {
         var modelStrategy = property.DeclaringType.Model.GetValueGenerationStrategy();
-
         if (modelStrategy is SqlServerValueGenerationStrategy.SequenceHiLo or SqlServerValueGenerationStrategy.Sequence
             && IsCompatibleWithValueGeneration(property))
         {
@@ -826,7 +825,6 @@ public static class SqlServerPropertyExtensions
         ITypeMappingSource? typeMappingSource)
     {
         var modelStrategy = property.DeclaringType.Model.GetValueGenerationStrategy();
-
         if (modelStrategy is SqlServerValueGenerationStrategy.SequenceHiLo or SqlServerValueGenerationStrategy.Sequence
             && IsCompatibleWithValueGeneration(property, storeObject, typeMappingSource))
         {

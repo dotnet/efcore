@@ -28,24 +28,26 @@ public static class SqlitePropertyExtensions
     /// <summary>
     ///     Returns the <see cref="SqliteValueGenerationStrategy" /> to use for the property.
     /// </summary>
+    /// <remarks>
+    ///     If no strategy is set for the property, then the strategy to use will be taken from the <see cref="IModel" />.
+    /// </remarks>
+    /// <param name="overrides">The property overrides.</param>
+    /// <returns>The strategy, or <see cref="SqliteValueGenerationStrategy.None" /> if none was set.</returns>
+    public static SqliteValueGenerationStrategy? GetValueGenerationStrategy(
+        this IReadOnlyRelationalPropertyOverrides overrides)
+        => (SqliteValueGenerationStrategy?)overrides.FindAnnotation(SqliteAnnotationNames.ValueGenerationStrategy)
+            ?.Value;
+
+    /// <summary>
+    ///     Returns the <see cref="SqliteValueGenerationStrategy" /> to use for the property.
+    /// </summary>
     /// <param name="property">The property.</param>
     /// <param name="storeObject">The identifier of the store object.</param>
     /// <returns>The strategy to use for the property.</returns>
     public static SqliteValueGenerationStrategy GetValueGenerationStrategy(
         this IReadOnlyProperty property,
         in StoreObjectIdentifier storeObject)
-    {
-        var annotation = property.FindAnnotation(SqliteAnnotationNames.ValueGenerationStrategy);
-        if (annotation != null)
-        {
-            return (SqliteValueGenerationStrategy?)annotation.Value ?? SqliteValueGenerationStrategy.None;
-        }
-
-        var sharedProperty = property.FindSharedStoreObjectRootProperty(storeObject);
-        return sharedProperty != null
-            ? sharedProperty.GetValueGenerationStrategy(storeObject)
-            : property.GetDefaultValueGenerationStrategy();
-    }
+        => GetValueGenerationStrategy(property, storeObject, null);
 
     /// <summary>
     ///     Returns the default <see cref="SqliteValueGenerationStrategy" /> to use for the property.
@@ -156,12 +158,85 @@ public static class SqlitePropertyExtensions
             SqliteAnnotationNames.ValueGenerationStrategy, value, fromDataAnnotation)?.Value;
 
     /// <summary>
+    ///     Sets the <see cref="SqliteValueGenerationStrategy" /> to use for the property for a particular table.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <param name="value">The strategy to use.</param>
+    /// <param name="storeObject">The identifier of the table containing the column.</param>
+    public static void SetValueGenerationStrategy(
+        this IMutableProperty property,
+        SqliteValueGenerationStrategy? value,
+        in StoreObjectIdentifier storeObject)
+        => property.GetOrCreateOverrides(storeObject)
+            .SetValueGenerationStrategy(value);
+
+    /// <summary>
+    ///     Sets the <see cref="SqliteValueGenerationStrategy" /> to use for the property for a particular table.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <param name="value">The strategy to use.</param>
+    /// <param name="storeObject">The identifier of the table containing the column.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    public static SqliteValueGenerationStrategy? SetValueGenerationStrategy(
+        this IConventionProperty property,
+        SqliteValueGenerationStrategy? value,
+        in StoreObjectIdentifier storeObject,
+        bool fromDataAnnotation = false)
+        => property.GetOrCreateOverrides(storeObject, fromDataAnnotation)
+            .SetValueGenerationStrategy(value, fromDataAnnotation);
+
+    /// <summary>
+    ///     Sets the <see cref="SqliteValueGenerationStrategy" /> to use for the property for a particular table.
+    /// </summary>
+    /// <param name="overrides">The property overrides.</param>
+    /// <param name="value">The strategy to use.</param>
+    public static void SetValueGenerationStrategy(
+        this IMutableRelationalPropertyOverrides overrides,
+        SqliteValueGenerationStrategy? value)
+        => overrides.SetOrRemoveAnnotation(SqliteAnnotationNames.ValueGenerationStrategy, value);
+
+    /// <summary>
+    ///     Sets the <see cref="SqliteValueGenerationStrategy" /> to use for the property for a particular table.
+    /// </summary>
+    /// <param name="overrides">The property overrides.</param>
+    /// <param name="value">The strategy to use.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    public static SqliteValueGenerationStrategy? SetValueGenerationStrategy(
+        this IConventionRelationalPropertyOverrides overrides,
+        SqliteValueGenerationStrategy? value,
+        bool fromDataAnnotation = false)
+        => (SqliteValueGenerationStrategy?)overrides.SetOrRemoveAnnotation(
+            SqliteAnnotationNames.ValueGenerationStrategy, value, fromDataAnnotation)?.Value;
+
+    /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> for the value generation strategy.
     /// </summary>
     /// <param name="property">The property.</param>
     /// <returns>The <see cref="ConfigurationSource" /> for the value generation strategy.</returns>
     public static ConfigurationSource? GetValueGenerationStrategyConfigurationSource(this IConventionProperty property)
         => property.FindAnnotation(SqliteAnnotationNames.ValueGenerationStrategy)?.GetConfigurationSource();
+
+    /// <summary>
+    ///     Returns the <see cref="ConfigurationSource" /> for the <see cref="SqliteValueGenerationStrategy" /> for a particular table.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <param name="storeObject">The identifier of the table containing the column.</param>
+    /// <returns>The <see cref="ConfigurationSource" /> for the <see cref="SqliteValueGenerationStrategy" />.</returns>
+    public static ConfigurationSource? GetValueGenerationStrategyConfigurationSource(
+        this IConventionProperty property,
+        in StoreObjectIdentifier storeObject)
+        => property.FindOverrides(storeObject)?.GetValueGenerationStrategyConfigurationSource();
+
+    /// <summary>
+    ///     Returns the <see cref="ConfigurationSource" /> for the <see cref="SqliteValueGenerationStrategy" /> for a particular table.
+    /// </summary>
+    /// <param name="overrides">The property overrides.</param>
+    /// <returns>The <see cref="ConfigurationSource" /> for the <see cref="SqliteValueGenerationStrategy" />.</returns>
+    public static ConfigurationSource? GetValueGenerationStrategyConfigurationSource(
+        this IConventionRelationalPropertyOverrides overrides)
+        => overrides.FindAnnotation(SqliteAnnotationNames.ValueGenerationStrategy)?.GetConfigurationSource();
 
     /// <summary>
     ///     Returns the SRID to use when creating a column for this property.
