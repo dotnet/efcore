@@ -15,9 +15,23 @@ public abstract class GeometryTypeTestBase<T, TFixture>(TFixture fixture, ITestO
     {
         await using var context = Fixture.CreateContext();
 
+        Fixture.TestSqlLoggerFactory.Clear();
+
         var result = await context.Set<TypeEntity<T>>().Where(e => e.Value.EqualsTopologically(Fixture.Value)).SingleAsync();
 
         Assert.Equal(Fixture.Value, result.Value, Fixture.Comparer);
+    }
+
+    // SQL Server doesn't support the equality operator on geometry, override to use EqualsTopologically
+    public override async Task Query_property_within_json()
+    {
+        await using var context = Fixture.CreateContext();
+
+        Fixture.TestSqlLoggerFactory.Clear();
+
+        var result = await context.Set<JsonTypeEntity<T>>().Where(e => e.JsonContainer.Value.EqualsTopologically(Fixture.Value)).SingleAsync();
+
+        Assert.Equal(Fixture.Value, result.JsonContainer.Value, Fixture.Comparer);
     }
 
     public override async Task ExecuteUpdate_within_json_to_nonjson_column()
@@ -58,157 +72,269 @@ FROM [JsonTypeEntity] AS [j]
 public class PointTypeTest(PointTypeTest.PointTypeFixture fixture, ITestOutputHelper testOutputHelper)
     : GeometryTypeTestBase<Point, PointTypeTest.PointTypeFixture>(fixture, testOutputHelper)
 {
+    public override async Task Query_property_within_json()
+    {
+        await base.Query_property_within_json();
+
+        // Note that the JSON_VALUE RETURNING clause is never used with geometry even on SQL Server 2025, as that type isn't
+        // supported (#36627).
+        AssertSql(
+            """
+@Fixture_Value='0x00000000010C00000000000024400000000000003440' (Size = 22) (DbType = Object)
+
+SELECT TOP(2) [j].[Id], [j].[OtherValue], [j].[Value], [j].[JsonContainer]
+FROM [JsonTypeEntity] AS [j]
+WHERE CAST(JSON_VALUE([j].[JsonContainer], '$.Value') AS geometry).STEquals(@Fixture_Value) = CAST(1 AS bit)
+""");
+    }
+
     public class PointTypeFixture() : GeometryTypeFixture
     {
-        public override Point Value { get; } = new(-122.34877, 47.6233355) { SRID = 4326 };
-        public override Point OtherValue { get; } = new(-121.7500, 46.2500) { SRID = 4326 };
+        public override Point Value { get; } = new(10, 20);
+        public override Point OtherValue { get; } = new(30, 40);
     }
 }
 
 public class LineStringTypeTest(LineStringTypeTest.LineStringTypeFixture fixture, ITestOutputHelper testOutputHelper)
     : GeometryTypeTestBase<LineString, LineStringTypeTest.LineStringTypeFixture>(fixture, testOutputHelper)
 {
+    public override async Task Query_property_within_json()
+    {
+        await base.Query_property_within_json();
+
+        // Note that the JSON_VALUE RETURNING clause is never used with geometry even on SQL Server 2025, as that type isn't
+        // supported (#36627).
+        AssertSql(
+            """
+@Fixture_Value='0x000000000114000000000000244000000000000034400000000000002E400000...' (Size = 38) (DbType = Object)
+
+SELECT TOP(2) [j].[Id], [j].[OtherValue], [j].[Value], [j].[JsonContainer]
+FROM [JsonTypeEntity] AS [j]
+WHERE CAST(JSON_VALUE([j].[JsonContainer], '$.Value') AS geometry).STEquals(@Fixture_Value) = CAST(1 AS bit)
+""");
+    }
+
     public class LineStringTypeFixture() : GeometryTypeFixture
     {
         public override LineString Value { get; } = new(
         [
-            new Coordinate(-122.34877, 47.6233355),
-            new Coordinate(-122.3308366, 47.5978429)
-        ]) { SRID = 4326 };
+            new Coordinate(10, 20),
+            new Coordinate(15, 25)
+        ]);
 
         public override LineString OtherValue { get; } = new(
         [
-            new Coordinate(-120.5000, 46.9000),
-            new Coordinate(-119.8000, 46.7000),
-            new Coordinate(-118.6000, 46.4000)
-        ]) { SRID = 4326 };
+            new Coordinate(30, 40),
+            new Coordinate(35, 45),
+            new Coordinate(40, 50)
+        ]);
     }
 }
 
 public class PolygonTypeTest(PolygonTypeTest.PolygonTypeFixture fixture, ITestOutputHelper testOutputHelper)
     : GeometryTypeTestBase<Polygon, PolygonTypeTest.PolygonTypeFixture>(fixture, testOutputHelper)
 {
+    public override async Task Query_property_within_json()
+    {
+        await base.Query_property_within_json();
+
+        // Note that the JSON_VALUE RETURNING clause is never used with geometry even on SQL Server 2025, as that type isn't
+        // supported (#36627).
+        AssertSql(
+            """
+@Fixture_Value='0x0000000001040500000000000000000000000000000000000000000000000000...' (Size = 112) (DbType = Object)
+
+SELECT TOP(2) [j].[Id], [j].[OtherValue], [j].[Value], [j].[JsonContainer]
+FROM [JsonTypeEntity] AS [j]
+WHERE CAST(JSON_VALUE([j].[JsonContainer], '$.Value') AS geometry).STEquals(@Fixture_Value) = CAST(1 AS bit)
+""");
+    }
+
     public class PolygonTypeFixture() : GeometryTypeFixture
     {
         public override Polygon Value { get; } = new(
             new LinearRing(
             [
-                new Coordinate(-122.3500, 47.6200), // NW
-                new Coordinate(-122.3500, 47.6100), // SW
-                new Coordinate(-122.3400, 47.6100), // SE
-                new Coordinate(-122.3400, 47.6200), // NE
-                new Coordinate(-122.3500, 47.6200)
-            ])) { SRID = 4326 };
+                new Coordinate(0, 0),    // NW
+                new Coordinate(0, 10),   // SW
+                new Coordinate(10, 10),  // SE
+                new Coordinate(10, 0),   // NE
+                new Coordinate(0, 0)
+            ]));
 
         public override Polygon OtherValue { get; } = new(
             new LinearRing(
             [
-                new Coordinate(-119.3000, 45.8800), // NW
-                new Coordinate(-119.3000, 45.8600), // SW
-                new Coordinate(-119.1500, 45.8600), // SE
-                new Coordinate(-119.1500, 45.8800), // NE
-                new Coordinate(-119.3000, 45.8800)
-            ])) { SRID = 4326 };
+                new Coordinate(20, 20),  // NW
+                new Coordinate(20, 30),  // SW
+                new Coordinate(30, 30),  // SE
+                new Coordinate(30, 20),  // NE
+                new Coordinate(20, 20)
+            ]));
     }
 }
 
 public class MultiPointTypeTest(MultiPointTypeTest.MultiPointTypeFixture fixture, ITestOutputHelper testOutputHelper)
     : GeometryTypeTestBase<MultiPoint, MultiPointTypeTest.MultiPointTypeFixture>(fixture, testOutputHelper)
 {
+    public override async Task Query_property_within_json()
+    {
+        await base.Query_property_within_json();
+
+        // Note that the JSON_VALUE RETURNING clause is never used with geometry even on SQL Server 2025, as that type isn't
+        // supported (#36627).
+        AssertSql(
+            """
+@Fixture_Value='0x0000000001040200000000000000000014400000000000001440000000000000...' (Size = 87) (DbType = Object)
+
+SELECT TOP(2) [j].[Id], [j].[OtherValue], [j].[Value], [j].[JsonContainer]
+FROM [JsonTypeEntity] AS [j]
+WHERE CAST(JSON_VALUE([j].[JsonContainer], '$.Value') AS geometry).STEquals(@Fixture_Value) = CAST(1 AS bit)
+""");
+    }
+
     public class MultiPointTypeFixture() : GeometryTypeFixture
     {
         public override MultiPoint Value { get; } = new MultiPoint(
         [
-            new Point(-122.3500, 47.6200) { SRID = 4326 },
-            new Point(-122.3450, 47.6150) { SRID = 4326 }
-        ]) { SRID = 4326 };
+            new Point(5, 5),
+            new Point(10, 10)
+        ]);
 
         public override MultiPoint OtherValue { get; } = new MultiPoint(
         [
-            new Point(-121.9000, 46.9500) { SRID = 4326 },
-            new Point(-121.5000, 46.6000) { SRID = 4326 },
-            new Point(-121.2000, 46.3000) { SRID = 4326 }
-        ]) { SRID = 4326 };
+            new Point(15, 15),
+            new Point(20, 20),
+            new Point(25, 25)
+        ]);
     }
 }
 
 public class MultiLineStringTypeTest(MultiLineStringTypeTest.MultiLineStringTypeFixture fixture, ITestOutputHelper testOutputHelper)
     : GeometryTypeTestBase<MultiLineString, MultiLineStringTypeTest.MultiLineStringTypeFixture>(fixture, testOutputHelper)
 {
+    public override async Task Query_property_within_json()
+    {
+        await base.Query_property_within_json();
+
+        // Note that the JSON_VALUE RETURNING clause is never used with geometry even on SQL Server 2025, as that type isn't
+        // supported (#36627).
+        AssertSql(
+            """
+@Fixture_Value='0x00000000010404000000000000000000F03F000000000000F03F000000000000...' (Size = 119) (DbType = Object)
+
+SELECT TOP(2) [j].[Id], [j].[OtherValue], [j].[Value], [j].[JsonContainer]
+FROM [JsonTypeEntity] AS [j]
+WHERE CAST(JSON_VALUE([j].[JsonContainer], '$.Value') AS geometry).STEquals(@Fixture_Value) = CAST(1 AS bit)
+""");
+    }
+
     public class MultiLineStringTypeFixture() : GeometryTypeFixture
     {
         public override MultiLineString Value { get; } = new MultiLineString(
         [
             new LineString([
-                new Coordinate(-122.3500, 47.6200),
-                new Coordinate(-122.3450, 47.6150)
-            ]) { SRID = 4326 },
+                new Coordinate(1, 1),
+                new Coordinate(2, 2)
+            ]),
             new LineString([
-                new Coordinate(-122.3480, 47.6180),
-                new Coordinate(-122.3420, 47.6130)
-            ]) { SRID = 4326 }
-        ]) { SRID = 4326 };
+                new Coordinate(3, 3),
+                new Coordinate(4, 4)
+            ])
+        ]);
 
         public override MultiLineString OtherValue { get; } = new MultiLineString(
         [
             new LineString([
-                new Coordinate(-120.9000, 46.9500),
-                new Coordinate(-120.4000, 46.8200)
-            ]) { SRID = 4326 },
+                new Coordinate(10, 10),
+                new Coordinate(11, 11)
+            ]),
             new LineString([
-                new Coordinate(-120.7000, 46.7800),
-                new Coordinate(-120.2000, 46.5500)
-            ]) { SRID = 4326 }
-        ]) { SRID = 4326 };
+                new Coordinate(12, 12),
+                new Coordinate(13, 13)
+            ])
+        ]);
     }
 }
 
 public class MultiPolygonTypeTest(MultiPolygonTypeTest.MultiPolygonTypeFixture fixture, ITestOutputHelper testOutputHelper)
     : GeometryTypeTestBase<MultiPolygon, MultiPolygonTypeTest.MultiPolygonTypeFixture>(fixture, testOutputHelper)
 {
+    public override async Task Query_property_within_json()
+    {
+        await base.Query_property_within_json();
+
+        // Note that the JSON_VALUE RETURNING clause is never used with geometry even on SQL Server 2025, as that type isn't
+        // supported (#36627).
+        AssertSql(
+            """
+@Fixture_Value='0x0000000001040A00000000000000000000000000000000000000000000000000...' (Size = 215) (DbType = Object)
+
+SELECT TOP(2) [j].[Id], [j].[OtherValue], [j].[Value], [j].[JsonContainer]
+FROM [JsonTypeEntity] AS [j]
+WHERE CAST(JSON_VALUE([j].[JsonContainer], '$.Value') AS geometry).STEquals(@Fixture_Value) = CAST(1 AS bit)
+""");
+    }
+
     public class MultiPolygonTypeFixture() : GeometryTypeFixture
     {
         public override MultiPolygon Value { get; } = new MultiPolygon(
         [
             new Polygon(new LinearRing([
-                new Coordinate(-122.3500, 47.6200), // NW
-                new Coordinate(-122.3500, 47.6150), // SW
-                new Coordinate(-122.3450, 47.6150), // SE
-                new Coordinate(-122.3450, 47.6200), // NE
-                new Coordinate(-122.3500, 47.6200)
-            ])) { SRID = 4326 },
+                new Coordinate(0, 0),    // NW
+                new Coordinate(0, 5),    // SW
+                new Coordinate(5, 5),    // SE
+                new Coordinate(5, 0),    // NE
+                new Coordinate(0, 0)
+            ])),
             new Polygon(new LinearRing([
-                new Coordinate(-122.3400, 47.6240), // NW
-                new Coordinate(-122.3400, 47.6220), // SW
-                new Coordinate(-122.3380, 47.6220), // SE
-                new Coordinate(-122.3380, 47.6240), // NE
-                new Coordinate(-122.3400, 47.6240)
-            ])) { SRID = 4326 }
-        ]) { SRID = 4326 };
+                new Coordinate(10, 10),  // NW
+                new Coordinate(10, 15),  // SW
+                new Coordinate(15, 15),  // SE
+                new Coordinate(15, 10),  // NE
+                new Coordinate(10, 10)
+            ]))
+        ]);
 
         public override MultiPolygon OtherValue { get; } = new MultiPolygon(
         [
             new Polygon(new LinearRing([
-                new Coordinate(-119.8000, 45.9000), // NW
-                new Coordinate(-119.8000, 45.8800), // SW
-                new Coordinate(-119.6500, 45.8800), // SE
-                new Coordinate(-119.6500, 45.9000), // NE
-                new Coordinate(-119.8000, 45.9000)
-            ])) { SRID = 4326 },
+                new Coordinate(20, 20),  // NW
+                new Coordinate(20, 25),  // SW
+                new Coordinate(25, 25),  // SE
+                new Coordinate(25, 20),  // NE
+                new Coordinate(20, 20)
+            ])),
             new Polygon(new LinearRing([
-                new Coordinate(-119.6000, 45.8950), // NW
-                new Coordinate(-119.6000, 45.8850), // SW
-                new Coordinate(-119.5800, 45.8850), // SE
-                new Coordinate(-119.5800, 45.8950), // NE
-                new Coordinate(-119.6000, 45.8950)
-            ])) { SRID = 4326 }
-        ]) { SRID = 4326 };
+                new Coordinate(30, 30),  // NW
+                new Coordinate(30, 35),  // SW
+                new Coordinate(35, 35),  // SE
+                new Coordinate(35, 30),  // NE
+                new Coordinate(30, 30)
+            ]))
+        ]);
     }
 }
 
 public class GeometryCollectionTypeTest(GeometryCollectionTypeTest.GeometryCollectionTypeFixture fixture, ITestOutputHelper testOutputHelper)
     : GeometryTypeTestBase<GeometryCollection, GeometryCollectionTypeTest.GeometryCollectionTypeFixture>(fixture, testOutputHelper)
 {
+    public override async Task Query_property_within_json()
+    {
+        await base.Query_property_within_json();
+
+        // Note that the JSON_VALUE RETURNING clause is never used with geometry even on SQL Server 2025, as that type isn't
+        // supported (#36627).
+        AssertSql(
+            """
+@Fixture_Value='0x00000000010408000000000000000000F03F000000000000F03F000000000000...' (Size = 197) (DbType = Object)
+
+SELECT TOP(2) [j].[Id], [j].[OtherValue], [j].[Value], [j].[JsonContainer]
+FROM [JsonTypeEntity] AS [j]
+WHERE CAST(JSON_VALUE([j].[JsonContainer], '$.Value') AS geometry).STEquals(@Fixture_Value) = CAST(1 AS bit)
+""");
+    }
+
     public override async Task ExecuteUpdate_within_json_to_constant()
     {
         await base.ExecuteUpdate_within_json_to_constant();
@@ -218,7 +344,7 @@ public class GeometryCollectionTypeTest(GeometryCollectionTypeTest.GeometryColle
             AssertSql(
                 """
 UPDATE [j]
-SET [JsonContainer].modify('$.Value', N'GEOMETRYCOLLECTION (POINT (-120.9 46.95), LINESTRING (-120.9 46.95, -120.4 46.82), POLYGON ((-120.8 46.94, -120.8 46.92, -120.78 46.92, -120.78 46.94, -120.8 46.94)))')
+SET [JsonContainer].modify('$.Value', N'GEOMETRYCOLLECTION (POINT (10 10), LINESTRING (11 11, 12 12), POLYGON ((13 13, 13 15, 15 15, 15 13, 13 13)))')
 FROM [JsonTypeEntity] AS [j]
 """);
         }
@@ -227,7 +353,7 @@ FROM [JsonTypeEntity] AS [j]
             AssertSql(
                 """
 UPDATE [j]
-SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', N'GEOMETRYCOLLECTION (POINT (-120.9 46.95), LINESTRING (-120.9 46.95, -120.4 46.82), POLYGON ((-120.8 46.94, -120.8 46.92, -120.78 46.92, -120.78 46.94, -120.8 46.94)))')
+SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', N'GEOMETRYCOLLECTION (POINT (10 10), LINESTRING (11 11, 12 12), POLYGON ((13 13, 13 15, 15 15, 15 13, 13 13)))')
 FROM [JsonTypeEntity] AS [j]
 """);
         }
@@ -237,36 +363,34 @@ FROM [JsonTypeEntity] AS [j]
     {
         public override GeometryCollection Value { get; } = new GeometryCollection(
         [
-            new Point(-122.3500, 47.6200) { SRID = 4326 },
+            new Point(1, 1),
             new LineString([
-                new Coordinate(-122.3500, 47.6200),
-                new Coordinate(-122.3450, 47.6150)
-            ]) { SRID = 4326 },
+                new Coordinate(2, 2),
+                new Coordinate(3, 3)
+            ]),
             new Polygon(new LinearRing([
-                new Coordinate(-122.3480, 47.6190), // NW
-                new Coordinate(-122.3480, 47.6170), // SW
-                new Coordinate(-122.3460, 47.6170), // SE
-                new Coordinate(-122.3460, 47.6190), // NE
-                new Coordinate(-122.3480, 47.6190)
-            ])) { SRID = 4326 }
-        ])
-        { SRID = 4326 };
+                new Coordinate(4, 4),    // NW
+                new Coordinate(4, 6),    // SW
+                new Coordinate(6, 6),    // SE
+                new Coordinate(6, 4),    // NE
+                new Coordinate(4, 4)
+            ]))
+        ]);
 
         public override GeometryCollection OtherValue { get; } = new GeometryCollection(
         [
-            new Point(-120.9000, 46.9500) { SRID = 4326 },
+            new Point(10, 10),
             new LineString([
-                new Coordinate(-120.9000, 46.9500),
-                new Coordinate(-120.4000, 46.8200)
-            ]) { SRID = 4326 },
+                new Coordinate(11, 11),
+                new Coordinate(12, 12)
+            ]),
             new Polygon(new LinearRing([
-                new Coordinate(-120.8000, 46.9400), // NW
-                new Coordinate(-120.8000, 46.9200), // SW
-                new Coordinate(-120.7800, 46.9200), // SE
-                new Coordinate(-120.7800, 46.9400), // NE
-                new Coordinate(-120.8000, 46.9400)
-            ])) { SRID = 4326 }
-        ])
-        { SRID = 4326 };
+                new Coordinate(13, 13),  // NW
+                new Coordinate(13, 15),  // SW
+                new Coordinate(15, 15),  // SE
+                new Coordinate(15, 13),  // NE
+                new Coordinate(13, 13)
+            ]))
+        ]);
     }
 }

@@ -6,6 +6,34 @@ namespace Microsoft.EntityFrameworkCore.Types.Miscellaneous;
 public class BoolTypeTest(BoolTypeTest.BoolTypeFixture fixture)
     : RelationalTypeTestBase<bool, BoolTypeTest.BoolTypeFixture>(fixture)
 {
+    public override async Task Query_property_within_json()
+    {
+        await base.Query_property_within_json();
+
+        if (Fixture.UsingJsonType)
+        {
+            AssertSql(
+                """
+@Fixture_Value='True'
+
+SELECT TOP(2) [j].[Id], [j].[OtherValue], [j].[Value], [j].[JsonContainer]
+FROM [JsonTypeEntity] AS [j]
+WHERE JSON_VALUE([j].[JsonContainer], '$.Value' RETURNING bit) = @Fixture_Value
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
+@Fixture_Value='True'
+
+SELECT TOP(2) [j].[Id], [j].[OtherValue], [j].[Value], [j].[JsonContainer]
+FROM [JsonTypeEntity] AS [j]
+WHERE CAST(JSON_VALUE([j].[JsonContainer], '$.Value') AS bit) = @Fixture_Value
+""");
+        }
+    }
+
     public class BoolTypeFixture : SqlServerTypeFixture<bool>
     {
         public override bool Value { get; } = true;
@@ -18,6 +46,34 @@ public class BoolTypeTest(BoolTypeTest.BoolTypeFixture fixture)
 public class StringTypeTest(StringTypeTest.StringTypeFixture fixture)
     : RelationalTypeTestBase<string, StringTypeTest.StringTypeFixture>(fixture)
 {
+    public override async Task Query_property_within_json()
+    {
+        await base.Query_property_within_json();
+
+        if (Fixture.UsingJsonType)
+        {
+            AssertSql(
+                """
+@Fixture_Value='foo' (Size = 4000)
+
+SELECT TOP(2) [j].[Id], [j].[OtherValue], [j].[Value], [j].[JsonContainer]
+FROM [JsonTypeEntity] AS [j]
+WHERE JSON_VALUE([j].[JsonContainer], '$.Value' RETURNING nvarchar(max)) = @Fixture_Value
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
+@Fixture_Value='foo' (Size = 4000)
+
+SELECT TOP(2) [j].[Id], [j].[OtherValue], [j].[Value], [j].[JsonContainer]
+FROM [JsonTypeEntity] AS [j]
+WHERE JSON_VALUE([j].[JsonContainer], '$.Value') = @Fixture_Value
+""");
+        }
+    }
+
     public class StringTypeFixture : SqlServerTypeFixture<string>
     {
         public override string Value { get; } = "foo";
@@ -30,6 +86,22 @@ public class StringTypeTest(StringTypeTest.StringTypeFixture fixture)
 public class GuidTypeTest(GuidTypeTest.GuidTypeFixture fixture)
     : RelationalTypeTestBase<Guid, GuidTypeTest.GuidTypeFixture>(fixture)
 {
+    public override async Task Query_property_within_json()
+    {
+        await base.Query_property_within_json();
+
+        // Note that the JSON_VALUE RETURNING clause is never used with uniqueidentifier even on SQL Server 2025, as that type isn't
+        // supported (#36627).
+        AssertSql(
+            """
+@Fixture_Value='8f7331d6-cde9-44fb-8611-81fff686f280'
+
+SELECT TOP(2) [j].[Id], [j].[OtherValue], [j].[Value], [j].[JsonContainer]
+FROM [JsonTypeEntity] AS [j]
+WHERE CAST(JSON_VALUE([j].[JsonContainer], '$.Value') AS uniqueidentifier) = @Fixture_Value
+""");
+    }
+
     [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
     public override async Task ExecuteUpdate_within_json_to_nonjson_column()
     {
@@ -59,7 +131,6 @@ SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', JSON_VALUE
 FROM [JsonTypeEntity] AS [j]
 """);
         }
-
     }
 
     public class GuidTypeFixture : SqlServerTypeFixture<Guid>
@@ -77,6 +148,25 @@ FROM [JsonTypeEntity] AS [j]
 public class ByteArrayTypeTest(ByteArrayTypeTest.ByteArrayTypeFixture fixture)
     : RelationalTypeTestBase<byte[], ByteArrayTypeTest.ByteArrayTypeFixture>(fixture)
 {
+    public override async Task Query_property_within_json()
+    {
+        await base.Query_property_within_json();
+
+        // Note that the JSON_VALUE RETURNING clause is never used with varbinary even on SQL Server 2025, as that type isn't supported
+        // (#36627).
+        // We also can't just wrap JSON_VALUE() with CAST(... AS varbinary(max)), as that would apply a SQL Server binary format
+        // conversion, and not base64. So we use OPENJSON which does perform base64 conversion.
+        AssertSql(
+            """
+@Fixture_Value='0x010203' (Size = 8000)
+
+SELECT TOP(2) [j].[Id], [j].[OtherValue], [j].[Value], [j].[JsonContainer]
+FROM [JsonTypeEntity] AS [j]
+OUTER APPLY OPENJSON([j].[JsonContainer]) WITH ([Value] varbinary(max) '$.Value') AS [v]
+WHERE [v].[Value] = @Fixture_Value
+""");
+    }
+
     [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
     public override async Task ExecuteUpdate_within_json_to_nonjson_column()
     {

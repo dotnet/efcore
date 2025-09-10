@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Globalization;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
@@ -627,7 +628,12 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
         // 3. Can do JSON-specific decoding (e.g. base64 for varbinary)
         // Note that RETURNING is only (currently) supported over the json type (not nvarchar(max)).
         // Note that we don't need to check the compatibility level - if the json type is being used, then RETURNING is supported.
-        var useJsonValueReturningClause = !jsonQuery && jsonScalarExpression.Json.TypeMapping?.StoreType is "json";
+        var useJsonValueReturningClause = !jsonQuery
+            && jsonScalarExpression.Json.TypeMapping?.StoreType is "json"
+            // The following types aren't supported by the JSON_VALUE() RETURNING clause (#36627).
+            // Note that for varbinary we already transform the JSON_VALUE() into OPENJSON() earlier, in SqlServerJsonPostprocessor.
+            && jsonScalarExpression.TypeMapping?.StoreType.ToLower(CultureInfo.InvariantCulture)
+                is not ("uniqueidentifier" or "geometry" or "geography");
 
         // For JSON_VALUE(), if we can use the RETURNING clause, always do that.
         // Otherwise, JSON_VALUE always returns nvarchar(4000) (https://learn.microsoft.com/sql/t-sql/functions/json-value-transact-sql),
