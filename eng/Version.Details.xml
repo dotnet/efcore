@@ -62,30 +62,6 @@
       <Uri>https://github.com/dotnet/dotnet</Uri>
       <Sha>13a7588dc6e538cc938ea1277a37f756a80c7f03</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Build.Framework" Version="17.15.0-preview-25459-101">
-      <Uri>https://github.com/dotnet/dotnet</Uri>
-      <Sha>13a7588dc6e538cc938ea1277a37f756a80c7f03</Sha>
-    </Dependency>
-    <Dependency Name="Microsoft.Build.Utilities.Core" Version="17.15.0-preview-25459-101">
-      <Uri>https://github.com/dotnet/dotnet</Uri>
-      <Sha>13a7588dc6e538cc938ea1277a37f756a80c7f03</Sha>
-    </Dependency>
-    <Dependency Name="Microsoft.Build.Tasks.Core" Version="17.15.0-preview-25459-101">
-      <Uri>https://github.com/dotnet/dotnet</Uri>
-      <Sha>13a7588dc6e538cc938ea1277a37f756a80c7f03</Sha>
-    </Dependency>
-    <Dependency Name="Microsoft.CodeAnalysis.CSharp" Version="5.0.0-2.25459.101">
-      <Uri>https://github.com/dotnet/dotnet</Uri>
-      <Sha>13a7588dc6e538cc938ea1277a37f756a80c7f03</Sha>
-    </Dependency>
-    <Dependency Name="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="5.0.0-2.25459.101">
-      <Uri>https://github.com/dotnet/dotnet</Uri>
-      <Sha>13a7588dc6e538cc938ea1277a37f756a80c7f03</Sha>
-    </Dependency>
-    <Dependency Name="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="5.0.0-2.25459.101">
-      <Uri>https://github.com/dotnet/dotnet</Uri>
-      <Sha>13a7588dc6e538cc938ea1277a37f756a80c7f03</Sha>
-    </Dependency>
   </ProductDependencies>
   <ToolsetDependencies>
     <Dependency Name="Microsoft.DotNet.Arcade.Sdk" Version="10.0.0-beta.25459.101">
