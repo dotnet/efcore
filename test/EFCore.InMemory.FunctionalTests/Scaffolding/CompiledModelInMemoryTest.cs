@@ -8,6 +8,7 @@
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Design.Internal;
+using Microsoft.EntityFrameworkCore.InMemory.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -17,7 +18,7 @@ public class GlobalNamespaceContext(DbContextOptions<GlobalNamespaceContext> opt
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding
 {
-    public class CompiledModelInMemoryTest : CompiledModelTestBase
+    public class CompiledModelInMemoryTest(NonSharedFixture fixture) : CompiledModelTestBase(fixture)
     {
         [ConditionalFact]
         public virtual Task Empty_model()
@@ -108,17 +109,16 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                 {
                     modelBuilder.Entity<LazyConstructorEntity>();
 
-                    modelBuilder.Entity<LazyPropertyDelegateEntity>(
-                        b =>
-                        {
-                            var serviceProperty = (ServiceProperty)b.Metadata.AddServiceProperty(
-                                typeof(LazyPropertyDelegateEntity).GetRuntimeProperties().Single(p => p.Name == "LoaderState"),
-                                typeof(ILazyLoader));
+                    modelBuilder.Entity<LazyPropertyDelegateEntity>(b =>
+                    {
+                        var serviceProperty = (ServiceProperty)b.Metadata.AddServiceProperty(
+                            typeof(LazyPropertyDelegateEntity).GetRuntimeProperties().Single(p => p.Name == "LoaderState"),
+                            typeof(ILazyLoader));
 
-                            serviceProperty.SetParameterBinding(
-                                new DependencyInjectionParameterBinding(typeof(object), typeof(ILazyLoader), serviceProperty),
-                                ConfigurationSource.Explicit);
-                        });
+                        serviceProperty.SetParameterBinding(
+                            new DependencyInjectionParameterBinding(typeof(object), typeof(ILazyLoader), serviceProperty),
+                            ConfigurationSource.Explicit);
+                    });
                 },
                 model =>
                 {
@@ -307,7 +307,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         [ConditionalFact]
         public virtual Task Throws_for_defining_query()
             => Test<DefiningQueryContext>(
-                expectedExceptionMessage: DesignStrings.CompiledModelDefiningQuery("object"));
+                expectedExceptionMessage: InMemoryStrings.CompiledModelDefiningQuery("object"));
 
         public class DefiningQueryContext(DbContextOptions<DefiningQueryContext> options) : DbContext(options)
         {
@@ -315,13 +315,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             {
                 base.OnModelCreating(modelBuilder);
 
-                modelBuilder.Entity<object>(
-                    e =>
-                    {
-                        e.Property<int>("Id");
-                        e.HasKey("Id");
-                        e.Metadata.SetInMemoryQuery(() => (IQueryable<object>)Set<object>());
-                    });
+                modelBuilder.Entity<object>(e =>
+                {
+                    e.Property<int>("Id");
+                    e.HasKey("Id");
+                    e.Metadata.SetInMemoryQuery(() => (IQueryable<object>)Set<object>());
+                });
             }
         }
 
@@ -438,11 +437,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                 {
                     modelBuilder.Entity<Index>();
                     modelBuilder.Entity<TestModels.AspNetIdentity.IdentityUser>();
-                    modelBuilder.Entity<IdentityUser>(
-                        eb =>
-                        {
-                            eb.HasDiscriminator().HasValue("DerivedIdentityUser");
-                        });
+                    modelBuilder.Entity<IdentityUser>(eb =>
+                    {
+                        eb.HasDiscriminator().HasValue("DerivedIdentityUser");
+                    });
                     modelBuilder.Entity<Scaffolding>();
                 },
                 assertModel: model =>
@@ -464,29 +462,27 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         {
             modelBuilder.Ignore<OwnedType>();
 
-            modelBuilder.Entity<DependentBase<long?>>(
-                eb =>
-                {
-                    eb.Property<long?>("Id");
+            modelBuilder.Entity<DependentBase<long?>>(eb =>
+            {
+                eb.Property<long?>("Id");
 
-                    eb.HasOne<PrincipalBase>().WithOne()
-                        .HasPrincipalKey<DependentBase<long?>>("PrincipalId")
-                        .HasForeignKey<PrincipalBase>(e => e.Id);
-                });
+                eb.HasOne<PrincipalBase>().WithOne()
+                    .HasPrincipalKey<DependentBase<long?>>("PrincipalId")
+                    .HasForeignKey<PrincipalBase>(e => e.Id);
+            });
 
-            modelBuilder.Entity<PrincipalDerived<DependentBase<long?>>>(
-                eb =>
-                {
-                    eb.Ignore(d => d.Principals);
-                    eb.HasOne<PrincipalBase>()
-                        .WithMany(e => (ICollection<PrincipalDerived<DependentBase<long?>>>)e.Deriveds)
-                        .HasPrincipalKey(e => e.Id)
-                        .HasForeignKey("PrincipalId");
+            modelBuilder.Entity<PrincipalDerived<DependentBase<long?>>>(eb =>
+            {
+                eb.Ignore(d => d.Principals);
+                eb.HasOne<PrincipalBase>()
+                    .WithMany(e => (ICollection<PrincipalDerived<DependentBase<long?>>>)e.Deriveds)
+                    .HasPrincipalKey(e => e.Id)
+                    .HasForeignKey("PrincipalId");
 
-                    eb.HasOne(e => e.Dependent).WithOne(e => e.Principal)
-                        .HasForeignKey<DependentBase<long?>>("PrincipalId")
-                        .HasPrincipalKey<PrincipalDerived<DependentBase<long?>>>("PrincipalId");
-                });
+                eb.HasOne(e => e.Dependent).WithOne(e => e.Principal)
+                    .HasForeignKey<DependentBase<long?>>("PrincipalId")
+                    .HasPrincipalKey<PrincipalDerived<DependentBase<long?>>>("PrincipalId");
+            });
         }
 
         protected virtual void AssertCyclesModel(IModel model)
@@ -506,7 +502,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             TestHelpers.ModelAsserter.AssertEqual(principalBaseFk.PrincipalKey.Properties, dependentFk.Properties);
         }
 
-        [ConditionalFact(Skip = "Primitive collections not supported completely")]
+        //[ConditionalFact(Skip = "Primitive collections not supported completely")]
         public override Task BigModel()
             => base.BigModel();
 

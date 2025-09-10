@@ -13,6 +13,9 @@ public class SqliteModelBuilderTestBase : RelationalModelBuilderTest
     public abstract class SqliteComplexType(SqliteModelBuilderFixture fixture)
         : RelationalComplexTypeTestBase(fixture), IClassFixture<SqliteModelBuilderFixture>;
 
+    public abstract class SqliteComplexCollection(SqliteModelBuilderFixture fixture)
+        : RelationalComplexCollectionTestBase(fixture), IClassFixture<SqliteModelBuilderFixture>;
+
     public abstract class SqliteInheritance(SqliteModelBuilderFixture fixture)
         : RelationalInheritanceTestBase(fixture), IClassFixture<SqliteModelBuilderFixture>;
 

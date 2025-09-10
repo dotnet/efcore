@@ -140,19 +140,43 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
 
             Sql.AppendLine($"{Dependencies.SqlGenerationHelper.DelimitIdentifier(updateExpression.Table.Alias)}");
             Sql.Append("SET ");
-            Visit(updateExpression.ColumnValueSetters[0].Column);
-            Sql.Append(" = ");
-            Visit(updateExpression.ColumnValueSetters[0].Value);
 
-            using (Sql.Indent())
+            for (var i = 0; i < updateExpression.ColumnValueSetters.Count; i++)
             {
-                foreach (var columnValueSetter in updateExpression.ColumnValueSetters.Skip(1))
+                var (column, value) = updateExpression.ColumnValueSetters[i];
+
+                if (i == 1)
+                {
+                    Sql.IncrementIndent();
+                }
+
+                if (i > 0)
                 {
                     Sql.AppendLine(",");
-                    Visit(columnValueSetter.Column);
-                    Sql.Append(" = ");
-                    Visit(columnValueSetter.Value);
                 }
+
+                // SQL Server 2025 modify method (https://learn.microsoft.com/sql/t-sql/data-types/json-data-type#modify-method)
+                // This requires special handling since modify isn't a standard setter of the form SET x = y, but rather just
+                // SET [x].modify(...).
+                if (value is SqlFunctionExpression
+                    {
+                        Name: "modify",
+                        IsBuiltIn: true,
+                        Instance: ColumnExpression { TypeMapping.StoreType: "json" } instance
+                    })
+                {
+                    Visit(value);
+                    continue;
+                }
+
+                Visit(column);
+                Sql.Append(" = ");
+                Visit(value);
+            }
+
+            if (updateExpression.ColumnValueSetters.Count > 1)
+            {
+                Sql.DecrementIndent();
             }
 
             _withinTable = true;
@@ -200,6 +224,99 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
         Sql.Append(")");
 
         return valuesExpression;
+    }
+
+    /// <summary>
+    ///     Generates SQL for a constant.
+    /// </summary>
+    /// <param name="sqlConstantExpression">The <see cref="SqlConstantExpression" /> for which to generate SQL.</param>
+    protected override Expression VisitSqlConstant(SqlConstantExpression sqlConstantExpression)
+    {
+        // Certain JSON functions (e.g. JSON_MODIFY()) accept a JSONPATH argument - this is (currently) flown here as a
+        // SqlConstantExpression over IReadOnlyList<PathSegment>. Render that to a string here.
+        if (sqlConstantExpression is { Value: IReadOnlyList<PathSegment> path })
+        {
+            GenerateJsonPath(path);
+            return sqlConstantExpression;
+        }
+
+        return base.VisitSqlConstant(sqlConstantExpression);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override Expression VisitSqlFunction(SqlFunctionExpression sqlFunctionExpression)
+    {
+        switch (sqlFunctionExpression)
+        {
+            case { IsBuiltIn: true, Arguments: not null }
+                when string.Equals(sqlFunctionExpression.Name, "COALESCE", StringComparison.OrdinalIgnoreCase):
+            {
+                var type = sqlFunctionExpression.Type;
+                var typeMapping = sqlFunctionExpression.TypeMapping;
+                var defaultTypeMapping = _typeMappingSource.FindMapping(type);
+
+                // ISNULL always return a value having the same type as its first
+                // argument. Ideally we would convert the argument to have the
+                // desired type and type mapping, but currently EFCore has some
+                // trouble in computing types of non-homogeneous expressions
+                // (tracked in https://github.com/dotnet/efcore/issues/15586). To
+                // stay on the safe side we only use ISNULL if:
+                //  - all sub-expressions have the same type as the expression
+                //  - all sub-expressions have the same type mapping as the expression
+                //  - the expression is using the default type mapping (combined
+                //    with the two above, this implies that all of the expressions
+                //    are using the default type mapping of the type)
+                if (defaultTypeMapping == typeMapping
+                    && sqlFunctionExpression.Arguments.All(a => a.Type == type && a.TypeMapping == typeMapping))
+                {
+                    var head = sqlFunctionExpression.Arguments[0];
+                    sqlFunctionExpression = (SqlFunctionExpression)sqlFunctionExpression
+                        .Arguments
+                        .Skip(1)
+                        .Aggregate(
+                            head, (l, r) => new SqlFunctionExpression(
+                                "ISNULL",
+                                arguments: [l, r],
+                                nullable: true,
+                                argumentsPropagateNullability: [false, false],
+                                sqlFunctionExpression.Type,
+                                sqlFunctionExpression.TypeMapping
+                            ));
+                }
+
+                return base.VisitSqlFunction(sqlFunctionExpression);
+            }
+
+            // SQL Server 2025 modify method (https://learn.microsoft.com/sql/t-sql/data-types/json-data-type#modify-method)
+            // We get here only from within UPDATE setters.
+            // We generate the syntax here manually rather than just using the regular function visitation logic since
+            // the JSON column (function instance) needs to be rendered *without* the column, unlike elsewhere.
+            case
+            {
+                Name: "modify",
+                IsBuiltIn: true,
+                Instance: ColumnExpression { TypeMapping.StoreType: "json" } jsonColumn,
+                Arguments: [SqlConstantExpression { Value: IReadOnlyList<PathSegment> jsonPath }, var item]
+            }:
+            {
+                Sql
+                    .Append(_sqlGenerationHelper.DelimitIdentifier(jsonColumn.Name))
+                    .Append(".modify(");
+                GenerateJsonPath(jsonPath);
+                Sql.Append(", ");
+                Visit(item);
+                Sql.Append(")");
+
+                return sqlFunctionExpression;
+            }
+        }
+
+        return base.VisitSqlFunction(sqlFunctionExpression);
     }
 
     /// <summary>
@@ -475,26 +592,59 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
             return jsonScalarExpression;
         }
 
-        if (jsonScalarExpression.TypeMapping is SqlServerOwnedJsonTypeMapping
-            || jsonScalarExpression.TypeMapping?.ElementTypeMapping is not null)
+        // Hack: we currently use JsonScalarExpression to represent both JSON_VALUE and JSON_QUERY in the SQL tree
+        // (see #36392), so we need to differentiate between the two here.
+        // We use JSON_QUERY() to project out sub-documents, so either when the result is a structural type,
+        // or when it is a primitive collection (array).
+        var jsonQuery = jsonScalarExpression.TypeMapping is SqlServerStructuralJsonTypeMapping
+            || jsonScalarExpression.TypeMapping?.ElementTypeMapping is not null;
+
+        // SQL Server 2025 introduced the RETURNING clause for JSON_VALUE: JSON_VALUE(json, '$.foo' RETURNING int).
+        // This is better than adding a cast, as this:
+        // 1. Allows us to get the desired type directly (potentially more efficient, possibly index usage too)
+        // 2. Supports big strings (otherwise JSON_VALUE always returns nvarchar(4000))
+        // 3. Can do JSON-specific decoding (e.g. base64 for varbinary)
+        // Note that RETURNING is only (currently) supported over the json type (not nvarchar(max)).
+        // Note that we don't need to check the compatibility level - if the json type is being used, then RETURNING is supported.
+        var useJsonValueReturningClause = !jsonQuery
+            && jsonScalarExpression.Json.TypeMapping?.StoreType is "json"
+            // Temporarily disabling for Azure SQL, which doesn't yet support RETURNING; this should get removed for 10 (see #36460).
+            && _sqlServerSingletonOptions.EngineType is not SqlServerEngineType.AzureSql;
+
+        // For JSON_VALUE(), if we can use the RETURNING clause, always do that.
+        // Otherwise, JSON_VALUE always returns nvarchar(4000) (https://learn.microsoft.com/sql/t-sql/functions/json-value-transact-sql),
+        // so we cast the result to the expected type - except if it's a string (since the cast interferes with indexes over
+        // the JSON property).
+        var useWrappingCast = !jsonQuery && !useJsonValueReturningClause && jsonScalarExpression.TypeMapping is not StringTypeMapping;
+
+        if (jsonQuery)
         {
             Sql.Append("JSON_QUERY(");
         }
         else
         {
-            // JSON_VALUE always returns nvarchar(4000) (https://learn.microsoft.com/sql/t-sql/functions/json-value-transact-sql),
-            // so we cast the result to the expected type - except if it's a string (since the cast interferes with indexes over
-            // the JSON property).
-            Sql.Append(jsonScalarExpression.TypeMapping is StringTypeMapping ? "JSON_VALUE(" : "CAST(JSON_VALUE(");
+            if (useWrappingCast)
+            {
+                Sql.Append("CAST(");
+            }
+
+            Sql.Append("JSON_VALUE(");
         }
 
         Visit(jsonScalarExpression.Json);
 
         Sql.Append(", ");
         GenerateJsonPath(jsonScalarExpression.Path);
+
+        if (useJsonValueReturningClause)
+        {
+            Sql.Append(" RETURNING ");
+            Sql.Append(jsonScalarExpression.TypeMapping!.StoreType);
+        }
+
         Sql.Append(")");
 
-        if (jsonScalarExpression.TypeMapping is not SqlServerOwnedJsonTypeMapping and not StringTypeMapping)
+        if (useWrappingCast)
         {
             Sql.Append(" AS ");
             Sql.Append(jsonScalarExpression.TypeMapping!.StoreType);
@@ -512,11 +662,11 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
         {
             switch (pathSegment)
             {
-                case { PropertyName: string propertyName }:
+                case { PropertyName: { } propertyName }:
                     Sql.Append(".").Append(Dependencies.SqlGenerationHelper.DelimitJsonPathElement(propertyName));
                     break;
 
-                case { ArrayIndex: SqlExpression arrayIndex }:
+                case { ArrayIndex: { } arrayIndex }:
                     Sql.Append("[");
 
                     // JSON functions such as JSON_VALUE only support arbitrary expressions for the path parameter in SQL Server 2017 and

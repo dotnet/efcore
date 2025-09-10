@@ -38,23 +38,22 @@ WHERE "o"."OrderDate" IS NOT NULL AND instr(COALESCE(CAST("o"."EmployeeID" AS TE
 
         AssertSql(
             """
-@__p_0='10'
-@__p_1='5'
+@p='10'
+@p0='5'
 
 SELECT "c0"."CustomerID", "c0"."Address", "c0"."City", "c0"."CompanyName", "c0"."ContactName", "c0"."ContactTitle", "c0"."Country", "c0"."Fax", "c0"."Phone", "c0"."PostalCode", "c0"."Region"
 FROM (
     SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
     FROM "Customers" AS "c"
     ORDER BY "c"."ContactName"
-    LIMIT @__p_0
+    LIMIT @p
 ) AS "c0"
 ORDER BY "c0"."ContactName"
-LIMIT -1 OFFSET @__p_1
+LIMIT -1 OFFSET @p0
 """);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Select_datetime_millisecond_component_composed(bool async)
     {
         await AssertQueryScalar(
@@ -68,8 +67,7 @@ FROM "Orders" AS "o"
 """);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Select_datetime_TimeOfDay_component_composed(bool async)
     {
         await AssertQueryScalar(
@@ -212,9 +210,9 @@ WHERE "o"."OrderDate" IS NOT NULL
 
         AssertSql(
             """
-@__millisecondsPerDay_0='86400000'
+@millisecondsPerDay='86400000'
 
-SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', "o"."OrderDate", COALESCE(CAST(CAST(CAST((CAST(strftime('%f', "o"."OrderDate") AS REAL) * 1000.0) % 1000.0 AS INTEGER) / @__millisecondsPerDay_0 AS REAL) AS TEXT), '') || ' days', COALESCE(CAST(CAST(CAST((CAST(strftime('%f', "o"."OrderDate") AS REAL) * 1000.0) % 1000.0 AS INTEGER) % @__millisecondsPerDay_0 AS REAL) / 1000.0 AS TEXT), '') || ' seconds'), '0'), '.') AS "OrderDate"
+SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', "o"."OrderDate", COALESCE(CAST(CAST(CAST((CAST(strftime('%f', "o"."OrderDate") AS REAL) * 1000.0) % 1000.0 AS INTEGER) / @millisecondsPerDay AS REAL) AS TEXT), '') || ' days', COALESCE(CAST(CAST(CAST((CAST(strftime('%f', "o"."OrderDate") AS REAL) * 1000.0) % 1000.0 AS INTEGER) % @millisecondsPerDay AS REAL) / 1000.0 AS TEXT), '') || ' seconds'), '0'), '.') AS "OrderDate"
 FROM "Orders" AS "o"
 WHERE "o"."OrderDate" IS NOT NULL
 """);
@@ -253,14 +251,14 @@ FROM (
 
         AssertSql(
             """
-@__p_0='7'
+@p='7'
 
 SELECT COUNT(*)
 FROM (
     SELECT 1
     FROM "Customers" AS "c"
     ORDER BY "c"."Country"
-    LIMIT -1 OFFSET @__p_0
+    LIMIT -1 OFFSET @p
 ) AS "c0"
 """);
     }
@@ -271,14 +269,14 @@ FROM (
 
         AssertSql(
             """
-@__p_0='7'
+@p='7'
 
 SELECT COUNT(*)
 FROM (
     SELECT 1
     FROM "Customers" AS "c"
     ORDER BY "c"."Country"
-    LIMIT @__p_0
+    LIMIT @p
 ) AS "c0"
 """);
     }
@@ -289,13 +287,13 @@ FROM (
 
         AssertSql(
             """
-@__p_0='7'
+@p='7'
 
 SELECT COUNT(*)
 FROM (
     SELECT 1
     FROM "Customers" AS "c"
-    LIMIT -1 OFFSET @__p_0
+    LIMIT -1 OFFSET @p
 ) AS "c0"
 """);
     }
@@ -306,21 +304,16 @@ FROM (
 
         AssertSql(
             """
-@__p_0='7'
+@p='7'
 
 SELECT COUNT(*)
 FROM (
     SELECT 1
     FROM "Customers" AS "c"
-    LIMIT @__p_0
+    LIMIT @p
 ) AS "c0"
 """);
     }
-
-    [ConditionalTheory(Skip = "Issue #16645 bitwise xor support")]
-    [MemberData(nameof(IsAsyncData))]
-    public override Task Where_bitwise_binary_xor(bool async)
-        => AssertTranslationFailed(() => base.Where_bitwise_binary_xor(async));
 
     public override Task Complex_nested_query_doesnt_try_binding_to_grandparent_when_parent_returns_complex_result(bool async)
         => null;
@@ -356,9 +349,9 @@ FROM "Orders" AS "o"
 
         AssertSql(
             """
-@__parameter_0='-' (Size = 1)
+@parameter='-' (Size = 1)
 
-SELECT @__parameter_0 || CAST("o"."OrderID" AS TEXT)
+SELECT @parameter || CAST("o"."OrderID" AS TEXT)
 FROM "Orders" AS "o"
 """);
     }
@@ -379,23 +372,20 @@ FROM "Orders" AS "o"
             CoreStrings.ClientProjectionCapturingConstantInMethodInstance(
                 "Microsoft.EntityFrameworkCore.Query.NorthwindMiscellaneousQuerySqliteTest",
                 "InstanceMethod"),
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Client_code_using_instance_method_throws(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Client_code_using_instance_method_throws(async))).Message);
 
     public override async Task Client_code_using_instance_in_static_method(bool async)
         => Assert.Equal(
             CoreStrings.ClientProjectionCapturingConstantInMethodArgument(
                 "Microsoft.EntityFrameworkCore.Query.NorthwindMiscellaneousQuerySqliteTest",
                 "StaticMethod"),
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Client_code_using_instance_in_static_method(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Client_code_using_instance_in_static_method(async))).Message);
 
     public override async Task Client_code_using_instance_in_anonymous_type(bool async)
         => Assert.Equal(
             CoreStrings.ClientProjectionCapturingConstantInTree(
                 "Microsoft.EntityFrameworkCore.Query.NorthwindMiscellaneousQuerySqliteTest"),
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Client_code_using_instance_in_anonymous_type(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Client_code_using_instance_in_anonymous_type(async))).Message);
 
     public override async Task Client_code_unknown_method(bool async)
         => await AssertTranslationFailedWithDetails(
@@ -407,49 +397,49 @@ FROM "Orders" AS "o"
     public override async Task Entity_equality_through_subquery_composite_key(bool async)
         => Assert.Equal(
             CoreStrings.EntityEqualityOnCompositeKeyEntitySubqueryNotSupported("==", nameof(OrderDetail)),
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Entity_equality_through_subquery_composite_key(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Entity_equality_through_subquery_composite_key(async)))
+            .Message);
 
     public override async Task DefaultIfEmpty_in_subquery_nested_filter_order_comparison(bool async)
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.DefaultIfEmpty_in_subquery_nested_filter_order_comparison(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(()
+                => base.DefaultIfEmpty_in_subquery_nested_filter_order_comparison(async))).Message);
 
     public override async Task Select_subquery_recursive_trivial(bool async)
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Select_subquery_recursive_trivial(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Select_subquery_recursive_trivial(async))).Message);
 
     public override async Task Select_correlated_subquery_ordered(bool async)
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Select_correlated_subquery_ordered(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Select_correlated_subquery_ordered(async))).Message);
 
     public override async Task Correlated_collection_with_distinct_without_default_identifiers_projecting_columns_with_navigation(
         bool async)
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Correlated_collection_with_distinct_without_default_identifiers_projecting_columns_with_navigation(async)))
+            (await Assert.ThrowsAsync<InvalidOperationException>(()
+                => base.Correlated_collection_with_distinct_without_default_identifiers_projecting_columns_with_navigation(async)))
             .Message);
 
     public override async Task Correlated_collection_with_distinct_without_default_identifiers_projecting_columns(bool async)
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Correlated_collection_with_distinct_without_default_identifiers_projecting_columns(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(()
+                => base.Correlated_collection_with_distinct_without_default_identifiers_projecting_columns(async))).Message);
 
     public override Task Max_on_empty_sequence_throws(bool async)
         => Assert.ThrowsAsync<InvalidOperationException>(() => base.Max_on_empty_sequence_throws(async));
 
+    public override Task Where_nanosecond_and_microsecond_component(bool async)
+        => AssertTranslationFailed(() => base.Where_nanosecond_and_microsecond_component(async));
+
     [ConditionalFact]
     public async Task Single_Predicate_Cancellation()
-        => await Assert.ThrowsAnyAsync<OperationCanceledException>(
-            async () =>
-                await Single_Predicate_Cancellation_test(Fixture.TestSqlLoggerFactory.CancelQuery()));
+        => await Assert.ThrowsAnyAsync<OperationCanceledException>(async () =>
+            await Single_Predicate_Cancellation_test(Fixture.TestSqlLoggerFactory.CancelQuery()));
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

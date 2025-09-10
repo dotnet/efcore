@@ -59,11 +59,10 @@ public class SqlServerUpdateSqlGenerator : UpdateAndSelectSqlGenerator, ISqlServ
         // Otherwise fall back to INSERT ... OUTPUT INTO @inserted; SELECT ... FROM @inserted.
         var table = StoreObjectIdentifier.Table(command.TableName, command.Schema);
 
-        return command.ColumnModifications.All(
-            o =>
-                !o.IsKey
-                || !o.IsRead
-                || o.Property?.GetValueGenerationStrategy(table) == SqlServerValueGenerationStrategy.IdentityColumn)
+        return command.ColumnModifications.All(o =>
+            !o.IsKey
+            || !o.IsRead
+            || o.Property?.GetValueGenerationStrategy(table) == SqlServerValueGenerationStrategy.IdentityColumn)
             ? AppendInsertAndSelectOperation(commandStringBuilder, command, commandPosition, out requiresTransaction)
             : AppendInsertSingleRowWithOutputInto(
                 commandStringBuilder,
@@ -235,11 +234,10 @@ public class SqlServerUpdateSqlGenerator : UpdateAndSelectSqlGenerator, ISqlServ
         var keyOperations = firstCommand.ColumnModifications.Where(o => o.IsKey).ToList();
 
         var writableOperations = modificationCommands[0].ColumnModifications
-            .Where(
-                o =>
-                    o.Property?.GetValueGenerationStrategy(table) != SqlServerValueGenerationStrategy.IdentityColumn
-                    && o.Property?.GetComputedColumnSql() is null
-                    && o.Property?.GetColumnType() is not "rowversion" and not "timestamp")
+            .Where(o =>
+                o.Property?.GetValueGenerationStrategy(table) != SqlServerValueGenerationStrategy.IdentityColumn
+                && o.Property?.GetComputedColumnSql() is null
+                && o.Property?.GetColumnType() is not "rowversion" and not "timestamp")
             .ToList();
 
         if (writeOperations.Count == 0)
@@ -324,11 +322,10 @@ public class SqlServerUpdateSqlGenerator : UpdateAndSelectSqlGenerator, ISqlServ
         // If we have an IDENTITY column, then multiple batched SELECT+INSERTs are faster up to a certain threshold (4), and then
         // MERGE ... OUTPUT INTO is faster.
         if (modificationCommands.Count < MergeIntoMinimumThreshold
-            && firstCommand.ColumnModifications.All(
-                o =>
-                    !o.IsKey
-                    || !o.IsRead
-                    || o.Property?.GetValueGenerationStrategy(table) == SqlServerValueGenerationStrategy.IdentityColumn))
+            && firstCommand.ColumnModifications.All(o =>
+                !o.IsKey
+                || !o.IsRead
+                || o.Property?.GetValueGenerationStrategy(table) == SqlServerValueGenerationStrategy.IdentityColumn))
         {
             requiresTransaction = true;
 
@@ -620,8 +617,8 @@ public class SqlServerUpdateSqlGenerator : UpdateAndSelectSqlGenerator, ISqlServ
         {
             var returnValueModification = command.ColumnModifications.First(c => c.Column is IStoreStoredProcedureReturnValue);
 
-            Check.DebugAssert(returnValueModification.UseCurrentValueParameter, "returnValueModification.UseCurrentValueParameter");
-            Check.DebugAssert(!returnValueModification.UseOriginalValueParameter, "!returnValueModification.UseOriginalValueParameter");
+            Check.DebugAssert(returnValueModification.UseCurrentValueParameter);
+            Check.DebugAssert(!returnValueModification.UseOriginalValueParameter);
 
             SqlGenerationHelper.GenerateParameterNamePlaceholder(commandStringBuilder, returnValueModification.ParameterName!);
 

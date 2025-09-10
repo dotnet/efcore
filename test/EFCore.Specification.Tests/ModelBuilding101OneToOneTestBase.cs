@@ -79,13 +79,10 @@ public abstract partial class ModelBuilding101TestBase
             {
                 public int Id { get; set; }
 
-                [ForeignKey("Blog")]
-                [Required]
+                [ForeignKey("Blog"), Required]
                 public int BlogId { get; set; }
 
-                [InverseProperty("Header")]
-                [ForeignKey("BlogId")]
-                [Required]
+                [InverseProperty("Header"), ForeignKey("BlogId"), Required]
                 public Blog Blog { get; set; }
             }
         }
@@ -156,8 +153,7 @@ public abstract partial class ModelBuilding101TestBase
                 [ForeignKey("Blog")]
                 public int? BlogId { get; set; }
 
-                [InverseProperty("Header")]
-                [ForeignKey("BlogId")]
+                [InverseProperty("Header"), ForeignKey("BlogId")]
                 public Blog Blog { get; set; }
             }
 
@@ -236,8 +232,7 @@ public abstract partial class ModelBuilding101TestBase
             {
                 public int Id { get; set; }
 
-                [ForeignKey("Id")]
-                [Required]
+                [ForeignKey("Id"), Required]
                 public Blog Blog { get; set; }
             }
 
@@ -262,9 +257,7 @@ public abstract partial class ModelBuilding101TestBase
             {
                 public int Id { get; set; }
 
-                [InverseProperty("Header")]
-                [ForeignKey("Id")]
-                [Required]
+                [InverseProperty("Header"), ForeignKey("Id"), Required]
                 public Blog Blog { get; set; }
             }
 
@@ -342,8 +335,7 @@ public abstract partial class ModelBuilding101TestBase
             {
                 public int Id { get; set; }
 
-                [ForeignKey("BlogId")]
-                [Required]
+                [ForeignKey("BlogId"), Required]
                 public Blog Blog { get; set; }
             }
 
@@ -368,9 +360,7 @@ public abstract partial class ModelBuilding101TestBase
             {
                 public int Id { get; set; }
 
-                [InverseProperty("Header")]
-                [ForeignKey("BlogId")]
-                [Required]
+                [InverseProperty("Header"), ForeignKey("BlogId"), Required]
                 public Blog Blog { get; set; }
             }
 
@@ -472,8 +462,7 @@ public abstract partial class ModelBuilding101TestBase
             {
                 public int Id { get; set; }
 
-                [InverseProperty("Header")]
-                [ForeignKey("BlogId")]
+                [InverseProperty("Header"), ForeignKey("BlogId")]
                 public Blog Blog { get; set; }
             }
 
@@ -774,12 +763,10 @@ public abstract partial class ModelBuilding101TestBase
             {
                 public int Id { get; set; }
 
-                [ForeignKey("Blog")]
-                [Required]
+                [ForeignKey("Blog"), Required]
                 public int BlogId { get; set; }
 
-                [ForeignKey("BlogId")]
-                [Required]
+                [ForeignKey("BlogId"), Required]
                 public Blog Blog { get; set; }
             }
 
@@ -943,8 +930,7 @@ public abstract partial class ModelBuilding101TestBase
             {
                 public int Id { get; set; }
 
-                [ForeignKey("BlogId")]
-                [Required]
+                [ForeignKey("BlogId"), Required]
                 public Blog Blog { get; set; }
             }
 
@@ -1349,13 +1335,10 @@ public abstract partial class ModelBuilding101TestBase
             {
                 public int Id { get; set; }
 
-                [ForeignKey("Blog")]
-                [Required]
+                [ForeignKey("Blog"), Required]
                 public int BlogId { get; set; }
 
-                [InverseProperty("Header")]
-                [ForeignKey("BlogId")]
-                [Required]
+                [InverseProperty("Header"), ForeignKey("BlogId"), Required]
                 public Blog Blog { get; set; }
             }
 
@@ -1448,8 +1431,7 @@ public abstract partial class ModelBuilding101TestBase
                 [ForeignKey("Blog")]
                 public int? BlogId { get; set; }
 
-                [InverseProperty("Header")]
-                [ForeignKey("BlogId")]
+                [InverseProperty("Header"), ForeignKey("BlogId")]
                 public Blog Blog { get; set; }
             }
 
@@ -1569,9 +1551,7 @@ public abstract partial class ModelBuilding101TestBase
             {
                 public int Id { get; set; }
 
-                [InverseProperty("Header")]
-                [ForeignKey("BlogId")]
-                [Required]
+                [InverseProperty("Header"), ForeignKey("BlogId"), Required]
                 public Blog Blog { get; set; }
             }
 
@@ -1660,8 +1640,7 @@ public abstract partial class ModelBuilding101TestBase
             {
                 public int Id { get; set; }
 
-                [InverseProperty("Header")]
-                [ForeignKey("BlogId")]
+                [InverseProperty("Header"), ForeignKey("BlogId")]
                 public Blog Blog { get; set; }
             }
 
@@ -1716,17 +1695,16 @@ public abstract partial class ModelBuilding101TestBase
         public class BlogContext1 : BlogContext0
         {
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-                => modelBuilder.Entity<Blog>(
-                    nestedBuilder =>
-                    {
-                        nestedBuilder.HasKey(e => new { e.Id1, e.Id2 });
+                => modelBuilder.Entity<Blog>(nestedBuilder =>
+                {
+                    nestedBuilder.HasKey(e => new { e.Id1, e.Id2 });
 
-                        nestedBuilder.HasOne(e => e.Header)
-                            .WithOne(e => e.Blog)
-                            .HasPrincipalKey<Blog>(e => new { e.Id1, e.Id2 })
-                            .HasForeignKey<BlogHeader>(e => new { e.BlogId1, e.BlogId2 })
-                            .IsRequired();
-                    });
+                    nestedBuilder.HasOne(e => e.Header)
+                        .WithOne(e => e.Blog)
+                        .HasPrincipalKey<Blog>(e => new { e.Id1, e.Id2 })
+                        .HasForeignKey<BlogHeader>(e => new { e.BlogId1, e.BlogId2 })
+                        .IsRequired();
+                });
         }
 
         public class BlogContext2 : BlogContext0
@@ -1794,9 +1772,7 @@ public abstract partial class ModelBuilding101TestBase
                 [Required]
                 public int BlogId2 { get; set; }
 
-                [InverseProperty("Header")]
-                [ForeignKey("BlogId1, BlogId2")]
-                [Required]
+                [InverseProperty("Header"), ForeignKey("BlogId1, BlogId2"), Required]
                 public Blog Blog { get; set; }
             }
 
@@ -1845,17 +1821,16 @@ public abstract partial class ModelBuilding101TestBase
         public class BlogContext1 : BlogContext0
         {
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-                => modelBuilder.Entity<Blog>(
-                    b =>
-                    {
-                        b.HasKey(e => new { e.Id1, e.Id2 });
+                => modelBuilder.Entity<Blog>(b =>
+                {
+                    b.HasKey(e => new { e.Id1, e.Id2 });
 
-                        b.HasOne(e => e.Header)
-                            .WithOne(e => e.Blog)
-                            .HasPrincipalKey<Blog>(e => new { e.Id1, e.Id2 })
-                            .HasForeignKey<BlogHeader>(e => new { e.BlogId1, e.BlogId2 })
-                            .IsRequired(false);
-                    });
+                    b.HasOne(e => e.Header)
+                        .WithOne(e => e.Blog)
+                        .HasPrincipalKey<Blog>(e => new { e.Id1, e.Id2 })
+                        .HasForeignKey<BlogHeader>(e => new { e.BlogId1, e.BlogId2 })
+                        .IsRequired(false);
+                });
         }
 
         public class BlogContext2 : BlogContext0
@@ -1922,8 +1897,7 @@ public abstract partial class ModelBuilding101TestBase
 
                 public int? BlogId2 { get; set; }
 
-                [InverseProperty("Header")]
-                [ForeignKey("BlogId1, BlogId2")]
+                [InverseProperty("Header"), ForeignKey("BlogId1, BlogId2")]
                 public Blog Blog { get; set; }
             }
 
@@ -1963,32 +1937,30 @@ public abstract partial class ModelBuilding101TestBase
                 => Set<BlogHeader>();
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-                => modelBuilder.Entity<Blog>(
-                    b =>
-                    {
-                        b.HasKey(e => new { e.Id1, e.Id2 });
+                => modelBuilder.Entity<Blog>(b =>
+                {
+                    b.HasKey(e => new { e.Id1, e.Id2 });
 
-                        b.HasOne(e => e.Header)
-                            .WithOne(e => e.Blog)
-                            .HasPrincipalKey<Blog>(e => new { e.Id1, e.Id2 })
-                            .IsRequired();
-                    });
+                    b.HasOne(e => e.Header)
+                        .WithOne(e => e.Blog)
+                        .HasPrincipalKey<Blog>(e => new { e.Id1, e.Id2 })
+                        .IsRequired();
+                });
         }
 
         public class BlogContext1 : BlogContext0
         {
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-                => modelBuilder.Entity<Blog>(
-                    b =>
-                    {
-                        b.HasKey(e => new { e.Id1, e.Id2 });
+                => modelBuilder.Entity<Blog>(b =>
+                {
+                    b.HasKey(e => new { e.Id1, e.Id2 });
 
-                        b.HasOne(e => e.Header)
-                            .WithOne(e => e.Blog)
-                            .HasPrincipalKey<Blog>(e => new { e.Id1, e.Id2 })
-                            .HasForeignKey<BlogHeader>("BlogId1", "BlogId2")
-                            .IsRequired();
-                    });
+                    b.HasOne(e => e.Header)
+                        .WithOne(e => e.Blog)
+                        .HasPrincipalKey<Blog>(e => new { e.Id1, e.Id2 })
+                        .HasForeignKey<BlogHeader>("BlogId1", "BlogId2")
+                        .IsRequired();
+                });
         }
 
         public class BlogContext2 : BlogContext0
@@ -2021,8 +1993,7 @@ public abstract partial class ModelBuilding101TestBase
             {
                 public int Id { get; set; }
 
-                [ForeignKey("BlogId1, BlogId2")]
-                [Required]
+                [ForeignKey("BlogId1, BlogId2"), Required]
                 public Blog Blog { get; set; }
             }
 
@@ -2049,9 +2020,7 @@ public abstract partial class ModelBuilding101TestBase
             {
                 public int Id { get; set; }
 
-                [InverseProperty("Header")]
-                [ForeignKey("BlogId1, BlogId2")]
-                [Required]
+                [InverseProperty("Header"), ForeignKey("BlogId1, BlogId2"), Required]
                 public Blog Blog { get; set; }
             }
 
@@ -2091,31 +2060,29 @@ public abstract partial class ModelBuilding101TestBase
                 => Set<BlogHeader>();
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-                => modelBuilder.Entity<Blog>(
-                    b =>
-                    {
-                        b.HasKey(e => new { e.Id1, e.Id2 });
+                => modelBuilder.Entity<Blog>(b =>
+                {
+                    b.HasKey(e => new { e.Id1, e.Id2 });
 
-                        b.HasOne(e => e.Header)
-                            .WithOne(e => e.Blog)
-                            .HasPrincipalKey<Blog>(e => new { e.Id1, e.Id2 });
-                    });
+                    b.HasOne(e => e.Header)
+                        .WithOne(e => e.Blog)
+                        .HasPrincipalKey<Blog>(e => new { e.Id1, e.Id2 });
+                });
         }
 
         public class BlogContext1 : BlogContext0
         {
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-                => modelBuilder.Entity<Blog>(
-                    b =>
-                    {
-                        b.HasKey(e => new { e.Id1, e.Id2 });
+                => modelBuilder.Entity<Blog>(b =>
+                {
+                    b.HasKey(e => new { e.Id1, e.Id2 });
 
-                        b.HasOne(e => e.Header)
-                            .WithOne(e => e.Blog)
-                            .HasPrincipalKey<Blog>(e => new { e.Id1, e.Id2 })
-                            .HasForeignKey<BlogHeader>("BlogId1", "BlogId2")
-                            .IsRequired(false);
-                    });
+                    b.HasOne(e => e.Header)
+                        .WithOne(e => e.Blog)
+                        .HasPrincipalKey<Blog>(e => new { e.Id1, e.Id2 })
+                        .HasForeignKey<BlogHeader>("BlogId1", "BlogId2")
+                        .IsRequired(false);
+                });
         }
 
         public class BlogContext2 : BlogContext0
@@ -2175,8 +2142,7 @@ public abstract partial class ModelBuilding101TestBase
             {
                 public int Id { get; set; }
 
-                [InverseProperty("Header")]
-                [ForeignKey("BlogId1, BlogId2")]
+                [InverseProperty("Header"), ForeignKey("BlogId1, BlogId2")]
                 public Blog Blog { get; set; }
             }
 
@@ -2236,8 +2202,7 @@ public abstract partial class ModelBuilding101TestBase
                 [ForeignKey("Husband")]
                 public int? HusbandId { get; set; }
 
-                [InverseProperty("Wife")]
-                [ForeignKey("HusbandId")]
+                [InverseProperty("Wife"), ForeignKey("HusbandId")]
                 public Person Husband { get; set; }
 
                 [InverseProperty("Husband")]
@@ -2343,14 +2308,10 @@ public abstract partial class ModelBuilding101TestBase
             {
                 public int Id { get; set; }
 
-                [ForeignKey("Blog")]
-                [Required]
+                [ForeignKey("Blog"), Required]
                 public int BlogId { get; set; }
 
-                [InverseProperty("Header")]
-                [ForeignKey("BlogId")]
-                [Required]
-                [DeleteBehavior(DeleteBehavior.Restrict)]
+                [InverseProperty("Header"), ForeignKey("BlogId"), Required, DeleteBehavior(DeleteBehavior.Restrict)]
                 public Blog Blog { get; set; }
             }
 

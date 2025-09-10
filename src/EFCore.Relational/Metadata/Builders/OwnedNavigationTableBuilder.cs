@@ -102,8 +102,8 @@ public class OwnedNavigationTableBuilder : IInfrastructure<OwnedNavigationBuilde
         string name,
         string? sql)
     {
-        Check.NotEmpty(name, nameof(name));
-        Check.NullButNotEmpty(sql, nameof(sql));
+        Check.NotEmpty(name);
+        Check.NullButNotEmpty(sql);
 
         var checkConstraint = InternalCheckConstraintBuilder.HasCheckConstraint(
             (IConventionEntityType)Metadata,

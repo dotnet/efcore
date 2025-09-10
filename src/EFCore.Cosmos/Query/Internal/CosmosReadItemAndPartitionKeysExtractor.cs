@@ -46,7 +46,7 @@ public class CosmosReadItemAndPartitionKeysExtractor : ExpressionVisitor
                 QueryExpression: SelectExpression
                 {
                     Sources: [{ Expression: ObjectReferenceExpression } rootSource, ..],
-                    Predicate: SqlExpression predicate
+                    Predicate: { } predicate
                 } select
             } shapedQuery)
         {
@@ -98,7 +98,7 @@ public class CosmosReadItemAndPartitionKeysExtractor : ExpressionVisitor
         var liftPartitionKeys = queryCompilationContext.PartitionKeyPropertyValues.Count == 0;
         foreach (var property in partitionKeyProperties)
         {
-            if (liftPartitionKeys && _partitionKeyPropertyValues[property].ValueExpression is Expression valueExpression)
+            if (liftPartitionKeys && _partitionKeyPropertyValues[property].ValueExpression is { } valueExpression)
             {
                 queryCompilationContext.PartitionKeyPropertyValues.Add(valueExpression);
             }
