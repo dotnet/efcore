@@ -91,11 +91,10 @@ namespace TestNamespace
             var __synthesizedOrdinal = runtimeEntityType.AddProperty(
                 "__synthesizedOrdinal",
                 typeof(int),
-                valueGenerated: ValueGenerated.OnAdd,
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 sentinel: 0);
             __synthesizedOrdinal.SetAccessors(
-                int (IInternalEntry entry) => (entry.FlaggedAsStoreGenerated(2) ? entry.ReadStoreGeneratedValue<int>(2) : (entry.FlaggedAsTemporary(2) && entry.ReadShadowValue<int>(2) == 0 ? entry.ReadTemporaryValue<int>(2) : entry.ReadShadowValue<int>(2))),
+                int (IInternalEntry entry) => entry.ReadShadowValue<int>(2),
                 int (IInternalEntry entry) => entry.ReadShadowValue<int>(2),
                 int (IInternalEntry entry) => entry.ReadOriginalValue<int>(__synthesizedOrdinal, 2),
                 int (IInternalEntry entry) => ((InternalEntityEntry)(entry)).ReadRelationshipSnapshotValue<int>(__synthesizedOrdinal, 2));
@@ -104,7 +103,7 @@ namespace TestNamespace
                 originalValueIndex: 2,
                 shadowIndex: 2,
                 relationshipIndex: 2,
-                storeGenerationIndex: 2);
+                storeGenerationIndex: -1);
             __synthesizedOrdinal.TypeMapping = IntTypeMapping.Default.Clone(
                 comparer: new ValueComparer<int>(
                     bool (int v1, int v2) => v1 == v2,
@@ -824,9 +823,9 @@ namespace TestNamespace
                     return ((ISnapshot)(new Snapshot<long, Guid, int, string, int, IPAddress[], IEnumerable<string>, IList<string>, List<IPAddress>, DateTime[], IEnumerable<byte>, IList<byte>, List<short>>(((ValueComparer<long>)(((IProperty)principalDerivedId).GetValueComparer())).Snapshot(source.GetCurrentValue<long>(principalDerivedId)), ((ValueComparer<Guid>)(((IProperty)principalDerivedAlternateId).GetValueComparer())).Snapshot(source.GetCurrentValue<Guid>(principalDerivedAlternateId)), ((ValueComparer<int>)(((IProperty)__synthesizedOrdinal).GetValueComparer())).Snapshot(source.GetCurrentValue<int>(__synthesizedOrdinal)), (source.GetCurrentValue<string>(details) == null ? null : ((ValueComparer<string>)(((IProperty)details).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(details))), ((ValueComparer<int>)(((IProperty)number).GetValueComparer())).Snapshot(source.GetCurrentValue<int>(number)), (((object)(source.GetCurrentValue<IPAddress[]>(refTypeArray))) == null ? null : ((IPAddress[])(((ValueComparer<object>)(((IProperty)refTypeArray).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IPAddress[]>(refTypeArray))))))), (((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable))) == null ? null : ((IEnumerable<string>)(((ValueComparer<object>)(((IProperty)refTypeEnumerable).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable))))))), (((object)(source.GetCurrentValue<IList<string>>(refTypeIList))) == null ? null : ((IList<string>)(((ValueComparer<object>)(((IProperty)refTypeIList).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IList<string>>(refTypeIList))))))), (((object)(source.GetCurrentValue<List<IPAddress>>(refTypeList))) == null ? null : ((List<IPAddress>)(((ValueComparer<object>)(((IProperty)refTypeList).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<List<IPAddress>>(refTypeList))))))), (((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray))) == null ? null : ((DateTime[])(((ValueComparer<IEnumerable<DateTime>>)(((IProperty)valueTypeArray).GetValueComparer())).Snapshot(((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray))))))), (source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable) == null ? null : ((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeEnumerable).GetValueComparer())).Snapshot(source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable))), (((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList))) == null ? null : ((IList<byte>)(((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeIList).GetValueComparer())).Snapshot(((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList))))))), (((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList))) == null ? null : ((List<short>)(((ValueComparer<IEnumerable<short>>)(((IProperty)valueTypeList).GetValueComparer())).Snapshot(((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList))))))))));
                 });
             runtimeEntityType.SetStoreGeneratedValuesFactory(
-                ISnapshot () => ((ISnapshot)(new Snapshot<long, Guid, int>(((ValueComparer<long>)(((IProperty)principalDerivedId).GetValueComparer())).Snapshot(default(long)), ((ValueComparer<Guid>)(((IProperty)principalDerivedAlternateId).GetValueComparer())).Snapshot(default(Guid)), ((ValueComparer<int>)(((IProperty)__synthesizedOrdinal).GetValueComparer())).Snapshot(default(int))))));
+                ISnapshot () => ((ISnapshot)(new Snapshot<long, Guid>(((ValueComparer<long>)(((IProperty)principalDerivedId).GetValueComparer())).Snapshot(default(long)), ((ValueComparer<Guid>)(((IProperty)principalDerivedAlternateId).GetValueComparer())).Snapshot(default(Guid))))));
             runtimeEntityType.SetTemporaryValuesFactory(
-                ISnapshot (IInternalEntry source) => ((ISnapshot)(new Snapshot<long, Guid, int>(default(long), default(Guid), default(int)))));
+                ISnapshot (IInternalEntry source) => ((ISnapshot)(new Snapshot<long, Guid>(default(long), default(Guid)))));
             runtimeEntityType.SetShadowValuesFactory(
                 ISnapshot (IDictionary<string, object> source) => ((ISnapshot)(new Snapshot<long, Guid, int>((source.ContainsKey("PrincipalDerivedId") ? ((long)(source["PrincipalDerivedId"])) : 0L), (source.ContainsKey("PrincipalDerivedAlternateId") ? ((Guid)(source["PrincipalDerivedAlternateId"])) : new Guid("00000000-0000-0000-0000-000000000000")), (source.ContainsKey("__synthesizedOrdinal") ? ((int)(source["__synthesizedOrdinal"])) : 0)))));
             runtimeEntityType.SetEmptyShadowValuesFactory(
@@ -845,7 +844,7 @@ namespace TestNamespace
                 originalValueCount: 13,
                 shadowCount: 3,
                 relationshipCount: 3,
-                storeGeneratedCount: 3));
+                storeGeneratedCount: 2));
             runtimeEntityType.AddAnnotation("Relational:ContainerColumnName", "ManyOwned");
             runtimeEntityType.AddAnnotation("Relational:FunctionName", null);
             runtimeEntityType.AddAnnotation("Relational:Schema", null);
