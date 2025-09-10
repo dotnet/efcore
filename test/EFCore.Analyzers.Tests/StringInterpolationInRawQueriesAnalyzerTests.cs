@@ -7,7 +7,7 @@ using Microsoft.CodeAnalysis.Testing;
 
 using Verify = CSharpCodeFixVerifier<StringsUsageInRawQueriesDiagnosticAnalyzer, InterpolatedStringUsageInRawQueriesCodeFixProvider>;
 
-public class StringInterpolationnRawQueriesAnalyzerTests
+public class StringInterpolationInRawQueriesAnalyzerTests
 {
     public static readonly TheoryData<string> DoNotReportData =
     [

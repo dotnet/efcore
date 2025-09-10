@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -173,23 +172,22 @@ public sealed class StringsUsageInRawQueriesDiagnosticAnalyzer : DiagnosticAnaly
     }
 
     private static DiagnosticDescriptor? AnalyzeInvocation(IInvocationOperation invocation)
-    {
-        // ...an interpolated string
-        if (invocation.Arguments[1].Value is IInterpolatedStringOperation interpolatedString
-            && AnalyzeInterpolatedString(interpolatedString))
+        => invocation.Arguments[1].Value switch
         {
-            return InterpolatedStringDescriptor;
-        }
+            // ...an interpolated string
+            IInterpolatedStringOperation interpolatedString when AnalyzeInterpolatedString(interpolatedString)
+                => InterpolatedStringDescriptor,
 
-        // ...a string concatenation
-        if (TryGetStringConcatenation(invocation.Arguments[1].Value, out var concatenation)
-            && AnalyzeConcatenation(concatenation))
-        {
-            return StringConcatenationDescriptor;
-        }
+            // ...a string concatenation
+            IBinaryOperation
+            {
+                OperatorKind: BinaryOperatorKind.Add,
+                Type.SpecialType: SpecialType.System_String,
+            } concatenation when AnalyzeConcatenation(concatenation)
+                => StringConcatenationDescriptor,
 
-        return null;
-    }
+            _ => null,
+        };
 
     private static bool AnalyzeInterpolatedString(IInterpolatedStringOperation interpolatedString)
     {
@@ -212,22 +210,6 @@ public sealed class StringsUsageInRawQueriesDiagnosticAnalyzer : DiagnosticAnaly
             }
         }
 
-        return false;
-    }
-
-    private static bool TryGetStringConcatenation(IOperation operation, [NotNullWhen(true)] out IBinaryOperation? concatenation)
-    {
-        if (operation is IBinaryOperation
-            {
-                OperatorKind: BinaryOperatorKind.Add,
-                Type.SpecialType: SpecialType.System_String,
-            } binaryOperation)
-        {
-            concatenation = binaryOperation;
-            return true;
-        }
-
-        concatenation = default;
         return false;
     }
 
