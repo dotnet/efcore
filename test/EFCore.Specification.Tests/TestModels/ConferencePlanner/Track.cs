@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ConferencePlanner;
 
+#nullable disable
+
 public class Track : ConferenceDTO.Track
 {
     public virtual ICollection<Session> Sessions { get; set; }

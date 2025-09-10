@@ -3,11 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class TPCManyToManyNoTrackingQueryRelationalTestBase<TFixture> : ManyToManyNoTrackingQueryRelationalTestBase<TFixture>
-    where TFixture : TPCManyToManyQueryRelationalFixture, new()
-{
-    protected TPCManyToManyNoTrackingQueryRelationalTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-}
+#nullable disable
+
+public abstract class TPCManyToManyNoTrackingQueryRelationalTestBase<TFixture>(TFixture fixture)
+    : ManyToManyNoTrackingQueryRelationalTestBase<TFixture>(fixture)
+    where TFixture : TPCManyToManyQueryRelationalFixture, new();

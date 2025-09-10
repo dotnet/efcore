@@ -5,8 +5,8 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class NorthwindQueryFiltersCustomizer : IModelCustomizer
+public class NorthwindQueryFiltersCustomizer : NoopModelCustomizer
 {
-    public void Customize(ModelBuilder modelBuilder, DbContext context)
+    public override void Customize(ModelBuilder modelBuilder, DbContext context)
         => ((NorthwindContext)context).ConfigureFilters(modelBuilder);
 }
