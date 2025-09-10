@@ -6321,6 +6321,38 @@ ORDER BY [c].[CustomerID], [e].[EmployeeID]
 """);
     }
 
+    public override async Task SelectMany_correlated_with_DefaultIfEmpty_and_Select_value_type_in_selector_throws(bool async)
+    {
+        await base.SelectMany_correlated_with_DefaultIfEmpty_and_Select_value_type_in_selector_throws(async);
+
+        AssertSql(
+            """
+SELECT [o0].[OrderID]
+FROM [Customers] AS [c]
+LEFT JOIN (
+    SELECT [o].[OrderID], [o].[CustomerID]
+    FROM [Orders] AS [o]
+    WHERE [o].[CustomerID] = N'NONEXISTENT'
+) AS [o0] ON [c].[CustomerID] = [o0].[CustomerID]
+""");
+    }
+
+    public override async Task SelectMany_correlated_with_Select_value_type_and_DefaultIfEmpty_in_selector(bool async)
+    {
+        await base.SelectMany_correlated_with_Select_value_type_and_DefaultIfEmpty_in_selector(async);
+
+        AssertSql(
+            """
+SELECT COALESCE([o0].[OrderID], 0)
+FROM [Customers] AS [c]
+OUTER APPLY (
+    SELECT TOP(2) [o].[OrderID]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID] AND [o].[CustomerID] = N'NONEXISTENT'
+) AS [o0]
+""");
+    }
+
     public override async Task Select_Property_when_shadow_unconstrained_generic_method(bool async)
     {
         await base.Select_Property_when_shadow_unconstrained_generic_method(async);
