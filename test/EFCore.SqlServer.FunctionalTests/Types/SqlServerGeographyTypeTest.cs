@@ -19,6 +19,18 @@ public abstract class GeographyTypeTestBase<T, TFixture>(TFixture fixture) : Rel
         Assert.Equal(Fixture.Value, result.Value, Fixture.Comparer);
     }
 
+    // SQL Server doesn't support the equality operator on geometry, override to use EqualsTopologically
+    public override async Task Query_property_within_json()
+    {
+        await using var context = Fixture.CreateContext();
+
+        Fixture.TestSqlLoggerFactory.Clear();
+
+        var result = await context.Set<JsonTypeEntity<T>>().Where(e => e.JsonContainer.Value.EqualsTopologically(Fixture.Value)).SingleAsync();
+
+        Assert.Equal(Fixture.Value, result.JsonContainer.Value, Fixture.Comparer);
+    }
+
     public override async Task ExecuteUpdate_within_json_to_nonjson_column()
     {
         await base.ExecuteUpdate_within_json_to_nonjson_column();
@@ -55,6 +67,22 @@ FROM [JsonTypeEntity] AS [j]
 public class PointTypeTest(PointTypeTest.PointTypeFixture fixture)
     : GeographyTypeTestBase<Point, PointTypeTest.PointTypeFixture>(fixture)
 {
+    public override async Task Query_property_within_json()
+    {
+        await base.Query_property_within_json();
+
+        // Note that the JSON_VALUE RETURNING clause is never used with geometry even on SQL Server 2025, as that type isn't
+        // supported (#36627).
+        AssertSql(
+            """
+@Fixture_Value='0xE6100000010CC9772975C9CF4740DCF4673F52965EC0' (Size = 22) (DbType = Object)
+
+SELECT TOP(2) [j].[Id], [j].[OtherValue], [j].[Value], [j].[JsonContainer]
+FROM [JsonTypeEntity] AS [j]
+WHERE CAST(JSON_VALUE([j].[JsonContainer], '$.Value') AS geography).STEquals(@Fixture_Value) = CAST(1 AS bit)
+""");
+    }
+
     public class PointTypeFixture() : GeographyTypeFixture
     {
         public override Point Value { get; } = new(-122.34877, 47.6233355) { SRID = 4326 };
@@ -65,6 +93,22 @@ public class PointTypeTest(PointTypeTest.PointTypeFixture fixture)
 public class LineStringTypeTest(LineStringTypeTest.LineStringTypeFixture fixture)
     : GeographyTypeTestBase<LineString, LineStringTypeTest.LineStringTypeFixture>(fixture)
 {
+    public override async Task Query_property_within_json()
+    {
+        await base.Query_property_within_json();
+
+        // Note that the JSON_VALUE RETURNING clause is never used with geometry even on SQL Server 2025, as that type isn't
+        // supported (#36627).
+        AssertSql(
+            """
+@Fixture_Value='0xE61000000114C9772975C9CF4740DCF4673F52965EC0AAD2BB1D86CC47407854...' (Size = 38) (DbType = Object)
+
+SELECT TOP(2) [j].[Id], [j].[OtherValue], [j].[Value], [j].[JsonContainer]
+FROM [JsonTypeEntity] AS [j]
+WHERE CAST(JSON_VALUE([j].[JsonContainer], '$.Value') AS geography).STEquals(@Fixture_Value) = CAST(1 AS bit)
+""");
+    }
+
     public class LineStringTypeFixture() : GeographyTypeFixture
     {
         public override LineString Value { get; } = new(
@@ -87,6 +131,22 @@ public class LineStringTypeTest(LineStringTypeTest.LineStringTypeFixture fixture
 public class PolygonTypeTest(PolygonTypeTest.PolygonTypeFixture fixture)
     : GeographyTypeTestBase<Polygon, PolygonTypeTest.PolygonTypeFixture>(fixture)
 {
+    public override async Task Query_property_within_json()
+    {
+        await base.Query_property_within_json();
+
+        // Note that the JSON_VALUE RETURNING clause is never used with geometry even on SQL Server 2025, as that type isn't
+        // supported (#36627).
+        AssertSql(
+            """
+@Fixture_Value='0xE61000000104050000008FC2F5285CCF47406666666666965EC0AE47E17A14CE...' (Size = 112) (DbType = Object)
+
+SELECT TOP(2) [j].[Id], [j].[OtherValue], [j].[Value], [j].[JsonContainer]
+FROM [JsonTypeEntity] AS [j]
+WHERE CAST(JSON_VALUE([j].[JsonContainer], '$.Value') AS geography).STEquals(@Fixture_Value) = CAST(1 AS bit)
+""");
+    }
+
     public class PolygonTypeFixture() : GeographyTypeFixture
     {
         // Simple rectangle
@@ -116,6 +176,22 @@ public class PolygonTypeTest(PolygonTypeTest.PolygonTypeFixture fixture)
 public class MultiPointTypeTest(MultiPointTypeTest.MultiPointTypeFixture fixture)
     : GeographyTypeTestBase<MultiPoint, MultiPointTypeTest.MultiPointTypeFixture>(fixture)
 {
+    public override async Task Query_property_within_json()
+    {
+        await base.Query_property_within_json();
+
+        // Note that the JSON_VALUE RETURNING clause is never used with geometry even on SQL Server 2025, as that type isn't
+        // supported (#36627).
+        AssertSql(
+            """
+@Fixture_Value='0xE61000000104020000008FC2F5285CCF47406666666666965EC01F85EB51B8CE...' (Size = 87) (DbType = Object)
+
+SELECT TOP(2) [j].[Id], [j].[OtherValue], [j].[Value], [j].[JsonContainer]
+FROM [JsonTypeEntity] AS [j]
+WHERE CAST(JSON_VALUE([j].[JsonContainer], '$.Value') AS geography).STEquals(@Fixture_Value) = CAST(1 AS bit)
+""");
+    }
+
     public class MultiPointTypeFixture() : GeographyTypeFixture
     {
         public override MultiPoint Value { get; } = new([
@@ -136,6 +212,22 @@ public class MultiPointTypeTest(MultiPointTypeTest.MultiPointTypeFixture fixture
 public class MultiLineStringTypeTest(MultiLineStringTypeTest.MultiLineStringTypeFixture fixture)
     : GeographyTypeTestBase<MultiLineString, MultiLineStringTypeTest.MultiLineStringTypeFixture>(fixture)
 {
+    public override async Task Query_property_within_json()
+    {
+        await base.Query_property_within_json();
+
+        // Note that the JSON_VALUE RETURNING clause is never used with geometry even on SQL Server 2025, as that type isn't
+        // supported (#36627).
+        AssertSql(
+            """
+@Fixture_Value='0xE61000000104040000008FC2F5285CCF47406666666666965EC01F85EB51B8CE...' (Size = 119) (DbType = Object)
+
+SELECT TOP(2) [j].[Id], [j].[OtherValue], [j].[Value], [j].[JsonContainer]
+FROM [JsonTypeEntity] AS [j]
+WHERE CAST(JSON_VALUE([j].[JsonContainer], '$.Value') AS geography).STEquals(@Fixture_Value) = CAST(1 AS bit)
+""");
+    }
+
     public class MultiLineStringTypeFixture() : GeographyTypeFixture
     {
         public override MultiLineString Value { get; } = new([
@@ -167,6 +259,22 @@ public class MultiLineStringTypeTest(MultiLineStringTypeTest.MultiLineStringType
 public class MultiPolygonTypeTest(MultiPolygonTypeTest.MultiPolygonTypeFixture fixture)
     : GeographyTypeTestBase<MultiPolygon, MultiPolygonTypeTest.MultiPolygonTypeFixture>(fixture)
 {
+    public override async Task Query_property_within_json()
+    {
+        await base.Query_property_within_json();
+
+        // Note that the JSON_VALUE RETURNING clause is never used with geometry even on SQL Server 2025, as that type isn't
+        // supported (#36627).
+        AssertSql(
+            """
+@Fixture_Value='0xE610000001040A0000008FC2F5285CCF47406666666666965EC01F85EB51B8CE...' (Size = 215) (DbType = Object)
+
+SELECT TOP(2) [j].[Id], [j].[OtherValue], [j].[Value], [j].[JsonContainer]
+FROM [JsonTypeEntity] AS [j]
+WHERE CAST(JSON_VALUE([j].[JsonContainer], '$.Value') AS geography).STEquals(@Fixture_Value) = CAST(1 AS bit)
+""");
+    }
+
     public class MultiPolygonTypeFixture() : GeographyTypeFixture
     {
         public override MultiPolygon Value { get; } = new(
@@ -212,6 +320,22 @@ public class MultiPolygonTypeTest(MultiPolygonTypeTest.MultiPolygonTypeFixture f
 public class GeometryCollectionTypeTest(GeometryCollectionTypeTest.GeometryCollectionTypeFixture fixture)
     : GeographyTypeTestBase<GeometryCollection, GeometryCollectionTypeTest.GeometryCollectionTypeFixture>(fixture)
 {
+    public override async Task Query_property_within_json()
+    {
+        await base.Query_property_within_json();
+
+        // Note that the JSON_VALUE RETURNING clause is never used with geometry even on SQL Server 2025, as that type isn't
+        // supported (#36627).
+        AssertSql(
+            """
+@Fixture_Value='0xE61000000104080000008FC2F5285CCF47406666666666965EC08FC2F5285CCF...' (Size = 197) (DbType = Object)
+
+SELECT TOP(2) [j].[Id], [j].[OtherValue], [j].[Value], [j].[JsonContainer]
+FROM [JsonTypeEntity] AS [j]
+WHERE CAST(JSON_VALUE([j].[JsonContainer], '$.Value') AS geography).STEquals(@Fixture_Value) = CAST(1 AS bit)
+""");
+    }
+
     public class GeometryCollectionTypeFixture() : GeographyTypeFixture
     {
         public override GeometryCollection Value { get; } = new(

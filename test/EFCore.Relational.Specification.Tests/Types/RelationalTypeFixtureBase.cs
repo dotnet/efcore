@@ -22,14 +22,20 @@ public abstract class RelationalTypeFixtureBase<T> : TypeFixtureBase<T>, ITestSq
         {
             b.ToTable(nameof(JsonTypeEntity<>));
 
-            modelBuilder.Entity<JsonTypeEntity<T>>().Property(e => e.Id).ValueGeneratedNever();
-
-            b.ComplexProperty(e => e.JsonContainer, jc =>
+            modelBuilder.Entity<JsonTypeEntity<T>>(b =>
             {
-                jc.ToJson();
+                b.Property(e => e.Id).ValueGeneratedNever();
 
-                jc.Property(e => e.Value).HasColumnType(StoreType);
-                jc.Property(e => e.OtherValue).HasColumnType(StoreType);
+                b.Property(e => e.Value).HasColumnType(StoreType);
+                b.Property(e => e.OtherValue).HasColumnType(StoreType);
+
+                b.ComplexProperty(e => e.JsonContainer, jc =>
+                {
+                    jc.ToJson();
+
+                    jc.Property(e => e.Value).HasColumnType(StoreType);
+                    jc.Property(e => e.OtherValue).HasColumnType(StoreType);
+                });
             });
         });
     }

@@ -79,10 +79,10 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
-    UPDATE [j]
-    SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', JSON_VALUE(JSON_OBJECT('v': [j].[OtherValue]), '$.v'))
-    FROM [JsonTypeEntity] AS [j]
-    """);
+UPDATE [j]
+SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', JSON_VALUE(JSON_OBJECT('v': [j].[OtherValue]), '$.v'))
+FROM [JsonTypeEntity] AS [j]
+""");
         }
     }
 }
@@ -239,10 +239,10 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
-    UPDATE [j]
-    SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', JSON_VALUE(JSON_OBJECT('v': [j].[OtherValue]), '$.v'))
-    FROM [JsonTypeEntity] AS [j]
-    """);
+UPDATE [j]
+SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', JSON_VALUE(JSON_OBJECT('v': [j].[OtherValue]), '$.v'))
+FROM [JsonTypeEntity] AS [j]
+""");
         }
     }
 

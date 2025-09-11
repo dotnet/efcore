@@ -14,7 +14,7 @@ public abstract class RelationalTypeTestBase<T, TFixture>(TFixture fixture) : Ty
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    #region SaveChanges
+    #region JSON
 
     [ConditionalFact]
     public virtual async Task SaveChanges_within_json()
@@ -39,9 +39,17 @@ public abstract class RelationalTypeTestBase<T, TFixture>(TFixture fixture) : Ty
                 }
             });
 
-    #endregion SaveChanges
+    [ConditionalFact]
+    public virtual async Task Query_property_within_json()
+    {
+        await using var context = Fixture.CreateContext();
 
-    #region ExecuteUpdate
+        Fixture.TestSqlLoggerFactory.Clear();
+
+        var result = await context.Set<JsonTypeEntity<T>>().Where(e => e.JsonContainer.Value.Equals(Fixture.Value)).SingleAsync();
+
+        Assert.Equal(Fixture.Value, result.JsonContainer.Value, Fixture.Comparer);
+    }
 
     [ConditionalFact]
     public virtual async Task ExecuteUpdate_within_json_to_parameter()
@@ -121,7 +129,7 @@ public abstract class RelationalTypeTestBase<T, TFixture>(TFixture fixture) : Ty
                 }
             });
 
-    #endregion ExecuteUpdate
+    #endregion JSON
 
     protected void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
