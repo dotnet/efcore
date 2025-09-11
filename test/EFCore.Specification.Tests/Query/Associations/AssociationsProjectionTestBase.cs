@@ -259,9 +259,9 @@ public abstract class AssociationsProjectionTestBase<TFixture>(TFixture fixture)
         => AssertQuery(
             ss => ss.Set<RootEntity>()
                 .Select(x => ss.Set<RootEntity>()
-                    .OrderBy(e => e.Id)
-                    .Select(e => e.RequiredRelated)
-                    .FirstOrDefault()!.RequiredNested),
+                .OrderBy(e => e.Id)
+                .Select(e => e.RequiredRelated)
+                .FirstOrDefault()!.RequiredNested),
             queryTrackingBehavior: queryTrackingBehavior);
 
     [ConditionalTheory, MemberData(nameof(TrackingData))]
@@ -269,9 +269,9 @@ public abstract class AssociationsProjectionTestBase<TFixture>(TFixture fixture)
         => AssertQuery(
             ss => ss.Set<RootEntity>()
                 .Select(x => ss.Set<RootEntity>()
-                    .OrderBy(e => e.Id)
-                    .Select(e => e.OptionalRelated)
-                    .FirstOrDefault()!.RequiredNested),
+                .OrderBy(e => e.Id)
+                .Select(e => e.OptionalRelated)
+                .FirstOrDefault()!.RequiredNested),
             queryTrackingBehavior: queryTrackingBehavior);
 
     // [ConditionalTheory]

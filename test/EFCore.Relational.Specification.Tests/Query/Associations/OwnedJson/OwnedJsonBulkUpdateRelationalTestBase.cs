@@ -42,14 +42,16 @@ public abstract class OwnedJsonBulkUpdateRelationalTestBase<TFixture> : BulkUpda
     {
         var newNested = new NestedType
         {
+            Id = 1000,
             Name = "Updated nested name",
             Int = 80,
-            String = "Updated nested string"
+            String = "Updated nested string",
+            Ints = [1, 2, 4]
         };
 
         await AssertTranslationFailedWithDetails(
-            RelationalStrings.InvalidPropertyInSetProperty("x => x.RequiredRelated.RequiredNested"),
-            // RelationalStrings.ExecuteOperationOnOwnedJsonIsNotSupported("ExecuteUpdate", "RootEntity.RequiredRelated#RelatedType"),
+            RelationalStrings.InvalidPropertyInSetProperty(
+                """r => EF.Property<NestedType>(EF.Property<RelatedType>(r, "RequiredRelated"), "RequiredNested")"""),
             () => AssertUpdate(
                 ss => ss.Set<RootEntity>(),
                 c => c,
