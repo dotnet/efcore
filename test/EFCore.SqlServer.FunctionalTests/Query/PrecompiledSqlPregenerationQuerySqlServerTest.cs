@@ -233,18 +233,18 @@ ORDER BY [b].[Name]
         await Test(
             """
 string[] names = ["foo", "bar"];
-var blogs = await context.Blogs.Where(b => names.Contains(b.Name)).ToListAsync();
+var blogs = await context.Blogs.Where(b => ((IEnumerable<string>)names).Contains(b.Name)).ToListAsync();
 """,
             interceptorCodeAsserter: code => Assert.Contains(nameof(RelationalCommandCache), code));
 
         AssertSql(
             """
-@names1='foo' (Size = 4000)
-@names2='bar' (Size = 4000)
+@p1='foo' (Size = 4000)
+@p2='bar' (Size = 4000)
 
 SELECT [b].[Id], [b].[Name]
 FROM [Blogs] AS [b]
-WHERE [b].[Name] IN (@names1, @names2)
+WHERE [b].[Name] IN (@p1, @p2)
 """);
     }
 

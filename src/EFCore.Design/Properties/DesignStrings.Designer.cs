@@ -439,6 +439,22 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 assembly, migrationsAssembly);
 
         /// <summary>
+        ///     MSBuild Workspace diagnostics:{diagnostics}
+        /// </summary>
+        public static string MSBuildWorkspaceDiagnostics(object? diagnostics)
+            => string.Format(
+                GetString("MSBuildWorkspaceDiagnostics", nameof(diagnostics)),
+                diagnostics);
+
+        /// <summary>
+        ///     MSBuild Workspace failure: {kind} - {message}
+        /// </summary>
+        public static string MSBuildWorkspaceFailure(object? kind, object? message)
+            => string.Format(
+                GetString("MSBuildWorkspaceFailure", nameof(kind), nameof(message)),
+                kind, message);
+
+        /// <summary>
         ///     The annotation '{annotationName}' was specified twice with potentially different values. Specifying the same annotation multiple times for different providers is no longer supported. Review the generated Migration to ensure it is correct and, if necessary, edit the Migration to fix any issues.
         /// </summary>
         public static string MultipleAnnotationConflict(object? annotationName)
@@ -657,6 +673,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static string QueryPrecompilationErrors
             => GetString("QueryPrecompilationErrors");
+
+        /// <summary>
+        ///     Failed to load project for query precompilation. Project: {project}. Error: {error}
+        /// </summary>
+        public static string QueryPrecompilationProjectLoadFailed(object? project, object? error)
+            => string.Format(
+                GetString("QueryPrecompilationProjectLoadFailed", nameof(project), nameof(error)),
+                project, error);
 
         /// <summary>
         ///     No files were generated in directory '{outputDirectoryName}'. The following file(s) already exist(s) and must be made writeable to continue: {readOnlyFiles}.

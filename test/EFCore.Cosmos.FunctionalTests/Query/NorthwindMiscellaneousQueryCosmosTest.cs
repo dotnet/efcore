@@ -3367,7 +3367,7 @@ ORDER BY c["City"], c["id"]
         // Cosmos client evaluation. Issue #17246.
         Assert.Equal(
             CoreStrings.ExpressionParameterizationExceptionSensitive(
-                "value(Microsoft.EntityFrameworkCore.Query.NorthwindMiscellaneousQueryTestBase`1+<>c__DisplayClass175_0[Microsoft.EntityFrameworkCore.Query.NorthwindQueryCosmosFixture`1[Microsoft.EntityFrameworkCore.TestUtilities.NoopModelCustomizer]]).ss.Set().Any()"),
+                "value(Microsoft.EntityFrameworkCore.Query.NorthwindMiscellaneousQueryTestBase`1+<>c__DisplayClass177_0[Microsoft.EntityFrameworkCore.Query.NorthwindQueryCosmosFixture`1[Microsoft.EntityFrameworkCore.TestUtilities.NoopModelCustomizer]]).ss.Set().Any()"),
             (await Assert.ThrowsAsync<InvalidOperationException>(() => base.SelectMany_primitive_select_subquery(async))).Message);
 
         AssertSql();
@@ -3510,6 +3510,22 @@ WHERE (c["Title"] = @value)
     {
         // Cosmos client evaluation. Issue #17246.
         await AssertTranslationFailed(() => base.SelectMany_correlated_subquery_simple(async));
+
+        AssertSql();
+    }
+
+    public override async Task SelectMany_correlated_with_DefaultIfEmpty_and_Select_value_type_in_selector_throws(bool async)
+    {
+        // The test "passes" since the base implementation expects InvalidOperation (but for a different reason).
+        await base.SelectMany_correlated_with_DefaultIfEmpty_and_Select_value_type_in_selector_throws(async);
+
+        AssertSql();
+    }
+
+    public override async Task SelectMany_correlated_with_Select_value_type_and_DefaultIfEmpty_in_selector(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.SelectMany_correlated_with_Select_value_type_and_DefaultIfEmpty_in_selector(async));
 
         AssertSql();
     }

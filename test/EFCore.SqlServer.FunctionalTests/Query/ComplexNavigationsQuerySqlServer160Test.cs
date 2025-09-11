@@ -1808,10 +1808,10 @@ SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Required_Id]
 LEFT JOIN (
-    SELECT [l1].[Id], [l1].[OneToMany_Required_Inverse3Id]
+    SELECT [l1].[Id], [l1].[OneToMany_Required_Inverse3Id] AS [OneToMany_Required_Inverse3Id0]
     FROM [LevelThree] AS [l1]
     WHERE [l1].[Id] > 5
-) AS [l2] ON [l0].[Id] = [l2].[OneToMany_Required_Inverse3Id]
+) AS [l2] ON [l0].[Id] = [l2].[OneToMany_Required_Inverse3Id0]
 WHERE [l2].[Id] IS NOT NULL
 """);
     }
@@ -1988,14 +1988,14 @@ WHERE [l2].[Id] IS NOT NULL
 SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id]
 FROM [LevelOne] AS [l]
 LEFT JOIN (
-    SELECT [l1].[Id], [l1].[OneToMany_Required_Inverse2Id]
+    SELECT [l1].[Id], [l1].[OneToMany_Required_Inverse2Id0]
     FROM (
-        SELECT [l0].[Id], [l0].[OneToMany_Required_Inverse2Id], ROW_NUMBER() OVER(PARTITION BY [l0].[OneToMany_Required_Inverse2Id] ORDER BY [l0].[Id]) AS [row]
+        SELECT [l0].[Id], [l0].[OneToMany_Required_Inverse2Id] AS [OneToMany_Required_Inverse2Id0], ROW_NUMBER() OVER(PARTITION BY [l0].[OneToMany_Required_Inverse2Id] ORDER BY [l0].[Id]) AS [row]
         FROM [LevelTwo] AS [l0]
         WHERE [l0].[Id] > 5
     ) AS [l1]
     WHERE [l1].[row] <= 3
-) AS [l2] ON [l].[Id] = [l2].[OneToMany_Required_Inverse2Id]
+) AS [l2] ON [l].[Id] = [l2].[OneToMany_Required_Inverse2Id0]
 WHERE [l2].[Id] IS NOT NULL
 """);
     }

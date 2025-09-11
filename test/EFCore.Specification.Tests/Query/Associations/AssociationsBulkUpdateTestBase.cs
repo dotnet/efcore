@@ -88,13 +88,19 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
     {
         var newRelated = new RelatedType
         {
+            Id = 1000,
             Name = "Updated related name",
+            Int = 80,
+            String = "Updated nested string",
+            Ints = [1, 2, 3],
 
             RequiredNested = new NestedType
             {
+                Id = 1000,
                 Name = "Updated nested name",
                 Int = 80,
-                String = "Updated nested string"
+                String = "Updated nested string",
+                Ints = [1, 2, 3]
             },
             OptionalNested = null,
             NestedCollection = []
@@ -112,9 +118,11 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
     {
         var newNested = new NestedType
         {
+            Id = 1000,
             Name = "Updated nested name",
             Int = 80,
-            String = "Updated nested string"
+            String = "Updated nested string",
+            Ints = [1, 2, 4]
         };
 
         return AssertUpdate(
@@ -149,15 +157,19 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
                 x => x.RequiredRelated,
                 new RelatedType
                 {
+                    Id = 1000,
                     Name = "Updated related name",
                     Int = 70,
                     String = "Updated related string",
+                    Ints = [1, 2, 4],
 
                     RequiredNested = new NestedType
                     {
+                        Id = 1000,
                         Name = "Updated nested name",
                         Int = 80,
-                        String = "Updated nested string"
+                        String = "Updated nested string",
+                        Ints = [1, 2, 4]
                     },
                     OptionalNested = null,
                     NestedCollection = []
@@ -173,15 +185,19 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
                 x => x.RequiredRelated,
                 x => new RelatedType
                 {
+                    Id = 1000,
                     Name = "Updated related name",
                     Int = 70,
                     String = "Updated related string",
+                    Ints = new() { 1, 2, 4 },
 
                     RequiredNested = new NestedType
                     {
+                        Id = 1000,
                         Name = "Updated nested name",
                         Int = 80,
-                        String = "Updated nested string"
+                        String = "Updated nested string",
+                        Ints = new() { 1, 2, 4 }
                     },
                     OptionalNested = null,
                     NestedCollection = new List<NestedType>()
@@ -197,9 +213,11 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
                 x => x.RequiredRelated.RequiredNested,
                 x => new NestedType
                 {
+                    Id = 1000,
                     Name = "Updated nested name",
                     Int = 80,
-                    String = "Updated nested string"
+                    String = "Updated nested string",
+                    Ints = new() { 1, 2, 4 }
                 }),
             rowsAffectedCount: 7);
 
@@ -242,26 +260,38 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
         [
             new()
             {
+                Id = 1000,
                 Name = "Updated related name1",
+                Int = 80,
+                String = "Updated related string1",
+                Ints = [1, 2, 4],
 
                 RequiredNested = new()
                 {
+                    Id = 1000,
                     Name = "Updated nested name1",
                     Int = 80,
-                    String = "Updated nested string1"
+                    String = "Updated nested string1",
+                    Ints = [1, 2, 4]
                 },
                 OptionalNested = null,
                 NestedCollection = []
             },
             new()
             {
+                Id = 1001,
                 Name = "Updated related name2",
+                Int = 81,
+                String = "Updated related string2",
+                Ints = [1, 2, 4],
 
                 RequiredNested = new()
                 {
+                    Id = 1001,
                     Name = "Updated nested name2",
                     Int = 81,
-                    String = "Updated nested string2"
+                    String = "Updated nested string2",
+                    Ints = [1, 2, 4]
                 },
                 OptionalNested = null,
                 NestedCollection = []
@@ -282,15 +312,19 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
         [
             new()
             {
+                Id = 1000,
                 Name = "Updated nested name1",
                 Int = 80,
-                String = "Updated nested string1"
+                String = "Updated nested string1",
+                Ints = [1, 2, 4]
             },
             new()
             {
+                Id = 1001,
                 Name = "Updated nested name2",
                 Int = 81,
-                String = "Updated nested string2"
+                String = "Updated nested string2",
+                Ints = [1, 2, 4]
             },
         ];
 
@@ -312,15 +346,19 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
                 {
                     new()
                     {
+                        Id = 1000,
                         Name = "Updated nested name1",
                         Int = 80,
-                        String = "Updated nested string1"
+                        String = "Updated nested string1",
+                        Ints = new() { 1, 2, 4 }
                     },
                     new()
                     {
+                        Id = 1001,
                         Name = "Updated nested name2",
                         Int = 81,
-                        String = "Updated nested string2"
+                        String = "Updated nested string2",
+                        Ints = new() { 1, 2, 4 }
                     }
                 }),
             rowsAffectedCount: 7);
@@ -345,7 +383,64 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
                 x => x.OptionalRelated!.NestedCollection),
             rowsAffectedCount: 6);
 
+    [ConditionalFact]
+    public virtual async Task Update_inside_structural_collection()
+    {
+        var nested = Fixture.Data.RootEntities.Single(e => e.Id == 1).RequiredRelated.NestedCollection[1];
+        nested.String += " Updated";
+
+        await AssertUpdate(
+            ss => ss.Set<RootEntity>().Where(e => e.RequiredRelated.NestedCollection.Count >= 2),
+            c => c,
+            s => s.SetProperty(x => x.RequiredRelated.NestedCollection[1], nested),
+            rowsAffectedCount: 7);
+    }
+
     #endregion Update collection
+
+    #region Update primitive collection
+
+    [ConditionalFact]
+    public virtual Task Update_primitive_collection_to_constant()
+        => AssertUpdate(
+            ss => ss.Set<RootEntity>(),
+            c => c,
+            s => s.SetProperty(x => x.RequiredRelated.Ints, x => new List<int> { 1, 2, 4 }),
+            rowsAffectedCount: 7);
+
+    [ConditionalFact]
+    public virtual async Task Update_primitive_collection_to_parameter()
+    {
+        List<int> ints = [1, 2, 4];
+
+        await AssertUpdate(
+            ss => ss.Set<RootEntity>(),
+            c => c,
+            s => s.SetProperty(x => x.RequiredRelated.Ints, x => ints),
+            rowsAffectedCount: 7);
+    }
+
+    [ConditionalFact]
+    public virtual async Task Update_primitive_collection_to_another_collection()
+    {
+        List<int> ints = [1, 2, 4];
+
+        await AssertUpdate(
+            ss => ss.Set<RootEntity>(),
+            c => c,
+            s => s.SetProperty(x => x.RequiredRelated.OptionalNested!.Ints, x => x.RequiredRelated.RequiredNested.Ints),
+            rowsAffectedCount: 7);
+    }
+
+    [ConditionalFact]
+    public virtual Task Update_inside_primitive_collection()
+        => AssertUpdate(
+            ss => ss.Set<RootEntity>().Where(e => e.RequiredRelated.Ints.Count >= 2),
+            c => c,
+            s => s.SetProperty(x => x.RequiredRelated.Ints[1], 99),
+            rowsAffectedCount: 7);
+
+    #endregion Update primitive collection
 
     #region Multiple updates
 

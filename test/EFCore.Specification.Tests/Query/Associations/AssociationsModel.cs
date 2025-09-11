@@ -38,11 +38,12 @@ public class RootEntity
 /// </summary>
 public class RelatedType : IEquatable<RelatedType>
 {
-    public int Id { get; set; }
+    public required int Id { get; set; }
     public required string Name { get; set; }
 
-    public int Int { get; set; }
-    public string String { get; set; } = null!;
+    public required int Int { get; set; }
+    public required string String { get; set; }
+    public required List<int> Ints { get; set; }
 
     public required NestedType RequiredNested { get; set; }
     public NestedType? OptionalNested { get; set; }
@@ -74,9 +75,10 @@ public class RelatedType : IEquatable<RelatedType>
            && Name == other.Name
            && Int == other.Int
            && String == other.String
+           && (Ints is null ? other.Ints is null : other.Ints is not null && Ints.SequenceEqual(other.Ints))
            && RequiredNested.Equals(other.RequiredNested)
            && (OptionalNested is null ? other.OptionalNested is null : OptionalNested.Equals(other.OptionalNested))
-           // NestedCollection is annotated non-nullable, but ComplexTableSplitting doesn't support collections so we null-bang it
+           // NestedCollection is annotated non-nullable, but ComplexTableSplitting doesn't support collections so we check it
            && (NestedCollection is null ? other.NestedCollection is null : NestedCollection.SequenceEqual(other.NestedCollection));
 
     public RelatedType DeepClone()
@@ -86,6 +88,7 @@ public class RelatedType : IEquatable<RelatedType>
             Name = Name,
             Int = Int,
             String = String,
+            Ints = Ints is null ? null! : Ints.ToList(),
             RequiredNested = RequiredNested.DeepClone(),
             OptionalNested = OptionalNested?.DeepClone(),
 
@@ -103,11 +106,13 @@ public class RelatedType : IEquatable<RelatedType>
 /// </summary>
 public class NestedType : IEquatable<NestedType>
 {
-    public int Id { get; set; }
+    public required int Id { get; set; }
     public required string Name { get; set; }
 
-    public int Int { get; set; }
-    public string String { get; set; } = null!;
+    public required int Int { get; set; }
+    public required string String { get; set; }
+
+    public required List<int> Ints { get; set; }
 
     // Foreign keys and inverse navigations are unmapped by default, and are explicitly mapped via
     // the Fluent API for navigation tests only.
@@ -128,7 +133,8 @@ public class NestedType : IEquatable<NestedType>
             && Id == other.Id
             && Name == other.Name
             && Int == other.Int
-            && String == other.String;
+            && String == other.String
+            && (Ints is null ? other.Ints is null : other.Ints is not null && Ints.SequenceEqual(other.Ints));
 
     public NestedType DeepClone()
         => new()
@@ -136,7 +142,8 @@ public class NestedType : IEquatable<NestedType>
             Id = Id,
             Name = Name,
             Int = Int,
-            String = String
+            String = String,
+            Ints = Ints?.ToList()!
         };
 
     public override string ToString()

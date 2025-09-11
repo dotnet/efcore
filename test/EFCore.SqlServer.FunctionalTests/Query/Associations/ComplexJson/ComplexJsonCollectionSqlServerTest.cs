@@ -72,10 +72,11 @@ FROM [RootEntity] AS [r]
 WHERE (
     SELECT COUNT(*)
     FROM (
-        SELECT DISTINCT [r0].[Id], [r0].[Int], [r0].[Name], [r0].[String], [r0].[NestedCollection] AS [c], [r0].[OptionalNested] AS [c0], [r0].[RequiredNested] AS [c1]
+        SELECT DISTINCT [r0].[Id], [r0].[Int], [r0].[Ints], [r0].[Name], [r0].[String], [r0].[NestedCollection] AS [c], [r0].[OptionalNested] AS [c0], [r0].[RequiredNested] AS [c1]
         FROM OPENJSON([r].[RelatedCollection], '$') WITH (
             [Id] int '$.Id',
             [Int] int '$.Int',
+            [Ints] json '$.Ints' AS JSON,
             [Name] nvarchar(max) '$.Name',
             [String] nvarchar(max) '$.String',
             [NestedCollection] json '$.NestedCollection' AS JSON,
@@ -96,10 +97,11 @@ FROM [RootEntity] AS [r]
 WHERE (
     SELECT COUNT(*)
     FROM (
-        SELECT DISTINCT [r0].[Id], [r0].[Int], [r0].[Name], [r0].[String], [r0].[NestedCollection] AS [c], [r0].[OptionalNested] AS [c0], [r0].[RequiredNested] AS [c1]
+        SELECT DISTINCT [r0].[Id], [r0].[Int], [r0].[Ints], [r0].[Name], [r0].[String], [r0].[NestedCollection] AS [c], [r0].[OptionalNested] AS [c0], [r0].[RequiredNested] AS [c1]
         FROM OPENJSON([r].[RelatedCollection], '$') WITH (
             [Id] int '$.Id',
             [Int] int '$.Int',
+            [Ints] nvarchar(max) '$.Ints' AS JSON,
             [Name] nvarchar(max) '$.Name',
             [String] nvarchar(max) '$.String',
             [NestedCollection] nvarchar(max) '$.NestedCollection' AS JSON,

@@ -116,20 +116,24 @@ FROM [RootEntity] AS [r]
             """
 @complex_type_p_Id='?' (DbType = Int32)
 @complex_type_p_Int='?' (DbType = Int32)
+@complex_type_p_Ints='?' (Size = 4000)
 @complex_type_p_Name='?' (Size = 4000)
 @complex_type_p_String='?' (Size = 4000)
 
 UPDATE [r]
 SET [r].[RequiredRelated_Id] = @complex_type_p_Id,
     [r].[RequiredRelated_Int] = @complex_type_p_Int,
+    [r].[RequiredRelated_Ints] = @complex_type_p_Ints,
     [r].[RequiredRelated_Name] = @complex_type_p_Name,
     [r].[RequiredRelated_String] = @complex_type_p_String,
     [r].[RequiredRelated_OptionalNested_Id] = @complex_type_p_Id,
     [r].[RequiredRelated_OptionalNested_Int] = @complex_type_p_Int,
+    [r].[RequiredRelated_OptionalNested_Ints] = @complex_type_p_Ints,
     [r].[RequiredRelated_OptionalNested_Name] = @complex_type_p_Name,
     [r].[RequiredRelated_OptionalNested_String] = @complex_type_p_String,
     [r].[RequiredRelated_RequiredNested_Id] = @complex_type_p_Id,
     [r].[RequiredRelated_RequiredNested_Int] = @complex_type_p_Int,
+    [r].[RequiredRelated_RequiredNested_Ints] = @complex_type_p_Ints,
     [r].[RequiredRelated_RequiredNested_Name] = @complex_type_p_Name,
     [r].[RequiredRelated_RequiredNested_String] = @complex_type_p_String
 FROM [RootEntity] AS [r]
@@ -144,12 +148,14 @@ FROM [RootEntity] AS [r]
             """
 @complex_type_p_Id='?' (DbType = Int32)
 @complex_type_p_Int='?' (DbType = Int32)
+@complex_type_p_Ints='?' (Size = 4000)
 @complex_type_p_Name='?' (Size = 4000)
 @complex_type_p_String='?' (Size = 4000)
 
 UPDATE [r]
 SET [r].[RequiredRelated_RequiredNested_Id] = @complex_type_p_Id,
     [r].[RequiredRelated_RequiredNested_Int] = @complex_type_p_Int,
+    [r].[RequiredRelated_RequiredNested_Ints] = @complex_type_p_Ints,
     [r].[RequiredRelated_RequiredNested_Name] = @complex_type_p_Name,
     [r].[RequiredRelated_RequiredNested_String] = @complex_type_p_String
 FROM [RootEntity] AS [r]
@@ -165,14 +171,17 @@ FROM [RootEntity] AS [r]
 UPDATE [r]
 SET [r].[OptionalRelated_Id] = [r].[RequiredRelated_Id],
     [r].[OptionalRelated_Int] = [r].[RequiredRelated_Int],
+    [r].[OptionalRelated_Ints] = [r].[RequiredRelated_Ints],
     [r].[OptionalRelated_Name] = [r].[RequiredRelated_Name],
     [r].[OptionalRelated_String] = [r].[RequiredRelated_String],
     [r].[OptionalRelated_OptionalNested_Id] = [r].[OptionalRelated_OptionalNested_Id],
     [r].[OptionalRelated_OptionalNested_Int] = [r].[OptionalRelated_OptionalNested_Int],
+    [r].[OptionalRelated_OptionalNested_Ints] = [r].[OptionalRelated_OptionalNested_Ints],
     [r].[OptionalRelated_OptionalNested_Name] = [r].[OptionalRelated_OptionalNested_Name],
     [r].[OptionalRelated_OptionalNested_String] = [r].[OptionalRelated_OptionalNested_String],
     [r].[OptionalRelated_RequiredNested_Id] = [r].[OptionalRelated_RequiredNested_Id],
     [r].[OptionalRelated_RequiredNested_Int] = [r].[OptionalRelated_RequiredNested_Int],
+    [r].[OptionalRelated_RequiredNested_Ints] = [r].[OptionalRelated_RequiredNested_Ints],
     [r].[OptionalRelated_RequiredNested_Name] = [r].[OptionalRelated_RequiredNested_Name],
     [r].[OptionalRelated_RequiredNested_String] = [r].[OptionalRelated_RequiredNested_String]
 FROM [RootEntity] AS [r]
@@ -188,6 +197,7 @@ FROM [RootEntity] AS [r]
 UPDATE [r]
 SET [r].[RequiredRelated_OptionalNested_Id] = [r].[RequiredRelated_RequiredNested_Id],
     [r].[RequiredRelated_OptionalNested_Int] = [r].[RequiredRelated_RequiredNested_Int],
+    [r].[RequiredRelated_OptionalNested_Ints] = [r].[RequiredRelated_RequiredNested_Ints],
     [r].[RequiredRelated_OptionalNested_Name] = [r].[RequiredRelated_RequiredNested_Name],
     [r].[RequiredRelated_OptionalNested_String] = [r].[RequiredRelated_RequiredNested_String]
 FROM [RootEntity] AS [r]
@@ -202,20 +212,24 @@ FROM [RootEntity] AS [r]
             """
 @complex_type_p_Id='?' (DbType = Int32)
 @complex_type_p_Int='?' (DbType = Int32)
+@complex_type_p_Ints='?' (Size = 4000)
 @complex_type_p_Name='?' (Size = 4000)
 @complex_type_p_String='?' (Size = 4000)
 
 UPDATE [r]
 SET [r].[RequiredRelated_Id] = @complex_type_p_Id,
     [r].[RequiredRelated_Int] = @complex_type_p_Int,
+    [r].[RequiredRelated_Ints] = @complex_type_p_Ints,
     [r].[RequiredRelated_Name] = @complex_type_p_Name,
     [r].[RequiredRelated_String] = @complex_type_p_String,
     [r].[RequiredRelated_OptionalNested_Id] = @complex_type_p_Id,
     [r].[RequiredRelated_OptionalNested_Int] = @complex_type_p_Int,
+    [r].[RequiredRelated_OptionalNested_Ints] = @complex_type_p_Ints,
     [r].[RequiredRelated_OptionalNested_Name] = @complex_type_p_Name,
     [r].[RequiredRelated_OptionalNested_String] = @complex_type_p_String,
     [r].[RequiredRelated_RequiredNested_Id] = @complex_type_p_Id,
     [r].[RequiredRelated_RequiredNested_Int] = @complex_type_p_Int,
+    [r].[RequiredRelated_RequiredNested_Ints] = @complex_type_p_Ints,
     [r].[RequiredRelated_RequiredNested_Name] = @complex_type_p_Name,
     [r].[RequiredRelated_RequiredNested_String] = @complex_type_p_String
 FROM [RootEntity] AS [r]
@@ -229,16 +243,19 @@ FROM [RootEntity] AS [r]
         AssertExecuteUpdateSql(
             """
 UPDATE [r]
-SET [r].[RequiredRelated_Id] = 0,
+SET [r].[RequiredRelated_Id] = 1000,
     [r].[RequiredRelated_Int] = 70,
+    [r].[RequiredRelated_Ints] = N'[1,2,4]',
     [r].[RequiredRelated_Name] = N'Updated related name',
     [r].[RequiredRelated_String] = N'Updated related string',
     [r].[RequiredRelated_OptionalNested_Id] = NULL,
     [r].[RequiredRelated_OptionalNested_Int] = NULL,
+    [r].[RequiredRelated_OptionalNested_Ints] = NULL,
     [r].[RequiredRelated_OptionalNested_Name] = NULL,
     [r].[RequiredRelated_OptionalNested_String] = NULL,
-    [r].[RequiredRelated_RequiredNested_Id] = 0,
+    [r].[RequiredRelated_RequiredNested_Id] = 1000,
     [r].[RequiredRelated_RequiredNested_Int] = 80,
+    [r].[RequiredRelated_RequiredNested_Ints] = N'[1,2,4]',
     [r].[RequiredRelated_RequiredNested_Name] = N'Updated nested name',
     [r].[RequiredRelated_RequiredNested_String] = N'Updated nested string'
 FROM [RootEntity] AS [r]
@@ -252,8 +269,9 @@ FROM [RootEntity] AS [r]
         AssertExecuteUpdateSql(
             """
 UPDATE [r]
-SET [r].[RequiredRelated_RequiredNested_Id] = 0,
+SET [r].[RequiredRelated_RequiredNested_Id] = 1000,
     [r].[RequiredRelated_RequiredNested_Int] = 80,
+    [r].[RequiredRelated_RequiredNested_Ints] = N'[1,2,4]',
     [r].[RequiredRelated_RequiredNested_Name] = N'Updated nested name',
     [r].[RequiredRelated_RequiredNested_String] = N'Updated nested string'
 FROM [RootEntity] AS [r]
@@ -269,14 +287,17 @@ FROM [RootEntity] AS [r]
 UPDATE [r]
 SET [r].[OptionalRelated_Id] = NULL,
     [r].[OptionalRelated_Int] = NULL,
+    [r].[OptionalRelated_Ints] = NULL,
     [r].[OptionalRelated_Name] = NULL,
     [r].[OptionalRelated_String] = NULL,
     [r].[OptionalRelated_OptionalNested_Id] = NULL,
     [r].[OptionalRelated_OptionalNested_Int] = NULL,
+    [r].[OptionalRelated_OptionalNested_Ints] = NULL,
     [r].[OptionalRelated_OptionalNested_Name] = NULL,
     [r].[OptionalRelated_OptionalNested_String] = NULL,
     [r].[OptionalRelated_RequiredNested_Id] = NULL,
     [r].[OptionalRelated_RequiredNested_Int] = NULL,
+    [r].[OptionalRelated_RequiredNested_Ints] = NULL,
     [r].[OptionalRelated_RequiredNested_Name] = NULL,
     [r].[OptionalRelated_RequiredNested_String] = NULL
 FROM [RootEntity] AS [r]
@@ -292,14 +313,17 @@ FROM [RootEntity] AS [r]
 UPDATE [r]
 SET [r].[OptionalRelated_Id] = NULL,
     [r].[OptionalRelated_Int] = NULL,
+    [r].[OptionalRelated_Ints] = NULL,
     [r].[OptionalRelated_Name] = NULL,
     [r].[OptionalRelated_String] = NULL,
     [r].[OptionalRelated_OptionalNested_Id] = NULL,
     [r].[OptionalRelated_OptionalNested_Int] = NULL,
+    [r].[OptionalRelated_OptionalNested_Ints] = NULL,
     [r].[OptionalRelated_OptionalNested_Name] = NULL,
     [r].[OptionalRelated_OptionalNested_String] = NULL,
     [r].[OptionalRelated_RequiredNested_Id] = NULL,
     [r].[OptionalRelated_RequiredNested_Int] = NULL,
+    [r].[OptionalRelated_RequiredNested_Ints] = NULL,
     [r].[OptionalRelated_RequiredNested_Name] = NULL,
     [r].[OptionalRelated_RequiredNested_String] = NULL
 FROM [RootEntity] AS [r]
@@ -315,14 +339,17 @@ FROM [RootEntity] AS [r]
 UPDATE [r]
 SET [r].[OptionalRelated_Id] = NULL,
     [r].[OptionalRelated_Int] = NULL,
+    [r].[OptionalRelated_Ints] = NULL,
     [r].[OptionalRelated_Name] = NULL,
     [r].[OptionalRelated_String] = NULL,
     [r].[OptionalRelated_OptionalNested_Id] = NULL,
     [r].[OptionalRelated_OptionalNested_Int] = NULL,
+    [r].[OptionalRelated_OptionalNested_Ints] = NULL,
     [r].[OptionalRelated_OptionalNested_Name] = NULL,
     [r].[OptionalRelated_OptionalNested_String] = NULL,
     [r].[OptionalRelated_RequiredNested_Id] = NULL,
     [r].[OptionalRelated_RequiredNested_Int] = NULL,
+    [r].[OptionalRelated_RequiredNested_Ints] = NULL,
     [r].[OptionalRelated_RequiredNested_Name] = NULL,
     [r].[OptionalRelated_RequiredNested_String] = NULL
 FROM [RootEntity] AS [r]
@@ -368,7 +395,73 @@ FROM [RootEntity] AS [r]
         AssertExecuteUpdateSql();
     }
 
+    public override async Task Update_inside_structural_collection()
+    {
+        await base.Update_inside_structural_collection();
+
+        AssertExecuteUpdateSql();
+    }
+
     #endregion Update collection
+
+    #region Update primitive collection
+
+    public override async Task Update_primitive_collection_to_constant()
+    {
+        await base.Update_primitive_collection_to_constant();
+
+        AssertExecuteUpdateSql(
+            """
+UPDATE [r]
+SET [r].[RequiredRelated_Ints] = N'[1,2,4]'
+FROM [RootEntity] AS [r]
+""");
+    }
+
+    public override async Task Update_primitive_collection_to_parameter()
+    {
+        await base.Update_primitive_collection_to_parameter();
+
+        AssertExecuteUpdateSql(
+            """
+@ints='?' (Size = 4000)
+
+UPDATE [r]
+SET [r].[RequiredRelated_Ints] = @ints
+FROM [RootEntity] AS [r]
+""");
+    }
+
+    public override async Task Update_primitive_collection_to_another_collection()
+    {
+        await base.Update_primitive_collection_to_another_collection();
+
+        AssertExecuteUpdateSql(
+            """
+UPDATE [r]
+SET [r].[RequiredRelated_OptionalNested_Ints] = [r].[RequiredRelated_RequiredNested_Ints]
+FROM [RootEntity] AS [r]
+""");
+    }
+
+    public override async Task Update_inside_primitive_collection()
+    {
+        await base.Update_inside_primitive_collection();
+
+        AssertExecuteUpdateSql(
+            """
+@p='?' (DbType = Int32)
+
+UPDATE [r]
+SET [r].[RequiredRelated_Ints] = JSON_MODIFY([r].[RequiredRelated_Ints], '$[1]', @p)
+FROM [RootEntity] AS [r]
+WHERE (
+    SELECT COUNT(*)
+    FROM OPENJSON([r].[RequiredRelated_Ints]) AS [r0]) >= 2
+""");
+    }
+
+    #endregion Update primitive collection
 
     #region Multiple updates
 

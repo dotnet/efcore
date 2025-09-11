@@ -46,7 +46,7 @@ public static class RelationalJsonUtilities
 
         writer.Flush();
 
-        return Encoding.UTF8.GetString(stream.ToArray());
+        return Encoding.UTF8.GetString(stream.GetBuffer(), 0, (int)stream.Length);
 
         void WriteJson(Utf8JsonWriter writer, IComplexType complexType, object? value, bool collection)
         {
