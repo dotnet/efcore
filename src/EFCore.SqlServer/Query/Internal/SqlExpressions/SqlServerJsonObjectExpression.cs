@@ -46,7 +46,7 @@ public sealed class SqlServerJsonObjectExpression : SqlFunctionExpression
             throw new ArgumentException("The number of property names must match the number of property values.");
         }
 
-        if (typeMapping.StoreType is not "nvarchar(max)")
+        if (!typeMapping.StoreType.Equals("nvarchar(max)", StringComparison.OrdinalIgnoreCase))
         {
             throw new ArgumentException("Invalid type mapping for JSON_OBJECT.");
         }

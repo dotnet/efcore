@@ -156,7 +156,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 key1, entityType1, key2, entityType2, table, keyName);
 
         /// <summary>
-        ///     'ExecuteUpdate' cannot set a property in a JSON column to an expression containing a column on SQL Server versions before 2022.
+        ///     'ExecuteUpdate' cannot set a property in a JSON column to an expression containing a column on SQL Server versions before 2022. If you're on SQL Server 2022 and above, your compatibility level may be set to a lower value; consider raising it.
         /// </summary>
         public static string ExecuteUpdateCannotSetJsonPropertyOnOldSqlServer
             => GetString("ExecuteUpdateCannotSetJsonPropertyOnOldSqlServer");

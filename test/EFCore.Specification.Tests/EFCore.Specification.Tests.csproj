@@ -87,8 +87,4 @@
     </Compile>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Types/" />
-  </ItemGroup>
-
 </Project>

@@ -617,8 +617,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                 new SqlServerJsonObjectExpression(
                     propertyNames: ["v"],
                     propertyValues: [value],
-                    _typeMappingSource.FindMapping("nvarchar(max)")!
-                ),
+                    SqlServerStructuralJsonTypeMapping.NvarcharMaxDefault),
                 [new("v")],
                 typeof(string),
                 _typeMappingSource.FindMapping("nvarchar(max)"),
