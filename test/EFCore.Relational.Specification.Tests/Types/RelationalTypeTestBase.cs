@@ -1,0 +1,131 @@
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
+namespace Microsoft.EntityFrameworkCore.Types;
+
+public abstract class RelationalTypeTestBase<T, TFixture>(TFixture fixture) : TypeTestBase<T, TFixture>(fixture)
+    where TFixture : RelationalTypeFixtureBase<T>
+    where T : notnull
+{
+    public RelationalTypeTestBase(TFixture fixture, ITestOutputHelper testOutputHelper)
+        : this(fixture)
+    {
+        Fixture.TestSqlLoggerFactory.Clear();
+        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+    }
+
+    #region SaveChanges
+
+    [ConditionalFact]
+    public virtual async Task SaveChanges_within_json()
+        => await TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            Fixture.CreateContext,
+            Fixture.UseTransaction,
+            async context =>
+            {
+                JsonTypeEntity<T> entity;
+
+                entity = await context.Set<JsonTypeEntity<T>>().SingleAsync(e => e.Id == 1);
+
+                Fixture.TestSqlLoggerFactory.Clear();
+
+                entity.JsonContainer.Value = Fixture.OtherValue;
+                await context.SaveChangesAsync();
+
+                using (Fixture.TestSqlLoggerFactory.SuspendRecordingEvents())
+                {
+                    var result = await context.Set<JsonTypeEntity<T>>().Where(e => e.Id == 1).SingleAsync();
+                    Assert.Equal(Fixture.OtherValue, result.JsonContainer.Value, Fixture.Comparer);
+                }
+            });
+
+    #endregion SaveChanges
+
+    #region ExecuteUpdate
+
+    [ConditionalFact]
+    public virtual async Task ExecuteUpdate_within_json_to_parameter()
+        => await TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            Fixture.CreateContext,
+            Fixture.UseTransaction,
+            async context =>
+            {
+                Fixture.TestSqlLoggerFactory.Clear();
+
+                await context.Set<JsonTypeEntity<T>>().ExecuteUpdateAsync(s => s.SetProperty(e => e.JsonContainer.Value, e => Fixture.OtherValue));
+
+                using (Fixture.TestSqlLoggerFactory.SuspendRecordingEvents())
+                {
+                    var result = await context.Set<JsonTypeEntity<T>>().Where(e => e.Id == 1).SingleAsync();
+                    Assert.Equal(Fixture.OtherValue, result.JsonContainer.Value, Fixture.Comparer);
+                }
+            });
+
+    [ConditionalFact]
+    public virtual async Task ExecuteUpdate_within_json_to_constant()
+        => await TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            Fixture.CreateContext,
+            Fixture.UseTransaction,
+            async context =>
+            {
+                Fixture.TestSqlLoggerFactory.Clear();
+
+                // Manually inject a constant node into the query tree
+                var parameter = Expression.Parameter(typeof(JsonTypeEntity<T>));
+                var valueExpression = Expression.Lambda<Func<JsonTypeEntity<T>, T>>(
+                    Expression.Constant(Fixture.OtherValue, typeof(T)),
+                    parameter);
+
+                await context.Set<JsonTypeEntity<T>>().ExecuteUpdateAsync(s => s.SetProperty(e => e.JsonContainer.Value, valueExpression));
+
+                using (Fixture.TestSqlLoggerFactory.SuspendRecordingEvents())
+                {
+                    var result = await context.Set<JsonTypeEntity<T>>().Where(e => e.Id == 1).SingleAsync();
+                    Assert.Equal(Fixture.OtherValue, result.JsonContainer.Value, Fixture.Comparer);
+                }
+            });
+
+    [ConditionalFact]
+    public virtual async Task ExecuteUpdate_within_json_to_another_json_property()
+        => await TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            Fixture.CreateContext,
+            Fixture.UseTransaction,
+            async context =>
+            {
+                Fixture.TestSqlLoggerFactory.Clear();
+
+                await context.Set<JsonTypeEntity<T>>().ExecuteUpdateAsync(s => s.SetProperty(e => e.JsonContainer.Value, e => e.JsonContainer.OtherValue));
+
+                using (Fixture.TestSqlLoggerFactory.SuspendRecordingEvents())
+                {
+                    var result = await context.Set<JsonTypeEntity<T>>().Where(e => e.Id == 1).SingleAsync();
+                    Assert.Equal(Fixture.OtherValue, result.JsonContainer.Value, Fixture.Comparer);
+                }
+            });
+
+    [ConditionalFact]
+    public virtual async Task ExecuteUpdate_within_json_to_nonjson_column()
+        => await TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            Fixture.CreateContext,
+            Fixture.UseTransaction,
+            async context =>
+            {
+                Fixture.TestSqlLoggerFactory.Clear();
+
+                await context.Set<JsonTypeEntity<T>>().ExecuteUpdateAsync(s => s.SetProperty(e => e.JsonContainer.Value, e => e.OtherValue));
+
+                using (Fixture.TestSqlLoggerFactory.SuspendRecordingEvents())
+                {
+                    var result = await context.Set<JsonTypeEntity<T>>().Where(e => e.Id == 1).SingleAsync();
+                    Assert.Equal(Fixture.OtherValue, result.JsonContainer.Value, Fixture.Comparer);
+                }
+            });
+
+    #endregion ExecuteUpdate
+
+    protected void AssertSql(params string[] expected)
+        => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
+
+    protected void AssertExecuteUpdateSql(params string[] expected)
+        => Fixture.TestSqlLoggerFactory.AssertBaseline(expected, forUpdate: true);
+}
