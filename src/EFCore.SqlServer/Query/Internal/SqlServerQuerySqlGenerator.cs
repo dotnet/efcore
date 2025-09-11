@@ -606,10 +606,7 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
         // 3. Can do JSON-specific decoding (e.g. base64 for varbinary)
         // Note that RETURNING is only (currently) supported over the json type (not nvarchar(max)).
         // Note that we don't need to check the compatibility level - if the json type is being used, then RETURNING is supported.
-        var useJsonValueReturningClause = !jsonQuery
-            && jsonScalarExpression.Json.TypeMapping?.StoreType is "json"
-            // Temporarily disabling for Azure SQL, which doesn't yet support RETURNING; this should get removed for 10 (see #36460).
-            && _sqlServerSingletonOptions.EngineType is not SqlServerEngineType.AzureSql;
+        var useJsonValueReturningClause = !jsonQuery && jsonScalarExpression.Json.TypeMapping?.StoreType is "json";
 
         // For JSON_VALUE(), if we can use the RETURNING clause, always do that.
         // Otherwise, JSON_VALUE always returns nvarchar(4000) (https://learn.microsoft.com/sql/t-sql/functions/json-value-transact-sql),
