@@ -11,6 +11,8 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
 {
     public virtual int? NumberOfValuesForHugeParameterCollectionTests { get; } = null;
 
+    private static readonly FrozenSet<int> StaticFrozenInts = new[] { 10, 999 }.ToFrozenSet();
+
     [ConditionalFact]
     public virtual Task Inline_collection_of_ints_Contains()
         => AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new[] { 10, 999 }.Contains(c.Int)));
@@ -275,6 +277,13 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
 
         await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => ints.Contains(c.Int)));
         await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !ints.Contains(c.Int)));
+    }
+
+    [ConditionalFact]
+    public virtual async Task Parameter_collection_static_readonly_FrozenSet_of_ints_Contains_int()
+    {
+        await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => StaticFrozenInts.Contains(c.Int)));
+        await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !StaticFrozenInts.Contains(c.Int)));
     }
 
     [ConditionalFact]
