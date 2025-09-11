@@ -635,7 +635,9 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
             throw new InvalidOperationException(SqliteStrings.ExecuteUpdateJsonPartialUpdateDoesNotSupportUlong);
         }
 
+#pragma warning disable EF9002 // TrySerializeScalarToJson is experimental
         return base.TrySerializeScalarToJson(target, value, out jsonValue);
+#pragma warning restore EF9002
     }
 
     /// <summary>
