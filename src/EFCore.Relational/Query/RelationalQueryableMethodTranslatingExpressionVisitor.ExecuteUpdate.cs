@@ -861,6 +861,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
     ///     update function.
     /// </param>
     /// <returns>A scalar expression ready to be integrated into an UPDATE statement setter.</returns>
+    [Experimental(EFDiagnostics.ProviderExperimentalApi)] // TODO: This should probably move into the type mappings, #36729
     protected virtual bool TrySerializeScalarToJson(
         JsonScalarExpression target,
         SqlExpression value,
