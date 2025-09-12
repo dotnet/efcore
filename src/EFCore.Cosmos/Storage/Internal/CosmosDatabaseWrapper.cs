@@ -353,18 +353,25 @@ public class CosmosDatabaseWrapper : Database
 
                     if (!allPkPropertiesAreFk)
                     {
-                        if (firstNonPartitionKeyProperty != null
+                        try
+                        {
+                            if (firstNonPartitionKeyProperty != null
                             && propertyNeedsValue)
-                        {
-                            // There were non-partition key properties, so only throw if it is one of these that is not set,
-                            // ignoring partition key properties.
-                            Dependencies.Logger.PrimaryKeyValueNotSet(firstNonPartitionKeyProperty!);
+                            {
+                                // There were non-partition key properties, so only throw if it is one of these that is not set,
+                                // ignoring partition key properties.
+                                Dependencies.Logger.PrimaryKeyValueNotSet(firstNonPartitionKeyProperty!);
+                            }
+                            else if (firstNonPartitionKeyProperty == null
+                                     && partitionPropertyNeedsValue)
+                            {
+                                // There were no non-partition key properties in the primary key, so in this case check if any of these is not set.
+                                Dependencies.Logger.PrimaryKeyValueNotSet(primaryKey.Properties[0]);
+                            }
                         }
-                        else if (firstNonPartitionKeyProperty == null
-                                 && partitionPropertyNeedsValue)
+                        catch(InvalidOperationException ex)
                         {
-                            // There were no non-partition key properties in the primary key, so in this case check if any of these is not set.
-                            Dependencies.Logger.PrimaryKeyValueNotSet(primaryKey.Properties[0]);
+                            throw WrapUpdateException(ex, [entry]);
                         }
                     }
                 }
