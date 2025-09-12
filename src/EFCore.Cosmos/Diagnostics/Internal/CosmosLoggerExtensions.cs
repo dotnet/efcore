@@ -251,7 +251,7 @@ public static class CosmosLoggerExtensions
 
         if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
         {
-            var eventData = new CosmosItemReadExecutedEventData(
+            var eventData = new CosmosItemCommandExecutedEventData(
                 definition,
                 ExecutedReadItem,
                 elapsed,
@@ -269,7 +269,7 @@ public static class CosmosLoggerExtensions
     private static string ExecutedReadItem(EventDefinitionBase definition, EventData payload)
     {
         var d = (EventDefinition<string, string, string, string, string, string?>)definition;
-        var p = (CosmosItemReadExecutedEventData)payload;
+        var p = (CosmosItemCommandExecutedEventData)payload;
         return d.GenerateMessage(
             p.Elapsed.Milliseconds.ToString(),
             p.RequestCharge.ToString(),
