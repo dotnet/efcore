@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections.Concurrent;
 using Microsoft.Azure.Cosmos;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Local
@@ -122,6 +123,41 @@ public class ConfigPatternsCosmosTest(ConfigPatternsCosmosTest.CosmosFixture fix
 
             await context.SaveChangesAsync();
         });
+    }
+
+    [ConditionalFact]
+    public async Task Cosmos_client_instance_is_thread_safe()
+    {
+        await using var testDatabase = await CosmosTestStore.CreateInitializedAsync(DatabaseName);
+        var options = CreateOptions(testDatabase);
+
+        const int threadCount = 10;
+        const int iterationsPerThread = 10;
+        var clients = new ConcurrentBag<CosmosClient>();
+        var tasks = new List<Task>();
+
+        for (var i = 0; i < threadCount; i++)
+        {
+            tasks.Add(Task.Run(async () =>
+            {
+                for (var j = 0; j < iterationsPerThread; j++)
+                {
+                    await Task.Yield(); // Force context switching
+                    using var context = new CustomerContext(options);
+                    var client = context.Database.GetCosmosClient();
+                    clients.Add(client);
+                }
+            }));
+        }
+
+        await Task.WhenAll(tasks);
+
+        // All retrieved clients should be the same instance
+        var clientsArray = clients.ToArray();
+        Assert.Equal(threadCount * iterationsPerThread, clientsArray.Length);
+        
+        var uniqueClients = clientsArray.Distinct().ToArray();
+        Assert.Single(uniqueClients); // Should only have one unique client instance
     }
 
     private DbContextOptions CreateOptions(CosmosTestStore testDatabase, Action<DbContextOptionsBuilder> configure = null)

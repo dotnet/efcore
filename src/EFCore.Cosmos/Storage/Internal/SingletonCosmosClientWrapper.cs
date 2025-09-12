@@ -4,6 +4,7 @@
 using Azure.Core;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 
@@ -107,13 +108,16 @@ public class SingletonCosmosClientWrapper : ISingletonCosmosClientWrapper
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual CosmosClient Client
-        => _client ??= string.IsNullOrEmpty(_connectionString)
-            ? _tokenCredential == null
-                ? _endpoint == null
+        => NonCapturingLazyInitializer.EnsureInitialized(ref _client, this, CreateClient);
+
+    private static CosmosClient CreateClient(SingletonCosmosClientWrapper wrapper)
+        => string.IsNullOrEmpty(wrapper._connectionString)
+            ? wrapper._tokenCredential == null
+                ? wrapper._endpoint == null
                     ? throw new InvalidOperationException(CosmosStrings.ConnectionInfoMissing)
-                    : new CosmosClient(_endpoint, _key, _options)
-                : new CosmosClient(_endpoint, _tokenCredential, _options)
-            : new CosmosClient(_connectionString, _options);
+                    : new CosmosClient(wrapper._endpoint, wrapper._key, wrapper._options)
+                : new CosmosClient(wrapper._endpoint, wrapper._tokenCredential, wrapper._options)
+            : new CosmosClient(wrapper._connectionString, wrapper._options);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
