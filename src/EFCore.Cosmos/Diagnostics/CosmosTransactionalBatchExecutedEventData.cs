@@ -75,7 +75,7 @@ public class CosmosTransactionalBatchExecutedEventData : EventData
     /// <summary>
     ///     The ids of the documents that were written to in the transactional batch.
     /// </summary>
-    public string DocumentIds { get; }
+    public virtual string DocumentIds { get; }
 
     /// <summary>
     ///     Indicates whether the application allows logging of sensitive data.

@@ -31,7 +31,7 @@ public class CosmosTransactionalBatchEntry
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public IUpdateEntry Entry { get; }
+    public virtual IUpdateEntry Entry { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -39,7 +39,7 @@ public class CosmosTransactionalBatchEntry
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public CosmosCudOperation Operation { get; }
+    public virtual CosmosCudOperation Operation { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -47,5 +47,5 @@ public class CosmosTransactionalBatchEntry
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public string Id { get; }
+    public virtual string Id { get; }
 }
