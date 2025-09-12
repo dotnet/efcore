@@ -271,12 +271,18 @@ public class CosmosReadItemAndPartitionKeysExtractor : ExpressionVisitor
             if (propertyName == _discriminatorJsonPropertyName
                 && propertyValue is SqlConstantExpression { Value: { } specifiedDiscriminatorValue }
                 && _entityType.FindDiscriminatorProperty() is { } discriminatorProperty
-                && _entityType.GetDiscriminatorValue() is { } entityDiscriminatorValue
-                && discriminatorProperty.GetProviderValueComparer().Equals(specifiedDiscriminatorValue, entityDiscriminatorValue))
+                && _entityType.GetDiscriminatorValue() is { } entityDiscriminatorValue)
             {
-                // This is the case where there is a single leaf node with a discriminator value. We always know this value,
-                // so the query never needs to drop out of ReadItem because of it.
-                isCompatibleComparisonForReadItem = true;
+                // Convert the specified discriminator value to provider value for comparison if there's a value converter
+                var convertedSpecifiedValue = discriminatorProperty.GetValueConverter()?.ConvertToProvider(specifiedDiscriminatorValue) 
+                    ?? specifiedDiscriminatorValue;
+                
+                if (discriminatorProperty.GetProviderValueComparer().Equals(convertedSpecifiedValue, entityDiscriminatorValue))
+                {
+                    // This is the case where there is a single leaf node with a discriminator value. We always know this value,
+                    // so the query never needs to drop out of ReadItem because of it.
+                    isCompatibleComparisonForReadItem = true;
+                }
             }
             else
             {
