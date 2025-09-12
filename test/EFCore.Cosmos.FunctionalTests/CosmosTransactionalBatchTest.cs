@@ -1,9 +1,13 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System;
 using System.Net;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Scripts;
+using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 public class CosmosTransactionalBatchTest(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
@@ -123,7 +127,8 @@ public class CosmosTransactionalBatchTest(NonSharedFixture fixture) : NonSharedM
         context.Customers.Add(new Customer { Id = "4", PartitionKey = "2" });
         context.Customers.Add(new Customer { Id = "3", PartitionKey = "1" });
 
-        await Assert.ThrowsAnyAsync<InvalidOperationException>(() => context.SaveChangesAsync());
+        var exception = await Assert.ThrowsAnyAsync<InvalidOperationException>(() => context.SaveChangesAsync());
+        Assert.Equal(CosmosStrings.SaveChangesAutoTransactionBehaviorAlwaysAtomicity, exception.Message);
 
         using var assertContext = contextFactory.CreateContext();
         var customersCount = await assertContext.Customers.CountAsync();
@@ -140,7 +145,8 @@ public class CosmosTransactionalBatchTest(NonSharedFixture fixture) : NonSharedM
 
         context.Customers.AddRange(Enumerable.Range(0, 101).Select(x => new Customer { Id = x.ToString(), PartitionKey = "1" }));
 
-        await Assert.ThrowsAnyAsync<InvalidOperationException>(() => context.SaveChangesAsync());
+        var exception = await Assert.ThrowsAnyAsync<InvalidOperationException>(() => context.SaveChangesAsync());
+        Assert.Equal(CosmosStrings.SaveChangesAutoTransactionBehaviorAlwaysAtomicity, exception.Message);
 
         using var assertContext = contextFactory.CreateContext();
         var customersCount = await assertContext.Customers.CountAsync();
@@ -175,7 +181,8 @@ public class CosmosTransactionalBatchTest(NonSharedFixture fixture) : NonSharedM
         context.CustomersWithTrigger.Add(new CustomerWithTrigger { Id = "4", PartitionKey = "2" });
         context.CustomersWithTrigger.Add(new CustomerWithTrigger { Id = "3", PartitionKey = "1" });
 
-        await Assert.ThrowsAnyAsync<InvalidOperationException>(() => context.SaveChangesAsync());
+        var exception = await Assert.ThrowsAnyAsync<InvalidOperationException>(() => context.SaveChangesAsync());
+        Assert.Equal(CosmosStrings.SaveChangesAutoTransactionBehaviorAlwaysTriggerAtomicity, exception.Message);
 
         using var assertContext = contextFactory.CreateContext();
         var customersCount = await assertContext.CustomersWithTrigger.CountAsync();
@@ -238,7 +245,8 @@ public class CosmosTransactionalBatchTest(NonSharedFixture fixture) : NonSharedM
         context.Customers.Add(new Customer { Id = "4", PartitionKey = "2" });
         context.CustomersWithTrigger.Add(new CustomerWithTrigger { Id = "4", PartitionKey = "2" });
 
-        await Assert.ThrowsAnyAsync<InvalidOperationException>(() => context.SaveChangesAsync());
+        var exception = await Assert.ThrowsAnyAsync<InvalidOperationException>(() => context.SaveChangesAsync());
+        Assert.Equal(CosmosStrings.SaveChangesAutoTransactionBehaviorAlwaysTriggerAtomicity, exception.Message);
 
         using var assertContext = contextFactory.CreateContext();
         var customersCount = await assertContext.CustomersWithTrigger.CountAsync();
