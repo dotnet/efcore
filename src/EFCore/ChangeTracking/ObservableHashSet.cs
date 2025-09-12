@@ -140,14 +140,54 @@ public class ObservableHashSet<T>
     /// </returns>
     public virtual bool Remove(T item)
     {
-        if (!_set.Contains(item))
+        // Try the standard hash-based removal first
+        if (_set.Contains(item))
+        {
+            OnCountPropertyChanging();
+
+            _set.Remove(item);
+
+            OnCollectionChanged(NotifyCollectionChangedAction.Remove, item);
+
+            OnCountPropertyChanged();
+
+            return true;
+        }
+
+        // If hash-based lookup failed, try equality-based lookup as fallback
+        // This handles cases where the item's hash code changed after being added
+        T? foundItem = default(T);
+        bool found = false;
+
+        foreach (var setItem in _set)
+        {
+            if (setItem != null && setItem.Equals(item))
+            {
+                foundItem = setItem;
+                found = true;
+                break;
+            }
+        }
+
+        if (!found)
         {
             return false;
         }
 
         OnCountPropertyChanging();
 
-        _set.Remove(item);
+        // Create a new HashSet without the found item
+        // This avoids hash-based removal which might fail
+        var newSet = new HashSet<T>(_set.Comparer);
+        foreach (var setItem in _set)
+        {
+            if (!ReferenceEquals(setItem, foundItem))
+            {
+                newSet.Add(setItem);
+            }
+        }
+
+        _set = newSet;
 
         OnCollectionChanged(NotifyCollectionChangedAction.Remove, item);
 
@@ -243,22 +283,48 @@ public class ObservableHashSet<T>
     /// <param name="other">The collection to compare to the current hash set.</param>
     public virtual void IntersectWith(IEnumerable<T> other)
     {
-        var copy = new HashSet<T>(_set, _set.Comparer);
+        if (other == null)
+        {
+            Clear();
+            return;
+        }
 
-        copy.IntersectWith(other);
+        // Convert other to a list to avoid multiple enumeration
+        var otherList = other.ToList();
+        if (otherList.Count == 0)
+        {
+            Clear();
+            return;
+        }
 
-        if (copy.Count == _set.Count)
+        // Find items to keep and remove
+        var toKeep = new List<T>();
+        var toRemove = new List<T>();
+
+        foreach (var item in _set)
+        {
+            // Use Equals() instead of hash-based lookup to find matches
+            if (otherList.Any(otherItem => otherItem != null && otherItem.Equals(item)))
+            {
+                toKeep.Add(item);
+            }
+            else
+            {
+                toRemove.Add(item);
+            }
+        }
+
+        if (toRemove.Count == 0)
         {
             return;
         }
 
-        var removed = _set.Where(i => !copy.Contains(i)).ToList();
-
         OnCountPropertyChanging();
 
-        _set = copy;
+        // Create new HashSet with items to keep
+        _set = new HashSet<T>(toKeep, _set.Comparer);
 
-        OnCollectionChanged(ObservableHashSetSingletons.NoItems, removed);
+        OnCollectionChanged(ObservableHashSetSingletons.NoItems, toRemove);
 
         OnCountPropertyChanged();
     }
@@ -269,22 +335,46 @@ public class ObservableHashSet<T>
     /// <param name="other">The collection of items to remove from the current hash set.</param>
     public virtual void ExceptWith(IEnumerable<T> other)
     {
-        var copy = new HashSet<T>(_set, _set.Comparer);
-
-        copy.ExceptWith(other);
-
-        if (copy.Count == _set.Count)
+        if (other == null)
         {
             return;
         }
 
-        var removed = _set.Where(i => !copy.Contains(i)).ToList();
+        // Convert other to a list to avoid multiple enumeration
+        var otherList = other.ToList();
+        if (otherList.Count == 0)
+        {
+            return;
+        }
+
+        // Find items to remove by checking equality with items in other
+        var toRemove = new List<T>();
+        var toKeep = new List<T>();
+
+        foreach (var item in _set)
+        {
+            // Use Equals() instead of hash-based lookup to find matches
+            if (otherList.Any(otherItem => otherItem != null && otherItem.Equals(item)))
+            {
+                toRemove.Add(item);
+            }
+            else
+            {
+                toKeep.Add(item);
+            }
+        }
+
+        if (toRemove.Count == 0)
+        {
+            return;
+        }
 
         OnCountPropertyChanging();
 
-        _set = copy;
+        // Create new HashSet with items to keep
+        _set = new HashSet<T>(toKeep, _set.Comparer);
 
-        OnCollectionChanged(ObservableHashSetSingletons.NoItems, removed);
+        OnCollectionChanged(ObservableHashSetSingletons.NoItems, toRemove);
 
         OnCountPropertyChanged();
     }
@@ -296,24 +386,66 @@ public class ObservableHashSet<T>
     /// <param name="other">The collection to compare to the current hash set.</param>
     public virtual void SymmetricExceptWith(IEnumerable<T> other)
     {
-        var copy = new HashSet<T>(_set, _set.Comparer);
+        if (other == null)
+        {
+            return;
+        }
 
-        copy.SymmetricExceptWith(other);
+        // Convert other to a list to avoid multiple enumeration
+        var otherList = other.ToList();
+        if (otherList.Count == 0)
+        {
+            return;
+        }
 
-        var removed = _set.Where(i => !copy.Contains(i)).ToList();
-        var added = copy.Where(i => !_set.Contains(i)).ToList();
+        // Find what items will be removed and added
+        var toRemove = new List<T>();
+        var toKeep = new List<T>();
 
-        if (removed.Count == 0
-            && added.Count == 0)
+        // Items in current set that are also in other should be removed
+        foreach (var item in _set)
+        {
+            if (otherList.Any(otherItem => otherItem != null && otherItem.Equals(item)))
+            {
+                toRemove.Add(item);
+            }
+            else
+            {
+                toKeep.Add(item);
+            }
+        }
+
+        // Items in other that are not in current set should be added
+        var toAdd = new List<T>();
+        foreach (var otherItem in otherList)
+        {
+            if (otherItem != null && !_set.Any(setItem => setItem != null && setItem.Equals(otherItem)))
+            {
+                toAdd.Add(otherItem);
+            }
+        }
+
+        if (toRemove.Count == 0 && toAdd.Count == 0)
         {
             return;
         }
 
         OnCountPropertyChanging();
 
-        _set = copy;
+        // Create new HashSet with items to keep plus items to add
+        var newSet = new HashSet<T>(_set.Comparer);
+        foreach (var item in toKeep)
+        {
+            newSet.Add(item);
+        }
+        foreach (var item in toAdd)
+        {
+            newSet.Add(item);
+        }
 
-        OnCollectionChanged(added, removed);
+        _set = newSet;
+
+        OnCollectionChanged(toAdd, toRemove);
 
         OnCountPropertyChanged();
     }
@@ -410,26 +542,38 @@ public class ObservableHashSet<T>
     /// <returns>The number of elements that were removed from the hash set.</returns>
     public virtual int RemoveWhere(Predicate<T> match)
     {
-        var copy = new HashSet<T>(_set, _set.Comparer);
+        // Find items to remove by enumerating (not using hash lookup)
+        var toRemove = new List<T>();
+        var toKeep = new List<T>();
 
-        var removedCount = copy.RemoveWhere(match);
+        foreach (var item in _set)
+        {
+            if (match(item))
+            {
+                toRemove.Add(item);
+            }
+            else
+            {
+                toKeep.Add(item);
+            }
+        }
 
-        if (removedCount == 0)
+        if (toRemove.Count == 0)
         {
             return 0;
         }
 
-        var removed = _set.Where(i => !copy.Contains(i)).ToList();
-
         OnCountPropertyChanging();
 
-        _set = copy;
+        // Create a new HashSet with only the items we want to keep
+        // This avoids any hash-based removal operations on items with changed hash codes
+        _set = new HashSet<T>(toKeep, _set.Comparer);
 
-        OnCollectionChanged(ObservableHashSetSingletons.NoItems, removed);
+        OnCollectionChanged(ObservableHashSetSingletons.NoItems, toRemove);
 
         OnCountPropertyChanged();
 
-        return removedCount;
+        return toRemove.Count;
     }
 
     /// <summary>
