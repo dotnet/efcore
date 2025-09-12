@@ -140,54 +140,14 @@ public class ObservableHashSet<T>
     /// </returns>
     public virtual bool Remove(T item)
     {
-        // Try the standard hash-based removal first
-        if (_set.Contains(item))
-        {
-            OnCountPropertyChanging();
-
-            _set.Remove(item);
-
-            OnCollectionChanged(NotifyCollectionChangedAction.Remove, item);
-
-            OnCountPropertyChanged();
-
-            return true;
-        }
-
-        // If hash-based lookup failed, try equality-based lookup as fallback
-        // This handles cases where the item's hash code changed after being added
-        T? foundItem = default(T);
-        bool found = false;
-
-        foreach (var setItem in _set)
-        {
-            if (setItem != null && setItem.Equals(item))
-            {
-                foundItem = setItem;
-                found = true;
-                break;
-            }
-        }
-
-        if (!found)
+        if (!_set.Contains(item))
         {
             return false;
         }
 
         OnCountPropertyChanging();
 
-        // Create a new HashSet without the found item
-        // This avoids hash-based removal which might fail
-        var newSet = new HashSet<T>(_set.Comparer);
-        foreach (var setItem in _set)
-        {
-            if (!ReferenceEquals(setItem, foundItem))
-            {
-                newSet.Add(setItem);
-            }
-        }
-
-        _set = newSet;
+        _set.Remove(item);
 
         OnCollectionChanged(NotifyCollectionChangedAction.Remove, item);
 
