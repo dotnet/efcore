@@ -91,7 +91,8 @@ internal class RootCommand : CommandBase
             Path.GetDirectoryName(typeof(Program).Assembly.Location)!,
             "tools");
 
-        var targetDir = Path.GetFullPath(Path.Combine(startupProject.ProjectDir!, startupProject.OutputPath!));
+        var targetDir = Path.GetFullPath(Path.Combine(startupProject.ProjectDir!, startupProject.OutputPath!))
+            .Replace('\\', Path.DirectorySeparatorChar);
         var targetPath = Path.Combine(targetDir, project.TargetFileName!);
         var startupTargetPath = Path.Combine(targetDir, startupProject.TargetFileName!);
         var depsFile = Path.Combine(

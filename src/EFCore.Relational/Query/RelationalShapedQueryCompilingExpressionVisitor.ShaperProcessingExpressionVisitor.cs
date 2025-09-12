@@ -104,6 +104,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
         private static readonly MethodInfo PropertyGetTypeMappingMethod =
             typeof(IReadOnlyProperty).GetMethod(nameof(IReadOnlyProperty.GetTypeMapping), [])!;
 
+        private static readonly PropertyInfo QueryContextQueryLoggerProperty =
+            typeof(QueryContext).GetProperty(nameof(QueryContext.QueryLogger))!;
+
         private readonly RelationalShapedQueryCompilingExpressionVisitor _parentVisitor;
         private readonly ISet<string>? _tags;
         private readonly bool _isTracking;
@@ -1738,9 +1741,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 jsonReaderDataShaperLambdaParameter,
                 innerShapersMap,
                 innerFixupMap,
-                trackingInnerFixupMap,
-                _queryLogger,
-                _parentVisitor.Dependencies.LiftableConstantFactory).Rewrite(structuralTypeShaperMaterializer);
+                trackingInnerFixupMap).Rewrite(structuralTypeShaperMaterializer);
 
             var entityShaperMaterializerVariable = Variable(
                 structuralTypeShaperMaterializer.Type,
@@ -1889,9 +1890,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             ParameterExpression jsonReaderDataParameter,
             IDictionary<string, Expression> innerShapersMap,
             IDictionary<string, LambdaExpression> innerFixupMap,
-            IDictionary<string, LambdaExpression> trackingInnerFixupMap,
-            IDiagnosticsLogger<DbLoggerCategory.Query> queryLogger,
-            ILiftableConstantFactory liftableConstantFactory)
+            IDictionary<string, LambdaExpression> trackingInnerFixupMap)
             : ExpressionVisitor
         {
             private static readonly PropertyInfo JsonEncodedTextEncodedUtf8BytesProperty
@@ -2013,11 +2012,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                             New(
                                 JsonReaderManagerConstructor,
                                 jsonReaderDataParameter,
-                                liftableConstantFactory.CreateLiftableConstant(
-                                    queryLogger,
-                                    static c => c.Dependencies.QueryLogger,
-                                    "queryLogger",
-                                    typeof(IDiagnosticsLogger<DbLoggerCategory.Query>)))),
+                                MakeMemberAccess(QueryCompilationContext.QueryContextParameter, QueryContextQueryLoggerProperty))),
                         // tokenType = jsonReaderManager.CurrentReader.TokenType
                         Assign(
                             tokenTypeVariable,
@@ -2208,11 +2203,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                             New(
                                 JsonReaderManagerConstructor,
                                 jsonReaderDataParameter,
-                                liftableConstantFactory.CreateLiftableConstant(
-                                    queryLogger,
-                                    static c => c.Dependencies.QueryLogger,
-                                    "queryLogger",
-                                    typeof(IDiagnosticsLogger<DbLoggerCategory.Query>))));
+                                MakeMemberAccess(QueryCompilationContext.QueryContextParameter, QueryContextQueryLoggerProperty)));
 
                         readExpressions.Add(
                             Block(
@@ -2605,11 +2596,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                             New(
                                 JsonReaderManagerConstructor,
                                 jsonReaderDataVariable,
-                                _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
-                                    _queryLogger,
-                                    static c => c.Dependencies.QueryLogger,
-                                    "queryLogger",
-                                    typeof(IDiagnosticsLogger<DbLoggerCategory.Query>)))),
+                                MakeMemberAccess(QueryCompilationContext.QueryContextParameter, QueryContextQueryLoggerProperty))),
                         Call(jsonReaderManagerVariable, Utf8JsonReaderManagerMoveNextMethod),
                         Call(jsonReaderManagerVariable, Utf8JsonReaderManagerCaptureStateMethod)));
 
