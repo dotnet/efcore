@@ -462,6 +462,9 @@ public static class TestEnvironment
     public static byte SqlServerMajorVersion
         => GetProductMajorVersion();
 
+    public static DbContextOptionsBuilder SetCompatibilityLevelFromEnvironment(DbContextOptionsBuilder builder)
+        => builder.UseSqlServerCompatibilityLevel(SqlServerMajorVersion * 10);
+
     public static string? ElasticPoolName { get; } = Config["ElasticPoolName"];
 
     public static bool? GetFlag(string key)
