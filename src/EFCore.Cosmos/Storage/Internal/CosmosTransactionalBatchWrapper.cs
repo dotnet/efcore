@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             // stream is disposed by TransactionalBatch.ExecuteAsync
             var stream = new MemoryStream();
             var writer = new StreamWriter(stream, new UTF8Encoding(), bufferSize: 1024, leaveOpen: true);
-            using var ___ = writer;
+            using var _ = writer;
             using var jsonWriter = new JsonTextWriter(writer);
             CosmosClientWrapper.Serializer.Serialize(jsonWriter, document);
             jsonWriter.Flush();
