@@ -325,7 +325,30 @@ public class DocumentSource
 
     private static JToken? ConvertPropertyValue(IProperty property, IUpdateEntry entry)
     {
-        var value = entry.GetCurrentProviderValue(property);
+        object? value;
+        
+        // For discriminator properties, use the discriminator value from the entity type
+        // to ensure consistency, rather than relying on the tracked property value
+        var discriminatorProperty = entry.EntityType.FindDiscriminatorProperty();
+        if (discriminatorProperty != null && property == discriminatorProperty)
+        {
+            var discriminatorValue = entry.EntityType.GetDiscriminatorValue();
+            if (discriminatorValue != null)
+            {
+                // If there's a converter, apply it to convert the discriminator value to the provider value
+                var converter = property.GetTypeMapping().Converter;
+                value = converter?.ConvertToProvider(discriminatorValue) ?? discriminatorValue;
+            }
+            else
+            {
+                value = entry.GetCurrentProviderValue(property);
+            }
+        }
+        else
+        {
+            value = entry.GetCurrentProviderValue(property);
+        }
+        
         return value == null
             ? null
             : (value as JToken) ?? JToken.FromObject(value, CosmosClientWrapper.Serializer);
