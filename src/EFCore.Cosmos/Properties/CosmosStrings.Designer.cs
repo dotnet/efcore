@@ -480,6 +480,18 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => GetString("ReverseAfterSkipTakeNotSupported");
 
         /// <summary>
+        ///     When using AutoTransactionBehavior.Always with the Cosmos DB provider, all changed entities in a SaveChanges call must be in the same collection and partition and not exceed 100 entities to ensure atomicity.
+        /// </summary>
+        public static string SaveChangesAutoTransactionBehaviorAlwaysAtomicity
+            => GetString("SaveChangesAutoTransactionBehaviorAlwaysAtomicity");
+
+        /// <summary>
+        ///     When using AutoTransactionBehavior.Always with the Cosmos DB provider, only 1 entity can be saved at a time when using pre- or post- triggers to ensure atomicity.
+        /// </summary>
+        public static string SaveChangesAutoTransactionBehaviorAlwaysTriggerAtomicity
+            => GetString("SaveChangesAutoTransactionBehaviorAlwaysTriggerAtomicity");
+
+        /// <summary>
         ///     SingleOrDefault and FirstOrDefault cannot be used Cosmos SQL does not allow Offset without Limit. Consider specifying a 'Take' operation on the query.
         /// </summary>
         public static string SingleFirstOrDefaultNotSupportedOnNonNullableQueries
@@ -750,6 +762,31 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                             level,
                             CosmosEventId.ExecutedReplaceItem,
                             _resourceManager.GetString("LogExecutedReplaceItem")!)));
+            }
+
+            return (EventDefinition<string, string, string, string, string, string?>)definition;
+        }
+
+        /// <summary>
+        ///     Executed TransactionalBatch ({elapsed} ms, {charge} RU) ActivityId='{activityId}', Container='{container}', Partition='{partitionKey}', DocumentIds='{documentIds}'
+        /// </summary>
+        public static EventDefinition<string, string, string, string, string, string?> LogExecutedTransactionalBatch(IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.CosmosLoggingDefinitions)logger.Definitions).LogExecutedTransactionalBatch;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((Diagnostics.Internal.CosmosLoggingDefinitions)logger.Definitions).LogExecutedTransactionalBatch,
+                    logger,
+                    static logger => new EventDefinition<string, string, string, string, string, string?>(
+                        logger.Options,
+                        CosmosEventId.ExecutedTransactionalBatch,
+                        LogLevel.Information,
+                        "CosmosEventId.ExecutedTransactionalBatch",
+                        level => LoggerMessage.Define<string, string, string, string, string, string?>(
+                            level,
+                            CosmosEventId.ExecutedTransactionalBatch,
+                            _resourceManager.GetString("LogExecutedTransactionalBatch")!)));
             }
 
             return (EventDefinition<string, string, string, string, string, string?>)definition;
