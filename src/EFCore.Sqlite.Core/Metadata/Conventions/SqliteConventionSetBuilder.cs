@@ -45,6 +45,8 @@ public class SqliteConventionSetBuilder : RelationalConventionSetBuilder
 
         conventionSet.Replace<SharedTableConvention>(new SqliteSharedTableConvention(Dependencies, RelationalDependencies));
         conventionSet.Replace<RuntimeModelConvention>(new SqliteRuntimeModelConvention(Dependencies, RelationalDependencies));
+        conventionSet.Replace<ValueGenerationConvention>(new SqliteValueGenerationConvention(Dependencies, RelationalDependencies));
+        conventionSet.Replace<StoreGenerationConvention>(new SqliteStoreGenerationConvention(Dependencies, RelationalDependencies));
 
         return conventionSet;
     }

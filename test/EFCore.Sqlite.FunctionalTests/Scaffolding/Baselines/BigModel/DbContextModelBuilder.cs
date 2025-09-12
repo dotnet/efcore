@@ -17,12 +17,13 @@ namespace TestNamespace
     public partial class DbContextModel
     {
         private DbContextModel()
-            : base(skipDetectChanges: false, modelId: new Guid("00000000-0000-0000-0000-000000000000"), entityTypeCount: 9)
+            : base(skipDetectChanges: false, modelId: new Guid("00000000-0000-0000-0000-000000000000"), entityTypeCount: 10)
         {
         }
 
         partial void Initialize()
         {
+            var autoIncrementEntity = AutoIncrementEntityEntityType.Create(this);
             var data = DataEntityType.Create(this);
             var dependentBase = DependentBaseEntityType.Create(this);
             var manyTypes = ManyTypesEntityType.Create(this);
@@ -45,6 +46,7 @@ namespace TestNamespace
             PrincipalBaseEntityType.CreateSkipNavigation1(principalBase, principalDerived, principalBasePrincipalDerivedDependentBasebyte);
             PrincipalDerivedEntityType.CreateSkipNavigation1(principalDerived, principalBase, principalBasePrincipalDerivedDependentBasebyte);
 
+            AutoIncrementEntityEntityType.CreateAnnotations(autoIncrementEntity);
             DataEntityType.CreateAnnotations(data);
             DependentBaseEntityType.CreateAnnotations(dependentBase);
             ManyTypesEntityType.CreateAnnotations(manyTypes);
@@ -62,18 +64,65 @@ namespace TestNamespace
         {
             var relationalModel = new RelationalModel(this);
 
-            var data = FindEntityType("Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+Data")!;
+            var autoIncrementEntity = FindEntityType("Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelSqliteTest+AutoIncrementEntity")!;
 
             var defaultTableMappings = new List<TableMappingBase<ColumnMappingBase>>();
-            data.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings);
+            autoIncrementEntity.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings);
+            var microsoftEntityFrameworkCoreScaffoldingCompiledModelSqliteTestAutoIncrementEntityTableBase = new TableBase("Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelSqliteTest+AutoIncrementEntity", null, relationalModel);
+            var idColumnBase = new ColumnBase<ColumnMappingBase>("Id", "INTEGER", microsoftEntityFrameworkCoreScaffoldingCompiledModelSqliteTestAutoIncrementEntityTableBase);
+            microsoftEntityFrameworkCoreScaffoldingCompiledModelSqliteTestAutoIncrementEntityTableBase.Columns.Add("Id", idColumnBase);
+            var nameColumnBase = new ColumnBase<ColumnMappingBase>("Name", "TEXT", microsoftEntityFrameworkCoreScaffoldingCompiledModelSqliteTestAutoIncrementEntityTableBase)
+            {
+                IsNullable = true
+            };
+            microsoftEntityFrameworkCoreScaffoldingCompiledModelSqliteTestAutoIncrementEntityTableBase.Columns.Add("Name", nameColumnBase);
+            relationalModel.DefaultTables.Add("Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelSqliteTest+AutoIncrementEntity", microsoftEntityFrameworkCoreScaffoldingCompiledModelSqliteTestAutoIncrementEntityTableBase);
+            var microsoftEntityFrameworkCoreScaffoldingCompiledModelSqliteTestAutoIncrementEntityMappingBase = new TableMappingBase<ColumnMappingBase>(autoIncrementEntity, microsoftEntityFrameworkCoreScaffoldingCompiledModelSqliteTestAutoIncrementEntityTableBase, null);
+            microsoftEntityFrameworkCoreScaffoldingCompiledModelSqliteTestAutoIncrementEntityTableBase.AddTypeMapping(microsoftEntityFrameworkCoreScaffoldingCompiledModelSqliteTestAutoIncrementEntityMappingBase, false);
+            defaultTableMappings.Add(microsoftEntityFrameworkCoreScaffoldingCompiledModelSqliteTestAutoIncrementEntityMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)idColumnBase, autoIncrementEntity.FindProperty("Id")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelSqliteTestAutoIncrementEntityMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nameColumnBase, autoIncrementEntity.FindProperty("Name")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelSqliteTestAutoIncrementEntityMappingBase);
+
+            var tableMappings = new List<TableMapping>();
+            autoIncrementEntity.SetRuntimeAnnotation("Relational:TableMappings", tableMappings);
+            var autoIncrementEntityTable = new Table("AutoIncrementEntity", null, relationalModel);
+            var idColumn = new Column("Id", "INTEGER", autoIncrementEntityTable);
+            autoIncrementEntityTable.Columns.Add("Id", idColumn);
+            idColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<int>(idColumn);
+            var nameColumn = new Column("Name", "TEXT", autoIncrementEntityTable)
+            {
+                IsNullable = true
+            };
+            autoIncrementEntityTable.Columns.Add("Name", nameColumn);
+            nameColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<string>(nameColumn);
+            relationalModel.Tables.Add(("AutoIncrementEntity", null), autoIncrementEntityTable);
+            var autoIncrementEntityTableMapping = new TableMapping(autoIncrementEntity, autoIncrementEntityTable, null);
+            autoIncrementEntityTable.AddTypeMapping(autoIncrementEntityTableMapping, false);
+            tableMappings.Add(autoIncrementEntityTableMapping);
+            RelationalModel.CreateColumnMapping(idColumn, autoIncrementEntity.FindProperty("Id")!, autoIncrementEntityTableMapping);
+            RelationalModel.CreateColumnMapping(nameColumn, autoIncrementEntity.FindProperty("Name")!, autoIncrementEntityTableMapping);
+            var pK_AutoIncrementEntity = new UniqueConstraint("PK_AutoIncrementEntity", autoIncrementEntityTable, new[] { idColumn });
+            autoIncrementEntityTable.PrimaryKey = pK_AutoIncrementEntity;
+            pK_AutoIncrementEntity.SetRowKeyValueFactory(new SimpleRowKeyValueFactory<int>(pK_AutoIncrementEntity));
+            var pK_AutoIncrementEntityKey = RelationalModel.GetKey(this,
+                "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelSqliteTest+AutoIncrementEntity",
+                new[] { "Id" });
+            pK_AutoIncrementEntity.MappedKeys.Add(pK_AutoIncrementEntityKey);
+            RelationalModel.GetOrCreateUniqueConstraints(pK_AutoIncrementEntityKey).Add(pK_AutoIncrementEntity);
+            autoIncrementEntityTable.UniqueConstraints.Add("PK_AutoIncrementEntity", pK_AutoIncrementEntity);
+
+            var data = FindEntityType("Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+Data")!;
+
+            var defaultTableMappings0 = new List<TableMappingBase<ColumnMappingBase>>();
+            data.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings0);
             var microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDataTableBase = new TableBase("Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+Data", null, relationalModel);
             var blobColumnBase = new ColumnBase<ColumnMappingBase>("Blob", "BLOB", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDataTableBase)
             {
                 IsNullable = true
             };
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDataTableBase.Columns.Add("Blob", blobColumnBase);
-            var idColumnBase = new ColumnBase<ColumnMappingBase>("Id", "INTEGER", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDataTableBase);
-            microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDataTableBase.Columns.Add("Id", idColumnBase);
+            var idColumnBase0 = new ColumnBase<ColumnMappingBase>("Id", "INTEGER", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDataTableBase);
+            microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDataTableBase.Columns.Add("Id", idColumnBase0);
             var pointColumnBase = new ColumnBase<ColumnMappingBase>("Point", "POINT", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDataTableBase)
             {
                 IsNullable = true
@@ -82,17 +131,17 @@ namespace TestNamespace
             relationalModel.DefaultTables.Add("Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+Data", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDataTableBase);
             var microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDataMappingBase = new TableMappingBase<ColumnMappingBase>(data, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDataTableBase, null);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDataTableBase.AddTypeMapping(microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDataMappingBase, false);
-            defaultTableMappings.Add(microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDataMappingBase);
-            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)idColumnBase, data.FindProperty("Id")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDataMappingBase);
+            defaultTableMappings0.Add(microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDataMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)idColumnBase0, data.FindProperty("Id")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDataMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)blobColumnBase, data.FindProperty("Blob")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDataMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)pointColumnBase, data.FindProperty("Point")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDataMappingBase);
 
-            var tableMappings = new List<TableMapping>();
-            data.SetRuntimeAnnotation("Relational:TableMappings", tableMappings);
+            var tableMappings0 = new List<TableMapping>();
+            data.SetRuntimeAnnotation("Relational:TableMappings", tableMappings0);
             var dataTable = new Table("Data", null, relationalModel);
-            var idColumn = new Column("Id", "INTEGER", dataTable);
-            dataTable.Columns.Add("Id", idColumn);
-            idColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<int>(idColumn);
+            var idColumn0 = new Column("Id", "INTEGER", dataTable);
+            dataTable.Columns.Add("Id", idColumn0);
+            idColumn0.Accessors = ColumnAccessorsFactory.CreateGeneric<int>(idColumn0);
             var blobColumn = new Column("Blob", "BLOB", dataTable)
             {
                 IsNullable = true
@@ -108,11 +157,11 @@ namespace TestNamespace
             relationalModel.Tables.Add(("Data", null), dataTable);
             var dataTableMapping = new TableMapping(data, dataTable, null);
             dataTable.AddTypeMapping(dataTableMapping, false);
-            tableMappings.Add(dataTableMapping);
-            RelationalModel.CreateColumnMapping(idColumn, data.FindProperty("Id")!, dataTableMapping);
+            tableMappings0.Add(dataTableMapping);
+            RelationalModel.CreateColumnMapping(idColumn0, data.FindProperty("Id")!, dataTableMapping);
             RelationalModel.CreateColumnMapping(blobColumn, data.FindProperty("Blob")!, dataTableMapping);
             RelationalModel.CreateColumnMapping(pointColumn, data.FindProperty("Point")!, dataTableMapping);
-            var pK_Data = new UniqueConstraint("PK_Data", dataTable, new[] { idColumn });
+            var pK_Data = new UniqueConstraint("PK_Data", dataTable, new[] { idColumn0 });
             dataTable.PrimaryKey = pK_Data;
             pK_Data.SetRowKeyValueFactory(new SimpleRowKeyValueFactory<int>(pK_Data));
             var pK_DataKey = RelationalModel.GetKey(this,
@@ -124,8 +173,8 @@ namespace TestNamespace
 
             var dependentBase = FindEntityType("Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+DependentBase<byte?>")!;
 
-            var defaultTableMappings0 = new List<TableMappingBase<ColumnMappingBase>>();
-            dependentBase.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings0);
+            var defaultTableMappings1 = new List<TableMappingBase<ColumnMappingBase>>();
+            dependentBase.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings1);
             var microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteTableBase = new TableBase("Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+DependentBase<byte?>", null, relationalModel);
             var dataColumnBase = new ColumnBase<ColumnMappingBase>("Data", "TEXT", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteTableBase)
             {
@@ -134,11 +183,11 @@ namespace TestNamespace
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteTableBase.Columns.Add("Data", dataColumnBase);
             var enumDiscriminatorColumnBase = new ColumnBase<ColumnMappingBase>("EnumDiscriminator", "INTEGER", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteTableBase);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteTableBase.Columns.Add("EnumDiscriminator", enumDiscriminatorColumnBase);
-            var idColumnBase0 = new ColumnBase<ColumnMappingBase>("Id", "INTEGER", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteTableBase)
+            var idColumnBase1 = new ColumnBase<ColumnMappingBase>("Id", "INTEGER", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteTableBase)
             {
                 IsNullable = true
             };
-            microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteTableBase.Columns.Add("Id", idColumnBase0);
+            microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteTableBase.Columns.Add("Id", idColumnBase1);
             var moneyColumnBase = new ColumnBase<ColumnMappingBase>("Money", "TEXT", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteTableBase)
             {
                 IsNullable = true
@@ -151,14 +200,14 @@ namespace TestNamespace
             relationalModel.DefaultTables.Add("Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+DependentBase<byte?>", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteTableBase);
             var microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteMappingBase = new TableMappingBase<ColumnMappingBase>(dependentBase, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteTableBase, true);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteTableBase.AddTypeMapping(microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteMappingBase, false);
-            defaultTableMappings0.Add(microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteMappingBase);
+            defaultTableMappings1.Add(microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)principalAlternateIdColumnBase, dependentBase.FindProperty("PrincipalAlternateId")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)principalIdColumnBase, dependentBase.FindProperty("PrincipalId")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)enumDiscriminatorColumnBase, dependentBase.FindProperty("EnumDiscriminator")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteMappingBase);
-            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)idColumnBase0, dependentBase.FindProperty("Id")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)idColumnBase1, dependentBase.FindProperty("Id")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteMappingBase);
 
-            var tableMappings0 = new List<TableMapping>();
-            dependentBase.SetRuntimeAnnotation("Relational:TableMappings", tableMappings0);
+            var tableMappings1 = new List<TableMapping>();
+            dependentBase.SetRuntimeAnnotation("Relational:TableMappings", tableMappings1);
             var dependentBasebyteTable = new Table("DependentBase<byte?>", null, relationalModel);
             var principalIdColumn = new Column("PrincipalId", "INTEGER", dependentBasebyteTable);
             dependentBasebyteTable.Columns.Add("PrincipalId", principalIdColumn);
@@ -175,12 +224,12 @@ namespace TestNamespace
             var enumDiscriminatorColumn = new Column("EnumDiscriminator", "INTEGER", dependentBasebyteTable);
             dependentBasebyteTable.Columns.Add("EnumDiscriminator", enumDiscriminatorColumn);
             enumDiscriminatorColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<int>(enumDiscriminatorColumn);
-            var idColumn0 = new Column("Id", "INTEGER", dependentBasebyteTable)
+            var idColumn1 = new Column("Id", "INTEGER", dependentBasebyteTable)
             {
                 IsNullable = true
             };
-            dependentBasebyteTable.Columns.Add("Id", idColumn0);
-            idColumn0.Accessors = ColumnAccessorsFactory.CreateGeneric<byte>(idColumn0);
+            dependentBasebyteTable.Columns.Add("Id", idColumn1);
+            idColumn1.Accessors = ColumnAccessorsFactory.CreateGeneric<byte>(idColumn1);
             var moneyColumn = new Column("Money", "TEXT", dependentBasebyteTable)
             {
                 IsNullable = true
@@ -193,39 +242,39 @@ namespace TestNamespace
                 IsSharedTablePrincipal = true,
             };
             dependentBasebyteTable.AddTypeMapping(dependentBasebyteTableMapping, false);
-            tableMappings0.Add(dependentBasebyteTableMapping);
+            tableMappings1.Add(dependentBasebyteTableMapping);
             RelationalModel.CreateColumnMapping(principalAlternateIdColumn, dependentBase.FindProperty("PrincipalAlternateId")!, dependentBasebyteTableMapping);
             RelationalModel.CreateColumnMapping(principalIdColumn, dependentBase.FindProperty("PrincipalId")!, dependentBasebyteTableMapping);
             RelationalModel.CreateColumnMapping(enumDiscriminatorColumn, dependentBase.FindProperty("EnumDiscriminator")!, dependentBasebyteTableMapping);
-            RelationalModel.CreateColumnMapping(idColumn0, dependentBase.FindProperty("Id")!, dependentBasebyteTableMapping);
+            RelationalModel.CreateColumnMapping(idColumn1, dependentBase.FindProperty("Id")!, dependentBasebyteTableMapping);
 
             var dependentDerived = FindEntityType("Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+DependentDerived<byte?>")!;
 
-            var defaultTableMappings1 = new List<TableMappingBase<ColumnMappingBase>>();
-            dependentDerived.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings1);
+            var defaultTableMappings2 = new List<TableMappingBase<ColumnMappingBase>>();
+            dependentDerived.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings2);
             var microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteMappingBase0 = new TableMappingBase<ColumnMappingBase>(dependentDerived, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteTableBase, null);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteTableBase.AddTypeMapping(microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteMappingBase0, false);
-            defaultTableMappings1.Add(microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteMappingBase0);
+            defaultTableMappings2.Add(microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteMappingBase0);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)principalAlternateIdColumnBase, dependentDerived.FindProperty("PrincipalAlternateId")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteMappingBase0);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)principalIdColumnBase, dependentDerived.FindProperty("PrincipalId")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteMappingBase0);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)dataColumnBase, dependentDerived.FindProperty("Data")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteMappingBase0);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)enumDiscriminatorColumnBase, dependentDerived.FindProperty("EnumDiscriminator")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteMappingBase0);
-            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)idColumnBase0, dependentDerived.FindProperty("Id")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteMappingBase0);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)idColumnBase1, dependentDerived.FindProperty("Id")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteMappingBase0);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)moneyColumnBase, dependentDerived.FindProperty("Money")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteMappingBase0);
 
-            var tableMappings1 = new List<TableMapping>();
-            dependentDerived.SetRuntimeAnnotation("Relational:TableMappings", tableMappings1);
+            var tableMappings2 = new List<TableMapping>();
+            dependentDerived.SetRuntimeAnnotation("Relational:TableMappings", tableMappings2);
             var dependentBasebyteTableMapping0 = new TableMapping(dependentDerived, dependentBasebyteTable, null)
             {
                 IsSharedTablePrincipal = false,
             };
             dependentBasebyteTable.AddTypeMapping(dependentBasebyteTableMapping0, false);
-            tableMappings1.Add(dependentBasebyteTableMapping0);
+            tableMappings2.Add(dependentBasebyteTableMapping0);
             RelationalModel.CreateColumnMapping(principalAlternateIdColumn, dependentDerived.FindProperty("PrincipalAlternateId")!, dependentBasebyteTableMapping0);
             RelationalModel.CreateColumnMapping(principalIdColumn, dependentDerived.FindProperty("PrincipalId")!, dependentBasebyteTableMapping0);
             RelationalModel.CreateColumnMapping(dataColumn, dependentDerived.FindProperty("Data")!, dependentBasebyteTableMapping0);
             RelationalModel.CreateColumnMapping(enumDiscriminatorColumn, dependentDerived.FindProperty("EnumDiscriminator")!, dependentBasebyteTableMapping0);
-            RelationalModel.CreateColumnMapping(idColumn0, dependentDerived.FindProperty("Id")!, dependentBasebyteTableMapping0);
+            RelationalModel.CreateColumnMapping(idColumn1, dependentDerived.FindProperty("Id")!, dependentBasebyteTableMapping0);
             RelationalModel.CreateColumnMapping(moneyColumn, dependentDerived.FindProperty("Money")!, dependentBasebyteTableMapping0);
             var pK_DependentBasebyte = new UniqueConstraint("PK_DependentBase<byte?>", dependentBasebyteTable, new[] { principalIdColumn, principalAlternateIdColumn });
             dependentBasebyteTable.PrimaryKey = pK_DependentBasebyte;
@@ -248,8 +297,8 @@ namespace TestNamespace
 
             var manyTypes = FindEntityType("Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+ManyTypes")!;
 
-            var defaultTableMappings2 = new List<TableMappingBase<ColumnMappingBase>>();
-            manyTypes.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings2);
+            var defaultTableMappings3 = new List<TableMappingBase<ColumnMappingBase>>();
+            manyTypes.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings3);
             var microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase = new TableBase("Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+ManyTypes", null, relationalModel);
             var boolColumnBase = new ColumnBase<ColumnMappingBase>("Bool", "INTEGER", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("Bool", boolColumnBase);
@@ -437,8 +486,8 @@ namespace TestNamespace
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("IPAddressToBytesConverterProperty", iPAddressToBytesConverterPropertyColumnBase);
             var iPAddressToStringConverterPropertyColumnBase = new ColumnBase<ColumnMappingBase>("IPAddressToStringConverterProperty", "TEXT", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("IPAddressToStringConverterProperty", iPAddressToStringConverterPropertyColumnBase);
-            var idColumnBase1 = new ColumnBase<ColumnMappingBase>("Id", "INTEGER", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
-            microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("Id", idColumnBase1);
+            var idColumnBase2 = new ColumnBase<ColumnMappingBase>("Id", "INTEGER", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
+            microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("Id", idColumnBase2);
             var int16ColumnBase = new ColumnBase<ColumnMappingBase>("Int16", "INTEGER", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("Int16", int16ColumnBase);
             var int16ArrayColumnBase = new ColumnBase<ColumnMappingBase>("Int16Array", "TEXT", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
@@ -859,8 +908,8 @@ namespace TestNamespace
             relationalModel.DefaultTables.Add("Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+ManyTypes", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
             var microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase = new TableMappingBase<ColumnMappingBase>(manyTypes, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase, null);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.AddTypeMapping(microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase, false);
-            defaultTableMappings2.Add(microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
-            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)idColumnBase1, manyTypes.FindProperty("Id")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
+            defaultTableMappings3.Add(microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)idColumnBase2, manyTypes.FindProperty("Id")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)boolColumnBase, manyTypes.FindProperty("Bool")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)boolArrayColumnBase, manyTypes.FindProperty("BoolArray")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)boolReadOnlyCollectionColumnBase, manyTypes.FindProperty("BoolReadOnlyCollection")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
@@ -1102,12 +1151,12 @@ namespace TestNamespace
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)uriArrayColumnBase, manyTypes.FindProperty("UriArray")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)uriToStringConverterPropertyColumnBase, manyTypes.FindProperty("UriToStringConverterProperty")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
 
-            var tableMappings2 = new List<TableMapping>();
-            manyTypes.SetRuntimeAnnotation("Relational:TableMappings", tableMappings2);
+            var tableMappings3 = new List<TableMapping>();
+            manyTypes.SetRuntimeAnnotation("Relational:TableMappings", tableMappings3);
             var manyTypesTable = new Table("ManyTypes", null, relationalModel);
-            var idColumn1 = new Column("Id", "INTEGER", manyTypesTable);
-            manyTypesTable.Columns.Add("Id", idColumn1);
-            idColumn1.Accessors = ColumnAccessorsFactory.CreateGeneric<int>(idColumn1);
+            var idColumn2 = new Column("Id", "INTEGER", manyTypesTable);
+            manyTypesTable.Columns.Add("Id", idColumn2);
+            idColumn2.Accessors = ColumnAccessorsFactory.CreateGeneric<int>(idColumn2);
             var boolColumn = new Column("Bool", "INTEGER", manyTypesTable);
             manyTypesTable.Columns.Add("Bool", boolColumn);
             boolColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<bool>(boolColumn);
@@ -1954,8 +2003,8 @@ namespace TestNamespace
             relationalModel.Tables.Add(("ManyTypes", null), manyTypesTable);
             var manyTypesTableMapping = new TableMapping(manyTypes, manyTypesTable, null);
             manyTypesTable.AddTypeMapping(manyTypesTableMapping, false);
-            tableMappings2.Add(manyTypesTableMapping);
-            RelationalModel.CreateColumnMapping(idColumn1, manyTypes.FindProperty("Id")!, manyTypesTableMapping);
+            tableMappings3.Add(manyTypesTableMapping);
+            RelationalModel.CreateColumnMapping(idColumn2, manyTypes.FindProperty("Id")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(boolColumn, manyTypes.FindProperty("Bool")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(boolArrayColumn, manyTypes.FindProperty("BoolArray")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(boolReadOnlyCollectionColumn, manyTypes.FindProperty("BoolReadOnlyCollection")!, manyTypesTableMapping);
@@ -2196,7 +2245,7 @@ namespace TestNamespace
             RelationalModel.CreateColumnMapping(uriColumn, manyTypes.FindProperty("Uri")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(uriArrayColumn, manyTypes.FindProperty("UriArray")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(uriToStringConverterPropertyColumn, manyTypes.FindProperty("UriToStringConverterProperty")!, manyTypesTableMapping);
-            var pK_ManyTypes = new UniqueConstraint("PK_ManyTypes", manyTypesTable, new[] { idColumn1 });
+            var pK_ManyTypes = new UniqueConstraint("PK_ManyTypes", manyTypesTable, new[] { idColumn2 });
             manyTypesTable.PrimaryKey = pK_ManyTypes;
             pK_ManyTypes.SetRowKeyValueFactory(new SimpleRowKeyValueFactory<int>(pK_ManyTypes));
             var pK_ManyTypesKey = RelationalModel.GetKey(this,
@@ -2208,8 +2257,8 @@ namespace TestNamespace
 
             var principalBase = FindEntityType("Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalBase")!;
 
-            var defaultTableMappings3 = new List<TableMappingBase<ColumnMappingBase>>();
-            principalBase.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings3);
+            var defaultTableMappings4 = new List<TableMappingBase<ColumnMappingBase>>();
+            principalBase.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings4);
             var microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase = new TableBase("Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalBase", null, relationalModel);
             var alternateIdColumnBase = new ColumnBase<ColumnMappingBase>("AlternateId", "TEXT", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase.Columns.Add("AlternateId", alternateIdColumnBase);
@@ -2229,8 +2278,8 @@ namespace TestNamespace
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase.Columns.Add("FlagsEnum1", flagsEnum1ColumnBase);
             var flagsEnum2ColumnBase = new ColumnBase<ColumnMappingBase>("FlagsEnum2", "INTEGER", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase.Columns.Add("FlagsEnum2", flagsEnum2ColumnBase);
-            var idColumnBase2 = new ColumnBase<ColumnMappingBase>("Id", "INTEGER", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase);
-            microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase.Columns.Add("Id", idColumnBase2);
+            var idColumnBase3 = new ColumnBase<ColumnMappingBase>("Id", "INTEGER", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase);
+            microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase.Columns.Add("Id", idColumnBase3);
             var numberColumnBase = new ColumnBase<ColumnMappingBase>("Number", "INTEGER", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase.Columns.Add("Number", numberColumnBase);
             var pointColumnBase0 = new ColumnBase<ColumnMappingBase>("Point", "geometry", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase)
@@ -2285,9 +2334,9 @@ namespace TestNamespace
             relationalModel.DefaultTables.Add("Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalBase", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase);
             var microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappingBase = new TableMappingBase<ColumnMappingBase>(principalBase, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase, true);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase.AddTypeMapping(microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappingBase, false);
-            defaultTableMappings3.Add(microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappingBase);
+            defaultTableMappings4.Add(microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)alternateIdColumnBase, principalBase.FindProperty("AlternateId")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappingBase);
-            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)idColumnBase2, principalBase.FindProperty("Id")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)idColumnBase3, principalBase.FindProperty("Id")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)enum1ColumnBase, principalBase.FindProperty("Enum1")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)enum2ColumnBase, principalBase.FindProperty("Enum2")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)flagsEnum1ColumnBase, principalBase.FindProperty("FlagsEnum1")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappingBase);
@@ -2302,12 +2351,12 @@ namespace TestNamespace
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)valueTypeIListColumnBase, principalBase.FindProperty("ValueTypeIList")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)valueTypeListColumnBase, principalBase.FindProperty("ValueTypeList")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappingBase);
 
-            var tableMappings3 = new List<TableMapping>();
-            principalBase.SetRuntimeAnnotation("Relational:TableMappings", tableMappings3);
+            var tableMappings4 = new List<TableMapping>();
+            principalBase.SetRuntimeAnnotation("Relational:TableMappings", tableMappings4);
             var principalBaseTable = new Table("PrincipalBase", "mySchema", relationalModel);
-            var idColumn2 = new Column("Id", "INTEGER", principalBaseTable);
-            principalBaseTable.Columns.Add("Id", idColumn2);
-            idColumn2.Accessors = ColumnAccessorsFactory.CreateGeneric<long>(idColumn2);
+            var idColumn3 = new Column("Id", "INTEGER", principalBaseTable);
+            principalBaseTable.Columns.Add("Id", idColumn3);
+            idColumn3.Accessors = ColumnAccessorsFactory.CreateGeneric<long>(idColumn3);
             var alternateIdColumn = new Column("AlternateId", "TEXT", principalBaseTable);
             principalBaseTable.Columns.Add("AlternateId", alternateIdColumn);
             alternateIdColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<Guid>(alternateIdColumn);
@@ -2437,9 +2486,9 @@ namespace TestNamespace
                 IsSharedTablePrincipal = true,
             };
             principalBaseTable.AddTypeMapping(principalBaseTableMapping, false);
-            tableMappings3.Add(principalBaseTableMapping);
+            tableMappings4.Add(principalBaseTableMapping);
             RelationalModel.CreateColumnMapping(alternateIdColumn, principalBase.FindProperty("AlternateId")!, principalBaseTableMapping);
-            RelationalModel.CreateColumnMapping(idColumn2, principalBase.FindProperty("Id")!, principalBaseTableMapping);
+            RelationalModel.CreateColumnMapping(idColumn3, principalBase.FindProperty("Id")!, principalBaseTableMapping);
             RelationalModel.CreateColumnMapping(enum1Column, principalBase.FindProperty("Enum1")!, principalBaseTableMapping);
             RelationalModel.CreateColumnMapping(enum2Column, principalBase.FindProperty("Enum2")!, principalBaseTableMapping);
             RelationalModel.CreateColumnMapping(flagsEnum1Column, principalBase.FindProperty("FlagsEnum1")!, principalBaseTableMapping);
@@ -2456,11 +2505,11 @@ namespace TestNamespace
 
             var ownedType = FindEntityType("Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalBase.Owned#OwnedType")!;
 
-            var defaultTableMappings4 = new List<TableMappingBase<ColumnMappingBase>>();
-            ownedType.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings4);
+            var defaultTableMappings5 = new List<TableMappingBase<ColumnMappingBase>>();
+            ownedType.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings5);
             var microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappingBase0 = new TableMappingBase<ColumnMappingBase>(ownedType, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase, null);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase.AddTypeMapping(microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappingBase0, false);
-            defaultTableMappings4.Add(microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappingBase0);
+            defaultTableMappings5.Add(microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappingBase0);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)principalBaseAlternateIdColumnBase, ownedType.FindProperty("PrincipalBaseAlternateId")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappingBase0);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)principalBaseIdColumnBase, ownedType.FindProperty("PrincipalBaseId")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappingBase0);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)detailsColumnBase, ownedType.FindProperty("Details")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappingBase0);
@@ -2474,22 +2523,22 @@ namespace TestNamespace
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)valueTypeIListColumnBase, ownedType.FindProperty("ValueTypeIList")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappingBase0);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)valueTypeListColumnBase, ownedType.FindProperty("ValueTypeList")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappingBase0);
 
-            var tableMappings4 = new List<TableMapping>();
-            ownedType.SetRuntimeAnnotation("Relational:TableMappings", tableMappings4);
+            var tableMappings5 = new List<TableMapping>();
+            ownedType.SetRuntimeAnnotation("Relational:TableMappings", tableMappings5);
             var principalBaseTableMapping0 = new TableMapping(ownedType, principalBaseTable, null)
             {
                 IsSharedTablePrincipal = false,
                 IsSplitEntityTypePrincipal = true
             };
             principalBaseTable.AddTypeMapping(principalBaseTableMapping0, false);
-            tableMappings4.Add(principalBaseTableMapping0);
+            tableMappings5.Add(principalBaseTableMapping0);
             principalBaseTable.AddRowInternalForeignKey(ownedType, RelationalModel.GetForeignKey(this,
                 "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalBase.Owned#OwnedType",
                 new[] { "PrincipalBaseId", "PrincipalBaseAlternateId" },
                 "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalBase",
                 new[] { "Id", "AlternateId" }));
             RelationalModel.CreateColumnMapping(alternateIdColumn, ownedType.FindProperty("PrincipalBaseAlternateId")!, principalBaseTableMapping0);
-            RelationalModel.CreateColumnMapping(idColumn2, ownedType.FindProperty("PrincipalBaseId")!, principalBaseTableMapping0);
+            RelationalModel.CreateColumnMapping(idColumn3, ownedType.FindProperty("PrincipalBaseId")!, principalBaseTableMapping0);
             RelationalModel.CreateColumnMapping(owned_NumberColumn, ownedType.FindProperty("Number")!, principalBaseTableMapping0);
             RelationalModel.CreateColumnMapping(owned_RefTypeArrayColumn, ownedType.FindProperty("RefTypeArray")!, principalBaseTableMapping0);
             RelationalModel.CreateColumnMapping(owned_RefTypeEnumerableColumn, ownedType.FindProperty("RefTypeEnumerable")!, principalBaseTableMapping0);
@@ -2518,7 +2567,7 @@ namespace TestNamespace
                 IsSplitEntityTypePrincipal = false
             };
             detailsTable.AddTypeMapping(detailsTableMapping, false);
-            tableMappings4.Add(detailsTableMapping);
+            tableMappings5.Add(detailsTableMapping);
             RelationalModel.CreateColumnMapping(principalBaseAlternateIdColumn, ownedType.FindProperty("PrincipalBaseAlternateId")!, detailsTableMapping);
             RelationalModel.CreateColumnMapping(principalBaseIdColumn, ownedType.FindProperty("PrincipalBaseId")!, detailsTableMapping);
             RelationalModel.CreateColumnMapping(detailsColumn, ownedType.FindProperty("Details")!, detailsTableMapping);
@@ -2534,13 +2583,13 @@ namespace TestNamespace
 
             var principalDerived = FindEntityType("Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalDerived<Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+DependentBase<byte?>>")!;
 
-            var defaultTableMappings5 = new List<TableMappingBase<ColumnMappingBase>>();
-            principalDerived.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings5);
+            var defaultTableMappings6 = new List<TableMappingBase<ColumnMappingBase>>();
+            principalDerived.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings6);
             var microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappingBase1 = new TableMappingBase<ColumnMappingBase>(principalDerived, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase, null);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase.AddTypeMapping(microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappingBase1, false);
-            defaultTableMappings5.Add(microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappingBase1);
+            defaultTableMappings6.Add(microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappingBase1);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)alternateIdColumnBase, principalDerived.FindProperty("AlternateId")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappingBase1);
-            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)idColumnBase2, principalDerived.FindProperty("Id")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappingBase1);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)idColumnBase3, principalDerived.FindProperty("Id")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappingBase1);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)enum1ColumnBase, principalDerived.FindProperty("Enum1")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappingBase1);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)enum2ColumnBase, principalDerived.FindProperty("Enum2")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappingBase1);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)flagsEnum1ColumnBase, principalDerived.FindProperty("FlagsEnum1")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappingBase1);
@@ -2557,25 +2606,25 @@ namespace TestNamespace
             var microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteTableBase = new TableBase("Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalDerived<Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+DependentBase<byte?>>", null, relationalModel);
             var alternateIdColumnBase0 = new ColumnBase<ColumnMappingBase>("AlternateId", "TEXT", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteTableBase);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteTableBase.Columns.Add("AlternateId", alternateIdColumnBase0);
-            var idColumnBase3 = new ColumnBase<ColumnMappingBase>("Id", "INTEGER", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteTableBase);
-            microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteTableBase.Columns.Add("Id", idColumnBase3);
+            var idColumnBase4 = new ColumnBase<ColumnMappingBase>("Id", "INTEGER", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteTableBase);
+            microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteTableBase.Columns.Add("Id", idColumnBase4);
             relationalModel.DefaultTables.Add("Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalDerived<Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+DependentBase<byte?>>", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteTableBase);
             var microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteMappingBase = new TableMappingBase<ColumnMappingBase>(principalDerived, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteTableBase, null);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteTableBase.AddTypeMapping(microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteMappingBase, false);
-            defaultTableMappings5.Add(microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteMappingBase);
+            defaultTableMappings6.Add(microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)alternateIdColumnBase0, principalDerived.FindProperty("AlternateId")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteMappingBase);
-            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)idColumnBase3, principalDerived.FindProperty("Id")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)idColumnBase4, principalDerived.FindProperty("Id")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteMappingBase);
 
-            var tableMappings5 = new List<TableMapping>();
-            principalDerived.SetRuntimeAnnotation("Relational:TableMappings", tableMappings5);
+            var tableMappings6 = new List<TableMapping>();
+            principalDerived.SetRuntimeAnnotation("Relational:TableMappings", tableMappings6);
             var principalBaseTableMapping1 = new TableMapping(principalDerived, principalBaseTable, null)
             {
                 IsSharedTablePrincipal = false,
             };
             principalBaseTable.AddTypeMapping(principalBaseTableMapping1, false);
-            tableMappings5.Add(principalBaseTableMapping1);
+            tableMappings6.Add(principalBaseTableMapping1);
             RelationalModel.CreateColumnMapping(alternateIdColumn, principalDerived.FindProperty("AlternateId")!, principalBaseTableMapping1);
-            RelationalModel.CreateColumnMapping(idColumn2, principalDerived.FindProperty("Id")!, principalBaseTableMapping1);
+            RelationalModel.CreateColumnMapping(idColumn3, principalDerived.FindProperty("Id")!, principalBaseTableMapping1);
             RelationalModel.CreateColumnMapping(enum1Column, principalDerived.FindProperty("Enum1")!, principalBaseTableMapping1);
             RelationalModel.CreateColumnMapping(enum2Column, principalDerived.FindProperty("Enum2")!, principalBaseTableMapping1);
             RelationalModel.CreateColumnMapping(flagsEnum1Column, principalDerived.FindProperty("FlagsEnum1")!, principalBaseTableMapping1);
@@ -2589,7 +2638,7 @@ namespace TestNamespace
             RelationalModel.CreateColumnMapping(valueTypeEnumerableColumn, principalDerived.FindProperty("ValueTypeEnumerable")!, principalBaseTableMapping1);
             RelationalModel.CreateColumnMapping(valueTypeIListColumn, principalDerived.FindProperty("ValueTypeIList")!, principalBaseTableMapping1);
             RelationalModel.CreateColumnMapping(valueTypeListColumn, principalDerived.FindProperty("ValueTypeList")!, principalBaseTableMapping1);
-            var aK_PrincipalBase_Id = new UniqueConstraint("AK_PrincipalBase_Id", principalBaseTable, new[] { idColumn2 });
+            var aK_PrincipalBase_Id = new UniqueConstraint("AK_PrincipalBase_Id", principalBaseTable, new[] { idColumn3 });
             aK_PrincipalBase_Id.SetRowKeyValueFactory(new SimpleRowKeyValueFactory<long>(aK_PrincipalBase_Id));
             var aK_PrincipalBase_IdKey = RelationalModel.GetKey(this,
                 "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalBase",
@@ -2597,7 +2646,7 @@ namespace TestNamespace
             aK_PrincipalBase_Id.MappedKeys.Add(aK_PrincipalBase_IdKey);
             RelationalModel.GetOrCreateUniqueConstraints(aK_PrincipalBase_IdKey).Add(aK_PrincipalBase_Id);
             principalBaseTable.UniqueConstraints.Add("AK_PrincipalBase_Id", aK_PrincipalBase_Id);
-            var pK = new UniqueConstraint("PK", principalBaseTable, new[] { idColumn2, alternateIdColumn });
+            var pK = new UniqueConstraint("PK", principalBaseTable, new[] { idColumn3, alternateIdColumn });
             principalBaseTable.PrimaryKey = pK;
             pK.SetRowKeyValueFactory(new CompositeRowKeyValueFactory(pK));
             var pKKey = RelationalModel.GetKey(this,
@@ -2609,7 +2658,7 @@ namespace TestNamespace
             RelationalModel.GetOrCreateUniqueConstraints(pK_DetailsKey).Add(pK);
             principalBaseTable.UniqueConstraints.Add("PK", pK);
             var iX_PrincipalBase_AlternateId_Id = new TableIndex(
-            "IX_PrincipalBase_AlternateId_Id", principalBaseTable, new[] { alternateIdColumn, idColumn2 }, false);
+            "IX_PrincipalBase_AlternateId_Id", principalBaseTable, new[] { alternateIdColumn, idColumn3 }, false);
             iX_PrincipalBase_AlternateId_Id.SetRowIndexValueFactory(new CompositeRowIndexValueFactory(iX_PrincipalBase_AlternateId_Id));
             var iX_PrincipalBase_AlternateId_IdIx = RelationalModel.GetIndex(this,
                 "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalBase",
@@ -2627,7 +2676,7 @@ namespace TestNamespace
             relationalModel.Tables.Add(("PrincipalDerived", null), principalDerivedTable);
             var principalDerivedTableMapping = new TableMapping(principalDerived, principalDerivedTable, null);
             principalDerivedTable.AddTypeMapping(principalDerivedTableMapping, false);
-            tableMappings5.Add(principalDerivedTableMapping);
+            tableMappings6.Add(principalDerivedTableMapping);
             RelationalModel.CreateColumnMapping(alternateIdColumn0, principalDerived.FindProperty("AlternateId")!, principalDerivedTableMapping);
             RelationalModel.CreateColumnMapping(derivedIdColumn, principalDerived.FindProperty("Id")!, principalDerivedTableMapping);
             var aK_PrincipalDerived_DerivedId = new UniqueConstraint("AK_PrincipalDerived_DerivedId", principalDerivedTable, new[] { derivedIdColumn });
@@ -2650,16 +2699,16 @@ namespace TestNamespace
 
             var ownedType0 = FindEntityType("Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalDerived<Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+DependentBase<byte?>>.ManyOwned#OwnedType")!;
 
-            var defaultTableMappings6 = new List<TableMappingBase<ColumnMappingBase>>();
-            ownedType0.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings6);
+            var defaultTableMappings7 = new List<TableMappingBase<ColumnMappingBase>>();
+            ownedType0.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings7);
             var microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteManyOwnedOwnedTypeTableBase = new TableBase("Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalDerived<Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+DependentBase<byte?>>.ManyOwned#OwnedType", null, relationalModel);
             var detailsColumnBase0 = new ColumnBase<ColumnMappingBase>("Details", "TEXT", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteManyOwnedOwnedTypeTableBase)
             {
                 IsNullable = true
             };
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteManyOwnedOwnedTypeTableBase.Columns.Add("Details", detailsColumnBase0);
-            var idColumnBase4 = new ColumnBase<ColumnMappingBase>("Id", "INTEGER", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteManyOwnedOwnedTypeTableBase);
-            microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteManyOwnedOwnedTypeTableBase.Columns.Add("Id", idColumnBase4);
+            var idColumnBase5 = new ColumnBase<ColumnMappingBase>("Id", "INTEGER", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteManyOwnedOwnedTypeTableBase);
+            microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteManyOwnedOwnedTypeTableBase.Columns.Add("Id", idColumnBase5);
             var numberColumnBase0 = new ColumnBase<ColumnMappingBase>("Number", "INTEGER", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteManyOwnedOwnedTypeTableBase);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteManyOwnedOwnedTypeTableBase.Columns.Add("Number", numberColumnBase0);
             var principalDerivedDependentBasebyteAlternateIdColumnBase = new ColumnBase<ColumnMappingBase>("PrincipalDerived<DependentBase<byte?>>AlternateId", "TEXT", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteManyOwnedOwnedTypeTableBase);
@@ -2709,8 +2758,8 @@ namespace TestNamespace
             relationalModel.DefaultTables.Add("Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalDerived<Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+DependentBase<byte?>>.ManyOwned#OwnedType", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteManyOwnedOwnedTypeTableBase);
             var microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteManyOwnedOwnedTypeMappingBase = new TableMappingBase<ColumnMappingBase>(ownedType0, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteManyOwnedOwnedTypeTableBase, null);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteManyOwnedOwnedTypeTableBase.AddTypeMapping(microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteManyOwnedOwnedTypeMappingBase, false);
-            defaultTableMappings6.Add(microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteManyOwnedOwnedTypeMappingBase);
-            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)idColumnBase4, ownedType0.FindProperty("Id")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteManyOwnedOwnedTypeMappingBase);
+            defaultTableMappings7.Add(microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteManyOwnedOwnedTypeMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)idColumnBase5, ownedType0.FindProperty("Id")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteManyOwnedOwnedTypeMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)principalDerivedDependentBasebyteAlternateIdColumnBase, ownedType0.FindProperty("PrincipalDerivedAlternateId")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteManyOwnedOwnedTypeMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)principalDerivedDependentBasebyteIdColumnBase, ownedType0.FindProperty("PrincipalDerivedId")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteManyOwnedOwnedTypeMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)detailsColumnBase0, ownedType0.FindProperty("Details")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteManyOwnedOwnedTypeMappingBase);
@@ -2724,8 +2773,8 @@ namespace TestNamespace
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)valueTypeIListColumnBase0, ownedType0.FindProperty("ValueTypeIList")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteManyOwnedOwnedTypeMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)valueTypeListColumnBase0, ownedType0.FindProperty("ValueTypeList")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteManyOwnedOwnedTypeMappingBase);
 
-            var tableMappings6 = new List<TableMapping>();
-            ownedType0.SetRuntimeAnnotation("Relational:TableMappings", tableMappings6);
+            var tableMappings7 = new List<TableMapping>();
+            ownedType0.SetRuntimeAnnotation("Relational:TableMappings", tableMappings7);
             var manyOwnedTable = new Table("ManyOwned", null, relationalModel);
             var principalDerivedDependentBasebyteIdColumn = new Column("PrincipalDerived<DependentBase<byte?>>Id", "INTEGER", manyOwnedTable);
             manyOwnedTable.Columns.Add("PrincipalDerived<DependentBase<byte?>>Id", principalDerivedDependentBasebyteIdColumn);
@@ -2733,9 +2782,9 @@ namespace TestNamespace
             var principalDerivedDependentBasebyteAlternateIdColumn = new Column("PrincipalDerived<DependentBase<byte?>>AlternateId", "TEXT", manyOwnedTable);
             manyOwnedTable.Columns.Add("PrincipalDerived<DependentBase<byte?>>AlternateId", principalDerivedDependentBasebyteAlternateIdColumn);
             principalDerivedDependentBasebyteAlternateIdColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<Guid>(principalDerivedDependentBasebyteAlternateIdColumn);
-            var idColumn3 = new Column("Id", "INTEGER", manyOwnedTable);
-            manyOwnedTable.Columns.Add("Id", idColumn3);
-            idColumn3.Accessors = ColumnAccessorsFactory.CreateGeneric<int>(idColumn3);
+            var idColumn4 = new Column("Id", "INTEGER", manyOwnedTable);
+            manyOwnedTable.Columns.Add("Id", idColumn4);
+            idColumn4.Accessors = ColumnAccessorsFactory.CreateGeneric<int>(idColumn4);
             var detailsColumn0 = new Column("Details", "TEXT", manyOwnedTable)
             {
                 IsNullable = true
@@ -2796,8 +2845,8 @@ namespace TestNamespace
             relationalModel.Tables.Add(("ManyOwned", null), manyOwnedTable);
             var manyOwnedTableMapping = new TableMapping(ownedType0, manyOwnedTable, null);
             manyOwnedTable.AddTypeMapping(manyOwnedTableMapping, false);
-            tableMappings6.Add(manyOwnedTableMapping);
-            RelationalModel.CreateColumnMapping(idColumn3, ownedType0.FindProperty("Id")!, manyOwnedTableMapping);
+            tableMappings7.Add(manyOwnedTableMapping);
+            RelationalModel.CreateColumnMapping(idColumn4, ownedType0.FindProperty("Id")!, manyOwnedTableMapping);
             RelationalModel.CreateColumnMapping(principalDerivedDependentBasebyteAlternateIdColumn, ownedType0.FindProperty("PrincipalDerivedAlternateId")!, manyOwnedTableMapping);
             RelationalModel.CreateColumnMapping(principalDerivedDependentBasebyteIdColumn, ownedType0.FindProperty("PrincipalDerivedId")!, manyOwnedTableMapping);
             RelationalModel.CreateColumnMapping(detailsColumn0, ownedType0.FindProperty("Details")!, manyOwnedTableMapping);
@@ -2810,7 +2859,7 @@ namespace TestNamespace
             RelationalModel.CreateColumnMapping(valueTypeEnumerableColumn0, ownedType0.FindProperty("ValueTypeEnumerable")!, manyOwnedTableMapping);
             RelationalModel.CreateColumnMapping(valueTypeIListColumn0, ownedType0.FindProperty("ValueTypeIList")!, manyOwnedTableMapping);
             RelationalModel.CreateColumnMapping(valueTypeListColumn0, ownedType0.FindProperty("ValueTypeList")!, manyOwnedTableMapping);
-            var pK_ManyOwned = new UniqueConstraint("PK_ManyOwned", manyOwnedTable, new[] { principalDerivedDependentBasebyteIdColumn, principalDerivedDependentBasebyteAlternateIdColumn, idColumn3 });
+            var pK_ManyOwned = new UniqueConstraint("PK_ManyOwned", manyOwnedTable, new[] { principalDerivedDependentBasebyteIdColumn, principalDerivedDependentBasebyteAlternateIdColumn, idColumn4 });
             manyOwnedTable.PrimaryKey = pK_ManyOwned;
             pK_ManyOwned.SetRowKeyValueFactory(new CompositeRowKeyValueFactory(pK_ManyOwned));
             var pK_ManyOwnedKey = RelationalModel.GetKey(this,
@@ -2822,8 +2871,8 @@ namespace TestNamespace
 
             var principalBasePrincipalDerivedDependentBasebyte = FindEntityType("PrincipalBasePrincipalDerived<DependentBase<byte?>>")!;
 
-            var defaultTableMappings7 = new List<TableMappingBase<ColumnMappingBase>>();
-            principalBasePrincipalDerivedDependentBasebyte.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings7);
+            var defaultTableMappings8 = new List<TableMappingBase<ColumnMappingBase>>();
+            principalBasePrincipalDerivedDependentBasebyte.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings8);
             var principalBasePrincipalDerivedDependentBasebyteTableBase = new TableBase("PrincipalBasePrincipalDerived<DependentBase<byte?>>", null, relationalModel);
             var derivedsAlternateIdColumnBase = new ColumnBase<ColumnMappingBase>("DerivedsAlternateId", "TEXT", principalBasePrincipalDerivedDependentBasebyteTableBase);
             principalBasePrincipalDerivedDependentBasebyteTableBase.Columns.Add("DerivedsAlternateId", derivedsAlternateIdColumnBase);
@@ -2841,15 +2890,15 @@ namespace TestNamespace
             relationalModel.DefaultTables.Add("PrincipalBasePrincipalDerived<DependentBase<byte?>>", principalBasePrincipalDerivedDependentBasebyteTableBase);
             var principalBasePrincipalDerivedDependentBasebyteMappingBase = new TableMappingBase<ColumnMappingBase>(principalBasePrincipalDerivedDependentBasebyte, principalBasePrincipalDerivedDependentBasebyteTableBase, null);
             principalBasePrincipalDerivedDependentBasebyteTableBase.AddTypeMapping(principalBasePrincipalDerivedDependentBasebyteMappingBase, false);
-            defaultTableMappings7.Add(principalBasePrincipalDerivedDependentBasebyteMappingBase);
+            defaultTableMappings8.Add(principalBasePrincipalDerivedDependentBasebyteMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)derivedsAlternateIdColumnBase, principalBasePrincipalDerivedDependentBasebyte.FindProperty("DerivedsAlternateId")!, principalBasePrincipalDerivedDependentBasebyteMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)derivedsIdColumnBase, principalBasePrincipalDerivedDependentBasebyte.FindProperty("DerivedsId")!, principalBasePrincipalDerivedDependentBasebyteMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)principalsAlternateIdColumnBase, principalBasePrincipalDerivedDependentBasebyte.FindProperty("PrincipalsAlternateId")!, principalBasePrincipalDerivedDependentBasebyteMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)principalsIdColumnBase, principalBasePrincipalDerivedDependentBasebyte.FindProperty("PrincipalsId")!, principalBasePrincipalDerivedDependentBasebyteMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)rowidColumnBase, principalBasePrincipalDerivedDependentBasebyte.FindProperty("rowid")!, principalBasePrincipalDerivedDependentBasebyteMappingBase);
 
-            var tableMappings7 = new List<TableMapping>();
-            principalBasePrincipalDerivedDependentBasebyte.SetRuntimeAnnotation("Relational:TableMappings", tableMappings7);
+            var tableMappings8 = new List<TableMapping>();
+            principalBasePrincipalDerivedDependentBasebyte.SetRuntimeAnnotation("Relational:TableMappings", tableMappings8);
             var principalBasePrincipalDerivedDependentBasebyteTable = new Table("PrincipalBasePrincipalDerived<DependentBase<byte?>>", null, relationalModel);
             var derivedsIdColumn = new Column("DerivedsId", "INTEGER", principalBasePrincipalDerivedDependentBasebyteTable);
             principalBasePrincipalDerivedDependentBasebyteTable.Columns.Add("DerivedsId", derivedsIdColumn);
@@ -2872,7 +2921,7 @@ namespace TestNamespace
             relationalModel.Tables.Add(("PrincipalBasePrincipalDerived<DependentBase<byte?>>", null), principalBasePrincipalDerivedDependentBasebyteTable);
             var principalBasePrincipalDerivedDependentBasebyteTableMapping = new TableMapping(principalBasePrincipalDerivedDependentBasebyte, principalBasePrincipalDerivedDependentBasebyteTable, null);
             principalBasePrincipalDerivedDependentBasebyteTable.AddTypeMapping(principalBasePrincipalDerivedDependentBasebyteTableMapping, false);
-            tableMappings7.Add(principalBasePrincipalDerivedDependentBasebyteTableMapping);
+            tableMappings8.Add(principalBasePrincipalDerivedDependentBasebyteTableMapping);
             RelationalModel.CreateColumnMapping(derivedsAlternateIdColumn, principalBasePrincipalDerivedDependentBasebyte.FindProperty("DerivedsAlternateId")!, principalBasePrincipalDerivedDependentBasebyteTableMapping);
             RelationalModel.CreateColumnMapping(derivedsIdColumn, principalBasePrincipalDerivedDependentBasebyte.FindProperty("DerivedsId")!, principalBasePrincipalDerivedDependentBasebyteTableMapping);
             RelationalModel.CreateColumnMapping(principalsAlternateIdColumn, principalBasePrincipalDerivedDependentBasebyte.FindProperty("PrincipalsAlternateId")!, principalBasePrincipalDerivedDependentBasebyteTableMapping);

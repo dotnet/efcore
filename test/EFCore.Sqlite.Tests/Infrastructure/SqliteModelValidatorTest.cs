@@ -150,6 +150,36 @@ public class SqliteModelValidatorTest : RelationalModelValidatorTest
         Assert.Equal(SqliteStrings.StoredProceduresNotSupported(nameof(Animal)), exception.Message);
     }
 
+    [ConditionalFact]
+    public void Detects_conflicting_autoincrement_and_default_value_sql()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Person>()
+            .Property(e => e.Id)
+            .UseAutoincrement()
+            .HasDefaultValueSql("42");
+
+        VerifyWarning(
+            SqliteResources.LogConflictingValueGenerationStrategies(
+                new TestLogger<SqliteLoggingDefinitions>()).GenerateMessage("Autoincrement", "DefaultValueSql", "Id", nameof(Person)),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public void Detects_conflicting_autoincrement_and_computed_column()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Person>()
+            .Property(e => e.Id)
+            .UseAutoincrement()
+            .HasComputedColumnSql("42");
+
+        VerifyWarning(
+            SqliteResources.LogConflictingValueGenerationStrategies(
+                new TestLogger<SqliteLoggingDefinitions>()).GenerateMessage("Autoincrement", "ComputedColumnSql", "Id", nameof(Person)),
+            modelBuilder);
+    }
+
     public override void Store_generated_in_composite_key()
     {
         var modelBuilder = CreateConventionModelBuilder();

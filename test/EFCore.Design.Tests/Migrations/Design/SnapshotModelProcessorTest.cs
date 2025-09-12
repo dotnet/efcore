@@ -262,15 +262,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             property.SetValueGenerated(null, ConfigurationSource.Explicit);
                         }
 
-                        if (property.GetValueGenerationStrategy() != SqlServerValueGenerationStrategy.None)
+                        if (Microsoft.EntityFrameworkCore.SqlServerPropertyExtensions.GetValueGenerationStrategy(property) != SqlServerValueGenerationStrategy.None)
                         {
-                            property.SetValueGenerationStrategy(null);
+                            Microsoft.EntityFrameworkCore.SqlServerPropertyExtensions.SetValueGenerationStrategy(property, null);
                         }
                     }
-                    else if (property.GetValueGenerationStrategy() is var strategy
+                    else if (Microsoft.EntityFrameworkCore.SqlServerPropertyExtensions.GetValueGenerationStrategy(property) is var strategy
                              && strategy != SqlServerValueGenerationStrategy.None)
                     {
-                        property.SetValueGenerationStrategy(strategy);
+                        Microsoft.EntityFrameworkCore.SqlServerPropertyExtensions.SetValueGenerationStrategy(property, strategy);
                     }
                 }
             }

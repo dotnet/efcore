@@ -117,7 +117,7 @@ namespace MyNamespace
 
 """, modelSnapshotCode, ignoreLineEndingDifferences: true);
 
-        var snapshot = CompileModelSnapshot(modelSnapshotCode, "MyNamespace.MySnapshot");
+        var snapshot = CompileModelSnapshot(modelSnapshotCode, "MyNamespace.MySnapshot", typeof(MyContext));
         Assert.Equal(2, snapshot.Model.GetEntityTypes().Count());
     }
 
@@ -180,7 +180,7 @@ namespace MyNamespace
             "MySnapshot",
             finalizedModel);
 
-        var snapshot = CompileModelSnapshot(modelSnapshotCode, "MyNamespace.MySnapshot");
+        var snapshot = CompileModelSnapshot(modelSnapshotCode, "MyNamespace.MySnapshot", typeof(MyContext));
         var entityType = snapshot.Model.GetEntityTypes().Single();
         Assert.Equal(typeof(EntityWithEveryPrimitive).FullName + " (Dictionary<string, object>)", entityType.DisplayName());
 
@@ -694,10 +694,10 @@ namespace MyNamespace
 """),
             o =>
             {
-                Assert.Equal(SqlServerValueGenerationStrategy.SequenceHiLo, o.GetValueGenerationStrategy());
+                Assert.Equal(SqlServerValueGenerationStrategy.SequenceHiLo, Microsoft.EntityFrameworkCore.SqlServerPropertyExtensions.GetValueGenerationStrategy(o.GetEntityTypes().Single().GetProperty("Id")));
                 Assert.Equal(
                     SqlServerValueGenerationStrategy.SequenceHiLo,
-                    o.GetEntityTypes().Single().GetProperty("Id").GetValueGenerationStrategy());
+                    Microsoft.EntityFrameworkCore.SqlServerPropertyExtensions.GetValueGenerationStrategy(o.GetEntityTypes().Single().GetProperty("Id")));
             });
 
     [ConditionalFact]
@@ -735,10 +735,10 @@ namespace MyNamespace
 """),
             o =>
             {
-                Assert.Equal(SqlServerValueGenerationStrategy.Sequence, o.GetValueGenerationStrategy());
+                Assert.Equal(SqlServerValueGenerationStrategy.Sequence, Microsoft.EntityFrameworkCore.SqlServerPropertyExtensions.GetValueGenerationStrategy(o.GetEntityTypes().Single().GetProperty("Id")));
                 Assert.Equal(
                     SqlServerValueGenerationStrategy.Sequence,
-                    o.GetEntityTypes().Single().GetProperty("Id").GetValueGenerationStrategy());
+                    Microsoft.EntityFrameworkCore.SqlServerPropertyExtensions.GetValueGenerationStrategy(o.GetEntityTypes().Single().GetProperty("Id")));
             });
 
     [ConditionalFact]
@@ -1569,12 +1569,12 @@ namespace RootNamespace
                 Assert.Equal(nameof(Order), orderEntityType.GetTableName());
 
                 var id = orderEntityType.FindProperty("Id");
-                Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, id.GetValueGenerationStrategy());
+                Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, Microsoft.EntityFrameworkCore.SqlServerPropertyExtensions.GetValueGenerationStrategy(id));
                 Assert.Equal(1, id.GetIdentitySeed());
                 Assert.Equal(1, id.GetIdentityIncrement());
 
                 var overrides = id.FindOverrides(StoreObjectIdentifier.Create(orderEntityType, StoreObjectType.Table).Value)!;
-                Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, overrides.GetValueGenerationStrategy());
+                Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, Microsoft.EntityFrameworkCore.SqlServerPropertyExtensions.GetValueGenerationStrategy(overrides));
                 Assert.Equal(2, overrides.GetIdentitySeed());
                 Assert.Equal(3, overrides.GetIdentityIncrement());
                 Assert.Equal("arr", overrides["fii"]);
@@ -2255,7 +2255,7 @@ namespace RootNamespace
                 Assert.Equal(5, o.GetIdentityIncrement());
 
                 var property = o.FindEntityType("Building").FindProperty("Id");
-                Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, property.GetValueGenerationStrategy());
+                Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, Microsoft.EntityFrameworkCore.SqlServerPropertyExtensions.GetValueGenerationStrategy(property));
                 Assert.Equal(long.MaxValue, property.GetIdentitySeed());
                 Assert.Equal(5, property.GetIdentityIncrement());
             });
@@ -4368,7 +4368,7 @@ namespace RootNamespace
                                             b3.Property<int>("EntityWithStringKeyEntityWithTwoPropertiesEntityWithOnePropertyId");
 
                                             b3.Property<int>("__synthesizedOrdinal")
-                                                .ValueGeneratedOnAdd();
+                                                .ValueGeneratedOnAddOrUpdate();
 
                                             b3.Property<int>("Id");
 
@@ -4628,10 +4628,10 @@ namespace RootNamespace
             {
                 var id = model.GetEntityTypes().Single().GetProperty(nameof(EntityWithEnumType.Id));
                 Assert.Equal(ValueGenerated.OnAdd, id.ValueGenerated);
-                Assert.Equal(SqlServerValueGenerationStrategy.None, id.GetValueGenerationStrategy());
+                Assert.Equal(SqlServerValueGenerationStrategy.None, Microsoft.EntityFrameworkCore.SqlServerPropertyExtensions.GetValueGenerationStrategy(id));
                 var day = model.GetEntityTypes().Single().GetProperty(nameof(EntityWithEnumType.Day));
                 Assert.Equal(ValueGenerated.OnAdd, day.ValueGenerated);
-                Assert.Equal(SqlServerValueGenerationStrategy.None, day.GetValueGenerationStrategy());
+                Assert.Equal(SqlServerValueGenerationStrategy.None, Microsoft.EntityFrameworkCore.SqlServerPropertyExtensions.GetValueGenerationStrategy(day));
             });
 
     [ConditionalFact]
@@ -5724,7 +5724,7 @@ namespace RootNamespace
             o =>
             {
                 var property = o.FindEntityType("Building").FindProperty("Id");
-                Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, property.GetValueGenerationStrategy());
+                Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, Microsoft.EntityFrameworkCore.SqlServerPropertyExtensions.GetValueGenerationStrategy(property));
                 Assert.Equal(1, property.GetIdentitySeed());
                 Assert.Equal(1, property.GetIdentityIncrement());
             });
@@ -5763,7 +5763,7 @@ namespace RootNamespace
             o =>
             {
                 var property = o.FindEntityType("Building").FindProperty("Id");
-                Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, property.GetValueGenerationStrategy());
+                Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, Microsoft.EntityFrameworkCore.SqlServerPropertyExtensions.GetValueGenerationStrategy(property));
                 Assert.Equal(5, property.GetIdentitySeed());
                 Assert.Equal(1, property.GetIdentityIncrement());
             });
@@ -5802,7 +5802,7 @@ namespace RootNamespace
             o =>
             {
                 var property = o.FindEntityType("Building").FindProperty("Id");
-                Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, property.GetValueGenerationStrategy());
+                Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, Microsoft.EntityFrameworkCore.SqlServerPropertyExtensions.GetValueGenerationStrategy(property));
                 Assert.Equal(1, property.GetIdentitySeed());
                 Assert.Equal(5, property.GetIdentityIncrement());
             });
@@ -5841,7 +5841,7 @@ namespace RootNamespace
             o =>
             {
                 var property = o.FindEntityType("Building").FindProperty("Id");
-                Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, property.GetValueGenerationStrategy());
+                Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, Microsoft.EntityFrameworkCore.SqlServerPropertyExtensions.GetValueGenerationStrategy(property));
                 Assert.Equal(5, property.GetIdentitySeed());
                 Assert.Equal(5, property.GetIdentityIncrement());
             });
@@ -8570,7 +8570,7 @@ namespace RootNamespace
 """
             + (empty ? null : Environment.NewLine);
 
-    protected virtual ICollection<BuildReference> GetReferences()
+    protected override ICollection<BuildReference> GetReferences()
         => new List<BuildReference>
         {
             BuildReference.ByName("Microsoft.EntityFrameworkCore"),
@@ -8613,93 +8613,17 @@ namespace RootNamespace
 
 """;
 
-    protected void Test(Action<ModelBuilder> buildModel, string expectedCode, Action<IModel> assert)
-        => Test(buildModel, expectedCode, (m, _) => assert(m));
+    protected override IServiceCollection GetServices()
+        => new ServiceCollection().AddEntityFrameworkSqlServerNetTopologySuite();
 
-    protected void Test(Action<ModelBuilder> buildModel, string expectedCode, Action<IModel, IModel> assert, bool validate = false)
-    {
-        var modelBuilder = CreateConventionalModelBuilder();
-        modelBuilder.HasDefaultSchema("DefaultSchema");
-        modelBuilder.HasChangeTrackingStrategy(ChangeTrackingStrategy.Snapshot);
-        modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
-        buildModel(modelBuilder);
-
-        var model = modelBuilder.FinalizeModel(designTime: true, skipValidation: !validate);
-
-        Test(model, expectedCode, assert);
-    }
-
-    protected void Test(IModel model, string expectedCode, Action<IModel, IModel> assert)
-    {
-        var generator = CreateMigrationsGenerator();
-        var code = generator.GenerateSnapshot("RootNamespace", typeof(DbContext), "Snapshot", model);
-
-        var modelFromSnapshot = BuildModelFromSnapshotSource(code);
-        assert(modelFromSnapshot, model);
-
-        try
-        {
-            Assert.Equal(expectedCode, code, ignoreLineEndingDifferences: true);
-        }
-        catch (EqualException e)
-        {
-            throw new Exception(e.Message + Environment.NewLine + Environment.NewLine + "-- Actual code:" + Environment.NewLine + code);
-        }
-
-        var targetOptionsBuilder = TestHelpers
-            .AddProviderOptions(new DbContextOptionsBuilder())
-            .UseModel(model)
-            .EnableSensitiveDataLogging();
-
-        var modelDiffer = CreateModelDiffer(targetOptionsBuilder.Options);
-
-        var noopOperations = modelDiffer.GetDifferences(modelFromSnapshot.GetRelationalModel(), model.GetRelationalModel());
-        Assert.Empty(noopOperations);
-    }
-
-    protected IModel BuildModelFromSnapshotSource(string code)
-    {
-        var build = new BuildSource { Sources = { { "Snapshot.cs", code } } };
-
-        foreach (var buildReference in GetReferences())
-        {
-            build.References.Add(buildReference);
-        }
-
-        var assembly = build.BuildInMemory();
-        var snapshotType = assembly.GetType("RootNamespace.Snapshot");
-
-        var buildModelMethod = snapshotType.GetMethod(
-            "BuildModel",
-            BindingFlags.Instance | BindingFlags.NonPublic,
-            null,
-            [typeof(ModelBuilder)],
-            null);
-
-        var builder = new ModelBuilder();
-        builder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
-
-        buildModelMethod.Invoke(
-            Activator.CreateInstance(snapshotType),
-            [builder]);
-
-        var services = TestHelpers.CreateContextServices(new ServiceCollection().AddEntityFrameworkSqlServerNetTopologySuite());
-
-        var processor = new SnapshotModelProcessor(new TestOperationReporter(), services.GetService<IModelRuntimeInitializer>());
-        return processor.Process(builder.Model);
-    }
-
-    protected TestHelpers.TestModelBuilder CreateConventionalModelBuilder()
+    protected override TestHelpers.TestModelBuilder CreateConventionalModelBuilder()
         => TestHelpers.CreateConventionBuilder(
             addServices: SqlServerNetTopologySuiteServiceCollectionExtensions.AddEntityFrameworkSqlServerNetTopologySuite);
 
-    protected virtual MigrationsModelDiffer CreateModelDiffer(DbContextOptions options)
-        => (MigrationsModelDiffer)TestHelpers.CreateContext(options).GetService<IMigrationsModelDiffer>();
-
-    protected TestHelpers TestHelpers
+    protected override TestHelpers TestHelpers
         => SqlServerTestHelpers.Instance;
 
-    protected CSharpMigrationsGenerator CreateMigrationsGenerator()
+    protected override CSharpMigrationsGenerator CreateMigrationsGenerator()
     {
         var sqlServerTypeMappingSource = new SqlServerTypeMappingSource(
             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),

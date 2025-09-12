@@ -22,6 +22,7 @@ public class SqliteEventIdTest : EventIdTestBase
             { typeof(string), () => "Fake" },
             { typeof(IEntityType), () => entityType },
             { typeof(IKey), () => new Key([property], ConfigurationSource.Convention) },
+            { typeof(IReadOnlyProperty), () => property },
             { typeof(IReadOnlySequence), () => new FakeSequence() },
             { typeof(Type), () => typeof(object) }
         };
