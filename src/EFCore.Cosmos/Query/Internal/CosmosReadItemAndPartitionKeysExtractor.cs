@@ -193,7 +193,7 @@ public class CosmosReadItemAndPartitionKeysExtractor : ExpressionVisitor
                 if (_discriminatorHandled
                     && scalarAccessExpression.PropertyName == _discriminatorJsonPropertyName)
                 {
-                    var comparer = _entityType.FindDiscriminatorProperty()!.GetProviderValueComparer();
+                    var comparer = _entityType.FindDiscriminatorProperty()!.GetValueComparer();
                     var discriminatorValues = _entityType.GetDerivedTypesInclusive().Select(e => e.GetDiscriminatorValue()).ToList();
                     if (discriminatorValues.Count == sqlExpressions.Length)
                     {
