@@ -168,6 +168,9 @@
   <data name="DuplicateKeyMismatchedClustering" xml:space="preserve">
     <value>The keys {key1} on '{entityType1}' and {key2} on '{entityType2}' are both mapped to '{table}.{keyName}', but have different clustering configurations.</value>
   </data>
+  <data name="ExecuteUpdateCannotSetJsonPropertyOnOldSqlServer" xml:space="preserve">
+    <value>'ExecuteUpdate' cannot set a property in a JSON column to an expression containing a column on SQL Server versions before 2022. If you're on SQL Server 2022 and above, your compatibility level may be set to a lower value; consider raising it.</value>
+  </data>
   <data name="IdentityBadType" xml:space="preserve">
     <value>Identity value generation cannot be used for the property '{property}' on entity type '{entityType}' because the property type is '{propertyType}'. Identity value generation can only be used with signed integer properties.</value>
   </data>

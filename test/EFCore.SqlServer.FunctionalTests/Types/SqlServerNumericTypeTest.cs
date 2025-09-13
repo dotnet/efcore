@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.Types.Numeric;
 
 public class ByteTypeTest(ByteTypeTest.ByteTypeFixture fixture) : RelationalTypeTestBase<byte, ByteTypeTest.ByteTypeFixture>(fixture)
 {
-    public class ByteTypeFixture : RelationalTypeTestFixture
+    public class ByteTypeFixture : SqlServerTypeFixture<byte>
     {
         public override byte Value { get; } = byte.MinValue;
         public override byte OtherValue { get; } = byte.MaxValue;
@@ -16,7 +16,7 @@ public class ByteTypeTest(ByteTypeTest.ByteTypeFixture fixture) : RelationalType
 
 public class ShortTypeTest(ShortTypeTest.ShortTypeFixture fixture) : RelationalTypeTestBase<short, ShortTypeTest.ShortTypeFixture>(fixture)
 {
-    public class ShortTypeFixture : RelationalTypeTestFixture
+    public class ShortTypeFixture : SqlServerTypeFixture<short>
     {
         public override short Value { get; } = short.MinValue;
         public override short OtherValue { get; } = short.MaxValue;
@@ -27,7 +27,7 @@ public class ShortTypeTest(ShortTypeTest.ShortTypeFixture fixture) : RelationalT
 
 public class IntTypeTest(IntTypeTest.IntTypeFixture fixture) : RelationalTypeTestBase<int, IntTypeTest.IntTypeFixture>(fixture)
 {
-    public class IntTypeFixture : RelationalTypeTestFixture
+    public class IntTypeFixture : SqlServerTypeFixture<int>
     {
         public override int Value { get; } = int.MinValue;
         public override int OtherValue { get; } = int.MaxValue;
@@ -38,7 +38,7 @@ public class IntTypeTest(IntTypeTest.IntTypeFixture fixture) : RelationalTypeTes
 
 public class LongTypeTest(LongTypeTest.LongTypeFixture fixture) : RelationalTypeTestBase<long, LongTypeTest.LongTypeFixture>(fixture)
 {
-    public class LongTypeFixture : RelationalTypeTestFixture
+    public class LongTypeFixture : SqlServerTypeFixture<long>
     {
         public override long Value { get; } = long.MinValue;
         public override long OtherValue { get; } = long.MaxValue;
@@ -49,7 +49,7 @@ public class LongTypeTest(LongTypeTest.LongTypeFixture fixture) : RelationalType
 
 public class DecimalTypeTest(DecimalTypeTest.DecimalTypeFixture fixture) : RelationalTypeTestBase<decimal, DecimalTypeTest.DecimalTypeFixture>(fixture)
 {
-    public class DecimalTypeFixture : RelationalTypeTestFixture
+    public class DecimalTypeFixture : SqlServerTypeFixture<decimal>
     {
         public override decimal Value { get; } = 30.5m;
         public override decimal OtherValue { get; } = 30m;
@@ -64,7 +64,7 @@ public class DecimalTypeTest(DecimalTypeTest.DecimalTypeFixture fixture) : Relat
 
 public class DoubleTypeTest(DoubleTypeTest.DoubleTypeFixture fixture) : RelationalTypeTestBase<double, DoubleTypeTest.DoubleTypeFixture>(fixture)
 {
-    public class DoubleTypeFixture : RelationalTypeTestFixture
+    public class DoubleTypeFixture : SqlServerTypeFixture<double>
     {
         public override double Value { get; } = 30.5d;
         public override double OtherValue { get; } = 30d;
@@ -75,7 +75,7 @@ public class DoubleTypeTest(DoubleTypeTest.DoubleTypeFixture fixture) : Relation
 
 public class FloatTypeTest(FloatTypeTest.FloatTypeFixture fixture) : RelationalTypeTestBase<float, FloatTypeTest.FloatTypeFixture>(fixture)
 {
-    public class FloatTypeFixture : RelationalTypeTestFixture
+    public class FloatTypeFixture : SqlServerTypeFixture<float>
     {
         public override float Value { get; } = 30.5f;
         public override float OtherValue { get; } = 30f;
