@@ -77,7 +77,7 @@ public sealed class InterpolatedStringUsageInRawQueriesCodeFixProvider : CodeFix
         var oldNameToken = oldName.Identifier;
         var oldMethodName = oldNameToken.ValueText;
 
-        var replacementMethodName = InterpolatedStringUsageInRawQueriesDiagnosticAnalyzer.GetReplacementMethodName(oldMethodName);
+        var replacementMethodName = StringsUsageInRawQueriesDiagnosticAnalyzer.GetReplacementMethodName(oldMethodName);
         Debug.Assert(replacementMethodName != oldMethodName, "At this point we must find correct replacement name");
 
         var replacementToken = SyntaxFactory.Identifier(replacementMethodName).WithTriviaFrom(oldNameToken);

@@ -71,6 +71,14 @@ public abstract class ComplexTableSplittingBulkUpdateRelationalTestBase<TFixture
         AssertExecuteUpdateSql();
     }
 
+    // Collections are not supported with table splitting, only JSON
+    public override async Task Update_inside_structural_collection()
+    {
+        await Assert.ThrowsAsync<NullReferenceException>(base.Update_inside_structural_collection);
+
+        AssertExecuteUpdateSql();
+    }
+
     #endregion Update collection
 
     protected void AssertSql(params string[] expected)

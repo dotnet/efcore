@@ -56,7 +56,8 @@ public abstract class AssociationsStructuralEqualityTestBase<TFixture>(TFixture 
                         Id = 1000,
                         Name = "Root1_RequiredRelated_RequiredNested",
                         Int = 8,
-                        String = "foo"
+                        String = "foo",
+                        Ints = new() { 1, 2, 3 }
                     }),
             ss => ss.Set<RootEntity>()
                 .Where(e => e.RequiredRelated.RequiredNested.Equals(
@@ -65,19 +66,14 @@ public abstract class AssociationsStructuralEqualityTestBase<TFixture>(TFixture 
                         Id = 1000,
                         Name = "Root1_RequiredRelated_RequiredNested",
                         Int = 8,
-                        String = "foo"
+                        String = "foo",
+                        Ints = new() { 1, 2, 3 }
                     }))); // TODO: Rewrite equality to Equals for the entire test suite for complex
 
     [ConditionalFact]
     public virtual async Task Nested_with_parameter()
     {
-        var nested = new NestedType
-        {
-            Id = 1000,
-            Name = "Root1_RequiredRelated_RequiredNested",
-            Int = 8,
-            String = "foo"
-        };
+        var nested = Fixture.Data.RootEntities.Single(e => e.Id == 1).RequiredRelated.RequiredNested;
 
         await AssertQuery(
             ss => ss.Set<RootEntity>().Where(e => e.RequiredRelated.RequiredNested == nested),
@@ -107,14 +103,16 @@ public abstract class AssociationsStructuralEqualityTestBase<TFixture>(TFixture 
                             Id = 1002,
                             Name = "Root1_RequiredRelated_NestedCollection_1",
                             Int = 8,
-                            String = "foo"
+                            String = "foo",
+                            Ints = new() { 1, 2, 3 }
                         },
                         new()
                         {
                             Id = 1003,
                             Name = "Root1_RequiredRelated_NestedCollection_2",
                             Int = 8,
-                            String = "foo"
+                            String = "foo",
+                            Ints = new() { 1, 2, 3 }
                         }
                     }),
             ss => ss.Set<RootEntity>()
@@ -126,14 +124,16 @@ public abstract class AssociationsStructuralEqualityTestBase<TFixture>(TFixture 
                             Id = 1002,
                             Name = "Root1_RequiredRelated_NestedCollection_1",
                             Int = 8,
-                            String = "foo"
+                            String = "foo",
+                            Ints = new() { 1, 2, 3 }
                         },
                         new()
                         {
                             Id = 1003,
                             Name = "Root1_RequiredRelated_NestedCollection_2",
                             Int = 8,
-                            String = "foo"
+                            String = "foo",
+                            Ints = new() { 1, 2, 3 }
                         }
                     }))); // TODO: Rewrite equality to Equals for the entire test suite for complex
 
@@ -147,14 +147,16 @@ public abstract class AssociationsStructuralEqualityTestBase<TFixture>(TFixture 
                 Id = 1002,
                 Name = "Root1_RequiredRelated_NestedCollection_1",
                 Int = 8,
-                String = "foo"
+                String = "foo",
+                Ints = new() { 1, 2, 3 }
             },
             new()
             {
                 Id = 1003,
                 Name = "Root1_RequiredRelated_NestedCollection_2",
                 Int = 8,
-                String = "foo"
+                String = "foo",
+                Ints = new() { 1, 2, 3 }
             }
         };
 
@@ -176,7 +178,8 @@ public abstract class AssociationsStructuralEqualityTestBase<TFixture>(TFixture 
                     Id = 1002,
                     Name = "Root1_RequiredRelated_NestedCollection_1",
                     Int = 8,
-                    String = "foo"
+                    String = "foo",
+                    Ints = new() { 1, 2, 3 }
                 })));
 
     [ConditionalFact]
@@ -187,7 +190,8 @@ public abstract class AssociationsStructuralEqualityTestBase<TFixture>(TFixture 
             Id = 1002,
             Name = "Root1_RequiredRelated_NestedCollection_1",
             Int = 8,
-            String = "foo"
+            String = "foo",
+            Ints = [1, 2, 3]
         };
 
         await AssertQuery(ss => ss.Set<RootEntity>().Where(e => e.RequiredRelated.NestedCollection.Contains(nested)));

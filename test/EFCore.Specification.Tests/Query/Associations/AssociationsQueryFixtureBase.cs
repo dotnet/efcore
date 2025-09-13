@@ -11,6 +11,7 @@ public abstract class AssociationsQueryFixtureBase : SharedStoreFixtureBase<Pool
     public virtual bool AreCollectionsOrdered
         => true;
 
+
     public virtual void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         => throw new NotSupportedException();
 
@@ -157,6 +158,7 @@ public abstract class AssociationsQueryFixtureBase : SharedStoreFixtureBase<Pool
 
         Assert.Equal(e.Int, a.Int);
         Assert.Equal(e.String, a.String);
+        Assert.Equal(e.Ints, a.Ints);
     }
 
     private void AssertPreRootEntity(RootReferencingEntity e, RootReferencingEntity a)

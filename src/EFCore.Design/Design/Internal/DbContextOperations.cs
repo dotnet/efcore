@@ -305,10 +305,14 @@ public class DbContextOperations
         {
             workspace = MSBuildWorkspace.Create();
             workspace.LoadMetadataForReferencedProjects = true;
-            workspace.RegisterWorkspaceFailedHandler(e =>
+#pragma warning disable CS0612 // Obsolete
+#pragma warning disable CS0618 // Obsolete
+            workspace.WorkspaceFailed += (_, e) =>
             {
                 _reporter.WriteError(DesignStrings.MSBuildWorkspaceFailure(e.Diagnostic.Kind, e.Diagnostic.Message));
-            });
+            };
+#pragma warning restore CS0618 // Obsolete
+#pragma warning restore CS0612 // Obsolete
             project = workspace.OpenProjectAsync(_project).GetAwaiter().GetResult();
         }
         catch (Exception ex)
