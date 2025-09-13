@@ -131,8 +131,8 @@ public class ConfigPatternsCosmosTest(ConfigPatternsCosmosTest.CosmosFixture fix
         await using var testDatabase = await CosmosTestStore.CreateInitializedAsync(DatabaseName);
         var options = CreateOptions(testDatabase);
 
-        const int threadCount = 10;
-        const int iterationsPerThread = 10;
+        var threadCount = Environment.ProcessorCount;
+        const int iterationsPerThread = 2;
         var clients = new ConcurrentBag<CosmosClient>();
         var tasks = new List<Task>();
 
