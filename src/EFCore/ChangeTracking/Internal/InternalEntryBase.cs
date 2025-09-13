@@ -1441,8 +1441,13 @@ public abstract partial class InternalEntryBase : IInternalEntry
                 SetPropertyModified(property, isModified: true, isConceptualNull: true);
             }
 
+            // For NoAction relationships, defer conceptual null validation to allow for entity reparenting
+            var shouldDeferValidation = property.GetContainingForeignKeys()
+                .Any(fk => fk.DeleteBehavior == DeleteBehavior.NoAction);
+
             if (!isCascadeDelete
-                && StateManager.DeleteOrphansTiming == CascadeTiming.Immediate)
+                && StateManager.DeleteOrphansTiming == CascadeTiming.Immediate
+                && !shouldDeferValidation)
             {
                 HandleConceptualNulls(
                     StateManager.SensitiveLoggingEnabled,
