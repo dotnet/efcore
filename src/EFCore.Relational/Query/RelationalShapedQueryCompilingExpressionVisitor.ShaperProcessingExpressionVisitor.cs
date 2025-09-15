@@ -28,9 +28,6 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
     {
         private ShaperProcessingExpressionVisitor? _parentShaperProcessor;
 
-        private static readonly bool UseOldBehavior36464 =
-            AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue36464", out var enabled36464) && enabled36464;
-
         /// <summary>
         ///     Reading database values
         /// </summary>
