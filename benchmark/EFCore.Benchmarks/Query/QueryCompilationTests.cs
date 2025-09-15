@@ -45,17 +45,16 @@ public abstract class QueryCompilationTests
             .AsNoTracking()
             .Where(p => p.Retail < 1000)
             .OrderBy(p => p.Name).ThenBy(p => p.Retail)
-            .Select(
-                p => new DTO
-                {
-                    ProductId = p.ProductId,
-                    Name = p.Name,
-                    Description = p.Description,
-                    ActualStockLevel = p.ActualStockLevel,
-                    SKU = p.SKU,
-                    Savings = p.Retail - p.CurrentPrice,
-                    Surplus = p.ActualStockLevel - p.TargetStockLevel
-                });
+            .Select(p => new DTO
+            {
+                ProductId = p.ProductId,
+                Name = p.Name,
+                Description = p.Description,
+                ActualStockLevel = p.ActualStockLevel,
+                SKU = p.SKU,
+                Savings = p.Retail - p.CurrentPrice,
+                Surplus = p.ActualStockLevel - p.TargetStockLevel
+            });
 
         _multipleJoinQuery = _context.Customers
             .AsNoTracking()

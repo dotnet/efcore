@@ -3,6 +3,4 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class AdHocJsonQuerySqlServerTest : AdHocJsonQuerySqlServerTestBase
-{
-}
+public class AdHocJsonQuerySqlServerTest(NonSharedFixture fixture) : AdHocJsonQuerySqlServerTestBase(fixture);

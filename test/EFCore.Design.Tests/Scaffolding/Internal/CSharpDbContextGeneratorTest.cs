@@ -182,20 +182,18 @@ public partial class TestDbContext : DbContext
 
             Assert.StartsWith(
                 CoreStrings.ArgumentPropertyNull(nameof(ModelCodeGenerationOptions.ContextName), "options"),
-                Assert.Throws<ArgumentException>(
-                        () =>
-                            generator.GenerateModel(
-                                new Model(),
-                                new ModelCodeGenerationOptions { ContextName = null, ConnectionString = "Initial Catalog=TestDatabase" }))
+                Assert.Throws<ArgumentException>(() =>
+                        generator.GenerateModel(
+                            new Model(),
+                            new ModelCodeGenerationOptions { ContextName = null, ConnectionString = "Initial Catalog=TestDatabase" }))
                     .Message);
 
             Assert.StartsWith(
                 CoreStrings.ArgumentPropertyNull(nameof(ModelCodeGenerationOptions.ConnectionString), "options"),
-                Assert.Throws<ArgumentException>(
-                    () =>
-                        generator.GenerateModel(
-                            new Model(),
-                            new ModelCodeGenerationOptions { ContextName = "TestDbContext", ConnectionString = null })).Message);
+                Assert.Throws<ArgumentException>(() =>
+                    generator.GenerateModel(
+                        new Model(),
+                        new ModelCodeGenerationOptions { ContextName = "TestDbContext", ConnectionString = null })).Message);
         }
 
         [ConditionalFact]
@@ -813,7 +811,7 @@ public partial class TestDbContext : DbContext
                     Assert.Equal([], allDescendingIndex.IsDescending);
 
                     var mixedIndex = Assert.Single(entityType.GetIndexes(), i => i.Name == "IX_mixed");
-                    Assert.Equal(new[] { false, true, false }, mixedIndex.IsDescending);
+                    Assert.Equal([false, true, false], mixedIndex.IsDescending);
                 });
 
         [ConditionalFact]
@@ -1099,22 +1097,21 @@ public partial class TestDbContext : DbContext
             // Shadow properties. Issue #26007.
             => Assert.Equal(
                 SqlServerStrings.TemporalPeriodPropertyMustBeInShadowState("Customer", "PeriodStart"),
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () =>
-                        TestAsync(
-                            modelBuilder => modelBuilder.Entity(
-                                "Customer", e =>
-                                {
-                                    e.Property<int>("Id");
-                                    e.Property<string>("Name");
-                                    e.HasKey("Id");
-                                    e.ToTable(tb => tb.IsTemporal());
-                                }),
-                            new ModelCodeGenerationOptions { UseDataAnnotations = false },
-                            code =>
+                (await Assert.ThrowsAsync<InvalidOperationException>(() =>
+                    TestAsync(
+                        modelBuilder => modelBuilder.Entity(
+                            "Customer", e =>
                             {
-                                AssertFileContents(
-                                    $$"""
+                                e.Property<int>("Id");
+                                e.Property<string>("Name");
+                                e.HasKey("Id");
+                                e.ToTable(tb => tb.IsTemporal());
+                            }),
+                        new ModelCodeGenerationOptions { UseDataAnnotations = false },
+                        code =>
+                        {
+                            AssertFileContents(
+                                $$"""
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
@@ -1160,12 +1157,12 @@ public partial class TestDbContext : DbContext
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
 """,
-                                    code.ContextFile);
-                            },
-                            model =>
-                            {
-                                // TODO
-                            }))).Message);
+                                code.ContextFile);
+                        },
+                        model =>
+                        {
+                            // TODO
+                        }))).Message);
 
         [ConditionalFact]
         public Task Sequences_work()
@@ -1209,12 +1206,11 @@ public partial class TestDbContext : DbContext
                         x =>
                         {
                             x.Property<int>("Id");
-                            x.ToTable(
-                                tb =>
-                                {
-                                    tb.HasTrigger("Trigger1");
-                                    tb.HasTrigger("Trigger2");
-                                });
+                            x.ToTable(tb =>
+                            {
+                                tb.HasTrigger("Trigger1");
+                                tb.HasTrigger("Trigger2");
+                            });
                         }),
                 new ModelCodeGenerationOptions { UseDataAnnotations = false },
                 code =>
@@ -1337,9 +1333,7 @@ public partial class TestDbContext : DbContext
                     Assert.Equal(SqlServerValueGenerationStrategy.None, property.GetValueGenerationStrategy());
                 });
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
+        [ConditionalTheory, InlineData(false), InlineData(true)]
         public Task ColumnOrder_is_ignored(bool useDataAnnotations)
             => TestAsync(
                 modelBuilder => modelBuilder.Entity("Entity").Property<string>("Property").HasColumnOrder(1),

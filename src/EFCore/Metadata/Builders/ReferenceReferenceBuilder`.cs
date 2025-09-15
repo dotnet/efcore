@@ -91,9 +91,9 @@ public class ReferenceReferenceBuilder<TEntity, TRelatedEntity> : ReferenceRefer
         params string[] foreignKeyPropertyNames)
         => new(
             HasForeignKeyBuilder(
-                ResolveEntityType(Check.NotNull(dependentEntityTypeName, nameof(dependentEntityTypeName)))!,
+                ResolveEntityType(Check.NotNull(dependentEntityTypeName))!,
                 dependentEntityTypeName,
-                Check.NotNull(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames))),
+                Check.NotNull(foreignKeyPropertyNames)),
             this,
             inverted: Builder.Metadata.DeclaringEntityType.Name != ResolveEntityType(dependentEntityTypeName)!.Name,
             foreignKeySet: foreignKeyPropertyNames.Length > 0);
@@ -129,9 +129,9 @@ public class ReferenceReferenceBuilder<TEntity, TRelatedEntity> : ReferenceRefer
         params string[] foreignKeyPropertyNames)
         => new(
             HasForeignKeyBuilder(
-                ResolveEntityType(Check.NotNull(dependentEntityType, nameof(dependentEntityType)))!,
+                ResolveEntityType(Check.NotNull(dependentEntityType))!,
                 dependentEntityType.ShortDisplayName(),
-                Check.NotNull(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames))),
+                Check.NotNull(foreignKeyPropertyNames)),
             this,
             inverted: Builder.Metadata.DeclaringEntityType.ClrType != dependentEntityType,
             foreignKeySet: foreignKeyPropertyNames.Length > 0);
@@ -207,7 +207,7 @@ public class ReferenceReferenceBuilder<TEntity, TRelatedEntity> : ReferenceRefer
             HasForeignKeyBuilder(
                 ResolveEntityType(typeof(TDependentEntity))!,
                 typeof(TDependentEntity).ShortDisplayName(),
-                Check.NotNull(foreignKeyExpression, nameof(foreignKeyExpression)).GetMemberAccessList()),
+                Check.NotNull(foreignKeyExpression).GetMemberAccessList()),
             this,
             inverted: Builder.Metadata.DeclaringEntityType.ClrType != typeof(TDependentEntity),
             foreignKeySet: true);
@@ -229,9 +229,9 @@ public class ReferenceReferenceBuilder<TEntity, TRelatedEntity> : ReferenceRefer
         params string[] keyPropertyNames)
         => new(
             HasPrincipalKeyBuilder(
-                ResolveEntityType(Check.NotEmpty(principalEntityTypeName, nameof(principalEntityTypeName)))!,
+                ResolveEntityType(Check.NotEmpty(principalEntityTypeName))!,
                 principalEntityTypeName,
-                Check.NotNull(keyPropertyNames, nameof(keyPropertyNames))),
+                Check.NotNull(keyPropertyNames)),
             this,
             inverted: Builder.Metadata.PrincipalEntityType.Name != principalEntityTypeName,
             principalKeySet: keyPropertyNames.Length > 0);
@@ -253,9 +253,9 @@ public class ReferenceReferenceBuilder<TEntity, TRelatedEntity> : ReferenceRefer
         params string[] keyPropertyNames)
         => new(
             HasPrincipalKeyBuilder(
-                ResolveEntityType(Check.NotNull(principalEntityType, nameof(principalEntityType)))!,
+                ResolveEntityType(Check.NotNull(principalEntityType))!,
                 principalEntityType.ShortDisplayName(),
-                Check.NotNull(keyPropertyNames, nameof(keyPropertyNames))),
+                Check.NotNull(keyPropertyNames)),
             this,
             inverted: Builder.Metadata.PrincipalEntityType.ClrType != principalEntityType,
             principalKeySet: keyPropertyNames.Length > 0);
@@ -309,7 +309,7 @@ public class ReferenceReferenceBuilder<TEntity, TRelatedEntity> : ReferenceRefer
             HasPrincipalKeyBuilder(
                 ResolveEntityType(typeof(TPrincipalEntity))!,
                 typeof(TPrincipalEntity).ShortDisplayName(),
-                Check.NotNull(keyExpression, nameof(keyExpression)).GetMemberAccessList()),
+                Check.NotNull(keyExpression).GetMemberAccessList()),
             this,
             inverted: Builder.Metadata.PrincipalEntityType.ClrType != typeof(TPrincipalEntity),
             principalKeySet: true);

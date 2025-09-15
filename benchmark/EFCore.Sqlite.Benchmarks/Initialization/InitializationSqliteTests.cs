@@ -19,9 +19,9 @@ public class InitializationSqliteTests : InitializationTests
     protected override IServiceCollection AddContext(IServiceCollection services)
     {
         services.AddDbContext<AdventureWorksContextBase, AdventureWorksSqliteContext>()
-                .AddDbContextFactory<AdventureWorksSqliteContext>()
-                .TryAddSingleton<IDbContextFactory<AdventureWorksContextBase>,
-                    AdventureWorksSqliteContextFactory<AdventureWorksSqliteContext>>();
+            .AddDbContextFactory<AdventureWorksSqliteContext>()
+            .TryAddSingleton<IDbContextFactory<AdventureWorksContextBase>,
+                AdventureWorksSqliteContextFactory<AdventureWorksSqliteContext>>();
 
         return services;
     }
@@ -29,10 +29,10 @@ public class InitializationSqliteTests : InitializationTests
     protected override IServiceCollection AddContextPool(IServiceCollection services)
     {
         services.AddDbContextPool<AdventureWorksContextBase, AdventureWorksPoolableSqliteContext>(
-            AdventureWorksSqliteFixture.ConfigureOptions)
-                .AddPooledDbContextFactory<AdventureWorksPoolableSqliteContext>(AdventureWorksSqliteFixture.ConfigureOptions)
-                .TryAddSingleton<IDbContextFactory<AdventureWorksContextBase>,
-                    AdventureWorksSqliteContextFactory<AdventureWorksPoolableSqliteContext>>();
+                AdventureWorksSqliteFixture.ConfigureOptions)
+            .AddPooledDbContextFactory<AdventureWorksPoolableSqliteContext>(AdventureWorksSqliteFixture.ConfigureOptions)
+            .TryAddSingleton<IDbContextFactory<AdventureWorksContextBase>,
+                AdventureWorksSqliteContextFactory<AdventureWorksPoolableSqliteContext>>();
 
         return services;
     }
