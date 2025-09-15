@@ -40,32 +40,28 @@ public class SqliteBlobTest : IDisposable
     {
         var connection = new SqliteConnection();
 
-        var ex = Assert.Throws<InvalidOperationException>(
-            () => new SqliteBlob(connection, Table, Column, Rowid));
+        var ex = Assert.Throws<InvalidOperationException>(() => new SqliteBlob(connection, Table, Column, Rowid));
         Assert.Equal(Resources.SqlBlobRequiresOpenConnection, ex.Message);
     }
 
     [Fact]
     public void Ctor_throws_when_error()
     {
-        var ex = Assert.Throws<SqliteException>(
-            () => new SqliteBlob(_connection, "UnknownTable", Column, Rowid));
+        var ex = Assert.Throws<SqliteException>(() => new SqliteBlob(_connection, "UnknownTable", Column, Rowid));
         Assert.Equal(SQLITE_ERROR, ex.SqliteErrorCode);
     }
 
     [Fact]
     public void Ctor_throws_when_table_null()
     {
-        var ex = Assert.Throws<ArgumentNullException>(
-            () => new SqliteBlob(_connection, null!, Column, Rowid));
+        var ex = Assert.Throws<ArgumentNullException>(() => new SqliteBlob(_connection, null!, Column, Rowid));
         Assert.Equal("tableName", ex.ParamName);
     }
 
     [Fact]
     public void Ctor_throws_when_column_null()
     {
-        var ex = Assert.Throws<ArgumentNullException>(
-            () => new SqliteBlob(_connection, Table, null!, Rowid));
+        var ex = Assert.Throws<ArgumentNullException>(() => new SqliteBlob(_connection, Table, null!, Rowid));
         Assert.Equal("columnName", ex.ParamName);
     }
 
@@ -87,9 +83,7 @@ public class SqliteBlobTest : IDisposable
         }
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public void CanWrite_works(bool readOnly)
     {
         using (var stream = CreateStream(readOnly))
@@ -112,8 +106,7 @@ public class SqliteBlobTest : IDisposable
     {
         using (var stream = CreateStream())
         {
-            var ex = Assert.Throws<ArgumentOutOfRangeException>(
-                () => stream.Position = -1);
+            var ex = Assert.Throws<ArgumentOutOfRangeException>(() => stream.Position = -1);
             Assert.Equal("value", ex.ParamName);
             Assert.Equal(-1L, ex.ActualValue);
         }
@@ -128,16 +121,9 @@ public class SqliteBlobTest : IDisposable
         }
     }
 
-    [Theory]
-    [InlineData(0, new byte[] { }, 0, 0, 0)]
-    [InlineData(0, new byte[] { 0 }, 0, 0, 0)]
-    [InlineData(0, new byte[] { 0 }, 2, 0, 1)]
-    [InlineData(0, new byte[] { 0 }, 3, 0, 1)]
-    [InlineData(1, new byte[] { 1 }, 0, 0, 1)]
-    [InlineData(1, new byte[] { 1, 0 }, 0, 0, 1)]
-    [InlineData(1, new byte[] { 2 }, 1, 0, 1)]
-    [InlineData(1, new byte[] { 2, 0 }, 1, 0, 2)]
-    [InlineData(1, new byte[] { 0, 1 }, 0, 1, 1)]
+    [Theory, InlineData(0, new byte[] { }, 0, 0, 0), InlineData(0, new byte[] { 0 }, 0, 0, 0), InlineData(0, new byte[] { 0 }, 2, 0, 1),
+     InlineData(0, new byte[] { 0 }, 3, 0, 1), InlineData(1, new byte[] { 1 }, 0, 0, 1), InlineData(1, new byte[] { 1, 0 }, 0, 0, 1),
+     InlineData(1, new byte[] { 2 }, 1, 0, 1), InlineData(1, new byte[] { 2, 0 }, 1, 0, 2), InlineData(1, new byte[] { 0, 1 }, 0, 1, 1)]
     public void Read_works(
         int expectedBytesRead,
         byte[] expectedBuffer,
@@ -163,8 +149,7 @@ public class SqliteBlobTest : IDisposable
     {
         using (var stream = CreateStream())
         {
-            var ex = Assert.Throws<ArgumentNullException>(
-                () => stream.Read(null!, 0, 1));
+            var ex = Assert.Throws<ArgumentNullException>(() => stream.Read(null!, 0, 1));
 
             Assert.Equal("buffer", ex.ParamName);
         }
@@ -177,8 +162,7 @@ public class SqliteBlobTest : IDisposable
         {
             var buffer = new byte[1];
 
-            var ex = Assert.Throws<ArgumentOutOfRangeException>(
-                () => stream.Read(buffer, -1, 1));
+            var ex = Assert.Throws<ArgumentOutOfRangeException>(() => stream.Read(buffer, -1, 1));
             Assert.Equal("offset", ex.ParamName);
             Assert.Equal(-1, ex.ActualValue);
         }
@@ -191,8 +175,7 @@ public class SqliteBlobTest : IDisposable
         {
             var buffer = new byte[1];
 
-            var ex = Assert.Throws<ArgumentException>(
-                () => stream.Read(buffer, 1, 1));
+            var ex = Assert.Throws<ArgumentException>(() => stream.Read(buffer, 1, 1));
             Assert.Null(ex.ParamName);
             Assert.Equal(Resources.InvalidOffsetAndCount, ex.Message);
         }
@@ -205,8 +188,7 @@ public class SqliteBlobTest : IDisposable
         {
             var buffer = new byte[1];
 
-            var ex = Assert.Throws<ArgumentOutOfRangeException>(
-                () => stream.Read(buffer, 0, -1));
+            var ex = Assert.Throws<ArgumentOutOfRangeException>(() => stream.Read(buffer, 0, -1));
             Assert.Equal("count", ex.ParamName);
             Assert.Equal(-1, ex.ActualValue);
         }
@@ -219,8 +201,7 @@ public class SqliteBlobTest : IDisposable
         {
             var buffer = new byte[1];
 
-            var ex = Assert.Throws<ArgumentException>(
-                () => stream.Read(buffer, 0, 2));
+            var ex = Assert.Throws<ArgumentException>(() => stream.Read(buffer, 0, 2));
 
             Assert.Null(ex.ParamName);
             Assert.Equal(Resources.InvalidOffsetAndCount, ex.Message);
@@ -235,21 +216,13 @@ public class SqliteBlobTest : IDisposable
         var stream = CreateStream();
         stream.Dispose();
 
-        var ex = Assert.Throws<ObjectDisposedException>(
-            () => stream.Read(buffer, 0, 1));
+        var ex = Assert.Throws<ObjectDisposedException>(() => stream.Read(buffer, 0, 1));
     }
 
-    [Theory]
-    [InlineData(0, 1, 0, SeekOrigin.Begin)]
-    [InlineData(1, 1, 1, SeekOrigin.Begin)]
-    [InlineData(3, 1, 3, SeekOrigin.Begin)]
-    [InlineData(0, 1, -1, SeekOrigin.Current)]
-    [InlineData(1, 1, 0, SeekOrigin.Current)]
-    [InlineData(2, 1, 1, SeekOrigin.Current)]
-    [InlineData(3, 1, 2, SeekOrigin.Current)]
-    [InlineData(1, 1, -1, SeekOrigin.End)]
-    [InlineData(2, 1, 0, SeekOrigin.End)]
-    [InlineData(3, 1, 1, SeekOrigin.End)]
+    [Theory, InlineData(0, 1, 0, SeekOrigin.Begin), InlineData(1, 1, 1, SeekOrigin.Begin), InlineData(3, 1, 3, SeekOrigin.Begin),
+     InlineData(0, 1, -1, SeekOrigin.Current), InlineData(1, 1, 0, SeekOrigin.Current), InlineData(2, 1, 1, SeekOrigin.Current),
+     InlineData(3, 1, 2, SeekOrigin.Current), InlineData(1, 1, -1, SeekOrigin.End), InlineData(2, 1, 0, SeekOrigin.End),
+     InlineData(3, 1, 1, SeekOrigin.End)]
     public void Seek_works(
         long expected,
         long initialPosition,
@@ -267,10 +240,7 @@ public class SqliteBlobTest : IDisposable
         }
     }
 
-    [Theory]
-    [InlineData(1, -1, SeekOrigin.Begin)]
-    [InlineData(1, -2, SeekOrigin.Current)]
-    [InlineData(1, -3, SeekOrigin.End)]
+    [Theory, InlineData(1, -1, SeekOrigin.Begin), InlineData(1, -2, SeekOrigin.Current), InlineData(1, -3, SeekOrigin.End)]
     public void Seek_throws_when_negative(
         long initialPosition,
         long offset,
@@ -280,8 +250,7 @@ public class SqliteBlobTest : IDisposable
         {
             stream.Position = initialPosition;
 
-            var ex = Assert.Throws<IOException>(
-                () => stream.Seek(offset, origin));
+            var ex = Assert.Throws<IOException>(() => stream.Seek(offset, origin));
             Assert.Equal(Resources.SeekBeforeBegin, ex.Message);
         }
     }
@@ -291,8 +260,7 @@ public class SqliteBlobTest : IDisposable
     {
         using (var stream = CreateStream())
         {
-            var ex = Assert.Throws<ArgumentException>(
-                () => stream.Seek(0, (SeekOrigin)(-1)));
+            var ex = Assert.Throws<ArgumentException>(() => stream.Seek(0, (SeekOrigin)(-1)));
             Assert.Equal("origin", ex.ParamName);
             Assert.Contains(Resources.InvalidEnumValue(typeof(SeekOrigin), -1), ex.Message);
         }
@@ -303,21 +271,15 @@ public class SqliteBlobTest : IDisposable
     {
         using (var stream = CreateStream())
         {
-            var ex = Assert.Throws<NotSupportedException>(
-                () => stream.SetLength(1));
+            var ex = Assert.Throws<NotSupportedException>(() => stream.SetLength(1));
             Assert.Equal(Resources.ResizeNotSupported, ex.Message);
         }
     }
 
-    [Theory]
-    [InlineData(new byte[] { 3, 4 }, 0, new byte[] { 3, 4 }, 0, 2)]
-    [InlineData(new byte[] { 3, 2 }, 0, new byte[] { 3, 4 }, 0, 1)]
-    [InlineData(new byte[] { 4, 2 }, 0, new byte[] { 3, 4 }, 1, 1)]
-    [InlineData(new byte[] { 1, 3 }, 1, new byte[] { 3 }, 0, 1)]
-    [InlineData(new byte[] { 1, 2 }, 0, new byte[] { }, 0, 0)]
-    [InlineData(new byte[] { 1, 2 }, 2, new byte[] { }, 0, 0)]
-    [InlineData(new byte[] { 1, 2 }, 3, new byte[] { }, 0, 0)]
-    [InlineData(new byte[] { 1, 2 }, 0, new byte[] { 3 }, 1, 0)]
+    [Theory, InlineData(new byte[] { 3, 4 }, 0, new byte[] { 3, 4 }, 0, 2), InlineData(new byte[] { 3, 2 }, 0, new byte[] { 3, 4 }, 0, 1),
+     InlineData(new byte[] { 4, 2 }, 0, new byte[] { 3, 4 }, 1, 1), InlineData(new byte[] { 1, 3 }, 1, new byte[] { 3 }, 0, 1),
+     InlineData(new byte[] { 1, 2 }, 0, new byte[] { }, 0, 0), InlineData(new byte[] { 1, 2 }, 2, new byte[] { }, 0, 0),
+     InlineData(new byte[] { 1, 2 }, 3, new byte[] { }, 0, 0), InlineData(new byte[] { 1, 2 }, 0, new byte[] { 3 }, 1, 0)]
     public void Write_works(
         byte[] expected,
         long initialPosition,
@@ -344,8 +306,7 @@ public class SqliteBlobTest : IDisposable
     {
         using (var stream = CreateStream())
         {
-            var ex = Assert.Throws<ArgumentNullException>(
-                () => stream.Write(null!, 0, 0));
+            var ex = Assert.Throws<ArgumentNullException>(() => stream.Write(null!, 0, 0));
             Assert.Equal("buffer", ex.ParamName);
         }
     }
@@ -355,8 +316,7 @@ public class SqliteBlobTest : IDisposable
     {
         using (var stream = CreateStream())
         {
-            var ex = Assert.Throws<ArgumentException>(
-                () => stream.Write([3], 0, 2));
+            var ex = Assert.Throws<ArgumentException>(() => stream.Write([3], 0, 2));
             Assert.Null(ex.ParamName);
             Assert.Equal(Resources.InvalidOffsetAndCount, ex.Message);
         }
@@ -367,8 +327,7 @@ public class SqliteBlobTest : IDisposable
     {
         using (var stream = CreateStream())
         {
-            var ex = Assert.Throws<ArgumentOutOfRangeException>(
-                () => stream.Write([], 0, -1));
+            var ex = Assert.Throws<ArgumentOutOfRangeException>(() => stream.Write([], 0, -1));
             Assert.Equal("count", ex.ParamName);
             Assert.Equal(-1, ex.ActualValue);
         }
@@ -379,8 +338,7 @@ public class SqliteBlobTest : IDisposable
     {
         using (var stream = CreateStream())
         {
-            var ex = Assert.Throws<ArgumentException>(
-                () => stream.Write([3], 1, 1));
+            var ex = Assert.Throws<ArgumentException>(() => stream.Write([3], 1, 1));
             Assert.Null(ex.ParamName);
             Assert.Equal(Resources.InvalidOffsetAndCount, ex.Message);
         }
@@ -391,8 +349,7 @@ public class SqliteBlobTest : IDisposable
     {
         using (var stream = CreateStream())
         {
-            var ex = Assert.Throws<ArgumentOutOfRangeException>(
-                () => stream.Write([3, 4], -1, 2));
+            var ex = Assert.Throws<ArgumentOutOfRangeException>(() => stream.Write([3, 4], -1, 2));
             Assert.Equal("offset", ex.ParamName);
         }
     }
@@ -403,8 +360,7 @@ public class SqliteBlobTest : IDisposable
         using (var stream = CreateStream())
         {
             stream.Position = 2;
-            var ex = Assert.Throws<NotSupportedException>(
-                () => stream.Write([3], 0, 1));
+            var ex = Assert.Throws<NotSupportedException>(() => stream.Write([3], 0, 1));
             Assert.Equal(Resources.ResizeNotSupported, ex.Message);
         }
     }
@@ -414,8 +370,7 @@ public class SqliteBlobTest : IDisposable
     {
         using (var stream = CreateStream(readOnly: true))
         {
-            var ex = Assert.Throws<NotSupportedException>(
-                () => stream.Write([1], 0, 1));
+            var ex = Assert.Throws<NotSupportedException>(() => stream.Write([1], 0, 1));
 
             Assert.Equal(Resources.WriteNotSupported, ex.Message);
         }
@@ -427,8 +382,7 @@ public class SqliteBlobTest : IDisposable
         var stream = CreateStream();
         stream.Dispose();
 
-        var ex = Assert.Throws<ObjectDisposedException>(
-            () => stream.Write([3], 0, 1));
+        var ex = Assert.Throws<ObjectDisposedException>(() => stream.Write([3], 0, 1));
     }
 
     [Fact]

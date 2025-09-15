@@ -25,7 +25,7 @@ public class RelationalAggregateMethodCallTranslatorProvider : IAggregateMethodC
         var sqlExpressionFactory = dependencies.SqlExpressionFactory;
 
         _translators.AddRange(
-            new IAggregateMethodCallTranslator[] { new QueryableAggregateMethodTranslator(sqlExpressionFactory) });
+            [new QueryableAggregateMethodTranslator(sqlExpressionFactory)]);
     }
 
     /// <summary>

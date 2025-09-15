@@ -25,109 +25,108 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
-            modelBuilder.Entity<Root>(
-                b =>
-                {
-                    b.Property(e => e.AlternateId).ValueGeneratedOnAdd();
+            modelBuilder.Entity<Root>(b =>
+            {
+                b.Property(e => e.AlternateId).ValueGeneratedOnAdd();
 
-                    b.HasMany(e => e.RequiredChildren)
-                        .WithOne(e => e.Parent)
-                        .HasForeignKey(e => e.ParentId);
+                b.HasMany(e => e.RequiredChildren)
+                    .WithOne(e => e.Parent)
+                    .HasForeignKey(e => e.ParentId);
 
-                    b.HasMany(e => e.OptionalChildren)
-                        .WithOne(e => e.Parent)
-                        .HasForeignKey(e => e.ParentId)
-                        .OnDelete(DeleteBehavior.SetNull);
+                b.HasMany(e => e.OptionalChildren)
+                    .WithOne(e => e.Parent)
+                    .HasForeignKey(e => e.ParentId)
+                    .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne(e => e.RequiredSingle)
-                        .WithOne(e => e.Root)
-                        .HasForeignKey<RequiredSingle1>(e => e.Id);
+                b.HasOne(e => e.RequiredSingle)
+                    .WithOne(e => e.Root)
+                    .HasForeignKey<RequiredSingle1>(e => e.Id);
 
-                    b.HasOne(e => e.OptionalSingle)
-                        .WithOne(e => e.Root)
-                        .HasForeignKey<OptionalSingle1>(e => e.RootId)
-                        .OnDelete(DeleteBehavior.SetNull);
+                b.HasOne(e => e.OptionalSingle)
+                    .WithOne(e => e.Root)
+                    .HasForeignKey<OptionalSingle1>(e => e.RootId)
+                    .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne(e => e.OptionalSingleDerived)
-                        .WithOne(e => e.DerivedRoot)
-                        .HasForeignKey<OptionalSingle1Derived>(e => e.DerivedRootId)
-                        .OnDelete(DeleteBehavior.ClientSetNull);
+                b.HasOne(e => e.OptionalSingleDerived)
+                    .WithOne(e => e.DerivedRoot)
+                    .HasForeignKey<OptionalSingle1Derived>(e => e.DerivedRootId)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
 
-                    b.HasOne(e => e.OptionalSingleMoreDerived)
-                        .WithOne(e => e.MoreDerivedRoot)
-                        .HasForeignKey<OptionalSingle1MoreDerived>(e => e.MoreDerivedRootId)
-                        .OnDelete(DeleteBehavior.ClientSetNull);
+                b.HasOne(e => e.OptionalSingleMoreDerived)
+                    .WithOne(e => e.MoreDerivedRoot)
+                    .HasForeignKey<OptionalSingle1MoreDerived>(e => e.MoreDerivedRootId)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
 
-                    b.HasOne(e => e.RequiredNonPkSingle)
-                        .WithOne(e => e.Root)
-                        .HasForeignKey<RequiredNonPkSingle1>(e => e.RootId);
+                b.HasOne(e => e.RequiredNonPkSingle)
+                    .WithOne(e => e.Root)
+                    .HasForeignKey<RequiredNonPkSingle1>(e => e.RootId);
 
-                    b.HasOne(e => e.RequiredNonPkSingleDerived)
-                        .WithOne(e => e.DerivedRoot)
-                        .HasForeignKey<RequiredNonPkSingle1Derived>(e => e.DerivedRootId)
-                        .OnDelete(DeleteBehavior.Restrict);
+                b.HasOne(e => e.RequiredNonPkSingleDerived)
+                    .WithOne(e => e.DerivedRoot)
+                    .HasForeignKey<RequiredNonPkSingle1Derived>(e => e.DerivedRootId)
+                    .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne(e => e.RequiredNonPkSingleMoreDerived)
-                        .WithOne(e => e.MoreDerivedRoot)
-                        .HasForeignKey<RequiredNonPkSingle1MoreDerived>(e => e.MoreDerivedRootId)
-                        .OnDelete(DeleteBehavior.Restrict);
+                b.HasOne(e => e.RequiredNonPkSingleMoreDerived)
+                    .WithOne(e => e.MoreDerivedRoot)
+                    .HasForeignKey<RequiredNonPkSingle1MoreDerived>(e => e.MoreDerivedRootId)
+                    .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasMany(e => e.RequiredChildrenAk)
-                        .WithOne(e => e.Parent)
-                        .HasPrincipalKey(e => e.AlternateId)
-                        .HasForeignKey(e => e.ParentId);
+                b.HasMany(e => e.RequiredChildrenAk)
+                    .WithOne(e => e.Parent)
+                    .HasPrincipalKey(e => e.AlternateId)
+                    .HasForeignKey(e => e.ParentId);
 
-                    b.HasMany(e => e.OptionalChildrenAk)
-                        .WithOne(e => e.Parent)
-                        .HasPrincipalKey(e => e.AlternateId)
-                        .HasForeignKey(e => e.ParentId)
-                        .OnDelete(DeleteBehavior.SetNull);
+                b.HasMany(e => e.OptionalChildrenAk)
+                    .WithOne(e => e.Parent)
+                    .HasPrincipalKey(e => e.AlternateId)
+                    .HasForeignKey(e => e.ParentId)
+                    .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne(e => e.RequiredSingleAk)
-                        .WithOne(e => e.Root)
-                        .HasPrincipalKey<Root>(e => e.AlternateId)
-                        .HasForeignKey<RequiredSingleAk1>(e => e.RootId);
+                b.HasOne(e => e.RequiredSingleAk)
+                    .WithOne(e => e.Root)
+                    .HasPrincipalKey<Root>(e => e.AlternateId)
+                    .HasForeignKey<RequiredSingleAk1>(e => e.RootId);
 
-                    b.HasOne(e => e.OptionalSingleAk)
-                        .WithOne(e => e.Root)
-                        .HasPrincipalKey<Root>(e => e.AlternateId)
-                        .HasForeignKey<OptionalSingleAk1>(e => e.RootId)
-                        .OnDelete(DeleteBehavior.SetNull);
+                b.HasOne(e => e.OptionalSingleAk)
+                    .WithOne(e => e.Root)
+                    .HasPrincipalKey<Root>(e => e.AlternateId)
+                    .HasForeignKey<OptionalSingleAk1>(e => e.RootId)
+                    .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne(e => e.OptionalSingleAkDerived)
-                        .WithOne(e => e.DerivedRoot)
-                        .HasPrincipalKey<Root>(e => e.AlternateId)
-                        .HasForeignKey<OptionalSingleAk1Derived>(e => e.DerivedRootId)
-                        .OnDelete(DeleteBehavior.ClientSetNull);
+                b.HasOne(e => e.OptionalSingleAkDerived)
+                    .WithOne(e => e.DerivedRoot)
+                    .HasPrincipalKey<Root>(e => e.AlternateId)
+                    .HasForeignKey<OptionalSingleAk1Derived>(e => e.DerivedRootId)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
 
-                    b.HasOne(e => e.OptionalSingleAkMoreDerived)
-                        .WithOne(e => e.MoreDerivedRoot)
-                        .HasPrincipalKey<Root>(e => e.AlternateId)
-                        .HasForeignKey<OptionalSingleAk1MoreDerived>(e => e.MoreDerivedRootId)
-                        .OnDelete(DeleteBehavior.ClientSetNull);
+                b.HasOne(e => e.OptionalSingleAkMoreDerived)
+                    .WithOne(e => e.MoreDerivedRoot)
+                    .HasPrincipalKey<Root>(e => e.AlternateId)
+                    .HasForeignKey<OptionalSingleAk1MoreDerived>(e => e.MoreDerivedRootId)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
 
-                    b.HasOne(e => e.RequiredNonPkSingleAk)
-                        .WithOne(e => e.Root)
-                        .HasPrincipalKey<Root>(e => e.AlternateId)
-                        .HasForeignKey<RequiredNonPkSingleAk1>(e => e.RootId);
+                b.HasOne(e => e.RequiredNonPkSingleAk)
+                    .WithOne(e => e.Root)
+                    .HasPrincipalKey<Root>(e => e.AlternateId)
+                    .HasForeignKey<RequiredNonPkSingleAk1>(e => e.RootId);
 
-                    b.HasOne(e => e.RequiredNonPkSingleAkDerived)
-                        .WithOne(e => e.DerivedRoot)
-                        .HasPrincipalKey<Root>(e => e.AlternateId)
-                        .HasForeignKey<RequiredNonPkSingleAk1Derived>(e => e.DerivedRootId)
-                        .OnDelete(DeleteBehavior.Restrict);
+                b.HasOne(e => e.RequiredNonPkSingleAkDerived)
+                    .WithOne(e => e.DerivedRoot)
+                    .HasPrincipalKey<Root>(e => e.AlternateId)
+                    .HasForeignKey<RequiredNonPkSingleAk1Derived>(e => e.DerivedRootId)
+                    .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne(e => e.RequiredNonPkSingleAkMoreDerived)
-                        .WithOne(e => e.MoreDerivedRoot)
-                        .HasPrincipalKey<Root>(e => e.AlternateId)
-                        .HasForeignKey<RequiredNonPkSingleAk1MoreDerived>(e => e.MoreDerivedRootId)
-                        .OnDelete(DeleteBehavior.Restrict);
+                b.HasOne(e => e.RequiredNonPkSingleAkMoreDerived)
+                    .WithOne(e => e.MoreDerivedRoot)
+                    .HasPrincipalKey<Root>(e => e.AlternateId)
+                    .HasForeignKey<RequiredNonPkSingleAk1MoreDerived>(e => e.MoreDerivedRootId)
+                    .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasMany(e => e.RequiredCompositeChildren)
-                        .WithOne(e => e.Parent)
-                        .HasPrincipalKey(e => e.AlternateId)
-                        .HasForeignKey(e => e.ParentAlternateId);
-                });
+                b.HasMany(e => e.RequiredCompositeChildren)
+                    .WithOne(e => e.Parent)
+                    .HasPrincipalKey(e => e.AlternateId)
+                    .HasForeignKey(e => e.ParentAlternateId);
+            });
 
             modelBuilder.Entity<Required1>()
                 .HasMany(e => e.Children)
@@ -139,19 +138,17 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
             modelBuilder.Entity<Required2Derived>();
             modelBuilder.Entity<Required2MoreDerived>();
 
-            modelBuilder.Entity<Optional1>(
-                b =>
-                {
-                    b.HasMany(e => e.Children)
-                        .WithOne(e => e.Parent)
-                        .HasForeignKey(e => e.ParentId)
-                        .OnDelete(DeleteBehavior.SetNull);
+            modelBuilder.Entity<Optional1>(b =>
+            {
+                b.HasMany(e => e.Children)
+                    .WithOne(e => e.Parent)
+                    .HasForeignKey(e => e.ParentId)
+                    .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasMany(e => e.CompositeChildren)
-                        .WithOne(e => e.Parent2)
-                        .HasForeignKey(
-                            e => new { e.Parent2Id });
-                });
+                b.HasMany(e => e.CompositeChildren)
+                    .WithOne(e => e.Parent2)
+                    .HasForeignKey(e => new { e.Parent2Id });
+            });
 
             modelBuilder.Entity<Optional1Derived>();
             modelBuilder.Entity<Optional1MoreDerived>();
@@ -180,104 +177,91 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
             modelBuilder.Entity<RequiredNonPkSingle2Derived>();
             modelBuilder.Entity<RequiredNonPkSingle2MoreDerived>();
 
-            modelBuilder.Entity<RequiredAk1>(
-                b =>
-                {
-                    b.Property(e => e.AlternateId)
-                        .ValueGeneratedOnAdd();
+            modelBuilder.Entity<RequiredAk1>(b =>
+            {
+                b.Property(e => e.AlternateId)
+                    .ValueGeneratedOnAdd();
 
-                    b.HasMany(e => e.Children)
-                        .WithOne(e => e.Parent)
-                        .HasPrincipalKey(e => e.AlternateId)
-                        .HasForeignKey(e => e.ParentId);
+                b.HasMany(e => e.Children)
+                    .WithOne(e => e.Parent)
+                    .HasPrincipalKey(e => e.AlternateId)
+                    .HasForeignKey(e => e.ParentId);
 
-                    b.HasMany(e => e.CompositeChildren)
-                        .WithOne(e => e.Parent)
-                        .HasPrincipalKey(
-                            e => new { e.Id, e.AlternateId })
-                        .HasForeignKey(
-                            e => new { e.ParentId, e.ParentAlternateId });
-                });
+                b.HasMany(e => e.CompositeChildren)
+                    .WithOne(e => e.Parent)
+                    .HasPrincipalKey(e => new { e.Id, e.AlternateId })
+                    .HasForeignKey(e => new { e.ParentId, e.ParentAlternateId });
+            });
 
             modelBuilder.Entity<RequiredAk1Derived>();
             modelBuilder.Entity<RequiredAk1MoreDerived>();
 
-            modelBuilder.Entity<OptionalAk1>(
-                b =>
-                {
-                    b.Property(e => e.AlternateId)
-                        .ValueGeneratedOnAdd();
+            modelBuilder.Entity<OptionalAk1>(b =>
+            {
+                b.Property(e => e.AlternateId)
+                    .ValueGeneratedOnAdd();
 
-                    b.HasMany(e => e.Children)
-                        .WithOne(e => e.Parent)
-                        .HasPrincipalKey(e => e.AlternateId)
-                        .HasForeignKey(e => e.ParentId)
-                        .OnDelete(DeleteBehavior.SetNull);
+                b.HasMany(e => e.Children)
+                    .WithOne(e => e.Parent)
+                    .HasPrincipalKey(e => e.AlternateId)
+                    .HasForeignKey(e => e.ParentId)
+                    .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasMany(e => e.CompositeChildren)
-                        .WithOne(e => e.Parent)
-                        .HasPrincipalKey(
-                            e => new { e.Id, e.AlternateId })
-                        .HasForeignKey(
-                            e => new { e.ParentId, e.ParentAlternateId });
-                });
+                b.HasMany(e => e.CompositeChildren)
+                    .WithOne(e => e.Parent)
+                    .HasPrincipalKey(e => new { e.Id, e.AlternateId })
+                    .HasForeignKey(e => new { e.ParentId, e.ParentAlternateId });
+            });
 
             modelBuilder.Entity<OptionalAk1Derived>();
             modelBuilder.Entity<OptionalAk1MoreDerived>();
 
-            modelBuilder.Entity<RequiredSingleAk1>(
-                b =>
-                {
-                    b.Property(e => e.AlternateId)
-                        .ValueGeneratedOnAdd();
+            modelBuilder.Entity<RequiredSingleAk1>(b =>
+            {
+                b.Property(e => e.AlternateId)
+                    .ValueGeneratedOnAdd();
 
-                    b.HasOne(e => e.Single)
-                        .WithOne(e => e.Back)
-                        .HasForeignKey<RequiredSingleAk2>(e => e.BackId)
-                        .HasPrincipalKey<RequiredSingleAk1>(e => e.AlternateId);
+                b.HasOne(e => e.Single)
+                    .WithOne(e => e.Back)
+                    .HasForeignKey<RequiredSingleAk2>(e => e.BackId)
+                    .HasPrincipalKey<RequiredSingleAk1>(e => e.AlternateId);
 
-                    b.HasOne(e => e.SingleComposite)
-                        .WithOne(e => e.Back)
-                        .HasForeignKey<RequiredSingleComposite2>(
-                            e => new { e.BackId, e.BackAlternateId })
-                        .HasPrincipalKey<RequiredSingleAk1>(
-                            e => new { e.Id, e.AlternateId });
-                });
+                b.HasOne(e => e.SingleComposite)
+                    .WithOne(e => e.Back)
+                    .HasForeignKey<RequiredSingleComposite2>(e => new { e.BackId, e.BackAlternateId })
+                    .HasPrincipalKey<RequiredSingleAk1>(e => new { e.Id, e.AlternateId });
+            });
 
-            modelBuilder.Entity<OptionalSingleAk1>(
-                b =>
-                {
-                    b.Property(e => e.AlternateId)
-                        .ValueGeneratedOnAdd();
+            modelBuilder.Entity<OptionalSingleAk1>(b =>
+            {
+                b.Property(e => e.AlternateId)
+                    .ValueGeneratedOnAdd();
 
-                    b.HasOne(e => e.Single)
-                        .WithOne(e => e.Back)
-                        .HasForeignKey<OptionalSingleAk2>(e => e.BackId)
-                        .HasPrincipalKey<OptionalSingleAk1>(e => e.AlternateId)
-                        .OnDelete(DeleteBehavior.SetNull);
+                b.HasOne(e => e.Single)
+                    .WithOne(e => e.Back)
+                    .HasForeignKey<OptionalSingleAk2>(e => e.BackId)
+                    .HasPrincipalKey<OptionalSingleAk1>(e => e.AlternateId)
+                    .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne(e => e.SingleComposite)
-                        .WithOne(e => e.Back)
-                        .HasForeignKey<OptionalSingleComposite2>(
-                            e => new { e.BackId, e.ParentAlternateId })
-                        .HasPrincipalKey<OptionalSingleAk1>(
-                            e => new { e.Id, e.AlternateId });
-                });
+                b.HasOne(e => e.SingleComposite)
+                    .WithOne(e => e.Back)
+                    .HasForeignKey<OptionalSingleComposite2>(e => new { e.BackId, e.ParentAlternateId })
+                    .HasPrincipalKey<OptionalSingleAk1>(e => new { e.Id, e.AlternateId });
+            });
 
             modelBuilder.Entity<OptionalSingleAk2Derived>();
             modelBuilder.Entity<OptionalSingleAk2MoreDerived>();
 
-            modelBuilder.Entity<RequiredNonPkSingleAk1>(
-                b =>
-                {
-                    b.Property(e => e.AlternateId)
-                        .ValueGeneratedOnAdd();
+            modelBuilder.Entity<RequiredNonPkSingleAk1>(b =>
+            {
+                b.Property(e => e.AlternateId)
+                    .ValueGeneratedOnAdd();
 
-                    b.HasOne(e => e.Single)
-                        .WithOne(e => e.Back)
-                        .HasForeignKey<RequiredNonPkSingleAk2>(e => e.BackId)
-                        .HasPrincipalKey<RequiredNonPkSingleAk1>(e => e.AlternateId);
-                });
+                b.HasOne(e => e.Single)
+                    .WithOne(e => e.Back)
+                    .HasForeignKey<RequiredNonPkSingleAk2>(e => e.BackId)
+                    .HasPrincipalKey<RequiredNonPkSingleAk1>(e => e.AlternateId);
+            });
 
             modelBuilder.Entity<RequiredAk2>()
                 .Property(e => e.AlternateId)
@@ -308,322 +292,291 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
                 .Property(e => e.AlternateId)
                 .ValueGeneratedOnAdd();
 
-            modelBuilder.Entity<RequiredComposite1>(
-                eb =>
-                {
-                    eb.Property(e => e.Id).ValueGeneratedNever();
+            modelBuilder.Entity<RequiredComposite1>(eb =>
+            {
+                eb.Property(e => e.Id).ValueGeneratedNever();
 
-                    eb.HasKey(
-                        e => new { e.Id, e.ParentAlternateId });
+                eb.HasKey(e => new { e.Id, e.ParentAlternateId });
 
-                    eb.HasMany(e => e.CompositeChildren)
-                        .WithOne(e => e.Parent)
-                        .HasPrincipalKey(
-                            e => new { e.Id, e.ParentAlternateId })
-                        .HasForeignKey(
-                            e => new { e.ParentId, e.ParentAlternateId });
-                });
+                eb.HasMany(e => e.CompositeChildren)
+                    .WithOne(e => e.Parent)
+                    .HasPrincipalKey(e => new { e.Id, e.ParentAlternateId })
+                    .HasForeignKey(e => new { e.ParentId, e.ParentAlternateId });
+            });
 
-            modelBuilder.Entity<OptionalOverlapping2>(
-                eb =>
-                {
-                    eb.Property(e => e.Id).ValueGeneratedNever();
+            modelBuilder.Entity<OptionalOverlapping2>(eb =>
+            {
+                eb.Property(e => e.Id).ValueGeneratedNever();
 
-                    eb.HasKey(
-                        e => new { e.Id, e.ParentAlternateId });
+                eb.HasKey(e => new { e.Id, e.ParentAlternateId });
 
-                    eb.HasOne(e => e.Root)
-                        .WithMany()
-                        .HasPrincipalKey(e => e.AlternateId)
-                        .HasForeignKey(e => e.ParentAlternateId);
-                });
+                eb.HasOne(e => e.Root)
+                    .WithMany()
+                    .HasPrincipalKey(e => e.AlternateId)
+                    .HasForeignKey(e => e.ParentAlternateId);
+            });
 
             modelBuilder.Entity<BadCustomer>();
             modelBuilder.Entity<BadOrder>();
 
-            modelBuilder.Entity<SharedFkRoot>(
-                builder =>
-                {
-                    builder.HasMany(x => x.Dependants).WithOne(x => x.Root)
-                        .HasForeignKey(x => new { x.RootId })
-                        .HasPrincipalKey(x => x.Id)
-                        .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<SharedFkRoot>(builder =>
+            {
+                builder.HasMany(x => x.Dependants).WithOne(x => x.Root)
+                    .HasForeignKey(x => new { x.RootId })
+                    .HasPrincipalKey(x => x.Id)
+                    .OnDelete(DeleteBehavior.Cascade);
 
-                    builder.HasMany(x => x.Parents).WithOne(x => x.Root)
-                        .HasForeignKey(x => new { x.RootId })
-                        .HasPrincipalKey(x => x.Id)
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
+                builder.HasMany(x => x.Parents).WithOne(x => x.Root)
+                    .HasForeignKey(x => new { x.RootId })
+                    .HasPrincipalKey(x => x.Id)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
 
-            modelBuilder.Entity<SharedFkParent>(
-                builder =>
-                {
-                    builder.HasOne(x => x.Dependant).WithOne(x => x!.Parent).IsRequired(false)
-                        .HasForeignKey<SharedFkParent>(x => new { x.RootId, x.DependantId })
-                        .HasPrincipalKey<SharedFkDependant>(x => new { x.RootId, x.Id })
-                        .OnDelete(DeleteBehavior.ClientSetNull);
-                });
+            modelBuilder.Entity<SharedFkParent>(builder =>
+            {
+                builder.HasOne(x => x.Dependant).WithOne(x => x!.Parent).IsRequired(false)
+                    .HasForeignKey<SharedFkParent>(x => new { x.RootId, x.DependantId })
+                    .HasPrincipalKey<SharedFkDependant>(x => new { x.RootId, x.Id })
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+            });
 
             modelBuilder.Entity<SharedFkDependant>();
 
-            modelBuilder.Entity<Person>(
-                p =>
-                {
-                    p.HasKey(tp => tp.Id);
-                });
+            modelBuilder.Entity<Person>(p =>
+            {
+                p.HasKey(tp => tp.Id);
+            });
 
-            modelBuilder.Entity<Car>(
-                c =>
-                {
-                    c.HasKey(tc => tc.Id);
-                    c.HasOne(tc => tc.Owner)
-                        .WithOne(tp => tp.Vehicle)
-                        .HasForeignKey<Car>("fk_PersonId")
-                        .IsRequired();
-                });
+            modelBuilder.Entity<Car>(c =>
+            {
+                c.HasKey(tc => tc.Id);
+                c.HasOne(tc => tc.Owner)
+                    .WithOne(tp => tp.Vehicle)
+                    .HasForeignKey<Car>("fk_PersonId")
+                    .IsRequired();
+            });
 
             modelBuilder.Entity<RecordCar>();
         }
 
         protected virtual object CreateFullGraph(DbContext context)
-            => context.CreateProxy<Root>(
-                e =>
+            => context.CreateProxy<Root>(e =>
+            {
+                e.AlternateId = RootAK;
+
+                e.RequiredChildren = new ObservableHashSet<Required1>(ReferenceEqualityComparer.Instance)
                 {
-                    e.AlternateId = RootAK;
-
-                    e.RequiredChildren = new ObservableHashSet<Required1>(ReferenceEqualityComparer.Instance)
+                    context.CreateProxy<Required1>(e =>
                     {
-                        context.CreateProxy<Required1>(
-                            e =>
-                            {
-                                e.Children = new ObservableHashSet<Required2>(ReferenceEqualityComparer.Instance)
-                                {
-                                    context.Set<Required2>().CreateProxy(), context.Set<Required2>().CreateProxy()
-                                };
-                            }),
-                        context.CreateProxy<Required1>(
-                            e =>
-                            {
-                                e.Children = new ObservableHashSet<Required2>(ReferenceEqualityComparer.Instance)
-                                {
-                                    context.Set<Required2>().CreateProxy(), context.Set<Required2>().CreateProxy()
-                                };
-                            })
-                    };
-
-                    e.OptionalChildren = new ObservableHashSet<Optional1>(ReferenceEqualityComparer.Instance)
+                        e.Children = new ObservableHashSet<Required2>(ReferenceEqualityComparer.Instance)
+                        {
+                            context.Set<Required2>().CreateProxy(), context.Set<Required2>().CreateProxy()
+                        };
+                    }),
+                    context.CreateProxy<Required1>(e =>
                     {
-                        context.Set<Optional1>().CreateProxy(
-                            e =>
-                            {
-                                e.Children = new ObservableHashSet<Optional2>(ReferenceEqualityComparer.Instance)
-                                {
-                                    context.Set<Optional2>().CreateProxy(), context.Set<Optional2>().CreateProxy()
-                                };
-
-                                e.CompositeChildren =
-                                    new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance);
-                            }),
-                        context.Set<Optional1>().CreateProxy(
-                            e =>
-                            {
-                                e.Children = new ObservableHashSet<Optional2>(ReferenceEqualityComparer.Instance)
-                                {
-                                    context.Set<Optional2>().CreateProxy(), context.Set<Optional2>().CreateProxy()
-                                };
-
-                                e.CompositeChildren =
-                                    new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance);
-                            })
-                    };
-
-                    e.RequiredSingle = context.CreateProxy<RequiredSingle1>(
-                        e => e.Single = context.Set<RequiredSingle2>().CreateProxy());
-
-                    e.OptionalSingle = context.CreateProxy<OptionalSingle1>(
-                        e => e.Single = context.Set<OptionalSingle2>().CreateProxy());
-
-                    e.OptionalSingleDerived = context.CreateProxy<OptionalSingle1Derived>(
-                        e => e.Single = context.Set<OptionalSingle2Derived>().CreateProxy());
-
-                    e.OptionalSingleMoreDerived = context.CreateProxy<OptionalSingle1MoreDerived>(
-                        e => e.Single = context.Set<OptionalSingle2MoreDerived>().CreateProxy());
-
-                    e.RequiredNonPkSingle = context.CreateProxy<RequiredNonPkSingle1>(
-                        e => e.Single = context.Set<RequiredNonPkSingle2>().CreateProxy());
-
-                    e.RequiredNonPkSingleDerived = context.CreateProxy<RequiredNonPkSingle1Derived>(
-                        e =>
+                        e.Children = new ObservableHashSet<Required2>(ReferenceEqualityComparer.Instance)
                         {
-                            e.Single = context.Set<RequiredNonPkSingle2Derived>().CreateProxy();
-                            e.Root = context.Set<Root>().CreateProxy();
-                        });
+                            context.Set<Required2>().CreateProxy(), context.Set<Required2>().CreateProxy()
+                        };
+                    })
+                };
 
-                    e.RequiredNonPkSingleMoreDerived = context.CreateProxy<RequiredNonPkSingle1MoreDerived>(
-                        e =>
-                        {
-                            e.Single = context.Set<RequiredNonPkSingle2MoreDerived>().CreateProxy();
-                            e.Root = context.Set<Root>().CreateProxy();
-                            e.DerivedRoot = context.Set<Root>().CreateProxy();
-                        });
-
-                    e.RequiredChildrenAk = new ObservableHashSet<RequiredAk1>(ReferenceEqualityComparer.Instance)
+                e.OptionalChildren = new ObservableHashSet<Optional1>(ReferenceEqualityComparer.Instance)
+                {
+                    context.Set<Optional1>().CreateProxy(e =>
                     {
-                        context.Set<RequiredAk1>().CreateProxy(
-                            e =>
-                            {
-                                e.AlternateId = Guid.NewGuid();
+                        e.Children = new ObservableHashSet<Optional2>(ReferenceEqualityComparer.Instance)
+                        {
+                            context.Set<Optional2>().CreateProxy(), context.Set<Optional2>().CreateProxy()
+                        };
 
-                                e.Children = new ObservableHashSet<RequiredAk2>(ReferenceEqualityComparer.Instance)
-                                {
-                                    context.Set<RequiredAk2>().CreateProxy(e => e.AlternateId = Guid.NewGuid()),
-                                    context.Set<RequiredAk2>().CreateProxy(e => e.AlternateId = Guid.NewGuid())
-                                };
-
-                                e.CompositeChildren =
-                                    new ObservableHashSet<RequiredComposite2>(ReferenceEqualityComparer.Instance)
-                                    {
-                                        context.Set<RequiredComposite2>().CreateProxy(), context.Set<RequiredComposite2>().CreateProxy()
-                                    };
-                            }),
-                        context.Set<RequiredAk1>().CreateProxy(
-                            e =>
-                            {
-                                e.AlternateId = Guid.NewGuid();
-
-                                e.Children = new ObservableHashSet<RequiredAk2>(ReferenceEqualityComparer.Instance)
-                                {
-                                    context.Set<RequiredAk2>().CreateProxy(e => e.AlternateId = Guid.NewGuid()),
-                                    context.Set<RequiredAk2>().CreateProxy(e => e.AlternateId = Guid.NewGuid())
-                                };
-
-                                e.CompositeChildren =
-                                    new ObservableHashSet<RequiredComposite2>(ReferenceEqualityComparer.Instance)
-                                    {
-                                        context.Set<RequiredComposite2>().CreateProxy(), context.Set<RequiredComposite2>().CreateProxy()
-                                    };
-                            })
-                    };
-
-                    e.OptionalChildrenAk = new ObservableHashSet<OptionalAk1>(ReferenceEqualityComparer.Instance)
+                        e.CompositeChildren =
+                            new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance);
+                    }),
+                    context.Set<Optional1>().CreateProxy(e =>
                     {
-                        context.Set<OptionalAk1>().CreateProxy(
-                            e =>
-                            {
-                                e.AlternateId = Guid.NewGuid();
-
-                                e.Children = new ObservableHashSet<OptionalAk2>(ReferenceEqualityComparer.Instance)
-                                {
-                                    context.Set<OptionalAk2>().CreateProxy(e => e.AlternateId = Guid.NewGuid()),
-                                    context.Set<OptionalAk2>().CreateProxy(e => e.AlternateId = Guid.NewGuid())
-                                };
-                                e.CompositeChildren =
-                                    new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance)
-                                    {
-                                        context.Set<OptionalComposite2>().CreateProxy(), context.Set<OptionalComposite2>().CreateProxy()
-                                    };
-                            }),
-                        context.Set<OptionalAk1>().CreateProxy(
-                            e =>
-                            {
-                                e.AlternateId = Guid.NewGuid();
-
-                                e.Children = new ObservableHashSet<OptionalAk2>(ReferenceEqualityComparer.Instance)
-                                {
-                                    context.Set<OptionalAk2>().CreateProxy(e => e.AlternateId = Guid.NewGuid()),
-                                    context.Set<OptionalAk2>().CreateProxy(e => e.AlternateId = Guid.NewGuid())
-                                };
-
-                                e.CompositeChildren =
-                                    new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance)
-                                    {
-                                        context.Set<OptionalComposite2>().CreateProxy(), context.Set<OptionalComposite2>().CreateProxy()
-                                    };
-                            })
-                    };
-
-                    e.RequiredSingleAk = context.CreateProxy<RequiredSingleAk1>(
-                        e =>
+                        e.Children = new ObservableHashSet<Optional2>(ReferenceEqualityComparer.Instance)
                         {
-                            e.AlternateId = Guid.NewGuid();
-                            e.Single = context.CreateProxy<RequiredSingleAk2>(e => e.AlternateId = Guid.NewGuid());
-                            e.SingleComposite = context.CreateProxy<RequiredSingleComposite2>();
-                        });
+                            context.Set<Optional2>().CreateProxy(), context.Set<Optional2>().CreateProxy()
+                        };
 
-                    e.OptionalSingleAk = context.CreateProxy<OptionalSingleAk1>(
-                        e =>
-                        {
-                            e.AlternateId = Guid.NewGuid();
-                            e.Single = context.CreateProxy<OptionalSingleAk2>(e => e.AlternateId = Guid.NewGuid());
-                            e.SingleComposite = context.CreateProxy<OptionalSingleComposite2>();
-                        });
+                        e.CompositeChildren =
+                            new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance);
+                    })
+                };
 
-                    e.OptionalSingleAkDerived = context.CreateProxy<OptionalSingleAk1Derived>(
-                        e =>
-                        {
-                            e.AlternateId = Guid.NewGuid();
-                            e.Single = context.CreateProxy<OptionalSingleAk2Derived>(e => e.AlternateId = Guid.NewGuid());
-                        });
+                e.RequiredSingle = context.CreateProxy<RequiredSingle1>(e => e.Single = context.Set<RequiredSingle2>().CreateProxy());
 
-                    e.OptionalSingleAkMoreDerived = context.CreateProxy<OptionalSingleAk1MoreDerived>(
-                        e =>
-                        {
-                            e.AlternateId = Guid.NewGuid();
-                            e.Single = context.CreateProxy<OptionalSingleAk2MoreDerived>(e => e.AlternateId = Guid.NewGuid());
-                        });
+                e.OptionalSingle = context.CreateProxy<OptionalSingle1>(e => e.Single = context.Set<OptionalSingle2>().CreateProxy());
 
-                    e.RequiredNonPkSingleAk = context.CreateProxy<RequiredNonPkSingleAk1>(
-                        e =>
-                        {
-                            e.AlternateId = Guid.NewGuid();
-                            e.Single = context.CreateProxy<RequiredNonPkSingleAk2>(e => e.AlternateId = Guid.NewGuid());
-                        });
+                e.OptionalSingleDerived =
+                    context.CreateProxy<OptionalSingle1Derived>(e => e.Single = context.Set<OptionalSingle2Derived>().CreateProxy());
 
-                    e.RequiredNonPkSingleAkDerived = context.CreateProxy<RequiredNonPkSingleAk1Derived>(
-                        e =>
-                        {
-                            e.AlternateId = Guid.NewGuid();
-                            e.Single = context.CreateProxy<RequiredNonPkSingleAk2Derived>(e => e.AlternateId = Guid.NewGuid());
-                            e.Root = context.CreateProxy<Root>();
-                        });
+                e.OptionalSingleMoreDerived =
+                    context.CreateProxy<OptionalSingle1MoreDerived>(e
+                        => e.Single = context.Set<OptionalSingle2MoreDerived>().CreateProxy());
 
-                    e.RequiredNonPkSingleAkMoreDerived = context.CreateProxy<RequiredNonPkSingleAk1MoreDerived>(
-                        e =>
-                        {
-                            e.AlternateId = Guid.NewGuid();
-                            e.Single = context.CreateProxy<RequiredNonPkSingleAk2MoreDerived>(e => e.AlternateId = Guid.NewGuid());
-                            e.Root = context.CreateProxy<Root>();
-                            e.DerivedRoot = context.CreateProxy<Root>();
-                        });
+                e.RequiredNonPkSingle =
+                    context.CreateProxy<RequiredNonPkSingle1>(e => e.Single = context.Set<RequiredNonPkSingle2>().CreateProxy());
 
-                    e.RequiredCompositeChildren = new ObservableHashSet<RequiredComposite1>(ReferenceEqualityComparer.Instance)
-                    {
-                        context.Set<RequiredComposite1>().CreateProxy(
-                            e =>
-                            {
-                                e.Id = 1;
-
-                                e.CompositeChildren =
-                                    new ObservableHashSet<OptionalOverlapping2>(ReferenceEqualityComparer.Instance)
-                                    {
-                                        context.CreateProxy<OptionalOverlapping2>(e => e.Id = 1),
-                                        context.CreateProxy<OptionalOverlapping2>(e => e.Id = 2)
-                                    };
-                            }),
-                        context.Set<RequiredComposite1>().CreateProxy(
-                            e =>
-                            {
-                                e.Id = 2;
-
-                                e.CompositeChildren =
-                                    new ObservableHashSet<OptionalOverlapping2>(ReferenceEqualityComparer.Instance)
-                                    {
-                                        context.CreateProxy<OptionalOverlapping2>(e => e.Id = 3),
-                                        context.CreateProxy<OptionalOverlapping2>(e => e.Id = 4)
-                                    };
-                            })
-                    };
+                e.RequiredNonPkSingleDerived = context.CreateProxy<RequiredNonPkSingle1Derived>(e =>
+                {
+                    e.Single = context.Set<RequiredNonPkSingle2Derived>().CreateProxy();
+                    e.Root = context.Set<Root>().CreateProxy();
                 });
+
+                e.RequiredNonPkSingleMoreDerived = context.CreateProxy<RequiredNonPkSingle1MoreDerived>(e =>
+                {
+                    e.Single = context.Set<RequiredNonPkSingle2MoreDerived>().CreateProxy();
+                    e.Root = context.Set<Root>().CreateProxy();
+                    e.DerivedRoot = context.Set<Root>().CreateProxy();
+                });
+
+                e.RequiredChildrenAk = new ObservableHashSet<RequiredAk1>(ReferenceEqualityComparer.Instance)
+                {
+                    context.Set<RequiredAk1>().CreateProxy(e =>
+                    {
+                        e.AlternateId = Guid.NewGuid();
+
+                        e.Children = new ObservableHashSet<RequiredAk2>(ReferenceEqualityComparer.Instance)
+                        {
+                            context.Set<RequiredAk2>().CreateProxy(e => e.AlternateId = Guid.NewGuid()),
+                            context.Set<RequiredAk2>().CreateProxy(e => e.AlternateId = Guid.NewGuid())
+                        };
+
+                        e.CompositeChildren =
+                            new ObservableHashSet<RequiredComposite2>(ReferenceEqualityComparer.Instance)
+                            {
+                                context.Set<RequiredComposite2>().CreateProxy(), context.Set<RequiredComposite2>().CreateProxy()
+                            };
+                    }),
+                    context.Set<RequiredAk1>().CreateProxy(e =>
+                    {
+                        e.AlternateId = Guid.NewGuid();
+
+                        e.Children = new ObservableHashSet<RequiredAk2>(ReferenceEqualityComparer.Instance)
+                        {
+                            context.Set<RequiredAk2>().CreateProxy(e => e.AlternateId = Guid.NewGuid()),
+                            context.Set<RequiredAk2>().CreateProxy(e => e.AlternateId = Guid.NewGuid())
+                        };
+
+                        e.CompositeChildren =
+                            new ObservableHashSet<RequiredComposite2>(ReferenceEqualityComparer.Instance)
+                            {
+                                context.Set<RequiredComposite2>().CreateProxy(), context.Set<RequiredComposite2>().CreateProxy()
+                            };
+                    })
+                };
+
+                e.OptionalChildrenAk = new ObservableHashSet<OptionalAk1>(ReferenceEqualityComparer.Instance)
+                {
+                    context.Set<OptionalAk1>().CreateProxy(e =>
+                    {
+                        e.AlternateId = Guid.NewGuid();
+
+                        e.Children = new ObservableHashSet<OptionalAk2>(ReferenceEqualityComparer.Instance)
+                        {
+                            context.Set<OptionalAk2>().CreateProxy(e => e.AlternateId = Guid.NewGuid()),
+                            context.Set<OptionalAk2>().CreateProxy(e => e.AlternateId = Guid.NewGuid())
+                        };
+                        e.CompositeChildren =
+                            new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance)
+                            {
+                                context.Set<OptionalComposite2>().CreateProxy(), context.Set<OptionalComposite2>().CreateProxy()
+                            };
+                    }),
+                    context.Set<OptionalAk1>().CreateProxy(e =>
+                    {
+                        e.AlternateId = Guid.NewGuid();
+
+                        e.Children = new ObservableHashSet<OptionalAk2>(ReferenceEqualityComparer.Instance)
+                        {
+                            context.Set<OptionalAk2>().CreateProxy(e => e.AlternateId = Guid.NewGuid()),
+                            context.Set<OptionalAk2>().CreateProxy(e => e.AlternateId = Guid.NewGuid())
+                        };
+
+                        e.CompositeChildren =
+                            new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance)
+                            {
+                                context.Set<OptionalComposite2>().CreateProxy(), context.Set<OptionalComposite2>().CreateProxy()
+                            };
+                    })
+                };
+
+                e.RequiredSingleAk = context.CreateProxy<RequiredSingleAk1>(e =>
+                {
+                    e.AlternateId = Guid.NewGuid();
+                    e.Single = context.CreateProxy<RequiredSingleAk2>(e => e.AlternateId = Guid.NewGuid());
+                    e.SingleComposite = context.CreateProxy<RequiredSingleComposite2>();
+                });
+
+                e.OptionalSingleAk = context.CreateProxy<OptionalSingleAk1>(e =>
+                {
+                    e.AlternateId = Guid.NewGuid();
+                    e.Single = context.CreateProxy<OptionalSingleAk2>(e => e.AlternateId = Guid.NewGuid());
+                    e.SingleComposite = context.CreateProxy<OptionalSingleComposite2>();
+                });
+
+                e.OptionalSingleAkDerived = context.CreateProxy<OptionalSingleAk1Derived>(e =>
+                {
+                    e.AlternateId = Guid.NewGuid();
+                    e.Single = context.CreateProxy<OptionalSingleAk2Derived>(e => e.AlternateId = Guid.NewGuid());
+                });
+
+                e.OptionalSingleAkMoreDerived = context.CreateProxy<OptionalSingleAk1MoreDerived>(e =>
+                {
+                    e.AlternateId = Guid.NewGuid();
+                    e.Single = context.CreateProxy<OptionalSingleAk2MoreDerived>(e => e.AlternateId = Guid.NewGuid());
+                });
+
+                e.RequiredNonPkSingleAk = context.CreateProxy<RequiredNonPkSingleAk1>(e =>
+                {
+                    e.AlternateId = Guid.NewGuid();
+                    e.Single = context.CreateProxy<RequiredNonPkSingleAk2>(e => e.AlternateId = Guid.NewGuid());
+                });
+
+                e.RequiredNonPkSingleAkDerived = context.CreateProxy<RequiredNonPkSingleAk1Derived>(e =>
+                {
+                    e.AlternateId = Guid.NewGuid();
+                    e.Single = context.CreateProxy<RequiredNonPkSingleAk2Derived>(e => e.AlternateId = Guid.NewGuid());
+                    e.Root = context.CreateProxy<Root>();
+                });
+
+                e.RequiredNonPkSingleAkMoreDerived = context.CreateProxy<RequiredNonPkSingleAk1MoreDerived>(e =>
+                {
+                    e.AlternateId = Guid.NewGuid();
+                    e.Single = context.CreateProxy<RequiredNonPkSingleAk2MoreDerived>(e => e.AlternateId = Guid.NewGuid());
+                    e.Root = context.CreateProxy<Root>();
+                    e.DerivedRoot = context.CreateProxy<Root>();
+                });
+
+                e.RequiredCompositeChildren = new ObservableHashSet<RequiredComposite1>(ReferenceEqualityComparer.Instance)
+                {
+                    context.Set<RequiredComposite1>().CreateProxy(e =>
+                    {
+                        e.Id = 1;
+
+                        e.CompositeChildren =
+                            new ObservableHashSet<OptionalOverlapping2>(ReferenceEqualityComparer.Instance)
+                            {
+                                context.CreateProxy<OptionalOverlapping2>(e => e.Id = 1),
+                                context.CreateProxy<OptionalOverlapping2>(e => e.Id = 2)
+                            };
+                    }),
+                    context.Set<RequiredComposite1>().CreateProxy(e =>
+                    {
+                        e.Id = 2;
+
+                        e.CompositeChildren =
+                            new ObservableHashSet<OptionalOverlapping2>(ReferenceEqualityComparer.Instance)
+                            {
+                                context.CreateProxy<OptionalOverlapping2>(e => e.Id = 3),
+                                context.CreateProxy<OptionalOverlapping2>(e => e.Id = 4)
+                            };
+                    })
+                };
+            });
 
         protected override Task SeedAsync(DbContext context)
         {

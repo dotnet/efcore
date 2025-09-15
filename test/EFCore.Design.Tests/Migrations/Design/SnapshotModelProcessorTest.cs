@@ -166,14 +166,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var model = builder.Model;
             ((Model)model).SetProductVersion("2.1.0");
 
-            builder.Entity<Blog>(
-                b =>
-                {
-                    b.Property(e => e.Id);
-                    b.HasKey(e => e.Id);
+            builder.Entity<Blog>(b =>
+            {
+                b.Property(e => e.Id);
+                b.HasKey(e => e.Id);
 
-                    b.OwnsOne(e => e.Details).WithOwner().HasForeignKey(e => e.BlogId);
-                });
+                b.OwnsOne(e => e.Details).WithOwner().HasForeignKey(e => e.BlogId);
+            });
 
             var reporter = new TestOperationReporter();
             new SnapshotModelProcessor(reporter, DummyModelRuntimeInitializer.Instance).Process(model);
@@ -186,21 +185,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     .Name);
         }
 
-        [ConditionalTheory]
-        [InlineData(typeof(OwnershipModelSnapshot2_0))]
-        [InlineData(typeof(OwnershipModelSnapshot2_1))]
-        [InlineData(typeof(OwnershipModelSnapshot2_2))]
-        [InlineData(typeof(OwnershipModelSnapshot3_0))]
+        [ConditionalTheory, InlineData(typeof(OwnershipModelSnapshot2_0)), InlineData(typeof(OwnershipModelSnapshot2_1)),
+         InlineData(typeof(OwnershipModelSnapshot2_2)), InlineData(typeof(OwnershipModelSnapshot3_0))]
         public void Can_diff_against_older_ownership_model(Type snapshotType)
         {
             using var context = new OwnershipContext();
             AssertSameSnapshot(snapshotType, context);
         }
 
-        [ConditionalTheory]
-        [InlineData(typeof(SequenceModelSnapshot1_1))]
-        [InlineData(typeof(SequenceModelSnapshot2_2))]
-        [InlineData(typeof(SequenceModelSnapshot3_1))]
+        [ConditionalTheory, InlineData(typeof(SequenceModelSnapshot1_1)), InlineData(typeof(SequenceModelSnapshot2_2)),
+         InlineData(typeof(SequenceModelSnapshot3_1))]
         public void Can_diff_against_older_sequence_model(Type snapshotType)
         {
             using var context = new SequenceContext();
@@ -273,7 +267,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             property.SetValueGenerationStrategy(null);
                         }
                     }
-                    else if (property.GetValueGenerationStrategy() is SqlServerValueGenerationStrategy strategy
+                    else if (property.GetValueGenerationStrategy() is var strategy
                              && strategy != SqlServerValueGenerationStrategy.None)
                     {
                         property.SetValueGenerationStrategy(strategy);
@@ -287,12 +281,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         private void AddAnnotations(IMutableAnnotatable element)
         {
             foreach (var annotationName in GetAnnotationNames()
-                         .Where(
-                             a => a != RelationalAnnotationNames.MaxIdentifierLength
+                         .Where(a => a != RelationalAnnotationNames.MaxIdentifierLength
 #pragma warning disable CS0618 // Type or member is obsolete
-                                 && a != RelationalAnnotationNames.SequencePrefix
+                             && a != RelationalAnnotationNames.SequencePrefix
 #pragma warning restore CS0618 // Type or member is obsolete
-                                 && a.IndexOf(':') > 0)
+                             && a.IndexOf(':') > 0)
                          .Select(a => "Unicorn" + a.Substring(RelationalAnnotationNames.Prefix.Length - 1)))
             {
                 element[annotationName] = "Value";
@@ -302,28 +295,27 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         private void AssertAnnotations(IMutableAnnotatable element)
         {
             foreach (var annotationName in GetAnnotationNames()
-                         .Where(
-                             a => a != RelationalAnnotationNames.MaxIdentifierLength
-                                 && a != RelationalAnnotationNames.RelationalModel
-                                 && a != RelationalAnnotationNames.DefaultMappings
-                                 && a != RelationalAnnotationNames.DefaultColumnMappings
-                                 && a != RelationalAnnotationNames.TableMappings
-                                 && a != RelationalAnnotationNames.TableColumnMappings
-                                 && a != RelationalAnnotationNames.ViewMappings
-                                 && a != RelationalAnnotationNames.ViewColumnMappings
-                                 && a != RelationalAnnotationNames.SqlQueryMappings
-                                 && a != RelationalAnnotationNames.SqlQueryColumnMappings
-                                 && a != RelationalAnnotationNames.FunctionMappings
-                                 && a != RelationalAnnotationNames.FunctionColumnMappings
-                                 && a != RelationalAnnotationNames.ForeignKeyMappings
-                                 && a != RelationalAnnotationNames.TableIndexMappings
-                                 && a != RelationalAnnotationNames.UniqueConstraintMappings
-                                 && a != RelationalAnnotationNames.RelationalOverrides
-                                 && a != RelationalAnnotationNames.MappingFragments
+                         .Where(a => a != RelationalAnnotationNames.MaxIdentifierLength
+                             && a != RelationalAnnotationNames.RelationalModel
+                             && a != RelationalAnnotationNames.DefaultMappings
+                             && a != RelationalAnnotationNames.DefaultColumnMappings
+                             && a != RelationalAnnotationNames.TableMappings
+                             && a != RelationalAnnotationNames.TableColumnMappings
+                             && a != RelationalAnnotationNames.ViewMappings
+                             && a != RelationalAnnotationNames.ViewColumnMappings
+                             && a != RelationalAnnotationNames.SqlQueryMappings
+                             && a != RelationalAnnotationNames.SqlQueryColumnMappings
+                             && a != RelationalAnnotationNames.FunctionMappings
+                             && a != RelationalAnnotationNames.FunctionColumnMappings
+                             && a != RelationalAnnotationNames.ForeignKeyMappings
+                             && a != RelationalAnnotationNames.TableIndexMappings
+                             && a != RelationalAnnotationNames.UniqueConstraintMappings
+                             && a != RelationalAnnotationNames.RelationalOverrides
+                             && a != RelationalAnnotationNames.MappingFragments
 #pragma warning disable CS0618 // Type or member is obsolete
-                                 && a != RelationalAnnotationNames.SequencePrefix
+                             && a != RelationalAnnotationNames.SequencePrefix
 #pragma warning restore CS0618 // Type or member is obsolete
-                                 && a.IndexOf(':') > 0))
+                             && a.IndexOf(':') > 0))
             {
                 Assert.Equal("Value", (string)element[annotationName]);
             }

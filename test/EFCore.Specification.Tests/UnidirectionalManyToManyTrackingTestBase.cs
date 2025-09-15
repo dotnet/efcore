@@ -10,9 +10,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public abstract partial class ManyToManyTrackingTestBase<TFixture>
 {
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task Can_insert_many_to_many_composite_with_navs_unidirectional(bool async)
     {
         List<int> leftKeys = null;
@@ -22,27 +20,24 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
             {
                 var leftEntities = new[]
                 {
-                    context.UnidirectionalEntityCompositeKeys.CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Key1 = Fixture.UseGeneratedKeys ? 0 : 7711;
-                            e.Key2 = "7711";
-                            e.Key3 = new DateTime(7711, 1, 1);
-                        }),
-                    context.UnidirectionalEntityCompositeKeys.CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Key1 = Fixture.UseGeneratedKeys ? 0 : 7712;
-                            e.Key2 = "7712";
-                            e.Key3 = new DateTime(7712, 1, 1);
-                        }),
-                    context.UnidirectionalEntityCompositeKeys.CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Key1 = Fixture.UseGeneratedKeys ? 0 : 7713;
-                            e.Key2 = "7713";
-                            e.Key3 = new DateTime(7713, 1, 1);
-                        }),
+                    context.UnidirectionalEntityCompositeKeys.CreateInstance((e, p) =>
+                    {
+                        e.Key1 = Fixture.UseGeneratedKeys ? 0 : 7711;
+                        e.Key2 = "7711";
+                        e.Key3 = new DateTime(7711, 1, 1);
+                    }),
+                    context.UnidirectionalEntityCompositeKeys.CreateInstance((e, p) =>
+                    {
+                        e.Key1 = Fixture.UseGeneratedKeys ? 0 : 7712;
+                        e.Key2 = "7712";
+                        e.Key3 = new DateTime(7712, 1, 1);
+                    }),
+                    context.UnidirectionalEntityCompositeKeys.CreateInstance((e, p) =>
+                    {
+                        e.Key1 = Fixture.UseGeneratedKeys ? 0 : 7713;
+                        e.Key2 = "7713";
+                        e.Key3 = new DateTime(7713, 1, 1);
+                    }),
                 };
                 var rightEntities = new[]
                 {
@@ -148,45 +143,41 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
                     .ToListAsync();
 
                 rightEntities[0].CompositeKeySkipFull.Add(
-                    context.UnidirectionalEntityCompositeKeys.CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Key1 = Fixture.UseGeneratedKeys ? 0 : 7711;
-                            e.Key2 = "7711";
-                            e.Key3 = new DateTime(7711, 1, 1);
-                            e.Name = "Z7711";
-                        }));
+                    context.UnidirectionalEntityCompositeKeys.CreateInstance((e, p) =>
+                    {
+                        e.Key1 = Fixture.UseGeneratedKeys ? 0 : 7711;
+                        e.Key2 = "7711";
+                        e.Key3 = new DateTime(7711, 1, 1);
+                        e.Name = "Z7711";
+                    }));
                 rightEntities[0].CompositeKeySkipFull.Add(
-                    context.UnidirectionalEntityCompositeKeys.CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Key1 = Fixture.UseGeneratedKeys ? 0 : 7712;
-                            e.Key2 = "7712";
-                            e.Key3 = new DateTime(7712, 1, 1);
-                            e.Name = "Z7712";
-                        }));
+                    context.UnidirectionalEntityCompositeKeys.CreateInstance((e, p) =>
+                    {
+                        e.Key1 = Fixture.UseGeneratedKeys ? 0 : 7712;
+                        e.Key2 = "7712";
+                        e.Key3 = new DateTime(7712, 1, 1);
+                        e.Name = "Z7712";
+                    }));
                 rightEntities[0].CompositeKeySkipFull.Add(
-                    context.UnidirectionalEntityCompositeKeys.CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Key1 = Fixture.UseGeneratedKeys ? 0 : 7713;
-                            e.Key2 = "7713";
-                            e.Key3 = new DateTime(7713, 1, 1);
-                            e.Name = "Z7713";
-                        }));
+                    context.UnidirectionalEntityCompositeKeys.CreateInstance((e, p) =>
+                    {
+                        e.Key1 = Fixture.UseGeneratedKeys ? 0 : 7713;
+                        e.Key2 = "7713";
+                        e.Key3 = new DateTime(7713, 1, 1);
+                        e.Name = "Z7713";
+                    }));
 
                 rightEntities[1].CompositeKeySkipFull.Remove(rightEntities[1].CompositeKeySkipFull.Single(e => e.Key2 == "3_1"));
 
                 rightEntities[2].CompositeKeySkipFull.Remove(rightEntities[2].CompositeKeySkipFull.Single(e => e.Key2 == "8_3"));
                 rightEntities[2].CompositeKeySkipFull.Add(
-                    context.UnidirectionalEntityCompositeKeys.CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Key1 = Fixture.UseGeneratedKeys ? 0 : 7714;
-                            e.Key2 = "7714";
-                            e.Key3 = new DateTime(7714, 1, 1);
-                            e.Name = "Z7714";
-                        }));
+                    context.UnidirectionalEntityCompositeKeys.CreateInstance((e, p) =>
+                    {
+                        e.Key1 = Fixture.UseGeneratedKeys ? 0 : 7714;
+                        e.Key2 = "7714";
+                        e.Key3 = new DateTime(7714, 1, 1);
+                        e.Name = "Z7714";
+                    }));
 
                 if (RequiresDetectChanges)
                 {
@@ -433,9 +424,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task Can_insert_many_to_many_composite_additional_pk_with_navs_unidirectional(bool async)
     {
         List<string> keys = null;
@@ -445,48 +434,42 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
             {
                 var leftEntities = new[]
                 {
-                    context.UnidirectionalEntityCompositeKeys.CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Key1 = Fixture.UseGeneratedKeys ? 0 : 7711;
-                            e.Key2 = "7711";
-                            e.Key3 = new DateTime(7711, 1, 1);
-                        }),
-                    context.UnidirectionalEntityCompositeKeys.CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Key1 = Fixture.UseGeneratedKeys ? 0 : 7712;
-                            e.Key2 = "7712";
-                            e.Key3 = new DateTime(7712, 1, 1);
-                        }),
-                    context.UnidirectionalEntityCompositeKeys.CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Key1 = Fixture.UseGeneratedKeys ? 0 : 7713;
-                            e.Key2 = "7713";
-                            e.Key3 = new DateTime(7713, 1, 1);
-                        }),
+                    context.UnidirectionalEntityCompositeKeys.CreateInstance((e, p) =>
+                    {
+                        e.Key1 = Fixture.UseGeneratedKeys ? 0 : 7711;
+                        e.Key2 = "7711";
+                        e.Key3 = new DateTime(7711, 1, 1);
+                    }),
+                    context.UnidirectionalEntityCompositeKeys.CreateInstance((e, p) =>
+                    {
+                        e.Key1 = Fixture.UseGeneratedKeys ? 0 : 7712;
+                        e.Key2 = "7712";
+                        e.Key3 = new DateTime(7712, 1, 1);
+                    }),
+                    context.UnidirectionalEntityCompositeKeys.CreateInstance((e, p) =>
+                    {
+                        e.Key1 = Fixture.UseGeneratedKeys ? 0 : 7713;
+                        e.Key2 = "7713";
+                        e.Key3 = new DateTime(7713, 1, 1);
+                    }),
                 };
                 var rightEntities = new[]
                 {
-                    context.Set<UnidirectionalEntityThree>().CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Id = Fixture.UseGeneratedKeys ? 0 : 7721;
-                            e.Name = "Z7721";
-                        }),
-                    context.Set<UnidirectionalEntityThree>().CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Id = Fixture.UseGeneratedKeys ? 0 : 7722;
-                            e.Name = "Z7722";
-                        }),
-                    context.Set<UnidirectionalEntityThree>().CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Id = Fixture.UseGeneratedKeys ? 0 : 7723;
-                            e.Name = "Z7723";
-                        })
+                    context.Set<UnidirectionalEntityThree>().CreateInstance((e, p) =>
+                    {
+                        e.Id = Fixture.UseGeneratedKeys ? 0 : 7721;
+                        e.Name = "Z7721";
+                    }),
+                    context.Set<UnidirectionalEntityThree>().CreateInstance((e, p) =>
+                    {
+                        e.Id = Fixture.UseGeneratedKeys ? 0 : 7722;
+                        e.Name = "Z7722";
+                    }),
+                    context.Set<UnidirectionalEntityThree>().CreateInstance((e, p) =>
+                    {
+                        e.Id = Fixture.UseGeneratedKeys ? 0 : 7723;
+                        e.Name = "Z7723";
+                    })
                 };
 
                 leftEntities[0].ThreeSkipFull = CreateCollection<UnidirectionalEntityThree>();
@@ -600,62 +583,54 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
 
                 var threes = new[]
                 {
-                    context.Set<UnidirectionalEntityThree>().CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Id = Fixture.UseGeneratedKeys ? 0 : 7721;
-                            e.Name = "Z7721";
-                        }),
-                    context.Set<UnidirectionalEntityThree>().CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Id = Fixture.UseGeneratedKeys ? 0 : 7722;
-                            e.Name = "Z7722";
-                        }),
-                    context.Set<UnidirectionalEntityThree>().CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Id = Fixture.UseGeneratedKeys ? 0 : 7723;
-                            e.Name = "Z7723";
-                        }),
-                    context.Set<UnidirectionalEntityThree>().CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Id = Fixture.UseGeneratedKeys ? 0 : 7724;
-                            e.Name = "Z7724";
-                        })
+                    context.Set<UnidirectionalEntityThree>().CreateInstance((e, p) =>
+                    {
+                        e.Id = Fixture.UseGeneratedKeys ? 0 : 7721;
+                        e.Name = "Z7721";
+                    }),
+                    context.Set<UnidirectionalEntityThree>().CreateInstance((e, p) =>
+                    {
+                        e.Id = Fixture.UseGeneratedKeys ? 0 : 7722;
+                        e.Name = "Z7722";
+                    }),
+                    context.Set<UnidirectionalEntityThree>().CreateInstance((e, p) =>
+                    {
+                        e.Id = Fixture.UseGeneratedKeys ? 0 : 7723;
+                        e.Name = "Z7723";
+                    }),
+                    context.Set<UnidirectionalEntityThree>().CreateInstance((e, p) =>
+                    {
+                        e.Id = Fixture.UseGeneratedKeys ? 0 : 7724;
+                        e.Name = "Z7724";
+                    })
                 };
 
                 var composites = new[]
                 {
-                    context.UnidirectionalEntityCompositeKeys.CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Key1 = Fixture.UseGeneratedKeys ? 0 : 7711;
-                            e.Key2 = "Z7711";
-                            e.Key3 = new DateTime(7711, 1, 1);
-                        }),
-                    context.UnidirectionalEntityCompositeKeys.CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Key1 = Fixture.UseGeneratedKeys ? 0 : 7712;
-                            e.Key2 = "Z7712";
-                            e.Key3 = new DateTime(7712, 1, 1);
-                        }),
-                    context.UnidirectionalEntityCompositeKeys.CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Key1 = Fixture.UseGeneratedKeys ? 0 : 7713;
-                            e.Key2 = "Z7713";
-                            e.Key3 = new DateTime(7713, 1, 1);
-                        }),
-                    context.UnidirectionalEntityCompositeKeys.CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Key1 = Fixture.UseGeneratedKeys ? 0 : 7714;
-                            e.Key2 = "Z7714";
-                            e.Key3 = new DateTime(7714, 1, 1);
-                        })
+                    context.UnidirectionalEntityCompositeKeys.CreateInstance((e, p) =>
+                    {
+                        e.Key1 = Fixture.UseGeneratedKeys ? 0 : 7711;
+                        e.Key2 = "Z7711";
+                        e.Key3 = new DateTime(7711, 1, 1);
+                    }),
+                    context.UnidirectionalEntityCompositeKeys.CreateInstance((e, p) =>
+                    {
+                        e.Key1 = Fixture.UseGeneratedKeys ? 0 : 7712;
+                        e.Key2 = "Z7712";
+                        e.Key3 = new DateTime(7712, 1, 1);
+                    }),
+                    context.UnidirectionalEntityCompositeKeys.CreateInstance((e, p) =>
+                    {
+                        e.Key1 = Fixture.UseGeneratedKeys ? 0 : 7713;
+                        e.Key2 = "Z7713";
+                        e.Key3 = new DateTime(7713, 1, 1);
+                    }),
+                    context.UnidirectionalEntityCompositeKeys.CreateInstance((e, p) =>
+                    {
+                        e.Key1 = Fixture.UseGeneratedKeys ? 0 : 7714;
+                        e.Key2 = "Z7714";
+                        e.Key3 = new DateTime(7714, 1, 1);
+                    })
                 };
 
                 leftEntities[0].ThreeSkipFull.Add(threes[0]);
@@ -949,9 +924,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task Can_insert_many_to_many_self_shared_unidirectional(bool async)
     {
         List<int> leftKeys = null;
@@ -1073,54 +1046,46 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
 
                 var twos = new[]
                 {
-                    context.UnidirectionalEntityTwos.CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Id = Fixture.UseGeneratedKeys ? 0 : 7721;
-                            e.Name = "Z7721";
-                        }),
-                    context.UnidirectionalEntityTwos.CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Id = Fixture.UseGeneratedKeys ? 0 : 7722;
-                            e.Name = "Z7722";
-                        }),
-                    context.UnidirectionalEntityTwos.CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Id = Fixture.UseGeneratedKeys ? 0 : 7723;
-                            e.Name = "Z7723";
-                        }),
-                    context.UnidirectionalEntityTwos.CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Id = Fixture.UseGeneratedKeys ? 0 : 7724;
-                            e.Name = "Z7724";
-                        }),
-                    context.UnidirectionalEntityTwos.CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Id = Fixture.UseGeneratedKeys ? 0 : 7711;
-                            e.Name = "Z7711";
-                        }),
-                    context.UnidirectionalEntityTwos.CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Id = Fixture.UseGeneratedKeys ? 0 : 7712;
-                            e.Name = "Z7712";
-                        }),
-                    context.UnidirectionalEntityTwos.CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Id = Fixture.UseGeneratedKeys ? 0 : 7713;
-                            e.Name = "Z7713";
-                        }),
-                    context.UnidirectionalEntityTwos.CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Id = Fixture.UseGeneratedKeys ? 0 : 7714;
-                            e.Name = "Z7714";
-                        })
+                    context.UnidirectionalEntityTwos.CreateInstance((e, p) =>
+                    {
+                        e.Id = Fixture.UseGeneratedKeys ? 0 : 7721;
+                        e.Name = "Z7721";
+                    }),
+                    context.UnidirectionalEntityTwos.CreateInstance((e, p) =>
+                    {
+                        e.Id = Fixture.UseGeneratedKeys ? 0 : 7722;
+                        e.Name = "Z7722";
+                    }),
+                    context.UnidirectionalEntityTwos.CreateInstance((e, p) =>
+                    {
+                        e.Id = Fixture.UseGeneratedKeys ? 0 : 7723;
+                        e.Name = "Z7723";
+                    }),
+                    context.UnidirectionalEntityTwos.CreateInstance((e, p) =>
+                    {
+                        e.Id = Fixture.UseGeneratedKeys ? 0 : 7724;
+                        e.Name = "Z7724";
+                    }),
+                    context.UnidirectionalEntityTwos.CreateInstance((e, p) =>
+                    {
+                        e.Id = Fixture.UseGeneratedKeys ? 0 : 7711;
+                        e.Name = "Z7711";
+                    }),
+                    context.UnidirectionalEntityTwos.CreateInstance((e, p) =>
+                    {
+                        e.Id = Fixture.UseGeneratedKeys ? 0 : 7712;
+                        e.Name = "Z7712";
+                    }),
+                    context.UnidirectionalEntityTwos.CreateInstance((e, p) =>
+                    {
+                        e.Id = Fixture.UseGeneratedKeys ? 0 : 7713;
+                        e.Name = "Z7713";
+                    }),
+                    context.UnidirectionalEntityTwos.CreateInstance((e, p) =>
+                    {
+                        e.Id = Fixture.UseGeneratedKeys ? 0 : 7714;
+                        e.Name = "Z7714";
+                    })
                 };
 
                 leftEntities[0].SelfSkipSharedRight.Add(twos[0]);
@@ -1233,9 +1198,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task Can_insert_many_to_many_with_inheritance_unidirectional(bool async)
     {
         List<int> keys = null;
@@ -1338,51 +1301,45 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
                     .ToListAsync();
 
                 leftEntities[0].BranchSkip.Add(
-                    context.Set<UnidirectionalEntityBranch>().CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Id = Fixture.UseGeneratedKeys ? 0 : 7721;
-                            e.Name = "Z7721";
-                        }));
+                    context.Set<UnidirectionalEntityBranch>().CreateInstance((e, p) =>
+                    {
+                        e.Id = Fixture.UseGeneratedKeys ? 0 : 7721;
+                        e.Name = "Z7721";
+                    }));
                 leftEntities[0].BranchSkip.Add(
-                    context.Set<UnidirectionalEntityBranch>().CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Id = Fixture.UseGeneratedKeys ? 0 : 7722;
-                            e.Name = "Z7722";
-                        }));
+                    context.Set<UnidirectionalEntityBranch>().CreateInstance((e, p) =>
+                    {
+                        e.Id = Fixture.UseGeneratedKeys ? 0 : 7722;
+                        e.Name = "Z7722";
+                    }));
                 leftEntities[0].BranchSkip.Add(
-                    context.Set<UnidirectionalEntityBranch>().CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Id = Fixture.UseGeneratedKeys ? 0 : 7723;
-                            e.Name = "Z7723";
-                        }));
+                    context.Set<UnidirectionalEntityBranch>().CreateInstance((e, p) =>
+                    {
+                        e.Id = Fixture.UseGeneratedKeys ? 0 : 7723;
+                        e.Name = "Z7723";
+                    }));
 
                 var rightNav0 = (ICollection<UnidirectionalEntityOne>)context.Entry(rightEntities[0])
                     .Collection("UnidirectionalEntityOne").CurrentValue!;
 
                 rightNav0.Add(
-                    context.UnidirectionalEntityOnes.CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Id = Fixture.UseGeneratedKeys ? 0 : 7711;
-                            e.Name = "Z7711";
-                        }));
+                    context.UnidirectionalEntityOnes.CreateInstance((e, p) =>
+                    {
+                        e.Id = Fixture.UseGeneratedKeys ? 0 : 7711;
+                        e.Name = "Z7711";
+                    }));
                 rightNav0.Add(
-                    context.UnidirectionalEntityOnes.CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Id = Fixture.UseGeneratedKeys ? 0 : 7712;
-                            e.Name = "Z7712";
-                        }));
+                    context.UnidirectionalEntityOnes.CreateInstance((e, p) =>
+                    {
+                        e.Id = Fixture.UseGeneratedKeys ? 0 : 7712;
+                        e.Name = "Z7712";
+                    }));
                 rightNav0.Add(
-                    context.UnidirectionalEntityOnes.CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Id = Fixture.UseGeneratedKeys ? 0 : 7713;
-                            e.Name = "Z7713";
-                        }));
+                    context.UnidirectionalEntityOnes.CreateInstance((e, p) =>
+                    {
+                        e.Id = Fixture.UseGeneratedKeys ? 0 : 7713;
+                        e.Name = "Z7713";
+                    }));
 
                 leftEntities[1].BranchSkip.Remove(leftEntities[1].BranchSkip.Single(e => e.Name == "Branch 4"));
                 var rightNav1 = (ICollection<UnidirectionalEntityOne>)context.Entry(rightEntities[1])
@@ -1391,23 +1348,21 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
 
                 leftEntities[4].BranchSkip.Remove(leftEntities[4].BranchSkip.Single(e => e.Name == "Branch 5"));
                 leftEntities[2].BranchSkip.Add(
-                    context.Set<UnidirectionalEntityBranch>().CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Id = Fixture.UseGeneratedKeys ? 0 : 7724;
-                            e.Name = "Z7724";
-                        }));
+                    context.Set<UnidirectionalEntityBranch>().CreateInstance((e, p) =>
+                    {
+                        e.Id = Fixture.UseGeneratedKeys ? 0 : 7724;
+                        e.Name = "Z7724";
+                    }));
 
                 var rightNav2 = (ICollection<UnidirectionalEntityOne>)context.Entry(rightEntities[2])
                     .Collection("UnidirectionalEntityOne").CurrentValue!;
                 rightNav2.Remove(rightNav2.Single(e => e.Name == "EntityOne 8"));
                 rightNav2.Add(
-                    context.UnidirectionalEntityOnes.CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Id = Fixture.UseGeneratedKeys ? 0 : 7714;
-                            e.Name = "Z7714";
-                        }));
+                    context.UnidirectionalEntityOnes.CreateInstance((e, p) =>
+                    {
+                        e.Id = Fixture.UseGeneratedKeys ? 0 : 7714;
+                        e.Name = "Z7714";
+                    }));
 
                 if (RequiresDetectChanges)
                 {
@@ -1490,9 +1445,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task Can_insert_many_to_many_self_with_payload_unidirectional(bool async)
     {
         List<int> leftKeys = null;
@@ -1637,54 +1590,46 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
 
                 var ones = new[]
                 {
-                    context.UnidirectionalEntityOnes.CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Id = Fixture.UseGeneratedKeys ? 0 : 7721;
-                            e.Name = "Z7721";
-                        }),
-                    context.UnidirectionalEntityOnes.CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Id = Fixture.UseGeneratedKeys ? 0 : 7722;
-                            e.Name = "Z7722";
-                        }),
-                    context.UnidirectionalEntityOnes.CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Id = Fixture.UseGeneratedKeys ? 0 : 7723;
-                            e.Name = "Z7723";
-                        }),
-                    context.UnidirectionalEntityOnes.CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Id = Fixture.UseGeneratedKeys ? 0 : 7724;
-                            e.Name = "Z7724";
-                        }),
-                    context.UnidirectionalEntityOnes.CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Id = Fixture.UseGeneratedKeys ? 0 : 7711;
-                            e.Name = "Z7711";
-                        }),
-                    context.UnidirectionalEntityOnes.CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Id = Fixture.UseGeneratedKeys ? 0 : 7712;
-                            e.Name = "Z7712";
-                        }),
-                    context.UnidirectionalEntityOnes.CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Id = Fixture.UseGeneratedKeys ? 0 : 7713;
-                            e.Name = "Z7713";
-                        }),
-                    context.UnidirectionalEntityOnes.CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Id = Fixture.UseGeneratedKeys ? 0 : 7714;
-                            e.Name = "Z7714";
-                        })
+                    context.UnidirectionalEntityOnes.CreateInstance((e, p) =>
+                    {
+                        e.Id = Fixture.UseGeneratedKeys ? 0 : 7721;
+                        e.Name = "Z7721";
+                    }),
+                    context.UnidirectionalEntityOnes.CreateInstance((e, p) =>
+                    {
+                        e.Id = Fixture.UseGeneratedKeys ? 0 : 7722;
+                        e.Name = "Z7722";
+                    }),
+                    context.UnidirectionalEntityOnes.CreateInstance((e, p) =>
+                    {
+                        e.Id = Fixture.UseGeneratedKeys ? 0 : 7723;
+                        e.Name = "Z7723";
+                    }),
+                    context.UnidirectionalEntityOnes.CreateInstance((e, p) =>
+                    {
+                        e.Id = Fixture.UseGeneratedKeys ? 0 : 7724;
+                        e.Name = "Z7724";
+                    }),
+                    context.UnidirectionalEntityOnes.CreateInstance((e, p) =>
+                    {
+                        e.Id = Fixture.UseGeneratedKeys ? 0 : 7711;
+                        e.Name = "Z7711";
+                    }),
+                    context.UnidirectionalEntityOnes.CreateInstance((e, p) =>
+                    {
+                        e.Id = Fixture.UseGeneratedKeys ? 0 : 7712;
+                        e.Name = "Z7712";
+                    }),
+                    context.UnidirectionalEntityOnes.CreateInstance((e, p) =>
+                    {
+                        e.Id = Fixture.UseGeneratedKeys ? 0 : 7713;
+                        e.Name = "Z7713";
+                    }),
+                    context.UnidirectionalEntityOnes.CreateInstance((e, p) =>
+                    {
+                        e.Id = Fixture.UseGeneratedKeys ? 0 : 7714;
+                        e.Name = "Z7714";
+                    })
                 };
 
                 var leftNav0 = (ICollection<UnidirectionalEntityOne>)context.Entry(leftEntities[0])
@@ -1837,9 +1782,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task Can_insert_many_to_many_shared_with_payload_unidirectional(bool async)
     {
         List<int> keys = null;
@@ -1960,51 +1903,45 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
                     .ToListAsync();
 
                 leftEntities[0].ThreeSkipPayloadFullShared.Add(
-                    context.UnidirectionalEntityThrees.CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Id = Fixture.UseGeneratedKeys ? 0 : 7721;
-                            e.Name = "Z7721";
-                        }));
+                    context.UnidirectionalEntityThrees.CreateInstance((e, p) =>
+                    {
+                        e.Id = Fixture.UseGeneratedKeys ? 0 : 7721;
+                        e.Name = "Z7721";
+                    }));
                 leftEntities[0].ThreeSkipPayloadFullShared.Add(
-                    context.UnidirectionalEntityThrees.CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Id = Fixture.UseGeneratedKeys ? 0 : 7722;
-                            e.Name = "Z7722";
-                        }));
+                    context.UnidirectionalEntityThrees.CreateInstance((e, p) =>
+                    {
+                        e.Id = Fixture.UseGeneratedKeys ? 0 : 7722;
+                        e.Name = "Z7722";
+                    }));
                 leftEntities[0].ThreeSkipPayloadFullShared.Add(
-                    context.UnidirectionalEntityThrees.CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Id = Fixture.UseGeneratedKeys ? 0 : 7723;
-                            e.Name = "Z7723";
-                        }));
+                    context.UnidirectionalEntityThrees.CreateInstance((e, p) =>
+                    {
+                        e.Id = Fixture.UseGeneratedKeys ? 0 : 7723;
+                        e.Name = "Z7723";
+                    }));
 
                 var rightNav0 = (ICollection<UnidirectionalEntityOne>)context.Entry(rightEntities[0])
                     .Collection("UnidirectionalEntityOne1").CurrentValue!;
 
                 rightNav0.Add(
-                    context.UnidirectionalEntityOnes.CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Id = Fixture.UseGeneratedKeys ? 0 : 7711;
-                            e.Name = "Z7711";
-                        }));
+                    context.UnidirectionalEntityOnes.CreateInstance((e, p) =>
+                    {
+                        e.Id = Fixture.UseGeneratedKeys ? 0 : 7711;
+                        e.Name = "Z7711";
+                    }));
                 rightNav0.Add(
-                    context.UnidirectionalEntityOnes.CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Id = Fixture.UseGeneratedKeys ? 0 : 7712;
-                            e.Name = "Z7712";
-                        }));
+                    context.UnidirectionalEntityOnes.CreateInstance((e, p) =>
+                    {
+                        e.Id = Fixture.UseGeneratedKeys ? 0 : 7712;
+                        e.Name = "Z7712";
+                    }));
                 rightNav0.Add(
-                    context.UnidirectionalEntityOnes.CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Id = Fixture.UseGeneratedKeys ? 0 : 7713;
-                            e.Name = "Z7713";
-                        }));
+                    context.UnidirectionalEntityOnes.CreateInstance((e, p) =>
+                    {
+                        e.Id = Fixture.UseGeneratedKeys ? 0 : 7713;
+                        e.Name = "Z7713";
+                    }));
 
                 leftEntities[2].ThreeSkipPayloadFullShared
                     .Remove(leftEntities[2].ThreeSkipPayloadFullShared.Single(e => e.Name == "EntityThree 10"));
@@ -2016,23 +1953,21 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
                     .Remove(leftEntities[3].ThreeSkipPayloadFullShared.Single(e => e.Name == "EntityThree 17"));
                 leftEntities[3].ThreeSkipPayloadFullShared
                     .Add(
-                        context.UnidirectionalEntityThrees.CreateInstance(
-                            (e, p) =>
-                            {
-                                e.Id = Fixture.UseGeneratedKeys ? 0 : 7724;
-                                e.Name = "Z7724";
-                            }));
+                        context.UnidirectionalEntityThrees.CreateInstance((e, p) =>
+                        {
+                            e.Id = Fixture.UseGeneratedKeys ? 0 : 7724;
+                            e.Name = "Z7724";
+                        }));
 
                 var rightNav2 = (ICollection<UnidirectionalEntityOne>)context.Entry(rightEntities[2])
                     .Collection("UnidirectionalEntityOne1").CurrentValue!;
                 rightNav2.Remove(rightNav2.Single(e => e.Name == "EntityOne 12"));
                 rightNav2.Add(
-                    context.UnidirectionalEntityOnes.CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Id = Fixture.UseGeneratedKeys ? 0 : 7714;
-                            e.Name = "Z7714";
-                        }));
+                    context.UnidirectionalEntityOnes.CreateInstance((e, p) =>
+                    {
+                        e.Id = Fixture.UseGeneratedKeys ? 0 : 7714;
+                        e.Name = "Z7714";
+                    }));
 
                 if (RequiresDetectChanges)
                 {
@@ -2159,9 +2094,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task Can_insert_many_to_many_shared_unidirectional(bool async)
     {
         List<int> keys = null;
@@ -2265,58 +2198,50 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
 
                 var twos = new[]
                 {
-                    context.UnidirectionalEntityTwos.CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Id = Fixture.UseGeneratedKeys ? 0 : 7721;
-                            e.Name = "Z7721";
-                        }),
-                    context.UnidirectionalEntityTwos.CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Id = Fixture.UseGeneratedKeys ? 0 : 7722;
-                            e.Name = "Z7722";
-                        }),
-                    context.UnidirectionalEntityTwos.CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Id = Fixture.UseGeneratedKeys ? 0 : 7723;
-                            e.Name = "Z7723";
-                        }),
-                    context.UnidirectionalEntityTwos.CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Id = Fixture.UseGeneratedKeys ? 0 : 7724;
-                            e.Name = "Z7724";
-                        }),
+                    context.UnidirectionalEntityTwos.CreateInstance((e, p) =>
+                    {
+                        e.Id = Fixture.UseGeneratedKeys ? 0 : 7721;
+                        e.Name = "Z7721";
+                    }),
+                    context.UnidirectionalEntityTwos.CreateInstance((e, p) =>
+                    {
+                        e.Id = Fixture.UseGeneratedKeys ? 0 : 7722;
+                        e.Name = "Z7722";
+                    }),
+                    context.UnidirectionalEntityTwos.CreateInstance((e, p) =>
+                    {
+                        e.Id = Fixture.UseGeneratedKeys ? 0 : 7723;
+                        e.Name = "Z7723";
+                    }),
+                    context.UnidirectionalEntityTwos.CreateInstance((e, p) =>
+                    {
+                        e.Id = Fixture.UseGeneratedKeys ? 0 : 7724;
+                        e.Name = "Z7724";
+                    }),
                 };
 
                 var ones = new[]
                 {
-                    context.UnidirectionalEntityOnes.CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Id = Fixture.UseGeneratedKeys ? 0 : 7711;
-                            e.Name = "Z7711";
-                        }),
-                    context.UnidirectionalEntityOnes.CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Id = Fixture.UseGeneratedKeys ? 0 : 7712;
-                            e.Name = "Z7712";
-                        }),
-                    context.UnidirectionalEntityOnes.CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Id = Fixture.UseGeneratedKeys ? 0 : 7713;
-                            e.Name = "Z7713";
-                        }),
-                    context.UnidirectionalEntityOnes.CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Id = Fixture.UseGeneratedKeys ? 0 : 7714;
-                            e.Name = "Z7714";
-                        }),
+                    context.UnidirectionalEntityOnes.CreateInstance((e, p) =>
+                    {
+                        e.Id = Fixture.UseGeneratedKeys ? 0 : 7711;
+                        e.Name = "Z7711";
+                    }),
+                    context.UnidirectionalEntityOnes.CreateInstance((e, p) =>
+                    {
+                        e.Id = Fixture.UseGeneratedKeys ? 0 : 7712;
+                        e.Name = "Z7712";
+                    }),
+                    context.UnidirectionalEntityOnes.CreateInstance((e, p) =>
+                    {
+                        e.Id = Fixture.UseGeneratedKeys ? 0 : 7713;
+                        e.Name = "Z7713";
+                    }),
+                    context.UnidirectionalEntityOnes.CreateInstance((e, p) =>
+                    {
+                        e.Id = Fixture.UseGeneratedKeys ? 0 : 7714;
+                        e.Name = "Z7714";
+                    }),
                 };
 
                 leftEntities[0].TwoSkipShared.Add(twos[0]);
@@ -2428,15 +2353,9 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false, false)]
-    [InlineData(true, false, false)]
-    [InlineData(false, true, false)]
-    [InlineData(true, true, false)]
-    [InlineData(false, false, true)]
-    [InlineData(true, false, true)]
-    [InlineData(false, true, true)]
-    [InlineData(true, true, true)]
+    [ConditionalTheory, InlineData(false, false, false), InlineData(true, false, false), InlineData(false, true, false),
+     InlineData(true, true, false), InlineData(false, false, true), InlineData(true, false, true), InlineData(false, true, true),
+     InlineData(true, true, true)]
     public virtual async Task Can_insert_many_to_many_with_suspected_dangling_join_unidirectional(
         bool async,
         bool useTrackGraph,
@@ -2473,50 +2392,44 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
 
                 var joinEntities = new[]
                 {
-                    context.Set<UnidirectionalJoinOneToTwo>().CreateInstance(
-                        (e, p) =>
-                        {
-                            e.One = leftEntities[0];
-                            e.Two = rightEntities[0];
-                        }),
-                    context.Set<UnidirectionalJoinOneToTwo>().CreateInstance(
-                        (e, p) =>
-                        {
-                            e.One = leftEntities[0];
-                            e.Two = rightEntities[1];
-                        }),
-                    context.Set<UnidirectionalJoinOneToTwo>().CreateInstance(
-                        (e, p) =>
-                        {
-                            e.One = leftEntities[0];
-                            e.Two = rightEntities[2];
-                        }),
-                    context.Set<UnidirectionalJoinOneToTwo>().CreateInstance(
-                        (e, p) =>
-                        {
-                            e.One = leftEntities[1];
-                            e.Two = rightEntities[0];
-                        }),
-                    context.Set<UnidirectionalJoinOneToTwo>().CreateInstance(
-                        (e, p) =>
-                        {
-                            e.One = leftEntities[2];
-                            e.Two = rightEntities[0];
-                        }),
+                    context.Set<UnidirectionalJoinOneToTwo>().CreateInstance((e, p) =>
+                    {
+                        e.One = leftEntities[0];
+                        e.Two = rightEntities[0];
+                    }),
+                    context.Set<UnidirectionalJoinOneToTwo>().CreateInstance((e, p) =>
+                    {
+                        e.One = leftEntities[0];
+                        e.Two = rightEntities[1];
+                    }),
+                    context.Set<UnidirectionalJoinOneToTwo>().CreateInstance((e, p) =>
+                    {
+                        e.One = leftEntities[0];
+                        e.Two = rightEntities[2];
+                    }),
+                    context.Set<UnidirectionalJoinOneToTwo>().CreateInstance((e, p) =>
+                    {
+                        e.One = leftEntities[1];
+                        e.Two = rightEntities[0];
+                    }),
+                    context.Set<UnidirectionalJoinOneToTwo>().CreateInstance((e, p) =>
+                    {
+                        e.One = leftEntities[2];
+                        e.Two = rightEntities[0];
+                    }),
                 };
 
-                var extra = context.Set<UnidirectionalJoinOneToTwoExtra>().CreateInstance(
-                    (e, p) =>
+                var extra = context.Set<UnidirectionalJoinOneToTwoExtra>().CreateInstance((e, p) =>
+                {
+                    e.JoinEntities = new ObservableCollection<UnidirectionalJoinOneToTwo>
                     {
-                        e.JoinEntities = new ObservableCollection<UnidirectionalJoinOneToTwo>
-                        {
-                            joinEntities[0],
-                            joinEntities[1],
-                            joinEntities[2],
-                            joinEntities[3],
-                            joinEntities[4],
-                        };
-                    });
+                        joinEntities[0],
+                        joinEntities[1],
+                        joinEntities[2],
+                        joinEntities[3],
+                        joinEntities[4],
+                    };
+                });
 
                 rightEntities[0].Extra = extra;
                 rightEntities[1].Extra = extra;
@@ -2616,15 +2529,9 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false, false)]
-    [InlineData(true, false, false)]
-    [InlineData(false, true, false)]
-    [InlineData(true, true, false)]
-    [InlineData(false, false, true)]
-    [InlineData(true, false, true)]
-    [InlineData(false, true, true)]
-    [InlineData(true, true, true)]
+    [ConditionalTheory, InlineData(false, false, false), InlineData(true, false, false), InlineData(false, true, false),
+     InlineData(true, true, false), InlineData(false, false, true), InlineData(true, false, true), InlineData(false, true, true),
+     InlineData(true, true, true)]
     public virtual async Task Can_insert_many_to_many_with_dangling_join_unidirectional(
         bool async,
         bool useTrackGraph,
@@ -2765,12 +2672,11 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
         return ExecuteWithStrategyInTransactionAsync(
             async context =>
             {
-                var entity = context.Set<ProxyableSharedType>("PST").CreateInstance(
-                    (e, p) =>
-                    {
-                        e["Id"] = Fixture.UseGeneratedKeys ? null : 1;
-                        e["Payload"] = "NewlyAdded";
-                    });
+                var entity = context.Set<ProxyableSharedType>("PST").CreateInstance((e, p) =>
+                {
+                    e["Id"] = Fixture.UseGeneratedKeys ? null : 1;
+                    e["Payload"] = "NewlyAdded";
+                });
 
                 context.Set<ProxyableSharedType>("PST").Add(entity);
 
@@ -2807,9 +2713,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
             });
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task Can_insert_many_to_many_with_navs_by_join_entity_unidirectional(bool async)
     {
         await ExecuteWithStrategyInTransactionAsync(
@@ -2817,79 +2721,68 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
             {
                 var leftEntities = new[]
                 {
-                    context.UnidirectionalEntityTwos.CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Id = Fixture.UseGeneratedKeys ? 0 : 7711;
-                            e.Name = "Z7711";
-                        }),
-                    context.UnidirectionalEntityTwos.CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Id = Fixture.UseGeneratedKeys ? 0 : 7712;
-                            e.Name = "Z7712";
-                        }),
-                    context.UnidirectionalEntityTwos.CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Id = Fixture.UseGeneratedKeys ? 0 : 7713;
-                            e.Name = "Z7713";
-                        })
+                    context.UnidirectionalEntityTwos.CreateInstance((e, p) =>
+                    {
+                        e.Id = Fixture.UseGeneratedKeys ? 0 : 7711;
+                        e.Name = "Z7711";
+                    }),
+                    context.UnidirectionalEntityTwos.CreateInstance((e, p) =>
+                    {
+                        e.Id = Fixture.UseGeneratedKeys ? 0 : 7712;
+                        e.Name = "Z7712";
+                    }),
+                    context.UnidirectionalEntityTwos.CreateInstance((e, p) =>
+                    {
+                        e.Id = Fixture.UseGeneratedKeys ? 0 : 7713;
+                        e.Name = "Z7713";
+                    })
                 };
                 var rightEntities = new[]
                 {
-                    context.UnidirectionalEntityThrees.CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Id = Fixture.UseGeneratedKeys ? 0 : 7721;
-                            e.Name = "Z7721";
-                        }),
-                    context.UnidirectionalEntityThrees.CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Id = Fixture.UseGeneratedKeys ? 0 : 7722;
-                            e.Name = "Z7722";
-                        }),
-                    context.UnidirectionalEntityThrees.CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Id = Fixture.UseGeneratedKeys ? 0 : 7723;
-                            e.Name = "Z7723";
-                        })
+                    context.UnidirectionalEntityThrees.CreateInstance((e, p) =>
+                    {
+                        e.Id = Fixture.UseGeneratedKeys ? 0 : 7721;
+                        e.Name = "Z7721";
+                    }),
+                    context.UnidirectionalEntityThrees.CreateInstance((e, p) =>
+                    {
+                        e.Id = Fixture.UseGeneratedKeys ? 0 : 7722;
+                        e.Name = "Z7722";
+                    }),
+                    context.UnidirectionalEntityThrees.CreateInstance((e, p) =>
+                    {
+                        e.Id = Fixture.UseGeneratedKeys ? 0 : 7723;
+                        e.Name = "Z7723";
+                    })
                 };
 
                 var joinEntities = new[]
                 {
-                    context.Set<UnidirectionalJoinTwoToThree>().CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Two = leftEntities[0];
-                            e.Three = rightEntities[0];
-                        }),
-                    context.Set<UnidirectionalJoinTwoToThree>().CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Two = leftEntities[0];
-                            e.Three = rightEntities[1];
-                        }),
-                    context.Set<UnidirectionalJoinTwoToThree>().CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Two = leftEntities[0];
-                            e.Three = rightEntities[2];
-                        }),
-                    context.Set<UnidirectionalJoinTwoToThree>().CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Two = leftEntities[1];
-                            e.Three = rightEntities[0];
-                        }),
-                    context.Set<UnidirectionalJoinTwoToThree>().CreateInstance(
-                        (e, p) =>
-                        {
-                            e.Two = leftEntities[2];
-                            e.Three = rightEntities[0];
-                        })
+                    context.Set<UnidirectionalJoinTwoToThree>().CreateInstance((e, p) =>
+                    {
+                        e.Two = leftEntities[0];
+                        e.Three = rightEntities[0];
+                    }),
+                    context.Set<UnidirectionalJoinTwoToThree>().CreateInstance((e, p) =>
+                    {
+                        e.Two = leftEntities[0];
+                        e.Three = rightEntities[1];
+                    }),
+                    context.Set<UnidirectionalJoinTwoToThree>().CreateInstance((e, p) =>
+                    {
+                        e.Two = leftEntities[0];
+                        e.Three = rightEntities[2];
+                    }),
+                    context.Set<UnidirectionalJoinTwoToThree>().CreateInstance((e, p) =>
+                    {
+                        e.Two = leftEntities[1];
+                        e.Three = rightEntities[0];
+                    }),
+                    context.Set<UnidirectionalJoinTwoToThree>().CreateInstance((e, p) =>
+                    {
+                        e.Two = leftEntities[2];
+                        e.Three = rightEntities[0];
+                    })
                 };
 
                 if (async)
