@@ -19,6 +19,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
         public static readonly bool UseOldBehavior32310 =
             AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32310", out var enabled32310) && enabled32310;
 
+        private static readonly bool UseOldBehavior36464 =
+            AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue36464", out var enabled36464) && enabled36464;
+
         /// <summary>
         ///     Reading database values
         /// </summary>
@@ -79,6 +82,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
         private static readonly MethodInfo EnumParseMethodInfo
             = typeof(Enum).GetMethod(nameof(Enum.Parse), new[] { typeof(Type), typeof(string) })!;
+
+        private static readonly PropertyInfo QueryContextQueryLoggerProperty =
+            typeof(QueryContext).GetProperty(nameof(QueryContext.QueryLogger))!;
 
         private readonly RelationalShapedQueryCompilingExpressionVisitor _parentVisitor;
         private readonly ISet<string>? _tags;
@@ -1644,7 +1650,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                             New(
                                 JsonReaderManagerConstructor,
                                 _jsonReaderDataParameter,
-                                Constant(_queryLogger))),
+                                UseOldBehavior36464
+                                    ? Constant(_queryLogger)
+                                    : MakeMemberAccess(QueryCompilationContext.QueryContextParameter, QueryContextQueryLoggerProperty))),
                         // tokenType = jsonReaderManager.CurrentReader.TokenType
                         Assign(
                             tokenTypeVariable,
@@ -1807,7 +1815,13 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         var captureState = Call(managerVariable, Utf8JsonReaderManagerCaptureStateMethod);
                         var assignment = Assign(propertyVariable, innerShaperMapElement.Value);
                         var managerRecreation = Assign(
-                            managerVariable, New(JsonReaderManagerConstructor, _jsonReaderDataParameter, Constant(_queryLogger)));
+                            managerVariable,
+                            New(
+                                JsonReaderManagerConstructor,
+                                _jsonReaderDataParameter,
+                                UseOldBehavior36464
+                                    ? Constant(_queryLogger)
+                                    : MakeMemberAccess(QueryCompilationContext.QueryContextParameter, QueryContextQueryLoggerProperty)));
 
                         readExpressions.Add(
                             Block(
@@ -2170,7 +2184,13 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         Default(typeof(JsonReaderData))),
                     Block(
                         Assign(
-                            jsonReaderManagerVariable, New(JsonReaderManagerConstructor, jsonReaderDataVariable, Constant(_queryLogger))),
+                            jsonReaderManagerVariable,
+                            New(
+                                JsonReaderManagerConstructor,
+                                jsonReaderDataVariable,
+                                UseOldBehavior36464
+                                    ? Constant(_queryLogger)
+                                    : MakeMemberAccess(QueryCompilationContext.QueryContextParameter, QueryContextQueryLoggerProperty))),
                         Call(jsonReaderManagerVariable, Utf8JsonReaderManagerMoveNextMethod),
                         Call(jsonReaderManagerVariable, Utf8JsonReaderManagerCaptureStateMethod)));
 
