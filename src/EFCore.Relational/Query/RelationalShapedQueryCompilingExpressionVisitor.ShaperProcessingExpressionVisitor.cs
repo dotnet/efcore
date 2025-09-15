@@ -27,6 +27,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
         private static readonly bool UseOldBehavior35212 =
             AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue35212", out var enabled35212) && enabled35212;
 
+        private static readonly bool UseOldBehavior36464 =
+            AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue36464", out var enabled36464) && enabled36464;
+
         /// <summary>
         ///     Reading database values
         /// </summary>
@@ -102,6 +105,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
         private static readonly MethodInfo PropertyGetTypeMappingMethod =
             typeof(IReadOnlyProperty).GetMethod(nameof(IReadOnlyProperty.GetTypeMapping), [])!;
+
+        private static readonly PropertyInfo QueryContextQueryLoggerProperty =
+            typeof(QueryContext).GetProperty(nameof(QueryContext.QueryLogger))!;
 
         private readonly RelationalShapedQueryCompilingExpressionVisitor _parentVisitor;
         private readonly ISet<string>? _tags;
@@ -1928,11 +1934,13 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                             New(
                                 JsonReaderManagerConstructor,
                                 jsonReaderDataParameter,
-                                liftableConstantFactory.CreateLiftableConstant(
-                                    queryLogger,
-                                    static c => c.Dependencies.QueryLogger,
-                                    "queryLogger",
-                                    typeof(IDiagnosticsLogger<DbLoggerCategory.Query>)))),
+                                UseOldBehavior36464
+                                    ? liftableConstantFactory.CreateLiftableConstant(
+                                        queryLogger,
+                                        static c => c.Dependencies.QueryLogger,
+                                        "queryLogger",
+                                        typeof(IDiagnosticsLogger<DbLoggerCategory.Query>))
+                                    : MakeMemberAccess(QueryCompilationContext.QueryContextParameter, QueryContextQueryLoggerProperty))),
                         // tokenType = jsonReaderManager.CurrentReader.TokenType
                         Assign(
                             tokenTypeVariable,
@@ -2113,11 +2121,13 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                             New(
                                 JsonReaderManagerConstructor,
                                 jsonReaderDataParameter,
-                                liftableConstantFactory.CreateLiftableConstant(
-                                    queryLogger,
-                                    static c => c.Dependencies.QueryLogger,
-                                    "queryLogger",
-                                    typeof(IDiagnosticsLogger<DbLoggerCategory.Query>))));
+                                UseOldBehavior36464
+                                    ? liftableConstantFactory.CreateLiftableConstant(
+                                        queryLogger,
+                                        static c => c.Dependencies.QueryLogger,
+                                        "queryLogger",
+                                        typeof(IDiagnosticsLogger<DbLoggerCategory.Query>))
+                                    : MakeMemberAccess(QueryCompilationContext.QueryContextParameter, QueryContextQueryLoggerProperty)));
 
                         readExpressions.Add(
                             Block(
@@ -2472,11 +2482,13 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                             New(
                                 JsonReaderManagerConstructor,
                                 jsonReaderDataVariable,
-                                _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
-                                    _queryLogger,
-                                    static c => c.Dependencies.QueryLogger,
-                                    "queryLogger",
-                                    typeof(IDiagnosticsLogger<DbLoggerCategory.Query>)))),
+                                UseOldBehavior36464
+                                    ? _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
+                                        _queryLogger,
+                                        static c => c.Dependencies.QueryLogger,
+                                        "queryLogger",
+                                        typeof(IDiagnosticsLogger<DbLoggerCategory.Query>))
+                                    : MakeMemberAccess(QueryCompilationContext.QueryContextParameter, QueryContextQueryLoggerProperty))),
                         Call(jsonReaderManagerVariable, Utf8JsonReaderManagerMoveNextMethod),
                         Call(jsonReaderManagerVariable, Utf8JsonReaderManagerCaptureStateMethod)));
 
@@ -2849,7 +2861,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 // UPDATE: instead of guessing the type mapping in case where we don't have IProperty and converter uses non-literal constant,
                 // we just revert to the pre-AOT behavior, i.e. we still use converter.ConvertFromProviderExpression
                 // this will not work for precompiled query (which realistically was already broken for this scenario - type mapping we "guess"
-                // is pretty much always wrong), but regular case (not pre-compiled) will continue to work. 
+                // is pretty much always wrong), but regular case (not pre-compiled) will continue to work.
                 if (property != null)
                 {
                     var typeMappingExpression = Call(
