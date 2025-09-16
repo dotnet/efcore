@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class OptionalDependentQuerySqliteTest : OptionalDependentQueryTestBase<OptionalDependentQuerySqliteFixture>
 {
     public OptionalDependentQuerySqliteTest(OptionalDependentQuerySqliteFixture fixture, ITestOutputHelper testOutputHelper)

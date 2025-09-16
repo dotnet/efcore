@@ -9,6 +9,10 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageTags>$(PackageTags);CosmosDb;SQL API</PackageTags>
     <ImplicitUsings>true</ImplicitUsings>
+    <NoWarn>$(NoWarn);EF9101</NoWarn> <!-- Metrics is experimental -->
+    <NoWarn>$(NoWarn);EF9102</NoWarn> <!-- Paging is experimental -->
+    <NoWarn>$(NoWarn);EF9103</NoWarn> <!-- Vector search is experimental -->
+    <NoWarn>$(NoWarn);EF9104</NoWarn> <!-- Full-text search is experimental -->
   </PropertyGroup>
 
   <ItemGroup>
@@ -41,13 +45,13 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EFCore\EFCore.csproj" PrivateAssets="contentfiles;build" />
-    <ProjectReference Condition="'$(BuildingByReSharper)' != 'true'" Include="..\EFCore.Analyzers\EFCore.Analyzers.csproj" ReferenceOutputAssembly="False" OutputItemType="Analyzer" />
+    <ProjectReference Include="..\EFCore.Analyzers\EFCore.Analyzers.csproj" ReferenceOutputAssembly="False" OutputItemType="Analyzer" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.35.4" />
-    <PackageReference Include="System.Net.Http" Version="4.3.4" />
-    <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
+    <PackageReference Include="Microsoft.Azure.Cosmos" />
+    <!-- Microsoft.Azure.Cosmos requires explicit reference to Newtonsoft.Json >= 10.0.2 -->
+    <PackageReference Include="Newtonsoft.Json" />		
   </ItemGroup>
 
   <ItemGroup>

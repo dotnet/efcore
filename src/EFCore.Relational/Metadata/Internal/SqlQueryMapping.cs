@@ -20,7 +20,7 @@ public class SqlQueryMapping : TableMappingBase<SqlQueryColumnMapping>, ISqlQuer
     public SqlQueryMapping(
         IEntityType entityType,
         SqlQuery sqlQuery,
-        bool includesDerivedTypes)
+        bool? includesDerivedTypes)
         : base(entityType, sqlQuery, includesDerivedTypes)
     {
     }

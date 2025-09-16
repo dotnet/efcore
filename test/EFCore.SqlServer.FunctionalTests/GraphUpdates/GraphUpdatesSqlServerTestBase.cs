@@ -3,14 +3,11 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class GraphUpdatesSqlServerTestBase<TFixture> : GraphUpdatesTestBase<TFixture>
+#nullable disable
+
+public abstract class GraphUpdatesSqlServerTestBase<TFixture>(TFixture fixture) : GraphUpdatesTestBase<TFixture>(fixture)
     where TFixture : GraphUpdatesSqlServerTestBase<TFixture>.GraphUpdatesSqlServerFixtureBase, new()
 {
-    protected GraphUpdatesSqlServerTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     [ConditionalFact] // Issue #32638
     public virtual void Key_and_index_properties_use_appropriate_comparer()
     {
@@ -22,11 +19,7 @@ public abstract class GraphUpdatesSqlServerTestBase<TFixture> : GraphUpdatesTest
             UniqueIndex = "UniqueIndex"
         };
 
-        var child = new StringKeyAndIndexChild
-        {
-            Id = "Child",
-            ParentId = "parent"
-        };
+        var child = new StringKeyAndIndexChild { Id = "Child", ParentId = "parent" };
 
         using var context = CreateContext();
         context.AttachRange(parent, child);
@@ -64,7 +57,6 @@ public abstract class GraphUpdatesSqlServerTestBase<TFixture> : GraphUpdatesTest
             Assert.False(childEntry.Property(e => e.Id).IsModified);
             Assert.False(childEntry.Property(e => e.ParentId).IsModified);
         }
-
     }
 
     protected class StringKeyAndIndexParent : NotifyingEntity
@@ -124,7 +116,6 @@ public abstract class GraphUpdatesSqlServerTestBase<TFixture> : GraphUpdatesTest
             get => _parentId;
             set => SetWithNotify(value, ref _parentId);
         }
-
 
         public int Foo
         {
@@ -195,6 +186,24 @@ public abstract class GraphUpdatesSqlServerTestBase<TFixture> : GraphUpdatesTest
                         .WithOne(e => e.Parent)
                         .HasForeignKey<StringKeyAndIndexChild>(e => e.ParentId)
                         .HasPrincipalKey<StringKeyAndIndexParent>(e => e.AlternateId);
+                });
+
+            modelBuilder.Entity<CompositeKeyWith<int>>(
+                b =>
+                {
+                    b.Property(e => e.PrimaryGroup).HasDefaultValue(1).HasSentinel(1);
+                });
+
+            modelBuilder.Entity<CompositeKeyWith<bool>>(
+                b =>
+                {
+                    b.Property(e => e.PrimaryGroup).HasDefaultValue(true);
+                });
+
+            modelBuilder.Entity<CompositeKeyWith<bool?>>(
+                b =>
+                {
+                    b.Property(e => e.PrimaryGroup).HasDefaultValue(true);
                 });
         }
     }
