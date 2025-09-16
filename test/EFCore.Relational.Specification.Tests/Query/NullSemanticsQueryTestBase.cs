@@ -1161,6 +1161,11 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
         await AssertQueryScalar(
             async,
             ss => ss.Set<NullSemanticsEntity1>().Select(e => (e.BoolA ? e.NullableIntA : e.IntB) > e.IntC));
+
+        await AssertQueryScalar(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => (e.BoolA ? e.NullableBoolB : !e.NullableBoolC) == null).Select(e => e.Id)
+        );
     }
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]

@@ -3583,6 +3583,15 @@ SELECT CASE
     ELSE CAST(0 AS bit)
 END
 FROM [Entities1] AS [e]
+""",
+            //
+            """
+SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE CASE
+    WHEN [e].[BoolA] = CAST(1 AS bit) THEN [e].[NullableBoolB]
+    ELSE ~[e].[NullableBoolC]
+END IS NULL
 """);
     }
 
