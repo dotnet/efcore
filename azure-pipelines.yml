@@ -47,6 +47,7 @@ extends:
   parameters:
     featureFlags:
       autoBaseline: false
+      autoEnableRoslynWithNewRuleset: false
     sdl:
       sourceAnalysisPool:
         name: NetCore1ESPool-Svc-Internal
