@@ -40,8 +40,6 @@ parameters:
 
   repositoryAlias: self
 
-  officialBuildId: ''
-
 jobs:
 - job: Asset_Registry_Publish
 
@@ -64,11 +62,6 @@ jobs:
       value: false
     # unconditional - needed for logs publishing (redactor tool version)
     - template: /eng/common/core-templates/post-build/common-variables.yml
-  - name: OfficialBuildId
-    ${{ if ne(parameters.officialBuildId, '') }}:
-      value: ${{ parameters.officialBuildId }}
-    ${{ else }}:
-      value: $(Build.BuildNumber)
 
   pool:
     # We don't use the collection uri here because it might vary (.visualstudio.com vs. dev.azure.com)
