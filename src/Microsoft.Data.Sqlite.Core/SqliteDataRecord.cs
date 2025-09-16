@@ -8,8 +8,11 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using Microsoft.Data.Sqlite.Properties;
+using Microsoft.Data.Sqlite.Utilities;
 using SQLitePCL;
+using static Microsoft.Data.Sqlite.Utilities.IsBusyHelper;
 using static SQLitePCL.raw;
 
 namespace Microsoft.Data.Sqlite;
@@ -440,8 +443,29 @@ internal class SqliteDataRecord(sqlite3_stmt stmt, bool hasRows, SqliteConnectio
     }
 
     public void Dispose()
+            => DisposeWithBusyHandling(timeout: -1, totalElapsedTime: default);
+
+    internal void DisposeWithBusyHandling(int timeout, TimeSpan totalElapsedTime)
     {
-        var rc = sqlite3_reset(Handle);
+        int rc;
+
+        var timer = SharedStopwatch.StartNew();
+
+        while (IsBusy(rc = sqlite3_reset(Handle)))
+        {
+            if (timeout == -1)
+            {
+                break;
+            }
+            if (timeout != 0
+                && (totalElapsedTime + timer.Elapsed).TotalMilliseconds >= timeout * 1000L)
+            {
+                break;
+            }
+
+            Thread.Sleep(150);
+        }
+
         if (!_alreadyThrown)
         {
             SqliteException.ThrowExceptionForRC(rc, connection.Handle);
