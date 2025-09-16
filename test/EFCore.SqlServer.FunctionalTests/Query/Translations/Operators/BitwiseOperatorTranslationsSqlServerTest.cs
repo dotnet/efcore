@@ -123,7 +123,10 @@ FROM [BasicTypesEntities] AS [b]
             """
 SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
 FROM [BasicTypesEntities] AS [b]
-WHERE ~CAST([b].[Int] ^ [b].[Short] AS bit) ^ CASE
+WHERE CASE
+    WHEN [b].[Int] = [b].[Short] THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END ^ CASE
     WHEN [b].[String] = N'Seattle' THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END = CAST(1 AS bit)

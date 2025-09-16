@@ -25,6 +25,17 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 public class SearchConditionConverter(ISqlExpressionFactory sqlExpressionFactory) : ExpressionVisitor
 {
     /// <summary>
+    ///     Tracks whether we're in the larger context of a predicate, even the immediate context is not a search condition.
+    /// </summary>
+    /// <remarks>
+    ///     This visitor tracks whether the immediate context is a search condition by passing a boolean flag down during visitation,
+    ///     and making adjustments so that the SQL is correct. However, in some cases it's useful to know whether we're in the
+    ///     larger context of a predicate - even if the immediate context isn't a search condition; we use this to make sure the
+    ///     SQL is efficient (as opposed to correct), refraining from transformations which could prevent index usage.
+    /// </remarks>
+    private bool _inLargerPredicateContext;
+
+    /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
@@ -42,7 +53,14 @@ public class SearchConditionConverter(ISqlExpressionFactory sqlExpressionFactory
     /// </summary>
     [return: NotNullIfNotNull(nameof(expression))]
     protected virtual Expression? Visit(Expression? expression, bool inSearchConditionContext)
-        => expression switch
+    {
+        var parentOptimizeForPredicateContext = _inLargerPredicateContext;
+        if (inSearchConditionContext)
+        {
+            _inLargerPredicateContext = true;
+        }
+
+        var result = expression switch
         {
             CaseExpression e => VisitCase(e, inSearchConditionContext),
             SelectExpression e => VisitSelect(e),
@@ -61,6 +79,10 @@ public class SearchConditionConverter(ISqlExpressionFactory sqlExpressionFactory
 
             _ => base.Visit(expression)
         };
+
+        _inLargerPredicateContext = parentOptimizeForPredicateContext;
+        return result;
+    }
 
     private SqlExpression ApplyConversion(SqlExpression sqlExpression, bool inSearchConditionContext, bool isExpressionSearchCondition)
         => (inSearchCondition: inSearchConditionContext, isExpressionSearchCondition) switch
@@ -178,6 +200,9 @@ public class SearchConditionConverter(ISqlExpressionFactory sqlExpressionFactory
     /// </summary>
     protected virtual Expression VisitSelect(SelectExpression select)
     {
+        var parentOptimizeForPredicateContext = _inLargerPredicateContext;
+        _inLargerPredicateContext = false;
+
         var tables = this.VisitAndConvert(select.Tables);
         var predicate = (SqlExpression?)Visit(select.Predicate, inSearchConditionContext: true);
         var groupBy = this.VisitAndConvert(select.GroupBy);
@@ -186,6 +211,8 @@ public class SearchConditionConverter(ISqlExpressionFactory sqlExpressionFactory
         var orderings = this.VisitAndConvert(select.Orderings);
         var offset = (SqlExpression?)Visit(select.Offset);
         var limit = (SqlExpression?)Visit(select.Limit);
+
+        _inLargerPredicateContext = parentOptimizeForPredicateContext;
 
         return select.Update(tables, predicate, groupBy, havingExpression, projections, orderings, offset, limit);
     }
@@ -208,7 +235,14 @@ public class SearchConditionConverter(ISqlExpressionFactory sqlExpressionFactory
         {
             var leftType = newLeft.TypeMapping?.Converter?.ProviderClrType ?? newLeft.Type;
             var rightType = newRight.TypeMapping?.Converter?.ProviderClrType ?? newRight.Type;
-            if (!inSearchConditionContext
+
+            // Transform equality and inequality over bool/integer to bitwise operators:
+            //     x != y => CAST(x ^ y AS BIT)
+            //     x == y => CAST(~(x ^ y) AS BIT)
+            // However, refrain from doing this if we're within a predicate - even if the immediate context is not a search condition -
+            // since this might prevent index usage (e.g. we don't want this to happen within CASE THEN clauses, which aren't search
+            // conditions but are seen through by SQL Server when in the WHERE clause - see #36291).
+            if (!_inLargerPredicateContext
                 && (leftType == typeof(bool) || leftType.IsInteger())
                 && (rightType == typeof(bool) || rightType.IsInteger()))
             {
