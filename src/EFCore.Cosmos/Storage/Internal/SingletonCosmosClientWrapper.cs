@@ -4,7 +4,6 @@
 using Azure.Core;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 
@@ -17,12 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 public class SingletonCosmosClientWrapper : ISingletonCosmosClientWrapper
 {
     private static readonly string UserAgent = " Microsoft.EntityFrameworkCore.Cosmos/" + ProductInfo.GetVersion();
-    private readonly CosmosClientOptions _options;
-    private readonly string? _endpoint;
-    private readonly string? _key;
-    private readonly string? _connectionString;
-    private readonly TokenCredential? _tokenCredential;
-    private CosmosClient? _client;
+    private readonly CosmosClient _client;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -32,10 +26,6 @@ public class SingletonCosmosClientWrapper : ISingletonCosmosClientWrapper
     /// </summary>
     public SingletonCosmosClientWrapper(ICosmosSingletonOptions options)
     {
-        _endpoint = options.AccountEndpoint;
-        _key = options.AccountKey;
-        _connectionString = options.ConnectionString;
-        _tokenCredential = options.TokenCredential;
         var configuration = new CosmosClientOptions { ApplicationName = UserAgent, Serializer = new JsonCosmosSerializer() };
 
         if (options.Region != null)
@@ -98,7 +88,27 @@ public class SingletonCosmosClientWrapper : ISingletonCosmosClientWrapper
             configuration.HttpClientFactory = options.HttpClientFactory;
         }
 
-        _options = configuration;
+        _client = CreateClient(options, configuration);
+    }
+
+    private static CosmosClient CreateClient(ICosmosSingletonOptions options, CosmosClientOptions configuration)
+    {
+        if (!string.IsNullOrEmpty(options.ConnectionString))
+        {
+            return new CosmosClient(options.ConnectionString, configuration);
+        }
+
+        if (options.TokenCredential != null)
+        {
+            return new CosmosClient(options.AccountEndpoint, options.TokenCredential, configuration);
+        }
+
+        if (options.AccountEndpoint != null)
+        {
+            return new CosmosClient(options.AccountEndpoint, options.AccountKey, configuration);
+        }
+
+        throw new InvalidOperationException(CosmosStrings.ConnectionInfoMissing);
     }
 
     /// <summary>
@@ -107,17 +117,7 @@ public class SingletonCosmosClientWrapper : ISingletonCosmosClientWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual CosmosClient Client
-        => NonCapturingLazyInitializer.EnsureInitialized(ref _client, this, CreateClient);
-
-    private static CosmosClient CreateClient(SingletonCosmosClientWrapper wrapper)
-        => string.IsNullOrEmpty(wrapper._connectionString)
-            ? wrapper._tokenCredential == null
-                ? wrapper._endpoint == null
-                    ? throw new InvalidOperationException(CosmosStrings.ConnectionInfoMissing)
-                    : new CosmosClient(wrapper._endpoint, wrapper._key, wrapper._options)
-                : new CosmosClient(wrapper._endpoint, wrapper._tokenCredential, wrapper._options)
-            : new CosmosClient(wrapper._connectionString, wrapper._options);
+    public virtual CosmosClient Client => _client;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -127,7 +127,6 @@ public class SingletonCosmosClientWrapper : ISingletonCosmosClientWrapper
     /// </summary>
     public virtual void Dispose()
     {
-        _client?.Dispose();
-        _client = null;
+        _client.Dispose();
     }
 }
