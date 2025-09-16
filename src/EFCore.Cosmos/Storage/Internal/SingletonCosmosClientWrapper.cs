@@ -88,27 +88,22 @@ public class SingletonCosmosClientWrapper : ISingletonCosmosClientWrapper
             configuration.HttpClientFactory = options.HttpClientFactory;
         }
 
-        _client = CreateClient(options, configuration);
-    }
-
-    private static CosmosClient CreateClient(ICosmosSingletonOptions options, CosmosClientOptions configuration)
-    {
         if (!string.IsNullOrEmpty(options.ConnectionString))
         {
-            return new CosmosClient(options.ConnectionString, configuration);
+            _client = new CosmosClient(options.ConnectionString, configuration);
         }
-
-        if (options.TokenCredential != null)
+        else if (options.TokenCredential != null)
         {
-            return new CosmosClient(options.AccountEndpoint, options.TokenCredential, configuration);
+            _client = new CosmosClient(options.AccountEndpoint, options.TokenCredential, configuration);
         }
-
-        if (options.AccountEndpoint != null)
+        else if (options.AccountEndpoint != null)
         {
-            return new CosmosClient(options.AccountEndpoint, options.AccountKey, configuration);
+            _client = new CosmosClient(options.AccountEndpoint, options.AccountKey, configuration);
         }
-
-        throw new InvalidOperationException(CosmosStrings.ConnectionInfoMissing);
+        else
+        {
+            throw new InvalidOperationException(CosmosStrings.ConnectionInfoMissing);
+        }
     }
 
     /// <summary>
