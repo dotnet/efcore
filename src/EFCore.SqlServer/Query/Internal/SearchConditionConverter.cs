@@ -32,7 +32,7 @@ public class SearchConditionConverter(ISqlExpressionFactory sqlExpressionFactory
     /// </summary>
     [return: NotNullIfNotNull(nameof(expression))]
     public override Expression? Visit(Expression? expression)
-        => Visit(expression, inSearchConditionContext: false);
+        => Visit(expression, inSearchConditionContext: false, allowNullFalseEquivalence: false);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -41,12 +41,12 @@ public class SearchConditionConverter(ISqlExpressionFactory sqlExpressionFactory
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [return: NotNullIfNotNull(nameof(expression))]
-    protected virtual Expression? Visit(Expression? expression, bool inSearchConditionContext)
+    protected virtual Expression? Visit(Expression? expression, bool inSearchConditionContext, bool allowNullFalseEquivalence)
         => expression switch
         {
-            CaseExpression e => VisitCase(e, inSearchConditionContext),
+            CaseExpression e => VisitCase(e, inSearchConditionContext, allowNullFalseEquivalence),
             SelectExpression e => VisitSelect(e),
-            SqlBinaryExpression e => VisitSqlBinary(e, inSearchConditionContext),
+            SqlBinaryExpression e => VisitSqlBinary(e, inSearchConditionContext, allowNullFalseEquivalence),
             SqlUnaryExpression e => VisitSqlUnary(e, inSearchConditionContext),
             PredicateJoinExpressionBase e => VisitPredicateJoin(e),
 
@@ -139,19 +139,19 @@ public class SearchConditionConverter(ISqlExpressionFactory sqlExpressionFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected virtual Expression VisitCase(CaseExpression caseExpression, bool inSearchConditionContext)
+    protected virtual Expression VisitCase(CaseExpression caseExpression, bool inSearchConditionContext, bool allowNullFalseEquivalence)
     {
         var testIsCondition = caseExpression.Operand is null;
         var operand = (SqlExpression?)Visit(caseExpression.Operand);
         var whenClauses = new List<CaseWhenClause>();
         foreach (var whenClause in caseExpression.WhenClauses)
         {
-            var test = (SqlExpression)Visit(whenClause.Test, testIsCondition);
-            var result = (SqlExpression)Visit(whenClause.Result);
+            var test = (SqlExpression)Visit(whenClause.Test, testIsCondition, testIsCondition);
+            var result = (SqlExpression)Visit(whenClause.Result, inSearchConditionContext: false, allowNullFalseEquivalence);
             whenClauses.Add(new CaseWhenClause(test, result));
         }
 
-        var elseResult = (SqlExpression?)Visit(caseExpression.ElseResult);
+        var elseResult = (SqlExpression?)Visit(caseExpression.ElseResult, inSearchConditionContext: false, allowNullFalseEquivalence);
 
         return ApplyConversion(
             sqlExpressionFactory.Case(operand, whenClauses, elseResult, caseExpression),
@@ -168,7 +168,7 @@ public class SearchConditionConverter(ISqlExpressionFactory sqlExpressionFactory
     protected virtual Expression VisitPredicateJoin(PredicateJoinExpressionBase join)
         => join.Update(
             (TableExpressionBase)Visit(join.Table),
-            (SqlExpression)Visit(join.JoinPredicate, inSearchConditionContext: true));
+            (SqlExpression)Visit(join.JoinPredicate, inSearchConditionContext: true, allowNullFalseEquivalence: true));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -179,9 +179,9 @@ public class SearchConditionConverter(ISqlExpressionFactory sqlExpressionFactory
     protected virtual Expression VisitSelect(SelectExpression select)
     {
         var tables = this.VisitAndConvert(select.Tables);
-        var predicate = (SqlExpression?)Visit(select.Predicate, inSearchConditionContext: true);
+        var predicate = (SqlExpression?)Visit(select.Predicate, inSearchConditionContext: true, allowNullFalseEquivalence: true);
         var groupBy = this.VisitAndConvert(select.GroupBy);
-        var havingExpression = (SqlExpression?)Visit(select.Having, inSearchConditionContext: true);
+        var havingExpression = (SqlExpression?)Visit(select.Having, inSearchConditionContext: true, allowNullFalseEquivalence: true);
         var projections = this.VisitAndConvert(select.Projection);
         var orderings = this.VisitAndConvert(select.Orderings);
         var offset = (SqlExpression?)Visit(select.Offset);
@@ -196,19 +196,19 @@ public class SearchConditionConverter(ISqlExpressionFactory sqlExpressionFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected virtual Expression VisitSqlBinary(SqlBinaryExpression binary, bool inSearchConditionContext)
+    protected virtual Expression VisitSqlBinary(SqlBinaryExpression binary, bool inSearchConditionContext, bool allowNullFalseEquivalence)
     {
         // Only logical operations need conditions on both sides
         var areOperandsInSearchConditionContext = binary.OperatorType is ExpressionType.AndAlso or ExpressionType.OrElse;
 
-        var newLeft = (SqlExpression)Visit(binary.Left, areOperandsInSearchConditionContext);
-        var newRight = (SqlExpression)Visit(binary.Right, areOperandsInSearchConditionContext);
+        var newLeft = (SqlExpression)Visit(binary.Left, areOperandsInSearchConditionContext, allowNullFalseEquivalence: false);
+        var newRight = (SqlExpression)Visit(binary.Right, areOperandsInSearchConditionContext, allowNullFalseEquivalence: false);
 
         if (binary.OperatorType is ExpressionType.NotEqual or ExpressionType.Equal)
         {
             var leftType = newLeft.TypeMapping?.Converter?.ProviderClrType ?? newLeft.Type;
             var rightType = newRight.TypeMapping?.Converter?.ProviderClrType ?? newRight.Type;
-            if (!inSearchConditionContext
+            if (!inSearchConditionContext && !allowNullFalseEquivalence
                 && (leftType == typeof(bool) || leftType.IsInteger())
                 && (rightType == typeof(bool) || rightType.IsInteger()))
             {
@@ -309,7 +309,7 @@ public class SearchConditionConverter(ISqlExpressionFactory sqlExpressionFactory
                         sqlUnaryExpression.OperatorType, typeof(SqlUnaryExpression)));
         }
 
-        var operand = (SqlExpression)Visit(sqlUnaryExpression.Operand, isOperandInSearchConditionContext);
+        var operand = (SqlExpression)Visit(sqlUnaryExpression.Operand, isOperandInSearchConditionContext, allowNullFalseEquivalence: false);
 
         return SimplifyNegatedBinary(
             ApplyConversion(
