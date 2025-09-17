@@ -6,7 +6,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Associations.OwnedNavigations;
 public abstract class OwnedNavigationsProjectionTestBase<TFixture>(TFixture fixture) : AssociationsProjectionTestBase<TFixture>(fixture)
     where TFixture : OwnedNavigationsFixtureBase, new()
 {
-    #region Non-collection
+    #region Structural properties
 
     public override Task Select_related(QueryTrackingBehavior queryTrackingBehavior)
         => AssertOwnedTrackingQuery(queryTrackingBehavior, () => base.Select_related(queryTrackingBehavior));
@@ -26,9 +26,14 @@ public abstract class OwnedNavigationsProjectionTestBase<TFixture>(TFixture fixt
     public override Task Select_optional_nested_on_optional_related(QueryTrackingBehavior queryTrackingBehavior)
         => AssertOwnedTrackingQuery(queryTrackingBehavior, () => base.Select_optional_nested_on_optional_related(queryTrackingBehavior));
 
-    #endregion Non-collection
+    public override Task Select_unmapped_related_scalar_property(QueryTrackingBehavior queryTrackingBehavior)
+        => AssertOwnedTrackingQuery(
+            queryTrackingBehavior,
+            () => base.Select_unmapped_related_scalar_property(queryTrackingBehavior));
 
-    #region Collection
+    #endregion Structural properties
+
+    #region Structural collection properties
 
     public override Task Select_related_collection(QueryTrackingBehavior queryTrackingBehavior)
         => AssertOwnedTrackingQuery(queryTrackingBehavior, () => base.Select_related_collection(queryTrackingBehavior));
@@ -50,7 +55,7 @@ public abstract class OwnedNavigationsProjectionTestBase<TFixture>(TFixture fixt
         => AssertOwnedTrackingQuery(
             queryTrackingBehavior, () => base.SelectMany_nested_collection_on_optional_related(queryTrackingBehavior));
 
-    #endregion Collection
+    #endregion Structural collection properties
 
     #region Multiple
 

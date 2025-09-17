@@ -45,6 +45,8 @@ public class RelatedType : IEquatable<RelatedType>
     public required string String { get; set; }
     public required List<int> Ints { get; set; }
 
+    public int Unmapped => Int + 1;
+
     public required NestedType RequiredNested { get; set; }
     public NestedType? OptionalNested { get; set; }
     public List<NestedType> NestedCollection { get; set; } = null!;

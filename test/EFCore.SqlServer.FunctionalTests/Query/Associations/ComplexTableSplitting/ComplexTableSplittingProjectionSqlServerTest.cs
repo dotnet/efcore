@@ -8,30 +8,6 @@ public class ComplexTableSplittingProjectionSqlServerTest(
     ITestOutputHelper testOutputHelper)
     : ComplexTableSplittingProjectionRelationalTestBase<ComplexTableSplittingSqlServerFixture>(fixture, testOutputHelper)
 {
-    public override async Task Select_related_collection(QueryTrackingBehavior queryTrackingBehavior)
-    {
-        await base.Select_related_collection(queryTrackingBehavior);
-
-        AssertSql(
-            """
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated_Id], [r].[OptionalRelated_Int], [r].[OptionalRelated_Ints], [r].[OptionalRelated_Name], [r].[OptionalRelated_String], [r].[OptionalRelated_OptionalNested_Id], [r].[OptionalRelated_OptionalNested_Int], [r].[OptionalRelated_OptionalNested_Ints], [r].[OptionalRelated_OptionalNested_Name], [r].[OptionalRelated_OptionalNested_String], [r].[OptionalRelated_RequiredNested_Id], [r].[OptionalRelated_RequiredNested_Int], [r].[OptionalRelated_RequiredNested_Ints], [r].[OptionalRelated_RequiredNested_Name], [r].[OptionalRelated_RequiredNested_String], [r].[RequiredRelated_Id], [r].[RequiredRelated_Int], [r].[RequiredRelated_Ints], [r].[RequiredRelated_Name], [r].[RequiredRelated_String], [r].[RequiredRelated_OptionalNested_Id], [r].[RequiredRelated_OptionalNested_Int], [r].[RequiredRelated_OptionalNested_Ints], [r].[RequiredRelated_OptionalNested_Name], [r].[RequiredRelated_OptionalNested_String], [r].[RequiredRelated_RequiredNested_Id], [r].[RequiredRelated_RequiredNested_Int], [r].[RequiredRelated_RequiredNested_Ints], [r].[RequiredRelated_RequiredNested_Name], [r].[RequiredRelated_RequiredNested_String]
-FROM [RootEntity] AS [r]
-ORDER BY [r].[Id]
-""");
-    }
-
-    public override async Task Select_nested_collection_on_required_related(QueryTrackingBehavior queryTrackingBehavior)
-    {
-        await base.Select_nested_collection_on_required_related(queryTrackingBehavior);
-
-        AssertSql(
-            """
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated_Id], [r].[OptionalRelated_Int], [r].[OptionalRelated_Ints], [r].[OptionalRelated_Name], [r].[OptionalRelated_String], [r].[OptionalRelated_OptionalNested_Id], [r].[OptionalRelated_OptionalNested_Int], [r].[OptionalRelated_OptionalNested_Ints], [r].[OptionalRelated_OptionalNested_Name], [r].[OptionalRelated_OptionalNested_String], [r].[OptionalRelated_RequiredNested_Id], [r].[OptionalRelated_RequiredNested_Int], [r].[OptionalRelated_RequiredNested_Ints], [r].[OptionalRelated_RequiredNested_Name], [r].[OptionalRelated_RequiredNested_String], [r].[RequiredRelated_Id], [r].[RequiredRelated_Int], [r].[RequiredRelated_Ints], [r].[RequiredRelated_Name], [r].[RequiredRelated_String], [r].[RequiredRelated_OptionalNested_Id], [r].[RequiredRelated_OptionalNested_Int], [r].[RequiredRelated_OptionalNested_Ints], [r].[RequiredRelated_OptionalNested_Name], [r].[RequiredRelated_OptionalNested_String], [r].[RequiredRelated_RequiredNested_Id], [r].[RequiredRelated_RequiredNested_Int], [r].[RequiredRelated_RequiredNested_Ints], [r].[RequiredRelated_RequiredNested_Name], [r].[RequiredRelated_RequiredNested_String]
-FROM [RootEntity] AS [r]
-ORDER BY [r].[Id]
-""");
-    }
-
     public override async Task Select_root(QueryTrackingBehavior queryTrackingBehavior)
     {
         await base.Select_root(queryTrackingBehavior);
@@ -42,6 +18,8 @@ SELECT [r].[Id], [r].[Name], [r].[OptionalRelated_Id], [r].[OptionalRelated_Int]
 FROM [RootEntity] AS [r]
 """);
     }
+
+    #region Scalar properties
 
     public override async Task Select_property_on_required_related(QueryTrackingBehavior queryTrackingBehavior)
     {
@@ -86,6 +64,10 @@ SELECT [r].[OptionalRelated_Int]
 FROM [RootEntity] AS [r]
 """);
     }
+
+    #endregion Scalar properties
+
+    #region Structural properties
 
     public override async Task Select_related(QueryTrackingBehavior queryTrackingBehavior)
     {
@@ -165,10 +147,64 @@ LEFT JOIN [RootEntity] AS [r0] ON [r].[RootEntityId] = [r0].[Id]
 """);
     }
 
+    public override async Task Select_unmapped_related_scalar_property(QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Select_unmapped_related_scalar_property(queryTrackingBehavior);
+
+        AssertSql(
+            """
+SELECT [r].[Id], [r].[Name], [r].[OptionalRelated_Id], [r].[OptionalRelated_Int], [r].[OptionalRelated_Ints], [r].[OptionalRelated_Name], [r].[OptionalRelated_String], [r].[OptionalRelated_OptionalNested_Id], [r].[OptionalRelated_OptionalNested_Int], [r].[OptionalRelated_OptionalNested_Ints], [r].[OptionalRelated_OptionalNested_Name], [r].[OptionalRelated_OptionalNested_String], [r].[OptionalRelated_RequiredNested_Id], [r].[OptionalRelated_RequiredNested_Int], [r].[OptionalRelated_RequiredNested_Ints], [r].[OptionalRelated_RequiredNested_Name], [r].[OptionalRelated_RequiredNested_String], [r].[RequiredRelated_Id], [r].[RequiredRelated_Int], [r].[RequiredRelated_Ints], [r].[RequiredRelated_Name], [r].[RequiredRelated_String], [r].[RequiredRelated_OptionalNested_Id], [r].[RequiredRelated_OptionalNested_Int], [r].[RequiredRelated_OptionalNested_Ints], [r].[RequiredRelated_OptionalNested_Name], [r].[RequiredRelated_OptionalNested_String], [r].[RequiredRelated_RequiredNested_Id], [r].[RequiredRelated_RequiredNested_Int], [r].[RequiredRelated_RequiredNested_Ints], [r].[RequiredRelated_RequiredNested_Name], [r].[RequiredRelated_RequiredNested_String]
+FROM [RootEntity] AS [r]
+""");
+    }
+
+    public override async Task Select_untranslatable_method_on_related_scalar_property(QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Select_untranslatable_method_on_related_scalar_property(queryTrackingBehavior);
+
+        AssertSql(
+            """
+SELECT [r].[RequiredRelated_Int]
+FROM [RootEntity] AS [r]
+""");
+    }
+
+    #endregion Structural properties
+
+    #region Structural collection properties
+
+    public override async Task Select_related_collection(QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Select_related_collection(queryTrackingBehavior);
+
+        AssertSql(
+            """
+SELECT [r].[Id], [r].[Name], [r].[OptionalRelated_Id], [r].[OptionalRelated_Int], [r].[OptionalRelated_Ints], [r].[OptionalRelated_Name], [r].[OptionalRelated_String], [r].[OptionalRelated_OptionalNested_Id], [r].[OptionalRelated_OptionalNested_Int], [r].[OptionalRelated_OptionalNested_Ints], [r].[OptionalRelated_OptionalNested_Name], [r].[OptionalRelated_OptionalNested_String], [r].[OptionalRelated_RequiredNested_Id], [r].[OptionalRelated_RequiredNested_Int], [r].[OptionalRelated_RequiredNested_Ints], [r].[OptionalRelated_RequiredNested_Name], [r].[OptionalRelated_RequiredNested_String], [r].[RequiredRelated_Id], [r].[RequiredRelated_Int], [r].[RequiredRelated_Ints], [r].[RequiredRelated_Name], [r].[RequiredRelated_String], [r].[RequiredRelated_OptionalNested_Id], [r].[RequiredRelated_OptionalNested_Int], [r].[RequiredRelated_OptionalNested_Ints], [r].[RequiredRelated_OptionalNested_Name], [r].[RequiredRelated_OptionalNested_String], [r].[RequiredRelated_RequiredNested_Id], [r].[RequiredRelated_RequiredNested_Int], [r].[RequiredRelated_RequiredNested_Ints], [r].[RequiredRelated_RequiredNested_Name], [r].[RequiredRelated_RequiredNested_String]
+FROM [RootEntity] AS [r]
+ORDER BY [r].[Id]
+""");
+    }
+
+    public override async Task Select_nested_collection_on_required_related(QueryTrackingBehavior queryTrackingBehavior)
+    {
+        // Note that collections are not supported with table splitting, only JSON;
+        // the collection selected here is unmapped, and so the test does client evaluation.
+        await base.Select_nested_collection_on_required_related(queryTrackingBehavior);
+
+        AssertSql(
+            """
+SELECT [r].[Id], [r].[Name], [r].[OptionalRelated_Id], [r].[OptionalRelated_Int], [r].[OptionalRelated_Ints], [r].[OptionalRelated_Name], [r].[OptionalRelated_String], [r].[OptionalRelated_OptionalNested_Id], [r].[OptionalRelated_OptionalNested_Int], [r].[OptionalRelated_OptionalNested_Ints], [r].[OptionalRelated_OptionalNested_Name], [r].[OptionalRelated_OptionalNested_String], [r].[OptionalRelated_RequiredNested_Id], [r].[OptionalRelated_RequiredNested_Int], [r].[OptionalRelated_RequiredNested_Ints], [r].[OptionalRelated_RequiredNested_Name], [r].[OptionalRelated_RequiredNested_String], [r].[RequiredRelated_Id], [r].[RequiredRelated_Int], [r].[RequiredRelated_Ints], [r].[RequiredRelated_Name], [r].[RequiredRelated_String], [r].[RequiredRelated_OptionalNested_Id], [r].[RequiredRelated_OptionalNested_Int], [r].[RequiredRelated_OptionalNested_Ints], [r].[RequiredRelated_OptionalNested_Name], [r].[RequiredRelated_OptionalNested_String], [r].[RequiredRelated_RequiredNested_Id], [r].[RequiredRelated_RequiredNested_Int], [r].[RequiredRelated_RequiredNested_Ints], [r].[RequiredRelated_RequiredNested_Name], [r].[RequiredRelated_RequiredNested_String]
+FROM [RootEntity] AS [r]
+ORDER BY [r].[Id]
+""");
+    }
+
     public override async Task Select_nested_collection_on_optional_related(QueryTrackingBehavior queryTrackingBehavior)
     {
         await base.Select_nested_collection_on_optional_related(queryTrackingBehavior);
 
+        // Note that collections are not supported with table splitting, only JSON;
+        // the collection selected here is unmapped, and so the test does client evaluation.
         AssertSql(
             """
 SELECT [r].[Id], [r].[Name], [r].[OptionalRelated_Id], [r].[OptionalRelated_Int], [r].[OptionalRelated_Ints], [r].[OptionalRelated_Name], [r].[OptionalRelated_String], [r].[OptionalRelated_OptionalNested_Id], [r].[OptionalRelated_OptionalNested_Int], [r].[OptionalRelated_OptionalNested_Ints], [r].[OptionalRelated_OptionalNested_Name], [r].[OptionalRelated_OptionalNested_String], [r].[OptionalRelated_RequiredNested_Id], [r].[OptionalRelated_RequiredNested_Int], [r].[OptionalRelated_RequiredNested_Ints], [r].[OptionalRelated_RequiredNested_Name], [r].[OptionalRelated_RequiredNested_String], [r].[RequiredRelated_Id], [r].[RequiredRelated_Int], [r].[RequiredRelated_Ints], [r].[RequiredRelated_Name], [r].[RequiredRelated_String], [r].[RequiredRelated_OptionalNested_Id], [r].[RequiredRelated_OptionalNested_Int], [r].[RequiredRelated_OptionalNested_Ints], [r].[RequiredRelated_OptionalNested_Name], [r].[RequiredRelated_OptionalNested_String], [r].[RequiredRelated_RequiredNested_Id], [r].[RequiredRelated_RequiredNested_Int], [r].[RequiredRelated_RequiredNested_Ints], [r].[RequiredRelated_RequiredNested_Name], [r].[RequiredRelated_RequiredNested_String]
@@ -198,6 +234,10 @@ ORDER BY [r].[Id]
         AssertSql();
     }
 
+    #endregion Structural collection properties
+
+    #region Multiple
+
     public override async Task Select_root_duplicated(QueryTrackingBehavior queryTrackingBehavior)
     {
         await base.Select_root_duplicated(queryTrackingBehavior);
@@ -208,6 +248,10 @@ SELECT [r].[Id], [r].[Name], [r].[OptionalRelated_Id], [r].[OptionalRelated_Int]
 FROM [RootEntity] AS [r]
 """);
     }
+
+    #endregion Multiple
+
+    #region Subquery
 
     public override async Task Select_subquery_required_related_FirstOrDefault(QueryTrackingBehavior queryTrackingBehavior)
     {
@@ -240,6 +284,8 @@ OUTER APPLY (
 ) AS [r1]
 """);
     }
+
+    #endregion Subquery
 
     #region Value types
 

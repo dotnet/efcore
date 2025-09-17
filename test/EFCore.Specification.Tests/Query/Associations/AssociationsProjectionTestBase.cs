@@ -12,7 +12,7 @@ public abstract class AssociationsProjectionTestBase<TFixture>(TFixture fixture)
             ss => ss.Set<RootEntity>(),
             queryTrackingBehavior: queryTrackingBehavior);
 
-    #region Simple properties
+    #region Scalar properties
 
     [ConditionalTheory, MemberData(nameof(TrackingData))]
     public virtual Task Select_property_on_required_related(QueryTrackingBehavior queryTrackingBehavior)
@@ -41,9 +41,9 @@ public abstract class AssociationsProjectionTestBase<TFixture>(TFixture fixture)
             ss => ss.Set<RootEntity>().Select(x => (int?)x.OptionalRelated!.Int),
             queryTrackingBehavior: queryTrackingBehavior);
 
-    #endregion Simple properties
+    #endregion Scalar properties
 
-    #region Non-collection
+    #region Structural properties
 
     [ConditionalTheory, MemberData(nameof(TrackingData))]
     public virtual Task Select_related(QueryTrackingBehavior queryTrackingBehavior)
@@ -87,9 +87,23 @@ public abstract class AssociationsProjectionTestBase<TFixture>(TFixture fixture)
             ss => ss.Set<RootReferencingEntity>().Select(e => e.Root!.RequiredRelated),
             queryTrackingBehavior: queryTrackingBehavior);
 
-    #endregion Non-collection
+    [ConditionalTheory, MemberData(nameof(TrackingData))]
+    public virtual Task Select_unmapped_related_scalar_property(QueryTrackingBehavior queryTrackingBehavior)
+        => AssertQuery(
+            ss => ss.Set<RootEntity>().Select(e => e.RequiredRelated.Unmapped),
+            queryTrackingBehavior: queryTrackingBehavior);
 
-    #region Collection
+    [ConditionalTheory, MemberData(nameof(TrackingData))]
+    public virtual Task Select_untranslatable_method_on_related_scalar_property(QueryTrackingBehavior queryTrackingBehavior)
+        => AssertQuery(
+            ss => ss.Set<RootEntity>().Select(e => UntranslatableMethod(e.RequiredRelated.Int)),
+            queryTrackingBehavior: queryTrackingBehavior);
+
+    private static int UntranslatableMethod(int i) => i + 1;
+
+    #endregion Structural properties
+
+    #region Structural collection properties
 
     // Note we order via the Id (server-side) to ensure the collections come back in deterministic order,
     // otherwise it's difficult/unreliable to compare client-side.
@@ -139,7 +153,7 @@ public abstract class AssociationsProjectionTestBase<TFixture>(TFixture fixture)
                 .SelectMany(x => x.OptionalRelated.Maybe(xx => xx!.NestedCollection) ?? new List<NestedType>()),
             queryTrackingBehavior: queryTrackingBehavior);
 
-    #endregion Collection
+    #endregion Structural collection properties
 
     #region Multiple
 
