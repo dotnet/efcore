@@ -193,7 +193,7 @@ public class CosmosReadItemAndPartitionKeysExtractor : ExpressionVisitor
                 if (_discriminatorHandled
                     && scalarAccessExpression.PropertyName == _discriminatorJsonPropertyName)
                 {
-                    var comparer = _entityType.FindDiscriminatorProperty()!.GetProviderValueComparer();
+                    var comparer = _entityType.FindDiscriminatorProperty()!.GetValueComparer();
                     var discriminatorValues = _entityType.GetDerivedTypesInclusive().Select(e => e.GetDiscriminatorValue()).ToList();
                     if (discriminatorValues.Count == sqlExpressions.Length)
                     {
@@ -272,7 +272,7 @@ public class CosmosReadItemAndPartitionKeysExtractor : ExpressionVisitor
                 && propertyValue is SqlConstantExpression { Value: { } specifiedDiscriminatorValue }
                 && _entityType.FindDiscriminatorProperty() is { } discriminatorProperty
                 && _entityType.GetDiscriminatorValue() is { } entityDiscriminatorValue
-                && discriminatorProperty.GetProviderValueComparer().Equals(specifiedDiscriminatorValue, entityDiscriminatorValue))
+                && discriminatorProperty.GetValueComparer().Equals(specifiedDiscriminatorValue, entityDiscriminatorValue))
             {
                 // This is the case where there is a single leaf node with a discriminator value. We always know this value,
                 // so the query never needs to drop out of ReadItem because of it.
