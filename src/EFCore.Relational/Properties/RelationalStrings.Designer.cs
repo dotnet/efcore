@@ -1628,6 +1628,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 sqlExpression);
 
         /// <summary>
+        ///     Required JSON property '{property}' cannot contain null.
+        /// </summary>
+        public static string NullValueInRequiredJsonProperty(object? property)
+            => string.Format(
+                GetString("NullValueInRequiredJsonProperty", nameof(property)),
+                property);
+
+        /// <summary>
         ///     Exactly one of '{param1}', '{param2}' or '{param3}' must be set.
         /// </summary>
         public static string OneOfThreeValuesMustBeSet(object? param1, object? param2, object? param3)

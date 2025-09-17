@@ -17,7 +17,7 @@ FROM [RootEntity] AS [r]
 """);
     }
 
-    #region Simple properties
+    #region Scalar properties
 
     public override async Task Select_property_on_required_related(QueryTrackingBehavior queryTrackingBehavior)
     {
@@ -107,9 +107,9 @@ FROM [RootEntity] AS [r]
         }
     }
 
-    #endregion Simple properties
+    #endregion Scalar properties
 
-    #region Non-collection
+    #region Structural properties
 
     public override async Task Select_related(QueryTrackingBehavior queryTrackingBehavior)
     {
@@ -210,9 +210,45 @@ LEFT JOIN [RootEntity] AS [r0] ON [r].[RootEntityId] = [r0].[Id]
         }
     }
 
-    #endregion Non-collection
+    public override async Task Select_unmapped_related_scalar_property(QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Select_unmapped_related_scalar_property(queryTrackingBehavior);
 
-    #region Collection
+        if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
+        {
+            AssertSql(
+                """
+SELECT [r].[RequiredRelated], [r].[Id]
+FROM [RootEntity] AS [r]
+""");
+        }
+    }
+
+    public override async Task Select_untranslatable_method_on_related_scalar_property(QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Select_untranslatable_method_on_related_scalar_property(queryTrackingBehavior);
+
+        if (Fixture.UsingJsonType)
+        {
+            AssertSql(
+                """
+SELECT JSON_VALUE([r].[RequiredRelated], '$.Int' RETURNING int)
+FROM [RootEntity] AS [r]
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
+SELECT CAST(JSON_VALUE([r].[RequiredRelated], '$.Int') AS int)
+FROM [RootEntity] AS [r]
+""");
+        }
+    }
+
+    #endregion Structural properties
+
+    #region Structural collection properties
 
     public override async Task Select_related_collection(QueryTrackingBehavior queryTrackingBehavior)
     {
@@ -382,7 +418,7 @@ CROSS APPLY OPENJSON([r].[OptionalRelated], '$.NestedCollection') WITH (
         }
     }
 
-    #endregion Collection
+    #endregion Structural collection properties
 
     #region Multiple
 

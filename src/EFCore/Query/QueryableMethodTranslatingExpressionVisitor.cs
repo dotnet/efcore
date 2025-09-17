@@ -580,9 +580,11 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
                         when genericMethod == QueryableMethods.Where:
                         return CheckTranslated(TranslateWhere(shapedQueryExpression, GetLambdaExpressionFromArgument(1)));
 
+                        [DebuggerStepThrough]
                         LambdaExpression GetLambdaExpressionFromArgument(int argumentIndex)
                             => methodCallExpression.Arguments[argumentIndex].UnwrapLambdaFromQuote();
 
+                        [DebuggerStepThrough]
                         Expression CheckTranslated(ShapedQueryExpression? translated)
                         {
                             if (translated is not null)
@@ -604,7 +606,8 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
 
         // The method isn't a LINQ operator on Queryable/QueryableExtensions.
 
-        // Identify property access, e.g. primitive collection property (context.Blogs.Where(b => b.Tags.Contains(...)))
+        // Identify property access, i.e. primitive collection property (context.Blogs.Where(b => b.Tags.Contains(...))),
+        // complex collection property...
         if (IsMemberAccess(methodCallExpression, QueryCompilationContext.Model, out var propertyAccessSource, out var propertyName)
             && TranslateMemberAccess(propertyAccessSource, propertyName) is { } translation)
         {
@@ -617,6 +620,25 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
                 ? throw new InvalidOperationException(CoreStrings.TranslationFailed(methodCallExpression.Print()))
                 : throw new InvalidOperationException(
                     CoreStrings.TranslationFailedWithDetails(methodCallExpression.Print(), TranslationErrorDetails));
+    }
+
+    /// <inheritdoc />
+    protected override Expression VisitMember(MemberExpression memberExpression)
+    {
+        // Identify property access, i.e. primitive collection property (context.Blogs.Where(b => b.Tags.Contains(...))),
+        // complex collection property...
+        if (IsMemberAccess(memberExpression, QueryCompilationContext.Model, out var propertyAccessSource, out var propertyName)
+            && TranslateMemberAccess(propertyAccessSource, propertyName) is { } translation)
+        {
+            return translation;
+        }
+
+        return _subquery
+            ? QueryCompilationContext.NotTranslatedExpression
+            : TranslationErrorDetails is null
+                ? throw new InvalidOperationException(CoreStrings.TranslationFailed(memberExpression.Print()))
+                : throw new InvalidOperationException(
+                    CoreStrings.TranslationFailedWithDetails(memberExpression.Print(), TranslationErrorDetails));
     }
 
     private sealed class EntityShaperNullableMarkingExpressionVisitor : ExpressionVisitor
