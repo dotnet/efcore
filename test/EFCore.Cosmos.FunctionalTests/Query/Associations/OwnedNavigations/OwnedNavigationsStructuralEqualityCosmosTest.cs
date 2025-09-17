@@ -12,9 +12,9 @@ public class OwnedNavigationsStructuralEqualityCosmosTest : OwnedNavigationsStru
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    public override async Task Two_related()
+    public override async Task Two_associates()
     {
-        await base.Two_related();
+        await base.Two_associates();
 
         AssertSql(
             """
@@ -24,9 +24,9 @@ WHERE false
 """);
     }
 
-    public override async Task Two_nested()
+    public override async Task Two_nested_associates()
     {
-        await base.Two_nested();
+        await base.Two_nested_associates();
 
         AssertSql(
             """
@@ -48,25 +48,25 @@ WHERE false
 """);
     }
 
-    public override Task Related_with_inline_null()
-        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Related_with_inline_null());
+    public override Task Associate_with_inline_null()
+        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Associate_with_inline_null());
 
-    public override Task Related_with_parameter_null()
-        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Related_with_parameter_null());
+    public override Task Associate_with_parameter_null()
+        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Associate_with_parameter_null());
 
-    public override Task Nested_with_inline_null()
-        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Nested_with_inline_null());
+    public override Task Nested_associate_with_inline_null()
+        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Nested_associate_with_inline_null());
 
-    public override async Task Nested_with_inline()
+    public override async Task Nested_associate_with_inline()
     {
-        await base.Nested_with_inline();
+        await base.Nested_associate_with_inline();
 
         AssertSql();
     }
 
-    public override async Task Nested_with_parameter()
+    public override async Task Nested_associate_with_parameter()
     {
-        await base.Nested_with_parameter();
+        await base.Nested_associate_with_parameter();
 
         AssertSql();
     }

@@ -24,16 +24,16 @@ WHERE [r].[Name] = @deletableEntity_Name
 """);
     }
 
-    public override async Task Delete_required_association()
+    public override async Task Delete_required_associate()
     {
-        await base.Delete_required_association();
+        await base.Delete_required_associate();
 
         AssertSql();
     }
 
-    public override async Task Delete_optional_association()
+    public override async Task Delete_optional_associate()
     {
-        await base.Delete_optional_association();
+        await base.Delete_optional_associate();
 
         AssertSql();
     }
@@ -42,9 +42,9 @@ WHERE [r].[Name] = @deletableEntity_Name
 
     #region Update properties
 
-    public override async Task Update_property_inside_association()
+    public override async Task Update_property_inside_associate()
     {
-        await base.Update_property_inside_association();
+        await base.Update_property_inside_associate();
 
         if (Fixture.UsingJsonType)
         {
@@ -53,7 +53,7 @@ WHERE [r].[Name] = @deletableEntity_Name
 @p='?' (Size = 4000)
 
 UPDATE [r]
-SET [RequiredRelated].modify('$.String', @p)
+SET [RequiredAssociate].modify('$.String', @p)
 FROM [RootEntity] AS [r]
 """);
         }
@@ -64,24 +64,24 @@ FROM [RootEntity] AS [r]
 @p='?' (Size = 4000)
 
 UPDATE [r]
-SET [r].[RequiredRelated] = JSON_MODIFY([r].[RequiredRelated], '$.String', @p)
+SET [r].[RequiredAssociate] = JSON_MODIFY([r].[RequiredAssociate], '$.String', @p)
 FROM [RootEntity] AS [r]
 """);
         }
     }
 
-    public override async Task Update_property_inside_association_with_special_chars()
+    public override async Task Update_property_inside_associate_with_special_chars()
     {
-        await base.Update_property_inside_association_with_special_chars();
+        await base.Update_property_inside_associate_with_special_chars();
 
         if (Fixture.UsingJsonType)
         {
             AssertExecuteUpdateSql(
                 """
 UPDATE [r]
-SET [RequiredRelated].modify('$.String', N'{ Some other/JSON:like text though it [isn''t]: ממש ממש לאéèéè }')
+SET [RequiredAssociate].modify('$.String', N'{ Some other/JSON:like text though it [isn''t]: ממש ממש לאéèéè }')
 FROM [RootEntity] AS [r]
-WHERE JSON_VALUE([r].[RequiredRelated], '$.String' RETURNING nvarchar(max)) = N'{ this may/look:like JSON but it [isn''t]: ממש ממש לאéèéè }'
+WHERE JSON_VALUE([r].[RequiredAssociate], '$.String' RETURNING nvarchar(max)) = N'{ this may/look:like JSON but it [isn''t]: ממש ממש לאéèéè }'
 """);
         }
         else
@@ -89,16 +89,16 @@ WHERE JSON_VALUE([r].[RequiredRelated], '$.String' RETURNING nvarchar(max)) = N'
             AssertExecuteUpdateSql(
                 """
 UPDATE [r]
-SET [r].[RequiredRelated] = JSON_MODIFY([r].[RequiredRelated], '$.String', N'{ Some other/JSON:like text though it [isn''t]: ממש ממש לאéèéè }')
+SET [r].[RequiredAssociate] = JSON_MODIFY([r].[RequiredAssociate], '$.String', N'{ Some other/JSON:like text though it [isn''t]: ממש ממש לאéèéè }')
 FROM [RootEntity] AS [r]
-WHERE JSON_VALUE([r].[RequiredRelated], '$.String') = N'{ this may/look:like JSON but it [isn''t]: ממש ממש לאéèéè }'
+WHERE JSON_VALUE([r].[RequiredAssociate], '$.String') = N'{ this may/look:like JSON but it [isn''t]: ממש ממש לאéèéè }'
 """);
         }
     }
 
-    public override async Task Update_property_inside_nested()
+    public override async Task Update_property_inside_nested_associate()
     {
-        await base.Update_property_inside_nested();
+        await base.Update_property_inside_nested_associate();
 
         if (Fixture.UsingJsonType)
         {
@@ -107,35 +107,7 @@ WHERE JSON_VALUE([r].[RequiredRelated], '$.String') = N'{ this may/look:like JSO
 @p='?' (Size = 4000)
 
 UPDATE [r]
-SET [RequiredRelated].modify('$.RequiredNested.String', @p)
-FROM [RootEntity] AS [r]
-""");
-        }
-        else
-        {
-            AssertExecuteUpdateSql(
-                """
-@p='?' (Size = 4000)
-
-UPDATE [r]
-SET [r].[RequiredRelated] = JSON_MODIFY([r].[RequiredRelated], '$.RequiredNested.String', @p)
-FROM [RootEntity] AS [r]
-""");
-        }
-    }
-
-    public override async Task Update_property_on_projected_association()
-    {
-        await base.Update_property_on_projected_association();
-
-        if (Fixture.UsingJsonType)
-        {
-            AssertExecuteUpdateSql(
-                """
-@p='?' (Size = 4000)
-
-UPDATE [r]
-SET [RequiredRelated].modify('$.String', @p)
+SET [RequiredAssociate].modify('$.RequiredNestedAssociate.String', @p)
 FROM [RootEntity] AS [r]
 """);
         }
@@ -146,22 +118,50 @@ FROM [RootEntity] AS [r]
 @p='?' (Size = 4000)
 
 UPDATE [r]
-SET [r].[RequiredRelated] = JSON_MODIFY([r].[RequiredRelated], '$.String', @p)
+SET [r].[RequiredAssociate] = JSON_MODIFY([r].[RequiredAssociate], '$.RequiredNestedAssociate.String', @p)
 FROM [RootEntity] AS [r]
 """);
         }
     }
 
-    public override async Task Update_property_on_projected_association_with_OrderBy_Skip()
+    public override async Task Update_property_on_projected_associate()
     {
-        await base.Update_property_on_projected_association_with_OrderBy_Skip();
+        await base.Update_property_on_projected_associate();
+
+        if (Fixture.UsingJsonType)
+        {
+            AssertExecuteUpdateSql(
+                """
+@p='?' (Size = 4000)
+
+UPDATE [r]
+SET [RequiredAssociate].modify('$.String', @p)
+FROM [RootEntity] AS [r]
+""");
+        }
+        else
+        {
+            AssertExecuteUpdateSql(
+                """
+@p='?' (Size = 4000)
+
+UPDATE [r]
+SET [r].[RequiredAssociate] = JSON_MODIFY([r].[RequiredAssociate], '$.String', @p)
+FROM [RootEntity] AS [r]
+""");
+        }
+    }
+
+    public override async Task Update_property_on_projected_associate_with_OrderBy_Skip()
+    {
+        await base.Update_property_on_projected_associate_with_OrderBy_Skip();
 
         AssertExecuteUpdateSql();
     }
 
-    public override async Task Update_association_with_null_required_property()
+    public override async Task Update_associate_with_null_required_property()
     {
-        await base.Update_association_with_null_required_property();
+        await base.Update_associate_with_null_required_property();
 
         AssertExecuteUpdateSql();
     }
@@ -170,23 +170,23 @@ FROM [RootEntity] AS [r]
 
     #region Update association
 
-    public override async Task Update_association_to_parameter()
+    public override async Task Update_associate_to_parameter()
     {
-        await base.Update_association_to_parameter();
+        await base.Update_associate_to_parameter();
 
         AssertExecuteUpdateSql(
             """
-@complex_type_p='?' (Size = 257)
+@complex_type_p='?' (Size = 277)
 
 UPDATE [r]
-SET [r].[RequiredRelated] = @complex_type_p
+SET [r].[RequiredAssociate] = @complex_type_p
 FROM [RootEntity] AS [r]
 """);
     }
 
-    public override async Task Update_nested_association_to_parameter()
+    public override async Task Update_nested_associate_to_parameter()
     {
-        await base.Update_nested_association_to_parameter();
+        await base.Update_nested_associate_to_parameter();
 
         if (Fixture.UsingJsonType)
         {
@@ -195,7 +195,7 @@ FROM [RootEntity] AS [r]
 @complex_type_p='?' (Size = 97)
 
 UPDATE [r]
-SET [RequiredRelated].modify('$.RequiredNested', @complex_type_p)
+SET [RequiredAssociate].modify('$.RequiredNestedAssociate', @complex_type_p)
 FROM [RootEntity] AS [r]
 """);
         }
@@ -206,34 +206,34 @@ FROM [RootEntity] AS [r]
 @complex_type_p='?' (Size = 97)
 
 UPDATE [r]
-SET [r].[RequiredRelated] = JSON_MODIFY([r].[RequiredRelated], '$.RequiredNested', JSON_QUERY(@complex_type_p))
+SET [r].[RequiredAssociate] = JSON_MODIFY([r].[RequiredAssociate], '$.RequiredNestedAssociate', JSON_QUERY(@complex_type_p))
 FROM [RootEntity] AS [r]
 """);
         }
     }
 
-    public override async Task Update_association_to_another_association()
+    public override async Task Update_associate_to_another_associate()
     {
-        await base.Update_association_to_another_association();
+        await base.Update_associate_to_another_associate();
 
         AssertExecuteUpdateSql(
             """
 UPDATE [r]
-SET [r].[OptionalRelated] = [r].[RequiredRelated]
+SET [r].[OptionalAssociate] = [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
 """);
     }
 
-    public override async Task Update_nested_association_to_another_nested_association()
+    public override async Task Update_nested_associate_to_another_nested_associate()
     {
-        await base.Update_nested_association_to_another_nested_association();
+        await base.Update_nested_associate_to_another_nested_associate();
 
         if (Fixture.UsingJsonType)
         {
             AssertExecuteUpdateSql(
                 """
 UPDATE [r]
-SET [RequiredRelated].modify('$.OptionalNested', JSON_QUERY([r].[RequiredRelated], '$.RequiredNested'))
+SET [RequiredAssociate].modify('$.OptionalNestedAssociate', JSON_QUERY([r].[RequiredAssociate], '$.RequiredNestedAssociate'))
 FROM [RootEntity] AS [r]
 """);
         }
@@ -242,48 +242,48 @@ FROM [RootEntity] AS [r]
             AssertExecuteUpdateSql(
                 """
 UPDATE [r]
-SET [r].[RequiredRelated] = JSON_MODIFY([r].[RequiredRelated], '$.OptionalNested', JSON_QUERY([r].[RequiredRelated], '$.RequiredNested'))
+SET [r].[RequiredAssociate] = JSON_MODIFY([r].[RequiredAssociate], '$.OptionalNestedAssociate', JSON_QUERY([r].[RequiredAssociate], '$.RequiredNestedAssociate'))
 FROM [RootEntity] AS [r]
 """);
         }
     }
 
-    public override async Task Update_association_to_inline()
+    public override async Task Update_associate_to_inline()
     {
-        await base.Update_association_to_inline();
+        await base.Update_associate_to_inline();
 
         AssertExecuteUpdateSql(
             """
-@complex_type_p='?' (Size = 258)
+@complex_type_p='?' (Size = 280)
 
 UPDATE [r]
-SET [r].[RequiredRelated] = @complex_type_p
+SET [r].[RequiredAssociate] = @complex_type_p
 FROM [RootEntity] AS [r]
 """);
     }
 
-    public override async Task Update_association_to_inline_with_lambda()
+    public override async Task Update_associate_to_inline_with_lambda()
     {
-        await base.Update_association_to_inline_with_lambda();
+        await base.Update_associate_to_inline_with_lambda();
 
         AssertExecuteUpdateSql(
             """
 UPDATE [r]
-SET [r].[RequiredRelated] = '{"Id":1000,"Int":70,"Ints":[1,2,4],"Name":"Updated related name","String":"Updated related string","NestedCollection":[],"OptionalNested":null,"RequiredNested":{"Id":1000,"Int":80,"Ints":[1,2,4],"Name":"Updated nested name","String":"Updated nested string"}}'
+SET [r].[RequiredAssociate] = '{"Id":1000,"Int":70,"Ints":[1,2,4],"Name":"Updated associate name","String":"Updated associate string","NestedCollection":[],"OptionalNestedAssociate":null,"RequiredNestedAssociate":{"Id":1000,"Int":80,"Ints":[1,2,4],"Name":"Updated nested name","String":"Updated nested string"}}'
 FROM [RootEntity] AS [r]
 """);
     }
 
-    public override async Task Update_nested_association_to_inline_with_lambda()
+    public override async Task Update_nested_associate_to_inline_with_lambda()
     {
-        await base.Update_nested_association_to_inline_with_lambda();
+        await base.Update_nested_associate_to_inline_with_lambda();
 
         if (Fixture.UsingJsonType)
         {
             AssertExecuteUpdateSql(
                 """
 UPDATE [r]
-SET [RequiredRelated].modify('$.RequiredNested', CAST('{"Id":1000,"Int":80,"Ints":[1,2,4],"Name":"Updated nested name","String":"Updated nested string"}' AS json))
+SET [RequiredAssociate].modify('$.RequiredNestedAssociate', CAST('{"Id":1000,"Int":80,"Ints":[1,2,4],"Name":"Updated nested name","String":"Updated nested string"}' AS json))
 FROM [RootEntity] AS [r]
 """);
         }
@@ -292,51 +292,51 @@ FROM [RootEntity] AS [r]
             AssertExecuteUpdateSql(
                 """
 UPDATE [r]
-SET [r].[RequiredRelated] = JSON_MODIFY([r].[RequiredRelated], '$.RequiredNested', JSON_QUERY('{"Id":1000,"Int":80,"Ints":[1,2,4],"Name":"Updated nested name","String":"Updated nested string"}'))
+SET [r].[RequiredAssociate] = JSON_MODIFY([r].[RequiredAssociate], '$.RequiredNestedAssociate', JSON_QUERY('{"Id":1000,"Int":80,"Ints":[1,2,4],"Name":"Updated nested name","String":"Updated nested string"}'))
 FROM [RootEntity] AS [r]
 """);
         }
     }
 
-    public override async Task Update_association_to_null()
+    public override async Task Update_associate_to_null()
     {
-        await base.Update_association_to_null();
+        await base.Update_associate_to_null();
 
         AssertExecuteUpdateSql(
             """
 UPDATE [r]
-SET [r].[OptionalRelated] = NULL
+SET [r].[OptionalAssociate] = NULL
 FROM [RootEntity] AS [r]
 """);
     }
 
-    public override async Task Update_association_to_null_with_lambda()
+    public override async Task Update_associate_to_null_with_lambda()
     {
-        await base.Update_association_to_null_with_lambda();
+        await base.Update_associate_to_null_with_lambda();
 
         AssertExecuteUpdateSql(
             """
 UPDATE [r]
-SET [r].[OptionalRelated] = NULL
+SET [r].[OptionalAssociate] = NULL
 FROM [RootEntity] AS [r]
 """);
     }
 
-    public override async Task Update_association_to_null_parameter()
+    public override async Task Update_associate_to_null_parameter()
     {
-        await base.Update_association_to_null_parameter();
+        await base.Update_associate_to_null_parameter();
 
         AssertExecuteUpdateSql(
             """
 UPDATE [r]
-SET [r].[OptionalRelated] = NULL
+SET [r].[OptionalAssociate] = NULL
 FROM [RootEntity] AS [r]
 """);
     }
 
-    public override async Task Update_association_with_null_required_nested_association()
+    public override async Task Update_required_nested_associate_to_null()
     {
-        await base.Update_association_with_null_required_nested_association();
+        await base.Update_required_nested_associate_to_null();
 
         AssertExecuteUpdateSql();
     }
@@ -351,10 +351,10 @@ FROM [RootEntity] AS [r]
 
         AssertExecuteUpdateSql(
             """
-@complex_type_p='?' (Size = 527)
+@complex_type_p='?' (Size = 571)
 
 UPDATE [r]
-SET [r].[RelatedCollection] = @complex_type_p
+SET [r].[AssociateCollection] = @complex_type_p
 FROM [RootEntity] AS [r]
 """);
     }
@@ -370,7 +370,7 @@ FROM [RootEntity] AS [r]
 @complex_type_p='?' (Size = 201)
 
 UPDATE [r]
-SET [RequiredRelated].modify('$.NestedCollection', @complex_type_p)
+SET [RequiredAssociate].modify('$.NestedCollection', @complex_type_p)
 FROM [RootEntity] AS [r]
 """);
         }
@@ -381,7 +381,7 @@ FROM [RootEntity] AS [r]
 @complex_type_p='?' (Size = 201)
 
 UPDATE [r]
-SET [r].[RequiredRelated] = JSON_MODIFY([r].[RequiredRelated], '$.NestedCollection', JSON_QUERY(@complex_type_p))
+SET [r].[RequiredAssociate] = JSON_MODIFY([r].[RequiredAssociate], '$.NestedCollection', JSON_QUERY(@complex_type_p))
 FROM [RootEntity] AS [r]
 """);
         }
@@ -396,7 +396,7 @@ FROM [RootEntity] AS [r]
             AssertExecuteUpdateSql(
                 """
 UPDATE [r]
-SET [RequiredRelated].modify('$.NestedCollection', CAST('[{"Id":1000,"Int":80,"Ints":[1,2,4],"Name":"Updated nested name1","String":"Updated nested string1"},{"Id":1001,"Int":81,"Ints":[1,2,4],"Name":"Updated nested name2","String":"Updated nested string2"}]' AS json))
+SET [RequiredAssociate].modify('$.NestedCollection', CAST('[{"Id":1000,"Int":80,"Ints":[1,2,4],"Name":"Updated nested name1","String":"Updated nested string1"},{"Id":1001,"Int":81,"Ints":[1,2,4],"Name":"Updated nested name2","String":"Updated nested string2"}]' AS json))
 FROM [RootEntity] AS [r]
 """);
         }
@@ -405,7 +405,7 @@ FROM [RootEntity] AS [r]
             AssertExecuteUpdateSql(
                 """
 UPDATE [r]
-SET [r].[RequiredRelated] = JSON_MODIFY([r].[RequiredRelated], '$.NestedCollection', JSON_QUERY('[{"Id":1000,"Int":80,"Ints":[1,2,4],"Name":"Updated nested name1","String":"Updated nested string1"},{"Id":1001,"Int":81,"Ints":[1,2,4],"Name":"Updated nested name2","String":"Updated nested string2"}]'))
+SET [r].[RequiredAssociate] = JSON_MODIFY([r].[RequiredAssociate], '$.NestedCollection', JSON_QUERY('[{"Id":1000,"Int":80,"Ints":[1,2,4],"Name":"Updated nested name1","String":"Updated nested string1"},{"Id":1001,"Int":81,"Ints":[1,2,4],"Name":"Updated nested name2","String":"Updated nested string2"}]'))
 FROM [RootEntity] AS [r]
 """);
         }
@@ -420,9 +420,9 @@ FROM [RootEntity] AS [r]
             AssertExecuteUpdateSql(
                 """
 UPDATE [r]
-SET [RequiredRelated].modify('$.NestedCollection', JSON_QUERY([r].[OptionalRelated], '$.NestedCollection'))
+SET [RequiredAssociate].modify('$.NestedCollection', JSON_QUERY([r].[OptionalAssociate], '$.NestedCollection'))
 FROM [RootEntity] AS [r]
-WHERE [r].[OptionalRelated] IS NOT NULL
+WHERE [r].[OptionalAssociate] IS NOT NULL
 """);
         }
         else
@@ -430,9 +430,9 @@ WHERE [r].[OptionalRelated] IS NOT NULL
             AssertExecuteUpdateSql(
                 """
 UPDATE [r]
-SET [r].[RequiredRelated] = JSON_MODIFY([r].[RequiredRelated], '$.NestedCollection', JSON_QUERY([r].[OptionalRelated], '$.NestedCollection'))
+SET [r].[RequiredAssociate] = JSON_MODIFY([r].[RequiredAssociate], '$.NestedCollection', JSON_QUERY([r].[OptionalAssociate], '$.NestedCollection'))
 FROM [RootEntity] AS [r]
-WHERE [r].[OptionalRelated] IS NOT NULL
+WHERE [r].[OptionalAssociate] IS NOT NULL
 """);
         }
     }
@@ -464,7 +464,7 @@ WHERE [r].[OptionalRelated] IS NOT NULL
             AssertExecuteUpdateSql(
                 """
 UPDATE [r]
-SET [RequiredRelated].modify('$.Ints', CAST('[1,2,4]' AS json))
+SET [RequiredAssociate].modify('$.Ints', CAST('[1,2,4]' AS json))
 FROM [RootEntity] AS [r]
 """);
         }
@@ -473,7 +473,7 @@ FROM [RootEntity] AS [r]
             AssertExecuteUpdateSql(
                 """
 UPDATE [r]
-SET [r].[RequiredRelated] = JSON_MODIFY([r].[RequiredRelated], '$.Ints', JSON_QUERY(N'[1,2,4]'))
+SET [r].[RequiredAssociate] = JSON_MODIFY([r].[RequiredAssociate], '$.Ints', JSON_QUERY(N'[1,2,4]'))
 FROM [RootEntity] AS [r]
 """);
         }
@@ -490,7 +490,7 @@ FROM [RootEntity] AS [r]
 @ints='?' (Size = 8000)
 
 UPDATE [r]
-SET [RequiredRelated].modify('$.Ints', @ints)
+SET [RequiredAssociate].modify('$.Ints', @ints)
 FROM [RootEntity] AS [r]
 """);
         }
@@ -501,7 +501,7 @@ FROM [RootEntity] AS [r]
 @ints='?' (Size = 4000)
 
 UPDATE [r]
-SET [r].[RequiredRelated] = JSON_MODIFY([r].[RequiredRelated], '$.Ints', JSON_QUERY(@ints))
+SET [r].[RequiredAssociate] = JSON_MODIFY([r].[RequiredAssociate], '$.Ints', JSON_QUERY(@ints))
 FROM [RootEntity] AS [r]
 """);
         }
@@ -516,7 +516,7 @@ FROM [RootEntity] AS [r]
             AssertExecuteUpdateSql(
                 """
 UPDATE [r]
-SET [RequiredRelated].modify('$.OptionalNested.Ints', JSON_QUERY([r].[RequiredRelated], '$.RequiredNested.Ints'))
+SET [RequiredAssociate].modify('$.OptionalNestedAssociate.Ints', JSON_QUERY([r].[RequiredAssociate], '$.RequiredNestedAssociate.Ints'))
 FROM [RootEntity] AS [r]
 """);
         }
@@ -525,7 +525,7 @@ FROM [RootEntity] AS [r]
             AssertExecuteUpdateSql(
                 """
 UPDATE [r]
-SET [r].[RequiredRelated] = JSON_MODIFY([r].[RequiredRelated], '$.OptionalNested.Ints', JSON_QUERY([r].[RequiredRelated], '$.RequiredNested.Ints'))
+SET [r].[RequiredAssociate] = JSON_MODIFY([r].[RequiredAssociate], '$.OptionalNestedAssociate.Ints', JSON_QUERY([r].[RequiredAssociate], '$.RequiredNestedAssociate.Ints'))
 FROM [RootEntity] AS [r]
 """);
         }
@@ -542,11 +542,11 @@ FROM [RootEntity] AS [r]
 @p='?' (DbType = Int32)
 
 UPDATE [r]
-SET [RequiredRelated].modify('$.Ints[1]', @p)
+SET [RequiredAssociate].modify('$.Ints[1]', @p)
 FROM [RootEntity] AS [r]
 WHERE (
     SELECT COUNT(*)
-    FROM OPENJSON(JSON_QUERY([r].[RequiredRelated], '$.Ints')) AS [i]) >= 2
+    FROM OPENJSON(JSON_QUERY([r].[RequiredAssociate], '$.Ints')) AS [i]) >= 2
 """);
         }
         else
@@ -556,11 +556,11 @@ WHERE (
 @p='?' (DbType = Int32)
 
 UPDATE [r]
-SET [r].[RequiredRelated] = JSON_MODIFY([r].[RequiredRelated], '$.Ints[1]', @p)
+SET [r].[RequiredAssociate] = JSON_MODIFY([r].[RequiredAssociate], '$.Ints[1]', @p)
 FROM [RootEntity] AS [r]
 WHERE (
     SELECT COUNT(*)
-    FROM OPENJSON(JSON_QUERY([r].[RequiredRelated], '$.Ints')) AS [i]) >= 2
+    FROM OPENJSON(JSON_QUERY([r].[RequiredAssociate], '$.Ints')) AS [i]) >= 2
 """);
         }
     }
@@ -569,9 +569,9 @@ WHERE (
 
     #region Multiple updates
 
-    public override async Task Update_multiple_properties_inside_same_association()
+    public override async Task Update_multiple_properties_inside_same_associate()
     {
-        await base.Update_multiple_properties_inside_same_association();
+        await base.Update_multiple_properties_inside_same_associate();
 
         // Note that since two properties within the same JSON column are updated, SQL Server 2025 modify
         // is not used (it only supports modifying a single property)
@@ -581,14 +581,14 @@ WHERE (
 @p0='?' (DbType = Int32)
 
 UPDATE [r]
-SET [r].[RequiredRelated] = JSON_MODIFY(JSON_MODIFY([r].[RequiredRelated], '$.String', @p), '$.Int', @p0)
+SET [r].[RequiredAssociate] = JSON_MODIFY(JSON_MODIFY([r].[RequiredAssociate], '$.String', @p), '$.Int', @p0)
 FROM [RootEntity] AS [r]
 """);
     }
 
-    public override async Task Update_multiple_properties_inside_associations_and_on_entity_type()
+    public override async Task Update_multiple_properties_inside_associates_and_on_entity_type()
     {
-        await base.Update_multiple_properties_inside_associations_and_on_entity_type();
+        await base.Update_multiple_properties_inside_associates_and_on_entity_type();
 
         if (Fixture.UsingJsonType)
         {
@@ -598,10 +598,10 @@ FROM [RootEntity] AS [r]
 
 UPDATE [r]
 SET [r].[Name] = [r].[Name] + N'Modified',
-    [RequiredRelated].modify('$.String', JSON_VALUE([r].[OptionalRelated], '$.String' RETURNING nvarchar(max))),
-    [OptionalRelated].modify('$.RequiredNested.String', @p)
+    [RequiredAssociate].modify('$.String', JSON_VALUE([r].[OptionalAssociate], '$.String' RETURNING nvarchar(max))),
+    [OptionalAssociate].modify('$.RequiredNestedAssociate.String', @p)
 FROM [RootEntity] AS [r]
-WHERE [r].[OptionalRelated] IS NOT NULL
+WHERE [r].[OptionalAssociate] IS NOT NULL
 """);
         }
         else
@@ -612,17 +612,17 @@ WHERE [r].[OptionalRelated] IS NOT NULL
 
 UPDATE [r]
 SET [r].[Name] = [r].[Name] + N'Modified',
-    [r].[RequiredRelated] = JSON_MODIFY([r].[RequiredRelated], '$.String', JSON_VALUE([r].[OptionalRelated], '$.String')),
-    [r].[OptionalRelated] = JSON_MODIFY([r].[OptionalRelated], '$.RequiredNested.String', @p)
+    [r].[RequiredAssociate] = JSON_MODIFY([r].[RequiredAssociate], '$.String', JSON_VALUE([r].[OptionalAssociate], '$.String')),
+    [r].[OptionalAssociate] = JSON_MODIFY([r].[OptionalAssociate], '$.RequiredNestedAssociate.String', @p)
 FROM [RootEntity] AS [r]
-WHERE [r].[OptionalRelated] IS NOT NULL
+WHERE [r].[OptionalAssociate] IS NOT NULL
 """);
         }
     }
 
-    public override async Task Update_multiple_projected_associations_via_anonymous_type()
+    public override async Task Update_multiple_projected_associates_via_anonymous_type()
     {
-        await base.Update_multiple_projected_associations_via_anonymous_type();
+        await base.Update_multiple_projected_associates_via_anonymous_type();
 
         if (Fixture.UsingJsonType)
         {
@@ -631,10 +631,10 @@ WHERE [r].[OptionalRelated] IS NOT NULL
 @p='?' (Size = 4000)
 
 UPDATE [r]
-SET [RequiredRelated].modify('$.String', JSON_VALUE([r].[OptionalRelated], '$.String' RETURNING nvarchar(max))),
-    [OptionalRelated].modify('$.String', @p)
+SET [RequiredAssociate].modify('$.String', JSON_VALUE([r].[OptionalAssociate], '$.String' RETURNING nvarchar(max))),
+    [OptionalAssociate].modify('$.String', @p)
 FROM [RootEntity] AS [r]
-WHERE [r].[OptionalRelated] IS NOT NULL
+WHERE [r].[OptionalAssociate] IS NOT NULL
 """);
         }
         else
@@ -644,10 +644,10 @@ WHERE [r].[OptionalRelated] IS NOT NULL
 @p='?' (Size = 4000)
 
 UPDATE [r]
-SET [r].[RequiredRelated] = JSON_MODIFY([r].[RequiredRelated], '$.String', JSON_VALUE([r].[OptionalRelated], '$.String')),
-    [r].[OptionalRelated] = JSON_MODIFY([r].[OptionalRelated], '$.String', @p)
+SET [r].[RequiredAssociate] = JSON_MODIFY([r].[RequiredAssociate], '$.String', JSON_VALUE([r].[OptionalAssociate], '$.String')),
+    [r].[OptionalAssociate] = JSON_MODIFY([r].[OptionalAssociate], '$.String', @p)
 FROM [RootEntity] AS [r]
-WHERE [r].[OptionalRelated] IS NOT NULL
+WHERE [r].[OptionalAssociate] IS NOT NULL
 """);
         }
     }

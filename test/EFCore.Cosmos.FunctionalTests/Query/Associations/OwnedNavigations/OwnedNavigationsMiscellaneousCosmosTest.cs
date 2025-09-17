@@ -12,39 +12,39 @@ public class OwnedNavigationsMiscellaneousCosmosTest : OwnedNavigationsMiscellan
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    public override async Task Where_related_property()
+    public override async Task Where_on_associate_scalar_property()
     {
-        await base.Where_related_property();
+        await base.Where_on_associate_scalar_property();
 
         AssertSql(
             """
 SELECT VALUE c
 FROM root c
-WHERE (c["RequiredRelated"]["Int"] = 8)
+WHERE (c["RequiredAssociate"]["Int"] = 8)
 """);
     }
 
-    public override async Task Where_optional_related_property()
+    public override async Task Where_on_optional_associate_scalar_property()
     {
-        await base.Where_optional_related_property();
+        await base.Where_on_optional_associate_scalar_property();
 
         AssertSql(
             """
 SELECT VALUE c
 FROM root c
-WHERE (c["OptionalRelated"]["Int"] = 8)
+WHERE (c["OptionalAssociate"]["Int"] = 8)
 """);
     }
 
-    public override async Task Where_nested_related_property()
+    public override async Task Where_on_nested_associate_scalar_property()
     {
-        await base.Where_nested_related_property();
+        await base.Where_on_nested_associate_scalar_property();
 
         AssertSql(
             """
 SELECT VALUE c
 FROM root c
-WHERE (c["RequiredRelated"]["RequiredNested"]["Int"] = 8)
+WHERE (c["RequiredAssociate"]["RequiredNestedAssociate"]["Int"] = 8)
 """);
     }
 

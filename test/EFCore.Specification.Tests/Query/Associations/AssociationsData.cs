@@ -8,8 +8,8 @@ public class AssociationsData : ISetSource
     public AssociationsData()
     {
         RootEntities = CreateRootEntities();
-        RelatedTypes = [];
-        NestedTypes = [];
+        Associates = [];
+        NestedAssociates = [];
         RootReferencingEntities = CreateRootReferencingEntities(RootEntities);
 
         ValueRootEntities = CreateValueRootEntities(RootEntities);
@@ -18,8 +18,8 @@ public class AssociationsData : ISetSource
     public List<RootEntity> RootEntities { get; }
 
     // TODO: Remove? Relevant only for non-owned navigations
-    public List<RelatedType> RelatedTypes { get; }
-    public List<NestedType> NestedTypes { get; }
+    public List<AssociateType> Associates { get; }
+    public List<NestedAssociateType> NestedAssociates { get; }
 
     public List<RootReferencingEntity> RootReferencingEntities { get; }
 
@@ -38,34 +38,34 @@ public class AssociationsData : ISetSource
             CreateRootEntity(
                 id++, description: "With_other_values", e =>
                 {
-                    SetRelatedValues(e.RequiredRelated);
+                    SetAssociateValues(e.RequiredAssociate);
 
-                    if (e.OptionalRelated is not null)
+                    if (e.OptionalAssociate is not null)
                     {
-                        SetRelatedValues(e.OptionalRelated);
+                        SetAssociateValues(e.OptionalAssociate);
                     }
 
-                    foreach (var related in e.RelatedCollection)
+                    foreach (var associate in e.AssociateCollection)
                     {
-                        SetRelatedValues(related);
+                        SetAssociateValues(associate);
                     }
 
-                    void SetRelatedValues(RelatedType related)
+                    void SetAssociateValues(AssociateType associate)
                     {
-                        related.Int = 9;
-                        related.String = "bar";
-                        related.Ints = [4, 5, 6, 6];
-                        related.RequiredNested.Int = 9;
-                        related.RequiredNested.String = "bar";
-                        related.RequiredNested.Ints = [4, 5, 6, 6];
-                        related.OptionalNested?.Int = 9;
-                        related.OptionalNested?.String = "bar";
-                        if (related.OptionalNested is not null)
+                        associate.Int = 9;
+                        associate.String = "bar";
+                        associate.Ints = [4, 5, 6, 6];
+                        associate.RequiredNestedAssociate.Int = 9;
+                        associate.RequiredNestedAssociate.String = "bar";
+                        associate.RequiredNestedAssociate.Ints = [4, 5, 6, 6];
+                        associate.OptionalNestedAssociate?.Int = 9;
+                        associate.OptionalNestedAssociate?.String = "bar";
+                        if (associate.OptionalNestedAssociate is not null)
                         {
-                            related.OptionalNested.Ints = [4, 5, 6, 6];
+                            associate.OptionalNestedAssociate.Ints = [4, 5, 6, 6];
                         }
 
-                        foreach (var nested in related.NestedCollection)
+                        foreach (var nested in associate.NestedCollection)
                         {
                             nested.Int = 9;
                             nested.String = "bar";
@@ -81,34 +81,35 @@ public class AssociationsData : ISetSource
                     var intValue = 100;
                     var stringValue = 100;
 
-                    SetRelatedValues(e.RequiredRelated);
+                    SetAssociateValues(e.RequiredAssociate);
 
-                    if (e.OptionalRelated is not null)
+                    if (e.OptionalAssociate is not null)
                     {
-                        SetRelatedValues(e.OptionalRelated);
+                        SetAssociateValues(e.OptionalAssociate);
                     }
 
-                    foreach (var related in e.RelatedCollection)
+                    foreach (var associate in e.AssociateCollection)
                     {
-                        SetRelatedValues(related);
+                        SetAssociateValues(associate);
                     }
 
-                    void SetRelatedValues(RelatedType related)
+                    void SetAssociateValues(AssociateType associate)
                     {
-                        related.Int = intValue++;
-                        related.String = $"foo{stringValue++}";
-                        related.Ints = [8, 9, intValue++];
-                        related.RequiredNested.Int = intValue++;
-                        related.RequiredNested.String = $"foo{stringValue++}";
-                        related.RequiredNested.Ints = [8, 9, intValue++];
-                        related.OptionalNested?.Int = intValue++;
-                        related.OptionalNested?.String = $"foo{stringValue++}";
-                        if (related.OptionalNested is not null)
+                        associate.Int = intValue++;
+                        associate.String = $"foo{stringValue++}";
+                        associate.Ints = [8, 9, intValue++];
+                        associate.RequiredNestedAssociate.Int = intValue++;
+                        associate.RequiredNestedAssociate.String = $"foo{stringValue++}";
+                        associate.RequiredNestedAssociate.Ints = [8, 9, intValue++];
+                        associate.OptionalNestedAssociate?.Int = intValue++;
+                        associate.OptionalNestedAssociate?.String = $"foo{stringValue++}";
+
+                        if (associate.OptionalNestedAssociate is not null)
                         {
-                            related.OptionalNested.Ints = [8, 9, intValue++];
+                            associate.OptionalNestedAssociate.Ints = [8, 9, intValue++];
                         }
 
-                        foreach (var nested in related.NestedCollection)
+                        foreach (var nested in associate.NestedCollection)
                         {
                             nested.Int = intValue++;
                             nested.String = $"foo{stringValue++}";
@@ -122,25 +123,25 @@ public class AssociationsData : ISetSource
             CreateRootEntity(
                 id++, description: "With_referential_identity", e =>
                 {
-                    e.OptionalRelated = e.RequiredRelated;
-                    e.RequiredRelated.OptionalNested = e.RequiredRelated.RequiredNested;
-                    e.OptionalRelated.OptionalNested = e.RequiredRelated.RequiredNested;
+                    e.OptionalAssociate = e.RequiredAssociate;
+                    e.RequiredAssociate.OptionalNestedAssociate = e.RequiredAssociate.RequiredNestedAssociate;
+                    e.OptionalAssociate.OptionalNestedAssociate = e.RequiredAssociate.RequiredNestedAssociate;
 
-                    e.RelatedCollection.Clear();
-                    e.RequiredRelated.NestedCollection = [e.RequiredRelated.RequiredNested];
-                    e.OptionalRelated.NestedCollection.Clear();
+                    e.AssociateCollection.Clear();
+                    e.RequiredAssociate.NestedCollection = [e.RequiredAssociate.RequiredNestedAssociate];
+                    e.OptionalAssociate.NestedCollection.Clear();
                 }),
 
             // Entity where everything optional is null
             CreateRootEntity(
                 id++, description: "All_optionals_null", e =>
                 {
-                    e.RequiredRelated.OptionalNested = null;
-                    e.OptionalRelated = null;
+                    e.RequiredAssociate.OptionalNestedAssociate = null;
+                    e.OptionalAssociate = null;
 
-                    foreach (var related in e.RelatedCollection)
+                    foreach (var associate in e.AssociateCollection)
                     {
-                        related.OptionalNested = null;
+                        associate.OptionalNestedAssociate = null;
                     }
                 }),
 
@@ -148,34 +149,34 @@ public class AssociationsData : ISetSource
             CreateRootEntity(
                 id++, description: "All_collections_empty", e =>
                 {
-                    e.RelatedCollection.Clear();
-                    e.RequiredRelated.NestedCollection.Clear();
-                    e.OptionalRelated!.NestedCollection.Clear();
+                    e.AssociateCollection.Clear();
+                    e.RequiredAssociate.NestedCollection.Clear();
+                    e.OptionalAssociate!.NestedCollection.Clear();
                 }),
 
             // Entity with all string properties set to a value with special characters
             CreateRootEntity(
                 id++, description: "With_special_characters", e =>
                 {
-                    SetRelatedValues(e.RequiredRelated);
+                    SetAssociateValues(e.RequiredAssociate);
 
-                    if (e.OptionalRelated is not null)
+                    if (e.OptionalAssociate is not null)
                     {
-                        SetRelatedValues(e.OptionalRelated);
+                        SetAssociateValues(e.OptionalAssociate);
                     }
 
-                    foreach (var related in e.RelatedCollection)
+                    foreach (var associate in e.AssociateCollection)
                     {
-                        SetRelatedValues(related);
+                        SetAssociateValues(associate);
                     }
 
-                    void SetRelatedValues(RelatedType related)
+                    void SetAssociateValues(AssociateType associate)
                     {
-                        related.String = "{ this may/look:like JSON but it [isn't]: ממש ממש לאéèéè }";
-                        related.RequiredNested.String = "{ this may/look:like JSON but it [isn't]: ממש ממש לאéèéè }";
-                        related.OptionalNested?.String = "{ this may/look:like JSON but it [isn't]: ממש ממש לאéèéè }";
+                        associate.String = "{ this may/look:like JSON but it [isn't]: ממש ממש לאéèéè }";
+                        associate.RequiredNestedAssociate.String = "{ this may/look:like JSON but it [isn't]: ממש ממש לאéèéè }";
+                        associate.OptionalNestedAssociate?.String = "{ this may/look:like JSON but it [isn't]: ממש ממש לאéèéè }";
 
-                        foreach (var nested in related.NestedCollection)
+                        foreach (var nested in associate.NestedCollection)
                         {
                             nested.String = "{ this may/look:like JSON but it [isn't]: ממש ממש לאéèéè }";
                         }
@@ -188,7 +189,7 @@ public class AssociationsData : ISetSource
         RootEntity CreateRootEntity(int id, string? description, Action<RootEntity>? customizer = null)
         {
             var shortName = $"Root{id}";
-            var relatedId = id * 100;
+            var associateId = id * 100;
             var nestedId = id * 1000;
 
             const int intValue = 8;
@@ -199,178 +200,178 @@ public class AssociationsData : ISetSource
             {
                 Id = id,
                 Name = description is null ? shortName : $"{shortName}_{description}",
-                RequiredRelated = new RelatedType
+                RequiredAssociate = new AssociateType
                 {
-                    Id = relatedId++,
-                    Name = $"{shortName}_RequiredRelated",
+                    Id = associateId++,
+                    Name = $"{shortName}_RequiredAssociate",
                     Int = intValue,
                     String = stringValue,
                     Ints = intsValue,
 
-                    RequiredNested = new NestedType
+                    RequiredNestedAssociate = new NestedAssociateType
                     {
                         Id = nestedId++,
-                        Name = $"{shortName}_RequiredRelated_RequiredNested",
+                        Name = $"{shortName}_RequiredAssociate_RequiredNestedAssociate",
                         Int = intValue,
                         String = stringValue,
                         Ints = intsValue
                     },
-                    OptionalNested = new NestedType
+                    OptionalNestedAssociate = new NestedAssociateType
                     {
                         Id = nestedId++,
-                        Name = $"{shortName}_RequiredRelated_OptionalNested",
+                        Name = $"{shortName}_RequiredAssociate_OptionalNestedAssociate",
                         Int = intValue,
                         String = stringValue,
                         Ints = intsValue
                     },
                     NestedCollection =
                     [
-                        new NestedType
+                        new NestedAssociateType
                         {
                             Id = nestedId++,
-                            Name = $"{shortName}_RequiredRelated_NestedCollection_1",
+                            Name = $"{shortName}_RequiredAssociate_NestedCollection_1",
                             Int = intValue,
                             String = stringValue,
                             Ints = intsValue
                         },
-                        new NestedType
+                        new NestedAssociateType
                         {
                             Id = nestedId++,
-                            Name = $"{shortName}_RequiredRelated_NestedCollection_2",
+                            Name = $"{shortName}_RequiredAssociate_NestedCollection_2",
                             Int = intValue,
                             String = stringValue,
                             Ints = intsValue
                         }
                     ]
                 },
-                OptionalRelated = new RelatedType
+                OptionalAssociate = new AssociateType
                 {
-                    Id = relatedId++,
-                    Name = $"{shortName}_OptionalRelated",
+                    Id = associateId++,
+                    Name = $"{shortName}_OptionalAssociate",
                     Int = intValue,
                     String = stringValue,
                     Ints = [1, 2, 3],
 
-                    RequiredNested = new NestedType
+                    RequiredNestedAssociate = new NestedAssociateType
                     {
                         Id = nestedId++,
-                        Name = $"{shortName}_OptionalRelated_RequiredNested",
+                        Name = $"{shortName}_OptionalAssociate_RequiredNestedAssociate",
                         Int = intValue,
                         String = stringValue,
                         Ints = intsValue
                     },
-                    OptionalNested = new NestedType
+                    OptionalNestedAssociate = new NestedAssociateType
                     {
                         Id = nestedId++,
-                        Name = $"{shortName}_OptionalRelated_OptionalNested",
+                        Name = $"{shortName}_OptionalAssociate_OptionalNestedAssociate",
                         Int = intValue,
                         String = stringValue,
                         Ints = [1, 2, 3]
                     },
                     NestedCollection =
                     [
-                        new NestedType
+                        new NestedAssociateType
                         {
                             Id = nestedId++,
-                            Name = $"{shortName}_OptionalRelated_NestedCollection_1",
+                            Name = $"{shortName}_OptionalAssociate_NestedCollection_1",
                             Int = intValue,
                             String = stringValue,
                             Ints = intsValue.ToList()
                         },
-                        new NestedType
+                        new NestedAssociateType
                         {
                             Id = nestedId++,
-                            Name = $"{shortName}_OptionalRelated_NestedCollection_2",
+                            Name = $"{shortName}_OptionalAssociate_NestedCollection_2",
                             Int = intValue,
                             String = stringValue,
                             Ints = intsValue.ToList()
                         }
                     ]
                 },
-                RelatedCollection =
+                AssociateCollection =
                 [
-                    new RelatedType
+                    new AssociateType
                     {
-                        Id = relatedId++,
-                        Name = $"{shortName}_RelatedCollection_1",
+                        Id = associateId++,
+                        Name = $"{shortName}_AssociateCollection_1",
                         Int = intValue,
                         String = stringValue,
                         Ints = [1, 2, 3],
 
-                        RequiredNested = new NestedType
+                        RequiredNestedAssociate = new NestedAssociateType
                         {
                             Id = nestedId++,
-                            Name = $"{shortName}_RelatedCollection_1_RequiredNested",
+                            Name = $"{shortName}_AssociateCollection_1_RequiredNestedAssociate",
                             Int = intValue,
                             String = stringValue,
                             Ints = [1, 2, 3]
                         },
-                        OptionalNested = new NestedType
+                        OptionalNestedAssociate = new NestedAssociateType
                         {
                             Id = nestedId++,
-                            Name = $"{shortName}_RelatedCollection_1_OptionalNested",
+                            Name = $"{shortName}_AssociateCollection_1_OptionalNestedAssociate",
                             Int = intValue,
                             String = stringValue,
                             Ints = [1, 2, 3]
                         },
                         NestedCollection =
                         [
-                            new NestedType
+                            new NestedAssociateType
                             {
                                 Id = nestedId++,
-                                Name = $"{shortName}_RelatedCollection_1_NestedCollection_1",
+                                Name = $"{shortName}_AssociateCollection_1_NestedCollection_1",
                                 Int = intValue,
                                 String = stringValue,
                                 Ints = [1, 2, 3]
                             },
-                            new NestedType
+                            new NestedAssociateType
                             {
                                 Id = nestedId++,
-                                Name = $"{shortName}_RelatedCollection_1_NestedCollection_2",
+                                Name = $"{shortName}_AssociateCollection_1_NestedCollection_2",
                                 Int = intValue,
                                 String = stringValue,
                                 Ints = [1, 2, 3]
                             }
                         ]
                     },
-                    new RelatedType
+                    new AssociateType
                     {
-                        Id = relatedId++,
-                        Name = $"{shortName}_RelatedCollection_2",
+                        Id = associateId++,
+                        Name = $"{shortName}_AssociateCollection_2",
                         Int = intValue,
                         String = stringValue,
                         Ints = [1, 2, 3],
 
-                        RequiredNested = new NestedType
+                        RequiredNestedAssociate = new NestedAssociateType
                         {
                             Id = nestedId++,
-                            Name = $"{shortName}_RelatedCollection_2_RequiredNested",
+                            Name = $"{shortName}_AssociateCollection_2_RequiredNestedAssociate",
                             Int = intValue,
                             String = stringValue,
                             Ints = [1, 2, 3]
                         },
-                        OptionalNested = new NestedType
+                        OptionalNestedAssociate = new NestedAssociateType
                         {
                             Id = nestedId++,
-                            Name = $"{shortName}_RelatedCollection_2_OptionalNested",
+                            Name = $"{shortName}_AssociateCollection_2_OptionalNestedAssociate",
                             Int = intValue,
                             String = stringValue,
                             Ints = [1, 2, 3]
                         },
                         NestedCollection =
                         [
-                            new NestedType
+                            new NestedAssociateType
                             {
                                 Id = nestedId++,
-                                Name = $"{shortName}_RelatedCollection_2_NestedCollection_1",
+                                Name = $"{shortName}_AssociateCollection_2_NestedCollection_1",
                                 Int = intValue,
                                 String = stringValue,
                                 Ints = [1, 2, 3]
                             },
-                            new NestedType
+                            new NestedAssociateType
                             {
                                 Id = nestedId++,
-                                Name = $"{shortName}_Root1_RelatedCollection_2_NestedCollection_2",
+                                Name = $"{shortName}_Root1_AssociateCollection_2_NestedCollection_2",
                                 Int = intValue,
                                 String = stringValue,
                                 Ints = [1, 2, 3]
@@ -411,8 +412,8 @@ public class AssociationsData : ISetSource
         => typeof(TEntity) switch
         {
             var t when t == typeof(RootEntity) => (IQueryable<TEntity>)RootEntities.AsQueryable(),
-            var t when t == typeof(RelatedType) => (IQueryable<TEntity>)RelatedTypes.AsQueryable(),
-            var t when t == typeof(NestedType) => (IQueryable<TEntity>)NestedTypes.AsQueryable(),
+            var t when t == typeof(AssociateType) => (IQueryable<TEntity>)Associates.AsQueryable(),
+            var t when t == typeof(NestedAssociateType) => (IQueryable<TEntity>)NestedAssociates.AsQueryable(),
             var t when t == typeof(RootReferencingEntity) => (IQueryable<TEntity>)RootReferencingEntities.AsQueryable(),
 
             var t when t == typeof(ValueRootEntity) => (IQueryable<TEntity>)ValueRootEntities.AsQueryable(),

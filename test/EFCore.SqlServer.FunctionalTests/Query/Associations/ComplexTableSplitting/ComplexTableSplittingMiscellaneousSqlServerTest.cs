@@ -8,39 +8,39 @@ public class ComplexTableSplittingMiscellaneousSqlServerTest(
     ITestOutputHelper testOutputHelper)
     : ComplexTableSplittingMiscellaneousRelationalTestBase<ComplexTableSplittingSqlServerFixture>(fixture, testOutputHelper)
 {
-    public override async Task Where_related_property()
+    public override async Task Where_on_associate_scalar_property()
     {
-        await base.Where_related_property();
+        await base.Where_on_associate_scalar_property();
 
         AssertSql(
             """
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated_Id], [r].[OptionalRelated_Int], [r].[OptionalRelated_Ints], [r].[OptionalRelated_Name], [r].[OptionalRelated_String], [r].[OptionalRelated_OptionalNested_Id], [r].[OptionalRelated_OptionalNested_Int], [r].[OptionalRelated_OptionalNested_Ints], [r].[OptionalRelated_OptionalNested_Name], [r].[OptionalRelated_OptionalNested_String], [r].[OptionalRelated_RequiredNested_Id], [r].[OptionalRelated_RequiredNested_Int], [r].[OptionalRelated_RequiredNested_Ints], [r].[OptionalRelated_RequiredNested_Name], [r].[OptionalRelated_RequiredNested_String], [r].[RequiredRelated_Id], [r].[RequiredRelated_Int], [r].[RequiredRelated_Ints], [r].[RequiredRelated_Name], [r].[RequiredRelated_String], [r].[RequiredRelated_OptionalNested_Id], [r].[RequiredRelated_OptionalNested_Int], [r].[RequiredRelated_OptionalNested_Ints], [r].[RequiredRelated_OptionalNested_Name], [r].[RequiredRelated_OptionalNested_String], [r].[RequiredRelated_RequiredNested_Id], [r].[RequiredRelated_RequiredNested_Int], [r].[RequiredRelated_RequiredNested_Ints], [r].[RequiredRelated_RequiredNested_Name], [r].[RequiredRelated_RequiredNested_String]
+SELECT [r].[Id], [r].[Name], [r].[OptionalAssociate_Id], [r].[OptionalAssociate_Int], [r].[OptionalAssociate_Ints], [r].[OptionalAssociate_Name], [r].[OptionalAssociate_String], [r].[OptionalAssociate_OptionalNestedAssociate_Id], [r].[OptionalAssociate_OptionalNestedAssociate_Int], [r].[OptionalAssociate_OptionalNestedAssociate_Ints], [r].[OptionalAssociate_OptionalNestedAssociate_Name], [r].[OptionalAssociate_OptionalNestedAssociate_String], [r].[OptionalAssociate_RequiredNestedAssociate_Id], [r].[OptionalAssociate_RequiredNestedAssociate_Int], [r].[OptionalAssociate_RequiredNestedAssociate_Ints], [r].[OptionalAssociate_RequiredNestedAssociate_Name], [r].[OptionalAssociate_RequiredNestedAssociate_String], [r].[RequiredAssociate_Id], [r].[RequiredAssociate_Int], [r].[RequiredAssociate_Ints], [r].[RequiredAssociate_Name], [r].[RequiredAssociate_String], [r].[RequiredAssociate_OptionalNestedAssociate_Id], [r].[RequiredAssociate_OptionalNestedAssociate_Int], [r].[RequiredAssociate_OptionalNestedAssociate_Ints], [r].[RequiredAssociate_OptionalNestedAssociate_Name], [r].[RequiredAssociate_OptionalNestedAssociate_String], [r].[RequiredAssociate_RequiredNestedAssociate_Id], [r].[RequiredAssociate_RequiredNestedAssociate_Int], [r].[RequiredAssociate_RequiredNestedAssociate_Ints], [r].[RequiredAssociate_RequiredNestedAssociate_Name], [r].[RequiredAssociate_RequiredNestedAssociate_String]
 FROM [RootEntity] AS [r]
-WHERE [r].[RequiredRelated_Int] = 8
+WHERE [r].[RequiredAssociate_Int] = 8
 """);
     }
 
-    public override async Task Where_optional_related_property()
+    public override async Task Where_on_optional_associate_scalar_property()
     {
-        await base.Where_optional_related_property();
+        await base.Where_on_optional_associate_scalar_property();
 
         AssertSql(
             """
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated_Id], [r].[OptionalRelated_Int], [r].[OptionalRelated_Ints], [r].[OptionalRelated_Name], [r].[OptionalRelated_String], [r].[OptionalRelated_OptionalNested_Id], [r].[OptionalRelated_OptionalNested_Int], [r].[OptionalRelated_OptionalNested_Ints], [r].[OptionalRelated_OptionalNested_Name], [r].[OptionalRelated_OptionalNested_String], [r].[OptionalRelated_RequiredNested_Id], [r].[OptionalRelated_RequiredNested_Int], [r].[OptionalRelated_RequiredNested_Ints], [r].[OptionalRelated_RequiredNested_Name], [r].[OptionalRelated_RequiredNested_String], [r].[RequiredRelated_Id], [r].[RequiredRelated_Int], [r].[RequiredRelated_Ints], [r].[RequiredRelated_Name], [r].[RequiredRelated_String], [r].[RequiredRelated_OptionalNested_Id], [r].[RequiredRelated_OptionalNested_Int], [r].[RequiredRelated_OptionalNested_Ints], [r].[RequiredRelated_OptionalNested_Name], [r].[RequiredRelated_OptionalNested_String], [r].[RequiredRelated_RequiredNested_Id], [r].[RequiredRelated_RequiredNested_Int], [r].[RequiredRelated_RequiredNested_Ints], [r].[RequiredRelated_RequiredNested_Name], [r].[RequiredRelated_RequiredNested_String]
+SELECT [r].[Id], [r].[Name], [r].[OptionalAssociate_Id], [r].[OptionalAssociate_Int], [r].[OptionalAssociate_Ints], [r].[OptionalAssociate_Name], [r].[OptionalAssociate_String], [r].[OptionalAssociate_OptionalNestedAssociate_Id], [r].[OptionalAssociate_OptionalNestedAssociate_Int], [r].[OptionalAssociate_OptionalNestedAssociate_Ints], [r].[OptionalAssociate_OptionalNestedAssociate_Name], [r].[OptionalAssociate_OptionalNestedAssociate_String], [r].[OptionalAssociate_RequiredNestedAssociate_Id], [r].[OptionalAssociate_RequiredNestedAssociate_Int], [r].[OptionalAssociate_RequiredNestedAssociate_Ints], [r].[OptionalAssociate_RequiredNestedAssociate_Name], [r].[OptionalAssociate_RequiredNestedAssociate_String], [r].[RequiredAssociate_Id], [r].[RequiredAssociate_Int], [r].[RequiredAssociate_Ints], [r].[RequiredAssociate_Name], [r].[RequiredAssociate_String], [r].[RequiredAssociate_OptionalNestedAssociate_Id], [r].[RequiredAssociate_OptionalNestedAssociate_Int], [r].[RequiredAssociate_OptionalNestedAssociate_Ints], [r].[RequiredAssociate_OptionalNestedAssociate_Name], [r].[RequiredAssociate_OptionalNestedAssociate_String], [r].[RequiredAssociate_RequiredNestedAssociate_Id], [r].[RequiredAssociate_RequiredNestedAssociate_Int], [r].[RequiredAssociate_RequiredNestedAssociate_Ints], [r].[RequiredAssociate_RequiredNestedAssociate_Name], [r].[RequiredAssociate_RequiredNestedAssociate_String]
 FROM [RootEntity] AS [r]
-WHERE [r].[OptionalRelated_Int] = 8
+WHERE [r].[OptionalAssociate_Int] = 8
 """);
     }
 
-    public override async Task Where_nested_related_property()
+    public override async Task Where_on_nested_associate_scalar_property()
     {
-        await base.Where_nested_related_property();
+        await base.Where_on_nested_associate_scalar_property();
 
         AssertSql(
             """
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated_Id], [r].[OptionalRelated_Int], [r].[OptionalRelated_Ints], [r].[OptionalRelated_Name], [r].[OptionalRelated_String], [r].[OptionalRelated_OptionalNested_Id], [r].[OptionalRelated_OptionalNested_Int], [r].[OptionalRelated_OptionalNested_Ints], [r].[OptionalRelated_OptionalNested_Name], [r].[OptionalRelated_OptionalNested_String], [r].[OptionalRelated_RequiredNested_Id], [r].[OptionalRelated_RequiredNested_Int], [r].[OptionalRelated_RequiredNested_Ints], [r].[OptionalRelated_RequiredNested_Name], [r].[OptionalRelated_RequiredNested_String], [r].[RequiredRelated_Id], [r].[RequiredRelated_Int], [r].[RequiredRelated_Ints], [r].[RequiredRelated_Name], [r].[RequiredRelated_String], [r].[RequiredRelated_OptionalNested_Id], [r].[RequiredRelated_OptionalNested_Int], [r].[RequiredRelated_OptionalNested_Ints], [r].[RequiredRelated_OptionalNested_Name], [r].[RequiredRelated_OptionalNested_String], [r].[RequiredRelated_RequiredNested_Id], [r].[RequiredRelated_RequiredNested_Int], [r].[RequiredRelated_RequiredNested_Ints], [r].[RequiredRelated_RequiredNested_Name], [r].[RequiredRelated_RequiredNested_String]
+SELECT [r].[Id], [r].[Name], [r].[OptionalAssociate_Id], [r].[OptionalAssociate_Int], [r].[OptionalAssociate_Ints], [r].[OptionalAssociate_Name], [r].[OptionalAssociate_String], [r].[OptionalAssociate_OptionalNestedAssociate_Id], [r].[OptionalAssociate_OptionalNestedAssociate_Int], [r].[OptionalAssociate_OptionalNestedAssociate_Ints], [r].[OptionalAssociate_OptionalNestedAssociate_Name], [r].[OptionalAssociate_OptionalNestedAssociate_String], [r].[OptionalAssociate_RequiredNestedAssociate_Id], [r].[OptionalAssociate_RequiredNestedAssociate_Int], [r].[OptionalAssociate_RequiredNestedAssociate_Ints], [r].[OptionalAssociate_RequiredNestedAssociate_Name], [r].[OptionalAssociate_RequiredNestedAssociate_String], [r].[RequiredAssociate_Id], [r].[RequiredAssociate_Int], [r].[RequiredAssociate_Ints], [r].[RequiredAssociate_Name], [r].[RequiredAssociate_String], [r].[RequiredAssociate_OptionalNestedAssociate_Id], [r].[RequiredAssociate_OptionalNestedAssociate_Int], [r].[RequiredAssociate_OptionalNestedAssociate_Ints], [r].[RequiredAssociate_OptionalNestedAssociate_Name], [r].[RequiredAssociate_OptionalNestedAssociate_String], [r].[RequiredAssociate_RequiredNestedAssociate_Id], [r].[RequiredAssociate_RequiredNestedAssociate_Int], [r].[RequiredAssociate_RequiredNestedAssociate_Ints], [r].[RequiredAssociate_RequiredNestedAssociate_Name], [r].[RequiredAssociate_RequiredNestedAssociate_String]
 FROM [RootEntity] AS [r]
-WHERE [r].[RequiredRelated_RequiredNested_Int] = 8
+WHERE [r].[RequiredAssociate_RequiredNestedAssociate_Int] = 8
 """);
     }
 
@@ -52,9 +52,9 @@ WHERE [r].[RequiredRelated_RequiredNested_Int] = 8
 
         AssertSql(
             """
-SELECT [v].[Id], [v].[Name], [v].[OptionalRelated_Id], [v].[OptionalRelated_Int], [v].[OptionalRelated_Name], [v].[OptionalRelated_String], [v].[OptionalRelated_OptionalNested_Id], [v].[OptionalRelated_OptionalNested_Int], [v].[OptionalRelated_OptionalNested_Name], [v].[OptionalRelated_OptionalNested_String], [v].[OptionalRelated_RequiredNested_Id], [v].[OptionalRelated_RequiredNested_Int], [v].[OptionalRelated_RequiredNested_Name], [v].[OptionalRelated_RequiredNested_String], [v].[RequiredRelated_Id], [v].[RequiredRelated_Int], [v].[RequiredRelated_Name], [v].[RequiredRelated_String], [v].[RequiredRelated_OptionalNested_Id], [v].[RequiredRelated_OptionalNested_Int], [v].[RequiredRelated_OptionalNested_Name], [v].[RequiredRelated_OptionalNested_String], [v].[RequiredRelated_RequiredNested_Id], [v].[RequiredRelated_RequiredNested_Int], [v].[RequiredRelated_RequiredNested_Name], [v].[RequiredRelated_RequiredNested_String]
+SELECT [v].[Id], [v].[Name], [v].[OptionalAssociate_Id], [v].[OptionalAssociate_Int], [v].[OptionalAssociate_Name], [v].[OptionalAssociate_String], [v].[OptionalAssociate_OptionalNested_Id], [v].[OptionalAssociate_OptionalNested_Int], [v].[OptionalAssociate_OptionalNested_Name], [v].[OptionalAssociate_OptionalNested_String], [v].[OptionalAssociate_RequiredNested_Id], [v].[OptionalAssociate_RequiredNested_Int], [v].[OptionalAssociate_RequiredNested_Name], [v].[OptionalAssociate_RequiredNested_String], [v].[RequiredAssociate_Id], [v].[RequiredAssociate_Int], [v].[RequiredAssociate_Name], [v].[RequiredAssociate_String], [v].[RequiredAssociate_OptionalNested_Id], [v].[RequiredAssociate_OptionalNested_Int], [v].[RequiredAssociate_OptionalNested_Name], [v].[RequiredAssociate_OptionalNested_String], [v].[RequiredAssociate_RequiredNested_Id], [v].[RequiredAssociate_RequiredNested_Int], [v].[RequiredAssociate_RequiredNested_Name], [v].[RequiredAssociate_RequiredNested_String]
 FROM [ValueRootEntity] AS [v]
-WHERE [v].[RequiredRelated_Int] = 8
+WHERE [v].[RequiredAssociate_Int] = 8
 """);
     }
 
@@ -64,9 +64,9 @@ WHERE [v].[RequiredRelated_Int] = 8
 
         AssertSql(
             """
-SELECT [v].[Id], [v].[Name], [v].[OptionalRelated_Id], [v].[OptionalRelated_Int], [v].[OptionalRelated_Name], [v].[OptionalRelated_String], [v].[OptionalRelated_OptionalNested_Id], [v].[OptionalRelated_OptionalNested_Int], [v].[OptionalRelated_OptionalNested_Name], [v].[OptionalRelated_OptionalNested_String], [v].[OptionalRelated_RequiredNested_Id], [v].[OptionalRelated_RequiredNested_Int], [v].[OptionalRelated_RequiredNested_Name], [v].[OptionalRelated_RequiredNested_String], [v].[RequiredRelated_Id], [v].[RequiredRelated_Int], [v].[RequiredRelated_Name], [v].[RequiredRelated_String], [v].[RequiredRelated_OptionalNested_Id], [v].[RequiredRelated_OptionalNested_Int], [v].[RequiredRelated_OptionalNested_Name], [v].[RequiredRelated_OptionalNested_String], [v].[RequiredRelated_RequiredNested_Id], [v].[RequiredRelated_RequiredNested_Int], [v].[RequiredRelated_RequiredNested_Name], [v].[RequiredRelated_RequiredNested_String]
+SELECT [v].[Id], [v].[Name], [v].[OptionalAssociate_Id], [v].[OptionalAssociate_Int], [v].[OptionalAssociate_Name], [v].[OptionalAssociate_String], [v].[OptionalAssociate_OptionalNested_Id], [v].[OptionalAssociate_OptionalNested_Int], [v].[OptionalAssociate_OptionalNested_Name], [v].[OptionalAssociate_OptionalNested_String], [v].[OptionalAssociate_RequiredNested_Id], [v].[OptionalAssociate_RequiredNested_Int], [v].[OptionalAssociate_RequiredNested_Name], [v].[OptionalAssociate_RequiredNested_String], [v].[RequiredAssociate_Id], [v].[RequiredAssociate_Int], [v].[RequiredAssociate_Name], [v].[RequiredAssociate_String], [v].[RequiredAssociate_OptionalNested_Id], [v].[RequiredAssociate_OptionalNested_Int], [v].[RequiredAssociate_OptionalNested_Name], [v].[RequiredAssociate_OptionalNested_String], [v].[RequiredAssociate_RequiredNested_Id], [v].[RequiredAssociate_RequiredNested_Int], [v].[RequiredAssociate_RequiredNested_Name], [v].[RequiredAssociate_RequiredNested_String]
 FROM [ValueRootEntity] AS [v]
-WHERE [v].[OptionalRelated_Int] = 8
+WHERE [v].[OptionalAssociate_Int] = 8
 """);
     }
 
@@ -76,9 +76,9 @@ WHERE [v].[OptionalRelated_Int] = 8
 
         AssertSql(
             """
-SELECT [v].[Id], [v].[Name], [v].[OptionalRelated_Id], [v].[OptionalRelated_Int], [v].[OptionalRelated_Name], [v].[OptionalRelated_String], [v].[OptionalRelated_OptionalNested_Id], [v].[OptionalRelated_OptionalNested_Int], [v].[OptionalRelated_OptionalNested_Name], [v].[OptionalRelated_OptionalNested_String], [v].[OptionalRelated_RequiredNested_Id], [v].[OptionalRelated_RequiredNested_Int], [v].[OptionalRelated_RequiredNested_Name], [v].[OptionalRelated_RequiredNested_String], [v].[RequiredRelated_Id], [v].[RequiredRelated_Int], [v].[RequiredRelated_Name], [v].[RequiredRelated_String], [v].[RequiredRelated_OptionalNested_Id], [v].[RequiredRelated_OptionalNested_Int], [v].[RequiredRelated_OptionalNested_Name], [v].[RequiredRelated_OptionalNested_String], [v].[RequiredRelated_RequiredNested_Id], [v].[RequiredRelated_RequiredNested_Int], [v].[RequiredRelated_RequiredNested_Name], [v].[RequiredRelated_RequiredNested_String]
+SELECT [v].[Id], [v].[Name], [v].[OptionalAssociate_Id], [v].[OptionalAssociate_Int], [v].[OptionalAssociate_Name], [v].[OptionalAssociate_String], [v].[OptionalAssociate_OptionalNested_Id], [v].[OptionalAssociate_OptionalNested_Int], [v].[OptionalAssociate_OptionalNested_Name], [v].[OptionalAssociate_OptionalNested_String], [v].[OptionalAssociate_RequiredNested_Id], [v].[OptionalAssociate_RequiredNested_Int], [v].[OptionalAssociate_RequiredNested_Name], [v].[OptionalAssociate_RequiredNested_String], [v].[RequiredAssociate_Id], [v].[RequiredAssociate_Int], [v].[RequiredAssociate_Name], [v].[RequiredAssociate_String], [v].[RequiredAssociate_OptionalNested_Id], [v].[RequiredAssociate_OptionalNested_Int], [v].[RequiredAssociate_OptionalNested_Name], [v].[RequiredAssociate_OptionalNested_String], [v].[RequiredAssociate_RequiredNested_Id], [v].[RequiredAssociate_RequiredNested_Int], [v].[RequiredAssociate_RequiredNested_Name], [v].[RequiredAssociate_RequiredNested_String]
 FROM [ValueRootEntity] AS [v]
-WHERE [v].[OptionalRelated_Id] IS NOT NULL
+WHERE [v].[OptionalAssociate_Id] IS NOT NULL
 """);
     }
 

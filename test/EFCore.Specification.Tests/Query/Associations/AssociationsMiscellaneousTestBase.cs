@@ -9,16 +9,16 @@ public abstract class AssociationsMiscellaneousTestBase<TFixture>(TFixture fixtu
     #region Simple filters
 
     [ConditionalFact]
-    public virtual Task Where_related_property()
-        => AssertQuery(ss => ss.Set<RootEntity>().Where(e => e.RequiredRelated.Int == 8));
+    public virtual Task Where_on_associate_scalar_property()
+        => AssertQuery(ss => ss.Set<RootEntity>().Where(e => e.RequiredAssociate.Int == 8));
 
     [ConditionalFact]
-    public virtual Task Where_optional_related_property()
-        => AssertQuery(ss => ss.Set<RootEntity>().Where(e => e.OptionalRelated!.Int == 8));
+    public virtual Task Where_on_optional_associate_scalar_property()
+        => AssertQuery(ss => ss.Set<RootEntity>().Where(e => e.OptionalAssociate!.Int == 8));
 
     [ConditionalFact]
-    public virtual Task Where_nested_related_property()
-        => AssertQuery(ss => ss.Set<RootEntity>().Where(e => e.RequiredRelated.RequiredNested.Int == 8));
+    public virtual Task Where_on_nested_associate_scalar_property()
+        => AssertQuery(ss => ss.Set<RootEntity>().Where(e => e.RequiredAssociate.RequiredNestedAssociate.Int == 8));
 
     #endregion Simple filters
 }

@@ -7,26 +7,26 @@ namespace Microsoft.EntityFrameworkCore.Query.Associations;
 
 /// <summary>
 ///     Main entity type used as the root for most test queries.
-///     References <see cref="RelatedType" />, which represents the main type/relationship to be tested.
+///     References <see cref="AssociateType" />, which represents the main type/association to be tested.
 /// </summary>
 public class RootEntity
 {
     public int Id { get; set; }
     public required string Name { get; set; }
 
-    public required RelatedType RequiredRelated { get; set; }
-    public RelatedType? OptionalRelated { get; set; }
-    public List<RelatedType> RelatedCollection { get; set; } = null!;
+    public required AssociateType RequiredAssociate { get; set; }
+    public AssociateType? OptionalAssociate { get; set; }
+    public List<AssociateType> AssociateCollection { get; set; } = null!;
 
     public RootReferencingEntity? RootReferencingEntity { get; set; }
 
     // Foreign keys and inverse navigations are unmapped by default, and are explicitly mapped via
     // the Fluent API for navigation tests only.
     [NotMapped] // Explicitly mapped via Fluent API for navigation tests only
-    public int RequiredRelatedId { get; set; }
+    public int RequiredAssociateId { get; set; }
 
     [NotMapped] // Explicitly mapped via Fluent API for navigation tests only
-    public int? OptionalRelatedId { get; set; }
+    public int? OptionalAssociateId { get; set; }
 
     public override string ToString()
         => Name;
@@ -36,7 +36,7 @@ public class RootEntity
 ///     The main type to be tested; mapped differently (entity type, complex type...) across
 ///     different test variations.
 /// </summary>
-public class RelatedType : IEquatable<RelatedType>
+public class AssociateType : IEquatable<AssociateType>
 {
     public required int Id { get; set; }
     public required string Name { get; set; }
@@ -47,43 +47,43 @@ public class RelatedType : IEquatable<RelatedType>
 
     public int Unmapped => Int + 1;
 
-    public required NestedType RequiredNested { get; set; }
-    public NestedType? OptionalNested { get; set; }
-    public List<NestedType> NestedCollection { get; set; } = null!;
+    public required NestedAssociateType RequiredNestedAssociate { get; set; }
+    public NestedAssociateType? OptionalNestedAssociate { get; set; }
+    public List<NestedAssociateType> NestedCollection { get; set; } = null!;
 
     // Foreign keys and inverse navigations are unmapped by default, and are explicitly mapped via
     // the Fluent API for navigation tests only.
     [NotMapped]
-    public int RequiredNestedId { get; set; }
+    public int RequiredNestedAssociateId { get; set; }
 
     [NotMapped]
-    public int? OptionalNestedId { get; set; }
+    public int? OptionalNestedAssociateId { get; set; }
 
     [NotMapped]
-    public RootEntity RequiredRelatedInverse { get; set; } = null!;
+    public RootEntity RequiredAssociateInverse { get; set; } = null!;
 
     [NotMapped]
-    public RootEntity OptionalRelatedInverse { get; set; } = null!;
+    public RootEntity OptionalAssociateInverse { get; set; } = null!;
 
     [NotMapped]
-    public RootEntity RelatedCollectionInverse { get; set; } = null!;
+    public RootEntity AssociateCollectionInverse { get; set; } = null!;
 
     [NotMapped]
     public int? CollectionRootId { get; set; }
 
-    public bool Equals(RelatedType? other)
+    public bool Equals(AssociateType? other)
         => other is not null
            && Id == other.Id
            && Name == other.Name
            && Int == other.Int
            && String == other.String
            && (Ints is null ? other.Ints is null : other.Ints is not null && Ints.SequenceEqual(other.Ints))
-           && RequiredNested.Equals(other.RequiredNested)
-           && (OptionalNested is null ? other.OptionalNested is null : OptionalNested.Equals(other.OptionalNested))
+           && RequiredNestedAssociate.Equals(other.RequiredNestedAssociate)
+           && (OptionalNestedAssociate is null ? other.OptionalNestedAssociate is null : OptionalNestedAssociate.Equals(other.OptionalNestedAssociate))
            // NestedCollection is annotated non-nullable, but ComplexTableSplitting doesn't support collections so we check it
            && (NestedCollection is null ? other.NestedCollection is null : NestedCollection.SequenceEqual(other.NestedCollection));
 
-    public RelatedType DeepClone()
+    public AssociateType DeepClone()
         => new()
         {
             Id = Id,
@@ -91,8 +91,8 @@ public class RelatedType : IEquatable<RelatedType>
             Int = Int,
             String = String,
             Ints = Ints is null ? null! : Ints.ToList(),
-            RequiredNested = RequiredNested.DeepClone(),
-            OptionalNested = OptionalNested?.DeepClone(),
+            RequiredNestedAssociate = RequiredNestedAssociate.DeepClone(),
+            OptionalNestedAssociate = OptionalNestedAssociate?.DeepClone(),
 
             // NestedCollection is annotated non-nullable, but ComplexTableSplitting doesn't support collections so we null-bang it
             NestedCollection = NestedCollection is null ? null! : NestedCollection.Select(n => n.DeepClone()).ToList()
@@ -103,10 +103,10 @@ public class RelatedType : IEquatable<RelatedType>
 }
 
 /// <summary>
-///     An additional nested type contained within <see cref="RelatedType" />, for tests which exercise
-///     nested relationships.
+///     An additional nested type contained within <see cref="AssociateType" />, for tests which exercise
+///     nested associations.
 /// </summary>
-public class NestedType : IEquatable<NestedType>
+public class NestedAssociateType : IEquatable<NestedAssociateType>
 {
     public required int Id { get; set; }
     public required string Name { get; set; }
@@ -119,18 +119,18 @@ public class NestedType : IEquatable<NestedType>
     // Foreign keys and inverse navigations are unmapped by default, and are explicitly mapped via
     // the Fluent API for navigation tests only.
     [NotMapped]
-    public RelatedType RequiredNestedInverse { get; set; } = null!;
+    public AssociateType RequiredNestedAssociateInverse { get; set; } = null!;
 
     [NotMapped]
-    public RelatedType OptionalNestedInverse { get; set; } = null!;
+    public AssociateType OptionalNestedAssociateInverse { get; set; } = null!;
 
     [NotMapped]
-    public RelatedType NestedCollectionInverse { get; set; } = null!;
+    public AssociateType NestedCollectionInverse { get; set; } = null!;
 
     [NotMapped]
-    public int? CollectionRelatedId { get; set; }
+    public int? CollectionAssociateId { get; set; }
 
-    public bool Equals(NestedType? other)
+    public bool Equals(NestedAssociateType? other)
         => other is not null
             && Id == other.Id
             && Name == other.Name
@@ -138,7 +138,7 @@ public class NestedType : IEquatable<NestedType>
             && String == other.String
             && (Ints is null ? other.Ints is null : other.Ints is not null && Ints.SequenceEqual(other.Ints));
 
-    public NestedType DeepClone()
+    public NestedAssociateType DeepClone()
         => new()
         {
             Id = Id,

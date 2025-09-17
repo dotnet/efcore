@@ -11,69 +11,69 @@ public abstract class ComplexPropertiesStructuralEqualityTestBase<TFixture>(TFix
     // by-value server-side behavior of complex properties.
     // TODO: Ideally do this rewriting automatically via a visitor
 
-    public override Task Two_related()
+    public override Task Two_associates()
         => AssertQuery(
-            ss => ss.Set<RootEntity>().Where(e => e.RequiredRelated == e.OptionalRelated),
-            ss => ss.Set<RootEntity>().Where(e => e.RequiredRelated.Equals(e.OptionalRelated)));
+            ss => ss.Set<RootEntity>().Where(e => e.RequiredAssociate == e.OptionalAssociate),
+            ss => ss.Set<RootEntity>().Where(e => e.RequiredAssociate.Equals(e.OptionalAssociate)));
 
-    public override Task Two_nested()
+    public override Task Two_nested_associates()
         => AssertQuery(
-            ss => ss.Set<RootEntity>().Where(e => e.RequiredRelated.RequiredNested == e.OptionalRelated!.RequiredNested),
-            ss => ss.Set<RootEntity>().Where(e => e.RequiredRelated.RequiredNested.Equals(e.OptionalRelated!.RequiredNested)));
+            ss => ss.Set<RootEntity>().Where(e => e.RequiredAssociate.RequiredNestedAssociate == e.OptionalAssociate!.RequiredNestedAssociate),
+            ss => ss.Set<RootEntity>().Where(e => e.RequiredAssociate.RequiredNestedAssociate.Equals(e.OptionalAssociate!.RequiredNestedAssociate)));
 
     public override Task Not_equals()
         => AssertQuery(
-            ss => ss.Set<RootEntity>().Where(e => e.RequiredRelated != e.OptionalRelated),
-            ss => ss.Set<RootEntity>().Where(e => !e.RequiredRelated.Equals(e.OptionalRelated)));
+            ss => ss.Set<RootEntity>().Where(e => e.RequiredAssociate != e.OptionalAssociate),
+            ss => ss.Set<RootEntity>().Where(e => !e.RequiredAssociate.Equals(e.OptionalAssociate)));
 
-    public override Task Nested_with_inline()
+    public override Task Nested_associate_with_inline()
         => AssertQuery(
             ss => ss.Set<RootEntity>()
-                .Where(e => e.RequiredRelated.RequiredNested
-                    == new NestedType
+                .Where(e => e.RequiredAssociate.RequiredNestedAssociate
+                    == new NestedAssociateType
                     {
                         Id = 1000,
-                        Name = "Root1_RequiredRelated_RequiredNested",
+                        Name = "Root1_RequiredAssociate_RequiredNestedAssociate",
                         Int = 8,
                         String = "foo",
                         Ints = new() { 1, 2, 3 }
                     }),
             ss => ss.Set<RootEntity>()
-                .Where(e => e.RequiredRelated.RequiredNested.Equals(
-                    new NestedType
+                .Where(e => e.RequiredAssociate.RequiredNestedAssociate.Equals(
+                    new NestedAssociateType
                     {
                         Id = 1000,
-                        Name = "Root1_RequiredRelated_RequiredNested",
+                        Name = "Root1_RequiredAssociate_RequiredNestedAssociate",
                         Int = 8,
                         String = "foo",
                         Ints = new() { 1, 2, 3 }
                     })));
 
-    public override async Task Nested_with_parameter()
+    public override async Task Nested_associate_with_parameter()
     {
-        var nested = Fixture.Data.RootEntities.Single(e => e.Id == 1).RequiredRelated.RequiredNested;
+        var nested = Fixture.Data.RootEntities.Single(e => e.Id == 1).RequiredAssociate.RequiredNestedAssociate;
 
         await AssertQuery(
-            ss => ss.Set<RootEntity>().Where(e => e.RequiredRelated.RequiredNested == nested),
-            ss => ss.Set<RootEntity>().Where(e => e.RequiredRelated.RequiredNested.Equals(nested)));
+            ss => ss.Set<RootEntity>().Where(e => e.RequiredAssociate.RequiredNestedAssociate == nested),
+            ss => ss.Set<RootEntity>().Where(e => e.RequiredAssociate.RequiredNestedAssociate.Equals(nested)));
     }
 
     public override Task Two_nested_collections()
         => AssertQuery(
-            ss => ss.Set<RootEntity>().Where(e => e.RequiredRelated.NestedCollection == e.OptionalRelated!.NestedCollection),
+            ss => ss.Set<RootEntity>().Where(e => e.RequiredAssociate.NestedCollection == e.OptionalAssociate!.NestedCollection),
             ss => ss.Set<RootEntity>().Where(e
-                => e.OptionalRelated != null && e.RequiredRelated.NestedCollection.SequenceEqual(e.OptionalRelated!.NestedCollection)));
+                => e.OptionalAssociate != null && e.RequiredAssociate.NestedCollection.SequenceEqual(e.OptionalAssociate!.NestedCollection)));
 
     public override Task Nested_collection_with_inline()
         => AssertQuery(
             ss => ss.Set<RootEntity>()
-                .Where(e => e.RequiredRelated.NestedCollection
-                    == new List<NestedType>
+                .Where(e => e.RequiredAssociate.NestedCollection
+                    == new List<NestedAssociateType>
                     {
                         new()
                         {
                             Id = 1002,
-                            Name = "Root1_RequiredRelated_NestedCollection_1",
+                            Name = "Root1_RequiredAssociate_NestedCollection_1",
                             Int = 8,
                             String = "foo",
                             Ints = new List<int> { 1, 2, 3 }
@@ -81,20 +81,20 @@ public abstract class ComplexPropertiesStructuralEqualityTestBase<TFixture>(TFix
                         new()
                         {
                             Id = 1003,
-                            Name = "Root1_RequiredRelated_NestedCollection_2",
+                            Name = "Root1_RequiredAssociate_NestedCollection_2",
                             Int = 8,
                             String = "foo",
                             Ints = new List<int> { 1, 2, 3 }
                         }
                     }),
             ss => ss.Set<RootEntity>()
-                .Where(e => e.RequiredRelated.NestedCollection.SequenceEqual(
-                    new List<NestedType>
+                .Where(e => e.RequiredAssociate.NestedCollection.SequenceEqual(
+                    new List<NestedAssociateType>
                     {
                         new()
                         {
                             Id = 1002,
-                            Name = "Root1_RequiredRelated_NestedCollection_1",
+                            Name = "Root1_RequiredAssociate_NestedCollection_1",
                             Int = 8,
                             String = "foo",
                             Ints = new List<int> { 1, 2, 3 }
@@ -102,7 +102,7 @@ public abstract class ComplexPropertiesStructuralEqualityTestBase<TFixture>(TFix
                         new()
                         {
                             Id = 1003,
-                            Name = "Root1_RequiredRelated_NestedCollection_2",
+                            Name = "Root1_RequiredAssociate_NestedCollection_2",
                             Int = 8,
                             String = "foo",
                             Ints = new List<int> { 1, 2, 3 }
@@ -111,18 +111,18 @@ public abstract class ComplexPropertiesStructuralEqualityTestBase<TFixture>(TFix
 
     public override async Task Nested_collection_with_parameter()
     {
-        var nestedCollection = Fixture.Data.RootEntities.Single(e => e.Id == 1).RequiredRelated.NestedCollection;
+        var nestedCollection = Fixture.Data.RootEntities.Single(e => e.Id == 1).RequiredAssociate.NestedCollection;
 
         await AssertQuery(
-            ss => ss.Set<RootEntity>().Where(e => e.RequiredRelated.NestedCollection == nestedCollection),
-            ss => ss.Set<RootEntity>().Where(e => e.RequiredRelated.NestedCollection.SequenceEqual(nestedCollection)));
+            ss => ss.Set<RootEntity>().Where(e => e.RequiredAssociate.NestedCollection == nestedCollection),
+            ss => ss.Set<RootEntity>().Where(e => e.RequiredAssociate.NestedCollection.SequenceEqual(nestedCollection)));
     }
 
     #region Value types
 
     [ConditionalFact]
     public virtual Task Nullable_value_type_with_null()
-        => AssertQuery(ss => ss.Set<ValueRootEntity>().Where(e => e.OptionalRelated == null));
+        => AssertQuery(ss => ss.Set<ValueRootEntity>().Where(e => e.OptionalAssociate == null));
 
     #endregion Value types
 }

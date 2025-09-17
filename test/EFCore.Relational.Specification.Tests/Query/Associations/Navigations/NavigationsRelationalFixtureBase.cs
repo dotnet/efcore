@@ -17,15 +17,15 @@ public abstract class NavigationsRelationalFixtureBase : NavigationsFixtureBase,
 
         modelBuilder.Entity<RootEntity>(b =>
         {
-            b.Navigation(e => e.RequiredRelated).AutoInclude();
-            b.Navigation(e => e.OptionalRelated).AutoInclude();
-            b.Navigation(e => e.RelatedCollection).AutoInclude();
+            b.Navigation(e => e.RequiredAssociate).AutoInclude();
+            b.Navigation(e => e.OptionalAssociate).AutoInclude();
+            b.Navigation(e => e.AssociateCollection).AutoInclude();
         });
 
-        modelBuilder.Entity<RelatedType>(b =>
+        modelBuilder.Entity<AssociateType>(b =>
         {
-            b.Navigation(e => e.RequiredNested).AutoInclude();
-            b.Navigation(e => e.OptionalNested).AutoInclude();
+            b.Navigation(e => e.RequiredNestedAssociate).AutoInclude();
+            b.Navigation(e => e.OptionalNestedAssociate).AutoInclude();
             b.Navigation(e => e.NestedCollection).AutoInclude();
         });
     }

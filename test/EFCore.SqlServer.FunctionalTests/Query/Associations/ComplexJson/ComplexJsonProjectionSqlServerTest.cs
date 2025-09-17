@@ -12,22 +12,22 @@ public class ComplexJsonProjectionSqlServerTest(ComplexJsonSqlServerFixture fixt
 
         AssertSql(
             """
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
 """);
     }
 
     #region Scalar properties
 
-    public override async Task Select_property_on_required_related(QueryTrackingBehavior queryTrackingBehavior)
+    public override async Task Select_scalar_property_on_required_associate(QueryTrackingBehavior queryTrackingBehavior)
     {
-        await base.Select_property_on_required_related(queryTrackingBehavior);
+        await base.Select_scalar_property_on_required_associate(queryTrackingBehavior);
 
         if (Fixture.UsingJsonType)
         {
             AssertSql(
                 """
-SELECT JSON_VALUE([r].[RequiredRelated], '$.String' RETURNING nvarchar(max))
+SELECT JSON_VALUE([r].[RequiredAssociate], '$.String' RETURNING nvarchar(max))
 FROM [RootEntity] AS [r]
 """);
         }
@@ -35,21 +35,21 @@ FROM [RootEntity] AS [r]
         {
             AssertSql(
                 """
-SELECT JSON_VALUE([r].[RequiredRelated], '$.String')
+SELECT JSON_VALUE([r].[RequiredAssociate], '$.String')
 FROM [RootEntity] AS [r]
 """);
         }
     }
 
-    public override async Task Select_property_on_optional_related(QueryTrackingBehavior queryTrackingBehavior)
+    public override async Task Select_property_on_optional_associate(QueryTrackingBehavior queryTrackingBehavior)
     {
-        await base.Select_property_on_optional_related(queryTrackingBehavior);
+        await base.Select_property_on_optional_associate(queryTrackingBehavior);
 
         if (Fixture.UsingJsonType)
         {
             AssertSql(
                 """
-SELECT JSON_VALUE([r].[OptionalRelated], '$.String' RETURNING nvarchar(max))
+SELECT JSON_VALUE([r].[OptionalAssociate], '$.String' RETURNING nvarchar(max))
 FROM [RootEntity] AS [r]
 """);
         }
@@ -57,21 +57,21 @@ FROM [RootEntity] AS [r]
         {
             AssertSql(
                 """
-SELECT JSON_VALUE([r].[OptionalRelated], '$.String')
+SELECT JSON_VALUE([r].[OptionalAssociate], '$.String')
 FROM [RootEntity] AS [r]
 """);
         }
     }
 
-    public override async Task Select_value_type_property_on_null_related_throws(QueryTrackingBehavior queryTrackingBehavior)
+    public override async Task Select_value_type_property_on_null_associate_throws(QueryTrackingBehavior queryTrackingBehavior)
     {
-        await base.Select_value_type_property_on_null_related_throws(queryTrackingBehavior);
+        await base.Select_value_type_property_on_null_associate_throws(queryTrackingBehavior);
 
         if (Fixture.UsingJsonType)
         {
             AssertSql(
                 """
-SELECT JSON_VALUE([r].[OptionalRelated], '$.Int' RETURNING int)
+SELECT JSON_VALUE([r].[OptionalAssociate], '$.Int' RETURNING int)
 FROM [RootEntity] AS [r]
 """);
         }
@@ -79,21 +79,21 @@ FROM [RootEntity] AS [r]
         {
             AssertSql(
                 """
-SELECT CAST(JSON_VALUE([r].[OptionalRelated], '$.Int') AS int)
+SELECT CAST(JSON_VALUE([r].[OptionalAssociate], '$.Int') AS int)
 FROM [RootEntity] AS [r]
 """);
         }
     }
 
-    public override async Task Select_nullable_value_type_property_on_null_related(QueryTrackingBehavior queryTrackingBehavior)
+    public override async Task Select_nullable_value_type_property_on_null_associate(QueryTrackingBehavior queryTrackingBehavior)
     {
-        await base.Select_nullable_value_type_property_on_null_related(queryTrackingBehavior);
+        await base.Select_nullable_value_type_property_on_null_associate(queryTrackingBehavior);
 
         if (Fixture.UsingJsonType)
         {
             AssertSql(
                 """
-SELECT JSON_VALUE([r].[OptionalRelated], '$.Int' RETURNING int)
+SELECT JSON_VALUE([r].[OptionalAssociate], '$.Int' RETURNING int)
 FROM [RootEntity] AS [r]
 """);
         }
@@ -101,7 +101,7 @@ FROM [RootEntity] AS [r]
         {
             AssertSql(
                 """
-SELECT CAST(JSON_VALUE([r].[OptionalRelated], '$.Int') AS int)
+SELECT CAST(JSON_VALUE([r].[OptionalAssociate], '$.Int') AS int)
 FROM [RootEntity] AS [r]
 """);
         }
@@ -111,104 +111,104 @@ FROM [RootEntity] AS [r]
 
     #region Structural properties
 
-    public override async Task Select_related(QueryTrackingBehavior queryTrackingBehavior)
+    public override async Task Select_associate(QueryTrackingBehavior queryTrackingBehavior)
     {
-        await base.Select_related(queryTrackingBehavior);
+        await base.Select_associate(queryTrackingBehavior);
 
         AssertSql(
             """
-SELECT [r].[RequiredRelated]
+SELECT [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
 """);
     }
 
-    public override async Task Select_optional_related(QueryTrackingBehavior queryTrackingBehavior)
+    public override async Task Select_optional_associate(QueryTrackingBehavior queryTrackingBehavior)
     {
-        await base.Select_optional_related(queryTrackingBehavior);
+        await base.Select_optional_associate(queryTrackingBehavior);
 
         AssertSql(
             """
-SELECT [r].[OptionalRelated]
+SELECT [r].[OptionalAssociate]
 FROM [RootEntity] AS [r]
 """);
     }
 
-    public override async Task Select_required_nested_on_required_related(QueryTrackingBehavior queryTrackingBehavior)
+    public override async Task Select_required_nested_on_required_associate(QueryTrackingBehavior queryTrackingBehavior)
     {
-        await base.Select_required_nested_on_required_related(queryTrackingBehavior);
+        await base.Select_required_nested_on_required_associate(queryTrackingBehavior);
 
         AssertSql(
             """
-SELECT JSON_QUERY([r].[RequiredRelated], '$.RequiredNested')
+SELECT JSON_QUERY([r].[RequiredAssociate], '$.RequiredNestedAssociate')
 FROM [RootEntity] AS [r]
 """);
     }
 
-    public override async Task Select_optional_nested_on_required_related(QueryTrackingBehavior queryTrackingBehavior)
+    public override async Task Select_optional_nested_on_required_associate(QueryTrackingBehavior queryTrackingBehavior)
     {
-        await base.Select_optional_nested_on_required_related(queryTrackingBehavior);
+        await base.Select_optional_nested_on_required_associate(queryTrackingBehavior);
 
         AssertSql(
             """
-SELECT JSON_QUERY([r].[RequiredRelated], '$.OptionalNested')
+SELECT JSON_QUERY([r].[RequiredAssociate], '$.OptionalNestedAssociate')
 FROM [RootEntity] AS [r]
 """);
     }
 
-    public override async Task Select_required_nested_on_optional_related(QueryTrackingBehavior queryTrackingBehavior)
+    public override async Task Select_required_nested_on_optional_associate(QueryTrackingBehavior queryTrackingBehavior)
     {
-        await base.Select_required_nested_on_optional_related(queryTrackingBehavior);
+        await base.Select_required_nested_on_optional_associate(queryTrackingBehavior);
 
         AssertSql(
             """
-SELECT JSON_QUERY([r].[OptionalRelated], '$.RequiredNested')
+SELECT JSON_QUERY([r].[OptionalAssociate], '$.RequiredNestedAssociate')
 FROM [RootEntity] AS [r]
 """);
     }
 
-    public override async Task Select_optional_nested_on_optional_related(QueryTrackingBehavior queryTrackingBehavior)
+    public override async Task Select_optional_nested_on_optional_associate(QueryTrackingBehavior queryTrackingBehavior)
     {
-        await base.Select_optional_nested_on_optional_related(queryTrackingBehavior);
+        await base.Select_optional_nested_on_optional_associate(queryTrackingBehavior);
 
         AssertSql(
             """
-SELECT JSON_QUERY([r].[OptionalRelated], '$.OptionalNested')
+SELECT JSON_QUERY([r].[OptionalAssociate], '$.OptionalNestedAssociate')
 FROM [RootEntity] AS [r]
 """);
     }
 
-    public override async Task Select_required_related_via_optional_navigation(QueryTrackingBehavior queryTrackingBehavior)
+    public override async Task Select_required_associate_via_optional_navigation(QueryTrackingBehavior queryTrackingBehavior)
     {
-        await base.Select_required_related_via_optional_navigation(queryTrackingBehavior);
+        await base.Select_required_associate_via_optional_navigation(queryTrackingBehavior);
 
         AssertSql(
             """
-SELECT [r0].[RequiredRelated]
+SELECT [r0].[RequiredAssociate]
 FROM [RootReferencingEntity] AS [r]
 LEFT JOIN [RootEntity] AS [r0] ON [r].[RootEntityId] = [r0].[Id]
 """);
     }
 
-    public override async Task Select_unmapped_related_scalar_property(QueryTrackingBehavior queryTrackingBehavior)
+    public override async Task Select_unmapped_associate_scalar_property(QueryTrackingBehavior queryTrackingBehavior)
     {
-        await base.Select_unmapped_related_scalar_property(queryTrackingBehavior);
+        await base.Select_unmapped_associate_scalar_property(queryTrackingBehavior);
 
         AssertSql(
             """
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
 """);
     }
 
-    public override async Task Select_untranslatable_method_on_related_scalar_property(QueryTrackingBehavior queryTrackingBehavior)
+    public override async Task Select_untranslatable_method_on_associate_scalar_property(QueryTrackingBehavior queryTrackingBehavior)
     {
-        await base.Select_untranslatable_method_on_related_scalar_property(queryTrackingBehavior);
+        await base.Select_untranslatable_method_on_associate_scalar_property(queryTrackingBehavior);
 
         if (Fixture.UsingJsonType)
         {
             AssertSql(
                 """
-SELECT JSON_VALUE([r].[RequiredRelated], '$.Int' RETURNING int)
+SELECT JSON_VALUE([r].[RequiredAssociate], '$.Int' RETURNING int)
 FROM [RootEntity] AS [r]
 """);
         }
@@ -216,7 +216,7 @@ FROM [RootEntity] AS [r]
         {
             AssertSql(
                 """
-SELECT CAST(JSON_VALUE([r].[RequiredRelated], '$.Int') AS int)
+SELECT CAST(JSON_VALUE([r].[RequiredAssociate], '$.Int') AS int)
 FROM [RootEntity] AS [r]
 """);
         }
@@ -226,87 +226,87 @@ FROM [RootEntity] AS [r]
 
     #region Structural collection properties
 
-    public override async Task Select_related_collection(QueryTrackingBehavior queryTrackingBehavior)
+    public override async Task Select_associate_collection(QueryTrackingBehavior queryTrackingBehavior)
     {
-        await base.Select_related_collection(queryTrackingBehavior);
+        await base.Select_associate_collection(queryTrackingBehavior);
 
         AssertSql(
             """
-SELECT [r].[RelatedCollection]
+SELECT [r].[AssociateCollection]
 FROM [RootEntity] AS [r]
 ORDER BY [r].[Id]
 """);
     }
 
-    public override async Task Select_nested_collection_on_required_related(QueryTrackingBehavior queryTrackingBehavior)
+    public override async Task Select_nested_collection_on_required_associate(QueryTrackingBehavior queryTrackingBehavior)
     {
-        await base.Select_nested_collection_on_required_related(queryTrackingBehavior);
+        await base.Select_nested_collection_on_required_associate(queryTrackingBehavior);
 
         AssertSql(
             """
-SELECT JSON_QUERY([r].[RequiredRelated], '$.NestedCollection')
+SELECT JSON_QUERY([r].[RequiredAssociate], '$.NestedCollection')
 FROM [RootEntity] AS [r]
 ORDER BY [r].[Id]
 """);
     }
 
-    public override async Task Select_nested_collection_on_optional_related(QueryTrackingBehavior queryTrackingBehavior)
+    public override async Task Select_nested_collection_on_optional_associate(QueryTrackingBehavior queryTrackingBehavior)
     {
-        await base.Select_nested_collection_on_optional_related(queryTrackingBehavior);
+        await base.Select_nested_collection_on_optional_associate(queryTrackingBehavior);
 
         AssertSql(
             """
-SELECT JSON_QUERY([r].[OptionalRelated], '$.NestedCollection')
+SELECT JSON_QUERY([r].[OptionalAssociate], '$.NestedCollection')
 FROM [RootEntity] AS [r]
 ORDER BY [r].[Id]
 """);
     }
 
-    public override async Task SelectMany_related_collection(QueryTrackingBehavior queryTrackingBehavior)
+    public override async Task SelectMany_associate_collection(QueryTrackingBehavior queryTrackingBehavior)
     {
-        await base.SelectMany_related_collection(queryTrackingBehavior);
+        await base.SelectMany_associate_collection(queryTrackingBehavior);
 
         if (Fixture.UsingJsonType)
         {
             AssertSql(
                 """
-SELECT [r0].[Id], [r0].[Int], [r0].[Ints], [r0].[Name], [r0].[String], [r0].[NestedCollection], [r0].[OptionalNested], [r0].[RequiredNested]
+SELECT [a].[Id], [a].[Int], [a].[Ints], [a].[Name], [a].[String], [a].[NestedCollection], [a].[OptionalNestedAssociate], [a].[RequiredNestedAssociate]
 FROM [RootEntity] AS [r]
-CROSS APPLY OPENJSON([r].[RelatedCollection], '$') WITH (
+CROSS APPLY OPENJSON([r].[AssociateCollection], '$') WITH (
     [Id] int '$.Id',
     [Int] int '$.Int',
     [Ints] json '$.Ints' AS JSON,
     [Name] nvarchar(max) '$.Name',
     [String] nvarchar(max) '$.String',
     [NestedCollection] json '$.NestedCollection' AS JSON,
-    [OptionalNested] json '$.OptionalNested' AS JSON,
-    [RequiredNested] json '$.RequiredNested' AS JSON
-) AS [r0]
+    [OptionalNestedAssociate] json '$.OptionalNestedAssociate' AS JSON,
+    [RequiredNestedAssociate] json '$.RequiredNestedAssociate' AS JSON
+) AS [a]
 """);
         }
         else
         {
             AssertSql(
                 """
-SELECT [r0].[Id], [r0].[Int], [r0].[Ints], [r0].[Name], [r0].[String], [r0].[NestedCollection], [r0].[OptionalNested], [r0].[RequiredNested]
+SELECT [a].[Id], [a].[Int], [a].[Ints], [a].[Name], [a].[String], [a].[NestedCollection], [a].[OptionalNestedAssociate], [a].[RequiredNestedAssociate]
 FROM [RootEntity] AS [r]
-CROSS APPLY OPENJSON([r].[RelatedCollection], '$') WITH (
+CROSS APPLY OPENJSON([r].[AssociateCollection], '$') WITH (
     [Id] int '$.Id',
     [Int] int '$.Int',
     [Ints] nvarchar(max) '$.Ints' AS JSON,
     [Name] nvarchar(max) '$.Name',
     [String] nvarchar(max) '$.String',
     [NestedCollection] nvarchar(max) '$.NestedCollection' AS JSON,
-    [OptionalNested] nvarchar(max) '$.OptionalNested' AS JSON,
-    [RequiredNested] nvarchar(max) '$.RequiredNested' AS JSON
-) AS [r0]
+    [OptionalNestedAssociate] nvarchar(max) '$.OptionalNestedAssociate' AS JSON,
+    [RequiredNestedAssociate] nvarchar(max) '$.RequiredNestedAssociate' AS JSON
+) AS [a]
 """);
         }
     }
 
-    public override async Task SelectMany_nested_collection_on_required_related(QueryTrackingBehavior queryTrackingBehavior)
+    public override async Task SelectMany_nested_collection_on_required_associate(QueryTrackingBehavior queryTrackingBehavior)
     {
-        await base.SelectMany_nested_collection_on_required_related(queryTrackingBehavior);
+        await base.SelectMany_nested_collection_on_required_associate(queryTrackingBehavior);
 
         if (Fixture.UsingJsonType)
         {
@@ -314,7 +314,7 @@ CROSS APPLY OPENJSON([r].[RelatedCollection], '$') WITH (
                 """
 SELECT [n].[Id], [n].[Int], [n].[Ints], [n].[Name], [n].[String]
 FROM [RootEntity] AS [r]
-CROSS APPLY OPENJSON([r].[RequiredRelated], '$.NestedCollection') WITH (
+CROSS APPLY OPENJSON([r].[RequiredAssociate], '$.NestedCollection') WITH (
     [Id] int '$.Id',
     [Int] int '$.Int',
     [Ints] json '$.Ints' AS JSON,
@@ -329,7 +329,7 @@ CROSS APPLY OPENJSON([r].[RequiredRelated], '$.NestedCollection') WITH (
                 """
 SELECT [n].[Id], [n].[Int], [n].[Ints], [n].[Name], [n].[String]
 FROM [RootEntity] AS [r]
-CROSS APPLY OPENJSON([r].[RequiredRelated], '$.NestedCollection') WITH (
+CROSS APPLY OPENJSON([r].[RequiredAssociate], '$.NestedCollection') WITH (
     [Id] int '$.Id',
     [Int] int '$.Int',
     [Ints] nvarchar(max) '$.Ints' AS JSON,
@@ -340,9 +340,9 @@ CROSS APPLY OPENJSON([r].[RequiredRelated], '$.NestedCollection') WITH (
         }
     }
 
-    public override async Task SelectMany_nested_collection_on_optional_related(QueryTrackingBehavior queryTrackingBehavior)
+    public override async Task SelectMany_nested_collection_on_optional_associate(QueryTrackingBehavior queryTrackingBehavior)
     {
-        await base.SelectMany_nested_collection_on_optional_related(queryTrackingBehavior);
+        await base.SelectMany_nested_collection_on_optional_associate(queryTrackingBehavior);
 
         if (Fixture.UsingJsonType)
         {
@@ -350,7 +350,7 @@ CROSS APPLY OPENJSON([r].[RequiredRelated], '$.NestedCollection') WITH (
                 """
 SELECT [n].[Id], [n].[Int], [n].[Ints], [n].[Name], [n].[String]
 FROM [RootEntity] AS [r]
-CROSS APPLY OPENJSON([r].[OptionalRelated], '$.NestedCollection') WITH (
+CROSS APPLY OPENJSON([r].[OptionalAssociate], '$.NestedCollection') WITH (
     [Id] int '$.Id',
     [Int] int '$.Int',
     [Ints] json '$.Ints' AS JSON,
@@ -365,7 +365,7 @@ CROSS APPLY OPENJSON([r].[OptionalRelated], '$.NestedCollection') WITH (
                 """
 SELECT [n].[Id], [n].[Int], [n].[Ints], [n].[Name], [n].[String]
 FROM [RootEntity] AS [r]
-CROSS APPLY OPENJSON([r].[OptionalRelated], '$.NestedCollection') WITH (
+CROSS APPLY OPENJSON([r].[OptionalAssociate], '$.NestedCollection') WITH (
     [Id] int '$.Id',
     [Int] int '$.Int',
     [Ints] nvarchar(max) '$.Ints' AS JSON,
@@ -386,7 +386,7 @@ CROSS APPLY OPENJSON([r].[OptionalRelated], '$.NestedCollection') WITH (
 
         AssertSql(
             """
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
 """);
     }
@@ -404,7 +404,7 @@ FROM [RootEntity] AS [r]
 SELECT [r1].[c]
 FROM [RootEntity] AS [r]
 OUTER APPLY (
-    SELECT TOP(1) JSON_QUERY([r0].[RequiredRelated], '$.RequiredNested') AS [c]
+    SELECT TOP(1) JSON_QUERY([r0].[RequiredAssociate], '$.RequiredNestedAssociate') AS [c]
     FROM [RootEntity] AS [r0]
     ORDER BY [r0].[Id]
 ) AS [r1]
@@ -420,7 +420,7 @@ OUTER APPLY (
 SELECT [r1].[c]
 FROM [RootEntity] AS [r]
 OUTER APPLY (
-    SELECT TOP(1) JSON_QUERY([r0].[OptionalRelated], '$.RequiredNested') AS [c]
+    SELECT TOP(1) JSON_QUERY([r0].[OptionalAssociate], '$.RequiredNestedAssociate') AS [c]
     FROM [RootEntity] AS [r0]
     ORDER BY [r0].[Id]
 ) AS [r1]
@@ -437,7 +437,7 @@ OUTER APPLY (
 
         AssertSql(
             """
-SELECT [v].[Id], [v].[Name], [v].[OptionalRelated], [v].[RelatedCollection], [v].[RequiredRelated]
+SELECT [v].[Id], [v].[Name], [v].[AssociateCollection], [v].[OptionalAssociate], [v].[RequiredAssociate]
 FROM [ValueRootEntity] AS [v]
 """);
     }
@@ -448,7 +448,7 @@ FROM [ValueRootEntity] AS [v]
 
         AssertSql(
             """
-SELECT [v].[RequiredRelated]
+SELECT [v].[RequiredAssociate]
 FROM [ValueRootEntity] AS [v]
 ORDER BY [v].[Id]
 """);
@@ -460,7 +460,7 @@ ORDER BY [v].[Id]
 
         AssertSql(
             """
-SELECT [v].[OptionalRelated]
+SELECT [v].[OptionalAssociate]
 FROM [ValueRootEntity] AS [v]
 ORDER BY [v].[Id]
 """);
@@ -472,7 +472,7 @@ ORDER BY [v].[Id]
 
         AssertSql(
             """
-SELECT [v].[OptionalRelated]
+SELECT [v].[OptionalAssociate]
 FROM [ValueRootEntity] AS [v]
 ORDER BY [v].[Id]
 """);
