@@ -3252,6 +3252,18 @@ WHERE [e].[NullableBoolA] <> [e].[NullableBoolB]
 """);
     }
 
+    public override void Where_not_equal_using_relational_null_semantics_complex_in_equals()
+    {
+        base.Where_not_equal_using_relational_null_semantics_complex_in_equals();
+
+        AssertSql(
+            """
+SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE [e].[NullableBoolA] ^ [e].[NullableBoolB] = [e].[NullableBoolC]
+""");
+    }
+
     public override async Task Where_comparison_null_constant_and_null_parameter(bool async)
     {
         await base.Where_comparison_null_constant_and_null_parameter(async);
