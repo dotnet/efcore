@@ -92,6 +92,11 @@ public static class RelationalJsonUtilities
                 var propertyValue = property.GetGetter().GetClrValue(objectValue);
                 if (propertyValue is null)
                 {
+                    if (!property.IsNullable)
+                    {
+                        throw new InvalidOperationException(RelationalStrings.NullValueInRequiredJsonProperty(property.Name));
+                    }
+
                     writer.WriteNullValue();
                 }
                 else
@@ -109,6 +114,11 @@ public static class RelationalJsonUtilities
                 writer.WritePropertyName(jsonPropertyName);
 
                 var propertyValue = complexProperty.GetGetter().GetClrValue(objectValue);
+
+                if (propertyValue is null && !complexProperty.IsNullable)
+                {
+                    throw new InvalidOperationException(RelationalStrings.NullValueInRequiredJsonProperty(complexProperty.Name));
+                }
 
                 WriteJson(writer, complexProperty.ComplexType, propertyValue, complexProperty.IsCollection);
             }

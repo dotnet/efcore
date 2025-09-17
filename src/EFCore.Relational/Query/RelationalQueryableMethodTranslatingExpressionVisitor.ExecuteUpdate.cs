@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using System.Text;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
@@ -636,10 +637,17 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                                         Expression.Constant(property, typeof(IProperty))),
                                     QueryCompilationContext.QueryContextParameter);
 
-                                var newParameterName =
-                                    $"{ExecuteUpdateRuntimeParameterPrefix}{chainExpression.ParameterExpression.Name}_{property.Name}";
+                                var parameterNameBuilder = new StringBuilder(ExecuteUpdateRuntimeParameterPrefix)
+                                    .Append(chainExpression.ParameterExpression.Name);
 
-                                return _queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda);
+                                foreach (var complexProperty in chainExpression.ComplexPropertyChain)
+                                {
+                                    parameterNameBuilder.Append('_').Append(complexProperty.Name);
+                                }
+
+                                parameterNameBuilder.Append('_').Append(property.Name);
+
+                                return _queryCompilationContext.RegisterRuntimeParameter(parameterNameBuilder.ToString(), lambda);
                             }
 
                             case MemberInitExpression memberInitExpression

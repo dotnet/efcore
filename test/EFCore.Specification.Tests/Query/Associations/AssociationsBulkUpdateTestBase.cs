@@ -79,6 +79,25 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
             s => s.SetProperty(c => c.String, "foo_updated"),
             rowsAffectedCount: 3);
 
+    [ConditionalFact]
+    public virtual async Task Update_association_with_null_required_property()
+    {
+        using var context = Fixture.CreateContext();
+
+        var invalidRelated = Fixture.Data.RootEntities.Single(e => e.Id == 1).RequiredRelated;
+        var originalValue = invalidRelated.String;
+        invalidRelated.String = null!;
+
+        await Assert.ThrowsAnyAsync<Exception>(() =>
+            context.Set<RootEntity>().ExecuteUpdateAsync(s => s.SetProperty(x => x.RequiredRelated, invalidRelated)));
+
+        // Make sure no update actually occurred in the database
+        using (Fixture.ListLoggerFactory.SuspendRecordingEvents())
+        {
+            Assert.Equal(originalValue, (await context.Set<RootEntity>().SingleAsync(e => e.Id == 1)).RequiredRelated.String);
+        }
+    }
+
     #endregion Update properties
 
     #region Update association
@@ -247,6 +266,27 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
                 c => c,
                 s => s.SetProperty(x => x.OptionalRelated, nullRelated),
                 rowsAffectedCount: 7);
+    }
+
+    [ConditionalFact]
+    public virtual async Task Update_association_with_null_required_nested_association()
+    {
+        using var context = Fixture.CreateContext();
+
+        var invalidRelated = Fixture.Data.RootEntities.Single(e => e.Id == 1).RequiredRelated;
+        var originalNested = invalidRelated.RequiredNested;
+        invalidRelated.RequiredNested = null!;
+
+        await Assert.ThrowsAnyAsync<Exception>(() =>
+            context.Set<RootEntity>().ExecuteUpdateAsync(s => s.SetProperty(x => x.RequiredRelated, invalidRelated)));
+
+        // Make sure no update actually occurred in the database
+        using (Fixture.ListLoggerFactory.SuspendRecordingEvents())
+        {
+            Assert.Equal(
+                originalNested.String,
+                (await context.Set<RootEntity>().SingleAsync(e => e.Id == 1)).RequiredRelated.RequiredNested.String);
+        }
     }
 
     #endregion Update association
