@@ -12,33 +12,34 @@ public class OwnedNavigationsSetOperationsCosmosTest : OwnedNavigationsSetOperat
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    public override async Task On_related()
+    public override async Task Over_associate_collections()
     {
-        await base.On_related();
+        await base.Over_associate_collections();
 
         AssertSql(
             """
 SELECT VALUE c
 FROM root c
 WHERE (ARRAY_LENGTH(ARRAY_CONCAT(ARRAY(
-    SELECT VALUE r
-    FROM r IN c["RelatedCollection"]
-    WHERE (r["Int"] = 8)), ARRAY(
-    SELECT VALUE r0
-    FROM r0 IN c["RelatedCollection"]
-    WHERE (r0["String"] = "foo")))) = 4)
+    SELECT VALUE a
+    FROM a IN c["AssociateCollection"]
+    WHERE (a["Int"] = 8)), ARRAY(
+    SELECT VALUE a0
+    FROM a0 IN c["AssociateCollection"]
+    WHERE (a0["String"] = "foo")))) = 4)
 """);
     }
 
-    public override Task On_related_projected(QueryTrackingBehavior queryTrackingBehavior)
-        => Assert.ThrowsAsync<InvalidOperationException>(() => base.On_related_projected(queryTrackingBehavior));
+    public override Task Over_associate_collection_projected(QueryTrackingBehavior queryTrackingBehavior)
+        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Over_associate_collection_projected(queryTrackingBehavior));
 
-    public override Task On_related_Select_nested_with_aggregates(QueryTrackingBehavior queryTrackingBehavior)
-        => Assert.ThrowsAsync<InvalidOperationException>(() => base.On_related_projected(queryTrackingBehavior));
+    public override Task Over_assocate_collection_Select_nested_with_aggregates_projected(QueryTrackingBehavior queryTrackingBehavior)
+        => Assert.ThrowsAsync<InvalidOperationException>(
+            () => base.Over_assocate_collection_Select_nested_with_aggregates_projected(queryTrackingBehavior));
 
-    public override async Task On_nested()
+    public override async Task Over_nested_associate_collection()
     {
-        await base.On_nested();
+        await base.Over_nested_associate_collection();
 
         AssertSql(
             """
@@ -46,10 +47,10 @@ SELECT VALUE c
 FROM root c
 WHERE (ARRAY_LENGTH(ARRAY_CONCAT(ARRAY(
     SELECT VALUE n
-    FROM n IN c["RequiredRelated"]["NestedCollection"]
+    FROM n IN c["RequiredAssociate"]["NestedCollection"]
     WHERE (n["Int"] = 8)), ARRAY(
     SELECT VALUE n0
-    FROM n0 IN c["RequiredRelated"]["NestedCollection"]
+    FROM n0 IN c["RequiredAssociate"]["NestedCollection"]
     WHERE (n0["String"] = "foo")))) = 4)
 """);
     }

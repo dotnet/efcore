@@ -12,11 +12,11 @@ public class ComplexJsonPrimitiveCollectionSqlServerTest(ComplexJsonSqlServerFix
 
         AssertSql(
             """
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
 WHERE (
     SELECT COUNT(*)
-    FROM OPENJSON(JSON_QUERY([r].[RequiredRelated], '$.Ints')) AS [i]) = 3
+    FROM OPENJSON(JSON_QUERY([r].[RequiredAssociate], '$.Ints')) AS [i]) = 3
 """);
     }
 
@@ -28,18 +28,18 @@ WHERE (
         {
             AssertSql(
                 """
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
-WHERE JSON_VALUE([r].[RequiredRelated], '$.Ints[0]' RETURNING int) = 1
+WHERE JSON_VALUE([r].[RequiredAssociate], '$.Ints[0]' RETURNING int) = 1
 """);
         }
         else
         {
             AssertSql(
                 """
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
-WHERE CAST(JSON_VALUE([r].[RequiredRelated], '$.Ints[0]') AS int) = 1
+WHERE CAST(JSON_VALUE([r].[RequiredAssociate], '$.Ints[0]') AS int) = 1
 """);
         }
     }
@@ -50,11 +50,11 @@ WHERE CAST(JSON_VALUE([r].[RequiredRelated], '$.Ints[0]') AS int) = 1
 
         AssertSql(
             """
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
 WHERE 3 IN (
     SELECT [i].[value]
-    FROM OPENJSON(JSON_QUERY([r].[RequiredRelated], '$.Ints')) WITH ([value] int '$') AS [i]
+    FROM OPENJSON(JSON_QUERY([r].[RequiredAssociate], '$.Ints')) WITH ([value] int '$') AS [i]
 )
 """);
     }
@@ -65,11 +65,11 @@ WHERE 3 IN (
 
         AssertSql(
             """
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
 WHERE 2 IN (
     SELECT [i].[value]
-    FROM OPENJSON(JSON_QUERY([r].[RequiredRelated], '$.Ints')) WITH ([value] int '$') AS [i]
+    FROM OPENJSON(JSON_QUERY([r].[RequiredAssociate], '$.Ints')) WITH ([value] int '$') AS [i]
 )
 """);
     }
@@ -80,11 +80,11 @@ WHERE 2 IN (
 
         AssertSql(
             """
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
 WHERE (
     SELECT COUNT(*)
-    FROM OPENJSON(JSON_QUERY([r].[RequiredRelated], '$.RequiredNested.Ints')) AS [i]) = 3
+    FROM OPENJSON(JSON_QUERY([r].[RequiredAssociate], '$.RequiredNestedAssociate.Ints')) AS [i]) = 3
 """);
     }
 
@@ -96,11 +96,11 @@ WHERE (
             """
 SELECT (
     SELECT COALESCE(SUM([i0].[value]), 0)
-    FROM OPENJSON(JSON_QUERY([r].[RequiredRelated], '$.Ints')) WITH ([value] int '$') AS [i0])
+    FROM OPENJSON(JSON_QUERY([r].[RequiredAssociate], '$.Ints')) WITH ([value] int '$') AS [i0])
 FROM [RootEntity] AS [r]
 WHERE (
     SELECT COALESCE(SUM([i].[value]), 0)
-    FROM OPENJSON(JSON_QUERY([r].[RequiredRelated], '$.Ints')) WITH ([value] int '$') AS [i]) >= 6
+    FROM OPENJSON(JSON_QUERY([r].[RequiredAssociate], '$.Ints')) WITH ([value] int '$') AS [i]) >= 6
 """);
     }
 

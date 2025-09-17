@@ -15,47 +15,47 @@ public abstract class OwnedNavigationsFixtureBase : AssociationsQueryFixtureBase
         modelBuilder.Entity<RootEntity>(b =>
         {
             b.OwnsOne(
-                e => e.RequiredRelated, rrb =>
+                e => e.RequiredAssociate, rrb =>
                 {
                     rrb.Property(x => x.Id).ValueGeneratedNever();
 
-                    rrb.OwnsOne(r => r.RequiredNested, rnb => rnb.Property(x => x.Id).ValueGeneratedNever());
-                    rrb.Navigation(x => x.RequiredNested).IsRequired();
+                    rrb.OwnsOne(r => r.RequiredNestedAssociate, rnb => rnb.Property(x => x.Id).ValueGeneratedNever());
+                    rrb.Navigation(x => x.RequiredNestedAssociate).IsRequired();
 
-                    rrb.OwnsOne(r => r.OptionalNested, rnb => rnb.Property(x => x.Id).ValueGeneratedNever());
-                    rrb.Navigation(x => x.RequiredNested).IsRequired(false);
+                    rrb.OwnsOne(r => r.OptionalNestedAssociate, rnb => rnb.Property(x => x.Id).ValueGeneratedNever());
+                    rrb.Navigation(x => x.RequiredNestedAssociate).IsRequired(false);
 
                     rrb.OwnsMany(r => r.NestedCollection, rcb => rcb.Property(x => x.Id).ValueGeneratedNever());
                 });
-            b.Navigation(x => x.RequiredRelated).IsRequired();
+            b.Navigation(x => x.RequiredAssociate).IsRequired();
 
             b.OwnsOne(
-                e => e.OptionalRelated, orb =>
+                e => e.OptionalAssociate, orb =>
                 {
                     orb.Property(x => x.Id).ValueGeneratedNever();
 
-                    orb.OwnsOne(r => r.RequiredNested, rnb => rnb.Property(x => x.Id).ValueGeneratedNever());
-                    orb.Navigation(x => x.RequiredNested).IsRequired();
+                    orb.OwnsOne(r => r.RequiredNestedAssociate, rnb => rnb.Property(x => x.Id).ValueGeneratedNever());
+                    orb.Navigation(x => x.RequiredNestedAssociate).IsRequired();
 
-                    orb.OwnsOne(r => r.OptionalNested, rnb => rnb.Property(x => x.Id).ValueGeneratedNever());
-                    orb.Navigation(x => x.RequiredNested).IsRequired(false);
+                    orb.OwnsOne(r => r.OptionalNestedAssociate, rnb => rnb.Property(x => x.Id).ValueGeneratedNever());
+                    orb.Navigation(x => x.RequiredNestedAssociate).IsRequired(false);
 
                     orb.Ignore(r => r.NestedCollection);
 
                     orb.OwnsMany(r => r.NestedCollection, rcb => rcb.Property(x => x.Id).ValueGeneratedNever());
                 });
-            b.Navigation(x => x.OptionalRelated).IsRequired(false);
+            b.Navigation(x => x.OptionalAssociate).IsRequired(false);
 
             b.OwnsMany(
-                e => e.RelatedCollection, rcb =>
+                e => e.AssociateCollection, rcb =>
                 {
                     rcb.Property(x => x.Id).ValueGeneratedNever();
 
-                    rcb.OwnsOne(r => r.RequiredNested, rnb => rnb.Property(x => x.Id).ValueGeneratedNever());
-                    rcb.Navigation(x => x.RequiredNested).IsRequired();
+                    rcb.OwnsOne(r => r.RequiredNestedAssociate, rnb => rnb.Property(x => x.Id).ValueGeneratedNever());
+                    rcb.Navigation(x => x.RequiredNestedAssociate).IsRequired();
 
-                    rcb.OwnsOne(r => r.OptionalNested, rnb => rnb.Property(x => x.Id).ValueGeneratedNever());
-                    rcb.Navigation(x => x.RequiredNested).IsRequired(false);
+                    rcb.OwnsOne(r => r.OptionalNestedAssociate, rnb => rnb.Property(x => x.Id).ValueGeneratedNever());
+                    rcb.Navigation(x => x.RequiredNestedAssociate).IsRequired(false);
 
                     rcb.OwnsMany(r => r.NestedCollection, rcb => rcb.Property(x => x.Id).ValueGeneratedNever());
                 });
@@ -69,9 +69,9 @@ public abstract class OwnedNavigationsFixtureBase : AssociationsQueryFixtureBase
         // Owned mapping does not support the same instance being referenced multiple times;
         // go over the referential identity entity and clone.
         var rootEntity = data.RootEntities.Single(e => e.Name.EndsWith("With_referential_identity"));
-        rootEntity.RequiredRelated.OptionalNested = rootEntity.RequiredRelated.RequiredNested.DeepClone();
-        rootEntity.OptionalRelated = rootEntity.RequiredRelated.DeepClone();
-        rootEntity.RelatedCollection = rootEntity.RelatedCollection.Select(r => r.DeepClone()).ToList();
+        rootEntity.RequiredAssociate.OptionalNestedAssociate = rootEntity.RequiredAssociate.RequiredNestedAssociate.DeepClone();
+        rootEntity.OptionalAssociate = rootEntity.RequiredAssociate.DeepClone();
+        rootEntity.AssociateCollection = rootEntity.AssociateCollection.Select(r => r.DeepClone()).ToList();
 
         return data;
     }

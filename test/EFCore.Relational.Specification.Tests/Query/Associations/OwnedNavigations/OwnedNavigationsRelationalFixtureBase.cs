@@ -28,28 +28,28 @@ public abstract class OwnedNavigationsRelationalFixtureBase : OwnedTableSplittin
         modelBuilder.Entity<RootEntity>(b =>
         {
             b.OwnsOne(
-                e => e.RequiredRelated, rrb =>
+                e => e.RequiredAssociate, rrb =>
                 {
                     rrb.ToTable("RequiredRelated");
 
-                    rrb.OwnsOne(r => r.RequiredNested, rnb => rnb.ToTable("RequiredRelated_RequiredNested"));
-                    rrb.OwnsOne(r => r.OptionalNested, rnb => rnb.ToTable("RequiredRelated_OptionalNested"));
+                    rrb.OwnsOne(r => r.RequiredNestedAssociate, rnb => rnb.ToTable("RequiredRelated_RequiredNested"));
+                    rrb.OwnsOne(r => r.OptionalNestedAssociate, rnb => rnb.ToTable("RequiredRelated_OptionalNested"));
                 });
 
             b.OwnsOne(
-                e => e.OptionalRelated, rrb =>
+                e => e.OptionalAssociate, rrb =>
                 {
                     rrb.ToTable("OptionalRelated");
 
-                    rrb.OwnsOne(r => r.RequiredNested, rnb => rnb.ToTable("OptionalRelated_RequiredNested"));
-                    rrb.OwnsOne(r => r.OptionalNested, rnb => rnb.ToTable("OptionalRelated_OptionalNested"));
+                    rrb.OwnsOne(r => r.RequiredNestedAssociate, rnb => rnb.ToTable("OptionalRelated_RequiredNested"));
+                    rrb.OwnsOne(r => r.OptionalNestedAssociate, rnb => rnb.ToTable("OptionalRelated_OptionalNested"));
                 });
 
             b.OwnsMany(
-                e => e.RelatedCollection, rcb =>
+                e => e.AssociateCollection, rcb =>
                 {
-                    rcb.OwnsOne(r => r.RequiredNested, rnb => rnb.ToTable("RelatedCollection_RequiredNested"));
-                    rcb.OwnsOne(r => r.OptionalNested, rnb => rnb.ToTable("RelatedCollection_OptionalNested"));
+                    rcb.OwnsOne(r => r.RequiredNestedAssociate, rnb => rnb.ToTable("RelatedCollection_RequiredNested"));
+                    rcb.OwnsOne(r => r.OptionalNestedAssociate, rnb => rnb.ToTable("RelatedCollection_OptionalNested"));
                 });
         });
     }

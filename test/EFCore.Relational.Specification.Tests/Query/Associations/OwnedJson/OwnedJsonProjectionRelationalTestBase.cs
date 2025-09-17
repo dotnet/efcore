@@ -15,10 +15,10 @@ public abstract class OwnedJsonProjectionRelationalTestBase<TFixture> : OwnedNav
         fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    public override Task Select_required_related_via_optional_navigation(QueryTrackingBehavior queryTrackingBehavior)
+    public override Task Select_required_associate_via_optional_navigation(QueryTrackingBehavior queryTrackingBehavior)
         => AssertOwnedTrackingQuery(
             queryTrackingBehavior,
-            () => base.Select_required_related_via_optional_navigation(queryTrackingBehavior));
+            () => base.Select_required_associate_via_optional_navigation(queryTrackingBehavior));
 
     protected void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

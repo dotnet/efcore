@@ -7,96 +7,96 @@ public abstract class AssociationsStructuralEqualityTestBase<TFixture>(TFixture 
     where TFixture : AssociationsQueryFixtureBase, new()
 {
     [ConditionalFact]
-    public virtual Task Two_related()
+    public virtual Task Two_associates()
         => AssertQuery(
-            ss => ss.Set<RootEntity>().Where(e => e.RequiredRelated == e.OptionalRelated),
+            ss => ss.Set<RootEntity>().Where(e => e.RequiredAssociate == e.OptionalAssociate),
             ss => ss.Set<RootEntity>()
-                .Where(e => e.RequiredRelated.Equals(
-                    e.OptionalRelated))); // TODO: Rewrite equality to Equals for the entire test suite for complex
+                .Where(e => e.RequiredAssociate.Equals(
+                    e.OptionalAssociate))); // TODO: Rewrite equality to Equals for the entire test suite for complex
 
     [ConditionalFact]
-    public virtual Task Two_nested()
+    public virtual Task Two_nested_associates()
         => AssertQuery(
-            ss => ss.Set<RootEntity>().Where(e => e.RequiredRelated.RequiredNested == e.OptionalRelated!.RequiredNested),
+            ss => ss.Set<RootEntity>().Where(e => e.RequiredAssociate.RequiredNestedAssociate == e.OptionalAssociate!.RequiredNestedAssociate),
             ss => ss.Set<RootEntity>()
-                .Where(e => e.RequiredRelated.RequiredNested.Equals(
-                    e.OptionalRelated!.RequiredNested))); // TODO: Rewrite equality to Equals for the entire test suite for complex
+                .Where(e => e.RequiredAssociate.RequiredNestedAssociate.Equals(
+                    e.OptionalAssociate!.RequiredNestedAssociate))); // TODO: Rewrite equality to Equals for the entire test suite for complex
 
     [ConditionalFact]
     public virtual Task Not_equals()
         => AssertQuery(
-            ss => ss.Set<RootEntity>().Where(e => e.RequiredRelated != e.OptionalRelated),
+            ss => ss.Set<RootEntity>().Where(e => e.RequiredAssociate != e.OptionalAssociate),
             ss => ss.Set<RootEntity>()
-                .Where(e => !e.RequiredRelated.Equals(
-                    e.OptionalRelated))); // TODO: Rewrite equality to Equals for the entire test suite for complex
+                .Where(e => !e.RequiredAssociate.Equals(
+                    e.OptionalAssociate))); // TODO: Rewrite equality to Equals for the entire test suite for complex
 
     [ConditionalFact]
-    public virtual Task Related_with_inline_null()
-        => AssertQuery(ss => ss.Set<RootEntity>().Where(e => e.OptionalRelated == null));
+    public virtual Task Associate_with_inline_null()
+        => AssertQuery(ss => ss.Set<RootEntity>().Where(e => e.OptionalAssociate == null));
 
     [ConditionalFact]
-    public virtual async Task Related_with_parameter_null()
+    public virtual async Task Associate_with_parameter_null()
     {
-        RelatedType? related = null;
+        AssociateType? related = null;
 
-        await AssertQuery(ss => ss.Set<RootEntity>().Where(e => e.OptionalRelated == related));
+        await AssertQuery(ss => ss.Set<RootEntity>().Where(e => e.OptionalAssociate == related));
     }
 
     [ConditionalFact]
-    public virtual Task Nested_with_inline_null()
-        => AssertQuery(ss => ss.Set<RootEntity>().Where(e => e.RequiredRelated.OptionalNested == null));
+    public virtual Task Nested_associate_with_inline_null()
+        => AssertQuery(ss => ss.Set<RootEntity>().Where(e => e.RequiredAssociate.OptionalNestedAssociate == null));
 
     [ConditionalFact]
-    public virtual Task Nested_with_inline()
+    public virtual Task Nested_associate_with_inline()
         => AssertQuery(
             ss => ss.Set<RootEntity>()
-                .Where(e => e.RequiredRelated.RequiredNested
-                    == new NestedType
+                .Where(e => e.RequiredAssociate.RequiredNestedAssociate
+                    == new NestedAssociateType
                     {
                         Id = 1000,
-                        Name = "Root1_RequiredRelated_RequiredNested",
+                        Name = "Root1_RequiredAssociate_RequiredNestedAssociate",
                         Int = 8,
                         String = "foo",
                         Ints = new() { 1, 2, 3 }
                     }),
             ss => ss.Set<RootEntity>()
-                .Where(e => e.RequiredRelated.RequiredNested.Equals(
-                    new NestedType
+                .Where(e => e.RequiredAssociate.RequiredNestedAssociate.Equals(
+                    new NestedAssociateType
                     {
                         Id = 1000,
-                        Name = "Root1_RequiredRelated_RequiredNested",
+                        Name = "Root1_RequiredAssociate_RequiredNestedAssociate",
                         Int = 8,
                         String = "foo",
                         Ints = new() { 1, 2, 3 }
                     }))); // TODO: Rewrite equality to Equals for the entire test suite for complex
 
     [ConditionalFact]
-    public virtual async Task Nested_with_parameter()
+    public virtual async Task Nested_associate_with_parameter()
     {
-        var nested = Fixture.Data.RootEntities.Single(e => e.Id == 1).RequiredRelated.RequiredNested;
+        var nested = Fixture.Data.RootEntities.Single(e => e.Id == 1).RequiredAssociate.RequiredNestedAssociate;
 
         await AssertQuery(
-            ss => ss.Set<RootEntity>().Where(e => e.RequiredRelated.RequiredNested == nested),
+            ss => ss.Set<RootEntity>().Where(e => e.RequiredAssociate.RequiredNestedAssociate == nested),
             ss => ss.Set<RootEntity>()
-                .Where(e => e.RequiredRelated.RequiredNested
+                .Where(e => e.RequiredAssociate.RequiredNestedAssociate
                     .Equals(nested))); // TODO: Rewrite equality to Equals for the entire test suite for complex
     }
 
     [ConditionalFact]
     public virtual Task Two_nested_collections()
         => AssertQuery(
-            ss => ss.Set<RootEntity>().Where(e => e.RequiredRelated.NestedCollection == e.OptionalRelated!.NestedCollection),
+            ss => ss.Set<RootEntity>().Where(e => e.RequiredAssociate.NestedCollection == e.OptionalAssociate!.NestedCollection),
             ss => ss.Set<RootEntity>().Where(e
-                => e.OptionalRelated != null
-                && e.RequiredRelated.NestedCollection.SequenceEqual(
-                    e.OptionalRelated!.NestedCollection))); // TODO: Rewrite equality to Equals for the entire test suite for complex
+                => e.OptionalAssociate != null
+                && e.RequiredAssociate.NestedCollection.SequenceEqual(
+                    e.OptionalAssociate!.NestedCollection))); // TODO: Rewrite equality to Equals for the entire test suite for complex
 
     [ConditionalFact]
     public virtual Task Nested_collection_with_inline()
         => AssertQuery(
             ss => ss.Set<RootEntity>()
-                .Where(e => e.RequiredRelated.NestedCollection
-                    == new List<NestedType>
+                .Where(e => e.RequiredAssociate.NestedCollection
+                    == new List<NestedAssociateType>
                     {
                         new()
                         {
@@ -116,8 +116,8 @@ public abstract class AssociationsStructuralEqualityTestBase<TFixture>(TFixture 
                         }
                     }),
             ss => ss.Set<RootEntity>()
-                .Where(e => e.RequiredRelated.NestedCollection.SequenceEqual(
-                    new List<NestedType>
+                .Where(e => e.RequiredAssociate.NestedCollection.SequenceEqual(
+                    new List<NestedAssociateType>
                     {
                         new()
                         {
@@ -140,7 +140,7 @@ public abstract class AssociationsStructuralEqualityTestBase<TFixture>(TFixture 
     [ConditionalFact]
     public virtual async Task Nested_collection_with_parameter()
     {
-        var nestedCollection = new List<NestedType>
+        var nestedCollection = new List<NestedAssociateType>
         {
             new()
             {
@@ -161,9 +161,9 @@ public abstract class AssociationsStructuralEqualityTestBase<TFixture>(TFixture 
         };
 
         await AssertQuery(
-            ss => ss.Set<RootEntity>().Where(e => e.RequiredRelated.NestedCollection == nestedCollection),
+            ss => ss.Set<RootEntity>().Where(e => e.RequiredAssociate.NestedCollection == nestedCollection),
             ss => ss.Set<RootEntity>()
-                .Where(e => e.RequiredRelated.NestedCollection.SequenceEqual(
+                .Where(e => e.RequiredAssociate.NestedCollection.SequenceEqual(
                     nestedCollection))); // TODO: Rewrite equality to Equals for the entire test suite for complex
     }
 
@@ -172,11 +172,11 @@ public abstract class AssociationsStructuralEqualityTestBase<TFixture>(TFixture 
     [ConditionalFact]
     public virtual Task Contains_with_inline()
         => AssertQuery(ss => ss.Set<RootEntity>().Where(e =>
-            e.RequiredRelated.NestedCollection.Contains(
-                new NestedType
+            e.RequiredAssociate.NestedCollection.Contains(
+                new NestedAssociateType
                 {
                     Id = 1002,
-                    Name = "Root1_RequiredRelated_NestedCollection_1",
+                    Name = "Root1_RequiredAssociate_NestedCollection_1",
                     Int = 8,
                     String = "foo",
                     Ints = new() { 1, 2, 3 }
@@ -185,36 +185,36 @@ public abstract class AssociationsStructuralEqualityTestBase<TFixture>(TFixture 
     [ConditionalFact]
     public virtual async Task Contains_with_parameter()
     {
-        var nested = new NestedType
+        var nested = new NestedAssociateType
         {
             Id = 1002,
-            Name = "Root1_RequiredRelated_NestedCollection_1",
+            Name = "Root1_RequiredAssociate_NestedCollection_1",
             Int = 8,
             String = "foo",
             Ints = [1, 2, 3]
         };
 
-        await AssertQuery(ss => ss.Set<RootEntity>().Where(e => e.RequiredRelated.NestedCollection.Contains(nested)));
+        await AssertQuery(ss => ss.Set<RootEntity>().Where(e => e.RequiredAssociate.NestedCollection.Contains(nested)));
     }
 
     [ConditionalFact]
     public virtual async Task Contains_with_operators_composed_on_the_collection()
     {
-        var collection = Fixture.Data.RootEntities.Single(e => e.Name == "Root3_With_different_values").RequiredRelated.NestedCollection;
+        var collection = Fixture.Data.RootEntities.Single(e => e.Name == "Root3_With_different_values").RequiredAssociate.NestedCollection;
 
         await AssertQuery(
             ss => ss.Set<RootEntity>().Where(
-                e => e.RequiredRelated.NestedCollection.Where(n => n.Int > collection[0].Int).Contains(collection[1])));
+                e => e.RequiredAssociate.NestedCollection.Where(n => n.Int > collection[0].Int).Contains(collection[1])));
     }
 
     [ConditionalFact]
     public virtual async Task Contains_with_nested_and_composed_operators()
     {
-        var collection = Fixture.Data.RootEntities.Single(e => e.Name == "Root3_With_different_values").RelatedCollection;
+        var collection = Fixture.Data.RootEntities.Single(e => e.Name == "Root3_With_different_values").AssociateCollection;
 
         await AssertQuery(
             ss => ss.Set<RootEntity>()
-                .Where(e => e.RelatedCollection.Where(r => r.Id > collection[0].Id).Contains(collection[1])));
+                .Where(e => e.AssociateCollection.Where(r => r.Id > collection[0].Id).Contains(collection[1])));
     }
 
     #endregion Contains

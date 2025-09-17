@@ -10,50 +10,50 @@ public class ComplexJsonStructuralEqualitySqlServerTest(ComplexJsonSqlServerFixt
     // IS NULL operator").
     // So we find comparisons that involve the json type, and apply a conversion to string (nvarchar(max)) to both sides.
 
-    public override async Task Two_related()
+    public override async Task Two_associates()
     {
-        await base.Two_related();
+        await base.Two_associates();
 
         if (Fixture.UsingJsonType)
         {
             AssertSql(
                 """
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
-WHERE CAST([r].[RequiredRelated] AS nvarchar(max)) = CAST([r].[OptionalRelated] AS nvarchar(max))
+WHERE CAST([r].[RequiredAssociate] AS nvarchar(max)) = CAST([r].[OptionalAssociate] AS nvarchar(max))
 """);
         }
         else
         {
             AssertSql(
                 """
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
-WHERE [r].[RequiredRelated] = [r].[OptionalRelated]
+WHERE [r].[RequiredAssociate] = [r].[OptionalAssociate]
 """);
         }
     }
 
-    public override async Task Two_nested()
+    public override async Task Two_nested_associates()
     {
-        await base.Two_nested();
+        await base.Two_nested_associates();
 
         if (Fixture.UsingJsonType)
         {
             AssertSql(
                 """
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
-WHERE CAST(JSON_QUERY([r].[RequiredRelated], '$.RequiredNested') AS nvarchar(max)) = CAST(JSON_QUERY([r].[OptionalRelated], '$.RequiredNested') AS nvarchar(max))
+WHERE CAST(JSON_QUERY([r].[RequiredAssociate], '$.RequiredNestedAssociate') AS nvarchar(max)) = CAST(JSON_QUERY([r].[OptionalAssociate], '$.RequiredNestedAssociate') AS nvarchar(max))
 """);
         }
         else
         {
             AssertSql(
                 """
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
-WHERE JSON_QUERY([r].[RequiredRelated], '$.RequiredNested') = JSON_QUERY([r].[OptionalRelated], '$.RequiredNested')
+WHERE JSON_QUERY([r].[RequiredAssociate], '$.RequiredNestedAssociate') = JSON_QUERY([r].[OptionalAssociate], '$.RequiredNestedAssociate')
 """);
         }
     }
@@ -66,118 +66,118 @@ WHERE JSON_QUERY([r].[RequiredRelated], '$.RequiredNested') = JSON_QUERY([r].[Op
         {
             AssertSql(
                 """
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
-WHERE CAST([r].[RequiredRelated] AS nvarchar(max)) <> CAST([r].[OptionalRelated] AS nvarchar(max)) OR [r].[OptionalRelated] IS NULL
+WHERE CAST([r].[RequiredAssociate] AS nvarchar(max)) <> CAST([r].[OptionalAssociate] AS nvarchar(max)) OR [r].[OptionalAssociate] IS NULL
 """);
         }
         else
         {
             AssertSql(
                 """
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
-WHERE [r].[RequiredRelated] <> [r].[OptionalRelated] OR [r].[OptionalRelated] IS NULL
+WHERE [r].[RequiredAssociate] <> [r].[OptionalAssociate] OR [r].[OptionalAssociate] IS NULL
 """);
         }
     }
 
-    public override async Task Related_with_inline_null()
+    public override async Task Associate_with_inline_null()
     {
-        await base.Related_with_inline_null();
+        await base.Associate_with_inline_null();
 
         AssertSql(
             """
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
-WHERE [r].[OptionalRelated] IS NULL
+WHERE [r].[OptionalAssociate] IS NULL
 """);
     }
 
-    public override async Task Related_with_parameter_null()
+    public override async Task Associate_with_parameter_null()
     {
-        await base.Related_with_parameter_null();
+        await base.Associate_with_parameter_null();
 
         if (Fixture.UsingJsonType)
         {
             AssertSql(
                 """
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
-WHERE CAST([r].[OptionalRelated] AS nvarchar(max)) = CAST(NULL AS nvarchar(max)) OR [r].[OptionalRelated] IS NULL
+WHERE CAST([r].[OptionalAssociate] AS nvarchar(max)) = CAST(NULL AS nvarchar(max)) OR [r].[OptionalAssociate] IS NULL
 """);
         }
         else
         {
             AssertSql(
                 """
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
-WHERE [r].[OptionalRelated] IS NULL
+WHERE [r].[OptionalAssociate] IS NULL
 """);
         }
     }
 
-    public override async Task Nested_with_inline_null()
+    public override async Task Nested_associate_with_inline_null()
     {
-        await base.Nested_with_inline_null();
+        await base.Nested_associate_with_inline_null();
 
         AssertSql(
             """
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
-WHERE JSON_QUERY([r].[RequiredRelated], '$.OptionalNested') IS NULL
+WHERE JSON_QUERY([r].[RequiredAssociate], '$.OptionalNestedAssociate') IS NULL
 """);
     }
 
-    public override async Task Nested_with_inline()
+    public override async Task Nested_associate_with_inline()
     {
-        await base.Nested_with_inline();
+        await base.Nested_associate_with_inline();
 
         if (Fixture.UsingJsonType)
         {
             AssertSql(
                 """
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
-WHERE CAST(JSON_QUERY([r].[RequiredRelated], '$.RequiredNested') AS nvarchar(max)) = CAST('{"Id":1000,"Int":8,"Ints":[1,2,3],"Name":"Root1_RequiredRelated_RequiredNested","String":"foo"}' AS nvarchar(max))
+WHERE CAST(JSON_QUERY([r].[RequiredAssociate], '$.RequiredNestedAssociate') AS nvarchar(max)) = CAST('{"Id":1000,"Int":8,"Ints":[1,2,3],"Name":"Root1_RequiredAssociate_RequiredNestedAssociate","String":"foo"}' AS nvarchar(max))
 """);
         }
         else
         {
             AssertSql(
                 """
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
-WHERE JSON_QUERY([r].[RequiredRelated], '$.RequiredNested') = '{"Id":1000,"Int":8,"Ints":[1,2,3],"Name":"Root1_RequiredRelated_RequiredNested","String":"foo"}'
+WHERE JSON_QUERY([r].[RequiredAssociate], '$.RequiredNestedAssociate') = '{"Id":1000,"Int":8,"Ints":[1,2,3],"Name":"Root1_RequiredAssociate_RequiredNestedAssociate","String":"foo"}'
 """);
         }
     }
 
-    public override async Task Nested_with_parameter()
+    public override async Task Nested_associate_with_parameter()
     {
-        await base.Nested_with_parameter();
+        await base.Nested_associate_with_parameter();
 
         if (Fixture.UsingJsonType)
         {
             AssertSql(
                 """
-@entity_equality_nested='?' (Size = 95)
+@entity_equality_nested='?' (Size = 106)
 
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
-WHERE CAST(JSON_QUERY([r].[RequiredRelated], '$.RequiredNested') AS nvarchar(max)) = CAST(@entity_equality_nested AS nvarchar(max))
+WHERE CAST(JSON_QUERY([r].[RequiredAssociate], '$.RequiredNestedAssociate') AS nvarchar(max)) = CAST(@entity_equality_nested AS nvarchar(max))
 """);
         }
         else
         {
             AssertSql(
                 """
-@entity_equality_nested='?' (Size = 95)
+@entity_equality_nested='?' (Size = 106)
 
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
-WHERE JSON_QUERY([r].[RequiredRelated], '$.RequiredNested') = @entity_equality_nested
+WHERE JSON_QUERY([r].[RequiredAssociate], '$.RequiredNestedAssociate') = @entity_equality_nested
 """);
         }
     }
@@ -190,18 +190,18 @@ WHERE JSON_QUERY([r].[RequiredRelated], '$.RequiredNested') = @entity_equality_n
         {
             AssertSql(
                 """
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
-WHERE CAST(JSON_QUERY([r].[RequiredRelated], '$.NestedCollection') AS nvarchar(max)) = CAST(JSON_QUERY([r].[OptionalRelated], '$.NestedCollection') AS nvarchar(max))
+WHERE CAST(JSON_QUERY([r].[RequiredAssociate], '$.NestedCollection') AS nvarchar(max)) = CAST(JSON_QUERY([r].[OptionalAssociate], '$.NestedCollection') AS nvarchar(max))
 """);
         }
         else
         {
             AssertSql(
                 """
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
-WHERE JSON_QUERY([r].[RequiredRelated], '$.NestedCollection') = JSON_QUERY([r].[OptionalRelated], '$.NestedCollection')
+WHERE JSON_QUERY([r].[RequiredAssociate], '$.NestedCollection') = JSON_QUERY([r].[OptionalAssociate], '$.NestedCollection')
 """);
         }
     }
@@ -214,18 +214,18 @@ WHERE JSON_QUERY([r].[RequiredRelated], '$.NestedCollection') = JSON_QUERY([r].[
         {
             AssertSql(
                 """
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
-WHERE CAST(JSON_QUERY([r].[RequiredRelated], '$.NestedCollection') AS nvarchar(max)) = CAST('[{"Id":1002,"Int":8,"Ints":[1,2,3],"Name":"Root1_RequiredRelated_NestedCollection_1","String":"foo"},{"Id":1003,"Int":8,"Ints":[1,2,3],"Name":"Root1_RequiredRelated_NestedCollection_2","String":"foo"}]' AS nvarchar(max))
+WHERE CAST(JSON_QUERY([r].[RequiredAssociate], '$.NestedCollection') AS nvarchar(max)) = CAST('[{"Id":1002,"Int":8,"Ints":[1,2,3],"Name":"Root1_RequiredAssociate_NestedCollection_1","String":"foo"},{"Id":1003,"Int":8,"Ints":[1,2,3],"Name":"Root1_RequiredAssociate_NestedCollection_2","String":"foo"}]' AS nvarchar(max))
 """);
         }
         else
         {
             AssertSql(
                 """
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
-WHERE JSON_QUERY([r].[RequiredRelated], '$.NestedCollection') = '[{"Id":1002,"Int":8,"Ints":[1,2,3],"Name":"Root1_RequiredRelated_NestedCollection_1","String":"foo"},{"Id":1003,"Int":8,"Ints":[1,2,3],"Name":"Root1_RequiredRelated_NestedCollection_2","String":"foo"}]'
+WHERE JSON_QUERY([r].[RequiredAssociate], '$.NestedCollection') = '[{"Id":1002,"Int":8,"Ints":[1,2,3],"Name":"Root1_RequiredAssociate_NestedCollection_1","String":"foo"},{"Id":1003,"Int":8,"Ints":[1,2,3],"Name":"Root1_RequiredAssociate_NestedCollection_2","String":"foo"}]'
 """);
         }
     }
@@ -238,22 +238,22 @@ WHERE JSON_QUERY([r].[RequiredRelated], '$.NestedCollection') = '[{"Id":1002,"In
         {
             AssertSql(
                 """
-@entity_equality_nestedCollection='?' (Size = 201)
+@entity_equality_nestedCollection='?' (Size = 205)
 
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
-WHERE CAST(JSON_QUERY([r].[RequiredRelated], '$.NestedCollection') AS nvarchar(max)) = CAST(@entity_equality_nestedCollection AS nvarchar(max))
+WHERE CAST(JSON_QUERY([r].[RequiredAssociate], '$.NestedCollection') AS nvarchar(max)) = CAST(@entity_equality_nestedCollection AS nvarchar(max))
 """);
         }
         else
         {
             AssertSql(
                 """
-@entity_equality_nestedCollection='?' (Size = 201)
+@entity_equality_nestedCollection='?' (Size = 205)
 
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
-WHERE JSON_QUERY([r].[RequiredRelated], '$.NestedCollection') = @entity_equality_nestedCollection
+WHERE JSON_QUERY([r].[RequiredAssociate], '$.NestedCollection') = @entity_equality_nestedCollection
 """);
         }
     }
@@ -271,36 +271,36 @@ WHERE JSON_QUERY([r].[RequiredRelated], '$.NestedCollection') = @entity_equality
         {
             AssertSql(
                 """
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
 WHERE EXISTS (
     SELECT 1
-    FROM OPENJSON([r].[RequiredRelated], '$.NestedCollection') WITH (
+    FROM OPENJSON([r].[RequiredAssociate], '$.NestedCollection') WITH (
         [Id] int '$.Id',
         [Int] int '$.Int',
         [Ints] json '$.Ints' AS JSON,
         [Name] nvarchar(max) '$.Name',
         [String] nvarchar(max) '$.String'
     ) AS [n]
-    WHERE [n].[Id] = 1002 AND [n].[Int] = 8 AND CAST([n].[Ints] AS nvarchar(max)) = CAST('[1,2,3]' AS nvarchar(max)) AND [n].[Name] = N'Root1_RequiredRelated_NestedCollection_1' AND [n].[String] = N'foo')
+    WHERE [n].[Id] = 1002 AND [n].[Int] = 8 AND CAST([n].[Ints] AS nvarchar(max)) = CAST('[1,2,3]' AS nvarchar(max)) AND [n].[Name] = N'Root1_RequiredAssociate_NestedCollection_1' AND [n].[String] = N'foo')
 """);
         }
         else
         {
             AssertSql(
                 """
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
 WHERE EXISTS (
     SELECT 1
-    FROM OPENJSON([r].[RequiredRelated], '$.NestedCollection') WITH (
+    FROM OPENJSON([r].[RequiredAssociate], '$.NestedCollection') WITH (
         [Id] int '$.Id',
         [Int] int '$.Int',
         [Ints] nvarchar(max) '$.Ints' AS JSON,
         [Name] nvarchar(max) '$.Name',
         [String] nvarchar(max) '$.String'
     ) AS [n]
-    WHERE [n].[Id] = 1002 AND [n].[Int] = 8 AND [n].[Ints] = N'[1,2,3]' AND [n].[Name] = N'Root1_RequiredRelated_NestedCollection_1' AND [n].[String] = N'foo')
+    WHERE [n].[Id] = 1002 AND [n].[Int] = 8 AND [n].[Ints] = N'[1,2,3]' AND [n].[Name] = N'Root1_RequiredAssociate_NestedCollection_1' AND [n].[String] = N'foo')
 """);
         }
     }
@@ -322,11 +322,11 @@ WHERE EXISTS (
 @entity_equality_nested_Name='?' (Size = 4000)
 @entity_equality_nested_String='?' (Size = 4000)
 
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
 WHERE EXISTS (
     SELECT 1
-    FROM OPENJSON([r].[RequiredRelated], '$.NestedCollection') WITH (
+    FROM OPENJSON([r].[RequiredAssociate], '$.NestedCollection') WITH (
         [Id] int '$.Id',
         [Int] int '$.Int',
         [Ints] json '$.Ints' AS JSON,
@@ -346,11 +346,11 @@ WHERE EXISTS (
 @entity_equality_nested_Name='?' (Size = 4000)
 @entity_equality_nested_String='?' (Size = 4000)
 
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
 WHERE EXISTS (
     SELECT 1
-    FROM OPENJSON([r].[RequiredRelated], '$.NestedCollection') WITH (
+    FROM OPENJSON([r].[RequiredAssociate], '$.NestedCollection') WITH (
         [Id] int '$.Id',
         [Int] int '$.Int',
         [Ints] nvarchar(max) '$.Ints' AS JSON,
@@ -377,11 +377,11 @@ WHERE EXISTS (
 @entity_equality_get_Item_Name='?' (Size = 4000)
 @entity_equality_get_Item_String='?' (Size = 4000)
 
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
 WHERE EXISTS (
     SELECT 1
-    FROM OPENJSON([r].[RequiredRelated], '$.NestedCollection') WITH (
+    FROM OPENJSON([r].[RequiredAssociate], '$.NestedCollection') WITH (
         [Id] int '$.Id',
         [Int] int '$.Int',
         [Ints] json '$.Ints' AS JSON,
@@ -402,11 +402,11 @@ WHERE EXISTS (
 @entity_equality_get_Item_Name='?' (Size = 4000)
 @entity_equality_get_Item_String='?' (Size = 4000)
 
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
 WHERE EXISTS (
     SELECT 1
-    FROM OPENJSON([r].[RequiredRelated], '$.NestedCollection') WITH (
+    FROM OPENJSON([r].[RequiredAssociate], '$.NestedCollection') WITH (
         [Id] int '$.Id',
         [Int] int '$.Int',
         [Ints] nvarchar(max) '$.Ints' AS JSON,
@@ -432,25 +432,25 @@ WHERE EXISTS (
 @entity_equality_get_Item_Ints='?' (Size = 8000)
 @entity_equality_get_Item_Name='?' (Size = 4000)
 @entity_equality_get_Item_String='?' (Size = 4000)
-@entity_equality_get_Item_NestedCollection='?' (Size = 229)
-@entity_equality_get_Item_OptionalNested='?' (Size = 106)
-@entity_equality_get_Item_RequiredNested='?' (Size = 106)
+@entity_equality_get_Item_NestedCollection='?' (Size = 233)
+@entity_equality_get_Item_OptionalNestedAssociate='?' (Size = 117)
+@entity_equality_get_Item_RequiredNestedAssociate='?' (Size = 117)
 
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
 WHERE EXISTS (
     SELECT 1
-    FROM OPENJSON([r].[RelatedCollection], '$') WITH (
+    FROM OPENJSON([r].[AssociateCollection], '$') WITH (
         [Id] int '$.Id',
         [Int] int '$.Int',
         [Ints] json '$.Ints' AS JSON,
         [Name] nvarchar(max) '$.Name',
         [String] nvarchar(max) '$.String',
         [NestedCollection] json '$.NestedCollection' AS JSON,
-        [OptionalNested] json '$.OptionalNested' AS JSON,
-        [RequiredNested] json '$.RequiredNested' AS JSON
-    ) AS [r0]
-    WHERE [r0].[Id] > @get_Item_Id AND [r0].[Id] = @entity_equality_get_Item_Id AND [r0].[Int] = @entity_equality_get_Item_Int AND CAST([r0].[Ints] AS nvarchar(max)) = CAST(@entity_equality_get_Item_Ints AS nvarchar(max)) AND [r0].[Name] = @entity_equality_get_Item_Name AND [r0].[String] = @entity_equality_get_Item_String AND CAST([r0].[NestedCollection] AS nvarchar(max)) = CAST(@entity_equality_get_Item_NestedCollection AS nvarchar(max)) AND CAST([r0].[OptionalNested] AS nvarchar(max)) = CAST(@entity_equality_get_Item_OptionalNested AS nvarchar(max)) AND CAST([r0].[RequiredNested] AS nvarchar(max)) = CAST(@entity_equality_get_Item_RequiredNested AS nvarchar(max)))
+        [OptionalNestedAssociate] json '$.OptionalNestedAssociate' AS JSON,
+        [RequiredNestedAssociate] json '$.RequiredNestedAssociate' AS JSON
+    ) AS [a]
+    WHERE [a].[Id] > @get_Item_Id AND [a].[Id] = @entity_equality_get_Item_Id AND [a].[Int] = @entity_equality_get_Item_Int AND CAST([a].[Ints] AS nvarchar(max)) = CAST(@entity_equality_get_Item_Ints AS nvarchar(max)) AND [a].[Name] = @entity_equality_get_Item_Name AND [a].[String] = @entity_equality_get_Item_String AND CAST([a].[NestedCollection] AS nvarchar(max)) = CAST(@entity_equality_get_Item_NestedCollection AS nvarchar(max)) AND CAST([a].[OptionalNestedAssociate] AS nvarchar(max)) = CAST(@entity_equality_get_Item_OptionalNestedAssociate AS nvarchar(max)) AND CAST([a].[RequiredNestedAssociate] AS nvarchar(max)) = CAST(@entity_equality_get_Item_RequiredNestedAssociate AS nvarchar(max)))
 """);
         }
         else
@@ -463,25 +463,25 @@ WHERE EXISTS (
 @entity_equality_get_Item_Ints='?' (Size = 4000)
 @entity_equality_get_Item_Name='?' (Size = 4000)
 @entity_equality_get_Item_String='?' (Size = 4000)
-@entity_equality_get_Item_NestedCollection='?' (Size = 229)
-@entity_equality_get_Item_OptionalNested='?' (Size = 106)
-@entity_equality_get_Item_RequiredNested='?' (Size = 106)
+@entity_equality_get_Item_NestedCollection='?' (Size = 233)
+@entity_equality_get_Item_OptionalNestedAssociate='?' (Size = 117)
+@entity_equality_get_Item_RequiredNestedAssociate='?' (Size = 117)
 
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
 WHERE EXISTS (
     SELECT 1
-    FROM OPENJSON([r].[RelatedCollection], '$') WITH (
+    FROM OPENJSON([r].[AssociateCollection], '$') WITH (
         [Id] int '$.Id',
         [Int] int '$.Int',
         [Ints] nvarchar(max) '$.Ints' AS JSON,
         [Name] nvarchar(max) '$.Name',
         [String] nvarchar(max) '$.String',
         [NestedCollection] nvarchar(max) '$.NestedCollection' AS JSON,
-        [OptionalNested] nvarchar(max) '$.OptionalNested' AS JSON,
-        [RequiredNested] nvarchar(max) '$.RequiredNested' AS JSON
-    ) AS [r0]
-    WHERE [r0].[Id] > @get_Item_Id AND [r0].[Id] = @entity_equality_get_Item_Id AND [r0].[Int] = @entity_equality_get_Item_Int AND [r0].[Ints] = @entity_equality_get_Item_Ints AND [r0].[Name] = @entity_equality_get_Item_Name AND [r0].[String] = @entity_equality_get_Item_String AND [r0].[NestedCollection] = @entity_equality_get_Item_NestedCollection AND [r0].[OptionalNested] = @entity_equality_get_Item_OptionalNested AND [r0].[RequiredNested] = @entity_equality_get_Item_RequiredNested)
+        [OptionalNestedAssociate] nvarchar(max) '$.OptionalNestedAssociate' AS JSON,
+        [RequiredNestedAssociate] nvarchar(max) '$.RequiredNestedAssociate' AS JSON
+    ) AS [a]
+    WHERE [a].[Id] > @get_Item_Id AND [a].[Id] = @entity_equality_get_Item_Id AND [a].[Int] = @entity_equality_get_Item_Int AND [a].[Ints] = @entity_equality_get_Item_Ints AND [a].[Name] = @entity_equality_get_Item_Name AND [a].[String] = @entity_equality_get_Item_String AND [a].[NestedCollection] = @entity_equality_get_Item_NestedCollection AND [a].[OptionalNestedAssociate] = @entity_equality_get_Item_OptionalNestedAssociate AND [a].[RequiredNestedAssociate] = @entity_equality_get_Item_RequiredNestedAssociate)
 """);
         }
     }
@@ -496,9 +496,9 @@ WHERE EXISTS (
 
         AssertSql(
             """
-SELECT [v].[Id], [v].[Name], [v].[OptionalRelated], [v].[RelatedCollection], [v].[RequiredRelated]
+SELECT [v].[Id], [v].[Name], [v].[AssociateCollection], [v].[OptionalAssociate], [v].[RequiredAssociate]
 FROM [ValueRootEntity] AS [v]
-WHERE [v].[OptionalRelated] IS NULL
+WHERE [v].[OptionalAssociate] IS NULL
 """);
     }
 

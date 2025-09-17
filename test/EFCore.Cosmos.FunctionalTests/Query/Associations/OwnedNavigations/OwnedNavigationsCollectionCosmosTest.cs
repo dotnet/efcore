@@ -22,7 +22,7 @@ public class OwnedNavigationsCollectionCosmosTest : OwnedNavigationsCollectionTe
             """
 SELECT VALUE c
 FROM root c
-WHERE (ARRAY_LENGTH(c["RelatedCollection"]) = 2)
+WHERE (ARRAY_LENGTH(c["AssociateCollection"]) = 2)
 """);
     }
 
@@ -36,8 +36,8 @@ SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE COUNT(1)
-    FROM r IN c["RelatedCollection"]
-    WHERE (r["Int"] != 8)) = 2)
+    FROM a IN c["AssociateCollection"]
+    WHERE (a["Int"] != 8)) = 2)
 """);
     }
 
@@ -51,9 +51,9 @@ WHERE ((
 SELECT VALUE c
 FROM root c
 WHERE (ARRAY(
-    SELECT VALUE r["Int"]
-    FROM r IN c["RelatedCollection"]
-    ORDER BY r["Id"])[0] = 8)
+    SELECT VALUE a["Int"]
+    FROM a IN c["AssociateCollection"]
+    ORDER BY a["Id"])[0] = 8)
 """);
     }
 
@@ -83,7 +83,7 @@ WHERE (ARRAY(
             """
 SELECT VALUE c
 FROM root c
-WHERE (c["RelatedCollection"][0]["Int"] = 8)
+WHERE (c["AssociateCollection"][0]["Int"] = 8)
 """);
     }
 
@@ -97,7 +97,7 @@ WHERE (c["RelatedCollection"][0]["Int"] = 8)
 
 SELECT VALUE c
 FROM root c
-WHERE (c["RelatedCollection"][@i]["Int"] = 8)
+WHERE (c["AssociateCollection"][@i]["Int"] = 8)
 """);
     }
 
@@ -110,7 +110,7 @@ WHERE (c["RelatedCollection"][@i]["Int"] = 8)
             """
 SELECT VALUE c
 FROM root c
-WHERE (c["RelatedCollection"][(c["Id"] - 1)]["Int"] = 8)
+WHERE (c["AssociateCollection"][(c["Id"] - 1)]["Int"] = 8)
 """);
     }
 
@@ -122,7 +122,7 @@ WHERE (c["RelatedCollection"][(c["Id"] - 1)]["Int"] = 8)
             """
 SELECT VALUE c
 FROM root c
-WHERE (c["RelatedCollection"][9999]["Int"] = 8)
+WHERE (c["AssociateCollection"][9999]["Int"] = 8)
 """);
     }
 
@@ -145,8 +145,8 @@ WHERE (c["RelatedCollection"][9999]["Int"] = 8)
 SELECT VALUE (
     SELECT VALUE SUM((
         SELECT VALUE MAX(n["Int"])
-        FROM n IN r["NestedCollection"]))
-    FROM r IN c["RelatedCollection"])
+        FROM n IN a["NestedCollection"]))
+    FROM a IN c["AssociateCollection"])
 FROM root c
 """);
     }

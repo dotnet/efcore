@@ -16,18 +16,18 @@ public abstract class ComplexTableSplittingProjectionRelationalTestBase<TFixture
     }
 
     // Collections are not supported with table splitting, only JSON
-    public override Task SelectMany_related_collection(QueryTrackingBehavior queryTrackingBehavior)
-        => Assert.ThrowsAsync<InvalidOperationException>(() => base.SelectMany_related_collection(queryTrackingBehavior));
+    public override Task SelectMany_associate_collection(QueryTrackingBehavior queryTrackingBehavior)
+        => Assert.ThrowsAsync<InvalidOperationException>(() => base.SelectMany_associate_collection(queryTrackingBehavior));
 
     // Collections are not supported with table splitting, only JSON
-    public override Task SelectMany_nested_collection_on_required_related(QueryTrackingBehavior queryTrackingBehavior)
+    public override Task SelectMany_nested_collection_on_required_associate(QueryTrackingBehavior queryTrackingBehavior)
         => Assert.ThrowsAsync<InvalidOperationException>(()
-            => base.SelectMany_nested_collection_on_required_related(queryTrackingBehavior));
+            => base.SelectMany_nested_collection_on_required_associate(queryTrackingBehavior));
 
     // Collections are not supported with table splitting, only JSON
-    public override Task SelectMany_nested_collection_on_optional_related(QueryTrackingBehavior queryTrackingBehavior)
+    public override Task SelectMany_nested_collection_on_optional_associate(QueryTrackingBehavior queryTrackingBehavior)
         => Assert.ThrowsAsync<InvalidOperationException>(()
-            => base.SelectMany_nested_collection_on_optional_related(queryTrackingBehavior));
+            => base.SelectMany_nested_collection_on_optional_associate(queryTrackingBehavior));
 
     protected void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
