@@ -33,7 +33,7 @@ ORDER BY [r].[Id], [r0].[Id], [n].[Id], [n0].[Id], [r1].[Id], [n1].[Id], [n2].[I
 """);
     }
 
-    #region Simple properties
+    #region Scalar properties
 
     public override async Task Select_property_on_required_related(QueryTrackingBehavior queryTrackingBehavior)
     {
@@ -83,9 +83,9 @@ LEFT JOIN [RelatedType] AS [r0] ON [r].[OptionalRelatedId] = [r0].[Id]
 """);
     }
 
-    #endregion Simple properties
+    #endregion Scalar properties
 
-    #region Non-collection
+    #region Structural properties
 
     public override async Task Select_related(QueryTrackingBehavior queryTrackingBehavior)
     {
@@ -188,9 +188,37 @@ ORDER BY [r].[Id], [r0].[Id], [r1].[Id], [n].[Id], [n0].[Id]
 """);
     }
 
-    #endregion Non-collection
+    public override async Task Select_unmapped_related_scalar_property(QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Select_unmapped_related_scalar_property(queryTrackingBehavior);
 
-    #region Collection
+        AssertSql(
+            """
+SELECT [r0].[Id], [r0].[CollectionRootId], [r0].[Int], [r0].[Ints], [r0].[Name], [r0].[OptionalNestedId], [r0].[RequiredNestedId], [r0].[String], [r].[Id], [n].[Id], [n0].[Id], [n1].[Id], [n1].[CollectionRelatedId], [n1].[Int], [n1].[Ints], [n1].[Name], [n1].[String], [n].[CollectionRelatedId], [n].[Int], [n].[Ints], [n].[Name], [n].[String], [n0].[CollectionRelatedId], [n0].[Int], [n0].[Ints], [n0].[Name], [n0].[String]
+FROM [RootEntity] AS [r]
+INNER JOIN [RelatedType] AS [r0] ON [r].[RequiredRelatedId] = [r0].[Id]
+LEFT JOIN [NestedType] AS [n] ON [r0].[OptionalNestedId] = [n].[Id]
+INNER JOIN [NestedType] AS [n0] ON [r0].[RequiredNestedId] = [n0].[Id]
+LEFT JOIN [NestedType] AS [n1] ON [r0].[Id] = [n1].[CollectionRelatedId]
+ORDER BY [r].[Id], [r0].[Id], [n].[Id], [n0].[Id]
+""");
+    }
+
+    public override async Task Select_untranslatable_method_on_related_scalar_property(QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Select_untranslatable_method_on_related_scalar_property(queryTrackingBehavior);
+
+        AssertSql(
+            """
+SELECT [r0].[Int]
+FROM [RootEntity] AS [r]
+INNER JOIN [RelatedType] AS [r0] ON [r].[RequiredRelatedId] = [r0].[Id]
+""");
+    }
+
+    #endregion Structural properties
+
+    #region Structural collection properties
 
     public override async Task Select_related_collection(QueryTrackingBehavior queryTrackingBehavior)
     {
@@ -281,7 +309,7 @@ INNER JOIN [NestedType] AS [n] ON [r0].[Id] = [n].[CollectionRelatedId]
 """);
     }
 
-    #endregion Collection
+    #endregion Structural collection properties
 
     #region Multiple
 

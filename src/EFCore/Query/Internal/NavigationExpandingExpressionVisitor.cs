@@ -276,7 +276,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             } complexPropertyReference
             && complexProperty.ComplexType.FindComplexProperty(memberExpression.Member) is { } nestedComplexProperty)
         {
-            return new ComplexPropertyReference(complexPropertyReference, nestedComplexProperty);
+            return new ComplexPropertyReference(complexPropertyReference, nestedComplexProperty, memberExpression);
         }
 
         // Convert ICollection<T>.Count to Count<T>()
