@@ -21,7 +21,7 @@ public abstract class ComplexPropertiesProjectionTestBase<TFixture>(TFixture fix
     [MemberData(nameof(TrackingData))]
     public virtual Task Select_non_nullable_value_type(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
-            ss => ss.Set<ValueRootEntity>().OrderBy(e => e.Id).Select(x => x.RequiredRelated),
+            ss => ss.Set<ValueRootEntity>().OrderBy(e => e.Id).Select(x => x.RequiredAssociate),
             assertOrder: true,
             queryTrackingBehavior: queryTrackingBehavior);
 
@@ -30,7 +30,7 @@ public abstract class ComplexPropertiesProjectionTestBase<TFixture>(TFixture fix
     [MemberData(nameof(TrackingData))]
     public virtual Task Select_nullable_value_type(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
-            ss => ss.Set<ValueRootEntity>().OrderBy(e => e.Id).Select(x => x.OptionalRelated),
+            ss => ss.Set<ValueRootEntity>().OrderBy(e => e.Id).Select(x => x.OptionalAssociate),
             assertOrder: true,
             queryTrackingBehavior: queryTrackingBehavior);
 
@@ -38,8 +38,8 @@ public abstract class ComplexPropertiesProjectionTestBase<TFixture>(TFixture fix
     [MemberData(nameof(TrackingData))]
     public virtual Task Select_nullable_value_type_with_Value(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
-            ss => ss.Set<ValueRootEntity>().OrderBy(e => e.Id).Select(x => x.OptionalRelated!.Value),
-            ss => ss.Set<ValueRootEntity>().OrderBy(e => e.Id).Select(x => x.OptionalRelated == null ? default : x.OptionalRelated!.Value),
+            ss => ss.Set<ValueRootEntity>().OrderBy(e => e.Id).Select(x => x.OptionalAssociate!.Value),
+            ss => ss.Set<ValueRootEntity>().OrderBy(e => e.Id).Select(x => x.OptionalAssociate == null ? default : x.OptionalAssociate!.Value),
             assertOrder: true,
             queryTrackingBehavior: queryTrackingBehavior);
 

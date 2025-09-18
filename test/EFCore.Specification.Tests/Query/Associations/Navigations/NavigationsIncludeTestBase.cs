@@ -10,91 +10,91 @@ public abstract class NavigationsIncludeTestBase<TFixture>(TFixture fixture) : Q
     public virtual Task Include_required(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<RootEntity>().Include(x => x.RequiredRelated),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<RootEntity>(x => x.RequiredRelated)));
+            ss => ss.Set<RootEntity>().Include(x => x.RequiredAssociate),
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<RootEntity>(x => x.RequiredAssociate)));
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_optional(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<RootEntity>().Include(x => x.OptionalRelated),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<RootEntity>(x => x.OptionalRelated!)));
+            ss => ss.Set<RootEntity>().Include(x => x.OptionalAssociate),
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<RootEntity>(x => x.OptionalAssociate!)));
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_collection(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<RootEntity>().Include(x => x.RelatedCollection),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<RootEntity>(x => x.RelatedCollection)));
+            ss => ss.Set<RootEntity>().Include(x => x.AssociateCollection),
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<RootEntity>(x => x.AssociateCollection)));
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_required_optional_and_collection(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<RootEntity>()
-                .Include(x => x.RequiredRelated)
-                .Include(x => x.OptionalRelated)
-                .Include(x => x.RelatedCollection),
+                .Include(x => x.RequiredAssociate)
+                .Include(x => x.OptionalAssociate)
+                .Include(x => x.AssociateCollection),
             assertOrder: true,
             elementAsserter: (e, a) => AssertInclude(
                 e,
                 a,
-                new ExpectedInclude<RootEntity>(x => x.RequiredRelated),
-                new ExpectedInclude<RootEntity>(x => x.OptionalRelated!),
-                new ExpectedInclude<RootEntity>(x => x.RelatedCollection)));
+                new ExpectedInclude<RootEntity>(x => x.RequiredAssociate),
+                new ExpectedInclude<RootEntity>(x => x.OptionalAssociate!),
+                new ExpectedInclude<RootEntity>(x => x.AssociateCollection)));
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_nested(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<RootEntity>().Include(x => x.RequiredRelated.RequiredNested),
+            ss => ss.Set<RootEntity>().Include(x => x.RequiredAssociate.RequiredNestedAssociate),
             elementAsserter: (e, a) => AssertInclude(
                 e,
                 a,
-                new ExpectedInclude<RootEntity>(x => x.RequiredRelated),
-                new ExpectedInclude<RelatedType>(x => x.RequiredNested, "RequiredRelated")));
+                new ExpectedInclude<RootEntity>(x => x.RequiredAssociate),
+                new ExpectedInclude<AssociateType>(x => x.RequiredNestedAssociate, "RequiredRelated")));
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_nested_optional(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<RootEntity>().Include(x => x.OptionalRelated!.OptionalNested),
+            ss => ss.Set<RootEntity>().Include(x => x.OptionalAssociate!.OptionalNestedAssociate),
             elementAsserter: (e, a) => AssertInclude(
                 e,
                 a,
-                new ExpectedInclude<RootEntity>(x => x.OptionalRelated!),
-                new ExpectedInclude<RelatedType>(x => x.OptionalNested!, "OptionalRelated")));
+                new ExpectedInclude<RootEntity>(x => x.OptionalAssociate!),
+                new ExpectedInclude<AssociateType>(x => x.OptionalNestedAssociate!, "OptionalRelated")));
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_nested_collection(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<RootEntity>().Include(x => x.RequiredRelated.NestedCollection),
+            ss => ss.Set<RootEntity>().Include(x => x.RequiredAssociate.NestedCollection),
             elementAsserter: (e, a) => AssertInclude(
                 e,
                 a,
-                new ExpectedInclude<RootEntity>(x => x.RequiredRelated),
-                new ExpectedInclude<RelatedType>(x => x.NestedCollection, "RequiredRelated")));
+                new ExpectedInclude<RootEntity>(x => x.RequiredAssociate),
+                new ExpectedInclude<AssociateType>(x => x.NestedCollection, "RequiredRelated")));
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_nested_collection_on_optional(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<RootEntity>().Include(x => x.OptionalRelated!.NestedCollection),
+            ss => ss.Set<RootEntity>().Include(x => x.OptionalAssociate!.NestedCollection),
             elementAsserter: (e, a) => AssertInclude(
                 e,
                 a,
-                new ExpectedInclude<RootEntity>(x => x.OptionalRelated!),
-                new ExpectedInclude<RelatedType>(x => x.NestedCollection, "OptionalRelated")));
+                new ExpectedInclude<RootEntity>(x => x.OptionalAssociate!),
+                new ExpectedInclude<AssociateType>(x => x.NestedCollection, "OptionalRelated")));
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_nested_collection_on_collection(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<RootEntity>().Include(x => x.RelatedCollection).ThenInclude(x => x.NestedCollection),
+            ss => ss.Set<RootEntity>().Include(x => x.AssociateCollection).ThenInclude(x => x.NestedCollection),
             elementAsserter: (e, a) => AssertInclude(
                 e,
                 a,
-                new ExpectedInclude<RootEntity>(x => x.RelatedCollection),
-                new ExpectedInclude<RelatedType>(x => x.NestedCollection, "RelatedCollection")));
+                new ExpectedInclude<RootEntity>(x => x.AssociateCollection),
+                new ExpectedInclude<AssociateType>(x => x.NestedCollection, "RelatedCollection")));
 }

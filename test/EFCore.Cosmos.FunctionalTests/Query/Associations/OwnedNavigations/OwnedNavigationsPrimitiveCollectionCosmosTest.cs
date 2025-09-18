@@ -20,7 +20,7 @@ public class OwnedNavigationsPrimitiveCollectionCosmosTest : OwnedNavigationsPri
             """
 SELECT VALUE c
 FROM root c
-WHERE (ARRAY_LENGTH(c["RequiredRelated"]["Ints"]) = 3)
+WHERE (ARRAY_LENGTH(c["RequiredAssociate"]["Ints"]) = 3)
 """);
     }
 
@@ -32,7 +32,7 @@ WHERE (ARRAY_LENGTH(c["RequiredRelated"]["Ints"]) = 3)
             """
 SELECT VALUE c
 FROM root c
-WHERE (c["RequiredRelated"]["Ints"][0] = 1)
+WHERE (c["RequiredAssociate"]["Ints"][0] = 1)
 """);
     }
 
@@ -44,7 +44,7 @@ WHERE (c["RequiredRelated"]["Ints"][0] = 1)
             """
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(c["RequiredRelated"]["Ints"], 3)
+WHERE ARRAY_CONTAINS(c["RequiredAssociate"]["Ints"], 3)
 """);
     }
 
@@ -56,7 +56,7 @@ WHERE ARRAY_CONTAINS(c["RequiredRelated"]["Ints"], 3)
             """
 SELECT VALUE c
 FROM root c
-WHERE ARRAY_CONTAINS(c["RequiredRelated"]["Ints"], 2)
+WHERE ARRAY_CONTAINS(c["RequiredAssociate"]["Ints"], 2)
 """);
     }
 
@@ -68,7 +68,7 @@ WHERE ARRAY_CONTAINS(c["RequiredRelated"]["Ints"], 2)
             """
 SELECT VALUE c
 FROM root c
-WHERE (ARRAY_LENGTH(c["RequiredRelated"]["RequiredNested"]["Ints"]) = 3)
+WHERE (ARRAY_LENGTH(c["RequiredAssociate"]["RequiredNestedAssociate"]["Ints"]) = 3)
 """);
     }
 
@@ -80,11 +80,11 @@ WHERE (ARRAY_LENGTH(c["RequiredRelated"]["RequiredNested"]["Ints"]) = 3)
             """
 SELECT VALUE (
     SELECT VALUE SUM(i0)
-    FROM i0 IN c["RequiredRelated"]["Ints"])
+    FROM i0 IN c["RequiredAssociate"]["Ints"])
 FROM root c
 WHERE ((
     SELECT VALUE SUM(i)
-    FROM i IN c["RequiredRelated"]["Ints"]) >= 6)
+    FROM i IN c["RequiredAssociate"]["Ints"]) >= 6)
 """);
     }
 

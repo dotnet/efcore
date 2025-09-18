@@ -19,9 +19,9 @@ public abstract class OwnedJsonRelationalFixtureBase : OwnedNavigationsFixtureBa
 
         modelBuilder.Entity<RootEntity>(b =>
         {
-            b.OwnsOne(e => e.RequiredRelated, rrb => rrb.ToJson());
-            b.OwnsOne(e => e.OptionalRelated, orb => orb.ToJson());
-            b.OwnsMany(e => e.RelatedCollection, orb => orb.ToJson());
+            b.OwnsOne(e => e.RequiredAssociate, rrb => rrb.ToJson());
+            b.OwnsOne(e => e.OptionalAssociate, orb => orb.ToJson());
+            b.OwnsMany(e => e.AssociateCollection, orb => orb.ToJson());
         });
     }
 

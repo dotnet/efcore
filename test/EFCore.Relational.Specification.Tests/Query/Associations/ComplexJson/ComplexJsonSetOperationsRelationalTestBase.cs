@@ -15,10 +15,10 @@ public abstract class ComplexJsonSetOperationsRelationalTestBase<TFixture> : Com
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    public override async Task On_related_projected(QueryTrackingBehavior queryTrackingBehavior)
+    public override async Task Over_associate_collection_projected(QueryTrackingBehavior queryTrackingBehavior)
     {
         // #33485, #34849 (fails in the same way with regular navigations, not just complex JSON)
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.On_related_projected(queryTrackingBehavior));
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.Over_associate_collection_projected(queryTrackingBehavior));
 
         Assert.Equal(
             RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin,
@@ -33,8 +33,8 @@ public abstract class ComplexJsonSetOperationsRelationalTestBase<TFixture> : Com
 
         Assert.Equal(
             RelationalStrings.SetOperationOverDifferentStructuralTypes(
-                "RootEntity.RequiredRelated#RelatedType.NestedCollection#NestedType",
-                "RootEntity.OptionalRelated#RelatedType.NestedCollection#NestedType"),
+                "RootEntity.RequiredAssociate#AssociateType.NestedCollection#NestedAssociateType",
+                "RootEntity.OptionalAssociate#AssociateType.NestedCollection#NestedAssociateType"),
             exception.Message);
     }
 

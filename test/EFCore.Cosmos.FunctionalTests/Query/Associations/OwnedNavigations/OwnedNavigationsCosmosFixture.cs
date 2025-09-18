@@ -39,33 +39,33 @@ public class OwnedNavigationsCosmosFixture : OwnedNavigationsFixtureBase
         Assert.Equal(e.Id, a.Id);
         Assert.Equal(e.Name, a.Name);
 
-        NullSafeAssert<RelatedType>(e.RequiredRelated, a.RequiredRelated, AssertRelatedType);
-        NullSafeAssert<RelatedType>(e.OptionalRelated, a.OptionalRelated, AssertRelatedType);
+        NullSafeAssert<AssociateType>(e.RequiredAssociate, a.RequiredAssociate, AssertAssociate);
+        NullSafeAssert<AssociateType>(e.OptionalAssociate, a.OptionalAssociate, AssertAssociate);
 
-        if (e.RelatedCollection is not null && a.RelatedCollection is not null)
+        if (e.AssociateCollection is not null && a.AssociateCollection is not null)
         {
-            Assert.Equal(e.RelatedCollection.Count, a.RelatedCollection.Count);
+            Assert.Equal(e.AssociateCollection.Count, a.AssociateCollection.Count);
 
-            var (orderedExpected, orderedActual) = (e.RelatedCollection, a.RelatedCollection);
+            var (orderedExpected, orderedActual) = (e.AssociateCollection, a.AssociateCollection);
 
-            for (var i = 0; i < e.RelatedCollection.Count; i++)
+            for (var i = 0; i < e.AssociateCollection.Count; i++)
             {
-                AssertRelatedType(orderedExpected[i], orderedActual[i]);
+                AssertAssociate(orderedExpected[i], orderedActual[i]);
             }
         }
         else
         {
             // #36577: the Cosmos provider incorrectly returns null for empty collections in some cases
-            if (e.RelatedCollection is [] && a.RelatedCollection is null)
+            if (e.AssociateCollection is [] && a.AssociateCollection is null)
             {
                 return;
             }
 
-            Assert.Equal(e.RelatedCollection, a.RelatedCollection);
+            Assert.Equal(e.AssociateCollection, a.AssociateCollection);
         }
     }
 
-    protected override void AssertRelatedType(RelatedType e, RelatedType a)
+    protected override void AssertAssociate(AssociateType e, AssociateType a)
     {
         Assert.Equal(e.Id, a.Id);
         Assert.Equal(e.Name, a.Name);
@@ -73,8 +73,8 @@ public class OwnedNavigationsCosmosFixture : OwnedNavigationsFixtureBase
         Assert.Equal(e.Int, a.Int);
         Assert.Equal(e.String, a.String);
 
-        NullSafeAssert<NestedType>(e.RequiredNested, a.RequiredNested, AssertNestedType);
-        NullSafeAssert<NestedType>(e.OptionalNested, a.OptionalNested, AssertNestedType);
+        NullSafeAssert<NestedAssociateType>(e.RequiredNestedAssociate, a.RequiredNestedAssociate, AssertNestedAssociate);
+        NullSafeAssert<NestedAssociateType>(e.OptionalNestedAssociate, a.OptionalNestedAssociate, AssertNestedAssociate);
 
         if (e.NestedCollection is not null && a.NestedCollection != null)
         {
@@ -84,7 +84,7 @@ public class OwnedNavigationsCosmosFixture : OwnedNavigationsFixtureBase
 
             for (var i = 0; i < e.NestedCollection.Count; i++)
             {
-                AssertNestedType(orderedExpected[i], orderedActual[i]);
+                AssertNestedAssociate(orderedExpected[i], orderedActual[i]);
             }
         }
         else

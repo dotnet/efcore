@@ -9,6 +9,6 @@ public class OwnedNavigationsSetOperationsSqliteTest(OwnedNavigationsSqliteFixtu
     : OwnedNavigationsSetOperationsRelationalTestBase<OwnedNavigationsSqliteFixture>(fixture, testOutputHelper)
 {
     // SQL APPLY not supported in SQLite - different exception message from the one expected in the base class
-    public override Task On_related_projected(QueryTrackingBehavior queryTrackingBehavior)
-        => Assert.ThrowsAsync<EqualException>(() => base.On_related_projected(queryTrackingBehavior));
+    public override Task Over_associate_collection_projected(QueryTrackingBehavior queryTrackingBehavior)
+        => Assert.ThrowsAsync<EqualException>(() => base.Over_associate_collection_projected(queryTrackingBehavior));
 }

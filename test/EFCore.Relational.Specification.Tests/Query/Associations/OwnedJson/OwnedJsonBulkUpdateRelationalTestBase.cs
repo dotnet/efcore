@@ -22,25 +22,25 @@ public abstract class OwnedJsonBulkUpdateRelationalTestBase<TFixture> : BulkUpda
     [ConditionalFact]
     public virtual Task Delete_association()
         => AssertTranslationFailedWithDetails(
-            RelationalStrings.ExecuteOperationOnOwnedJsonIsNotSupported("ExecuteDelete", "RootEntity.RequiredRelated#RelatedType"),
+            RelationalStrings.ExecuteOperationOnOwnedJsonIsNotSupported("ExecuteDelete", "RootEntity.RequiredAssociate#AssociateType"),
             () => AssertDelete(
-                ss => ss.Set<RootEntity>().Select(c => c.RequiredRelated),
+                ss => ss.Set<RootEntity>().Select(c => c.RequiredAssociate),
                 rowsAffectedCount: 0));
 
     [ConditionalFact]
     public virtual Task Update_property_inside_association()
         => AssertTranslationFailedWithDetails(
-            RelationalStrings.ExecuteOperationOnOwnedJsonIsNotSupported("ExecuteUpdate", "RootEntity.RequiredRelated#RelatedType"),
+            RelationalStrings.ExecuteOperationOnOwnedJsonIsNotSupported("ExecuteUpdate", "RootEntity.RequiredAssociate#AssociateType"),
             () => AssertUpdate(
                 ss => ss.Set<RootEntity>(),
                 e => e,
-                s => s.SetProperty(c => c.RequiredRelated.String, "foo_updated"),
+                s => s.SetProperty(c => c.RequiredAssociate.String, "foo_updated"),
                 rowsAffectedCount: 0));
 
     [ConditionalFact]
     public virtual async Task Update_association()
     {
-        var newNested = new NestedType
+        var newNested = new NestedAssociateType
         {
             Id = 1000,
             Name = "Updated nested name",
@@ -51,11 +51,11 @@ public abstract class OwnedJsonBulkUpdateRelationalTestBase<TFixture> : BulkUpda
 
         await AssertTranslationFailedWithDetails(
             RelationalStrings.InvalidPropertyInSetProperty(
-                """r => EF.Property<NestedType>(EF.Property<RelatedType>(r, "RequiredRelated"), "RequiredNested")"""),
+                """r => EF.Property<NestedAssociateType>(EF.Property<AssociateType>(r, "RequiredAssociate"), "RequiredNestedAssociate")"""),
             () => AssertUpdate(
                 ss => ss.Set<RootEntity>(),
                 c => c,
-                s => s.SetProperty(x => x.RequiredRelated.RequiredNested, newNested),
+                s => s.SetProperty(x => x.RequiredAssociate.RequiredNestedAssociate, newNested),
                 rowsAffectedCount: 0));
     }
 

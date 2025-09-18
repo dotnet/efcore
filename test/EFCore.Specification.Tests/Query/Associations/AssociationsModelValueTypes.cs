@@ -13,12 +13,12 @@ public class ValueRootEntity
     public int Id { get; set; }
     public required string Name { get; set; }
 
-    public required ValueRelatedType RequiredRelated { get; set; }
-    public ValueRelatedType? OptionalRelated { get; set; }
+    public required ValueAssociateType RequiredAssociate { get; set; }
+    public ValueAssociateType? OptionalAssociate { get; set; }
 
     // TODO: We don't yet support complex collections of value types, #31411;
     // For now map a reference type collection instead.
-    public List<RelatedType> RelatedCollection { get; set; } = null!;
+    public List<AssociateType> AssociateCollection { get; set; } = null!;
 
     public override string ToString() => Name;
 
@@ -28,20 +28,20 @@ public class ValueRootEntity
             Id = rootEntity.Id,
             Name = rootEntity.Name,
 
-            RequiredRelated = ValueRelatedType.FromRelatedType(rootEntity.RequiredRelated).Value,
-            OptionalRelated = ValueRelatedType.FromRelatedType(rootEntity.OptionalRelated),
+            RequiredAssociate = ValueAssociateType.FromAssociateType(rootEntity.RequiredAssociate).Value,
+            OptionalAssociate = ValueAssociateType.FromAssociateType(rootEntity.OptionalAssociate),
 
-            // TODO: Collection of nullable related types
-            RelatedCollection = rootEntity.RelatedCollection.Select(r => r.DeepClone()).ToList()
+            // TODO: Collection of nullable associate types
+            AssociateCollection = rootEntity.AssociateCollection.Select(r => r.DeepClone()).ToList()
         };
 }
 
 /// <summary>
-/// Variant of <see cref="RelatedType" /> as a value type.
+/// Variant of <see cref="AssociateType" /> as a value type.
 /// </summary>
-public struct ValueRelatedType : IEquatable<ValueRelatedType>
+public struct ValueAssociateType : IEquatable<ValueAssociateType>
 {
-    public ValueRelatedType()
+    public ValueAssociateType()
     {
     }
 
@@ -57,9 +57,9 @@ public struct ValueRelatedType : IEquatable<ValueRelatedType>
     // TODO: Collection of nullable nested types
     // TODO: We don't yet support complex collections of value types, #31411;
     // For now map a reference type collection instead.
-    public List<NestedType> NestedCollection { get; set; } = null!;
+    public List<NestedAssociateType> NestedCollection { get; set; } = null!;
 
-    public readonly bool Equals(ValueRelatedType other)
+    public readonly bool Equals(ValueAssociateType other)
         => Id == other.Id
            && Name == other.Name
            && Int == other.Int
@@ -68,18 +68,18 @@ public struct ValueRelatedType : IEquatable<ValueRelatedType>
            && (OptionalNested is null && other.OptionalNested is null || OptionalNested?.Equals(other.RequiredNested) == true)
            && NestedCollection.SequenceEqual(other.NestedCollection);
 
-    [return: NotNullIfNotNull(nameof(relatedType))]
-    public static ValueRelatedType? FromRelatedType(RelatedType? relatedType)
-        => relatedType is null ? null : new()
+    [return: NotNullIfNotNull(nameof(associate))]
+    public static ValueAssociateType? FromAssociateType(AssociateType? associate)
+        => associate is null ? null : new()
         {
-            Id = relatedType.Id,
-            Name = relatedType.Name,
-            Int = relatedType.Int,
-            String = relatedType.String,
+            Id = associate.Id,
+            Name = associate.Name,
+            Int = associate.Int,
+            String = associate.String,
 
-            RequiredNested = ValueNestedType.FromNestedType(relatedType.RequiredNested).Value,
-            OptionalNested = ValueNestedType.FromNestedType(relatedType.OptionalNested),
-            NestedCollection = relatedType.NestedCollection.Select((n) => n.DeepClone()).ToList()
+            RequiredNested = ValueNestedType.FromNestedType(associate.RequiredNestedAssociate).Value,
+            OptionalNested = ValueNestedType.FromNestedType(associate.OptionalNestedAssociate),
+            NestedCollection = associate.NestedCollection.Select((n) => n.DeepClone()).ToList()
         };
 
     public override string ToString() => Name;
@@ -107,7 +107,7 @@ public struct ValueNestedType : IEquatable<ValueNestedType>
            && String == other.String;
 
     [return: NotNullIfNotNull(nameof(nestedType))]
-    public static ValueNestedType? FromNestedType(NestedType? nestedType)
+    public static ValueNestedType? FromNestedType(NestedAssociateType? nestedType)
         => nestedType is null ? null : new()
         {
             Id = nestedType.Id,
