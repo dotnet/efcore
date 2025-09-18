@@ -477,7 +477,7 @@ public partial class NavigationExpandingExpressionVisitor
     /// <summary>
     ///     Queryable properties are not expanded (similar to <see cref="OwnedNavigationReference" />.
     /// </summary>
-    private sealed class ComplexPropertyReference(Expression parent, IComplexProperty complexProperty)
+    private sealed class ComplexPropertyReference(Expression parent, IComplexProperty complexProperty, Expression originalExpression)
         : Expression, IPrintableExpression
     {
         protected override Expression VisitChildren(ExpressionVisitor visitor)
@@ -489,6 +489,7 @@ public partial class NavigationExpandingExpressionVisitor
 
         public Expression Parent { get; private set; } = parent;
         public new IComplexProperty Property { get; } = complexProperty;
+        public Expression OriginalExpression { get; private set; } = originalExpression;
         public ComplexTypeReference ComplexTypeReference { get; } = new(complexProperty.ComplexType);
 
         public override Type Type

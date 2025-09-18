@@ -444,30 +444,33 @@ VALUES(
 
     #region EnumLegacyValues
 
-    [ConditionalTheory(Skip = "#36626"), MemberData(nameof(IsAsyncData))]
-    public virtual async Task Read_enum_property_with_legacy_values(bool async)
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    public abstract Task Read_enum_property_with_legacy_values(bool async);
+
+    protected virtual async Task Read_enum_property_with_legacy_values_core(bool async)
     {
         var contextFactory = await InitializeAsync<DbContext>(
             onModelCreating: BuildModelEnumLegacyValues,
             onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
             seed: SeedEnumLegacyValues);
 
-        using (var context = contextFactory.CreateContext())
+        using var context = contextFactory.CreateContext();
+
+        var query = context.Set<MyEntityEnumLegacyValues>().Select(x => new
         {
-            var query = context.Set<MyEntityEnumLegacyValues>().Select(x => new
-            {
-                x.Reference.IntEnum,
-                x.Reference.ByteEnum,
-                x.Reference.LongEnum,
-                x.Reference.NullableEnum
-            });
+            x.Reference.IntEnum,
+            x.Reference.ByteEnum,
+            x.Reference.LongEnum,
+            x.Reference.NullableEnum
+        });
 
-            var exception = async
-                ? await (Assert.ThrowsAsync<SqlException>(() => query.ToListAsync()))
-                : Assert.Throws<SqlException>(() => query.ToList());
-
-            // Conversion failed when converting the nvarchar value '...' to data type int
-            Assert.Equal(245, exception.Number);
+        if (async)
+        {
+            await query.ToListAsync();
+        }
+        else
+        {
+            query.ToList();
         }
     }
 

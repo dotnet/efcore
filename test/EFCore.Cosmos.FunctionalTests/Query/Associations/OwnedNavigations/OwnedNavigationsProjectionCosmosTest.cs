@@ -23,7 +23,7 @@ FROM root c
 """);
     }
 
-    #region Simple properties
+    #region Scalar properties
 
     public override async Task Select_property_on_required_related(QueryTrackingBehavior queryTrackingBehavior)
     {
@@ -84,9 +84,9 @@ FROM root c
 """);
     }
 
-    #endregion Simple properties
+    #endregion Scalar properties
 
-    #region Non-collection
+    #region Structural properties
 
     public override async Task Select_related(QueryTrackingBehavior queryTrackingBehavior)
     {
@@ -194,9 +194,34 @@ FROM root c
         // We don't support (inter-document) navigations with Cosmos.
         => Assert.ThrowsAsync<InvalidOperationException>(() => base.Select_required_related_via_optional_navigation(queryTrackingBehavior));
 
-    #endregion Non-collection
+    public override async Task Select_unmapped_related_scalar_property(QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Select_unmapped_related_scalar_property(queryTrackingBehavior);
 
-    #region Collection
+        if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
+        {
+            AssertSql(
+                """
+SELECT VALUE c
+FROM root c
+""");
+        }
+    }
+
+    public override async Task Select_untranslatable_method_on_related_scalar_property(QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Select_untranslatable_method_on_related_scalar_property(queryTrackingBehavior);
+
+        AssertSql(
+            """
+SELECT VALUE c["RequiredRelated"]["Int"]
+FROM root c
+""");
+    }
+
+    #endregion Structural properties
+
+    #region Structural collection properties
 
     public override async Task Select_related_collection(QueryTrackingBehavior queryTrackingBehavior)
     {
@@ -280,7 +305,7 @@ ORDER BY c["Id"]
         }
     }
 
-    #endregion Collection
+    #endregion Structural collection properties
 
     #region Multiple
 

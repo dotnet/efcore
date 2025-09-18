@@ -104,6 +104,13 @@ FROM [RootEntity] AS [r]
         AssertExecuteUpdateSql();
     }
 
+    public override async Task Update_association_with_null_required_property()
+    {
+        await base.Update_association_with_null_required_property();
+
+        AssertExecuteUpdateSql();
+    }
+
     #endregion Update properties
 
     #region Update association
@@ -119,6 +126,11 @@ FROM [RootEntity] AS [r]
 @complex_type_p_Ints='?' (Size = 4000)
 @complex_type_p_Name='?' (Size = 4000)
 @complex_type_p_String='?' (Size = 4000)
+@complex_type_p_RequiredNested_Id='?' (DbType = Int32)
+@complex_type_p_RequiredNested_Int='?' (DbType = Int32)
+@complex_type_p_RequiredNested_Ints='?' (Size = 4000)
+@complex_type_p_RequiredNested_Name='?' (Size = 4000)
+@complex_type_p_RequiredNested_String='?' (Size = 4000)
 
 UPDATE [r]
 SET [r].[RequiredRelated_Id] = @complex_type_p_Id,
@@ -126,16 +138,16 @@ SET [r].[RequiredRelated_Id] = @complex_type_p_Id,
     [r].[RequiredRelated_Ints] = @complex_type_p_Ints,
     [r].[RequiredRelated_Name] = @complex_type_p_Name,
     [r].[RequiredRelated_String] = @complex_type_p_String,
-    [r].[RequiredRelated_OptionalNested_Id] = @complex_type_p_Id,
-    [r].[RequiredRelated_OptionalNested_Int] = @complex_type_p_Int,
-    [r].[RequiredRelated_OptionalNested_Ints] = @complex_type_p_Ints,
-    [r].[RequiredRelated_OptionalNested_Name] = @complex_type_p_Name,
-    [r].[RequiredRelated_OptionalNested_String] = @complex_type_p_String,
-    [r].[RequiredRelated_RequiredNested_Id] = @complex_type_p_Id,
-    [r].[RequiredRelated_RequiredNested_Int] = @complex_type_p_Int,
-    [r].[RequiredRelated_RequiredNested_Ints] = @complex_type_p_Ints,
-    [r].[RequiredRelated_RequiredNested_Name] = @complex_type_p_Name,
-    [r].[RequiredRelated_RequiredNested_String] = @complex_type_p_String
+    [r].[RequiredRelated_OptionalNested_Id] = NULL,
+    [r].[RequiredRelated_OptionalNested_Int] = NULL,
+    [r].[RequiredRelated_OptionalNested_Ints] = NULL,
+    [r].[RequiredRelated_OptionalNested_Name] = NULL,
+    [r].[RequiredRelated_OptionalNested_String] = NULL,
+    [r].[RequiredRelated_RequiredNested_Id] = @complex_type_p_RequiredNested_Id,
+    [r].[RequiredRelated_RequiredNested_Int] = @complex_type_p_RequiredNested_Int,
+    [r].[RequiredRelated_RequiredNested_Ints] = @complex_type_p_RequiredNested_Ints,
+    [r].[RequiredRelated_RequiredNested_Name] = @complex_type_p_RequiredNested_Name,
+    [r].[RequiredRelated_RequiredNested_String] = @complex_type_p_RequiredNested_String
 FROM [RootEntity] AS [r]
 """);
     }
@@ -215,6 +227,11 @@ FROM [RootEntity] AS [r]
 @complex_type_p_Ints='?' (Size = 4000)
 @complex_type_p_Name='?' (Size = 4000)
 @complex_type_p_String='?' (Size = 4000)
+@complex_type_p_RequiredNested_Id='?' (DbType = Int32)
+@complex_type_p_RequiredNested_Int='?' (DbType = Int32)
+@complex_type_p_RequiredNested_Ints='?' (Size = 4000)
+@complex_type_p_RequiredNested_Name='?' (Size = 4000)
+@complex_type_p_RequiredNested_String='?' (Size = 4000)
 
 UPDATE [r]
 SET [r].[RequiredRelated_Id] = @complex_type_p_Id,
@@ -222,16 +239,16 @@ SET [r].[RequiredRelated_Id] = @complex_type_p_Id,
     [r].[RequiredRelated_Ints] = @complex_type_p_Ints,
     [r].[RequiredRelated_Name] = @complex_type_p_Name,
     [r].[RequiredRelated_String] = @complex_type_p_String,
-    [r].[RequiredRelated_OptionalNested_Id] = @complex_type_p_Id,
-    [r].[RequiredRelated_OptionalNested_Int] = @complex_type_p_Int,
-    [r].[RequiredRelated_OptionalNested_Ints] = @complex_type_p_Ints,
-    [r].[RequiredRelated_OptionalNested_Name] = @complex_type_p_Name,
-    [r].[RequiredRelated_OptionalNested_String] = @complex_type_p_String,
-    [r].[RequiredRelated_RequiredNested_Id] = @complex_type_p_Id,
-    [r].[RequiredRelated_RequiredNested_Int] = @complex_type_p_Int,
-    [r].[RequiredRelated_RequiredNested_Ints] = @complex_type_p_Ints,
-    [r].[RequiredRelated_RequiredNested_Name] = @complex_type_p_Name,
-    [r].[RequiredRelated_RequiredNested_String] = @complex_type_p_String
+    [r].[RequiredRelated_OptionalNested_Id] = NULL,
+    [r].[RequiredRelated_OptionalNested_Int] = NULL,
+    [r].[RequiredRelated_OptionalNested_Ints] = NULL,
+    [r].[RequiredRelated_OptionalNested_Name] = NULL,
+    [r].[RequiredRelated_OptionalNested_String] = NULL,
+    [r].[RequiredRelated_RequiredNested_Id] = @complex_type_p_RequiredNested_Id,
+    [r].[RequiredRelated_RequiredNested_Int] = @complex_type_p_RequiredNested_Int,
+    [r].[RequiredRelated_RequiredNested_Ints] = @complex_type_p_RequiredNested_Ints,
+    [r].[RequiredRelated_RequiredNested_Name] = @complex_type_p_RequiredNested_Name,
+    [r].[RequiredRelated_RequiredNested_String] = @complex_type_p_RequiredNested_String
 FROM [RootEntity] AS [r]
 """);
     }
@@ -354,6 +371,13 @@ SET [r].[OptionalRelated_Id] = NULL,
     [r].[OptionalRelated_RequiredNested_String] = NULL
 FROM [RootEntity] AS [r]
 """);
+    }
+
+    public override async Task Update_association_with_null_required_nested_association()
+    {
+        await base.Update_association_with_null_required_nested_association();
+
+        AssertExecuteUpdateSql();
     }
 
     #endregion Update association

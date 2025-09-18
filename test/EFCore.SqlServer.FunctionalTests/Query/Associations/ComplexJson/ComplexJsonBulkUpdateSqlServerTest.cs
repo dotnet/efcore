@@ -159,6 +159,13 @@ FROM [RootEntity] AS [r]
         AssertExecuteUpdateSql();
     }
 
+    public override async Task Update_association_with_null_required_property()
+    {
+        await base.Update_association_with_null_required_property();
+
+        AssertExecuteUpdateSql();
+    }
+
     #endregion Update properties
 
     #region Update association
@@ -325,6 +332,13 @@ UPDATE [r]
 SET [r].[OptionalRelated] = NULL
 FROM [RootEntity] AS [r]
 """);
+    }
+
+    public override async Task Update_association_with_null_required_nested_association()
+    {
+        await base.Update_association_with_null_required_nested_association();
+
+        AssertExecuteUpdateSql();
     }
 
     #endregion Update association

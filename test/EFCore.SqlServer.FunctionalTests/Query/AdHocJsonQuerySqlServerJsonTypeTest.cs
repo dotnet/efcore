@@ -53,6 +53,13 @@ public class AdHocJsonQuerySqlServerJsonTypeTest(NonSharedFixture fixture) : AdH
     public override Task Try_project_reference_but_JSON_is_collection()
         => Assert.ThrowsAsync<ThrowsException>(base.Try_project_reference_but_JSON_is_collection);
 
+    // When using the SQL Server json type, we use JSON_VALUE() with the RETURNING clause to parse the JSON property value
+    // into the correct type (int in this case); since we (currently) use lax mode, if the format isn't correct as here
+    // (text instead of int), we get NULL out (strict mode would throw, see #36802 about possibly switching to that).
+    // And since the enum properties are required in the model, this causes "Nullable object must have a value" to be thrown.
+    public override Task Read_enum_property_with_legacy_values(bool async)
+        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Read_enum_property_with_legacy_values_core(async));
+
     protected override string StoreName
         => "AdHocJsonQueryJsonTypeTest";
 
