@@ -1330,7 +1330,7 @@ public partial class TestDbContext : DbContext
                 {
                     var entityType = Assert.Single(model.GetEntityTypes());
                     var property = Assert.Single(entityType.GetProperties());
-                    Assert.Equal(SqlServerValueGenerationStrategy.None, property.GetValueGenerationStrategy());
+                    Assert.Equal(SqlServerValueGenerationStrategy.None, Microsoft.EntityFrameworkCore.SqlServerPropertyExtensions.GetValueGenerationStrategy(property));
                 });
 
         [ConditionalTheory, InlineData(false), InlineData(true)]
