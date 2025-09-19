@@ -807,7 +807,6 @@ public static class SqlServerPropertyExtensions
     private static SqlServerValueGenerationStrategy GetDefaultValueGenerationStrategy(IReadOnlyProperty property)
     {
         var modelStrategy = property.DeclaringType.Model.GetValueGenerationStrategy();
-
         if (modelStrategy is SqlServerValueGenerationStrategy.SequenceHiLo or SqlServerValueGenerationStrategy.Sequence
             && IsCompatibleWithValueGeneration(property))
         {
@@ -826,7 +825,6 @@ public static class SqlServerPropertyExtensions
         ITypeMappingSource? typeMappingSource)
     {
         var modelStrategy = property.DeclaringType.Model.GetValueGenerationStrategy();
-
         if (modelStrategy is SqlServerValueGenerationStrategy.SequenceHiLo or SqlServerValueGenerationStrategy.Sequence
             && IsCompatibleWithValueGeneration(property, storeObject, typeMappingSource))
         {
@@ -979,9 +977,9 @@ public static class SqlServerPropertyExtensions
 
         var type = (valueConverter?.ProviderClrType ?? property.ClrType).UnwrapNullableType();
 
-        return (type.IsInteger()
+        return type.IsInteger()
             || type.IsEnum
-            || type == typeof(decimal));
+            || type == typeof(decimal);
     }
 
     /// <summary>

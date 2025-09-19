@@ -104,7 +104,8 @@ namespace TestNamespace
             var __synthesizedOrdinal = runtimeEntityType.AddProperty(
                 "__synthesizedOrdinal",
                 typeof(int),
-                valueGenerated: ValueGenerated.OnAdd,
+                valueGenerated: ValueGenerated.OnAddOrUpdate,
+                beforeSaveBehavior: PropertySaveBehavior.Ignore,
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 sentinel: 0);
             __synthesizedOrdinal.SetAccessors(
@@ -132,7 +133,7 @@ namespace TestNamespace
                     int (int v) => v,
                     int (int v) => v));
             __synthesizedOrdinal.SetCurrentValueComparer(new EntryCurrentValueComparer<int>(__synthesizedOrdinal));
-            __synthesizedOrdinal.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+            __synthesizedOrdinal.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var details = runtimeEntityType.AddProperty(
                 "Details",

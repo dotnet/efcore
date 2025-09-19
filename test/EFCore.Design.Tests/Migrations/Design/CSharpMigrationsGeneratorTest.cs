@@ -15,7 +15,7 @@ using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 // ReSharper disable UnusedMember.Local
 namespace Microsoft.EntityFrameworkCore.Migrations.Design;
 
-public partial class CSharpMigrationsGeneratorTest
+public partial class CSharpMigrationsGeneratorTest : CSharpMigrationsGeneratorTestBase
 {
     private static readonly string _nl = Environment.NewLine;
     private static readonly string _toTable = _nl + @"entityTypeBuilder.ToTable(""WithAnnotations"")";
@@ -515,7 +515,7 @@ public partial class CSharpMigrationsGeneratorTest
             "MySnapshot",
             finalizedModel);
 
-        var snapshotModel = CompileModelSnapshot(modelSnapshotCode, "MyNamespace.MySnapshot").Model;
+        var snapshotModel = CompileModelSnapshot(modelSnapshotCode, "MyNamespace.MySnapshot", typeof(MyContext)).Model;
 
         Assert.Equal((int)RawEnum.A, snapshotModel.FindEntityType(typeof(WithAnnotations)).GetDiscriminatorValue());
         Assert.Equal((int)RawEnum.B, snapshotModel.FindEntityType(typeof(Derived)).GetDiscriminatorValue());
@@ -743,26 +743,6 @@ namespace MyNamespace
     private class EntityWithConstructorBinding(int id)
     {
         public int Id { get; } = id;
-    }
-
-    private ModelSnapshot CompileModelSnapshot(string code, string modelSnapshotTypeName)
-    {
-        var build = new BuildSource { Sources = { { "Snapshot.cs", code } } };
-
-        foreach (var buildReference in GetReferences())
-        {
-            build.References.Add(buildReference);
-        }
-
-        var assembly = build.BuildInMemory();
-
-        var snapshotType = assembly.GetType(modelSnapshotTypeName, throwOnError: true, ignoreCase: false);
-
-        var contextTypeAttribute = snapshotType.GetCustomAttribute<DbContextAttribute>();
-        Assert.NotNull(contextTypeAttribute);
-        Assert.Equal(typeof(MyContext), contextTypeAttribute.ContextType);
-
-        return (ModelSnapshot)Activator.CreateInstance(snapshotType);
     }
 
     public class MyContext;
