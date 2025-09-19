@@ -633,7 +633,7 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
             // The following types aren't supported by the JSON_VALUE() RETURNING clause (#36627).
             // Note that for varbinary we already transform the JSON_VALUE() into OPENJSON() earlier, in SqlServerJsonPostprocessor.
             && jsonScalarExpression.TypeMapping?.StoreType.ToLower(CultureInfo.InvariantCulture)
-                is not ("uniqueidentifier" or "geometry" or "geography");
+                is not ("uniqueidentifier" or "geometry" or "geography" or "datetime");
 
         // For JSON_VALUE(), if we can use the RETURNING clause, always do that.
         // Otherwise, JSON_VALUE always returns nvarchar(4000) (https://learn.microsoft.com/sql/t-sql/functions/json-value-transact-sql),

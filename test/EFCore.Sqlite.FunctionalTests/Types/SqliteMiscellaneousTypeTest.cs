@@ -3,8 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Types.Miscellaneous;
 
-public class BoolTypeTest(BoolTypeTest.BoolTypeFixture fixture)
-    : RelationalTypeTestBase<bool, BoolTypeTest.BoolTypeFixture>(fixture)
+public class BoolTypeTest(BoolTypeTest.BoolTypeFixture fixture, ITestOutputHelper testOutputHelper)
+    : RelationalTypeTestBase<bool, BoolTypeTest.BoolTypeFixture>(fixture, testOutputHelper)
 {
     public class BoolTypeFixture : RelationalTypeFixtureBase<bool>
     {
@@ -15,8 +15,8 @@ public class BoolTypeTest(BoolTypeTest.BoolTypeFixture fixture)
     }
 }
 
-public class StringTypeTest(StringTypeTest.StringTypeFixture fixture)
-    : RelationalTypeTestBase<string, StringTypeTest.StringTypeFixture>(fixture)
+public class StringTypeTest(StringTypeTest.StringTypeFixture fixture, ITestOutputHelper testOutputHelper)
+    : RelationalTypeTestBase<string, StringTypeTest.StringTypeFixture>(fixture, testOutputHelper)
 {
     public class StringTypeFixture : RelationalTypeFixtureBase<string>
     {
@@ -27,8 +27,8 @@ public class StringTypeTest(StringTypeTest.StringTypeFixture fixture)
     }
 }
 
-public class GuidTypeTest(GuidTypeTest.GuidTypeFixture fixture)
-    : RelationalTypeTestBase<Guid, GuidTypeTest.GuidTypeFixture>(fixture)
+public class GuidTypeTest(GuidTypeTest.GuidTypeFixture fixture, ITestOutputHelper testOutputHelper)
+    : RelationalTypeTestBase<Guid, GuidTypeTest.GuidTypeFixture>(fixture, testOutputHelper)
 {
     public override async Task ExecuteUpdate_within_json_to_nonjson_column()
     {
@@ -46,8 +46,8 @@ public class GuidTypeTest(GuidTypeTest.GuidTypeFixture fixture)
     }
 }
 
-public class ByteArrayTypeTest(ByteArrayTypeTest.ByteArrayTypeFixture fixture)
-    : RelationalTypeTestBase<byte[], ByteArrayTypeTest.ByteArrayTypeFixture>(fixture)
+public class ByteArrayTypeTest(ByteArrayTypeTest.ByteArrayTypeFixture fixture, ITestOutputHelper testOutputHelper)
+    : RelationalTypeTestBase<byte[], ByteArrayTypeTest.ByteArrayTypeFixture>(fixture, testOutputHelper)
 {
     // TODO: string representation discrepancy between our JSON and M.D.SQLite's string representation, see #36749.
     public override Task Query_property_within_json()

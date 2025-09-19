@@ -3,7 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Types.Numeric;
 
-public class ByteTypeTest(ByteTypeTest.ByteTypeFixture fixture) : RelationalTypeTestBase<byte, ByteTypeTest.ByteTypeFixture>(fixture)
+public class ByteTypeTest(ByteTypeTest.ByteTypeFixture fixture, ITestOutputHelper testOutputHelper)
+    : RelationalTypeTestBase<byte, ByteTypeTest.ByteTypeFixture>(fixture, testOutputHelper)
 {
     public class ByteTypeFixture : RelationalTypeFixtureBase<byte>
     {
@@ -14,7 +15,8 @@ public class ByteTypeTest(ByteTypeTest.ByteTypeFixture fixture) : RelationalType
     }
 }
 
-public class ShortTypeTest(ShortTypeTest.ShortTypeFixture fixture) : RelationalTypeTestBase<short, ShortTypeTest.ShortTypeFixture>(fixture)
+public class ShortTypeTest(ShortTypeTest.ShortTypeFixture fixture, ITestOutputHelper testOutputHelper)
+    : RelationalTypeTestBase<short, ShortTypeTest.ShortTypeFixture>(fixture, testOutputHelper)
 {
     public class ShortTypeFixture : RelationalTypeFixtureBase<short>
     {
@@ -25,7 +27,8 @@ public class ShortTypeTest(ShortTypeTest.ShortTypeFixture fixture) : RelationalT
     }
 }
 
-public class IntTypeTest(IntTypeTest.IntTypeFixture fixture) : RelationalTypeTestBase<int, IntTypeTest.IntTypeFixture>(fixture)
+public class IntTypeTest(IntTypeTest.IntTypeFixture fixture, ITestOutputHelper testOutputHelper)
+    : RelationalTypeTestBase<int, IntTypeTest.IntTypeFixture>(fixture, testOutputHelper)
 {
     public class IntTypeFixture : RelationalTypeFixtureBase<int>
     {
@@ -36,7 +39,8 @@ public class IntTypeTest(IntTypeTest.IntTypeFixture fixture) : RelationalTypeTes
     }
 }
 
-public class LongTypeTest(LongTypeTest.LongTypeFixture fixture) : RelationalTypeTestBase<long, LongTypeTest.LongTypeFixture>(fixture)
+public class LongTypeTest(LongTypeTest.LongTypeFixture fixture, ITestOutputHelper testOutputHelper)
+    : RelationalTypeTestBase<long, LongTypeTest.LongTypeFixture>(fixture, testOutputHelper)
 {
     public class LongTypeFixture : RelationalTypeFixtureBase<long>
     {
@@ -47,7 +51,8 @@ public class LongTypeTest(LongTypeTest.LongTypeFixture fixture) : RelationalType
     }
 }
 
-public class DecimalTypeTest(DecimalTypeTest.DecimalTypeFixture fixture) : RelationalTypeTestBase<decimal, DecimalTypeTest.DecimalTypeFixture>(fixture)
+public class DecimalTypeTest(DecimalTypeTest.DecimalTypeFixture fixture, ITestOutputHelper testOutputHelper)
+    : RelationalTypeTestBase<decimal, DecimalTypeTest.DecimalTypeFixture>(fixture, testOutputHelper)
 {
     public class DecimalTypeFixture : RelationalTypeFixtureBase<decimal>
     {
@@ -58,7 +63,8 @@ public class DecimalTypeTest(DecimalTypeTest.DecimalTypeFixture fixture) : Relat
     }
 }
 
-public class DoubleTypeTest(DoubleTypeTest.DoubleTypeFixture fixture) : RelationalTypeTestBase<double, DoubleTypeTest.DoubleTypeFixture>(fixture)
+public class DoubleTypeTest(DoubleTypeTest.DoubleTypeFixture fixture, ITestOutputHelper testOutputHelper)
+    : RelationalTypeTestBase<double, DoubleTypeTest.DoubleTypeFixture>(fixture, testOutputHelper)
 {
     public class DoubleTypeFixture : RelationalTypeFixtureBase<double>
     {
@@ -69,7 +75,8 @@ public class DoubleTypeTest(DoubleTypeTest.DoubleTypeFixture fixture) : Relation
     }
 }
 
-public class FloatTypeTest(FloatTypeTest.FloatTypeFixture fixture) : RelationalTypeTestBase<float, FloatTypeTest.FloatTypeFixture>(fixture)
+public class FloatTypeTest(FloatTypeTest.FloatTypeFixture fixture, ITestOutputHelper testOutputHelper)
+    : RelationalTypeTestBase<float, FloatTypeTest.FloatTypeFixture>(fixture, testOutputHelper)
 {
     public class FloatTypeFixture : RelationalTypeFixtureBase<float>
     {
