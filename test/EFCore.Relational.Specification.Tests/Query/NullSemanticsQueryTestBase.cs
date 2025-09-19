@@ -911,6 +911,17 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
             .Select(e => e.Id).ToList();
     }
 
+    [ConditionalFact]
+    public virtual void Where_not_equal_using_relational_null_semantics_complex_in_equals()
+    {
+        using var context = CreateContext(useRelationalNulls: true);
+        var l = context.Entities1
+            .Where(e => (e.NullableBoolA != e.NullableBoolB) == e.NullableBoolC)
+            .Select(e => e.Id).ToList();
+
+        Assert.Equal(l.OrderBy(e => e), [1, 5, 11, 13]);
+    }
+
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Where_comparison_null_constant_and_null_parameter(bool async)
     {
@@ -1161,6 +1172,11 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
         await AssertQueryScalar(
             async,
             ss => ss.Set<NullSemanticsEntity1>().Select(e => (e.BoolA ? e.NullableIntA : e.IntB) > e.IntC));
+
+        await AssertQueryScalar(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => (e.BoolA ? e.NullableBoolB : !e.NullableBoolC) == null).Select(e => e.Id)
+        );
     }
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
