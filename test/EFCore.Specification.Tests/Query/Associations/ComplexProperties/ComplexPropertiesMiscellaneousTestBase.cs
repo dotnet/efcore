@@ -11,17 +11,17 @@ public abstract class ComplexPropertiesMiscellaneousTestBase<TFixture>(TFixture 
 
     [ConditionalFact]
     public virtual Task Where_property_on_non_nullable_value_type()
-        => AssertQuery(ss => ss.Set<ValueRootEntity>().Where(e => e.RequiredRelated.Int == 8));
+        => AssertQuery(ss => ss.Set<ValueRootEntity>().Where(e => e.RequiredAssociate.Int == 8));
 
     [ConditionalFact]
     public virtual Task Where_property_on_nullable_value_type_Value()
         => AssertQuery(
-            ss => ss.Set<ValueRootEntity>().Where(e => e.OptionalRelated!.Value.Int == 8),
-            ss => ss.Set<ValueRootEntity>().Where(e => e.OptionalRelated.HasValue && e.OptionalRelated!.Value.Int == 8));
+            ss => ss.Set<ValueRootEntity>().Where(e => e.OptionalAssociate!.Value.Int == 8),
+            ss => ss.Set<ValueRootEntity>().Where(e => e.OptionalAssociate.HasValue && e.OptionalAssociate!.Value.Int == 8));
 
     [ConditionalFact]
     public virtual Task Where_HasValue_on_nullable_value_type()
-        => AssertQuery(ss => ss.Set<ValueRootEntity>().Where(e => e.OptionalRelated.HasValue));
+        => AssertQuery(ss => ss.Set<ValueRootEntity>().Where(e => e.OptionalAssociate.HasValue));
 
     #endregion Value types
 }

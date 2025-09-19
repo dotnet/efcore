@@ -3,6 +3,7 @@
 
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -304,6 +305,86 @@ public class AdHocMiscellaneousQueryCosmosTest(NonSharedFixture fixture) : NonSh
     }
 
     #endregion 35094
+
+    #region 36329
+
+    [ConditionalFact]
+    public virtual async Task Enum_discriminator_with_value_converter_on_derived_dbset()
+    {
+        var contextFactory = await InitializeAsync<EnumDiscriminatorContext36329>(
+            onModelCreating: OnModelCreating36329,
+            seed: Seed36329);
+
+        await using var context = contextFactory.CreateContext();
+
+        // This should not throw an InvalidCastException
+        var dog = await context.Dogs.SingleAsync(x => x.Id == "123");
+        Assert.Equal("Rover", dog.Name);
+        Assert.Equal(PetType36329.Dog, dog.PetType);
+    }
+
+    public void OnModelCreating36329(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Pet36329>()
+            .ToContainer(nameof(Pet36329))
+            .HasPartitionKey(x => x.Id)
+            .HasKey(x => x.Id);
+
+        modelBuilder.Entity<Pet36329>().Property(e => e.PetType)
+            .HasConversion(new EnumToStringConverter<PetType36329>());
+
+        modelBuilder.Entity<Pet36329>()
+            .HasDiscriminator(x => x.PetType)
+            .HasValue<Dog36329>(PetType36329.Dog);
+
+        modelBuilder.Entity<Dog36329>()
+            .HasBaseType<Pet36329>();
+    }
+
+    protected async Task Seed36329(EnumDiscriminatorContext36329 context)
+    {
+        var dog = new Dog36329
+        {
+            Id = "123",
+            Name = "Rover",
+            PetType = PetType36329.Dog,
+            DogProperty = "test"
+        };
+
+        await context.Dogs.AddAsync(dog);
+        await context.SaveChangesAsync();
+    }
+
+    public class EnumDiscriminatorContext36329 : DbContext
+    {
+        public EnumDiscriminatorContext36329(DbContextOptions options)
+            : base(options)
+        {
+        }
+
+        public DbSet<Dog36329> Dogs { get; set; }
+        public DbSet<Pet36329> Pets { get; set; }
+    }
+
+    public abstract record Pet36329
+    {
+        public string Id { get; set; }
+        public PetType36329 PetType { get; set; }
+        public string Name { get; set; }
+    }
+
+    public record Dog36329 : Pet36329
+    {
+        public string DogProperty { get; set; }
+    }
+
+    public enum PetType36329
+    {
+        Dog,
+        Cat
+    }
+
+    #endregion 36329
 
     protected override string StoreName
         => "AdHocMiscellaneousQueryTests";

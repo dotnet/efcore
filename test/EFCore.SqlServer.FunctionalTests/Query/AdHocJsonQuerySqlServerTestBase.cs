@@ -112,24 +112,54 @@ WHERE [e].[Id] = 6
     {
         await base.Project_missing_required_scalar(async);
 
-        AssertSql(
-            """
+        switch (JsonColumnType)
+        {
+            case "json":
+                AssertSql(
+                    """
+SELECT [e].[Id], JSON_VALUE([e].[RequiredReference], '$.Number' RETURNING float) AS [Number]
+FROM [Entities] AS [e]
+WHERE [e].[Id] = 2
+""");
+                break;
+            case "nvarchar(max)":
+                AssertSql(
+                    """
 SELECT [e].[Id], CAST(JSON_VALUE([e].[RequiredReference], '$.Number') AS float) AS [Number]
 FROM [Entities] AS [e]
 WHERE [e].[Id] = 2
 """);
+                break;
+            default:
+                throw new UnreachableException();
+        }
     }
 
     public override async Task Project_null_required_scalar(bool async)
     {
         await base.Project_null_required_scalar(async);
 
-        AssertSql(
-            """
+        switch (JsonColumnType)
+        {
+            case "json":
+                AssertSql(
+                    """
+SELECT [e].[Id], JSON_VALUE([e].[RequiredReference], '$.Number' RETURNING float) AS [Number]
+FROM [Entities] AS [e]
+WHERE [e].[Id] = 4
+""");
+                break;
+            case "nvarchar(max)":
+                AssertSql(
+                    """
 SELECT [e].[Id], CAST(JSON_VALUE([e].[RequiredReference], '$.Number') AS float) AS [Number]
 FROM [Entities] AS [e]
 WHERE [e].[Id] = 4
 """);
+                break;
+            default:
+                throw new UnreachableException();
+        }
     }
 
     protected override async Task Seed21006(Context21006 context)

@@ -40,9 +40,9 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
         modelBuilder.Entity<Context21006.Entity>(b =>
         {
             b.ToTable("Entities");
-            b.OwnsOne(x => x.OptionalReference).ToJson();
-            b.OwnsOne(x => x.RequiredReference).ToJson();
-            b.OwnsMany(x => x.Collection).ToJson();
+            b.OwnsOne(x => x.OptionalReference).ToJson().HasColumnType(JsonColumnType);
+            b.OwnsOne(x => x.RequiredReference).ToJson().HasColumnType(JsonColumnType);
+            b.OwnsMany(x => x.Collection).ToJson().HasColumnType(JsonColumnType);
         });
     }
 

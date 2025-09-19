@@ -16,4 +16,7 @@ public class AdHocJsonQuerySqlServerTest(NonSharedFixture fixture) : AdHocJsonQu
         // we get: Conversion failed when converting the nvarchar value '...' to data type int
         Assert.Equal(245, exception.Number);
     }
+
+    protected override string JsonColumnType
+        => "nvarchar(max)";
 }

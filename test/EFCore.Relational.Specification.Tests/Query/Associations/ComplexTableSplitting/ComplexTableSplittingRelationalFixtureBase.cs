@@ -28,17 +28,17 @@ public abstract class ComplexTableSplittingRelationalFixtureBase : ComplexProper
         modelBuilder.Entity<RootEntity>(b =>
         {
             // Collections are not supported with table splitting, only JSON
-            b.ComplexProperty(e => e.RequiredRelated, rrb => rrb.Ignore(r => r.NestedCollection));
-            b.ComplexProperty(e => e.OptionalRelated, orb => orb.Ignore(o => o.NestedCollection));
-            b.Ignore(r => r.RelatedCollection);
+            b.ComplexProperty(e => e.RequiredAssociate, rrb => rrb.Ignore(r => r.NestedCollection));
+            b.ComplexProperty(e => e.OptionalAssociate, orb => orb.Ignore(o => o.NestedCollection));
+            b.Ignore(r => r.AssociateCollection);
         });
 
         modelBuilder.Entity<ValueRootEntity>(b =>
         {
             // Collections are not supported with table splitting, only JSON
-            b.ComplexProperty(e => e.RequiredRelated, rrb => rrb.Ignore(r => r.NestedCollection));
-            b.ComplexProperty(e => e.OptionalRelated, orb => orb.Ignore(o => o.NestedCollection));
-            b.Ignore(r => r.RelatedCollection);
+            b.ComplexProperty(e => e.RequiredAssociate, rrb => rrb.Ignore(r => r.NestedCollection));
+            b.ComplexProperty(e => e.OptionalAssociate, orb => orb.Ignore(o => o.NestedCollection));
+            b.Ignore(r => r.AssociateCollection);
         });
     }
 
@@ -48,9 +48,9 @@ public abstract class ComplexTableSplittingRelationalFixtureBase : ComplexProper
 
         foreach (var rootEntity in data.RootEntities)
         {
-            rootEntity.RequiredRelated.NestedCollection = null!;
-            rootEntity.OptionalRelated?.NestedCollection = null!;
-            rootEntity.RelatedCollection = null!;
+            rootEntity.RequiredAssociate.NestedCollection = null!;
+            rootEntity.OptionalAssociate?.NestedCollection = null!;
+            rootEntity.AssociateCollection = null!;
         }
 
         return data;

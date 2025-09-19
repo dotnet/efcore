@@ -14,11 +14,11 @@ public class ComplexJsonCollectionSqlServerTest(ComplexJsonSqlServerFixture fixt
 
         AssertSql(
             """
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
 WHERE (
     SELECT COUNT(*)
-    FROM OPENJSON([r].[RelatedCollection], '$') AS [r0]) = 2
+    FROM OPENJSON([r].[AssociateCollection], '$') AS [a]) = 2
 """);
     }
 
@@ -28,12 +28,12 @@ WHERE (
 
         AssertSql(
             """
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
 WHERE (
     SELECT COUNT(*)
-    FROM OPENJSON([r].[RelatedCollection], '$') WITH ([Int] int '$.Int') AS [r0]
-    WHERE [r0].[Int] <> 8) = 2
+    FROM OPENJSON([r].[AssociateCollection], '$') WITH ([Int] int '$.Int') AS [a]
+    WHERE [a].[Int] <> 8) = 2
 """);
     }
 
@@ -43,15 +43,15 @@ WHERE (
 
         AssertSql(
             """
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
 WHERE (
-    SELECT [r0].[Int]
-    FROM OPENJSON([r].[RelatedCollection], '$') WITH (
+    SELECT [a].[Int]
+    FROM OPENJSON([r].[AssociateCollection], '$') WITH (
         [Id] int '$.Id',
         [Int] int '$.Int'
-    ) AS [r0]
-    ORDER BY [r0].[Id]
+    ) AS [a]
+    ORDER BY [a].[Id]
     OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY) = 8
 """);
     }
@@ -67,23 +67,23 @@ WHERE (
 
             AssertSql(
                 """
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
 WHERE (
     SELECT COUNT(*)
     FROM (
-        SELECT DISTINCT [r0].[Id], [r0].[Int], [r0].[Ints], [r0].[Name], [r0].[String], [r0].[NestedCollection] AS [c], [r0].[OptionalNested] AS [c0], [r0].[RequiredNested] AS [c1]
-        FROM OPENJSON([r].[RelatedCollection], '$') WITH (
+        SELECT DISTINCT [a].[Id], [a].[Int], [a].[Ints], [a].[Name], [a].[String], [a].[NestedCollection] AS [c], [a].[OptionalNestedAssociate] AS [c0], [a].[RequiredNestedAssociate] AS [c1]
+        FROM OPENJSON([r].[AssociateCollection], '$') WITH (
             [Id] int '$.Id',
             [Int] int '$.Int',
             [Ints] json '$.Ints' AS JSON,
             [Name] nvarchar(max) '$.Name',
             [String] nvarchar(max) '$.String',
             [NestedCollection] json '$.NestedCollection' AS JSON,
-            [OptionalNested] json '$.OptionalNested' AS JSON,
-            [RequiredNested] json '$.RequiredNested' AS JSON
-        ) AS [r0]
-    ) AS [r1]) = 2
+            [OptionalNestedAssociate] json '$.OptionalNestedAssociate' AS JSON,
+            [RequiredNestedAssociate] json '$.RequiredNestedAssociate' AS JSON
+        ) AS [a]
+    ) AS [a0]) = 2
 """);
         }
         else
@@ -92,23 +92,23 @@ WHERE (
 
             AssertSql(
                 """
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
 WHERE (
     SELECT COUNT(*)
     FROM (
-        SELECT DISTINCT [r0].[Id], [r0].[Int], [r0].[Ints], [r0].[Name], [r0].[String], [r0].[NestedCollection] AS [c], [r0].[OptionalNested] AS [c0], [r0].[RequiredNested] AS [c1]
-        FROM OPENJSON([r].[RelatedCollection], '$') WITH (
+        SELECT DISTINCT [a].[Id], [a].[Int], [a].[Ints], [a].[Name], [a].[String], [a].[NestedCollection] AS [c], [a].[OptionalNestedAssociate] AS [c0], [a].[RequiredNestedAssociate] AS [c1]
+        FROM OPENJSON([r].[AssociateCollection], '$') WITH (
             [Id] int '$.Id',
             [Int] int '$.Int',
             [Ints] nvarchar(max) '$.Ints' AS JSON,
             [Name] nvarchar(max) '$.Name',
             [String] nvarchar(max) '$.String',
             [NestedCollection] nvarchar(max) '$.NestedCollection' AS JSON,
-            [OptionalNested] nvarchar(max) '$.OptionalNested' AS JSON,
-            [RequiredNested] nvarchar(max) '$.RequiredNested' AS JSON
-        ) AS [r0]
-    ) AS [r1]) = 2
+            [OptionalNestedAssociate] nvarchar(max) '$.OptionalNestedAssociate' AS JSON,
+            [RequiredNestedAssociate] nvarchar(max) '$.RequiredNestedAssociate' AS JSON
+        ) AS [a]
+    ) AS [a0]) = 2
 """);
         }
     }
@@ -129,14 +129,14 @@ WHERE (
 
             AssertSql(
                 """
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
 WHERE (
     SELECT COUNT(*)
     FROM (
-        SELECT DISTINCT [r0].[NestedCollection] AS [c]
-        FROM OPENJSON([r].[RelatedCollection], '$') WITH ([NestedCollection] json '$.NestedCollection' AS JSON) AS [r0]
-    ) AS [r1]) = 2
+        SELECT DISTINCT [a].[NestedCollection] AS [c]
+        FROM OPENJSON([r].[AssociateCollection], '$') WITH ([NestedCollection] json '$.NestedCollection' AS JSON) AS [a]
+    ) AS [a0]) = 2
 """);
         }
         else
@@ -145,14 +145,14 @@ WHERE (
 
             AssertSql(
                 """
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
 WHERE (
     SELECT COUNT(*)
     FROM (
-        SELECT DISTINCT [r0].[NestedCollection] AS [c]
-        FROM OPENJSON([r].[RelatedCollection], '$') WITH ([NestedCollection] nvarchar(max) '$.NestedCollection' AS JSON) AS [r0]
-    ) AS [r1]) = 2
+        SELECT DISTINCT [a].[NestedCollection] AS [c]
+        FROM OPENJSON([r].[AssociateCollection], '$') WITH ([NestedCollection] nvarchar(max) '$.NestedCollection' AS JSON) AS [a]
+    ) AS [a0]) = 2
 """);
         }
     }
@@ -176,18 +176,18 @@ WHERE (
         {
             AssertSql(
                 """
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
-WHERE JSON_VALUE([r].[RelatedCollection], '$[0].Int' RETURNING int) = 8
+WHERE JSON_VALUE([r].[AssociateCollection], '$[0].Int' RETURNING int) = 8
 """);
         }
         else
         {
             AssertSql(
                 """
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
-WHERE CAST(JSON_VALUE([r].[RelatedCollection], '$[0].Int') AS int) = 8
+WHERE CAST(JSON_VALUE([r].[AssociateCollection], '$[0].Int') AS int) = 8
 """);
         }
     }
@@ -202,9 +202,9 @@ WHERE CAST(JSON_VALUE([r].[RelatedCollection], '$[0].Int') AS int) = 8
                 """
 @i='?' (DbType = Int32)
 
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
-WHERE JSON_VALUE([r].[RelatedCollection], '$[' + CAST(@i AS nvarchar(max)) + '].Int' RETURNING int) = 8
+WHERE JSON_VALUE([r].[AssociateCollection], '$[' + CAST(@i AS nvarchar(max)) + '].Int' RETURNING int) = 8
 """);
         }
         else
@@ -213,9 +213,9 @@ WHERE JSON_VALUE([r].[RelatedCollection], '$[' + CAST(@i AS nvarchar(max)) + '].
                 """
 @i='?' (DbType = Int32)
 
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
-WHERE CAST(JSON_VALUE([r].[RelatedCollection], '$[' + CAST(@i AS nvarchar(max)) + '].Int') AS int) = 8
+WHERE CAST(JSON_VALUE([r].[AssociateCollection], '$[' + CAST(@i AS nvarchar(max)) + '].Int') AS int) = 8
 """);
         }
     }
@@ -228,18 +228,18 @@ WHERE CAST(JSON_VALUE([r].[RelatedCollection], '$[' + CAST(@i AS nvarchar(max)) 
         {
             AssertSql(
                 """
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
-WHERE JSON_VALUE([r].[RelatedCollection], '$[' + CAST([r].[Id] - 1 AS nvarchar(max)) + '].Int' RETURNING int) = 8
+WHERE JSON_VALUE([r].[AssociateCollection], '$[' + CAST([r].[Id] - 1 AS nvarchar(max)) + '].Int' RETURNING int) = 8
 """);
         }
         else
         {
             AssertSql(
                 """
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
-WHERE CAST(JSON_VALUE([r].[RelatedCollection], '$[' + CAST([r].[Id] - 1 AS nvarchar(max)) + '].Int') AS int) = 8
+WHERE CAST(JSON_VALUE([r].[AssociateCollection], '$[' + CAST([r].[Id] - 1 AS nvarchar(max)) + '].Int') AS int) = 8
 """);
         }
     }
@@ -252,18 +252,18 @@ WHERE CAST(JSON_VALUE([r].[RelatedCollection], '$[' + CAST([r].[Id] - 1 AS nvarc
         {
             AssertSql(
                 """
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
-WHERE JSON_VALUE([r].[RelatedCollection], '$[9999].Int' RETURNING int) = 8
+WHERE JSON_VALUE([r].[AssociateCollection], '$[9999].Int' RETURNING int) = 8
 """);
         }
         else
         {
             AssertSql(
                 """
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
-WHERE CAST(JSON_VALUE([r].[RelatedCollection], '$[9999].Int') AS int) = 8
+WHERE CAST(JSON_VALUE([r].[AssociateCollection], '$[9999].Int') AS int) = 8
 """);
         }
     }
@@ -279,15 +279,15 @@ WHERE CAST(JSON_VALUE([r].[RelatedCollection], '$[9999].Int') AS int) = 8
 
         AssertSql(
             """
-SELECT [r].[Id], [r].[Name], [r].[OptionalRelated], [r].[RelatedCollection], [r].[RequiredRelated]
+SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
 WHERE 16 IN (
-    SELECT COALESCE(SUM([r0].[Int]), 0)
-    FROM OPENJSON([r].[RelatedCollection], '$') WITH (
+    SELECT COALESCE(SUM([a].[Int]), 0)
+    FROM OPENJSON([r].[AssociateCollection], '$') WITH (
         [Int] int '$.Int',
         [String] nvarchar(max) '$.String'
-    ) AS [r0]
-    GROUP BY [r0].[String]
+    ) AS [a]
+    GROUP BY [a].[String]
 )
 """);
     }
@@ -304,10 +304,10 @@ WHERE 16 IN (
                 """
 SELECT (
     SELECT COALESCE(SUM([s].[value]), 0)
-    FROM OPENJSON([r].[RelatedCollection], '$') WITH ([NestedCollection] json '$.NestedCollection' AS JSON) AS [r0]
+    FROM OPENJSON([r].[AssociateCollection], '$') WITH ([NestedCollection] json '$.NestedCollection' AS JSON) AS [a]
     OUTER APPLY (
         SELECT MAX([n].[Int]) AS [value]
-        FROM OPENJSON([r0].[NestedCollection], '$') WITH ([Int] int '$.Int') AS [n]
+        FROM OPENJSON([a].[NestedCollection], '$') WITH ([Int] int '$.Int') AS [n]
     ) AS [s])
 FROM [RootEntity] AS [r]
 """);
@@ -318,10 +318,10 @@ FROM [RootEntity] AS [r]
                 """
 SELECT (
     SELECT COALESCE(SUM([s].[value]), 0)
-    FROM OPENJSON([r].[RelatedCollection], '$') WITH ([NestedCollection] nvarchar(max) '$.NestedCollection' AS JSON) AS [r0]
+    FROM OPENJSON([r].[AssociateCollection], '$') WITH ([NestedCollection] nvarchar(max) '$.NestedCollection' AS JSON) AS [a]
     OUTER APPLY (
         SELECT MAX([n].[Int]) AS [value]
-        FROM OPENJSON([r0].[NestedCollection], '$') WITH ([Int] int '$.Int') AS [n]
+        FROM OPENJSON([a].[NestedCollection], '$') WITH ([Int] int '$.Int') AS [n]
     ) AS [s])
 FROM [RootEntity] AS [r]
 """);

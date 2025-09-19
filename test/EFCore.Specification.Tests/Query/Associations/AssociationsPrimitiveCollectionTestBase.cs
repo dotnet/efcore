@@ -8,25 +8,25 @@ public abstract class AssociationsPrimitiveCollectionTestBase<TFixture>(TFixture
 {
     [ConditionalFact]
     public virtual Task Count()
-        => AssertQuery(ss => ss.Set<RootEntity>().Where(e => e.RequiredRelated.Ints.Count == 3));
+        => AssertQuery(ss => ss.Set<RootEntity>().Where(e => e.RequiredAssociate.Ints.Count == 3));
 
     [ConditionalFact]
     public virtual Task Index()
-        => AssertQuery(ss => ss.Set<RootEntity>().Where(e => e.RequiredRelated.Ints[0] == 1));
+        => AssertQuery(ss => ss.Set<RootEntity>().Where(e => e.RequiredAssociate.Ints[0] == 1));
 
     [ConditionalFact]
     public virtual Task Contains()
-        => AssertQuery(ss => ss.Set<RootEntity>().Where(e => e.RequiredRelated.Ints.Contains(3)));
+        => AssertQuery(ss => ss.Set<RootEntity>().Where(e => e.RequiredAssociate.Ints.Contains(3)));
 
     [ConditionalFact]
     public virtual Task Any_predicate()
-        => AssertQuery(ss => ss.Set<RootEntity>().Where(e => e.RequiredRelated.Ints.Any(i => i == 2)));
+        => AssertQuery(ss => ss.Set<RootEntity>().Where(e => e.RequiredAssociate.Ints.Any(i => i == 2)));
 
     [ConditionalFact]
     public virtual Task Nested_Count()
-        => AssertQuery(ss => ss.Set<RootEntity>().Where(e => e.RequiredRelated.RequiredNested.Ints.Count == 3));
+        => AssertQuery(ss => ss.Set<RootEntity>().Where(e => e.RequiredAssociate.RequiredNestedAssociate.Ints.Count == 3));
 
     [ConditionalFact]
     public virtual Task Select_Sum()
-        => AssertQuery(ss => ss.Set<RootEntity>().Select(e => e.RequiredRelated.Ints.Sum()).Where(sum => sum >= 6));
+        => AssertQuery(ss => ss.Set<RootEntity>().Select(e => e.RequiredAssociate.Ints.Sum()).Where(sum => sum >= 6));
 }

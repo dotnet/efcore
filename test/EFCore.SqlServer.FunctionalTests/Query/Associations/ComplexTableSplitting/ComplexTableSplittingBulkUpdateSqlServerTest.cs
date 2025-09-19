@@ -24,16 +24,16 @@ WHERE [r].[Name] = @deletableEntity_Name
 """);
     }
 
-    public override async Task Delete_required_association()
+    public override async Task Delete_required_associate()
     {
-        await base.Delete_required_association();
+        await base.Delete_required_associate();
 
         AssertSql();
     }
 
-    public override async Task Delete_optional_association()
+    public override async Task Delete_optional_associate()
     {
-        await base.Delete_optional_association();
+        await base.Delete_optional_associate();
 
         AssertSql();
     }
@@ -42,71 +42,71 @@ WHERE [r].[Name] = @deletableEntity_Name
 
     #region Update properties
 
-    public override async Task Update_property_inside_association()
+    public override async Task Update_property_inside_associate()
     {
-        await base.Update_property_inside_association();
+        await base.Update_property_inside_associate();
 
         AssertExecuteUpdateSql(
             """
 @p='?' (Size = 4000)
 
 UPDATE [r]
-SET [r].[RequiredRelated_String] = @p
+SET [r].[RequiredAssociate_String] = @p
 FROM [RootEntity] AS [r]
 """);
     }
 
-    public override async Task Update_property_inside_association_with_special_chars()
+    public override async Task Update_property_inside_associate_with_special_chars()
     {
-        await base.Update_property_inside_association_with_special_chars();
+        await base.Update_property_inside_associate_with_special_chars();
 
         AssertExecuteUpdateSql(
             """
 UPDATE [r]
-SET [r].[RequiredRelated_String] = N'{ Some other/JSON:like text though it [isn''t]: ממש ממש לאéèéè }'
+SET [r].[RequiredAssociate_String] = N'{ Some other/JSON:like text though it [isn''t]: ממש ממש לאéèéè }'
 FROM [RootEntity] AS [r]
-WHERE [r].[RequiredRelated_String] = N'{ this may/look:like JSON but it [isn''t]: ממש ממש לאéèéè }'
+WHERE [r].[RequiredAssociate_String] = N'{ this may/look:like JSON but it [isn''t]: ממש ממש לאéèéè }'
 """);
     }
 
-    public override async Task Update_property_inside_nested()
+    public override async Task Update_property_inside_nested_associate()
     {
-        await base.Update_property_inside_nested();
-
-        AssertExecuteUpdateSql(
-            """
-@p='?' (Size = 4000)
-
-UPDATE [r]
-SET [r].[RequiredRelated_RequiredNested_String] = @p
-FROM [RootEntity] AS [r]
-""");
-    }
-
-    public override async Task Update_property_on_projected_association()
-    {
-        await base.Update_property_on_projected_association();
+        await base.Update_property_inside_nested_associate();
 
         AssertExecuteUpdateSql(
             """
 @p='?' (Size = 4000)
 
 UPDATE [r]
-SET [r].[RequiredRelated_String] = @p
+SET [r].[RequiredAssociate_RequiredNestedAssociate_String] = @p
 FROM [RootEntity] AS [r]
 """);
     }
 
-    public override async Task Update_property_on_projected_association_with_OrderBy_Skip()
+    public override async Task Update_property_on_projected_associate()
     {
-        await base.Update_property_on_projected_association_with_OrderBy_Skip();
+        await base.Update_property_on_projected_associate();
+
+        AssertExecuteUpdateSql(
+            """
+@p='?' (Size = 4000)
+
+UPDATE [r]
+SET [r].[RequiredAssociate_String] = @p
+FROM [RootEntity] AS [r]
+""");
+    }
+
+    public override async Task Update_property_on_projected_associate_with_OrderBy_Skip()
+    {
+        await base.Update_property_on_projected_associate_with_OrderBy_Skip();
 
         AssertExecuteUpdateSql();
     }
 
-    public override async Task Update_association_with_null_required_property()
+    public override async Task Update_associate_with_null_required_property()
     {
-        await base.Update_association_with_null_required_property();
+        await base.Update_associate_with_null_required_property();
 
         AssertExecuteUpdateSql();
     }
@@ -115,9 +115,9 @@ FROM [RootEntity] AS [r]
 
     #region Update association
 
-    public override async Task Update_association_to_parameter()
+    public override async Task Update_associate_to_parameter()
     {
-        await base.Update_association_to_parameter();
+        await base.Update_associate_to_parameter();
 
         AssertExecuteUpdateSql(
             """
@@ -126,35 +126,35 @@ FROM [RootEntity] AS [r]
 @complex_type_p_Ints='?' (Size = 4000)
 @complex_type_p_Name='?' (Size = 4000)
 @complex_type_p_String='?' (Size = 4000)
-@complex_type_p_RequiredNested_Id='?' (DbType = Int32)
-@complex_type_p_RequiredNested_Int='?' (DbType = Int32)
-@complex_type_p_RequiredNested_Ints='?' (Size = 4000)
-@complex_type_p_RequiredNested_Name='?' (Size = 4000)
-@complex_type_p_RequiredNested_String='?' (Size = 4000)
+@complex_type_p_RequiredNestedAssociate_Id='?' (DbType = Int32)
+@complex_type_p_RequiredNestedAssociate_Int='?' (DbType = Int32)
+@complex_type_p_RequiredNestedAssociate_Ints='?' (Size = 4000)
+@complex_type_p_RequiredNestedAssociate_Name='?' (Size = 4000)
+@complex_type_p_RequiredNestedAssociate_String='?' (Size = 4000)
 
 UPDATE [r]
-SET [r].[RequiredRelated_Id] = @complex_type_p_Id,
-    [r].[RequiredRelated_Int] = @complex_type_p_Int,
-    [r].[RequiredRelated_Ints] = @complex_type_p_Ints,
-    [r].[RequiredRelated_Name] = @complex_type_p_Name,
-    [r].[RequiredRelated_String] = @complex_type_p_String,
-    [r].[RequiredRelated_OptionalNested_Id] = NULL,
-    [r].[RequiredRelated_OptionalNested_Int] = NULL,
-    [r].[RequiredRelated_OptionalNested_Ints] = NULL,
-    [r].[RequiredRelated_OptionalNested_Name] = NULL,
-    [r].[RequiredRelated_OptionalNested_String] = NULL,
-    [r].[RequiredRelated_RequiredNested_Id] = @complex_type_p_RequiredNested_Id,
-    [r].[RequiredRelated_RequiredNested_Int] = @complex_type_p_RequiredNested_Int,
-    [r].[RequiredRelated_RequiredNested_Ints] = @complex_type_p_RequiredNested_Ints,
-    [r].[RequiredRelated_RequiredNested_Name] = @complex_type_p_RequiredNested_Name,
-    [r].[RequiredRelated_RequiredNested_String] = @complex_type_p_RequiredNested_String
+SET [r].[RequiredAssociate_Id] = @complex_type_p_Id,
+    [r].[RequiredAssociate_Int] = @complex_type_p_Int,
+    [r].[RequiredAssociate_Ints] = @complex_type_p_Ints,
+    [r].[RequiredAssociate_Name] = @complex_type_p_Name,
+    [r].[RequiredAssociate_String] = @complex_type_p_String,
+    [r].[RequiredAssociate_OptionalNestedAssociate_Id] = NULL,
+    [r].[RequiredAssociate_OptionalNestedAssociate_Int] = NULL,
+    [r].[RequiredAssociate_OptionalNestedAssociate_Ints] = NULL,
+    [r].[RequiredAssociate_OptionalNestedAssociate_Name] = NULL,
+    [r].[RequiredAssociate_OptionalNestedAssociate_String] = NULL,
+    [r].[RequiredAssociate_RequiredNestedAssociate_Id] = @complex_type_p_RequiredNestedAssociate_Id,
+    [r].[RequiredAssociate_RequiredNestedAssociate_Int] = @complex_type_p_RequiredNestedAssociate_Int,
+    [r].[RequiredAssociate_RequiredNestedAssociate_Ints] = @complex_type_p_RequiredNestedAssociate_Ints,
+    [r].[RequiredAssociate_RequiredNestedAssociate_Name] = @complex_type_p_RequiredNestedAssociate_Name,
+    [r].[RequiredAssociate_RequiredNestedAssociate_String] = @complex_type_p_RequiredNestedAssociate_String
 FROM [RootEntity] AS [r]
 """);
     }
 
-    public override async Task Update_nested_association_to_parameter()
+    public override async Task Update_nested_associate_to_parameter()
     {
-        await base.Update_nested_association_to_parameter();
+        await base.Update_nested_associate_to_parameter();
 
         AssertExecuteUpdateSql(
             """
@@ -165,60 +165,60 @@ FROM [RootEntity] AS [r]
 @complex_type_p_String='?' (Size = 4000)
 
 UPDATE [r]
-SET [r].[RequiredRelated_RequiredNested_Id] = @complex_type_p_Id,
-    [r].[RequiredRelated_RequiredNested_Int] = @complex_type_p_Int,
-    [r].[RequiredRelated_RequiredNested_Ints] = @complex_type_p_Ints,
-    [r].[RequiredRelated_RequiredNested_Name] = @complex_type_p_Name,
-    [r].[RequiredRelated_RequiredNested_String] = @complex_type_p_String
+SET [r].[RequiredAssociate_RequiredNestedAssociate_Id] = @complex_type_p_Id,
+    [r].[RequiredAssociate_RequiredNestedAssociate_Int] = @complex_type_p_Int,
+    [r].[RequiredAssociate_RequiredNestedAssociate_Ints] = @complex_type_p_Ints,
+    [r].[RequiredAssociate_RequiredNestedAssociate_Name] = @complex_type_p_Name,
+    [r].[RequiredAssociate_RequiredNestedAssociate_String] = @complex_type_p_String
 FROM [RootEntity] AS [r]
 """);
     }
 
-    public override async Task Update_association_to_another_association()
+    public override async Task Update_associate_to_another_associate()
     {
-        await base.Update_association_to_another_association();
+        await base.Update_associate_to_another_associate();
 
         AssertExecuteUpdateSql(
             """
 UPDATE [r]
-SET [r].[OptionalRelated_Id] = [r].[RequiredRelated_Id],
-    [r].[OptionalRelated_Int] = [r].[RequiredRelated_Int],
-    [r].[OptionalRelated_Ints] = [r].[RequiredRelated_Ints],
-    [r].[OptionalRelated_Name] = [r].[RequiredRelated_Name],
-    [r].[OptionalRelated_String] = [r].[RequiredRelated_String],
-    [r].[OptionalRelated_OptionalNested_Id] = [r].[OptionalRelated_OptionalNested_Id],
-    [r].[OptionalRelated_OptionalNested_Int] = [r].[OptionalRelated_OptionalNested_Int],
-    [r].[OptionalRelated_OptionalNested_Ints] = [r].[OptionalRelated_OptionalNested_Ints],
-    [r].[OptionalRelated_OptionalNested_Name] = [r].[OptionalRelated_OptionalNested_Name],
-    [r].[OptionalRelated_OptionalNested_String] = [r].[OptionalRelated_OptionalNested_String],
-    [r].[OptionalRelated_RequiredNested_Id] = [r].[OptionalRelated_RequiredNested_Id],
-    [r].[OptionalRelated_RequiredNested_Int] = [r].[OptionalRelated_RequiredNested_Int],
-    [r].[OptionalRelated_RequiredNested_Ints] = [r].[OptionalRelated_RequiredNested_Ints],
-    [r].[OptionalRelated_RequiredNested_Name] = [r].[OptionalRelated_RequiredNested_Name],
-    [r].[OptionalRelated_RequiredNested_String] = [r].[OptionalRelated_RequiredNested_String]
+SET [r].[OptionalAssociate_Id] = [r].[RequiredAssociate_Id],
+    [r].[OptionalAssociate_Int] = [r].[RequiredAssociate_Int],
+    [r].[OptionalAssociate_Ints] = [r].[RequiredAssociate_Ints],
+    [r].[OptionalAssociate_Name] = [r].[RequiredAssociate_Name],
+    [r].[OptionalAssociate_String] = [r].[RequiredAssociate_String],
+    [r].[OptionalAssociate_OptionalNestedAssociate_Id] = [r].[OptionalAssociate_OptionalNestedAssociate_Id],
+    [r].[OptionalAssociate_OptionalNestedAssociate_Int] = [r].[OptionalAssociate_OptionalNestedAssociate_Int],
+    [r].[OptionalAssociate_OptionalNestedAssociate_Ints] = [r].[OptionalAssociate_OptionalNestedAssociate_Ints],
+    [r].[OptionalAssociate_OptionalNestedAssociate_Name] = [r].[OptionalAssociate_OptionalNestedAssociate_Name],
+    [r].[OptionalAssociate_OptionalNestedAssociate_String] = [r].[OptionalAssociate_OptionalNestedAssociate_String],
+    [r].[OptionalAssociate_RequiredNestedAssociate_Id] = [r].[OptionalAssociate_RequiredNestedAssociate_Id],
+    [r].[OptionalAssociate_RequiredNestedAssociate_Int] = [r].[OptionalAssociate_RequiredNestedAssociate_Int],
+    [r].[OptionalAssociate_RequiredNestedAssociate_Ints] = [r].[OptionalAssociate_RequiredNestedAssociate_Ints],
+    [r].[OptionalAssociate_RequiredNestedAssociate_Name] = [r].[OptionalAssociate_RequiredNestedAssociate_Name],
+    [r].[OptionalAssociate_RequiredNestedAssociate_String] = [r].[OptionalAssociate_RequiredNestedAssociate_String]
 FROM [RootEntity] AS [r]
 """);
     }
 
-    public override async Task Update_nested_association_to_another_nested_association()
+    public override async Task Update_nested_associate_to_another_nested_associate()
     {
-        await base.Update_nested_association_to_another_nested_association();
+        await base.Update_nested_associate_to_another_nested_associate();
 
         AssertExecuteUpdateSql(
             """
 UPDATE [r]
-SET [r].[RequiredRelated_OptionalNested_Id] = [r].[RequiredRelated_RequiredNested_Id],
-    [r].[RequiredRelated_OptionalNested_Int] = [r].[RequiredRelated_RequiredNested_Int],
-    [r].[RequiredRelated_OptionalNested_Ints] = [r].[RequiredRelated_RequiredNested_Ints],
-    [r].[RequiredRelated_OptionalNested_Name] = [r].[RequiredRelated_RequiredNested_Name],
-    [r].[RequiredRelated_OptionalNested_String] = [r].[RequiredRelated_RequiredNested_String]
+SET [r].[RequiredAssociate_OptionalNestedAssociate_Id] = [r].[RequiredAssociate_RequiredNestedAssociate_Id],
+    [r].[RequiredAssociate_OptionalNestedAssociate_Int] = [r].[RequiredAssociate_RequiredNestedAssociate_Int],
+    [r].[RequiredAssociate_OptionalNestedAssociate_Ints] = [r].[RequiredAssociate_RequiredNestedAssociate_Ints],
+    [r].[RequiredAssociate_OptionalNestedAssociate_Name] = [r].[RequiredAssociate_RequiredNestedAssociate_Name],
+    [r].[RequiredAssociate_OptionalNestedAssociate_String] = [r].[RequiredAssociate_RequiredNestedAssociate_String]
 FROM [RootEntity] AS [r]
 """);
     }
 
-    public override async Task Update_association_to_inline()
+    public override async Task Update_associate_to_inline()
     {
-        await base.Update_association_to_inline();
+        await base.Update_associate_to_inline();
 
         AssertExecuteUpdateSql(
             """
@@ -227,155 +227,155 @@ FROM [RootEntity] AS [r]
 @complex_type_p_Ints='?' (Size = 4000)
 @complex_type_p_Name='?' (Size = 4000)
 @complex_type_p_String='?' (Size = 4000)
-@complex_type_p_RequiredNested_Id='?' (DbType = Int32)
-@complex_type_p_RequiredNested_Int='?' (DbType = Int32)
-@complex_type_p_RequiredNested_Ints='?' (Size = 4000)
-@complex_type_p_RequiredNested_Name='?' (Size = 4000)
-@complex_type_p_RequiredNested_String='?' (Size = 4000)
+@complex_type_p_RequiredNestedAssociate_Id='?' (DbType = Int32)
+@complex_type_p_RequiredNestedAssociate_Int='?' (DbType = Int32)
+@complex_type_p_RequiredNestedAssociate_Ints='?' (Size = 4000)
+@complex_type_p_RequiredNestedAssociate_Name='?' (Size = 4000)
+@complex_type_p_RequiredNestedAssociate_String='?' (Size = 4000)
 
 UPDATE [r]
-SET [r].[RequiredRelated_Id] = @complex_type_p_Id,
-    [r].[RequiredRelated_Int] = @complex_type_p_Int,
-    [r].[RequiredRelated_Ints] = @complex_type_p_Ints,
-    [r].[RequiredRelated_Name] = @complex_type_p_Name,
-    [r].[RequiredRelated_String] = @complex_type_p_String,
-    [r].[RequiredRelated_OptionalNested_Id] = NULL,
-    [r].[RequiredRelated_OptionalNested_Int] = NULL,
-    [r].[RequiredRelated_OptionalNested_Ints] = NULL,
-    [r].[RequiredRelated_OptionalNested_Name] = NULL,
-    [r].[RequiredRelated_OptionalNested_String] = NULL,
-    [r].[RequiredRelated_RequiredNested_Id] = @complex_type_p_RequiredNested_Id,
-    [r].[RequiredRelated_RequiredNested_Int] = @complex_type_p_RequiredNested_Int,
-    [r].[RequiredRelated_RequiredNested_Ints] = @complex_type_p_RequiredNested_Ints,
-    [r].[RequiredRelated_RequiredNested_Name] = @complex_type_p_RequiredNested_Name,
-    [r].[RequiredRelated_RequiredNested_String] = @complex_type_p_RequiredNested_String
+SET [r].[RequiredAssociate_Id] = @complex_type_p_Id,
+    [r].[RequiredAssociate_Int] = @complex_type_p_Int,
+    [r].[RequiredAssociate_Ints] = @complex_type_p_Ints,
+    [r].[RequiredAssociate_Name] = @complex_type_p_Name,
+    [r].[RequiredAssociate_String] = @complex_type_p_String,
+    [r].[RequiredAssociate_OptionalNestedAssociate_Id] = NULL,
+    [r].[RequiredAssociate_OptionalNestedAssociate_Int] = NULL,
+    [r].[RequiredAssociate_OptionalNestedAssociate_Ints] = NULL,
+    [r].[RequiredAssociate_OptionalNestedAssociate_Name] = NULL,
+    [r].[RequiredAssociate_OptionalNestedAssociate_String] = NULL,
+    [r].[RequiredAssociate_RequiredNestedAssociate_Id] = @complex_type_p_RequiredNestedAssociate_Id,
+    [r].[RequiredAssociate_RequiredNestedAssociate_Int] = @complex_type_p_RequiredNestedAssociate_Int,
+    [r].[RequiredAssociate_RequiredNestedAssociate_Ints] = @complex_type_p_RequiredNestedAssociate_Ints,
+    [r].[RequiredAssociate_RequiredNestedAssociate_Name] = @complex_type_p_RequiredNestedAssociate_Name,
+    [r].[RequiredAssociate_RequiredNestedAssociate_String] = @complex_type_p_RequiredNestedAssociate_String
 FROM [RootEntity] AS [r]
 """);
     }
 
-    public override async Task Update_association_to_inline_with_lambda()
+    public override async Task Update_associate_to_inline_with_lambda()
     {
-        await base.Update_association_to_inline_with_lambda();
+        await base.Update_associate_to_inline_with_lambda();
 
         AssertExecuteUpdateSql(
             """
 UPDATE [r]
-SET [r].[RequiredRelated_Id] = 1000,
-    [r].[RequiredRelated_Int] = 70,
-    [r].[RequiredRelated_Ints] = N'[1,2,4]',
-    [r].[RequiredRelated_Name] = N'Updated related name',
-    [r].[RequiredRelated_String] = N'Updated related string',
-    [r].[RequiredRelated_OptionalNested_Id] = NULL,
-    [r].[RequiredRelated_OptionalNested_Int] = NULL,
-    [r].[RequiredRelated_OptionalNested_Ints] = NULL,
-    [r].[RequiredRelated_OptionalNested_Name] = NULL,
-    [r].[RequiredRelated_OptionalNested_String] = NULL,
-    [r].[RequiredRelated_RequiredNested_Id] = 1000,
-    [r].[RequiredRelated_RequiredNested_Int] = 80,
-    [r].[RequiredRelated_RequiredNested_Ints] = N'[1,2,4]',
-    [r].[RequiredRelated_RequiredNested_Name] = N'Updated nested name',
-    [r].[RequiredRelated_RequiredNested_String] = N'Updated nested string'
+SET [r].[RequiredAssociate_Id] = 1000,
+    [r].[RequiredAssociate_Int] = 70,
+    [r].[RequiredAssociate_Ints] = N'[1,2,4]',
+    [r].[RequiredAssociate_Name] = N'Updated associate name',
+    [r].[RequiredAssociate_String] = N'Updated associate string',
+    [r].[RequiredAssociate_OptionalNestedAssociate_Id] = NULL,
+    [r].[RequiredAssociate_OptionalNestedAssociate_Int] = NULL,
+    [r].[RequiredAssociate_OptionalNestedAssociate_Ints] = NULL,
+    [r].[RequiredAssociate_OptionalNestedAssociate_Name] = NULL,
+    [r].[RequiredAssociate_OptionalNestedAssociate_String] = NULL,
+    [r].[RequiredAssociate_RequiredNestedAssociate_Id] = 1000,
+    [r].[RequiredAssociate_RequiredNestedAssociate_Int] = 80,
+    [r].[RequiredAssociate_RequiredNestedAssociate_Ints] = N'[1,2,4]',
+    [r].[RequiredAssociate_RequiredNestedAssociate_Name] = N'Updated nested name',
+    [r].[RequiredAssociate_RequiredNestedAssociate_String] = N'Updated nested string'
 FROM [RootEntity] AS [r]
 """);
     }
 
-    public override async Task Update_nested_association_to_inline_with_lambda()
+    public override async Task Update_nested_associate_to_inline_with_lambda()
     {
-        await base.Update_nested_association_to_inline_with_lambda();
+        await base.Update_nested_associate_to_inline_with_lambda();
 
         AssertExecuteUpdateSql(
             """
 UPDATE [r]
-SET [r].[RequiredRelated_RequiredNested_Id] = 1000,
-    [r].[RequiredRelated_RequiredNested_Int] = 80,
-    [r].[RequiredRelated_RequiredNested_Ints] = N'[1,2,4]',
-    [r].[RequiredRelated_RequiredNested_Name] = N'Updated nested name',
-    [r].[RequiredRelated_RequiredNested_String] = N'Updated nested string'
+SET [r].[RequiredAssociate_RequiredNestedAssociate_Id] = 1000,
+    [r].[RequiredAssociate_RequiredNestedAssociate_Int] = 80,
+    [r].[RequiredAssociate_RequiredNestedAssociate_Ints] = N'[1,2,4]',
+    [r].[RequiredAssociate_RequiredNestedAssociate_Name] = N'Updated nested name',
+    [r].[RequiredAssociate_RequiredNestedAssociate_String] = N'Updated nested string'
 FROM [RootEntity] AS [r]
 """);
     }
 
-    public override async Task Update_association_to_null()
+    public override async Task Update_associate_to_null()
     {
-        await base.Update_association_to_null();
+        await base.Update_associate_to_null();
 
         AssertExecuteUpdateSql(
             """
 UPDATE [r]
-SET [r].[OptionalRelated_Id] = NULL,
-    [r].[OptionalRelated_Int] = NULL,
-    [r].[OptionalRelated_Ints] = NULL,
-    [r].[OptionalRelated_Name] = NULL,
-    [r].[OptionalRelated_String] = NULL,
-    [r].[OptionalRelated_OptionalNested_Id] = NULL,
-    [r].[OptionalRelated_OptionalNested_Int] = NULL,
-    [r].[OptionalRelated_OptionalNested_Ints] = NULL,
-    [r].[OptionalRelated_OptionalNested_Name] = NULL,
-    [r].[OptionalRelated_OptionalNested_String] = NULL,
-    [r].[OptionalRelated_RequiredNested_Id] = NULL,
-    [r].[OptionalRelated_RequiredNested_Int] = NULL,
-    [r].[OptionalRelated_RequiredNested_Ints] = NULL,
-    [r].[OptionalRelated_RequiredNested_Name] = NULL,
-    [r].[OptionalRelated_RequiredNested_String] = NULL
+SET [r].[OptionalAssociate_Id] = NULL,
+    [r].[OptionalAssociate_Int] = NULL,
+    [r].[OptionalAssociate_Ints] = NULL,
+    [r].[OptionalAssociate_Name] = NULL,
+    [r].[OptionalAssociate_String] = NULL,
+    [r].[OptionalAssociate_OptionalNestedAssociate_Id] = NULL,
+    [r].[OptionalAssociate_OptionalNestedAssociate_Int] = NULL,
+    [r].[OptionalAssociate_OptionalNestedAssociate_Ints] = NULL,
+    [r].[OptionalAssociate_OptionalNestedAssociate_Name] = NULL,
+    [r].[OptionalAssociate_OptionalNestedAssociate_String] = NULL,
+    [r].[OptionalAssociate_RequiredNestedAssociate_Id] = NULL,
+    [r].[OptionalAssociate_RequiredNestedAssociate_Int] = NULL,
+    [r].[OptionalAssociate_RequiredNestedAssociate_Ints] = NULL,
+    [r].[OptionalAssociate_RequiredNestedAssociate_Name] = NULL,
+    [r].[OptionalAssociate_RequiredNestedAssociate_String] = NULL
 FROM [RootEntity] AS [r]
 """);
     }
 
-    public override async Task Update_association_to_null_with_lambda()
+    public override async Task Update_associate_to_null_with_lambda()
     {
-        await base.Update_association_to_null_with_lambda();
+        await base.Update_associate_to_null_with_lambda();
 
         AssertExecuteUpdateSql(
             """
 UPDATE [r]
-SET [r].[OptionalRelated_Id] = NULL,
-    [r].[OptionalRelated_Int] = NULL,
-    [r].[OptionalRelated_Ints] = NULL,
-    [r].[OptionalRelated_Name] = NULL,
-    [r].[OptionalRelated_String] = NULL,
-    [r].[OptionalRelated_OptionalNested_Id] = NULL,
-    [r].[OptionalRelated_OptionalNested_Int] = NULL,
-    [r].[OptionalRelated_OptionalNested_Ints] = NULL,
-    [r].[OptionalRelated_OptionalNested_Name] = NULL,
-    [r].[OptionalRelated_OptionalNested_String] = NULL,
-    [r].[OptionalRelated_RequiredNested_Id] = NULL,
-    [r].[OptionalRelated_RequiredNested_Int] = NULL,
-    [r].[OptionalRelated_RequiredNested_Ints] = NULL,
-    [r].[OptionalRelated_RequiredNested_Name] = NULL,
-    [r].[OptionalRelated_RequiredNested_String] = NULL
+SET [r].[OptionalAssociate_Id] = NULL,
+    [r].[OptionalAssociate_Int] = NULL,
+    [r].[OptionalAssociate_Ints] = NULL,
+    [r].[OptionalAssociate_Name] = NULL,
+    [r].[OptionalAssociate_String] = NULL,
+    [r].[OptionalAssociate_OptionalNestedAssociate_Id] = NULL,
+    [r].[OptionalAssociate_OptionalNestedAssociate_Int] = NULL,
+    [r].[OptionalAssociate_OptionalNestedAssociate_Ints] = NULL,
+    [r].[OptionalAssociate_OptionalNestedAssociate_Name] = NULL,
+    [r].[OptionalAssociate_OptionalNestedAssociate_String] = NULL,
+    [r].[OptionalAssociate_RequiredNestedAssociate_Id] = NULL,
+    [r].[OptionalAssociate_RequiredNestedAssociate_Int] = NULL,
+    [r].[OptionalAssociate_RequiredNestedAssociate_Ints] = NULL,
+    [r].[OptionalAssociate_RequiredNestedAssociate_Name] = NULL,
+    [r].[OptionalAssociate_RequiredNestedAssociate_String] = NULL
 FROM [RootEntity] AS [r]
 """);
     }
 
-    public override async Task Update_association_to_null_parameter()
+    public override async Task Update_associate_to_null_parameter()
     {
-        await base.Update_association_to_null_parameter();
+        await base.Update_associate_to_null_parameter();
 
         AssertExecuteUpdateSql(
             """
 UPDATE [r]
-SET [r].[OptionalRelated_Id] = NULL,
-    [r].[OptionalRelated_Int] = NULL,
-    [r].[OptionalRelated_Ints] = NULL,
-    [r].[OptionalRelated_Name] = NULL,
-    [r].[OptionalRelated_String] = NULL,
-    [r].[OptionalRelated_OptionalNested_Id] = NULL,
-    [r].[OptionalRelated_OptionalNested_Int] = NULL,
-    [r].[OptionalRelated_OptionalNested_Ints] = NULL,
-    [r].[OptionalRelated_OptionalNested_Name] = NULL,
-    [r].[OptionalRelated_OptionalNested_String] = NULL,
-    [r].[OptionalRelated_RequiredNested_Id] = NULL,
-    [r].[OptionalRelated_RequiredNested_Int] = NULL,
-    [r].[OptionalRelated_RequiredNested_Ints] = NULL,
-    [r].[OptionalRelated_RequiredNested_Name] = NULL,
-    [r].[OptionalRelated_RequiredNested_String] = NULL
+SET [r].[OptionalAssociate_Id] = NULL,
+    [r].[OptionalAssociate_Int] = NULL,
+    [r].[OptionalAssociate_Ints] = NULL,
+    [r].[OptionalAssociate_Name] = NULL,
+    [r].[OptionalAssociate_String] = NULL,
+    [r].[OptionalAssociate_OptionalNestedAssociate_Id] = NULL,
+    [r].[OptionalAssociate_OptionalNestedAssociate_Int] = NULL,
+    [r].[OptionalAssociate_OptionalNestedAssociate_Ints] = NULL,
+    [r].[OptionalAssociate_OptionalNestedAssociate_Name] = NULL,
+    [r].[OptionalAssociate_OptionalNestedAssociate_String] = NULL,
+    [r].[OptionalAssociate_RequiredNestedAssociate_Id] = NULL,
+    [r].[OptionalAssociate_RequiredNestedAssociate_Int] = NULL,
+    [r].[OptionalAssociate_RequiredNestedAssociate_Ints] = NULL,
+    [r].[OptionalAssociate_RequiredNestedAssociate_Name] = NULL,
+    [r].[OptionalAssociate_RequiredNestedAssociate_String] = NULL
 FROM [RootEntity] AS [r]
 """);
     }
 
-    public override async Task Update_association_with_null_required_nested_association()
+    public override async Task Update_required_nested_associate_to_null()
     {
-        await base.Update_association_with_null_required_nested_association();
+        await base.Update_required_nested_associate_to_null();
 
         AssertExecuteUpdateSql();
     }
@@ -437,7 +437,7 @@ FROM [RootEntity] AS [r]
         AssertExecuteUpdateSql(
             """
 UPDATE [r]
-SET [r].[RequiredRelated_Ints] = N'[1,2,4]'
+SET [r].[RequiredAssociate_Ints] = N'[1,2,4]'
 FROM [RootEntity] AS [r]
 """);
     }
@@ -451,7 +451,7 @@ FROM [RootEntity] AS [r]
 @ints='?' (Size = 4000)
 
 UPDATE [r]
-SET [r].[RequiredRelated_Ints] = @ints
+SET [r].[RequiredAssociate_Ints] = @ints
 FROM [RootEntity] AS [r]
 """);
     }
@@ -463,7 +463,7 @@ FROM [RootEntity] AS [r]
         AssertExecuteUpdateSql(
             """
 UPDATE [r]
-SET [r].[RequiredRelated_OptionalNested_Ints] = [r].[RequiredRelated_RequiredNested_Ints]
+SET [r].[RequiredAssociate_OptionalNestedAssociate_Ints] = [r].[RequiredAssociate_RequiredNestedAssociate_Ints]
 FROM [RootEntity] AS [r]
 """);
     }
@@ -477,11 +477,11 @@ FROM [RootEntity] AS [r]
 @p='?' (DbType = Int32)
 
 UPDATE [r]
-SET [r].[RequiredRelated_Ints] = JSON_MODIFY([r].[RequiredRelated_Ints], '$[1]', @p)
+SET [r].[RequiredAssociate_Ints] = JSON_MODIFY([r].[RequiredAssociate_Ints], '$[1]', @p)
 FROM [RootEntity] AS [r]
 WHERE (
     SELECT COUNT(*)
-    FROM OPENJSON([r].[RequiredRelated_Ints]) AS [r0]) >= 2
+    FROM OPENJSON([r].[RequiredAssociate_Ints]) AS [r0]) >= 2
 """);
     }
 
@@ -489,9 +489,9 @@ WHERE (
 
     #region Multiple updates
 
-    public override async Task Update_multiple_properties_inside_same_association()
+    public override async Task Update_multiple_properties_inside_same_associate()
     {
-        await base.Update_multiple_properties_inside_same_association();
+        await base.Update_multiple_properties_inside_same_associate();
 
         AssertExecuteUpdateSql(
             """
@@ -499,15 +499,15 @@ WHERE (
 @p0='?' (DbType = Int32)
 
 UPDATE [r]
-SET [r].[RequiredRelated_String] = @p,
-    [r].[RequiredRelated_Int] = @p0
+SET [r].[RequiredAssociate_String] = @p,
+    [r].[RequiredAssociate_Int] = @p0
 FROM [RootEntity] AS [r]
 """);
     }
 
-    public override async Task Update_multiple_properties_inside_associations_and_on_entity_type()
+    public override async Task Update_multiple_properties_inside_associates_and_on_entity_type()
     {
-        await base.Update_multiple_properties_inside_associations_and_on_entity_type();
+        await base.Update_multiple_properties_inside_associates_and_on_entity_type();
 
         AssertExecuteUpdateSql(
             """
@@ -515,26 +515,26 @@ FROM [RootEntity] AS [r]
 
 UPDATE [r]
 SET [r].[Name] = [r].[Name] + N'Modified',
-    [r].[RequiredRelated_String] = [r].[OptionalRelated_String],
-    [r].[OptionalRelated_RequiredNested_String] = @p
+    [r].[RequiredAssociate_String] = [r].[OptionalAssociate_String],
+    [r].[OptionalAssociate_RequiredNestedAssociate_String] = @p
 FROM [RootEntity] AS [r]
-WHERE [r].[OptionalRelated_Id] IS NOT NULL
+WHERE [r].[OptionalAssociate_Id] IS NOT NULL
 """);
     }
 
-    public override async Task Update_multiple_projected_associations_via_anonymous_type()
+    public override async Task Update_multiple_projected_associates_via_anonymous_type()
     {
-        await base.Update_multiple_projected_associations_via_anonymous_type();
+        await base.Update_multiple_projected_associates_via_anonymous_type();
 
         AssertExecuteUpdateSql(
             """
 @p='?' (Size = 4000)
 
 UPDATE [r]
-SET [r].[RequiredRelated_String] = [r].[OptionalRelated_String],
-    [r].[OptionalRelated_String] = @p
+SET [r].[RequiredAssociate_String] = [r].[OptionalAssociate_String],
+    [r].[OptionalAssociate_String] = @p
 FROM [RootEntity] AS [r]
-WHERE [r].[OptionalRelated_Id] IS NOT NULL
+WHERE [r].[OptionalAssociate_Id] IS NOT NULL
 """);
     }
 
