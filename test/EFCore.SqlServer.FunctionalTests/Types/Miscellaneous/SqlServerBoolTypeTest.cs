@@ -209,8 +209,6 @@ FROM [JsonTypeEntity] AS [j]
     {
         public override bool Value { get; } = true;
         public override bool OtherValue { get; } = false;
-
-        protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
     }
 
     [ConditionalFact]

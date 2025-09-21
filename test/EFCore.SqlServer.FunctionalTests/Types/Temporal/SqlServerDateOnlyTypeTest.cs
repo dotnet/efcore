@@ -209,8 +209,6 @@ FROM [JsonTypeEntity] AS [j]
     {
         public override DateOnly Value { get; } = new DateOnly(2020, 1, 5);
         public override DateOnly OtherValue { get; } = new DateOnly(2022, 5, 3);
-
-        protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
     }
 
     [ConditionalFact]

@@ -209,7 +209,5 @@ FROM [JsonTypeEntity] AS [j]
     {
         public override int Value { get; } = int.MinValue;
         public override int OtherValue { get; } = int.MaxValue;
-
-        protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
     }
 }

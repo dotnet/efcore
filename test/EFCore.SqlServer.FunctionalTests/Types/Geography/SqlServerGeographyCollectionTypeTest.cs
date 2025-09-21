@@ -203,7 +203,7 @@ FROM [JsonTypeEntity] AS [j]
 
     #endregion JSON
 
-    public class GeographyCollectionTypeFixture() : GeographyTypeFixture
+    public class GeographyCollectionTypeFixture : SqlServerGeographyTypeFixture
     {
         public override GeometryCollection Value { get; } = new(
         [

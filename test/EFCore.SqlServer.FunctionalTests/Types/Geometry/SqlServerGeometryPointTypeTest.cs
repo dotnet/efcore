@@ -195,7 +195,7 @@ FROM [JsonTypeEntity] AS [j]
 
     #endregion JSON
 
-    public class PointTypeFixture() : GeometryTypeFixture
+    public class PointTypeFixture : GeometryTypeFixture
     {
         public override Point Value { get; } = new(10, 20);
         public override Point OtherValue { get; } = new(30, 40);

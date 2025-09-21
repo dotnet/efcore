@@ -198,8 +198,6 @@ FROM [JsonTypeEntity] AS [j]
         public override Guid Value { get; } = new("8f7331d6-cde9-44fb-8611-81fff686f280");
         public override Guid OtherValue { get; } = new("ae192c36-9004-49b2-b785-8be10d169627");
 
-        protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
-
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => TestEnvironment.SetCompatibilityLevelFromEnvironment(base.AddOptions(builder));
     }

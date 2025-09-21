@@ -203,7 +203,7 @@ FROM [JsonTypeEntity] AS [j]
 
     #endregion JSON
 
-    public class MultiPointTypeFixture() : GeometryTypeFixture
+    public class MultiPointTypeFixture : GeometryTypeFixture
     {
         public override MultiPoint Value { get; } = new MultiPoint(
         [

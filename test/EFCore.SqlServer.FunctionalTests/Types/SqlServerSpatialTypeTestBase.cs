@@ -8,7 +8,7 @@ using static System.Linq.Expressions.Expression;
 public abstract class SqlServerSpatialTypeTestBase<T, TFixture>(TFixture fixture, ITestOutputHelper testOutputHelper)
     : RelationalTypeTestBase<T, TFixture>(fixture, testOutputHelper)
     where T : NetTopologySuite.Geometries.Geometry
-    where TFixture : SqlServerSpatialTypeTestBase<T, TFixture>.SpatialTypeFixture
+    where TFixture : SqlServerSpatialTypeTestBase<T, TFixture>.SqlServerSpatialTypeFixture
 {
     private static readonly MethodInfo EqualsTopologicallyMethod =
         typeof(NetTopologySuite.Geometries.Geometry).GetMethod(
@@ -58,12 +58,10 @@ public abstract class SqlServerSpatialTypeTestBase<T, TFixture>(TFixture fixture
         Assert.Equal(Fixture.Value, result.JsonContainer.Value, Fixture.Comparer);
     }
 
-    public abstract class SpatialTypeFixture : SqlServerTypeFixture<T>
+    public abstract class SqlServerSpatialTypeFixture : SqlServerTypeFixture<T>
     {
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => base.AddOptions(builder).UseSqlServer(o => o.UseNetTopologySuite());
-
-        protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
     }
 }
 

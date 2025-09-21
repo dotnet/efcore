@@ -209,8 +209,6 @@ FROM [JsonTypeEntity] AS [j]
     {
         public override TimeSpan Value { get; } = new TimeSpan(12, 30, 45);
         public override TimeSpan OtherValue { get; } = new TimeSpan(14, 0, 0);
-
-        protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
     }
 
     [ConditionalFact]

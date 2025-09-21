@@ -210,8 +210,6 @@ FROM [JsonTypeEntity] AS [j]
         public override decimal Value { get; } = 30.5m;
         public override decimal OtherValue { get; } = 30m;
 
-        protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
-
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => base.AddOptions(builder)
                 .ConfigureWarnings(c => c.Log(SqlServerEventId.DecimalTypeDefaultWarning));

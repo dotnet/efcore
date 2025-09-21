@@ -10,7 +10,7 @@ public abstract class SqlServerGeometryTypeTestBase<T, TFixture>(TFixture fixtur
     where T : Geometry
     where TFixture : SqlServerGeometryTypeTestBase<T, TFixture>.GeometryTypeFixture
 {
-    public abstract class GeometryTypeFixture : SpatialTypeFixture
+    public abstract class GeometryTypeFixture : SqlServerSpatialTypeFixture
     {
         public override string? StoreType => "geometry";
     }
