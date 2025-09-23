@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
+
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 
 /// <summary>
@@ -17,29 +19,30 @@ public class SqlServerMethodCallTranslatorProvider : RelationalMethodCallTransla
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public SqlServerMethodCallTranslatorProvider(RelationalMethodCallTranslatorProviderDependencies dependencies)
+    public SqlServerMethodCallTranslatorProvider(
+        RelationalMethodCallTranslatorProviderDependencies dependencies,
+        ISqlServerSingletonOptions sqlServerSingletonOptions)
         : base(dependencies)
     {
         var sqlExpressionFactory = dependencies.SqlExpressionFactory;
         var typeMappingSource = dependencies.RelationalTypeMappingSource;
         AddTranslators(
-            new IMethodCallTranslator[]
-            {
-                new SqlServerByteArrayMethodTranslator(sqlExpressionFactory),
-                new SqlServerConvertTranslator(sqlExpressionFactory),
-                new SqlServerDataLengthFunctionTranslator(sqlExpressionFactory),
-                new SqlServerDateDiffFunctionsTranslator(sqlExpressionFactory),
-                new SqlServerDateOnlyMethodTranslator(sqlExpressionFactory),
-                new SqlServerDateTimeMethodTranslator(sqlExpressionFactory, typeMappingSource),
-                new SqlServerFromPartsFunctionTranslator(sqlExpressionFactory, typeMappingSource),
-                new SqlServerFullTextSearchFunctionsTranslator(sqlExpressionFactory),
-                new SqlServerIsDateFunctionTranslator(sqlExpressionFactory),
-                new SqlServerIsNumericFunctionTranslator(sqlExpressionFactory),
-                new SqlServerMathTranslator(sqlExpressionFactory),
-                new SqlServerNewGuidTranslator(sqlExpressionFactory),
-                new SqlServerObjectToStringTranslator(sqlExpressionFactory),
-                new SqlServerStringMethodTranslator(sqlExpressionFactory),
-                new SqlServerTimeOnlyMethodTranslator(sqlExpressionFactory)
-            });
+        [
+            new SqlServerByteArrayMethodTranslator(sqlExpressionFactory),
+            new SqlServerConvertTranslator(sqlExpressionFactory),
+            new SqlServerDataLengthFunctionTranslator(sqlExpressionFactory),
+            new SqlServerDateDiffFunctionsTranslator(sqlExpressionFactory),
+            new SqlServerDateOnlyMethodTranslator(sqlExpressionFactory),
+            new SqlServerDateTimeMethodTranslator(sqlExpressionFactory, typeMappingSource),
+            new SqlServerFromPartsFunctionTranslator(sqlExpressionFactory, typeMappingSource),
+            new SqlServerFullTextSearchFunctionsTranslator(sqlExpressionFactory),
+            new SqlServerIsDateFunctionTranslator(sqlExpressionFactory),
+            new SqlServerIsNumericFunctionTranslator(sqlExpressionFactory),
+            new SqlServerMathTranslator(sqlExpressionFactory),
+            new SqlServerNewGuidTranslator(sqlExpressionFactory),
+            new SqlServerObjectToStringTranslator(sqlExpressionFactory, typeMappingSource),
+            new SqlServerStringMethodTranslator(sqlExpressionFactory, sqlServerSingletonOptions),
+            new SqlServerTimeOnlyMethodTranslator(sqlExpressionFactory)
+        ]);
     }
 }
