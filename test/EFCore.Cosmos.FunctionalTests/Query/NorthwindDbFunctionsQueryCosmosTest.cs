@@ -52,34 +52,6 @@ public class NorthwindDbFunctionsQueryCosmosTest : NorthwindDbFunctionsQueryTest
         AssertSql();
     }
 
-    public override Task Random_return_less_than_1(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Random_return_less_than_1(async);
-
-                AssertSql(
-                    """
-SELECT VALUE COUNT(1)
-FROM root c
-WHERE ((c["$type"] = "Order") AND (RAND() < 1.0))
-""");
-            });
-
-    public override Task Random_return_greater_than_0(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Random_return_greater_than_0(async);
-
-                AssertSql(
-                    """
-SELECT VALUE COUNT(1)
-FROM root c
-WHERE ((c["$type"] = "Order") AND (RAND() >= 0.0))
-""");
-            });
-
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

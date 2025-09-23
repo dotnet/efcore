@@ -4,7 +4,7 @@
   <metadata>
     $CommonMetadataElements$
     <dependencies>
-      <group targetFramework=".NET8.0">
+      <group targetFramework="$targetFramework$">
         <dependency id="Microsoft.EntityFrameworkCore.Design" version="$Version$" />
       </group>
     </dependencies>
@@ -21,8 +21,8 @@
     <file src="../../artifacts/bin/ef/x86/$configuration$/net472/ef.pdb" target="tools/net472/win-x86/" />
     <file src="../../artifacts/bin/ef/ARM64/$configuration$/net472/ef.exe" target="tools/net472/win-arm64/" />
     <file src="../../artifacts/bin/ef/ARM64/$configuration$/net472/ef.pdb" target="tools/net472/win-arm64/" />
-    <file src="../../artifacts/bin/ef/$configuration$/netcoreapp2.0/ef.dll" target="tools/netcoreapp2.0/any/" />
-    <file src="../../artifacts/bin/ef/$configuration$/netcoreapp2.0/ef.pdb" target="tools/netcoreapp2.0/any/" />
-    <file src="../../artifacts/bin/ef/$configuration$/netcoreapp2.0/ef.runtimeconfig.json" target="tools/netcoreapp2.0/any/" />
+    <file src="../../artifacts/bin/ef/$configuration$/$targetFramework$/ef.dll" target="tools/$targetFramework$/any/" />
+    <file src="../../artifacts/bin/ef/$configuration$/$targetFramework$/ef.pdb" target="tools/$targetFramework$/any/" />
+    <file src="../../artifacts/bin/ef/$configuration$/$targetFramework$/ef.runtimeconfig.json" target="tools/$targetFramework$/any/" />
   </files>
 </package>

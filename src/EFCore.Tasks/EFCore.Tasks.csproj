@@ -49,7 +49,6 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' != 'net472'">
-    <PackageReference Include="Microsoft.Build.Framework" PrivateAssets="all" ExcludeAssets="Runtime" />
     <PackageReference Include="Microsoft.Build.Utilities.Core" PrivateAssets="all" ExcludeAssets="Runtime" />
   </ItemGroup>
 

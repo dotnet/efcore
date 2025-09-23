@@ -9,9 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks;
 public class Department
 {
     public Department()
-    {
-        EmployeeDepartmentHistory = new HashSet<EmployeeDepartmentHistory>();
-    }
+        => EmployeeDepartmentHistory = new HashSet<EmployeeDepartmentHistory>();
 
     public short DepartmentID { get; set; }
     public string GroupName { get; set; }

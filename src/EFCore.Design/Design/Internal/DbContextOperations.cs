@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Text;
-using Microsoft.Build.Locator;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Editing;
 using Microsoft.CodeAnalysis.MSBuild;
@@ -298,15 +297,37 @@ public class DbContextOperations
     {
         outputDir = Path.GetFullPath(Path.Combine(_projectDir, outputDir ?? "Generated"));
 
-        if (!MSBuildLocator.IsRegistered)
+        // TODO: pass through properties
+        MSBuildWorkspace workspace = null!;
+        Project project;
+        
+        try
         {
-            MSBuildLocator.RegisterDefaults();
+            workspace = MSBuildWorkspace.Create();
+            workspace.LoadMetadataForReferencedProjects = true;
+#pragma warning disable CS0612 // Obsolete
+#pragma warning disable CS0618 // Obsolete
+            workspace.WorkspaceFailed += (_, e) =>
+            {
+                _reporter.WriteError(DesignStrings.MSBuildWorkspaceFailure(e.Diagnostic.Kind, e.Diagnostic.Message));
+            };
+#pragma warning restore CS0618 // Obsolete
+#pragma warning restore CS0612 // Obsolete
+            project = workspace.OpenProjectAsync(_project).GetAwaiter().GetResult();
+        }
+        catch (Exception ex)
+        {
+            if (workspace != null && !workspace.Diagnostics.IsEmpty)
+            {
+                var diagnosticMessages = Environment.NewLine + string.Join(Environment.NewLine, 
+                    workspace.Diagnostics.Select(d => $"  {d.Kind}: {d.Message}"));
+                _reporter.WriteVerbose(DesignStrings.MSBuildWorkspaceDiagnostics(diagnosticMessages));
+            }
+
+            throw new InvalidOperationException(
+                DesignStrings.QueryPrecompilationProjectLoadFailed(_project, ex.Message), ex);
         }
 
-        // TODO: pass through properties
-        var workspace = MSBuildWorkspace.Create();
-        workspace.LoadMetadataForReferencedProjects = true;
-        var project = workspace.OpenProjectAsync(_project).GetAwaiter().GetResult();
         if (!project.SupportsCompilation)
         {
             throw new NotSupportedException(DesignStrings.UncompilableProject(_project));
@@ -314,7 +335,7 @@ public class DbContextOperations
 
         var compilation = project.GetCompilationAsync().GetAwaiter().GetResult()!;
         var errorDiagnostics = compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).ToArray();
-        if (errorDiagnostics.Any())
+        if (errorDiagnostics.Length != 0)
         {
             var errorBuilder = new StringBuilder();
             errorBuilder.AppendLine(DesignStrings.CompilationErrors);
@@ -384,7 +405,7 @@ public class DbContextOperations
             ? string.Join(
                 ".",
                 subPath.Split(
-                    new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries))
+                    [Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar], StringSplitOptions.RemoveEmptyEntries))
             : null;
     }
 
@@ -477,7 +498,7 @@ public class DbContextOperations
 
             throw new OperationException(
                 DesignStrings.CannotCreateContextInstance(
-                    contextType ?? contextPair.Key.GetType().ShortDisplayName(), ex.Message), ex);
+                    contextType ?? contextPair.Key.ShortDisplayName(), ex.Message), ex);
         }
     }
 
@@ -551,8 +572,7 @@ public class DbContextOperations
                 .Concat(_assembly.GetConstructibleTypes())
                 .ToList();
 
-            var contextTypes = types.Where(t => typeof(DbContext).IsAssignableFrom(t)).Select(
-                    t => t.AsType())
+            var contextTypes = types.Where(t => typeof(DbContext).IsAssignableFrom(t)).Select(t => t.AsType())
                 .Concat<Type>(
                     types.Where(t => typeof(Migration).IsAssignableFrom(t))
                         .Select(t => t.GetCustomAttribute<DbContextAttribute>()?.ContextType)
@@ -719,9 +739,8 @@ public class DbContextOperations
         string name,
         StringComparison comparisonType)
         => types
-            .Where(
-                t => string.Equals(t.Key.Name, name, comparisonType)
-                    || string.Equals(t.Key.FullName, name, comparisonType)
-                    || string.Equals(t.Key.AssemblyQualifiedName, name, comparisonType))
+            .Where(t => string.Equals(t.Key.Name, name, comparisonType)
+                || string.Equals(t.Key.FullName, name, comparisonType)
+                || string.Equals(t.Key.AssemblyQualifiedName, name, comparisonType))
             .ToDictionary();
 }
