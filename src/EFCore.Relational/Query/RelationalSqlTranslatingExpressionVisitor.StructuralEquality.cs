@@ -522,10 +522,20 @@ public partial class RelationalSqlTranslatingExpressionVisitor
         }
     }
 
-    private bool TryTranslatePropertyAccess(Expression target, IPropertyBase property, [NotNullWhen(true)] out SqlExpression? translation)
+    private bool TryTranslatePropertyAccess(Expression target, IProperty property, [NotNullWhen(true)] out SqlExpression? translation)
     {
         var expression = CreatePropertyAccessExpression(target, property);
-        translation = Translate(expression);
+
+        if (property.GetTypeMapping() is RelationalTypeMapping relationalTypeMapping)
+        {
+            translation = Translate(expression, applyDefaultTypeMapping: false);
+            translation = _sqlExpressionFactory.ApplyTypeMapping(translation, relationalTypeMapping);
+        }
+        else
+        {
+            translation = Translate(expression);
+        }
+
         return translation is not null;
     }
 

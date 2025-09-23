@@ -3,8 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Types.Temporal;
 
-public class DateTimeTypeTest(DateTimeTypeTest.DateTimeTypeFixture fixture)
-    : RelationalTypeTestBase<DateTime, DateTimeTypeTest.DateTimeTypeFixture>(fixture)
+public class DateTimeTypeTest(DateTimeTypeTest.DateTimeTypeFixture fixture, ITestOutputHelper testOutputHelper)
+    : RelationalTypeTestBase<DateTime, DateTimeTypeTest.DateTimeTypeFixture>(fixture, testOutputHelper)
 {
     public override async Task ExecuteUpdate_within_json_to_nonjson_column()
     {
@@ -22,8 +22,8 @@ public class DateTimeTypeTest(DateTimeTypeTest.DateTimeTypeFixture fixture)
     }
 }
 
-public class DateTimeOffsetTypeTest(DateTimeOffsetTypeTest.DateTimeOffsetTypeFixture fixture)
-    : RelationalTypeTestBase<DateTimeOffset, DateTimeOffsetTypeTest.DateTimeOffsetTypeFixture>(fixture)
+public class DateTimeOffsetTypeTest(DateTimeOffsetTypeTest.DateTimeOffsetTypeFixture fixture, ITestOutputHelper testOutputHelper)
+    : RelationalTypeTestBase<DateTimeOffset, DateTimeOffsetTypeTest.DateTimeOffsetTypeFixture>(fixture, testOutputHelper)
 {
     public override async Task ExecuteUpdate_within_json_to_nonjson_column()
     {
@@ -41,7 +41,8 @@ public class DateTimeOffsetTypeTest(DateTimeOffsetTypeTest.DateTimeOffsetTypeFix
     }
 }
 
-public class DateOnlyTypeTest(DateOnlyTypeTest.DateTypeFixture fixture) : RelationalTypeTestBase<DateOnly, DateOnlyTypeTest.DateTypeFixture>(fixture)
+public class DateOnlyTypeTest(DateOnlyTypeTest.DateTypeFixture fixture, ITestOutputHelper testOutputHelper)
+    : RelationalTypeTestBase<DateOnly, DateOnlyTypeTest.DateTypeFixture>(fixture, testOutputHelper)
 {
     public override async Task ExecuteUpdate_within_json_to_nonjson_column()
     {
@@ -59,8 +60,8 @@ public class DateOnlyTypeTest(DateOnlyTypeTest.DateTypeFixture fixture) : Relati
     }
 }
 
-public class TimeOnlyTypeTest(TimeOnlyTypeTest.TimeTypeFixture fixture)
-    : RelationalTypeTestBase<TimeOnly, TimeOnlyTypeTest.TimeTypeFixture>(fixture)
+public class TimeOnlyTypeTest(TimeOnlyTypeTest.TimeTypeFixture fixture, ITestOutputHelper testOutputHelper)
+    : RelationalTypeTestBase<TimeOnly, TimeOnlyTypeTest.TimeTypeFixture>(fixture, testOutputHelper)
 {
     // TODO: string representation discrepancy between our JSON and M.D.SQLite's string representation, see #36749.
     public override Task Query_property_within_json()
@@ -82,7 +83,8 @@ public class TimeOnlyTypeTest(TimeOnlyTypeTest.TimeTypeFixture fixture)
     }
 }
 
-public class TimeSpanTypeTest(TimeSpanTypeTest.TimeSpanTypeFixture fixture) : RelationalTypeTestBase<TimeSpan, TimeSpanTypeTest.TimeSpanTypeFixture>(fixture)
+public class TimeSpanTypeTest(TimeSpanTypeTest.TimeSpanTypeFixture fixture, ITestOutputHelper testOutputHelper)
+    : RelationalTypeTestBase<TimeSpan, TimeSpanTypeTest.TimeSpanTypeFixture>(fixture, testOutputHelper)
 {
     public override async Task ExecuteUpdate_within_json_to_nonjson_column()
     {

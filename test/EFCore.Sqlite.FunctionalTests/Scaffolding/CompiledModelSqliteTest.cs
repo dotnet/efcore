@@ -27,6 +27,13 @@ public class CompiledModelSqliteTest(NonSharedFixture fixture) : CompiledModelRe
                 .HasSrid(1101);
         });
 
+        modelBuilder.Entity<AutoIncrementEntity>(eb =>
+        {
+            eb.Property<int>("Id");
+            eb.HasKey("Id");
+            eb.Property<string>("Name");
+        });
+
         modelBuilder.Entity<PrincipalBase>(eb =>
         {
             eb.Property<Point>("Point")
@@ -76,6 +83,15 @@ public class CompiledModelSqliteTest(NonSharedFixture fixture) : CompiledModelRe
         Assert.IsType<CustomValueComparer<Point>>(pointProperty.GetKeyValueComparer());
         Assert.IsType<CustomValueComparer<Point>>(pointProperty.GetProviderValueComparer());
         Assert.Null(pointProperty[CoreAnnotationNames.PropertyAccessMode]);
+
+        var autoIncrementEntity = model.FindEntityType(typeof(AutoIncrementEntity))!;
+        var idProperty = autoIncrementEntity.FindProperty("Id")!;
+        Assert.Equal(typeof(int), idProperty.ClrType);
+        Assert.False(idProperty.IsNullable);
+        Assert.Equal(ValueGenerated.OnAdd, idProperty.ValueGenerated);
+        Assert.Equal("Id", idProperty.GetColumnName());
+        Assert.Equal("INTEGER", idProperty.GetColumnType());
+        Assert.Equal(SqliteValueGenerationStrategy.Autoincrement, idProperty.GetValueGenerationStrategy());
     }
 
     //Sprocs not supported
@@ -116,5 +132,11 @@ public class CompiledModelSqliteTest(NonSharedFixture fixture) : CompiledModelRe
         build.References.Add(BuildReference.ByName("Microsoft.EntityFrameworkCore.Sqlite.NetTopologySuite"));
         build.References.Add(BuildReference.ByName("NetTopologySuite"));
         return build;
+    }
+
+    public class AutoIncrementEntity
+    {
+        public int Id { get; set; }
+        public string? Name { get; set; }
     }
 }

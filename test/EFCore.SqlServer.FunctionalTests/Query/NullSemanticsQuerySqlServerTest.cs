@@ -3252,6 +3252,18 @@ WHERE [e].[NullableBoolA] <> [e].[NullableBoolB]
 """);
     }
 
+    public override void Where_not_equal_using_relational_null_semantics_complex_in_equals()
+    {
+        base.Where_not_equal_using_relational_null_semantics_complex_in_equals();
+
+        AssertSql(
+            """
+SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE [e].[NullableBoolA] ^ [e].[NullableBoolB] = [e].[NullableBoolC]
+""");
+    }
+
     public override async Task Where_comparison_null_constant_and_null_parameter(bool async)
     {
         await base.Where_comparison_null_constant_and_null_parameter(async);
@@ -3583,6 +3595,15 @@ SELECT CASE
     ELSE CAST(0 AS bit)
 END
 FROM [Entities1] AS [e]
+""",
+            //
+            """
+SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE CASE
+    WHEN [e].[BoolA] = CAST(1 AS bit) THEN [e].[NullableBoolB]
+    ELSE ~[e].[NullableBoolC]
+END IS NULL
 """);
     }
 
@@ -5087,7 +5108,10 @@ END = CAST(1 AS bit)
 SELECT [e].[Id], [e].[BoolA], [e].[BoolB], [e].[BoolC], [e].[IntA], [e].[IntB], [e].[IntC], [e].[NullableBoolA], [e].[NullableBoolB], [e].[NullableBoolC], [e].[NullableIntA], [e].[NullableIntB], [e].[NullableIntC], [e].[NullableStringA], [e].[NullableStringB], [e].[NullableStringC], [e].[StringA], [e].[StringB], [e].[StringC]
 FROM [Entities1] AS [e]
 WHERE CASE
-    WHEN [e].[NullableBoolA] IS NULL THEN ~([e].[BoolA] ^ [e].[BoolB])
+    WHEN [e].[NullableBoolA] IS NULL THEN CASE
+        WHEN [e].[BoolA] = [e].[BoolB] THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END
     WHEN [e].[NullableBoolC] IS NULL THEN CASE
         WHEN ([e].[NullableBoolA] <> [e].[NullableBoolC] OR [e].[NullableBoolA] IS NULL OR [e].[NullableBoolC] IS NULL) AND ([e].[NullableBoolA] IS NOT NULL OR [e].[NullableBoolC] IS NOT NULL) THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
