@@ -3,8 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Types.Numeric;
 
-public class ByteTypeTest(ByteTypeTest.ByteTypeFixture fixture, ITestOutputHelper testOutputHelper)
-    : RelationalTypeTestBase<byte, ByteTypeTest.ByteTypeFixture>(fixture, testOutputHelper)
+public class SqliteByteTypeTest(SqliteByteTypeTest.ByteTypeFixture fixture, ITestOutputHelper testOutputHelper)
+    : RelationalTypeTestBase<byte, SqliteByteTypeTest.ByteTypeFixture>(fixture, testOutputHelper)
 {
     public class ByteTypeFixture : RelationalTypeFixtureBase<byte>
     {
@@ -15,8 +15,8 @@ public class ByteTypeTest(ByteTypeTest.ByteTypeFixture fixture, ITestOutputHelpe
     }
 }
 
-public class ShortTypeTest(ShortTypeTest.ShortTypeFixture fixture, ITestOutputHelper testOutputHelper)
-    : RelationalTypeTestBase<short, ShortTypeTest.ShortTypeFixture>(fixture, testOutputHelper)
+public class SqliteShortTypeTest(SqliteShortTypeTest.ShortTypeFixture fixture, ITestOutputHelper testOutputHelper)
+    : RelationalTypeTestBase<short, SqliteShortTypeTest.ShortTypeFixture>(fixture, testOutputHelper)
 {
     public class ShortTypeFixture : RelationalTypeFixtureBase<short>
     {
@@ -27,8 +27,8 @@ public class ShortTypeTest(ShortTypeTest.ShortTypeFixture fixture, ITestOutputHe
     }
 }
 
-public class IntTypeTest(IntTypeTest.IntTypeFixture fixture, ITestOutputHelper testOutputHelper)
-    : RelationalTypeTestBase<int, IntTypeTest.IntTypeFixture>(fixture, testOutputHelper)
+public class SqliteIntTypeTest(SqliteIntTypeTest.IntTypeFixture fixture, ITestOutputHelper testOutputHelper)
+    : RelationalTypeTestBase<int, SqliteIntTypeTest.IntTypeFixture>(fixture, testOutputHelper)
 {
     public class IntTypeFixture : RelationalTypeFixtureBase<int>
     {
@@ -39,8 +39,8 @@ public class IntTypeTest(IntTypeTest.IntTypeFixture fixture, ITestOutputHelper t
     }
 }
 
-public class LongTypeTest(LongTypeTest.LongTypeFixture fixture, ITestOutputHelper testOutputHelper)
-    : RelationalTypeTestBase<long, LongTypeTest.LongTypeFixture>(fixture, testOutputHelper)
+public class SqliteLongTypeTest(SqliteLongTypeTest.LongTypeFixture fixture, ITestOutputHelper testOutputHelper)
+    : RelationalTypeTestBase<long, SqliteLongTypeTest.LongTypeFixture>(fixture, testOutputHelper)
 {
     public class LongTypeFixture : RelationalTypeFixtureBase<long>
     {
@@ -51,8 +51,8 @@ public class LongTypeTest(LongTypeTest.LongTypeFixture fixture, ITestOutputHelpe
     }
 }
 
-public class DecimalTypeTest(DecimalTypeTest.DecimalTypeFixture fixture, ITestOutputHelper testOutputHelper)
-    : RelationalTypeTestBase<decimal, DecimalTypeTest.DecimalTypeFixture>(fixture, testOutputHelper)
+public class SqliteDecimalTypeTest(SqliteDecimalTypeTest.DecimalTypeFixture fixture, ITestOutputHelper testOutputHelper)
+    : RelationalTypeTestBase<decimal, SqliteDecimalTypeTest.DecimalTypeFixture>(fixture, testOutputHelper)
 {
     public class DecimalTypeFixture : RelationalTypeFixtureBase<decimal>
     {
@@ -63,8 +63,8 @@ public class DecimalTypeTest(DecimalTypeTest.DecimalTypeFixture fixture, ITestOu
     }
 }
 
-public class DoubleTypeTest(DoubleTypeTest.DoubleTypeFixture fixture, ITestOutputHelper testOutputHelper)
-    : RelationalTypeTestBase<double, DoubleTypeTest.DoubleTypeFixture>(fixture, testOutputHelper)
+public class SqliteDoubleTypeTest(SqliteDoubleTypeTest.DoubleTypeFixture fixture, ITestOutputHelper testOutputHelper)
+    : RelationalTypeTestBase<double, SqliteDoubleTypeTest.DoubleTypeFixture>(fixture, testOutputHelper)
 {
     public class DoubleTypeFixture : RelationalTypeFixtureBase<double>
     {
@@ -75,8 +75,8 @@ public class DoubleTypeTest(DoubleTypeTest.DoubleTypeFixture fixture, ITestOutpu
     }
 }
 
-public class FloatTypeTest(FloatTypeTest.FloatTypeFixture fixture, ITestOutputHelper testOutputHelper)
-    : RelationalTypeTestBase<float, FloatTypeTest.FloatTypeFixture>(fixture, testOutputHelper)
+public class SqliteFloatTypeTest(SqliteFloatTypeTest.FloatTypeFixture fixture, ITestOutputHelper testOutputHelper)
+    : RelationalTypeTestBase<float, SqliteFloatTypeTest.FloatTypeFixture>(fixture, testOutputHelper)
 {
     public class FloatTypeFixture : RelationalTypeFixtureBase<float>
     {

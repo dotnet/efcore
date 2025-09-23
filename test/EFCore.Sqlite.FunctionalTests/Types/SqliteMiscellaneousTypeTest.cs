@@ -3,8 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Types.Miscellaneous;
 
-public class BoolTypeTest(BoolTypeTest.BoolTypeFixture fixture, ITestOutputHelper testOutputHelper)
-    : RelationalTypeTestBase<bool, BoolTypeTest.BoolTypeFixture>(fixture, testOutputHelper)
+public class SqliteBoolTypeTest(SqliteBoolTypeTest.BoolTypeFixture fixture, ITestOutputHelper testOutputHelper)
+    : RelationalTypeTestBase<bool, SqliteBoolTypeTest.BoolTypeFixture>(fixture, testOutputHelper)
 {
     public class BoolTypeFixture : RelationalTypeFixtureBase<bool>
     {
@@ -15,8 +15,8 @@ public class BoolTypeTest(BoolTypeTest.BoolTypeFixture fixture, ITestOutputHelpe
     }
 }
 
-public class StringTypeTest(StringTypeTest.StringTypeFixture fixture, ITestOutputHelper testOutputHelper)
-    : RelationalTypeTestBase<string, StringTypeTest.StringTypeFixture>(fixture, testOutputHelper)
+public class SqliteStringTypeTest(SqliteStringTypeTest.StringTypeFixture fixture, ITestOutputHelper testOutputHelper)
+    : RelationalTypeTestBase<string, SqliteStringTypeTest.StringTypeFixture>(fixture, testOutputHelper)
 {
     public class StringTypeFixture : RelationalTypeFixtureBase<string>
     {
@@ -27,14 +27,14 @@ public class StringTypeTest(StringTypeTest.StringTypeFixture fixture, ITestOutpu
     }
 }
 
-public class GuidTypeTest(GuidTypeTest.GuidTypeFixture fixture, ITestOutputHelper testOutputHelper)
-    : RelationalTypeTestBase<Guid, GuidTypeTest.GuidTypeFixture>(fixture, testOutputHelper)
+public class SqliteGuidTypeTest(SqliteGuidTypeTest.GuidTypeFixture fixture, ITestOutputHelper testOutputHelper)
+    : RelationalTypeTestBase<Guid, SqliteGuidTypeTest.GuidTypeFixture>(fixture, testOutputHelper)
 {
     public override async Task ExecuteUpdate_within_json_to_nonjson_column()
     {
         // See #36688 for supporting this for Sqlite types other than string/numeric/bool
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.ExecuteUpdate_within_json_to_nonjson_column());
-        Assert.Equal(RelationalStrings.ExecuteUpdateCannotSetJsonPropertyToNonJsonColumn, exception.Message);
+        Assert.Equal(RelationalStrings.ExecuteUpdateCannotSetJsonPropertyToNonJsonColumn, exception.InnerException!.Message);
     }
 
     public class GuidTypeFixture : RelationalTypeFixtureBase<Guid>
@@ -46,8 +46,8 @@ public class GuidTypeTest(GuidTypeTest.GuidTypeFixture fixture, ITestOutputHelpe
     }
 }
 
-public class ByteArrayTypeTest(ByteArrayTypeTest.ByteArrayTypeFixture fixture, ITestOutputHelper testOutputHelper)
-    : RelationalTypeTestBase<byte[], ByteArrayTypeTest.ByteArrayTypeFixture>(fixture, testOutputHelper)
+public class SqliteByteArrayTypeTest(SqliteByteArrayTypeTest.ByteArrayTypeFixture fixture, ITestOutputHelper testOutputHelper)
+    : RelationalTypeTestBase<byte[], SqliteByteArrayTypeTest.ByteArrayTypeFixture>(fixture, testOutputHelper)
 {
     // TODO: string representation discrepancy between our JSON and M.D.SQLite's string representation, see #36749.
     public override Task Query_property_within_json()
@@ -57,7 +57,7 @@ public class ByteArrayTypeTest(ByteArrayTypeTest.ByteArrayTypeFixture fixture, I
     {
         // See #36688 for supporting this for Sqlite types other than string/numeric/bool
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.ExecuteUpdate_within_json_to_nonjson_column());
-        Assert.Equal(RelationalStrings.ExecuteUpdateCannotSetJsonPropertyToNonJsonColumn, exception.Message);
+        Assert.Equal(RelationalStrings.ExecuteUpdateCannotSetJsonPropertyToNonJsonColumn, exception.InnerException!.Message);
     }
 
     public class ByteArrayTypeFixture : RelationalTypeFixtureBase<byte[]>
