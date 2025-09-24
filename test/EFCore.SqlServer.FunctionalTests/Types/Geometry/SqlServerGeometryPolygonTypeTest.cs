@@ -195,7 +195,7 @@ FROM [JsonTypeEntity] AS [j]
 
     #endregion JSON
 
-    public class PolygonTypeFixture() : GeometryTypeFixture
+    public class PolygonTypeFixture : GeometryTypeFixture
     {
         public override Polygon Value { get; } = new(
             new LinearRing(

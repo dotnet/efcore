@@ -197,7 +197,7 @@ FROM [JsonTypeEntity] AS [j]
 
     #endregion JSON
 
-    public class LineStringTypeFixture() : GeographyTypeFixture
+    public class LineStringTypeFixture : SqlServerGeographyTypeFixture
     {
         public override LineString Value { get; } = new(
         [

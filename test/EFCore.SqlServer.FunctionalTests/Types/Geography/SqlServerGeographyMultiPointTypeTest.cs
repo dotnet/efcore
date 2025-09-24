@@ -203,7 +203,7 @@ FROM [JsonTypeEntity] AS [j]
 
     #endregion JSON
 
-    public class MultiPointTypeFixture() : GeographyTypeFixture
+    public class MultiPointTypeFixture : SqlServerGeographyTypeFixture
     {
         public override MultiPoint Value { get; } = new([
             new Point(-122.3500, 47.6200) { SRID = 4326 },

@@ -209,7 +209,5 @@ FROM [JsonTypeEntity] AS [j]
     {
         public override float Value { get; } = 30.5f;
         public override float OtherValue { get; } = 30f;
-
-        protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
     }
 }

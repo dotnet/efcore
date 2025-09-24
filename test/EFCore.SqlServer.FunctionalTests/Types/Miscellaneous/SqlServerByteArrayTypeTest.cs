@@ -203,8 +203,6 @@ FROM [JsonTypeEntity] AS [j]
 
         public override Func<byte[], byte[], bool> Comparer { get; } = (a, b) => a.SequenceEqual(b);
 
-        protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
-
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => TestEnvironment.SetCompatibilityLevelFromEnvironment(base.AddOptions(builder));
     }

@@ -203,7 +203,7 @@ FROM [JsonTypeEntity] AS [j]
 
     #endregion JSON
 
-    public class GeometryCollectionTypeFixture() : GeometryTypeFixture
+    public class GeometryCollectionTypeFixture : GeometryTypeFixture
     {
         public override GeometryCollection Value { get; } = new GeometryCollection(
         [

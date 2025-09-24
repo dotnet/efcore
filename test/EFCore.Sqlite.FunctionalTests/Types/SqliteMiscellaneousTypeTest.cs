@@ -6,24 +6,20 @@ namespace Microsoft.EntityFrameworkCore.Types.Miscellaneous;
 public class BoolTypeTest(BoolTypeTest.BoolTypeFixture fixture, ITestOutputHelper testOutputHelper)
     : RelationalTypeTestBase<bool, BoolTypeTest.BoolTypeFixture>(fixture, testOutputHelper)
 {
-    public class BoolTypeFixture : RelationalTypeFixtureBase<bool>
+    public class BoolTypeFixture : SqliteTypeFixture<bool>
     {
         public override bool Value { get; } = true;
         public override bool OtherValue { get; } = false;
-
-        protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
     }
 }
 
 public class StringTypeTest(StringTypeTest.StringTypeFixture fixture, ITestOutputHelper testOutputHelper)
     : RelationalTypeTestBase<string, StringTypeTest.StringTypeFixture>(fixture, testOutputHelper)
 {
-    public class StringTypeFixture : RelationalTypeFixtureBase<string>
+    public class StringTypeFixture : SqliteTypeFixture<string>
     {
         public override string Value { get; } = "foo";
         public override string OtherValue { get; } = "bar";
-
-        protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
     }
 }
 
@@ -37,12 +33,10 @@ public class GuidTypeTest(GuidTypeTest.GuidTypeFixture fixture, ITestOutputHelpe
         Assert.Equal(RelationalStrings.ExecuteUpdateCannotSetJsonPropertyToNonJsonColumn, exception.Message);
     }
 
-    public class GuidTypeFixture : RelationalTypeFixtureBase<Guid>
+    public class GuidTypeFixture : SqliteTypeFixture<Guid>
     {
         public override Guid Value { get; } = new("8f7331d6-cde9-44fb-8611-81fff686f280");
         public override Guid OtherValue { get; } = new("ae192c36-9004-49b2-b785-8be10d169627");
-
-        protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
     }
 }
 
@@ -60,13 +54,11 @@ public class ByteArrayTypeTest(ByteArrayTypeTest.ByteArrayTypeFixture fixture, I
         Assert.Equal(RelationalStrings.ExecuteUpdateCannotSetJsonPropertyToNonJsonColumn, exception.Message);
     }
 
-    public class ByteArrayTypeFixture : RelationalTypeFixtureBase<byte[]>
+    public class ByteArrayTypeFixture : SqliteTypeFixture<byte[]>
     {
         public override byte[] Value { get; } = [1, 2, 3];
         public override byte[] OtherValue { get; } = [4, 5, 6, 7];
 
         public override Func<byte[], byte[], bool> Comparer { get; } = (a, b) => a.SequenceEqual(b);
-
-        protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
     }
 }

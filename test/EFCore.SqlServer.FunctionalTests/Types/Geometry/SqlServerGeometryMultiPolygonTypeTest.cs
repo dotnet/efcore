@@ -201,7 +201,7 @@ FROM [JsonTypeEntity] AS [j]
 
     #endregion JSON
 
-    public class MultiPolygonTypeFixture() : GeometryTypeFixture
+    public class MultiPolygonTypeFixture : GeometryTypeFixture
     {
         public override MultiPolygon Value { get; } = new MultiPolygon(
         [

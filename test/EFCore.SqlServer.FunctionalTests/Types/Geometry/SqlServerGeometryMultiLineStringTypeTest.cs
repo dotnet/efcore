@@ -201,7 +201,7 @@ FROM [JsonTypeEntity] AS [j]
 
     #endregion JSON
 
-    public class MultiLineStringTypeFixture() : GeometryTypeFixture
+    public class MultiLineStringTypeFixture : GeometryTypeFixture
     {
         public override MultiLineString Value { get; } = new MultiLineString(
         [

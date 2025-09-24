@@ -3,7 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore.Query.Associations.OwnedNavigations;
 
-public class OwnedNavigationsPrimitiveCollectionTestBase(OwnedNavigationsSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
+public class OwnedNavigationsPrimitiveCollectionSqlServerTest(OwnedNavigationsSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
     : OwnedNavigationsPrimitiveCollectionRelationalTestBase<OwnedNavigationsSqlServerFixture>(fixture, testOutputHelper)
 {
     public override async Task Count()

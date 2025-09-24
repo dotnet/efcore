@@ -195,7 +195,7 @@ FROM [JsonTypeEntity] AS [j]
 
     #endregion JSON
 
-    public class PolygonTypeFixture() : GeographyTypeFixture
+    public class PolygonTypeFixture : SqlServerGeographyTypeFixture
     {
         // Simple rectangle
         public override Polygon Value { get; } = new(
