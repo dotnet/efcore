@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace Microsoft.EntityFrameworkCore.Query;
 
 // ReSharper disable ClassNeverInstantiated.Local
@@ -174,6 +176,49 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
     }
 
     #endregion ShadowDiscriminator
+
+    #region 36837
+
+    [ConditionalFact]
+    public virtual async Task Complex_type_equality_with_non_default_type_mapping()
+    {
+        var contextFactory = await InitializeAsync<Context36837>(
+            seed: context =>
+            {
+                context.AddRange(
+                    new Context36837.EntityType
+                    {
+                        ComplexThing = new Context36837.ComplexThing { DateTime = new DateTime(2020, 1, 1) }
+                    });
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateContext();
+
+        var count = await context.Set<Context36837.EntityType>()
+            .CountAsync(b => b.ComplexThing == new Context36837.ComplexThing { DateTime = new DateTime(2020, 1, 1, 1, 1, 1, 999, 999) });
+        Assert.Equal(0, count);
+    }
+
+    private class Context36837(DbContextOptions options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<EntityType>().ComplexProperty(b => b.ComplexThing);
+
+        public class EntityType
+        {
+            public int Id { get; set; }
+            public ComplexThing ComplexThing { get; set; } = null!;
+        }
+
+        public class ComplexThing
+        {
+            [Column(TypeName = "datetime")] // Non-default type mapping
+            public DateTime DateTime { get; set; }
+        }
+    }
+
+    #endregion 36837
 
     protected override string StoreName
         => "AdHocComplexTypeQueryTest";
