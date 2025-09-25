@@ -72,7 +72,7 @@ public class SqliteCodeGeneratorTest
     }
 
     private static readonly MethodInfo _setProviderOptionMethodInfo
-        = typeof(SqliteCodeGeneratorTest).GetRuntimeMethod(nameof(SetProviderOption), new[] { typeof(DbContextOptionsBuilder) });
+        = typeof(SqliteCodeGeneratorTest).GetRuntimeMethod(nameof(SetProviderOption), [typeof(DbContextOptionsBuilder)])!;
 
     public static SqliteDbContextOptionsBuilder SetProviderOption(DbContextOptionsBuilder optionsBuilder)
         => throw new NotSupportedException();

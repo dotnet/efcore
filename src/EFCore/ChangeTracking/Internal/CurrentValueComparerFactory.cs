@@ -13,31 +13,50 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 /// </summary>
 public class CurrentValueComparerFactory
 {
+    private CurrentValueComparerFactory()
+    {
+    }
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IComparer<IUpdateEntry> Create(IPropertyBase propertyBase)
+    public static readonly CurrentValueComparerFactory Instance = new();
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual IComparer<IUpdateEntry> Create(IPropertyBase property)
+        => (IComparer<IUpdateEntry>)Activator.CreateInstance(GetComparerType(property), property)!;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual Type GetComparerType(IPropertyBase propertyBase)
     {
         var modelType = propertyBase.ClrType;
         var nonNullableModelType = modelType.UnwrapNullableType();
         if (IsGenericComparable(modelType, nonNullableModelType))
         {
-            return (IComparer<IUpdateEntry>)Activator.CreateInstance(
-                typeof(EntryCurrentValueComparer<>).MakeGenericType(modelType),
-                propertyBase)!;
+            return typeof(EntryCurrentValueComparer<>).MakeGenericType(modelType);
         }
 
         if (typeof(IStructuralComparable).IsAssignableFrom(nonNullableModelType))
         {
-            return new StructuralEntryCurrentValueComparer(propertyBase);
+            return typeof(StructuralEntryCurrentValueComparer);
         }
 
         if (typeof(IComparable).IsAssignableFrom(nonNullableModelType))
         {
-            return new EntryCurrentValueComparer(propertyBase);
+            return typeof(EntryCurrentValueComparer);
         }
 
         if (propertyBase is IProperty property)
@@ -53,24 +72,24 @@ public class CurrentValueComparerFactory
                     var modelBaseType = elementType != null
                         ? typeof(IEnumerable<>).MakeGenericType(elementType.ClrType)
                         : modelType;
-                    var comparerType = modelType.IsClass
+                    var comparerType = !modelType.IsValueType
                         ? typeof(NullableClassCurrentProviderValueComparer<,>).MakeGenericType(modelBaseType, providerType)
                         : modelType == converter.ModelClrType
                             ? typeof(CurrentProviderValueComparer<,>).MakeGenericType(modelBaseType, providerType)
                             : typeof(NullableStructCurrentProviderValueComparer<,>).MakeGenericType(
                                 nonNullableModelType, providerType);
 
-                    return (IComparer<IUpdateEntry>)Activator.CreateInstance(comparerType, propertyBase, converter)!;
+                    return comparerType;
                 }
 
                 if (typeof(IStructuralComparable).IsAssignableFrom(nonNullableProviderType))
                 {
-                    return new StructuralEntryCurrentProviderValueComparer(propertyBase, converter);
+                    return typeof(StructuralEntryCurrentProviderValueComparer);
                 }
 
                 if (typeof(IComparable).IsAssignableFrom(nonNullableProviderType))
                 {
-                    return new EntryCurrentProviderValueComparer(propertyBase, converter);
+                    return typeof(EntryCurrentProviderValueComparer);
                 }
 
                 throw new InvalidOperationException(

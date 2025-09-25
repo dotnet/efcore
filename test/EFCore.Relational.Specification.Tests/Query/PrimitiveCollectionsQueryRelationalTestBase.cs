@@ -3,14 +3,11 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class PrimitiveCollectionsQueryRelationalTestBase<TFixture> : PrimitiveCollectionsQueryTestBase<TFixture>
+#nullable disable
+
+public class PrimitiveCollectionsQueryRelationalTestBase<TFixture>(TFixture fixture) : PrimitiveCollectionsQueryTestBase<TFixture>(fixture)
     where TFixture : PrimitiveCollectionsQueryTestBase<TFixture>.PrimitiveCollectionsQueryFixtureBase, new()
 {
-    public PrimitiveCollectionsQueryRelationalTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public override async Task Inline_collection_Count_with_zero_values(bool async)
@@ -20,13 +17,9 @@ public class PrimitiveCollectionsQueryRelationalTestBase<TFixture> : PrimitiveCo
         Assert.Equal(RelationalStrings.EmptyCollectionNotSupportedAsInlineQueryRoot, exception.Message);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
     public override Task Column_collection_Concat_parameter_collection_equality_inline_collection(bool async)
         => AssertTranslationFailed(() => base.Column_collection_Concat_parameter_collection_equality_inline_collection(async));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
     public override Task Column_collection_equality_inline_collection_with_parameters(bool async)
         => AssertTranslationFailed(() => base.Column_collection_equality_inline_collection_with_parameters(async));
 
@@ -50,4 +43,17 @@ public class PrimitiveCollectionsQueryRelationalTestBase<TFixture> : PrimitiveCo
 
         Assert.Equal(RelationalStrings.SetOperationsRequireAtLeastOneSideWithValidTypeMapping("Union"), message);
     }
+
+    public override async Task Project_inline_collection_with_Concat(bool async)
+    {
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+            () => base.Project_inline_collection_with_Concat(async))).Message;
+
+        Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin, message);
+    }
+
+    // TODO: Requires converting the results of a subquery (relational rowset) to a primitive collection for comparison,
+    // not yet supported (#33792)
+    public override async Task Column_collection_Where_equality_inline_collection(bool async)
+        => await AssertTranslationFailed(() => base.Column_collection_Where_equality_inline_collection(async));
 }

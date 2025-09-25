@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.AspNetIdentity;
 
+#nullable disable
+
 public class IdentityRole<TKey>
     where TKey : IEquatable<TKey>
 {
@@ -12,9 +14,7 @@ public class IdentityRole<TKey>
 
     public IdentityRole(string roleName)
         : this()
-    {
-        Name = roleName;
-    }
+        => Name = roleName;
 
     public virtual TKey Id { get; set; }
 
@@ -31,13 +31,9 @@ public class IdentityRole<TKey>
 public class IdentityRole : IdentityRole<string>
 {
     public IdentityRole()
-    {
-        Id = Guid.NewGuid().ToString();
-    }
+        => Id = Guid.NewGuid().ToString();
 
     public IdentityRole(string roleName)
         : this()
-    {
-        Name = roleName;
-    }
+        => Name = roleName;
 }
