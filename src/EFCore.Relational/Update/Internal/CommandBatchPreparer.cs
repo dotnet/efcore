@@ -881,7 +881,13 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                 return false;
             }
 
-            if (foreignKey.GetMappedConstraints().Any(c => (principal ? c.PrincipalTable : c.Table) == command.Table))
+            // Special case: For owned entities that have FK relationships to other entities,
+            // we need to ensure dependencies are created even if the FK constraint exists.
+            // This is needed to fix FK dependency ordering when replacing owned entities.
+            var isOwnedEntityFKToNonOwner = foreignKey.DeclaringEntityType.IsOwned() 
+                && foreignKey.PrincipalEntityType != foreignKey.DeclaringEntityType.FindOwnership()?.PrincipalEntityType;
+
+            if (!isOwnedEntityFKToNonOwner && foreignKey.GetMappedConstraints().Any(c => (principal ? c.PrincipalTable : c.Table) == command.Table))
             {
                 // Handled elsewhere
                 return false;
