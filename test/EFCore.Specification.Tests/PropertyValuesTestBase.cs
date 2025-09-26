@@ -188,7 +188,7 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
         bool expectOriginalValues)
     {
         using var context = CreateContext();
-        object building = context.Set<Building>().Single(b => b.Name == "Building One");
+        var building = context.Set<Building>().Single(b => b.Name == "Building One");
 
         context.Entry(building).Property("Name").CurrentValue = "Building One Prime";
         context.Entry(building).Property("Value").CurrentValue = 1500001m;
@@ -221,6 +221,10 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
             Assert.Equal(12, values.GetValue<int>("Shadow1"));
             Assert.Equal("Pine Walk", values.GetValue<string>("Shadow2"));
         }
+
+        Assert.True(building.CreatedCalled);
+        Assert.True(building.InitializingCalled);
+        Assert.True(building.InitializedCalled);
     }
 
     [ConditionalFact]
@@ -258,6 +262,8 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
         {
             Assert.Equal("Building One", values["Name"]);
             Assert.Equal(1500000m, values["Value"]);
+            Assert.Equal(11, values["Shadow1"]);
+            Assert.Equal("Meadow Drive", values["Shadow2"]);
 
             Assert.Equal("Building One", values.GetValue<string>(entry.Property("Name").Metadata));
             Assert.Equal(1500000m, values.GetValue<decimal>(entry.Property("Value").Metadata));
@@ -268,6 +274,8 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
         {
             Assert.Equal("Building One Prime", values["Name"]);
             Assert.Equal(1500001m, values["Value"]);
+            Assert.Equal(12, values["Shadow1"]);
+            Assert.Equal("Pine Walk", values["Shadow2"]);
 
             Assert.Equal("Building One Prime", values.GetValue<string>(entry.Property("Name").Metadata));
             Assert.Equal(1500001m, values.GetValue<decimal>(entry.Property("Value").Metadata));
@@ -984,6 +992,81 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
     }
 
     [ConditionalFact]
+    public virtual void Using_non_collection_complex_property_throws()
+    {
+        using var context = CreateContext();
+        var building = context.Set<Building>().Single(b => b.Name == "Building One");
+        var entry = context.Entry(building);
+
+        var buildingValues = entry.CurrentValues;
+        var clonedBuildingValues = buildingValues.Clone();
+
+        var cultureProperty = context.Model.FindEntityType(typeof(Building))!.FindComplexProperty("Culture")!;
+
+        Assert.Equal(
+            CoreStrings.ComplexPropertyNotCollection("Building", "Culture"),
+            Assert.Throws<InvalidOperationException>(() => buildingValues[cultureProperty]).Message);
+
+        Assert.Equal(
+            CoreStrings.ComplexPropertyNotCollection("Building", "Culture"),
+            Assert.Throws<InvalidOperationException>(() => clonedBuildingValues[cultureProperty]).Message);
+
+        Assert.Equal(
+            CoreStrings.ComplexPropertyNotCollection("Building", "Culture"),
+            Assert.Throws<InvalidOperationException>(() => buildingValues[cultureProperty] = null).Message);
+
+        Assert.Equal(
+            CoreStrings.ComplexPropertyNotCollection("Building", "Culture"),
+            Assert.Throws<InvalidOperationException>(() => clonedBuildingValues[cultureProperty] = null).Message);
+
+        Assert.Equal(
+            CoreStrings.ComplexPropertyNotCollection("Building", "Culture"),
+            Assert.Throws<InvalidOperationException>(() => clonedBuildingValues["Culture"]).Message);
+
+        Assert.Equal(
+            CoreStrings.ValueCannotBeNull("Culture", "Building", "Culture"),
+            Assert.Throws<InvalidOperationException>(() => buildingValues["Culture"] = null).Message);
+
+        Assert.Equal(
+            CoreStrings.ComplexPropertyNotCollection("Building", "Culture"),
+            Assert.Throws<InvalidOperationException>(() => clonedBuildingValues["Culture"] = null).Message);
+    }
+
+    [ConditionalFact]
+    public virtual void Using_complex_property_value_not_list_throws()
+    {
+        using var context = CreateContext();
+        //var school = context.Set<School>().Single();
+
+        // Complex collection query support. Issue #31411
+        var school = CreateSchool();
+        context.Set<School>().Attach(school);
+
+        var entry = context.Entry(school);
+
+        var schoolValues = entry.CurrentValues;
+        var clonedSchoolValues = schoolValues.Clone();
+
+        var departmentsProperty = context.Model.FindEntityType(typeof(School))!.FindComplexProperty("Departments")!;
+
+        Assert.Throws<InvalidCastException>(() => schoolValues[departmentsProperty] = new List<string>());
+
+        Assert.Throws<InvalidCastException>(() => clonedSchoolValues[departmentsProperty] = new List<string> { "invalid" });
+
+        Assert.Throws<InvalidCastException>(() => schoolValues["Departments"] = "invalid");
+
+        Assert.Equal(
+            CoreStrings.ComplexPropertyValueNotList("Departments", departmentsProperty.ClrType, "string"),
+            Assert.Throws<InvalidOperationException>(() => clonedSchoolValues["Departments"] = "invalid").Message);
+
+        Assert.Throws<InvalidCastException>(() => schoolValues["Departments"] = 123);
+
+        Assert.Equal(
+            CoreStrings.ComplexPropertyValueNotList("Departments", departmentsProperty.ClrType, "int"),
+            Assert.Throws<InvalidOperationException>(() => clonedSchoolValues["Departments"] = 123).Message);
+    }
+
+    [ConditionalFact]
     public virtual Task Current_values_can_be_copied_into_a_non_generic_cloned_dictionary()
         => TestNonGenericPropertyValuesCloneToValues(e => Task.FromResult(e.CurrentValues), expectOriginalValues: false);
 
@@ -1012,7 +1095,6 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
         context.Entry(building).Property("Shadow2").CurrentValue = "The Avenue";
 
         var buildingValues = await getPropertyValues(context.Entry(building));
-
         var clonedBuildingValues = buildingValues.Clone();
 
         if (expectOriginalValues)
@@ -1178,17 +1260,10 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Equal("Building One Optimal", values["Name"]);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Added, true)]
-    [InlineData(EntityState.Added, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
-    [InlineData(EntityState.Detached, true)]
-    [InlineData(EntityState.Detached, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Added, true),
+     InlineData(EntityState.Added, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
+     InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
     public async Task Values_can_be_reloaded_from_database_for_entity_in_any_state(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -1216,17 +1291,10 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Equal(EntityState.Unchanged, entry.State);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Added, true)]
-    [InlineData(EntityState.Added, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
-    [InlineData(EntityState.Detached, true)]
-    [InlineData(EntityState.Detached, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Added, true),
+     InlineData(EntityState.Added, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
+     InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
     public async Task Reload_when_entity_deleted_in_store_can_happen_for_any_state(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -1277,17 +1345,10 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Contains(office, building.Offices);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Added, true)]
-    [InlineData(EntityState.Added, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
-    [InlineData(EntityState.Detached, true)]
-    [InlineData(EntityState.Detached, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false), InlineData(EntityState.Added, true),
+     InlineData(EntityState.Added, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
+     InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
     public virtual async Task Values_can_be_reloaded_from_database_for_entity_in_any_state_with_inheritance(EntityState state, bool async)
     {
         using var context = CreateContext();
@@ -1354,10 +1415,10 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Equal(11, buildingValues["Shadow1"]);
         Assert.Equal("Meadow Drive", buildingValues["Shadow2"]);
 
-        ValidateBuildingPropereties(context.Entry(building), getValue, 11, "Meadow Drive");
+        ValidateBuildingProperties(context.Entry(building), getValue, 11, "Meadow Drive");
     }
 
-    private static void ValidateBuildingPropereties(
+    private static void ValidateBuildingProperties(
         EntityEntry buildingEntry,
         Func<EntityEntry, string, object> getValue,
         int shadow1,
@@ -1398,14 +1459,12 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
 
         buildingValues.SetValues(newBuilding);
 
-        // Check Values
-
         Assert.Equal("Values End", buildingValues["Name"]);
         Assert.Equal(1500000m, buildingValues["Value"]);
         Assert.Equal(11, buildingValues["Shadow1"]);
         Assert.Equal("Meadow Drive", buildingValues["Shadow2"]);
 
-        ValidateBuildingPropereties(context.Entry(building), getValue, 11, "Meadow Drive");
+        ValidateBuildingProperties(context.Entry(building), getValue, 11, "Meadow Drive");
     }
 
     [ConditionalFact]
@@ -1441,7 +1500,7 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Equal(777, buildingValues["Shadow1"]);
         Assert.Equal("Meadow Drive", buildingValues["Shadow2"]);
 
-        ValidateBuildingPropereties(context.Entry(building), getValue, 777, "Meadow Drive");
+        ValidateBuildingProperties(context.Entry(building), getValue, 777, "Meadow Drive");
     }
 
     [ConditionalFact]
@@ -1475,7 +1534,7 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Equal(1500000m, buildingValues["Value"]);
         Assert.Equal("Cheese", buildingValues["Shadow2"]);
 
-        ValidateBuildingPropereties(context.Entry(building), getValue, 11, "Cheese");
+        ValidateBuildingProperties(context.Entry(building), getValue, 11, "Cheese");
     }
 
     [ConditionalFact]
@@ -1506,14 +1565,12 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
 
         buildingValues.SetValues(dictionary);
 
-        // Check Values
-
         Assert.Equal("Values End", buildingValues["Name"]);
         Assert.Equal(1500000m, buildingValues["Value"]);
         Assert.Equal(13, buildingValues["Shadow1"]);
         Assert.Equal("Pine Walk", buildingValues["Shadow2"]);
 
-        ValidateBuildingPropereties(context.Entry(building), getValue, 13, "Pine Walk");
+        ValidateBuildingProperties(context.Entry(building), getValue, 13, "Pine Walk");
     }
 
     [ConditionalFact]
@@ -1626,7 +1683,7 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Equal(777, buildingValues["Shadow1"]);
         Assert.Equal("Meadow Drive", buildingValues["Shadow2"]);
 
-        ValidateBuildingPropereties(context.Entry(building), getValue, 777, "Meadow Drive");
+        ValidateBuildingProperties(context.Entry(building), getValue, 777, "Meadow Drive");
     }
 
     [ConditionalFact]
@@ -1662,7 +1719,7 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Equal(13, clonedBuildingValues["Shadow1"]);
         Assert.Equal("Pine Walk", clonedBuildingValues["Shadow2"]);
 
-        ValidateBuildingPropereties(context.Entry(building), getValue, 13, "Pine Walk");
+        ValidateBuildingProperties(context.Entry(building), getValue, 13, "Pine Walk");
     }
 
     [ConditionalFact]
@@ -1698,7 +1755,7 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
         Assert.Equal(13, buildingValues["Shadow1"]);
         Assert.Equal("Pine Walk", buildingValues["Shadow2"]);
 
-        ValidateBuildingPropereties(context.Entry(building), getValue, 13, "Pine Walk");
+        ValidateBuildingProperties(context.Entry(building), getValue, 13, "Pine Walk");
     }
 
     [ConditionalFact]
@@ -1720,10 +1777,7 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
             Assert.Throws<InvalidOperationException>(() => values["BuildingId"] = new Guid()).Message);
     }
 
-    [ConditionalTheory]
-    [InlineData(CascadeTiming.Immediate)]
-    [InlineData(CascadeTiming.OnSaveChanges)]
-    [InlineData(CascadeTiming.Never)]
+    [ConditionalTheory, InlineData(CascadeTiming.Immediate), InlineData(CascadeTiming.OnSaveChanges), InlineData(CascadeTiming.Never)]
     public virtual void Non_nullable_property_in_current_values_results_in_conceptual_null(CascadeTiming deleteOrphansTiming)
     {
         using var context = CreateContext();
@@ -1765,10 +1819,7 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(CascadeTiming.Immediate)]
-    [InlineData(CascadeTiming.OnSaveChanges)]
-    [InlineData(CascadeTiming.Never)]
+    [ConditionalTheory, InlineData(CascadeTiming.Immediate), InlineData(CascadeTiming.OnSaveChanges), InlineData(CascadeTiming.Never)]
     public virtual void Non_nullable_shadow_property_in_current_values_results_in_conceptual_null(CascadeTiming deleteOrphansTiming)
     {
         using var context = CreateContext();
@@ -2046,8 +2097,8 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
 
     [ConditionalFact]
     public virtual Task NonGeneric_GetDatabaseValues_for_entity_not_in_the_store_returns_null()
-        => NonGeneric_GetDatabaseValues_for_entity_not_in_the_store_returns_null_implementation(
-            e => Task.FromResult(e.GetDatabaseValues()!));
+        => NonGeneric_GetDatabaseValues_for_entity_not_in_the_store_returns_null_implementation(e
+            => Task.FromResult(e.GetDatabaseValues()!));
 
     [ConditionalFact]
     public virtual Task NonGeneric_GetDatabaseValuesAsync_for_entity_not_in_the_store_returns_null()
@@ -2073,8 +2124,7 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
 
     [ConditionalFact]
     public virtual Task GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null()
-        => GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null_implementation(
-            e => Task.FromResult(e.GetDatabaseValues()!));
+        => GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null_implementation(e => Task.FromResult(e.GetDatabaseValues()!));
 
     [ConditionalFact]
     public virtual Task GetDatabaseValuesAsync_for_derived_entity_not_in_the_store_returns_null()
@@ -2099,13 +2149,12 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
 
     [ConditionalFact]
     public virtual Task NonGeneric_GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null()
-        => NonGeneric_GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null_implementation(
-            e => Task.FromResult(e.GetDatabaseValues()!));
+        => NonGeneric_GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null_implementation(e
+            => Task.FromResult(e.GetDatabaseValues()!));
 
     [ConditionalFact]
     public virtual Task NonGeneric_GetDatabaseValuesAsync_for_derived_entity_not_in_the_store_returns_null()
-        => NonGeneric_GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null_implementation(
-            e => e.GetDatabaseValuesAsync()!);
+        => NonGeneric_GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null_implementation(e => e.GetDatabaseValuesAsync()!);
 
     private async Task NonGeneric_GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null_implementation(
         Func<EntityEntry, Task<PropertyValues>> getPropertyValues)
@@ -2126,8 +2175,7 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
 
     [ConditionalFact]
     public virtual Task GetDatabaseValues_for_the_wrong_type_in_the_store_returns_null()
-        => GetDatabaseValues_for_the_wrong_type_in_the_store_returns_null_implementation(
-            e => Task.FromResult(e.GetDatabaseValues()!));
+        => GetDatabaseValues_for_the_wrong_type_in_the_store_returns_null_implementation(e => Task.FromResult(e.GetDatabaseValues()!));
 
     [ConditionalFact]
     public virtual Task GetDatabaseValuesAsync_for_the_wrong_type_in_the_store_returns_null()
@@ -2159,8 +2207,7 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
 
     [ConditionalFact]
     public virtual Task NonGeneric_GetDatabaseValues_for_the_wrong_type_in_the_store_throws()
-        => NonGeneric_GetDatabaseValues_for_the_wrong_type_in_the_store_throws_implementation(
-            e => Task.FromResult(e.GetDatabaseValues()!));
+        => NonGeneric_GetDatabaseValues_for_the_wrong_type_in_the_store_throws_implementation(e => Task.FromResult(e.GetDatabaseValues()!));
 
     [ConditionalFact]
     public virtual Task NonGeneric_GetDatabaseValuesAsync_for_the_wrong_type_in_the_store_throws()
@@ -2192,8 +2239,7 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
 
     [ConditionalFact]
     public Task Store_values_really_are_store_values_not_current_or_original_values()
-        => Store_values_really_are_store_values_not_current_or_original_values_implementation(
-            e => Task.FromResult(e.GetDatabaseValues()!));
+        => Store_values_really_are_store_values_not_current_or_original_values_implementation(e => Task.FromResult(e.GetDatabaseValues()!));
 
     [ConditionalFact]
     public Task Store_values_really_are_store_values_not_current_or_original_values_async()
@@ -2235,6 +2281,1206 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
         Assert.True(originalValues.CreatedCalled);
         Assert.True(originalValues.InitializingCalled);
         Assert.True(originalValues.InitializedCalled);
+    }
+
+    [ConditionalFact]
+    public virtual Task Complex_collection_current_values_can_be_accessed_as_a_property_dictionary()
+        => TestComplexCollectionPropertyValues(e => Task.FromResult(e.CurrentValues), expectOriginalValues: false);
+
+    [ConditionalFact]
+    public virtual Task Complex_collection_original_values_can_be_accessed_as_a_property_dictionary()
+        => TestComplexCollectionPropertyValues(e => Task.FromResult(e.OriginalValues), expectOriginalValues: true);
+
+    [ConditionalFact(Skip = "Complex collection query support. Issue #31411")]
+    public virtual Task Complex_collection_store_values_can_be_accessed_as_a_property_dictionary()
+        => TestComplexCollectionPropertyValues(e => Task.FromResult(e.GetDatabaseValues()!), expectOriginalValues: true);
+
+    [ConditionalFact(Skip = "Complex collection query support. Issue #31411")]
+    public virtual Task Complex_collection_store_values_can_be_accessed_asynchronously_as_a_property_dictionary()
+        => TestComplexCollectionPropertyValues(e => e.GetDatabaseValuesAsync()!, expectOriginalValues: true);
+
+    private async Task TestComplexCollectionPropertyValues(
+        Func<EntityEntry<School>, Task<PropertyValues>> getPropertyValues,
+        bool expectOriginalValues)
+    {
+        using var context = CreateContext();
+        //var school = context.Set<School>().Single(s => s.Name == "Test School");
+
+        // Complex collection query support. Issue #31411
+        var school = CreateSchool();
+        context.Set<School>().Attach(school);
+
+        var originalDepartments = school.Departments.ToList();
+        var originalFirstDepartmentCourses = school.Departments.First().Courses.ToList();
+
+        school.Departments.Clear();
+        school.Departments.Add(
+            new Department
+            {
+                Name = "Modified Department",
+                Building = "Modified Building",
+                Courses =
+                [
+                    new Course { Name = "Modified Course 1", Credits = 4 },
+                    new Course { Name = "Modified Course 2", Credits = 5 }
+                ]
+            });
+
+        var entry = context.Entry(school);
+        var values = await getPropertyValues(entry);
+
+        Assert.Equal("Test School", values["Name"]);
+        Assert.Equal("Test School", values[entry.Property(e => e.Name).Metadata]);
+        Assert.Equal(1, values[entry.Property(e => e.Id).Metadata]);
+
+        var departmentsComplexProperty = entry.Metadata.FindComplexProperty(nameof(School.Departments))!;
+        if (expectOriginalValues)
+        {
+            Assert.Equal("Test School", values["Name"]);
+            var departments = (IList<Department>)values["Departments"]!;
+            var departmentsViaComplexProperty = (IList<Department>)values[departmentsComplexProperty]!;
+            Assert.Equal(2, departments.Count);
+            Assert.Equal(2, departmentsViaComplexProperty.Count);
+
+            var dept1 = departments[0];
+            var dept1Object = departmentsViaComplexProperty[0];
+            Assert.Equal("Computer Science", dept1.Name);
+            Assert.Equal("Building A", dept1.Building);
+            Assert.Equal("Computer Science", dept1Object.Name);
+            Assert.Equal("Building A", dept1Object.Building);
+
+            var department1Courses = dept1.Courses;
+            Assert.Equal(2, department1Courses.Count);
+
+            Assert.Equal("Data Structures", department1Courses[0].Name);
+            Assert.Equal(3, department1Courses[0].Credits);
+            Assert.Equal("Data Structures", department1Courses[0].Name);
+            Assert.Equal(3, department1Courses[0].Credits);
+
+            Assert.Equal("Algorithms", department1Courses[1].Name);
+            Assert.Equal(4, department1Courses[1].Credits);
+            Assert.Equal("Algorithms", department1Courses[1].Name);
+            Assert.Equal(4, department1Courses[1].Credits);
+
+            var dept2 = departments[1];
+            Assert.Equal("Mathematics", dept2.Name);
+            Assert.Equal("Building B", dept2.Building);
+            Assert.Equal("Mathematics", dept2.Name);
+            Assert.Equal("Building B", dept2.Building);
+
+            var department2Courses = dept2.Courses;
+            Assert.Equal(2, department2Courses.Count);
+            Assert.Equal("Calculus I", department2Courses[0].Name);
+            Assert.Equal(4, department2Courses[0].Credits);
+            Assert.Equal("Linear Algebra", department2Courses[1].Name);
+            Assert.Equal(3, department2Courses[1].Credits);
+        }
+        else
+        {
+            Assert.Equal("Test School", values["Name"]);
+            var departments = (IList<Department>)values["Departments"]!;
+            var departmentsViaComplexProperty = (IList<Department>)values[departmentsComplexProperty]!;
+
+            Assert.Single(departments);
+            Assert.Single(departmentsViaComplexProperty);
+            var dept = departments[0];
+            var deptViaComplexProperty = departmentsViaComplexProperty[0];
+            Assert.Equal("Modified Department", dept.Name);
+            Assert.Equal("Modified Building", dept.Building);
+            Assert.Equal("Modified Department", deptViaComplexProperty.Name);
+            Assert.Equal("Modified Building", deptViaComplexProperty.Building);
+
+            Assert.Equal("Modified Department", dept.Name);
+            Assert.Equal("Modified Building", dept.Building);
+
+            var courses = dept.Courses;
+            Assert.Equal(2, courses.Count);
+
+            Assert.Equal("Modified Course 1", courses[0].Name);
+            Assert.Equal(4, courses[0].Credits);
+            Assert.Equal("Modified Course 1", courses[0].Name);
+            Assert.Equal(4, courses[0].Credits);
+
+            Assert.Equal("Modified Course 2", courses[1].Name);
+            Assert.Equal(5, courses[1].Credits);
+            Assert.Equal("Modified Course 2", courses[1].Name);
+            Assert.Equal(5, courses[1].Credits);
+        }
+
+        Assert.False(school.CreatedCalled);
+        Assert.False(school.InitializingCalled);
+        Assert.False(school.InitializedCalled);
+    }
+
+    [ConditionalFact]
+    public virtual void Setting_complex_collection_values_from_object_works()
+    {
+        using var context = CreateContext();
+        //var school = context.Set<School>().Single(s => s.Name == "Test School");
+
+        // Complex collection query support. Issue #31411
+        var school = CreateSchool();
+        context.Set<School>().Attach(school);
+
+        var newSchool = new School
+        {
+            Id = school.Id,
+            Name = "Completely New School",
+            Departments =
+            [
+                new Department
+                {
+                    Name = "New Department",
+                    Building = "New Building",
+                    Courses =
+                    [
+                        new Course { Name = "New Course", Credits = 4 }
+                    ]
+                }
+            ]
+        };
+        var entry = context.Entry(school);
+        entry.CurrentValues.SetValues(newSchool);
+
+        Assert.Equal("Completely New School", school.Name);
+        Assert.Single(school.Departments);
+
+        var department = school.Departments[0];
+        Assert.Equal("New Department", department.Name);
+        Assert.Equal("New Building", department.Building);
+        Assert.Single(department.Courses);
+        var course = department.Courses[0];
+        Assert.Equal("New Course", course.Name);
+
+        Assert.Equal(4, course.Credits);
+
+        var internalEntry = entry.GetInfrastructure();
+        var departmentsProperty = entry.Metadata.FindComplexProperty(nameof(School.Departments))!;
+        var departmentEntry = internalEntry.GetComplexCollectionEntry(departmentsProperty, 0);
+
+        Assert.Equal(EntityState.Modified, departmentEntry.EntityState);
+        Assert.Equal(EntityState.Deleted, internalEntry.GetComplexCollectionOriginalEntry(departmentsProperty, 1).EntityState);
+
+        var coursesProperty = departmentsProperty.ComplexType.FindComplexProperty(nameof(Department.Courses))!;
+        var courseEntries = departmentEntry.GetComplexCollectionEntries(coursesProperty);
+
+        Assert.Single(courseEntries);
+        Assert.Equal(EntityState.Modified, courseEntries[0]!.EntityState);
+    }
+
+    [ConditionalFact]
+    public virtual void Setting_complex_collection_current_values_from_object_with_nulls_works()
+    {
+        using var context = CreateContext();
+        //var school = context.Set<School>().Single(s => s.Name == "Test School");
+
+        // Complex collection query support. Issue #31411
+        var school = CreateSchool();
+        context.Set<School>().Attach(school);
+
+        var newSchool = new School
+        {
+            Id = school.Id,
+            Name = "School with Nulls",
+            Departments =
+            [
+                new Department
+                {
+                    Name = "Department 1",
+                    Building = "Building 1",
+                    Courses = [null!, new Course { Name = "Course A", Credits = 3 }, null!]
+                },
+                null!,
+                new Department
+                {
+                    Name = "Department 2",
+                    Building = "Building 2",
+                    Courses = [new Course { Name = "Course B", Credits = 4 }]
+                }
+            ]
+        };
+
+        var entry = context.Entry(school);
+        entry.CurrentValues.SetValues(newSchool);
+
+        Assert.Equal("School with Nulls", school.Name);
+        Assert.Equal(3, school.Departments.Count);
+
+        Assert.Equal("Department 1", school.Departments[0]!.Name);
+        Assert.Equal("Building 1", school.Departments[0]!.Building);
+        Assert.Equal(3, school.Departments[0]!.Courses.Count);
+        Assert.Null(school.Departments[0]!.Courses[0]);
+        Assert.Equal("Course A", school.Departments[0]!.Courses[1]!.Name);
+        Assert.Equal(3, school.Departments[0]!.Courses[1]!.Credits);
+        Assert.Null(school.Departments[0]!.Courses[2]);
+        Assert.Null(school.Departments[1]);
+
+        Assert.Equal("Department 2", school.Departments[2]!.Name);
+        Assert.Equal("Building 2", school.Departments[2]!.Building);
+        Assert.Single(school.Departments[2]!.Courses);
+        Assert.Equal("Course B", school.Departments[2]!.Courses[0]!.Name);
+        Assert.Equal(4, school.Departments[2]!.Courses[0]!.Credits);
+
+        var currentValues = entry.CurrentValues;
+        var departments = (IList<Department>)currentValues["Departments"]!;
+        Assert.Equal(3, departments.Count);
+
+        Assert.Equal("Department 1", departments[0].Name);
+        Assert.Equal("Building 1", departments[0].Building);
+        var dept1Courses = departments[0].Courses;
+        Assert.Equal(3, dept1Courses.Count);
+        Assert.Null(dept1Courses[0]);
+        Assert.Equal("Course A", dept1Courses[1].Name);
+        Assert.Equal(3, dept1Courses[1].Credits);
+        Assert.Null(dept1Courses[2]);
+        Assert.Null(departments[1]);
+
+        Assert.Equal("Department 2", departments[2].Name);
+        Assert.Equal("Building 2", departments[2].Building);
+        var dept2Courses = departments[2].Courses;
+        Assert.Single(dept2Courses);
+        Assert.Equal("Course B", dept2Courses[0].Name);
+        Assert.Equal(4, dept2Courses[0].Credits);
+
+        var internalEntry = entry.GetInfrastructure();
+        var departmentsProperty = entry.Metadata.FindComplexProperty(nameof(School.Departments))!;
+        var departmentEntries = internalEntry.GetComplexCollectionEntries(departmentsProperty);
+
+        Assert.Equal(3, departmentEntries.Count);
+        Assert.Equal(EntityState.Modified, departmentEntries[0]!.EntityState);
+        Assert.Equal(EntityState.Added, departmentEntries[1]!.EntityState);
+        Assert.Equal(EntityState.Modified, departmentEntries[2]!.EntityState);
+
+        var coursesProperty = departmentsProperty.ComplexType.FindComplexProperty(nameof(Department.Courses))!;
+
+        var dept1CourseEntries = departmentEntries[0]!.GetComplexCollectionEntries(coursesProperty);
+        Assert.Equal(3, dept1CourseEntries.Count);
+        if (dept1CourseEntries[0]!.EntityState == EntityState.Added)
+        {
+            Assert.Equal(EntityState.Modified, dept1CourseEntries[1]!.EntityState);
+            Assert.Equal(EntityState.Modified, dept1CourseEntries[2]!.EntityState);
+        }
+        else
+        {
+            Assert.Equal(EntityState.Modified, dept1CourseEntries[0]!.EntityState);
+            Assert.Equal(EntityState.Modified, dept1CourseEntries[1]!.EntityState);
+            Assert.Equal(EntityState.Added, dept1CourseEntries[2]!.EntityState);
+        }
+
+        var dept2CourseEntries = departmentEntries[2]!.GetComplexCollectionEntries(coursesProperty);
+        Assert.Single(dept2CourseEntries);
+        Assert.Equal(EntityState.Modified, dept2CourseEntries[0]!.EntityState);
+    }
+
+    [ConditionalFact]
+    public virtual void Setting_complex_collection_original_values_from_object_with_nulls_works()
+    {
+        using var context = CreateContext();
+        //var school = context.Set<School>().Single(s => s.Name == "Test School");
+
+        // Complex collection query support. Issue #31411
+        var school = CreateSchool();
+        context.Set<School>().Attach(school);
+
+        var newSchool = new School
+        {
+            Id = school.Id,
+            Name = "Original School with Nulls",
+            Departments =
+            [
+                null!,
+                new Department
+                {
+                    Name = "Original Department",
+                    Building = "Original Building",
+                    Courses = [new Course { Name = "Original Course", Credits = 2 }, null!]
+                }
+            ]
+        };
+
+        var entry = context.Entry(school);
+        entry.OriginalValues.SetValues(newSchool);
+
+        Assert.Equal("Test School", school.Name);
+        Assert.Equal(2, school.Departments.Count);
+
+        var originalValues = entry.OriginalValues;
+        Assert.Equal("Original School with Nulls", originalValues["Name"]);
+        var originalDepartments = (IList<Department>)originalValues["Departments"]!;
+        Assert.Equal(2, originalDepartments.Count);
+
+        Assert.Null(originalDepartments[0]);
+        Assert.Equal("Original Department", originalDepartments[1].Name);
+        Assert.Equal("Original Building", originalDepartments[1].Building);
+
+        var originalCourses = originalDepartments[1].Courses;
+        Assert.Equal(2, originalCourses.Count);
+        Assert.Equal("Original Course", originalCourses[0].Name);
+        Assert.Equal(2, originalCourses[0].Credits);
+        Assert.Null(originalCourses[1]);
+
+        var internalEntry = entry.GetInfrastructure();
+        var departmentsProperty = entry.Metadata.FindComplexProperty(nameof(School.Departments))!;
+        var departmentEntries = internalEntry.GetComplexCollectionEntries(departmentsProperty);
+
+        Assert.Equal(2, departmentEntries.Count);
+        Assert.Equal(EntityState.Modified, departmentEntries[0]!.EntityState);
+        Assert.Equal(EntityState.Modified, departmentEntries[1]!.EntityState);
+
+        var coursesProperty = departmentsProperty.ComplexType.FindComplexProperty(nameof(Department.Courses))!;
+
+        var dept1CourseEntries = departmentEntries[0]!.GetComplexCollectionEntries(coursesProperty);
+        Assert.Equal(2, dept1CourseEntries.Count);
+        Assert.Equal(EntityState.Modified, dept1CourseEntries[0]!.EntityState);
+        Assert.Equal(EntityState.Modified, dept1CourseEntries[1]!.EntityState);
+
+        var dept2CourseEntries = departmentEntries[1]!.GetComplexCollectionEntries(coursesProperty);
+        Assert.Equal(2, dept2CourseEntries.Count);
+        Assert.Equal(EntityState.Modified, dept2CourseEntries[0]!.EntityState);
+        Assert.Equal(EntityState.Modified, dept2CourseEntries[1]!.EntityState);
+    }
+
+    [ConditionalFact]
+    public virtual void Setting_complex_collection_current_values_from_dictionary_works()
+    {
+        using var context = CreateContext();
+        //var school = context.Set<School>().Single(s => s.Name == "Test School");
+
+        // Complex collection query support. Issue #31411
+        var school = CreateSchool();
+        context.Set<School>().Attach(school);
+
+        var dictionary = new Dictionary<string, object>
+        {
+            ["Id"] = school.Id,
+            ["Name"] = "Dictionary School",
+            ["Departments"] = new List<Dictionary<string, object>>
+            {
+                new()
+                {
+                    ["Name"] = "Dict Department 1",
+                    ["Building"] = "Dict Building 1",
+                    ["Courses"] = new List<Dictionary<string, object>>
+                    {
+                        new() { ["Name"] = "Dict Course 1", ["Credits"] = 5 }, new() { ["Name"] = "Dict Course 2", ["Credits"] = 6 }
+                    }
+                },
+                new()
+                {
+                    ["Name"] = "Dict Department 2",
+                    ["Building"] = "Dict Building 2",
+                    ["Courses"] = new List<Dictionary<string, object>> { new() { ["Name"] = "Dict Course 3", ["Credits"] = 7 } }
+                }
+            }
+        };
+
+        var entry = context.Entry(school);
+        entry.CurrentValues.SetValues(dictionary);
+
+        Assert.Equal("Dictionary School", school.Name);
+        Assert.Equal(2, school.Departments.Count);
+
+        Assert.Equal("Dict Department 1", school.Departments[0].Name);
+        Assert.Equal("Dict Building 1", school.Departments[0].Building);
+        Assert.Equal(2, school.Departments[0].Courses.Count);
+        Assert.Equal("Dict Course 1", school.Departments[0].Courses[0].Name);
+        Assert.Equal(5, school.Departments[0].Courses[0].Credits);
+        Assert.Equal("Dict Course 2", school.Departments[0].Courses[1].Name);
+        Assert.Equal(6, school.Departments[0].Courses[1].Credits);
+
+        Assert.Equal("Dict Department 2", school.Departments[1].Name);
+        Assert.Equal("Dict Building 2", school.Departments[1].Building);
+        Assert.Single(school.Departments[1].Courses);
+        Assert.Equal("Dict Course 3", school.Departments[1].Courses[0].Name);
+        Assert.Equal(7, school.Departments[1].Courses[0].Credits);
+
+        var currentValues = entry.CurrentValues;
+        var departments = (IList<Department>)currentValues["Departments"]!;
+        Assert.Equal(2, departments.Count);
+        Assert.Equal("Dict Department 1", departments[0].Name);
+        Assert.Equal("Dict Building 1", departments[0].Building);
+        var dept1Courses = departments[0].Courses;
+        Assert.Equal(2, dept1Courses.Count);
+        Assert.Equal("Dict Course 1", dept1Courses[0].Name);
+        Assert.Equal(5, dept1Courses[0].Credits);
+
+        var internalEntry = entry.GetInfrastructure();
+        var departmentsProperty = entry.Metadata.FindComplexProperty(nameof(School.Departments))!;
+        var departmentEntries = internalEntry.GetComplexCollectionEntries(departmentsProperty);
+
+        Assert.Equal(2, departmentEntries.Count);
+        Assert.Equal(EntityState.Modified, departmentEntries[0]!.EntityState);
+        Assert.Equal(EntityState.Modified, departmentEntries[1]!.EntityState);
+
+        var coursesProperty = departmentsProperty.ComplexType.FindComplexProperty(nameof(Department.Courses))!;
+
+        var dept1CourseEntries = departmentEntries[0]!.GetComplexCollectionEntries(coursesProperty);
+        Assert.Equal(2, dept1CourseEntries.Count);
+        Assert.Equal(EntityState.Modified, dept1CourseEntries[0]!.EntityState);
+        Assert.Equal(EntityState.Modified, dept1CourseEntries[1]!.EntityState);
+
+        var dept2CourseEntries = departmentEntries[1]!.GetComplexCollectionEntries(coursesProperty);
+        Assert.Single(dept2CourseEntries);
+        Assert.Equal(EntityState.Modified, dept2CourseEntries[0]!.EntityState);
+    }
+
+    [ConditionalFact]
+    public virtual void Setting_complex_collection_values_from_DTO_with_nulls_works()
+    {
+        using var context = CreateContext();
+        //var school = context.Set<School>().Single(s => s.Name == "Test School");
+
+        // Complex collection query support. Issue #31411
+        var school = CreateSchool();
+        context.Set<School>().Attach(school);
+
+        var dto = new SchoolDto
+        {
+            Id = school.Id,
+            Name = "DTO School",
+            Departments =
+            [
+                new()
+                {
+                    Name = "DTO Department",
+                    Building = "DTO Building",
+                    Courses = [null, new() { Name = "DTO Course", Credits = 8 }]
+                },
+
+                null
+            ]
+        };
+
+        var entry = context.Entry(school);
+        entry.CurrentValues.SetValues(dto);
+
+        Assert.Equal("DTO School", school.Name);
+        Assert.Equal(2, school.Departments.Count);
+
+        Assert.Equal("DTO Department", school.Departments[0]!.Name);
+        Assert.Equal("DTO Building", school.Departments[0]!.Building);
+        Assert.Equal(2, school.Departments[0]!.Courses.Count);
+        Assert.Null(school.Departments[0]!.Courses[0]);
+        Assert.Equal("DTO Course", school.Departments[0]!.Courses[1]!.Name);
+        Assert.Equal(8, school.Departments[0]!.Courses[1]!.Credits);
+
+        Assert.Null(school.Departments[1]);
+
+        var currentValues = entry.CurrentValues;
+        var departments = (IList<Department>)currentValues["Departments"]!;
+        Assert.Equal(2, departments.Count);
+        Assert.Equal("DTO Department", departments[0].Name);
+        var courses = departments[0].Courses;
+        Assert.Equal(2, courses.Count);
+        Assert.Null(courses[0]);
+        Assert.Equal("DTO Course", courses[1].Name);
+        Assert.Equal(8, courses[1].Credits);
+        Assert.Null(departments[1]);
+
+        var internalEntry = entry.GetInfrastructure();
+        var departmentsProperty = entry.Metadata.FindComplexProperty(nameof(School.Departments))!;
+        var departmentEntries = internalEntry.GetComplexCollectionEntries(departmentsProperty);
+
+        Assert.Equal(2, departmentEntries.Count);
+        Assert.Equal(EntityState.Modified, departmentEntries[0]!.EntityState);
+        Assert.Equal(EntityState.Modified, departmentEntries[1]!.EntityState);
+
+        var coursesProperty = departmentsProperty.ComplexType.FindComplexProperty(nameof(Department.Courses))!;
+
+        var dept1CourseEntries = departmentEntries[0]!.GetComplexCollectionEntries(coursesProperty);
+        Assert.Equal(2, dept1CourseEntries.Count);
+        Assert.Equal(EntityState.Modified, dept1CourseEntries[0]!.EntityState);
+        Assert.Equal(EntityState.Modified, dept1CourseEntries[1]!.EntityState);
+    }
+
+    [ConditionalFact]
+    public virtual void Setting_complex_collection_current_values_from_dictionary_with_nulls_works()
+    {
+        using var context = CreateContext();
+        //var school = context.Set<School>().Single(s => s.Name == "Test School");
+
+        // Complex collection query support. Issue #31411
+        var school = CreateSchool();
+        context.Set<School>().Attach(school);
+
+        var dictionary = new Dictionary<string, object>
+        {
+            ["Id"] = school.Id,
+            ["Name"] = "Dictionary School with Nulls",
+            ["Departments"] = new List<Dictionary<string, object>?>
+            {
+                null,
+                new()
+                {
+                    ["Name"] = "Dict Department",
+                    ["Building"] = "Dict Building",
+                    ["Courses"] = new List<Dictionary<string, object>?>
+                    {
+                        new() { ["Name"] = "Dict Course 1", ["Credits"] = 5 },
+                        null,
+                        new() { ["Name"] = "Dict Course 2", ["Credits"] = 6 }
+                    }
+                }
+            }
+        };
+
+        var entry = context.Entry(school);
+        entry.CurrentValues.SetValues(dictionary);
+
+        // Verify entity state
+        Assert.Equal("Dictionary School with Nulls", school.Name);
+        Assert.Equal(2, school.Departments.Count);
+        Assert.Null(school.Departments[0]);
+        Assert.Equal("Dict Department", school.Departments[1]!.Name);
+        Assert.Equal("Dict Building", school.Departments[1]!.Building);
+        Assert.Equal(3, school.Departments[1]!.Courses.Count);
+        Assert.Equal("Dict Course 1", school.Departments[1]!.Courses[0]!.Name);
+        Assert.Equal(5, school.Departments[1]!.Courses[0]!.Credits);
+        Assert.Null(school.Departments[1]!.Courses[1]);
+        Assert.Equal("Dict Course 2", school.Departments[1]!.Courses[2]!.Name);
+        Assert.Equal(6, school.Departments[1]!.Courses[2]!.Credits);
+
+        var currentValues = entry.CurrentValues;
+        var departmentsComplexProperty = entry.Metadata.FindComplexProperty(nameof(School.Departments))!;
+
+        var departments = (IList<Department>)currentValues["Departments"]!;
+        var departmentsViaComplexProperty = (IList<Department>)currentValues[departmentsComplexProperty]!;
+
+        Assert.Equal(2, departments.Count);
+        Assert.Equal(2, departmentsViaComplexProperty.Count);
+        Assert.Null(departments[0]);
+        Assert.Null(departmentsViaComplexProperty[0]);
+
+        var deptNameProperty = departmentsComplexProperty.ComplexType.FindProperty(nameof(Department.Name))!;
+        var deptBuildingProperty = departmentsComplexProperty.ComplexType.FindProperty(nameof(Department.Building))!;
+
+        Assert.Equal("Dict Department", departments[1].Name);
+        Assert.Equal("Dict Building", departments[1].Building);
+        Assert.Equal("Dict Department", departments[1].Name);
+        Assert.Equal("Dict Building", departments[1].Building);
+
+        var courses = departments[1].Courses;
+        var coursesComplexProperty = departmentsComplexProperty.ComplexType.FindComplexProperty(nameof(Department.Courses))!;
+        var courseNameProperty = coursesComplexProperty.ComplexType.FindProperty(nameof(Course.Name))!;
+        var courseCreditsProperty = coursesComplexProperty.ComplexType.FindProperty(nameof(Course.Credits))!;
+
+        Assert.Equal(3, courses.Count);
+        Assert.Equal("Dict Course 1", courses[0].Name);
+        Assert.Equal(5, courses[0].Credits);
+        Assert.Equal("Dict Course 1", courses[0].Name);
+        Assert.Equal(5, courses[0].Credits);
+        Assert.Null(courses[1]);
+        Assert.Equal("Dict Course 2", courses[2].Name);
+        Assert.Equal(6, courses[2].Credits);
+        Assert.Equal("Dict Course 2", courses[2].Name);
+        Assert.Equal(6, courses[2].Credits);
+
+        var internalEntry = entry.GetInfrastructure();
+        var departmentEntries = internalEntry.GetComplexCollectionEntries(departmentsComplexProperty);
+
+        Assert.Equal(2, departmentEntries.Count);
+        Assert.Equal(EntityState.Modified, departmentEntries[0]!.EntityState);
+        Assert.Equal(EntityState.Modified, departmentEntries[1]!.EntityState);
+
+        var dept2CourseEntries = departmentEntries[1]!.GetComplexCollectionEntries(coursesComplexProperty);
+        Assert.Equal(3, dept2CourseEntries.Count);
+        Assert.Equal(EntityState.Modified, dept2CourseEntries[0]!.EntityState);
+        Assert.Equal(EntityState.Added, dept2CourseEntries[1]!.EntityState);
+        Assert.Equal(EntityState.Modified, dept2CourseEntries[2]!.EntityState);
+    }
+
+    [ConditionalFact]
+    public virtual void Setting_complex_collection_original_values_from_dictionary_with_nulls_works()
+    {
+        using var context = CreateContext();
+        //var school = context.Set<School>().Single(s => s.Name == "Test School");
+
+        // Complex collection query support. Issue #31411
+        var school = CreateSchool();
+        context.Set<School>().Attach(school);
+
+        var dictionary = new Dictionary<string, object>
+        {
+            ["Id"] = school.Id,
+            ["Name"] = "Original Dictionary School",
+            ["Departments"] = new List<Dictionary<string, object>?>
+            {
+                new()
+                {
+                    ["Name"] = "Original Dict Department",
+                    ["Building"] = "Original Dict Building",
+                    ["Courses"] = new List<Dictionary<string, object>?>
+                        {
+                            null, new() { ["Name"] = "Original Dict Course", ["Credits"] = 2 }
+                        }
+                },
+                null
+            }
+        };
+
+        var entry = context.Entry(school);
+        entry.OriginalValues.SetValues(dictionary);
+
+        Assert.Equal("Test School", school.Name);
+        Assert.Equal(2, school.Departments.Count);
+
+        var originalValues = entry.OriginalValues;
+        var departmentsComplexProperty = entry.Metadata.FindComplexProperty(nameof(School.Departments))!;
+
+        Assert.Equal("Original Dictionary School", originalValues["Name"]);
+        var originalDepartments = (IList<Department>)originalValues["Departments"]!;
+        var originalDepartmentsViaComplexProperty = (IList<Department>)originalValues[departmentsComplexProperty]!;
+
+        Assert.Equal(2, originalDepartments.Count);
+        Assert.Equal(2, originalDepartmentsViaComplexProperty.Count);
+
+        var deptNameProperty = departmentsComplexProperty.ComplexType.FindProperty(nameof(Department.Name))!;
+        var deptBuildingProperty = departmentsComplexProperty.ComplexType.FindProperty(nameof(Department.Building))!;
+
+        Assert.Equal("Original Dict Department", originalDepartments[0].Name);
+        Assert.Equal("Original Dict Building", originalDepartments[0].Building);
+        Assert.Equal("Original Dict Department", originalDepartments[0].Name);
+        Assert.Equal("Original Dict Building", originalDepartments[0].Building);
+        Assert.Null(originalDepartments[1]);
+        Assert.Null(originalDepartmentsViaComplexProperty[1]);
+
+        var originalCourses = originalDepartments[0].Courses;
+        var coursesComplexProperty = departmentsComplexProperty.ComplexType.FindComplexProperty(nameof(Department.Courses))!;
+        var courseNameProperty = coursesComplexProperty.ComplexType.FindProperty(nameof(Course.Name))!;
+        var courseCreditsProperty = coursesComplexProperty.ComplexType.FindProperty(nameof(Course.Credits))!;
+
+        Assert.Equal(2, originalCourses.Count);
+        Assert.Null(originalCourses[0]);
+        Assert.Equal("Original Dict Course", originalCourses[1].Name);
+        Assert.Equal(2, originalCourses[1].Credits);
+        Assert.Equal("Original Dict Course", originalCourses[1].Name);
+        Assert.Equal(2, originalCourses[1].Credits);
+
+        var internalEntry = entry.GetInfrastructure();
+        var departmentEntries = internalEntry.GetComplexCollectionEntries(departmentsComplexProperty);
+
+        Assert.Equal(2, departmentEntries.Count);
+        Assert.Equal(EntityState.Modified, departmentEntries[0]!.EntityState);
+        Assert.Equal(EntityState.Modified, departmentEntries[1]!.EntityState);
+
+        var dept1CourseEntries = departmentEntries[0]!.GetComplexCollectionEntries(coursesComplexProperty);
+        Assert.Equal(2, dept1CourseEntries.Count);
+        Assert.Equal(EntityState.Modified, dept1CourseEntries[0]!.EntityState);
+        Assert.Equal(EntityState.Modified, dept1CourseEntries[1]!.EntityState);
+
+        var dept2CourseEntries = departmentEntries[1]!.GetComplexCollectionEntries(coursesComplexProperty);
+        Assert.Equal(2, dept2CourseEntries.Count);
+        Assert.Equal(EntityState.Modified, dept2CourseEntries[0]!.EntityState);
+        Assert.Equal(EntityState.Modified, dept2CourseEntries[1]!.EntityState);
+    }
+
+    [ConditionalFact]
+    public virtual void Setting_complex_collection_current_values_from_DTO_with_complex_metadata_access_works()
+    {
+        using var context = CreateContext();
+        //var school = context.Set<School>().Single(s => s.Name == "Test School");
+
+        // Complex collection query support. Issue #31411
+        var school = CreateSchool();
+        context.Set<School>().Attach(school);
+
+        var dto = new SchoolDto
+        {
+            Id = school.Id,
+            Name = "Advanced DTO School",
+            Departments =
+            [
+                new()
+                {
+                    Name = "Advanced DTO Department 1",
+                    Building = "Advanced DTO Building 1",
+                    Courses =
+                    [
+                        new() { Name = "Advanced DTO Course 1", Credits = 10 },
+                        null,
+                        new() { Name = "Advanced DTO Course 2", Credits = 12 }
+                    ]
+                },
+
+                null,
+                new()
+                {
+                    Name = "Advanced DTO Department 2",
+                    Building = "Advanced DTO Building 2",
+                    Courses = [new() { Name = "Advanced DTO Course 3", Credits = 15 }]
+                }
+            ]
+        };
+
+        var entry = context.Entry(school);
+        entry.CurrentValues.SetValues(dto);
+
+        Assert.Equal("Advanced DTO School", school.Name);
+        Assert.Equal(3, school.Departments.Count);
+
+        var currentValues = entry.CurrentValues;
+        var departmentsComplexProperty = entry.Metadata.FindComplexProperty(nameof(School.Departments))!;
+
+        var departments = (IList<Department>)currentValues[departmentsComplexProperty]!;
+        Assert.Equal(3, departments.Count);
+
+        var deptNameProperty = departmentsComplexProperty.ComplexType.FindProperty(nameof(Department.Name))!;
+        var deptBuildingProperty = departmentsComplexProperty.ComplexType.FindProperty(nameof(Department.Building))!;
+
+        Assert.Equal("Advanced DTO Department 1", departments[0].Name);
+        Assert.Equal("Advanced DTO Building 1", departments[0].Building);
+
+        var dept1Courses = departments[0].Courses;
+        var coursesComplexProperty = departmentsComplexProperty.ComplexType.FindComplexProperty(nameof(Department.Courses))!;
+        var courseNameProperty = coursesComplexProperty.ComplexType.FindProperty(nameof(Course.Name))!;
+        var courseCreditsProperty = coursesComplexProperty.ComplexType.FindProperty(nameof(Course.Credits))!;
+
+        Assert.Equal(3, dept1Courses.Count);
+        Assert.Equal("Advanced DTO Course 1", dept1Courses[0].Name);
+        Assert.Equal(10, dept1Courses[0].Credits);
+        Assert.Null(dept1Courses[1]);
+        Assert.Equal("Advanced DTO Course 2", dept1Courses[2].Name);
+        Assert.Equal(12, dept1Courses[2].Credits);
+
+        Assert.Null(departments[1]);
+
+        Assert.Equal("Advanced DTO Department 2", departments[2].Name);
+        Assert.Equal("Advanced DTO Building 2", departments[2].Building);
+
+        var dept2Courses = departments[2].Courses;
+        Assert.Single(dept2Courses);
+        Assert.Equal("Advanced DTO Course 3", dept2Courses[0].Name);
+        Assert.Equal(15, dept2Courses[0].Credits);
+
+        var internalEntry = entry.GetInfrastructure();
+        var departmentEntries = internalEntry.GetComplexCollectionEntries(departmentsComplexProperty);
+
+        Assert.Equal(3, departmentEntries.Count);
+        Assert.Equal(EntityState.Modified, departmentEntries[0]!.EntityState);
+        Assert.Equal(EntityState.Added, departmentEntries[1]!.EntityState);
+        Assert.Equal(EntityState.Modified, departmentEntries[2]!.EntityState);
+
+        var dept1CourseEntries = departmentEntries[0]!.GetComplexCollectionEntries(coursesComplexProperty);
+        Assert.Equal(3, dept1CourseEntries.Count);
+        Assert.Equal(EntityState.Modified, dept1CourseEntries[0]!.EntityState);
+        Assert.Equal(EntityState.Added, dept1CourseEntries[1]!.EntityState);
+        Assert.Equal(EntityState.Modified, dept1CourseEntries[2]!.EntityState);
+
+        var dept3CourseEntries = departmentEntries[2]!.GetComplexCollectionEntries(coursesComplexProperty);
+        Assert.Single(dept3CourseEntries);
+        Assert.Equal(EntityState.Modified, dept3CourseEntries[0]!.EntityState);
+    }
+
+    [ConditionalFact]
+    public virtual void SetValues_throws_for_complex_collection_with_non_list_value()
+    {
+        using var context = CreateContext();
+        var school = CreateSchool();
+        context.Set<School>().Attach(school);
+
+        var dictionary = new Dictionary<string, object> { ["Name"] = "Test School", ["Departments"] = "Not a list" };
+
+        var entry = context.Entry(school);
+        var exception = Assert.Throws<InvalidOperationException>(() => entry.OriginalValues.SetValues(dictionary));
+        Assert.Equal(CoreStrings.ComplexCollectionValueNotDictionaryList("Departments", "string"), exception.Message);
+    }
+
+    [ConditionalFact]
+    public virtual void SetValues_throws_for_complex_collection_with_non_dictionary_item()
+    {
+        using var context = CreateContext();
+        var school = CreateSchool();
+        context.Set<School>().Attach(school);
+
+        var dictionary = new Dictionary<string, object>
+        {
+            ["Name"] = "Test School", ["Departments"] = new List<object?> { "Not a dictionary", null }
+        };
+
+        var entry = context.Entry(school);
+        var exception = Assert.Throws<InvalidOperationException>(() => entry.OriginalValues.SetValues(dictionary));
+        Assert.Equal(CoreStrings.ComplexCollectionValueNotDictionaryList("Departments", "string"), exception.Message);
+    }
+
+    [ConditionalFact]
+    public virtual void SetValues_throws_for_nested_complex_collection_with_non_list_value()
+    {
+        using var context = CreateContext();
+        var school = CreateSchool();
+        context.Set<School>().Attach(school);
+
+        var dictionary = new Dictionary<string, object>
+        {
+            ["Name"] = "Test School",
+            ["Departments"] = new List<Dictionary<string, object>>
+            {
+                new()
+                {
+                    ["Name"] = "Department 1",
+                    ["Building"] = "Building 1",
+                    ["Courses"] = "Not a list"
+                }
+            }
+        };
+
+        var entry = context.Entry(school);
+        var exception = Assert.Throws<InvalidOperationException>(() => entry.OriginalValues.SetValues(dictionary));
+        Assert.Equal(CoreStrings.ComplexCollectionValueNotDictionaryList("Courses", "string"), exception.Message);
+    }
+
+    [ConditionalFact]
+    public virtual void SetValues_throws_for_nested_complex_collection_with_non_dictionary_item()
+    {
+        using var context = CreateContext();
+        var school = CreateSchool();
+        context.Set<School>().Attach(school);
+
+        var dictionary = new Dictionary<string, object>
+        {
+            ["Name"] = "Test School",
+            ["Departments"] = new List<Dictionary<string, object>>
+            {
+                new()
+                {
+                    ["Name"] = "Department 1",
+                    ["Building"] = "Building 1",
+                    ["Courses"] = new List<object?> { "Not a dictionary" }
+                }
+            }
+        };
+
+        var entry = context.Entry(school);
+        var exception = Assert.Throws<InvalidOperationException>(() => entry.OriginalValues.SetValues(dictionary));
+        Assert.Equal(CoreStrings.ComplexCollectionValueNotDictionaryList("Courses", "List<object>"), exception.Message);
+    }
+
+    [ConditionalFact]
+    public virtual void SetValues_throws_for_complex_property_with_non_dictionary_value()
+    {
+        using var context = CreateContext();
+        var building = context.Set<Building>().Single(b => b.Name == "Building One");
+
+        var dictionary = new Dictionary<string, object> { ["Name"] = "Building", ["Culture"] = "Not a dictionary" };
+
+        var entry = context.Entry(building);
+        var exception = Assert.Throws<InvalidOperationException>(() => entry.OriginalValues.SetValues(dictionary));
+        Assert.Equal(CoreStrings.ComplexPropertyValueNotDictionary("Culture", "string"), exception.Message);
+    }
+
+    [ConditionalFact]
+    public virtual void Current_values_can_be_copied_to_object_using_ToObject()
+    {
+        using var context = CreateContext();
+        var building = context.Set<Building>().Single(b => b.Name == "Building One");
+
+        building.Name = "Building One Prime";
+        building.Value = 1500001m;
+        context.Entry(building).Property("Shadow1").CurrentValue = 12;
+        context.Entry(building).Property("Shadow2").CurrentValue = "Pine Walk";
+
+        var values = context.Entry(building).CurrentValues;
+        var copy = (Building)values.ToObject();
+
+        Assert.Equal("Building One Prime", copy.Name);
+        Assert.Equal(1500001m, copy.Value);
+        Assert.Equal(building.BuildingId, copy.BuildingId);
+
+        Assert.True(copy.CreatedCalled);
+        Assert.True(copy.InitializingCalled);
+        Assert.True(copy.InitializedCalled);
+
+        if (context.Model.FindEntityType(typeof(School)) != null)
+        {
+            //var school = context.Set<School>().First();
+
+            // Complex collection query support. Issue #31411
+            var school = CreateSchool();
+            context.Set<School>().Attach(school);
+            school.Name = "Modified School";
+            school.Departments[0].Name = "Modified Department";
+            school.Departments[0].Courses[0].Name = "Modified Course";
+            school.Departments[0].Courses[0].Credits = 999;
+
+            var schoolValues = context.Entry(school).CurrentValues;
+            var schoolCopy = (School)schoolValues.ToObject();
+
+            Assert.Equal("Modified School", schoolCopy.Name);
+            Assert.Equal(school.Id, schoolCopy.Id);
+            Assert.Equal(school.Departments.Count, schoolCopy.Departments.Count);
+            Assert.Equal("Modified Department", schoolCopy.Departments[0].Name);
+            Assert.Equal(school.Departments[0].Courses.Count, schoolCopy.Departments[0].Courses.Count);
+            Assert.Equal("Modified Course", schoolCopy.Departments[0].Courses[0].Name);
+            Assert.Equal(999, schoolCopy.Departments[0].Courses[0].Credits);
+        }
+    }
+
+    [ConditionalFact]
+    public virtual void Original_values_can_be_copied_to_object_using_ToObject()
+    {
+        using var context = CreateContext();
+        var building = context.Set<Building>().Single(b => b.Name == "Building One");
+
+        building.Name = "Building One Prime";
+        building.Value = 1500001m;
+        context.Entry(building).Property("Shadow1").CurrentValue = 12;
+        context.Entry(building).Property("Shadow2").CurrentValue = "Pine Walk";
+
+        var values = context.Entry(building).OriginalValues;
+        var copy = (Building)values.ToObject();
+
+        Assert.Equal("Building One", copy.Name);
+        Assert.Equal(1500000m, copy.Value);
+        Assert.Equal(building.BuildingId, copy.BuildingId);
+
+        Assert.True(copy.CreatedCalled);
+        Assert.True(copy.InitializingCalled);
+        Assert.True(copy.InitializedCalled);
+
+        if (context.Model.FindEntityType(typeof(School)) != null)
+        {
+            //var school = context.Set<School>().First();
+
+            // Complex collection query support. Issue #31411
+            var school = CreateSchool();
+            context.Set<School>().Attach(school);
+            school.Name = "Modified School";
+            school.Departments[0].Name = "Modified Department";
+            school.Departments[0].Courses[0].Name = "Modified Course";
+            school.Departments[0].Courses[0].Credits = 999;
+
+            var schoolValues = context.Entry(school).OriginalValues;
+            var schoolCopy = (School)schoolValues.ToObject();
+
+            Assert.Equal("Test School", schoolCopy.Name);
+            Assert.Equal(school.Id, schoolCopy.Id);
+            Assert.Equal(2, schoolCopy.Departments.Count);
+            Assert.Equal("Computer Science", schoolCopy.Departments[0].Name);
+            Assert.Equal(2, schoolCopy.Departments[0].Courses.Count);
+            Assert.Equal("Data Structures", schoolCopy.Departments[0].Courses[0].Name);
+            Assert.Equal(3, schoolCopy.Departments[0].Courses[0].Credits);
+        }
+    }
+
+    [ConditionalFact]
+    public virtual Task Store_values_can_be_copied_to_object_using_ToObject()
+        => Store_values_can_be_copied_to_object_using_ToObject_implementation(e => Task.FromResult(e.GetDatabaseValues()!));
+
+    [ConditionalFact]
+    public virtual Task Store_values_can_be_copied_to_object_using_ToObject_asynchronously()
+        => Store_values_can_be_copied_to_object_using_ToObject_implementation(e => e.GetDatabaseValuesAsync()!);
+
+    private async Task Store_values_can_be_copied_to_object_using_ToObject_implementation(
+        Func<EntityEntry, Task<PropertyValues>> getPropertyValues)
+    {
+        using var context = CreateContext();
+        var building = context.Set<Building>().Single(b => b.Name == "Building One");
+
+        building.Name = "Building One Prime";
+        building.Value = 1500001m;
+        context.Entry(building).Property("Shadow1").CurrentValue = 12;
+        context.Entry(building).Property("Shadow2").CurrentValue = "Pine Walk";
+
+        var values = await getPropertyValues(context.Entry(building));
+        var copy = (Building)values.ToObject();
+
+        Assert.Equal("Building One", copy.Name);
+        Assert.Equal(1500000m, copy.Value);
+        Assert.Equal(building.BuildingId, copy.BuildingId);
+
+        Assert.True(copy.CreatedCalled);
+        Assert.True(copy.InitializingCalled);
+        Assert.True(copy.InitializedCalled);
+
+        if (context.Model.FindEntityType(typeof(School)) != null)
+        {
+            //var school = context.Set<School>().First();
+
+            // Complex collection query support. Issue #31411
+            var school = CreateSchool();
+            context.Set<School>().Attach(school);
+            school.Name = "Modified School";
+            school.Departments[0].Name = "Modified Department";
+            school.Departments[0].Courses[0].Name = "Modified Course";
+            school.Departments[0].Courses[0].Credits = 999;
+
+            var schoolValues = await getPropertyValues(context.Entry(school));
+            if (schoolValues != null)
+            {
+                var schoolCopy = (School)schoolValues.ToObject();
+
+                Assert.Equal("Test School", schoolCopy.Name);
+                Assert.Equal(school.Id, schoolCopy.Id);
+                Assert.Equal(2, schoolCopy.Departments.Count);
+                Assert.Equal("Computer Science", schoolCopy.Departments[0].Name);
+                Assert.Equal(2, schoolCopy.Departments[0].Courses.Count);
+                Assert.Equal("Data Structures", schoolCopy.Departments[0].Courses[0].Name);
+                Assert.Equal(3, schoolCopy.Departments[0].Courses[0].Credits);
+            }
+        }
+    }
+
+    [ConditionalFact]
+    public virtual void Current_values_can_be_cloned()
+    {
+        using var context = CreateContext();
+        var building = context.Set<Building>().Single(b => b.Name == "Building One");
+
+        building.Name = "Building One Prime";
+        building.Value = 1500001m;
+        context.Entry(building).Property("Shadow1").CurrentValue = 12;
+        context.Entry(building).Property("Shadow2").CurrentValue = "Pine Walk";
+
+        var values = context.Entry(building).CurrentValues;
+        var clone = values.Clone();
+
+        Assert.NotSame(values, clone);
+        Assert.Equal("Building One Prime", clone["Name"]);
+        Assert.Equal(1500001m, clone["Value"]);
+        Assert.Equal(12, clone["Shadow1"]);
+        Assert.Equal("Pine Walk", clone["Shadow2"]);
+
+        values["Name"] = "Modified";
+        Assert.Equal("Building One Prime", clone["Name"]);
+
+        if (context.Model.FindEntityType(typeof(School)) != null)
+        {
+            //var school = context.Set<School>().First();
+
+            // Complex collection query support. Issue #31411
+            var school = CreateSchool();
+            context.Set<School>().Attach(school);
+            school.Name = "Modified School";
+            school.Departments[0].Name = "Modified Department";
+            school.Departments[0].Courses[0].Name = "Modified Course";
+            school.Departments[0].Courses[0].Credits = 999;
+
+            var schoolValues = context.Entry(school).CurrentValues;
+            var schoolClone = schoolValues.Clone();
+
+            Assert.NotSame(schoolValues, schoolClone);
+            Assert.Equal("Modified School", schoolClone["Name"]);
+            Assert.Equal(school.Id, schoolClone["Id"]);
+
+            schoolValues["Name"] = "Further Modified";
+            Assert.Equal("Modified School", schoolClone["Name"]);
+
+            var departmentsProperty = schoolValues.ComplexCollectionProperties.Single(p => p.Name == "Departments");
+            var originalDepts = schoolValues[departmentsProperty];
+            var clonedDepts = schoolClone[departmentsProperty];
+            Assert.NotSame(originalDepts, clonedDepts);
+        }
+    }
+
+    [ConditionalFact]
+    public virtual void Original_values_can_be_cloned()
+    {
+        using var context = CreateContext();
+        var building = context.Set<Building>().Single(b => b.Name == "Building One");
+
+        building.Name = "Building One Prime";
+        building.Value = 1500001m;
+        context.Entry(building).Property("Shadow1").CurrentValue = 12;
+        context.Entry(building).Property("Shadow2").CurrentValue = "Pine Walk";
+
+        var values = context.Entry(building).OriginalValues;
+        var clone = values.Clone();
+
+        Assert.NotSame(values, clone);
+        Assert.Equal("Building One", clone["Name"]);
+        Assert.Equal(1500000m, clone["Value"]);
+        Assert.Equal(11, clone["Shadow1"]);
+        Assert.Equal("Meadow Drive", clone["Shadow2"]);
+
+        values["Name"] = "Modified";
+        Assert.Equal("Building One", clone["Name"]);
+
+        if (context.Model.FindEntityType(typeof(School)) != null)
+        {
+            //var school = context.Set<School>().First();
+
+            // Complex collection query support. Issue #31411
+            var school = CreateSchool();
+            context.Set<School>().Attach(school);
+            school.Name = "Modified School";
+            school.Departments[0].Name = "Modified Department";
+            school.Departments[0].Courses[0].Name = "Modified Course";
+            school.Departments[0].Courses[0].Credits = 999;
+
+            var schoolValues = context.Entry(school).OriginalValues;
+            var schoolClone = schoolValues.Clone();
+
+            Assert.NotSame(schoolValues, schoolClone);
+            Assert.Equal("Test School", schoolClone["Name"]);
+            Assert.Equal(school.Id, schoolClone["Id"]);
+
+            schoolValues["Name"] = "Further Modified";
+            Assert.Equal("Test School", schoolClone["Name"]);
+
+            var departmentsProperty = schoolValues.ComplexCollectionProperties.Single(p => p.Name == "Departments");
+            var originalDepts = schoolValues[departmentsProperty];
+            var clonedDepts = schoolClone[departmentsProperty];
+            Assert.NotSame(originalDepts, clonedDepts);
+        }
+    }
+
+    [ConditionalFact(Skip = "Complex collection query support. Issue #31411")]
+    public virtual Task Store_values_can_be_cloned()
+        => Store_values_can_be_cloned_implementation(e => Task.FromResult(e.GetDatabaseValues()!));
+
+    [ConditionalFact(Skip = "Complex collection query support. Issue #31411")]
+    public virtual Task Store_values_can_be_cloned_asynchronously()
+        => Store_values_can_be_cloned_implementation(e => e.GetDatabaseValuesAsync()!);
+
+    private async Task Store_values_can_be_cloned_implementation(
+        Func<EntityEntry, Task<PropertyValues>> getPropertyValues)
+    {
+        using var context = CreateContext();
+        var building = context.Set<Building>().Single(b => b.Name == "Building One");
+
+        building.Name = "Building One Prime";
+        building.Value = 1500001m;
+        context.Entry(building).Property("Shadow1").CurrentValue = 12;
+        context.Entry(building).Property("Shadow2").CurrentValue = "Pine Walk";
+
+        var values = await getPropertyValues(context.Entry(building));
+        var clone = values.Clone();
+
+        Assert.NotSame(values, clone);
+        Assert.Equal("Building One", clone["Name"]);
+        Assert.Equal(1500000m, clone["Value"]);
+        Assert.Equal(11, clone["Shadow1"]);
+        Assert.Equal("Meadow Drive", clone["Shadow2"]);
+
+        values["Name"] = "Modified";
+        Assert.Equal("Building One", clone["Name"]);
+
+        if (context.Model.FindEntityType(typeof(School)) != null)
+        {
+            //var school = context.Set<School>().First();
+
+            // Complex collection query support. Issue #31411
+            var school = CreateSchool();
+            context.Set<School>().Attach(school);
+            school.Name = "Modified School";
+            school.Departments[0].Name = "Modified Department";
+            school.Departments[0].Courses[0].Name = "Modified Course";
+            school.Departments[0].Courses[0].Credits = 999;
+
+            var schoolValues = await getPropertyValues(context.Entry(school));
+            var schoolClone = schoolValues.Clone();
+
+            Assert.NotSame(schoolValues, schoolClone);
+            Assert.Equal("Test School", schoolClone["Name"]);
+            Assert.Equal(school.Id, schoolClone["Id"]);
+
+            schoolValues["Name"] = "Further Modified";
+            Assert.Equal("Test School", schoolClone["Name"]);
+
+            var departmentsProperty = schoolValues.Properties.Single(p => p.Name == "Departments");
+            var originalDepts = schoolValues[departmentsProperty];
+            var clonedDepts = schoolClone[departmentsProperty];
+            Assert.NotSame(originalDepts, clonedDepts);
+        }
     }
 
     protected abstract class PropertyValuesBase
@@ -2318,8 +3564,8 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
         public Guid BuildingId { get; set; }
         public string? Name { get; set; }
         public decimal Value { get; set; }
-        public virtual ICollection<Office> Offices { get; } = new List<Office>();
-        public virtual IList<MailRoom> MailRooms { get; } = new List<MailRoom>();
+        public virtual ICollection<Office> Offices { get; } = [];
+        public virtual IList<MailRoom> MailRooms { get; } = [];
 
         public int? PrincipalMailRoomId { get; set; }
         public MailRoom? PrincipalMailRoom { get; set; }
@@ -2460,7 +3706,7 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
     {
         public Guid BuildingId { get; set; }
         public Building? Building { get; set; }
-        public IList<Whiteboard> WhiteBoards { get; } = new List<Whiteboard>();
+        public IList<Whiteboard> WhiteBoards { get; } = [];
     }
 
     protected abstract class UnMappedOfficeBase : PropertyValuesBase
@@ -2514,12 +3760,84 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
         public DateTime TerminationDate { get; set; }
     }
 
+    protected class SchoolDto
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = null!;
+        public List<DepartmentDto?> Departments { get; set; } = [];
+    }
+
+    protected class DepartmentDto
+    {
+        public string Name { get; set; } = null!;
+        public string Building { get; set; } = null!;
+        public List<CourseDto?> Courses { get; set; } = [];
+    }
+
+    protected class CourseDto
+    {
+        public string Name { get; set; } = null!;
+        public int Credits { get; set; }
+    }
+
+    protected class School : PropertyValuesBase
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = null!;
+        public List<Department> Departments { get; set; } = [];
+    }
+
+    [ComplexType]
+    protected class Department
+    {
+        public string Name { get; set; } = null!;
+        public string Building { get; set; } = null!;
+        public List<Course> Courses { get; set; } = [];
+    }
+
+    [ComplexType]
+    protected class Course
+    {
+        public string Name { get; set; } = null!;
+        public int Credits { get; set; }
+    }
+
     protected DbContext CreateContext()
     {
         var context = Fixture.CreateContext();
         context.ChangeTracker.AutoDetectChangesEnabled = false;
         return context;
     }
+
+    private static School CreateSchool()
+        => new()
+        {
+            Id = 1,
+            Name = "Test School",
+            Departments =
+            [
+                new Department
+                {
+                    Name = "Computer Science",
+                    Building = "Building A",
+                    Courses =
+                    [
+                        new Course { Name = "Data Structures", Credits = 3 },
+                        new Course { Name = "Algorithms", Credits = 4 }
+                    ]
+                },
+                new Department
+                {
+                    Name = "Mathematics",
+                    Building = "Building B",
+                    Courses =
+                    [
+                        new Course { Name = "Calculus I", Credits = 4 },
+                        new Course { Name = "Linear Algebra", Credits = 3 }
+                    ]
+                }
+            ]
+        };
 
     public abstract class PropertyValuesFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
     {
@@ -2531,31 +3849,29 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
-            modelBuilder.Entity<Employee>(
-                b =>
-                {
-                    b.Property(e => e.EmployeeId).ValueGeneratedNever();
-                    b.Property<int>("Shadow1");
-                    b.Property<string>("Shadow2");
-                });
+            modelBuilder.Entity<Employee>(b =>
+            {
+                b.Property(e => e.EmployeeId).ValueGeneratedNever();
+                b.Property<int>("Shadow1");
+                b.Property<string>("Shadow2");
+            });
 
-            modelBuilder.Entity<CurrentEmployee>(
-                b =>
-                {
-                    b.Property<int>("Shadow3");
+            modelBuilder.Entity<CurrentEmployee>(b =>
+            {
+                b.Property<int>("Shadow3");
 
-                    b.HasMany(p => p.VirtualTeams)
-                        .WithMany(p => p.Employees)
-                        .UsingEntity<Dictionary<string, object>>(
-                            "VirtualTeamEmployee",
-                            j => j
-                                .HasOne<VirtualTeam>()
-                                .WithMany(),
-                            j => j
-                                .HasOne<CurrentEmployee>()
-                                .WithMany(),
-                            j => j.IndexerProperty<string>("Payload"));
-                });
+                b.HasMany(p => p.VirtualTeams)
+                    .WithMany(p => p.Employees)
+                    .UsingEntity<Dictionary<string, object>>(
+                        "VirtualTeamEmployee",
+                        j => j
+                            .HasOne<VirtualTeam>()
+                            .WithMany(),
+                        j => j
+                            .HasOne<CurrentEmployee>()
+                            .WithMany(),
+                        j => j.IndexerProperty<string>("Payload"));
+            });
 
             modelBuilder.Entity<PastEmployee>(b => b.Property<string>("Shadow4"));
 
@@ -2569,63 +3885,31 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
                 .WithMany(nameof(Building.MailRooms))
                 .HasForeignKey(m => m.BuildingId);
 
-            modelBuilder.Entity<Office>().HasKey(
-                o => new { o.Number, o.BuildingId });
+            modelBuilder.Entity<Office>().HasKey(o => new { o.Number, o.BuildingId });
 
             modelBuilder.Ignore<UnMappedOffice>();
 
-            modelBuilder.Entity<BuildingDetail>(
-                b =>
-                {
-                    b.HasKey(d => d.BuildingId);
-                    b.HasOne(d => d.Building).WithOne().HasPrincipalKey<Building>(e => e.BuildingId);
-                });
+            modelBuilder.Entity<BuildingDetail>(b =>
+            {
+                b.HasKey(d => d.BuildingId);
+                b.HasOne(d => d.Building).WithOne().HasPrincipalKey<Building>(e => e.BuildingId);
+            });
 
-            modelBuilder.Entity<Building>(
-                b =>
-                {
-                    b.Ignore(e => e.NotInModel);
-                    b.Property<int>("Shadow1");
-                    b.Property<string>("Shadow2");
+            modelBuilder.Entity<Building>(b =>
+            {
+                b.Ignore(e => e.NotInModel);
+                b.Property<int>("Shadow1");
+                b.Property<string>("Shadow2");
 
-                    b.ComplexProperty(
-                        e => e.Culture, b =>
-                        {
-                            b.ComplexProperty(
-                                e => e.License, b =>
-                                {
-                                    b.ComplexProperty(e => e.Tag);
-                                    b.ComplexProperty(e => e.Tog);
-                                });
-                            b.ComplexProperty(
-                                e => e.Manufacturer, b =>
-                                {
-                                    b.ComplexProperty(e => e.Tag);
-                                    b.ComplexProperty(e => e.Tog);
-                                });
-                        });
-
-                    b.ComplexProperty(
-                        e => e.Milk, b =>
-                        {
-                            b.ComplexProperty(
-                                e => e.License, b =>
-                                {
-                                    b.ComplexProperty(e => e.Tag);
-                                    b.ComplexProperty(e => e.Tog);
-                                });
-                            b.ComplexProperty(
-                                e => e.Manufacturer, b =>
-                                {
-                                    b.ComplexProperty(e => e.Tag);
-                                    b.ComplexProperty(e => e.Tog);
-                                });
-                        });
-                });
+                b.ComplexProperty(e => e.Culture);
+                b.ComplexProperty(e => e.Milk);
+            });
 
             modelBuilder.Entity<Contact33307>();
             modelBuilder.Entity<Supplier33307>();
             modelBuilder.Entity<Customer33307>();
+
+            modelBuilder.Entity<School>(b => b.ComplexCollection(e => e.Departments));
         }
 
         protected override Task SeedAsync(PoolableDbContext context)
@@ -2676,7 +3960,7 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
                     LastName = "Miller",
                     LeaveBalance = 45,
                     Office = offices[0],
-                    VirtualTeams = new List<VirtualTeam> { teams[0], teams[1] }
+                    VirtualTeams = [teams[0], teams[1]]
                 },
                 new CurrentEmployee
                 {
@@ -2685,7 +3969,7 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
                     LastName = "Vickers",
                     LeaveBalance = 62,
                     Office = offices[1],
-                    VirtualTeams = new List<VirtualTeam> { teams[1], teams[2] }
+                    VirtualTeams = [teams[1], teams[2]]
                 },
                 new PastEmployee
                 {
@@ -2761,7 +4045,6 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
                     },
                     Foo = "F"
                 });
-
             context.Add(
                 new Customer33307
                 {
@@ -2774,6 +4057,9 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
                     },
                     Bar = 11
                 });
+
+            // Complex collection query support. Issue #31411
+            //context.Add(CreateSchool());
 
             return context.SaveChangesAsync();
         }

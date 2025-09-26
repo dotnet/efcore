@@ -1,13 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Microsoft.DotNet.Cli.CommandLine;
 
@@ -181,15 +176,12 @@ internal class CommandLineApplication(bool throwOnUnexpectedArg = true)
 
         if (isLongOption)
         {
-            option = command.Options.SingleOrDefault(
-                opt => string.Equals(opt.LongName, optionName, StringComparison.Ordinal));
+            option = command.Options.SingleOrDefault(opt => string.Equals(opt.LongName, optionName, StringComparison.Ordinal));
         }
         else
         {
-            option = command.Options.SingleOrDefault(
-                    opt => string.Equals(opt.ShortName, optionName, StringComparison.Ordinal))
-                ?? command.Options.SingleOrDefault(
-                    opt => string.Equals(opt.SymbolName, optionName, StringComparison.Ordinal));
+            option = command.Options.SingleOrDefault(opt => string.Equals(opt.ShortName, optionName, StringComparison.Ordinal))
+                ?? command.Options.SingleOrDefault(opt => string.Equals(opt.SymbolName, optionName, StringComparison.Ordinal));
         }
 
         if (option == null)

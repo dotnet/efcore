@@ -1,40 +1,44 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Transactions;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 
-public class FakeRelationalConnection(IDbContextOptions options = null) : RelationalConnection(
-    new RelationalConnectionDependencies(
-        options ?? CreateOptions(),
-        new DiagnosticsLogger<DbLoggerCategory.Database.Transaction>(
-            new LoggerFactory(),
-            new LoggingOptions(),
-            new DiagnosticListener("FakeDiagnosticListener"),
-            new TestRelationalLoggingDefinitions(),
-            new NullDbContextLogger()),
-        new RelationalConnectionDiagnosticsLogger(
-            new LoggerFactory(),
-            new LoggingOptions(),
-            new DiagnosticListener("FakeDiagnosticListener"),
-            new TestRelationalLoggingDefinitions(),
-            new NullDbContextLogger(),
-            CreateOptions()),
-        new NamedConnectionStringResolver(options ?? CreateOptions()),
-        new RelationalTransactionFactory(
-            new RelationalTransactionFactoryDependencies(
-                new RelationalSqlGenerationHelper(
-                    new RelationalSqlGenerationHelperDependencies()))),
-        new CurrentDbContext(new FakeDbContext()),
-        new RelationalCommandBuilderFactory(
-            new RelationalCommandBuilderDependencies(
-                new TestRelationalTypeMappingSource(
-                    TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                    TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
-                new ExceptionDetector()))))
+public class FakeRelationalConnection(IDbContextOptions options = null)
+    : RelationalConnection(
+        new RelationalConnectionDependencies(
+            options ?? CreateOptions(),
+            new DiagnosticsLogger<DbLoggerCategory.Database.Transaction>(
+                new LoggerFactory(),
+                new LoggingOptions(),
+                new ListDiagnosticSource([]),
+                new TestRelationalLoggingDefinitions(),
+                new NullDbContextLogger()),
+            new RelationalConnectionDiagnosticsLogger(
+                new LoggerFactory(),
+                new LoggingOptions(),
+                new ListDiagnosticSource([]),
+                new TestRelationalLoggingDefinitions(),
+                new NullDbContextLogger(),
+                CreateOptions()),
+            new NamedConnectionStringResolver(options ?? CreateOptions()),
+            new RelationalTransactionFactory(
+                new RelationalTransactionFactoryDependencies(
+                    new RelationalSqlGenerationHelper(
+                        new RelationalSqlGenerationHelperDependencies()))),
+            new CurrentDbContext(new FakeDbContext()),
+            new RelationalCommandBuilderFactory(
+                new RelationalCommandBuilderDependencies(
+                    new TestRelationalTypeMappingSource(
+                        TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                        TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
+                    new ExceptionDetector(),
+                    new LoggingOptions())),
+            new ExceptionDetector()))
 {
     private DbConnection _connection;
 
@@ -60,6 +64,17 @@ public class FakeRelationalConnection(IDbContextOptions options = null) : Relati
 
     public IReadOnlyList<FakeDbConnection> DbConnections
         => _dbConnections;
+
+    public List<Tuple<string, object>> TransactionDiagnosticEvents
+        => ((ListDiagnosticSource)Dependencies.TransactionLogger.DiagnosticSource).DiagnosticList;
+
+    public List<Tuple<string, object>> ConnectionDiagnosticEvents
+        => ((ListDiagnosticSource)Dependencies.ConnectionLogger.DiagnosticSource).DiagnosticList;
+
+    protected override bool SupportsAmbientTransactions => true;
+
+    protected override void ConnectionEnlistTransaction(Transaction transaction)
+    { }
 
     protected override DbConnection CreateDbConnection()
     {
