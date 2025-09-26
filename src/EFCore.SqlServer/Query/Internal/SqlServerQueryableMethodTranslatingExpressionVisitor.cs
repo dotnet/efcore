@@ -543,11 +543,10 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
 #pragma warning disable EF1001 // Internal EF Core API usage.
-    protected override bool TryTranslateSetters(
+    protected override IReadOnlyList<ColumnValueSetter> TranslateSetters(
         ShapedQueryExpression source,
         IReadOnlyList<ExecuteUpdateSetter> setters,
-        [NotNullWhen(true)] out IReadOnlyList<ColumnValueSetter>? columnSetters,
-        [NotNullWhen(true)] out TableExpressionBase? targetTable)
+        out TableExpressionBase targetTable)
     {
         // SQL Server 2025 introduced the modify method (https://learn.microsoft.com/sql/t-sql/data-types/json-data-type#modify-method),
         // which works only with the JSON data type introduced in that same version.
@@ -557,18 +556,15 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
         // retranslate, using the less efficient JSON_MODIFY() instead for those columns.
         _columnsWithMultipleSetters = new();
 
-        if (!base.TryTranslateSetters(source, setters, out columnSetters, out targetTable))
-        {
-            return false;
-        }
+        var translatedSetters = base.TranslateSetters(source, setters, out targetTable);
 
-        _columnsWithMultipleSetters = new(columnSetters.GroupBy(s => s.Column).Where(g => g.Count() > 1).Select(g => g.Key));
+        _columnsWithMultipleSetters = new(translatedSetters.GroupBy(s => s.Column).Where(g => g.Count() > 1).Select(g => g.Key));
         if (_columnsWithMultipleSetters.Count > 0)
         {
-            return base.TryTranslateSetters(source, setters, out columnSetters, out targetTable);
+            translatedSetters = base.TranslateSetters(source, setters, out targetTable);
         }
 
-        return true;
+        return translatedSetters;
     }
 #pragma warning restore EF1001 // Internal EF Core API usage.
 
