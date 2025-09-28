@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Data;
 using System.Text;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -713,8 +714,8 @@ public class RelationalModel : Annotatable, IRelationalModel
 
     private static void CreateViewMapping(
         IRelationalTypeMappingSource relationalTypeMappingSource,
-        IEntityType entityType,
-        IEntityType mappedType,
+        ITypeBase entityType,
+        ITypeBase mappedType,
         StoreObjectIdentifier mappedView,
         RelationalModel databaseModel,
         List<ViewMapping> viewMappings,
@@ -770,11 +771,43 @@ public class RelationalModel : Annotatable, IRelationalModel
             }
         }
 
+        // TODO: Change this to call GetComplexProperties()
+        // Issue #31248
+        foreach (var complexProperty in mappedType.GetDeclaredComplexProperties())
+        {
+            var complexType = complexProperty.ComplexType;
+
+            var complexViewMappings =
+                (List<ViewMapping>?)complexType.FindRuntimeAnnotationValue(RelationalAnnotationNames.ViewMappings);
+            if (complexViewMappings == null)
+            {
+                complexViewMappings = [];
+                complexType.AddRuntimeAnnotation(RelationalAnnotationNames.ViewMappings, complexViewMappings);
+            }
+
+            CreateViewMapping(
+                relationalTypeMappingSource,
+                complexType,
+                complexType,
+                mappedView,
+                databaseModel,
+                complexViewMappings,
+                includesDerivedTypes: true,
+                isSplitEntityTypePrincipal: isSplitEntityTypePrincipal == true ? false : isSplitEntityTypePrincipal);
+        }
+
         if (((ITableMappingBase)viewMapping).ColumnMappings.Any()
             || viewMappings.Count == 0)
         {
             viewMappings.Add(viewMapping);
-            view.EntityTypeMappings.Add(viewMapping);
+            if(entityType is IEntityType)
+            {
+                view.EntityTypeMappings.Add(viewMapping);
+            }
+            else
+            {
+                view.ComplexTypeMappings.Add(viewMapping);
+            }
         }
     }
 
