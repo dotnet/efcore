@@ -93,6 +93,7 @@ public class AppServiceProviderFactoryTest
 
     private class TestService;
 
+#if !EXCLUDE_ON_MAC
     [ConditionalFact]
     public void Create_works_when_no_BuildWebHost()
     {
@@ -105,6 +106,7 @@ public class AppServiceProviderFactoryTest
     }
 
     private class ProgramWithoutBuildWebHost;
+#endif
 
     [ConditionalFact]
     public void Create_works_when_BuildWebHost_throws()
