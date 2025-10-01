@@ -2152,7 +2152,7 @@ FROM "Person";
 """,
             //
             """
-PRAGMA foreign_keys = 0;
+PRAGMA defer_foreign_keys = ON;
 """,
             //
             """
@@ -2164,7 +2164,7 @@ ALTER TABLE "ef_temp_Person" RENAME TO "Person";
 """,
             //
             """
-PRAGMA foreign_keys = 1;
+PRAGMA defer_foreign_keys = OFF;
 """,
             //
             """
@@ -2318,7 +2318,7 @@ FROM "Product";
 """,
             //
             """
-PRAGMA foreign_keys = 0;
+PRAGMA defer_foreign_keys = ON;
 """,
             //
             """
@@ -2330,7 +2330,7 @@ ALTER TABLE "ef_temp_Product" RENAME TO "Product";
 """,
             //
             """
-PRAGMA foreign_keys = 1;
+PRAGMA defer_foreign_keys = OFF;
 """);
     }
 
