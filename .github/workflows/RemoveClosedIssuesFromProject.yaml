@@ -1,0 +1,52 @@
+name: Remove issue from project on specific close reasons
+
+on:
+  issues:
+    types: [closed]
+
+jobs:
+  delete-project-item:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.issue.state_reason == 'duplicate' || github.event.issue.state_reason == 'not_planned' }}
+    permissions:
+      contents: read
+      issues: write
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      ORG: ${{ github.repository_owner }}
+      PROJECT_NUMBER: 524 # https://github.com/orgs/dotnet/projects/524
+      ISSUE_NUMBER: ${{ github.event.issue.number }}
+    steps:
+      - name: Get issue items and close
+        run: |
+          # Get all project items associated with the issue
+          QUERY='
+            query FindProjectItemForIssue($owner: String!, $repo: String!, $issueNumber: Int!) {
+              repository(owner: $owner, name: $repo) {
+                issue(number: $issueNumber) {
+                  projectItems(first: 20) {
+                    nodes {
+                      id
+                      project {
+                        number
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          '
+
+          RESULT=$(gh api graphql -f owner=$ORG -f repo=$REPO -F issueNumber=$ISSUE_NUMBER -f query="$QUERY")
+
+          # If the issue is on more than one project board, we'll receive multiple item results.
+          # Iterate over these and close the item with the correct project number.
+          echo $RESULT | jq -c '.data.repository.issue.projectItems.nodes[]' | while read -r obj; do
+            item_id=$(echo "$obj" | jq -r '.id')
+            project_number=$(echo "$obj" | jq '.project.number')
+
+            if [ "$project_number" -eq $PROJECT_NUMBER ]; then
+              echo "Closing project item with node id ${item_id} for issue $ISSUE_NUMBER"
+              gh project item-delete $PROJECT_NUMBER --id $item_id --owner $ORG
+            fi
+          done
