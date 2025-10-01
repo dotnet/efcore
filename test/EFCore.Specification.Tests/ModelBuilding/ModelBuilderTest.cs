@@ -173,27 +173,76 @@ public abstract partial class ModelBuilderTest
 
         public abstract TestPropertyBuilder<TProperty> IndexerProperty<TProperty>(string propertyName);
 
-        public abstract TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(string propertyName);
+        public abstract TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(string propertyName)
+            where TProperty : notnull;
 
         public abstract TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(
-            Expression<Func<TEntity, TProperty?>> propertyExpression);
+            Expression<Func<TEntity, TProperty?>> propertyExpression)
+            where TProperty : notnull;
 
         public abstract TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(
             Expression<Func<TEntity, TProperty?>> propertyExpression,
-            string complexTypeName);
+            string complexTypeName)
+            where TProperty : notnull;
 
         public abstract TestEntityTypeBuilder<TEntity> ComplexProperty<TProperty>(
             Expression<Func<TEntity, TProperty?>> propertyExpression,
-            Action<TestComplexPropertyBuilder<TProperty>> buildAction);
+            Action<TestComplexPropertyBuilder<TProperty>> buildAction)
+            where TProperty : notnull;
 
         public abstract TestEntityTypeBuilder<TEntity> ComplexProperty<TProperty>(
             Expression<Func<TEntity, TProperty?>> propertyExpression,
             string complexTypeName,
-            Action<TestComplexPropertyBuilder<TProperty>> buildAction);
+            Action<TestComplexPropertyBuilder<TProperty>> buildAction)
+            where TProperty : notnull;
 
         public abstract TestEntityTypeBuilder<TEntity> ComplexProperty<TProperty>(
             string propertyName,
-            Action<TestComplexPropertyBuilder<TProperty>> buildAction);
+            Action<TestComplexPropertyBuilder<TProperty>> buildAction)
+            where TProperty : notnull;
+
+        public abstract TestComplexCollectionBuilder<TElement> ComplexCollection<TProperty, TElement>(string propertyName)
+            where TProperty : IEnumerable<TElement>
+            where TElement : notnull;
+
+        public abstract TestComplexCollectionBuilder<TElement> ComplexCollection<TProperty, TElement>(
+            string propertyName,
+            string complexTypeName)
+            where TProperty : IEnumerable<TElement>
+            where TElement : notnull;
+
+        public abstract TestComplexCollectionBuilder<TElement> ComplexCollection<TElement>(
+            Expression<Func<TEntity, IEnumerable<TElement?>?>> propertyExpression)
+            where TElement : notnull;
+
+        public abstract TestComplexCollectionBuilder<TElement> ComplexCollection<TElement>(
+            Expression<Func<TEntity, IEnumerable<TElement?>?>> propertyExpression,
+            string complexTypeName)
+            where TElement : notnull;
+
+        public abstract TestEntityTypeBuilder<TEntity> ComplexCollection<TProperty, TElement>(
+            string propertyName,
+            Action<TestComplexCollectionBuilder<TElement>> buildAction)
+            where TProperty : IEnumerable<TElement>
+            where TElement : notnull;
+
+        public abstract TestEntityTypeBuilder<TEntity> ComplexCollection<TProperty, TElement>(
+            string propertyName,
+            string complexTypeName,
+            Action<TestComplexCollectionBuilder<TElement>> buildAction)
+            where TProperty : IEnumerable<TElement>
+            where TElement : notnull;
+
+        public abstract TestEntityTypeBuilder<TEntity> ComplexCollection<TElement>(
+            Expression<Func<TEntity, IEnumerable<TElement?>?>> propertyExpression,
+            Action<TestComplexCollectionBuilder<TElement>> buildAction)
+            where TElement : notnull;
+
+        public abstract TestEntityTypeBuilder<TEntity> ComplexCollection<TElement>(
+            Expression<Func<TEntity, IEnumerable<TElement?>?>> propertyExpression,
+            string complexTypeName,
+            Action<TestComplexCollectionBuilder<TElement>> buildAction)
+            where TElement : notnull;
 
         public abstract TestNavigationBuilder Navigation<TNavigation>(
             Expression<Func<TEntity, TNavigation?>> navigationExpression)
@@ -346,27 +395,76 @@ public abstract partial class ModelBuilderTest
 
         public abstract TestComplexTypePropertyBuilder<TProperty> IndexerProperty<TProperty>(string propertyName);
 
-        public abstract TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(string propertyName);
+        public abstract TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(string propertyName)
+            where TProperty : notnull;
 
         public abstract TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(
-            Expression<Func<TComplex, TProperty?>> propertyExpression);
+            Expression<Func<TComplex, TProperty?>> propertyExpression)
+            where TProperty : notnull;
 
         public abstract TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(
             Expression<Func<TComplex, TProperty?>> propertyExpression,
-            string complexTypeName);
+            string complexTypeName)
+            where TProperty : notnull;
 
         public abstract TestComplexPropertyBuilder<TComplex> ComplexProperty<TProperty>(
             Expression<Func<TComplex, TProperty?>> propertyExpression,
-            Action<TestComplexPropertyBuilder<TProperty>> buildAction);
+            Action<TestComplexPropertyBuilder<TProperty>> buildAction)
+            where TProperty : notnull;
 
         public abstract TestComplexPropertyBuilder<TComplex> ComplexProperty<TProperty>(
             Expression<Func<TComplex, TProperty?>> propertyExpression,
             string complexTypeName,
-            Action<TestComplexPropertyBuilder<TProperty>> buildAction);
+            Action<TestComplexPropertyBuilder<TProperty>> buildAction)
+            where TProperty : notnull;
 
         public abstract TestComplexPropertyBuilder<TComplex> ComplexProperty<TProperty>(
             string propertyName,
-            Action<TestComplexPropertyBuilder<TProperty>> buildAction);
+            Action<TestComplexPropertyBuilder<TProperty>> buildAction)
+            where TProperty : notnull;
+
+        public abstract TestComplexCollectionBuilder<TElement> ComplexCollection<TProperty, TElement>(string propertyName)
+            where TProperty : IEnumerable<TElement>
+            where TElement : notnull;
+
+        public abstract TestComplexCollectionBuilder<TElement> ComplexCollection<TProperty, TElement>(
+            string propertyName,
+            string complexTypeName)
+            where TProperty : IEnumerable<TElement>
+            where TElement : notnull;
+
+        public abstract TestComplexCollectionBuilder<TElement> ComplexCollection<TElement>(
+            Expression<Func<TComplex, IEnumerable<TElement?>?>> propertyExpression)
+            where TElement : notnull;
+
+        public abstract TestComplexCollectionBuilder<TElement> ComplexCollection<TElement>(
+            Expression<Func<TComplex, IEnumerable<TElement?>?>> propertyExpression,
+            string complexTypeName)
+            where TElement : notnull;
+
+        public abstract TestComplexPropertyBuilder<TComplex> ComplexCollection<TProperty, TElement>(
+            string propertyName,
+            Action<TestComplexCollectionBuilder<TElement>> buildAction)
+            where TProperty : IEnumerable<TElement>
+            where TElement : notnull;
+
+        public abstract TestComplexPropertyBuilder<TComplex> ComplexCollection<TProperty, TElement>(
+            string propertyName,
+            string complexTypeName,
+            Action<TestComplexCollectionBuilder<TElement>> buildAction)
+            where TProperty : IEnumerable<TElement>
+            where TElement : notnull;
+
+        public abstract TestComplexPropertyBuilder<TComplex> ComplexCollection<TElement>(
+            Expression<Func<TComplex, IEnumerable<TElement?>?>> propertyExpression,
+            Action<TestComplexCollectionBuilder<TElement>> buildAction)
+            where TElement : notnull;
+
+        public abstract TestComplexPropertyBuilder<TComplex> ComplexCollection<TElement>(
+            Expression<Func<TComplex, IEnumerable<TElement?>?>> propertyExpression,
+            string complexTypeName,
+            Action<TestComplexCollectionBuilder<TElement>> buildAction)
+            where TElement : notnull;
 
         public abstract TestComplexPropertyBuilder<TComplex> Ignore(
             Expression<Func<TComplex, object?>> propertyExpression);
@@ -382,6 +480,105 @@ public abstract partial class ModelBuilderTest
 
         public abstract TestComplexTypeDiscriminatorBuilder<TDiscriminator> HasDiscriminator<TDiscriminator>(string propertyName);
         public abstract TestComplexPropertyBuilder<TComplex> HasNoDiscriminator();
+    }
+
+    public abstract class TestComplexCollectionBuilder<TComplex>
+    {
+        public abstract IMutableComplexProperty Metadata { get; }
+        public abstract TestComplexCollectionBuilder<TComplex> HasTypeAnnotation(string annotation, object? value);
+        public abstract TestComplexCollectionBuilder<TComplex> HasPropertyAnnotation(string annotation, object? value);
+
+        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> Property<TProperty>(
+            Expression<Func<TComplex, TProperty>> propertyExpression);
+
+        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> Property<TProperty>(string propertyName);
+
+        public abstract TestComplexTypePrimitiveCollectionBuilder<TProperty> PrimitiveCollection<TProperty>(
+            Expression<Func<TComplex, TProperty>> propertyExpression);
+
+        public abstract TestComplexTypePrimitiveCollectionBuilder<TProperty> PrimitiveCollection<TProperty>(string propertyName);
+
+        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> IndexerProperty<TProperty>(string propertyName);
+
+        public abstract TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(string propertyName)
+            where TProperty : notnull;
+
+        public abstract TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(
+            Expression<Func<TComplex, TProperty?>> propertyExpression)
+            where TProperty : notnull;
+
+        public abstract TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(
+            Expression<Func<TComplex, TProperty?>> propertyExpression,
+            string complexTypeName)
+            where TProperty : notnull;
+
+        public abstract TestComplexCollectionBuilder<TComplex> ComplexProperty<TProperty>(
+            Expression<Func<TComplex, TProperty?>> propertyExpression,
+            Action<TestComplexPropertyBuilder<TProperty>> buildAction)
+            where TProperty : notnull;
+
+        public abstract TestComplexCollectionBuilder<TComplex> ComplexProperty<TProperty>(
+            Expression<Func<TComplex, TProperty?>> propertyExpression,
+            string complexTypeName,
+            Action<TestComplexPropertyBuilder<TProperty>> buildAction)
+            where TProperty : notnull;
+
+        public abstract TestComplexCollectionBuilder<TComplex> ComplexProperty<TProperty>(
+            string propertyName,
+            Action<TestComplexPropertyBuilder<TProperty>> buildAction)
+            where TProperty : notnull;
+
+        public abstract TestComplexCollectionBuilder<TElement> ComplexCollection<TProperty, TElement>(string propertyName)
+            where TProperty : IEnumerable<TElement>
+            where TElement : notnull;
+
+        public abstract TestComplexCollectionBuilder<TElement> ComplexCollection<TProperty, TElement>(
+            string propertyName,
+            string complexTypeName)
+            where TProperty : IEnumerable<TElement>
+            where TElement : notnull;
+
+        public abstract TestComplexCollectionBuilder<TElement> ComplexCollection<TElement>(
+            Expression<Func<TComplex, IEnumerable<TElement?>?>> propertyExpression)
+            where TElement : notnull;
+
+        public abstract TestComplexCollectionBuilder<TElement> ComplexCollection<TElement>(
+            Expression<Func<TComplex, IEnumerable<TElement?>?>> propertyExpression,
+            string complexTypeName)
+            where TElement : notnull;
+
+        public abstract TestComplexCollectionBuilder<TComplex> ComplexCollection<TProperty, TElement>(
+            string propertyName,
+            Action<TestComplexCollectionBuilder<TElement>> buildAction)
+            where TProperty : IEnumerable<TElement>
+            where TElement : notnull;
+
+        public abstract TestComplexCollectionBuilder<TComplex> ComplexCollection<TProperty, TElement>(
+            string propertyName,
+            string complexTypeName,
+            Action<TestComplexCollectionBuilder<TElement>> buildAction)
+            where TProperty : IEnumerable<TElement>
+            where TElement : notnull;
+
+        public abstract TestComplexCollectionBuilder<TComplex> ComplexCollection<TElement>(
+            Expression<Func<TComplex, IEnumerable<TElement?>?>> propertyExpression,
+            Action<TestComplexCollectionBuilder<TElement>> buildAction)
+            where TElement : notnull;
+
+        public abstract TestComplexCollectionBuilder<TComplex> ComplexCollection<TElement>(
+            Expression<Func<TComplex, IEnumerable<TElement?>?>> propertyExpression,
+            string complexTypeName,
+            Action<TestComplexCollectionBuilder<TElement>> buildAction)
+            where TElement : notnull;
+
+        public abstract TestComplexCollectionBuilder<TComplex> Ignore(
+            Expression<Func<TComplex, object?>> propertyExpression);
+
+        public abstract TestComplexCollectionBuilder<TComplex> Ignore(string propertyName);
+        public abstract TestComplexCollectionBuilder<TComplex> IsRequired(bool isRequired = true);
+        public abstract TestComplexCollectionBuilder<TComplex> HasChangeTrackingStrategy(ChangeTrackingStrategy changeTrackingStrategy);
+        public abstract TestComplexCollectionBuilder<TComplex> UsePropertyAccessMode(PropertyAccessMode propertyAccessMode);
+        public abstract TestComplexCollectionBuilder<TComplex> UseDefaultPropertyAccessMode(PropertyAccessMode propertyAccessMode);
     }
 
     public abstract class TestDiscriminatorBuilder<TDiscriminator>
@@ -665,6 +862,80 @@ public abstract partial class ModelBuilderTest
             where TComparer : ValueComparer;
 
         public abstract TestComplexTypePropertyBuilder<TProperty> HasConversion<TConverter, TComparer, TProviderComparer>()
+            where TComparer : ValueComparer
+            where TProviderComparer : ValueComparer;
+    }
+
+    public abstract class TestComplexCollectionTypePropertyBuilder<TProperty>
+    {
+        public abstract IMutableProperty Metadata { get; }
+        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> HasAnnotation(string annotation, object? value);
+        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> IsRequired(bool isRequired = true);
+        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> HasSentinel(TProperty? sentinel);
+        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> IsUnicode(bool unicode = true);
+
+        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> HasValueGenerator<TGenerator>()
+            where TGenerator : ValueGenerator;
+
+        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> HasValueGenerator(Type valueGeneratorType);
+
+        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> HasValueGeneratorFactory<TFactory>()
+            where TFactory : ValueGeneratorFactory;
+
+        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> HasValueGeneratorFactory(Type valueGeneratorFactoryType);
+
+        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> HasField(string fieldName);
+        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> UsePropertyAccessMode(PropertyAccessMode propertyAccessMode);
+
+        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> HasConversion<TConversion>();
+        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> HasConversion<TConversion>(ValueComparer? valueComparer);
+
+        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> HasConversion<TConversion>(
+            ValueComparer? valueComparer,
+            ValueComparer? providerComparerType);
+
+        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> HasConversion<TProvider>(
+            Expression<Func<TProperty, TProvider>> convertToProviderExpression,
+            Expression<Func<TProvider, TProperty>> convertFromProviderExpression);
+
+        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> HasConversion<TProvider>(
+            Expression<Func<TProperty, TProvider>> convertToProviderExpression,
+            Expression<Func<TProvider, TProperty>> convertFromProviderExpression,
+            ValueComparer? valueComparer);
+
+        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> HasConversion<TProvider>(
+            Expression<Func<TProperty, TProvider>> convertToProviderExpression,
+            Expression<Func<TProvider, TProperty>> convertFromProviderExpression,
+            ValueComparer? valueComparer,
+            ValueComparer? providerComparerType);
+
+        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> HasConversion<TStore>(
+            ValueConverter<TProperty, TStore> converter);
+
+        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> HasConversion<TStore>(
+            ValueConverter<TProperty, TStore> converter,
+            ValueComparer? valueComparer);
+
+        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> HasConversion<TStore>(
+            ValueConverter<TProperty, TStore> converter,
+            ValueComparer? valueComparer,
+            ValueComparer? providerComparerType);
+
+        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> HasConversion(ValueConverter? converter);
+
+        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> HasConversion(
+            ValueConverter? converter,
+            ValueComparer? valueComparer);
+
+        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> HasConversion(
+            ValueConverter? converter,
+            ValueComparer? valueComparer,
+            ValueComparer? providerComparerType);
+
+        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> HasConversion<TConverter, TComparer>()
+            where TComparer : ValueComparer;
+
+        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> HasConversion<TConverter, TComparer, TProviderComparer>()
             where TComparer : ValueComparer
             where TProviderComparer : ValueComparer;
     }

@@ -5,33 +5,31 @@
 
 namespace Microsoft.EntityFrameworkCore.Update;
 
-public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
+public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
+    : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
     protected override string StoreName
         => "NonSharedModelUpdatesTestBase";
 
-    [ConditionalTheory] // Issue #29356
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))] // Issue #29356
     public virtual async Task Principal_and_dependent_roundtrips_with_cycle_breaking(bool async)
     {
         var contextFactory = await InitializeAsync<DbContext>(
             onModelCreating: mb =>
             {
-                mb.Entity<Author>(
-                    b =>
-                    {
-                        b.HasOne(a => a.AuthorsClub)
-                            .WithMany()
-                            .HasForeignKey(a => a.AuthorsClubId);
-                    });
+                mb.Entity<Author>(b =>
+                {
+                    b.HasOne(a => a.AuthorsClub)
+                        .WithMany()
+                        .HasForeignKey(a => a.AuthorsClubId);
+                });
 
-                mb.Entity<Book>(
-                    b =>
-                    {
-                        b.HasOne(book => book.Author)
-                            .WithMany()
-                            .HasForeignKey(book => book.AuthorId);
-                    });
+                mb.Entity<Book>(b =>
+                {
+                    b.HasOne(book => book.Author)
+                        .WithMany()
+                        .HasForeignKey(book => book.AuthorId);
+                });
             });
 
         await ExecuteWithStrategyInTransactionAsync(
@@ -92,8 +90,7 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture) : 
         public Author? Author { get; set; }
     }
 
-    [ConditionalTheory] // Issue #29379
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))] // Issue #29379
     public virtual async Task DbUpdateException_Entries_is_correct_with_multiple_inserts(bool async)
     {
         var contextFactory = await InitializeAsync<DbContext>(onModelCreating: mb => mb.Entity<Blog>().HasIndex(b => b.Name).IsUnique());

@@ -16,7 +16,6 @@ public class RelationalApiConsistencyTest(RelationalApiConsistencyTest.Relationa
     protected override Assembly TargetAssembly
         => typeof(RelationalDatabase).Assembly;
 
-
     [ConditionalFact]
     public void Readonly_relational_metadata_methods_have_expected_name()
     {
@@ -132,7 +131,6 @@ public class RelationalApiConsistencyTest(RelationalApiConsistencyTest.Relationa
             typeof(RelationalKeyBuilderExtensions),
             typeof(RelationalEntityTypeBuilderExtensions),
             typeof(RelationalOwnedNavigationBuilderExtensions),
-            typeof(RelationalComplexTypeExtensions),
             typeof(RelationalComplexTypePropertyBuilderExtensions),
             typeof(RelationalPrimitiveCollectionBuilderExtensions),
             typeof(RelationalComplexTypePrimitiveCollectionBuilderExtensions),
@@ -203,9 +201,9 @@ public class RelationalApiConsistencyTest(RelationalApiConsistencyTest.Relationa
             },
             {
                 typeof(IReadOnlyComplexType), (
-                    typeof(RelationalComplexTypeExtensions),
-                    typeof(RelationalComplexTypeExtensions),
-                    typeof(RelationalComplexTypeExtensions),
+                    typeof(RelationalTypeBaseExtensions),
+                    typeof(RelationalTypeBaseExtensions),
+                    typeof(RelationalTypeBaseExtensions),
                     null,
                     null
                 )
@@ -298,9 +296,8 @@ public class RelationalApiConsistencyTest(RelationalApiConsistencyTest.Relationa
             [
                 typeof(RelationalCompiledQueryCacheKeyGenerator)
                     .GetRuntimeMethods()
-                    .Single(
-                        m => m.Name == "GenerateCacheKeyCore"
-                            && m.DeclaringType == typeof(RelationalCompiledQueryCacheKeyGenerator))
+                    .Single(m => m.Name == "GenerateCacheKeyCore"
+                        && m.DeclaringType == typeof(RelationalCompiledQueryCacheKeyGenerator))
             ];
 
         public override HashSet<MethodInfo> UnmatchedMetadataMethods { get; } =
@@ -615,7 +612,8 @@ public class RelationalApiConsistencyTest(RelationalApiConsistencyTest.Relationa
             MirrorTypes.Add(
                 typeof(RelationalComplexTypePrimitiveCollectionBuilderExtensions), typeof(RelationalComplexTypePropertyBuilderExtensions));
 
-            NonCancellableAsyncMethods.Add(typeof(DbConnectionInterceptor).GetMethod(nameof(DbConnectionInterceptor.ConnectionDisposedAsync)));
+            NonCancellableAsyncMethods.Add(
+                typeof(DbConnectionInterceptor).GetMethod(nameof(DbConnectionInterceptor.ConnectionDisposedAsync)));
 
             base.Initialize();
         }

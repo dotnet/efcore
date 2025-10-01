@@ -49,13 +49,12 @@ public static class InMemoryServiceCollectionExtensions
             .TryAdd<IQueryableMethodTranslatingExpressionVisitorFactory, InMemoryQueryableMethodTranslatingExpressionVisitorFactory>()
             .TryAdd<IQueryTranslationPreprocessorFactory, InMemoryQueryTranslationPreprocessorFactory>()
             .TryAdd<ISingletonOptions, IInMemorySingletonOptions>(p => p.GetRequiredService<IInMemorySingletonOptions>())
-            .TryAddProviderSpecificServices(
-                b => b
-                    .TryAddSingleton<IInMemorySingletonOptions, InMemorySingletonOptions>()
-                    .TryAddScoped<IInMemoryStoreProvider, InMemoryStoreProvider>()
-                    .TryAddSingleton<IInMemoryDatabaseRootCache, InMemoryDatabaseRootCache>()
-                    .TryAddSingleton<IInMemoryTableFactory, InMemoryTableFactory>()
-                    .TryAddScoped<IInMemoryDatabase, InMemoryDatabase>());
+            .TryAddProviderSpecificServices(b => b
+                .TryAddSingleton<IInMemorySingletonOptions, InMemorySingletonOptions>()
+                .TryAddScoped<IInMemoryStoreProvider, InMemoryStoreProvider>()
+                .TryAddSingleton<IInMemoryDatabaseRootCache, InMemoryDatabaseRootCache>()
+                .TryAddSingleton<IInMemoryTableFactory, InMemoryTableFactory>()
+                .TryAddScoped<IInMemoryDatabase, InMemoryDatabase>());
 
         builder.TryAddCoreServices();
 

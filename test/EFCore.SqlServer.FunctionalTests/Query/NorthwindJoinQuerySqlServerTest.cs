@@ -596,9 +596,9 @@ INNER JOIN (
         await base.GroupJoin_aggregate_anonymous_key_selectors(async);
 
         AssertSql(
-"""
+            """
 SELECT [c].[CustomerID], (
-    SELECT COALESCE(SUM(CAST(LEN([o].[CustomerID]) AS int)), 0)
+    SELECT ISNULL(SUM(CAST(LEN([o].[CustomerID]) AS int)), 0)
     FROM [Orders] AS [o]
     WHERE [c].[City] IS NOT NULL AND [c].[CustomerID] = [o].[CustomerID] AND [c].[City] = N'London') AS [Sum]
 FROM [Customers] AS [c]
@@ -610,9 +610,9 @@ FROM [Customers] AS [c]
         await base.GroupJoin_aggregate_anonymous_key_selectors2(async);
 
         AssertSql(
-"""
+            """
 SELECT [c].[CustomerID], (
-    SELECT COALESCE(SUM(CAST(LEN([o].[CustomerID]) AS int)), 0)
+    SELECT ISNULL(SUM(CAST(LEN([o].[CustomerID]) AS int)), 0)
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID] AND 1996 = DATEPART(year, [o].[OrderDate])) AS [Sum]
 FROM [Customers] AS [c]
@@ -624,9 +624,9 @@ FROM [Customers] AS [c]
         await base.GroupJoin_aggregate_anonymous_key_selectors_one_argument(async);
 
         AssertSql(
-"""
+            """
 SELECT [c].[CustomerID], (
-    SELECT COALESCE(SUM(CAST(LEN([o].[CustomerID]) AS int)), 0)
+    SELECT ISNULL(SUM(CAST(LEN([o].[CustomerID]) AS int)), 0)
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]) AS [Sum]
 FROM [Customers] AS [c]
@@ -963,19 +963,20 @@ INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 
         AssertSql(
             """
-@p='[1,2]' (Size = 4000)
+@p1='1'
+@p2='2'
 
 SELECT [e].[EmployeeID]
 FROM [Employees] AS [e]
-INNER JOIN OPENJSON(@p) WITH ([value] int '$') AS [p] ON [e].[EmployeeID] = [p].[value]
+INNER JOIN (VALUES (@p1), (@p2)) AS [p]([Value]) ON [e].[EmployeeID] = [p].[Value]
 """,
             //
             """
-@p='[3]' (Size = 4000)
+@p1='3'
 
 SELECT [e].[EmployeeID]
 FROM [Employees] AS [e]
-INNER JOIN OPENJSON(@p) WITH ([value] int '$') AS [p] ON [e].[EmployeeID] = [p].[value]
+INNER JOIN (VALUES (@p1)) AS [p]([Value]) ON [e].[EmployeeID] = [p].[Value]
 """);
     }
 

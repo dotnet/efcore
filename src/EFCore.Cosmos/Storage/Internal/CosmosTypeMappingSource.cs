@@ -50,8 +50,10 @@ public class CosmosTypeMappingSource : TypeMappingSource
         // directly.
         => base.FindMapping(property) switch
         {
-            CosmosTypeMapping mapping when property.FindAnnotation(CosmosAnnotationNames.VectorType)?.Value is CosmosVectorType vectorType
-                => new CosmosVectorTypeMapping(mapping, vectorType),
+            CosmosTypeMapping mapping
+                when property.GetVectorDistanceFunction() is { } distanceFunction
+                && property.GetVectorDimensions() is { } dimensions
+                => new CosmosVectorTypeMapping(mapping, new CosmosVectorType(distanceFunction, dimensions)),
             var other => other
         };
 

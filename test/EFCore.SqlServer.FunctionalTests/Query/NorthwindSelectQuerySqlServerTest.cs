@@ -398,7 +398,7 @@ ORDER BY [c].[CustomerID]
 
         AssertSql(
             """
-SELECT COALESCE((
+SELECT ISNULL((
     SELECT TOP(1) (
         SELECT COUNT(*)
         FROM [Order Details] AS [o0]
@@ -765,6 +765,25 @@ SELECT (
     WHERE [c].[CustomerID] = [o].[CustomerID]
     ORDER BY [o].[OrderID])
 FROM [Customers] AS [c]
+""");
+    }
+
+    public override async Task Project_single_element_from_collection_with_OrderBy_Take_OrderBy_and_FirstOrDefault(bool async)
+    {
+        await base.Project_single_element_from_collection_with_OrderBy_Take_OrderBy_and_FirstOrDefault(async);
+
+        AssertSql(
+            """
+SELECT [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate]
+FROM [Customers] AS [c]
+LEFT JOIN (
+    SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+    FROM (
+        SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], ROW_NUMBER() OVER(PARTITION BY [o].[CustomerID] ORDER BY [o].[OrderID]) AS [row]
+        FROM [Orders] AS [o]
+    ) AS [o0]
+    WHERE [o0].[row] <= 1
+) AS [o1] ON [c].[CustomerID] = [o1].[CustomerID]
 """);
     }
 
@@ -1329,6 +1348,23 @@ INNER JOIN (
 """);
     }
 
+    public override async Task SelectMany_with_nested_DefaultIfEmpty(bool async)
+    {
+        await base.SelectMany_with_nested_DefaultIfEmpty(async);
+
+        AssertSql(
+            """
+SELECT [s].[OrderID], [s].[ProductID], [s].[Discount], [s].[Quantity], [s].[UnitPrice]
+FROM [Customers] AS [c]
+INNER JOIN (
+    SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice], [o].[CustomerID]
+    FROM [Orders] AS [o]
+    LEFT JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
+    WHERE 0 = 1
+) AS [s] ON [c].[CustomerID] = [s].[CustomerID]
+""");
+    }
+
     public override async Task Select_with_multiple_Take(bool async)
     {
         await base.Select_with_multiple_Take(async);
@@ -1438,10 +1474,9 @@ CROSS APPLY (
         SelectMany_with_collection_being_correlated_subquery_which_references_non_mapped_properties_from_inner_and_outer_entity(
             bool async)
     {
-        await AssertUnableToTranslateEFProperty(
-            () => base
-                .SelectMany_with_collection_being_correlated_subquery_which_references_non_mapped_properties_from_inner_and_outer_entity(
-                    async));
+        await AssertUnableToTranslateEFProperty(() => base
+            .SelectMany_with_collection_being_correlated_subquery_which_references_non_mapped_properties_from_inner_and_outer_entity(
+                async));
 
         AssertSql();
     }
@@ -2144,7 +2179,9 @@ ORDER BY [o].[OrderID]
 
         AssertSql(
             """
-@filteredOrderIds='[10248,10249,10250]' (Size = 4000)
+@filteredOrderIds1='10248'
+@filteredOrderIds2='10249'
+@filteredOrderIds3='10250'
 
 SELECT [s].[CustomerID], [o1].[CustomerID], [o1].[OrderID], [o1].[OrderDate]
 FROM (
@@ -2155,10 +2192,7 @@ FROM (
 OUTER APPLY (
     SELECT [s].[CustomerID], [o0].[OrderID], [o0].[OrderDate]
     FROM [Orders] AS [o0]
-    WHERE [s].[CustomerID] IS NOT NULL AND [s].[CustomerID] = [o0].[CustomerID] AND [o0].[OrderID] IN (
-        SELECT [f].[value]
-        FROM OPENJSON(@filteredOrderIds) WITH ([value] int '$') AS [f]
-    )
+    WHERE [s].[CustomerID] IS NOT NULL AND [s].[CustomerID] = [o0].[CustomerID] AND [o0].[OrderID] IN (@filteredOrderIds1, @filteredOrderIds2, @filteredOrderIds3)
 ) AS [o1]
 ORDER BY [s].[CustomerID], [o1].[OrderID]
 """);
@@ -2170,7 +2204,9 @@ ORDER BY [s].[CustomerID], [o1].[OrderID]
 
         AssertSql(
             """
-@filteredOrderIds='[10248,10249,10250]' (Size = 4000)
+@filteredOrderIds1='10248'
+@filteredOrderIds2='10249'
+@filteredOrderIds3='10250'
 
 SELECT [o0].[OrderID], [o0].[Complex], [o2].[Outer], [o2].[Inner], [o2].[OrderDate]
 FROM (
@@ -2180,10 +2216,7 @@ FROM (
 OUTER APPLY (
     SELECT [o0].[OrderID] AS [Outer], [o1].[OrderID] AS [Inner], [o1].[OrderDate]
     FROM [Orders] AS [o1]
-    WHERE [o1].[OrderID] = [o0].[OrderID] AND [o1].[OrderID] IN (
-        SELECT [f].[value]
-        FROM OPENJSON(@filteredOrderIds) WITH ([value] int '$') AS [f]
-    )
+    WHERE [o1].[OrderID] = [o0].[OrderID] AND [o1].[OrderID] IN (@filteredOrderIds1, @filteredOrderIds2, @filteredOrderIds3)
 ) AS [o2]
 ORDER BY [o0].[OrderID]
 """);
@@ -2195,7 +2228,9 @@ ORDER BY [o0].[OrderID]
 
         AssertSql(
             """
-@filteredOrderIds='[10248,10249,10250]' (Size = 4000)
+@filteredOrderIds1='10248'
+@filteredOrderIds2='10249'
+@filteredOrderIds3='10250'
 
 SELECT [o0].[OrderDate], [o0].[CustomerID], [o2].[Outer1], [o2].[Outer2], [o2].[Inner], [o2].[OrderDate]
 FROM (
@@ -2205,10 +2240,7 @@ FROM (
 OUTER APPLY (
     SELECT [o0].[OrderDate] AS [Outer1], [o0].[CustomerID] AS [Outer2], [o1].[OrderID] AS [Inner], [o1].[OrderDate]
     FROM [Orders] AS [o1]
-    WHERE ([o1].[CustomerID] = [o0].[CustomerID] OR ([o1].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL)) AND [o1].[OrderID] IN (
-        SELECT [f].[value]
-        FROM OPENJSON(@filteredOrderIds) WITH ([value] int '$') AS [f]
-    )
+    WHERE ([o1].[CustomerID] = [o0].[CustomerID] OR ([o1].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL)) AND [o1].[OrderID] IN (@filteredOrderIds1, @filteredOrderIds2, @filteredOrderIds3)
 ) AS [o2]
 ORDER BY [o0].[OrderDate], [o0].[CustomerID]
 """);
@@ -2219,8 +2251,8 @@ ORDER BY [o0].[OrderDate], [o0].[CustomerID]
         // Identifier set for Distinct. Issue #24440.
         Assert.Equal(
             RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Correlated_collection_after_distinct_with_complex_projection_not_containing_original_identifier(async)))
+            (await Assert.ThrowsAsync<InvalidOperationException>(()
+                => base.Correlated_collection_after_distinct_with_complex_projection_not_containing_original_identifier(async)))
             .Message);
 
         AssertSql();
@@ -2232,7 +2264,9 @@ ORDER BY [o0].[OrderDate], [o0].[CustomerID]
 
         AssertSql(
             """
-@filteredOrderIds='[10248,10249,10250]' (Size = 4000)
+@filteredOrderIds1='10248'
+@filteredOrderIds2='10249'
+@filteredOrderIds3='10250'
 
 SELECT [o2].[OrderID], [o2].[Complex], [o3].[Outer], [o3].[Inner], [o3].[OrderDate]
 FROM (
@@ -2246,10 +2280,7 @@ FROM (
 OUTER APPLY (
     SELECT [o2].[OrderID] AS [Outer], [o1].[OrderID] AS [Inner], [o1].[OrderDate]
     FROM [Orders] AS [o1]
-    WHERE [o1].[OrderID] = [o2].[OrderID] AND [o1].[OrderID] IN (
-        SELECT [f].[value]
-        FROM OPENJSON(@filteredOrderIds) WITH ([value] int '$') AS [f]
-    )
+    WHERE [o1].[OrderID] = [o2].[OrderID] AND [o1].[OrderID] IN (@filteredOrderIds1, @filteredOrderIds2, @filteredOrderIds3)
 ) AS [o3]
 ORDER BY [o2].[OrderID]
 """);
@@ -2672,7 +2703,9 @@ FROM [Customers] AS [c]
 
         AssertSql(
             """
-@filteredOrderIds='[10248,10249,10250]' (Size = 4000)
+@filteredOrderIds1='10248'
+@filteredOrderIds2='10249'
+@filteredOrderIds3='10250'
 
 SELECT [o2].[CustomerID], [o2].[Complex], [o3].[Outer], [o3].[Inner], [o3].[OrderDate]
 FROM (
@@ -2686,10 +2719,7 @@ FROM (
 OUTER APPLY (
     SELECT [o2].[CustomerID] AS [Outer], [o1].[OrderID] AS [Inner], [o1].[OrderDate]
     FROM [Orders] AS [o1]
-    WHERE ([o1].[CustomerID] = [o2].[CustomerID] OR ([o1].[CustomerID] IS NULL AND [o2].[CustomerID] IS NULL)) AND [o1].[OrderID] IN (
-        SELECT [f].[value]
-        FROM OPENJSON(@filteredOrderIds) WITH ([value] int '$') AS [f]
-    )
+    WHERE ([o1].[CustomerID] = [o2].[CustomerID] OR ([o1].[CustomerID] IS NULL AND [o2].[CustomerID] IS NULL)) AND [o1].[OrderID] IN (@filteredOrderIds1, @filteredOrderIds2, @filteredOrderIds3)
 ) AS [o3]
 ORDER BY [o2].[CustomerID], [o2].[Complex]
 """);

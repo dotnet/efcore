@@ -10,6 +10,7 @@ internal static class EFDiagnostics
 {
     public const string InternalUsage = "EF1001";
     public const string InterpolatedStringUsageInRawQueries = "EF1002";
+    public const string StringConcatenationUsageInRawQueries = "EF1003";
     public const string SuppressUninitializedDbSetRule = "EFSPR1001";
 
     // Diagnostics for [Experimental]
@@ -18,5 +19,8 @@ internal static class EFDiagnostics
     public const string PrecompiledQueryExperimental = "EF9100";
     public const string MetricsExperimental = "EF9101";
     public const string PagingExperimental = "EF9102";
+
+    // These are no longer experimental but keeping the values so we won't re-purpose them
     public const string CosmosVectorSearchExperimental = "EF9103";
+    public const string CosmosFullTextSearchExperimental = "EF9104";
 }

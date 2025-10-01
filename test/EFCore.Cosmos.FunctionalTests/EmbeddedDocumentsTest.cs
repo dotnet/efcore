@@ -99,20 +99,17 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task Can_manipulate_embedded_collections(bool useIds)
     {
         var options = await Fixture.CreateOptions(seed: false);
         var swappedOptions = await Fixture.CreateOptions(
-            modelBuilder => modelBuilder.Entity<Person>(
-                eb => eb.OwnsMany(
-                    v => v.Addresses, b =>
-                    {
-                        b.OwnsMany(a => a.Notes).ToJsonProperty("IdNotes");
-                        b.OwnsMany(a => a.IdNotes).ToJsonProperty("Notes");
-                    })),
+            modelBuilder => modelBuilder.Entity<Person>(eb => eb.OwnsMany(
+                v => v.Addresses, b =>
+                {
+                    b.OwnsMany(a => a.Notes).ToJsonProperty("IdNotes");
+                    b.OwnsMany(a => a.IdNotes).ToJsonProperty("Notes");
+                })),
             seed: false);
 
         Address existingAddress1Person2;
@@ -394,13 +391,12 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
     {
         var options = await Fixture.CreateOptions(seed: false);
         var swappedOptions = await Fixture.CreateOptions(
-            modelBuilder => modelBuilder.Entity<Person>(
-                eb => eb.OwnsMany(
-                    v => v.Addresses, b =>
-                    {
-                        b.OwnsMany(a => a.Notes).ToJsonProperty("IdNotes");
-                        b.OwnsMany(a => a.IdNotes).ToJsonProperty("Notes");
-                    })),
+            modelBuilder => modelBuilder.Entity<Person>(eb => eb.OwnsMany(
+                v => v.Addresses, b =>
+                {
+                    b.OwnsMany(a => a.Notes).ToJsonProperty("IdNotes");
+                    b.OwnsMany(a => a.IdNotes).ToJsonProperty("Notes");
+                })),
             seed: false);
 
         using (var context = new EmbeddedTransportationContext(options))
@@ -484,13 +480,12 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
         var options = await Fixture.CreateOptions(
             modelBuilder =>
             {
-                modelBuilder.Entity<Person>(
-                    eb => eb.OwnsMany(
-                        v => v.Addresses, b =>
-                        {
-                            b.Property<Guid>("Id");
-                            b.Ignore(a => a.IdNotes);
-                        }));
+                modelBuilder.Entity<Person>(eb => eb.OwnsMany(
+                    v => v.Addresses, b =>
+                    {
+                        b.Property<Guid>("Id");
+                        b.Ignore(a => a.IdNotes);
+                    }));
             },
             seed: false);
 
@@ -576,10 +571,10 @@ OFFSET 0 LIMIT 1
                 new Person
                 {
                     Id = 3,
-                    Addresses = new[]
-                    {
+                    Addresses =
+                    [
                         new Address { Street = "First", City = "City" }, new Address { Street = "Second", City = "City" }
-                    }
+                    ]
                 });
 
             await context.SaveChangesAsync();
@@ -734,35 +729,32 @@ OFFSET 0 LIMIT 1
         {
             modelBuilder.HasDiscriminatorInJsonIds();
 
-            modelBuilder.Entity<Vehicle>(
-                eb =>
-                {
-                    eb.HasKey(e => e.Name);
-                    eb.OwnsOne(v => v.Operator).OwnsOne(v => v.Details);
-                });
+            modelBuilder.Entity<Vehicle>(eb =>
+            {
+                eb.HasKey(e => e.Name);
+                eb.OwnsOne(v => v.Operator).OwnsOne(v => v.Details);
+            });
             modelBuilder.Entity<PoweredVehicle>();
 
-            modelBuilder.Entity<Engine>(
-                eb =>
-                {
-                    eb.HasKey(e => e.VehicleName);
-                    eb.HasOne(e => e.Vehicle)
-                        .WithOne(e => e.Engine)
-                        .HasForeignKey<Engine>(e => e.VehicleName);
-                });
+            modelBuilder.Entity<Engine>(eb =>
+            {
+                eb.HasKey(e => e.VehicleName);
+                eb.HasOne(e => e.Vehicle)
+                    .WithOne(e => e.Engine)
+                    .HasForeignKey<Engine>(e => e.VehicleName);
+            });
 
-            modelBuilder.Entity<FuelTank>(
-                eb =>
-                {
-                    eb.HasKey(e => e.VehicleName);
-                    eb.HasOne(e => e.Engine)
-                        .WithOne(e => e.FuelTank)
-                        .HasForeignKey<FuelTank>(e => e.VehicleName)
-                        .OnDelete(DeleteBehavior.Restrict);
-                    eb.HasOne(e => e.Vehicle)
-                        .WithOne()
-                        .HasForeignKey<FuelTank>("VehicleName1");
-                });
+            modelBuilder.Entity<FuelTank>(eb =>
+            {
+                eb.HasKey(e => e.VehicleName);
+                eb.HasOne(e => e.Engine)
+                    .WithOne(e => e.FuelTank)
+                    .HasForeignKey<FuelTank>(e => e.VehicleName)
+                    .OnDelete(DeleteBehavior.Restrict);
+                eb.HasOne(e => e.Vehicle)
+                    .WithOne()
+                    .HasForeignKey<FuelTank>("VehicleName1");
+            });
 
             modelBuilder.Entity<ContinuousCombustionEngine>();
             modelBuilder.Entity<IntermittentCombustionEngine>();
@@ -771,13 +763,12 @@ OFFSET 0 LIMIT 1
             modelBuilder.Ignore<SolidRocket>();
 
             modelBuilder.Entity<PersonBase>();
-            modelBuilder.Entity<Person>(
-                eb => eb.OwnsMany(
-                    v => v.Addresses, b =>
-                    {
-                        b.ToJsonProperty("Stored Addresses");
-                        b.OwnsOne(a => a.AddressTitle).Property(a => a.Title).HasValueGenerator<TitleGenerator>().IsRequired();
-                    }));
+            modelBuilder.Entity<Person>(eb => eb.OwnsMany(
+                v => v.Addresses, b =>
+                {
+                    b.ToJsonProperty("Stored Addresses");
+                    b.OwnsOne(a => a.AddressTitle).Property(a => a.Title).HasValueGenerator<TitleGenerator>().IsRequired();
+                }));
         }
     }
 

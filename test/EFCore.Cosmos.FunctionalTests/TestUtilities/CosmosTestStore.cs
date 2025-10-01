@@ -293,8 +293,7 @@ public class CosmosTestStore : TestStore
         {
             sqlDatabaseCreateUpdateContent.Options = new CosmosDBCreateUpdateConfig
             {
-                Throughput = modelThroughput.Throughput,
-                AutoscaleMaxThroughput = modelThroughput.AutoscaleMaxThroughput
+                Throughput = modelThroughput.Throughput, AutoscaleMaxThroughput = modelThroughput.AutoscaleMaxThroughput
             };
         }
 
@@ -402,10 +401,12 @@ public class CosmosTestStore : TestStore
             {
                 content.Options = new CosmosDBCreateUpdateConfig
                 {
-                    AutoscaleMaxThroughput = container.Throughput.AutoscaleMaxThroughput,
-                    Throughput = container.Throughput.Throughput
+                    AutoscaleMaxThroughput = container.Throughput.AutoscaleMaxThroughput, Throughput = container.Throughput.Throughput
                 };
             }
+
+            // TODO: see issue #35854
+            // once Azure.ResourceManager.CosmosDB package supports vectors and FTS, those need to be added here
 
             await database.Value.GetCosmosDBSqlContainers().CreateOrUpdateAsync(
                 WaitUntil.Completed, container.Id, content).ConfigureAwait(false);
@@ -432,15 +433,16 @@ public class CosmosTestStore : TestStore
             mappedTypes.Add(entityType);
         }
 
-#pragma warning disable EF9103
+        var fullTextDefaultLanguage = model.GetDefaultFullTextSearchLanguage();
         foreach (var (containerName, mappedTypes) in containers)
         {
-            IReadOnlyList<string> partitionKeyStoreNames = Array.Empty<string>();
+            IReadOnlyList<string> partitionKeyStoreNames = [];
             int? analyticalTtl = null;
             int? defaultTtl = null;
             ThroughputProperties? throughput = null;
             var indexes = new List<IIndex>();
             var vectors = new List<(IProperty Property, CosmosVectorType VectorType)>();
+            var fullTextProperties = new List<(IProperty Property, string? Language)>();
 
             foreach (var entityType in mappedTypes)
             {
@@ -452,17 +454,9 @@ public class CosmosTestStore : TestStore
                 analyticalTtl ??= entityType.GetAnalyticalStoreTimeToLive();
                 defaultTtl ??= entityType.GetDefaultTimeToLive();
                 throughput ??= entityType.GetThroughput();
-                indexes.AddRange(entityType.GetIndexes());
 
-                foreach (var property in entityType.GetProperties())
-                {
-                    if (property.FindTypeMapping() is CosmosVectorTypeMapping vectorTypeMapping)
-                    {
-                        vectors.Add((property, vectorTypeMapping.VectorType));
-                    }
-                }
+                ProcessEntityType(entityType, indexes, vectors, fullTextProperties);
             }
-#pragma warning restore EF9103
 
             yield return new Cosmos.Storage.Internal.ContainerProperties(
                 containerName,
@@ -471,7 +465,38 @@ public class CosmosTestStore : TestStore
                 defaultTtl,
                 throughput,
                 indexes,
-                vectors);
+                vectors,
+                fullTextDefaultLanguage ?? "en-US",
+                fullTextProperties);
+        }
+
+        static void ProcessEntityType(
+            IEntityType entityType,
+            List<IIndex> indexes,
+            List<(IProperty Property, CosmosVectorType VectorType)> vectors,
+            List<(IProperty Property, string? Language)> fullTextProperties)
+        {
+            indexes.AddRange(entityType.GetIndexes());
+
+            foreach (var property in entityType.GetProperties())
+            {
+                if (property.FindTypeMapping() is CosmosVectorTypeMapping vectorTypeMapping)
+                {
+                    vectors.Add((property, vectorTypeMapping.VectorType));
+                }
+
+                if (property.GetIsFullTextSearchEnabled() == true)
+                {
+                    fullTextProperties.Add((property, property.GetFullTextSearchLanguage()));
+                }
+            }
+
+            foreach (var ownedType in entityType.GetNavigations()
+                         .Where(x => x.ForeignKey.IsOwnership && !x.IsOnDependent && !x.TargetEntityType.IsDocumentRoot())
+                         .Select(x => x.TargetEntityType))
+            {
+                ProcessEntityType(ownedType, indexes, vectors, fullTextProperties);
+            }
         }
     }
 
@@ -499,7 +524,7 @@ public class CosmosTestStore : TestStore
                 }
             }
 
-            foreach(var container in containers)
+            foreach (var container in containers)
             {
                 await container.DeleteContainerAsync();
             }
@@ -626,12 +651,15 @@ public class CosmosTestStore : TestStore
 
         public bool IsConceptualNull(IProperty property)
             => throw new NotImplementedException();
+
+        public bool IsModified(IComplexProperty property)
+            => throw new NotImplementedException();
     }
 
     public class FakeEntityType : Annotatable, IEntityType
     {
-        public IEntityType BaseType
-            => throw new NotImplementedException();
+        public IEntityType? BaseType
+            => null;
 
         public string DefiningNavigationName
             => throw new NotImplementedException();
@@ -807,10 +835,13 @@ public class CosmosTestStore : TestStore
         public IEnumerable<IProperty> GetProperties()
             => throw new NotImplementedException();
 
+        public IEnumerable<IProperty> GetFlattenedValueGeneratingProperties()
+            => throw new NotImplementedException();
+
         public PropertyAccessMode GetPropertyAccessMode()
             => throw new NotImplementedException();
 
-        public LambdaExpression GetQueryFilter()
+        public IReadOnlyDictionary<string, LambdaExpression> GetDeclaredQueryFilters()
             => throw new NotImplementedException();
 
         public IEnumerable<IForeignKey> GetReferencingForeignKeys()
@@ -822,16 +853,13 @@ public class CosmosTestStore : TestStore
         public IEnumerable<IServiceProperty> GetServiceProperties()
             => throw new NotImplementedException();
 
-        public Func<MaterializationContext, object> GetOrCreateMaterializer(IEntityMaterializerSource source)
+        public Func<MaterializationContext, object> GetOrCreateMaterializer(IStructuralTypeMaterializerSource source)
             => throw new NotImplementedException();
 
-        public Func<MaterializationContext, object> GetOrCreateEmptyMaterializer(IEntityMaterializerSource source)
+        public Func<MaterializationContext, object> GetOrCreateEmptyMaterializer(IStructuralTypeMaterializerSource source)
             => throw new NotImplementedException();
 
         public IEnumerable<ISkipNavigation> GetSkipNavigations()
-            => throw new NotImplementedException();
-
-        public IEnumerable<IProperty> GetValueGeneratingProperties()
             => throw new NotImplementedException();
 
         IEnumerable<IReadOnlyForeignKey> IReadOnlyEntityType.FindDeclaredForeignKeys(IReadOnlyList<IReadOnlyProperty> properties)
@@ -934,10 +962,10 @@ public class CosmosTestStore : TestStore
             => throw new NotImplementedException();
 
         IEnumerable<IReadOnlyTrigger> IReadOnlyEntityType.GetDeclaredTriggers()
-            => throw new NotImplementedException();
+            => [];
 
         IEnumerable<ITrigger> IEntityType.GetDeclaredTriggers()
-            => throw new NotImplementedException();
+            => [];
 
         public IComplexProperty FindComplexProperty(string name)
             => throw new NotImplementedException();
@@ -1007,5 +1035,14 @@ public class CosmosTestStore : TestStore
 
         IEnumerable<IReadOnlyTypeBase> IReadOnlyTypeBase.GetDirectlyDerivedTypes()
             => GetDirectlyDerivedTypes();
+
+        IReadOnlyCollection<IQueryFilter> IReadOnlyEntityType.GetDeclaredQueryFilters()
+            => throw new NotImplementedException();
+
+        public LambdaExpression? GetQueryFilter()
+            => throw new NotImplementedException();
+
+        public IQueryFilter? FindDeclaredQueryFilter(string? filterKey)
+            => throw new NotImplementedException();
     }
 }

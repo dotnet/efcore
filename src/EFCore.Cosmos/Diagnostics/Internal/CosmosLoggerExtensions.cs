@@ -205,19 +205,18 @@ public static class CosmosLoggerExtensions
     {
         var d = (FallbackEventDefinition)definition;
         var p = (CosmosQueryExecutedEventData)payload;
-        return d.GenerateMessage(
-            l => l.Log(
-                d.Level,
-                d.EventId,
-                d.MessageFormat,
-                p.Elapsed.TotalMilliseconds,
-                p.RequestCharge,
-                p.ActivityId,
-                p.ContainerId,
-                p.LogSensitiveData ? p.PartitionKeyValue.ToString() : "?",
-                FormatParameters(p.Parameters, p is { LogSensitiveData: true, Parameters.Count: > 0 }),
-                Environment.NewLine,
-                p.QuerySql));
+        return d.GenerateMessage(l => l.Log(
+            d.Level,
+            d.EventId,
+            d.MessageFormat,
+            p.Elapsed.TotalMilliseconds,
+            p.RequestCharge,
+            p.ActivityId,
+            p.ContainerId,
+            p.LogSensitiveData ? p.PartitionKeyValue.ToString() : "?",
+            FormatParameters(p.Parameters, p is { LogSensitiveData: true, Parameters.Count: > 0 }),
+            Environment.NewLine,
+            p.QuerySql));
     }
 
     /// <summary>
@@ -277,6 +276,65 @@ public static class CosmosLoggerExtensions
             p.ActivityId,
             p.ContainerId,
             p.LogSensitiveData ? p.ResourceId : "?",
+            p.LogSensitiveData ? p.PartitionKeyValue.ToString() : "?");
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static void ExecutedTransactionalBatch(this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
+        TimeSpan elapsed,
+        double requestCharge,
+        string activityId,
+        string containerId,
+        PartitionKey partitionKeyValue,
+        string documentIds)
+    {
+        var definition = CosmosResources.LogExecutedTransactionalBatch(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            var logSensitiveData = diagnostics.ShouldLogSensitiveData();
+            definition.Log(
+                diagnostics,
+                elapsed.TotalMilliseconds.ToString(),
+                requestCharge.ToString(),
+                activityId,
+                containerId,
+                logSensitiveData ? partitionKeyValue.ToString() : "?",
+                logSensitiveData ? documentIds : "?");
+        }
+
+        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = new CosmosTransactionalBatchExecutedEventData(
+                definition,
+                ExecutedTransactionalBatch,
+                elapsed,
+                requestCharge,
+                activityId,
+                containerId,
+                partitionKeyValue,
+                documentIds,
+                diagnostics.ShouldLogSensitiveData());
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+        }
+    }
+
+    private static string ExecutedTransactionalBatch(EventDefinitionBase definition, EventData payload)
+    {
+        var d = (EventDefinition<string, string, string, string, string, string?>)definition;
+        var p = (CosmosTransactionalBatchExecutedEventData)payload;
+        return d.GenerateMessage(
+            p.Elapsed.Milliseconds.ToString(),
+            p.RequestCharge.ToString(),
+            p.ActivityId,
+            p.ContainerId,
+            p.LogSensitiveData ? p.DocumentIds.ToString() : "?",
             p.LogSensitiveData ? p.PartitionKeyValue.ToString() : "?");
     }
 

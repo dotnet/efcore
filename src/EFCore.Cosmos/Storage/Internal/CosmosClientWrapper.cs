@@ -6,8 +6,10 @@ using System.Collections.ObjectModel;
 using System.Net;
 using System.Runtime.CompilerServices;
 using System.Text;
+using Microsoft.Azure.Cosmos.Scripts;
 using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Newtonsoft.Json;
@@ -238,29 +240,71 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         var partitionKeyPaths = parameters.PartitionKeyStoreNames.Select(e => "/" + e).ToList();
 
         var vectorIndexes = new Collection<VectorIndexPath>();
+        var fullTextIndexPaths = new Collection<FullTextIndexPath>();
+        var fullTextProperties = parametersTuple.Parameters.FullTextProperties.Select(x => x.Property).ToList();
         foreach (var index in parameters.Indexes)
         {
-            var vectorIndexType = (VectorIndexType?)index.FindAnnotation(CosmosAnnotationNames.VectorIndexType)?.Value;
+            var vectorIndexType = index.GetVectorIndexType();
             if (vectorIndexType != null)
             {
-                // Model validation will ensure there is only one property.
-                Check.DebugAssert(index.Properties.Count == 1, "Vector index must have one property.");
+                if (index.Properties.Count > 1)
+                {
+                    throw new InvalidOperationException(
+                        CosmosStrings.CompositeVectorIndex(
+                            index.DeclaringEntityType.DisplayName(),
+                            string.Join(",", index.Properties.Select(e => e.Name))));
+                }
 
                 vectorIndexes.Add(
-                    new VectorIndexPath { Path = "/" + index.Properties[0].GetJsonPropertyName(), Type = vectorIndexType.Value });
+                    new VectorIndexPath { Path = GetJsonPropertyPathFromRoot(index.Properties[0]), Type = vectorIndexType.Value });
+            }
+
+            if (index.IsFullTextIndex() == true)
+            {
+                if (index.Properties.Count > 1)
+                {
+                    throw new InvalidOperationException(
+                        CosmosStrings.CompositeFullTextIndex(
+                            index.DeclaringEntityType.DisplayName(),
+                            string.Join(",", index.Properties.Select(e => e.Name))));
+                }
+
+                fullTextIndexPaths.Add(
+                    new FullTextIndexPath { Path = GetJsonPropertyPathFromRoot(index.Properties[0]) });
             }
         }
 
+        var fullTextPaths = new Collection<FullTextPath>();
+        foreach (var (property, language) in parameters.FullTextProperties)
+        {
+            if (property.ClrType != typeof(string))
+            {
+                throw new InvalidOperationException(
+                    CosmosStrings.FullTextSearchConfiguredForUnsupportedPropertyType(
+                        property.DeclaringType.DisplayName(),
+                        property.Name,
+                        property.ClrType.Name));
+            }
+
+            fullTextPaths.Add(
+                new FullTextPath
+                {
+                    Path = GetJsonPropertyPathFromRoot(property),
+                    // TODO: remove the fallback once Cosmos SDK allows optional language (see #35939)
+                    Language = language ?? parameters.DefaultFullTextLanguage ?? "en-US"
+                });
+        }
+
         var embeddings = new Collection<Embedding>();
-        foreach (var tuple in parameters.Vectors)
+        foreach (var (property, vectorType) in parameters.Vectors)
         {
             embeddings.Add(
                 new Embedding
                 {
-                    Path = "/" + tuple.Property.GetJsonPropertyName(),
-                    DataType = CosmosVectorType.CreateDefaultVectorDataType(tuple.Property.ClrType),
-                    Dimensions = tuple.VectorType.Dimensions,
-                    DistanceFunction = tuple.VectorType.DistanceFunction
+                    Path = GetJsonPropertyPathFromRoot(property),
+                    DataType = CosmosVectorType.CreateDefaultVectorDataType(property.ClrType),
+                    Dimensions = vectorType.Dimensions,
+                    DistanceFunction = vectorType.DistanceFunction
                 });
         }
 
@@ -271,14 +315,22 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             AnalyticalStoreTimeToLiveInSeconds = parameters.AnalyticalStoreTimeToLiveInSeconds,
         };
 
-        if (embeddings.Any())
+        if (embeddings.Count != 0)
         {
             containerProperties.VectorEmbeddingPolicy = new VectorEmbeddingPolicy(embeddings);
         }
 
-        if (vectorIndexes.Any())
+        if (vectorIndexes.Count != 0 || fullTextIndexPaths.Count != 0)
         {
-            containerProperties.IndexingPolicy = new IndexingPolicy { VectorIndexes = vectorIndexes };
+            containerProperties.IndexingPolicy = new IndexingPolicy { VectorIndexes = vectorIndexes, FullTextIndexes = fullTextIndexPaths };
+        }
+
+        if (fullTextPaths.Count != 0)
+        {
+            containerProperties.FullTextPolicy = new FullTextPolicy
+            {
+                DefaultLanguage = parameters.DefaultFullTextLanguage, FullTextPaths = fullTextPaths
+            };
         }
 
         var response = await wrapper.Client.GetDatabase(wrapper._databaseId).CreateContainerIfNotExistsAsync(
@@ -288,6 +340,26 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             .ConfigureAwait(false);
 
         return response.StatusCode == HttpStatusCode.Created;
+    }
+
+    private static string GetJsonPropertyPathFromRoot(IReadOnlyProperty property)
+        => GetPathFromRoot((IReadOnlyEntityType)property.DeclaringType) + "/" + property.GetJsonPropertyName();
+
+    private static string GetPathFromRoot(IReadOnlyEntityType entityType)
+    {
+        if (entityType.IsOwned())
+        {
+            var ownership = entityType.FindOwnership()!;
+            var resultPath = GetPathFromRoot(ownership.PrincipalEntityType)
+                + "/"
+                + ownership.GetNavigation(pointsToPrincipal: false)!.TargetEntityType.GetContainingPropertyName();
+
+            return !ownership.IsUnique
+                ? throw new NotSupportedException(CosmosStrings.CreatingContainerWithFullTextOrVectorOnCollectionNotSupported(resultPath))
+                : resultPath;
+        }
+
+        return "";
     }
 
     /// <summary>
@@ -343,6 +415,21 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         var container = wrapper.Client.GetDatabase(wrapper._databaseId).GetContainer(parameters.ContainerId);
         var itemRequestOptions = CreateItemRequestOptions(entry, wrapper._enableContentResponseOnWrite);
         var partitionKeyValue = ExtractPartitionKeyValue(entry);
+        var preTriggers = GetTriggers(entry, TriggerType.Pre, TriggerOperation.Create);
+        var postTriggers = GetTriggers(entry, TriggerType.Post, TriggerOperation.Create);
+        if (preTriggers != null || postTriggers != null)
+        {
+            itemRequestOptions ??= new ItemRequestOptions();
+            if (preTriggers != null)
+            {
+                itemRequestOptions.PreTriggers = preTriggers;
+            }
+
+            if (postTriggers != null)
+            {
+                itemRequestOptions.PostTriggers = postTriggers;
+            }
+        }
 
         var response = await container.CreateItemStreamAsync(
                 stream,
@@ -419,6 +506,21 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         var container = wrapper.Client.GetDatabase(wrapper._databaseId).GetContainer(parameters.ContainerId);
         var itemRequestOptions = CreateItemRequestOptions(entry, wrapper._enableContentResponseOnWrite);
         var partitionKeyValue = ExtractPartitionKeyValue(entry);
+        var preTriggers = GetTriggers(entry, TriggerType.Pre, TriggerOperation.Replace);
+        var postTriggers = GetTriggers(entry, TriggerType.Post, TriggerOperation.Replace);
+        if (preTriggers != null || postTriggers != null)
+        {
+            itemRequestOptions ??= new ItemRequestOptions();
+            if (preTriggers != null)
+            {
+                itemRequestOptions.PreTriggers = preTriggers;
+            }
+
+            if (postTriggers != null)
+            {
+                itemRequestOptions.PostTriggers = postTriggers;
+            }
+        }
 
         using var response = await container.ReplaceItemStreamAsync(
                 stream,
@@ -475,6 +577,91 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         CancellationToken cancellationToken = default)
         => _executionStrategy.ExecuteAsync((containerId, documentId, entry, this), DeleteItemOnceAsync, null, cancellationToken);
 
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual PartitionKey GetPartitionKeyValue(IUpdateEntry updateEntry)
+        => ExtractPartitionKeyValue(updateEntry);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual ICosmosTransactionalBatchWrapper CreateTransactionalBatch(string containerId, PartitionKey partitionKeyValue)
+    {
+        var container = Client.GetDatabase(_databaseId).GetContainer(containerId);
+        var batch = container.CreateTransactionalBatch(partitionKeyValue);
+
+        return new CosmosTransactionalBatchWrapper(batch, containerId, partitionKeyValue, _enableContentResponseOnWrite);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual CosmosTransactionalBatchResult ExecuteBatch(ICosmosTransactionalBatchWrapper batch)
+    {
+        _databaseLogger.SyncNotSupported();
+
+        return _executionStrategy.Execute((batch, this), ExecuteBatchOnce, null);
+    }
+
+    private static CosmosTransactionalBatchResult ExecuteBatchOnce(DbContext _,
+        (ICosmosTransactionalBatchWrapper Batch, CosmosClientWrapper Wrapper) parameters)
+        => ExecuteBatchOnceAsync(_, parameters).GetAwaiter().GetResult();
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual Task<CosmosTransactionalBatchResult> ExecuteBatchAsync(ICosmosTransactionalBatchWrapper batch, CancellationToken cancellationToken = default)
+        => _executionStrategy.ExecuteAsync((batch, this), ExecuteBatchOnceAsync, null, cancellationToken);
+
+    private static async Task<CosmosTransactionalBatchResult> ExecuteBatchOnceAsync(DbContext _,
+        (ICosmosTransactionalBatchWrapper Batch, CosmosClientWrapper Wrapper) parameters,
+        CancellationToken cancellationToken = default)
+    {
+        var batch = parameters.Batch;
+        var transactionalBatch = batch.GetTransactionalBatch();
+        var wrapper = parameters.Wrapper;
+
+        using var response = await transactionalBatch.ExecuteAsync(cancellationToken).ConfigureAwait(false);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorCode = response.StatusCode;
+            var errorEntries = response
+                .Select((opResult, index) => (opResult, index))
+                .Where(r => r.opResult.StatusCode == errorCode)
+                .Select(r => batch.Entries[r.index].Entry)
+                .ToList();
+
+            var exception = new CosmosException(response.ErrorMessage, errorCode, 0, response.ActivityId, response.RequestCharge);
+            return new CosmosTransactionalBatchResult(errorEntries, exception);
+        }
+
+        wrapper._commandLogger.ExecutedTransactionalBatch(
+            response.Diagnostics.GetClientElapsedTime(),
+            response.Headers.RequestCharge,
+            response.Headers.ActivityId,
+            batch.CollectionId,
+            batch.PartitionKeyValue,
+            "[ \"" + string.Join("\", \"", batch.Entries.Select(x => x.Id)) + "\" ]");
+
+        ProcessResponse(response, batch.Entries);
+
+        return CosmosTransactionalBatchResult.Success;
+    }
+
     private static async Task<bool> DeleteItemOnceAsync(
         DbContext? _,
         (string ContainerId, string ResourceId, IUpdateEntry Entry, CosmosClientWrapper Wrapper) parameters,
@@ -486,6 +673,21 @@ public class CosmosClientWrapper : ICosmosClientWrapper
 
         var itemRequestOptions = CreateItemRequestOptions(entry, wrapper._enableContentResponseOnWrite);
         var partitionKeyValue = ExtractPartitionKeyValue(entry);
+        var preTriggers = GetTriggers(entry, TriggerType.Pre, TriggerOperation.Delete);
+        var postTriggers = GetTriggers(entry, TriggerType.Post, TriggerOperation.Delete);
+        if (preTriggers != null || postTriggers != null)
+        {
+            itemRequestOptions ??= new ItemRequestOptions();
+            if (preTriggers != null)
+            {
+                itemRequestOptions.PreTriggers = preTriggers;
+            }
+
+            if (postTriggers != null)
+            {
+                itemRequestOptions.PostTriggers = postTriggers;
+            }
+        }
 
         using var response = await items.DeleteItemStreamAsync(
                 parameters.ResourceId,
@@ -509,47 +711,27 @@ public class CosmosClientWrapper : ICosmosClientWrapper
 
     private static ItemRequestOptions? CreateItemRequestOptions(IUpdateEntry entry, bool? enableContentResponseOnWrite)
     {
-        var etagProperty = entry.EntityType.GetETagProperty();
-        if (etagProperty == null)
-        {
-            return null;
-        }
+        var helper = RequestOptionsHelper.Create(entry, enableContentResponseOnWrite);
 
-        var etag = entry.GetOriginalValue(etagProperty);
-        var converter = etagProperty.GetTypeMapping().Converter;
-        if (converter != null)
-        {
-            etag = converter.ConvertToProvider(etag);
-        }
+        return helper == null
+            ? null
+            : new ItemRequestOptions { IfMatchEtag = helper.IfMatchEtag, EnableContentResponseOnWrite = helper.EnableContentResponseOnWrite };
+    }
 
-        bool enabledContentResponse;
-        if (enableContentResponseOnWrite.HasValue)
-        {
-            enabledContentResponse = enableContentResponseOnWrite.Value;
-        }
-        else
-        {
-            switch (entry.EntityState)
-            {
-                case EntityState.Modified:
-                {
-                    var jObjectProperty = entry.EntityType.FindProperty(CosmosPartitionKeyInPrimaryKeyConvention.JObjectPropertyName);
-                    enabledContentResponse = (jObjectProperty?.ValueGenerated & ValueGenerated.OnUpdate) == ValueGenerated.OnUpdate;
-                    break;
-                }
-                case EntityState.Added:
-                {
-                    var jObjectProperty = entry.EntityType.FindProperty(CosmosPartitionKeyInPrimaryKeyConvention.JObjectPropertyName);
-                    enabledContentResponse = (jObjectProperty?.ValueGenerated & ValueGenerated.OnAdd) == ValueGenerated.OnAdd;
-                    break;
-                }
-                default:
-                    enabledContentResponse = false;
-                    break;
-            }
-        }
+    private static IReadOnlyList<string>? GetTriggers(IUpdateEntry entry, TriggerType type, TriggerOperation operation)
+    {
+        var preTriggers = entry.EntityType.GetTriggers()
+            .Where(t => t.GetTriggerType() == type && ShouldExecuteTrigger(t, operation))
+            .Select(t => t.ModelName)
+            .ToList();
 
-        return new ItemRequestOptions { IfMatchEtag = (string?)etag, EnableContentResponseOnWrite = enabledContentResponse };
+        return preTriggers.Count > 0 ? preTriggers : null;
+    }
+
+    private static bool ShouldExecuteTrigger(ITrigger trigger, TriggerOperation currentOperation)
+    {
+        var triggerOperation = trigger.GetTriggerOperation();
+        return triggerOperation == null || triggerOperation == TriggerOperation.All || triggerOperation == currentOperation;
     }
 
     private static PartitionKey ExtractPartitionKeyValue(IUpdateEntry entry)
@@ -572,17 +754,33 @@ public class CosmosClientWrapper : ICosmosClientWrapper
     private static void ProcessResponse(ResponseMessage response, IUpdateEntry entry)
     {
         response.EnsureSuccessStatusCode();
+        ProcessResponse(entry, response.Headers.ETag, response.Content);
+    }
+
+    private static void ProcessResponse(TransactionalBatchResponse batchResponse, IReadOnlyList<CosmosTransactionalBatchEntry> entries)
+    {
+        for (var i = 0; i < batchResponse.Count; i++)
+        {
+            var entry = entries[i];
+            var response = batchResponse[i];
+
+            ProcessResponse(entry.Entry, response.ETag, response.ResourceStream);
+        }
+    }
+
+    private static void ProcessResponse(IUpdateEntry entry, string eTag, Stream? content)
+    {
         var etagProperty = entry.EntityType.GetETagProperty();
         if (etagProperty != null && entry.EntityState != EntityState.Deleted)
         {
-            entry.SetStoreGeneratedValue(etagProperty, response.Headers.ETag);
+            entry.SetStoreGeneratedValue(etagProperty, eTag);
         }
 
         var jObjectProperty = entry.EntityType.FindProperty(CosmosPartitionKeyInPrimaryKeyConvention.JObjectPropertyName);
         if (jObjectProperty is { ValueGenerated: ValueGenerated.OnAddOrUpdate }
-            && response.Content != null)
+            && content != null)
         {
-            using var responseStream = response.Content;
+            using var responseStream = content;
             using var reader = new StreamReader(responseStream);
             using var jsonReader = new JsonTextReader(reader);
 
@@ -827,7 +1025,10 @@ public class CosmosClientWrapper : ICosmosClientWrapper
                         return false;
                     }
 
-                    _responseMessage = _query.ReadNextAsync().GetAwaiter().GetResult();
+                    _responseMessage = _cosmosClientWrapper._executionStrategy.Execute(
+                        (_query, _cosmosClientWrapper),
+                        static (_, state) => state._query.ReadNextAsync().GetAwaiter().GetResult(),
+                        null);
 
                     _cosmosClientWrapper._commandLogger.ExecutedReadNext(
                         _responseMessage.Diagnostics.GetClientElapsedTime(),
@@ -928,7 +1129,11 @@ public class CosmosClientWrapper : ICosmosClientWrapper
                         return false;
                     }
 
-                    _responseMessage = await _query.ReadNextAsync(cancellationToken).ConfigureAwait(false);
+                    _responseMessage = await _cosmosClientWrapper._executionStrategy.ExecuteAsync(
+                        (_query, _cosmosClientWrapper),
+                        static (_, state, cancellationToken) => state._query.ReadNextAsync(cancellationToken),
+                        null,
+                        cancellationToken).ConfigureAwait(false);
 
                     _cosmosClientWrapper._commandLogger.ExecutedReadNext(
                         _responseMessage.Diagnostics.GetClientElapsedTime(),

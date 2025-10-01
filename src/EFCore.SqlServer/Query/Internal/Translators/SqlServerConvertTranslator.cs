@@ -58,15 +58,13 @@ public class SqlServerConvertTranslator : IMethodCallTranslator
     {
         var convertInfo = typeof(Convert).GetTypeInfo();
         SupportedMethods = TypeMapping.Keys
-            .SelectMany(
-                name => convertInfo.GetDeclaredMethods(name)
-                    .Where(
-                        method =>
-                        {
-                            var parameters = method.GetParameters();
-                            return parameters.Length == 1
-                                && SupportedTypes.Contains(parameters[0].ParameterType);
-                        }))
+            .SelectMany(name => convertInfo.GetDeclaredMethods(name)
+                .Where(method =>
+                {
+                    var parameters = method.GetParameters();
+                    return parameters.Length == 1
+                        && SupportedTypes.Contains(parameters[0].ParameterType);
+                }))
             .ToArray();
     }
 

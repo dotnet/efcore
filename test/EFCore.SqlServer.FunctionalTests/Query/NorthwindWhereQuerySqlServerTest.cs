@@ -1464,10 +1464,21 @@ ORDER BY [c0].[CustomerID]
 """,
             //
             """
+@entity_equality_customer_Orders_OrderID1='10643'
+@entity_equality_customer_Orders_OrderID2='10692'
+@entity_equality_customer_Orders_OrderID3='10702'
+@entity_equality_customer_Orders_OrderID4='10835'
+@entity_equality_customer_Orders_OrderID5='10952'
+@entity_equality_customer_Orders_OrderID6='11011'
+@entity_equality_customer_Orders_OrderID7='11011'
+@entity_equality_customer_Orders_OrderID8='11011'
+@entity_equality_customer_Orders_OrderID9='11011'
+@entity_equality_customer_Orders_OrderID10='11011'
+
 SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
 INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
-WHERE [o0].[OrderID] IN (10643, 10692, 10702, 10835, 10952, 11011)
+WHERE [o0].[OrderID] IN (@entity_equality_customer_Orders_OrderID1, @entity_equality_customer_Orders_OrderID2, @entity_equality_customer_Orders_OrderID3, @entity_equality_customer_Orders_OrderID4, @entity_equality_customer_Orders_OrderID5, @entity_equality_customer_Orders_OrderID6, @entity_equality_customer_Orders_OrderID7, @entity_equality_customer_Orders_OrderID8, @entity_equality_customer_Orders_OrderID9, @entity_equality_customer_Orders_OrderID10)
 """);
     }
 
@@ -1655,14 +1666,11 @@ WHERE [o].[OrderID] = 10274
 
         AssertSql(
             """
-@cities='["Seattle"]' (Size = 4000)
+@cities1='Seattle' (Size = 15)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[City] IN (
-    SELECT [c0].[value]
-    FROM OPENJSON(@cities) WITH ([value] nvarchar(15) '$') AS [c0]
-)
+WHERE [c].[City] = @cities1
 """);
     }
 
@@ -1921,27 +1929,24 @@ ORDER BY [o].[OrderID], [o1].[OrderID]
 """);
     }
 
-// TODO: The base implementations no longer compile since https://github.com/dotnet/runtime/pull/110197 (Contains overload added with
-// optional parameter, not supported in expression trees). #35547 is tracking on the EF side.
-//
-//     public override async Task Where_collection_navigation_ToArray_Contains(bool async)
-//     {
-//         await base.Where_collection_navigation_ToArray_Contains(async);
-//
-//         AssertSql(
-//             """
-// @entity_equality_order_OrderID='10248' (Nullable = true)
-//
-// SELECT [c].[CustomerID], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
-// FROM [Customers] AS [c]
-// LEFT JOIN [Orders] AS [o0] ON [c].[CustomerID] = [o0].[CustomerID]
-// WHERE EXISTS (
-//     SELECT 1
-//     FROM [Orders] AS [o]
-//     WHERE [c].[CustomerID] = [o].[CustomerID] AND [o].[OrderID] = @entity_equality_order_OrderID)
-// ORDER BY [c].[CustomerID], [o0].[OrderID]
-// """);
-//     }
+    public override async Task Where_collection_navigation_ToArray_Contains(bool async)
+    {
+        await base.Where_collection_navigation_ToArray_Contains(async);
+
+        AssertSql(
+            """
+@entity_equality_order_OrderID='10248' (Nullable = true)
+
+SELECT [c].[CustomerID], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+FROM [Customers] AS [c]
+LEFT JOIN [Orders] AS [o0] ON [c].[CustomerID] = [o0].[CustomerID]
+WHERE EXISTS (
+    SELECT 1
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID] AND [o].[OrderID] = @entity_equality_order_OrderID)
+ORDER BY [c].[CustomerID], [o0].[OrderID]
+""");
+    }
 
     public override async Task Where_collection_navigation_AsEnumerable_Count(bool async)
     {
@@ -2019,36 +2024,29 @@ ORDER BY [o].[OrderID], [o1].[OrderID]
 
         AssertSql(
             """
-@orderIds='[10248,10249]' (Size = 4000)
+@orderIds1='10248'
+@orderIds2='10249'
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE [o].[OrderID] IN (
-    SELECT [o0].[value]
-    FROM OPENJSON(@orderIds) WITH ([value] int '$') AS [o0]
-)
+WHERE [o].[OrderID] IN (@orderIds1, @orderIds2)
 """);
     }
 
-// TODO: The base implementations no longer compile since https://github.com/dotnet/runtime/pull/110197 (Contains overload added with
-// optional parameter, not supported in expression trees). #35547 is tracking on the EF side.
-//
-//     public override async Task Where_array_of_object_contains_over_value_type(bool async)
-//     {
-//         await base.Where_array_of_object_contains_over_value_type(async);
-//
-//         AssertSql(
-//             """
-// @orderIds='[10248,10249]' (Size = 4000)
-//
-// SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-// FROM [Orders] AS [o]
-// WHERE [o].[OrderID] IN (
-//     SELECT [o0].[value]
-//     FROM OPENJSON(@orderIds) WITH ([value] int '$') AS [o0]
-// )
-// """);
-//     }
+    public override async Task Where_array_of_object_contains_over_value_type(bool async)
+    {
+        await base.Where_array_of_object_contains_over_value_type(async);
+
+        AssertSql(
+            """
+@orderIds1='10248'
+@orderIds2='10249'
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[OrderID] IN (@orderIds1, @orderIds2)
+""");
+    }
 
     public override async Task Multiple_OrElse_on_same_column_converted_to_in_with_overlap(bool async)
     {
@@ -2126,7 +2124,6 @@ WHERE [c].[CustomerID] NOT IN (N'ALFKI', N'ANATR', N'ANTON')
     {
         await base.Multiple_AndAlso_on_same_column_converted_to_in_using_parameters(async);
 
-        // issue #21462
         AssertSql(
             """
 @prm1='ALFKI' (Size = 5) (DbType = StringFixedLength)
@@ -2143,7 +2140,6 @@ WHERE [c].[CustomerID] <> @prm1 AND [c].[CustomerID] <> @prm2 AND [c].[CustomerI
     {
         await base.Array_of_parameters_Contains_OrElse_comparison_with_constant_gets_combined_to_one_in(async);
 
-        // issue #21462
         AssertSql(
             """
 @prm1='ALFKI' (Size = 5) (DbType = StringFixedLength)
@@ -2159,7 +2155,6 @@ WHERE [c].[CustomerID] IN (@prm1, @prm2, N'ANTON')
     {
         await base.Multiple_OrElse_on_same_column_with_null_parameter_comparison_converted_to_in(async);
 
-        // issue #21462
         AssertSql(
             """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -2174,14 +2169,12 @@ WHERE [c].[Region] IN (N'WA', N'OR') OR [c].[Region] IS NULL OR [c].[Region] = N
 
         AssertSql(
             """
-@array='["ALFKI","ANATR"]' (Size = 4000)
+@array1='ALFKI' (Size = 5) (DbType = StringFixedLength)
+@array2='ANATR' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] IN (
-    SELECT [a].[value]
-    FROM OPENJSON(@array) WITH ([value] nchar(5) '$') AS [a]
-) OR [c].[CustomerID] = N'ANTON'
+WHERE [c].[CustomerID] IN (@array1, @array2) OR [c].[CustomerID] = N'ANTON'
 """);
     }
 
@@ -2192,15 +2185,13 @@ WHERE [c].[CustomerID] IN (
         AssertSql(
             """
 @prm1='ANTON' (Size = 5) (DbType = StringFixedLength)
-@array='["ALFKI","ANATR"]' (Size = 4000)
+@array1='ALFKI' (Size = 5) (DbType = StringFixedLength)
+@array2='ANATR' (Size = 5) (DbType = StringFixedLength)
 @prm2='ALFKI' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = @prm1 OR [c].[CustomerID] IN (
-    SELECT [a].[value]
-    FROM OPENJSON(@array) WITH ([value] nchar(5) '$') AS [a]
-) OR [c].[CustomerID] = @prm2
+WHERE [c].[CustomerID] = @prm1 OR [c].[CustomerID] IN (@array1, @array2) OR [c].[CustomerID] = @prm2
 """);
     }
 
@@ -2502,14 +2493,13 @@ WHERE EXISTS (
 
         AssertSql(
             """
-@customerIds='["ALFKI","FISSA","WHITC"]' (Size = 4000)
+@customerIds1='ALFKI' (Size = 5) (DbType = StringFixedLength)
+@customerIds2='FISSA' (Size = 5) (DbType = StringFixedLength)
+@customerIds3='WHITC' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] IN (
-    SELECT [c0].[value]
-    FROM OPENJSON(@customerIds) WITH ([value] nchar(5) '$') AS [c0]
-) AND [c].[City] = N'Seattle'
+WHERE [c].[CustomerID] IN (@customerIds1, @customerIds2, @customerIds3) AND [c].[City] = N'Seattle'
 """);
     }
 
@@ -2519,14 +2509,12 @@ WHERE [c].[CustomerID] IN (
 
         AssertSql(
             """
-@customerIds='["ALFKI","FISSA"]' (Size = 4000)
+@customerIds1='ALFKI' (Size = 5) (DbType = StringFixedLength)
+@customerIds2='FISSA' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] IN (
-    SELECT [c0].[value]
-    FROM OPENJSON(@customerIds) WITH ([value] nchar(5) '$') AS [c0]
-) OR [c].[City] = N'Seattle'
+WHERE [c].[CustomerID] IN (@customerIds1, @customerIds2) OR [c].[City] = N'Seattle'
 """);
     }
 
@@ -2984,6 +2972,13 @@ SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE [o].[OrderID] = @p
 """);
+    }
+
+    public override async Task EF_MultipleParameters_with_non_evaluatable_argument_throws(bool async)
+    {
+        await base.EF_MultipleParameters_with_non_evaluatable_argument_throws(async);
+
+        AssertSql();
     }
 
     #region Evaluation order of operators

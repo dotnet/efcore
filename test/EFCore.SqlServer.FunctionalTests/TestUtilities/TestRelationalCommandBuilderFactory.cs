@@ -48,14 +48,14 @@ public class TestRelationalCommandBuilderFactory(
                 Instance.ToString(),
                 Parameters);
 
-        public IRelationalCommandBuilder Append(string value, bool redact = false)
+        public IRelationalCommandBuilder Append(string value, bool sensitive = false)
         {
             Instance.Append(value);
 
             return this;
         }
 
-        public IRelationalCommandBuilder Append(FormattableString value, bool redact = false)
+        public IRelationalCommandBuilder Append(FormattableString value, bool sensitive = false)
         {
             Instance.Append(value);
 

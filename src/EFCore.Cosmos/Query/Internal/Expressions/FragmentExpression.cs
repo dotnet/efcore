@@ -1,9 +1,8 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-
-
 // ReSharper disable once CheckNamespace
+
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
 /// <summary>
@@ -22,6 +21,14 @@ public class FragmentExpression(string fragment) : Expression, IPrintableExpress
     ///     The fragment.
     /// </summary>
     public virtual string Fragment { get; } = fragment;
+
+    /// <inheritdoc />
+    public override ExpressionType NodeType
+        => base.NodeType;
+
+    /// <inheritdoc />
+    public override Type Type
+        => typeof(object);
 
     /// <inheritdoc />
     protected override Expression VisitChildren(ExpressionVisitor visitor)

@@ -23,7 +23,8 @@ public sealed class InternalUsageDiagnosticAnalyzer : DiagnosticAnalyzer
             defaultSeverity: DiagnosticSeverity.Warning,
             isEnabledByDefault: true);
 
-    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [Descriptor];
+    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
+        => [Descriptor];
 
     public override void Initialize(AnalysisContext context)
     {
@@ -308,14 +309,13 @@ public sealed class InternalUsageDiagnosticAnalyzer : DiagnosticAnalyzer
             && (IsInInternalNamespace(symbol) || HasInternalAttribute(symbol));
 
     private static bool HasInternalAttribute(ISymbol symbol)
-        => symbol.GetAttributes().Any(
-            a =>
-                a.AttributeClass!.ToDisplayString()
-                == "Microsoft.EntityFrameworkCore.Infrastructure.EntityFrameworkInternalAttribute");
+        => symbol.GetAttributes().Any(a =>
+            a.AttributeClass!.ToDisplayString()
+            == "Microsoft.EntityFrameworkCore.Infrastructure.EntityFrameworkInternalAttribute");
 
     private static bool IsInInternalNamespace(ISymbol symbol)
     {
-        if (symbol?.ContainingNamespace?.ToDisplayString() is string ns)
+        if (symbol?.ContainingNamespace?.ToDisplayString() is { } ns)
         {
             var i = ns.IndexOf("EntityFrameworkCore", StringComparison.Ordinal);
 

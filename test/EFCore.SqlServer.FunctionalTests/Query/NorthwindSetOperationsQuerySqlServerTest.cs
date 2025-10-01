@@ -200,6 +200,28 @@ WHERE [c1].[ContactName] LIKE N'%Thomas%'
 """);
     }
 
+    public override async Task Union_inside_Concat(bool async)
+    {
+        await base.Union_inside_Concat(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[City] = N'Berlin'
+UNION ALL
+(
+    SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+    FROM [Customers] AS [c0]
+    WHERE [c0].[City] = N'London'
+    UNION
+    SELECT [c1].[CustomerID], [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region]
+    FROM [Customers] AS [c1]
+    WHERE [c1].[City] = N'Berlin'
+)
+""");
+    }
+
     public override async Task Union_Take_Union_Take(bool async)
     {
         await base.Union_Take_Union_Take(async);
@@ -208,31 +230,28 @@ WHERE [c1].[ContactName] LIKE N'%Thomas%'
             """
 @p='1'
 
-SELECT [u2].[CustomerID], [u2].[Address], [u2].[City], [u2].[CompanyName], [u2].[ContactName], [u2].[ContactTitle], [u2].[Country], [u2].[Fax], [u2].[Phone], [u2].[PostalCode], [u2].[Region]
+SELECT TOP(@p) [u1].[CustomerID], [u1].[Address], [u1].[City], [u1].[CompanyName], [u1].[ContactName], [u1].[ContactTitle], [u1].[Country], [u1].[Fax], [u1].[Phone], [u1].[PostalCode], [u1].[Region]
 FROM (
-    SELECT TOP(@p) [u1].[CustomerID], [u1].[Address], [u1].[City], [u1].[CompanyName], [u1].[ContactName], [u1].[ContactTitle], [u1].[Country], [u1].[Fax], [u1].[Phone], [u1].[PostalCode], [u1].[Region]
+    SELECT [u0].[CustomerID], [u0].[Address], [u0].[City], [u0].[CompanyName], [u0].[ContactName], [u0].[ContactTitle], [u0].[Country], [u0].[Fax], [u0].[Phone], [u0].[PostalCode], [u0].[Region]
     FROM (
-        SELECT [u0].[CustomerID], [u0].[Address], [u0].[City], [u0].[CompanyName], [u0].[ContactName], [u0].[ContactTitle], [u0].[Country], [u0].[Fax], [u0].[Phone], [u0].[PostalCode], [u0].[Region]
+        SELECT TOP(@p) [u].[CustomerID], [u].[Address], [u].[City], [u].[CompanyName], [u].[ContactName], [u].[ContactTitle], [u].[Country], [u].[Fax], [u].[Phone], [u].[PostalCode], [u].[Region]
         FROM (
-            SELECT TOP(@p) [u].[CustomerID], [u].[Address], [u].[City], [u].[CompanyName], [u].[ContactName], [u].[ContactTitle], [u].[Country], [u].[Fax], [u].[Phone], [u].[PostalCode], [u].[Region]
-            FROM (
-                SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-                FROM [Customers] AS [c]
-                WHERE [c].[City] = N'Berlin'
-                UNION
-                SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
-                FROM [Customers] AS [c0]
-                WHERE [c0].[City] = N'London'
-            ) AS [u]
-            ORDER BY [u].[CustomerID]
-        ) AS [u0]
-        UNION
-        SELECT [c1].[CustomerID], [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region]
-        FROM [Customers] AS [c1]
-        WHERE [c1].[City] = N'Mannheim'
-    ) AS [u1]
-) AS [u2]
-ORDER BY [u2].[CustomerID]
+            SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+            FROM [Customers] AS [c]
+            WHERE [c].[City] = N'Berlin'
+            UNION
+            SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+            FROM [Customers] AS [c0]
+            WHERE [c0].[City] = N'London'
+        ) AS [u]
+        ORDER BY [u].[CustomerID]
+    ) AS [u0]
+    UNION
+    SELECT [c1].[CustomerID], [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region]
+    FROM [Customers] AS [c1]
+    WHERE [c1].[City] = N'Mannheim'
+) AS [u1]
+ORDER BY [u1].[CustomerID]
 """);
     }
 
@@ -1234,17 +1253,40 @@ FROM (
 
         AssertSql(
             """
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE [c].[ContactTitle] = N'Owner'
-EXCEPT
-SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
-FROM [Customers] AS [c0]
-WHERE [c0].[City] = N'México D.F.'
+(
+    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    FROM [Customers] AS [c]
+    WHERE [c].[ContactTitle] = N'Owner'
+    EXCEPT
+    SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+    FROM [Customers] AS [c0]
+    WHERE [c0].[City] = N'México D.F.'
+)
 EXCEPT
 SELECT [c1].[CustomerID], [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region]
 FROM [Customers] AS [c1]
 WHERE [c1].[City] = N'Seattle'
+""");
+    }
+
+    public override async Task Except_nested2(bool async)
+    {
+        await base.Except_nested2(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+EXCEPT
+(
+    SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+    FROM [Customers] AS [c0]
+    WHERE [c0].[City] = N'Seattle'
+    EXCEPT
+    SELECT [c1].[CustomerID], [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region]
+    FROM [Customers] AS [c1]
+    WHERE [c1].[City] = N'Seattle'
+)
 """);
     }
 
@@ -1534,14 +1576,12 @@ WHERE [c1].[CustomerID] LIKE N'A%'
         // Client evaluation in projection. Issue #16243.
         Assert.Equal(
             RelationalStrings.SetOperationsNotAllowedAfterClientEvaluation,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Client_eval_Union_FirstOrDefault(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Client_eval_Union_FirstOrDefault(async))).Message);
 
         AssertSql();
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Union_with_different_store_types_is_fine_if_database_can_translate_it(bool async)
     {
         await AssertQuery(
@@ -1560,8 +1600,7 @@ FROM [Customers] AS [c0]
 """);
     }
 
-    [ConditionalTheory] // Issue #29020
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))] // Issue #29020
     public virtual async Task Union_with_type_mappings_to_same_store_type(bool async)
     {
         await AssertQuery(

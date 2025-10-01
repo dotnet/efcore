@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 
@@ -19,7 +20,7 @@ public class QuerySqlGenerator : SqlExpressionVisitor
 {
     private readonly IRelationalCommandBuilderFactory _relationalCommandBuilderFactory;
     private readonly ISqlGenerationHelper _sqlGenerationHelper;
-    private readonly HashSet<string> _parameterNames = new();
+    private readonly HashSet<string> _parameterNames = [];
     private IRelationalCommandBuilder _relationalCommandBuilder;
 
     /// <summary>
@@ -151,10 +152,11 @@ public class QuerySqlGenerator : SqlExpressionVisitor
         return sqlFragmentExpression;
     }
 
-    private static bool IsNonComposedSetOperation(SelectExpression selectExpression)
-        => selectExpression is
+    private static bool TryUnwrapBareSetOperation(SelectExpression selectExpression, [NotNullWhen(true)] out SetOperationBase? setOperation)
+    {
+        if (selectExpression is
             {
-                Tables: [SetOperationBase setOperation],
+                Tables: [SetOperationBase s],
                 Predicate: null,
                 Orderings: [],
                 Offset: null,
@@ -163,12 +165,19 @@ public class QuerySqlGenerator : SqlExpressionVisitor
                 Having: null,
                 GroupBy: []
             }
-            && selectExpression.Projection.Count == setOperation.Source1.Projection.Count
-            && selectExpression.Projection.Select(
-                    (pe, index) => pe.Expression is ColumnExpression column
-                        && column.TableAlias == setOperation.Alias
-                        && column.Name == setOperation.Source1.Projection[index].Alias)
-                .All(e => e);
+            && selectExpression.Projection.Count == s.Source1.Projection.Count
+            && selectExpression.Projection.Select((pe, index) => pe.Expression is ColumnExpression column
+                    && column.TableAlias == s.Alias
+                    && column.Name == s.Source1.Projection[index].Alias)
+                .All(e => e))
+        {
+            setOperation = s;
+            return true;
+        }
+
+        setOperation = null;
+        return false;
+    }
 
     /// <summary>
     ///     Generates SQL for a DELETE expression
@@ -278,9 +287,9 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     /// </summary>
     protected virtual bool TryGenerateWithoutWrappingSelect(SelectExpression selectExpression)
     {
-        if (IsNonComposedSetOperation(selectExpression))
+        if (TryUnwrapBareSetOperation(selectExpression, out var setOperation))
         {
-            GenerateSetOperation((SetOperationBase)selectExpression.Tables[0]);
+            GenerateSetOperation(setOperation);
             return true;
         }
 
@@ -296,9 +305,8 @@ public class QuerySqlGenerator : SqlExpressionVisitor
                 GroupBy.Count: 0,
             }
             && selectExpression.Projection.Count == valuesExpression.ColumnNames.Count
-            && selectExpression.Projection.Select(
-                    (pe, index) => pe.Expression is ColumnExpression column
-                        && column.Name == valuesExpression.ColumnNames[index])
+            && selectExpression.Projection.Select((pe, index) => pe.Expression is ColumnExpression column
+                    && column.Name == valuesExpression.ColumnNames[index])
                 .All(e => e))
         {
             GenerateValues(valuesExpression);
@@ -1358,11 +1366,16 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     protected virtual void GenerateSetOperationOperand(SetOperationBase setOperation, SelectExpression operand)
     {
         // INTERSECT has higher precedence over UNION and EXCEPT, but otherwise evaluation is left-to-right.
-        // To preserve meaning, add parentheses whenever a set operation is nested within a different set operation.
-        if (IsNonComposedSetOperation(operand)
-            && operand.Tables[0].GetType() != setOperation.GetType())
+        // To preserve evaluation order, add parentheses whenever a set operation is nested within a different set operation
+        // - including different distinctness.
+        // In addition, EXCEPT is non-commutative (unlike UNION/INTERSECT), so add parentheses for that case too (see #36105).
+        if (TryUnwrapBareSetOperation(operand, out var nestedSetOperation)
+            && (nestedSetOperation is ExceptExpression
+                || nestedSetOperation.GetType() != setOperation.GetType()
+                || nestedSetOperation.IsDistinct != setOperation.IsDistinct))
         {
             _relationalCommandBuilder.AppendLine("(");
+
             using (_relationalCommandBuilder.Indent())
             {
                 Visit(operand);
@@ -1446,20 +1459,33 @@ public class QuerySqlGenerator : SqlExpressionVisitor
                 || selectExpression.Tables[1] is CrossJoinExpression))
         {
             _relationalCommandBuilder.Append("UPDATE ");
+
             Visit(updateExpression.Table);
+
             _relationalCommandBuilder.AppendLine();
             _relationalCommandBuilder.Append("SET ");
-            _relationalCommandBuilder.Append(
-                $"{_sqlGenerationHelper.DelimitIdentifier(updateExpression.ColumnValueSetters[0].Column.Name)} = ");
-            Visit(updateExpression.ColumnValueSetters[0].Value);
-            using (_relationalCommandBuilder.Indent())
+
+            for (var i = 0; i < updateExpression.ColumnValueSetters.Count; i++)
             {
-                foreach (var columnValueSetter in updateExpression.ColumnValueSetters.Skip(1))
+                if (i == 1)
+                {
+                    Sql.IncrementIndent();
+                }
+
+                if (i > 0)
                 {
                     _relationalCommandBuilder.AppendLine(",");
-                    _relationalCommandBuilder.Append($"{_sqlGenerationHelper.DelimitIdentifier(columnValueSetter.Column.Name)} = ");
-                    Visit(columnValueSetter.Value);
                 }
+
+                var (column, value) = updateExpression.ColumnValueSetters[i];
+
+                _relationalCommandBuilder.Append(_sqlGenerationHelper.DelimitIdentifier(column.Name)).Append(" = ");
+                Visit(value);
+            }
+
+            if (updateExpression.ColumnValueSetters.Count > 1)
+            {
+                Sql.DecrementIndent();
             }
 
             var predicate = selectExpression.Predicate;
@@ -1472,7 +1498,7 @@ public class QuerySqlGenerator : SqlExpressionVisitor
                     var table = selectExpression.Tables[i];
                     var joinExpression = table as JoinExpressionBase;
 
-                    if (ReferenceEquals(updateExpression.Table, joinExpression?.Table ?? table))
+                    if (updateExpression.Table.Alias == (joinExpression?.Table.Alias ?? table.Alias))
                     {
                         LiftPredicate(table);
                         continue;
@@ -1562,7 +1588,7 @@ public class QuerySqlGenerator : SqlExpressionVisitor
         // and generate a SELECT for it with the names, and a UNION ALL over the rest of the values.
         _relationalCommandBuilder.Append("SELECT ");
 
-        Check.DebugAssert(rowValues.Count > 0, "rowValues.Count > 0");
+        Check.DebugAssert(rowValues.Count > 0);
         var firstRowValues = rowValues[0].Values;
         for (var i = 0; i < firstRowValues.Count; i++)
         {

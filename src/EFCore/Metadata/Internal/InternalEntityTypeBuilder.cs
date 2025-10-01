@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 
@@ -602,9 +601,8 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
                 .Concat(Metadata.FindComplexPropertiesInHierarchy(propertyName))
                 .Concat(Metadata.FindNavigationsInHierarchy(propertyName))
                 .Concat(Metadata.FindSkipNavigationsInHierarchy(propertyName))
-                .All(
-                    m => configurationSource.Overrides(m.GetConfigurationSource())
-                        && m.GetConfigurationSource() != ConfigurationSource.Explicit);
+                .All(m => configurationSource.Overrides(m.GetConfigurationSource())
+                    && m.GetConfigurationSource() != ConfigurationSource.Explicit);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -700,7 +698,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
             }
         }
 
-        Check.DebugAssert(configurationSource is not null, "configurationSource is not null");
+        Check.DebugAssert(configurationSource is not null);
 
         using (ModelBuilder.Metadata.DelayConventions())
         {
@@ -763,13 +761,11 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
                 .Concat(Metadata.FindComplexPropertiesInHierarchy(propertyName))
                 .Concat(Metadata.FindNavigationsInHierarchy(propertyName))
                 .Concat(Metadata.FindSkipNavigationsInHierarchy(propertyName))
-                .All(
-                    m => configurationSource.Overrides(m.GetConfigurationSource())
-                        && m.GetConfigurationSource() != ConfigurationSource.Explicit)
-            && Metadata.FindServicePropertiesInHierarchy(propertyName).All(
-                m => (configurationSource.Overrides(m.GetConfigurationSource())
-                        && m.GetConfigurationSource() != ConfigurationSource.Explicit)
-                    || memberInfo.IsOverriddenBy(m.GetIdentifyingMemberInfo()));
+                .All(m => configurationSource.Overrides(m.GetConfigurationSource())
+                    && m.GetConfigurationSource() != ConfigurationSource.Explicit)
+            && Metadata.FindServicePropertiesInHierarchy(propertyName).All(m => (configurationSource.Overrides(m.GetConfigurationSource())
+                    && m.GetConfigurationSource() != ConfigurationSource.Explicit)
+                || memberInfo.IsOverriddenBy(m.GetIdentifyingMemberInfo()));
     }
 
     private static InternalServicePropertyBuilder? DetachServiceProperty(ServiceProperty? serviceProperty)
@@ -835,9 +831,8 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
                 .Concat(Metadata.FindServicePropertiesInHierarchy(propertyName))
                 .Concat(Metadata.FindNavigationsInHierarchy(propertyName))
                 .Concat(Metadata.FindSkipNavigationsInHierarchy(propertyName))
-                .All(
-                    m => configurationSource.Overrides(m.GetConfigurationSource())
-                        && m.GetConfigurationSource() != ConfigurationSource.Explicit);
+                .All(m => configurationSource.Overrides(m.GetConfigurationSource())
+                    && m.GetConfigurationSource() != ConfigurationSource.Explicit);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -875,14 +870,13 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
                 .Concat(Metadata.FindServicePropertiesInHierarchy(navigationName))
                 .Concat(Metadata.FindComplexPropertiesInHierarchy(navigationName))
                 .Concat(Metadata.FindSkipNavigationsInHierarchy(navigationName))
-                .All(
-                    m => configurationSource.Overrides(m.GetConfigurationSource())
-                        && m.GetConfigurationSource() != ConfigurationSource.Explicit);
+                .All(m => configurationSource.Overrides(m.GetConfigurationSource())
+                    && m.GetConfigurationSource() != ConfigurationSource.Explicit);
 
     private bool CanBeNavigation(Type type, ConfigurationSource configurationSource)
         => configurationSource == ConfigurationSource.Explicit
             || ModelBuilder.Metadata.Configuration?.GetConfigurationType(type).IsEntityType() != false
-            && (type.TryGetSequenceType() is not Type sequenceType
+            && (type.TryGetSequenceType() is not { } sequenceType
                 || ModelBuilder.Metadata.Configuration?.GetConfigurationType(sequenceType).IsEntityType() != false);
 
     /// <summary>
@@ -912,9 +906,8 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
                 .Concat(Metadata.FindComplexPropertiesInHierarchy(skipNavigationName))
                 .Concat(Metadata.FindServicePropertiesInHierarchy(skipNavigationName))
                 .Concat(Metadata.FindNavigationsInHierarchy(skipNavigationName))
-                .All(
-                    m => configurationSource.Overrides(m.GetConfigurationSource())
-                        && m.GetConfigurationSource() != ConfigurationSource.Explicit);
+                .All(m => configurationSource.Overrides(m.GetConfigurationSource())
+                    && m.GetConfigurationSource() != ConfigurationSource.Explicit);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1301,10 +1294,19 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
     public virtual InternalEntityTypeBuilder? HasQueryFilter(
         LambdaExpression? filter,
         ConfigurationSource configurationSource)
+        => HasQueryFilter(new QueryFilter(filter, configurationSource));
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual InternalEntityTypeBuilder? HasQueryFilter(QueryFilter queryFilter)
     {
-        if (CanSetQueryFilter(filter, configurationSource))
+        if (CanSetQueryFilter(queryFilter))
         {
-            Metadata.SetQueryFilter(filter, configurationSource);
+            Metadata.SetQueryFilter(queryFilter);
 
             return this;
         }
@@ -1319,8 +1321,17 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual bool CanSetQueryFilter(LambdaExpression? filter, ConfigurationSource configurationSource)
-        => configurationSource.Overrides(Metadata.GetQueryFilterConfigurationSource())
-            || Metadata.GetQueryFilter() == filter;
+        => CanSetQueryFilter(new QueryFilter(filter, configurationSource));
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool CanSetQueryFilter(QueryFilter queryFilter)
+        => queryFilter.ConfigurationSource.Overrides(Metadata.GetQueryFilterConfigurationSource(queryFilter.Key))
+            || Metadata.FindDeclaredQueryFilter(queryFilter.Key)?.Expression == queryFilter.Expression;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1795,9 +1806,8 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
         }
 
         var configurationSourceForRemoval = ConfigurationSource.DataAnnotation.Max(configurationSource);
-        if (Metadata.GetDeclaredKeys().Any(
-                k => !configurationSourceForRemoval.Overrides(k.GetConfigurationSource())
-                    && k.Properties.Any(p => baseEntityType.FindProperty(p.Name) == null))
+        if (Metadata.GetDeclaredKeys().Any(k => !configurationSourceForRemoval.Overrides(k.GetConfigurationSource())
+                && k.Properties.Any(p => baseEntityType.FindProperty(p.Name) == null))
             || (Metadata.IsKeyless && !configurationSource.Overrides(Metadata.GetIsKeylessConfigurationSource())))
         {
             return false;
@@ -2160,7 +2170,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
         string name,
         ConfigurationSource configurationSource)
     {
-        Check.NotEmpty(name, nameof(name));
+        Check.NotEmpty(name);
 
         if (properties == null)
         {
@@ -2331,8 +2341,8 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
         IReadOnlyList<string> propertyNames,
         ConfigurationSource configurationSource)
     {
-        Check.NotEmpty(principalEntityTypeName, nameof(principalEntityTypeName));
-        Check.NotEmpty(propertyNames, nameof(propertyNames));
+        Check.NotEmpty(principalEntityTypeName);
+        Check.NotEmpty(propertyNames);
 
         var principalTypeBuilder = ModelBuilder.Entity(principalEntityTypeName, configurationSource);
         var principalKey = principalTypeBuilder?.Metadata.FindPrimaryKey();
@@ -2358,8 +2368,8 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
         Key principalKey,
         ConfigurationSource configurationSource)
     {
-        Check.NotEmpty(principalEntityTypeName, nameof(principalEntityTypeName));
-        Check.NotEmpty(propertyNames, nameof(propertyNames));
+        Check.NotEmpty(principalEntityTypeName);
+        Check.NotEmpty(propertyNames);
 
         var principalTypeBuilder = ModelBuilder.Entity(principalEntityTypeName, configurationSource);
         return principalTypeBuilder == null
@@ -2382,8 +2392,8 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
         IReadOnlyList<MemberInfo> clrMembers,
         ConfigurationSource configurationSource)
     {
-        Check.NotNull(principalClrType, nameof(principalClrType));
-        Check.NotEmpty(clrMembers, nameof(clrMembers));
+        Check.NotNull(principalClrType);
+        Check.NotEmpty(clrMembers);
 
         var principalTypeBuilder = ModelBuilder.Entity(
             principalClrType, configurationSource, shouldBeOwned: Metadata.IsInOwnershipPath(principalClrType) ? null : false);
@@ -2408,8 +2418,8 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
         Key principalKey,
         ConfigurationSource configurationSource)
     {
-        Check.NotNull(principalClrType, nameof(principalClrType));
-        Check.NotEmpty(clrMembers, nameof(clrMembers));
+        Check.NotNull(principalClrType);
+        Check.NotEmpty(clrMembers);
 
         var principalTypeBuilder = ModelBuilder.Entity(
             principalClrType, configurationSource, shouldBeOwned: Metadata.IsInOwnershipPath(principalClrType) ? null : false);
@@ -2492,7 +2502,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
         ConfigurationSource configurationSource,
         bool? targetIsPrincipal = null)
         => HasRelationship(
-            Check.NotNull(targetEntityType, nameof(targetEntityType)),
+            Check.NotNull(targetEntityType),
             MemberIdentity.Create(navigationName),
             null,
             targetIsPrincipal,
@@ -2510,7 +2520,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
         ConfigurationSource configurationSource,
         bool? targetIsPrincipal = null)
         => HasRelationship(
-            Check.NotNull(targetEntityType, nameof(targetEntityType)),
+            Check.NotNull(targetEntityType),
             MemberIdentity.Create(navigationMember),
             null,
             targetIsPrincipal,
@@ -2529,7 +2539,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
         ConfigurationSource configurationSource,
         bool setTargetAsPrincipal = false)
         => HasRelationship(
-            Check.NotNull(targetEntityType, nameof(targetEntityType)),
+            Check.NotNull(targetEntityType),
             MemberIdentity.Create(navigationName),
             MemberIdentity.Create(inverseNavigationName),
             setTargetAsPrincipal ? true : null,
@@ -2548,7 +2558,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
         ConfigurationSource configurationSource,
         bool setTargetAsPrincipal = false)
         => HasRelationship(
-            Check.NotNull(targetEntityType, nameof(targetEntityType)),
+            Check.NotNull(targetEntityType),
             MemberIdentity.Create(navigation),
             MemberIdentity.Create(inverseNavigation),
             setTargetAsPrincipal ? true : null,
@@ -2998,7 +3008,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
 
         if (newRelationship == null)
         {
-            if (relationship?.Metadata.IsInModel == true)
+            if (relationship.Metadata.IsInModel)
             {
                 relationship.Metadata.DeclaringEntityType.Builder.HasNoRelationship(relationship.Metadata, configurationSource);
             }
@@ -3153,9 +3163,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
             var ownership = Metadata.FindOwnership();
             var existingDerivedNavigations = Metadata.FindDerivedNavigations(navigation.Name!)
                 .Where(n => n.ForeignKey.IsOwnership).ToList();
-            if (existingDerivedNavigations.Count == 1
-                && existingDerivedNavigations[0].ForeignKey.DeclaringEntityType is EntityType existingOwnedType
-                && !existingOwnedType.HasSharedClrType)
+            if (existingDerivedNavigations is [{ ForeignKey.DeclaringEntityType: { HasSharedClrType: false } existingOwnedType }])
             {
                 ownedEntityTypeBuilder = existingOwnedType.Builder;
                 ownedEntityTypeBuilder.HasNoRelationship(existingDerivedNavigations[0].ForeignKey, configurationSource);
@@ -3462,15 +3470,13 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
         var ownership = Metadata.FindOwnership() ?? futureOwnership;
         var incompatibleRelationships = Metadata.GetDerivedTypesInclusive().Cast<EntityType>()
             .SelectMany(t => t.GetDeclaredForeignKeys())
-            .Where(
-                fk => fk is { IsOwnership: false, PrincipalToDependent: not null }
-                    && !Contains(ownership, fk))
+            .Where(fk => fk is { IsOwnership: false, PrincipalToDependent: not null }
+                && !Contains(ownership, fk))
             .Concat(
                 Metadata.GetDerivedTypesInclusive().Cast<EntityType>()
                     .SelectMany(t => t.GetDeclaredReferencingForeignKeys())
-                    .Where(
-                        fk => !fk.IsOwnership
-                            && !Contains(fk.DeclaringEntityType.FindOwnership(), fk)))
+                    .Where(fk => !fk.IsOwnership
+                        && !Contains(fk.DeclaringEntityType.FindOwnership(), fk)))
             .ToList();
 
         if (incompatibleRelationships.Any(fk => !configurationSource.Overrides(fk.GetConfigurationSource())))
@@ -3890,7 +3896,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
             if (principalKey == null)
             {
                 var principalKeyProperties = principalBaseEntityTypeBuilder.TryCreateUniqueProperties(
-                    1, null, new[] { typeof(int) }, new[] { "TempId" }, isRequired: true, baseName: "").Item2;
+                    1, null, [typeof(int)], ["TempId"], isRequired: true, baseName: "").Item2;
 
                 if (principalKeyProperties == null)
                 {
@@ -4123,7 +4129,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
 
                 if (navigationsToDetach != null)
                 {
-                    detachedNavigations = new List<(InternalSkipNavigationBuilder, InternalSkipNavigationBuilder)>();
+                    detachedNavigations = [];
                     foreach (var navigationToDetach in navigationsToDetach)
                     {
                         var inverse = navigationToDetach.Inverse;
@@ -4349,7 +4355,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
     /// </summary>
     public virtual DiscriminatorBuilder? HasDiscriminator(MemberInfo memberInfo, ConfigurationSource configurationSource)
         => CanSetDiscriminator(
-            Check.NotNull(memberInfo, nameof(memberInfo)).GetSimpleMemberName(), memberInfo.GetMemberType(), configurationSource)
+            Check.NotNull(memberInfo).GetSimpleMemberName(), memberInfo.GetMemberType(), configurationSource)
             ? DiscriminatorBuilder(
                 GetOrCreateDiscriminatorProperty(type: null, name: null, memberInfo, configurationSource))
             : null;
@@ -4649,7 +4655,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
         IReadOnlyList<IConventionProperty> properties,
         bool fromDataAnnotation)
     {
-        Check.NotEmpty(properties, nameof(properties));
+        Check.NotEmpty(properties);
 
         var key = Metadata.FindDeclaredKey(properties);
         return key != null
@@ -4769,7 +4775,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
         IReadOnlyList<IConventionProperty> properties,
         bool fromDataAnnotation)
     {
-        Check.NotEmpty(properties, nameof(properties));
+        Check.NotEmpty(properties);
 
         var index = Metadata.FindDeclaredIndex(properties);
         return index != null
@@ -5116,9 +5122,9 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
         IConventionEntityType principalEntityType,
         bool fromDataAnnotation)
     {
-        Check.NotEmpty(properties, nameof(properties));
-        Check.NotNull(principalKey, nameof(principalKey));
-        Check.NotNull(principalEntityType, nameof(principalEntityType));
+        Check.NotEmpty(properties);
+        Check.NotNull(principalKey);
+        Check.NotNull(principalEntityType);
 
         var foreignKey = Metadata.FindDeclaredForeignKey(properties, principalKey, principalEntityType);
         return foreignKey != null
@@ -5293,6 +5299,29 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
+    IConventionEntityTypeBuilder? IConventionEntityTypeBuilder.HasQueryFilter(
+        string filterKey,
+        LambdaExpression? filter,
+        bool fromDataAnnotation)
+        => HasQueryFilter(new QueryFilter(filterKey, filter, fromDataAnnotation));
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    bool IConventionEntityTypeBuilder.CanSetQueryFilter(string filterKey, LambdaExpression? filter, bool fromDataAnnotation)
+        => CanSetQueryFilter(new QueryFilter(filterKey, filter, fromDataAnnotation));
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
     IConventionEntityTypeBuilder? IConventionEntityTypeBuilder.HasChangeTrackingStrategy(
         ChangeTrackingStrategy? changeTrackingStrategy,
         bool fromDataAnnotation)
@@ -5332,7 +5361,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
     [DebuggerStepThrough]
     IConventionDiscriminatorBuilder? IConventionEntityTypeBuilder.HasDiscriminator(Type type, bool fromDataAnnotation)
         => HasDiscriminator(
-            name: null, Check.NotNull(type, nameof(type)),
+            name: null, Check.NotNull(type),
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
@@ -5344,7 +5373,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
     [DebuggerStepThrough]
     IConventionDiscriminatorBuilder? IConventionEntityTypeBuilder.HasDiscriminator(string name, bool fromDataAnnotation)
         => HasDiscriminator(
-            Check.NotEmpty(name, nameof(name)), type: null,
+            Check.NotEmpty(name), type: null,
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
@@ -5356,7 +5385,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
     [DebuggerStepThrough]
     IConventionDiscriminatorBuilder? IConventionEntityTypeBuilder.HasDiscriminator(string name, Type type, bool fromDataAnnotation)
         => HasDiscriminator(
-            Check.NotEmpty(name, nameof(name)), Check.NotNull(type, nameof(type)),
+            Check.NotEmpty(name), Check.NotNull(type),
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>

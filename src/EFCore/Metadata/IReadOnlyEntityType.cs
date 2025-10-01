@@ -30,10 +30,24 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     IEnumerable<IDictionary<string, object?>> GetSeedData(bool providerValues = false);
 
     /// <summary>
+    ///     Gets the query filters automatically applied to queries for this entity type.
+    /// </summary>
+    /// <returns>The query filters.</returns>
+    IReadOnlyCollection<IQueryFilter> GetDeclaredQueryFilters();
+
+    /// <summary>
     ///     Gets the LINQ expression filter automatically applied to queries for this entity type.
     /// </summary>
     /// <returns>The LINQ expression filter.</returns>
+    [Obsolete("Use GetDeclaredQueryFilters() instead.")]
     LambdaExpression? GetQueryFilter();
+
+    /// <summary>
+    ///     Retrieves the query filter associated with the specified key.
+    /// </summary>
+    /// <param name="filterKey">The key identifying the query filter to retrieve.</param>
+    /// <returns>The <see cref="IQueryFilter" /> associated with the specified key.</returns>
+    IQueryFilter? FindDeclaredQueryFilter(string? filterKey);
 
     /// <summary>
     ///     Returns the value indicating whether the discriminator mapping is complete for this entity type.
@@ -140,7 +154,7 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     /// </returns>
     bool IsAssignableFrom(IReadOnlyEntityType derivedType)
     {
-        Check.NotNull(derivedType, nameof(derivedType));
+        Check.NotNull(derivedType);
 
         if (derivedType == this)
         {
@@ -178,7 +192,7 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     /// </returns>
     IReadOnlyEntityType? FindClosestCommonParent(IReadOnlyEntityType otherEntityType)
     {
-        Check.NotNull(otherEntityType, nameof(otherEntityType));
+        Check.NotNull(otherEntityType);
 
         var leastDerived = LeastDerivedType(otherEntityType);
         if (leastDerived != null)
@@ -199,7 +213,7 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     ///     If the given entity types are not related, then <see langword="null" /> is returned.
     /// </returns>
     IReadOnlyEntityType? LeastDerivedType(IReadOnlyEntityType otherEntityType)
-        => IsAssignableFrom(Check.NotNull(otherEntityType, nameof(otherEntityType)))
+        => IsAssignableFrom(Check.NotNull(otherEntityType))
             ? this
             : otherEntityType.IsAssignableFrom(this)
                 ? otherEntityType
@@ -269,7 +283,7 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     /// <param name="property">The property to find the foreign keys on.</param>
     /// <returns>The foreign keys.</returns>
     IEnumerable<IReadOnlyForeignKey> FindForeignKeys(IReadOnlyProperty property)
-        => FindForeignKeys(new[] { property });
+        => FindForeignKeys([property]);
 
     /// <summary>
     ///     Gets the foreign keys defined on the given properties. Only foreign keys that are defined on exactly the specified
@@ -295,7 +309,7 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
         IReadOnlyProperty property,
         IReadOnlyKey principalKey,
         IReadOnlyEntityType principalEntityType)
-        => FindForeignKey(new[] { property }, principalKey, principalEntityType);
+        => FindForeignKey([property], principalKey, principalEntityType);
 
     /// <summary>
     ///     Gets the foreign keys declared on this entity type using the given properties.
@@ -404,7 +418,7 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     /// <param name="memberInfo">The navigation property on the entity class.</param>
     /// <returns>The navigation property, or <see langword="null" /> if none is found.</returns>
     IReadOnlyNavigation? FindNavigation(MemberInfo memberInfo)
-        => FindNavigation(Check.NotNull(memberInfo, nameof(memberInfo)).GetSimpleMemberName());
+        => FindNavigation(Check.NotNull(memberInfo).GetSimpleMemberName());
 
     /// <summary>
     ///     Gets a navigation property on the given entity type. Returns <see langword="null" /> if no navigation property is found.
@@ -412,7 +426,7 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     /// <param name="name">The name of the navigation property on the entity class.</param>
     /// <returns>The navigation property, or <see langword="null" /> if none is found.</returns>
     IReadOnlyNavigation? FindNavigation(string name)
-        => FindDeclaredNavigation(Check.NotEmpty(name, nameof(name))) ?? BaseType?.FindNavigation(name);
+        => FindDeclaredNavigation(Check.NotEmpty(name)) ?? BaseType?.FindNavigation(name);
 
     /// <summary>
     ///     Gets a navigation property on the given entity type. Does not return navigation properties defined on a base type.
@@ -456,7 +470,7 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     /// <param name="memberInfo">The navigation property on the entity class.</param>
     /// <returns>The navigation property, or <see langword="null" /> if none is found.</returns>
     IReadOnlySkipNavigation? FindSkipNavigation(MemberInfo memberInfo)
-        => FindSkipNavigation(Check.NotNull(memberInfo, nameof(memberInfo)).GetSimpleMemberName());
+        => FindSkipNavigation(Check.NotNull(memberInfo).GetSimpleMemberName());
 
     /// <summary>
     ///     Gets a skip navigation property on this entity type. Returns <see langword="null" /> if no skip navigation property is found.
@@ -534,7 +548,7 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     /// <param name="property">The property to find the index on.</param>
     /// <returns>The index, or <see langword="null" /> if none is found.</returns>
     IReadOnlyIndex? FindIndex(IReadOnlyProperty property)
-        => FindIndex(new[] { property });
+        => FindIndex([property]);
 
     /// <summary>
     ///     Gets all indexes declared on this entity type.
@@ -593,7 +607,7 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     IEnumerable<IReadOnlyServiceProperty> GetDerivedServiceProperties();
 
     /// <summary>
-    ///     Checks whether or not this entity type has any <see cref="IServiceProperty" /> defined.
+    ///     Checks whether this entity type has any <see cref="IServiceProperty" /> defined.
     /// </summary>
     /// <returns><see langword="true" /> if there are any service properties defined on this entity type or base types.</returns>
     bool HasServiceProperties();
@@ -620,6 +634,13 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     IEnumerable<IReadOnlyTrigger> GetDeclaredTriggers();
 
     /// <summary>
+    ///     Gets all triggers defined on this entity type.
+    /// </summary>
+    /// <returns>The triggers defined on this entity type.</returns>
+    IEnumerable<IReadOnlyTrigger> GetTriggers()
+        => (BaseType?.GetTriggers() ?? []).Concat(GetDeclaredTriggers());
+
+    /// <summary>
     ///     Gets the <see cref="PropertyAccessMode" /> being used for navigations of this entity type.
     /// </summary>
     /// <remarks>
@@ -628,24 +649,6 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     /// </remarks>
     /// <returns>The access mode being used.</returns>
     PropertyAccessMode GetNavigationAccessMode();
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [EntityFrameworkInternal]
-    Func<MaterializationContext, object> GetOrCreateMaterializer(IEntityMaterializerSource source);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [EntityFrameworkInternal]
-    Func<MaterializationContext, object> GetOrCreateEmptyMaterializer(IEntityMaterializerSource source);
 
     /// <summary>
     ///     <para>

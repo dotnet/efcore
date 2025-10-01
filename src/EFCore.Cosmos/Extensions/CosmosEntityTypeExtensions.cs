@@ -40,7 +40,7 @@ public static class CosmosEntityTypeExtensions
     public static void SetContainer(this IMutableEntityType entityType, string? name)
         => entityType.SetOrRemoveAnnotation(
             CosmosAnnotationNames.ContainerName,
-            Check.NullButNotEmpty(name, nameof(name)));
+            Check.NullButNotEmpty(name));
 
     /// <summary>
     ///     Sets the name of the container to which the entity type is mapped.
@@ -54,7 +54,7 @@ public static class CosmosEntityTypeExtensions
         bool fromDataAnnotation = false)
         => (string?)entityType.SetOrRemoveAnnotation(
             CosmosAnnotationNames.ContainerName,
-            Check.NullButNotEmpty(name, nameof(name)),
+            Check.NullButNotEmpty(name),
             fromDataAnnotation)?.Value;
 
     /// <summary>
@@ -80,7 +80,7 @@ public static class CosmosEntityTypeExtensions
     }
 
     private static string? GetDefaultContainingPropertyName(IReadOnlyEntityType entityType)
-        => entityType.FindOwnership() is IReadOnlyForeignKey ownership
+        => entityType.FindOwnership() is { } ownership
             ? ownership.PrincipalToDependent!.Name
             : null;
 
@@ -92,7 +92,7 @@ public static class CosmosEntityTypeExtensions
     public static void SetContainingPropertyName(this IMutableEntityType entityType, string? name)
         => entityType.SetOrRemoveAnnotation(
             CosmosAnnotationNames.PropertyName,
-            Check.NullButNotEmpty(name, nameof(name)));
+            Check.NullButNotEmpty(name));
 
     /// <summary>
     ///     Sets the name of the parent property to which the entity type is mapped.
@@ -106,7 +106,7 @@ public static class CosmosEntityTypeExtensions
         bool fromDataAnnotation = false)
         => (string?)entityType.SetOrRemoveAnnotation(
             CosmosAnnotationNames.PropertyName,
-            Check.NullButNotEmpty(name, nameof(name)),
+            Check.NullButNotEmpty(name),
             fromDataAnnotation)?.Value;
 
     /// <summary>
@@ -211,7 +211,7 @@ public static class CosmosEntityTypeExtensions
     /// <param name="names">The names to set, or <see langword="null" /> to clear all names.</param>
     public static void SetPartitionKeyPropertyNames(this IMutableEntityType entityType, IReadOnlyList<string>? names)
         => entityType.SetOrRemoveAnnotation(
-            CosmosAnnotationNames.PartitionKeyNames, names is null ? names : Check.HasNoEmptyElements(names, nameof(names)));
+            CosmosAnnotationNames.PartitionKeyNames, names is null ? names : Check.HasNoEmptyElements(names));
 
     /// <summary>
     ///     Sets the names of the properties that are used to store the hierarchical partition key.
@@ -226,7 +226,7 @@ public static class CosmosEntityTypeExtensions
         => (IReadOnlyList<string>?)entityType
             .SetOrRemoveAnnotation(
                 CosmosAnnotationNames.PartitionKeyNames,
-                names is null ? names : Check.HasNoEmptyElements(names, nameof(names)),
+                names is null ? names : Check.HasNoEmptyElements(names),
                 fromDataAnnotation)?.Value;
 
     /// <summary>
@@ -239,7 +239,7 @@ public static class CosmosEntityTypeExtensions
             ?.GetConfigurationSource();
 
     /// <summary>
-    ///     Returns the the properties that are used to store the hierarchical partition key.
+    ///     Returns the properties that are used to store the hierarchical partition key.
     /// </summary>
     /// <param name="entityType">The entity type.</param>
     /// <returns>The hierarchical partition key properties.</returns>
@@ -247,7 +247,7 @@ public static class CosmosEntityTypeExtensions
         => entityType.GetPartitionKeyPropertyNames().Select(n => entityType.FindProperty(n)!).ToList();
 
     /// <summary>
-    ///     Returns the the properties that are used to store the hierarchical partition key.
+    ///     Returns the properties that are used to store the hierarchical partition key.
     /// </summary>
     /// <param name="entityType">The entity type.</param>
     /// <returns>The hierarchical partition key properties.</returns>
@@ -255,7 +255,7 @@ public static class CosmosEntityTypeExtensions
         => entityType.GetPartitionKeyPropertyNames().Select(n => entityType.FindProperty(n)!).ToList();
 
     /// <summary>
-    ///     Returns the the properties that are used to store the hierarchical partition key.
+    ///     Returns the properties that are used to store the hierarchical partition key.
     /// </summary>
     /// <param name="entityType">The entity type.</param>
     /// <returns>The hierarchical partition key properties.</returns>
@@ -263,7 +263,7 @@ public static class CosmosEntityTypeExtensions
         => entityType.GetPartitionKeyPropertyNames().Select(n => entityType.FindProperty(n)!).ToList();
 
     /// <summary>
-    ///     Returns the the properties that are used to store the hierarchical partition key.
+    ///     Returns the properties that are used to store the hierarchical partition key.
     /// </summary>
     /// <param name="entityType">The entity type.</param>
     /// <returns>The hierarchical partition key properties.</returns>
@@ -288,7 +288,7 @@ public static class CosmosEntityTypeExtensions
     public static void SetETagPropertyName(this IMutableEntityType entityType, string? name)
         => entityType.SetOrRemoveAnnotation(
             CosmosAnnotationNames.ETagName,
-            Check.NullButNotEmpty(name, nameof(name)));
+            Check.NullButNotEmpty(name));
 
     /// <summary>
     ///     Sets the name of the property that is used to store the ETag.
@@ -302,7 +302,7 @@ public static class CosmosEntityTypeExtensions
         bool fromDataAnnotation = false)
         => (string?)entityType.SetOrRemoveAnnotation(
             CosmosAnnotationNames.ETagName,
-            Check.NullButNotEmpty(name, nameof(name)),
+            Check.NullButNotEmpty(name),
             fromDataAnnotation)?.Value;
 
     /// <summary>

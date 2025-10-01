@@ -1,7 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
@@ -11,10 +13,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
 /// </remarks>
-public class RuntimeComplexProperty : RuntimePropertyBase, IComplexProperty
+public class RuntimeComplexProperty : RuntimePropertyBase, IRuntimeComplexProperty
 {
     private readonly bool _isNullable;
-    private readonly bool _isCollection;
+
+    // Warning: Never access these fields directly as access needs to be thread-safe
+    private IClrCollectionAccessor? _collectionAccessor;
+    private bool _collectionAccessorInitialized;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -46,7 +51,7 @@ public class RuntimeComplexProperty : RuntimePropertyBase, IComplexProperty
         DeclaringType = declaringType;
         ClrType = clrType;
         _isNullable = nullable;
-        _isCollection = collection;
+        IsCollection = collection;
         ComplexType = new RuntimeComplexType(
             targetTypeName, targetType, this, changeTrackingStrategy, indexerPropertyInfo, propertyBag,
             discriminatorProperty, discriminatorValue,
@@ -69,6 +74,9 @@ public class RuntimeComplexProperty : RuntimePropertyBase, IComplexProperty
     ///     Gets the type of value that this property-like object holds.
     /// </summary>
     public virtual RuntimeComplexType ComplexType { get; }
+
+    /// <inheritdoc />
+    public override bool IsCollection { get; }
 
     /// <inheritdoc />
     public override object? Sentinel
@@ -130,9 +138,15 @@ public class RuntimeComplexProperty : RuntimePropertyBase, IComplexProperty
     }
 
     /// <inheritdoc />
-    bool IReadOnlyComplexProperty.IsCollection
-    {
-        [DebuggerStepThrough]
-        get => _isCollection;
-    }
+    [DebuggerStepThrough]
+    IClrCollectionAccessor? IPropertyBase.GetCollectionAccessor()
+        => NonCapturingLazyInitializer.EnsureInitialized(
+            ref _collectionAccessor,
+            ref _collectionAccessorInitialized,
+            this,
+            static complexProperty => ((IComplexProperty)complexProperty).IsCollection
+                ? RuntimeFeature.IsDynamicCodeSupported
+                    ? ClrCollectionAccessorFactory.Instance.Create(complexProperty)
+                    : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel)
+                : null);
 }

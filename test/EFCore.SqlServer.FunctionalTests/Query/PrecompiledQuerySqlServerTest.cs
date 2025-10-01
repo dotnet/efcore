@@ -1800,14 +1800,13 @@ WHERE (
 
         AssertSql(
             """
-@ids='[1,2,3]' (Size = 4000)
+@p1='1'
+@p2='2'
+@p3='3'
 
 SELECT [b].[Id], [b].[Name], [b].[Json]
 FROM [Blogs] AS [b]
-WHERE [b].[Id] IN (
-    SELECT [i].[value]
-    FROM OPENJSON(@ids) WITH ([value] int '$') AS [i]
-)
+WHERE [b].[Id] IN (@p1, @p2, @p3)
 """);
     }
 
@@ -1842,8 +1841,7 @@ ORDER BY [m].[Id]
 """);
     }
 
-    [ConditionalFact]
-    [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
+    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
     public virtual async Task SqlServerAggregateFunctionExpression()
     {
         await Test(

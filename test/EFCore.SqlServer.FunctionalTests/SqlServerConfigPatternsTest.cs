@@ -131,16 +131,15 @@ public class SqlServerConfigPatternsTest
             {
                 Assert.Equal(
                     CoreStrings.NoProviderConfigured,
-                    Assert.Throws<InvalidOperationException>(
-                        () =>
-                        {
-                            using var context = new NorthwindContext(
-                                new DbContextOptionsBuilder().UseInternalServiceProvider(
-                                    new ServiceCollection()
-                                        .AddEntityFrameworkSqlServer()
-                                        .BuildServiceProvider(validateScopes: true)).Options);
-                            Assert.Equal(91, context.Customers.Count());
-                        }).Message);
+                    Assert.Throws<InvalidOperationException>(() =>
+                    {
+                        using var context = new NorthwindContext(
+                            new DbContextOptionsBuilder().UseInternalServiceProvider(
+                                new ServiceCollection()
+                                    .AddEntityFrameworkSqlServer()
+                                    .BuildServiceProvider(validateScopes: true)).Options);
+                        Assert.Equal(91, context.Customers.Count());
+                    }).Message);
             }
         }
 
@@ -162,12 +161,11 @@ public class SqlServerConfigPatternsTest
             {
                 Assert.Equal(
                     CoreStrings.NoProviderConfigured,
-                    Assert.Throws<InvalidOperationException>(
-                        () =>
-                        {
-                            using var context = new NorthwindContext();
-                            Assert.Equal(91, context.Customers.Count());
-                        }).Message);
+                    Assert.Throws<InvalidOperationException>(() =>
+                    {
+                        using var context = new NorthwindContext();
+                        Assert.Equal(91, context.Customers.Count());
+                    }).Message);
             }
         }
 
@@ -196,14 +194,13 @@ public class SqlServerConfigPatternsTest
             {
                 Assert.Equal(
                     CoreStrings.NoProviderConfigured,
-                    Assert.Throws<InvalidOperationException>(
-                        () =>
-                        {
-                            using var context = new NorthwindContext(
-                                new DbContextOptionsBuilder()
-                                    .UseInternalServiceProvider(serviceProvider).Options);
-                            Assert.Equal(91, context.Customers.Count());
-                        }).Message);
+                    Assert.Throws<InvalidOperationException>(() =>
+                    {
+                        using var context = new NorthwindContext(
+                            new DbContextOptionsBuilder()
+                                .UseInternalServiceProvider(serviceProvider).Options);
+                        Assert.Equal(91, context.Customers.Count());
+                    }).Message);
             }
         }
 
@@ -417,9 +414,7 @@ public class SqlServerConfigPatternsTest
 
     public class AzureSqlDatabase
     {
-        [InlineData(true)]
-        [InlineData(false)]
-        [ConditionalTheory]
+        [InlineData(true), InlineData(false), ConditionalTheory]
         public void Retry_on_failure_not_enabled_by_default_on_Azure_SQL(bool useAzure)
         {
             using var context = new NorthwindContext(useAzure);
@@ -455,9 +450,7 @@ public class SqlServerConfigPatternsTest
 
     public class NonDefaultAzureSqlDatabase
     {
-        [InlineData(true)]
-        [InlineData(false)]
-        [ConditionalTheory]
+        [InlineData(true), InlineData(false), ConditionalTheory]
         public void Retry_on_failure_enabled_if_Azure_SQL_configured(bool useAzure)
         {
             using var context = new NorthwindContext(useAzure);
@@ -497,9 +490,7 @@ public class SqlServerConfigPatternsTest
 
     public class ExplicitExecutionStrategies_SqlServer
     {
-        [InlineData(true)]
-        [InlineData(false)]
-        [ConditionalTheory]
+        [InlineData(true), InlineData(false), ConditionalTheory]
         public void Retry_strategy_properly_handled(bool before)
         {
             using var context = new NorthwindContext(before);
@@ -543,9 +534,7 @@ public class SqlServerConfigPatternsTest
 
     public class ExplicitExecutionStrategies_AzureSql
     {
-        [InlineData(true)]
-        [InlineData(false)]
-        [ConditionalTheory]
+        [InlineData(true), InlineData(false), ConditionalTheory]
         public void Retry_strategy_properly_handled(bool before)
         {
             using var context = new NorthwindContext(before);
@@ -589,9 +578,7 @@ public class SqlServerConfigPatternsTest
 
     public class ExplicitExecutionStrategies_AzureSynapse
     {
-        [InlineData(true)]
-        [InlineData(false)]
-        [ConditionalTheory]
+        [InlineData(true), InlineData(false), ConditionalTheory]
         public void Retry_strategy_properly_handled(bool before)
         {
             using var context = new NorthwindContext(before);
@@ -635,9 +622,7 @@ public class SqlServerConfigPatternsTest
 
     public class ExplicitExecutionStrategies_ConfigureSqlEngine_AzureSql
     {
-        [InlineData(true)]
-        [InlineData(false)]
-        [ConditionalTheory]
+        [InlineData(true), InlineData(false), ConditionalTheory]
         public void Retry_strategy_properly_handled(bool before)
         {
             using var context = new NorthwindContext(before);
@@ -658,20 +643,19 @@ public class SqlServerConfigPatternsTest
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
                     .EnableServiceProviderCaching(false)
-                    .ConfigureSqlEngine(
-                        b =>
+                    .ConfigureSqlEngine(b =>
+                    {
+                        if (before)
                         {
-                            if (before)
-                            {
-                                b.ExecutionStrategy(_ => new DummyExecutionStrategy());
-                            }
+                            b.ExecutionStrategy(_ => new DummyExecutionStrategy());
+                        }
 
-                            b.EnableRetryOnFailure();
-                            if (!before)
-                            {
-                                b.ExecutionStrategy(_ => new DummyExecutionStrategy());
-                            }
-                        })
+                        b.EnableRetryOnFailure();
+                        if (!before)
+                        {
+                            b.ExecutionStrategy(_ => new DummyExecutionStrategy());
+                        }
+                    })
                     .UseAzureSql();
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -840,12 +824,11 @@ public class SqlServerConfigPatternsTest
     }
 
     private static void ConfigureModel(ModelBuilder builder)
-        => builder.Entity<Customer>(
-            b =>
-            {
-                b.HasKey(c => c.CustomerID);
-                b.ToTable("Customers");
-            });
+        => builder.Entity<Customer>(b =>
+        {
+            b.HasKey(c => c.CustomerID);
+            b.ToTable("Customers");
+        });
 
     private class DummyExecutionStrategy : IExecutionStrategy
     {

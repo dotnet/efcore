@@ -8,45 +8,27 @@ namespace Microsoft.EntityFrameworkCore.Query.Translations.Operators;
 public abstract class ComparisonOperatorTranslationsTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : BasicTypesQueryFixtureBase, new()
 {
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Equal(bool async)
-        => await AssertQuery(
-            async,
-            ss => ss.Set<BasicTypesEntity>().Where(b => b.Int == 8));
+    [ConditionalFact]
+    public virtual async Task Equal()
+        => await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Int == 8));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual async Task NotEqual(bool async)
-        => await AssertQuery(
-            async,
-            ss => ss.Set<BasicTypesEntity>().Where(b => b.Int != 8));
+    [ConditionalFact]
+    public virtual async Task NotEqual()
+        => await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Int != 8));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual async Task GreaterThan(bool async)
-        => await AssertQuery(
-            async,
-            ss => ss.Set<BasicTypesEntity>().Where(b => b.Int > 8));
+    [ConditionalFact]
+    public virtual async Task GreaterThan()
+        => await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Int > 8));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual async Task GreaterThanOrEqual(bool async)
-        => await AssertQuery(
-            async,
-            ss => ss.Set<BasicTypesEntity>().Where(b => b.Int >= 8));
+    [ConditionalFact]
+    public virtual async Task GreaterThanOrEqual()
+        => await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Int >= 8));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual async Task LessThan(bool async)
-        => await AssertQuery(
-            async,
-            ss => ss.Set<BasicTypesEntity>().Where(b => b.Int < 8));
+    [ConditionalFact]
+    public virtual async Task LessThan()
+        => await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Int < 8));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual async Task LessThanOrEqual(bool async)
-        => await AssertQuery(
-            async,
-            ss => ss.Set<BasicTypesEntity>().Where(b => b.Int <= 8));
+    [ConditionalFact]
+    public virtual async Task LessThanOrEqual()
+        => await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Int <= 8));
 }

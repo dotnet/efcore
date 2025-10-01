@@ -4,4 +4,4 @@
 namespace Microsoft.EntityFrameworkCore.Query.Translations.Operators;
 
 public class LogicalOperatorTranslationsInMemoryTest(BasicTypesQueryInMemoryFixture fixture)
-    :  LogicalOperatorTranslationsTestBase<BasicTypesQueryInMemoryFixture>(fixture);
+    : LogicalOperatorTranslationsTestBase<BasicTypesQueryInMemoryFixture>(fixture);

@@ -21,9 +21,7 @@ public class DbContextLoggerTests
         @"dbug: <Local Date> HH:mm:ss.fff CoreEventId.ContextDisposed[10407] (Microsoft.EntityFrameworkCore.Infrastructure) "
         + @"      'LoggingContext' disposed.";
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public async Task Log_with_default_options(bool async)
     {
         var stream = new StringWriter();
@@ -32,9 +30,7 @@ public class DbContextLoggerTests
         AssertLog(actual, ContextInitialized, SaveChangesStarting, SaveChangesCompleted, ContextDisposed);
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public async Task Log_with_minimum_level(bool async)
     {
         var stream = new StringWriter();
@@ -43,9 +39,7 @@ public class DbContextLoggerTests
         AssertLog(actual, ContextInitialized);
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public async Task Log_for_multiple_categories(bool async)
     {
         var stream = new StringWriter();
@@ -54,14 +48,12 @@ public class DbContextLoggerTests
             stream,
             b => b.LogTo(
                 stream.WriteLine,
-                new[] { DbLoggerCategory.Infrastructure.Name, DbLoggerCategory.Update.Name }));
+                [DbLoggerCategory.Infrastructure.Name, DbLoggerCategory.Update.Name]));
 
         AssertLog(actual, ContextInitialized, SaveChangesStarting, SaveChangesCompleted, ContextDisposed);
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public async Task Log_for_single_category(bool async)
     {
         var stream = new StringWriter();
@@ -70,14 +62,12 @@ public class DbContextLoggerTests
             stream,
             b => b.LogTo(
                 stream.WriteLine,
-                new[] { DbLoggerCategory.Infrastructure.Name }));
+                [DbLoggerCategory.Infrastructure.Name]));
 
         AssertLog(actual, ContextInitialized, ContextDisposed);
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public async Task Log_for_single_category_and_minimum_level(bool async)
     {
         var stream = new StringWriter();
@@ -86,7 +76,7 @@ public class DbContextLoggerTests
             stream,
             b => b.LogTo(
                 stream.WriteLine,
-                new[] { DbLoggerCategory.Infrastructure.Name },
+                [DbLoggerCategory.Infrastructure.Name],
                 LogLevel.Information));
 
         AssertLog(actual, ContextInitialized);
@@ -97,15 +87,13 @@ public class DbContextLoggerTests
             stream,
             b => b.LogTo(
                 stream.WriteLine,
-                new[] { DbLoggerCategory.Update.Name },
+                [DbLoggerCategory.Update.Name],
                 LogLevel.Information));
 
         Assert.Equal("", actual);
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public async Task Log_for_single_event(bool async)
     {
         var stream = new StringWriter();
@@ -114,14 +102,12 @@ public class DbContextLoggerTests
             stream,
             b => b.LogTo(
                 stream.WriteLine,
-                new[] { CoreEventId.ContextInitialized }));
+                [CoreEventId.ContextInitialized]));
 
         AssertLog(actual, ContextInitialized);
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public async Task Log_for_multiple_events(bool async)
     {
         var stream = new StringWriter();
@@ -130,14 +116,12 @@ public class DbContextLoggerTests
             stream,
             b => b.LogTo(
                 stream.WriteLine,
-                new[] { CoreEventId.ContextInitialized, CoreEventId.ContextDisposed }));
+                [CoreEventId.ContextInitialized, CoreEventId.ContextDisposed]));
 
         AssertLog(actual, ContextInitialized, ContextDisposed);
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public async Task Log_for_many_events(bool async) // Hits HashCode usage
     {
         var stream = new StringWriter();
@@ -146,22 +130,19 @@ public class DbContextLoggerTests
             stream,
             b => b.LogTo(
                 stream.WriteLine,
-                new[]
-                {
+                [
                     CoreEventId.ContextInitialized,
                     CoreEventId.ContextDisposed,
                     CoreEventId.StartedTracking,
                     CoreEventId.StateChanged,
                     CoreEventId.ValueGenerated,
                     CoreEventId.CascadeDelete
-                }));
+                ]));
 
         AssertLog(actual, ContextInitialized, ContextDisposed);
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public async Task Log_for_single_event_and_minimum_level(bool async)
     {
         var stream = new StringWriter();
@@ -170,7 +151,7 @@ public class DbContextLoggerTests
             stream,
             b => b.LogTo(
                 stream.WriteLine,
-                new[] { CoreEventId.ContextInitialized },
+                [CoreEventId.ContextInitialized],
                 LogLevel.Information));
 
         AssertLog(actual, ContextInitialized);
@@ -181,15 +162,13 @@ public class DbContextLoggerTests
             stream,
             b => b.LogTo(
                 stream.WriteLine,
-                new[] { CoreEventId.ContextDisposed },
+                [CoreEventId.ContextDisposed],
                 LogLevel.Information));
 
         Assert.Equal("", actual);
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public async Task Log_with_custom_filter(bool async)
     {
         var stream = new StringWriter();
@@ -199,9 +178,7 @@ public class DbContextLoggerTests
         AssertLog(actual, SaveChangesCompleted);
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public async Task Log_with_custom_logger(bool async)
     {
         var stream = new StringWriter();
@@ -215,9 +192,7 @@ public class DbContextLoggerTests
         Assert.Equal(@"Initialized LoggingContext" + Environment.NewLine, actual);
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public async Task Log_with_raw_message(bool async)
     {
         var stream = new StringWriter();
@@ -229,9 +204,7 @@ public class DbContextLoggerTests
             @"Entity Framework Core X.X.X-any initialized 'LoggingContext' using provider 'Microsoft.EntityFrameworkCore.InMemory:X.X.X-any' with options: StoreName=DbContextLoggerTests ");
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public async Task Log_raw_single_line(bool async)
     {
         var stream = new StringWriter();
@@ -243,9 +216,7 @@ public class DbContextLoggerTests
             @"Entity Framework Core X.X.X-any initialized 'LoggingContext' using provider 'Microsoft.EntityFrameworkCore.InMemory:X.X.X-any' with options: StoreName=DbContextLoggerTests ");
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public async Task Log_default_single_line(bool async)
     {
         var stream = new StringWriter();
@@ -260,9 +231,7 @@ public class DbContextLoggerTests
             @"info: <Local Date> HH:mm:ss.fff CoreEventId.ContextInitialized[10403] (Microsoft.EntityFrameworkCore.Infrastructure) -> Entity Framework Core X.X.X-any initialized 'LoggingContext' using provider 'Microsoft.EntityFrameworkCore.InMemory:X.X.X-any' with options: StoreName=DbContextLoggerTests ");
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public async Task Log_only_level(bool async)
     {
         var stream = new StringWriter();
@@ -275,9 +244,7 @@ public class DbContextLoggerTests
       Entity Framework Core X.X.X-any initialized 'LoggingContext' using provider 'Microsoft.EntityFrameworkCore.InMemory:X.X.X-any' with options: StoreName=DbContextLoggerTests ");
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public async Task Log_only_local_time(bool async)
     {
         var stream = new StringWriter();
@@ -290,9 +257,7 @@ public class DbContextLoggerTests
       Entity Framework Core X.X.X-any initialized 'LoggingContext' using provider 'Microsoft.EntityFrameworkCore.InMemory:X.X.X-any' with options: StoreName=DbContextLoggerTests ");
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public async Task Log_only_UTC_time(bool async)
     {
         var stream = new StringWriter();
@@ -305,9 +270,7 @@ public class DbContextLoggerTests
       Entity Framework Core X.X.X-any initialized 'LoggingContext' using provider 'Microsoft.EntityFrameworkCore.InMemory:X.X.X-any' with options: StoreName=DbContextLoggerTests ");
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public async Task Log_only_ID(bool async)
     {
         var stream = new StringWriter();
@@ -320,9 +283,7 @@ public class DbContextLoggerTests
       Entity Framework Core X.X.X-any initialized 'LoggingContext' using provider 'Microsoft.EntityFrameworkCore.InMemory:X.X.X-any' with options: StoreName=DbContextLoggerTests ");
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public async Task Log_only_category(bool async)
     {
         var stream = new StringWriter();
@@ -335,9 +296,7 @@ public class DbContextLoggerTests
             + @"      Entity Framework Core X.X.X-any initialized 'LoggingContext' using provider 'Microsoft.EntityFrameworkCore.InMemory:X.X.X-any' with options: StoreName=DbContextLoggerTests ");
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public async Task Log_level_and_ID(bool async)
     {
         var stream = new StringWriter();
@@ -351,9 +310,7 @@ public class DbContextLoggerTests
             + @"      Entity Framework Core X.X.X-any initialized 'LoggingContext' using provider 'Microsoft.EntityFrameworkCore.InMemory:X.X.X-any' with options: StoreName=DbContextLoggerTests ");
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public async Task Log_level_and_UTC(bool async)
     {
         var stream = new StringWriter();
@@ -370,9 +327,7 @@ public class DbContextLoggerTests
             + @"      Entity Framework Core X.X.X-any initialized 'LoggingContext' using provider 'Microsoft.EntityFrameworkCore.InMemory:X.X.X-any' with options: StoreName=DbContextLoggerTests ");
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public async Task Log_default_UTC(bool async)
     {
         var stream = new StringWriter();

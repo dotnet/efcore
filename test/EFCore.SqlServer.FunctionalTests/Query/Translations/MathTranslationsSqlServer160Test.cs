@@ -13,9 +13,9 @@ public class MathTranslationsSqlServer160Test : MathTranslationsTestBase<BasicTy
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    public override async Task Max(bool async)
+    public override async Task Max()
     {
-        await base.Max(async);
+        await base.Max();
 
         AssertSql(
             """
@@ -25,9 +25,9 @@ WHERE GREATEST([b].[Int], [b].[Short] - CAST(3 AS smallint)) = [b].[Int]
 """);
     }
 
-    public override async Task Max_nested(bool async)
+    public override async Task Max_nested()
     {
-        await base.Max_nested(async);
+        await base.Max_nested();
 
         AssertSql(
             """
@@ -37,9 +37,9 @@ WHERE GREATEST([b].[Short] - CAST(3 AS smallint), [b].[Int], 1) = [b].[Int]
 """);
     }
 
-    public override async Task Max_nested_twice(bool async)
+    public override async Task Max_nested_twice()
     {
-        await base.Max_nested_twice(async);
+        await base.Max_nested_twice();
 
         AssertSql(
             """
@@ -49,9 +49,9 @@ WHERE GREATEST(1, [b].[Int], 2, [b].[Short] - CAST(3 AS smallint)) = [b].[Int]
 """);
     }
 
-    public override async Task Min(bool async)
+    public override async Task Min()
     {
-        await base.Min(async);
+        await base.Min();
 
         AssertSql(
             """
@@ -61,9 +61,9 @@ WHERE LEAST([b].[Int], [b].[Short] + CAST(3 AS smallint)) = [b].[Int]
 """);
     }
 
-    public override async Task Min_nested(bool async)
+    public override async Task Min_nested()
     {
-        await base.Min_nested(async);
+        await base.Min_nested();
 
         AssertSql(
             """
@@ -73,9 +73,9 @@ WHERE LEAST([b].[Short] + CAST(3 AS smallint), [b].[Int], 99999) = [b].[Int]
 """);
     }
 
-    public override async Task Min_nested_twice(bool async)
+    public override async Task Min_nested_twice()
     {
-        await base.Min_nested_twice(async);
+        await base.Min_nested_twice();
 
         AssertSql(
             """
@@ -85,27 +85,27 @@ WHERE LEAST(99999, [b].[Int], 99998, [b].[Short] + CAST(3 AS smallint)) = [b].[I
 """);
     }
 
-    public override async Task Log2(bool async)
-        => await AssertTranslationFailed(() => base.Log2(async));
+    public override async Task Log2()
+        => await AssertTranslationFailed(() => base.Log2());
 
-    public override async Task Acosh(bool async)
-        => await AssertTranslationFailed(() => base.Acosh(async));
+    public override async Task Acosh()
+        => await AssertTranslationFailed(() => base.Acosh());
 
-    public override async Task Asinh(bool async)
-        => await AssertTranslationFailed(() => base.Asinh(async));
+    public override async Task Asinh()
+        => await AssertTranslationFailed(() => base.Asinh());
 
-    public override async Task Atanh(bool async)
-        => await AssertTranslationFailed(() => base.Atanh(async));
+    public override async Task Atanh()
+        => await AssertTranslationFailed(() => base.Atanh());
 
-    public override async Task Cosh(bool async)
-        => await AssertTranslationFailed(() => base.Cosh(async));
+    public override async Task Cosh()
+        => await AssertTranslationFailed(() => base.Cosh());
 
-    public override async Task Sinh(bool async)
-        => await AssertTranslationFailed(() => base.Sinh(async));
+    public override async Task Sinh()
+        => await AssertTranslationFailed(() => base.Sinh());
 
-    public override async Task Tan(bool async)
+    public override async Task Tan()
     {
-        await base.Tan(async);
+        await base.Tan();
 
         AssertSql(
             """
@@ -115,9 +115,9 @@ WHERE TAN([b].[Double]) > 0.0E0
 """);
     }
 
-    public override async Task Tan_float(bool async)
+    public override async Task Tan_float()
     {
-        await base.Tan_float(async);
+        await base.Tan_float();
 
         AssertSql(
             """
@@ -127,8 +127,8 @@ WHERE TAN([b].[Float]) > CAST(0 AS real)
 """);
     }
 
-    public override async Task Tanh(bool async)
-        => await AssertTranslationFailed(() => base.Tanh(async));
+    public override async Task Tanh()
+        => await AssertTranslationFailed(() => base.Tanh());
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

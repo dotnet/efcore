@@ -10,9 +10,11 @@ public class AdHocMiscellaneousQuerySqliteTest(NonSharedFixture fixture) : AdHoc
     protected override ITestStoreFactory TestStoreFactory
         => SqliteTestStoreFactory.Instance;
 
-    protected override DbContextOptionsBuilder SetTranslateParameterizedCollectionsToConstants(DbContextOptionsBuilder optionsBuilder)
+    protected override DbContextOptionsBuilder SetParameterizedCollectionMode(
+        DbContextOptionsBuilder optionsBuilder,
+        ParameterTranslationMode parameterizedCollectionMode)
     {
-        new SqliteDbContextOptionsBuilder(optionsBuilder).TranslateParameterizedCollectionsToConstants();
+        new SqliteDbContextOptionsBuilder(optionsBuilder).UseParameterizedCollectionMode(parameterizedCollectionMode);
 
         return optionsBuilder;
     }
@@ -108,7 +110,7 @@ SELECT "t"."Id", "t"."Name"
 FROM "TestEntities" AS "t"
 WHERE EXISTS (
     SELECT 1
-    FROM (SELECT ? AS "Value" UNION ALL VALUES (?), (?)) AS "i"
+    FROM (SELECT CAST(? AS INTEGER) AS "Value" UNION ALL VALUES (?), (?)) AS "i"
     WHERE "i"."Value" = "t"."Id")
 """,
                 //
@@ -132,7 +134,7 @@ SELECT "t"."Id", "t"."Name"
 FROM "TestEntities" AS "t"
 WHERE EXISTS (
     SELECT 1
-    FROM (SELECT 1 AS "Value" UNION ALL VALUES (2), (3)) AS "i"
+    FROM (SELECT CAST(1 AS INTEGER) AS "Value" UNION ALL VALUES (2), (3)) AS "i"
     WHERE "i"."Value" = "t"."Id")
 """,
                 //

@@ -577,7 +577,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                      && methodCallExpression.Arguments is [var argument]
                      && argument.Type.TryGetElementType(typeof(IQueryable<>)) != null)
             {
-                if (_queryableMethodTranslatingExpressionVisitor.TranslateSubquery(argument) is not ShapedQueryExpression subquery
+                if (_queryableMethodTranslatingExpressionVisitor.TranslateSubquery(argument) is not { } subquery
                     || !subquery.TryConvertToArray(_typeMappingSource, out var array))
                 {
                     throw new InvalidOperationException(CoreStrings.TranslationFailed(methodCallExpression.Print()));
@@ -745,5 +745,5 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
 
     [UsedImplicitly]
     private static T GetParameterValue<T>(QueryContext queryContext, string parameterName)
-        => (T)queryContext.ParameterValues[parameterName]!;
+        => (T)queryContext.Parameters[parameterName]!;
 }

@@ -2,8 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
-using System.Collections.ObjectModel;
-using Microsoft.EntityFrameworkCore.Internal;
 using ExpressionExtensions = Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal;
@@ -65,19 +63,19 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
                 NodeType: ExpressionType.GreaterThan or ExpressionType.NotEqual,
                 Left: MemberExpression
                 {
-                    Member: { Name: nameof(ICollection<object>.Count), DeclaringType.IsGenericType: true } member,
-                    Expression: Expression source
+                    Member: { Name: nameof(ICollection<>.Count), DeclaringType.IsGenericType: true } member,
+                    Expression: { } source
                 },
                 Right: ConstantExpression { Value: 0 }
             }
-            when member.DeclaringType.GetGenericTypeDefinition() is Type genericTypeDefinition
-            && (genericTypeDefinition == typeof(ICollection<>)
-                || genericTypeDefinition.GetInterfaces()
-                    .Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(ICollection<>)))
-            => VisitMethodCall(
-                Expression.Call(
-                    EnumerableMethods.AnyWithoutPredicate.MakeGenericMethod(source.Type.GetSequenceType()),
-                    source)),
+                when member.DeclaringType.GetGenericTypeDefinition() is var genericTypeDefinition
+                && (genericTypeDefinition == typeof(ICollection<>)
+                    || genericTypeDefinition.GetInterfaces()
+                        .Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(ICollection<>)))
+                => VisitMethodCall(
+                    Expression.Call(
+                        EnumerableMethods.AnyWithoutPredicate.MakeGenericMethod(source.Type.GetSequenceType()),
+                        source)),
 
             // Same for arrays: convert x.Length > 0 and x.Length != 0 to x.Any()
             {
@@ -85,14 +83,14 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
                 Left: UnaryExpression
                 {
                     NodeType: ExpressionType.ArrayLength,
-                    Operand: Expression source
+                    Operand: { } source
                 },
                 Right: ConstantExpression { Value: 0 }
             }
-            => VisitMethodCall(
-                Expression.Call(
-                    EnumerableMethods.AnyWithoutPredicate.MakeGenericMethod(source.Type.GetSequenceType()),
-                    source)),
+                => VisitMethodCall(
+                    Expression.Call(
+                        EnumerableMethods.AnyWithoutPredicate.MakeGenericMethod(source.Type.GetSequenceType()),
+                        source)),
 
             _ => base.VisitBinary(binaryExpression)
         };
@@ -110,7 +108,7 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
         // Extract information from query metadata method and prune them
         if (method.DeclaringType == typeof(EntityFrameworkQueryableExtensions)
             && method.IsGenericMethod
-            && ExtractQueryMetadata(methodCallExpression) is Expression expression)
+            && ExtractQueryMetadata(methodCallExpression) is { } expression)
         {
             return expression;
         }
@@ -128,18 +126,21 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
 
                     var queryParameter = (QueryParameterExpression)Visit(methodCallExpression.Arguments[0]);
                     return new QueryParameterExpression(
-                        queryParameter.Name, queryParameter.Type, shouldBeConstantized: true, shouldNotBeConstantized: false,
+                        queryParameter.Name, queryParameter.Type, translationMode: ParameterTranslationMode.Constant,
                         queryParameter.IsNonNullableReferenceType);
                 }
 
                 case nameof(EF.Parameter):
                 {
-                    var queryParameter = (QueryParameterExpression)Visit(methodCallExpression.Arguments[0]);
-                    return new QueryParameterExpression(
-                        queryParameter.Name, queryParameter.Type, shouldBeConstantized: false, shouldNotBeConstantized: true,
-                        queryParameter.IsNonNullableReferenceType);
+                    return HandleParameter(methodCallExpression, ParameterTranslationMode.Parameter);
                 }
             }
+        }
+
+        // EF.MultipleParameters is defined in Relational, hence the hardcoded values here.
+        if (method is { Name: "MultipleParameters", DeclaringType.FullName: "Microsoft.EntityFrameworkCore.EFExtensions" })
+        {
+            return HandleParameter(methodCallExpression, ParameterTranslationMode.MultipleParameters);
         }
 
         // Normalize list[x] to list.ElementAt(x)
@@ -149,9 +150,9 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
                 {
                     Name: "get_Item",
                     IsStatic: false,
-                    DeclaringType: Type declaringType
+                    DeclaringType: { } declaringType
                 },
-                Object: Expression indexerSource,
+                Object: { } indexerSource,
                 Arguments: [var index]
             }
             && declaringType.GetInterface("IReadOnlyList`1") is not null)
@@ -171,14 +172,14 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
 
         if (method.DeclaringType is { IsGenericType: true }
             && method.DeclaringType.TryGetElementType(typeof(ICollection<>)) is not null
-            && method.Name == nameof(ICollection<int>.Contains))
+            && method.Name == nameof(ICollection<>.Contains))
         {
             visitedExpression = TryConvertCollectionContainsToQueryableContains(methodCallExpression);
         }
 
         if (method.DeclaringType == typeof(EntityFrameworkQueryableExtensions)
             && method.IsGenericMethod
-            && method.GetGenericMethodDefinition() is MethodInfo genericMethod
+            && method.GetGenericMethodDefinition() is var genericMethod
             && (genericMethod == EntityFrameworkQueryableExtensions.IncludeMethodInfo
                 || genericMethod == EntityFrameworkQueryableExtensions.ThenIncludeAfterEnumerableMethodInfo
                 || genericMethod == EntityFrameworkQueryableExtensions.ThenIncludeAfterReferenceMethodInfo
@@ -210,7 +211,7 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
                     return Expression.Call(newIncludeMethod, source, lambda);
                 }
 
-                return methodCallExpression.Update(null, new[] { source, lambda });
+                return methodCallExpression.Update(null, [source, lambda]);
             }
         }
 
@@ -237,6 +238,14 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
         }
 
         return visitedExpression;
+
+        Expression HandleParameter(MethodCallExpression methodCallExpression, ParameterTranslationMode parameterTranslationMode)
+        {
+            var queryParameter = (QueryParameterExpression)Visit(methodCallExpression.Arguments[0]);
+            return new QueryParameterExpression(
+                queryParameter.Name, queryParameter.Type, parameterTranslationMode,
+                queryParameter.IsNonNullableReferenceType);
+        }
     }
 
     private static void VerifyReturnType(Expression expression, ParameterExpression lambdaParameter)
@@ -328,7 +337,21 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
         if (genericMethodDefinition == EntityFrameworkQueryableExtensions.IgnoreQueryFiltersMethodInfo)
         {
             var visitedExpression = Visit(methodCallExpression.Arguments[0]);
+            _queryCompilationContext.IgnoredQueryFilters = null;
             _queryCompilationContext.IgnoreQueryFilters = true;
+
+            return visitedExpression;
+        }
+
+        if (genericMethodDefinition == EntityFrameworkQueryableExtensions.IgnoreNamedQueryFiltersMethodInfo)
+        {
+            var visitedExpression = Visit(methodCallExpression.Arguments[0]);
+            var filterKeys = methodCallExpression.Arguments[1].GetConstantValue<IReadOnlyCollection<string>>();
+            if (filterKeys?.Count > 0)
+            {
+                _queryCompilationContext.IgnoredQueryFilters ??= [];
+                _queryCompilationContext.IgnoredQueryFilters.UnionWith(filterKeys);
+            }
 
             return visitedExpression;
         }
@@ -477,8 +500,7 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
             {
                 return Expression.Call(
                     queryableMethod,
-                    arguments.Select(
-                        arg => arg is LambdaExpression lambda ? Expression.Quote(lambda) : arg));
+                    arguments.Select(arg => arg is LambdaExpression lambda ? Expression.Quote(lambda) : arg));
             }
         }
 
@@ -568,7 +590,7 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
                     ] selectManyArguments
                 }
                 when selectManyMethod.GetGenericMethodDefinition() == QueryableMethods.SelectManyWithCollectionSelector
-                     && groupJoinMethod.GetGenericMethodDefinition() == QueryableMethods.GroupJoin:
+                && groupJoinMethod.GetGenericMethodDefinition() == QueryableMethods.GroupJoin:
             {
                 var outer = groupJoinArguments[0];
                 var inner = groupJoinArguments[1];
@@ -679,7 +701,7 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
                     ] selectManyArguments
                 }
                 when selectManyMethod.GetGenericMethodDefinition() == QueryableMethods.SelectManyWithoutCollectionSelector
-                     && groupJoinMethod.GetGenericMethodDefinition() == QueryableMethods.GroupJoin:
+                && groupJoinMethod.GetGenericMethodDefinition() == QueryableMethods.GroupJoin:
             {
                 var outer = groupJoinArguments[0];
                 var inner = groupJoinArguments[1];
@@ -763,8 +785,8 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
                 }
 
                 Expression correlationPredicate;
-                if (outerKeySelector.Body is NewExpression { Arguments: ReadOnlyCollection<Expression> outerArguments }
-                    && innerKeySelector.Body is NewExpression { Arguments: ReadOnlyCollection<Expression> innerArguments }
+                if (outerKeySelector.Body is NewExpression { Arguments: { } outerArguments }
+                    && innerKeySelector.Body is NewExpression { Arguments: { } innerArguments }
                     && outerArguments.Count == innerArguments.Count
                     && outerArguments.Count > 0)
                 {
@@ -772,8 +794,10 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
                     Expression? outerEqualsInner = null;
                     for (var i = 0; i < outerArguments.Count; i++)
                     {
-                        var outerArgumentNotEqualsNull = ExpressionExtensions.CreateEqualsExpression(outerArguments[i], Expression.Constant(null), negated: true);
-                        var outerArgumentEqualsInnerArgument = ExpressionExtensions.CreateEqualsExpression(outerArguments[i], innerArguments[i]);
+                        var outerArgumentNotEqualsNull = ExpressionExtensions.CreateEqualsExpression(
+                            outerArguments[i], Expression.Constant(null), negated: true);
+                        var outerArgumentEqualsInnerArgument =
+                            ExpressionExtensions.CreateEqualsExpression(outerArguments[i], innerArguments[i]);
 
                         if (i == 0)
                         {

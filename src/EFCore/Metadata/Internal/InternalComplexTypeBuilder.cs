@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -54,9 +53,8 @@ public class InternalComplexTypeBuilder : InternalTypeBaseBuilder, IConventionCo
                 || propertyType != null
                 || Metadata.GetRuntimeProperties().ContainsKey(propertyName))
             && Metadata.FindComplexPropertiesInHierarchy(propertyName)
-                .All(
-                    m => configurationSource.Overrides(m.GetConfigurationSource())
-                        && m.GetConfigurationSource() != ConfigurationSource.Explicit);
+                .All(m => configurationSource.Overrides(m.GetConfigurationSource())
+                    && m.GetConfigurationSource() != ConfigurationSource.Explicit);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -77,9 +75,8 @@ public class InternalComplexTypeBuilder : InternalTypeBaseBuilder, IConventionCo
                 || propertyType != null
                 || Metadata.GetRuntimeProperties().ContainsKey(propertyName))
             && Metadata.FindPropertiesInHierarchy(propertyName)
-                .All(
-                    m => configurationSource.Overrides(m.GetConfigurationSource())
-                        && m.GetConfigurationSource() != ConfigurationSource.Explicit);
+                .All(m => configurationSource.Overrides(m.GetConfigurationSource())
+                    && m.GetConfigurationSource() != ConfigurationSource.Explicit);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -540,7 +537,7 @@ public class InternalComplexTypeBuilder : InternalTypeBaseBuilder, IConventionCo
     /// </summary>
     public virtual ComplexTypeDiscriminatorBuilder? HasDiscriminator(MemberInfo memberInfo, ConfigurationSource configurationSource)
         => CanSetDiscriminator(
-            Check.NotNull(memberInfo, nameof(memberInfo)).GetSimpleMemberName(), memberInfo.GetMemberType(), configurationSource)
+            Check.NotNull(memberInfo).GetSimpleMemberName(), memberInfo.GetMemberType(), configurationSource)
             ? DiscriminatorBuilder(
                 GetOrCreateDiscriminatorProperty(type: null, name: null, memberInfo, configurationSource))
             : null;
@@ -692,7 +689,7 @@ public class InternalComplexTypeBuilder : InternalTypeBaseBuilder, IConventionCo
     [DebuggerStepThrough]
     IConventionComplexTypeDiscriminatorBuilder? IConventionComplexTypeBuilder.HasDiscriminator(Type type, bool fromDataAnnotation)
         => HasDiscriminator(
-            name: null, Check.NotNull(type, nameof(type)),
+            name: null, Check.NotNull(type),
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
@@ -704,7 +701,7 @@ public class InternalComplexTypeBuilder : InternalTypeBaseBuilder, IConventionCo
     [DebuggerStepThrough]
     IConventionComplexTypeDiscriminatorBuilder? IConventionComplexTypeBuilder.HasDiscriminator(string name, bool fromDataAnnotation)
         => HasDiscriminator(
-            Check.NotEmpty(name, nameof(name)), type: null,
+            Check.NotEmpty(name), type: null,
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
@@ -714,9 +711,12 @@ public class InternalComplexTypeBuilder : InternalTypeBaseBuilder, IConventionCo
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    IConventionComplexTypeDiscriminatorBuilder? IConventionComplexTypeBuilder.HasDiscriminator(string name, Type type, bool fromDataAnnotation)
+    IConventionComplexTypeDiscriminatorBuilder? IConventionComplexTypeBuilder.HasDiscriminator(
+        string name,
+        Type type,
+        bool fromDataAnnotation)
         => HasDiscriminator(
-            Check.NotEmpty(name, nameof(name)), Check.NotNull(type, nameof(type)),
+            Check.NotEmpty(name), Check.NotNull(type),
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
@@ -726,7 +726,9 @@ public class InternalComplexTypeBuilder : InternalTypeBaseBuilder, IConventionCo
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    IConventionComplexTypeDiscriminatorBuilder? IConventionComplexTypeBuilder.HasDiscriminator(MemberInfo memberInfo, bool fromDataAnnotation)
+    IConventionComplexTypeDiscriminatorBuilder? IConventionComplexTypeBuilder.HasDiscriminator(
+        MemberInfo memberInfo,
+        bool fromDataAnnotation)
         => HasDiscriminator(
             memberInfo, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 

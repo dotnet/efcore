@@ -4,7 +4,6 @@
 #nullable disable
 
 using Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel;
-using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -23,8 +22,7 @@ public class ComplexNavigationsQuerySqlServer160Test
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Distinct_skip_without_orderby(bool async)
     {
         await AssertQuery(
@@ -53,8 +51,7 @@ WHERE [l].[Id] < 3
 """);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Distinct_take_without_orderby(bool async)
     {
         await AssertQuery(
@@ -67,12 +64,8 @@ WHERE [l].[Id] < 3
         AssertSql(
             """
 SELECT (
-    SELECT TOP(1) [l1].[Name]
-    FROM (
-        SELECT TOP(1) [l0].[Id], [l0].[Name]
-        FROM [LevelThree] AS [l0]
-    ) AS [l1]
-    ORDER BY [l1].[Id])
+    SELECT TOP(1) [l0].[Name]
+    FROM [LevelThree] AS [l0])
 FROM [LevelOne] AS [l]
 WHERE [l].[Id] < 3
 """);
@@ -1815,10 +1808,10 @@ SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Required_Id]
 LEFT JOIN (
-    SELECT [l1].[Id], [l1].[OneToMany_Required_Inverse3Id]
+    SELECT [l1].[Id], [l1].[OneToMany_Required_Inverse3Id] AS [OneToMany_Required_Inverse3Id0]
     FROM [LevelThree] AS [l1]
     WHERE [l1].[Id] > 5
-) AS [l2] ON [l0].[Id] = [l2].[OneToMany_Required_Inverse3Id]
+) AS [l2] ON [l0].[Id] = [l2].[OneToMany_Required_Inverse3Id0]
 WHERE [l2].[Id] IS NOT NULL
 """);
     }
@@ -1995,14 +1988,14 @@ WHERE [l2].[Id] IS NOT NULL
 SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id]
 FROM [LevelOne] AS [l]
 LEFT JOIN (
-    SELECT [l1].[Id], [l1].[OneToMany_Required_Inverse2Id]
+    SELECT [l1].[Id], [l1].[OneToMany_Required_Inverse2Id0]
     FROM (
-        SELECT [l0].[Id], [l0].[OneToMany_Required_Inverse2Id], ROW_NUMBER() OVER(PARTITION BY [l0].[OneToMany_Required_Inverse2Id] ORDER BY [l0].[Id]) AS [row]
+        SELECT [l0].[Id], [l0].[OneToMany_Required_Inverse2Id] AS [OneToMany_Required_Inverse2Id0], ROW_NUMBER() OVER(PARTITION BY [l0].[OneToMany_Required_Inverse2Id] ORDER BY [l0].[Id]) AS [row]
         FROM [LevelTwo] AS [l0]
         WHERE [l0].[Id] > 5
     ) AS [l1]
     WHERE [l1].[row] <= 3
-) AS [l2] ON [l].[Id] = [l2].[OneToMany_Required_Inverse2Id]
+) AS [l2] ON [l].[Id] = [l2].[OneToMany_Required_Inverse2Id0]
 WHERE [l2].[Id] IS NOT NULL
 """);
     }
@@ -3141,15 +3134,13 @@ WHERE [l0].[Id] IS NOT NULL
 
         AssertSql(
             """
-@names='["Name1","Name2"]' (Size = 4000)
+@names1='Name1' (Size = 4000)
+@names2='Name2' (Size = 4000)
 
 SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id]
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
-WHERE [l0].[Name] NOT IN (
-    SELECT [n].[value]
-    FROM OPENJSON(@names) WITH ([value] nvarchar(max) '$') AS [n]
-) OR [l0].[Name] IS NULL
+WHERE [l0].[Name] NOT IN (@names1, @names2) OR [l0].[Name] IS NULL
 """);
     }
 
@@ -3857,25 +3848,35 @@ LEFT JOIN [LevelOne] AS [l3] ON [l0].[Id] >= [l3].[Id] AND ([l2].[Name] = [l3].[
 
     public override async Task Nested_SelectMany_correlated_with_join_table_correctly_translated_to_apply(bool async)
     {
-        // DefaultIfEmpty on child collection. Issue #19095.
-        await Assert.ThrowsAsync<EqualException>(
-            async () => await base.Nested_SelectMany_correlated_with_join_table_correctly_translated_to_apply(async));
+        await base.Nested_SelectMany_correlated_with_join_table_correctly_translated_to_apply(async);
 
         AssertSql(
             """
 SELECT [s0].[l1Name], [s0].[l2Name], [s0].[l3Name]
 FROM [LevelOne] AS [l]
-OUTER APPLY (
+CROSS APPLY (
     SELECT [s].[l1Name], [s].[l2Name], [s].[l3Name]
-    FROM [LevelTwo] AS [l0]
-    LEFT JOIN [LevelThree] AS [l1] ON [l0].[Id] = [l1].[Id]
+    FROM (
+        SELECT 1 AS empty
+    ) AS [e]
+    LEFT JOIN (
+        SELECT [l0].[Id]
+        FROM [LevelTwo] AS [l0]
+        WHERE [l].[Id] = [l0].[OneToMany_Optional_Inverse2Id]
+    ) AS [l1] ON 1 = 1
+    LEFT JOIN [LevelThree] AS [l2] ON [l1].[Id] = [l2].[Id]
     CROSS APPLY (
-        SELECT [l].[Name] AS [l1Name], [l1].[Name] AS [l2Name], [l3].[Name] AS [l3Name]
-        FROM [LevelFour] AS [l2]
-        LEFT JOIN [LevelThree] AS [l3] ON [l2].[OneToOne_Optional_PK_Inverse4Id] = [l3].[Id]
-        WHERE [l1].[Id] IS NOT NULL AND [l1].[Id] = [l2].[OneToMany_Optional_Inverse4Id]
+        SELECT [l].[Name] AS [l1Name], [l2].[Name] AS [l2Name], [l5].[Name] AS [l3Name]
+        FROM (
+            SELECT 1 AS empty
+        ) AS [e0]
+        LEFT JOIN (
+            SELECT [l3].[OneToOne_Optional_PK_Inverse4Id]
+            FROM [LevelFour] AS [l3]
+            WHERE [l2].[Id] IS NOT NULL AND [l2].[Id] = [l3].[OneToMany_Optional_Inverse4Id]
+        ) AS [l4] ON 1 = 1
+        LEFT JOIN [LevelThree] AS [l5] ON [l4].[OneToOne_Optional_PK_Inverse4Id] = [l5].[Id]
     ) AS [s]
-    WHERE [l].[Id] = [l0].[OneToMany_Optional_Inverse2Id]
 ) AS [s0]
 """);
     }
@@ -3980,7 +3981,7 @@ HAVING (
 
         AssertSql(
             """
-SELECT [l].[Id], [l].[Name], [l].[Date], [l0].[Id], [l1].[Name], [l0].[Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], COALESCE(SUM(CAST(LEN([l].[Name]) AS int)), 0) AS [Aggregate]
+SELECT [l].[Id], [l].[Name], [l].[Date], [l0].[Id], [l1].[Name], [l0].[Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], ISNULL(SUM(CAST(LEN([l].[Name]) AS int)), 0) AS [Aggregate]
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
 LEFT JOIN [LevelTwo] AS [l1] ON [l].[Id] = [l1].[Level1_Required_Id]
@@ -4317,8 +4318,8 @@ CROSS JOIN (
     public override async Task Join_with_result_selector_returning_queryable_throws_validation_error(bool async)
     {
         // Expression cannot be used for return type. Issue #23302.
-        await Assert.ThrowsAsync<ArgumentException>(
-            () => base.Join_with_result_selector_returning_queryable_throws_validation_error(async));
+        await Assert.ThrowsAsync<ArgumentException>(()
+            => base.Join_with_result_selector_returning_queryable_throws_validation_error(async));
 
         AssertSql();
     }
@@ -4904,6 +4905,6 @@ ORDER BY [l].[Id], [s0].[Id], [s0].[Id0]
             => "ComplexNavigations160";
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => base.AddOptions(builder).UseSqlServer(b => b.UseCompatibilityLevel(160));
+            => base.AddOptions(builder).UseSqlServerCompatibilityLevel(160);
     }
 }

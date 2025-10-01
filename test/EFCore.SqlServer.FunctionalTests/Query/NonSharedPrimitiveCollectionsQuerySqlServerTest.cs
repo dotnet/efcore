@@ -8,18 +8,14 @@ namespace Microsoft.EntityFrameworkCore.Query;
 #nullable disable
 using static Expression;
 
-public class NonSharedPrimitiveCollectionsQuerySqlServerTest(NonSharedFixture fixture) : NonSharedPrimitiveCollectionsQueryRelationalTestBase(fixture)
+public class NonSharedPrimitiveCollectionsQuerySqlServerTest(NonSharedFixture fixture)
+    : NonSharedPrimitiveCollectionsQueryRelationalTestBase(fixture)
 {
-    protected override DbContextOptionsBuilder SetTranslateParameterizedCollectionsToConstants(DbContextOptionsBuilder optionsBuilder)
+    protected override DbContextOptionsBuilder SetParameterizedCollectionMode(
+        DbContextOptionsBuilder optionsBuilder,
+        ParameterTranslationMode parameterizedCollectionMode)
     {
-        new SqlServerDbContextOptionsBuilder(optionsBuilder).TranslateParameterizedCollectionsToConstants();
-
-        return optionsBuilder;
-    }
-
-    protected override DbContextOptionsBuilder SetTranslateParameterizedCollectionsToParameters(DbContextOptionsBuilder optionsBuilder)
-    {
-        new SqlServerDbContextOptionsBuilder(optionsBuilder).TranslateParameterizedCollectionsToParameters();
+        new SqlServerDbContextOptionsBuilder(optionsBuilder).UseParameterizedCollectionMode(parameterizedCollectionMode);
 
         return optionsBuilder;
     }
@@ -615,8 +611,7 @@ WHERE (
     [ConditionalFact]
     public virtual async Task Ordered_array_of_byte_array()
     {
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
-            () => TestOrderedArray([1, 2], new byte[] { 3, 4 }));
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => TestOrderedArray([1, 2], new byte[] { 3, 4 }));
 
         Assert.Equal(SqlServerStrings.QueryingOrderedBinaryJsonCollectionsNotSupported, exception.Message);
     }
@@ -792,9 +787,119 @@ FROM [TestEntityWithOwned] AS [t]
 """);
     }
 
-    public override async Task Parameter_collection_Count_with_column_predicate_with_default_constants()
+    public override async Task Parameter_collection_Count_with_column_predicate_with_default_mode(ParameterTranslationMode mode)
     {
-        await base.Parameter_collection_Count_with_column_predicate_with_default_constants();
+        await base.Parameter_collection_Count_with_column_predicate_with_default_mode(mode);
+
+        switch (mode)
+        {
+            case ParameterTranslationMode.Constant:
+            {
+                AssertSql(
+                    """
+SELECT [t].[Id]
+FROM [TestEntity] AS [t]
+WHERE (
+    SELECT COUNT(*)
+    FROM (VALUES (CAST(2 AS int)), (999)) AS [i]([Value])
+    WHERE [i].[Value] > [t].[Id]) = 1
+""");
+                break;
+            }
+
+            case ParameterTranslationMode.Parameter:
+            {
+                AssertSql(
+                    """
+@ids='[2,999]' (Size = 4000)
+
+SELECT [t].[Id]
+FROM [TestEntity] AS [t]
+WHERE (
+    SELECT COUNT(*)
+    FROM OPENJSON(@ids) WITH ([value] int '$') AS [i]
+    WHERE [i].[value] > [t].[Id]) = 1
+""");
+                break;
+            }
+
+            case ParameterTranslationMode.MultipleParameters:
+            {
+                AssertSql(
+                    """
+@ids1='2'
+@ids2='999'
+
+SELECT [t].[Id]
+FROM [TestEntity] AS [t]
+WHERE (
+    SELECT COUNT(*)
+    FROM (VALUES (@ids1), (@ids2)) AS [i]([Value])
+    WHERE [i].[Value] > [t].[Id]) = 1
+""");
+                break;
+            }
+
+            default:
+                throw new NotImplementedException();
+        }
+    }
+
+    public override async Task Parameter_collection_Contains_with_default_mode(ParameterTranslationMode mode)
+    {
+        await base.Parameter_collection_Contains_with_default_mode(mode);
+
+        switch (mode)
+        {
+            case ParameterTranslationMode.Constant:
+            {
+                AssertSql(
+                    """
+SELECT [t].[Id]
+FROM [TestEntity] AS [t]
+WHERE [t].[Id] IN (2, 999)
+""");
+                break;
+            }
+
+            case ParameterTranslationMode.Parameter:
+            {
+                AssertSql(
+                    """
+@ints='[2,999]' (Size = 4000)
+
+SELECT [t].[Id]
+FROM [TestEntity] AS [t]
+WHERE [t].[Id] IN (
+    SELECT [i].[value]
+    FROM OPENJSON(@ints) WITH ([value] int '$') AS [i]
+)
+""");
+                break;
+            }
+
+            case ParameterTranslationMode.MultipleParameters:
+            {
+                AssertSql(
+                    """
+@ints1='2'
+@ints2='999'
+
+SELECT [t].[Id]
+FROM [TestEntity] AS [t]
+WHERE [t].[Id] IN (@ints1, @ints2)
+""");
+                break;
+            }
+
+            default:
+                throw new NotImplementedException();
+        }
+    }
+
+    public override async Task Parameter_collection_Count_with_column_predicate_with_default_mode_EF_Constant(ParameterTranslationMode mode)
+    {
+        await base.Parameter_collection_Count_with_column_predicate_with_default_mode_EF_Constant(mode);
 
         AssertSql(
             """
@@ -802,14 +907,14 @@ SELECT [t].[Id]
 FROM [TestEntity] AS [t]
 WHERE (
     SELECT COUNT(*)
-    FROM (VALUES (2), (999)) AS [i]([Value])
+    FROM (VALUES (CAST(2 AS int)), (999)) AS [i]([Value])
     WHERE [i].[Value] > [t].[Id]) = 1
 """);
     }
 
-    public override async Task Parameter_collection_of_ints_Contains_int_with_default_constants()
+    public override async Task Parameter_collection_Contains_with_default_mode_EF_Constant(ParameterTranslationMode mode)
     {
-        await base.Parameter_collection_of_ints_Contains_int_with_default_constants();
+        await base.Parameter_collection_Contains_with_default_mode_EF_Constant(mode);
 
         AssertSql(
             """
@@ -819,9 +924,10 @@ WHERE [t].[Id] IN (2, 999)
 """);
     }
 
-    public override async Task Parameter_collection_Count_with_column_predicate_with_default_constants_EF_Parameter()
+    public override async Task Parameter_collection_Count_with_column_predicate_with_default_mode_EF_Parameter(
+        ParameterTranslationMode mode)
     {
-        await base.Parameter_collection_Count_with_column_predicate_with_default_constants_EF_Parameter();
+        await base.Parameter_collection_Count_with_column_predicate_with_default_mode_EF_Parameter(mode);
 
         AssertSql(
             """
@@ -836,9 +942,9 @@ WHERE (
 """);
     }
 
-    public override async Task Parameter_collection_of_ints_Contains_int_with_default_constants_EF_Parameter()
+    public override async Task Parameter_collection_Contains_with_default_mode_EF_Parameter(ParameterTranslationMode mode)
     {
-        await base.Parameter_collection_of_ints_Contains_int_with_default_constants_EF_Parameter();
+        await base.Parameter_collection_Contains_with_default_mode_EF_Parameter(mode);
 
         AssertSql(
             """
@@ -853,64 +959,70 @@ WHERE [t].[Id] IN (
 """);
     }
 
-    public override async Task Parameter_collection_Count_with_column_predicate_with_default_parameters()
+    public override async Task Parameter_collection_Count_with_column_predicate_with_default_mode_EF_MultipleParameters(
+        ParameterTranslationMode mode)
     {
-        await base.Parameter_collection_Count_with_column_predicate_with_default_parameters();
+        await base.Parameter_collection_Count_with_column_predicate_with_default_mode_EF_MultipleParameters(mode);
 
         AssertSql(
             """
-@ids='[2,999]' (Size = 4000)
+@ids1='2'
+@ids2='999'
 
 SELECT [t].[Id]
 FROM [TestEntity] AS [t]
 WHERE (
     SELECT COUNT(*)
-    FROM OPENJSON(@ids) WITH ([value] int '$') AS [i]
-    WHERE [i].[value] > [t].[Id]) = 1
-""");
-    }
-
-    public override async Task Parameter_collection_of_ints_Contains_int_with_default_parameters()
-    {
-        await base.Parameter_collection_of_ints_Contains_int_with_default_parameters();
-
-        AssertSql(
-            """
-@ints='[2,999]' (Size = 4000)
-
-SELECT [t].[Id]
-FROM [TestEntity] AS [t]
-WHERE [t].[Id] IN (
-    SELECT [i].[value]
-    FROM OPENJSON(@ints) WITH ([value] int '$') AS [i]
-)
-""");
-    }
-
-    public override async Task Parameter_collection_Count_with_column_predicate_with_default_parameters_EF_Constant()
-    {
-        await base.Parameter_collection_Count_with_column_predicate_with_default_parameters_EF_Constant();
-
-        AssertSql(
-            """
-SELECT [t].[Id]
-FROM [TestEntity] AS [t]
-WHERE (
-    SELECT COUNT(*)
-    FROM (VALUES (2), (999)) AS [i]([Value])
+    FROM (VALUES (@ids1), (@ids2)) AS [i]([Value])
     WHERE [i].[Value] > [t].[Id]) = 1
 """);
     }
 
-    public override async Task Parameter_collection_of_ints_Contains_int_with_default_parameters_EF_Constant()
+    public override async Task Parameter_collection_Contains_with_default_mode_EF_MultipleParameters(ParameterTranslationMode mode)
     {
-        await base.Parameter_collection_of_ints_Contains_int_with_default_parameters_EF_Constant();
+        await base.Parameter_collection_Contains_with_default_mode_EF_MultipleParameters(mode);
 
         AssertSql(
             """
+@ints1='2'
+@ints2='999'
+
 SELECT [t].[Id]
 FROM [TestEntity] AS [t]
-WHERE [t].[Id] IN (2, 999)
+WHERE [t].[Id] IN (@ints1, @ints2)
+""");
+    }
+
+    public override async Task Parameter_collection_Contains_parameter_bucketization()
+    {
+        await base.Parameter_collection_Contains_parameter_bucketization();
+
+        AssertSql(
+            """
+@ints1='2'
+@ints2='999'
+@ints3='2'
+@ints4='2'
+@ints5='2'
+@ints6='2'
+@ints7='2'
+@ints8='2'
+@ints9='2'
+@ints10='2'
+@ints11='2'
+@ints12='2'
+@ints13='2'
+@ints14='2'
+@ints15='2'
+@ints16='2'
+@ints17='2'
+@ints18='2'
+@ints19='2'
+@ints20='2'
+
+SELECT [t].[Id]
+FROM [TestEntity] AS [t]
+WHERE [t].[Id] IN (@ints1, @ints2, @ints3, @ints4, @ints5, @ints6, @ints7, @ints8, @ints9, @ints10, @ints11, @ints12, @ints13, @ints14, @ints15, @ints16, @ints17, @ints18, @ints19, @ints20)
 """);
     }
 
@@ -918,38 +1030,32 @@ WHERE [t].[Id] IN (2, 999)
     public virtual async Task Same_parameter_with_different_type_mappings()
     {
         var contextFactory = await InitializeAsync<TestContext>(
-            onModelCreating: mb => mb.Entity<TestEntity>(
-                b =>
-                {
-                    b.Property(typeof(DateTime), "DateTime").HasColumnType("datetime");
-                    b.Property(typeof(DateTime), "DateTime2").HasColumnType("datetime2");
-                }));
+            onModelCreating: mb => mb.Entity<TestEntity>(b =>
+            {
+                b.Property(typeof(DateTime), "DateTime").HasColumnType("datetime");
+                b.Property(typeof(DateTime), "DateTime2").HasColumnType("datetime2");
+            }));
 
         await using var context = contextFactory.CreateContext();
 
         var dateTimes = new[] { new DateTime(2020, 1, 1, 12, 30, 00), new DateTime(2020, 1, 2, 12, 30, 00) };
 
         _ = await context.Set<TestEntity>()
-            .Where(
-                m =>
-                    dateTimes.Contains(EF.Property<DateTime>(m, "DateTime"))
-                    && dateTimes.Contains(EF.Property<DateTime>(m, "DateTime2")))
+            .Where(m =>
+                dateTimes.Contains(EF.Property<DateTime>(m, "DateTime"))
+                && dateTimes.Contains(EF.Property<DateTime>(m, "DateTime2")))
             .ToArrayAsync();
 
         AssertSql(
             """
-@dateTimes='["2020-01-01T12:30:00","2020-01-02T12:30:00"]' (Size = 4000)
-@dateTimes0='["2020-01-01T12:30:00","2020-01-02T12:30:00"]' (Size = 4000)
+@dateTimes1='2020-01-01T12:30:00.0000000' (DbType = DateTime)
+@dateTimes2='2020-01-02T12:30:00.0000000' (DbType = DateTime)
+@dateTimes3='2020-01-01T12:30:00.0000000'
+@dateTimes4='2020-01-02T12:30:00.0000000'
 
 SELECT [t].[Id], [t].[DateTime], [t].[DateTime2], [t].[Ints]
 FROM [TestEntity] AS [t]
-WHERE [t].[DateTime] IN (
-    SELECT [d].[value]
-    FROM OPENJSON(@dateTimes) WITH ([value] datetime '$') AS [d]
-) AND [t].[DateTime2] IN (
-    SELECT [d0].[value]
-    FROM OPENJSON(@dateTimes0) WITH ([value] datetime2 '$') AS [d0]
-)
+WHERE [t].[DateTime] IN (@dateTimes1, @dateTimes2) AND [t].[DateTime2] IN (@dateTimes3, @dateTimes4)
 """);
     }
 
@@ -969,14 +1075,16 @@ WHERE [t].[DateTime] IN (
 
         AssertSql(
             """
-@dateTimes='["2020-01-01T12:30:00","2020-01-02T12:30:00",null]' (Size = 4000)
+@dateTimes1='2020-01-01T12:30:00.0000000'
+@dateTimes2='2020-01-02T12:30:00.0000000'
+@dateTimes3=NULL (DbType = DateTime2)
 
 SELECT [t].[Id], [t].[DateTime], [t].[Ints]
 FROM [TestEntity] AS [t]
 WHERE EXISTS (
     SELECT 1
-    FROM OPENJSON(@dateTimes) WITH ([value] datetime2 '$') AS [d]
-    WHERE [d].[value] = [t].[DateTime] AND [d].[value] IS NOT NULL)
+    FROM (VALUES (@dateTimes1), (@dateTimes2), (@dateTimes3)) AS [d]([Value])
+    WHERE [d].[Value] = [t].[DateTime] AND [d].[Value] IS NOT NULL)
 """);
     }
 
@@ -984,43 +1092,37 @@ WHERE EXISTS (
     public virtual async Task Same_collection_with_non_default_type_mapping_and_uninferrable_context()
     {
         var contextFactory = await InitializeAsync<TestContext>(
-            onModelCreating: mb => mb.Entity<TestEntity>(
-                b => b.Property(typeof(DateTime), "DateTime").HasColumnType("datetime")));
+            onModelCreating: mb => mb.Entity<TestEntity>(b => b.Property(typeof(DateTime), "DateTime").HasColumnType("datetime")));
 
         await using var context = contextFactory.CreateContext();
 
         var dateTimes = new DateTime?[] { new DateTime(2020, 1, 1, 12, 30, 00), new DateTime(2020, 1, 2, 12, 30, 00), null };
 
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
-            () => context.Set<TestEntity>()
-                .Where(
-                    m => dateTimes.Any(d => d == EF.Property<DateTime>(m, "DateTime") && d != null))
-                .ToArrayAsync());
-        Assert.Equal(RelationalStrings.ConflictingTypeMappingsInferredForColumn("value"), exception.Message);
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => context.Set<TestEntity>()
+            .Where(m => dateTimes.Any(d => d == EF.Property<DateTime>(m, "DateTime") && d != null))
+            .ToArrayAsync());
+        Assert.Equal(RelationalStrings.ConflictingTypeMappingsInferredForColumn("Value"), exception.Message);
     }
 
     [ConditionalFact]
     public virtual async Task Same_collection_with_conflicting_type_mappings_not_supported()
     {
         var contextFactory = await InitializeAsync<TestContext>(
-            onModelCreating: mb => mb.Entity<TestEntity>(
-                b =>
-                {
-                    b.Property(typeof(DateTime), "DateTime").HasColumnType("datetime");
-                    b.Property(typeof(DateTime), "DateTime2").HasColumnType("datetime2");
-                }));
+            onModelCreating: mb => mb.Entity<TestEntity>(b =>
+            {
+                b.Property(typeof(DateTime), "DateTime").HasColumnType("datetime");
+                b.Property(typeof(DateTime), "DateTime2").HasColumnType("datetime2");
+            }));
 
         await using var context = contextFactory.CreateContext();
 
         var dateTimes = new[] { new DateTime(2020, 1, 1, 12, 30, 00), new DateTime(2020, 1, 2, 12, 30, 00) };
 
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
-            () => context.Set<TestEntity>()
-                .Where(
-                    m => dateTimes
-                        .Any(d => d == EF.Property<DateTime>(m, "DateTime") && d == EF.Property<DateTime>(m, "DateTime2")))
-                .ToArrayAsync());
-        Assert.Equal(RelationalStrings.ConflictingTypeMappingsInferredForColumn("value"), exception.Message);
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => context.Set<TestEntity>()
+            .Where(m => dateTimes
+                .Any(d => d == EF.Property<DateTime>(m, "DateTime") && d == EF.Property<DateTime>(m, "DateTime2")))
+            .ToArrayAsync());
+        Assert.Equal(RelationalStrings.ConflictingTypeMappingsInferredForColumn("Value"), exception.Message);
     }
 
     [ConditionalFact]

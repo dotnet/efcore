@@ -145,6 +145,13 @@ public interface ITypeBase : IReadOnlyTypeBase, IAnnotatable
     new IEnumerable<IProperty> GetProperties();
 
     /// <summary>
+    ///     Returns the properties that need a value to be generated when the entity entry transitions to the
+    ///     <see cref="EntityState.Added" /> state, including properties defined on non-collection complex types.
+    /// </summary>
+    /// <returns>The properties that need a value to be generated on add.</returns>
+    IEnumerable<IProperty> GetFlattenedValueGeneratingProperties();
+
+    /// <summary>
     ///     Gets the complex property with a given name. Returns <see langword="null" /> if no property with the given name is defined.
     /// </summary>
     /// <remarks>
@@ -246,25 +253,26 @@ public interface ITypeBase : IReadOnlyTypeBase, IAnnotatable
         => throw new NotSupportedException();
 
     /// <summary>
-    ///     Returns all properties that implement <see cref="IProperty" />, including those on complex types.
+    ///     Returns all properties that implement <see cref="IProperty" />, including those on non-collection complex types.
     /// </summary>
     /// <returns>The properties.</returns>
     IEnumerable<IProperty> GetFlattenedProperties();
 
     /// <summary>
-    ///     Returns all properties that implement <see cref="IComplexProperty" />, including those on complex types.
+    ///     Returns all properties that implement <see cref="IComplexProperty" />, including those on non-collection complex types.
     /// </summary>
     /// <returns>The properties.</returns>
     IEnumerable<IComplexProperty> GetFlattenedComplexProperties();
 
     /// <summary>
-    ///     Returns all declared properties that implement <see cref="IProperty" />, including those on complex types.
+    ///     Returns all declared properties that implement <see cref="IProperty" />, including those on non-collection complex types.
     /// </summary>
     /// <returns>The properties.</returns>
     IEnumerable<IProperty> GetFlattenedDeclaredProperties();
 
     /// <summary>
-    ///     Gets all properties declared on the base types and types derived from this entity type, including those on complex types.
+    ///     Gets all properties declared on the base types and types derived from this entity type, including those on non-collection complex
+    ///     types.
     /// </summary>
     /// <returns>The properties.</returns>
     IEnumerable<IProperty> GetFlattenedPropertiesInHierarchy()

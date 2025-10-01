@@ -121,7 +121,7 @@
     <value>The entity type '{entityType}' has a defining query configured. Compiled model can't be generated, because defining queries are not supported.</value>
   </data>
   <data name="DefaultIfEmptyAppliedAfterProjection" xml:space="preserve">
-    <value>Cannot apply 'DefaultIfEmpty' after a client-evaluated projection. Consider applying 'DefaultIfEmpty' before last 'Select' or use 'AsEnumerable' before 'DefaultIfEmpty' to apply it on client-side.</value>
+    <value>'DefaultIfEmpty' cannot be applied after a client-evaluated projection. Consider applying 'DefaultIfEmpty' before last 'Select' or use 'AsEnumerable' before 'DefaultIfEmpty' to apply it on client-side.</value>
   </data>
   <data name="DistinctOnSubqueryNotSupported" xml:space="preserve">
     <value>Using 'Distinct' operation on a projection containing a subquery is not supported.</value>

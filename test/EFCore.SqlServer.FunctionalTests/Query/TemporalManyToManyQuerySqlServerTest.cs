@@ -490,10 +490,10 @@ INNER JOIN (
 SELECT [s].[Id], [s].[CollectionInverseId], [s].[ExtraId], [s].[Name], [s].[PeriodEnd], [s].[PeriodStart], [s].[ReferenceInverseId]
 FROM [EntityOnes] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e]
 LEFT JOIN (
-    SELECT [e0].[Id], [e0].[CollectionInverseId], [e0].[ExtraId], [e0].[Name], [e0].[PeriodEnd], [e0].[PeriodStart], [e0].[ReferenceInverseId], [j].[OneId]
+    SELECT [e0].[Id], [e0].[CollectionInverseId], [e0].[ExtraId], [e0].[Name], [e0].[PeriodEnd], [e0].[PeriodStart], [e0].[ReferenceInverseId], [j].[OneId] AS [OneId0]
     FROM [JoinOneToTwo] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [j]
     INNER JOIN [EntityTwos] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e0] ON [j].[TwoId] = [e0].[Id]
-) AS [s] ON [e].[Id] = [s].[OneId]
+) AS [s] ON [e].[Id] = [s].[OneId0]
 """);
     }
 

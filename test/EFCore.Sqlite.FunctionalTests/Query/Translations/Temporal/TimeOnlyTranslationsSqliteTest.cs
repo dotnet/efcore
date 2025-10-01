@@ -12,138 +12,138 @@ public class TimeOnlyTranslationsSqliteTest : TimeOnlyTranslationsTestBase<Basic
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    public override async Task Hour(bool async)
+    public override async Task Hour()
     {
         // TimeSpan. Issue #18844.
-        await AssertTranslationFailed(() => base.Hour(async));
+        await AssertTranslationFailed(() => base.Hour());
 
         AssertSql();
     }
 
-    public override async Task Minute(bool async)
+    public override async Task Minute()
     {
         // TimeSpan. Issue #18844.
-        await AssertTranslationFailed(() => base.Minute(async));
+        await AssertTranslationFailed(() => base.Minute());
 
         AssertSql();
     }
 
-    public override async Task Second(bool async)
+    public override async Task Second()
     {
         // TimeSpan. Issue #18844.
-        await AssertTranslationFailed(() => base.Second(async));
+        await AssertTranslationFailed(() => base.Second());
 
         AssertSql();
     }
 
-    public override async Task Millisecond(bool async)
+    public override async Task Millisecond()
     {
         // TimeSpan. Issue #18844.
-        await AssertTranslationFailed(() => base.Millisecond(async));
+        await AssertTranslationFailed(() => base.Millisecond());
 
         AssertSql();
     }
 
-    public override async Task Microsecond(bool async)
+    public override async Task Microsecond()
     {
         // TimeSpan. Issue #18844.
-        await AssertTranslationFailed(() => base.Microsecond(async));
+        await AssertTranslationFailed(() => base.Microsecond());
 
         AssertSql();
     }
 
-    public override async Task Nanosecond(bool async)
+    public override async Task Nanosecond()
     {
         // TimeSpan. Issue #18844.
-        await AssertTranslationFailed(() => base.Nanosecond(async));
+        await AssertTranslationFailed(() => base.Nanosecond());
 
         AssertSql();
     }
 
-    public override async Task AddHours(bool async)
+    public override async Task AddHours()
     {
         // TimeSpan. Issue #18844.
-        await AssertTranslationFailed(() => base.AddHours(async));
+        await AssertTranslationFailed(() => base.AddHours());
 
         AssertSql();
     }
 
-    public override async Task AddMinutes(bool async)
+    public override async Task AddMinutes()
     {
         // TimeSpan. Issue #18844.
-        await AssertTranslationFailed(() => base.AddMinutes(async));
+        await AssertTranslationFailed(() => base.AddMinutes());
 
         AssertSql();
     }
 
-    public override async Task Add_TimeSpan(bool async)
+    public override async Task Add_TimeSpan()
     {
         // TimeSpan. Issue #18844.
-        await AssertTranslationFailed(() => base.Add_TimeSpan(async));
+        await AssertTranslationFailed(() => base.Add_TimeSpan());
 
         AssertSql();
     }
 
-    public override async Task IsBetween(bool async)
+    public override async Task IsBetween()
     {
         // TimeSpan. Issue #18844.
-        await AssertTranslationFailed(() => base.IsBetween(async));
+        await AssertTranslationFailed(() => base.IsBetween());
 
         AssertSql();
     }
 
-    public override async Task Subtract(bool async)
+    public override async Task Subtract()
     {
         // TimeSpan. Issue #18844.
-        await AssertTranslationFailed(() => base.Subtract(async));
+        await AssertTranslationFailed(() => base.Subtract());
 
         AssertSql();
     }
 
-    public override async Task FromDateTime_compared_to_property(bool async)
+    public override async Task FromDateTime_compared_to_property()
     {
         // TimeOnly/DateOnly is not supported. Issue #25103.
-        await AssertTranslationFailed(() => base.FromDateTime_compared_to_property(async));
+        await AssertTranslationFailed(() => base.FromDateTime_compared_to_property());
 
         AssertSql();
     }
 
-    public override async Task FromDateTime_compared_to_parameter(bool async)
+    public override async Task FromDateTime_compared_to_parameter()
     {
         // TimeOnly/DateOnly is not supported. Issue #25103.
-        await AssertTranslationFailed(() => base.FromDateTime_compared_to_parameter(async));
+        await AssertTranslationFailed(() => base.FromDateTime_compared_to_parameter());
 
         AssertSql();
     }
 
-    public override async Task FromDateTime_compared_to_constant(bool async)
+    public override async Task FromDateTime_compared_to_constant()
     {
         // TimeOnly/DateOnly is not supported. Issue #25103.
-        await AssertTranslationFailed(() => base.FromDateTime_compared_to_constant(async));
+        await AssertTranslationFailed(() => base.FromDateTime_compared_to_constant());
 
         AssertSql();
     }
 
-    public override async Task FromTimeSpan_compared_to_property(bool async)
+    public override async Task FromTimeSpan_compared_to_property()
     {
         // TimeOnly/DateOnly is not supported. Issue #25103.
-        await AssertTranslationFailed(() => base.FromTimeSpan_compared_to_property(async));
+        await AssertTranslationFailed(() => base.FromTimeSpan_compared_to_property());
 
         AssertSql();
     }
 
-    public override async Task FromTimeSpan_compared_to_parameter(bool async)
+    public override async Task FromTimeSpan_compared_to_parameter()
     {
         // TimeOnly/DateOnly is not supported. Issue #25103.
-        await AssertTranslationFailed(() => base.FromTimeSpan_compared_to_parameter(async));
+        await AssertTranslationFailed(() => base.FromTimeSpan_compared_to_parameter());
 
         AssertSql();
     }
 
-    public override async Task Order_by_FromTimeSpan(bool async)
+    public override async Task Order_by_FromTimeSpan()
     {
         // TimeOnly/DateOnly is not supported. Issue #25103.
-        await AssertTranslationFailed(() => base.Order_by_FromTimeSpan(async));
+        await AssertTranslationFailed(() => base.Order_by_FromTimeSpan());
 
         AssertSql();
     }

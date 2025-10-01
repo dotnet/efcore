@@ -47,7 +47,7 @@ public class SqliteByteArrayMethodTranslator : IMethodCallTranslator
                 ? (SqlExpression)_sqlExpressionFactory.Constant(new[] { (byte)constantValue.Value! }, source.TypeMapping)
                 : _sqlExpressionFactory.Function(
                     "char",
-                    new[] { arguments[1] },
+                    [arguments[1]],
                     nullable: false,
                     argumentsPropagateNullability: Statics.FalseArrays[1],
                     typeof(string));
@@ -55,7 +55,7 @@ public class SqliteByteArrayMethodTranslator : IMethodCallTranslator
             return _sqlExpressionFactory.GreaterThan(
                 _sqlExpressionFactory.Function(
                     "instr",
-                    new[] { source, value },
+                    [source, value],
                     nullable: true,
                     argumentsPropagateNullability: Statics.TrueArrays[2],
                     typeof(int)),

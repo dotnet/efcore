@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -10,33 +9,35 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public partial class RelationalQueryableMethodTranslatingExpressionVisitor
 {
     /// <inheritdoc />
-    protected override DeleteExpression? TranslateExecuteDelete(ShapedQueryExpression source)
+    protected override DeleteExpression TranslateExecuteDelete(ShapedQueryExpression source)
     {
         source = source.UpdateShaperExpression(new IncludePruner().Visit(source.ShaperExpression));
 
         if (source.ShaperExpression is not StructuralTypeShaperExpression { StructuralType: IEntityType entityType } shaper)
         {
-            AddTranslationErrorDetails(RelationalStrings.ExecuteDeleteOnNonEntityType);
-            return null;
+            throw new InvalidOperationException(RelationalStrings.ExecuteDeleteOnNonEntityType);
         }
 
-        var mappingStrategy = entityType.GetMappingStrategy();
-        if (mappingStrategy == RelationalAnnotationNames.TptMappingStrategy)
+        if (entityType.IsMappedToJson())
         {
-            AddTranslationErrorDetails(
-                RelationalStrings.ExecuteOperationOnTPT(
-                    nameof(EntityFrameworkQueryableExtensions.ExecuteDelete), entityType.DisplayName()));
-            return null;
+            throw new InvalidOperationException(
+                RelationalStrings.ExecuteOperationOnOwnedJsonIsNotSupported("ExecuteDelete", entityType.DisplayName()));
         }
 
-        if (mappingStrategy == RelationalAnnotationNames.TpcMappingStrategy
-            && entityType.GetDirectlyDerivedTypes().Any())
+        switch (entityType.GetMappingStrategy())
         {
-            // We allow TPC is it is leaf type
-            AddTranslationErrorDetails(
-                RelationalStrings.ExecuteOperationOnTPC(
-                    nameof(EntityFrameworkQueryableExtensions.ExecuteDelete), entityType.DisplayName()));
-            return null;
+            case RelationalAnnotationNames.TptMappingStrategy:
+                throw new InvalidOperationException(
+                    RelationalStrings.ExecuteOperationOnTPT(
+                        nameof(EntityFrameworkQueryableExtensions.ExecuteDelete),
+                        entityType.DisplayName()));
+
+            // Note that we do allow TPC if the target is a leaf type
+            case RelationalAnnotationNames.TpcMappingStrategy when entityType.GetDirectlyDerivedTypes().Any():
+                throw new InvalidOperationException(
+                    RelationalStrings.ExecuteOperationOnTPC(
+                        nameof(EntityFrameworkQueryableExtensions.ExecuteDelete),
+                        entityType.DisplayName()));
         }
 
         // Find the table model that maps to the entity type; there must be exactly one (e.g. no entity splitting).
@@ -52,10 +53,9 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                 break;
 
             default:
-                AddTranslationErrorDetails(
+                throw new InvalidOperationException(
                     RelationalStrings.ExecuteOperationOnEntitySplitting(
                         nameof(EntityFrameworkQueryableExtensions.ExecuteDelete), entityType.DisplayName()));
-                return null;
         }
 
         var selectExpression = (SelectExpression)source.QueryExpression;
@@ -106,10 +106,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
             {
                 if (AreOtherNonOwnedEntityTypesInTheTable(entityType.GetRootType(), targetTable))
                 {
-                    AddTranslationErrorDetails(
+                    throw new InvalidOperationException(
                         RelationalStrings.ExecuteDeleteOnTableSplitting(unwrappedTableExpression.Table.SchemaQualifiedName));
-
-                    return null;
                 }
 
                 selectExpression.ReplaceProjection(new List<Expression>());
@@ -125,11 +123,10 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         var pk = entityType.FindPrimaryKey();
         if (pk == null)
         {
-            AddTranslationErrorDetails(
+            throw new InvalidOperationException(
                 RelationalStrings.ExecuteOperationOnKeylessEntityTypeWithUnsupportedOperator(
                     nameof(EntityFrameworkQueryableExtensions.ExecuteDelete),
                     entityType.DisplayName()));
-            return null;
         }
 
         var clrType = entityType.ClrType;
@@ -191,4 +188,14 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
             GroupBy: [],
             Having: null
         };
+
+    /// <summary>
+    ///     This method has been obsoleted, use the method accepting a single SelectExpression parameter instead.
+    /// </summary>
+    [Obsolete("This method has been obsoleted, use the method accepting a single SelectExpression parameter instead.", error: true)]
+    protected virtual bool IsValidSelectExpressionForExecuteDelete(
+        SelectExpression selectExpression,
+        StructuralTypeShaperExpression shaper,
+        [NotNullWhen(true)] out TableExpression? tableExpression)
+        => throw new UnreachableException();
 }

@@ -33,7 +33,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
     /// </summary>
     protected override Expression VisitShapedQuery(ShapedQueryExpression shapedQueryExpression)
     {
-        if (cosmosQueryCompilationContext.RootEntityType is not IEntityType rootEntityType)
+        if (cosmosQueryCompilationContext.RootEntityType is not { } rootEntityType)
         {
             throw new UnreachableException("No root entity type was set during query processing.");
         }
@@ -59,7 +59,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
         }
 
         shaperBody = new JObjectInjectingExpressionVisitor().Visit(shaperBody);
-        shaperBody = InjectEntityMaterializers(shaperBody);
+        shaperBody = InjectStructuralTypeMaterializers(shaperBody);
 
         if (shapedQueryExpression.QueryExpression is not SelectExpression selectExpression)
         {
@@ -88,7 +88,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
 
         return selectExpression switch
         {
-            { ReadItemInfo: ReadItemInfo readItemInfo } => New(
+            { ReadItemInfo: { } readItemInfo } => New(
                 typeof(ReadItemQueryingEnumerable<>).MakeGenericType(shaperLambda.ReturnType).GetConstructors()[0],
                 cosmosQueryContextConstant,
                 rootEntityTypeConstant,

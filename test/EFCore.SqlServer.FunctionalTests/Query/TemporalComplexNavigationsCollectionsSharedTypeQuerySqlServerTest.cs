@@ -1844,7 +1844,8 @@ ORDER BY [l].[Id], [l1].[Id], [l3].[Id]
 
         AssertSql(
             """
-@validIds='["L1 01","L1 02"]' (Size = 4000)
+@validIds1='L1 01' (Size = 4000)
+@validIds2='L1 02' (Size = 4000)
 
 SELECT CASE
     WHEN [s].[OneToOne_Required_PK_Date] IS NULL OR [s].[Level1_Required_Id] IS NULL OR [s].[OneToMany_Required_Inverse2Id] IS NULL OR CASE
@@ -1878,10 +1879,7 @@ LEFT JOIN (
 ) AS [l4] ON CASE
     WHEN [s].[OneToOne_Required_PK_Date] IS NOT NULL AND [s].[Level1_Required_Id] IS NOT NULL AND [s].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [s].[PeriodEnd0] IS NOT NULL AND [s].[PeriodStart0] IS NOT NULL THEN [s].[Id0]
 END = [l4].[OneToMany_Required_Inverse3Id]
-WHERE [l].[Name] IN (
-    SELECT [v].[value]
-    FROM OPENJSON(@validIds) WITH ([value] nvarchar(max) '$') AS [v]
-)
+WHERE [l].[Name] IN (@validIds1, @validIds2)
 ORDER BY [l].[Id], [s].[Id], [s].[Id0]
 """);
     }
@@ -3032,25 +3030,20 @@ ORDER BY [l].[Id], [s].[Date], [s].[Date0], [s].[Name]
 
         AssertSql(
             """
-@validIds='["L1 01","L1 02"]' (Size = 4000)
+@validIds1='L1 01' (Size = 4000)
+@validIds2='L1 02' (Size = 4000)
 
 SELECT [l1].[Date], [l2].[Id]
 FROM (
     SELECT [l].[Date]
     FROM [Level1] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l]
-    WHERE [l].[Name] IN (
-        SELECT [v].[value]
-        FROM OPENJSON(@validIds) WITH ([value] nvarchar(max) '$') AS [v]
-    )
+    WHERE [l].[Name] IN (@validIds1, @validIds2)
     GROUP BY [l].[Date]
 ) AS [l1]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[Date]
     FROM [Level1] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l0]
-    WHERE [l0].[Name] IN (
-        SELECT [v0].[value]
-        FROM OPENJSON(@validIds) WITH ([value] nvarchar(max) '$') AS [v0]
-    )
+    WHERE [l0].[Name] IN (@validIds1, @validIds2)
 ) AS [l2] ON [l1].[Date] = [l2].[Date]
 ORDER BY [l1].[Date]
 """);
@@ -3284,9 +3277,8 @@ ORDER BY [l3].[Id], [s].[c], [s].[Id1]
     public override async Task SelectMany_with_predicate_and_DefaultIfEmpty_projecting_root_collection_element_and_another_collection(
         bool async)
     {
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
-            () =>
-                base.SelectMany_with_predicate_and_DefaultIfEmpty_projecting_root_collection_element_and_another_collection(async));
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            base.SelectMany_with_predicate_and_DefaultIfEmpty_projecting_root_collection_element_and_another_collection(async));
 
         Assert.StartsWith(CoreStrings.ExpressionParameterizationExceptionSensitive("X").Substring(0, 30), exception.Message);
         Assert.True(exception.InnerException is InvalidCastException);

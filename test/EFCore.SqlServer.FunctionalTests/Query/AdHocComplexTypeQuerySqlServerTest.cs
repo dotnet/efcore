@@ -26,9 +26,21 @@ WHERE [e].[ComplexContainer_Id] = @entity_equality_container_Id AND [e].[Complex
         await base.Projecting_complex_property_does_not_auto_include_owned_types();
 
         AssertSql(
-"""
+            """
 SELECT [e].[Complex_Name], [e].[Complex_Number]
 FROM [EntityType] AS [e]
+""");
+    }
+
+    public override async Task Complex_type_equality_with_non_default_type_mapping()
+    {
+        await base.Complex_type_equality_with_non_default_type_mapping();
+
+        AssertSql(
+            """
+SELECT COUNT(*)
+FROM [EntityType] AS [e]
+WHERE [e].[ComplexThing_DateTime] = '2020-01-01T01:01:01.999'
 """);
     }
 

@@ -198,11 +198,11 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
         CoreTypeMapping? valuesTypeMapping = null;
         switch (inExpression)
         {
-            case { ValuesParameter: SqlParameterExpression parameter }:
+            case { ValuesParameter: { } parameter }:
                 valuesTypeMapping = parameter.TypeMapping;
                 break;
 
-            case { Values: IReadOnlyList<SqlExpression> values }:
+            case { Values: { } values }:
                 // Note: there could be conflicting type mappings inside the values; we take the first.
                 foreach (var value in values)
                 {
@@ -228,11 +228,11 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
 
         switch (inExpression)
         {
-            case { ValuesParameter: SqlParameterExpression parameter }:
+            case { ValuesParameter: { } parameter }:
                 inExpression = inExpression.Update(item, (SqlParameterExpression)ApplyTypeMapping(parameter, item.TypeMapping));
                 break;
 
-            case { Values: IReadOnlyList<SqlExpression> values }:
+            case { Values: { } values }:
                 SqlExpression[]? newValues = null;
 
                 if (missingTypeMappingInValues)
@@ -660,6 +660,27 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
         IEnumerable<Expression> arguments,
         Type returnType,
         CoreTypeMapping? typeMapping = null)
+        => BuildFunction(functionName, scoringFunction: false, arguments, returnType, typeMapping);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual SqlExpression ScoringFunction(
+        string functionName,
+        IEnumerable<Expression> arguments,
+        Type returnType,
+        CoreTypeMapping? typeMapping = null)
+        => BuildFunction(functionName, scoringFunction: true, arguments, returnType, typeMapping);
+
+    private SqlExpression BuildFunction(
+        string functionName,
+        bool scoringFunction,
+        IEnumerable<Expression> arguments,
+        Type returnType,
+        CoreTypeMapping? typeMapping = null)
     {
         var typeMappedArguments = new List<Expression>();
 
@@ -670,6 +691,7 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
 
         return new SqlFunctionExpression(
             functionName,
+            scoringFunction,
             typeMappedArguments,
             returnType,
             typeMapping);

@@ -24,8 +24,7 @@ public class EFTest
 
         Assert.Equal(
             CoreStrings.CompiledQueryDifferentModel("(c, p1) => c.Foos .Where(e => e.Bars.Contains(p1))"),
-            Assert.Throws<InvalidOperationException>(
-                    () => query(context2, new Bar()).ToList())
+            Assert.Throws<InvalidOperationException>(() => query(context2, new Bar()).ToList())
                 .Message.Replace("\r", "").Replace("\n", ""), ignoreWhiteSpaceDifferences: true);
 
         _ = query(context1, new Bar()).ToList();
@@ -44,8 +43,7 @@ public class EFTest
 
         Assert.Equal(
             CoreStrings.CompiledQueryDifferentModel("c => c.Foos"),
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => query(context2).ToListAsync().AsTask())).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => query(context2).ToListAsync().AsTask())).Message);
 
         _ = await query(context1).ToListAsync();
     }

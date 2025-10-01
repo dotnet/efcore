@@ -21,7 +21,7 @@ public sealed class SelectExpression : Expression, IPrintableExpression
     private readonly List<ProjectionExpression> _projection = [];
     private readonly List<OrderingExpression> _orderings = [];
 
-    private readonly List<(Expression ValueExpression, IProperty Property)> _partitionKeyValues = new();
+    private readonly List<(Expression ValueExpression, IProperty Property)> _partitionKeyValues = [];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -381,6 +381,12 @@ public sealed class SelectExpression : Expression, IPrintableExpression
     /// </summary>
     public void ApplyOrdering(OrderingExpression orderingExpression)
     {
+        if (orderingExpression is { Expression: SqlFunctionExpression { IsScoringFunction: true }, IsAscending: false })
+        {
+            throw new InvalidOperationException(
+                CosmosStrings.OrderByDescendingScoringFunction(nameof(Queryable.OrderByDescending), nameof(Queryable.OrderBy)));
+        }
+
         _orderings.Clear();
         _orderings.Add(orderingExpression);
     }
@@ -393,6 +399,19 @@ public sealed class SelectExpression : Expression, IPrintableExpression
     /// </summary>
     public void AppendOrdering(OrderingExpression orderingExpression)
     {
+        if (_orderings.Count > 0)
+        {
+            var existingScoringFunctionOrdering = _orderings is [{ Expression: SqlFunctionExpression { IsScoringFunction: true } }];
+            var appendingScoringFunctionOrdering = orderingExpression.Expression is SqlFunctionExpression { IsScoringFunction: true };
+            if (appendingScoringFunctionOrdering || existingScoringFunctionOrdering)
+            {
+                throw new InvalidOperationException(
+                    appendingScoringFunctionOrdering && existingScoringFunctionOrdering
+                        ? CosmosStrings.OrderByMultipleScoringFunctionWithoutRrf(nameof(CosmosDbFunctionsExtensions.Rrf))
+                        : CosmosStrings.OrderByScoringFunctionMixedWithRegularOrderby);
+            }
+        }
+
         if (_orderings.FirstOrDefault(o => o.Expression.Equals(orderingExpression.Expression)) == null)
         {
             _orderings.Add(orderingExpression);
@@ -516,7 +535,7 @@ public sealed class SelectExpression : Expression, IPrintableExpression
 
         return New(
             transparentIdentifierType.GetTypeInfo().DeclaredConstructors.Single(),
-            new[] { outerShaper, innerShaper }, outerMemberInfo, innerMemberInfo);
+            [outerShaper, innerShaper], outerMemberInfo, innerMemberInfo);
     }
 
     /// <summary>
@@ -752,6 +771,11 @@ public sealed class SelectExpression : Expression, IPrintableExpression
         if (Orderings.Any())
         {
             expressionPrinter.AppendLine().Append("ORDER BY ");
+            if (Orderings is [{ Expression: SqlFunctionExpression { IsScoringFunction: true } }])
+            {
+                expressionPrinter.Append("RANK ");
+            }
+
             expressionPrinter.VisitCollection(Orderings);
         }
 

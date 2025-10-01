@@ -60,8 +60,7 @@ public abstract class LoggingRelationalTestBase<TBuilder, TExtension> : LoggingT
                 RelationalResources.LogUnnamedIndexPropertiesBothMappedAndNotMappedToTable(CreateTestLogger())
                     .GenerateMessage(nameof(Cat), "{'Name', 'Identity'}", nameof(Cat.Identity)),
                 "RelationalEventId.IndexPropertiesBothMappedAndNotMappedToTable"),
-            Assert.Throws<InvalidOperationException>(
-                () => context.Model).Message);
+            Assert.Throws<InvalidOperationException>(() => context.Model).Message);
     }
 
     protected class IndexPropertiesBothMappedAndNotMappedToTableContext(DbContextOptionsBuilder optionsBuilder)
@@ -86,8 +85,7 @@ public abstract class LoggingRelationalTestBase<TBuilder, TExtension> : LoggingT
                     .GenerateMessage(
                         nameof(Cat), "{'Name', 'Identity'}", nameof(Animal.Name), "{'Animals'}", nameof(Cat.Identity), "{'Cats'}"),
                 "RelationalEventId.IndexPropertiesMappedToNonOverlappingTables"),
-            Assert.Throws<InvalidOperationException>(
-                () => context.Model).Message);
+            Assert.Throws<InvalidOperationException>(() => context.Model).Message);
     }
 
     protected class UnnamedIndexPropertiesMappedToNonOverlappingTablesContext(DbContextOptionsBuilder optionsBuilder)
@@ -111,16 +109,14 @@ public abstract class LoggingRelationalTestBase<TBuilder, TExtension> : LoggingT
             CoreStrings.WarningAsErrorTemplate(
                 RelationalEventId.ForeignKeyPropertiesMappedToUnrelatedTables.ToString(),
                 definition
-                    .GenerateMessage(
-                        l => l.Log(
-                            definition.Level,
-                            definition.EventId,
-                            definition.MessageFormat,
-                            "{'FavoritePersonId'}", nameof(Cat), nameof(Person), "{'FavoritePersonId'}", nameof(Cat), "{'Id'}",
-                            nameof(Person))),
+                    .GenerateMessage(l => l.Log(
+                        definition.Level,
+                        definition.EventId,
+                        definition.MessageFormat,
+                        "{'FavoritePersonId'}", nameof(Cat), nameof(Person), "{'FavoritePersonId'}", nameof(Cat), "{'Id'}",
+                        nameof(Person))),
                 "RelationalEventId.ForeignKeyPropertiesMappedToUnrelatedTables"),
-            Assert.Throws<InvalidOperationException>(
-                () => context.Model).Message);
+            Assert.Throws<InvalidOperationException>(() => context.Model).Message);
     }
 
     protected class ForeignKeyPropertiesMappedToUnrelatedTablesContext(DbContextOptionsBuilder optionsBuilder)

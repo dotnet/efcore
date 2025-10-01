@@ -40,8 +40,7 @@ public class SqlServerStringTypeMapping : StringTypeMapping
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    // TODO:SQLJSON Issue #34414
-    public static SqlServerStringTypeMapping JsonTypeDefault { get; } = new("json", sqlDbType: (SqlDbType)35);
+    public static SqlServerStringTypeMapping JsonTypeDefault { get; } = new("json", sqlDbType: SqlDbType.Json);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -158,9 +157,8 @@ public class SqlServerStringTypeMapping : StringTypeMapping
         var value = parameter.Value;
         var length = (value as string)?.Length;
 
-        // TODO:SQLJSON Issue #34414
         var sqlDbType = _sqlDbType
-            ?? (StoreType == "json" ? (SqlDbType)35 : null);
+            ?? (StoreType == "json" ? SqlDbType.Json : null);
 
         if (sqlDbType.HasValue
             && parameter is SqlParameter sqlParameter) // To avoid crashing wrapping providers

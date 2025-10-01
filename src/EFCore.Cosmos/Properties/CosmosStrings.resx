@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!--
-    Microsoft ResX Schema
-
+  <!-- 
+    Microsoft ResX Schema 
+    
     Version 2.0
-
-    The primary goals of this format is to allow a simple XML format
-    that is mostly human readable. The generation and parsing of the
-    various data types are done through the TypeConverter classes
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
     associated with the data types.
-
+    
     Example:
-
+    
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
     <resheader name="version">2.0</resheader>
@@ -26,36 +26,36 @@
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
-
-    There are any number of "resheader" rows that contain simple
+                
+    There are any number of "resheader" rows that contain simple 
     name/value pairs.
-
-    Each data row contains a name, and value. The row also contains a
-    type or mimetype. Type corresponds to a .NET class that support
-    text/value conversion through the TypeConverter architecture.
-    Classes that don't support this are serialized and stored with the
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
     mimetype set.
-
-    The mimetype is used for serialized objects, and tells the
-    ResXResourceReader how to depersist the object. This is currently not
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
     extensible. For a given mimetype the value must be set accordingly:
-
-    Note - application/x-microsoft.net.object.binary.base64 is the format
-    that the ResXResourceWriter will generate, however the reader can
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
     read any of the formats listed below.
-
+    
     mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with
+    value   : The object must be serialized with 
             : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
-
+    
     mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with
+    value   : The object must be serialized with 
             : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
             : and then encoded with base64 encoding.
 
     mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array
+    value   : The object must be serialized into a byte array 
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
@@ -132,6 +132,12 @@
   <data name="ComplexProjectionInSubqueryNotSupported" xml:space="preserve">
     <value>Complex projections in subqueries are currently unsupported.</value>
   </data>
+  <data name="ComplexTypeCollectionsNotSupported" xml:space="preserve">
+    <value>Complex type collections are currently not supported in Cosmos. Consider using owned type collections. Complex type: '{complexType}', property: '{property}'. See https://github.com/dotnet/efcore/issues/31253 for more details.</value>
+  </data>
+  <data name="CompositeFullTextIndex" xml:space="preserve">
+    <value>A full-text index on '{entityType}' is defined over multiple properties (`{properties}`). A full-text index can only target a single property.</value>
+  </data>
   <data name="CompositeVectorIndex" xml:space="preserve">
     <value>A vector index on '{entityType}' is defined over properties `{properties}`. A vector index can only target a single property.</value>
   </data>
@@ -146,6 +152,9 @@
   </data>
   <data name="CosmosNotInUse" xml:space="preserve">
     <value>Cosmos-specific methods can only be used when the context is using the Cosmos provider.</value>
+  </data>
+  <data name="CreatingContainerWithFullTextOrVectorOnCollectionNotSupported" xml:space="preserve">
+    <value>Creating a container with full-text search or vector properties inside a collection navigation is currently not supported using EF Core; path: '{path}'. Create the container using other means (e.g. Microsoft.Azure.Cosmos SDK).</value>
   </data>
   <data name="CrossDocumentJoinNotSupported" xml:space="preserve">
     <value>Joins across documents aren't supported in Cosmos; consider modeling your data differently so that related data is in the same document. Alternatively, perform two separate queries to query the two documents.</value>
@@ -168,6 +177,12 @@
   <data name="ExceptNotSupported" xml:space="preserve">
     <value>The 'Except()' LINQ operator isn't supported by Cosmos.</value>
   </data>
+  <data name="FullTextIndexOnNonFullTextProperty" xml:space="preserve">
+    <value>A full-text index is defined for `{entityType}.{property}`, but full-text search was not enabled for this property. Use '{enableFullText}' method in 'OnModelCreating' to enable full-text search for this property.</value>
+  </data>
+  <data name="FullTextSearchConfiguredForUnsupportedPropertyType" xml:space="preserve">
+    <value>Property '{entityType}.{property}' was configured for full-text search, but has type '{clrType}'; only string properties can be configured for full-text search.</value>
+  </data>
   <data name="HasShadowIdOnNonRoot" xml:space="preserve">
     <value>'HasShadowId' was called on a non-root entity type '{entityType}'. JSON 'id' configuration can only be made on the document root.</value>
   </data>
@@ -184,10 +199,10 @@
     <value>A FromSqlExpression has an invalid arguments expression type '{expressionType}' or value type '{valueType}'.</value>
   </data>
   <data name="InvalidResourceId" xml:space="preserve">
-    <value>Unable to generate a valid 'id' value to execute a 'ReadItem' query. This usually happens when the value provided for one of the properties is 'null' or an empty string. Please supply a value that's not 'null' or an empty string.</value>
+    <value>Unable to generate a valid 'id' value to execute a 'ReadItem' query. This usually happens when the value provided for one of the properties is 'null' or an empty string. Provide a value that's not 'null' or an empty string.</value>
   </data>
   <data name="IsDiscriminatorMappingCompleteMismatch" xml:space="preserve">
-    <value>The IsDiscriminatorMappingComplete setting was configured to '{isDiscriminatorMappingComplete1}' on '{entityType1}', but on '{entityType2}' it was configured to '{isDiscriminatorMappingComplete2}'. All entity types mapped to the same container '{container}' must be configured with the same IsDiscriminatorMappingComplete value.</value>
+    <value>The IsDiscriminatorMappingComplete setting was configured to '{isDiscriminatorMappingComplete1}' on '{entityType1}', but on '{entityType2}' it was configured to '{isDiscriminatorMappingComplete2}'. All entity types mapped to the same container '{container}' must be configured with the same 'IsDiscriminatorMappingComplete' value.</value>
   </data>
   <data name="JsonPropertyCollision" xml:space="preserve">
     <value>Both properties '{property1}' and '{property2}' on entity type '{entityType}' are mapped to '{storeName}'. Map one of the properties to a different JSON property.</value>
@@ -214,6 +229,10 @@
   <data name="LogExecutedReplaceItem" xml:space="preserve">
     <value>Executed ReplaceItem ({elapsed} ms, {charge} RU) ActivityId='{activityId}', Container='{container}', Id='{id}', Partition='{partitionKey}'</value>
     <comment>Information CosmosEventId.ExecutedReplaceItem string string string string string string?</comment>
+  </data>
+  <data name="LogExecutedTransactionalBatch" xml:space="preserve">
+    <value>Executed TransactionalBatch ({elapsed} ms, {charge} RU) ActivityId='{activityId}', Container='{container}', Partition='{partitionKey}', DocumentIds='{documentIds}'</value>
+    <comment>Information CosmosEventId.ExecutedTransactionalBatch string string string string string string?</comment>
   </data>
   <data name="LogExecutingReadItem" xml:space="preserve">
     <value>Reading resource '{resourceId}' item from container '{containerId}' in partition '{partitionKey}'.</value>
@@ -277,11 +296,17 @@
   <data name="OffsetRequiresLimit" xml:space="preserve">
     <value>Cosmos SQL does not allow Offset without Limit. Consider specifying a 'Take' operation on the query.</value>
   </data>
-  <data name="SingleFirstOrDefaultNotSupportedOnNonNullableQueries" xml:space="preserve">
-    <value>SingleOrDefault and FirstOrDefault cannot be used Cosmos SQL does not allow Offset without Limit. Consider specifying a 'Take' operation on the query.</value>
-  </data>
   <data name="OneOfTwoValuesMustBeSet" xml:space="preserve">
     <value>Exactly one of '{param1}' or '{param2}' must be set.</value>
+  </data>
+  <data name="OrderByDescendingScoringFunction" xml:space="preserve">
+    <value>Ordering based on scoring function is not supported inside '{orderByDescending}'. Use '{orderBy}' instead.</value>
+  </data>
+  <data name="OrderByMultipleScoringFunctionWithoutRrf" xml:space="preserve">
+    <value>Only one ordering using scoring function is allowed. Use 'EF.Functions.{rrf}' method to combine multiple scoring functions.</value>
+  </data>
+  <data name="OrderByScoringFunctionMixedWithRegularOrderby" xml:space="preserve">
+    <value>Ordering using a scoring function is mutually exclusive with other forms of ordering.</value>
   </data>
   <data name="OrphanedNestedDocument" xml:space="preserve">
     <value>The entity of type '{entityType}' is mapped as a part of the document mapped to '{missingEntityType}', but there is no tracked entity of this type with the corresponding key value. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.</value>
@@ -301,14 +326,14 @@
   <data name="PartitionKeyBadValueType" xml:space="preserve">
     <value>The partition key value supplied for '{propertyType}' property '{entityType}.{property}' is of type '{valueType}'. Partition key values must be of a type assignable to the property.</value>
   </data>
-  <data name="PartitionKeyNotOnRoot" xml:space="preserve">
-    <value>A partition key is defined on entity type '{entityType}', which inherits from '{baseEntityType}'. Partition keys must be defined on the root entity type of a hierarchy.</value>
-  </data>
   <data name="PartitionKeyMissing" xml:space="preserve">
     <value>Unable to execute a 'ReadItem' query since the partition key value is missing. Consider using the 'WithPartitionKey' method on the query to specify partition key to use.</value>
   </data>
   <data name="PartitionKeyMissingProperty" xml:space="preserve">
     <value>The partition key for entity type '{entityType}' is set to '{property}', but there is no property with that name.</value>
+  </data>
+  <data name="PartitionKeyNotOnRoot" xml:space="preserve">
+    <value>A partition key is defined on entity type '{entityType}', which inherits from '{baseEntityType}'. Partition keys must be defined on the root entity type of a hierarchy.</value>
   </data>
   <data name="PartitionKeyStoreNameMismatch" xml:space="preserve">
     <value>The partition key property '{property1}' on '{entityType1}' is mapped as '{storeName1}', but the partition key property '{property2}' on '{entityType2}' is mapped as '{storeName2}'. All partition key properties need to be mapped to the same store property for entity types mapped to the same container.</value>
@@ -318,6 +343,15 @@
   </data>
   <data name="ReverseAfterSkipTakeNotSupported" xml:space="preserve">
     <value>Reversing the ordering is not supported when limit or offset are already applied.</value>
+  </data>
+  <data name="SaveChangesAutoTransactionBehaviorAlwaysAtomicity" xml:space="preserve">
+    <value>When using AutoTransactionBehavior.Always with the Cosmos DB provider, all changed entities in a SaveChanges call must be in the same collection and partition and not exceed 100 entities to ensure atomicity.</value>
+  </data>
+  <data name="SaveChangesAutoTransactionBehaviorAlwaysTriggerAtomicity" xml:space="preserve">
+    <value>When using AutoTransactionBehavior.Always with the Cosmos DB provider, only 1 entity can be saved at a time when using pre- or post- triggers to ensure atomicity.</value>
+  </data>
+  <data name="SingleFirstOrDefaultNotSupportedOnNonNullableQueries" xml:space="preserve">
+    <value>SingleOrDefault and FirstOrDefault cannot be used Cosmos SQL does not allow Offset without Limit. Consider specifying a 'Take' operation on the query.</value>
   </data>
   <data name="ThroughputMismatch" xml:space="preserve">
     <value>The provisioned throughput was configured to '{throughput1}' on '{entityType1}', but on '{entityType2}' it was configured to '{throughput2}'. All entity types mapped to the same container '{container}' must be configured with the same provisioned throughput.</value>
@@ -330,6 +364,15 @@
   </data>
   <data name="TransactionsNotSupported" xml:space="preserve">
     <value>The Cosmos database provider does not support transactions.</value>
+  </data>
+  <data name="TriggerMissingOperation" xml:space="preserve">
+    <value>Trigger '{trigger}' on entity type '{entityType}' does not have a trigger operation configured. Use 'HasTriggerOperation()' to configure the trigger operation.</value>
+  </data>
+  <data name="TriggerMissingType" xml:space="preserve">
+    <value>Trigger '{trigger}' on entity type '{entityType}' does not have a trigger type configured. Use 'HasTriggerType()' to configure the trigger type.</value>
+  </data>
+  <data name="TriggerOnDerivedType" xml:space="preserve">
+    <value>Trigger '{trigger}' is defined on entity type '{entityType}' which inherits from '{baseType}'. Triggers can only be defined on root entity types.</value>
   </data>
   <data name="UnableToBindMemberToEntityProjection" xml:space="preserve">
     <value>Unable to bind '{memberType}' '{member}' to an entity projection of '{entityType}'.</value>
@@ -344,10 +387,10 @@
     <value>An error occurred while saving the item with id '{itemId}'. See the inner exception for details.</value>
   </data>
   <data name="VectorIndexOnNonVector" xml:space="preserve">
-    <value>A vector index is defined for `{entityType}.{property}`, but this property has not been configured as a vector. Use 'IsVector()' in 'OnModelCreating' to configure the property as a vector.</value>
+    <value>A vector index is defined for `{entityType}.{property}`, but this property has not been configured as a vector. Use 'IsVectorProperty()' in 'OnModelCreating' to configure the property as a vector.</value>
   </data>
   <data name="VectorSearchRequiresVector" xml:space="preserve">
-    <value>The 'VectorDistance' function can only be used with a property mapped as a vector. Use 'IsVector()' in 'OnModelCreating' to configure the property as a vector.</value>
+    <value>The 'VectorDistance' function can only be used with a property mapped as a vector. Use 'IsVectorProperty()' in 'OnModelCreating' to configure the property as a vector.</value>
   </data>
   <data name="VisitChildrenMustBeOverridden" xml:space="preserve">
     <value>'VisitChildren' must be overridden in the class deriving from 'SqlExpression'.</value>

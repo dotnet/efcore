@@ -47,6 +47,8 @@ public class ApiConsistencyTest(ApiConsistencyTest.ApiConsistencyFixture fixture
             typeof(ComplexPropertyBuilder<>),
             typeof(ComplexTypePrimitiveCollectionBuilder),
             typeof(ComplexTypePrimitiveCollectionBuilder<>),
+            typeof(ComplexCollectionBuilder),
+            typeof(ComplexCollectionBuilder<>),
             typeof(IndexBuilder),
             typeof(IndexBuilder<>),
             typeof(TriggerBuilder),
@@ -129,6 +131,12 @@ public class ApiConsistencyTest(ApiConsistencyTest.ApiConsistencyFixture fixture
                 nameof(ComplexPropertyBuilder.ComplexProperty), 0, [typeof(Type), typeof(string)]),
             typeof(ComplexPropertyBuilder).GetMethod(
                 nameof(ComplexPropertyBuilder.ComplexProperty), 0, [typeof(Type), typeof(string), typeof(string)]),
+            typeof(ComplexCollectionBuilder).GetMethod(
+                nameof(ComplexCollectionBuilder.ComplexCollection), 0, [typeof(string)]),
+            typeof(ComplexCollectionBuilder).GetMethod(
+                nameof(ComplexCollectionBuilder.ComplexCollection), 0, [typeof(Type), typeof(string)]),
+            typeof(ComplexCollectionBuilder).GetMethod(
+                nameof(ComplexCollectionBuilder.ComplexCollection), 0, [typeof(Type), typeof(string), typeof(string)]),
             typeof(OwnedNavigationBuilder).GetMethod(
                 nameof(OwnedNavigationBuilder.OwnsOne), 0, [typeof(string), typeof(string)]),
             typeof(OwnedNavigationBuilder).GetMethod(
@@ -190,7 +198,9 @@ public class ApiConsistencyTest(ApiConsistencyTest.ApiConsistencyFixture fixture
             typeof(IMutableModel).GetMethod(nameof(IMutableModel.AddOwned)),
             typeof(IMutableModel).GetMethod(nameof(IMutableModel.AddShared)),
             typeof(IMutableEntityType).GetMethod(nameof(IMutableEntityType.AddData)),
-            typeof(IConventionEntityType).GetMethod(nameof(IConventionEntityType.LeastDerivedType))
+            typeof(IConventionEntityType).GetMethod(nameof(IConventionEntityType.LeastDerivedType)),
+            typeof(IConventionEntityType).GetMethod(
+                nameof(IConventionEntityType.SetQueryFilter), [typeof(string), typeof(LambdaExpression), typeof(bool)])
         ];
     }
 }

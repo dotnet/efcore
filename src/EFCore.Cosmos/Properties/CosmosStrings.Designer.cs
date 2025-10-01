@@ -54,18 +54,34 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => GetString("CanConnectNotSupported");
 
         /// <summary>
+        ///     Complex projections in subqueries are currently unsupported.
+        /// </summary>
+        public static string ComplexProjectionInSubqueryNotSupported
+            => GetString("ComplexProjectionInSubqueryNotSupported");
+
+        /// <summary>
+        ///     Complex type collections are currently not supported in Cosmos. Consider using owned type collections. Complex type: '{complexType}', property: '{property}'. See https://github.com/dotnet/efcore/issues/31253 for more details.
+        /// </summary>
+        public static string ComplexTypeCollectionsNotSupported(object? complexType, object? property)
+            => string.Format(
+                GetString("ComplexTypeCollectionsNotSupported", nameof(complexType), nameof(property)),
+                complexType, property);
+
+        /// <summary>
+        ///     A full-text index on '{entityType}' is defined over multiple properties (`{properties}`). A full-text index can only target a single property.
+        /// </summary>
+        public static string CompositeFullTextIndex(object? entityType, object? properties)
+            => string.Format(
+                GetString("CompositeFullTextIndex", nameof(entityType), nameof(properties)),
+                entityType, properties);
+
+        /// <summary>
         ///     A vector index on '{entityType}' is defined over properties `{properties}`. A vector index can only target a single property.
         /// </summary>
         public static string CompositeVectorIndex(object? entityType, object? properties)
             => string.Format(
                 GetString("CompositeVectorIndex", nameof(entityType), nameof(properties)),
                 entityType, properties);
-
-        /// <summary>
-        ///     Complex projections in subqueries are currently unsupported.
-        /// </summary>
-        public static string ComplexProjectionInSubqueryNotSupported
-            => GetString("ComplexProjectionInSubqueryNotSupported");
 
         /// <summary>
         ///     None of connection string, CredentialToken, account key or account endpoint were specified. Specify a set of connection details.
@@ -94,6 +110,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
         /// </summary>
         public static string CosmosNotInUse
             => GetString("CosmosNotInUse");
+
+        /// <summary>
+        ///     Creating a container with full-text search or vector properties inside a collection navigation is currently not supported using EF Core; path: '{path}'. Create the container using other means (e.g. Microsoft.Azure.Cosmos SDK).
+        /// </summary>
+        public static string CreatingContainerWithFullTextOrVectorOnCollectionNotSupported(object? path)
+            => string.Format(
+                GetString("CreatingContainerWithFullTextOrVectorOnCollectionNotSupported", nameof(path)),
+                path);
 
         /// <summary>
         ///     Joins across documents aren't supported in Cosmos; consider modeling your data differently so that related data is in the same document. Alternatively, perform two separate queries to query the two documents.
@@ -148,6 +172,22 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => GetString("ExceptNotSupported");
 
         /// <summary>
+        ///     A full-text index is defined for `{entityType}.{property}`, but full-text search was not enabled for this property. Use '{enableFullText}' method in 'OnModelCreating' to enable full-text search for this property.
+        /// </summary>
+        public static string FullTextIndexOnNonFullTextProperty(object? entityType, object? property, object? enableFullText)
+            => string.Format(
+                GetString("FullTextIndexOnNonFullTextProperty", nameof(entityType), nameof(property), nameof(enableFullText)),
+                entityType, property, enableFullText);
+
+        /// <summary>
+        ///     Property '{entityType}.{property}' was configured for full-text search, but has type '{clrType}'; only string properties can be configured for full-text search.
+        /// </summary>
+        public static string FullTextSearchConfiguredForUnsupportedPropertyType(object? entityType, object? property, object? clrType)
+            => string.Format(
+                GetString("FullTextSearchConfiguredForUnsupportedPropertyType", nameof(entityType), nameof(property), nameof(clrType)),
+                entityType, property, clrType);
+
+        /// <summary>
         ///     'HasShadowId' was called on a non-root entity type '{entityType}'. JSON 'id' configuration can only be made on the document root.
         /// </summary>
         public static string HasShadowIdOnNonRoot(object? entityType)
@@ -188,13 +228,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 expressionType, valueType);
 
         /// <summary>
-        ///     Unable to generate a valid 'id' value to execute a 'ReadItem' query. This usually happens when the value provided for one of the properties is 'null' or an empty string. Please supply a value that's not 'null' or an empty string.
+        ///     Unable to generate a valid 'id' value to execute a 'ReadItem' query. This usually happens when the value provided for one of the properties is 'null' or an empty string. Provide a value that's not 'null' or an empty string.
         /// </summary>
         public static string InvalidResourceId
             => GetString("InvalidResourceId");
 
         /// <summary>
-        ///     The IsDiscriminatorMappingComplete setting was configured to '{isDiscriminatorMappingComplete1}' on '{entityType1}', but on '{entityType2}' it was configured to '{isDiscriminatorMappingComplete2}'. All entity types mapped to the same container '{container}' must be configured with the same IsDiscriminatorMappingComplete value.
+        ///     The IsDiscriminatorMappingComplete setting was configured to '{isDiscriminatorMappingComplete1}' on '{entityType1}', but on '{entityType2}' it was configured to '{isDiscriminatorMappingComplete2}'. All entity types mapped to the same container '{container}' must be configured with the same 'IsDiscriminatorMappingComplete' value.
         /// </summary>
         public static string IsDiscriminatorMappingCompleteMismatch(object? isDiscriminatorMappingComplete1, object? entityType1, object? entityType2, object? isDiscriminatorMappingComplete2, object? container)
             => string.Format(
@@ -328,6 +368,28 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 param1, param2);
 
         /// <summary>
+        ///     Ordering based on scoring function is not supported inside '{orderByDescending}'. Use '{orderBy}' instead.
+        /// </summary>
+        public static string OrderByDescendingScoringFunction(object? orderByDescending, object? orderBy)
+            => string.Format(
+                GetString("OrderByDescendingScoringFunction", nameof(orderByDescending), nameof(orderBy)),
+                orderByDescending, orderBy);
+
+        /// <summary>
+        ///     Only one ordering using scoring function is allowed. Use 'EF.Functions.{rrf}' method to combine multiple scoring functions.
+        /// </summary>
+        public static string OrderByMultipleScoringFunctionWithoutRrf(object? rrf)
+            => string.Format(
+                GetString("OrderByMultipleScoringFunctionWithoutRrf", nameof(rrf)),
+                rrf);
+
+        /// <summary>
+        ///     Ordering using a scoring function is mutually exclusive with other forms of ordering.
+        /// </summary>
+        public static string OrderByScoringFunctionMixedWithRegularOrderby
+            => GetString("OrderByScoringFunctionMixedWithRegularOrderby");
+
+        /// <summary>
         ///     The entity of type '{entityType}' is mapped as a part of the document mapped to '{missingEntityType}', but there is no tracked entity of this type with the corresponding key value. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.
         /// </summary>
         public static string OrphanedNestedDocument(object? entityType, object? missingEntityType)
@@ -376,14 +438,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 propertyType, entityType, property, valueType);
 
         /// <summary>
-        ///     A partition key is defined on entity type '{entityType}', which inherits from '{baseEntityType}'. Partition keys must be defined on the root entity type of a hierarchy.
-        /// </summary>
-        public static string PartitionKeyNotOnRoot(object? entityType, object? baseEntityType)
-            => string.Format(
-                GetString("PartitionKeyNotOnRoot", nameof(entityType), nameof(baseEntityType)),
-                entityType, baseEntityType);
-
-        /// <summary>
         ///     Unable to execute a 'ReadItem' query since the partition key value is missing. Consider using the 'WithPartitionKey' method on the query to specify partition key to use.
         /// </summary>
         public static string PartitionKeyMissing
@@ -396,6 +450,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => string.Format(
                 GetString("PartitionKeyMissingProperty", nameof(entityType), nameof(property)),
                 entityType, property);
+
+        /// <summary>
+        ///     A partition key is defined on entity type '{entityType}', which inherits from '{baseEntityType}'. Partition keys must be defined on the root entity type of a hierarchy.
+        /// </summary>
+        public static string PartitionKeyNotOnRoot(object? entityType, object? baseEntityType)
+            => string.Format(
+                GetString("PartitionKeyNotOnRoot", nameof(entityType), nameof(baseEntityType)),
+                entityType, baseEntityType);
 
         /// <summary>
         ///     The partition key property '{property1}' on '{entityType1}' is mapped as '{storeName1}', but the partition key property '{property2}' on '{entityType2}' is mapped as '{storeName2}'. All partition key properties need to be mapped to the same store property for entity types mapped to the same container.
@@ -418,18 +480,30 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => GetString("ReverseAfterSkipTakeNotSupported");
 
         /// <summary>
+        ///     When using AutoTransactionBehavior.Always with the Cosmos DB provider, all changed entities in a SaveChanges call must be in the same collection and partition and not exceed 100 entities to ensure atomicity.
+        /// </summary>
+        public static string SaveChangesAutoTransactionBehaviorAlwaysAtomicity
+            => GetString("SaveChangesAutoTransactionBehaviorAlwaysAtomicity");
+
+        /// <summary>
+        ///     When using AutoTransactionBehavior.Always with the Cosmos DB provider, only 1 entity can be saved at a time when using pre- or post- triggers to ensure atomicity.
+        /// </summary>
+        public static string SaveChangesAutoTransactionBehaviorAlwaysTriggerAtomicity
+            => GetString("SaveChangesAutoTransactionBehaviorAlwaysTriggerAtomicity");
+
+        /// <summary>
+        ///     SingleOrDefault and FirstOrDefault cannot be used Cosmos SQL does not allow Offset without Limit. Consider specifying a 'Take' operation on the query.
+        /// </summary>
+        public static string SingleFirstOrDefaultNotSupportedOnNonNullableQueries
+            => GetString("SingleFirstOrDefaultNotSupportedOnNonNullableQueries");
+
+        /// <summary>
         ///     The provisioned throughput was configured to '{throughput1}' on '{entityType1}', but on '{entityType2}' it was configured to '{throughput2}'. All entity types mapped to the same container '{container}' must be configured with the same provisioned throughput.
         /// </summary>
         public static string ThroughputMismatch(object? throughput1, object? entityType1, object? entityType2, object? throughput2, object? container)
             => string.Format(
                 GetString("ThroughputMismatch", nameof(throughput1), nameof(entityType1), nameof(entityType2), nameof(throughput2), nameof(container)),
                 throughput1, entityType1, entityType2, throughput2, container);
-
-        /// <summary>
-        ///     'ToPageAsync' can only be used as the terminating operator of the top-level query.
-        /// </summary>
-        public static string ToPageAsyncAtTopLevelOnly
-            => GetString("ToPageAsyncAtTopLevelOnly");
 
         /// <summary>
         ///     The provisioned throughput was configured as manual on '{manualEntityType}', but on '{autoscaleEntityType}' it was configured as autoscale. All entity types mapped to the same container '{container}' must be configured with the same provisioned throughput type.
@@ -440,10 +514,40 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 manualEntityType, autoscaleEntityType, container);
 
         /// <summary>
+        ///     'ToPageAsync' can only be used as the terminating operator of the top-level query.
+        /// </summary>
+        public static string ToPageAsyncAtTopLevelOnly
+            => GetString("ToPageAsyncAtTopLevelOnly");
+
+        /// <summary>
         ///     The Cosmos database provider does not support transactions.
         /// </summary>
         public static string TransactionsNotSupported
             => GetString("TransactionsNotSupported");
+
+        /// <summary>
+        ///     Trigger '{trigger}' on entity type '{entityType}' does not have a trigger operation configured. Use 'HasTriggerOperation()' to configure the trigger operation.
+        /// </summary>
+        public static string TriggerMissingOperation(object? trigger, object? entityType)
+            => string.Format(
+                GetString("TriggerMissingOperation", nameof(trigger), nameof(entityType)),
+                trigger, entityType);
+
+        /// <summary>
+        ///     Trigger '{trigger}' on entity type '{entityType}' does not have a trigger type configured. Use 'HasTriggerType()' to configure the trigger type.
+        /// </summary>
+        public static string TriggerMissingType(object? trigger, object? entityType)
+            => string.Format(
+                GetString("TriggerMissingType", nameof(trigger), nameof(entityType)),
+                trigger, entityType);
+
+        /// <summary>
+        ///     Trigger '{trigger}' is defined on entity type '{entityType}' which inherits from '{baseType}'. Triggers can only be defined on root entity types.
+        /// </summary>
+        public static string TriggerOnDerivedType(object? trigger, object? entityType, object? baseType)
+            => string.Format(
+                GetString("TriggerOnDerivedType", nameof(trigger), nameof(entityType), nameof(baseType)),
+                trigger, entityType, baseType);
 
         /// <summary>
         ///     Unable to bind '{memberType}' '{member}' to an entity projection of '{entityType}'.
@@ -478,7 +582,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 itemId);
 
         /// <summary>
-        ///     A vector index is defined for `{entityType}.{property}`, but this property has not been configured as a vector. Use 'IsVector()' in 'OnModelCreating' to configure the property as a vector.
+        ///     A vector index is defined for `{entityType}.{property}`, but this property has not been configured as a vector. Use 'IsVectorProperty()' in 'OnModelCreating' to configure the property as a vector.
         /// </summary>
         public static string VectorIndexOnNonVector(object? entityType, object? property)
             => string.Format(
@@ -486,7 +590,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 entityType, property);
 
         /// <summary>
-        ///     The 'VectorDistance' function can only be used with a property mapped as a vector. Use 'IsVector()' in 'OnModelCreating' to configure the property as a vector.
+        ///     The 'VectorDistance' function can only be used with a property mapped as a vector. Use 'IsVectorProperty()' in 'OnModelCreating' to configure the property as a vector.
         /// </summary>
         public static string VectorSearchRequiresVector
             => GetString("VectorSearchRequiresVector");
@@ -658,6 +762,31 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                             level,
                             CosmosEventId.ExecutedReplaceItem,
                             _resourceManager.GetString("LogExecutedReplaceItem")!)));
+            }
+
+            return (EventDefinition<string, string, string, string, string, string?>)definition;
+        }
+
+        /// <summary>
+        ///     Executed TransactionalBatch ({elapsed} ms, {charge} RU) ActivityId='{activityId}', Container='{container}', Partition='{partitionKey}', DocumentIds='{documentIds}'
+        /// </summary>
+        public static EventDefinition<string, string, string, string, string, string?> LogExecutedTransactionalBatch(IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.CosmosLoggingDefinitions)logger.Definitions).LogExecutedTransactionalBatch;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((Diagnostics.Internal.CosmosLoggingDefinitions)logger.Definitions).LogExecutedTransactionalBatch,
+                    logger,
+                    static logger => new EventDefinition<string, string, string, string, string, string?>(
+                        logger.Options,
+                        CosmosEventId.ExecutedTransactionalBatch,
+                        LogLevel.Information,
+                        "CosmosEventId.ExecutedTransactionalBatch",
+                        level => LoggerMessage.Define<string, string, string, string, string, string?>(
+                            level,
+                            CosmosEventId.ExecutedTransactionalBatch,
+                            _resourceManager.GetString("LogExecutedTransactionalBatch")!)));
             }
 
             return (EventDefinition<string, string, string, string, string, string?>)definition;

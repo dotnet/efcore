@@ -378,9 +378,9 @@ ORDER BY (
 """);
     }
 
-    public override async Task Default_if_empty_top_level(bool async)
+    public override async Task DefaultIfEmpty_top_level(bool async)
     {
-        await base.Default_if_empty_top_level(async);
+        await base.DefaultIfEmpty_top_level(async);
 
         AssertSql(
             """
@@ -396,9 +396,9 @@ LEFT JOIN (
 """);
     }
 
-    public override async Task Join_with_default_if_empty_on_both_sources(bool async)
+    public override async Task Join_with_DefaultIfEmpty_on_both_sources(bool async)
     {
-        await base.Join_with_default_if_empty_on_both_sources(async);
+        await base.Join_with_DefaultIfEmpty_on_both_sources(async);
 
         AssertSql(
             """
@@ -425,9 +425,9 @@ INNER JOIN (
 """);
     }
 
-    public override async Task Default_if_empty_top_level_followed_by_projecting_constant(bool async)
+    public override async Task DefaultIfEmpty_top_level_followed_by_constant_Select(bool async)
     {
-        await base.Default_if_empty_top_level_followed_by_projecting_constant(async);
+        await base.DefaultIfEmpty_top_level_followed_by_constant_Select(async);
 
         AssertSql(
             """
@@ -443,9 +443,27 @@ LEFT JOIN (
 """);
     }
 
-    public override async Task Default_if_empty_top_level_positive(bool async)
+    public override async Task DefaultIfEmpty_top_level_preceded_by_constant_Select(bool async)
     {
-        await base.Default_if_empty_top_level_positive(async);
+        await base.DefaultIfEmpty_top_level_preceded_by_constant_Select(async);
+
+        AssertSql(
+            """
+SELECT [e1].[c]
+FROM (
+    SELECT 1 AS empty
+) AS [e0]
+LEFT JOIN (
+    SELECT N'Foo' AS [c]
+    FROM [Employees] AS [e]
+    WHERE [e].[EmployeeID] = -1
+) AS [e1] ON 1 = 1
+""");
+    }
+
+    public override async Task DefaultIfEmpty_top_level_positive(bool async)
+    {
+        await base.DefaultIfEmpty_top_level_positive(async);
 
         AssertSql(
             """
@@ -461,9 +479,9 @@ LEFT JOIN (
 """);
     }
 
-    public override async Task Default_if_empty_top_level_projection(bool async)
+    public override async Task DefaultIfEmpty_top_level_projection(bool async)
     {
-        await base.Default_if_empty_top_level_projection(async);
+        await base.DefaultIfEmpty_top_level_projection(async);
 
         AssertSql(
             """
@@ -2635,9 +2653,8 @@ ORDER BY [o0].[CustomerID]
         Select_DTO_constructor_distinct_with_collection_projection_translated_to_server_with_binding_after_client_eval(bool async)
     {
         // Allow binding of expressions after projection has turned to client eval. Issue #24478.
-        await Assert.ThrowsAsync<TrueException>(
-            () => base
-                .Select_DTO_constructor_distinct_with_collection_projection_translated_to_server_with_binding_after_client_eval(async));
+        await Assert.ThrowsAsync<TrueException>(() => base
+            .Select_DTO_constructor_distinct_with_collection_projection_translated_to_server_with_binding_after_client_eval(async));
 
         AssertSql(
             """
@@ -2841,6 +2858,41 @@ ORDER BY CASE
     WHEN [c].[Region] IS NULL THEN N'ZZ'
     ELSE [c].[Region]
 END, [c].[CustomerID]
+""");
+    }
+
+    public override async Task Coalesce_Correct_Multiple_Same_TypeMapping(bool async)
+    {
+        await base.Coalesce_Correct_Multiple_Same_TypeMapping(async);
+
+        AssertSql(
+            """
+SELECT ISNULL(ISNULL(CAST([e].[ReportsTo] AS bigint) + CAST(1 AS bigint), CAST([e].[ReportsTo] AS bigint) + CAST(2 AS bigint)), CAST([e].[ReportsTo] AS bigint) + CAST(3 AS bigint))
+FROM [Employees] AS [e]
+ORDER BY [e].[EmployeeID]
+""");
+    }
+
+    public override async Task Coalesce_Correct_TypeMapping_Double(bool async)
+    {
+        await base.Coalesce_Correct_TypeMapping_Double(async);
+
+        AssertSql(
+            """
+SELECT COALESCE([e].[ReportsTo], 2.25)
+FROM [Employees] AS [e]
+""");
+    }
+
+    public override async Task Coalesce_Correct_TypeMapping_String(bool async)
+    {
+        await base.Coalesce_Correct_TypeMapping_String(async);
+
+        AssertSql(
+            """
+SELECT COALESCE([c].[Region], N'no region specified')
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]
 """);
     }
 
@@ -3794,25 +3846,20 @@ LEFT JOIN [Employees] AS [e0] ON [e].[EmployeeID] = [e0].[ReportsTo]
 
         AssertSql(
             """
-@dates='["1996-07-04T00:00:00","1996-07-16T00:00:00"]' (Size = 4000)
+@dates1='1996-07-04T00:00:00.0000000' (DbType = DateTime)
+@dates2='1996-07-16T00:00:00.0000000' (DbType = DateTime)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE CONVERT(date, [o].[OrderDate]) IN (
-    SELECT [d].[value]
-    FROM OPENJSON(@dates) WITH ([value] datetime '$') AS [d]
-)
+WHERE CONVERT(date, [o].[OrderDate]) IN (@dates1, @dates2)
 """,
             //
             """
-@dates='["1996-07-04T00:00:00"]' (Size = 4000)
+@dates1='1996-07-04T00:00:00.0000000' (DbType = DateTime)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE CONVERT(date, [o].[OrderDate]) IN (
-    SELECT [d].[value]
-    FROM OPENJSON(@dates) WITH ([value] datetime '$') AS [d]
-)
+WHERE CONVERT(date, [o].[OrderDate]) = @dates1
 """);
     }
 
@@ -4833,17 +4880,8 @@ FROM (
 
         AssertSql(
             """
-@list='[]' (Size = 4000)
-
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-ORDER BY CASE
-    WHEN [c].[CustomerID] IN (
-        SELECT [l].[value]
-        FROM OPENJSON(@list) WITH ([value] nchar(5) '$') AS [l]
-    ) THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END
 """);
     }
 
@@ -4853,17 +4891,8 @@ END
 
         AssertSql(
             """
-@list='[]' (Size = 4000)
-
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-ORDER BY CASE
-    WHEN [c].[CustomerID] NOT IN (
-        SELECT [l].[value]
-        FROM OPENJSON(@list) WITH ([value] nchar(5) '$') AS [l]
-    ) THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END
 """);
     }
 
@@ -5391,9 +5420,11 @@ WHERE [c].[CustomerID] = @entity_equality_a_CustomerID
 
         AssertSql(
             """
+@entity_equality_customers_CustomerID1='ALFKI' (Size = 5) (DbType = StringFixedLength)
+
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = N'ALFKI'
+WHERE [c].[CustomerID] = @entity_equality_customers_CustomerID1
 """);
     }
 
@@ -5795,9 +5826,8 @@ ORDER BY [c].[CustomerID]
 
     [ConditionalFact]
     public async Task Single_Predicate_Cancellation()
-        => await Assert.ThrowsAnyAsync<OperationCanceledException>(
-            async () =>
-                await Single_Predicate_Cancellation_test(Fixture.TestSqlLoggerFactory.CancelQuery()));
+        => await Assert.ThrowsAnyAsync<OperationCanceledException>(async () =>
+            await Single_Predicate_Cancellation_test(Fixture.TestSqlLoggerFactory.CancelQuery()));
 
     [ConditionalFact]
     public Task Query_compiler_concurrency()
@@ -5808,25 +5838,25 @@ ORDER BY [c].[CustomerID]
 
         for (var i = 0; i < threadCount; i++)
         {
-            tasks[i] = Task.Run(
-                () =>
-                {
-                    using var context = CreateContext();
-                    using ((from c in context.Customers
-                            where c.City == "London"
-                            orderby c.CustomerID
-                            select (from o1 in context.Orders
-                                    where o1.CustomerID == c.CustomerID
-                                        && o1.OrderDate.Value.Year == 1997
-                                    orderby o1.OrderID
-                                    select (from o2 in context.Orders
-                                            where o1.CustomerID == c.CustomerID
-                                            orderby o2.OrderID
-                                            select o1.OrderID).ToList()).ToList())
+            tasks[i] = Task.Run(() =>
+            {
+                using var context = CreateContext();
+                using (context.Customers
+                           .Where(c => c.City == "London")
+                           .OrderBy(c => c.CustomerID)
+                           .Select(c => context.Orders
+                               .Where(o1 => o1.CustomerID == c.CustomerID && o1.OrderDate.Value.Year == 1997)
+                               .OrderBy(o1 => o1.OrderID)
+                               .Select(o1 => context.Orders
+                                   .Where(o2 => o1.CustomerID == c.CustomerID)
+                                   .OrderBy(o2 => o2.OrderID)
+                                   .Select(o2 => o1.OrderID)
+                                   .ToList())
+                               .ToList())
                            .GetEnumerator())
-                    {
-                    }
-                });
+                {
+                }
+            });
         }
 
         return Task.WhenAll(tasks);
@@ -6040,15 +6070,21 @@ WHERE [c].[CustomerID] = N'ALFKI'
 """,
             //
             """
-@orderIds='[10643,10692,10702,10835,10952,11011]' (Size = 4000)
+@orderIds1='10643'
+@orderIds2='10692'
+@orderIds3='10702'
+@orderIds4='10835'
+@orderIds5='10952'
+@orderIds6='11011'
+@orderIds7='11011'
+@orderIds8='11011'
+@orderIds9='11011'
+@orderIds10='11011'
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
-WHERE [o].[OrderID] IN (
-    SELECT [o0].[value]
-    FROM OPENJSON(@orderIds) WITH ([value] int '$') AS [o0]
-)
+WHERE [o].[OrderID] IN (@orderIds1, @orderIds2, @orderIds3, @orderIds4, @orderIds5, @orderIds6, @orderIds7, @orderIds8, @orderIds9, @orderIds10)
 """);
     }
 
@@ -6282,6 +6318,38 @@ SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[Cont
 FROM [Customers] AS [c]
 INNER JOIN [Employees] AS [e] ON [c].[City] = [e].[City]
 ORDER BY [c].[CustomerID], [e].[EmployeeID]
+""");
+    }
+
+    public override async Task SelectMany_correlated_with_DefaultIfEmpty_and_Select_value_type_in_selector_throws(bool async)
+    {
+        await base.SelectMany_correlated_with_DefaultIfEmpty_and_Select_value_type_in_selector_throws(async);
+
+        AssertSql(
+            """
+SELECT [o0].[OrderID]
+FROM [Customers] AS [c]
+LEFT JOIN (
+    SELECT [o].[OrderID], [o].[CustomerID]
+    FROM [Orders] AS [o]
+    WHERE [o].[CustomerID] = N'NONEXISTENT'
+) AS [o0] ON [c].[CustomerID] = [o0].[CustomerID]
+""");
+    }
+
+    public override async Task SelectMany_correlated_with_Select_value_type_and_DefaultIfEmpty_in_selector(bool async)
+    {
+        await base.SelectMany_correlated_with_Select_value_type_and_DefaultIfEmpty_in_selector(async);
+
+        AssertSql(
+            """
+SELECT COALESCE([o0].[OrderID], 0)
+FROM [Customers] AS [c]
+OUTER APPLY (
+    SELECT TOP(2) [o].[OrderID]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID] AND [o].[CustomerID] = N'NONEXISTENT'
+) AS [o0]
 """);
     }
 
@@ -6642,8 +6710,7 @@ FROM [Orders] AS [o]
             CoreStrings.ClientProjectionCapturingConstantInMethodInstance(
                 "Microsoft.EntityFrameworkCore.Query.NorthwindMiscellaneousQuerySqlServerTest",
                 "InstanceMethod"),
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Client_code_using_instance_method_throws(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Client_code_using_instance_method_throws(async))).Message);
 
         AssertSql();
     }
@@ -6654,8 +6721,7 @@ FROM [Orders] AS [o]
             CoreStrings.ClientProjectionCapturingConstantInMethodArgument(
                 "Microsoft.EntityFrameworkCore.Query.NorthwindMiscellaneousQuerySqlServerTest",
                 "StaticMethod"),
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Client_code_using_instance_in_static_method(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Client_code_using_instance_in_static_method(async))).Message);
 
         AssertSql();
     }
@@ -6665,8 +6731,7 @@ FROM [Orders] AS [o]
         Assert.Equal(
             CoreStrings.ClientProjectionCapturingConstantInTree(
                 "Microsoft.EntityFrameworkCore.Query.NorthwindMiscellaneousQuerySqlServerTest"),
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Client_code_using_instance_in_anonymous_type(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Client_code_using_instance_in_anonymous_type(async))).Message);
 
         AssertSql();
     }
@@ -6759,16 +6824,16 @@ FROM [Orders] AS [o]
         AssertSql();
     }
 
-    public override async Task Default_if_empty_top_level_arg(bool async)
+    public override async Task DefaultIfEmpty_top_level_arg(bool async)
     {
-        await base.Default_if_empty_top_level_arg(async);
+        await base.DefaultIfEmpty_top_level_arg(async);
 
         AssertSql();
     }
 
-    public override async Task Default_if_empty_top_level_arg_followed_by_projecting_constant(bool async)
+    public override async Task DefaultIfEmpty_top_level_arg_followed_by_projecting_constant(bool async)
     {
-        await base.Default_if_empty_top_level_arg_followed_by_projecting_constant(async);
+        await base.DefaultIfEmpty_top_level_arg_followed_by_projecting_constant(async);
 
         AssertSql();
     }
@@ -6838,8 +6903,8 @@ WHERE (
 
     public override async Task Entity_equality_through_subquery_composite_key(bool async)
     {
-        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
-            () => base.Entity_equality_through_subquery_composite_key(async))).Message;
+        var message =
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Entity_equality_through_subquery_composite_key(async))).Message;
 
         Assert.Equal(
             CoreStrings.EntityEqualityOnCompositeKeyEntitySubqueryNotSupported("==", nameof(OrderDetail)),
@@ -6985,7 +7050,7 @@ WHERE NOT EXISTS (
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE (
-    SELECT COALESCE(SUM([v].[Value]), 0)
+    SELECT ISNULL(SUM([v].[Value]), 0)
     FROM (VALUES (CAST(100 AS int)), ((
         SELECT COUNT(*)
         FROM [Orders] AS [o]
@@ -6999,30 +7064,22 @@ WHERE (
 
         AssertSql(
             """
-@ids='[10248,10249]' (Size = 4000)
+@ids1='10248'
+@ids2='10249'
 
 SELECT [o].[Quantity] AS [Key], (
     SELECT MAX([o1].[OrderDate])
     FROM [Order Details] AS [o0]
     INNER JOIN [Orders] AS [o1] ON [o0].[OrderID] = [o1].[OrderID]
-    WHERE [o0].[OrderID] IN (
-        SELECT [i0].[value]
-        FROM OPENJSON(@ids) WITH ([value] int '$') AS [i0]
-    ) AND [o].[Quantity] = [o0].[Quantity]) AS [MaxTimestamp]
+    WHERE [o0].[OrderID] IN (@ids1, @ids2) AND [o].[Quantity] = [o0].[Quantity]) AS [MaxTimestamp]
 FROM [Order Details] AS [o]
-WHERE [o].[OrderID] IN (
-    SELECT [i].[value]
-    FROM OPENJSON(@ids) WITH ([value] int '$') AS [i]
-)
+WHERE [o].[OrderID] IN (@ids1, @ids2)
 GROUP BY [o].[Quantity]
 ORDER BY (
     SELECT MAX([o1].[OrderDate])
     FROM [Order Details] AS [o0]
     INNER JOIN [Orders] AS [o1] ON [o0].[OrderID] = [o1].[OrderID]
-    WHERE [o0].[OrderID] IN (
-        SELECT [i0].[value]
-        FROM OPENJSON(@ids) WITH ([value] int '$') AS [i0]
-    ) AND [o].[Quantity] = [o0].[Quantity])
+    WHERE [o0].[OrderID] IN (@ids1, @ids2) AND [o].[Quantity] = [o0].[Quantity])
 """);
     }
 
@@ -7032,14 +7089,12 @@ ORDER BY (
 
         AssertSql(
             """
-@data='["ALFKIAlfreds Futterkiste","ANATRAna Trujillo Emparedados y helados"]' (Size = 4000)
+@data1='ALFKIAlfreds Futterkiste' (Size = 45)
+@data2='ANATRAna Trujillo Emparedados y helados' (Size = 45)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] + [c].[CompanyName] IN (
-    SELECT [d].[value]
-    FROM OPENJSON(@data) WITH ([value] nvarchar(45) '$') AS [d]
-)
+WHERE [c].[CustomerID] + [c].[CompanyName] IN (@data1, @data2)
 """);
     }
 
@@ -7049,14 +7104,13 @@ WHERE [c].[CustomerID] + [c].[CompanyName] IN (
 
         AssertSql(
             """
-@data='["ALFKISomeConstant","ANATRSomeConstant","ALFKIX"]' (Size = 4000)
+@data1='ALFKISomeConstant' (Size = 4000)
+@data2='ANATRSomeConstant' (Size = 4000)
+@data3='ALFKIX' (Size = 4000)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] + N'SomeConstant' IN (
-    SELECT [d].[value]
-    FROM OPENJSON(@data) WITH ([value] nvarchar(max) '$') AS [d]
-)
+WHERE [c].[CustomerID] + N'SomeConstant' IN (@data1, @data2, @data3)
 """);
     }
 
@@ -7066,15 +7120,15 @@ WHERE [c].[CustomerID] + N'SomeConstant' IN (
 
         AssertSql(
             """
-@data='["ALFKIALFKI","ALFKI","ANATRAna Trujillo Emparedados y helados","ANATRANATR"]' (Size = 4000)
+@data1='ALFKIALFKI' (Size = 10) (DbType = StringFixedLength)
+@data2='ALFKI' (Size = 10)
+@data3='ANATRAna Trujillo Emparedados y helados' (Size = 4000)
+@data4='ANATRANATR' (Size = 10) (DbType = StringFixedLength)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
-WHERE COALESCE([o].[CustomerID], N'') + COALESCE([c].[CustomerID], N'') IN (
-    SELECT [d].[value]
-    FROM OPENJSON(@data) WITH ([value] nchar(10) '$') AS [d]
-)
+WHERE COALESCE([o].[CustomerID], N'') + COALESCE([c].[CustomerID], N'') IN (@data1, @data2, @data3, @data4)
 """);
     }
 
@@ -7085,14 +7139,13 @@ WHERE COALESCE([o].[CustomerID], N'') + COALESCE([c].[CustomerID], N'') IN (
         AssertSql(
             """
 @someVariable='SomeVariable' (Size = 4000)
-@data='["ALFKISomeVariable","ANATRSomeVariable","ALFKIX"]' (Size = 4000)
+@data1='ALFKISomeVariable' (Size = 4000)
+@data2='ANATRSomeVariable' (Size = 4000)
+@data3='ALFKIX' (Size = 4000)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] + @someVariable IN (
-    SELECT [d].[value]
-    FROM OPENJSON(@data) WITH ([value] nvarchar(max) '$') AS [d]
-)
+WHERE [c].[CustomerID] + @someVariable IN (@data1, @data2, @data3)
 """);
     }
 
@@ -7173,7 +7226,8 @@ WHERE (
     {
         await base.Where_nanosecond_and_microsecond_component(async);
 
-        AssertSql("""
+        AssertSql(
+            """
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE (DATEPART(nanosecond, [o].[OrderDate]) % 1000 <> 0 OR [o].[OrderDate] IS NULL) AND (DATEPART(microsecond, [o].[OrderDate]) % 1000 <> 0 OR [o].[OrderDate] IS NULL)

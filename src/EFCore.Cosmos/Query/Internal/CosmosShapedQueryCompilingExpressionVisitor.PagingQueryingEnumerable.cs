@@ -67,7 +67,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             _cosmosContainer = rootEntityType.GetContainer()
                 ?? throw new UnreachableException("Root entity type without a Cosmos container.");
             _cosmosPartitionKey = GeneratePartitionKey(
-                rootEntityType, partitionKeyPropertyValues, _cosmosQueryContext.ParameterValues);
+                rootEntityType, partitionKeyPropertyValues, _cosmosQueryContext.Parameters);
         }
 
         public IAsyncEnumerator<CosmosPage<T>> GetAsyncEnumerator(CancellationToken cancellationToken = default)
@@ -75,11 +75,11 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
         private CosmosSqlQuery GenerateQuery()
             => _querySqlGeneratorFactory.Create().GetSqlQuery(
-                (SelectExpression)new InExpressionValuesExpandingExpressionVisitor(
+                (SelectExpression)new ParameterInliner(
                         _sqlExpressionFactory,
-                        _cosmosQueryContext.ParameterValues)
+                        _cosmosQueryContext.Parameters)
                     .Visit(_selectExpression),
-                _cosmosQueryContext.ParameterValues);
+                _cosmosQueryContext.Parameters);
 
         private sealed class AsyncEnumerator : IAsyncEnumerator<CosmosPage<T>>
         {
@@ -135,11 +135,11 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                     _hasExecuted = true;
 
-                    var maxItemCount = (int)_cosmosQueryContext.ParameterValues[_queryingEnumerable._maxItemCountParameterName];
+                    var maxItemCount = (int)_cosmosQueryContext.Parameters[_queryingEnumerable._maxItemCountParameterName];
                     var continuationToken =
-                        (string)_cosmosQueryContext.ParameterValues[_queryingEnumerable._continuationTokenParameterName];
+                        (string)_cosmosQueryContext.Parameters[_queryingEnumerable._continuationTokenParameterName];
                     var responseContinuationTokenLimitInKb = (int?)
-                        _cosmosQueryContext.ParameterValues[_queryingEnumerable._responseContinuationTokenLimitInKbParameterName];
+                        _cosmosQueryContext.Parameters[_queryingEnumerable._responseContinuationTokenLimitInKbParameterName];
 
                     var sqlQuery = _queryingEnumerable.GenerateQuery();
 

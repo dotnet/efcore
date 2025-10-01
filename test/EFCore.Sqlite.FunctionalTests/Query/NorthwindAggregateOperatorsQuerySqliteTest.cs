@@ -114,17 +114,14 @@ FROM (
     public override async Task Multiple_collection_navigation_with_FirstOrDefault_chained(bool async)
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Multiple_collection_navigation_with_FirstOrDefault_chained(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(()
+                => base.Multiple_collection_navigation_with_FirstOrDefault_chained(async))).Message);
 
-    // TODO: The base implementations no longer compile since https://github.com/dotnet/runtime/pull/110197 (Contains overload added with
-    // optional parameter, not supported in expression trees). #35547 is tracking on the EF side.
-    //
-    // public override async Task Contains_with_local_anonymous_type_array_closure(bool async)
-    //     => await AssertTranslationFailed(() => base.Contains_with_local_anonymous_type_array_closure(async));
-    //
-    // public override async Task Contains_with_local_tuple_array_closure(bool async)
-    //     => await AssertTranslationFailed(() => base.Contains_with_local_tuple_array_closure(async));
+    public override async Task Contains_with_local_anonymous_type_array_closure(bool async)
+        => await AssertTranslationFailed(() => base.Contains_with_local_anonymous_type_array_closure(async));
+
+    public override async Task Contains_with_local_tuple_array_closure(bool async)
+        => await AssertTranslationFailed(() => base.Contains_with_local_tuple_array_closure(async));
 
     public override async Task Contains_inside_aggregate_function_with_GroupBy(bool async)
     {
@@ -132,13 +129,11 @@ FROM (
 
         AssertSql(
             """
-@cities='["London","Berlin"]' (Size = 19)
+@cities1='London' (Size = 6)
+@cities2='Berlin' (Size = 6)
 
 SELECT COUNT(CASE
-    WHEN "c"."City" IN (
-        SELECT "c0"."value"
-        FROM json_each(@cities) AS "c0"
-    ) THEN 1
+    WHEN "c"."City" IN (@cities1, @cities2) THEN 1
 END)
 FROM "Customers" AS "c"
 GROUP BY "c"."Country"
@@ -151,13 +146,11 @@ GROUP BY "c"."Country"
 
         AssertSql(
             """
-@cities='["London","Berlin"]' (Size = 19)
+@cities1='London' (Size = 6)
+@cities2='Berlin' (Size = 6)
 
 SELECT AVG(CASE
-    WHEN "c"."City" IN (
-        SELECT "c0"."value"
-        FROM json_each(@cities) AS "c0"
-    ) THEN 1.0
+    WHEN "c"."City" IN (@cities1, @cities2) THEN 1.0
     ELSE 0.0
 END)
 FROM "Customers" AS "c"
@@ -170,13 +163,11 @@ FROM "Customers" AS "c"
 
         AssertSql(
             """
-@cities='["London","Berlin"]' (Size = 19)
+@cities1='London' (Size = 6)
+@cities2='Berlin' (Size = 6)
 
 SELECT COALESCE(SUM(CASE
-    WHEN "c"."City" IN (
-        SELECT "c0"."value"
-        FROM json_each(@cities) AS "c0"
-    ) THEN 1
+    WHEN "c"."City" IN (@cities1, @cities2) THEN 1
     ELSE 0
 END), 0)
 FROM "Customers" AS "c"
@@ -189,14 +180,12 @@ FROM "Customers" AS "c"
 
         AssertSql(
             """
-@cities='["London","Berlin"]' (Size = 19)
+@cities1='London' (Size = 6)
+@cities2='Berlin' (Size = 6)
 
 SELECT COUNT(*)
 FROM "Customers" AS "c"
-WHERE "c"."City" IN (
-    SELECT "c0"."value"
-    FROM json_each(@cities) AS "c0"
-)
+WHERE "c"."City" IN (@cities1, @cities2)
 """);
     }
 
@@ -206,14 +195,12 @@ WHERE "c"."City" IN (
 
         AssertSql(
             """
-@cities='["London","Berlin"]' (Size = 19)
+@cities1='London' (Size = 6)
+@cities2='Berlin' (Size = 6)
 
 SELECT COUNT(*)
 FROM "Customers" AS "c"
-WHERE "c"."City" IN (
-    SELECT "c0"."value"
-    FROM json_each(@cities) AS "c0"
-)
+WHERE "c"."City" IN (@cities1, @cities2)
 """);
     }
 
@@ -223,13 +210,11 @@ WHERE "c"."City" IN (
 
         AssertSql(
             """
-@cities='["London","Berlin"]' (Size = 19)
+@cities1='London' (Size = 6)
+@cities2='Berlin' (Size = 6)
 
 SELECT MAX(CASE
-    WHEN "c"."City" IN (
-        SELECT "c0"."value"
-        FROM json_each(@cities) AS "c0"
-    ) THEN 1
+    WHEN "c"."City" IN (@cities1, @cities2) THEN 1
     ELSE 0
 END)
 FROM "Customers" AS "c"
@@ -242,13 +227,11 @@ FROM "Customers" AS "c"
 
         AssertSql(
             """
-@cities='["London","Berlin"]' (Size = 19)
+@cities1='London' (Size = 6)
+@cities2='Berlin' (Size = 6)
 
 SELECT MIN(CASE
-    WHEN "c"."City" IN (
-        SELECT "c0"."value"
-        FROM json_each(@cities) AS "c0"
-    ) THEN 1
+    WHEN "c"."City" IN (@cities1, @cities2) THEN 1
     ELSE 0
 END)
 FROM "Customers" AS "c"

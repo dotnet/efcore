@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
-
 namespace Microsoft.EntityFrameworkCore.Query;
 
 /// <summary>
@@ -129,6 +127,11 @@ public class QueryCompilationContext
     public virtual bool IgnoreQueryFilters { get; internal set; }
 
     /// <summary>
+    ///     A collection of ignored query filters.
+    /// </summary>
+    public virtual HashSet<string>? IgnoredQueryFilters { get; internal set; }
+
+    /// <summary>
     ///     A value indicating whether eager loaded navigations are ignored in this query.
     /// </summary>
     public virtual bool IgnoreAutoIncludes { get; internal set; }
@@ -250,17 +253,21 @@ public class QueryCompilationContext
             ? query
             : Expression.Block(
                 _runtimeParameters
-                    .Select(
-                        kv =>
-                            Expression.Call(
+                    .Select(kv =>
+                        Expression.Call(
+                            Expression.Property(
                                 QueryContextParameter,
-                                QueryContextAddParameterMethodInfo,
-                                Expression.Constant(kv.Key),
-                                Expression.Convert(Expression.Invoke(kv.Value, QueryContextParameter), typeof(object))))
+                                QueryContextParametersProperty),
+                            ParameterDictionaryAddMethod,
+                            Expression.Constant(kv.Key),
+                            Expression.Convert(Expression.Invoke(kv.Value, QueryContextParameter), typeof(object))))
                     .Append(query));
 
-    private static readonly MethodInfo QueryContextAddParameterMethodInfo
-        = typeof(QueryContext).GetTypeInfo().GetDeclaredMethod(nameof(QueryContext.AddParameter))!;
+    private static readonly PropertyInfo QueryContextParametersProperty
+        = typeof(QueryContext).GetProperty(nameof(QueryContext.Parameters))!;
+
+    private static readonly MethodInfo ParameterDictionaryAddMethod
+        = typeof(Dictionary<string, object?>).GetMethod(nameof(Dictionary<,>.Add))!;
 
     [DebuggerDisplay("{Microsoft.EntityFrameworkCore.Query.ExpressionPrinter.Print(this), nq}")]
     private sealed class NotTranslatedExpressionType : Expression, IPrintableExpression
@@ -278,7 +285,7 @@ public class QueryCompilationContext
     private sealed class RuntimeParameterConstantLifter(ILiftableConstantFactory liftableConstantFactory) : ExpressionVisitor
     {
         private static readonly MethodInfo ComplexPropertyListElementAddMethod =
-            typeof(List<IComplexProperty>).GetMethod(nameof(List<IComplexProperty>.Add))!;
+            typeof(List<IComplexProperty>).GetMethod(nameof(List<>.Add))!;
 
         protected override Expression VisitConstant(ConstantExpression constantExpression)
         {

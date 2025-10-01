@@ -149,13 +149,13 @@ public class GroupBySplitQueryingEnumerable<TKey, TElement>
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual DbCommand CreateDbCommand()
-        => _relationalCommandResolver(_relationalQueryContext.ParameterValues)
+        => _relationalCommandResolver(_relationalQueryContext.Parameters)
             .CreateDbCommand(
                 new RelationalCommandParameterObject(
                     _relationalQueryContext.Connection,
-                    _relationalQueryContext.ParameterValues,
+                    _relationalQueryContext.Parameters,
                     null,
-                    null,
+                    _relationalQueryContext.Context,
                     null, CommandSource.LinqQuery),
                 Guid.Empty,
                 (DbCommandMethod)(-1));
@@ -339,7 +339,7 @@ public class GroupBySplitQueryingEnumerable<TKey, TElement>
             var dataReader = enumerator._dataReader = relationalCommand.ExecuteReader(
                 new RelationalCommandParameterObject(
                     enumerator._relationalQueryContext.Connection,
-                    enumerator._relationalQueryContext.ParameterValues,
+                    enumerator._relationalQueryContext.Parameters,
                     enumerator._readerColumns,
                     enumerator._relationalQueryContext.Context,
                     enumerator._relationalQueryContext.CommandLogger,
@@ -360,6 +360,19 @@ public class GroupBySplitQueryingEnumerable<TKey, TElement>
             {
                 _relationalQueryContext.Connection.ReturnCommand(_relationalCommand!);
                 _dataReader.Dispose();
+
+                if (_resultCoordinator != null)
+                {
+                    foreach (var dataReader in _resultCoordinator.DataReaders)
+                    {
+                        dataReader?.DataReader.Dispose();
+                    }
+
+                    _resultCoordinator.DataReaders.Clear();
+
+                    _resultCoordinator = null;
+                }
+
                 _dataReader = null;
                 _dbDataReader = null;
             }
@@ -510,7 +523,7 @@ public class GroupBySplitQueryingEnumerable<TKey, TElement>
             var dataReader = enumerator._dataReader = await relationalCommand.ExecuteReaderAsync(
                     new RelationalCommandParameterObject(
                         enumerator._relationalQueryContext.Connection,
-                        enumerator._relationalQueryContext.ParameterValues,
+                        enumerator._relationalQueryContext.Parameters,
                         enumerator._readerColumns,
                         enumerator._relationalQueryContext.Context,
                         enumerator._relationalQueryContext.CommandLogger,
@@ -526,20 +539,30 @@ public class GroupBySplitQueryingEnumerable<TKey, TElement>
             return false;
         }
 
-        public ValueTask DisposeAsync()
+        public async ValueTask DisposeAsync()
         {
-            if (_dataReader is not null)
+            if (_dataReader != null)
             {
                 _relationalQueryContext.Connection.ReturnCommand(_relationalCommand!);
+                await _dataReader.DisposeAsync().ConfigureAwait(false);
 
-                var dataReader = _dataReader;
+                if (_resultCoordinator != null)
+                {
+                    foreach (var dataReader in _resultCoordinator.DataReaders)
+                    {
+                        if (dataReader != null)
+                        {
+                            await dataReader.DataReader.DisposeAsync().ConfigureAwait(false);
+                        }
+                    }
+
+                    _resultCoordinator.DataReaders.Clear();
+                    _resultCoordinator = null;
+                }
+
                 _dataReader = null;
                 _dbDataReader = null;
-
-                return dataReader.DisposeAsync();
             }
-
-            return default;
         }
     }
 }

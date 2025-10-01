@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
-
 namespace Microsoft.EntityFrameworkCore.Query;
 
 /// <summary>
@@ -390,7 +388,7 @@ public static class QueryableMethods
     //public static MethodInfo Zip { get; }
 
     /// <summary>
-    ///     Checks whether or not the given <see cref="MethodInfo" /> is one of the <see cref="O:Queryable.Average" /> without a selector.
+    ///     Checks whether the given <see cref="MethodInfo" /> is one of the <see cref="O:Queryable.Average" /> without a selector.
     /// </summary>
     /// <param name="methodInfo">The method to check.</param>
     /// <returns><see langword="true" /> if the method matches; <see langword="false" /> otherwise.</returns>
@@ -398,7 +396,7 @@ public static class QueryableMethods
         => AverageWithoutSelectorMethods.ContainsValue(methodInfo);
 
     /// <summary>
-    ///     Checks whether or not the given <see cref="MethodInfo" /> is one of the <see cref="O:Queryable.Average" /> with a selector.
+    ///     Checks whether the given <see cref="MethodInfo" /> is one of the <see cref="O:Queryable.Average" /> with a selector.
     /// </summary>
     /// <param name="methodInfo">The method to check.</param>
     /// <returns><see langword="true" /> if the method matches; <see langword="false" /> otherwise.</returns>
@@ -407,7 +405,7 @@ public static class QueryableMethods
             && AverageWithSelectorMethods.ContainsValue(methodInfo.GetGenericMethodDefinition());
 
     /// <summary>
-    ///     Checks whether or not the given <see cref="MethodInfo" /> is one of the <see cref="O:Queryable.Sum" /> without a selector.
+    ///     Checks whether the given <see cref="MethodInfo" /> is one of the <see cref="O:Queryable.Sum" /> without a selector.
     /// </summary>
     /// <param name="methodInfo">The method to check.</param>
     /// <returns><see langword="true" /> if the method matches; <see langword="false" /> otherwise.</returns>
@@ -415,7 +413,7 @@ public static class QueryableMethods
         => SumWithoutSelectorMethods.ContainsValue(methodInfo);
 
     /// <summary>
-    ///     Checks whether or not the given <see cref="MethodInfo" /> is one of the <see cref="O:Queryable.Sum" /> with a selector.
+    ///     Checks whether the given <see cref="MethodInfo" /> is one of the <see cref="O:Queryable.Sum" /> with a selector.
     /// </summary>
     /// <param name="methodInfo">The method to check.</param>
     /// <returns><see langword="true" /> if the method matches; <see langword="false" /> otherwise.</returns>
@@ -460,7 +458,9 @@ public static class QueryableMethods
     private static Dictionary<Type, MethodInfo> SumWithoutSelectorMethods { get; }
     private static Dictionary<Type, MethodInfo> SumWithSelectorMethods { get; }
 
-    [UnconditionalSuppressMessage("AOT", "IL3050:Calling members annotated with 'RequiresDynamicCodeAttribute' may break functionality when AOT compiling.", Justification = "Types used here in 'MakeGenericType' are types like 'TSource', not specific types.")]
+    [UnconditionalSuppressMessage(
+        "AOT", "IL3050:Calling members annotated with 'RequiresDynamicCodeAttribute' may break functionality when AOT compiling.",
+        Justification = "Types used here in 'MakeGenericType' are types like 'TSource', not specific types.")]
     static QueryableMethods()
     {
         var queryableMethodGroups = typeof(Queryable)
@@ -883,10 +883,9 @@ public static class QueryableMethods
         }
 
         MethodInfo GetMethod(string name, int genericParameterCount, Func<Type[], Type[]> parameterGenerator)
-            => queryableMethodGroups[name].Single(
-                mi => ((genericParameterCount == 0 && !mi.IsGenericMethod)
-                        || (mi.IsGenericMethod && mi.GetGenericArguments().Length == genericParameterCount))
-                    && mi.GetParameters().Select(e => e.ParameterType).SequenceEqual(
-                        parameterGenerator(mi.IsGenericMethod ? mi.GetGenericArguments() : [])));
+            => queryableMethodGroups[name].Single(mi => ((genericParameterCount == 0 && !mi.IsGenericMethod)
+                    || (mi.IsGenericMethod && mi.GetGenericArguments().Length == genericParameterCount))
+                && mi.GetParameters().Select(e => e.ParameterType).SequenceEqual(
+                    parameterGenerator(mi.IsGenericMethod ? mi.GetGenericArguments() : [])));
     }
 }

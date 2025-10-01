@@ -20,28 +20,25 @@ public class MaterializationInterceptionCosmosTest(NonSharedFixture fixture) :
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Book>(
-                b =>
-                {
-                    b.Property(e => e.Id).ValueGeneratedOnAdd();
-                    b.HasPartitionKey(e => e.Title);
-                    b.HasKey(e => new { e.Id, e.Title });
-                });
+            modelBuilder.Entity<Book>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedOnAdd();
+                b.HasPartitionKey(e => e.Title);
+                b.HasKey(e => new { e.Id, e.Title });
+            });
 
-            modelBuilder.Entity<Pamphlet>(
-                b =>
-                {
-                    b.Property(e => e.Id).ValueGeneratedOnAdd();
-                    b.HasPartitionKey(e => e.Title);
-                    b.HasKey(e => new { e.Id, e.Title });
-                });
+            modelBuilder.Entity<Pamphlet>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedOnAdd();
+                b.HasPartitionKey(e => e.Title);
+                b.HasKey(e => new { e.Id, e.Title });
+            });
 
-            modelBuilder.Entity<TestEntity30244>(
-                b =>
-                {
-                    b.HasPartitionKey(e => e.Title);
-                    b.HasKey(e => new { e.Id, e.Title });
-                });
+            modelBuilder.Entity<TestEntity30244>(b =>
+            {
+                b.HasPartitionKey(e => e.Title);
+                b.HasKey(e => new { e.Id, e.Title });
+            });
         }
     }
 

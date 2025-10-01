@@ -64,13 +64,12 @@ public class MemoryOptimizedTablesTest(MemoryOptimizedTablesTest.MemoryOptimized
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder
-                .Entity<FastUn>(
-                    eb =>
-                    {
-                        eb.ToTable(tb => tb.IsMemoryOptimized());
-                        eb.HasIndex(e => e.Name).IsUnique();
-                        eb.HasOne(e => e.BigUn).WithMany(e => e.FastUns).IsRequired().OnDelete(DeleteBehavior.Restrict);
-                    });
+                .Entity<FastUn>(eb =>
+                {
+                    eb.ToTable(tb => tb.IsMemoryOptimized());
+                    eb.HasIndex(e => e.Name).IsUnique();
+                    eb.HasOne(e => e.BigUn).WithMany(e => e.FastUns).IsRequired().OnDelete(DeleteBehavior.Restrict);
+                });
 
             modelBuilder.Entity<BigUn>().ToTable(tb => tb.IsMemoryOptimized());
         }
