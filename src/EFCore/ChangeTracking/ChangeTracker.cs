@@ -215,6 +215,44 @@ public class ChangeTracker : IResettableService
             .Select(e => new EntityEntry<TEntity>(e));
     }
 
+    /// <summary>
+    /// Returns tracked entities that are in a given state from a fast cache.
+    /// </summary>
+    /// <param name="added">Entities in EntityState.Added state</param>
+    /// <param name="modified">Entities in Modified.Added state</param>
+    /// <param name="deleted">Entities in Modified.Deleted state</param>
+    /// <param name="unchanged">Entities in Modified.Unchanged state</param>
+    /// <returns>An entry for each entity that matched the search criteria.</returns>
+    public IEnumerable<EntityEntry> GetEntriesForState(
+        bool added = false,
+        bool modified = false,
+        bool deleted = false,
+        bool unchanged = false)
+    {
+        return StateManager.GetEntriesForState(added, modified, deleted, unchanged)
+            .Select(e => new EntityEntry(e));
+    }
+
+    /// <summary>
+    /// Returns tracked entities that are in a given state from a fast cache.
+    /// </summary>
+    /// <param name="added">Entities in EntityState.Added state</param>
+    /// <param name="modified">Entities in Modified.Added state</param>
+    /// <param name="deleted">Entities in Modified.Deleted state</param>
+    /// <param name="unchanged">Entities in Modified.Unchanged state</param>
+    /// <returns>An entry for each entity that matched the search criteria.</returns>
+    public IEnumerable<EntityEntry<TEntity>> GetEntriesForState<TEntity>(
+        bool added = false,
+        bool modified = false,
+        bool deleted = false,
+        bool unchanged = false)
+        where TEntity : class
+    {
+        return StateManager.GetEntriesForState(added, modified, deleted, unchanged)
+            .Where(e => e.Entity is TEntity)
+            .Select(e => new EntityEntry<TEntity>(e));
+    }
+
     private void TryDetectChanges()
     {
         if (AutoDetectChangesEnabled)
