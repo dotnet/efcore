@@ -3,6 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
 namespace Microsoft.EntityFrameworkCore;
 
@@ -57,6 +58,7 @@ public class AppServiceProviderFactoryTest
     }
 
     [ConditionalFact]
+    [PlatformSkipCondition(TestUtilities.Xunit.TestPlatform.Mac)]
     public void Create_with_no_builder_method()
     {
         var factory = new TestAppServiceProviderFactory(
@@ -93,7 +95,6 @@ public class AppServiceProviderFactoryTest
 
     private class TestService;
 
-#if !EXCLUDE_ON_MAC
     [ConditionalFact]
     public void Create_works_when_no_BuildWebHost()
     {
@@ -106,7 +107,6 @@ public class AppServiceProviderFactoryTest
     }
 
     private class ProgramWithoutBuildWebHost;
-#endif
 
     [ConditionalFact]
     public void Create_works_when_BuildWebHost_throws()
