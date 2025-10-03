@@ -363,6 +363,16 @@ public abstract class NorthwindBulkUpdatesTestBase<TFixture>(TFixture fixture) :
             (b, a) => Assert.All(a, c => Assert.Equal("Updated", c.ContactName)));
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_set_constant_TagWith_null(bool async)
+        => AssertUpdate(
+            async,
+            ss => ss.Set<Customer>().TagWith("MyUpdate"),
+            e => e,
+            s => s.SetProperty(c => c.ContactName, (string)null),
+            rowsAffectedCount: 91,
+            (b, a) => Assert.All(a, c => Assert.Equal(null, c.ContactName)));
+
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Update_Where_set_constant(bool async)
         => AssertUpdate(
             async,
