@@ -1,6 +1,8 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Linq;
+
 namespace Microsoft.EntityFrameworkCore.Query;
 
 public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbContext>, IQueryFixtureBase
@@ -63,6 +65,13 @@ public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbCon
 
         modelBuilder.Entity<SharedContainerEntity2Child>();
 
+        modelBuilder.Entity<SharedContainerEntity3>()
+            .ToContainer("SharedContainer")
+            .HasPartitionKey(e => e.PartitionKey)
+            .HasKey(e => new { e.Id, e.PartitionKey });
+
+        modelBuilder.Entity<SharedContainerEntity3Child>();
+
         modelBuilder.Entity<FancyDiscriminatorEntity>()
             .ToContainer("Cat35224")
             .HasPartitionKey(e => e.Id)
@@ -91,6 +100,7 @@ public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbCon
         context.AddRange(data.SharedContainerEntities1);
         context.AddRange(data.SharedContainerEntities2);
         context.AddRange(data.SharedContainerEntities2Children);
+        context.AddRange(data.SharedContainerEntities3Children);
         context.AddRange(data.Cat35224Entities);
 
         return context.SaveChangesAsync();
@@ -108,7 +118,8 @@ public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbCon
         { typeof(OnlySinglePartitionKeyEntity), e => ((OnlySinglePartitionKeyEntity?)e)?.Payload },
         { typeof(NoPartitionKeyEntity), e => ((NoPartitionKeyEntity?)e)?.Id },
         { typeof(SharedContainerEntity1), e => ((SharedContainerEntity1?)e)?.Id },
-        { typeof(SharedContainerEntity2), e => ((SharedContainerEntity2?)e)?.Id }
+        { typeof(SharedContainerEntity2), e => ((SharedContainerEntity2?)e)?.Id },
+        { typeof(SharedContainerEntity3), e => ((SharedContainerEntity3?)e)?.Id }
     }.ToDictionary(e => e.Key, e => (object)e.Value);
 
     public IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object?, object?>>
@@ -244,6 +255,39 @@ public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbCon
             }
         },
         {
+            typeof(SharedContainerEntity3), (e, a) =>
+            {
+                Assert.Equal(e == null, a == null);
+
+                if (a != null)
+                {
+                    var ee = (SharedContainerEntity3)e!;
+                    var aa = (SharedContainerEntity3)a;
+
+                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.PartitionKey, aa.PartitionKey);
+                    Assert.Equal(ee.Payload3, aa.Payload3);
+                }
+            }
+        },
+        {
+            typeof(SharedContainerEntity3Child), (e, a) =>
+            {
+                Assert.Equal(e == null, a == null);
+
+                if (a != null)
+                {
+                    var ee = (SharedContainerEntity3Child)e!;
+                    var aa = (SharedContainerEntity3Child)a;
+
+                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.PartitionKey, aa.PartitionKey);
+                    Assert.Equal(ee.Payload3, aa.Payload3);
+                    Assert.Equal(ee.Child1Payload, aa.Child1Payload);
+                }
+            }
+        },
+        {
             typeof(FancyDiscriminatorEntity), (e, a) =>
             {
                 Assert.Equal(e == null, a == null);
@@ -274,6 +318,7 @@ public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbCon
         public List<SharedContainerEntity1> SharedContainerEntities1 { get; } = CreateSharedContainerEntities1();
         public List<SharedContainerEntity2> SharedContainerEntities2 { get; } = CreateSharedContainerEntities2();
         public List<SharedContainerEntity2Child> SharedContainerEntities2Children { get; } = CreateSharedContainerEntities2Children();
+        public List<SharedContainerEntity3Child> SharedContainerEntities3Children { get; } = CreateSharedContainerEntities3Children1();
 
         public List<FancyDiscriminatorEntity> Cat35224Entities { get; } = CreateCat35224Entities();
 
@@ -318,6 +363,11 @@ public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbCon
             if (typeof(TEntity) == typeof(SharedContainerEntity2Child))
             {
                 return (IQueryable<TEntity>)SharedContainerEntities2Children.AsQueryable();
+            }
+
+            if (typeof(TEntity) == typeof(SharedContainerEntity3) || typeof(TEntity) == typeof(SharedContainerEntity3Child))
+            {
+                return (IQueryable<TEntity>)SharedContainerEntities3Children.AsQueryable();
             }
 
             if (typeof(TEntity) == typeof(FancyDiscriminatorEntity))
@@ -518,6 +568,26 @@ public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbCon
                 }
             ];
 
+        private static List<SharedContainerEntity3Child> CreateSharedContainerEntities3Children1()
+            =>
+            [
+                new SharedContainerEntity3Child
+                {
+                    Id = 6,
+                    PartitionKey = "PK1",
+                    Payload3 = "Payload8",
+                    Child1Payload = "Child1"
+                },
+
+                new SharedContainerEntity3Child
+                {
+                    Id = 6,
+                    PartitionKey = "PK2",
+                    Payload3 = "Payload9",
+                    Child1Payload = "Child2"
+                }
+            ];
+
         private static List<FancyDiscriminatorEntity> CreateCat35224Entities()
             =>
             [
@@ -598,4 +668,16 @@ public class SharedContainerEntity2
 public class SharedContainerEntity2Child : SharedContainerEntity2
 {
     public required string ChildPayload { get; set; }
+}
+
+public abstract class SharedContainerEntity3
+{
+    public int Id { get; set; }
+    public required string PartitionKey { get; set; }
+    public required string Payload3 { get; set; }
+}
+
+public class SharedContainerEntity3Child : SharedContainerEntity3
+{
+    public required string Child1Payload { get; set; }
 }
