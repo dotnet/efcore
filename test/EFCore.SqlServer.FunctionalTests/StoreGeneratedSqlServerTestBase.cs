@@ -760,7 +760,7 @@ public abstract class StoreGeneratedSqlServerTestBase<TFixture>(TFixture fixture
             => SqlServerTestStoreFactory.Instance;
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => builder
+            => base.AddOptions(builder)
                 .EnableSensitiveDataLogging()
                 .ConfigureWarnings(b => b.Default(WarningBehavior.Throw)
                     .Ignore(CoreEventId.SensitiveDataLoggingEnabledWarning)
