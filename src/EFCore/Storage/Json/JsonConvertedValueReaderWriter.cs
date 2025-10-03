@@ -16,9 +16,6 @@ public class JsonConvertedValueReaderWriter<TModel, TProvider> :
     JsonValueReaderWriter<TModel>,
     IJsonConvertedValueReaderWriter
 {
-    private static readonly bool UseOldBehavior36856 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue36856", out var enabled) && enabled;
-
     private readonly JsonValueReaderWriter<TProvider> _providerReaderWriter;
     private readonly ValueConverter _converter;
 
