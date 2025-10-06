@@ -162,7 +162,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA defer_foreign_keys = ON;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -194,7 +194,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA defer_foreign_keys = ON;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -226,7 +226,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA defer_foreign_keys = ON;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -256,7 +256,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA defer_foreign_keys = ON;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -290,7 +290,7 @@ FROM "Persons";
 """,
             //
             """
-PRAGMA defer_foreign_keys = ON;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -324,7 +324,7 @@ FROM "Persons";
 """,
             //
             """
-PRAGMA defer_foreign_keys = ON;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -361,7 +361,7 @@ FROM "NewEntities";
 """,
             //
             """
-PRAGMA defer_foreign_keys = ON;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -480,7 +480,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA defer_foreign_keys = ON;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -536,7 +536,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA defer_foreign_keys = ON;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -567,7 +567,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA defer_foreign_keys = ON;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -598,7 +598,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA defer_foreign_keys = ON;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -634,7 +634,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA defer_foreign_keys = ON;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -673,7 +673,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA defer_foreign_keys = ON;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -706,7 +706,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA defer_foreign_keys = ON;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -739,7 +739,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA defer_foreign_keys = ON;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -776,7 +776,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA defer_foreign_keys = ON;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -809,7 +809,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA defer_foreign_keys = ON;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -840,7 +840,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA defer_foreign_keys = ON;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -873,7 +873,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA defer_foreign_keys = ON;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -904,7 +904,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA defer_foreign_keys = ON;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -934,7 +934,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA defer_foreign_keys = ON;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -964,7 +964,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA defer_foreign_keys = ON;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -994,7 +994,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA defer_foreign_keys = ON;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -1067,7 +1067,7 @@ FROM "Entity";
 """,
             //
             """
-PRAGMA defer_foreign_keys = ON;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -1120,7 +1120,7 @@ FROM "Entity";
 """,
             //
             """
-PRAGMA defer_foreign_keys = ON;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -1158,7 +1158,7 @@ FROM "Entity";
 """,
             //
             """
-PRAGMA defer_foreign_keys = ON;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -1195,7 +1195,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA defer_foreign_keys = ON;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -1225,7 +1225,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA defer_foreign_keys = ON;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -1256,7 +1256,7 @@ FROM "Entity";
 """,
             //
             """
-PRAGMA defer_foreign_keys = ON;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -1344,7 +1344,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA defer_foreign_keys = ON;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -1374,7 +1374,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA defer_foreign_keys = ON;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -1404,7 +1404,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA defer_foreign_keys = ON;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -1436,7 +1436,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA defer_foreign_keys = ON;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -1466,7 +1466,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA defer_foreign_keys = ON;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -1496,7 +1496,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA defer_foreign_keys = ON;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -1532,7 +1532,7 @@ FROM "Orders";
 """,
             //
             """
-PRAGMA defer_foreign_keys = ON;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -1572,7 +1572,7 @@ FROM "Orders";
 """,
             //
             """
-PRAGMA defer_foreign_keys = ON;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -1611,7 +1611,7 @@ FROM "Orders";
 """,
             //
             """
-PRAGMA defer_foreign_keys = ON;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -1643,7 +1643,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA defer_foreign_keys = ON;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -1676,7 +1676,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA defer_foreign_keys = ON;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -1707,7 +1707,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA defer_foreign_keys = ON;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -1739,7 +1739,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA defer_foreign_keys = ON;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -1771,7 +1771,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA defer_foreign_keys = ON;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -1802,7 +1802,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA defer_foreign_keys = ON;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -2152,7 +2152,7 @@ FROM "Person";
 """,
             //
             """
-PRAGMA defer_foreign_keys = ON;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -2314,7 +2314,7 @@ FROM "Product";
 """,
             //
             """
-PRAGMA defer_foreign_keys = ON;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """

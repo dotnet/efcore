@@ -823,7 +823,7 @@ SELECT "Title"
 FROM "Blog";
 GO
 
-PRAGMA defer_foreign_keys = ON;
+PRAGMA defer_foreign_keys = 1;
 GO
 
 DROP TABLE "Blog";
@@ -871,7 +871,7 @@ SELECT "Title"
 FROM "Blog";
 GO
 
-PRAGMA defer_foreign_keys = ON;
+PRAGMA defer_foreign_keys = 1;
 GO
 
 DROP TABLE "Blog";
@@ -922,7 +922,7 @@ SELECT "Title"
 FROM "Blog";
 GO
 
-PRAGMA defer_foreign_keys = ON;
+PRAGMA defer_foreign_keys = 1;
 GO
 
 DROP TABLE "Blog";
@@ -968,7 +968,7 @@ SELECT "Id"
 FROM "Blog";
 GO
 
-PRAGMA defer_foreign_keys = ON;
+PRAGMA defer_foreign_keys = 1;
 GO
 
 DROP TABLE "Blog";
@@ -1017,7 +1017,7 @@ SELECT "Id"
 FROM "Blog";
 GO
 
-PRAGMA defer_foreign_keys = ON;
+PRAGMA defer_foreign_keys = 1;
 GO
 
 DROP TABLE "Blog";
@@ -1063,7 +1063,7 @@ SELECT "Id", "Name", "Position"
 FROM "Blog";
 GO
 
-PRAGMA defer_foreign_keys = ON;
+PRAGMA defer_foreign_keys = 1;
 GO
 
 DROP TABLE "Blog";
@@ -1103,7 +1103,7 @@ SELECT "Id"
 FROM "Blog";
 GO
 
-PRAGMA defer_foreign_keys = ON;
+PRAGMA defer_foreign_keys = 1;
 GO
 
 DROP TABLE "Blog";
@@ -1139,7 +1139,7 @@ SELECT "A", "B"
 FROM "Ordinal";
 GO
 
-PRAGMA defer_foreign_keys = ON;
+PRAGMA defer_foreign_keys = 1;
 GO
 
 DROP TABLE "Ordinal";

@@ -458,7 +458,7 @@ public class SqliteMigrationsSqlGenerator : MigrationsSqlGenerator
         if (rebuilds.Any())
         {
             operations.Add(
-                new SqlOperation { Sql = "PRAGMA defer_foreign_keys = ON;" });
+                new SqlOperation { Sql = "PRAGMA defer_foreign_keys = 1;" });
         }
 
         foreach (var ((table, schema), _) in rebuilds)
