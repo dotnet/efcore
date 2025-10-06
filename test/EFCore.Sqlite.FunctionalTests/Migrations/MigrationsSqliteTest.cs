@@ -2164,10 +2164,6 @@ ALTER TABLE "ef_temp_Person" RENAME TO "Person";
 """,
             //
             """
-PRAGMA defer_foreign_keys = OFF;
-""",
-            //
-            """
 CREATE UNIQUE INDEX "IX_Person_Ssn" ON "Person" ("Ssn");
 """);
     }
@@ -2327,10 +2323,6 @@ DROP TABLE "Product";
             //
             """
 ALTER TABLE "ef_temp_Product" RENAME TO "Product";
-""",
-            //
-            """
-PRAGMA defer_foreign_keys = OFF;
 """);
     }
 
