@@ -1,8 +1,6 @@
 variables:
   - name: _BuildConfig
     value: Release
-  - name: _TeamName
-    value: AspNetCore
   - name: DOTNET_SKIP_FIRST_TIME_EXPERIENCE
     value: true
   - name: _PublishUsingPipelines
@@ -11,12 +9,6 @@ variables:
     value: https://localhost:8081
   - name: _CosmosToken
     value: C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==
-  - ${{ if or(startswith(variables['Build.SourceBranch'], 'refs/heads/release/'), startswith(variables['Build.SourceBranch'], 'refs/heads/internal/release/'), eq(variables['Build.Reason'], 'Manual')) }}:
-    - name: PostBuildSign
-      value: false
-  - ${{ else }}:
-    - name: PostBuildSign
-      value: true
   - group: DotNet-HelixApi-Access
   - name: _InternalRuntimeDownloadArgs
     value: /p:DotNetRuntimeSourceFeed=https://ci.dot.net/internal /p:DotNetRuntimeSourceFeedKey=$(dotnetbuilds-internal-container-read-token-base64)
@@ -47,7 +39,6 @@ extends:
   parameters:
     featureFlags:
       autoBaseline: false
-      usePrefastVersion3: true
       autoEnableRoslynWithNewRuleset: false  
     sdl:
       createAdoIssuesForJustificationsForDisablement: false
@@ -55,19 +46,46 @@ extends:
         name: $(DncEngInternalBuildPool)
         image: 1es-windows-2022
         os: windows
+      enabled: false
       baseline:
         baselineFile: $(Build.SourcesDirectory)\.config\guardian\.gdnbaselines
       binskim:
-        scanOutputDirectoryOnly: true
-        preReleaseVersion: '4.3.1'
-      env:
-        GDN_EXTRACT_TOOLS: "binskim"
-        GDN_EXTRACT_TARGETS: true
-        GDN_EXTRACT_FILTER: "f|**\\*.zip;f|**\\*.nupkg;f|**\\*.vsix;f|**\\*.cspkg;f|**\\*.sfpkg;f|**\\*.package"
+        enabled: false
+        justificationForDisabling: 'NonProduction'
       policheck:
-        enabled: true
+        enabled: false
+        justificationForDisabling: 'NonProduction'
       tsa:
-        enabled: true
+        enabled: false
+        justificationForDisabling: 'NonProduction'
+      antimalwareScan:
+        enabled: false
+        justificationForDisabling: 'NonProduction'
+      prefast:
+        enabled: false
+        justificationForDisabling: 'NonProduction'
+      codeQL:
+        compiled:
+          enabled: false
+          justificationForDisabling: 'NonProduction'
+      psscriptanalyzer:
+        enabled: false
+        justificationForDisabling: 'NonProduction'
+      credscan:
+        enabled: false
+        justificationForDisabling: 'NonProduction'
+      spmi:
+        enabled: false
+        justificationForDisabling: 'NonProduction'
+      componentgovernance:
+        enabled: false
+        justificationForDisabling: 'NonProduction'
+      eslint:
+        enabled: false
+        justificationForDisabling: 'NonProduction'
+      armory:
+        enabled: false
+        justificationForDisabling: 'NonProduction'
     customBuildTags:
     - ES365AIMigrationTooling
     stages:
@@ -82,6 +100,7 @@ extends:
           enablePublishTestResults: true
           enablePublishUsingPipelines: ${{ variables._PublishUsingPipelines }}
           publishAssetsImmediately: true
+          isAssetlessBuild: true
           enableTelemetry: true
           helixRepo: dotnet/efcore
           jobs:
@@ -95,15 +114,6 @@ extends:
               - _InternalBuildArgs: ''
               # Rely on task Arcade injects, not auto-injected build step.
               - skipComponentGovernanceDetection: true
-              - ${{ if notin(variables['Build.Reason'], 'PullRequest') }}:
-                - _SignType: real
-                - _InternalBuildArgs: /p:DotNetSignType=$(_SignType) /p:TeamName=$(_TeamName) /p:DotNetPublishUsingPipelines=$(_PublishUsingPipelines) /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
-              # Ignore test and infrastructure code.
-              - Codeql.SourceRoot: src
-              # CodeQL3000 needs this plumbed along as a variable to enable TSA.
-              - Codeql.TSAEnabled: true
-              # Default expects tsaoptions.json under SourceRoot.
-              - Codeql.TSAOptionsPath: '$(Build.SourcesDirectory)/.config/tsaoptions.json'
             steps:
               - task: NuGetCommand@2
                 displayName: 'Clear NuGet caches'
@@ -125,20 +135,8 @@ extends:
                 env:
                   Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
                 displayName: Build
-              - task: CopyFiles@2
-                displayName: 'Copy binaries for publishing'
-                inputs:
-                  Contents: |
-                    artifacts/bin/**/?(*.dll|*.exe|*.pdb)
-                    !artifacts/bin/*Tests/**
-                  TargetFolder: $(Agent.TempDirectory)/BinArtifacts
             templateContext:
               outputs:
-              - output: pipelineArtifact
-                displayName: Publish binaries
-                condition: always()
-                path: $(Agent.TempDirectory)/BinArtifacts/
-                artifact: BinArtifacts
               - output: pipelineArtifact
                 displayName: Upload TestResults
                 condition: always()
@@ -266,13 +264,3 @@ extends:
                   # Work-around for https://github.com/dotnet/runtime/issues/70758
                   COMPlus_EnableWriteXorExecute: 0
                   DotNetBuildsInternalReadSasToken: $(dotnetbuilds-internal-container-read-token)
-    - ${{ if notin(variables['Build.Reason'], 'PullRequest') }}:
-      - template: /eng/common/templates-official/post-build/post-build.yml@self
-        parameters:
-          publishingInfraVersion: 3
-          enableSigningValidation: false
-          enableNugetValidation: false
-          enableSourceLinkValidation: false
-          publishAssetsImmediately: true
-          SDLValidationParameters:
-            enable: false
