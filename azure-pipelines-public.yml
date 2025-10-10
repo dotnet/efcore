@@ -45,6 +45,7 @@ stages:
         enablePublishBuildAssets: true
         enablePublishUsingPipelines: ${{ variables._PublishUsingPipelines }}
         publishAssetsImmediately: true
+        isAssetlessBuild: true
         enableSourceIndex: false
         enableTelemetry: true
         helixRepo: dotnet/efcore
