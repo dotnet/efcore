@@ -49,18 +49,33 @@ public class NonNullableReferencePropertyConventionTest
         Assert.False(entityTypeBuilder.Property(e => e.NonNullable).Metadata.IsNullable);
     }
 
-    [ConditionalTheory, InlineData(typeof(A), nameof(A.NonNullable), false), InlineData(typeof(A), nameof(A.Nullable), true),
-     InlineData(typeof(A), nameof(A.NonNullablePropertyMaybeNull), true),
-     InlineData(typeof(A), nameof(A.NonNullablePropertyAllowNull), false), InlineData(typeof(A), nameof(A.NullablePropertyNotNull), true),
-     InlineData(typeof(A), nameof(A.NullablePropertyDisallowNull), true), InlineData(typeof(A), nameof(A.NonNullableFieldMaybeNull), true),
-     InlineData(typeof(A), nameof(A.NonNullableFieldAllowNull), false), InlineData(typeof(A), nameof(A.NullableFieldNotNull), true),
-     InlineData(typeof(A), nameof(A.NullableFieldDisallowNull), true), InlineData(typeof(A), nameof(A.RequiredAndNullable), false),
-     InlineData(typeof(A), nameof(A.NullObliviousNonNullable), true), InlineData(typeof(A), nameof(A.NullObliviousNullable), true),
-     InlineData(typeof(B), nameof(B.NonNullableValueType), false), InlineData(typeof(B), nameof(B.NullableValueType), true),
-     InlineData(typeof(B), nameof(B.NonNullableRefType), false), InlineData(typeof(B), nameof(B.NullableRefType), true),
-     InlineData(typeof(DerivedClass), nameof(DerivedClass.NonNullable), false),
-     InlineData(typeof(DerivedClass), nameof(DerivedClass.Nullable), true),
-     InlineData(typeof(BaseClass), nameof(DerivedClass.Nullable), true)]
+    [ConditionalTheory]
+    [InlineData(typeof(A), nameof(A.NonNullable), false)]
+    [InlineData(typeof(A), nameof(A.Nullable), true)]
+    [InlineData(typeof(A), nameof(A.NonNullablePropertyMaybeNull), true)]
+    [InlineData(typeof(A), nameof(A.NonNullablePropertyAllowNull), false)]
+    [InlineData(typeof(A), nameof(A.NullablePropertyNotNull), true)]
+    [InlineData(typeof(A), nameof(A.NullablePropertyDisallowNull), true)]
+    [InlineData(typeof(A), nameof(A.NonNullableFieldMaybeNull), true)]
+    [InlineData(typeof(A), nameof(A.NonNullableFieldAllowNull), false)]
+    [InlineData(typeof(A), nameof(A.NullableFieldNotNull), true)]
+    [InlineData(typeof(A), nameof(A.NullableFieldDisallowNull), true)]
+    [InlineData(typeof(A), nameof(A.RequiredAndNullable), false)]
+    [InlineData(typeof(A), nameof(A.NullObliviousNonNullable), true)]
+    [InlineData(typeof(A), nameof(A.NullObliviousNullable), true)]
+    [InlineData(typeof(B), nameof(B.NonNullableValueType), false)]
+    [InlineData(typeof(B), nameof(B.NullableValueType), true)]
+    [InlineData(typeof(B), nameof(B.NonNullableRefType), false)]
+    [InlineData(typeof(B), nameof(B.NullableRefType), true)]
+    [InlineData(typeof(DerivedClass), nameof(DerivedClass.NonNullable), false)]
+    [InlineData(typeof(DerivedClass), nameof(DerivedClass.Nullable), true)]
+    [InlineData(typeof(BaseClass), nameof(DerivedClass.Nullable), true)]
+    [InlineData(typeof(GenericClass<string>), nameof(GenericClass<>.Defaultable), true)]
+    // The following should be detected as non-nullable; see #35669,
+    // https://github.com/dotnet/runtime/issues/117068#issuecomment-3364824243
+    [InlineData(typeof(GenericClass<string>), nameof(GenericClass<>.NonDefaultable), true)]
+    [InlineData(typeof(GenericClass<int>), nameof(GenericClass<>.Defaultable), false)]
+    [InlineData(typeof(GenericClass<int>), nameof(GenericClass<>.NonDefaultable), false)]
     public void Reference_nullability_sets_is_nullable_correctly(Type type, string propertyName, bool expectedNullable)
     {
         var modelBuilder = CreateModelBuilder();
@@ -185,6 +200,12 @@ public class NonNullableReferencePropertyConventionTest
     public class BaseClass
     {
         public string? Nullable { get; set; }
+    }
+
+    public class GenericClass<T>
+    {
+        public required T NonDefaultable { get; set; }
+        public required T? Defaultable { get; set; }
     }
     // ReSharper restore PropertyCanBeMadeInitOnly.Local
 

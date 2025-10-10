@@ -162,7 +162,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA foreign_keys = 0;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -171,10 +171,6 @@ DROP TABLE "People";
             //
             """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
-""",
-            //
-            """
-PRAGMA foreign_keys = 1;
 """);
     }
 
@@ -198,7 +194,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA foreign_keys = 0;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -207,10 +203,6 @@ DROP TABLE "People";
             //
             """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
-""",
-            //
-            """
-PRAGMA foreign_keys = 1;
 """);
     }
 
@@ -234,7 +226,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA foreign_keys = 0;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -243,10 +235,6 @@ DROP TABLE "People";
             //
             """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
-""",
-            //
-            """
-PRAGMA foreign_keys = 1;
 """);
     }
 
@@ -268,7 +256,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA foreign_keys = 0;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -277,10 +265,6 @@ DROP TABLE "People";
             //
             """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
-""",
-            //
-            """
-PRAGMA foreign_keys = 1;
 """);
     }
 
@@ -306,7 +290,7 @@ FROM "Persons";
 """,
             //
             """
-PRAGMA foreign_keys = 0;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -315,10 +299,6 @@ DROP TABLE "Persons";
             //
             """
 ALTER TABLE "ef_temp_Persons" RENAME TO "Persons";
-""",
-            //
-            """
-PRAGMA foreign_keys = 1;
 """);
     }
 
@@ -344,7 +324,7 @@ FROM "Persons";
 """,
             //
             """
-PRAGMA foreign_keys = 0;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -353,10 +333,6 @@ DROP TABLE "Persons";
             //
             """
 ALTER TABLE "ef_temp_Persons" RENAME TO "Persons";
-""",
-            //
-            """
-PRAGMA foreign_keys = 1;
 """);
     }
 
@@ -385,7 +361,7 @@ FROM "NewEntities";
 """,
             //
             """
-PRAGMA foreign_keys = 0;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -394,10 +370,6 @@ DROP TABLE "NewEntities";
             //
             """
 ALTER TABLE "ef_temp_NewEntities" RENAME TO "NewEntities";
-""",
-            //
-            """
-PRAGMA foreign_keys = 1;
 """);
     }
 
@@ -508,7 +480,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA foreign_keys = 0;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -517,10 +489,6 @@ DROP TABLE "People";
             //
             """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
-""",
-            //
-            """
-PRAGMA foreign_keys = 1;
 """);
     }
 
@@ -568,7 +536,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA foreign_keys = 0;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -577,10 +545,6 @@ DROP TABLE "People";
             //
             """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
-""",
-            //
-            """
-PRAGMA foreign_keys = 1;
 """);
     }
 
@@ -603,7 +567,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA foreign_keys = 0;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -612,10 +576,6 @@ DROP TABLE "People";
             //
             """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
-""",
-            //
-            """
-PRAGMA foreign_keys = 1;
 """);
     }
 
@@ -638,7 +598,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA foreign_keys = 0;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -647,10 +607,6 @@ DROP TABLE "People";
             //
             """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
-""",
-            //
-            """
-PRAGMA foreign_keys = 1;
 """,
             //
             """
@@ -678,7 +634,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA foreign_keys = 0;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -687,10 +643,6 @@ DROP TABLE "People";
             //
             """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
-""",
-            //
-            """
-PRAGMA foreign_keys = 1;
 """,
             //
             """
@@ -721,7 +673,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA foreign_keys = 0;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -730,10 +682,6 @@ DROP TABLE "People";
             //
             """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
-""",
-            //
-            """
-PRAGMA foreign_keys = 1;
 """);
     }
 
@@ -758,7 +706,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA foreign_keys = 0;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -767,10 +715,6 @@ DROP TABLE "People";
             //
             """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
-""",
-            //
-            """
-PRAGMA foreign_keys = 1;
 """);
     }
 
@@ -795,7 +739,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA foreign_keys = 0;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -804,10 +748,6 @@ DROP TABLE "People";
             //
             """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
-""",
-            //
-            """
-PRAGMA foreign_keys = 1;
 """,
             //
             """
@@ -836,7 +776,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA foreign_keys = 0;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -845,10 +785,6 @@ DROP TABLE "People";
             //
             """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
-""",
-            //
-            """
-PRAGMA foreign_keys = 1;
 """);
     }
 
@@ -873,7 +809,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA foreign_keys = 0;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -882,10 +818,6 @@ DROP TABLE "People";
             //
             """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
-""",
-            //
-            """
-PRAGMA foreign_keys = 1;
 """);
     }
 
@@ -908,7 +840,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA foreign_keys = 0;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -917,10 +849,6 @@ DROP TABLE "People";
             //
             """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
-""",
-            //
-            """
-PRAGMA foreign_keys = 1;
 """);
     }
 
@@ -945,7 +873,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA foreign_keys = 0;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -954,10 +882,6 @@ DROP TABLE "People";
             //
             """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
-""",
-            //
-            """
-PRAGMA foreign_keys = 1;
 """);
     }
 
@@ -980,7 +904,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA foreign_keys = 0;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -989,10 +913,6 @@ DROP TABLE "People";
             //
             """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
-""",
-            //
-            """
-PRAGMA foreign_keys = 1;
 """);
     }
 
@@ -1014,7 +934,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA foreign_keys = 0;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -1023,10 +943,6 @@ DROP TABLE "People";
             //
             """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
-""",
-            //
-            """
-PRAGMA foreign_keys = 1;
 """);
     }
 
@@ -1048,7 +964,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA foreign_keys = 0;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -1057,10 +973,6 @@ DROP TABLE "People";
             //
             """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
-""",
-            //
-            """
-PRAGMA foreign_keys = 1;
 """);
     }
 
@@ -1082,7 +994,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA foreign_keys = 0;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -1091,10 +1003,6 @@ DROP TABLE "People";
             //
             """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
-""",
-            //
-            """
-PRAGMA foreign_keys = 1;
 """);
     }
 
@@ -1159,7 +1067,7 @@ FROM "Entity";
 """,
             //
             """
-PRAGMA foreign_keys = 0;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -1168,10 +1076,6 @@ DROP TABLE "Entity";
             //
             """
 ALTER TABLE "ef_temp_Entity" RENAME TO "Entity";
-""",
-            //
-            """
-PRAGMA foreign_keys = 1;
 """);
     }
 
@@ -1216,7 +1120,7 @@ FROM "Entity";
 """,
             //
             """
-PRAGMA foreign_keys = 0;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -1225,10 +1129,6 @@ DROP TABLE "Entity";
             //
             """
 ALTER TABLE "ef_temp_Entity" RENAME TO "Entity";
-""",
-            //
-            """
-PRAGMA foreign_keys = 1;
 """);
     }
 
@@ -1258,7 +1158,7 @@ FROM "Entity";
 """,
             //
             """
-PRAGMA foreign_keys = 0;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -1267,10 +1167,6 @@ DROP TABLE "Entity";
             //
             """
 ALTER TABLE "ef_temp_Entity" RENAME TO "Entity";
-""",
-            //
-            """
-PRAGMA foreign_keys = 1;
 """);
     }
 
@@ -1299,7 +1195,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA foreign_keys = 0;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -1308,10 +1204,6 @@ DROP TABLE "People";
             //
             """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
-""",
-            //
-            """
-PRAGMA foreign_keys = 1;
 """);
     }
 
@@ -1333,7 +1225,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA foreign_keys = 0;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -1342,10 +1234,6 @@ DROP TABLE "People";
             //
             """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
-""",
-            //
-            """
-PRAGMA foreign_keys = 1;
 """);
     }
 
@@ -1368,7 +1256,7 @@ FROM "Entity";
 """,
             //
             """
-PRAGMA foreign_keys = 0;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -1377,10 +1265,6 @@ DROP TABLE "Entity";
             //
             """
 ALTER TABLE "ef_temp_Entity" RENAME TO "Entity";
-""",
-            //
-            """
-PRAGMA foreign_keys = 1;
 """);
     }
 
@@ -1460,7 +1344,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA foreign_keys = 0;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -1469,10 +1353,6 @@ DROP TABLE "People";
             //
             """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
-""",
-            //
-            """
-PRAGMA foreign_keys = 1;
 """);
     }
 
@@ -1494,7 +1374,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA foreign_keys = 0;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -1503,10 +1383,6 @@ DROP TABLE "People";
             //
             """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
-""",
-            //
-            """
-PRAGMA foreign_keys = 1;
 """);
     }
 
@@ -1528,7 +1404,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA foreign_keys = 0;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -1537,10 +1413,6 @@ DROP TABLE "People";
             //
             """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
-""",
-            //
-            """
-PRAGMA foreign_keys = 1;
 """);
     }
 
@@ -1564,7 +1436,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA foreign_keys = 0;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -1573,10 +1445,6 @@ DROP TABLE "People";
             //
             """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
-""",
-            //
-            """
-PRAGMA foreign_keys = 1;
 """);
     }
 
@@ -1598,7 +1466,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA foreign_keys = 0;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -1607,10 +1475,6 @@ DROP TABLE "People";
             //
             """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
-""",
-            //
-            """
-PRAGMA foreign_keys = 1;
 """);
     }
 
@@ -1632,7 +1496,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA foreign_keys = 0;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -1641,10 +1505,6 @@ DROP TABLE "People";
             //
             """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
-""",
-            //
-            """
-PRAGMA foreign_keys = 1;
 """);
     }
 
@@ -1672,7 +1532,7 @@ FROM "Orders";
 """,
             //
             """
-PRAGMA foreign_keys = 0;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -1681,10 +1541,6 @@ DROP TABLE "Orders";
             //
             """
 ALTER TABLE "ef_temp_Orders" RENAME TO "Orders";
-""",
-            //
-            """
-PRAGMA foreign_keys = 1;
 """,
             //
             """
@@ -1716,7 +1572,7 @@ FROM "Orders";
 """,
             //
             """
-PRAGMA foreign_keys = 0;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -1725,10 +1581,6 @@ DROP TABLE "Orders";
             //
             """
 ALTER TABLE "ef_temp_Orders" RENAME TO "Orders";
-""",
-            //
-            """
-PRAGMA foreign_keys = 1;
 """,
             //
             """
@@ -1759,7 +1611,7 @@ FROM "Orders";
 """,
             //
             """
-PRAGMA foreign_keys = 0;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -1768,10 +1620,6 @@ DROP TABLE "Orders";
             //
             """
 ALTER TABLE "ef_temp_Orders" RENAME TO "Orders";
-""",
-            //
-            """
-PRAGMA foreign_keys = 1;
 """);
     }
 
@@ -1795,7 +1643,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA foreign_keys = 0;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -1804,10 +1652,6 @@ DROP TABLE "People";
             //
             """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
-""",
-            //
-            """
-PRAGMA foreign_keys = 1;
 """);
     }
 
@@ -1832,7 +1676,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA foreign_keys = 0;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -1841,10 +1685,6 @@ DROP TABLE "People";
             //
             """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
-""",
-            //
-            """
-PRAGMA foreign_keys = 1;
 """);
     }
 
@@ -1867,7 +1707,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA foreign_keys = 0;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -1876,10 +1716,6 @@ DROP TABLE "People";
             //
             """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
-""",
-            //
-            """
-PRAGMA foreign_keys = 1;
 """);
     }
 
@@ -1903,7 +1739,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA foreign_keys = 0;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -1912,10 +1748,6 @@ DROP TABLE "People";
             //
             """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
-""",
-            //
-            """
-PRAGMA foreign_keys = 1;
 """);
     }
 
@@ -1939,7 +1771,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA foreign_keys = 0;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -1948,10 +1780,6 @@ DROP TABLE "People";
             //
             """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
-""",
-            //
-            """
-PRAGMA foreign_keys = 1;
 """);
     }
 
@@ -1974,7 +1802,7 @@ FROM "People";
 """,
             //
             """
-PRAGMA foreign_keys = 0;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -1983,10 +1811,6 @@ DROP TABLE "People";
             //
             """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
-""",
-            //
-            """
-PRAGMA foreign_keys = 1;
 """);
     }
 
@@ -2328,7 +2152,7 @@ FROM "Person";
 """,
             //
             """
-PRAGMA foreign_keys = 0;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -2337,10 +2161,6 @@ DROP TABLE "Person";
             //
             """
 ALTER TABLE "ef_temp_Person" RENAME TO "Person";
-""",
-            //
-            """
-PRAGMA foreign_keys = 1;
 """,
             //
             """
@@ -2494,7 +2314,7 @@ FROM "Product";
 """,
             //
             """
-PRAGMA foreign_keys = 0;
+PRAGMA defer_foreign_keys = 1;
 """,
             //
             """
@@ -2503,10 +2323,6 @@ DROP TABLE "Product";
             //
             """
 ALTER TABLE "ef_temp_Product" RENAME TO "Product";
-""",
-            //
-            """
-PRAGMA foreign_keys = 1;
 """);
     }
 
