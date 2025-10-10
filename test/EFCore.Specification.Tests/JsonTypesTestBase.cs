@@ -144,7 +144,7 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public DateOnly DateOnly { get; set; }
     }
 
-    [Theory, InlineData("00:00:00.0000000", """{"Prop":"00:00:00.0000000"}"""),
+    [Theory, InlineData("00:00:00.0000000", """{"Prop":"00:00:00"}"""),
      InlineData("23:59:59.9999999", """{"Prop":"23:59:59.9999999"}"""), InlineData("11:05:12.3456789", """{"Prop":"11:05:12.3456789"}""")]
     public virtual Task Can_read_write_TimeOnly_JSON_values(string value, string json)
         => Can_read_and_write_JSON_value<TimeOnlyType, TimeOnly>(
@@ -494,7 +494,7 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public DateOnly? DateOnly { get; set; }
     }
 
-    [Theory, InlineData("00:00:00.0000000", """{"Prop":"00:00:00.0000000"}"""),
+    [Theory, InlineData("00:00:00.0000000", """{"Prop":"00:00:00"}"""),
      InlineData("23:59:59.9999999", """{"Prop":"23:59:59.9999999"}"""), InlineData("11:05:12.3456789", """{"Prop":"11:05:12.3456789"}"""),
      InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_TimeOnly_JSON_values(string? value, string json)
@@ -1657,7 +1657,7 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public IList<DateOnly> DateOnly { get; set; } = null!;
     }
 
-    [Theory, InlineData("""{"Prop":["00:00:00.0000000","11:05:02.0030040","23:59:59.9999999"]}""")]
+    [Theory, InlineData("""{"Prop":["00:00:00","11:05:02.0030040","23:59:59.9999999"]}""")]
     public virtual Task Can_read_write_collection_of_TimeOnly_JSON_values(string expected)
         => Can_read_and_write_JSON_value<TimeOnlyCollectionType, IReadOnlyCollection<TimeOnly>>(
             nameof(TimeOnlyCollectionType.TimeOnly),
@@ -2238,7 +2238,7 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public IList<DateOnly?> DateOnly { get; set; } = null!;
     }
 
-    [Theory, InlineData("""{"Prop":[null,"00:00:00.0000000","11:05:02.0030040","23:59:59.9999999"]}""")]
+    [Theory, InlineData("""{"Prop":[null,"00:00:00","11:05:02.0030040","23:59:59.9999999"]}""")]
     public virtual Task Can_read_write_collection_of_nullable_TimeOnly_JSON_values(string expected)
         => Can_read_and_write_JSON_value<NullableTimeOnlyCollectionType, List<TimeOnly?>>(
             nameof(NullableTimeOnlyCollectionType.TimeOnly),
