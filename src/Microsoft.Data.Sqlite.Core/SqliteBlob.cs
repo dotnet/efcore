@@ -206,8 +206,12 @@ public class SqliteBlob : Stream
             count = (int)(Length - position);
         }
 
-        var rc = sqlite3_blob_read(_blob, buffer.Slice(0, count), (int)position);
-        SqliteException.ThrowExceptionForRC(rc, _connection.Handle);
+        // Newer sqlite3_blob_read returns error for 0-byte reads.
+        if (count > 0)
+        {
+            var rc = sqlite3_blob_read(_blob, buffer.Slice(0, count), (int)position);
+            SqliteException.ThrowExceptionForRC(rc, _connection.Handle);
+        }
         _position += count;
         return count;
     }
@@ -280,8 +284,12 @@ public class SqliteBlob : Stream
             throw new NotSupportedException(Resources.ResizeNotSupported);
         }
 
-        var rc = sqlite3_blob_write(_blob, buffer.Slice(0, count), (int)position);
-        SqliteException.ThrowExceptionForRC(rc, _connection.Handle);
+        // Newer sqlite3_blob_write returns error for 0-byte writes.
+        if (count > 0)
+        {
+            var rc = sqlite3_blob_write(_blob, buffer.Slice(0, count), (int)position);
+            SqliteException.ThrowExceptionForRC(rc, _connection.Handle);
+        }
         _position += count;
     }
 
