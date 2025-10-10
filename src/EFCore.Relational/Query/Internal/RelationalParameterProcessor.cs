@@ -31,7 +31,7 @@ public class RelationalParameterProcessor : ExpressionVisitor
     ///     <see cref="ISqlGenerationHelper.GenerateParameterName(string)" /> (i.e. they're prefixed), since
     ///     <see cref="DbParameter.ParameterName" /> can be prefixed or not.
     /// </summary>
-    private readonly HashSet<string> _prefixedParameterNames = [];
+    private readonly HashSet<string> _prefixedParameterNames = new(StringComparer.OrdinalIgnoreCase);
 
     private readonly Dictionary<string, SqlParameterExpression> _sqlParameters = new();
 
