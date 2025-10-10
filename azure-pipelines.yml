@@ -75,9 +75,8 @@ extends:
         parameters:
           enableMicrobuild: true
           enablePublishBuildArtifacts: true
-          enablePublishBuildAssets: true
+          enablePublishBuildAssets: false
           enablePublishTestResults: false
-          enablePublishUsingPipelines: ${{ variables._PublishUsingPipelines }}
           publishAssetsImmediately: true
           isAssetlessBuild: true
           enableTelemetry: true
