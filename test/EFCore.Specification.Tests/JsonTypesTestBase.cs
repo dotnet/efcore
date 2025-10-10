@@ -144,7 +144,7 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public DateOnly DateOnly { get; set; }
     }
 
-    [ConditionalTheory, InlineData("00:00:00.0000000", """{"Prop":"00:00:00.0000000"}"""),
+    [ConditionalTheory, InlineData("00:00:00.0000000", """{"Prop":"00:00:00"}"""),
      InlineData("23:59:59.9999999", """{"Prop":"23:59:59.9999999"}"""), InlineData("11:05:12.3456789", """{"Prop":"11:05:12.3456789"}""")]
     public virtual Task Can_read_write_TimeOnly_JSON_values(string value, string json)
         => Can_read_and_write_JSON_value<TimeOnlyType, TimeOnly>(
@@ -494,7 +494,7 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public DateOnly? DateOnly { get; set; }
     }
 
-    [ConditionalTheory, InlineData("00:00:00.0000000", """{"Prop":"00:00:00.0000000"}"""),
+    [ConditionalTheory, InlineData("00:00:00.0000000", """{"Prop":"00:00:00"}"""),
      InlineData("23:59:59.9999999", """{"Prop":"23:59:59.9999999"}"""), InlineData("11:05:12.3456789", """{"Prop":"11:05:12.3456789"}"""),
      InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_TimeOnly_JSON_values(string? value, string json)
@@ -1666,7 +1666,7 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
                 new TimeOnly(11, 5, 2, 3, 4),
                 TimeOnly.MaxValue
             ],
-            """{"Prop":["00:00:00.0000000","11:05:02.0030040","23:59:59.9999999"]}""",
+            """{"Prop":["00:00:00","11:05:02.0030040","23:59:59.9999999"]}""",
             mappedCollection: true,
             new List<TimeOnly>());
 
@@ -2248,7 +2248,7 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
                 new TimeOnly(11, 5, 2, 3, 4),
                 TimeOnly.MaxValue
             ],
-            """{"Prop":[null,"00:00:00.0000000","11:05:02.0030040","23:59:59.9999999"]}""",
+            """{"Prop":[null,"00:00:00","11:05:02.0030040","23:59:59.9999999"]}""",
             mappedCollection: true);
 
     protected class NullableTimeOnlyCollectionType
