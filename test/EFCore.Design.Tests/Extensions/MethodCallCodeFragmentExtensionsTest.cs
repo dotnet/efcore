@@ -29,12 +29,11 @@ namespace Microsoft.EntityFrameworkCore.Extensions
             var usings = methodCall.GetRequiredUsings();
 
             Assert.Equal(
-                new[]
-                {
+                [
                     "Microsoft.EntityFrameworkCore.Extensions.Namespace1",
                     "Microsoft.EntityFrameworkCore.Extensions.Namespace2",
                     "Microsoft.EntityFrameworkCore.Extensions.Namespace3"
-                },
+                ],
                 usings);
         }
     }

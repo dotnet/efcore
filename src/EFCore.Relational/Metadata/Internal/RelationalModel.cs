@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Text;
-using System.Text.Json;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -272,7 +271,22 @@ public class RelationalModel : Annotatable, IRelationalModel
         var isTph = entityType.FindDiscriminatorProperty() != null;
         while (mappedType != null)
         {
-            var mappedTableName = isTph ? entityType.GetRootType().Name : mappedType.Name;
+            // Find the table name this entity type is mapped to, taking into account
+            // ownership and inheritance.
+            var principalRootEntityType = mappedType;
+
+            if (mappedType.FindOwnership() is { } ownership && (ownership.IsUnique || mappedType.IsMappedToJson()))
+            {
+                principalRootEntityType = ownership.PrincipalEntityType;
+            }
+
+            if (principalRootEntityType.FindDiscriminatorProperty() is not null)
+            {
+                principalRootEntityType = principalRootEntityType.GetRootType();
+            }
+
+            var mappedTableName = principalRootEntityType.Name;
+
             if (!databaseModel.DefaultTables.TryGetValue(mappedTableName, out var defaultTable))
             {
                 defaultTable = new TableBase(mappedTableName, null, databaseModel);
@@ -295,7 +309,7 @@ public class RelationalModel : Annotatable, IRelationalModel
             }
             else
             {
-                CreateDefaultColumnMapping(entityType, mappedType, defaultTable, tableMapping, isTph, isTpc);
+                CreateDefaultColumnMapping(entityType, mappedType, defaultTable, tableMapping, isTph, isTpc, relationalTypeMappingSource);
             }
 
             if (((ITableMappingBase)tableMapping).ColumnMappings.Any()
@@ -322,7 +336,8 @@ public class RelationalModel : Annotatable, IRelationalModel
         TableBase defaultTable,
         TableMappingBase<ColumnMappingBase> tableMapping,
         bool isTph,
-        bool isTpc)
+        bool isTpc,
+        IRelationalTypeMappingSource relationalTypeMappingSource)
     {
         foreach (var property in typeBase.GetProperties())
         {
@@ -357,13 +372,13 @@ public class RelationalModel : Annotatable, IRelationalModel
             var complexType = complexProperty.ComplexType;
             tableMapping = new TableMappingBase<ColumnMappingBase>(complexType, defaultTable, includesDerivedTypes: null);
 
-            CreateDefaultColumnMapping(complexType, complexType, defaultTable, tableMapping, isTph, isTpc);
+            CreateDefaultColumnMapping(complexType, complexType, defaultTable, tableMapping, isTph, isTpc, relationalTypeMappingSource);
 
             var tableMappings = (List<TableMappingBase<ColumnMappingBase>>?)complexType
                 .FindRuntimeAnnotationValue(RelationalAnnotationNames.DefaultMappings);
             if (tableMappings == null)
             {
-                tableMappings = new List<TableMappingBase<ColumnMappingBase>>();
+                tableMappings = [];
                 complexType.AddRuntimeAnnotation(RelationalAnnotationNames.DefaultMappings, tableMappings);
             }
 
@@ -397,7 +412,7 @@ public class RelationalModel : Annotatable, IRelationalModel
     private static IEnumerable<ITableMapping> GetTableMappings(ITypeBase typeBase)
         => (IEnumerable<ITableMapping>?)typeBase.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.TableMappings)
-            ?? Enumerable.Empty<ITableMapping>();
+            ?? [];
 
     private static void AddTables(
         RelationalModel databaseModel,
@@ -497,7 +512,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         if (!string.IsNullOrEmpty(containerColumnName))
         {
             CreateContainerColumn(
-                table, containerColumnName, containerColumnType, (IEntityType)mappedType, relationalTypeMappingSource,
+                table, containerColumnName, containerColumnType, mappedType, relationalTypeMappingSource,
                 static (colName, colType, table, mapping) => new JsonColumn(colName, colType ?? mapping.StoreType, (Table)table, mapping));
         }
         else
@@ -527,29 +542,31 @@ public class RelationalModel : Annotatable, IRelationalModel
 
                 CreateColumnMapping(column, property, tableMapping);
             }
+        }
 
-            foreach (var complexProperty in mappedType.GetDeclaredComplexProperties())
+        // TODO: Change this to call GetComplexProperties()
+        // Issue #31248
+        foreach (var complexProperty in mappedType.GetDeclaredComplexProperties())
+        {
+            var complexType = complexProperty.ComplexType;
+
+            var complexTableMappings =
+                (List<TableMapping>?)complexType.FindRuntimeAnnotationValue(RelationalAnnotationNames.TableMappings);
+            if (complexTableMappings == null)
             {
-                var complexType = complexProperty.ComplexType;
-
-                var complexTableMappings =
-                    (List<TableMapping>?)complexType.FindRuntimeAnnotationValue(RelationalAnnotationNames.TableMappings);
-                if (complexTableMappings == null)
-                {
-                    complexTableMappings = [];
-                    complexType.AddRuntimeAnnotation(RelationalAnnotationNames.TableMappings, complexTableMappings);
-                }
-
-                CreateTableMapping(
-                    relationalTypeMappingSource,
-                    complexType,
-                    complexType,
-                    mappedTable,
-                    databaseModel,
-                    complexTableMappings,
-                    includesDerivedTypes: true,
-                    isSplitEntityTypePrincipal: isSplitEntityTypePrincipal == true ? false : isSplitEntityTypePrincipal);
+                complexTableMappings = [];
+                complexType.AddRuntimeAnnotation(RelationalAnnotationNames.TableMappings, complexTableMappings);
             }
+
+            CreateTableMapping(
+                relationalTypeMappingSource,
+                complexType,
+                complexType,
+                mappedTable,
+                databaseModel,
+                complexTableMappings,
+                includesDerivedTypes: true,
+                isSplitEntityTypePrincipal: isSplitEntityTypePrincipal == true ? false : isSplitEntityTypePrincipal);
         }
 
         if (((ITableMappingBase)tableMapping).ColumnMappings.Any()
@@ -571,19 +588,40 @@ public class RelationalModel : Annotatable, IRelationalModel
         TableBase tableBase,
         string containerColumnName,
         string? containerColumnType,
-        IEntityType mappedType,
+        ITypeBase mappedType,
         IRelationalTypeMappingSource relationalTypeMappingSource,
         Func<string, string?, TableBase, RelationalTypeMapping, ColumnBase<TColumnMappingBase>> createColumn)
         where TColumnMappingBase : class, IColumnMappingBase
     {
-        var ownership = mappedType.GetForeignKeys().Single(fk => fk.IsOwnership);
-        if (!ownership.PrincipalEntityType.IsMappedToJson())
+        IForeignKey? ownership = null;
+        if (mappedType is IEntityType entityType)
         {
-            Check.DebugAssert(tableBase.FindColumn(containerColumnName) == null, $"Table does not have column '{containerColumnName}'.");
+            ownership = entityType.GetForeignKeys().SingleOrDefault(fk => fk.IsOwnership);
+        }
 
-            var jsonColumnTypeMapping = relationalTypeMappingSource.FindMapping(typeof(JsonElement), storeTypeName: containerColumnType)!;
-            var jsonColumn = createColumn(containerColumnName, containerColumnType, tableBase, jsonColumnTypeMapping);
-            tableBase.Columns.Add(containerColumnName, jsonColumn);
+        var shouldCreateJsonColumn = (ownership != null && !ownership.PrincipalEntityType.IsMappedToJson())
+            || (mappedType is IComplexType complexType && !complexType.ComplexProperty.DeclaringType.IsMappedToJson());
+        if (!shouldCreateJsonColumn)
+        {
+            return;
+        }
+
+        Check.DebugAssert(
+            tableBase.FindColumn(containerColumnName) == null, $"Table '{tableBase.Name}' already has a '{containerColumnName}' column.");
+
+        var jsonColumnTypeMapping = relationalTypeMappingSource.FindMapping(
+            typeof(JsonTypePlaceholder), storeTypeName: containerColumnType);
+        if (jsonColumnTypeMapping == null)
+        {
+            throw new InvalidOperationException(
+                RelationalStrings.UnsupportedJsonColumnType(containerColumnType ?? "null", containerColumnName, tableBase.Name));
+        }
+
+        var jsonColumn = createColumn(containerColumnName, containerColumnType, tableBase, jsonColumnTypeMapping);
+        tableBase.Columns.Add(containerColumnName, jsonColumn);
+
+        if (ownership != null)
+        {
             jsonColumn.IsNullable = !ownership.IsRequiredDependent || !ownership.IsUnique;
 
             if (ownership.PrincipalEntityType.BaseType != null)
@@ -591,6 +629,14 @@ public class RelationalModel : Annotatable, IRelationalModel
                 // if navigation is defined on a derived type, the column must be made nullable
                 jsonColumn.IsNullable = true;
             }
+        }
+        else
+        {
+            complexType = (IComplexType)mappedType;
+#pragma warning disable EF1001 // Internal EF Core API usage.
+            jsonColumn.IsNullable = complexType.ComplexProperty.IsNullable
+                || complexType.ComplexProperty.GetChainToComplexProperty(fromEntity: true).Any(p => p.IsNullable);
+#pragma warning restore EF1001 // Internal EF Core API usage.
         }
     }
 
@@ -1002,11 +1048,10 @@ public class RelationalModel : Annotatable, IRelationalModel
                 ? !isTpc && mappedType == entityType
                 : (bool?)null;
 
-            var tableMappings = GetTableMappings(entityType).Where(
-                m => m.Table.Name == mappedType.GetTableName()
-                    && m.Table.Schema == mappedType.GetSchema()
-                    && m.IsSplitEntityTypePrincipal != false
-                    && m.IncludesDerivedTypes == includesDerivedTypes);
+            var tableMappings = GetTableMappings(entityType).Where(m => m.Table.Name == mappedType.GetTableName()
+                && m.Table.Schema == mappedType.GetSchema()
+                && m.IsSplitEntityTypePrincipal != false
+                && m.IncludesDerivedTypes == includesDerivedTypes);
             var tableMapping = (TableMapping?)tableMappings.FirstOrDefault();
 
             Check.DebugAssert(tableMapping == null || tableMappings.Count() == 1, "Expected table mapping to be unique");
@@ -1363,7 +1408,7 @@ public class RelationalModel : Annotatable, IRelationalModel
     private static IEnumerable<IColumnMapping> GetTableColumnMappings(IProperty property)
         => (IEnumerable<IColumnMapping>?)property.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.TableColumnMappings)
-            ?? Enumerable.Empty<IColumnMapping>();
+            ?? [];
 
     private static IColumn? FindColumn(Table table, IProperty property)
         => GetTableColumnMappings(property)
@@ -1524,7 +1569,7 @@ public class RelationalModel : Annotatable, IRelationalModel
             }
 
             var foreignKeys = entityType.IsMappedToJson()
-                ? new[] { entityType.FindOwnership()! }
+                ? [entityType.FindOwnership()!]
                 : entityType.FindForeignKeys(primaryKey.Properties);
 
             var isMainMapping = true;
@@ -1559,54 +1604,60 @@ public class RelationalModel : Annotatable, IRelationalModel
             mainMapping.SetIsSharedTablePrincipal(true);
         }
 
-        var referencingInternalForeignKeyMap = table.ReferencingRowInternalForeignKeys;
-        if (referencingInternalForeignKeyMap != null)
+        var optionalTypes = new Dictionary<ITypeBase, bool>();
+        var entityTypesToVisit = new Queue<(ITypeBase, bool)>();
+        entityTypesToVisit.Enqueue(((IEntityType)mainMapping.TypeBase, false));
+
+        while (entityTypesToVisit.Count > 0)
         {
-            var optionalTypes = new Dictionary<ITypeBase, bool>();
-            var entityTypesToVisit = new Queue<(ITypeBase, bool)>();
-            entityTypesToVisit.Enqueue(((IEntityType)mainMapping.TypeBase, false));
-
-            while (entityTypesToVisit.Count > 0)
+            var (typeBase, optional) = entityTypesToVisit.Dequeue();
+            if (optionalTypes.TryGetValue(typeBase, out var previouslyOptional)
+                && (!previouslyOptional || optional))
             {
-                var (typeBase, optional) = entityTypesToVisit.Dequeue();
-                if (optionalTypes.TryGetValue(typeBase, out var previouslyOptional)
-                    && (!previouslyOptional || optional))
-                {
-                    continue;
-                }
+                continue;
+            }
 
-                optionalTypes[typeBase] = optional;
+            optionalTypes[typeBase] = optional;
 
-                if (typeBase is IComplexType complexType)
+            foreach (var complexProperty in typeBase.GetComplexProperties())
+            {
+                if (!complexProperty.ComplexType.IsMappedToJson())
                 {
-                    var complexProperty = complexType.ComplexProperty;
-                    entityTypesToVisit.Enqueue((complexProperty.DeclaringType, optional || complexProperty.IsNullable));
-                    continue;
-                }
-
-                var entityType = (IEntityType)typeBase;
-                if (referencingInternalForeignKeyMap.TryGetValue(entityType, out var referencingInternalForeignKeys))
-                {
-                    foreach (var referencingForeignKey in referencingInternalForeignKeys)
-                    {
-                        entityTypesToVisit.Enqueue(
-                            (referencingForeignKey.DeclaringEntityType, optional || !referencingForeignKey.IsRequiredDependent));
-                    }
-                }
-
-                if (table.EntityTypeMappings.Single(etm => etm.TypeBase == typeBase).IncludesDerivedTypes == true)
-                {
-                    foreach (var directlyDerivedEntityType in entityType.GetDirectlyDerivedTypes())
-                    {
-                        if (mappedEntityTypes.Contains(directlyDerivedEntityType)
-                            && !optionalTypes.ContainsKey(directlyDerivedEntityType))
-                        {
-                            entityTypesToVisit.Enqueue((directlyDerivedEntityType, optional));
-                        }
-                    }
+                    entityTypesToVisit.Enqueue((complexProperty.ComplexType, optional || complexProperty.IsNullable));
                 }
             }
 
+            if (typeBase is not IEntityType entityType)
+            {
+                continue;
+            }
+
+            var referencingInternalForeignKeyMap = table.ReferencingRowInternalForeignKeys;
+            if (referencingInternalForeignKeyMap != null
+                && referencingInternalForeignKeyMap.TryGetValue(entityType, out var referencingInternalForeignKeys))
+            {
+                foreach (var referencingForeignKey in referencingInternalForeignKeys)
+                {
+                    entityTypesToVisit.Enqueue(
+                        (referencingForeignKey.DeclaringEntityType, optional || !referencingForeignKey.IsRequiredDependent));
+                }
+            }
+
+            if (table.EntityTypeMappings.Single(etm => etm.TypeBase == typeBase).IncludesDerivedTypes == true)
+            {
+                foreach (var directlyDerivedEntityType in entityType.GetDirectlyDerivedTypes())
+                {
+                    if (mappedEntityTypes.Contains(directlyDerivedEntityType)
+                        && !optionalTypes.ContainsKey(directlyDerivedEntityType))
+                    {
+                        entityTypesToVisit.Enqueue((directlyDerivedEntityType, optional));
+                    }
+                }
+            }
+        }
+
+        if (optionalTypes.Count > 1)
+        {
             table.OptionalTypes = optionalTypes;
         }
     }
@@ -1682,7 +1733,7 @@ public class RelationalModel : Annotatable, IRelationalModel
 
                     if (entityTypeMapping.IncludesDerivedTypes == true
                         && foreignKey.DeclaringEntityType != entityType
-                        && entityType.FindPrimaryKey() is IKey primaryKey
+                        && entityType.FindPrimaryKey() is { } primaryKey
                         && foreignKey.Properties.SequenceEqual(primaryKey.Properties))
                     {
                         Check.DebugAssert(false, "Should not get here if name is not null");

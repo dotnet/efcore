@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
-
 namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
 /// <summary>
@@ -13,8 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 ///     <see cref="O:SqlServerDbContextOptionsExtensions.UseSqlServer" />
 ///     and it is not designed to be directly constructed in your application code.
 /// </remarks>
-public class SqlServerDbContextOptionsBuilder
-    : RelationalDbContextOptionsBuilder<SqlServerDbContextOptionsBuilder, SqlServerOptionsExtension>
+public class SqlServerDbContextOptionsBuilder : SqlEngineDbContextOptionsBuilderBase<SqlServerDbContextOptionsBuilder>
 {
     /// <summary>
     ///     Initializes a new instance of the <see cref="SqlServerDbContextOptionsBuilder" /> class.
