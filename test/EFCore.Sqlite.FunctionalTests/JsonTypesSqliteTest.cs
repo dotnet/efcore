@@ -184,6 +184,51 @@ public class JsonTypesSqliteTest(NonSharedFixture fixture) : JsonTypesRelational
         => base.Can_read_write_collection_of_nullable_GUID_JSON_values(
             """{"Prop":["00000000-0000-0000-0000-000000000000",null,"8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD","FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF"]}""");
 
+    public override Task Can_read_write_TimeOnly_JSON_values(string value, string json)
+        => base.Can_read_write_TimeOnly_JSON_values(
+            value, value switch
+            {
+                "00:00:00.0000000" => """{"Prop":"00:00:00"}""",
+                "23:59:59.9999999" => """{"Prop":"23:59:59.9999999"}""",
+                "10:09:08.0070605" => """{"Prop":"10:09:08.0070605"}""",
+                _ => throw new ArgumentOutOfRangeException(nameof(value), value, null)
+            });
+
+    public override Task Can_read_write_nullable_TimeOnly_JSON_values(string? value, string json)
+        => base.Can_read_write_nullable_TimeOnly_JSON_values(
+            value, value switch
+            {
+                "00:00:00.0000000" => """{"Prop":"00:00:00"}""",
+                "23:59:59.9999999" => """{"Prop":"23:59:59.9999999"}""",
+                "10:09:08.0070605" => """{"Prop":"10:09:08.0070605"}""",
+                null => """{"Prop":null}""",
+                _ => throw new ArgumentOutOfRangeException(nameof(value), value, null)
+            });
+
+    public override Task Can_read_write_collection_of_TimeOnly_JSON_values()
+        => Can_read_and_write_JSON_value<TimeOnlyCollectionType, IReadOnlyCollection<TimeOnly>>(
+            nameof(TimeOnlyCollectionType.TimeOnly),
+            [
+                TimeOnly.MinValue,
+                new TimeOnly(11, 5, 2, 3, 4),
+                TimeOnly.MaxValue
+            ],
+            """{"Prop":["00:00:00","11:05:02.0030040","23:59:59.9999999"]}""",
+            mappedCollection: true,
+            new List<TimeOnly>());
+
+    public override Task Can_read_write_collection_of_nullable_TimeOnly_JSON_values()
+        => Can_read_and_write_JSON_value<NullableTimeOnlyCollectionType, List<TimeOnly?>>(
+            nameof(NullableTimeOnlyCollectionType.TimeOnly),
+            [
+                null,
+                TimeOnly.MinValue,
+                new TimeOnly(11, 5, 2, 3, 4),
+                TimeOnly.MaxValue
+            ],
+            """{"Prop":[null,"00:00:00","11:05:02.0030040","23:59:59.9999999"]}""",
+            mappedCollection: true);
+
     public override Task Can_read_write_ulong_enum_JSON_values(EnumU64 value, string json)
         => Can_read_and_write_JSON_value<EnumU64Type, EnumU64>(nameof(EnumU64Type.EnumU64), value, json);
 
