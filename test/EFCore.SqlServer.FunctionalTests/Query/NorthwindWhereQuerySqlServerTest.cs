@@ -1704,19 +1704,33 @@ WHERE CAST(@i AS nvarchar(max)) + [c].[CustomerID] + CAST(@i AS nvarchar(max)) =
 """);
     }
 
-    [ConditionalTheory]
     public override async Task Two_parameters_with_same_name_get_uniquified(bool async)
     {
         await base.Two_parameters_with_same_name_get_uniquified(async);
 
         AssertSql(
             """
-@p='11'
-@p0='12'
+@customerId='ANATR' (Size = 5) (DbType = StringFixedLength)
+@customerId0='ALFKI' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] + CAST(@p AS nvarchar(max)) + [c].[CustomerID] + CAST(@p0 AS nvarchar(max)) = N'ALFKI11ALFKI12'
+WHERE [c].[CustomerID] = @customerId OR [c].[CustomerID] = @customerId0
+""");
+    }
+
+    public override async Task Two_parameters_with_same_case_insensitive_name_get_uniquified(bool async)
+    {
+        await base.Two_parameters_with_same_case_insensitive_name_get_uniquified(async);
+
+AssertSql(
+"""
+@customerID='ANATR' (Size = 5) (DbType = StringFixedLength)
+@customerId0='ALFKI' (Size = 5) (DbType = StringFixedLength)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = @customerID OR [c].[CustomerID] = @customerId0
 """);
     }
 

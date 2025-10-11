@@ -1529,13 +1529,39 @@ WHERE ((c["$type"] = "Product") AND (true ? false : true))
         AssertSql();
     }
 
-    public override async Task Two_parameters_with_same_name_get_uniquified(bool async)
-    {
-        // Concat with conversion, issue #34963.
-        await AssertTranslationFailed(() => base.Using_same_parameter_twice_in_query_generates_one_sql_parameter(async));
+    public override Task Two_parameters_with_same_name_get_uniquified(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Two_parameters_with_same_name_get_uniquified(async);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+@customerId='ANATR'
+@customerId0='ALFKI'
+
+SELECT VALUE c
+FROM root c
+WHERE ((c["id"] = @customerId) OR (c["id"] = @customerId0))
+""");
+            });
+
+    public override Task Two_parameters_with_same_case_insensitive_name_get_uniquified(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Two_parameters_with_same_case_insensitive_name_get_uniquified(async);
+
+                AssertSql(
+                    """
+@customerID='ANATR'
+@customerId='ALFKI'
+
+SELECT VALUE c
+FROM root c
+WHERE ((c["id"] = @customerID) OR (c["id"] = @customerId))
+""");
+            });
 
     public override async Task Where_Queryable_ToList_Count(bool async)
     {
