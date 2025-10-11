@@ -184,6 +184,35 @@ public class JsonTypesSqliteTest(NonSharedFixture fixture) : JsonTypesRelational
         => base.Can_read_write_collection_of_nullable_GUID_JSON_values(
             """{"Prop":["00000000-0000-0000-0000-000000000000",null,"8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD","FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF"]}""");
 
+    public override Task Can_read_write_TimeOnly_JSON_values(string value, string json)
+        => base.Can_read_write_TimeOnly_JSON_values(
+            value, value switch
+            {
+                "00:00:00.0000000" => """{"Prop":"00:00:00"}""",
+                "23:59:59.9999999" => """{"Prop":"23:59:59.9999999"}""",
+                "10:09:08.0070605" => """{"Prop":"10:09:08.0070605"}""",
+                _ => throw new ArgumentOutOfRangeException(nameof(value), value, null)
+            });
+
+    public override Task Can_read_write_nullable_TimeOnly_JSON_values(string? value, string json)
+        => base.Can_read_write_nullable_TimeOnly_JSON_values(
+            value, value switch
+            {
+                "00:00:00.0000000" => """{"Prop":"00:00:00"}""",
+                "23:59:59.9999999" => """{"Prop":"23:59:59.9999999"}""",
+                "10:09:08.0070605" => """{"Prop":"10:09:08.0070605"}""",
+                null => """{"Prop":null}""",
+                _ => throw new ArgumentOutOfRangeException(nameof(value), value, null)
+            });
+
+    public override Task Can_read_write_collection_of_TimeOnly_JSON_values(string _)
+        => base.Can_read_write_collection_of_TimeOnly_JSON_values(
+            """{"Prop":["00:00:00","11:05:02.0030040","23:59:59.9999999"]}""");
+
+    public override Task Can_read_write_collection_of_nullable_TimeOnly_JSON_values(string _)
+        => base.Can_read_write_collection_of_nullable_TimeOnly_JSON_values(
+            """{"Prop":[null,"00:00:00","11:05:02.0030040","23:59:59.9999999"]}""");
+
     [Theory, InlineData(-65504f, """{"Prop":-65504}"""), InlineData(65504f, """{"Prop":65504}"""), InlineData(0f, """{"Prop":0}"""),
      InlineData(1.5f, """{"Prop":1.5}""")]
     public virtual Task Can_read_write_Half_JSON_values(float value, string json)
