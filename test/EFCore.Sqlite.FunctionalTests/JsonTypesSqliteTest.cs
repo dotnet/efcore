@@ -190,7 +190,7 @@ public class JsonTypesSqliteTest(NonSharedFixture fixture) : JsonTypesRelational
             {
                 "00:00:00.0000000" => """{"Prop":"00:00:00"}""",
                 "23:59:59.9999999" => """{"Prop":"23:59:59.9999999"}""",
-                "10:09:08.0070605" => """{"Prop":"10:09:08.0070605"}""",
+                "11:05:12.3456789" => """{"Prop":"11:05:12.3456789"}""",
                 _ => throw new ArgumentOutOfRangeException(nameof(value), value, null)
             });
 
@@ -200,7 +200,7 @@ public class JsonTypesSqliteTest(NonSharedFixture fixture) : JsonTypesRelational
             {
                 "00:00:00.0000000" => """{"Prop":"00:00:00"}""",
                 "23:59:59.9999999" => """{"Prop":"23:59:59.9999999"}""",
-                "10:09:08.0070605" => """{"Prop":"10:09:08.0070605"}""",
+                "11:05:12.3456789" => """{"Prop":"11:05:12.3456789"}""",
                 null => """{"Prop":null}""",
                 _ => throw new ArgumentOutOfRangeException(nameof(value), value, null)
             });
