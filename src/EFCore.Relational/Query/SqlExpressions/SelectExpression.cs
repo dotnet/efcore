@@ -2855,14 +2855,15 @@ public sealed partial class SelectExpression : TableExpressionBase
     [EntityFrameworkInternal]
     public static Expression GenerateComplexPropertyShaperExpression(
         StructuralTypeProjectionExpression containerProjection,
-        IComplexProperty complexProperty)
+        IComplexProperty complexProperty,
+        bool forUpdate = false)
     {
         var complexType = complexProperty.ComplexType;
         var propertyExpressionMap = new Dictionary<IProperty, ColumnExpression>();
 
         // We do not support complex type splitting, so we will only ever have a single table/view mapping to it.
         // See Issue #32853 and Issue #31248
-        var complexTypeTable = complexType.GetViewOrTableMappings().Single().Table;
+        ITableBase complexTypeTable = forUpdate ? complexType.GetTableMappings().Single().Table : complexType.GetViewOrTableMappings().Single().Table;
 
         if (!containerProjection.TableMap.TryGetValue(complexTypeTable, out var tableAlias))
         {

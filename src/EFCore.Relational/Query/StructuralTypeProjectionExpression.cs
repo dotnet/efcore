@@ -369,9 +369,14 @@ public class StructuralTypeProjectionExpression : Expression
     ///     Binds a complex property with this structural type projection to get a shaper expression for the target complex type.
     /// </summary>
     /// <param name="complexProperty">A complex property to bind.</param>
+    /// <param name="forUpdate">Is the mapping for read (false) or update (true).</param>
     /// <returns>A shaper expression for the target complex type.</returns>
-    public virtual Expression BindComplexProperty(IComplexProperty complexProperty)
+    public virtual Expression BindComplexProperty(IComplexProperty complexProperty, bool forUpdate = false)
     {
+        if (forUpdate)
+        {
+            return SelectExpression.GenerateComplexPropertyShaperExpression(this, complexProperty, forUpdate: true);
+        }
         if (_complexPropertyCache is null || !_complexPropertyCache.TryGetValue(complexProperty, out var resultShaper))
         {
             _complexPropertyCache ??= new Dictionary<IComplexProperty, Expression>();
