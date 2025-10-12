@@ -110,10 +110,15 @@ internal class SqliteConnectionInternal
 
                 // NB: SQLite doesn't support parameters in PRAGMA statements, so we escape the value using the
                 //     quote function before concatenating.
-                var quotedPassword = ExecuteScalar(
-                    "SELECT quote($password);",
+                var quotedPassword = string.Empty;
+                using (var inMemoryConnection = new SqliteConnection("Filename=:memory:"))
+                {
+                    inMemoryConnection.Open();
+                    quotedPassword = ExecuteScalar(
+                        "SELECT quote($password);",
                     connectionOptions.Password,
                     connectionOptions.DefaultTimeout);
+                }
                 ExecuteNonQuery(
                     "PRAGMA key = " + quotedPassword + ";",
                     connectionOptions.DefaultTimeout);
