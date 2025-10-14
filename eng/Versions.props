@@ -24,11 +24,11 @@
     <MicrosoftExtensionsConfigurationJsonVersion>9.0.11</MicrosoftExtensionsConfigurationJsonVersion>
     <MicrosoftExtensionsDependencyInjectionVersion>9.0.11</MicrosoftExtensionsDependencyInjectionVersion>
     <MicrosoftExtensionsDependencyModelVersion>9.0.11</MicrosoftExtensionsDependencyModelVersion>
-    <MicrosoftExtensionsHostFactoryResolverSourcesVersion>9.0.11-servicing.25509.7</MicrosoftExtensionsHostFactoryResolverSourcesVersion>
+    <MicrosoftExtensionsHostFactoryResolverSourcesVersion>9.0.11-servicing.25513.9</MicrosoftExtensionsHostFactoryResolverSourcesVersion>
     <MicrosoftExtensionsLoggingVersion>9.0.11</MicrosoftExtensionsLoggingVersion>
     <MicrosoftNETCoreAppRefVersion>9.0.11</MicrosoftNETCoreAppRefVersion>
     <MicrosoftNETCoreAppRuntimewinx64Version>9.0.11</MicrosoftNETCoreAppRuntimewinx64Version>
-    <MicrosoftNETCoreBrowserDebugHostTransportVersion>9.0.11-servicing.25509.7</MicrosoftNETCoreBrowserDebugHostTransportVersion>
+    <MicrosoftNETCoreBrowserDebugHostTransportVersion>9.0.11-servicing.25513.9</MicrosoftNETCoreBrowserDebugHostTransportVersion>
     <SystemTextEncodingsWebVersion>9.0.11</SystemTextEncodingsWebVersion>
     <SystemTextJsonVersion>9.0.11</SystemTextJsonVersion>
     <SystemFormatsAsn1Version>9.0.11</SystemFormatsAsn1Version>
