@@ -194,25 +194,26 @@ internal class SqliteConnectionInternal
         _pool = null;
     }
 
-    private string QuotePassword(string pswd)
+    private string QuotePassword(string password)
     {
-        sqlite3 dbMem;
-        int rc = sqlite3_open(":memory:", out dbMem);
-        SqliteException.ThrowExceptionForRC(rc, dbMem);
-        sqlite3_stmt stmt = null!;
+        SqliteException.ThrowExceptionForRC(sqlite3_open(":memory:", out var db), db);
         try
         {
-            rc = sqlite3_prepare_v2(dbMem, "SELECT quote($password);", out stmt);
-            SqliteException.ThrowExceptionForRC(rc, dbMem);
-            sqlite3_bind_text(stmt, 1, pswd);
-            rc = sqlite3_step(stmt);
-            SqliteException.ThrowExceptionForRC(rc, dbMem);
-            return sqlite3_column_text(stmt, 0).utf8_to_string();
+            SqliteException.ThrowExceptionForRC(sqlite3_prepare_v2(db, "SELECT quote($password);", out var stmt), db);
+            try
+            {
+                sqlite3_bind_text(stmt, 1, password);
+                SqliteException.ThrowExceptionForRC(sqlite3_step(stmt), db);
+                return sqlite3_column_text(stmt, 0).utf8_to_string();
+            }
+            finally
+            {
+                stmt.Dispose();
+            }
         }
         finally
         {
-            stmt.Dispose();
-            dbMem.Dispose();
+            db.Dispose();
         }
     }
 
