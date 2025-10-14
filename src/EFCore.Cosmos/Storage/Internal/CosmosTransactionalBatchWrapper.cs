@@ -16,7 +16,7 @@ public class CosmosTransactionalBatchWrapper : ICosmosTransactionalBatchWrapper
     private const int OperationSerializationOverheadOverEstimateInBytes = 200;
     private const int MaxSize = 2_097_152; // 2MiB
 
-    private int _size;
+    private long _size;
 
     private readonly TransactionalBatch _transactionalBatch;
     private readonly string _collectionId;
@@ -81,7 +81,7 @@ public class CosmosTransactionalBatchWrapper : ICosmosTransactionalBatchWrapper
 
         if (_checkSize)
         {
-            var size = (stream.Length > int.MaxValue ? int.MaxValue : (int)stream.Length) + itemRequestOptionsLength + OperationSerializationOverheadOverEstimateInBytes;
+            var size = stream.Length + itemRequestOptionsLength + OperationSerializationOverheadOverEstimateInBytes;
 
             if (_size + size > MaxSize && _entries.Count != 0)
             {
@@ -106,10 +106,10 @@ public class CosmosTransactionalBatchWrapper : ICosmosTransactionalBatchWrapper
     {
         var itemRequestOptions = CreateItemRequestOptions(updateEntry, _enableContentResponseOnWrite, out var itemRequestOptionsLength);
 
-        var size = (stream.Length > int.MaxValue ? int.MaxValue : (int)stream.Length) + itemRequestOptionsLength + OperationSerializationOverheadOverEstimateInBytes + Encoding.UTF8.GetByteCount(documentId);
-
         if (_checkSize)
         {
+            var size = stream.Length + itemRequestOptionsLength + OperationSerializationOverheadOverEstimateInBytes + Encoding.UTF8.GetByteCount(documentId);
+
             if (_size + size > MaxSize && _entries.Count != 0)
             {
                 return false;

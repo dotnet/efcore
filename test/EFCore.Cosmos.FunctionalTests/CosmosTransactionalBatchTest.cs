@@ -1,7 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
 using System.Net;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Scripts;
@@ -306,7 +305,7 @@ public class CosmosTransactionalBatchTest(NonSharedFixture fixture) : NonSharedM
     }
 
     [ConditionalTheory, InlineData(true), InlineData(false)]
-    public virtual async Task SaveChanges_exactly_2_mb_does_not_split_and_one_byte_over_splits(bool oneByteOver)
+    public virtual async Task SaveChanges_exactly_2_mib_does_not_split_and_one_byte_over_splits(bool oneByteOver)
     {
         var contextFactory = await InitializeAsync<TransactionalBatchContext>();
         
@@ -417,7 +416,7 @@ public class CosmosTransactionalBatchTest(NonSharedFixture fixture) : NonSharedM
     }
 
     [ConditionalTheory, InlineData(true), InlineData(false)]
-    public virtual async Task SaveChanges_update_id_contains_special_chars_splits_into_2_batches(bool isIdSpecialChar)
+    public virtual async Task SaveChanges_update_id_contains_special_chars_which_makes_request_larger_than_2_mib_splits_into_2_batches(bool isIdSpecialChar)
     {
         var contextFactory = await InitializeAsync<TransactionalBatchContext>();
 

@@ -3,13 +3,11 @@
 
 using System.Net;
 using System.Runtime.InteropServices;
-using System.Threading;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Update.Internal;
-using Microsoft.EntityFrameworkCore.Update;
 using Newtonsoft.Json.Linq;
 using Database = Microsoft.EntityFrameworkCore.Storage.Database;
 
@@ -480,7 +478,7 @@ public class CosmosDatabaseWrapper : Database
             // Stream is disposed by Transaction.ExecuteAsync
             var stream = updateEntry.Document != null ? CosmosClientWrapper.Serialize(updateEntry.Document) : null;
 
-            // With AutoTransactionBehavior.Always, checksize is false and AddToTransaction will always return true.
+            // With AutoTransactionBehavior.Always, AddToTransaction will always return true.
             if (!AddToTransaction(transaction, updateEntry, stream))
             {
                 yield return transaction;
