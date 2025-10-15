@@ -435,6 +435,13 @@ WHERE (c["$type"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartitionKeyEnti
         AssertSql("""ReadItem(["PK2"], SharedContainerEntity2|4)""");
     }
 
+    public override async Task ReadItem_for_abstract_base_type_with_shared_container()
+    {
+        await base.ReadItem_for_abstract_base_type_with_shared_container();
+
+        AssertSql("""ReadItem(["PK2"], SharedContainerEntity3|6)""");
+    }
+
     public override async Task ReadItem_for_child_type_with_shared_container()
     {
         await base.ReadItem_for_child_type_with_shared_container();

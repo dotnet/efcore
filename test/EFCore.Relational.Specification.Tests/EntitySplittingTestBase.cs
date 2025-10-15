@@ -50,10 +50,9 @@ public abstract class EntitySplittingTestBase : NonSharedModelTestBase, IClassFi
         await TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
             UseTransaction,
-            async context => Assert.Contains(
-                CoreStrings.NonQueryTranslationFailedWithDetails(
-                    "", RelationalStrings.ExecuteOperationOnEntitySplitting("ExecuteDelete", "MeterReading"))[21..],
-                (await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+            async context =>
+            {
+                var exception = await Assert.ThrowsAsync<InvalidOperationException>(async () =>
                 {
                     if (async)
                     {
@@ -63,7 +62,12 @@ public abstract class EntitySplittingTestBase : NonSharedModelTestBase, IClassFi
                     {
                         context.MeterReadings.ExecuteDelete();
                     }
-                })).Message));
+                });
+
+                Assert.StartsWith(CoreStrings.NonQueryTranslationFailed("")[0..^1], exception.Message);
+                var innerException = Assert.IsType<InvalidOperationException>(exception.InnerException);
+                Assert.StartsWith(RelationalStrings.ExecuteOperationOnEntitySplitting("ExecuteDelete", "MeterReading"), innerException.Message);
+            });
     }
 
     // See additional tests bulk update tests in NonSharedModelBulkUpdatesTestBase

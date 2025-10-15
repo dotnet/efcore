@@ -38,9 +38,12 @@ public abstract class FiltersInheritanceBulkUpdatesRelationalTestBase<TFixture> 
                 rowsAffectedCount: 1));
 
     protected static async Task AssertTranslationFailed(string details, Func<Task> query)
-        => Assert.Contains(
-            CoreStrings.NonQueryTranslationFailedWithDetails("", details)[21..],
-            (await Assert.ThrowsAsync<InvalidOperationException>(query)).Message);
+    {
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(query);
+        Assert.StartsWith(CoreStrings.NonQueryTranslationFailed("")[0..^1], exception.Message);
+        var innerException = Assert.IsType<InvalidOperationException>(exception.InnerException);
+        Assert.Equal(details, innerException.Message);
+    }
 
     protected abstract void ClearLog();
 }

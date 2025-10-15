@@ -23,10 +23,10 @@ public abstract class NonSharedModelBulkUpdatesRelationalTestBase(NonSharedFixtu
             });
 
         await AssertTranslationFailedWithDetails(
+            RelationalStrings.ExecuteDeleteOnTableSplitting(nameof(Owner)),
             () => AssertDelete(
                 async, contextFactory.CreateContext,
-                context => context.Set<Owner>(), rowsAffectedCount: 0),
-            RelationalStrings.ExecuteDeleteOnTableSplitting(nameof(Owner)));
+                context => context.Set<Owner>(), rowsAffectedCount: 0));
     }
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
@@ -114,12 +114,14 @@ public abstract class NonSharedModelBulkUpdatesRelationalTestBase(NonSharedFixtu
         var contextFactory = await InitializeAsync<Context34677>(seed: async context => await context.Seed());
 
         // #34706
-        await Assert.ThrowsAsync<KeyNotFoundException>(() => AssertUpdate(
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => AssertUpdate(
             async,
             contextFactory.CreateContext,
             ss => ss.Foos,
             s => s.SetProperty(f => f.ComplexThing, new Context34677.ComplexThing { Prop1 = 3, Prop2 = 4 }),
             rowsAffectedCount: 1));
+
+        Assert.IsType<KeyNotFoundException>(exception.InnerException);
     }
 
     protected class Context34677(DbContextOptions options) : DbContext(options)
@@ -163,11 +165,13 @@ public abstract class NonSharedModelBulkUpdatesRelationalTestBase(NonSharedFixtu
 
     #region HelperMethods
 
-    protected static async Task AssertTranslationFailedWithDetails(Func<Task> query, string details)
-        => Assert.Contains(
-            CoreStrings.NonQueryTranslationFailedWithDetails("", details)[21..],
-            (await Assert.ThrowsAsync<InvalidOperationException>(query))
-            .Message);
+    protected static async Task AssertTranslationFailedWithDetails(string details, Func<Task> query)
+    {
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(query);
+        Assert.StartsWith(CoreStrings.NonQueryTranslationFailed("")[0..^1], exception.Message);
+        var innerException = Assert.IsType<InvalidOperationException>(exception.InnerException);
+        Assert.Equal(details, innerException.Message);
+    }
 
     public override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         => facade.UseTransaction(transaction.GetDbTransaction());
