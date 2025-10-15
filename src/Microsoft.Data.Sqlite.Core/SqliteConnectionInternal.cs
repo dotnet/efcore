@@ -110,10 +110,7 @@ internal class SqliteConnectionInternal
 
                 // NB: SQLite doesn't support parameters in PRAGMA statements, so we escape the value using the
                 //     quote function before concatenating.
-                var quotedPassword = ExecuteScalar(
-                    "SELECT quote($password);",
-                    connectionOptions.Password,
-                    connectionOptions.DefaultTimeout);
+                var quotedPassword = QuotePassword(connectionOptions.Password);
                 ExecuteNonQuery(
                     "PRAGMA key = " + quotedPassword + ";",
                     connectionOptions.DefaultTimeout);
@@ -195,6 +192,29 @@ internal class SqliteConnectionInternal
     {
         _db.Dispose();
         _pool = null;
+    }
+
+    private string QuotePassword(string password)
+    {
+        SqliteException.ThrowExceptionForRC(sqlite3_open(":memory:", out var db), db);
+        try
+        {
+            SqliteException.ThrowExceptionForRC(sqlite3_prepare_v2(db, "SELECT quote($password);", out var stmt), db);
+            try
+            {
+                sqlite3_bind_text(stmt, 1, password);
+                SqliteException.ThrowExceptionForRC(sqlite3_step(stmt), db);
+                return sqlite3_column_text(stmt, 0).utf8_to_string();
+            }
+            finally
+            {
+                stmt.Dispose();
+            }
+        }
+        finally
+        {
+            db.Dispose();
+        }
     }
 
     private void ExecuteNonQuery(string sql, int timeout)
