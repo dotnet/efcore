@@ -29,10 +29,10 @@ public sealed class CosmosConditionAttribute(CosmosCondition conditions) : Attri
 
     public string SkipReason
         => string.Format(
-                "The test Cosmos account does not meet these conditions: '{0}'",
-                string.Join(
-                    ", ", Enum.GetValues(typeof(CosmosCondition))
-                        .Cast<Enum>()
-                        .Where(Conditions.HasFlag)
-                        .Select(f => Enum.GetName(typeof(CosmosCondition), f))));
+            "The test Cosmos account does not meet these conditions: '{0}'",
+            string.Join(
+                ", ", Enum.GetValues(typeof(CosmosCondition))
+                    .Cast<Enum>()
+                    .Where(Conditions.HasFlag)
+                    .Select(f => Enum.GetName(typeof(CosmosCondition), f))));
 }

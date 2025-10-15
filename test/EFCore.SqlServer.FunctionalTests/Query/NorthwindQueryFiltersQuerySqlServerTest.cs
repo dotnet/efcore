@@ -5,6 +5,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class NorthwindQueryFiltersQuerySqlServerTest : NorthwindQueryFiltersQueryTestBase<
     NorthwindQuerySqlServerFixture<NorthwindQueryFiltersCustomizer>>
 {
@@ -136,20 +138,20 @@ WHERE [c].[CompanyName] LIKE @__ef_filter__TenantPrefix_0_startswith ESCAPE N'\'
             """
 @__ef_filter__TenantPrefix_0_startswith='B%' (Size = 40)
 
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate], [t0].[CustomerID0]
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [s].[OrderID], [s].[CustomerID], [s].[EmployeeID], [s].[OrderDate], [s].[CustomerID0]
 FROM [Customers] AS [c]
 LEFT JOIN (
-    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [t].[CustomerID] AS [CustomerID0]
+    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c1].[CustomerID] AS [CustomerID0]
     FROM [Orders] AS [o]
     LEFT JOIN (
         SELECT [c0].[CustomerID], [c0].[CompanyName]
         FROM [Customers] AS [c0]
         WHERE [c0].[CompanyName] LIKE @__ef_filter__TenantPrefix_0_startswith ESCAPE N'\'
-    ) AS [t] ON [o].[CustomerID] = [t].[CustomerID]
-    WHERE [t].[CustomerID] IS NOT NULL AND [t].[CompanyName] IS NOT NULL
-) AS [t0] ON [c].[CustomerID] = [t0].[CustomerID]
+    ) AS [c1] ON [o].[CustomerID] = [c1].[CustomerID]
+    WHERE [c1].[CustomerID] IS NOT NULL AND [c1].[CompanyName] IS NOT NULL
+) AS [s] ON [c].[CustomerID] = [s].[CustomerID]
 WHERE [c].[CompanyName] LIKE @__ef_filter__TenantPrefix_0_startswith ESCAPE N'\'
-ORDER BY [c].[CustomerID], [t0].[OrderID]
+ORDER BY [c].[CustomerID], [s].[OrderID]
 """);
     }
 
@@ -174,14 +176,14 @@ ORDER BY [c].[CustomerID]
             """
 @__ef_filter__TenantPrefix_0_startswith='B%' (Size = 40)
 
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
 FROM [Orders] AS [o]
 LEFT JOIN (
     SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
     WHERE [c].[CompanyName] LIKE @__ef_filter__TenantPrefix_0_startswith ESCAPE N'\'
-) AS [t] ON [o].[CustomerID] = [t].[CustomerID]
-WHERE [t].[CustomerID] IS NOT NULL AND [t].[CompanyName] IS NOT NULL
+) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
+WHERE [c0].[CustomerID] IS NOT NULL AND [c0].[CompanyName] IS NOT NULL
 """);
     }
 
@@ -194,7 +196,7 @@ WHERE [t].[CustomerID] IS NOT NULL AND [t].[CompanyName] IS NOT NULL
 @__ef_filter__TenantPrefix_1_startswith='B%' (Size = 40)
 @__ef_filter___quantity_0='50'
 
-SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate]
+SELECT [s].[OrderID], [s].[CustomerID], [s].[EmployeeID], [s].[OrderDate]
 FROM [Order Details] AS [o]
 INNER JOIN (
     SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
@@ -203,9 +205,9 @@ INNER JOIN (
         SELECT [c].[CustomerID], [c].[CompanyName]
         FROM [Customers] AS [c]
         WHERE [c].[CompanyName] LIKE @__ef_filter__TenantPrefix_1_startswith ESCAPE N'\'
-    ) AS [t] ON [o0].[CustomerID] = [t].[CustomerID]
-    WHERE [t].[CustomerID] IS NOT NULL AND [t].[CompanyName] IS NOT NULL
-) AS [t0] ON [o].[OrderID] = [t0].[OrderID]
+    ) AS [c0] ON [o0].[CustomerID] = [c0].[CustomerID]
+    WHERE [c0].[CustomerID] IS NOT NULL AND [c0].[CompanyName] IS NOT NULL
+) AS [s] ON [o].[OrderID] = [s].[OrderID]
 WHERE [o].[Quantity] > @__ef_filter___quantity_0
 """);
     }
@@ -228,9 +230,9 @@ INNER JOIN (
         SELECT [c0].[CustomerID], [c0].[CompanyName]
         FROM [Customers] AS [c0]
         WHERE [c0].[CompanyName] LIKE @__ef_filter__TenantPrefix_0_startswith ESCAPE N'\'
-    ) AS [t] ON [o].[CustomerID] = [t].[CustomerID]
-    WHERE [t].[CustomerID] IS NOT NULL AND [t].[CompanyName] IS NOT NULL
-) AS [t0] ON [c].[CustomerID] = [t0].[CustomerID]
+    ) AS [c1] ON [o].[CustomerID] = [c1].[CustomerID]
+    WHERE [c1].[CustomerID] IS NOT NULL AND [c1].[CompanyName] IS NOT NULL
+) AS [s] ON [c].[CustomerID] = [s].[CustomerID]
 INNER JOIN (
     SELECT [o0].[OrderID], [o0].[Discount]
     FROM [Order Details] AS [o0]
@@ -238,15 +240,15 @@ INNER JOIN (
         SELECT [o1].[OrderID]
         FROM [Orders] AS [o1]
         LEFT JOIN (
-            SELECT [c1].[CustomerID], [c1].[CompanyName]
-            FROM [Customers] AS [c1]
-            WHERE [c1].[CompanyName] LIKE @__ef_filter__TenantPrefix_0_startswith ESCAPE N'\'
-        ) AS [t3] ON [o1].[CustomerID] = [t3].[CustomerID]
-        WHERE [t3].[CustomerID] IS NOT NULL AND [t3].[CompanyName] IS NOT NULL
-    ) AS [t2] ON [o0].[OrderID] = [t2].[OrderID]
+            SELECT [c2].[CustomerID], [c2].[CompanyName]
+            FROM [Customers] AS [c2]
+            WHERE [c2].[CompanyName] LIKE @__ef_filter__TenantPrefix_0_startswith ESCAPE N'\'
+        ) AS [c3] ON [o1].[CustomerID] = [c3].[CustomerID]
+        WHERE [c3].[CustomerID] IS NOT NULL AND [c3].[CompanyName] IS NOT NULL
+    ) AS [s0] ON [o0].[OrderID] = [s0].[OrderID]
     WHERE [o0].[Quantity] > @__ef_filter___quantity_1
-) AS [t1] ON [t0].[OrderID] = [t1].[OrderID]
-WHERE [c].[CompanyName] LIKE @__ef_filter__TenantPrefix_0_startswith ESCAPE N'\' AND [t1].[Discount] < CAST(10 AS real)
+) AS [s1] ON [s].[OrderID] = [s1].[OrderID]
+WHERE [c].[CompanyName] LIKE @__ef_filter__TenantPrefix_0_startswith ESCAPE N'\' AND [s1].[Discount] < CAST(10 AS real)
 """);
     }
 
@@ -294,8 +296,8 @@ LEFT JOIN (
     SELECT [c].[CustomerID], [c].[CompanyName]
     FROM [Customers] AS [c]
     WHERE [c].[CompanyName] LIKE @__ef_filter__TenantPrefix_0_startswith ESCAPE N'\'
-) AS [t] ON [m].[CustomerID] = [t].[CustomerID]
-WHERE [t].[CustomerID] IS NOT NULL AND [t].[CompanyName] IS NOT NULL
+) AS [c0] ON [m].[CustomerID] = [c0].[CustomerID]
+WHERE [c0].[CustomerID] IS NOT NULL AND [c0].[CompanyName] IS NOT NULL
 """);
     }
 
@@ -337,8 +339,8 @@ LEFT JOIN (
     SELECT [c].[CustomerID], [c].[CompanyName]
     FROM [Customers] AS [c]
     WHERE [c].[CompanyName] LIKE @__ef_filter__TenantPrefix_0_startswith ESCAPE N'\'
-) AS [t] ON [o].[CustomerID] = [t].[CustomerID]
-WHERE [t].[CustomerID] IS NOT NULL AND [t].[CompanyName] IS NOT NULL
+) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
+WHERE [c0].[CustomerID] IS NOT NULL AND [c0].[CompanyName] IS NOT NULL
 """);
     }
 
@@ -357,14 +359,14 @@ WHERE [t].[CustomerID] IS NOT NULL AND [t].[CompanyName] IS NOT NULL
             """
 @__ef_filter__TenantPrefix_0_startswith='B%' (Size = 40)
 
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
 FROM [Orders] AS [o]
 LEFT JOIN (
     SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
     WHERE [c].[CompanyName] LIKE @__ef_filter__TenantPrefix_0_startswith ESCAPE N'\'
-) AS [t] ON [o].[CustomerID] = [t].[CustomerID]
-WHERE [t].[CustomerID] IS NOT NULL AND [t].[CompanyName] IS NOT NULL
+) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
+WHERE [c0].[CustomerID] IS NOT NULL AND [c0].[CompanyName] IS NOT NULL
 """);
     }
 
