@@ -273,61 +273,56 @@ public class TemporaryValuesTest
 
         protected internal override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<EntityWithNonIndexers>(
-                b =>
-                {
-                    b.Property(e => e.ValueProperty)
-                        .ValueGeneratedOnAdd()
-                        .HasValueGenerator<TemporaryIntValueGenerator>();
+            modelBuilder.Entity<EntityWithNonIndexers>(b =>
+            {
+                b.Property(e => e.ValueProperty)
+                    .ValueGeneratedOnAdd()
+                    .HasValueGenerator<TemporaryIntValueGenerator>();
 
-                    b.Property(e => e.NullableValueProperty)
-                        .ValueGeneratedOnAdd()
-                        .HasValueGenerator<TemporaryIntValueGenerator>();
+                b.Property(e => e.NullableValueProperty)
+                    .ValueGeneratedOnAdd()
+                    .HasValueGenerator<TemporaryIntValueGenerator>();
 
-                    b.Property(e => e.ReferenceValueProperty)
-                        .ValueGeneratedOnAdd()
-                        .HasValueGenerator<TemporaryStringValueGenerator>();
-                });
+                b.Property(e => e.ReferenceValueProperty)
+                    .ValueGeneratedOnAdd()
+                    .HasValueGenerator<TemporaryStringValueGenerator>();
+            });
 
-            modelBuilder.Entity<EntityWithIndexersAsObject>(
-                b =>
-                {
-                    b.IndexerProperty<int>("ValueProperty")
-                        .ValueGeneratedOnAdd()
-                        .HasValueGenerator<TemporaryIntValueGenerator>();
+            modelBuilder.Entity<EntityWithIndexersAsObject>(b =>
+            {
+                b.IndexerProperty<int>("ValueProperty")
+                    .ValueGeneratedOnAdd()
+                    .HasValueGenerator<TemporaryIntValueGenerator>();
 
-                    b.IndexerProperty<int?>("NullableValueProperty")
-                        .ValueGeneratedOnAdd()
-                        .HasValueGenerator<TemporaryIntValueGenerator>();
+                b.IndexerProperty<int?>("NullableValueProperty")
+                    .ValueGeneratedOnAdd()
+                    .HasValueGenerator<TemporaryIntValueGenerator>();
 
-                    b.IndexerProperty<string>("ReferenceValueProperty")
-                        .ValueGeneratedOnAdd()
-                        .HasValueGenerator<TemporaryStringValueGenerator>();
-                });
+                b.IndexerProperty<string>("ReferenceValueProperty")
+                    .ValueGeneratedOnAdd()
+                    .HasValueGenerator<TemporaryStringValueGenerator>();
+            });
 
-            modelBuilder.Entity<EntityWithIndexerValueProperty>(
-                b =>
-                {
-                    b.IndexerProperty<int>("ValueProperty")
-                        .ValueGeneratedOnAdd()
-                        .HasValueGenerator<TemporaryIntValueGenerator>();
-                });
+            modelBuilder.Entity<EntityWithIndexerValueProperty>(b =>
+            {
+                b.IndexerProperty<int>("ValueProperty")
+                    .ValueGeneratedOnAdd()
+                    .HasValueGenerator<TemporaryIntValueGenerator>();
+            });
 
-            modelBuilder.Entity<EntityWithIndexerNullableValueProperty>(
-                b =>
-                {
-                    b.IndexerProperty<int?>("NullableValueProperty")
-                        .ValueGeneratedOnAdd()
-                        .HasValueGenerator<TemporaryIntValueGenerator>();
-                });
+            modelBuilder.Entity<EntityWithIndexerNullableValueProperty>(b =>
+            {
+                b.IndexerProperty<int?>("NullableValueProperty")
+                    .ValueGeneratedOnAdd()
+                    .HasValueGenerator<TemporaryIntValueGenerator>();
+            });
 
-            modelBuilder.Entity<EntityWithIndexerReferenceProperty>(
-                b =>
-                {
-                    b.IndexerProperty<string>("ReferenceValueProperty")
-                        .ValueGeneratedOnAdd()
-                        .HasValueGenerator<TemporaryStringValueGenerator>();
-                });
+            modelBuilder.Entity<EntityWithIndexerReferenceProperty>(b =>
+            {
+                b.IndexerProperty<string>("ReferenceValueProperty")
+                    .ValueGeneratedOnAdd()
+                    .HasValueGenerator<TemporaryStringValueGenerator>();
+            });
         }
 
         private class TemporaryStringValueGenerator : ValueGenerator<string>

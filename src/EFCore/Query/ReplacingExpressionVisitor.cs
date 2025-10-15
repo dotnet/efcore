@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
-
 namespace Microsoft.EntityFrameworkCore.Query;
 
 /// <summary>
@@ -31,7 +29,7 @@ public class ReplacingExpressionVisitor : ExpressionVisitor
     /// <param name="tree">The expression tree in which replacement is going to be performed.</param>
     /// <returns>An expression tree with replacements made.</returns>
     public static Expression Replace(Expression original, Expression replacement, Expression tree)
-        => new ReplacingExpressionVisitor(new[] { original }, new[] { replacement }).Visit(tree);
+        => new ReplacingExpressionVisitor([original], [replacement]).Visit(tree);
 
     /// <summary>
     ///     Replaces one expression with another in given expression tree.
@@ -83,7 +81,7 @@ public class ReplacingExpressionVisitor : ExpressionVisitor
         var innerExpression = Visit(memberExpression.Expression);
 
         if (innerExpression is GroupByShaperExpression groupByShaperExpression
-            && memberExpression.Member.Name == nameof(IGrouping<int, int>.Key))
+            && memberExpression.Member.Name == nameof(IGrouping<,>.Key))
         {
             return groupByShaperExpression.KeySelector;
         }
@@ -99,8 +97,8 @@ public class ReplacingExpressionVisitor : ExpressionVisitor
 
         var mayBeMemberInitExpression = innerExpression.UnwrapTypeConversion(out _);
         if (mayBeMemberInitExpression is MemberInitExpression memberInitExpression
-            && memberInitExpression.Bindings.SingleOrDefault(
-                mb => mb.Member.IsSameAs(memberExpression.Member)) is MemberAssignment memberAssignment)
+            && memberInitExpression.Bindings.SingleOrDefault(mb => mb.Member.IsSameAs(memberExpression.Member)) is MemberAssignment
+                memberAssignment)
         {
             return memberAssignment.Expression;
         }
@@ -125,13 +123,12 @@ public class ReplacingExpressionVisitor : ExpressionVisitor
 
             var mayBeMemberInitExpression = newEntityExpression.UnwrapTypeConversion(out _);
             if (mayBeMemberInitExpression is MemberInitExpression memberInitExpression
-                && memberInitExpression.Bindings.SingleOrDefault(
-                    mb => mb.Member.Name == propertyName) is MemberAssignment memberAssignment)
+                && memberInitExpression.Bindings.SingleOrDefault(mb => mb.Member.Name == propertyName) is MemberAssignment memberAssignment)
             {
                 return memberAssignment.Expression;
             }
 
-            return methodCallExpression.Update(null, new[] { newEntityExpression, methodCallExpression.Arguments[1] });
+            return methodCallExpression.Update(null, [newEntityExpression, methodCallExpression.Arguments[1]]);
         }
 
         return base.VisitMethodCall(methodCallExpression);

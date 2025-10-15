@@ -12,12 +12,11 @@ public static class CosmosDbContextOptionsBuilderExtensions
         optionsBuilder
             .ExecutionStrategy(d => new TestCosmosExecutionStrategy(d))
             .RequestTimeout(TimeSpan.FromMinutes(20))
-            .HttpClientFactory(
-                () => new HttpClient(
-                    new HttpClientHandler
-                    {
-                        ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
-                    }))
+            .HttpClientFactory(() => new HttpClient(
+                new HttpClientHandler
+                {
+                    ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+                }))
             .ConnectionMode(ConnectionMode.Gateway);
 
         return optionsBuilder;

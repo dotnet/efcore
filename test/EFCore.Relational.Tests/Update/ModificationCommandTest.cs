@@ -343,9 +343,7 @@ public class ModificationCommandTest
         Assert.False(columnMod.IsWrite);
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public void ModificationCommand_throws_for_unchanged_entities(bool sensitive)
     {
         var entry = CreateEntry(EntityState.Unchanged);
@@ -359,9 +357,7 @@ public class ModificationCommandTest
             Assert.Throws<InvalidOperationException>(() => command.AddEntry(entry, true)).Message);
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public void ModificationCommand_throws_for_unknown_entities(bool sensitive)
     {
         var entry = CreateEntry(EntityState.Detached);
