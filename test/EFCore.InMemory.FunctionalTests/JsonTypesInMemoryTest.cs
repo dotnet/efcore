@@ -5,7 +5,7 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class JsonTypesInMemoryTest : JsonTypesTestBase
+public class JsonTypesInMemoryTest(NonSharedFixture fixture) : JsonTypesTestBase(fixture)
 {
     public override Task Can_read_write_point()
         // No built-in JSON support for spatial types in the in-memory provider

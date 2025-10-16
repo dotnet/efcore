@@ -34,9 +34,9 @@ public readonly struct ValueConverterInfo
         ConverterMappingHints? mappingHints = null)
     {
         _factory = factory;
-        Check.NotNull(modelClrType, nameof(modelClrType));
-        Check.NotNull(providerClrType, nameof(providerClrType));
-        Check.NotNull(factory, nameof(factory));
+        Check.NotNull(modelClrType);
+        Check.NotNull(providerClrType);
+        Check.NotNull(factory);
 
         ModelClrType = modelClrType;
         ProviderClrType = providerClrType;

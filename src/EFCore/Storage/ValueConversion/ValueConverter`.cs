@@ -14,15 +14,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 /// </remarks>
 public class ValueConverter<TModel, TProvider> : ValueConverter
 {
-    private Func<object?, object?>? _convertToProvider;
-    private Func<object?, object?>? _convertFromProvider;
-    private Func<TModel, TProvider>? _convertToProviderTyped;
-    private Func<TProvider, TModel>? _convertFromProviderTyped;
-
-    private static readonly ConstructorInfo MappingHintsCtor
-        = typeof(ConverterMappingHints).GetConstructor(
-            [typeof(int?), typeof(int?), typeof(int?), typeof(bool?), typeof(Func<IProperty, IEntityType, ValueGenerator>)])!;
-
     /// <summary>
     ///     Initializes a new instance of the <see cref="ValueConverter{TModel,TProvider}" /> class.
     /// </summary>
@@ -102,9 +93,10 @@ public class ValueConverter<TModel, TProvider> : ValueConverter
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information and examples.
     /// </remarks>
+    [field: AllowNull, MaybeNull]
     public override Func<object?, object?> ConvertToProvider
         => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _convertToProvider, this, static c => SanitizeConverter(c.ConvertToProviderTyped, c.ConvertsNulls));
+            ref field, this, static c => SanitizeConverter(c.ConvertToProviderTyped, c.ConvertsNulls));
 
     /// <summary>
     ///     Gets the function to convert objects when reading data from the store,
@@ -113,9 +105,10 @@ public class ValueConverter<TModel, TProvider> : ValueConverter
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information and examples.
     /// </remarks>
+    [field: AllowNull, MaybeNull]
     public override Func<object?, object?> ConvertFromProvider
         => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _convertFromProvider, this, static c => SanitizeConverter(c.ConvertFromProviderTyped, c.ConvertsNulls));
+            ref field, this, static c => SanitizeConverter(c.ConvertFromProviderTyped, c.ConvertsNulls));
 
     /// <summary>
     ///     Gets the function to convert objects when writing data to the store.
@@ -123,9 +116,10 @@ public class ValueConverter<TModel, TProvider> : ValueConverter
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information and examples.
     /// </remarks>
+    [field: AllowNull, MaybeNull]
     public virtual Func<TModel, TProvider> ConvertToProviderTyped
         => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _convertToProviderTyped, this, static c => c.ConvertToProviderExpression.Compile());
+            ref field, this, static c => c.ConvertToProviderExpression.Compile());
 
     /// <summary>
     ///     Gets the function to convert objects when reading data from the store.
@@ -133,9 +127,10 @@ public class ValueConverter<TModel, TProvider> : ValueConverter
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information and examples.
     /// </remarks>
+    [field: AllowNull, MaybeNull]
     public virtual Func<TProvider, TModel> ConvertFromProviderTyped
         => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _convertFromProviderTyped, this, static c => c.ConvertFromProviderExpression.Compile());
+            ref field, this, static c => c.ConvertFromProviderExpression.Compile());
 
     /// <summary>
     ///     Gets the expression to convert objects when writing data to the store,

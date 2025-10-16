@@ -5,16 +5,17 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class NonSharedPrimitiveCollectionsQueryRelationalTestBase : NonSharedPrimitiveCollectionsQueryTestBase
+public abstract class NonSharedPrimitiveCollectionsQueryRelationalTestBase(NonSharedFixture fixture)
+    : NonSharedPrimitiveCollectionsQueryTestBase(fixture)
 {
     // On relational databases, byte[] gets mapped to a special binary data type, which isn't queryable as a regular primitive collection.
     [ConditionalFact]
     public override Task Array_of_byte()
         => AssertTranslationFailed(() => TestArray((byte)1, (byte)2));
 
-    protected abstract DbContextOptionsBuilder SetTranslateParameterizedCollectionsToConstants(DbContextOptionsBuilder optionsBuilder);
-
-    protected abstract DbContextOptionsBuilder SetTranslateParameterizedCollectionsToParameters(DbContextOptionsBuilder optionsBuilder);
+    protected abstract DbContextOptionsBuilder SetParameterizedCollectionMode(
+        DbContextOptionsBuilder optionsBuilder,
+        ParameterTranslationMode parameterizedCollectionMode);
 
     [ConditionalFact]
     public virtual async Task Column_collection_inside_json_owned_entity()
@@ -38,11 +39,14 @@ public abstract class NonSharedPrimitiveCollectionsQueryRelationalTestBase : Non
         Assert.Equivalent(new[] { "foo", "bar" }, result.Owned.Strings);
     }
 
-    [ConditionalFact]
-    public virtual async Task Parameter_collection_Count_with_column_predicate_with_default_constants()
+    protected static IEnumerable<object[]> ParameterTranslationModeValues()
+        => Enum.GetValues<ParameterTranslationMode>().Select<ParameterTranslationMode, object[]>(x => [x]);
+
+    [ConditionalTheory, MemberData(nameof(ParameterTranslationModeValues))]
+    public virtual async Task Parameter_collection_Count_with_column_predicate_with_default_mode(ParameterTranslationMode mode)
     {
         var contextFactory = await InitializeAsync<TestContext>(
-            onConfiguring: b => SetTranslateParameterizedCollectionsToConstants(b),
+            onConfiguring: b => SetParameterizedCollectionMode(b, mode),
             seed: context =>
             {
                 context.AddRange(
@@ -58,11 +62,11 @@ public abstract class NonSharedPrimitiveCollectionsQueryRelationalTestBase : Non
         Assert.Equivalent(new[] { 100 }, result);
     }
 
-    [ConditionalFact]
-    public virtual async Task Parameter_collection_of_ints_Contains_int_with_default_constants()
+    [ConditionalTheory, MemberData(nameof(ParameterTranslationModeValues))]
+    public virtual async Task Parameter_collection_Contains_with_default_mode(ParameterTranslationMode mode)
     {
         var contextFactory = await InitializeAsync<TestContext>(
-            onConfiguring: b => SetTranslateParameterizedCollectionsToConstants(b),
+            onConfiguring: b => SetParameterizedCollectionMode(b, mode),
             seed: context =>
             {
                 context.AddRange(
@@ -79,11 +83,52 @@ public abstract class NonSharedPrimitiveCollectionsQueryRelationalTestBase : Non
         Assert.Equivalent(new[] { 2 }, result);
     }
 
-    [ConditionalFact]
-    public virtual async Task Parameter_collection_Count_with_column_predicate_with_default_constants_EF_Parameter()
+    [ConditionalTheory, MemberData(nameof(ParameterTranslationModeValues))]
+    public virtual async Task Parameter_collection_Count_with_column_predicate_with_default_mode_EF_Constant(ParameterTranslationMode mode)
     {
         var contextFactory = await InitializeAsync<TestContext>(
-            onConfiguring: b => SetTranslateParameterizedCollectionsToConstants(b),
+            onConfiguring: b => SetParameterizedCollectionMode(b, mode),
+            seed: context =>
+            {
+                context.AddRange(
+                    new TestEntity { Id = 1 },
+                    new TestEntity { Id = 100 });
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateContext();
+
+        var ids = new[] { 2, 999 };
+        var result = await context.Set<TestEntity>().Where(c => EF.Constant(ids).Count(i => i > c.Id) == 1).Select(x => x.Id).ToListAsync();
+        Assert.Equivalent(new[] { 100 }, result);
+    }
+
+    [ConditionalTheory, MemberData(nameof(ParameterTranslationModeValues))]
+    public virtual async Task Parameter_collection_Contains_with_default_mode_EF_Constant(ParameterTranslationMode mode)
+    {
+        var contextFactory = await InitializeAsync<TestContext>(
+            onConfiguring: b => SetParameterizedCollectionMode(b, mode),
+            seed: context =>
+            {
+                context.AddRange(
+                    new TestEntity { Id = 1 },
+                    new TestEntity { Id = 2 },
+                    new TestEntity { Id = 100 });
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateContext();
+
+        var ints = new[] { 2, 999 };
+        var result = await context.Set<TestEntity>().Where(c => EF.Constant(ints).Contains(c.Id)).Select(x => x.Id).ToListAsync();
+        Assert.Equivalent(new[] { 2 }, result);
+    }
+
+    [ConditionalTheory, MemberData(nameof(ParameterTranslationModeValues))]
+    public virtual async Task Parameter_collection_Count_with_column_predicate_with_default_mode_EF_Parameter(ParameterTranslationMode mode)
+    {
+        var contextFactory = await InitializeAsync<TestContext>(
+            onConfiguring: b => SetParameterizedCollectionMode(b, mode),
             seed: context =>
             {
                 context.AddRange(
@@ -100,11 +145,11 @@ public abstract class NonSharedPrimitiveCollectionsQueryRelationalTestBase : Non
         Assert.Equivalent(new[] { 100 }, result);
     }
 
-    [ConditionalFact]
-    public virtual async Task Parameter_collection_of_ints_Contains_int_with_default_constants_EF_Parameter()
+    [ConditionalTheory, MemberData(nameof(ParameterTranslationModeValues))]
+    public virtual async Task Parameter_collection_Contains_with_default_mode_EF_Parameter(ParameterTranslationMode mode)
     {
         var contextFactory = await InitializeAsync<TestContext>(
-            onConfiguring: b => SetTranslateParameterizedCollectionsToConstants(b),
+            onConfiguring: b => SetParameterizedCollectionMode(b, mode),
             seed: context =>
             {
                 context.AddRange(
@@ -121,11 +166,12 @@ public abstract class NonSharedPrimitiveCollectionsQueryRelationalTestBase : Non
         Assert.Equivalent(new[] { 2 }, result);
     }
 
-    [ConditionalFact]
-    public virtual async Task Parameter_collection_Count_with_column_predicate_with_default_parameters()
+    [ConditionalTheory, MemberData(nameof(ParameterTranslationModeValues))]
+    public virtual async Task Parameter_collection_Count_with_column_predicate_with_default_mode_EF_MultipleParameters(
+        ParameterTranslationMode mode)
     {
         var contextFactory = await InitializeAsync<TestContext>(
-            onConfiguring: b => SetTranslateParameterizedCollectionsToParameters(b),
+            onConfiguring: b => SetParameterizedCollectionMode(b, mode),
             seed: context =>
             {
                 context.AddRange(
@@ -137,15 +183,16 @@ public abstract class NonSharedPrimitiveCollectionsQueryRelationalTestBase : Non
         await using var context = contextFactory.CreateContext();
 
         var ids = new[] { 2, 999 };
-        var result = await context.Set<TestEntity>().Where(c => ids.Count(i => i > c.Id) == 1).Select(x => x.Id).ToListAsync();
+        var result = await context.Set<TestEntity>().Where(c => EF.MultipleParameters(ids).Count(i => i > c.Id) == 1).Select(x => x.Id)
+            .ToListAsync();
         Assert.Equivalent(new[] { 100 }, result);
     }
 
-    [ConditionalFact]
-    public virtual async Task Parameter_collection_of_ints_Contains_int_with_default_parameters()
+    [ConditionalTheory, MemberData(nameof(ParameterTranslationModeValues))]
+    public virtual async Task Parameter_collection_Contains_with_default_mode_EF_MultipleParameters(ParameterTranslationMode mode)
     {
         var contextFactory = await InitializeAsync<TestContext>(
-            onConfiguring: b => SetTranslateParameterizedCollectionsToParameters(b),
+            onConfiguring: b => SetParameterizedCollectionMode(b, mode),
             seed: context =>
             {
                 context.AddRange(
@@ -158,35 +205,15 @@ public abstract class NonSharedPrimitiveCollectionsQueryRelationalTestBase : Non
         await using var context = contextFactory.CreateContext();
 
         var ints = new[] { 2, 999 };
-        var result = await context.Set<TestEntity>().Where(c => ints.Contains(c.Id)).Select(x => x.Id).ToListAsync();
+        var result = await context.Set<TestEntity>().Where(c => EF.MultipleParameters(ints).Contains(c.Id)).Select(x => x.Id).ToListAsync();
         Assert.Equivalent(new[] { 2 }, result);
     }
 
     [ConditionalFact]
-    public virtual async Task Parameter_collection_Count_with_column_predicate_with_default_parameters_EF_Constant()
+    public virtual async Task Parameter_collection_Contains_parameter_bucketization()
     {
         var contextFactory = await InitializeAsync<TestContext>(
-            onConfiguring: b => SetTranslateParameterizedCollectionsToParameters(b),
-            seed: context =>
-            {
-                context.AddRange(
-                    new TestEntity { Id = 1 },
-                    new TestEntity { Id = 100 });
-                return context.SaveChangesAsync();
-            });
-
-        await using var context = contextFactory.CreateContext();
-
-        var ids = new[] { 2, 999 };
-        var result = await context.Set<TestEntity>().Where(c => EF.Constant(ids).Count(i => i > c.Id) == 1).Select(x => x.Id).ToListAsync();
-        Assert.Equivalent(new[] { 100 }, result);
-    }
-
-    [ConditionalFact]
-    public virtual async Task Parameter_collection_of_ints_Contains_int_with_default_parameters_EF_Constant()
-    {
-        var contextFactory = await InitializeAsync<TestContext>(
-            onConfiguring: b => SetTranslateParameterizedCollectionsToParameters(b),
+            onConfiguring: b => SetParameterizedCollectionMode(b, ParameterTranslationMode.MultipleParameters),
             seed: context =>
             {
                 context.AddRange(
@@ -198,8 +225,8 @@ public abstract class NonSharedPrimitiveCollectionsQueryRelationalTestBase : Non
 
         await using var context = contextFactory.CreateContext();
 
-        var ints = new[] { 2, 999 };
-        var result = await context.Set<TestEntity>().Where(c => EF.Constant(ints).Contains(c.Id)).Select(x => x.Id).ToListAsync();
+        var ints = new[] { 2, 999, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2 };
+        var result = await context.Set<TestEntity>().Where(c => ints.Contains(c.Id)).Select(c => c.Id).ToListAsync();
         Assert.Equivalent(new[] { 2 }, result);
     }
 

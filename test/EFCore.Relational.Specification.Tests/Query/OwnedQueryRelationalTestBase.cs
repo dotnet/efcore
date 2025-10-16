@@ -28,22 +28,19 @@ public abstract class OwnedQueryRelationalTestBase<TFixture>(TFixture fixture) :
     public override Task FirstOrDefault_over_owned_collection(bool async)
         => Task.CompletedTask;
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Query_for_base_type_loads_all_owned_navs_split(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<OwnedPerson>().AsSplitQuery());
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Query_for_branch_type_loads_all_owned_navs_split(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<Branch>().AsSplitQuery());
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Query_when_subquery_split(bool async)
         => AssertQuery(
             async,
@@ -54,19 +51,17 @@ public abstract class OwnedQueryRelationalTestBase<TFixture>(TFixture fixture) :
             assertOrder: true,
             elementAsserter: (e, a) => AssertEqual(e.op, a.op));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Project_multiple_owned_navigations_split(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<OwnedPerson>().OrderBy(p => p.Id).AsSplitQuery()
-                .Select(
-                    p => new
-                    {
-                        p.Orders,
-                        p.PersonAddress,
-                        p.PersonAddress.Country.Planet
-                    }),
+                .Select(p => new
+                {
+                    p.Orders,
+                    p.PersonAddress,
+                    p.PersonAddress.Country.Planet
+                }),
             assertOrder: true,
             elementAsserter: (e, a) =>
             {
@@ -75,8 +70,7 @@ public abstract class OwnedQueryRelationalTestBase<TFixture>(TFixture fixture) :
                 AssertEqual(e.Planet, a.Planet);
             });
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_collection_split(bool async)
         => AssertQuery(
             async,
@@ -84,29 +78,25 @@ public abstract class OwnedQueryRelationalTestBase<TFixture>(TFixture fixture) :
             assertOrder: true,
             elementAsserter: (e, a) => AssertCollection(e, a));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Query_with_OfType_eagerly_loads_correct_owned_navigations_split(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<OwnedPerson>().OfType<LeafA>().AsSplitQuery());
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Unmapped_property_projection_loads_owned_navigations_split(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<OwnedPerson>().Where(e => e.Id == 1).AsTracking().Select(e => new { e.ReadOnlyProperty }).AsSplitQuery());
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Can_query_on_indexer_properties_split(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<OwnedPerson>().Where(c => (string)c["Name"] == "Mona Cy").AsSplitQuery());
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Using_from_sql_on_owner_generates_join_with_table_for_owned_shared_dependents(bool async)
     {
         using var context = CreateContext();

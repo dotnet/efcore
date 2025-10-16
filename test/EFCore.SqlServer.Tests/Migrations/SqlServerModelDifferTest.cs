@@ -1755,10 +1755,7 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
                 Assert.Empty(operation2.GetAnnotations());
             });
 
-    [ConditionalTheory]
-    [InlineData(DataCompressionType.None)]
-    [InlineData(DataCompressionType.Row)]
-    [InlineData(DataCompressionType.Page)]
+    [ConditionalTheory, InlineData(DataCompressionType.None), InlineData(DataCompressionType.Row), InlineData(DataCompressionType.Page)]
     public void Dont_rebuild_index_with_unchanged_datacompression_option(DataCompressionType dataCompression)
         => Execute(
             source => source
@@ -1785,10 +1782,7 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
                     }),
             operations => Assert.Equal(0, operations.Count));
 
-    [ConditionalTheory]
-    [InlineData(DataCompressionType.None)]
-    [InlineData(DataCompressionType.Row)]
-    [InlineData(DataCompressionType.Page)]
+    [ConditionalTheory, InlineData(DataCompressionType.None), InlineData(DataCompressionType.Row), InlineData(DataCompressionType.Page)]
     public void Rebuild_index_when_adding_datacompression_option(DataCompressionType dataCompression)
         => Execute(
             _ => { },

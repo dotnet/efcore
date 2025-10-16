@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp2.0;net472</TargetFrameworks>
+    <TargetFrameworks>$(DefaultNetCoreTargetFramework);net472</TargetFrameworks>
     <Description>Entity Framework Core Command-line Tools</Description>
     <OutputType>Exe</OutputType>
     <IsPackable>false</IsPackable>
@@ -28,11 +28,6 @@
   <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Configuration" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <!-- Permit targeting `netcoreapp2.0`, see https://github.com/dotnet/efcore/issues/34654 -->
-    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-7mfr-774f-w5r9" />
   </ItemGroup>
 
   <ItemGroup>

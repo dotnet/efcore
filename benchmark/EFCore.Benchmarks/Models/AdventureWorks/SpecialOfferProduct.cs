@@ -9,9 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks;
 public class SpecialOfferProduct
 {
     public SpecialOfferProduct()
-    {
-        SalesOrderDetail = new HashSet<SalesOrderDetail>();
-    }
+        => SalesOrderDetail = new HashSet<SalesOrderDetail>();
 
     public int SpecialOfferID { get; set; }
     public int ProductID { get; set; }
