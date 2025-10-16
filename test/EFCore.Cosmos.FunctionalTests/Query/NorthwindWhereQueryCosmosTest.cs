@@ -1699,6 +1699,128 @@ WHERE ((c["id"] = @customerID) OR (c["id"] = @customerId0))
         AssertSql();
     }
 
+    public override async Task Where_Queryable_not_null_check_with_Contains(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Where_Queryable_not_null_check_with_Contains(async));
+
+        AssertSql();
+    }
+
+    public override async Task Where_Queryable_null_check_with_Contains(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Where_Queryable_null_check_with_Contains(async));
+
+        AssertSql();
+    }
+
+    public override async Task Where_Queryable_conditional_not_null_check_with_Contains(bool async, bool someFlag)
+    {
+        if (!someFlag)
+        {
+            await Fixture.NoSyncTest(
+                async, async a =>
+                {
+                    await base.Where_Queryable_conditional_not_null_check_with_Contains(a, someFlag);
+
+                    AssertSql(
+                        """
+SELECT VALUE c
+FROM root c
+WHERE false
+""");
+                });
+        }
+        else
+        {
+            // Cosmos client evaluation. Issue #17246.
+            await AssertTranslationFailed(() => base.Where_Queryable_conditional_not_null_check_with_Contains(async, someFlag));
+
+            AssertSql();
+        }
+    }
+
+    public override async Task Where_Queryable_conditional_null_check_with_Contains(bool async, bool someFlag)
+    {
+        if (!someFlag)
+        {
+            await Fixture.NoSyncTest(
+                async, async a =>
+                {
+                    await base.Where_Queryable_conditional_null_check_with_Contains(a, someFlag);
+
+                    AssertSql(
+                        """
+SELECT VALUE c
+FROM root c
+""");
+                });
+        }
+        else
+        {
+            // Cosmos client evaluation. Issue #17246.
+            await AssertTranslationFailed(() => base.Where_Queryable_conditional_null_check_with_Contains(async, someFlag));
+
+            AssertSql();
+        }
+    }
+
+    public override Task Where_Enumerable_conditional_not_null_check_with_Contains(bool async, bool someFlag)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Where_Enumerable_conditional_not_null_check_with_Contains(a, someFlag);
+
+                if (someFlag)
+                {
+                    AssertSql(
+                        """
+@ids='["ALFKI","ANATR"]'
+
+SELECT VALUE c
+FROM root c
+WHERE ARRAY_CONTAINS(@ids, c["id"])
+""");
+                }
+                else
+                {
+                    AssertSql(
+                        """
+SELECT VALUE c
+FROM root c
+WHERE false
+""");
+                }
+            });
+
+    public override Task Where_Enumerable_conditional_null_check_with_Contains(bool async, bool someFlag)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Where_Enumerable_conditional_null_check_with_Contains(a, someFlag);
+
+                if (someFlag)
+                {
+                    AssertSql(
+                        """
+@ids='["ALFKI","ANATR"]'
+
+SELECT VALUE c
+FROM root c
+WHERE NOT(ARRAY_CONTAINS(@ids, c["id"]))
+""");
+                }
+                else
+                {
+                    AssertSql(
+                        """
+SELECT VALUE c
+FROM root c
+""");
+                }
+            });
+
     public override Task Where_list_object_contains_over_value_type(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
