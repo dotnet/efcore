@@ -1848,9 +1848,9 @@ OFFSET 0 LIMIT 1
         where TContext : DbContext
     {
         var context = factory.CreateContext();
-        if (!transactionalBatch)
+        if (transactionalBatch)
         {
-            context.Database.AutoTransactionBehavior = AutoTransactionBehavior.Never;
+            context.Database.AutoTransactionBehavior = AutoTransactionBehavior.Always;
         }
         return context;
     }

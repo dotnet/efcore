@@ -208,7 +208,7 @@ public interface ICosmosClientWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    ICosmosTransactionalBatchWrapper CreateTransactionalBatch(string containerId, PartitionKey partitionKeyValue);
+    ICosmosTransactionalBatchWrapper CreateTransactionalBatch(string containerId, PartitionKey partitionKeyValue, bool checkSize);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -216,7 +216,7 @@ public interface ICosmosClientWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    Task<CosmosTransactionalBatchResult> ExecuteBatchAsync(ICosmosTransactionalBatchWrapper batch, CancellationToken cancellationToken = default);
+    Task<CosmosTransactionalBatchResult> ExecuteTransactionalBatchAsync(ICosmosTransactionalBatchWrapper batch, CancellationToken cancellationToken = default);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -224,5 +224,5 @@ public interface ICosmosClientWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    CosmosTransactionalBatchResult ExecuteBatch(ICosmosTransactionalBatchWrapper batch);
+    CosmosTransactionalBatchResult ExecuteTransactionalBatch(ICosmosTransactionalBatchWrapper batch);
 }
