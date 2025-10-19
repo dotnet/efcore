@@ -98,6 +98,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 entityType, container, property);
 
         /// <summary>
+        ///     The container with the name '{containerName}' does not exist.
+        /// </summary>
+        public static string ContainerNameDoesNotExist(object? containerName)
+            => string.Format(
+                GetString("ContainerNameDoesNotExist", nameof(containerName)),
+                containerName);
+
+        /// <summary>
         ///     An Azure Cosmos DB container name is defined on entity type '{entityType}', which inherits from '{baseEntityType}'. Container names must be defined on the root entity type of a hierarchy.
         /// </summary>
         public static string ContainerNotOnRoot(object? entityType, object? baseEntityType)

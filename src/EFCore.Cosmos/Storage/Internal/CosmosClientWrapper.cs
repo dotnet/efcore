@@ -385,7 +385,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool CreateItem(
+    public virtual CosmosWriteResult CreateItem(
         string containerId,
         JToken document,
         IUpdateEntry entry)
@@ -395,7 +395,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         return _executionStrategy.Execute((containerId, document, entry, this), CreateItemOnce, null);
     }
 
-    private static bool CreateItemOnce(
+    private static CosmosWriteResult CreateItemOnce(
         DbContext context,
         (string ContainerId, JToken Document, IUpdateEntry Entry, CosmosClientWrapper Wrapper) parameters)
         => CreateItemOnceAsync(context, parameters).GetAwaiter().GetResult();
@@ -406,14 +406,14 @@ public class CosmosClientWrapper : ICosmosClientWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Task<bool> CreateItemAsync(
+    public virtual Task<CosmosWriteResult> CreateItemAsync(
         string containerId,
         JToken document,
         IUpdateEntry updateEntry,
         CancellationToken cancellationToken = default)
         => _executionStrategy.ExecuteAsync((containerId, document, updateEntry, this), CreateItemOnceAsync, null, cancellationToken);
 
-    private static async Task<bool> CreateItemOnceAsync(
+    private static async Task<CosmosWriteResult> CreateItemOnceAsync(
         DbContext _,
         (string ContainerId, JToken Document, IUpdateEntry Entry, CosmosClientWrapper Wrapper) parameters,
         CancellationToken cancellationToken = default)
@@ -458,7 +458,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
 
         ProcessResponse(response, entry);
 
-        return response.StatusCode == HttpStatusCode.Created;
+        return CosmosWriteResult.Success(response.Headers.Session);
     }
 
     /// <summary>
@@ -467,7 +467,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool ReplaceItem(
+    public virtual CosmosWriteResult ReplaceItem(
         string collectionId,
         string documentId,
         JObject document,
@@ -478,7 +478,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         return _executionStrategy.Execute((collectionId, documentId, document, entry, this), ReplaceItemOnce, null);
     }
 
-    private static bool ReplaceItemOnce(
+    private static CosmosWriteResult ReplaceItemOnce(
         DbContext context,
         (string ContainerId, string ItemId, JObject Document, IUpdateEntry Entry, CosmosClientWrapper Wrapper) parameters)
         => ReplaceItemOnceAsync(context, parameters).GetAwaiter().GetResult();
@@ -489,7 +489,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Task<bool> ReplaceItemAsync(
+    public virtual Task<CosmosWriteResult> ReplaceItemAsync(
         string collectionId,
         string documentId,
         JObject document,
@@ -498,7 +498,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         => _executionStrategy.ExecuteAsync(
             (collectionId, documentId, document, updateEntry, this), ReplaceItemOnceAsync, null, cancellationToken);
 
-    private static async Task<bool> ReplaceItemOnceAsync(
+    private static async Task<CosmosWriteResult> ReplaceItemOnceAsync(
         DbContext _,
         (string ContainerId, string ResourceId, JObject Document, IUpdateEntry Entry, CosmosClientWrapper Wrapper) parameters,
         CancellationToken cancellationToken = default)
@@ -544,7 +544,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
 
         ProcessResponse(response, entry);
 
-        return response.StatusCode == HttpStatusCode.OK;
+        return CosmosWriteResult.Success(response.Headers.Session);
     }
 
     /// <summary>
@@ -553,7 +553,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool DeleteItem(
+    public virtual CosmosWriteResult DeleteItem(
         string containerId,
         string documentId,
         IUpdateEntry entry)
@@ -563,7 +563,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         return _executionStrategy.Execute((containerId, documentId, entry, this), DeleteItemOnce, null);
     }
 
-    private static bool DeleteItemOnce(
+    private static CosmosWriteResult DeleteItemOnce(
         DbContext context,
         (string ContainerId, string DocumentId, IUpdateEntry Entry, CosmosClientWrapper Wrapper) parameters)
         => DeleteItemOnceAsync(context, parameters).GetAwaiter().GetResult();
@@ -574,12 +574,59 @@ public class CosmosClientWrapper : ICosmosClientWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Task<bool> DeleteItemAsync(
+    public virtual Task<CosmosWriteResult> DeleteItemAsync(
         string containerId,
         string documentId,
         IUpdateEntry entry,
         CancellationToken cancellationToken = default)
         => _executionStrategy.ExecuteAsync((containerId, documentId, entry, this), DeleteItemOnceAsync, null, cancellationToken);
+
+    private static async Task<CosmosWriteResult> DeleteItemOnceAsync(
+        DbContext? _,
+        (string ContainerId, string ResourceId, IUpdateEntry Entry, CosmosClientWrapper Wrapper) parameters,
+        CancellationToken cancellationToken = default)
+    {
+        var entry = parameters.Entry;
+        var wrapper = parameters.Wrapper;
+        var items = wrapper.Client.GetDatabase(wrapper._databaseId).GetContainer(parameters.ContainerId);
+
+        var itemRequestOptions = CreateItemRequestOptions(entry, wrapper._enableContentResponseOnWrite);
+        var partitionKeyValue = ExtractPartitionKeyValue(entry);
+        var preTriggers = GetTriggers(entry, TriggerType.Pre, TriggerOperation.Delete);
+        var postTriggers = GetTriggers(entry, TriggerType.Post, TriggerOperation.Delete);
+        if (preTriggers != null || postTriggers != null)
+        {
+            itemRequestOptions ??= new ItemRequestOptions();
+            if (preTriggers != null)
+            {
+                itemRequestOptions.PreTriggers = preTriggers;
+            }
+
+            if (postTriggers != null)
+            {
+                itemRequestOptions.PostTriggers = postTriggers;
+            }
+        }
+
+        using var response = await items.DeleteItemStreamAsync(
+                parameters.ResourceId,
+                partitionKeyValue,
+                itemRequestOptions,
+                cancellationToken: cancellationToken)
+            .ConfigureAwait(false);
+
+        wrapper._commandLogger.ExecutedDeleteItem(
+            response.Diagnostics.GetClientElapsedTime(),
+            response.Headers.RequestCharge,
+            response.Headers.ActivityId,
+            parameters.ResourceId,
+            parameters.ContainerId,
+            partitionKeyValue);
+
+        ProcessResponse(response, entry);
+
+        return CosmosWriteResult.Success(response.Headers.Session);
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -650,7 +697,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
                 .ToList();
 
             var exception = new CosmosException(response.ErrorMessage, errorCode, 0, response.ActivityId, response.RequestCharge);
-            return new CosmosTransactionalBatchResult(errorEntries, exception);
+            return CosmosTransactionalBatchResult.Failure(errorEntries, exception);
         }
 
         wrapper._commandLogger.ExecutedTransactionalBatch(
@@ -663,54 +710,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
 
         ProcessResponse(response, batch.Entries);
 
-        return CosmosTransactionalBatchResult.Success;
-    }
-
-    private static async Task<bool> DeleteItemOnceAsync(
-        DbContext? _,
-        (string ContainerId, string ResourceId, IUpdateEntry Entry, CosmosClientWrapper Wrapper) parameters,
-        CancellationToken cancellationToken = default)
-    {
-        var entry = parameters.Entry;
-        var wrapper = parameters.Wrapper;
-        var items = wrapper.Client.GetDatabase(wrapper._databaseId).GetContainer(parameters.ContainerId);
-
-        var itemRequestOptions = CreateItemRequestOptions(entry, wrapper._enableContentResponseOnWrite);
-        var partitionKeyValue = ExtractPartitionKeyValue(entry);
-        var preTriggers = GetTriggers(entry, TriggerType.Pre, TriggerOperation.Delete);
-        var postTriggers = GetTriggers(entry, TriggerType.Post, TriggerOperation.Delete);
-        if (preTriggers != null || postTriggers != null)
-        {
-            itemRequestOptions ??= new ItemRequestOptions();
-            if (preTriggers != null)
-            {
-                itemRequestOptions.PreTriggers = preTriggers;
-            }
-
-            if (postTriggers != null)
-            {
-                itemRequestOptions.PostTriggers = postTriggers;
-            }
-        }
-
-        using var response = await items.DeleteItemStreamAsync(
-                parameters.ResourceId,
-                partitionKeyValue,
-                itemRequestOptions,
-                cancellationToken: cancellationToken)
-            .ConfigureAwait(false);
-
-        wrapper._commandLogger.ExecutedDeleteItem(
-            response.Diagnostics.GetClientElapsedTime(),
-            response.Headers.RequestCharge,
-            response.Headers.ActivityId,
-            parameters.ResourceId,
-            parameters.ContainerId,
-            partitionKeyValue);
-
-        ProcessResponse(response, entry);
-
-        return response.StatusCode == HttpStatusCode.NoContent;
+        return CosmosTransactionalBatchResult.Success(response.Headers.Session);
     }
 
     private static ItemRequestOptions? CreateItemRequestOptions(IUpdateEntry entry, bool? enableContentResponseOnWrite)
@@ -803,13 +803,14 @@ public class CosmosClientWrapper : ICosmosClientWrapper
     public virtual IEnumerable<JToken> ExecuteSqlQuery(
         string containerId,
         PartitionKey partitionKeyValue,
-        CosmosSqlQuery query)
+        CosmosSqlQuery query,
+        string? sessionToken)
     {
         _databaseLogger.SyncNotSupported();
 
         _commandLogger.ExecutingSqlQuery(containerId, partitionKeyValue, query);
 
-        return new DocumentEnumerable(this, containerId, partitionKeyValue, query);
+        return new DocumentEnumerable(this, containerId, partitionKeyValue, query, sessionToken);
     }
 
     /// <summary>
@@ -821,11 +822,12 @@ public class CosmosClientWrapper : ICosmosClientWrapper
     public virtual IAsyncEnumerable<JToken> ExecuteSqlQueryAsync(
         string containerId,
         PartitionKey partitionKeyValue,
-        CosmosSqlQuery query)
+        CosmosSqlQuery query,
+        string? sessionToken)
     {
         _commandLogger.ExecutingSqlQuery(containerId, partitionKeyValue, query);
 
-        return new DocumentAsyncEnumerable(this, containerId, partitionKeyValue, query);
+        return new DocumentAsyncEnumerable(this, containerId, partitionKeyValue, query, sessionToken);
     }
 
     /// <summary>
@@ -837,13 +839,14 @@ public class CosmosClientWrapper : ICosmosClientWrapper
     public virtual JObject? ExecuteReadItem(
         string containerId,
         PartitionKey partitionKeyValue,
-        string resourceId)
+        string resourceId,
+        string? sessionToken)
     {
         _databaseLogger.SyncNotSupported();
 
         _commandLogger.ExecutingReadItem(containerId, partitionKeyValue, resourceId);
 
-        var response = _executionStrategy.Execute((containerId, partitionKeyValue, resourceId, this), CreateSingleItemQuery, null);
+        var response = _executionStrategy.Execute((containerId, partitionKeyValue, resourceId, sessionToken, this), CreateSingleItemQuery, null);
 
         _commandLogger.ExecutedReadItem(
             response.Diagnostics.GetClientElapsedTime(),
@@ -866,12 +869,13 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         string containerId,
         PartitionKey partitionKeyValue,
         string resourceId,
+        string? sessionToken,
         CancellationToken cancellationToken = default)
     {
         _commandLogger.ExecutingReadItem(containerId, partitionKeyValue, resourceId);
 
         var response = await _executionStrategy.ExecuteAsync(
-                (containerId, partitionKeyValue, resourceId, this),
+                (containerId, partitionKeyValue, resourceId, sessionToken, this),
                 CreateSingleItemQueryAsync,
                 null,
                 cancellationToken)
@@ -890,31 +894,43 @@ public class CosmosClientWrapper : ICosmosClientWrapper
 
     private static ResponseMessage CreateSingleItemQuery(
         DbContext? context,
-        (string ContainerId, PartitionKey PartitionKeyValue, string ResourceId, CosmosClientWrapper Wrapper) parameters)
+        (string ContainerId, PartitionKey PartitionKeyValue, string ResourceId, string? SessionToken, CosmosClientWrapper Wrapper) parameters)
         => CreateSingleItemQueryAsync(context, parameters).GetAwaiter().GetResult();
 
     private static Task<ResponseMessage> CreateSingleItemQueryAsync(
         DbContext? _,
-        (string ContainerId, PartitionKey PartitionKeyValue, string ResourceId, CosmosClientWrapper Wrapper) parameters,
+        (string ContainerId, PartitionKey PartitionKeyValue, string ResourceId, string? SessionToken, CosmosClientWrapper Wrapper) parameters,
         CancellationToken cancellationToken = default)
     {
-        var (containerId, partitionKeyValue, resourceId, wrapper) = parameters;
+        var (containerId, partitionKeyValue, resourceId, sessionToken, wrapper) = parameters;
         var container = wrapper.Client.GetDatabase(wrapper._databaseId).GetContainer(containerId);
+
+        ItemRequestOptions? itemRequestOptions = null;
+        if (sessionToken != null)
+        {
+            itemRequestOptions = new ItemRequestOptions { SessionToken = sessionToken };
+        }
 
         return container.ReadItemStreamAsync(
             resourceId,
             partitionKeyValue,
+            itemRequestOptions,
             cancellationToken: cancellationToken);
     }
 
     private static JObject? JObjectFromReadItemResponseMessage(ResponseMessage responseMessage)
     {
-        if (responseMessage.StatusCode == HttpStatusCode.NotFound)
+        const int resourceNotFoundSubStatusCode = 0;
+
+        try
         {
+            responseMessage.EnsureSuccessStatusCode();
+        }
+        catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.NotFound && ex.SubStatusCode == resourceNotFoundSubStatusCode)
+        {
+            // @TODO: Is there a test for this return null?
             return null;
         }
-
-        responseMessage.EnsureSuccessStatusCode();
 
         var responseStream = responseMessage.Content;
         using var reader = new StreamReader(responseStream);
@@ -973,9 +989,11 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         CosmosClientWrapper cosmosClient,
         string containerId,
         PartitionKey partitionKeyValue,
-        CosmosSqlQuery cosmosSqlQuery)
+        CosmosSqlQuery cosmosSqlQuery,
+        string? sessionToken)
         : IEnumerable<JToken>
     {
+        private readonly string? _sessionToken = sessionToken;
         private readonly CosmosClientWrapper _cosmosClient = cosmosClient;
         private readonly string _containerId = containerId;
         private readonly PartitionKey _partitionKeyValue = partitionKeyValue;
@@ -989,6 +1007,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
 
         private sealed class Enumerator(DocumentEnumerable documentEnumerable) : IEnumerator<JToken>
         {
+            private readonly string? _sessionToken = documentEnumerable._sessionToken;
             private readonly CosmosClientWrapper _cosmosClientWrapper = documentEnumerable._cosmosClient;
             private readonly string _containerId = documentEnumerable._containerId;
             private readonly PartitionKey _partitionKeyValue = documentEnumerable._partitionKeyValue;
@@ -1017,6 +1036,11 @@ public class CosmosClientWrapper : ICosmosClientWrapper
                         if (_partitionKeyValue != PartitionKey.None)
                         {
                             queryRequestOptions.PartitionKey = _partitionKeyValue;
+                        }
+
+                        if (_sessionToken is not null)
+                        {
+                            queryRequestOptions.SessionToken = _sessionToken;
                         }
 
                         _query = _cosmosClientWrapper.CreateQuery(
@@ -1080,12 +1104,14 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         CosmosClientWrapper cosmosClient,
         string containerId,
         PartitionKey partitionKeyValue,
-        CosmosSqlQuery cosmosSqlQuery)
+        CosmosSqlQuery cosmosSqlQuery,
+        string? sessionToken)
         : IAsyncEnumerable<JToken>
     {
         private readonly CosmosClientWrapper _cosmosClient = cosmosClient;
         private readonly string _containerId = containerId;
         private readonly PartitionKey _partitionKeyValue = partitionKeyValue;
+        private readonly string? _sessionToken = sessionToken;
         private readonly CosmosSqlQuery _cosmosSqlQuery = cosmosSqlQuery;
 
         public IAsyncEnumerator<JToken> GetAsyncEnumerator(CancellationToken cancellationToken = default)
@@ -1097,6 +1123,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             private readonly CosmosClientWrapper _cosmosClientWrapper = documentEnumerable._cosmosClient;
             private readonly string _containerId = documentEnumerable._containerId;
             private readonly PartitionKey _partitionKeyValue = documentEnumerable._partitionKeyValue;
+            private readonly string? _sessionToken = documentEnumerable._sessionToken;
             private readonly CosmosSqlQuery _cosmosSqlQuery = documentEnumerable._cosmosSqlQuery;
 
             private JToken? _current;
@@ -1121,6 +1148,11 @@ public class CosmosClientWrapper : ICosmosClientWrapper
                         if (_partitionKeyValue != PartitionKey.None)
                         {
                             queryRequestOptions.PartitionKey = _partitionKeyValue;
+                        }
+
+                        if (_sessionToken is not null)
+                        {
+                            queryRequestOptions.SessionToken = _sessionToken;
                         }
 
                         _query = _cosmosClientWrapper.CreateQuery(

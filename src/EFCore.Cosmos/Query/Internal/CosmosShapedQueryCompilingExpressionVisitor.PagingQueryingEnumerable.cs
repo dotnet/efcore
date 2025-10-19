@@ -34,6 +34,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         private readonly string _maxItemCountParameterName;
         private readonly string _continuationTokenParameterName;
         private readonly string _responseContinuationTokenLimitInKbParameterName;
+        private readonly string _sessionToken;
 
         public PagingQueryingEnumerable(
             CosmosQueryContext cosmosQueryContext,
@@ -48,7 +49,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             bool threadSafetyChecksEnabled,
             string maxItemCountParameterName,
             string continuationTokenParameterName,
-            string responseContinuationTokenLimitInKbParameterName)
+            string responseContinuationTokenLimitInKbParameterName,
+            string sessionToken)
         {
             _cosmosQueryContext = cosmosQueryContext;
             _sqlExpressionFactory = sqlExpressionFactory;
@@ -63,7 +65,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             _maxItemCountParameterName = maxItemCountParameterName;
             _continuationTokenParameterName = continuationTokenParameterName;
             _responseContinuationTokenLimitInKbParameterName = responseContinuationTokenLimitInKbParameterName;
-
+            _sessionToken = sessionToken;
             _cosmosContainer = rootEntityType.GetContainer()
                 ?? throw new UnreachableException("Root entity type without a Cosmos container.");
             _cosmosPartitionKey = GeneratePartitionKey(
@@ -89,13 +91,13 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             private readonly Type _contextType;
             private readonly string _cosmosContainer;
             private readonly PartitionKey _cosmosPartitionKey;
+            private readonly string _sessionToken;
             private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
             private readonly IDiagnosticsLogger<DbLoggerCategory.Database.Command> _commandLogger;
             private readonly bool _standAloneStateManager;
             private readonly CancellationToken _cancellationToken;
             private readonly IConcurrencyDetector _concurrencyDetector;
             private readonly IExceptionDetector _exceptionDetector;
-
             private bool _hasExecuted;
             private bool _isDisposed;
 
@@ -107,6 +109,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 _contextType = queryingEnumerable._contextType;
                 _cosmosContainer = queryingEnumerable._cosmosContainer;
                 _cosmosPartitionKey = queryingEnumerable._cosmosPartitionKey;
+                _sessionToken = queryingEnumerable._sessionToken;
                 _queryLogger = queryingEnumerable._queryLogger;
                 _commandLogger = queryingEnumerable._commandLogger;
                 _standAloneStateManager = queryingEnumerable._standAloneStateManager;
@@ -153,6 +156,11 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     if (_cosmosPartitionKey != PartitionKey.None)
                     {
                         queryRequestOptions.PartitionKey = _cosmosPartitionKey;
+                    }
+
+                    if (_sessionToken is not null)
+                    {
+                        queryRequestOptions.SessionToken = _sessionToken;
                     }
 
                     var cosmosClient = _cosmosQueryContext.CosmosClient;

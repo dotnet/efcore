@@ -147,6 +147,10 @@
   <data name="ContainerContainingPropertyConflict" xml:space="preserve">
     <value>The entity type '{entityType}' is mapped to the container '{container}' but it is also configured as being contained in property '{property}'.</value>
   </data>
+  <data name="ContainerNameDoesNotExist" xml:space="preserve">
+    <value>The container with the name '{containerName}' does not exist.</value>
+    <comment>string</comment>
+  </data>
   <data name="ContainerNotOnRoot" xml:space="preserve">
     <value>An Azure Cosmos DB container name is defined on entity type '{entityType}', which inherits from '{baseEntityType}'. Container names must be defined on the root entity type of a hierarchy.</value>
   </data>

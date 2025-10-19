@@ -3,6 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Storage;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 
 // ReSharper disable once CheckNamespace
@@ -24,6 +25,22 @@ public static class CosmosDatabaseFacadeExtensions
     /// <returns>The <see cref="CosmosClient" /></returns>
     public static CosmosClient GetCosmosClient(this DatabaseFacade databaseFacade)
         => GetService<ISingletonCosmosClientWrapper>(databaseFacade).Client;
+
+    /// <summary>
+    ///     Gets <see cref="SessionTokenStorage"/> used to manage the session tokens for this <see cref="DbContext" />.
+    /// </summary>
+    /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
+    /// <returns>The Gets <see cref="SessionTokenStorage"/>.</returns>
+    public static SessionTokenStorage GetSessionTokens(this DatabaseFacade databaseFacade)
+    {
+        var db = GetService<IDatabase>(databaseFacade);
+        if (db is not CosmosDatabaseWrapper dbWrapper)
+        {
+            throw new InvalidOperationException(CosmosStrings.CosmosNotInUse);
+        }
+
+        return dbWrapper.SessionTokenStorage!;
+    }
 
     private static TService GetService<TService>(IInfrastructure<IServiceProvider> databaseFacade)
         where TService : class

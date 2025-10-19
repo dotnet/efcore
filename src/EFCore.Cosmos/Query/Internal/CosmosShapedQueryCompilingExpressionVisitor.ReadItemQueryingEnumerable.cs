@@ -25,6 +25,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         private readonly string _cosmosContainer;
         private readonly ReadItemInfo _readItemInfo;
         private readonly PartitionKey _cosmosPartitionKey;
+        private readonly string _sessionToken;
         private readonly Func<CosmosQueryContext, JObject, T> _shaper;
         private readonly Type _contextType;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
@@ -39,7 +40,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             Func<CosmosQueryContext, JObject, T> shaper,
             Type contextType,
             bool standAloneStateManager,
-            bool threadSafetyChecksEnabled)
+            bool threadSafetyChecksEnabled,
+            string sessionToken)
         {
             _cosmosQueryContext = cosmosQueryContext;
             _rootEntityType = rootEntityType;
@@ -49,7 +51,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             _queryLogger = _cosmosQueryContext.QueryLogger;
             _standAloneStateManager = standAloneStateManager;
             _threadSafetyChecksEnabled = threadSafetyChecksEnabled;
-
+            _sessionToken = sessionToken;
             _cosmosContainer = rootEntityType.GetContainer()
                 ?? throw new UnreachableException("Root entity type without a Cosmos container.");
             _cosmosPartitionKey = GeneratePartitionKey(
@@ -105,6 +107,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             private readonly CosmosQueryContext _cosmosQueryContext;
             private readonly string _cosmosContainer;
             private readonly PartitionKey _cosmosPartitionKey;
+            private readonly string _sessionToken;
             private readonly Func<CosmosQueryContext, JObject, T> _shaper;
             private readonly Type _contextType;
             private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
@@ -122,6 +125,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 _cosmosQueryContext = readItemEnumerable._cosmosQueryContext;
                 _cosmosContainer = readItemEnumerable._cosmosContainer;
                 _cosmosPartitionKey = readItemEnumerable._cosmosPartitionKey;
+                _sessionToken = readItemEnumerable._sessionToken;
                 _shaper = readItemEnumerable._shaper;
                 _contextType = readItemEnumerable._contextType;
                 _queryLogger = readItemEnumerable._queryLogger;
@@ -161,7 +165,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     _item = _cosmosQueryContext.CosmosClient.ExecuteReadItem(
                         _cosmosContainer,
                         _cosmosPartitionKey,
-                        resourceId);
+                        resourceId,
+                        _sessionToken);
 
                     return ShapeResult();
                 }
@@ -202,6 +207,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                             _cosmosContainer,
                             _cosmosPartitionKey,
                             resourceId,
+                            _sessionToken,
                             _cancellationToken)
                         .ConfigureAwait(false);
 

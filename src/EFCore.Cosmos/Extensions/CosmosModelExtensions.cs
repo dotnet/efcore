@@ -24,6 +24,14 @@ public static class CosmosModelExtensions
         => (string?)model[CosmosAnnotationNames.ContainerName];
 
     /// <summary>
+    ///     Returns the all container names used in the model.
+    /// </summary>
+    /// <param name="model">The model.</param>
+    /// <returns>A set of the names of the containers used in the model.</returns>
+    public static HashSet<string> GetContainerNames(this IReadOnlyModel model)
+        => (HashSet<string>)model[CosmosAnnotationNames.ContainerNames]!;
+
+    /// <summary>
     ///     Sets the default container name.
     /// </summary>
     /// <param name="model">The model.</param>

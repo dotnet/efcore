@@ -44,7 +44,17 @@ public class CosmosRuntimeModelConvention : RuntimeModelConvention
         {
             annotations.Remove(CosmosAnnotationNames.Throughput);
         }
+
+        annotations.Add(CosmosAnnotationNames.ContainerNames, GetContainerNames(model));
     }
+
+    private HashSet<string> GetContainerNames(IModel model)
+        => model.GetEntityTypes()
+            .Where(et => et.FindPrimaryKey() != null)
+            .Select(et => et.GetContainer())
+            .Where(container => container != null)
+            .Distinct()!
+            .ToHashSet()!;
 
     /// <summary>
     ///     Updates the entity type annotations that will be set on the read-only object.

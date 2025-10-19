@@ -83,6 +83,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
         var threadSafetyConstant = Constant(_threadSafetyChecksEnabled);
         var standAloneStateManagerConstant = Constant(
             QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution);
+        var sessionTokenConstant = Constant(cosmosQueryCompilationContext.GetSessionToken());
 
         Check.DebugAssert(!paging || selectExpression.ReadItemInfo is null, "ReadItem is being with paging, impossible.");
 
@@ -97,7 +98,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
                 shaperConstant,
                 contextTypeConstant,
                 standAloneStateManagerConstant,
-                threadSafetyConstant),
+                threadSafetyConstant,
+                sessionTokenConstant),
 
             _ when paging => New(
                 typeof(PagingQueryingEnumerable<>).MakeGenericType(shaperLambda.ReturnType).GetConstructors()[0],
@@ -113,7 +115,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
                 threadSafetyConstant,
                 Constant(maxItemCount.Name),
                 Constant(continuationToken.Name),
-                Constant(responseContinuationTokenLimitInKb.Name)),
+                Constant(responseContinuationTokenLimitInKb.Name),
+                sessionTokenConstant),
 
             _ => New(
                 typeof(QueryingEnumerable<>).MakeGenericType(shaperLambda.ReturnType).GetConstructors()[0], cosmosQueryContextConstant,
@@ -125,7 +128,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
                 rootEntityTypeConstant,
                 Constant(cosmosQueryCompilationContext.PartitionKeyPropertyValues),
                 standAloneStateManagerConstant,
-                threadSafetyConstant)
+                threadSafetyConstant,
+                sessionTokenConstant)
         };
     }
 

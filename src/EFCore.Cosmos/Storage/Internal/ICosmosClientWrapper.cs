@@ -67,7 +67,7 @@ public interface ICosmosClientWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    bool CreateItem(string containerId, JToken document, IUpdateEntry entry);
+    CosmosWriteResult CreateItem(string containerId, JToken document, IUpdateEntry entry);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -75,7 +75,7 @@ public interface ICosmosClientWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    bool ReplaceItem(
+    CosmosWriteResult ReplaceItem(
         string collectionId,
         string documentId,
         JObject document,
@@ -87,7 +87,7 @@ public interface ICosmosClientWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    bool DeleteItem(
+    CosmosWriteResult DeleteItem(
         string containerId,
         string documentId,
         IUpdateEntry entry);
@@ -98,7 +98,7 @@ public interface ICosmosClientWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    Task<bool> CreateItemAsync(
+    Task<CosmosWriteResult> CreateItemAsync(
         string containerId,
         JToken document,
         IUpdateEntry updateEntry,
@@ -110,7 +110,7 @@ public interface ICosmosClientWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    Task<bool> ReplaceItemAsync(
+    Task<CosmosWriteResult> ReplaceItemAsync(
         string collectionId,
         string documentId,
         JObject document,
@@ -123,7 +123,8 @@ public interface ICosmosClientWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    Task<bool> DeleteItemAsync(
+    // @TODO: We also need to send session token on writes to keep the same chain or not?
+    Task<CosmosWriteResult> DeleteItemAsync(
         string containerId,
         string documentId,
         IUpdateEntry entry,
@@ -150,7 +151,8 @@ public interface ICosmosClientWrapper
     JObject? ExecuteReadItem(
         string containerId,
         PartitionKey partitionKeyValue,
-        string resourceId);
+        string resourceId,
+        string? sessionToken);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -162,6 +164,7 @@ public interface ICosmosClientWrapper
         string containerId,
         PartitionKey partitionKeyValue,
         string resourceId,
+        string? sessionToken,
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -173,7 +176,8 @@ public interface ICosmosClientWrapper
     IEnumerable<JToken> ExecuteSqlQuery(
         string containerId,
         PartitionKey partitionKeyValue,
-        CosmosSqlQuery query);
+        CosmosSqlQuery query,
+        string? sessionToken);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -184,7 +188,8 @@ public interface ICosmosClientWrapper
     IAsyncEnumerable<JToken> ExecuteSqlQueryAsync(
         string containerId,
         PartitionKey partitionKeyValue,
-        CosmosSqlQuery query);
+        CosmosSqlQuery query,
+        string? sessionToken);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
