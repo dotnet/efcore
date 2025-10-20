@@ -111,6 +111,7 @@ public sealed class SessionTokenStorage : ISessionTokenStorage
         ArgumentNullException.ThrowIfNullOrWhiteSpace(containerName, nameof(containerName));
         if (sessionToken is not null && string.IsNullOrWhiteSpace(sessionToken))
         {
+            // @TODO: Exception messages in this file.
             throw new ArgumentException("sessionToken cannot be whitespace.", sessionToken);
         }
 
