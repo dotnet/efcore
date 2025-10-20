@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public sealed class SessionTokenStorage : ISessionTokenStorage
+public class SessionTokenStorage : ISessionTokenStorage
 {
     private readonly Dictionary<string, CompositeSessionToken> _containerSessionTokens;
     private readonly string _defaultContainerName;
@@ -42,7 +42,7 @@ public sealed class SessionTokenStorage : ISessionTokenStorage
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public string? GetSessionToken()
+    public virtual string? GetSessionToken()
         => GetSessionToken(_defaultContainerName);
 
     /// <summary>
@@ -51,7 +51,7 @@ public sealed class SessionTokenStorage : ISessionTokenStorage
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public void SetSessionToken(string? sessionToken)
+    public virtual void SetSessionToken(string? sessionToken)
         => SetSessionToken(_defaultContainerName, sessionToken);
 
     /// <summary>
@@ -60,7 +60,7 @@ public sealed class SessionTokenStorage : ISessionTokenStorage
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public void AppendSessionToken(string sessionToken)
+    public virtual void AppendSessionToken(string sessionToken)
         => AppendSessionToken(_defaultContainerName, sessionToken);
 
     /// <summary>
@@ -69,7 +69,7 @@ public sealed class SessionTokenStorage : ISessionTokenStorage
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public string? GetSessionToken(string containerName)
+    public virtual string? GetSessionToken(string containerName)
     {
         ArgumentNullException.ThrowIfNullOrWhiteSpace(containerName, nameof(containerName));
 
@@ -87,7 +87,7 @@ public sealed class SessionTokenStorage : ISessionTokenStorage
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public void AppendSessionToken(string containerName, string sessionToken)
+    public virtual void AppendSessionToken(string containerName, string sessionToken)
     {
         ArgumentNullException.ThrowIfNullOrWhiteSpace(containerName, nameof(containerName));
         ArgumentNullException.ThrowIfNullOrWhiteSpace(sessionToken, nameof(sessionToken));
@@ -106,7 +106,7 @@ public sealed class SessionTokenStorage : ISessionTokenStorage
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public void SetSessionToken(string containerName, string? sessionToken)
+    public virtual void SetSessionToken(string containerName, string? sessionToken)
     {
         ArgumentNullException.ThrowIfNullOrWhiteSpace(containerName, nameof(containerName));
         if (sessionToken is not null && string.IsNullOrWhiteSpace(sessionToken))

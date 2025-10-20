@@ -19,22 +19,11 @@ public sealed class CosmosTransactionalBatchResult
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static CosmosTransactionalBatchResult Success(string? sessionToken)
-        => new CosmosTransactionalBatchResult(sessionToken);
+    public static CosmosTransactionalBatchResult Success { get; } = new CosmosTransactionalBatchResult();
 
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public static CosmosTransactionalBatchResult Failure(IReadOnlyList<IUpdateEntry> entries, CosmosException exception)
-        => new CosmosTransactionalBatchResult(entries, exception);
-
-    private CosmosTransactionalBatchResult(string? sessionToken)
+    private CosmosTransactionalBatchResult()
     {
         IsSuccess = true;
-        SessionToken = sessionToken;
     }
 
     /// <summary>
@@ -43,7 +32,7 @@ public sealed class CosmosTransactionalBatchResult
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    private CosmosTransactionalBatchResult(IReadOnlyList<IUpdateEntry> entries, CosmosException exception)
+    public CosmosTransactionalBatchResult(IReadOnlyList<IUpdateEntry> entries, CosmosException exception)
     {
         IsSuccess = false;
         ErroredEntries = entries;
@@ -58,14 +47,6 @@ public sealed class CosmosTransactionalBatchResult
     /// </summary>
     [MemberNotNullWhen(false, nameof(ErroredEntries), nameof(Exception))]
     public bool IsSuccess { get; }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public string? SessionToken { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

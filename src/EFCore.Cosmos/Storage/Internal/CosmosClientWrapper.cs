@@ -699,12 +699,10 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         var wrapper = parameters.Wrapper;
         var sessionTokenStorage = parameters.SessionTokenStorage;
 
-        var options = new TransactionalBatchRequestOptions();
-        var sessionToken = sessionTokenStorage.GetSessionToken(batch.CollectionId);
-        if (!string.IsNullOrWhiteSpace(sessionToken))
+        var options = new TransactionalBatchRequestOptions
         {
-            options.SessionToken = sessionToken;
-        }
+            SessionToken = sessionTokenStorage.GetSessionToken(batch.CollectionId)
+        };
 
         using var response = await transactionalBatch.ExecuteAsync(options, cancellationToken).ConfigureAwait(false);
 
@@ -726,19 +724,17 @@ public class CosmosClientWrapper : ICosmosClientWrapper
                 .ToList();
 
             var exception = new CosmosException(response.ErrorMessage, errorCode, 0, response.ActivityId, response.RequestCharge);
-            return CosmosTransactionalBatchResult.Failure(errorEntries, exception);
+            return new CosmosTransactionalBatchResult(errorEntries, exception);
         }
 
         ProcessResponse(batch.CollectionId, response, batch.Entries, sessionTokenStorage);
 
-        return CosmosTransactionalBatchResult.Success(response.Headers.Session);
+        return CosmosTransactionalBatchResult.Success;
     }
 
     private static ItemRequestOptions? CreateItemRequestOptions(IUpdateEntry entry, bool? enableContentResponseOnWrite, string? sessionToken)
     {
         var helper = RequestOptionsHelper.Create(entry, enableContentResponseOnWrite);
-
-        sessionToken = string.IsNullOrWhiteSpace(sessionToken) ? null : sessionToken;
 
         return helper == null
             ? null

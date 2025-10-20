@@ -13,6 +13,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 /// </summary>
 public class CosmosQueryCompilationContextFactory : IQueryCompilationContextFactory
 {
+    private ISessionTokenStorage? _sessionTokenStorage;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -22,7 +24,6 @@ public class CosmosQueryCompilationContextFactory : IQueryCompilationContextFact
     public CosmosQueryCompilationContextFactory(QueryCompilationContextDependencies dependencies)
     {
         Dependencies = dependencies;
-        SessionTokenStorage = dependencies.Context.Database.GetSessionTokens();
     }
 
     /// <summary>
@@ -39,7 +40,7 @@ public class CosmosQueryCompilationContextFactory : IQueryCompilationContextFact
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected virtual ISessionTokenStorage SessionTokenStorage { get; }
+    protected virtual ISessionTokenStorage SessionTokenStorage => _sessionTokenStorage ??= Dependencies.Context.Database.GetSessionTokens();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
