@@ -84,8 +84,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
         var standAloneStateManagerConstant = Constant(
             QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution);
         var sessionTokenStorageConstant = Constant(cosmosQueryCompilationContext.SessionTokenStorage);
-        var sessionToken = cosmosQueryCompilationContext.SessionToken ?? cosmosQueryCompilationContext.SessionTokenStorage.GetSessionToken(rootEntityType.GetContainer()!);
-        var sessionTokenConstant = Constant(sessionToken, typeof(string));
 
         Check.DebugAssert(!paging || selectExpression.ReadItemInfo is null, "ReadItem is being with paging, impossible.");
 
@@ -101,8 +99,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
                 contextTypeConstant,
                 standAloneStateManagerConstant,
                 threadSafetyConstant,
-                sessionTokenStorageConstant,
-                sessionTokenConstant),
+                sessionTokenStorageConstant),
 
             _ when paging => New(
                 typeof(PagingQueryingEnumerable<>).MakeGenericType(shaperLambda.ReturnType).GetConstructors()[0],
@@ -119,8 +116,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
                 Constant(maxItemCount.Name),
                 Constant(continuationToken.Name),
                 Constant(responseContinuationTokenLimitInKb.Name),
-                sessionTokenStorageConstant,
-                sessionTokenConstant),
+                sessionTokenStorageConstant),
 
             _ => New(
                 typeof(QueryingEnumerable<>).MakeGenericType(shaperLambda.ReturnType).GetConstructors()[0], cosmosQueryContextConstant,
@@ -133,8 +129,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
                 Constant(cosmosQueryCompilationContext.PartitionKeyPropertyValues),
                 standAloneStateManagerConstant,
                 threadSafetyConstant,
-                sessionTokenStorageConstant,
-                sessionTokenConstant)
+                sessionTokenStorageConstant)
         };
     }
 

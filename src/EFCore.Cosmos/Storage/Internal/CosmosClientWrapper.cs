@@ -838,14 +838,13 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         string containerId,
         PartitionKey partitionKeyValue,
         CosmosSqlQuery query,
-        ISessionTokenStorage sessionTokenStorage,
-        string? sessionToken)
+        ISessionTokenStorage sessionTokenStorage)
     {
         _databaseLogger.SyncNotSupported();
 
         _commandLogger.ExecutingSqlQuery(containerId, partitionKeyValue, query);
 
-        return new DocumentEnumerable(this, containerId, partitionKeyValue, query, sessionTokenStorage, sessionToken);
+        return new DocumentEnumerable(this, containerId, partitionKeyValue, query, sessionTokenStorage);
     }
 
     /// <summary>
@@ -858,12 +857,11 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         string containerId,
         PartitionKey partitionKeyValue,
         CosmosSqlQuery query,
-        ISessionTokenStorage sessionTokenStorage,
-        string? sessionToken)
+        ISessionTokenStorage sessionTokenStorage)
     {
         _commandLogger.ExecutingSqlQuery(containerId, partitionKeyValue, query);
 
-        return new DocumentAsyncEnumerable(this, containerId, partitionKeyValue, query, sessionTokenStorage, sessionToken);
+        return new DocumentAsyncEnumerable(this, containerId, partitionKeyValue, query, sessionTokenStorage);
     }
 
     /// <summary>
@@ -876,14 +874,13 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         string containerId,
         PartitionKey partitionKeyValue,
         string resourceId,
-        ISessionTokenStorage sessionTokenStorage,
-        string? sessionToken)
+        ISessionTokenStorage sessionTokenStorage)
     {
         _databaseLogger.SyncNotSupported();
 
         _commandLogger.ExecutingReadItem(containerId, partitionKeyValue, resourceId);
 
-        var response = _executionStrategy.Execute((containerId, partitionKeyValue, resourceId, sessionTokenStorage, sessionToken, this), CreateSingleItemQuery, null);
+        var response = _executionStrategy.Execute((containerId, partitionKeyValue, resourceId, sessionTokenStorage, this), CreateSingleItemQuery, null);
 
         _commandLogger.ExecutedReadItem(
             response.Diagnostics.GetClientElapsedTime(),
@@ -907,13 +904,12 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         PartitionKey partitionKeyValue,
         string resourceId,
         ISessionTokenStorage sessionTokenStorage,
-        string? sessionToken,
         CancellationToken cancellationToken = default)
     {
         _commandLogger.ExecutingReadItem(containerId, partitionKeyValue, resourceId);
 
         var response = await _executionStrategy.ExecuteAsync(
-                (containerId, partitionKeyValue, resourceId, sessionTokenStorage, sessionToken, this),
+                (containerId, partitionKeyValue, resourceId, sessionTokenStorage, this),
                 CreateSingleItemQueryAsync,
                 null,
                 cancellationToken)
@@ -932,22 +928,18 @@ public class CosmosClientWrapper : ICosmosClientWrapper
 
     private static ResponseMessage CreateSingleItemQuery(
         DbContext? context,
-        (string ContainerId, PartitionKey PartitionKeyValue, string ResourceId, ISessionTokenStorage SessionTokenStorage, string? SessionToken, CosmosClientWrapper Wrapper) parameters)
+        (string ContainerId, PartitionKey PartitionKeyValue, string ResourceId, ISessionTokenStorage SessionTokenStorage, CosmosClientWrapper Wrapper) parameters)
         => CreateSingleItemQueryAsync(context, parameters).GetAwaiter().GetResult();
 
     private static async Task<ResponseMessage> CreateSingleItemQueryAsync(
         DbContext? _,
-        (string ContainerId, PartitionKey PartitionKeyValue, string ResourceId, ISessionTokenStorage SessionTokenStorage, string? SessionToken, CosmosClientWrapper Wrapper) parameters,
+        (string ContainerId, PartitionKey PartitionKeyValue, string ResourceId, ISessionTokenStorage SessionTokenStorage, CosmosClientWrapper Wrapper) parameters,
         CancellationToken cancellationToken = default)
     {
-        var (containerId, partitionKeyValue, resourceId, sessionTokenStorage, sessionToken, wrapper) = parameters;
+        var (containerId, partitionKeyValue, resourceId, sessionTokenStorage, wrapper) = parameters;
         var container = wrapper.Client.GetDatabase(wrapper._databaseId).GetContainer(containerId);
 
-        ItemRequestOptions? itemRequestOptions = null;
-        if (sessionToken != null)
-        {
-            itemRequestOptions = new ItemRequestOptions { SessionToken = sessionToken };
-        }
+        var itemRequestOptions = new ItemRequestOptions { SessionToken = sessionTokenStorage.GetSessionToken(containerId) };
 
         var response = await container.ReadItemStreamAsync(
             resourceId,
@@ -1043,8 +1035,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         string containerId,
         PartitionKey partitionKeyValue,
         CosmosSqlQuery cosmosSqlQuery,
-        ISessionTokenStorage sessionTokenStorage,
-        string? sessionToken)
+        ISessionTokenStorage sessionTokenStorage)
         : IEnumerable<JToken>
     {
         private readonly CosmosClientWrapper _cosmosClient = cosmosClient;
@@ -1052,7 +1043,6 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         private readonly PartitionKey _partitionKeyValue = partitionKeyValue;
         private readonly CosmosSqlQuery _cosmosSqlQuery = cosmosSqlQuery;
         private readonly ISessionTokenStorage _sessionTokenStorage = sessionTokenStorage;
-        private readonly string? _sessionToken = sessionToken;
 
         public IEnumerator<JToken> GetEnumerator()
             => new Enumerator(this);
@@ -1067,7 +1057,6 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             private readonly PartitionKey _partitionKeyValue = documentEnumerable._partitionKeyValue;
             private readonly CosmosSqlQuery _cosmosSqlQuery = documentEnumerable._cosmosSqlQuery;
             private readonly ISessionTokenStorage _sessionTokenStorage = documentEnumerable._sessionTokenStorage;
-            private readonly string? _sessionToken = documentEnumerable._sessionToken;
 
             private JToken? _current;
             private ResponseMessage? _responseMessage;
@@ -1094,10 +1083,8 @@ public class CosmosClientWrapper : ICosmosClientWrapper
                             queryRequestOptions.PartitionKey = _partitionKeyValue;
                         }
 
-                        if (_sessionToken is not null)
-                        {
-                            queryRequestOptions.SessionToken = _sessionToken;
-                        }
+                        // @TODO: Or should this be inside CreateQuery...
+                        queryRequestOptions.SessionToken = _sessionTokenStorage.GetSessionToken(_containerId);
 
                         _query = _cosmosClientWrapper.CreateQuery(
                             _containerId, _cosmosSqlQuery, _sessionTokenStorage, continuationToken: null, queryRequestOptions);
@@ -1161,8 +1148,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         string containerId,
         PartitionKey partitionKeyValue,
         CosmosSqlQuery cosmosSqlQuery,
-        ISessionTokenStorage sessionTokenStorage,
-        string? sessionToken)
+        ISessionTokenStorage sessionTokenStorage)
         : IAsyncEnumerable<JToken>
     {
         private readonly CosmosClientWrapper _cosmosClient = cosmosClient;
@@ -1170,7 +1156,6 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         private readonly PartitionKey _partitionKeyValue = partitionKeyValue;
         private readonly CosmosSqlQuery _cosmosSqlQuery = cosmosSqlQuery;
         private readonly ISessionTokenStorage _sessionTokenStorage = sessionTokenStorage;
-        private readonly string? _sessionToken = sessionToken;
 
         public IAsyncEnumerator<JToken> GetAsyncEnumerator(CancellationToken cancellationToken = default)
             => new AsyncEnumerator(this, cancellationToken);
@@ -1183,7 +1168,6 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             private readonly PartitionKey _partitionKeyValue = documentEnumerable._partitionKeyValue;
             private readonly CosmosSqlQuery _cosmosSqlQuery = documentEnumerable._cosmosSqlQuery;
             private readonly ISessionTokenStorage _sessionTokenStorage = documentEnumerable._sessionTokenStorage;
-            private readonly string? _sessionToken = documentEnumerable._sessionToken;
 
             private JToken? _current;
             private ResponseMessage? _responseMessage;
@@ -1209,10 +1193,8 @@ public class CosmosClientWrapper : ICosmosClientWrapper
                             queryRequestOptions.PartitionKey = _partitionKeyValue;
                         }
 
-                        if (_sessionToken is not null)
-                        {
-                            queryRequestOptions.SessionToken = _sessionToken;
-                        }
+                        // @TODO: Or should this be inside CreateQuery...
+                        queryRequestOptions.SessionToken = _sessionTokenStorage.GetSessionToken(_containerId);
 
                         _query = _cosmosClientWrapper.CreateQuery(
                             _containerId, _cosmosSqlQuery, _sessionTokenStorage, continuationToken: null, queryRequestOptions);
@@ -1239,12 +1221,6 @@ public class CosmosClientWrapper : ICosmosClientWrapper
                         _cosmosSqlQuery);
 
                     _responseMessage.EnsureSuccessStatusCode();
-
-                    if (!string.IsNullOrWhiteSpace(_responseMessage.Headers.Session))
-                    {
-                        // @TODO: set session token...
-                        // if (appendSessionToken == higher.....) update _sessionToken??
-                    }
 
                     _responseMessageEnumerator = new ResponseMessageEnumerable(_responseMessage).GetAsyncEnumerator(cancellationToken);
                 }

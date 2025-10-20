@@ -3,6 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage;
 
+// @TODO: CosmosSession(Token)Context?
 /// <summary>
 /// Defines methods for storing, retrieving, and managing session tokens associated with containers in a <see cref="DbContext"/>.
 /// </summary>

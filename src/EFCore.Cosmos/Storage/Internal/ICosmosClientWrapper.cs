@@ -158,8 +158,7 @@ public interface ICosmosClientWrapper
         string containerId,
         PartitionKey partitionKeyValue,
         string resourceId,
-        ISessionTokenStorage sessionTokenStorage,
-        string? sessionToken);
+        ISessionTokenStorage sessionTokenStorage);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -172,7 +171,6 @@ public interface ICosmosClientWrapper
         PartitionKey partitionKeyValue,
         string resourceId,
         ISessionTokenStorage sessionTokenStorage,
-        string? sessionToken,
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -185,8 +183,7 @@ public interface ICosmosClientWrapper
         string containerId,
         PartitionKey partitionKeyValue,
         CosmosSqlQuery query,
-        ISessionTokenStorage sessionTokenStorage,
-        string? sessionToken);
+        ISessionTokenStorage sessionTokenStorage);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -198,8 +195,7 @@ public interface ICosmosClientWrapper
         string containerId,
         PartitionKey partitionKeyValue,
         CosmosSqlQuery query,
-        ISessionTokenStorage sessionTokenStorage,
-        string? sessionToken);
+        ISessionTokenStorage sessionTokenStorage);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
