@@ -687,6 +687,14 @@ public class CosmosClientWrapper : ICosmosClientWrapper
 
         using var response = await transactionalBatch.ExecuteAsync(cancellationToken).ConfigureAwait(false);
 
+        wrapper._commandLogger.ExecutedTransactionalBatch(
+            response.Diagnostics.GetClientElapsedTime(),
+            response.Headers.RequestCharge,
+            response.Headers.ActivityId,
+            batch.CollectionId,
+            batch.PartitionKeyValue,
+            "[ \"" + string.Join("\", \"", batch.Entries.Select(x => x.Id)) + "\" ]");
+
         if (!response.IsSuccessStatusCode)
         {
             var errorCode = response.StatusCode;
@@ -699,14 +707,6 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             var exception = new CosmosException(response.ErrorMessage, errorCode, 0, response.ActivityId, response.RequestCharge);
             return CosmosTransactionalBatchResult.Failure(errorEntries, exception);
         }
-
-        wrapper._commandLogger.ExecutedTransactionalBatch(
-            response.Diagnostics.GetClientElapsedTime(),
-            response.Headers.RequestCharge,
-            response.Headers.ActivityId,
-            batch.CollectionId,
-            batch.PartitionKeyValue,
-            "[ \"" + string.Join("\", \"", batch.Entries.Select(x => x.Id)) + "\" ]");
 
         ProcessResponse(response, batch.Entries);
 
@@ -936,7 +936,14 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         using var reader = new StreamReader(responseStream);
         using var jsonReader = new JsonTextReader(reader);
 
-        return Serializer.Deserialize<JObject>(jsonReader);
+        var jobject = Serializer.Deserialize<JObject>(jsonReader);
+
+        if (!string.IsNullOrWhiteSpace(responseMessage.Headers.Session))
+        {
+            // @TODO: Set session token..
+        }
+
+        return jobject;
     }
 
     /// <summary>
@@ -1068,6 +1075,11 @@ public class CosmosClientWrapper : ICosmosClientWrapper
 
                     _responseMessage.EnsureSuccessStatusCode();
 
+                    if (!string.IsNullOrWhiteSpace(_responseMessage.Headers.Session))
+                    {
+                        // @TODO: set session token...
+                    }
+
                     _responseMessageEnumerator = new ResponseMessageEnumerable(_responseMessage).GetEnumerator();
                 }
 
@@ -1180,6 +1192,12 @@ public class CosmosClientWrapper : ICosmosClientWrapper
                         _cosmosSqlQuery);
 
                     _responseMessage.EnsureSuccessStatusCode();
+
+                    if (!string.IsNullOrWhiteSpace(_responseMessage.Headers.Session))
+                    {
+                        // @TODO: set session token...
+                        // if (appendSessionToken == higher.....) update _sessionToken??
+                    }
 
                     _responseMessageEnumerator = new ResponseMessageEnumerable(_responseMessage).GetAsyncEnumerator(cancellationToken);
                 }

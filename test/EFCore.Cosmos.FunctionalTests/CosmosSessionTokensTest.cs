@@ -181,20 +181,22 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
     }
 
     [ConditionalFact]
-     // @TODO: Read item and select...
      // @TODO: and sync..
     public virtual async Task Query_uses_session_token()
     {
         var contextFactory = await InitializeAsync<CosmosSessionTokenContext>();
 
         using var context = contextFactory.CreateContext();
+        context.Customers.Add(new Customer { Id = "1", PartitionKey = "1" });
+
+        await context.SaveChangesAsync();
 
         var sessionTokens = context.Database.GetSessionTokens();
         var sessionToken = sessionTokens.GetSessionToken()!;
 
         // Only way we can test this is by setting a session token that will fail the request if used..
         // This will take a couple of seconds to fail
-        sessionTokens.SetSessionToken(sessionToken.Substring(0, sessionToken.IndexOf('#') + 1) + int.MaxValue);
+        // sessionTokens.SetSessionToken(sessionToken.Substring(0, sessionToken.IndexOf('#') + 1) + int.MaxValue);
 
         var ex = await Assert.ThrowsAsync<Microsoft.Azure.Cosmos.CosmosException>(() => context.Customers.ToListAsync());
         Assert.Contains("The read session is not available for the input session token.", ex.ResponseBody);
