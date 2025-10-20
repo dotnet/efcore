@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage;
 /// </summary>
 public sealed class SessionTokenStorage
 {
-    private readonly Dictionary<string, string?> _sessionTokens;
+    private readonly Dictionary<string, CompositeSessionToken> _sessionTokens;
     private readonly string _defaultContainerName;
 
     /// <summary>
@@ -30,7 +30,7 @@ public sealed class SessionTokenStorage
         var containerNames = (HashSet<string>)dbContext.Model.GetAnnotation(CosmosAnnotationNames.ContainerNames).Value!;
 
         _defaultContainerName = defaultContainerName;
-        _sessionTokens = containerNames.ToDictionary(containerName => containerName, _ => (string?)null);
+        _sessionTokens = containerNames.ToDictionary(containerName => containerName, _ => new CompositeSessionToken());
     }
 
     /// <summary>
@@ -42,11 +42,11 @@ public sealed class SessionTokenStorage
     /// <summary>
     ///     Overwrites the composite session token for the default container
     /// </summary>
-    public void OverwriteSessionToken(string? sessionToken)
-        => OverwriteSessionToken(_defaultContainerName, sessionToken);
+    public void SetSessionToken(string? sessionToken)
+        => SetSessionToken(_defaultContainerName, sessionToken);
 
     /// <summary>
-    ///     Appends the session token specified to any composite already stored in the storage for the default container
+    ///     Appends or merges the session token specified to any composite already stored in the storage for the default container
     /// </summary>
     public void AppendSessionToken(string sessionToken)
         => AppendSessionToken(_defaultContainerName, sessionToken);
@@ -63,37 +63,29 @@ public sealed class SessionTokenStorage
             throw new ArgumentException(CosmosStrings.ContainerNameDoesNotExist(containerName), nameof(containerName));
         }
 
-        return value;
+        return value.ConvertToString();
     }
 
     /// <summary>
-    ///     Appends the session token specified to any composite already stored in the storage for the container
+    ///     Appends or merges the session token specified to any composite already stored in the storage for the container
     /// </summary>
     public void AppendSessionToken(string containerName, string sessionToken)
     {
         ArgumentNullException.ThrowIfNullOrWhiteSpace(containerName, nameof(containerName));
         ArgumentNullException.ThrowIfNullOrWhiteSpace(sessionToken, nameof(sessionToken));
-        ref var value = ref CollectionsMarshal.GetValueRefOrNullRef(_sessionTokens, containerName);
 
-        if (Unsafe.IsNullRef(ref value))
+        if (!_sessionTokens.TryGetValue(containerName, out var compositeSessionToken))
         {
             throw new ArgumentException(CosmosStrings.ContainerNameDoesNotExist(containerName), nameof(containerName));
         }
 
-        if (string.IsNullOrEmpty(value))
-        {
-            value = sessionToken;
-        }
-        else
-        {
-            value += "," + sessionToken;
-        }
+        ParseAndMerge(compositeSessionToken, sessionToken);
     }
 
     /// <summary>
     ///     Overwrites the composite session token for the container
     /// </summary>
-    public void OverwriteSessionToken(string containerName, string? sessionToken)
+    public void SetSessionToken(string containerName, string? sessionToken)
     {
         ArgumentNullException.ThrowIfNullOrWhiteSpace(containerName, nameof(containerName));
         if (sessionToken is not null && string.IsNullOrWhiteSpace(sessionToken))
@@ -108,7 +100,69 @@ public sealed class SessionTokenStorage
             throw new ArgumentException(CosmosStrings.ContainerNameDoesNotExist(containerName), nameof(containerName));
         }
 
-        value = sessionToken;
+        value = new CompositeSessionToken();
+
+        if (sessionToken is null)
+        {
+            return;
+        }
+
+        ParseAndMerge(value, sessionToken);
+    }
+
+    private void ParseAndMerge(CompositeSessionToken compositeSessionToken, string sessionToken)
+    {
+        var parts = sessionToken.Split(',');
+        foreach (var part in parts)
+        {
+            var index = part.IndexOf(':');
+            if (index == -1)
+            {
+                throw new ArgumentException("CosmosStrings.InvalidSessionToken(sessionToken)", nameof(sessionToken));
+            }
+
+            var pkRangeId = sessionToken.Substring(0, index);
+            var vector = sessionToken.Substring(index + 1);
+            if (!VectorSessionToken.TryCreate(vector, out var vectorSessionToken))
+            {
+                throw new ArgumentException("CosmosStrings.InvalidSessionToken(sessionToken)", nameof(sessionToken));
+            }
+
+            compositeSessionToken.Merge(pkRangeId, vectorSessionToken);
+        }
+    }
+
+    private sealed class CompositeSessionToken
+    {
+        private string? _string;
+        private bool _isChanged;
+        public Dictionary<string, VectorSessionToken> Tokens { get; } = new();
+
+        public void Merge(string pkRangeId, VectorSessionToken token)
+        {
+            ref var existing = ref CollectionsMarshal.GetValueRefOrAddDefault(Tokens, pkRangeId, out var exists);
+            if (exists)
+            {
+                existing = existing!.Merge(token);
+            }
+            else
+            {
+                existing = token;
+            }
+
+            _isChanged = true;
+        }
+
+        public string? ConvertToString()
+        {
+            if (_isChanged)
+            {
+                _isChanged = false;
+                _string = string.Join(",", Tokens.Select(kvp => $"{kvp.Key}:{kvp.Value.ConvertToString()}"));
+            }
+
+            return _string;
+        }
     }
 
 
@@ -178,7 +232,7 @@ public sealed class SessionTokenStorage
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static bool TryCreate(string sessionToken, out VectorSessionToken? parsedSessionToken)
+        public static bool TryCreate(string sessionToken, [NotNullWhen(true)] out VectorSessionToken? parsedSessionToken)
         {
             parsedSessionToken = null;
             if (TryParseSessionToken(sessionToken, out var num, out var num2, out var readOnlyDictionary))
@@ -268,13 +322,8 @@ public sealed class SessionTokenStorage
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public VectorSessionToken Merge(VectorSessionToken obj)
+        public VectorSessionToken Merge(VectorSessionToken vectorSessionToken)
         {
-            if (!(obj is VectorSessionToken vectorSessionToken))
-            {
-                throw new ArgumentNullException("obj");
-            }
-
             if (version == vectorSessionToken.version && localLsnByRegion.Count != vectorSessionToken.localLsnByRegion.Count)
             {
                 throw new InvalidOperationException("string.Format(CultureInfo.InvariantCulture, RMResources.InvalidRegionsInSessionToken, sessionToken, vectorSessionToken.sessionToken)");

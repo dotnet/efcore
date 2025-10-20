@@ -8,6 +8,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
+    private const string OtherContainerName = "Other";
     protected override string StoreName
         => "CosmosSessionTokensTest";
 
@@ -15,13 +16,13 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
         => CosmosTestStoreFactory.Instance;
 
     [ConditionalFact]
-    public virtual async Task OverwriteSessionToken_ThrowsForNonExistentContainer()
+    public virtual async Task SetSessionToken_ThrowsForNonExistentContainer()
     {
         var contextFactory = await InitializeAsync<CosmosSessionTokenContext>();
 
         using var context = contextFactory.CreateContext();
         var sessionTokens = context.Database.GetSessionTokens();
-        var exception = Assert.Throws<ArgumentException>(() => sessionTokens.OverwriteSessionToken("Not the store name", "0:-1#231"));
+        var exception = Assert.Throws<ArgumentException>(() => sessionTokens.SetSessionToken("Not the store name", "0:-1#231"));
         Assert.Equal(CosmosStrings.ContainerNameDoesNotExist("Not the store name") + " (Parameter 'containerName')", exception.Message);
     }
 
@@ -61,13 +62,12 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
         Assert.Equal("0:-1#231", updatedToken);
     }
 
-    [ConditionalTheory, InlineData(AutoTransactionBehavior.WhenNeeded), InlineData(AutoTransactionBehavior.Never), InlineData(AutoTransactionBehavior.Always)]
-    public virtual async Task AppendSessionToken(AutoTransactionBehavior autoTransactionBehavior)
+    [ConditionalFact]
+    public virtual async Task AppendSessionToken_append_higher_lsn_same_pkrange_takes_higher_lsn()
     {
         var contextFactory = await InitializeAsync<CosmosSessionTokenContext>();
 
         using var context = contextFactory.CreateContext();
-        context.Database.AutoTransactionBehavior = autoTransactionBehavior;
         context.Customers.Add(new Customer { Id = "1", PartitionKey = "1" });
 
         await context.SaveChangesAsync();
@@ -76,20 +76,20 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
         var initialToken = sessionTokens.GetSessionToken();
         Assert.False(string.IsNullOrWhiteSpace(initialToken));
 
-        sessionTokens.AppendSessionToken("0:-1#231");
+        var newToken = initialToken.Substring(0, initialToken.IndexOf('#') + 1) + "999999";
+        sessionTokens.AppendSessionToken(newToken);
 
         var updatedToken = sessionTokens.GetSessionToken();
 
-        Assert.Equal(initialToken + ",0:-1#231", updatedToken);
+        Assert.Equal(newToken, updatedToken);
     }
 
-    [ConditionalTheory, InlineData(AutoTransactionBehavior.WhenNeeded), InlineData(AutoTransactionBehavior.Never), InlineData(AutoTransactionBehavior.Always)]
-    public virtual async Task OverwriteSessionToken(AutoTransactionBehavior autoTransactionBehavior)
+    [ConditionalFact]
+    public virtual async Task AppendSessionToken_append_lower_lsn_same_pkrange_takes_higher_lsn()
     {
         var contextFactory = await InitializeAsync<CosmosSessionTokenContext>();
 
         using var context = contextFactory.CreateContext();
-        context.Database.AutoTransactionBehavior = autoTransactionBehavior;
         context.Customers.Add(new Customer { Id = "1", PartitionKey = "1" });
 
         await context.SaveChangesAsync();
@@ -98,15 +98,16 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
         var initialToken = sessionTokens.GetSessionToken();
         Assert.False(string.IsNullOrWhiteSpace(initialToken));
 
-        sessionTokens.OverwriteSessionToken("0:-1#231");
+        var newToken = initialToken.Substring(0, initialToken.IndexOf('#') + 1) + "1";
+        sessionTokens.AppendSessionToken(newToken);
 
         var updatedToken = sessionTokens.GetSessionToken();
 
-        Assert.Equal("0:-1#231", updatedToken);
+        Assert.Equal(initialToken, updatedToken);
     }
 
     [ConditionalTheory, InlineData(AutoTransactionBehavior.WhenNeeded), InlineData(AutoTransactionBehavior.Never), InlineData(AutoTransactionBehavior.Always)]
-    public virtual async Task OverwriteSessionToken_null(AutoTransactionBehavior autoTransactionBehavior)
+    public virtual async Task AppendSessionToken_different_pkrange_composites_tokens(AutoTransactionBehavior autoTransactionBehavior)
     {
         var contextFactory = await InitializeAsync<CosmosSessionTokenContext>();
 
@@ -120,7 +121,49 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
         var initialToken = sessionTokens.GetSessionToken();
         Assert.False(string.IsNullOrWhiteSpace(initialToken));
 
-        sessionTokens.OverwriteSessionToken(null);
+        sessionTokens.AppendSessionToken("99:-1#999999");
+
+        var updatedToken = sessionTokens.GetSessionToken();
+
+        Assert.Equal(initialToken + ",99:-1#999999", updatedToken);
+    }
+
+    [ConditionalFact]
+    public virtual async Task SetSessionToken_does_not_merge_session_token()
+    {
+        var contextFactory = await InitializeAsync<CosmosSessionTokenContext>();
+
+        using var context = contextFactory.CreateContext();
+        context.Customers.Add(new Customer { Id = "1", PartitionKey = "1" });
+
+        await context.SaveChangesAsync();
+
+        var sessionTokens = context.Database.GetSessionTokens();
+        var initialToken = sessionTokens.GetSessionToken();
+        Assert.False(string.IsNullOrWhiteSpace(initialToken));
+
+        sessionTokens.SetSessionToken("0:-1#1");
+
+        var updatedToken = sessionTokens.GetSessionToken();
+
+        Assert.Equal("0:-1#1", updatedToken);
+    }
+
+    [ConditionalFact]
+    public virtual async Task SetSessionToken_null_sets_session_token_null()
+    {
+        var contextFactory = await InitializeAsync<CosmosSessionTokenContext>();
+
+        using var context = contextFactory.CreateContext();
+        context.Customers.Add(new Customer { Id = "1", PartitionKey = "1" });
+
+        await context.SaveChangesAsync();
+
+        var sessionTokens = context.Database.GetSessionTokens();
+        var initialToken = sessionTokens.GetSessionToken();
+        Assert.False(string.IsNullOrWhiteSpace(initialToken));
+
+        sessionTokens.SetSessionToken(null);
 
         var updatedToken = sessionTokens.GetSessionToken();
 
@@ -140,21 +183,18 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
     [ConditionalFact]
      // @TODO: Read item and select...
      // @TODO: and sync..
-    public virtual async Task AppendSessionToken_uses_session_token_list()
+    public virtual async Task Query_uses_session_token()
     {
         var contextFactory = await InitializeAsync<CosmosSessionTokenContext>();
 
         using var context = contextFactory.CreateContext();
-        context.Customers.Add(new Customer { Id = "1", PartitionKey = "1" });
-
-        await context.SaveChangesAsync();
 
         var sessionTokens = context.Database.GetSessionTokens();
         var sessionToken = sessionTokens.GetSessionToken()!;
 
         // Only way we can test this is by setting a session token that will fail the request if used..
         // This will take a couple of seconds to fail
-        sessionTokens.OverwriteSessionToken(sessionToken.Substring(0, sessionToken.IndexOf('#') + 1) + int.MaxValue);
+        sessionTokens.SetSessionToken(sessionToken.Substring(0, sessionToken.IndexOf('#') + 1) + int.MaxValue);
 
         var ex = await Assert.ThrowsAsync<Microsoft.Azure.Cosmos.CosmosException>(() => context.Customers.ToListAsync());
         Assert.Contains("The read session is not available for the input session token.", ex.ResponseBody);
@@ -162,7 +202,7 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
 
     [ConditionalFact]
      // @TODO: and sync..
-    public virtual async Task AppendSessionToken_uses_session_token_select_list()
+    public virtual async Task Shaped_query_uses_session_token()
     {
         var contextFactory = await InitializeAsync<CosmosSessionTokenContext>();
 
@@ -173,10 +213,10 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
 
         var sessionTokens = context.Database.GetSessionTokens();
         var sessionToken = sessionTokens.GetSessionToken()!;
-
+        
         // Only way we can test this is by setting a session token that will fail the request if used..
         // This will take a couple of seconds to fail
-        sessionTokens.OverwriteSessionToken(sessionToken.Substring(0, sessionToken.IndexOf('#') + 1) + int.MaxValue);
+        sessionTokens.SetSessionToken(sessionToken.Substring(0, sessionToken.IndexOf('#') + 1) + int.MaxValue);
 
         var ex = await Assert.ThrowsAsync<Microsoft.Azure.Cosmos.CosmosException>(() => context.Customers.Select(x => new { x.Id, x.PartitionKey }).ToListAsync());
         Assert.Contains("The read session is not available for the input session token.", ex.ResponseBody);
@@ -184,7 +224,7 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
 
     [ConditionalFact]
     // @TODO: and sync..
-    public virtual async Task AppendSessionToken_uses_session_token_read_item()
+    public virtual async Task Read_item_uses_session_token()
     {
         var contextFactory = await InitializeAsync<CosmosSessionTokenContext>();
 
@@ -198,13 +238,14 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
 
         // Only way we can test this is by setting a session token that will fail the request if used..
         // This will take a couple of seconds to fail
-        sessionTokens.OverwriteSessionToken(sessionToken.Substring(0, sessionToken.IndexOf('#') + 1) + int.MaxValue);
+        sessionTokens.SetSessionToken(sessionToken.Substring(0, sessionToken.IndexOf('#') + 1) + int.MaxValue);
 
         var ex = await Assert.ThrowsAsync<Microsoft.Azure.Cosmos.CosmosException>(() => context.Customers.FirstOrDefaultAsync(x => x.Id == "1" && x.PartitionKey == "1"));
         Assert.Contains("The read session is not available for the input session token.", ex.ResponseBody);
     }
 
     [ConditionalTheory, InlineData(AutoTransactionBehavior.WhenNeeded), InlineData(AutoTransactionBehavior.Never), InlineData(AutoTransactionBehavior.Always)]
+    // @TODO: and sync..
     public virtual async Task Add_sets_session_token(AutoTransactionBehavior autoTransactionBehavior)
     {
         var contextFactory = await InitializeAsync<CosmosSessionTokenContext>();
@@ -221,7 +262,8 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
     }
 
     [ConditionalTheory, InlineData(AutoTransactionBehavior.WhenNeeded), InlineData(AutoTransactionBehavior.Never), InlineData(AutoTransactionBehavior.Always)]
-    public virtual async Task Delete_sets_session_token(AutoTransactionBehavior autoTransactionBehavior)
+    // @TODO: and sync..
+    public virtual async Task Delete_merges_session_token(AutoTransactionBehavior autoTransactionBehavior)
     {
         var contextFactory = await InitializeAsync<CosmosSessionTokenContext>();
 
@@ -233,110 +275,46 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
 
         await context.SaveChangesAsync();
 
-        var initialToken = context.Database.GetSessionTokens().GetSessionToken();
+        var initialToken = context.Database.GetSessionTokens().GetSessionToken()!;
 
         context.Remove(customer);
         await context.SaveChangesAsync();
 
         var sessionToken = context.Database.GetSessionTokens().GetSessionToken();
         Assert.False(string.IsNullOrWhiteSpace(sessionToken));
-        Assert.StartsWith(initialToken + ",", sessionToken);
-        Assert.False(string.IsNullOrWhiteSpace(sessionToken));
+        Assert.NotEqual(sessionToken, initialToken);
+        Assert.StartsWith(initialToken.Substring(0, initialToken.IndexOf('#') + 1), sessionToken);
     }
 
-    //[ConditionalTheory, InlineData(AutoTransactionBehavior.WhenNeeded), InlineData(AutoTransactionBehavior.Never), InlineData(AutoTransactionBehavior.Always)]
-    //public virtual async Task Update_sets_session_token(AutoTransactionBehavior autoTransactionBehavior)
-    //{
-    //    var contextFactory = await InitializeAsync<CosmosSessionTokenContext>();
+    [ConditionalTheory, InlineData(AutoTransactionBehavior.WhenNeeded), InlineData(AutoTransactionBehavior.Never), InlineData(AutoTransactionBehavior.Always)]
+    // @TODO: and sync..
+    public virtual async Task Update_merges_session_token(AutoTransactionBehavior autoTransactionBehavior)
+    {
+        var contextFactory = await InitializeAsync<CosmosSessionTokenContext>();
 
-    //    using var context = contextFactory.CreateContext();
-    //    context.Database.AutoTransactionBehavior = autoTransactionBehavior;
+        using var context = contextFactory.CreateContext();
+        context.Database.AutoTransactionBehavior = autoTransactionBehavior;
 
-    //    var customer = new Customer { Id = "1", PartitionKey = "1" };
-    //    context.Customers.Add(customer);
+        var customer = new Customer { Id = "1", PartitionKey = "1" };
+        context.Customers.Add(customer);
 
-    //    await context.SaveChangesAsync();
+        await context.SaveChangesAsync();
 
-    //    var initialToken = context.Database.GetSessionTokens().Single().Value;
+        var initialToken = context.Database.GetSessionTokens().GetSessionToken()!;
 
-    //    customer.Name = "updated";
-    //    await context.SaveChangesAsync();
+        customer.Name = "updated";
+        await context.SaveChangesAsync();
 
-    //    var sessionTokens = context.Database.GetSessionTokens();
-    //    var key = new CosmosContainerPartitionScope("CosmosSessionTokenContext", new Azure.Cosmos.PartitionKey("1"));
-    //    Assert.Equal(1, sessionTokens.Count);
-    //    Assert.True(sessionTokens.ContainsKey(key));
-    //    Assert.NotEmpty(sessionTokens[key]);
-    //    Assert.NotEqual(initialToken, sessionTokens[key]);
-    //}
-
-    //[ConditionalFact]
-    //public virtual async Task Query_with_single_filter_uses_session_token()
-    //{
-    //    var contextFactory = await InitializeAsync<CosmosSessionTokenContext>();
-
-    //    using var context = contextFactory.CreateContext();
-
-    //    var customer = new Customer { Id = "1", PartitionKey = "1" };
-    //    context.Customers.Add(customer);
-
-    //    await context.SaveChangesAsync();
-
-    //    await context.Customers.Where(x => x.PartitionKey == "1").ToListAsync();
-    //}
-
-    //[ConditionalFact]
-    //public virtual async Task Query_with_double_filter_uses_session_token()
-    //{
-    //    var contextFactory = await InitializeAsync<CosmosSessionTokenContext>();
-
-    //    using var context = contextFactory.CreateContext();
-
-    //    var customer = new Customer { Id = "1", PartitionKey = "1" };
-    //    context.Customers.Add(customer);
-
-    //    await context.SaveChangesAsync();
-
-    //    await context.Customers.Where(x => x.PartitionKey == "1" || x.PartitionKey == "2").ToListAsync();
-    //}
-
-
-    //[ConditionalFact]
-    //public virtual async Task Query_with_composite_partition_key_not_all_properties_does_not_use_sessiontoken()
-    //{
-    //    var contextFactory = await InitializeAsync<CosmosSessionTokenContext>();
-
-    //    using var context = contextFactory.CreateContext();
-
-    //    var customer = new CompositeCustomer { Id = "1", PartitionKey1 = "1", PartitionKey2 = "2" };
-    //    context.Add(customer);
-
-    //    await context.SaveChangesAsync();
-
-    //    await context.CompositeCustomers.Where(x => x.PartitionKey1 == "1").ToListAsync();
-    //}
-
-    //[ConditionalFact]
-    //public virtual async Task Query_with_composite_partition_key_uses_session_token()
-    //{
-    //    var contextFactory = await InitializeAsync<CosmosSessionTokenContext>();
-
-    //    using var context = contextFactory.CreateContext();
-
-    //    var customer = new CompositeCustomer { Id = "1", PartitionKey1 = "1", PartitionKey2 = "2" };
-    //    context.Add(customer);
-
-    //    await context.SaveChangesAsync();
-
-    //    await context.CompositeCustomers.Where(x => x.PartitionKey1 == "1" && x.PartitionKey2 == "2").ToListAsync();
-    //}
-
+        var sessionToken = context.Database.GetSessionTokens().GetSessionToken();
+        Assert.False(string.IsNullOrWhiteSpace(sessionToken));
+        Assert.NotEqual(initialToken, sessionToken);
+        Assert.StartsWith(initialToken.Substring(0, initialToken.IndexOf('#') + 1), sessionToken);
+    }
 
     public class CosmosSessionTokenContext(DbContextOptions options) : PoolableDbContext(options)
     {
         public DbSet<Customer> Customers { get; set; } = null!;
-        // public DbSet<CompositeCustomer> CompositeCustomers { get; set; } = null!;
-
+        public DbSet<OtherContainerCustomer> OtherContainerCustomers { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -349,13 +327,13 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
                     b.HasPartitionKey(c => c.PartitionKey);
                 });
 
-            //builder.Entity<CompositeCustomer>(
-            //    b =>
-            //    {
-            //        b.HasKey(c => c.Id);
-            //        b.HasPartitionKey(c => new { c.PartitionKey1, c.PartitionKey2 });
-            //        b.ToContainer("composite");
-            //    });
+            builder.Entity<OtherContainerCustomer>(
+                b =>
+                {
+                    b.HasKey(c => c.Id);
+                    b.HasPartitionKey(c => c.PartitionKey);
+                    b.ToContainer(OtherContainerName);
+                });
         }
     }
 
@@ -377,11 +355,10 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
         public string? Id { get; init; }
     }
 
-    //public class CompositeCustomer
-    //{
-    //    public string? Id { get; set; }
+    public class OtherContainerCustomer
+    {
+        public string? Id { get; set; }
 
-    //    public string? PartitionKey1 { get; set; }
-    //    public string? PartitionKey2 { get; set; }
-    //}
+        public string? PartitionKey { get; set; }
+    }
 }
