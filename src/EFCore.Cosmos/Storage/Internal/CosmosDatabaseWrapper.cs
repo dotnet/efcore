@@ -44,7 +44,7 @@ public class CosmosDatabaseWrapper : Database
         _currentDbContext = currentDbContext;
         _cosmosClient = cosmosClient;
 
-        SessionTokenStorage = new(_currentDbContext.Context);
+        SessionTokenStorage = new SessionTokenStorage(_currentDbContext.Context);
 
         if (loggingOptions.IsSensitiveDataLoggingEnabled)
         {
@@ -58,7 +58,7 @@ public class CosmosDatabaseWrapper : Database
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public SessionTokenStorage SessionTokenStorage { get; }
+    public ISessionTokenStorage SessionTokenStorage { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -100,15 +100,8 @@ public class CosmosDatabaseWrapper : Database
             {
                 try
                 {
-                    var response = _cosmosClient.ExecuteTransactionalBatch(transaction);
-                    if (response.IsSuccess)
-                    {
-                        if (!string.IsNullOrWhiteSpace(response.SessionToken))
-                        {
-                            SessionTokenStorage.AppendSessionToken(batch.Key.ContainerId, response.SessionToken);
-                        }
-                    }
-                    else
+                    var response = _cosmosClient.ExecuteTransactionalBatch(transaction, SessionTokenStorage);
+                    if (!response.IsSuccess)
                     {
                         var exception = WrapUpdateException(response.Exception, response.ErroredEntries);
                         if (exception is not DbUpdateConcurrencyException
@@ -175,15 +168,8 @@ public class CosmosDatabaseWrapper : Database
             {
                 try
                 {
-                    var response = await _cosmosClient.ExecuteTransactionalBatchAsync(transaction, cancellationToken).ConfigureAwait(false);
-                    if (response.IsSuccess)
-                    {
-                        if (!string.IsNullOrWhiteSpace(response.SessionToken))
-                        {
-                            SessionTokenStorage.AppendSessionToken(batch.Key.ContainerId, response.SessionToken);
-                        }
-                    }
-                    else
+                    var response = await _cosmosClient.ExecuteTransactionalBatchAsync(transaction, SessionTokenStorage, cancellationToken).ConfigureAwait(false);
+                    if (!response.IsSuccess)
                     {
                         var exception = WrapUpdateException(response.Exception, response.ErroredEntries);
                         if (exception is not DbUpdateConcurrencyException
@@ -206,16 +192,6 @@ public class CosmosDatabaseWrapper : Database
         }
 
         return rowsAffected;
-    }
-
-    private void ProcessSessionToken(string containerId, string? sessionToken)
-    {
-        if (string.IsNullOrEmpty(sessionToken))
-        {
-            return;
-        }
-
-        
     }
 
     private SaveGroups CreateSaveGroups(IList<IUpdateEntry> entries)
@@ -552,19 +528,22 @@ public class CosmosDatabaseWrapper : Database
         {
             return updateEntry.Operation switch
             {
-                CosmosCudOperation.Create => ProcessWriteResult(updateEntry, _cosmosClient.CreateItem(
+                CosmosCudOperation.Create => _cosmosClient.CreateItem(
                                     updateEntry.CollectionId,
                                     updateEntry.Document!,
-                                    updateEntry.Entry)),
-                CosmosCudOperation.Update => ProcessWriteResult(updateEntry, _cosmosClient.ReplaceItem(
+                                    updateEntry.Entry,
+                                    SessionTokenStorage),
+                CosmosCudOperation.Update => _cosmosClient.ReplaceItem(
                                     updateEntry.CollectionId,
                                     updateEntry.DocumentSource.GetId(updateEntry.Entry.SharedIdentityEntry ?? updateEntry.Entry),
                                     updateEntry.Document!,
-                                    updateEntry.Entry)),
-                CosmosCudOperation.Delete => ProcessWriteResult(updateEntry, _cosmosClient.DeleteItem(
+                                    updateEntry.Entry,
+                                    SessionTokenStorage),
+                CosmosCudOperation.Delete => _cosmosClient.DeleteItem(
                                     updateEntry.CollectionId,
                                     updateEntry.DocumentSource.GetId(updateEntry.Entry),
-                                    updateEntry.Entry)),
+                                    updateEntry.Entry,
+                                    SessionTokenStorage),
                 _ => throw new UnreachableException(),
             };
         }
@@ -590,22 +569,25 @@ public class CosmosDatabaseWrapper : Database
         {
             return updateEntry.Operation switch
             {
-                CosmosCudOperation.Create => ProcessWriteResult(updateEntry, await _cosmosClient.CreateItemAsync(
+                CosmosCudOperation.Create => await _cosmosClient.CreateItemAsync(
                                     updateEntry.CollectionId,
                                     updateEntry.Document!,
                                     updateEntry.Entry,
-                                    cancellationToken).ConfigureAwait(false)),
-                CosmosCudOperation.Update => ProcessWriteResult(updateEntry, await _cosmosClient.ReplaceItemAsync(
+                                    SessionTokenStorage,
+                                    cancellationToken).ConfigureAwait(false),
+                CosmosCudOperation.Update => await _cosmosClient.ReplaceItemAsync(
                                     updateEntry.CollectionId,
                                     updateEntry.DocumentSource.GetId(updateEntry.Entry.SharedIdentityEntry ?? updateEntry.Entry),
                                     updateEntry.Document!,
                                     updateEntry.Entry,
-                                    cancellationToken).ConfigureAwait(false)),
-                CosmosCudOperation.Delete => ProcessWriteResult(updateEntry, await _cosmosClient.DeleteItemAsync(
+                                    SessionTokenStorage,
+                                    cancellationToken).ConfigureAwait(false),
+                CosmosCudOperation.Delete => await _cosmosClient.DeleteItemAsync(
                                     updateEntry.CollectionId,
                                     updateEntry.DocumentSource.GetId(updateEntry.Entry),
                                     updateEntry.Entry,
-                                    cancellationToken).ConfigureAwait(false)),
+                                    SessionTokenStorage,
+                                    cancellationToken).ConfigureAwait(false),
                 _ => throw new UnreachableException(),
             };
         }
@@ -624,16 +606,6 @@ public class CosmosDatabaseWrapper : Database
 
             return false;
         }
-    }
-
-    private bool ProcessWriteResult(CosmosUpdateEntry updateEntry, CosmosWriteResult result)
-    {
-        if (!string.IsNullOrWhiteSpace(result.SessionToken))
-        {
-            SessionTokenStorage.AppendSessionToken(updateEntry.CollectionId, result.SessionToken);
-        }
-
-        return result.IsSuccess;
     }
 
     /// <summary>

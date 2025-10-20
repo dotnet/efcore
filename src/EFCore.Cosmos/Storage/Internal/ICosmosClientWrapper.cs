@@ -67,7 +67,7 @@ public interface ICosmosClientWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    CosmosWriteResult CreateItem(string containerId, JToken document, IUpdateEntry entry);
+    bool CreateItem(string containerId, JToken document, IUpdateEntry entry, ISessionTokenStorage sessionTokenStorage);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -75,11 +75,12 @@ public interface ICosmosClientWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    CosmosWriteResult ReplaceItem(
+    bool ReplaceItem(
         string collectionId,
         string documentId,
         JObject document,
-        IUpdateEntry entry);
+        IUpdateEntry entry,
+        ISessionTokenStorage sessionTokenStorage);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -87,10 +88,11 @@ public interface ICosmosClientWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    CosmosWriteResult DeleteItem(
+    bool DeleteItem(
         string containerId,
         string documentId,
-        IUpdateEntry entry);
+        IUpdateEntry entry,
+        ISessionTokenStorage sessionTokenStorage);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -98,10 +100,11 @@ public interface ICosmosClientWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    Task<CosmosWriteResult> CreateItemAsync(
+    Task<bool> CreateItemAsync(
         string containerId,
         JToken document,
         IUpdateEntry updateEntry,
+        ISessionTokenStorage sessionTokenStorage,
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -110,11 +113,12 @@ public interface ICosmosClientWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    Task<CosmosWriteResult> ReplaceItemAsync(
+    Task<bool> ReplaceItemAsync(
         string collectionId,
         string documentId,
         JObject document,
         IUpdateEntry updateEntry,
+        ISessionTokenStorage sessionTokenStorage,
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -124,10 +128,11 @@ public interface ICosmosClientWrapper
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     // @TODO: We also need to send session token on writes to keep the same chain or not?
-    Task<CosmosWriteResult> DeleteItemAsync(
+    Task<bool> DeleteItemAsync(
         string containerId,
         string documentId,
         IUpdateEntry entry,
+        ISessionTokenStorage sessionTokenStorage,
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -139,6 +144,7 @@ public interface ICosmosClientWrapper
     FeedIterator CreateQuery(
         string containerId,
         CosmosSqlQuery query,
+        ISessionTokenStorage sessionTokenStorage,
         string? continuationToken = null,
         QueryRequestOptions? queryRequestOptions = null);
 
@@ -152,6 +158,7 @@ public interface ICosmosClientWrapper
         string containerId,
         PartitionKey partitionKeyValue,
         string resourceId,
+        ISessionTokenStorage sessionTokenStorage,
         string? sessionToken);
 
     /// <summary>
@@ -164,6 +171,7 @@ public interface ICosmosClientWrapper
         string containerId,
         PartitionKey partitionKeyValue,
         string resourceId,
+        ISessionTokenStorage sessionTokenStorage,
         string? sessionToken,
         CancellationToken cancellationToken = default);
 
@@ -177,6 +185,7 @@ public interface ICosmosClientWrapper
         string containerId,
         PartitionKey partitionKeyValue,
         CosmosSqlQuery query,
+        ISessionTokenStorage sessionTokenStorage,
         string? sessionToken);
 
     /// <summary>
@@ -189,6 +198,7 @@ public interface ICosmosClientWrapper
         string containerId,
         PartitionKey partitionKeyValue,
         CosmosSqlQuery query,
+        ISessionTokenStorage sessionTokenStorage,
         string? sessionToken);
 
     /// <summary>
@@ -221,7 +231,7 @@ public interface ICosmosClientWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    Task<CosmosTransactionalBatchResult> ExecuteTransactionalBatchAsync(ICosmosTransactionalBatchWrapper batch, CancellationToken cancellationToken = default);
+    Task<CosmosTransactionalBatchResult> ExecuteTransactionalBatchAsync(ICosmosTransactionalBatchWrapper batch, ISessionTokenStorage sessionTokenStorage, CancellationToken cancellationToken = default);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -229,5 +239,5 @@ public interface ICosmosClientWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    CosmosTransactionalBatchResult ExecuteTransactionalBatch(ICosmosTransactionalBatchWrapper batch);
+    CosmosTransactionalBatchResult ExecuteTransactionalBatch(ICosmosTransactionalBatchWrapper batch, ISessionTokenStorage sessionTokenStorage);
 }

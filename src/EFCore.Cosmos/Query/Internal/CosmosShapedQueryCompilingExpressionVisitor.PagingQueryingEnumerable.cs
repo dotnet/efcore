@@ -4,6 +4,7 @@
 #nullable disable
 
 using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Storage;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Newtonsoft.Json.Linq;
 
@@ -34,6 +35,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         private readonly string _maxItemCountParameterName;
         private readonly string _continuationTokenParameterName;
         private readonly string _responseContinuationTokenLimitInKbParameterName;
+        private readonly ISessionTokenStorage _sessionTokenStorage;
         private readonly string _sessionToken;
 
         public PagingQueryingEnumerable(
@@ -50,6 +52,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             string maxItemCountParameterName,
             string continuationTokenParameterName,
             string responseContinuationTokenLimitInKbParameterName,
+            ISessionTokenStorage sessionTokenStorage,
             string sessionToken)
         {
             _cosmosQueryContext = cosmosQueryContext;
@@ -65,6 +68,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             _maxItemCountParameterName = maxItemCountParameterName;
             _continuationTokenParameterName = continuationTokenParameterName;
             _responseContinuationTokenLimitInKbParameterName = responseContinuationTokenLimitInKbParameterName;
+            _sessionTokenStorage = sessionTokenStorage;
             _sessionToken = sessionToken;
             _cosmosContainer = rootEntityType.GetContainer()
                 ?? throw new UnreachableException("Root entity type without a Cosmos container.");
@@ -91,10 +95,11 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             private readonly Type _contextType;
             private readonly string _cosmosContainer;
             private readonly PartitionKey _cosmosPartitionKey;
-            private readonly string _sessionToken;
             private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
             private readonly IDiagnosticsLogger<DbLoggerCategory.Database.Command> _commandLogger;
             private readonly bool _standAloneStateManager;
+            private readonly ISessionTokenStorage _sessionTokenStorage;
+            private readonly string _sessionToken;
             private readonly CancellationToken _cancellationToken;
             private readonly IConcurrencyDetector _concurrencyDetector;
             private readonly IExceptionDetector _exceptionDetector;
@@ -109,11 +114,12 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 _contextType = queryingEnumerable._contextType;
                 _cosmosContainer = queryingEnumerable._cosmosContainer;
                 _cosmosPartitionKey = queryingEnumerable._cosmosPartitionKey;
-                _sessionToken = queryingEnumerable._sessionToken;
                 _queryLogger = queryingEnumerable._queryLogger;
                 _commandLogger = queryingEnumerable._commandLogger;
                 _standAloneStateManager = queryingEnumerable._standAloneStateManager;
                 _exceptionDetector = _cosmosQueryContext.ExceptionDetector;
+                _sessionTokenStorage = queryingEnumerable._sessionTokenStorage;
+                _sessionToken = queryingEnumerable._sessionToken;
                 _cancellationToken = cancellationToken;
 
                 _concurrencyDetector = queryingEnumerable._threadSafetyChecksEnabled
@@ -173,7 +179,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     {
                         queryRequestOptions.MaxItemCount = maxItemCount;
                         using var feedIterator = cosmosClient.CreateQuery(
-                            _cosmosContainer, sqlQuery, continuationToken, queryRequestOptions);
+                            _cosmosContainer, sqlQuery, _sessionTokenStorage, continuationToken, queryRequestOptions);
 
                         using var responseMessage = await feedIterator.ReadNextAsync(_cancellationToken).ConfigureAwait(false);
 

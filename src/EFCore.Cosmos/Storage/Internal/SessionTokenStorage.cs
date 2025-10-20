@@ -8,14 +8,17 @@ using System.Runtime.InteropServices;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 
-namespace Microsoft.EntityFrameworkCore.Cosmos.Storage;
+namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 
 /// <summary>
-///     Stores the session tokens for a DbContext.
+///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+///     any release. You should only use it directly in your code with extreme caution and knowing that
+///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public sealed class SessionTokenStorage
+public sealed class SessionTokenStorage : ISessionTokenStorage
 {
-    private readonly Dictionary<string, CompositeSessionToken> _sessionTokens;
+    private readonly Dictionary<string, CompositeSessionToken> _containerSessionTokens;
     private readonly string _defaultContainerName;
 
     /// <summary>
@@ -30,35 +33,47 @@ public sealed class SessionTokenStorage
         var containerNames = (HashSet<string>)dbContext.Model.GetAnnotation(CosmosAnnotationNames.ContainerNames).Value!;
 
         _defaultContainerName = defaultContainerName;
-        _sessionTokens = containerNames.ToDictionary(containerName => containerName, _ => new CompositeSessionToken());
+        _containerSessionTokens = containerNames.ToDictionary(containerName => containerName, _ => new CompositeSessionToken());
     }
 
     /// <summary>
-    ///     Gets the composite session token for the default container.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public string? GetSessionToken()
         => GetSessionToken(_defaultContainerName);
 
     /// <summary>
-    ///     Overwrites the composite session token for the default container
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public void SetSessionToken(string? sessionToken)
         => SetSessionToken(_defaultContainerName, sessionToken);
 
     /// <summary>
-    ///     Appends or merges the session token specified to any composite already stored in the storage for the default container
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public void AppendSessionToken(string sessionToken)
         => AppendSessionToken(_defaultContainerName, sessionToken);
 
     /// <summary>
-    ///     Gets the composite session token for the specified container
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public string? GetSessionToken(string containerName)
     {
         ArgumentNullException.ThrowIfNullOrWhiteSpace(containerName, nameof(containerName));
 
-        if (!_sessionTokens.TryGetValue(containerName, out var value))
+        if (!_containerSessionTokens.TryGetValue(containerName, out var value))
         {
             throw new ArgumentException(CosmosStrings.ContainerNameDoesNotExist(containerName), nameof(containerName));
         }
@@ -67,14 +82,17 @@ public sealed class SessionTokenStorage
     }
 
     /// <summary>
-    ///     Appends or merges the session token specified to any composite already stored in the storage for the container
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public void AppendSessionToken(string containerName, string sessionToken)
     {
         ArgumentNullException.ThrowIfNullOrWhiteSpace(containerName, nameof(containerName));
         ArgumentNullException.ThrowIfNullOrWhiteSpace(sessionToken, nameof(sessionToken));
 
-        if (!_sessionTokens.TryGetValue(containerName, out var compositeSessionToken))
+        if (!_containerSessionTokens.TryGetValue(containerName, out var compositeSessionToken))
         {
             throw new ArgumentException(CosmosStrings.ContainerNameDoesNotExist(containerName), nameof(containerName));
         }
@@ -83,7 +101,10 @@ public sealed class SessionTokenStorage
     }
 
     /// <summary>
-    ///     Overwrites the composite session token for the container
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public void SetSessionToken(string containerName, string? sessionToken)
     {
@@ -93,7 +114,7 @@ public sealed class SessionTokenStorage
             throw new ArgumentException("sessionToken cannot be whitespace.", sessionToken);
         }
 
-        ref var value = ref CollectionsMarshal.GetValueRefOrNullRef(_sessionTokens, containerName);
+        ref var value = ref CollectionsMarshal.GetValueRefOrNullRef(_containerSessionTokens, containerName);
 
         if (Unsafe.IsNullRef(ref value))
         {
@@ -166,7 +187,7 @@ public sealed class SessionTokenStorage
     }
 
 
-    /// <see cref="Microsoft.Azure.Documents.VectorSessionToken"/>
+    /// <see cref="Azure.Documents.VectorSessionToken"/>
     private sealed class VectorSessionToken : IEquatable<VectorSessionToken>
     {
         private static readonly IReadOnlyDictionary<uint, long> DefaultLocalLsnByRegion = new Dictionary<uint, long>(0);
@@ -449,14 +470,12 @@ public sealed class SessionTokenStorage
             globalLsn = -1L;
             if (string.IsNullOrEmpty(sessionToken))
             {
-                ////DefaultTrace.TraceWarning("Session token is empty");
                 return false;
             }
 
             int index = 0;
             if (!TryParseLongSegment(sessionToken, ref index, out version))
             {
-                ////DefaultTrace.TraceWarning("Unexpected session token version number from token: " + sessionToken + " .");
                 return false;
             }
 
@@ -467,7 +486,6 @@ public sealed class SessionTokenStorage
 
             if (!TryParseLongSegment(sessionToken, ref index, out globalLsn))
             {
-                //DefaultTrace.TraceWarning("Unexpected session token global lsn from token: " + sessionToken + " .");
                 return false;
             }
 
@@ -482,13 +500,11 @@ public sealed class SessionTokenStorage
             {
                 if (!TryParseUintTillRegionProgressSeparator(sessionToken, ref index, out var value))
                 {
-                    //DefaultTrace.TraceWarning("Unexpected region progress segment in session token: " + sessionToken + ".");
                     return false;
                 }
 
                 if (!TryParseLongSegment(sessionToken, ref index, out var value2))
                 {
-                    //DefaultTrace.TraceWarning("Unexpected local lsn for region id " + value.ToString(CultureInfo.InvariantCulture) + " for segment in session token: " + sessionToken + ".");
                     return false;
                 }
 

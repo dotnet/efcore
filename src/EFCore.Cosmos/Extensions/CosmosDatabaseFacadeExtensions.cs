@@ -27,11 +27,11 @@ public static class CosmosDatabaseFacadeExtensions
         => GetService<ISingletonCosmosClientWrapper>(databaseFacade).Client;
 
     /// <summary>
-    ///     Gets <see cref="SessionTokenStorage"/> used to manage the session tokens for this <see cref="DbContext" />.
+    ///     Gets <see cref="ISessionTokenStorage"/> used to manage the session tokens for this <see cref="DbContext" />.
     /// </summary>
     /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
-    /// <returns>The Gets <see cref="SessionTokenStorage"/>.</returns>
-    public static SessionTokenStorage GetSessionTokens(this DatabaseFacade databaseFacade)
+    /// <returns>The <see cref="ISessionTokenStorage"/>.</returns>
+    public static ISessionTokenStorage GetSessionTokens(this DatabaseFacade databaseFacade)
     {
         var db = GetService<IDatabase>(databaseFacade);
         if (db is not CosmosDatabaseWrapper dbWrapper)
