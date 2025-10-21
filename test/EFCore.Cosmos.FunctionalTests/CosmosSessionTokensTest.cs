@@ -15,6 +15,19 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
     protected override ITestStoreFactory TestStoreFactory
         => CosmosTestStoreFactory.Instance;
 
+    protected override TestStore CreateTestStore() => CosmosTestStore.Create(StoreName, (c) => c.ManualSessionTokenManagementEnabled());
+
+    [ConditionalFact]
+    public virtual async Task GetSessionTokens_throws_if_not_enabled()
+    {
+        var contextFactory = await InitializeAsync<CosmosSessionTokenContext>(createTestStore: () => CosmosTestStore.Create(StoreName));
+
+        using var context = contextFactory.CreateContext();
+
+        var exception = Assert.Throws<InvalidOperationException>(() => context.Database.GetSessionTokens());
+        Assert.Equal("CosmosStrings.EnableManualSessionTokenManagement", exception.Message);
+    }
+
     // @TODO: Tests for other container?
 
     [ConditionalFact]
@@ -411,7 +424,6 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
         context.Database.AutoTransactionBehavior = autoTransactionBehavior;
 
         var sessionTokens = context.Database.GetSessionTokens();
-        var sessionToken = sessionTokens.GetSessionToken()!;
         // Only way we can test this is by setting a session token that will fail the request if used..
         // Only way to do this for a write is to set an invalid session token..
         var internalDictionary = sessionTokens.GetType().GetField("_containerSessionTokens", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(sessionTokens)!;

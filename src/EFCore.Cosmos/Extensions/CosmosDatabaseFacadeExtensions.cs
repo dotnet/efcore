@@ -27,7 +27,7 @@ public static class CosmosDatabaseFacadeExtensions
         => GetService<ISingletonCosmosClientWrapper>(databaseFacade).Client;
 
     /// <summary>
-    ///     Gets <see cref="ISessionTokenStorage"/> used to manage the session tokens for this <see cref="DbContext" />.
+    ///     Gets the <see cref="ISessionTokenStorage"/> used to manage the session tokens for this <see cref="DbContext" />.
     /// </summary>
     /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
     /// <returns>The <see cref="ISessionTokenStorage"/>.</returns>
@@ -39,7 +39,13 @@ public static class CosmosDatabaseFacadeExtensions
             throw new InvalidOperationException(CosmosStrings.CosmosNotInUse);
         }
 
-        return dbWrapper.SessionTokenStorage!;
+        if (dbWrapper.SessionTokenStorage is not SessionTokenStorage)
+        {
+            // @TODO: string
+            throw new InvalidOperationException("CosmosStrings.EnableManualSessionTokenManagement");
+        }
+
+        return dbWrapper.SessionTokenStorage;
     }
 
     private static TService GetService<TService>(IInfrastructure<IServiceProvider> databaseFacade)
