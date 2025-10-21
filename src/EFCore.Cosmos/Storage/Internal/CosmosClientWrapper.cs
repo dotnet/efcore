@@ -433,7 +433,6 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         var postTriggers = GetTriggers(entry, TriggerType.Post, TriggerOperation.Create);
         if (preTriggers != null || postTriggers != null)
         {
-            itemRequestOptions ??= new ItemRequestOptions();
             if (preTriggers != null)
             {
                 itemRequestOptions.PreTriggers = preTriggers;
@@ -522,7 +521,6 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         var postTriggers = GetTriggers(entry, TriggerType.Post, TriggerOperation.Replace);
         if (preTriggers != null || postTriggers != null)
         {
-            itemRequestOptions ??= new ItemRequestOptions();
             if (preTriggers != null)
             {
                 itemRequestOptions.PreTriggers = preTriggers;
@@ -608,7 +606,6 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         var postTriggers = GetTriggers(entry, TriggerType.Post, TriggerOperation.Delete);
         if (preTriggers != null || postTriggers != null)
         {
-            itemRequestOptions ??= new ItemRequestOptions();
             if (preTriggers != null)
             {
                 itemRequestOptions.PreTriggers = preTriggers;
@@ -732,13 +729,22 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         return CosmosTransactionalBatchResult.Success;
     }
 
-    private static ItemRequestOptions? CreateItemRequestOptions(IUpdateEntry entry, bool? enableContentResponseOnWrite, string? sessionToken)
+    private static ItemRequestOptions CreateItemRequestOptions(IUpdateEntry entry, bool? enableContentResponseOnWrite, string? sessionToken)
     {
         var helper = RequestOptionsHelper.Create(entry, enableContentResponseOnWrite);
 
-        return helper == null
-            ? null
-            : new ItemRequestOptions { IfMatchEtag = helper.IfMatchEtag, SessionToken = sessionToken, EnableContentResponseOnWrite = helper.EnableContentResponseOnWrite };
+        var itemRequestOptions = new ItemRequestOptions
+        {
+            SessionToken = sessionToken
+        };
+
+        if (helper != null)
+        {
+            itemRequestOptions.IfMatchEtag = helper.IfMatchEtag;
+            itemRequestOptions.EnableContentResponseOnWrite = helper.EnableContentResponseOnWrite;
+        }
+
+        return itemRequestOptions;
     }
 
     private static IReadOnlyList<string>? GetTriggers(IUpdateEntry entry, TriggerType type, TriggerOperation operation)
