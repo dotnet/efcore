@@ -170,8 +170,7 @@ public class CosmosTransactionalBatchWrapper : ICosmosTransactionalBatchWrapper
 
         if (_checkSize && helper.IfMatchEtag != null)
         {
-            // Or .Lenght?
-            size += Encoding.UTF8.GetByteCount(helper.IfMatchEtag); // @TODO: Currently always a guid...
+            size += helper.IfMatchEtag.Length;
         }
 
         // EnableContentResponseOnWrite is a header so no request body size for that.
