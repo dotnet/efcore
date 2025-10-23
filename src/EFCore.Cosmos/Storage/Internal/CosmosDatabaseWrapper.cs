@@ -468,7 +468,7 @@ public class CosmosDatabaseWrapper : Database
     {
         const int maxOperationsPerBatch = 100;
 
-        // We turn of size checking in EF with AutoTransactionBehavior.Always as all entities will always go in a single transaction.
+        // We turn off size checking in EF for AutoTransactionBehavior.Always as all entities will always go in a single transaction.
         // Cosmos will throw if the request is too large.
         var checkSize = _currentDbContext.Context.Database.AutoTransactionBehavior != AutoTransactionBehavior.Always;
         var transaction = _cosmosClient.CreateTransactionalBatch(batch.Key.ContainerId, batch.Key.PartitionKeyValue, checkSize);
