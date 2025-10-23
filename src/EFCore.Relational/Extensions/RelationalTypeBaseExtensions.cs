@@ -466,17 +466,12 @@ public static class RelationalTypeBaseExtensions
     public static string? GetJsonPropertyName(this IReadOnlyTypeBase typeBase)
     {
         var annotation = typeBase.FindAnnotation(RelationalAnnotationNames.JsonPropertyName);
-        if (annotation?.Value is string jsonPropertyName)
+        if (annotation != null)
         {
-            return jsonPropertyName;
+            return (string?)annotation.Value;
         }
 
-        if (typeBase.FindAnnotation(RelationalAnnotationNames.ContainerColumnName) != null)
-        {
-            return null;
-        }
-
-        return !typeBase.IsMappedToJson()
+        return typeBase.FindAnnotation(RelationalAnnotationNames.ContainerColumnName) != null || !typeBase.IsMappedToJson()
             ? null
             : typeBase is IReadOnlyEntityType entityType
                 ? entityType.FindOwnership()!.GetNavigation(pointsToPrincipal: false)!.Name
