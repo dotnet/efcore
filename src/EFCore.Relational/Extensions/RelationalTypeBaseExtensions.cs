@@ -469,7 +469,9 @@ public static class RelationalTypeBaseExtensions
                 ? null
                 : typeBase is IReadOnlyEntityType entityType
                     ? entityType.FindOwnership()!.GetNavigation(pointsToPrincipal: false)!.Name
-                    : ((IReadOnlyComplexType)typeBase).ComplexProperty.Name);
+                    : typeBase.FindAnnotation(RelationalAnnotationNames.ContainerColumnName) != null
+                        ? null
+                        : ((IReadOnlyComplexType)typeBase).ComplexProperty.Name);
 
     #endregion
 }

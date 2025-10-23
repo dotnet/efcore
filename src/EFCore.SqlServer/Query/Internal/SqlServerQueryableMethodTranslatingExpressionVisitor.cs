@@ -291,7 +291,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                     .Select(n => n.TargetEntityType.GetJsonPropertyName() ?? throw new UnreachableException()),
 
             IComplexType complexType
-                => complexType.GetComplexProperties().Select(p => p.ComplexType.GetJsonPropertyName() ?? throw new UnreachableException()),
+                => complexType.GetComplexProperties().Select(p => p.GetJsonPropertyName() ?? throw new UnreachableException()),
 
             _ => throw new UnreachableException()
         };
