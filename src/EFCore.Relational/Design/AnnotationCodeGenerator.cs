@@ -397,10 +397,14 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
     {
         var methodCallCodeFragments = new List<MethodCallCodeFragment>();
 
-        GenerateSimpleFluentApiCall(
-            annotations,
-            RelationalAnnotationNames.JsonPropertyName, nameof(RelationalComplexPropertyBuilderExtensions.HasJsonPropertyName),
-            methodCallCodeFragments);
+        // JsonPropertyName is now stored on the complex type, not the complex property
+        if (complexProperty.ComplexType.FindAnnotation(RelationalAnnotationNames.JsonPropertyName) is { Value: string jsonPropertyName })
+        {
+            methodCallCodeFragments.Add(
+                new MethodCallCodeFragment(
+                    nameof(RelationalComplexPropertyBuilderExtensions.HasJsonPropertyName),
+                    jsonPropertyName));
+        }
 
         methodCallCodeFragments.AddRange(GenerateFluentApiCallsHelper(complexProperty, annotations, GenerateFluentApi));
 

@@ -2895,7 +2895,7 @@ public sealed partial class SelectExpression : TableExpressionBase
             // Otherwise, if the source type isn't mapped to JSON, we're just binding to an actual JSON column in a relational table, and not within it.
             var containerColumnExpression = complexProperty.DeclaringType.IsMappedToJson()
                 ? new ColumnExpression(
-                    complexProperty.GetJsonPropertyName()
+                    complexType.GetJsonPropertyName()
                     ?? throw new UnreachableException($"No JSON property name for complex property {complexProperty.Name}"),
                     tableAlias,
                     complexProperty.ClrType.UnwrapNullableType(),

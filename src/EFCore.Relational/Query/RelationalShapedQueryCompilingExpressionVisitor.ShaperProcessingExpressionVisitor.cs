@@ -1628,10 +1628,10 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     nestedStructuralProperty is not IComplexProperty { ComplexType: var complexType } || complexType.IsMappedToJson(),
                     "Non-JSON complex type within JSON complex type");
 
-                var (relatedStructuralType, navigationJsonPropertyName, inverseNavigation, isStructuralPropertyNullable) = nestedStructuralProperty switch
+                var (relatedStructuralType, inverseNavigation, isStructuralPropertyNullable) = nestedStructuralProperty switch
                 {
-                    INavigation n => ((ITypeBase)n.TargetEntityType, n.TargetEntityType.GetJsonPropertyName()!, n.Inverse, !n.ForeignKey.IsRequiredDependent),
-                    IComplexProperty cp => (cp.ComplexType, cp.GetJsonPropertyName()!, null, cp.IsNullable),
+                    INavigation n => ((ITypeBase)n.TargetEntityType, n.Inverse, !n.ForeignKey.IsRequiredDependent),
+                    IComplexProperty cp => (cp.ComplexType, null, cp.IsNullable),
 
                     _ => throw new UnreachableException()
                 };
@@ -1645,6 +1645,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     containerEntityExpression: null,
                     nestedStructuralProperty);
 
+                var navigationJsonPropertyName = relatedStructuralType.GetJsonPropertyName()!;
                 innerShapersMap[navigationJsonPropertyName] = innerShaper;
 
                 if (nestedStructuralProperty.IsCollection)

@@ -1620,10 +1620,7 @@ public static class RelationalEntityTypeExtensions
         this IConventionEntityType entityType,
         string? name,
         bool fromDataAnnotation = false)
-        => (string?)entityType.SetOrRemoveAnnotation(
-            RelationalAnnotationNames.JsonPropertyName,
-            Check.NullButNotEmpty(name),
-            fromDataAnnotation)?.Value;
+        => entityType.SetJsonPropertyName(name, fromDataAnnotation);
 
     /// <summary>
     ///     Gets the value of JSON property name used for the given entity mapped to a JSON column.
@@ -1652,9 +1649,7 @@ public static class RelationalEntityTypeExtensions
     /// <param name="entityType">The entity type.</param>
     /// <param name="name">The name to be used.</param>
     public static void SetJsonPropertyName(this IMutableEntityType entityType, string? name)
-        => entityType.SetOrRemoveAnnotation(
-            RelationalAnnotationNames.JsonPropertyName,
-            Check.NullButNotEmpty(name));
+        => entityType.SetJsonPropertyName(name);
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> for the JSON property name for a given entity type.
@@ -1662,7 +1657,7 @@ public static class RelationalEntityTypeExtensions
     /// <param name="entityType">The entity type.</param>
     /// <returns>The <see cref="ConfigurationSource" /> for the JSON property name for a given entity type.</returns>
     public static ConfigurationSource? GetJsonPropertyNameConfigurationSource(this IConventionEntityType entityType)
-        => entityType.FindAnnotation(RelationalAnnotationNames.JsonPropertyName)?.GetConfigurationSource();
+        => entityType.GetJsonPropertyNameConfigurationSource();
 
     #endregion
 }

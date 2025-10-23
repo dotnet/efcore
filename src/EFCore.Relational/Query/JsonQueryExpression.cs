@@ -204,11 +204,12 @@ public class JsonQueryExpression : Expression, IPrintableExpression
 
                 Check.DebugAssert(KeyPropertyMap is null);
 
+                var targetComplexType = complexProperty.ComplexType;
                 var newPath = Path.ToList();
-                newPath.Add(new PathSegment(complexProperty.GetJsonPropertyName()!));
+                newPath.Add(new PathSegment(targetComplexType.GetJsonPropertyName()!));
 
                 return new JsonQueryExpression(
-                    complexProperty.ComplexType,
+                    targetComplexType,
                     JsonColumn,
                     keyPropertyMap: null,
                     newPath,

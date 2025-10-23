@@ -31,9 +31,7 @@ public static class RelationalComplexPropertyExtensions
     /// <param name="complexProperty">The complex property.</param>
     /// <param name="name">The name to be used.</param>
     public static void SetJsonPropertyName(this IMutableComplexProperty complexProperty, string? name)
-        => ((IMutableTypeBase)complexProperty.ComplexType).SetOrRemoveAnnotation(
-            RelationalAnnotationNames.JsonPropertyName,
-            Check.NullButNotEmpty(name));
+        => complexProperty.ComplexType.SetJsonPropertyName(name);
 
     /// <summary>
     ///     Sets the value of JSON property name used for the given complex property of an entity mapped to a JSON column.
@@ -46,10 +44,7 @@ public static class RelationalComplexPropertyExtensions
         this IConventionComplexProperty complexProperty,
         string? name,
         bool fromDataAnnotation = false)
-        => (string?)((IConventionTypeBase)complexProperty.ComplexType).SetOrRemoveAnnotation(
-            RelationalAnnotationNames.JsonPropertyName,
-            Check.NullButNotEmpty(name),
-            fromDataAnnotation)?.Value;
+        => complexProperty.ComplexType.SetJsonPropertyName(name, fromDataAnnotation);
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> for the JSON property name for a given complex property.
@@ -57,5 +52,5 @@ public static class RelationalComplexPropertyExtensions
     /// <param name="complexProperty">The complex property.</param>
     /// <returns>The <see cref="ConfigurationSource" /> for the JSON property name for a given complex property.</returns>
     public static ConfigurationSource? GetJsonPropertyNameConfigurationSource(this IConventionComplexProperty complexProperty)
-        => ((IConventionTypeBase)complexProperty.ComplexType).FindAnnotation(RelationalAnnotationNames.JsonPropertyName)?.GetConfigurationSource();
+        => complexProperty.ComplexType.GetJsonPropertyNameConfigurationSource();
 }

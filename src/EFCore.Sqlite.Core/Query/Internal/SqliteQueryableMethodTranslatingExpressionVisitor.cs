@@ -422,7 +422,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
 
         foreach (var complexProperty in structuralType.GetComplexProperties())
         {
-            var jsonNavigationName = complexProperty.GetJsonPropertyName();
+            var jsonNavigationName = complexProperty.ComplexType.GetJsonPropertyName();
             Check.DebugAssert(jsonNavigationName is not null, "Invalid complex property found on JSON-mapped structural type");
 
             var projectionMember = new ProjectionMember().Append(new FakeMemberInfo(jsonNavigationName));
