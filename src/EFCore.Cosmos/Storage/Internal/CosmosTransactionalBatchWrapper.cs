@@ -83,7 +83,7 @@ public class CosmosTransactionalBatchWrapper : ICosmosTransactionalBatchWrapper
         {
             var size = stream.Length + itemRequestOptionsLength + OperationSerializationOverheadOverEstimateInBytes;
 
-            if (_size + size > MaxSize && _entries.Count != 0)
+            if (_size + size > MaxSize && _size != 0)
             {
                 return false;
             }
@@ -110,7 +110,7 @@ public class CosmosTransactionalBatchWrapper : ICosmosTransactionalBatchWrapper
         {
             var size = stream.Length + itemRequestOptionsLength + OperationSerializationOverheadOverEstimateInBytes + Encoding.UTF8.GetByteCount(documentId);
 
-            if (_size + size > MaxSize && _entries.Count != 0)
+            if (_size + size > MaxSize && _size != 0)
             {
                 return false;
             }
@@ -137,7 +137,7 @@ public class CosmosTransactionalBatchWrapper : ICosmosTransactionalBatchWrapper
         {
             var size = itemRequestOptionsLength + OperationSerializationOverheadOverEstimateInBytes + Encoding.UTF8.GetByteCount(documentId);
 
-            if (_size + size > MaxSize && _entries.Count != 0)
+            if (_size + size > MaxSize && _size != 0)
             {
                 return false;
             }
