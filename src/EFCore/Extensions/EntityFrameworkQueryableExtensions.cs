@@ -2892,6 +2892,31 @@ public static class EntityFrameworkQueryableExtensions
         this IQueryable<T> source,
         [NotParameterized] MergeOption mergeOption)
     {
+        bool isNotTracked = false;
+
+        string[] expressionNames = source.Expression.ToString().Split('.');
+        if (
+            expressionNames.Any(c => c.Contains(nameof(EntityFrameworkQueryableExtensions.AsNoTracking)))
+            || expressionNames.Any(c => c.Contains(nameof(EntityFrameworkQueryableExtensions.AsNoTrackingWithIdentityResolution)))
+            || expressionNames.Any(c => c.Contains(nameof(EntityFrameworkQueryableExtensions.IgnoreAutoIncludes)))
+           )
+        {
+            isNotTracked = true;
+        }
+
+        if (isNotTracked)
+        {
+            throw new InvalidOperationException(CoreStrings.RefreshNonTrackingQuery);
+        }
+
+        MergeOption[] otherMergeOptions = Enum.GetValues<MergeOption>().Where(v => v != mergeOption).ToArray();
+
+        bool anyOtherMergeOption = expressionNames.Any(c => otherMergeOptions.Any(o => c.Contains(o.ToString())));
+        if (anyOtherMergeOption)
+        {
+            throw new InvalidOperationException(CoreStrings.RefreshMultipleMergeOptions);
+        }
+
         return
             source.Provider is EntityQueryProvider
                 ? source.Provider.CreateQuery<T>(
