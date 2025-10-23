@@ -381,6 +381,8 @@ public class CosmosTransactionalBatchTest(NonSharedFixture fixture) : NonSharedM
         Assert.Equal(0, customersCount);
     }
 
+    // The tests below will fail if the cosmos db sdk is updated and the serialization logic for transactional batches has changed
+
     [ConditionalTheory, InlineData(true), InlineData(false)]
     public virtual async Task SaveChanges_transaction_behaviour_always_single_entity_payload_can_be_exactly_cosmos_limit_and_throws_when_1byte_over(bool oneByteOver)
     {
@@ -453,7 +455,7 @@ public class CosmosTransactionalBatchTest(NonSharedFixture fixture) : NonSharedM
     }
 
     [ConditionalTheory, InlineData(true), InlineData(false)]
-    public virtual async Task SaveChanges_transaction_behaviour_always_entities_payload_can_be_exactly_cosmos_limit_and_throws_when_1byte_over(bool oneByteOver)
+    public virtual async Task SaveChanges_transaction_behaviour_always_update_entities_payload_can_be_exactly_cosmos_limit_and_throws_when_1byte_over(bool oneByteOver)
     {
         var contextFactory = await InitializeAsync<TransactionalBatchContext>();
 
@@ -475,6 +477,93 @@ public class CosmosTransactionalBatchTest(NonSharedFixture fixture) : NonSharedM
         {
             customer1.Name += 'x';
             customer2.Name += 'x';
+            await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync());
+        }
+        else
+        {
+            await context.SaveChangesAsync();
+        }
+    }
+
+    [ConditionalTheory, InlineData(true), InlineData(false)]
+    public virtual async Task SaveChanges_id_counts_double_toward_request_size_on_update(bool oneByteOver)
+    {
+        var contextFactory = await InitializeAsync<TransactionalBatchContext>();
+
+        using var context = contextFactory.CreateContext();
+        context.Database.AutoTransactionBehavior = AutoTransactionBehavior.Always;
+
+        var customer1 = new Customer { Id = new string('x', 1), PartitionKey = new string('x', 1_023) };
+        var customer2 = new Customer { Id = new string('y', 1_023), PartitionKey = new string('x', 1_023) };
+        
+        context.Customers.Add(customer1);
+        context.Customers.Add(customer2);
+
+        await context.SaveChangesAsync();
+
+        customer1.Name = new string('x', 1097582 + 1_022 * 2 + 1);
+        customer2.Name = new string('x', 1097583);
+
+        if (oneByteOver)
+        {
+            customer1.Name += 'x';
+            customer2.Name += 'x';
+            await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync());
+        }
+        else
+        {
+            await context.SaveChangesAsync();
+        }
+    }
+
+    [ConditionalTheory, InlineData(true), InlineData(false)]
+    public virtual async Task SaveChanges_transaction_behaviour_always_create_entities_payload_can_be_exactly_cosmos_limit_and_throws_when_1byte_over(bool oneByteOver)
+    {
+        var contextFactory = await InitializeAsync<TransactionalBatchContext>();
+
+        using var context = contextFactory.CreateContext();
+        context.Database.AutoTransactionBehavior = AutoTransactionBehavior.Always;
+
+        var customer1 = new Customer { Id = new string('x', 1_023), Name = new string('x', 1098841), PartitionKey = new string('x', 1_023) };
+        var customer2 = new Customer { Id = new string('y', 1_023), Name = new string('x', 1098841), PartitionKey = new string('x', 1_023) };
+        if (oneByteOver)
+        {
+            customer1.Name += 'x';
+            customer2.Name += 'x';
+        }
+
+        context.Customers.Add(customer1);
+        context.Customers.Add(customer2);
+        if (oneByteOver)
+        {
+            await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync());
+        }
+        else
+        {
+            await context.SaveChangesAsync();
+        }
+    }
+
+    [ConditionalTheory, InlineData(true), InlineData(false)]
+    public virtual async Task SaveChanges_id_does_not_count_double_toward_request_size_on_create(bool oneByteOver)
+    {
+        var contextFactory = await InitializeAsync<TransactionalBatchContext>();
+
+        using var context = contextFactory.CreateContext();
+        context.Database.AutoTransactionBehavior = AutoTransactionBehavior.Always;
+
+        var customer1 = new Customer { Id = new string('x', 1), Name = new string('x', 1098841 + 1_022), PartitionKey = new string('x', 1_023) };
+        var customer2 = new Customer { Id = new string('y', 1_023), Name = new string('x', 1098841), PartitionKey = new string('x', 1_023) };
+        if (oneByteOver)
+        {
+            customer1.Name += 'x';
+            customer2.Name += 'x';
+        }
+
+        context.Customers.Add(customer1);
+        context.Customers.Add(customer2);
+        if (oneByteOver)
+        {
             await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync());
         }
         else
