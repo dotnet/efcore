@@ -5,6 +5,7 @@
 
 using System.Collections;
 using System.Text;
+using Microsoft.EntityFrameworkCore.Cosmos.Storage;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Newtonsoft.Json.Linq;
 
@@ -31,6 +32,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
         private readonly bool _standAloneStateManager;
         private readonly bool _threadSafetyChecksEnabled;
+        private readonly ISessionTokenStorage _sessionTokenStorage;
 
         public QueryingEnumerable(
             CosmosQueryContext cosmosQueryContext,
@@ -42,7 +44,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             IEntityType rootEntityType,
             List<Expression> partitionKeyPropertyValues,
             bool standAloneStateManager,
-            bool threadSafetyChecksEnabled)
+            bool threadSafetyChecksEnabled,
+            ISessionTokenStorage sessionTokenStorage)
         {
             _cosmosQueryContext = cosmosQueryContext;
             _sqlExpressionFactory = sqlExpressionFactory;
@@ -53,6 +56,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             _queryLogger = cosmosQueryContext.QueryLogger;
             _standAloneStateManager = standAloneStateManager;
             _threadSafetyChecksEnabled = threadSafetyChecksEnabled;
+            _sessionTokenStorage = sessionTokenStorage;
 
             _cosmosContainer = rootEntityType.GetContainer()
                 ?? throw new UnreachableException("Root entity type without a Cosmos container.");
@@ -111,6 +115,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             private readonly bool _standAloneStateManager;
             private readonly IConcurrencyDetector _concurrencyDetector;
             private readonly IExceptionDetector _exceptionDetector;
+            private readonly ISessionTokenStorage _sessionTokenStorage;
 
             private IEnumerator<JToken> _enumerator;
 
@@ -125,6 +130,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 _queryLogger = queryingEnumerable._queryLogger;
                 _standAloneStateManager = queryingEnumerable._standAloneStateManager;
                 _exceptionDetector = _cosmosQueryContext.ExceptionDetector;
+                _sessionTokenStorage = queryingEnumerable._sessionTokenStorage;
 
                 _concurrencyDetector = queryingEnumerable._threadSafetyChecksEnabled
                     ? _cosmosQueryContext.ConcurrencyDetector
@@ -149,7 +155,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         EntityFrameworkMetricsData.ReportQueryExecuting();
 
                         _enumerator = _cosmosQueryContext.CosmosClient
-                            .ExecuteSqlQuery(_cosmosContainer, _cosmosPartitionKey, sqlQuery)
+                            .ExecuteSqlQuery(_cosmosContainer, _cosmosPartitionKey, sqlQuery, _sessionTokenStorage)
                             .GetEnumerator();
                         _cosmosQueryContext.InitializeStateManager(_standAloneStateManager);
                     }
@@ -198,9 +204,11 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             private readonly PartitionKey _cosmosPartitionKey;
             private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
             private readonly bool _standAloneStateManager;
+            private readonly ISessionTokenStorage _sessionTokenStorage;
             private readonly CancellationToken _cancellationToken;
             private readonly IConcurrencyDetector _concurrencyDetector;
             private readonly IExceptionDetector _exceptionDetector;
+
 
             private IAsyncEnumerator<JToken> _enumerator;
 
@@ -215,6 +223,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 _queryLogger = queryingEnumerable._queryLogger;
                 _standAloneStateManager = queryingEnumerable._standAloneStateManager;
                 _exceptionDetector = _cosmosQueryContext.ExceptionDetector;
+                _sessionTokenStorage = queryingEnumerable._sessionTokenStorage;
+
                 _cancellationToken = cancellationToken;
 
                 _concurrencyDetector = queryingEnumerable._threadSafetyChecksEnabled
@@ -237,7 +247,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         EntityFrameworkMetricsData.ReportQueryExecuting();
 
                         _enumerator = _cosmosQueryContext.CosmosClient
-                            .ExecuteSqlQueryAsync(_cosmosContainer, _cosmosPartitionKey, sqlQuery)
+                            .ExecuteSqlQueryAsync(_cosmosContainer, _cosmosPartitionKey, sqlQuery, _sessionTokenStorage)
                             .GetAsyncEnumerator(_cancellationToken);
                         _cosmosQueryContext.InitializeStateManager(_standAloneStateManager);
                     }

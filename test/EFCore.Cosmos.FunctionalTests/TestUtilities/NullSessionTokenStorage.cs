@@ -3,7 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.Cosmos.Storage;
 
-namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
+namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
 /// <summary>
 ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class CosmosQueryCompilationContext : QueryCompilationContext
+public sealed class NullSessionTokenStorage : ISessionTokenStorage
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -19,21 +19,7 @@ public class CosmosQueryCompilationContext : QueryCompilationContext
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public CosmosQueryCompilationContext(QueryCompilationContextDependencies dependencies, ISessionTokenStorage sessionTokenStorage, bool async) : base(dependencies, async)
-    {
-        SessionTokenStorage = sessionTokenStorage;
-    }
-
-    /// <summary>
-    ///     The root entity type being queried.
-    /// </summary>
-    /// <remarks>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </remarks>
-    public virtual IEntityType? RootEntityType { get; internal set; }
+    public void AppendSessionToken(string sessionToken) { }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -41,18 +27,7 @@ public class CosmosQueryCompilationContext : QueryCompilationContext
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual List<Expression> PartitionKeyPropertyValues { get; internal set; } = [];
-
-    /// <summary>
-    ///     A manager for aliases, capable of generate uniquified source aliases.
-    /// </summary>
-    /// <remarks>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </remarks>
-    public virtual CosmosAliasManager AliasManager { get; } = new();
+    public void AppendSessionToken(string containerName, string sessionToken) { }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -60,5 +35,28 @@ public class CosmosQueryCompilationContext : QueryCompilationContext
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual ISessionTokenStorage SessionTokenStorage { get; }
+    public string? GetSessionToken() => null;
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public string? GetSessionToken(string containerName) => null;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public void SetSessionToken(string containerName, string? sessionToken) { }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public void SetSessionToken(string? sessionToken) { }
 }
