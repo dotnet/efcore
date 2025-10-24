@@ -199,6 +199,13 @@ ORDER BY [r].[Id], [s].[Id], [s].[Id0], [s].[Id1]
         AssertSql();
     }
 
+    public override async Task Index_on_nested_collection()
+    {
+        await base.Index_on_nested_collection();
+
+        AssertSql();
+    }
+
     public override async Task Index_out_of_bounds()
     {
         await base.Index_out_of_bounds();

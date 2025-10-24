@@ -126,6 +126,18 @@ WHERE (c["AssociateCollection"][9999]["Int"] = 8)
 """);
     }
 
+    public override async Task Index_on_nested_collection()
+    {
+        await base.Index_on_nested_collection();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (c["RequiredAssociate"]["NestedCollection"][0]["Int"] = 8)
+""");
+    }
+
     #endregion Index
 
     #region GroupBy

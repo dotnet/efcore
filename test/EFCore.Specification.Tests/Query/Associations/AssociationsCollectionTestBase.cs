@@ -76,6 +76,14 @@ public abstract class AssociationsCollectionTestBase<TFixture>(TFixture fixture)
             ss => ss.Set<RootEntity>().Where(e => e.AssociateCollection.Count > e.Id - 1 && e.AssociateCollection[e.Id - 1].Int == 8)));
 
     [ConditionalFact]
+    public virtual Task Index_on_nested_collection()
+        => AssertOrderedCollectionQuery(() => AssertQuery(
+            ss => ss.Set<RootEntity>().Where(e => e.RequiredAssociate.NestedCollection[0].Int == 8),
+            ss => ss.Set<RootEntity>().Where(
+                e => e.RequiredAssociate.NestedCollection.Count > 0
+                    && e.RequiredAssociate.NestedCollection[0].Int == 8)));
+
+    [ConditionalFact]
     public virtual Task Index_out_of_bounds()
         => AssertOrderedCollectionQuery(() => AssertQuery(
             ss => ss.Set<RootEntity>().Where(e => e.AssociateCollection[9999].Int == 8),
