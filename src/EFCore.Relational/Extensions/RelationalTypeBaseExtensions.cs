@@ -464,12 +464,19 @@ public static class RelationalTypeBaseExtensions
     ///     <see langword="null" /> is returned for entities that are not mapped to a JSON column.
     /// </returns>
     public static string? GetJsonPropertyName(this IReadOnlyTypeBase typeBase)
-        => (string?)typeBase.FindAnnotation(RelationalAnnotationNames.JsonPropertyName)?.Value
-            ?? (!typeBase.IsMappedToJson()
-                ? null
-                : typeBase is IReadOnlyEntityType entityType
-                    ? entityType.FindOwnership()!.GetNavigation(pointsToPrincipal: false)!.Name
-                    : ((IReadOnlyComplexType)typeBase).ComplexProperty.Name);
+    {
+        var annotation = typeBase.FindAnnotation(RelationalAnnotationNames.JsonPropertyName);
+        if (annotation != null)
+        {
+            return (string?)annotation.Value;
+        }
+
+        return typeBase.FindAnnotation(RelationalAnnotationNames.ContainerColumnName) != null || !typeBase.IsMappedToJson()
+            ? null
+            : typeBase is IReadOnlyEntityType entityType
+                ? entityType.FindOwnership()!.GetNavigation(pointsToPrincipal: false)!.Name
+                : ((IReadOnlyComplexType)typeBase).ComplexProperty.Name;
+    }
 
     #endregion
 }
