@@ -500,6 +500,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => GetString("SaveChangesAutoTransactionBehaviorAlwaysTriggerAtomicity");
 
         /// <summary>
+        ///     Session token can not be white space.
+        /// </summary>
+        public static string SessionTokenCanNotBeWhiteSpace
+            => GetString("SessionTokenCanNotBeWhiteSpace");
+
+        /// <summary>
         ///     SingleOrDefault and FirstOrDefault cannot be used Cosmos SQL does not allow Offset without Limit. Consider specifying a 'Take' operation on the query.
         /// </summary>
         public static string SingleFirstOrDefaultNotSupportedOnNonNullableQueries

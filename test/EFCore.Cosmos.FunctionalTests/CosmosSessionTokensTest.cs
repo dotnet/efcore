@@ -87,7 +87,7 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
     }
 
     [ConditionalTheory, InlineData(true), InlineData(false)]
-    public virtual async Task AppendSessionToken_append_higher_lsn_same_pkrange_takes_higher_lsn(bool defaultContainer)
+    public virtual async Task AppendSessionToken_append_token_not_present_adds_token(bool defaultContainer)
     {
         var contextFactory = await InitializeAsync<CosmosSessionTokenContext>();
         
@@ -106,7 +106,7 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
         var initialToken = defaultContainer ? sessionTokens.GetSessionToken() : sessionTokens.GetSessionToken(OtherContainerName);
         Assert.False(string.IsNullOrWhiteSpace(initialToken));
 
-        var newToken = initialToken.Substring(0, initialToken.IndexOf('#') + 1) + "999999";
+        var newToken = "0:-1#231";
         if (defaultContainer)
         {
             sessionTokens.AppendSessionToken(newToken);
@@ -118,11 +118,11 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
 
         var updatedToken = defaultContainer ? sessionTokens.GetSessionToken() : sessionTokens.GetSessionToken(OtherContainerName);
 
-        Assert.Equal(newToken, updatedToken);
+        Assert.Equal(initialToken + "," + newToken, updatedToken);
     }
 
     [ConditionalTheory, InlineData(true), InlineData(false)]
-    public virtual async Task AppendSessionToken_append_lower_lsn_same_pkrange_takes_higher_lsn(bool defaultContainer)
+    public virtual async Task AppendSessionToken_append_token_already_present_does_not_add_token(bool defaultContainer)
     {
         var contextFactory = await InitializeAsync<CosmosSessionTokenContext>();
 
@@ -142,7 +142,7 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
         var initialToken = defaultContainer ? sessionTokens.GetSessionToken() : sessionTokens.GetSessionToken(OtherContainerName);
         Assert.False(string.IsNullOrWhiteSpace(initialToken));
 
-        var newToken = initialToken.Substring(0, initialToken.IndexOf('#') + 1) + "1";
+        var newToken = initialToken;
         if (defaultContainer)
         {
             sessionTokens.AppendSessionToken(newToken);
@@ -158,43 +158,34 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
     }
 
     [ConditionalTheory, InlineData(true), InlineData(false)]
-    public virtual async Task AppendSessionToken_different_pkrange_composites_tokens(bool defaultContainer)
+    public virtual async Task AppendSessionToken_multiple_tokens_splits_tokens(bool defaultContainer)
     {
         var contextFactory = await InitializeAsync<CosmosSessionTokenContext>();
 
         using var context = contextFactory.CreateContext();
-        if (defaultContainer)
-        {
-            context.Add(new Customer { Id = "1", PartitionKey = "1" });
-        }
-        else
-        {
-            context.Add(new OtherContainerCustomer { Id = "1", PartitionKey = "1" });
-        }
-
-        await context.SaveChangesAsync();
 
         var sessionTokens = context.Database.GetSessionTokens();
-        var initialToken = defaultContainer ? sessionTokens.GetSessionToken() : sessionTokens.GetSessionToken(OtherContainerName);
-        Assert.False(string.IsNullOrWhiteSpace(initialToken));
-
-        var newToken = "99:-1#999999";
+        var newToken = "0:-1#123,1:-1#456";
+        var appendix = "0:-1#123";
         if (defaultContainer)
         {
             sessionTokens.AppendSessionToken(newToken);
-}
+            sessionTokens.AppendSessionToken(appendix);
+
+        }
         else
         {
             sessionTokens.AppendSessionToken(OtherContainerName, newToken);
+            sessionTokens.AppendSessionToken(OtherContainerName, appendix);
         }
 
         var updatedToken = defaultContainer ? sessionTokens.GetSessionToken() : sessionTokens.GetSessionToken(OtherContainerName);
 
-        Assert.Equal(initialToken + ",99:-1#999999", updatedToken);
+        Assert.Equal(newToken, updatedToken);
     }
 
     [ConditionalTheory, InlineData(true), InlineData(false)]
-    public virtual async Task SetSessionToken_does_not_merge_session_token(bool defaultContainer)
+    public virtual async Task SetSessionToken_does_not_append_session_token(bool defaultContainer)
     {
         var contextFactory = await InitializeAsync<CosmosSessionTokenContext>();
 
@@ -214,7 +205,7 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
         var initialToken = defaultContainer ? sessionTokens.GetSessionToken() : sessionTokens.GetSessionToken(OtherContainerName);
         Assert.False(string.IsNullOrWhiteSpace(initialToken));
 
-        var newToken = "0:-1#1";
+        var newToken = "0:-1#1,1:-1#1";
         if (defaultContainer)
         {
             sessionTokens.SetSessionToken(newToken);
@@ -226,7 +217,7 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
 
         var updatedToken = defaultContainer ? sessionTokens.GetSessionToken() : sessionTokens.GetSessionToken(OtherContainerName);
 
-        Assert.Equal("0:-1#1", updatedToken);
+        Assert.Equal(newToken, updatedToken);
     }
 
     [ConditionalTheory, InlineData(true), InlineData(false)]
@@ -914,7 +905,7 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
 
         Assert.False(string.IsNullOrWhiteSpace(sessionToken));
         Assert.NotEqual(sessionToken, initialToken);
-        Assert.StartsWith(initialToken.Substring(0, initialToken.IndexOf('#') + 1), sessionToken);
+        Assert.StartsWith(initialToken + ",", sessionToken);
     }
 
     [ConditionalTheory]
@@ -996,7 +987,7 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
         var sessionToken = defaultContainer ? context.Database.GetSessionTokens().GetSessionToken() : context.Database.GetSessionTokens().GetSessionToken(OtherContainerName);
         Assert.False(string.IsNullOrWhiteSpace(sessionToken));
         Assert.NotEqual(sessionToken, initialToken);
-        Assert.StartsWith(initialToken.Substring(0, initialToken.IndexOf('#') + 1), sessionToken);
+        Assert.StartsWith(initialToken + ",", sessionToken);
     }
 
     [ConditionalTheory]
@@ -1069,7 +1060,7 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
         var sessionToken = defaultContainer ? context.Database.GetSessionTokens().GetSessionToken() : context.Database.GetSessionTokens().GetSessionToken(OtherContainerName);
         Assert.False(string.IsNullOrWhiteSpace(sessionToken));
         Assert.NotEqual(initialToken, sessionToken);
-        Assert.StartsWith(initialToken.Substring(0, initialToken.IndexOf('#') + 1), sessionToken);
+        Assert.StartsWith(initialToken + ",", sessionToken);
     }
 
     [ConditionalTheory]

@@ -967,7 +967,6 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         }
         catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.NotFound && ex.SubStatusCode == resourceNotFoundSubStatusCode)
         {
-            // @TODO: Is there a test for this return null?
             return null;
         }
 
