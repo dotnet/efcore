@@ -39,7 +39,7 @@ public static class CosmosDatabaseFacadeExtensions
             throw new InvalidOperationException(CosmosStrings.CosmosNotInUse);
         }
 
-        return dbWrapper.SessionTokenStorage!;
+        return dbWrapper.SessionTokenStorage;
     }
 
     private static TService GetService<TService>(IInfrastructure<IServiceProvider> databaseFacade)
