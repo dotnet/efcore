@@ -1071,7 +1071,6 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
         context.Database.AutoTransactionBehavior = autoTransactionBehavior;
 
         var sessionTokens = context.Database.GetSessionTokens();
-        var sessionToken = sessionTokens.GetSessionToken()!;
         // Only way we can test this is by setting a session token that will fail the request if used..
         // Only way to do this for a write is to set an invalid session token..
         var internalDictionary = sessionTokens.GetType().GetField("_containerSessionTokens", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(sessionTokens)!;
