@@ -5,7 +5,6 @@ using System.Net;
 using System.Runtime.InteropServices;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
-using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Update.Internal;
@@ -39,16 +38,13 @@ public class CosmosDatabaseWrapper : Database
         DatabaseDependencies dependencies,
         ICurrentDbContext currentDbContext,
         ICosmosClientWrapper cosmosClient,
-        ICosmosSingletonOptions cosmosSingletonOptions,
         ILoggingOptions loggingOptions)
         : base(dependencies)
     {
         _currentDbContext = currentDbContext;
         _cosmosClient = cosmosClient;
 
-        SessionTokenStorage = cosmosSingletonOptions.EnableManualSessionTokenManagement ?
-                                new SessionTokenStorage(_currentDbContext.Context)
-                              : new NullSessionTokenStorage();
+        SessionTokenStorage = new SessionTokenStorage(_currentDbContext.Context);
 
         if (loggingOptions.IsSensitiveDataLoggingEnabled)
         {

@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Cosmos.Storage;
-using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
@@ -41,7 +40,7 @@ public class CosmosQueryCompilationContextFactory : IQueryCompilationContextFact
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected virtual ISessionTokenStorage SessionTokenStorage => _sessionTokenStorage ??= ((CosmosDatabaseWrapper)Dependencies.Context.Database.GetService<IDatabase>()).SessionTokenStorage;
+    protected virtual ISessionTokenStorage SessionTokenStorage => _sessionTokenStorage ??= Dependencies.Context.Database.GetSessionTokens();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

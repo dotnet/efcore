@@ -36,7 +36,6 @@ public class CosmosOptionsExtension : IDbContextOptionsExtension
     private bool? _enableContentResponseOnWrite;
     private DbContextOptionsExtensionInfo? _info;
     private Func<HttpClient>? _httpClientFactory;
-    private bool _enableManualSessionTokenManagement;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -74,7 +73,6 @@ public class CosmosOptionsExtension : IDbContextOptionsExtension
         _maxTcpConnectionsPerEndpoint = copyFrom._maxTcpConnectionsPerEndpoint;
         _maxRequestsPerTcpConnection = copyFrom._maxRequestsPerTcpConnection;
         _httpClientFactory = copyFrom._httpClientFactory;
-        _enableManualSessionTokenManagement = copyFrom._enableManualSessionTokenManagement;
     }
 
     /// <summary>
@@ -572,30 +570,6 @@ public class CosmosOptionsExtension : IDbContextOptionsExtension
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool EnableManualSessionTokenManagement
-        => _enableManualSessionTokenManagement;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual CosmosOptionsExtension ManualSessionTokenManagementEnabled(bool enabled)
-    {
-        var clone = Clone();
-
-        clone._enableManualSessionTokenManagement = enabled;
-
-        return clone;
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
     protected virtual CosmosOptionsExtension Clone()
         => new(this);
 
@@ -658,7 +632,6 @@ public class CosmosOptionsExtension : IDbContextOptionsExtension
                 hashCode.Add(Extension._maxTcpConnectionsPerEndpoint);
                 hashCode.Add(Extension._maxRequestsPerTcpConnection);
                 hashCode.Add(Extension._httpClientFactory);
-                hashCode.Add(Extension._enableManualSessionTokenManagement);
 
                 _serviceProviderHash = hashCode.ToHashCode();
             }
@@ -683,8 +656,7 @@ public class CosmosOptionsExtension : IDbContextOptionsExtension
                 && Extension._gatewayModeMaxConnectionLimit == otherInfo.Extension._gatewayModeMaxConnectionLimit
                 && Extension._maxTcpConnectionsPerEndpoint == otherInfo.Extension._maxTcpConnectionsPerEndpoint
                 && Extension._maxRequestsPerTcpConnection == otherInfo.Extension._maxRequestsPerTcpConnection
-                && Extension._httpClientFactory == otherInfo.Extension._httpClientFactory
-                && Extension._enableManualSessionTokenManagement == otherInfo.Extension._enableManualSessionTokenManagement;
+                && Extension._httpClientFactory == otherInfo.Extension._httpClientFactory;
 
         public override void PopulateDebugInfo(IDictionary<string, string> debugInfo)
         {
