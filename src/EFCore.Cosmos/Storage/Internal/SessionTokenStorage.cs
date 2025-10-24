@@ -180,7 +180,7 @@ public class SessionTokenStorage : ISessionTokenStorage
             if (_isChanged)
             {
                 _isChanged = false;
-                _string = string.Join(",", Tokens.Select(kvp => $"{kvp.Key}:{kvp.Value.ConvertToString()}"));
+                _string = Tokens.Count == 0 ? null : string.Join(",", Tokens.Select(kvp => $"{kvp.Key}:{kvp.Value.ConvertToString()}"));
             }
 
             return _string;
