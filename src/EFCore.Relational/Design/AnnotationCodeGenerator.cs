@@ -402,6 +402,11 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
     {
         var methodCallCodeFragments = new List<MethodCallCodeFragment>();
 
+        GenerateSimpleFluentApiCall(
+            annotations,
+            RelationalAnnotationNames.JsonPropertyName, nameof(RelationalComplexPropertyBuilderExtensions.HasJsonPropertyName),
+            methodCallCodeFragments);
+
         methodCallCodeFragments.AddRange(GenerateFluentApiCallsHelper(complexProperty, annotations, GenerateFluentApi));
 
         return methodCallCodeFragments;
