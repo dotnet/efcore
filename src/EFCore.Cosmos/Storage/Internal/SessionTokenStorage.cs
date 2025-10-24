@@ -115,21 +115,21 @@ public class SessionTokenStorage : ISessionTokenStorage
             throw new ArgumentException("sessionToken cannot be whitespace.", sessionToken);
         }
 
-        ref var value = ref CollectionsMarshal.GetValueRefOrNullRef(_containerSessionTokens, containerName);
+        ref var compositeSessionToken = ref CollectionsMarshal.GetValueRefOrNullRef(_containerSessionTokens, containerName);
 
-        if (Unsafe.IsNullRef(ref value))
+        if (Unsafe.IsNullRef(ref compositeSessionToken))
         {
             throw new ArgumentException(CosmosStrings.ContainerNameDoesNotExist(containerName), nameof(containerName));
         }
 
-        value = new CompositeSessionToken();
+        compositeSessionToken = new CompositeSessionToken();
 
         if (sessionToken is null)
         {
             return;
         }
 
-        ParseAndMerge(value, sessionToken);
+        ParseAndMerge(compositeSessionToken, sessionToken);
     }
 
     private void ParseAndMerge(CompositeSessionToken compositeSessionToken, string sessionToken)
