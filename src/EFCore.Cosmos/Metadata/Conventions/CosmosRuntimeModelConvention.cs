@@ -45,6 +45,7 @@ public class CosmosRuntimeModelConvention : RuntimeModelConvention
             annotations.Remove(CosmosAnnotationNames.Throughput);
         }
 
+        // @TODO: Is this the right place for this?
         annotations.Add(CosmosAnnotationNames.ContainerNames, GetContainerNames(model));
     }
 
