@@ -18,7 +18,7 @@ public class RefreshFromDb_ManyToMany_SqlServer_Test : IClassFixture<RefreshFrom
         using var ctx = _fixture.CreateContext();
 
         // Get a student with their courses loaded
-        var student = await ctx.Students.Include(s => s.Courses).FirstAsync();
+        var student = await ctx.Students.Include(s => s.Courses).OrderBy(c=>c.Id).FirstAsync();
         var originalCourseCount = student.Courses.Count;
 
         try
@@ -55,7 +55,7 @@ public class RefreshFromDb_ManyToMany_SqlServer_Test : IClassFixture<RefreshFrom
         using var ctx = _fixture.CreateContext();
 
         // Get a student with courses
-        var student = await ctx.Students.Include(s => s.Courses).FirstAsync(s => s.Courses.Any());
+        var student = await ctx.Students.Include(s => s.Courses).OrderBy(c => c.Id).FirstAsync(s => s.Courses.Any());
         var originalCourseCount = student.Courses.Count;
         var courseToRemove = student.Courses.First();
 
@@ -88,8 +88,8 @@ public class RefreshFromDb_ManyToMany_SqlServer_Test : IClassFixture<RefreshFrom
         using var ctx = _fixture.CreateContext();
 
         // Get both sides of the many-to-many relationship
-        var student = await ctx.Students.Include(s => s.Courses).FirstAsync();
-        var course = await ctx.Courses.Include(c => c.Students).FirstAsync(c => !student.Courses.Contains(c));
+        var student = await ctx.Students.Include(s => s.Courses).OrderBy(c => c.Id).FirstAsync();
+        var course = await ctx.Courses.Include(c => c.Students).OrderBy(c => c.Id).FirstAsync(c => !student.Courses.Contains(c));
 
         var originalStudentCourseCount = student.Courses.Count;
         var originalCourseStudentCount = course.Students.Count;
@@ -125,14 +125,17 @@ public class RefreshFromDb_ManyToMany_SqlServer_Test : IClassFixture<RefreshFrom
     {
         using var ctx = _fixture.CreateContext();
 
-        var author = await ctx.Authors.Include(a => a.Books).FirstAsync();
+        var author = await ctx.Authors.Include(a => a.Books).OrderBy(c => c.Id).FirstAsync();
         var originalBookCount = author.Books.Count;
 
         try
         {
             // Get books not authored by this author
-            var booksToAdd = await ctx.Books
+            var booksToAdd = await
+                ctx
+                .Books
                 .Where(b => !author.Books.Contains(b))
+                .OrderBy(c => c.Id)
                 .Take(2)
                 .ToListAsync();
 

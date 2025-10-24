@@ -17,7 +17,7 @@ public class RefreshFromDb_ShadowProperties_SqlServer_Test : IClassFixture<Refre
     {
         using var ctx = _fixture.CreateContext();
 
-        var product = await ctx.Products.FirstAsync();
+        var product = await ctx.Products.OrderBy(c => c.Id).FirstAsync();
         var originalCreatedBy = (string?)ctx.Entry(product).Property("CreatedBy").CurrentValue;
         var originalCreatedAt = (DateTime?)ctx.Entry(product).Property("CreatedAt").CurrentValue;
 
@@ -52,7 +52,7 @@ public class RefreshFromDb_ShadowProperties_SqlServer_Test : IClassFixture<Refre
     {
         using var ctx = _fixture.CreateContext();
 
-        var product = await ctx.Products.FirstAsync();
+        var product = await ctx.Products.OrderBy(c => c.Id).FirstAsync();
         var originalName = product.Name;
         var originalLastModified = (DateTime?)ctx.Entry(product).Property("LastModified").CurrentValue;
 
@@ -87,16 +87,25 @@ public class RefreshFromDb_ShadowProperties_SqlServer_Test : IClassFixture<Refre
     {
         using var ctx = _fixture.CreateContext();
 
-        var order = await ctx.Orders.FirstAsync();
+        var order = await ctx.Orders.OrderBy(c => c.Id).FirstAsync();
         var originalCustomerId = (int?)ctx.Entry(order).Property("CustomerId").CurrentValue;
+
+        // Get a fallback customer ID in case originalCustomerId is null
+        var fallbackCustomerId = originalCustomerId ?? await ctx.Customers.Select(c => c.Id).FirstAsync();
 
         try
         {
-            // Get another customer to associate with
-            var newCustomerId = await ctx.Customers
-                .Where(c => c.Id != originalCustomerId)
-                .Select(c => c.Id)
-                .FirstAsync();
+            // Get a valid customer ID that exists in the database
+            var newCustomerId = originalCustomerId.HasValue
+                ? await ctx.Customers
+                    .Where(c => c.Id != originalCustomerId.Value)
+                    .OrderBy(c => c.Id)
+                    .Select(c => c.Id)
+                    .FirstAsync()
+                : await ctx.Customers
+                    .OrderBy(c => c.Id)
+                    .Select(c => c.Id)
+                    .FirstAsync();
 
             // Update shadow foreign key externally
             await ctx.Database.ExecuteSqlRawAsync(
@@ -111,10 +120,10 @@ public class RefreshFromDb_ShadowProperties_SqlServer_Test : IClassFixture<Refre
         }
         finally
         {
-            // Cleanup
+            // Cleanup - use the fallback customer ID (no await in finally block)
             await ctx.Database.ExecuteSqlRawAsync(
                 "UPDATE [Orders] SET [CustomerId] = {0} WHERE [Id] = {1}",
-                originalCustomerId ?? 1, order.Id);
+                fallbackCustomerId, order.Id);
         }
     }
 
@@ -154,22 +163,18 @@ public class RefreshFromDb_ShadowProperties_SqlServer_Test : IClassFixture<Refre
 
         protected override async Task SeedAsync(ShadowPropertiesContext context)
         {
+            // First, seed and save customers to get generated IDs
             var customer1 = new Customer { Name = "Customer 1", Email = "customer1@example.com" };
             var customer2 = new Customer { Name = "Customer 2", Email = "customer2@example.com" };
 
+            context.Customers.AddRange(customer1, customer2);
+            await context.SaveChangesAsync();
+
+            // Then, seed products and set their shadow properties
             var product1 = new Product { Name = "Product 1", Price = 100.00m };
             var product2 = new Product { Name = "Product 2", Price = 200.00m };
 
-            var order1 = new Order { OrderDate = DateTime.Now.AddDays(-10), TotalAmount = 150.00m };
-            var order2 = new Order { OrderDate = DateTime.Now.AddDays(-5), TotalAmount = 300.00m };
-
-            context.Customers.AddRange(customer1, customer2);
-            context.Products.AddRange(product1, product2);
-            context.Orders.AddRange(order1, order2);
-
-            await context.SaveChangesAsync();
-
-            // Set shadow properties after saving to get generated IDs
+            // Now set shadow properties for products AFTER they are saved
             context.Entry(product1).Property("CreatedBy").CurrentValue = "System";
             context.Entry(product1).Property("CreatedAt").CurrentValue = DateTime.Now.AddMonths(-2);
             context.Entry(product1).Property("LastModified").CurrentValue = DateTime.Now.AddDays(-1);
@@ -178,9 +183,21 @@ public class RefreshFromDb_ShadowProperties_SqlServer_Test : IClassFixture<Refre
             context.Entry(product2).Property("CreatedAt").CurrentValue = DateTime.Now.AddDays(-15);
             context.Entry(product2).Property("LastModified").CurrentValue = DateTime.Now.AddHours(-6);
 
+            context.Products.AddRange(product1, product2);
+            await context.SaveChangesAsync();
+
+            // Create orders with shadow foreign key properties set BEFORE adding to context
+            var order1 = new Order { OrderDate = DateTime.Now.AddDays(-10), TotalAmount = 150.00m };
+            var order2 = new Order { OrderDate = DateTime.Now.AddDays(-5), TotalAmount = 300.00m };
+
+            // Add orders to context
+            context.Orders.AddRange(order1, order2);
+
+            // Set shadow foreign key properties IMMEDIATELY after adding to context but BEFORE SaveChanges
             context.Entry(order1).Property("CustomerId").CurrentValue = customer1.Id;
             context.Entry(order2).Property("CustomerId").CurrentValue = customer2.Id;
 
+            // Save all changes
             await context.SaveChangesAsync();
         }
     }

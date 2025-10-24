@@ -68,7 +68,7 @@ public class RefreshFromDb_ComplexTypes_SqlServer_Test : IClassFixture<RefreshFr
     {
         using var ctx = _fixture.CreateContext();
 
-        var product = await ctx.Products.FirstAsync();
+        var product = await ctx.Products.OrderBy(c => c.Id).FirstAsync();
         var originalName = product.Details.Name;
 
         try
@@ -131,7 +131,7 @@ public class RefreshFromDb_ComplexTypes_SqlServer_Test : IClassFixture<RefreshFr
     {
         using var ctx = _fixture.CreateContext();
 
-        var customer = await ctx.Customers.FirstAsync();
+        var customer = await ctx.Customers.OrderBy(c => c.Id).FirstAsync();
         var originalContactPhone = customer.Contact.Phone;
 
         try

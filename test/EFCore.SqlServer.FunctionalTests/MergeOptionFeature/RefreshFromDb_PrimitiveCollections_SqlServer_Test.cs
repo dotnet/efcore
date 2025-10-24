@@ -18,7 +18,7 @@ public class RefreshFromDb_PrimitiveCollections_SqlServer_Test : IClassFixture<R
         using var ctx = _fixture.CreateContext();
 
         // Get a product with its tags collection
-        var product = await ctx.Products.FirstAsync();
+        var product = await ctx.Products.OrderBy(c => c.Id).FirstAsync();
         var originalTagCount = product.Tags.Count;
         var originalTags = product.Tags.ToList();
 
@@ -55,7 +55,7 @@ public class RefreshFromDb_PrimitiveCollections_SqlServer_Test : IClassFixture<R
     {
         using var ctx = _fixture.CreateContext();
 
-        var blog = await ctx.Blogs.FirstAsync();
+        var blog = await ctx.Blogs.OrderBy(c => c.Id).FirstAsync();
         var originalRatings = blog.Ratings.ToList();
         var originalCount = blog.Ratings.Count;
 
@@ -92,7 +92,7 @@ public class RefreshFromDb_PrimitiveCollections_SqlServer_Test : IClassFixture<R
     {
         using var ctx = _fixture.CreateContext();
 
-        var user = await ctx.Users.FirstAsync();
+        var user = await ctx.Users.OrderBy(c => c.Id).FirstAsync();
         var originalIds = user.RelatedIds.ToList();
 
         try
@@ -130,7 +130,7 @@ public class RefreshFromDb_PrimitiveCollections_SqlServer_Test : IClassFixture<R
     {
         using var ctx = _fixture.CreateContext();
 
-        var product = await ctx.Products.FirstAsync();
+        var product = await ctx.Products.OrderBy(c => c.Id).FirstAsync();
         var originalTags = product.Tags.ToList();
 
         try

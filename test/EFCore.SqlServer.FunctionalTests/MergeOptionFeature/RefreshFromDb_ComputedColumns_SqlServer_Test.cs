@@ -18,7 +18,7 @@ public class RefreshFromDb_ComputedColumns_SqlServer_Test : IClassFixture<Refres
         using var ctx = _fixture.CreateContext();
 
         // Get a product and its original computed values
-        var product = await ctx.Products.FirstAsync();
+        var product = await ctx.Products.OrderBy(c => c.Id).FirstAsync();
         var originalTotalValue = product.TotalValue;
         var originalDescription = product.Description;
 
@@ -79,7 +79,7 @@ public class RefreshFromDb_ComputedColumns_SqlServer_Test : IClassFixture<Refres
     {
         using var ctx = _fixture.CreateContext();
 
-        var order = await ctx.Orders.FirstAsync();
+        var order = await ctx.Orders.OrderBy(c => c.Id).FirstAsync();
         var originalOrderDate = order.OrderDate;
         var originalFormattedDate = order.FormattedOrderDate;
 
@@ -87,7 +87,7 @@ public class RefreshFromDb_ComputedColumns_SqlServer_Test : IClassFixture<Refres
         {
             // Update the OrderDate which should trigger the computed column
             var newOrderDate = DateTime.Now.AddDays(-5);
-            
+
             await ctx.Database.ExecuteSqlRawAsync(
                 "UPDATE [Orders] SET [OrderDate] = {0} WHERE [Id] = {1}",
                 newOrderDate, order.Id);
@@ -168,15 +168,15 @@ public class RefreshFromDb_ComputedColumns_SqlServer_Test : IClassFixture<Refres
             modelBuilder.Entity<Product>(entity =>
             {
                 entity.HasKey(p => p.Id);
-                
+
                 entity.Property(p => p.Name)
                     .HasMaxLength(100)
                     .IsRequired();
-                
+
                 entity.Property(p => p.Price)
                     .HasColumnType("decimal(18,2)")
                     .IsRequired();
-                
+
                 entity.Property(p => p.Quantity)
                     .IsRequired();
 
@@ -194,10 +194,10 @@ public class RefreshFromDb_ComputedColumns_SqlServer_Test : IClassFixture<Refres
             modelBuilder.Entity<Order>(entity =>
             {
                 entity.HasKey(o => o.Id);
-                
+
                 entity.Property(o => o.OrderDate)
                     .IsRequired();
-                
+
                 entity.Property(o => o.CustomerName)
                     .HasMaxLength(100)
                     .IsRequired();
