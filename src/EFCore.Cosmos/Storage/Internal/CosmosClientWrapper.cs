@@ -1360,7 +1360,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
 
     #endregion ResponseMessageEnumerable
 
-    private class CosmosFeedIteratorWrapper : FeedIterator
+    private sealed class CosmosFeedIteratorWrapper : FeedIterator
     {
         private readonly FeedIterator _inner;
         private readonly string _containerName;
