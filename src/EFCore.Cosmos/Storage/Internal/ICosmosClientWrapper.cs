@@ -127,7 +127,6 @@ public interface ICosmosClientWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    // @TODO: We also need to send session token on writes to keep the same chain or not?
     Task<bool> DeleteItemAsync(
         string containerId,
         string documentId,

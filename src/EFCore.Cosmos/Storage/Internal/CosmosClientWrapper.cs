@@ -975,14 +975,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         using var reader = new StreamReader(responseStream);
         using var jsonReader = new JsonTextReader(reader);
 
-        var jobject = Serializer.Deserialize<JObject>(jsonReader);
-
-        if (!string.IsNullOrWhiteSpace(responseMessage.Headers.Session))
-        {
-            // @TODO: Set session token..
-        }
-
-        return jobject;
+        return Serializer.Deserialize<JObject>(jsonReader);
     }
 
     /// <summary>
@@ -1085,7 +1078,6 @@ public class CosmosClientWrapper : ICosmosClientWrapper
                             queryRequestOptions.PartitionKey = _partitionKeyValue;
                         }
 
-                        // @TODO: Or should this be inside CreateQuery...
                         queryRequestOptions.SessionToken = _sessionTokenStorage.GetSessionToken(_containerId);
 
                         _query = _cosmosClientWrapper.CreateQuery(
@@ -1195,7 +1187,6 @@ public class CosmosClientWrapper : ICosmosClientWrapper
                             queryRequestOptions.PartitionKey = _partitionKeyValue;
                         }
 
-                        // @TODO: Or should this be inside CreateQuery...
                         queryRequestOptions.SessionToken = _sessionTokenStorage.GetSessionToken(_containerId);
 
                         _query = _cosmosClientWrapper.CreateQuery(
