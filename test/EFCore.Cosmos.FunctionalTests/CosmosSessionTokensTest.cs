@@ -802,6 +802,9 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
         Assert.False(string.IsNullOrWhiteSpace(sessionToken));
     }
 
+    // @TODO set then query appends
+    // @TODO append then query appends only if not present?
+
     [ConditionalTheory]
     [InlineData(true, true)]
     [InlineData(true, false)]
