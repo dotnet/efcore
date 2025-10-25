@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class CosmosDatabaseWrapper : Database
+public class CosmosDatabaseWrapper : Database, IResettableService
 {
     private readonly Dictionary<IEntityType, DocumentSource> _documentCollections = new();
 
@@ -667,6 +667,17 @@ public class CosmosDatabaseWrapper : Database
                 => new DbUpdateException(CosmosStrings.UpdateConflict(id), exception, entries),
             _ => new DbUpdateException(CosmosStrings.UpdateStoreException(id), exception, entries)
         };
+    }
+
+    void IResettableService.ResetState()
+    {
+        SessionTokenStorage.Clear();
+    }
+
+    Task IResettableService.ResetStateAsync(CancellationToken cancellationToken)
+    {
+        ((IResettableService)this).ResetState();
+        return Task.CompletedTask;
     }
 
     private sealed class SaveGroups

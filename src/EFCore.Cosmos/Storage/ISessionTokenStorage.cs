@@ -46,4 +46,9 @@ public interface ISessionTokenStorage
     /// </summary>
     /// <param name="sessionToken">The session token to set, or <see langword="null" /> to clear any stored token.</param>
     void SetSessionToken(string? sessionToken);
+
+    /// <summary>
+    ///     Clears all stored session tokens.
+    /// </summary>
+    void Clear();
 }
