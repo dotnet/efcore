@@ -409,6 +409,7 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
         }
 
         using var newContext = contextFactory.CreateContext();
+        Assert.NotSame(context, newContext);
         if (async)
         {
             if (defaultContainer)

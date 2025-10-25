@@ -1,8 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Cosmos.Storage;
-
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
 /// <summary>
@@ -13,8 +11,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 /// </summary>
 public class CosmosQueryCompilationContextFactory : IQueryCompilationContextFactory
 {
-    private ISessionTokenStorage? _sessionTokenStorage;
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -40,14 +36,6 @@ public class CosmosQueryCompilationContextFactory : IQueryCompilationContextFact
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected virtual ISessionTokenStorage SessionTokenStorage => _sessionTokenStorage ??= Dependencies.Context.Database.GetSessionTokens();
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
     public virtual QueryCompilationContext Create(bool async)
-        => new CosmosQueryCompilationContext(Dependencies, SessionTokenStorage, async);
+        => new CosmosQueryCompilationContext(Dependencies, async);
 }
