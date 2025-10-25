@@ -1219,7 +1219,8 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
         Expression? source,
         MemberIdentity member,
         [NotNullWhen(true)] out Expression? expression,
-        [NotNullWhen(true)] out IPropertyBase? property)
+        [NotNullWhen(true)] out IPropertyBase? property,
+        bool forUpdate = false)
     {
         if (source is not StructuralTypeReferenceExpression typeReference)
         {
@@ -1247,7 +1248,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
 
         if (complexProperty is not null)
         {
-            expression = BindComplexProperty(typeReference, complexProperty);
+            expression = BindComplexProperty(typeReference, complexProperty, forUpdate: forUpdate);
             property = complexProperty;
             return true;
         }
@@ -1359,7 +1360,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
         }
     }
 
-    private Expression BindComplexProperty(StructuralTypeReferenceExpression typeReference, IComplexProperty complexProperty)
+    private Expression BindComplexProperty(StructuralTypeReferenceExpression typeReference, IComplexProperty complexProperty, bool forUpdate = false)
     {
         switch (typeReference)
         {
@@ -1370,7 +1371,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
                         // TODO: Move all this logic into StructuralTypeProjectionExpression, #31376
                         Check.DebugAssert(structuralTypeProjection.IsNullable == shaper.IsNullable, "Nullability mismatch");
 
-                        return structuralTypeProjection.BindComplexProperty(complexProperty) switch
+                        return structuralTypeProjection.BindComplexProperty(complexProperty, forUpdate: forUpdate) switch
                         {
                             StructuralTypeShaperExpression s => new StructuralTypeReferenceExpression(s),
                             CollectionResultExpression c => c,
