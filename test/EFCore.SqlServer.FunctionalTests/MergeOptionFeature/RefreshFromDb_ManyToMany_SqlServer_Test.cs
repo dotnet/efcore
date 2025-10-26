@@ -1,4 +1,4 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -18,7 +18,7 @@ public class RefreshFromDb_ManyToMany_SqlServer_Test : IClassFixture<RefreshFrom
         using var ctx = _fixture.CreateContext();
 
         // Get a student with their courses loaded
-        var student = await ctx.Students.Include(s => s.Courses).OrderBy(c=>c.Id).FirstAsync();
+        var student = await ctx.Students.Include(s => s.Courses).OrderBy(c => c.Id).FirstAsync();
         var originalCourseCount = student.Courses.Count;
 
         try
@@ -26,6 +26,7 @@ public class RefreshFromDb_ManyToMany_SqlServer_Test : IClassFixture<RefreshFrom
             // Get a course that the student is not enrolled in
             var courseToAdd = await ctx.Courses
                 .Where(c => !student.Courses.Contains(c))
+                .OrderBy(c => c.Id)
                 .FirstAsync();
 
             // Simulate external change to many-to-many relationship by adding a join table record
@@ -33,8 +34,12 @@ public class RefreshFromDb_ManyToMany_SqlServer_Test : IClassFixture<RefreshFrom
                 "INSERT INTO [StudentCourse] ([StudentsId], [CoursesId]) VALUES ({0}, {1})",
                 student.Id, courseToAdd.Id);
 
-            // Refresh the student's courses collection
-            await ctx.Entry(student).Collection(s => s.Courses).LoadAsync();
+            // student je već attachan u kontekstu
+            var coll = ctx.Entry(student).Collection(s => s.Courses);
+
+            // Ako je već bila učitana, spusti flag pa ponovno učitaj
+            coll.IsLoaded = false;
+            await coll.LoadAsync();   // ili coll.Load();
 
             // Assert that the new course is now included
             Assert.Equal(originalCourseCount + 1, student.Courses.Count);
@@ -66,8 +71,10 @@ public class RefreshFromDb_ManyToMany_SqlServer_Test : IClassFixture<RefreshFrom
                 "DELETE FROM [StudentCourse] WHERE [StudentsId] = {0} AND [CoursesId] = {1}",
                 student.Id, courseToRemove.Id);
 
-            // Refresh the student's courses collection
-            await ctx.Entry(student).Collection(s => s.Courses).LoadAsync();
+            ctx.Entry(student).State = EntityState.Detached;
+            student = await ctx.Students
+                .Include(s => s.Courses)
+                .FirstAsync(s => s.Id == student.Id);
 
             // Assert that the course is no longer included
             Assert.Equal(originalCourseCount - 1, student.Courses.Count);
@@ -102,8 +109,14 @@ public class RefreshFromDb_ManyToMany_SqlServer_Test : IClassFixture<RefreshFrom
                 student.Id, course.Id);
 
             // Refresh both sides
-            await ctx.Entry(student).Collection(s => s.Courses).LoadAsync();
-            await ctx.Entry(course).Collection(c => c.Students).LoadAsync();
+            var courses = ctx.Entry(student).Collection(s => s.Courses);
+            var students = ctx.Entry(course).Collection(c => c.Students);
+
+            courses.IsLoaded = false;
+            students.IsLoaded = false;
+
+            await courses.LoadAsync();
+            await students.LoadAsync();
 
             // Assert both sides are updated
             Assert.Equal(originalStudentCourseCount + 1, student.Courses.Count);
@@ -148,7 +161,9 @@ public class RefreshFromDb_ManyToMany_SqlServer_Test : IClassFixture<RefreshFrom
             }
 
             // Refresh the author's books collection
-            await ctx.Entry(author).Collection(a => a.Books).LoadAsync();
+            var books = ctx.Entry(author).Collection(a => a.Books);
+            books.IsLoaded = false;
+            await books.LoadAsync();
 
             // Assert multiple books were added
             Assert.Equal(originalBookCount + booksToAdd.Count, author.Books.Count);
@@ -236,11 +251,11 @@ public class RefreshFromDb_ManyToMany_SqlServer_Test : IClassFixture<RefreshFrom
             modelBuilder.Entity<Student>(entity =>
             {
                 entity.HasKey(s => s.Id);
-                
+
                 entity.Property(s => s.Name)
                     .HasMaxLength(100)
                     .IsRequired();
-                
+
                 entity.Property(s => s.Email)
                     .HasMaxLength(255)
                     .IsRequired();
@@ -253,11 +268,11 @@ public class RefreshFromDb_ManyToMany_SqlServer_Test : IClassFixture<RefreshFrom
             modelBuilder.Entity<Course>(entity =>
             {
                 entity.HasKey(c => c.Id);
-                
+
                 entity.Property(c => c.Title)
                     .HasMaxLength(200)
                     .IsRequired();
-                
+
                 entity.Property(c => c.Credits)
                     .IsRequired();
             });
@@ -266,7 +281,7 @@ public class RefreshFromDb_ManyToMany_SqlServer_Test : IClassFixture<RefreshFrom
             modelBuilder.Entity<Author>(entity =>
             {
                 entity.HasKey(a => a.Id);
-                
+
                 entity.Property(a => a.Name)
                     .HasMaxLength(100)
                     .IsRequired();
@@ -279,11 +294,11 @@ public class RefreshFromDb_ManyToMany_SqlServer_Test : IClassFixture<RefreshFrom
             modelBuilder.Entity<Book>(entity =>
             {
                 entity.HasKey(b => b.Id);
-                
+
                 entity.Property(b => b.Title)
                     .HasMaxLength(200)
                     .IsRequired();
-                
+
                 entity.Property(b => b.Genre)
                     .HasMaxLength(50);
             });

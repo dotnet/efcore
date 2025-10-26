@@ -31,20 +31,9 @@ public class RefreshFromDb_ComplexTypes_SqlServer_Test : IClassFixture<RefreshFr
                 "INSERT INTO [ProductReview] ([ProductId], [Rating], [Comment]) VALUES ({0}, {1}, {2})",
                 product.Id, newReview.Rating, newReview.Comment);
 
-
-            await ctx.Entry(product).Collection(p => p.Reviews).LoadAsync();
-            //// Refresh the owned collection using Query method
-            //var refreshedReviews = await ctx.Entry(product)
-            //    .Collection(p => p.Reviews)
-            //    .Query()
-            //    .ToListAsync();
-
-            //// Clear and reload the collection
-            //product.Reviews.Clear();
-            //foreach (var review in refreshedReviews)
-            //{
-            //    product.Reviews.Add(review);
-            //}
+            // For owned entities, we need to reload the entire owner entity
+            // because owned entities cannot be tracked without their owner
+            await ctx.Entry(product).ReloadAsync();
 
             // Assert
             Assert.Equal(originalReviewCount + 1, product.Reviews.Count);
@@ -99,7 +88,7 @@ public class RefreshFromDb_ComplexTypes_SqlServer_Test : IClassFixture<RefreshFr
     {
         using var ctx = _fixture.CreateContext();
 
-        var customer = await ctx.Customers.OrderBy(c => c.Id).FirstAsync();
+        var customer = await ctx.Customers.OrderBy(c => c.Id).AsNoTracking().FirstAsync();
         var originalAddressCount = customer.Addresses.Count;
 
         try
@@ -110,8 +99,10 @@ public class RefreshFromDb_ComplexTypes_SqlServer_Test : IClassFixture<RefreshFr
                 "INSERT INTO [CustomerAddress] ([CustomerId], [Street], [City], [PostalCode]) VALUES ({0}, {1}, {2}, {3})",
                 customer.Id, newAddress.Street, newAddress.City, newAddress.PostalCode);
 
-            // Refresh the collection specifically
-            await ctx.Entry(customer).Collection(c => c.Addresses).LoadAsync();
+            // For owned entities, reload the entire entity to avoid duplicates
+            var addresses = ctx.Entry<Customer>(customer).Collection(c => c.Addresses);
+            addresses.IsLoaded = false;
+            await addresses.LoadAsync();
 
             // Assert
             Assert.Equal(originalAddressCount + 1, customer.Addresses.Count);
