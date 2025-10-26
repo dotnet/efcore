@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 public class CosmosQueryContext(
     QueryContextDependencies dependencies,
     ICosmosClientWrapper cosmosClient,
-    ISessionTokenStorage sessionTokenStorage)
+    SessionTokenStorage sessionTokenStorage)
     : QueryContext(dependencies)
 {
     /// <summary>
@@ -32,5 +32,5 @@ public class CosmosQueryContext(
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual ISessionTokenStorage SessionTokenStorage { get; } = sessionTokenStorage;
+    public virtual SessionTokenStorage SessionTokenStorage { get; } = sessionTokenStorage;
 }

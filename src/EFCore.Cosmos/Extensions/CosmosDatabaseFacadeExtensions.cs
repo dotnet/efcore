@@ -27,11 +27,29 @@ public static class CosmosDatabaseFacadeExtensions
         => GetService<ISingletonCosmosClientWrapper>(databaseFacade).Client;
 
     /// <summary>
-    ///     Gets <see cref="ISessionTokenStorage"/> used to manage the session tokens for this <see cref="DbContext" />.
+    ///     Gets the composite session token for the default container for this <see cref="DbContext" />.
     /// </summary>
+    /// <remarks>Use this when using only 1 container in the same <see cref="DbContext"/></remarks>
     /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
-    /// <returns>The <see cref="ISessionTokenStorage"/>.</returns>
-    public static ISessionTokenStorage GetSessionTokens(this DatabaseFacade databaseFacade)
+    /// <returns>The session token dictionary.</returns>
+    public static string? GetSessionToken(this DatabaseFacade databaseFacade)
+    {
+        var db = GetService<IDatabase>(databaseFacade);
+        if (db is not CosmosDatabaseWrapper dbWrapper)
+        {
+            throw new InvalidOperationException(CosmosStrings.CosmosNotInUse);
+        }
+
+        return dbWrapper.SessionTokenStorage.GetSessionToken();
+    }
+
+    /// <summary>
+    ///     Gets a dictionary that contains the composite session token per container for this <see cref="DbContext" />.
+    /// </summary>
+    /// <remarks>Use this when using multiple containers in the same <see cref="DbContext"/></remarks>
+    /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
+    /// <returns>The session token dictionary.</returns>
+    public static IReadOnlyDictionary<string, string?> GetSessionTokens(this DatabaseFacade databaseFacade)
     {
         var db = GetService<IDatabase>(databaseFacade);
         if (db is not CosmosDatabaseWrapper dbWrapper)
@@ -40,6 +58,40 @@ public static class CosmosDatabaseFacadeExtensions
         }
 
         return dbWrapper.SessionTokenStorage;
+    }
+
+    /// <summary>
+    /// Appends the composite session token for the default container for this <see cref="DbContext" />.
+    /// </summary>
+    /// <remarks>Use this when using only 1 container in the same <see cref="DbContext"/></remarks>
+    /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
+    /// <param name="sessionToken">The session token to append.</param>
+    public static void AppendSessionToken(this DatabaseFacade databaseFacade, string sessionToken)
+    {
+        var db = GetService<IDatabase>(databaseFacade);
+        if (db is not CosmosDatabaseWrapper dbWrapper)
+        {
+            throw new InvalidOperationException(CosmosStrings.CosmosNotInUse);
+        }
+
+        dbWrapper.SessionTokenStorage.AppendSessionToken(sessionToken);
+    }
+
+    /// <summary>
+    ///     Appends the composite session token per container for this <see cref="DbContext" />.
+    /// </summary>
+    /// <remarks>Use this when using multiple containers in the same <see cref="DbContext"/></remarks>
+    /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
+    /// <param name="sessionTokens">The session tokens to append per container.</param>
+    public static void AppendSessionTokens(this DatabaseFacade databaseFacade, IReadOnlyDictionary<string, string> sessionTokens)
+    {
+        var db = GetService<IDatabase>(databaseFacade);
+        if (db is not CosmosDatabaseWrapper dbWrapper)
+        {
+            throw new InvalidOperationException(CosmosStrings.CosmosNotInUse);
+        }
+
+        dbWrapper.SessionTokenStorage.AppendSessionTokens(sessionTokens);
     }
 
     private static TService GetService<TService>(IInfrastructure<IServiceProvider> databaseFacade)
