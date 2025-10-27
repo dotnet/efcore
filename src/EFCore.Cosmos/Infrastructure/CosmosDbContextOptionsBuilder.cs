@@ -212,6 +212,19 @@ public class CosmosDbContextOptionsBuilder : ICosmosDbContextOptionsBuilderInfra
         => WithOption(e => e.ContentResponseOnWriteEnabled(Check.NotNull(enabled)));
 
     /// <summary>
+    ///     Sets the boolean to enable the <see href="https://learn.microsoft.com/en-us/azure/cosmos-db/bulk-executor-overview">Cosmos DB SDK bulk feature</see>.
+    ///     This will increase throughput for smaller writes, but will increase latency.
+    ///     Only enable for non-latency sensative, high troughput scenario's.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
+    /// </remarks>
+    /// <param name="enabled"><see langword="true" /> to enable the Cosmos DB SDK bulk feature</param>
+    public virtual CosmosDbContextOptionsBuilder BulkExecutionEnabled(bool enabled = true)
+        => WithOption(e => e.BulkExecutionEnabled(enabled));
+
+    /// <summary>
     ///     Sets an option by cloning the extension used to store the settings. This ensures the builder
     ///     does not modify options that are already in use elsewhere.
     /// </summary>
