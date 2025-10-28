@@ -1,8 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.TestUtilities;
-
 namespace Microsoft.EntityFrameworkCore.MergeOptionFeature;
 
 public class RefreshFromDb_ManyToMany_SqlServer_Test : IClassFixture<RefreshFromDb_ManyToMany_SqlServer_Test.ManyToManyFixture>
@@ -34,10 +32,10 @@ public class RefreshFromDb_ManyToMany_SqlServer_Test : IClassFixture<RefreshFrom
                 "INSERT INTO [StudentCourse] ([StudentsId], [CoursesId]) VALUES ({0}, {1})",
                 student.Id, courseToAdd.Id);
 
-            // student je već attachan u kontekstu
+            // Student is allready tracked, so we need to refresh the collection navigation
             var coll = ctx.Entry(student).Collection(s => s.Courses);
 
-            // Ako je već bila učitana, spusti flag pa ponovno učitaj
+            // If it was already loaded, drop the flag and reload
             coll.IsLoaded = false;
             await coll.LoadAsync();   // ili coll.Load();
 
