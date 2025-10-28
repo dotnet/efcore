@@ -67,7 +67,7 @@ public interface ICosmosClientWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    bool CreateItem(string containerId, JToken document, IUpdateEntry entry, SessionTokenStorage sessionTokenStorage);
+    bool CreateItem(string containerId, JToken document, IUpdateEntry entry, ISessionTokenStorage sessionTokenStorage);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -80,7 +80,7 @@ public interface ICosmosClientWrapper
         string documentId,
         JObject document,
         IUpdateEntry entry,
-        SessionTokenStorage sessionTokenStorage);
+        ISessionTokenStorage sessionTokenStorage);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -92,7 +92,7 @@ public interface ICosmosClientWrapper
         string containerId,
         string documentId,
         IUpdateEntry entry,
-        SessionTokenStorage sessionTokenStorage);
+        ISessionTokenStorage sessionTokenStorage);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -104,7 +104,7 @@ public interface ICosmosClientWrapper
         string containerId,
         JToken document,
         IUpdateEntry updateEntry,
-        SessionTokenStorage sessionTokenStorage,
+        ISessionTokenStorage sessionTokenStorage,
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -118,7 +118,7 @@ public interface ICosmosClientWrapper
         string documentId,
         JObject document,
         IUpdateEntry updateEntry,
-        SessionTokenStorage sessionTokenStorage,
+        ISessionTokenStorage sessionTokenStorage,
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -131,7 +131,7 @@ public interface ICosmosClientWrapper
         string containerId,
         string documentId,
         IUpdateEntry entry,
-        SessionTokenStorage sessionTokenStorage,
+        ISessionTokenStorage sessionTokenStorage,
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -143,7 +143,7 @@ public interface ICosmosClientWrapper
     FeedIterator CreateQuery(
         string containerId,
         CosmosSqlQuery query,
-        SessionTokenStorage sessionTokenStorage,
+        ISessionTokenStorage sessionTokenStorage,
         string? continuationToken = null,
         QueryRequestOptions? queryRequestOptions = null);
 
@@ -157,7 +157,7 @@ public interface ICosmosClientWrapper
         string containerId,
         PartitionKey partitionKeyValue,
         string resourceId,
-        SessionTokenStorage sessionTokenStorage);
+        ISessionTokenStorage sessionTokenStorage);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -169,7 +169,7 @@ public interface ICosmosClientWrapper
         string containerId,
         PartitionKey partitionKeyValue,
         string resourceId,
-        SessionTokenStorage sessionTokenStorage,
+        ISessionTokenStorage sessionTokenStorage,
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -182,7 +182,7 @@ public interface ICosmosClientWrapper
         string containerId,
         PartitionKey partitionKeyValue,
         CosmosSqlQuery query,
-        SessionTokenStorage sessionTokenStorage);
+        ISessionTokenStorage sessionTokenStorage);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -194,7 +194,7 @@ public interface ICosmosClientWrapper
         string containerId,
         PartitionKey partitionKeyValue,
         CosmosSqlQuery query,
-        SessionTokenStorage sessionTokenStorage);
+        ISessionTokenStorage sessionTokenStorage);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -226,7 +226,7 @@ public interface ICosmosClientWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    Task<CosmosTransactionalBatchResult> ExecuteTransactionalBatchAsync(ICosmosTransactionalBatchWrapper batch, SessionTokenStorage sessionTokenStorage, CancellationToken cancellationToken = default);
+    Task<CosmosTransactionalBatchResult> ExecuteTransactionalBatchAsync(ICosmosTransactionalBatchWrapper batch, ISessionTokenStorage sessionTokenStorage, CancellationToken cancellationToken = default);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -234,5 +234,5 @@ public interface ICosmosClientWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    CosmosTransactionalBatchResult ExecuteTransactionalBatch(ICosmosTransactionalBatchWrapper batch, SessionTokenStorage sessionTokenStorage);
+    CosmosTransactionalBatchResult ExecuteTransactionalBatch(ICosmosTransactionalBatchWrapper batch, ISessionTokenStorage sessionTokenStorage);
 }

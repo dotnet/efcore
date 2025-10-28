@@ -5,6 +5,7 @@ using System.Net;
 using System.Runtime.InteropServices;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Update.Internal;
@@ -38,13 +39,16 @@ public class CosmosDatabaseWrapper : Database, IResettableService
         DatabaseDependencies dependencies,
         ICurrentDbContext currentDbContext,
         ICosmosClientWrapper cosmosClient,
+        ICosmosSingletonOptions cosmosSingletonOptions,
         ILoggingOptions loggingOptions)
         : base(dependencies)
     {
         _currentDbContext = currentDbContext;
         _cosmosClient = cosmosClient;
 
-        SessionTokenStorage = new SessionTokenStorage(_currentDbContext.Context);
+        SessionTokenStorage = cosmosSingletonOptions.EnableManualSessionTokenManagement ?
+                                new SessionTokenStorage(_currentDbContext.Context)
+                              : new NullSessionTokenStorage();
 
         if (loggingOptions.IsSensitiveDataLoggingEnabled)
         {
@@ -58,7 +62,7 @@ public class CosmosDatabaseWrapper : Database, IResettableService
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SessionTokenStorage SessionTokenStorage { get; }
+    public virtual ISessionTokenStorage SessionTokenStorage { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

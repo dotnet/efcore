@@ -17,6 +17,19 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
 
     protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder) => base.AddOptions(builder).ConfigureWarnings(x => x.Ignore(CosmosEventId.SyncNotSupported));
 
+    protected override TestStore CreateTestStore() => CosmosTestStore.Create(StoreName, (c) => c.ManualSessionTokenManagementEnabled());
+
+    [ConditionalFact]
+    public virtual async Task GetSessionTokens_throws_if_not_enabled()
+    {
+        var contextFactory = await InitializeAsync<CosmosSessionTokenContext>(createTestStore: () => CosmosTestStore.Create(StoreName));
+
+        using var context = contextFactory.CreateContext();
+
+        var exception = Assert.Throws<InvalidOperationException>(() => context.Database.GetSessionTokens());
+        Assert.Equal(CosmosStrings.EnableManualSessionTokenManagement, exception.Message);
+    }
+
     [ConditionalFact]
     public virtual async Task AppendSessionToken_ThrowsForNonExistentContainer()
     {

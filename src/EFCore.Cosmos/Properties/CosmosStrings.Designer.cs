@@ -166,6 +166,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 propertyType, structuralType, property, elementType);
 
         /// <summary>
+        ///     Enable manual session token management using CosmosDbContextOptionsBuilder.ManualSessionTokenManagementEnabled to use this method.
+        /// </summary>
+        public static string EnableManualSessionTokenManagement
+            => GetString("EnableManualSessionTokenManagement");
+
+        /// <summary>
         ///     The type of the etag property '{property}' on '{entityType}' is '{propertyType}'. All etag properties must be strings or have a string value converter.
         /// </summary>
         public static string ETagNonStringStoreType(object? property, object? entityType, object? propertyType)
