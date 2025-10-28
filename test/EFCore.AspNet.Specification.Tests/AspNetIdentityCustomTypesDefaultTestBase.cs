@@ -155,7 +155,7 @@ public abstract class AspNetIdentityCustomTypesDefaultTestBase<TFixture>(TFixtur
     protected override List<EntityTypeMapping> ExpectedMappings
         =>
         [
-            new EntityTypeMapping
+            new()
             {
                 Name = "Microsoft.EntityFrameworkCore.CustomRoleClaimString",
                 TableName = "MyRoleClaims",
@@ -177,7 +177,7 @@ public abstract class AspNetIdentityCustomTypesDefaultTestBase<TFixture>(TFixtur
                     "Navigation: CustomRoleClaimString.Role (CustomRoleString) Required ToPrincipal CustomRoleString Inverse: RoleClaims PropertyAccessMode.Field",
                 },
             },
-            new EntityTypeMapping
+            new()
             {
                 Name = "Microsoft.EntityFrameworkCore.CustomRoleString",
                 TableName = "MyRoles",
@@ -200,7 +200,7 @@ public abstract class AspNetIdentityCustomTypesDefaultTestBase<TFixture>(TFixtur
                     "SkipNavigation: CustomRoleString.Users (ICollection<CustomUserString>) CollectionCustomUserString Inverse: Roles PropertyAccessMode.Field"
                 }
             },
-            new EntityTypeMapping
+            new()
             {
                 Name = "Microsoft.EntityFrameworkCore.CustomUserClaimString",
                 TableName = "MyUserClaims",
@@ -222,7 +222,7 @@ public abstract class AspNetIdentityCustomTypesDefaultTestBase<TFixture>(TFixtur
                     "Navigation: CustomUserClaimString.User (CustomUserString) Required ToPrincipal CustomUserString Inverse: Claims PropertyAccessMode.Field",
                 },
             },
-            new EntityTypeMapping
+            new()
             {
                 Name = "Microsoft.EntityFrameworkCore.CustomUserLoginString",
                 TableName = "MyUserLogins",
@@ -244,7 +244,7 @@ public abstract class AspNetIdentityCustomTypesDefaultTestBase<TFixture>(TFixtur
                     "Navigation: CustomUserLoginString.User (CustomUserString) Required ToPrincipal CustomUserString Inverse: Logins PropertyAccessMode.Field",
                 },
             },
-            new EntityTypeMapping
+            new()
             {
                 Name = "Microsoft.EntityFrameworkCore.CustomUserRoleString",
                 TableName = "MyUserRoles",
@@ -266,7 +266,7 @@ public abstract class AspNetIdentityCustomTypesDefaultTestBase<TFixture>(TFixtur
                     "Navigation: CustomUserRoleString.User (CustomUserString) Required ToPrincipal CustomUserString Inverse: UserRoles PropertyAccessMode.Field",
                 }
             },
-            new EntityTypeMapping
+            new()
             {
                 Name = "Microsoft.EntityFrameworkCore.CustomUserString",
                 TableName = "MyUsers",
@@ -306,7 +306,7 @@ public abstract class AspNetIdentityCustomTypesDefaultTestBase<TFixture>(TFixtur
                     "SkipNavigation: CustomUserString.Roles (ICollection<CustomRoleString>) CollectionCustomRoleString Inverse: Users PropertyAccessMode.Field"
                 }
             },
-            new EntityTypeMapping
+            new()
             {
                 Name = "Microsoft.EntityFrameworkCore.CustomUserTokenString",
                 TableName = "MyUserTokens",
@@ -341,64 +341,57 @@ public class CustomTypesIdentityContext(DbContextOptions options)
 
         modelBuilder.HasDefaultSchema("notdbo");
 
-        modelBuilder.Entity<CustomUserString>(
-            b =>
-            {
-                b.HasMany(e => e.Roles)
-                    .WithMany(e => e.Users)
-                    .UsingEntity<CustomUserRoleString>(
-                        j => j.HasOne(e => e.Role).WithMany(e => e.UserRoles).HasForeignKey(e => e.RoleId),
-                        j => j.HasOne(e => e.User).WithMany(e => e.UserRoles).HasForeignKey(e => e.UserId));
+        modelBuilder.Entity<CustomUserString>(b =>
+        {
+            b.HasMany(e => e.Roles)
+                .WithMany(e => e.Users)
+                .UsingEntity<CustomUserRoleString>(
+                    j => j.HasOne(e => e.Role).WithMany(e => e.UserRoles).HasForeignKey(e => e.RoleId),
+                    j => j.HasOne(e => e.User).WithMany(e => e.UserRoles).HasForeignKey(e => e.UserId));
 
-                b.HasMany(e => e.Claims).WithOne(e => e.User).HasForeignKey(uc => uc.UserId).IsRequired();
-                b.HasMany(e => e.Logins).WithOne(e => e.User).HasForeignKey(ul => ul.UserId).IsRequired();
-                b.HasMany(e => e.Tokens).WithOne(e => e.User).HasForeignKey(ut => ut.UserId).IsRequired();
-                b.ToTable("MyUsers");
-                b.Property(u => u.UserName).HasMaxLength(128);
-                b.Property(u => u.NormalizedUserName).HasMaxLength(128);
-                b.Property(u => u.Email).HasMaxLength(128);
-                b.Property(u => u.NormalizedEmail).HasMaxLength(128);
-            });
+            b.HasMany(e => e.Claims).WithOne(e => e.User).HasForeignKey(uc => uc.UserId).IsRequired();
+            b.HasMany(e => e.Logins).WithOne(e => e.User).HasForeignKey(ul => ul.UserId).IsRequired();
+            b.HasMany(e => e.Tokens).WithOne(e => e.User).HasForeignKey(ut => ut.UserId).IsRequired();
+            b.ToTable("MyUsers");
+            b.Property(u => u.UserName).HasMaxLength(128);
+            b.Property(u => u.NormalizedUserName).HasMaxLength(128);
+            b.Property(u => u.Email).HasMaxLength(128);
+            b.Property(u => u.NormalizedEmail).HasMaxLength(128);
+        });
 
-        modelBuilder.Entity<CustomRoleString>(
-            b =>
-            {
-                b.HasMany(e => e.UserRoles).WithOne(e => e.Role).HasForeignKey(ur => ur.RoleId).IsRequired();
-                b.HasMany(e => e.RoleClaims).WithOne(e => e.Role).HasForeignKey(rc => rc.RoleId).IsRequired();
-                b.ToTable("MyRoles");
-            });
+        modelBuilder.Entity<CustomRoleString>(b =>
+        {
+            b.HasMany(e => e.UserRoles).WithOne(e => e.Role).HasForeignKey(ur => ur.RoleId).IsRequired();
+            b.HasMany(e => e.RoleClaims).WithOne(e => e.Role).HasForeignKey(rc => rc.RoleId).IsRequired();
+            b.ToTable("MyRoles");
+        });
 
-        modelBuilder.Entity<CustomUserClaimString>(
-            b =>
-            {
-                b.ToTable("MyUserClaims");
-            });
+        modelBuilder.Entity<CustomUserClaimString>(b =>
+        {
+            b.ToTable("MyUserClaims");
+        });
 
-        modelBuilder.Entity<CustomUserLoginString>(
-            b =>
-            {
-                b.ToTable("MyUserLogins");
-            });
+        modelBuilder.Entity<CustomUserLoginString>(b =>
+        {
+            b.ToTable("MyUserLogins");
+        });
 
-        modelBuilder.Entity<CustomUserTokenString>(
-            b =>
-            {
-                b.Property(t => t.LoginProvider).HasMaxLength(128);
-                b.Property(t => t.Name).HasMaxLength(128);
-                b.ToTable("MyUserTokens");
-            });
+        modelBuilder.Entity<CustomUserTokenString>(b =>
+        {
+            b.Property(t => t.LoginProvider).HasMaxLength(128);
+            b.Property(t => t.Name).HasMaxLength(128);
+            b.ToTable("MyUserTokens");
+        });
 
-        modelBuilder.Entity<CustomRoleClaimString>(
-            b =>
-            {
-                b.ToTable("MyRoleClaims");
-            });
+        modelBuilder.Entity<CustomRoleClaimString>(b =>
+        {
+            b.ToTable("MyRoleClaims");
+        });
 
-        modelBuilder.Entity<CustomUserRoleString>(
-            b =>
-            {
-                b.ToTable("MyUserRoles");
-            });
+        modelBuilder.Entity<CustomUserRoleString>(b =>
+        {
+            b.ToTable("MyUserRoles");
+        });
     }
 }
 

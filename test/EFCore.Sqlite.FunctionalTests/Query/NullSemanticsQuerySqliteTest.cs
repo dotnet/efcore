@@ -1703,6 +1703,15 @@ SELECT CASE
     ELSE 0
 END
 FROM "Entities1" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE CASE
+    WHEN "e"."BoolA" THEN "e"."NullableBoolB"
+    ELSE NOT ("e"."NullableBoolC")
+END IS NULL
 """);
     }
 

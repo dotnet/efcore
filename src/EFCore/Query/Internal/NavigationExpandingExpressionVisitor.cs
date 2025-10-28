@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using ExpressionExtensions = Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
@@ -275,7 +276,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             } complexPropertyReference
             && complexProperty.ComplexType.FindComplexProperty(memberExpression.Member) is { } nestedComplexProperty)
         {
-            return new ComplexPropertyReference(complexPropertyReference, nestedComplexProperty);
+            return new ComplexPropertyReference(complexPropertyReference, nestedComplexProperty, memberExpression);
         }
 
         // Convert ICollection<T>.Count to Count<T>()
@@ -582,12 +583,14 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                             thenInclude: false,
                             setLoaded: false);
 
-                    // Handled by relational/provider even though method is on `EntityFrameworkQueryableExtensions`
-                    case nameof(EntityFrameworkQueryableExtensions.ExecuteDelete):
-                    case nameof(EntityFrameworkQueryableExtensions.ExecuteDeleteAsync):
-                    case nameof(EntityFrameworkQueryableExtensions.ExecuteUpdate):
-                    case nameof(EntityFrameworkQueryableExtensions.ExecuteUpdateAsync):
+                    // Nothing to do (no arguments), the generic unknown method logic handles the source.
+                    case nameof(EntityFrameworkQueryableExtensions.ExecuteDelete)
+                        when genericMethod == EntityFrameworkQueryableExtensions.ExecuteDeleteMethodInfo:
                         return ProcessUnknownMethod(methodCallExpression);
+
+                    case nameof(EntityFrameworkQueryableExtensions.ExecuteUpdate)
+                        when genericMethod == EntityFrameworkQueryableExtensions.ExecuteUpdateMethodInfo:
+                        return ProcessExecuteUpdate(source, genericMethod, methodCallExpression.Arguments[1]);
 
                     case nameof(Queryable.GroupBy)
                         when genericMethod == QueryableMethods.GroupByWithKeySelector:
@@ -1055,6 +1058,47 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         source.ConvertToSingleResult(genericMethod, index);
 
         return source;
+    }
+
+    private Expression ProcessExecuteUpdate(NavigationExpansionExpression source, MethodInfo method, Expression setters)
+    {
+        source = (NavigationExpansionExpression)_pendingSelectorExpandingExpressionVisitor.Visit(source);
+
+        NewArrayExpression settersArray;
+        switch (setters)
+        {
+            case NewArrayExpression e:
+                settersArray = e;
+                break;
+            // Empty setters - nothing to do here (we'll throw an error later in the query pipeline)
+            case ConstantExpression { Value: ITuple[] { Length: 0 } }:
+                return Expression.Call(method.MakeGenericMethod(source.SourceElementType), source.Source, setters);
+            default:
+                throw new UnreachableException();
+        }
+
+        var newSetters = new Expression[settersArray.Expressions.Count];
+
+        for (var i = 0; i < settersArray.Expressions.Count; i++)
+        {
+            var setter = (NewExpression)settersArray.Expressions[i];
+
+            Check.DebugAssert(setter.Type == typeof(Tuple<Delegate, object>));
+
+            var (propertySelector, valueSelector) = ((LambdaExpression)setter.Arguments[0], setter.Arguments[1]);
+
+            var processedPropertySelector = ProcessLambdaExpression(source, propertySelector);
+            var processedValueSelector = valueSelector is LambdaExpression valueSelectorLambda
+                ? ProcessLambdaExpression(source, valueSelectorLambda)
+                : Visit(valueSelector);
+
+            newSetters[i] = Expression.New(setter.Constructor!, processedPropertySelector, processedValueSelector);
+        }
+
+        return Expression.Call(
+            method.MakeGenericMethod(source.SourceElementType),
+            source.Source,
+            Expression.NewArrayInit(typeof(Tuple<Delegate, object>), newSetters));
     }
 
     // This returns Expression since it can also return a deferred GroupBy operation
@@ -2316,6 +2360,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         {
             EntityReference entityReference => entityReference,
             ComplexTypeReference complexTypeReference => complexTypeReference,
+            ComplexPropertyReference complexPropertyReference => complexPropertyReference.ComplexTypeReference,
             NavigationTreeExpression navigationTreeExpression => UnwrapStructuralTypeReference(navigationTreeExpression.Value),
             NavigationExpansionExpression navigationExpansionExpression
                 when navigationExpansionExpression.CardinalityReducingGenericMethodInfo is not null

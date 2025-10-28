@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.TestModels.BasicTypesModel;
+
 namespace Microsoft.EntityFrameworkCore.Query.Translations.Temporal;
 
 public class DateTimeOffsetTranslationsSqlServerTest : DateTimeOffsetTranslationsTestBase<BasicTypesQuerySqlServerFixture>
@@ -295,6 +297,34 @@ WHERE DATEDIFF_BIG(second, '1970-01-01T00:00:00.0000000+00:00', [b].[DateTimeOff
 SELECT COUNT(*)
 FROM [BasicTypesEntities] AS [b]
 WHERE [b].[DateTimeOffset] = '1902-01-02T10:00:00.1234567+01:30'
+""");
+    }
+
+    [ConditionalFact]
+    public virtual async Task Now_has_proper_type_mapping_for_constant_comparison()
+    {
+        await AssertQuery(
+            ss => ss.Set<BasicTypesEntity>().Where(x => DateTimeOffset.Now > new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero)));
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE SYSDATETIMEOFFSET() > '2025-01-01T00:00:00.0000000+00:00'
+""");
+    }
+
+    [ConditionalFact]
+    public virtual async Task UtcNow_has_proper_type_mapping_for_constant_comparison()
+    {
+        await AssertQuery(
+            ss => ss.Set<BasicTypesEntity>().Where(x => DateTimeOffset.UtcNow > new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero)));
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE CAST(SYSUTCDATETIME() AS datetimeoffset) > '2025-01-01T00:00:00.0000000+00:00'
 """);
     }
 

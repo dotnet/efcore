@@ -41,10 +41,9 @@ public class InMemoryModelBuilderNonGenericTest : InMemoryModelBuilderTest
 
             Assert.Equal(
                 CoreStrings.NoClrNavigation("Snoop", nameof(Dr)),
-                Assert.Throws<InvalidOperationException>(
-                    () =>
-                        ((NonGenericTestEntityTypeBuilder<Dr>)modelBuilder.Entity<Dr>()).GetInfrastructure()
-                        .HasOne("Snoop")).Message);
+                Assert.Throws<InvalidOperationException>(() =>
+                    ((NonGenericTestEntityTypeBuilder<Dr>)modelBuilder.Entity<Dr>()).GetInfrastructure()
+                    .HasOne("Snoop")).Message);
         }
 
         [ConditionalFact]
@@ -54,10 +53,9 @@ public class InMemoryModelBuilderNonGenericTest : InMemoryModelBuilderTest
 
             Assert.Equal(
                 CoreStrings.NoClrNavigation("Snoop", nameof(Dr)),
-                Assert.Throws<InvalidOperationException>(
-                    () =>
-                        ((NonGenericTestEntityTypeBuilder<Dr>)modelBuilder.Entity<Dr>()).GetInfrastructure()
-                        .HasMany("Snoop")).Message);
+                Assert.Throws<InvalidOperationException>(() =>
+                    ((NonGenericTestEntityTypeBuilder<Dr>)modelBuilder.Entity<Dr>()).GetInfrastructure()
+                    .HasMany("Snoop")).Message);
         }
 
         [ConditionalFact]
@@ -67,10 +65,9 @@ public class InMemoryModelBuilderNonGenericTest : InMemoryModelBuilderTest
 
             Assert.Equal(
                 CoreStrings.NavigationCollectionWrongClrType("Dre", nameof(Dr), nameof(Dre), "T"),
-                Assert.Throws<InvalidOperationException>(
-                    () =>
-                        ((NonGenericTestEntityTypeBuilder<Dr>)modelBuilder.Entity<Dr>()).GetInfrastructure()
-                        .HasMany("Dre")).Message);
+                Assert.Throws<InvalidOperationException>(() =>
+                    ((NonGenericTestEntityTypeBuilder<Dr>)modelBuilder.Entity<Dr>()).GetInfrastructure()
+                    .HasMany("Dre")).Message);
         }
 
         [ConditionalFact] //Issue#13108
@@ -78,13 +75,12 @@ public class InMemoryModelBuilderNonGenericTest : InMemoryModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<ComplexCaseChild13108>(
-                e =>
-                {
-                    e.HasKey(c => c.Key);
-                    ((NonGenericTestEntityTypeBuilder<ComplexCaseChild13108>)e).GetInfrastructure().Property("ParentKey");
-                    e.HasOne(c => c.Parent).WithMany(c => c.Children).HasForeignKey("ParentKey");
-                });
+            modelBuilder.Entity<ComplexCaseChild13108>(e =>
+            {
+                e.HasKey(c => c.Key);
+                ((NonGenericTestEntityTypeBuilder<ComplexCaseChild13108>)e).GetInfrastructure().Property("ParentKey");
+                e.HasOne(c => c.Parent).WithMany(c => c.Children).HasForeignKey("ParentKey");
+            });
 
             modelBuilder.Entity<ComplexCaseParent13108>().HasKey(c => c.Key);
 
@@ -142,11 +138,10 @@ public class InMemoryModelBuilderNonGenericTest : InMemoryModelBuilderTest
 
             Assert.Equal(
                 CoreStrings.NoClrNavigation("Snoop", nameof(Dre)),
-                Assert.Throws<InvalidOperationException>(
-                    () =>
-                        ((NonGenericTestOwnedNavigationBuilder<Dr, Dre>)modelBuilder.Entity<Dr>().OwnsOne(e => e.Dre))
-                        .GetInfrastructure()
-                        .HasOne("Snoop")).Message);
+                Assert.Throws<InvalidOperationException>(() =>
+                    ((NonGenericTestOwnedNavigationBuilder<Dr, Dre>)modelBuilder.Entity<Dr>().OwnsOne(e => e.Dre))
+                    .GetInfrastructure()
+                    .HasOne("Snoop")).Message);
         }
 
         protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null)

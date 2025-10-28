@@ -17,8 +17,7 @@ public class OverzealousInitializationCosmosTest(OverzealousInitializationCosmos
     {
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => base.AddOptions(
-                builder.ConfigureWarnings(
-                    w => w.Ignore(CosmosEventId.NoPartitionKeyDefined)));
+                builder.ConfigureWarnings(w => w.Ignore(CosmosEventId.NoPartitionKeyDefined)));
 
         protected override ITestStoreFactory TestStoreFactory
             => CosmosTestStoreFactory.Instance;

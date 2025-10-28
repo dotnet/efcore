@@ -20,8 +20,8 @@ public abstract class GrpcTestBase<TFixture> : IClassFixture<TFixture>
         => true;
 
     protected List<EntityTypeMapping> ExpectedMappings
-        => new()
-        {
+        =>
+        [
             new EntityTypeMapping
             {
                 Name = "PostTag",
@@ -40,6 +40,7 @@ public abstract class GrpcTestBase<TFixture> : IClassFixture<TFixture>
                     "ForeignKey: PostTag (Dictionary<string, object>) {'TagsInPostDataTagId'} -> Tag {'TagId'} Required Cascade",
                 },
             },
+
             new EntityTypeMapping
             {
                 Name = "ProtoTest.Author",
@@ -52,6 +53,7 @@ public abstract class GrpcTestBase<TFixture> : IClassFixture<TFixture>
                     "Property: Author.Name (name_, string)",
                 },
             },
+
             new EntityTypeMapping
             {
                 Name = "ProtoTest.Post",
@@ -73,6 +75,7 @@ public abstract class GrpcTestBase<TFixture> : IClassFixture<TFixture>
                     "SkipNavigation: Post.TagsInPostData (tagsInPostData_, RepeatedField<Tag>) CollectionTag Inverse: PostsInTagData",
                 },
             },
+
             new EntityTypeMapping
             {
                 Name = "ProtoTest.Tag",
@@ -87,8 +90,9 @@ public abstract class GrpcTestBase<TFixture> : IClassFixture<TFixture>
                 {
                     "SkipNavigation: Tag.PostsInTagData (postsInTagData_, RepeatedField<Post>) CollectionPost Inverse: TagsInPostData",
                 },
-            },
-        };
+            }
+
+        ];
 
     [ConditionalFact]
     public void Can_build_Grpc_model()

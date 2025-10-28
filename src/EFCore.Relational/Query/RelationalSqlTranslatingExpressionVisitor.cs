@@ -635,18 +635,44 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
                 Expression.Condition(
                     cond.Test,
                     Expression.MakeMemberAccess(cond.IfTrue, memberExpression.Member),
-                    Expression.MakeMemberAccess(cond.IfFalse, memberExpression.Member)
-                ));
+                    Expression.MakeMemberAccess(cond.IfFalse, memberExpression.Member)));
         }
 
-        var innerExpression = Visit(memberExpression.Expression);
+        var inner = Visit(memberExpression.Expression);
 
-        return TryBindMember(innerExpression, MemberIdentity.Create(memberExpression.Member), out var expression)
-            ? expression
-            : (TranslationFailed(memberExpression.Expression, innerExpression, out var sqlInnerExpression)
+        var member = memberExpression.Member;
+
+        // Try binding the member to a property on the structural type
+        if (TryBindMember(inner, MemberIdentity.Create(member), out var expression))
+        {
+            return expression;
+        }
+
+        // We handle translations for Nullable<> members here.
+        // These can't be handled in regular IMemberTranslators, since those only support scalars (SqlExpressions);
+        // but we also need to handle nullable value complex types.
+        if (member.DeclaringType?.IsGenericType == true
+            && member.DeclaringType.GetGenericTypeDefinition() == typeof(Nullable<>)
+            && inner is not null)
+        {
+            switch (member.Name)
+            {
+                case nameof(Nullable<>.Value):
+                    return inner;
+                case nameof(Nullable<>.HasValue) when inner is SqlExpression sqlInner:
+                    return _sqlExpressionFactory.IsNotNull(sqlInner);
+                case nameof(Nullable<>.HasValue)
+                    when inner is StructuralTypeReferenceExpression
+                        && TryRewriteStructuralTypeEquality(
+                            ExpressionType.NotEqual, inner, new SqlConstantExpression(null, memberExpression.Expression!.Type, null), equalsMethod: false, out var result):
+                    return result;
+            }
+        }
+
+        return (TranslationFailed(memberExpression.Expression, inner, out var sqlInnerExpression)
                 ? QueryCompilationContext.NotTranslatedExpression
                 : Dependencies.MemberTranslatorProvider.Translate(
-                    sqlInnerExpression, memberExpression.Member, memberExpression.Type, _queryCompilationContext.Logger))
+                    sqlInnerExpression, member, memberExpression.Type, _queryCompilationContext.Logger))
             ?? QueryCompilationContext.NotTranslatedExpression;
     }
 
@@ -1353,7 +1379,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
                         };
 
                     case JsonQueryExpression jsonQuery:
-                        var nestedJsonQuery = jsonQuery.BindRelationship(complexProperty);
+                        var nestedJsonQuery = jsonQuery.BindStructuralProperty(complexProperty);
 
                         return complexProperty.IsCollection
                             ? new CollectionResultExpression(

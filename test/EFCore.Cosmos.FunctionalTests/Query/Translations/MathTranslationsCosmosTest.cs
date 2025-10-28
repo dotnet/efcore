@@ -435,7 +435,6 @@ WHERE ((c["Float"] > 0.0) AND (SQRT(c["Float"]) > 0.0))
 """);
     }
 
-
     public override async Task Sign()
     {
         await base.Sign();

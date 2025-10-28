@@ -1007,8 +1007,8 @@ FROM (
     {
         using var context = Fixture.CreateContext();
         var connection = (TestSqlServerConnection)context.GetService<ISqlServerConnection>();
-        connection.ExecutionFailures.Enqueue(new bool?[] { true });
-        connection.OpenFailures.Enqueue(new bool?[] { true });
+        connection.ExecutionFailures.Enqueue([true]);
+        connection.OpenFailures.Enqueue([true]);
 
         var output =
             new SqlParameter

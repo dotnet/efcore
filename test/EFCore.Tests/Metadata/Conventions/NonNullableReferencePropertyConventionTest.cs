@@ -70,6 +70,12 @@ public class NonNullableReferencePropertyConventionTest
     [InlineData(typeof(DerivedClass), nameof(DerivedClass.NonNullable), false)]
     [InlineData(typeof(DerivedClass), nameof(DerivedClass.Nullable), true)]
     [InlineData(typeof(BaseClass), nameof(DerivedClass.Nullable), true)]
+    [InlineData(typeof(GenericClass<string>), nameof(GenericClass<>.Defaultable), true)]
+    // The following should be detected as non-nullable; see #35669,
+    // https://github.com/dotnet/runtime/issues/117068#issuecomment-3364824243
+    [InlineData(typeof(GenericClass<string>), nameof(GenericClass<>.NonDefaultable), true)]
+    [InlineData(typeof(GenericClass<int>), nameof(GenericClass<>.Defaultable), false)]
+    [InlineData(typeof(GenericClass<int>), nameof(GenericClass<>.NonDefaultable), false)]
     public void Reference_nullability_sets_is_nullable_correctly(Type type, string propertyName, bool expectedNullable)
     {
         var modelBuilder = CreateModelBuilder();
@@ -194,6 +200,12 @@ public class NonNullableReferencePropertyConventionTest
     public class BaseClass
     {
         public string? Nullable { get; set; }
+    }
+
+    public class GenericClass<T>
+    {
+        public required T NonDefaultable { get; set; }
+        public required T? Defaultable { get; set; }
     }
     // ReSharper restore PropertyCanBeMadeInitOnly.Local
 

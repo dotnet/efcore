@@ -56,8 +56,7 @@ ORDER BY LENGTH(c["id"]), c["id"]
     public override async Task Order_by_length_twice_followed_by_projection_of_naked_collection_navigation(bool async)
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(
-            () => base.Order_by_length_twice_followed_by_projection_of_naked_collection_navigation(async));
+        await AssertTranslationFailed(() => base.Order_by_length_twice_followed_by_projection_of_naked_collection_navigation(async));
 
         AssertSql();
     }

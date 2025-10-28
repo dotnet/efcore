@@ -49,9 +49,7 @@ public class RelationalDatabaseFacadeExtensionsTest
             Assert.Throws<InvalidOperationException>(() => context.Database.GetDbConnection()).Message);
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public async Task Can_open_the_underlying_connection(bool async)
     {
         var dbConnection = new FakeDbConnection("A=B");
@@ -71,9 +69,7 @@ public class RelationalDatabaseFacadeExtensionsTest
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public async Task Can_close_the_underlying_connection(bool async)
     {
         var dbConnection = new FakeDbConnection("A=B");
@@ -95,9 +91,7 @@ public class RelationalDatabaseFacadeExtensionsTest
         Assert.Equal(1, dbConnection.CloseCount);
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public async Task Can_begin_transaction_with_isolation_level(bool async)
     {
         var dbConnection = new FakeDbConnection("A=B");
@@ -123,9 +117,7 @@ public class RelationalDatabaseFacadeExtensionsTest
         Assert.Same(transaction, context.Database.UseTransaction(transaction).GetDbTransaction());
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public async Task Begin_transaction_ignores_isolation_level_on_non_relational_provider(bool async)
     {
         var context = InMemoryTestHelpers.Instance.CreateContext(
@@ -200,8 +192,7 @@ public class RelationalDatabaseFacadeExtensionsTest
 
         Assert.Equal(
             RelationalStrings.RelationalNotInUse,
-            Assert.Throws<InvalidOperationException>(
-                () => context.Database.UseTransaction(transaction)).Message);
+            Assert.Throws<InvalidOperationException>(() => context.Database.UseTransaction(transaction)).Message);
     }
 
     [ConditionalFact]
@@ -230,9 +221,7 @@ public class RelationalDatabaseFacadeExtensionsTest
             => throw new NotImplementedException();
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public async Task GetAppliedMigrations_works(bool async)
     {
         var migrations = new[] { "00000000000001_One", "00000000000002_Two" };
@@ -271,21 +260,20 @@ public class RelationalDatabaseFacadeExtensionsTest
     [ConditionalFact]
     public void HasPendingModelChanges_has_migrations_and_no_new_context_changes_returns_false()
     {
-        var fakeModelSnapshot = new FakeModelSnapshot(
-            builder =>
-            {
-                builder.Entity(
-                    "Microsoft.EntityFrameworkCore.RelationalDatabaseFacadeExtensionsTests.TestDbContext.Simple", b =>
-                    {
-                        b.Property<int>("Id")
-                            .ValueGeneratedOnAdd()
-                            .HasColumnType("default_int_mapping");
+        var fakeModelSnapshot = new FakeModelSnapshot(builder =>
+        {
+            builder.Entity(
+                "Microsoft.EntityFrameworkCore.RelationalDatabaseFacadeExtensionsTests.TestDbContext.Simple", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("default_int_mapping");
 
-                        b.HasKey("Id");
+                    b.HasKey("Id");
 
-                        b.ToTable("Simples");
-                    });
-            });
+                    b.ToTable("Simples");
+                });
+        });
         var migrationsAssembly = new FakeIMigrationsAssembly
         {
             ModelSnapshot = fakeModelSnapshot, Migrations = new Dictionary<string, TypeInfo>(),
@@ -321,7 +309,8 @@ public class RelationalDatabaseFacadeExtensionsTest
 
     private class FakeHistoryRepository : IHistoryRepository
     {
-        public virtual LockReleaseBehavior LockReleaseBehavior => LockReleaseBehavior.Explicit;
+        public virtual LockReleaseBehavior LockReleaseBehavior
+            => LockReleaseBehavior.Explicit;
 
         public List<HistoryRow> AppliedMigrations { get; set; }
 
@@ -371,9 +360,7 @@ public class RelationalDatabaseFacadeExtensionsTest
             => throw new NotImplementedException();
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public async Task GetPendingMigrations_works(bool async)
     {
         var migrations = new[] { "00000000000001_One", "00000000000002_Two", "00000000000003_Three" };
@@ -399,10 +386,7 @@ public class RelationalDatabaseFacadeExtensionsTest
                 : context.Database.GetPendingMigrations());
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(true, true)]
+    [ConditionalTheory, InlineData(false, false), InlineData(true, false), InlineData(true, true)]
     public async Task Can_pass_no_params(bool async, bool cancellation)
     {
         using var context = new ThudContext();
@@ -429,10 +413,7 @@ public class RelationalDatabaseFacadeExtensionsTest
         Assert.Equal([], commandBuilder.Parameters);
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(true, true)]
+    [ConditionalTheory, InlineData(false, false), InlineData(true, false), InlineData(true, true)]
     public async Task Can_pass_array_of_int_params_as_object(bool async, bool cancellation)
     {
         using var context = new ThudContext();
@@ -459,9 +440,7 @@ public class RelationalDatabaseFacadeExtensionsTest
         Assert.Equal([1, 2], commandBuilder.Parameters);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public async Task Can_pass_ints_as_params(bool async)
     {
         using var context = new ThudContext();
@@ -480,10 +459,7 @@ public class RelationalDatabaseFacadeExtensionsTest
         Assert.Equal([1, 2], commandBuilder.Parameters);
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(true, true)]
+    [ConditionalTheory, InlineData(false, false), InlineData(true, false), InlineData(true, true)]
     public async Task Can_pass_mixed_array_of_params(bool async, bool cancellation)
     {
         using var context = new ThudContext();
@@ -510,10 +486,7 @@ public class RelationalDatabaseFacadeExtensionsTest
         Assert.Equal([1, "Cheese"], commandBuilder.Parameters);
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(true, true)]
+    [ConditionalTheory, InlineData(false, false), InlineData(true, false), InlineData(true, true)]
     public async Task Can_pass_list_of_int_params_as_object(bool async, bool cancellation)
     {
         using var context = new ThudContext();
@@ -543,10 +516,7 @@ public class RelationalDatabaseFacadeExtensionsTest
         Assert.Equal([1, 2], commandBuilder.Parameters);
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(true, true)]
+    [ConditionalTheory, InlineData(false, false), InlineData(true, false), InlineData(true, true)]
     public async Task Can_pass_mixed_list_of_params(bool async, bool cancellation)
     {
         using var context = new ThudContext();
@@ -576,10 +546,7 @@ public class RelationalDatabaseFacadeExtensionsTest
         Assert.Equal([1, "Pickle"], commandBuilder.Parameters);
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(true, true)]
+    [ConditionalTheory, InlineData(false, false), InlineData(true, false), InlineData(true, true)]
     public async Task Can_pass_single_int_as_object(bool async, bool cancellation)
     {
         using var context = new ThudContext();
@@ -606,10 +573,7 @@ public class RelationalDatabaseFacadeExtensionsTest
         Assert.Equal([1], commandBuilder.Parameters);
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(true, true)]
+    [ConditionalTheory, InlineData(false, false), InlineData(true, false), InlineData(true, true)]
     public async Task Can_pass_single_string(bool async, bool cancellation)
     {
         using var context = new ThudContext();
@@ -620,7 +584,7 @@ public class RelationalDatabaseFacadeExtensionsTest
             if (cancellation)
             {
                 var cancellationToken = new CancellationToken();
-                await context.Database.ExecuteSqlRawAsync("<Some query>", new[] { "Branston" }, cancellationToken);
+                await context.Database.ExecuteSqlRawAsync("<Some query>", ["Branston"], cancellationToken);
             }
             else
             {

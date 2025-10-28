@@ -31,8 +31,7 @@ public class CosmosDatabaseCreatorTest
         Assert.True(await creator.EnsureCreatedAsync());
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public Task EnsureCreated_returns_false_when_database_and_collections_exist(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>
@@ -47,8 +46,7 @@ public class CosmosDatabaseCreatorTest
                 Assert.False(a ? await creator.EnsureCreatedAsync() : creator.EnsureCreated());
             });
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public Task EnsureDeleted_returns_true_when_database_exists(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>
@@ -60,8 +58,7 @@ public class CosmosDatabaseCreatorTest
                 Assert.True(a ? await creator.EnsureDeletedAsync() : creator.EnsureDeleted());
             });
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public Task EnsureDeleted_returns_false_when_database_does_not_exist(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>
@@ -91,14 +88,12 @@ public class CosmosDatabaseCreatorTest
         private readonly string _name = testStore.Name;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder
+            => optionsBuilder
                 .UseCosmos(
                     _connectionUri,
                     _authToken,
                     _name,
                     b => b.ApplyConfiguration());
-        }
     }
 
     private class BloggingContext(CosmosTestStore testStore, bool seed = false) : BaseContext(testStore)

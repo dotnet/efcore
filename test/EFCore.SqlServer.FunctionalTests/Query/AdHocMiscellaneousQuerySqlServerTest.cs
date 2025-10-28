@@ -19,7 +19,9 @@ public class AdHocMiscellaneousQuerySqlServerTest(NonSharedFixture fixture) : Ad
     protected override ITestStoreFactory TestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 
-    protected override DbContextOptionsBuilder SetParameterizedCollectionMode(DbContextOptionsBuilder optionsBuilder, ParameterTranslationMode parameterizedCollectionMode)
+    protected override DbContextOptionsBuilder SetParameterizedCollectionMode(
+        DbContextOptionsBuilder optionsBuilder,
+        ParameterTranslationMode parameterizedCollectionMode)
     {
         new SqlServerDbContextOptionsBuilder(optionsBuilder).UseParameterizedCollectionMode(parameterizedCollectionMode);
 
@@ -584,19 +586,16 @@ WHERE [r].[MyTime] = @testDateList1
 
     #region 14095
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public async Task Where_equals_DateTime_Now(bool async)
     {
         var contextFactory = await InitializeAsync<Context14095>(seed: c => c.SeedAsync());
 
         using var context = contextFactory.CreateContext();
-        var query = context.Dates.Where(
-            d => d.DateTime2_2 == DateTime.Now
-                || d.DateTime2_7 == DateTime.Now
-                || d.DateTime == DateTime.Now
-                || d.SmallDateTime == DateTime.Now);
+        var query = context.Dates.Where(d => d.DateTime2_2 == DateTime.Now
+            || d.DateTime2_7 == DateTime.Now
+            || d.DateTime == DateTime.Now
+            || d.SmallDateTime == DateTime.Now);
 
         var results = async
             ? await query.ToListAsync()
@@ -612,19 +611,16 @@ WHERE [d].[DateTime2_2] = GETDATE() OR [d].[DateTime2_7] = GETDATE() OR [d].[Dat
 """);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public async Task Where_not_equals_DateTime_Now(bool async)
     {
         var contextFactory = await InitializeAsync<Context14095>(seed: c => c.SeedAsync());
 
         using var context = contextFactory.CreateContext();
-        var query = context.Dates.Where(
-            d => d.DateTime2_2 != DateTime.Now
-                && d.DateTime2_7 != DateTime.Now
-                && d.DateTime != DateTime.Now
-                && d.SmallDateTime != DateTime.Now);
+        var query = context.Dates.Where(d => d.DateTime2_2 != DateTime.Now
+            && d.DateTime2_7 != DateTime.Now
+            && d.DateTime != DateTime.Now
+            && d.SmallDateTime != DateTime.Now);
 
         var results = async
             ? await query.ToListAsync()
@@ -640,26 +636,23 @@ WHERE [d].[DateTime2_2] <> GETDATE() AND [d].[DateTime2_7] <> GETDATE() AND [d].
 """);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public async Task Where_equals_new_DateTime(bool async)
     {
         var contextFactory = await InitializeAsync<Context14095>(seed: c => c.SeedAsync());
 
         using var context = contextFactory.CreateContext();
-        var query = context.Dates.Where(
-            d => d.SmallDateTime == new DateTime(1970, 9, 3, 12, 0, 0)
-                && d.DateTime == new DateTime(1971, 9, 3, 12, 0, 10, 220)
-                && d.DateTime2 == new DateTime(1972, 9, 3, 12, 0, 10, 333)
-                && d.DateTime2_0 == new DateTime(1973, 9, 3, 12, 0, 10)
-                && d.DateTime2_1 == new DateTime(1974, 9, 3, 12, 0, 10, 500)
-                && d.DateTime2_2 == new DateTime(1975, 9, 3, 12, 0, 10, 660)
-                && d.DateTime2_3 == new DateTime(1976, 9, 3, 12, 0, 10, 777)
-                && d.DateTime2_4 == new DateTime(1977, 9, 3, 12, 0, 10, 888)
-                && d.DateTime2_5 == new DateTime(1978, 9, 3, 12, 0, 10, 999)
-                && d.DateTime2_6 == new DateTime(1979, 9, 3, 12, 0, 10, 111)
-                && d.DateTime2_7 == new DateTime(1980, 9, 3, 12, 0, 10, 222));
+        var query = context.Dates.Where(d => d.SmallDateTime == new DateTime(1970, 9, 3, 12, 0, 0)
+            && d.DateTime == new DateTime(1971, 9, 3, 12, 0, 10, 220)
+            && d.DateTime2 == new DateTime(1972, 9, 3, 12, 0, 10, 333)
+            && d.DateTime2_0 == new DateTime(1973, 9, 3, 12, 0, 10)
+            && d.DateTime2_1 == new DateTime(1974, 9, 3, 12, 0, 10, 500)
+            && d.DateTime2_2 == new DateTime(1975, 9, 3, 12, 0, 10, 660)
+            && d.DateTime2_3 == new DateTime(1976, 9, 3, 12, 0, 10, 777)
+            && d.DateTime2_4 == new DateTime(1977, 9, 3, 12, 0, 10, 888)
+            && d.DateTime2_5 == new DateTime(1978, 9, 3, 12, 0, 10, 999)
+            && d.DateTime2_6 == new DateTime(1979, 9, 3, 12, 0, 10, 111)
+            && d.DateTime2_7 == new DateTime(1980, 9, 3, 12, 0, 10, 222));
 
         var results = async
             ? await query.ToListAsync()
@@ -675,9 +668,7 @@ WHERE [d].[SmallDateTime] = '1970-09-03T12:00:00' AND [d].[DateTime] = '1971-09-
 """);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public async Task Where_contains_DateTime_literals(bool async)
     {
         var dateTimes = new[]
@@ -698,18 +689,17 @@ WHERE [d].[SmallDateTime] = '1970-09-03T12:00:00' AND [d].[DateTime] = '1971-09-
         var contextFactory = await InitializeAsync<Context14095>(seed: c => c.SeedAsync());
 
         using var context = contextFactory.CreateContext();
-        var query = context.Dates.Where(
-            d => dateTimes.Contains(d.SmallDateTime)
-                && dateTimes.Contains(d.DateTime)
-                && dateTimes.Contains(d.DateTime2)
-                && dateTimes.Contains(d.DateTime2_0)
-                && dateTimes.Contains(d.DateTime2_1)
-                && dateTimes.Contains(d.DateTime2_2)
-                && dateTimes.Contains(d.DateTime2_3)
-                && dateTimes.Contains(d.DateTime2_4)
-                && dateTimes.Contains(d.DateTime2_5)
-                && dateTimes.Contains(d.DateTime2_6)
-                && dateTimes.Contains(d.DateTime2_7));
+        var query = context.Dates.Where(d => dateTimes.Contains(d.SmallDateTime)
+            && dateTimes.Contains(d.DateTime)
+            && dateTimes.Contains(d.DateTime2)
+            && dateTimes.Contains(d.DateTime2_0)
+            && dateTimes.Contains(d.DateTime2_1)
+            && dateTimes.Contains(d.DateTime2_2)
+            && dateTimes.Contains(d.DateTime2_3)
+            && dateTimes.Contains(d.DateTime2_4)
+            && dateTimes.Contains(d.DateTime2_5)
+            && dateTimes.Contains(d.DateTime2_6)
+            && dateTimes.Contains(d.DateTime2_7));
 
         var results = async
             ? await query.ToListAsync()
@@ -1013,9 +1003,7 @@ WHERE [d].[SmallDateTime] IN (@dateTimes1, @dateTimes2, @dateTimes3, @dateTimes4
 
     #region 15518
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task Nested_queries_does_not_cause_concurrency_exception_sync(bool tracking)
     {
         var contextFactory = await InitializeAsync<Context15518>(seed: c => c.SeedAsync());
@@ -1223,8 +1211,7 @@ CROSS JOIN (
 
     #region 23282
 
-    [ConditionalFact]
-    [SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
+    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
     public virtual async Task Can_query_point_with_buffered_data_reader()
     {
         var contextFactory = await InitializeAsync<Context23282>(
@@ -1283,8 +1270,7 @@ WHERE [l].[Name] = N'My Location'
 
         public class Location
         {
-            [Key]
-            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+            [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
             public Guid Id { get; set; }
 
             public string Name { get; set; }
@@ -1404,8 +1390,7 @@ ORDER BY [m0].[Id]
 
     #region 27427
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Muliple_occurrences_of_FromSql_in_group_by_aggregate(bool async)
     {
         var contextFactory = await InitializeAsync<Context27427>();
@@ -1458,8 +1443,7 @@ GROUP BY [d].[Id]
 
     #region 30478
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task TemporalAsOf_with_json_basic_query(bool async)
     {
         var contextFactory = await InitializeAsync<Context30478>(seed: x => x.SeedAsync());
@@ -1481,8 +1465,7 @@ FROM [Entities] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e]
 """);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task TemporalAll_with_json_basic_query(bool async)
     {
         var contextFactory = await InitializeAsync<Context30478>(seed: x => x.SeedAsync());
@@ -1504,8 +1487,7 @@ FROM [Entities] FOR SYSTEM_TIME ALL AS [e]
 """);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task TemporalAsOf_project_json_entity_reference(bool async)
     {
         var contextFactory = await InitializeAsync<Context30478>(seed: x => x.SeedAsync());
@@ -1526,8 +1508,7 @@ FROM [Entities] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e]
 """);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task TemporalAsOf_project_json_entity_collection(bool async)
     {
         var contextFactory = await InitializeAsync<Context30478>(seed: x => x.SeedAsync());
@@ -2631,8 +2612,8 @@ WHERE EXISTS (
     FROM (VALUES (CAST(1 AS int)), (2), (3)) AS [i]([Value])
     WHERE [i].[Value] = [t].[Id])
 """,
-            //
-            """
+                //
+                """
 SELECT [t].[Id], [t].[Name]
 FROM [TestEntities] AS [t]
 WHERE 1 = [t].[Id]

@@ -3417,23 +3417,23 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         => Can_read_and_write_JSON_value<Int32ListListListType, List<List<List<int>>>>(
             nameof(Int32ListListListType.Prop),
             [
-                new()
+                new List<List<int>>
                 {
-                    new List<int>
+                    new()
                     {
                         int.MinValue,
                         0,
                         int.MaxValue
                     },
-                    new List<int> { 77 }
+                    new() { 77 }
                 },
 
-                new(),
-                new()
+                new List<List<int>>(),
+                new List<List<int>>
                 {
-                    new List<int> { 1, 2 },
-                    new List<int>(),
-                    new List<int> { 78, 79 }
+                    new() { 1, 2 },
+                    new(),
+                    new() { 78, 79 }
                 }
             ],
             """{"Prop":[[[-2147483648,0,2147483647],[77]],[],[[1,2],[],[78,79]]]}""",
@@ -3530,10 +3530,7 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         => Can_read_and_write_JSON_value<IpAddressListArrayListType, List<List<IPAddress>[]>>(
             nameof(IpAddressListArrayListType.Prop),
             [
-                new List<IPAddress>[]
-                {
-                    [IPAddress.Parse("127.0.0.1"), IPAddress.Parse("2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577")]
-                },
+                new List<IPAddress>[] { [IPAddress.Parse("127.0.0.1"), IPAddress.Parse("2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577")] },
 
                 Array.Empty<List<IPAddress>>(),
                 new List<IPAddress>[] { [new IPAddress(0)] }
@@ -3551,9 +3548,9 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         => Can_read_and_write_JSON_value<ULongListArrayListType, List<List<ulong[]>>>(
             nameof(ULongListArrayListType.Prop),
             [
-                new() { new[] { ulong.MinValue, 1UL, ulong.MaxValue } },
-                new(),
-                new() { new[] { 77UL } }
+                new List<ulong[]> { new[] { ulong.MinValue, 1UL, ulong.MaxValue } },
+                new List<ulong[]>(),
+                new List<ulong[]> { new[] { 77UL } }
             ],
             """{"Prop":[[[0,1,18446744073709551615]],[],[[77]]]}""",
             mappedCollection: true);
@@ -3568,14 +3565,10 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         => Can_read_and_write_JSON_value<BinaryListArrayArrayListType, List<List<byte[][]>[]>>(
             nameof(BinaryListArrayArrayListType.Prop),
             [
-                new List<byte[][]>[]
-                {
-                    [new[] { new byte[] { 0, 1, 2 }, [1], [77] }], [], [new byte[][] { }, Array.Empty<byte[]>()]
-                },
+                new List<byte[][]>[] { [new[] { new byte[] { 0, 1, 2 }, [1], [77] }], [], [new byte[][] { }, Array.Empty<byte[]>()] },
 
                 Array.Empty<List<byte[][]>>(),
                 new List<byte[][]>[] { [new byte[][] { }], [new[] { new byte[] { 0, 1, 2 }, [1], [77] }] }
-
             ],
             expected,
             mappedCollection: true);
@@ -3780,9 +3773,7 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         writer.WriteEndObject();
         writer.Flush();
 
-        var buffer = stream.ToArray();
-
-        return Encoding.UTF8.GetString(buffer);
+        return Encoding.UTF8.GetString(stream.GetBuffer(), 0, (int)stream.Length);
     }
 
     protected object? FromJsonPropertyString(JsonValueReaderWriter jsonReaderWriter, string value, object? existingValue = null)

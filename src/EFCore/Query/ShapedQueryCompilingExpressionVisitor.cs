@@ -736,7 +736,6 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                     new StructuralTypeMaterializerSourceParameters(
                         concreteStructuralType, "instance", returnType, queryTrackingBehavior), materializationContextVariable);
 
-            // TODO: Properly support shadow properties for complex types #35613
             if (_queryStateManager
                 && concreteStructuralType is IRuntimeEntityType { ShadowPropertyCount: > 0 } runtimeEntityType)
             {
@@ -749,17 +748,25 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                     .Where(n => n.IsShadowProperty())
                     .OrderBy(e => e.GetShadowIndex());
 
-                blockExpressions.Add(
-                    Assign(
-                        shadowValuesVariable,
-                        ShadowValuesFactoryFactory.Instance.CreateConstructorExpression(
-                            runtimeEntityType,
-                            NewArrayInit(
-                                typeof(object),
-                                shadowProperties.Select(p =>
-                                    Convert(
-                                        valueBufferExpression.CreateValueBufferReadValueExpression(
-                                            p.ClrType, p.GetIndex(), p), typeof(object)))))));
+                // When we have a discriminator on a (table splitting) complex type (for the null/empty distinction), the entity type
+                // has ShadowPropertyCount > 0 so end up here, but we don't actually support materializing shadow properties on
+                // complex types (the LINQ just above doesn't include them, #35613).
+                // So make sure there really are shadow properties to be materialized.
+                if (shadowProperties.Any())
+                {
+                    blockExpressions.Add(
+                        Assign(
+                            shadowValuesVariable,
+                            ShadowValuesFactoryFactory.Instance.CreateConstructorExpression(
+                                runtimeEntityType,
+                                NewArrayInit(
+                                    typeof(object),
+                                    shadowProperties.Select(
+                                        p =>
+                                            Convert(
+                                                valueBufferExpression.CreateValueBufferReadValueExpression(
+                                                    p.ClrType, p.GetIndex(), p), typeof(object)))))));
+                }
             }
 
             materializer = materializer.Type == returnType

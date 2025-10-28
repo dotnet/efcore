@@ -5,7 +5,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Translations;
 
 public class GuidTranslationsCosmosTest : GuidTranslationsTestBase<BasicTypesQueryCosmosFixture>
 {
-    public GuidTranslationsCosmosTest(BasicTypesQueryCosmosFixture fixture, ITestOutputHelper testOutputHelper) : base(fixture)
+    public GuidTranslationsCosmosTest(BasicTypesQueryCosmosFixture fixture, ITestOutputHelper testOutputHelper)
+        : base(fixture)
     {
         Fixture.TestSqlLoggerFactory.Clear();
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
@@ -29,7 +30,7 @@ WHERE (c["Guid"] = "df36f493-463f-4123-83f9-6b135deeb7ba")
 
         AssertSql(
             """
-@p=?
+@p='df36f493-463f-4123-83f9-6b135deeb7ba'
 
 SELECT VALUE c
 FROM root c

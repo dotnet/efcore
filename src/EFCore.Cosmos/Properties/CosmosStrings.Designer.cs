@@ -228,13 +228,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 expressionType, valueType);
 
         /// <summary>
-        ///     Unable to generate a valid 'id' value to execute a 'ReadItem' query. This usually happens when the value provided for one of the properties is 'null' or an empty string. Please supply a value that's not 'null' or an empty string.
+        ///     Unable to generate a valid 'id' value to execute a 'ReadItem' query. This usually happens when the value provided for one of the properties is 'null' or an empty string. Provide a value that's not 'null' or an empty string.
         /// </summary>
         public static string InvalidResourceId
             => GetString("InvalidResourceId");
 
         /// <summary>
-        ///     The IsDiscriminatorMappingComplete setting was configured to '{isDiscriminatorMappingComplete1}' on '{entityType1}', but on '{entityType2}' it was configured to '{isDiscriminatorMappingComplete2}'. All entity types mapped to the same container '{container}' must be configured with the same IsDiscriminatorMappingComplete value.
+        ///     The IsDiscriminatorMappingComplete setting was configured to '{isDiscriminatorMappingComplete1}' on '{entityType1}', but on '{entityType2}' it was configured to '{isDiscriminatorMappingComplete2}'. All entity types mapped to the same container '{container}' must be configured with the same 'IsDiscriminatorMappingComplete' value.
         /// </summary>
         public static string IsDiscriminatorMappingCompleteMismatch(object? isDiscriminatorMappingComplete1, object? entityType1, object? entityType2, object? isDiscriminatorMappingComplete2, object? container)
             => string.Format(
@@ -478,6 +478,18 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
         /// </summary>
         public static string ReverseAfterSkipTakeNotSupported
             => GetString("ReverseAfterSkipTakeNotSupported");
+
+        /// <summary>
+        ///     When using AutoTransactionBehavior.Always with the Cosmos DB provider, all changed entities in a SaveChanges call must be in the same collection and partition and not exceed 100 entities to ensure atomicity.
+        /// </summary>
+        public static string SaveChangesAutoTransactionBehaviorAlwaysAtomicity
+            => GetString("SaveChangesAutoTransactionBehaviorAlwaysAtomicity");
+
+        /// <summary>
+        ///     When using AutoTransactionBehavior.Always with the Cosmos DB provider, only 1 entity can be saved at a time when using pre- or post- triggers to ensure atomicity.
+        /// </summary>
+        public static string SaveChangesAutoTransactionBehaviorAlwaysTriggerAtomicity
+            => GetString("SaveChangesAutoTransactionBehaviorAlwaysTriggerAtomicity");
 
         /// <summary>
         ///     SingleOrDefault and FirstOrDefault cannot be used Cosmos SQL does not allow Offset without Limit. Consider specifying a 'Take' operation on the query.
@@ -750,6 +762,31 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                             level,
                             CosmosEventId.ExecutedReplaceItem,
                             _resourceManager.GetString("LogExecutedReplaceItem")!)));
+            }
+
+            return (EventDefinition<string, string, string, string, string, string?>)definition;
+        }
+
+        /// <summary>
+        ///     Executed TransactionalBatch ({elapsed} ms, {charge} RU) ActivityId='{activityId}', Container='{container}', Partition='{partitionKey}', DocumentIds='{documentIds}'
+        /// </summary>
+        public static EventDefinition<string, string, string, string, string, string?> LogExecutedTransactionalBatch(IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.CosmosLoggingDefinitions)logger.Definitions).LogExecutedTransactionalBatch;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((Diagnostics.Internal.CosmosLoggingDefinitions)logger.Definitions).LogExecutedTransactionalBatch,
+                    logger,
+                    static logger => new EventDefinition<string, string, string, string, string, string?>(
+                        logger.Options,
+                        CosmosEventId.ExecutedTransactionalBatch,
+                        LogLevel.Information,
+                        "CosmosEventId.ExecutedTransactionalBatch",
+                        level => LoggerMessage.Define<string, string, string, string, string, string?>(
+                            level,
+                            CosmosEventId.ExecutedTransactionalBatch,
+                            _resourceManager.GetString("LogExecutedTransactionalBatch")!)));
             }
 
             return (EventDefinition<string, string, string, string, string, string?>)definition;

@@ -224,8 +224,7 @@ public abstract class OperatorsQueryTestBase(NonSharedFixture fixture) : NonShar
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Negate_on_column(bool async)
     {
         var contextFactory = await InitializeAsync<OperatorsContext>(seed: Seed);
@@ -267,8 +266,7 @@ public abstract class OperatorsQueryTestBase(NonSharedFixture fixture) : NonShar
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Negate_on_binary_expression(bool async)
     {
         var contextFactory = await InitializeAsync<OperatorsContext>(seed: Seed);
@@ -292,8 +290,7 @@ public abstract class OperatorsQueryTestBase(NonSharedFixture fixture) : NonShar
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Negate_on_like_expression(bool async)
     {
         var contextFactory = await InitializeAsync<OperatorsContext>(seed: Seed);
@@ -314,8 +311,7 @@ public abstract class OperatorsQueryTestBase(NonSharedFixture fixture) : NonShar
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Concat_and_json_scalar(bool async)
     {
         var contextFactory = await InitializeAsync<DbContext>(

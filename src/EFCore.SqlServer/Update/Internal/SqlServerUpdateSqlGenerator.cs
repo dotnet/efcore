@@ -141,33 +141,42 @@ public class SqlServerUpdateSqlGenerator : UpdateAndSelectSqlGenerator, ISqlServ
         string name,
         string? schema)
     {
-        if (columnModification.JsonPath is not (null or "$"))
+        if (columnModification.JsonPath is null or "$")
         {
-            stringBuilder.Append("JSON_MODIFY(");
-            updateSqlGeneratorHelper.DelimitIdentifier(stringBuilder, columnModification.ColumnName);
-
-            // using strict so that we don't remove json elements when they are assigned NULL value
-            stringBuilder.Append(", 'strict ");
-            stringBuilder.Append(columnModification.JsonPath);
-            stringBuilder.Append("', ");
-
-            if (columnModification.Property is { IsPrimitiveCollection: false })
-            {
-                base.AppendUpdateColumnValue(updateSqlGeneratorHelper, columnModification, stringBuilder, name, schema);
-            }
-            else
-            {
-                stringBuilder.Append("JSON_QUERY(");
-                base.AppendUpdateColumnValue(updateSqlGeneratorHelper, columnModification, stringBuilder, name, schema);
-                stringBuilder.Append(")");
-            }
-
-            stringBuilder.Append(")");
+            base.AppendUpdateColumnValue(updateSqlGeneratorHelper, columnModification, stringBuilder, name, schema);
+            return;
         }
-        else
+
+        stringBuilder.Append("JSON_MODIFY(");
+        updateSqlGeneratorHelper.DelimitIdentifier(stringBuilder, columnModification.ColumnName);
+
+        // using strict so that we don't remove json elements when they are assigned NULL value
+        stringBuilder.Append(", 'strict ");
+        stringBuilder.Append(columnModification.JsonPath);
+        stringBuilder.Append("', ");
+        var mapping = columnModification.Property?.GetRelationalTypeMapping();
+        var propertyProviderClrType = (mapping?.Converter?.ProviderClrType ?? columnModification.Property?.ClrType)?.UnwrapNullableType();
+
+        if (columnModification.Value is null
+            || propertyProviderClrType == typeof(bool)
+            || (propertyProviderClrType != null && propertyProviderClrType.IsNumeric()))
         {
             base.AppendUpdateColumnValue(updateSqlGeneratorHelper, columnModification, stringBuilder, name, schema);
         }
+        else if (columnModification.Property is { IsPrimitiveCollection: false })
+        {
+            stringBuilder.Append("JSON_VALUE(");
+            base.AppendUpdateColumnValue(updateSqlGeneratorHelper, columnModification, stringBuilder, name, schema);
+            stringBuilder.Append(", '$.\"\"')");
+        }
+        else
+        {
+            stringBuilder.Append("JSON_QUERY(");
+            base.AppendUpdateColumnValue(updateSqlGeneratorHelper, columnModification, stringBuilder, name, schema);
+            stringBuilder.Append(")");
+        }
+
+        stringBuilder.Append(")");
     }
 
     /// <summary>

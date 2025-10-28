@@ -70,8 +70,11 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
         private static readonly MethodInfo IncludeJsonEntityCollectionMethodInfo
             = typeof(ShaperProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(IncludeJsonEntityCollection))!;
 
-        private static readonly MethodInfo MaterializeJsonEntityMethodInfo
-            = typeof(ShaperProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(MaterializeJsonEntity))!;
+        private static readonly MethodInfo MaterializeJsonStructuralTypeMethodInfo
+            = typeof(ShaperProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(MaterializeJsonStructuralType))!;
+
+        private static readonly MethodInfo MaterializeJsonNullableValueStructuralTypeMethodInfo
+            = typeof(ShaperProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(MaterializeJsonNullableValueStructuralType))!;
 
         private static readonly MethodInfo MaterializeJsonEntityCollectionMethodInfo
             = typeof(ShaperProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(MaterializeJsonEntityCollection))!;
@@ -959,20 +962,64 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public static TEntity? MaterializeJsonEntity<TEntity>(
+        public static TStructural? MaterializeJsonStructuralType<TStructural>(
             QueryContext queryContext,
             object[]? keyPropertyValues,
             JsonReaderData? jsonReaderData,
             bool nullable,
-            Func<QueryContext, object[]?, JsonReaderData, TEntity> shaper)
-            where TEntity : class
+            Func<QueryContext, object[]?, JsonReaderData, TStructural> shaper)
+        {
+            if (jsonReaderData == null)
+            {
+                return nullable
+                    ? default
+                    : throw new InvalidOperationException(
+                        RelationalStrings.JsonRequiredEntityWithNullJson(typeof(TStructural).Name));
+            }
+
+            var manager = new Utf8JsonReaderManager(jsonReaderData, queryContext.QueryLogger);
+            var tokenType = manager.CurrentReader.TokenType;
+
+            switch (tokenType)
+            {
+                case JsonTokenType.Null:
+                    return nullable
+                        ? default
+                        : throw new InvalidOperationException(
+                            RelationalStrings.JsonRequiredEntityWithNullJson(typeof(TStructural).Name));
+
+                case not JsonTokenType.StartObject:
+                    throw new InvalidOperationException(
+                        CoreStrings.JsonReaderInvalidTokenType(tokenType.ToString()));
+            }
+
+            manager.CaptureState();
+            var result = shaper(queryContext, keyPropertyValues, jsonReaderData);
+
+            return result;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
+        public static TStructural? MaterializeJsonNullableValueStructuralType<TStructural>(
+            QueryContext queryContext,
+            object[]? keyPropertyValues,
+            JsonReaderData? jsonReaderData,
+            bool nullable,
+            Func<QueryContext, object[]?, JsonReaderData, TStructural> shaper)
+            where TStructural : struct
         {
             if (jsonReaderData == null)
             {
                 return nullable
                     ? null
                     : throw new InvalidOperationException(
-                        RelationalStrings.JsonRequiredEntityWithNullJson(typeof(TEntity).Name));
+                        RelationalStrings.JsonRequiredEntityWithNullJson(typeof(TStructural).Name));
             }
 
             var manager = new Utf8JsonReaderManager(jsonReaderData, queryContext.QueryLogger);
@@ -984,7 +1031,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     return nullable
                         ? null
                         : throw new InvalidOperationException(
-                            RelationalStrings.JsonRequiredEntityWithNullJson(typeof(TEntity).Name));
+                            RelationalStrings.JsonRequiredEntityWithNullJson(typeof(TStructural).Name));
 
                 case not JsonTokenType.StartObject:
                     throw new InvalidOperationException(
@@ -1008,7 +1055,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             QueryContext queryContext,
             object[]? keyPropertyValues,
             JsonReaderData? jsonReaderData,
-            IPropertyBase relationship,
+            IPropertyBase structuralProperty,
             Func<QueryContext, object[]?, JsonReaderData, TEntity> innerShaper)
             where TEntity : class
         {
@@ -1029,7 +1076,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     throw new InvalidOperationException(CoreStrings.JsonReaderInvalidTokenType(tokenType.ToString()));
             }
 
-            var collectionAccessor = relationship.GetCollectionAccessor();
+            var collectionAccessor = structuralProperty.GetCollectionAccessor();
             var result = (TResult)collectionAccessor!.Create();
 
             object[]? newKeyPropertyValues = null;
@@ -1081,16 +1128,14 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public static void IncludeJsonEntityReference<TIncludingEntity, TIncludedEntity>(
+        public static void IncludeJsonEntityReference<TStructural, TRelatedStructural>(
             QueryContext queryContext,
             object[]? keyPropertyValues,
             JsonReaderData? jsonReaderData,
-            TIncludingEntity entity,
-            Func<QueryContext, object[]?, JsonReaderData, TIncludedEntity> innerShaper,
-            Action<TIncludingEntity, TIncludedEntity> fixup,
+            TStructural structuralType,
+            Func<QueryContext, object[]?, JsonReaderData, TRelatedStructural> innerShaper,
+            Action<TStructural, TRelatedStructural> fixup,
             bool performFixup)
-            where TIncludingEntity : class
-            where TIncludedEntity : class
         {
             if (jsonReaderData == null)
             {
@@ -1114,7 +1159,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
             if (performFixup)
             {
-                fixup(entity, included);
+                fixup(structuralType, included);
             }
         }
 

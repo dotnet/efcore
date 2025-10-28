@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.IO;
-using System.Reflection.PortableExecutable;
 using Microsoft.Data.Sqlite.Properties;
 using Xunit;
 
@@ -153,10 +152,13 @@ public class SqliteDataReaderTest
         {
             connection.Open();
 
-            connection.ExecuteNonQuery("CREATE TABLE A (ID INTEGER PRIMARY KEY,VALUE BLOB); INSERT INTO A (ID, VALUE) VALUES (1,x'01020304');");
-            connection.ExecuteNonQuery("CREATE TABLE B (ID INTEGER PRIMARY KEY,FATHER_ID INTEGER NOT NULL,VALUE BLOB); INSERT INTO B (ID,FATHER_ID, VALUE) VALUES (1000,1,x'05060708');");
+            connection.ExecuteNonQuery(
+                "CREATE TABLE A (ID INTEGER PRIMARY KEY,VALUE BLOB); INSERT INTO A (ID, VALUE) VALUES (1,x'01020304');");
+            connection.ExecuteNonQuery(
+                "CREATE TABLE B (ID INTEGER PRIMARY KEY,FATHER_ID INTEGER NOT NULL,VALUE BLOB); INSERT INTO B (ID,FATHER_ID, VALUE) VALUES (1000,1,x'05060708');");
 
-            using (var reader = connection.ExecuteReader(@"SELECT 
+            using (var reader = connection.ExecuteReader(
+                       @"SELECT 
                                                 A.ID as AID,
                                                 A.VALUE as AVALUE,
                                                 B.ID as BID,
@@ -177,9 +179,8 @@ public class SqliteDataReaderTest
                 Assert.Equal([0x02, 0x03], abuff);
 
                 var bbuff = new byte[2];
-                reader.GetBytes(3, 1, bbuff, 0, bbuff.Length);  //this was failing. now should be fixed
+                reader.GetBytes(3, 1, bbuff, 0, bbuff.Length); //this was failing. now should be fixed
                 Assert.Equal([0x06, 0x07], bbuff);
-
             }
         }
     }
@@ -334,8 +335,7 @@ public class SqliteDataReaderTest
                 Assert.True(hasData);
 
                 var buffer = new char[1];
-                var ex = Assert.Throws<ArgumentOutOfRangeException>(
-                    () => reader.GetChars(0, 5, buffer, 0, buffer.Length));
+                var ex = Assert.Throws<ArgumentOutOfRangeException>(() => reader.GetChars(0, 5, buffer, 0, buffer.Length));
                 Assert.Equal("dataOffset", ex.ParamName);
             }
         }
@@ -456,10 +456,10 @@ public class SqliteDataReaderTest
         }
     }
 
-    [Theory]
-    [InlineData("CREATE TABLE DataTable (Id INTEGER, Data BLOB);", "SELECT rowid, Data FROM DataTable WHERE Id = 5")]
-    [InlineData("CREATE TABLE DataTable (Id INTEGER PRIMARY KEY, Data BLOB);", "SELECT rowid, Data FROM DataTable WHERE Id = 5")]
-    [InlineData("CREATE TABLE DataTable (Id INTEGER PRIMARY KEY, Data BLOB);", "SELECT Id, Data FROM DataTable WHERE Id = 5")]
+    [Theory,
+     InlineData("CREATE TABLE DataTable (Id INTEGER, Data BLOB);", "SELECT rowid, Data FROM DataTable WHERE Id = 5"),
+     InlineData("CREATE TABLE DataTable (Id INTEGER PRIMARY KEY, Data BLOB);", "SELECT rowid, Data FROM DataTable WHERE Id = 5"),
+     InlineData("CREATE TABLE DataTable (Id INTEGER PRIMARY KEY, Data BLOB);", "SELECT Id, Data FROM DataTable WHERE Id = 5")]
     public void GetStream_Blob_works(string createTableCmd, string selectCmd)
     {
         using (var connection = new SqliteConnection("Data Source=:memory:"))
@@ -793,12 +793,12 @@ public class SqliteDataReaderTest
             new TimeOnly(13, 10, 15, 500));
 #endif
 
-    [Theory]
-    [InlineData("SELECT 1;", "INTEGER")]
-    [InlineData("SELECT 3.14;", "REAL")]
-    [InlineData("SELECT 'test';", "TEXT")]
-    [InlineData("SELECT X'7E57';", "BLOB")]
-    [InlineData("SELECT NULL;", "BLOB")]
+    [Theory,
+     InlineData("SELECT 1;", "INTEGER"),
+     InlineData("SELECT 3.14;", "REAL"),
+     InlineData("SELECT 'test';", "TEXT"),
+     InlineData("SELECT X'7E57';", "BLOB"),
+     InlineData("SELECT NULL;", "BLOB")]
     public void GetDataTypeName_works(string sql, string expected)
     {
         using (var connection = new SqliteConnection("Data Source=:memory:"))
@@ -852,9 +852,9 @@ public class SqliteDataReaderTest
     public void GetDataTypeName_throws_when_non_query()
         => X_throws_when_non_query(r => r.GetDataTypeName(0));
 
-    [Theory]
-    [InlineData("3.14", 3.14)]
-    [InlineData("1.0e-2", 0.01)]
+    [Theory,
+     InlineData("3.14", 3.14),
+     InlineData("1.0e-2", 0.01)]
     public void GetDecimal_works(string input, decimal expected)
         => GetX_works(
             "SELECT '" + input + "';",
@@ -875,8 +875,7 @@ public class SqliteDataReaderTest
 
     [Fact]
     public void GetDouble_throws_when_null()
-        => GetX_throws_when_null(
-            r => r.GetDouble(0));
+        => GetX_throws_when_null(r => r.GetDouble(0));
 
     [Fact]
     public void GetDouble_throws_when_closed()
@@ -903,20 +902,20 @@ public class SqliteDataReaderTest
         }
     }
 
-    [Theory]
-    [InlineData("SELECT 1;", true)]
-    [InlineData("SELECT 1;", (byte)1)]
-    [InlineData("SELECT 1;", (char)1)]
-    [InlineData("SELECT 3.14;", 3.14)]
-    [InlineData("SELECT 3;", 3f)]
-    [InlineData("SELECT 1;", 1)]
-    [InlineData("SELECT 1;", 1L)]
-    [InlineData("SELECT 1;", (sbyte)1)]
-    [InlineData("SELECT 1;", (short)1)]
-    [InlineData("SELECT 'test';", "test")]
-    [InlineData("SELECT 1;", 1u)]
-    [InlineData("SELECT 1;", 1ul)]
-    [InlineData("SELECT 1;", (ushort)1)]
+    [Theory,
+     InlineData("SELECT 1;", true),
+     InlineData("SELECT 1;", (byte)1),
+     InlineData("SELECT 1;", (char)1),
+     InlineData("SELECT 3.14;", 3.14),
+     InlineData("SELECT 3;", 3f),
+     InlineData("SELECT 1;", 1),
+     InlineData("SELECT 1;", 1L),
+     InlineData("SELECT 1;", (sbyte)1),
+     InlineData("SELECT 1;", (short)1),
+     InlineData("SELECT 'test';", "test"),
+     InlineData("SELECT 1;", 1u),
+     InlineData("SELECT 1;", 1ul),
+     InlineData("SELECT 1;", (ushort)1)]
     public void GetFieldValue_works<T>(string sql, T expected)
     {
         using (var connection = new SqliteConnection("Data Source=:memory:"))
@@ -946,8 +945,7 @@ public class SqliteDataReaderTest
 
     [Fact]
     public void GetFieldValue_of_byteArray_throws_when_null()
-        => GetX_throws_when_null(
-            r => r.GetFieldValue<byte[]>(0));
+        => GetX_throws_when_null(r => r.GetFieldValue<byte[]>(0));
 
     [Fact]
     public void GetFieldValue_of_DateTime_works()
@@ -1073,14 +1071,14 @@ public class SqliteDataReaderTest
     public void GetFieldValue_throws_when_non_query()
         => X_throws_when_non_query(r => r.GetFieldValue<long>(0));
 
-    [Theory]
-    [InlineData(byte.MinValue)]
-    [InlineData(char.MinValue)]
-    [InlineData(int.MinValue)]
-    [InlineData(sbyte.MinValue)]
-    [InlineData(short.MinValue)]
-    [InlineData(uint.MinValue)]
-    [InlineData(ushort.MinValue)]
+    [Theory,
+     InlineData(byte.MinValue),
+     InlineData(char.MinValue),
+     InlineData(int.MinValue),
+     InlineData(sbyte.MinValue),
+     InlineData(short.MinValue),
+     InlineData(uint.MinValue),
+     InlineData(ushort.MinValue)]
     public void GetFieldValue_throws_on_overflow<T>(T minValue)
     {
         using (var connection = new SqliteConnection("Data Source=:memory:"))
@@ -1098,12 +1096,12 @@ public class SqliteDataReaderTest
         }
     }
 
-    [Theory]
-    [InlineData("SELECT 1;", typeof(long))]
-    [InlineData("SELECT 3.14;", typeof(double))]
-    [InlineData("SELECT 'test';", typeof(string))]
-    [InlineData("SELECT X'7E57';", typeof(byte[]))]
-    [InlineData("SELECT NULL;", typeof(byte[]))]
+    [Theory,
+     InlineData("SELECT 1;", typeof(long)),
+     InlineData("SELECT 3.14;", typeof(double)),
+     InlineData("SELECT 'test';", typeof(string)),
+     InlineData("SELECT X'7E57';", typeof(byte[])),
+     InlineData("SELECT NULL;", typeof(byte[]))]
     public void GetFieldType_works(string sql, Type expected)
     {
         using (var connection = new SqliteConnection("Data Source=:memory:"))
@@ -1117,21 +1115,21 @@ public class SqliteDataReaderTest
         }
     }
 
-    [Theory]
-    [InlineData("TEXT", typeof(string))]
-    [InlineData("CHARACTER(20)", typeof(string))]
-    [InlineData("NVARCHAR(100)", typeof(string))]
-    [InlineData("CLOB", typeof(string))]
-    [InlineData("INTEGER", typeof(long))]
-    [InlineData("BIGINT", typeof(long))]
-    [InlineData("UNSIGNED BIG INT", typeof(long))]
-    [InlineData("REAL", typeof(double))]
-    [InlineData("DOUBLE", typeof(double))]
-    [InlineData("FLOAT", typeof(double))]
-    [InlineData("BLOB", typeof(byte[]))]
-    [InlineData("", typeof(byte[]))]
-    [InlineData("NUMERIC", typeof(string))]
-    [InlineData("DATETIME", typeof(string))]
+    [Theory,
+     InlineData("TEXT", typeof(string)),
+     InlineData("CHARACTER(20)", typeof(string)),
+     InlineData("NVARCHAR(100)", typeof(string)),
+     InlineData("CLOB", typeof(string)),
+     InlineData("INTEGER", typeof(long)),
+     InlineData("BIGINT", typeof(long)),
+     InlineData("UNSIGNED BIG INT", typeof(long)),
+     InlineData("REAL", typeof(double)),
+     InlineData("DOUBLE", typeof(double)),
+     InlineData("FLOAT", typeof(double)),
+     InlineData("BLOB", typeof(byte[])),
+     InlineData("", typeof(byte[])),
+     InlineData("NUMERIC", typeof(string)),
+     InlineData("DATETIME", typeof(string))]
     public void GetFieldType_works_on_NULL(string type, Type expected)
     {
         using (var connection = new SqliteConnection("Data Source=:memory:"))
@@ -1192,10 +1190,10 @@ public class SqliteDataReaderTest
     public void GetFieldType_throws_when_non_query()
         => X_throws_when_non_query(r => r.GetFieldType(0));
 
-    [Theory]
-    [InlineData("3", 3f)]
-    [InlineData("9e999", float.PositiveInfinity)]
-    [InlineData("-9e999", float.NegativeInfinity)]
+    [Theory,
+     InlineData("3", 3f),
+     InlineData("9e999", float.PositiveInfinity),
+     InlineData("-9e999", float.NegativeInfinity)]
     public void GetFloat_works(string val, float result)
         => GetX_works(
             "SELECT " + val,
@@ -1210,12 +1208,12 @@ public class SqliteDataReaderTest
     public void GetFloat_throws_when_non_query()
         => X_throws_when_non_query(r => r.GetFloat(0));
 
-    [Theory]
-    [InlineData("2.0", 2.0)]
-    [InlineData("9e999", double.PositiveInfinity)]
-    [InlineData("-9e999", double.NegativeInfinity)]
-    [InlineData("'3.14'", 3.14)]
-    [InlineData("'1.2e-03'", 0.0012)]
+    [Theory,
+     InlineData("2.0", 2.0),
+     InlineData("9e999", double.PositiveInfinity),
+     InlineData("-9e999", double.NegativeInfinity),
+     InlineData("'3.14'", 3.14),
+     InlineData("'1.2e-03'", 0.0012)]
     public void GetDouble_works(string val, double result)
         => GetX_works(
             "SELECT " + val,
@@ -1298,8 +1296,7 @@ public class SqliteDataReaderTest
 
     [Fact]
     public void GetInt64_throws_when_null()
-        => GetX_throws_when_null(
-            r => r.GetInt64(0));
+        => GetX_throws_when_null(r => r.GetInt64(0));
 
     [Fact]
     public void GetInt64_throws_when_non_query()
@@ -1431,8 +1428,7 @@ public class SqliteDataReaderTest
 
     [Fact]
     public void GetString_throws_when_null()
-        => GetX_throws_when_null(
-            r => r.GetString(0));
+        => GetX_throws_when_null(r => r.GetString(0));
 
     [Fact]
     public void GetString_throws_when_closed()
@@ -1442,10 +1438,10 @@ public class SqliteDataReaderTest
     public void GetString_throws_when_non_query()
         => X_throws_when_non_query(r => r.GetString(0));
 
-    [Theory]
-    [InlineData("SELECT 1;", 1L)]
-    [InlineData("SELECT 3.14;", 3.14)]
-    [InlineData("SELECT 'test';", "test")]
+    [Theory,
+     InlineData("SELECT 1;", 1L),
+     InlineData("SELECT 3.14;", 3.14),
+     InlineData("SELECT 'test';", "test")]
     public void GetValue_works(string sql, object expected)
     {
         using (var connection = new SqliteConnection("Data Source=:memory:"))
@@ -1677,10 +1673,10 @@ public class SqliteDataReaderTest
         }
     }
 
-    [Theory]
-    [InlineData("SELECT 1 AS Id;", "Id", 1L)]
-    [InlineData("SELECT 1 AS Id;", "id", 1L)]
-    [InlineData("SELECT 1 AS Id, 2 AS id;", "id", 2L)]
+    [Theory,
+     InlineData("SELECT 1 AS Id;", "Id", 1L),
+     InlineData("SELECT 1 AS Id;", "id", 1L),
+     InlineData("SELECT 1 AS Id, 2 AS id;", "id", 2L)]
     public void Item_by_name_works(string query, string column, long expected)
     {
         using (var connection = new SqliteConnection("Data Source=:memory:"))
@@ -2188,13 +2184,13 @@ public class SqliteDataReaderTest
         }
     }
 
-    [Theory]
-    [InlineData("(0), (1), ('A')", typeof(long))]
-    [InlineData("('Z'), (1), ('A')", typeof(string))]
-    [InlineData("(0.1), (0.01), ('A')", typeof(double))]
-    [InlineData("(X'7E57'), (X'577E'), ('A')", typeof(byte[]))]
-    [InlineData("(NULL), (NULL), (NULL)", typeof(byte[]))]
-    [InlineData("(NULL), ('A'), ('B')", typeof(string))]
+    [Theory,
+     InlineData("(0), (1), ('A')", typeof(long)),
+     InlineData("('Z'), (1), ('A')", typeof(string)),
+     InlineData("(0.1), (0.01), ('A')", typeof(double)),
+     InlineData("(X'7E57'), (X'577E'), ('A')", typeof(byte[])),
+     InlineData("(NULL), (NULL), (NULL)", typeof(byte[])),
+     InlineData("(NULL), ('A'), ('B')", typeof(string))]
     public void GetSchemaTable_DataType_works(string values, Type expectedType)
     {
         using (var connection = new SqliteConnection("Data Source=:memory:"))
@@ -2212,21 +2208,21 @@ public class SqliteDataReaderTest
         }
     }
 
-    [Theory]
-    [InlineData("TEXT", typeof(string))]
-    [InlineData("CHARACTER(20)", typeof(string))]
-    [InlineData("NVARCHAR(100)", typeof(string))]
-    [InlineData("CLOB", typeof(string))]
-    [InlineData("INTEGER", typeof(long))]
-    [InlineData("BIGINT", typeof(long))]
-    [InlineData("UNSIGNED BIG INT", typeof(long))]
-    [InlineData("REAL", typeof(double))]
-    [InlineData("DOUBLE", typeof(double))]
-    [InlineData("FLOAT", typeof(double))]
-    [InlineData("BLOB", typeof(byte[]))]
-    [InlineData("", typeof(byte[]))]
-    [InlineData("NUMERIC", typeof(string))]
-    [InlineData("DATETIME", typeof(string))]
+    [Theory,
+     InlineData("TEXT", typeof(string)),
+     InlineData("CHARACTER(20)", typeof(string)),
+     InlineData("NVARCHAR(100)", typeof(string)),
+     InlineData("CLOB", typeof(string)),
+     InlineData("INTEGER", typeof(long)),
+     InlineData("BIGINT", typeof(long)),
+     InlineData("UNSIGNED BIG INT", typeof(long)),
+     InlineData("REAL", typeof(double)),
+     InlineData("DOUBLE", typeof(double)),
+     InlineData("FLOAT", typeof(double)),
+     InlineData("BLOB", typeof(byte[])),
+     InlineData("", typeof(byte[])),
+     InlineData("NUMERIC", typeof(string)),
+     InlineData("DATETIME", typeof(string))]
     public void GetSchemaTable_DataType_works_on_empty_table(string type, Type expected)
     {
         using (var connection = new SqliteConnection("Data Source=:memory:"))
@@ -2300,7 +2296,7 @@ public class SqliteDataReaderTest
             connection.Open();
 
             connection.ExecuteNonQuery(
-        """
+                """
         CREATE TABLE Member (
           ID INTEGER,
           Lastname TEXT NOT NULL,
@@ -2325,7 +2321,7 @@ public class SqliteDataReaderTest
         INSERT INTO Member (Lastname, Firstname, Type, Hidden) VALUES ('Müller', 'Willhelm', NULL, 0);
         """);
 
-            string sql =
+            var sql =
                 """
                 SELECT
                   Member.ID AS ID,
@@ -2357,7 +2353,7 @@ public class SqliteDataReaderTest
             connection.Open();
 
             connection.ExecuteNonQuery(
-        """
+                """
         CREATE TABLE "characters" (
         	"id"	INTEGER,
         	"name"	TEXT UNIQUE,
@@ -2379,7 +2375,7 @@ public class SqliteDataReaderTest
         INSERT INTO guilds (id, name) VALUES (1, 'Testers');
         """);
 
-            string sql =
+            var sql =
                 """
                 SELECT guilds.name as guildName, characters.name as charName FROM guilds
                 LEFT JOIN characters

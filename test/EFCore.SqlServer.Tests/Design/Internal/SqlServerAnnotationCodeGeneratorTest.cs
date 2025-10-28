@@ -196,7 +196,7 @@ public class SqlServerAnnotationCodeGeneratorTest
 
         Assert.Equal(1, result.Arguments.Count);
         var properties = Assert.IsType<string[]>(result.Arguments[0]);
-        Assert.Equal(new[] { "FirstName" }, properties.AsEnumerable());
+        Assert.Equal(["FirstName"], properties.AsEnumerable());
     }
 
     [ConditionalFact]

@@ -86,27 +86,24 @@ OFFSET 0 LIMIT 2
 
         await PartitionKeyTestAsync(
             ctx => ctx.Customers
-                .Where(
-                    b => (b.Id == 42 || b.Name == "John Snow")
-                        && b.PartitionKey1 == "A"
-                        && b.PartitionKey2 == 1.1
-                        && b.PartitionKey3)
+                .Where(b => (b.Id == 42 || b.Name == "John Snow")
+                    && b.PartitionKey1 == "A"
+                    && b.PartitionKey2 == 1.1
+                    && b.PartitionKey3)
                 .SingleAsync(),
             readSql,
             ctx => ctx.Customers
-                .Where(
-                    b => (b.Id == 42 || b.Name == "John Snow")
-                        && b.PartitionKey1 == "B"
-                        && b.PartitionKey2 == 2.1
-                        && !b.PartitionKey3)
+                .Where(b => (b.Id == 42 || b.Name == "John Snow")
+                    && b.PartitionKey1 == "B"
+                    && b.PartitionKey2 == 2.1
+                    && !b.PartitionKey3)
                 .SingleAsync(),
             readSql,
             ctx => ctx.Customers.WithPartitionKey("B", 2.1, false).LastAsync(),
             ctx => ctx.Customers
-                .Where(
-                    b => b.Id == 42
-                        && ((b.PartitionKey1 == "A" && b.PartitionKey2 == 1.1 && b.PartitionKey3)
-                            || (b.PartitionKey1 == "B" && b.PartitionKey2 == 2.1 && !b.PartitionKey3)))
+                .Where(b => b.Id == 42
+                    && ((b.PartitionKey1 == "A" && b.PartitionKey2 == 1.1 && b.PartitionKey3)
+                        || (b.PartitionKey1 == "B" && b.PartitionKey2 == 2.1 && !b.PartitionKey3)))
                 .ToListAsync(),
             2);
     }
@@ -272,25 +269,22 @@ OFFSET 0 LIMIT 2
             => Set<Customer>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<Customer>(
-                cb =>
+            => modelBuilder.Entity<Customer>(cb =>
+            {
+                cb.HasPartitionKey(c => new
                 {
-                    cb.HasPartitionKey(
-                        c => new
-                        {
-                            c.PartitionKey1,
-                            c.PartitionKey2,
-                            c.PartitionKey3
-                        });
-                    cb.HasKey(
-                        c => new
-                        {
-                            c.Id,
-                            c.PartitionKey1,
-                            c.PartitionKey2,
-                            c.PartitionKey3
-                        });
+                    c.PartitionKey1,
+                    c.PartitionKey2,
+                    c.PartitionKey3
                 });
+                cb.HasKey(c => new
+                {
+                    c.Id,
+                    c.PartitionKey1,
+                    c.PartitionKey2,
+                    c.PartitionKey3
+                });
+            });
     }
 
     public class Customer

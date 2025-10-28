@@ -177,8 +177,7 @@ WHERE date("b"."DateTime") IN (@dateOnly, '1998-05-04')
     [ConditionalFact]
     public virtual async Task Where_AddYears_Year()
     {
-        await AssertQuery(
-            ss => ss.Set<BasicTypesEntity>().Where(m => m.DateOnly.AddYears(3).Year == 1993));
+        await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(m => m.DateOnly.AddYears(3).Year == 1993));
 
         AssertSql(
             """
@@ -191,8 +190,7 @@ WHERE CAST(strftime('%Y', "b"."DateOnly", CAST(3 AS TEXT) || ' years') AS INTEGE
     [ConditionalFact]
     public virtual async Task Where_AddYears_AddMonths()
     {
-        await AssertQuery(
-            ss => ss.Set<BasicTypesEntity>().Where(m => m.DateOnly.AddYears(3).AddMonths(3) == new DateOnly(1994, 2, 10)));
+        await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(m => m.DateOnly.AddYears(3).AddMonths(3) == new DateOnly(1994, 2, 10)));
 
         AssertSql(
             """

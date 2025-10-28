@@ -11,11 +11,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class SqliteDatabaseCreatorTest
 {
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
+    [ConditionalTheory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
     public async Task Exists_returns_false_when_database_doesnt_exist(bool async, bool useCanConnect)
     {
         var context = CreateContext("Data Source=doesnt-exist.db");
@@ -31,9 +27,7 @@ public class SqliteDatabaseCreatorTest
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public async Task HasTables_returns_false_when_database_is_empty(bool async)
     {
         await using var testStore = await SqliteTestStore.GetOrCreateInitializedAsync("Empty");
@@ -43,9 +37,7 @@ public class SqliteDatabaseCreatorTest
         Assert.False(async ? await creator.HasTablesAsync() : creator.HasTables());
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public async Task HasTables_returns_true_when_database_is_not_empty(bool async)
     {
         await using var testStore = await SqliteTestStore.GetOrCreateInitializedAsync($"HasATable{(async ? 'A' : 'S')}");
@@ -56,11 +48,7 @@ public class SqliteDatabaseCreatorTest
         Assert.True(async ? await creator.HasTablesAsync() : creator.HasTables());
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
+    [ConditionalTheory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
     public async Task Exists_returns_true_when_database_exists(bool async, bool useCanConnect)
     {
         await using var testStore = await SqliteTestStore.GetOrCreateInitializedAsync("Empty");
@@ -77,9 +65,7 @@ public class SqliteDatabaseCreatorTest
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public async Task Create_sets_journal_mode_to_wal(bool async)
     {
         await using var testStore = SqliteTestStore.GetOrCreate("Create");
@@ -100,9 +86,7 @@ public class SqliteDatabaseCreatorTest
         Assert.Equal("wal", journalMode);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public async Task Delete_works_even_when_different_connection_exists_to_same_file(bool async)
     {
         using (var context = new BathtubContext("DataSource=bathtub.db"))
@@ -144,9 +128,7 @@ public class SqliteDatabaseCreatorTest
             => optionsBuilder.UseSqlite(_connectionString);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public async Task Delete_works_for_in_memory_database(bool async)
     {
         using var connection = new SqliteConnection("Data Source=:memory:");
@@ -220,9 +202,7 @@ public class SqliteDatabaseCreatorTest
             => optionsBuilder.UseSqlite(_connection);
     }
 
-    [ConditionalTheory]
-    [InlineData("Data Source=:memory:")]
-    [InlineData("Data Source=exists-memory;Mode=Memory;Cache=Shared")]
+    [ConditionalTheory, InlineData("Data Source=:memory:"), InlineData("Data Source=exists-memory;Mode=Memory;Cache=Shared")]
     public void Exists_returns_true_when_memory(string connectionString)
     {
         var context = CreateContext(connectionString);

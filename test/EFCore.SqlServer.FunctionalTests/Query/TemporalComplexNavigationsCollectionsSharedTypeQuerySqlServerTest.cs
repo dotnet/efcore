@@ -3277,9 +3277,8 @@ ORDER BY [l3].[Id], [s].[c], [s].[Id1]
     public override async Task SelectMany_with_predicate_and_DefaultIfEmpty_projecting_root_collection_element_and_another_collection(
         bool async)
     {
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
-            () =>
-                base.SelectMany_with_predicate_and_DefaultIfEmpty_projecting_root_collection_element_and_another_collection(async));
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            base.SelectMany_with_predicate_and_DefaultIfEmpty_projecting_root_collection_element_and_another_collection(async));
 
         Assert.StartsWith(CoreStrings.ExpressionParameterizationExceptionSensitive("X").Substring(0, 30), exception.Message);
         Assert.True(exception.InnerException is InvalidCastException);

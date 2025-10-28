@@ -2,7 +2,9 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
+using System.Transactions;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
+using IsolationLevel = System.Data.IsolationLevel;
 
 namespace Microsoft.EntityFrameworkCore;
 
@@ -24,8 +26,7 @@ public class RelationalConnectionTest
     public void Throws_with_add_when_no_EF_services_use_Database()
     {
         var appServiceProvider = new ServiceCollection()
-            .AddDbContext<ConstructorTestContext1A>(
-                (p, b) => b.UseInternalServiceProvider(p))
+            .AddDbContext<ConstructorTestContext1A>((p, b) => b.UseInternalServiceProvider(p))
             .BuildServiceProvider(validateScopes: true);
 
         using var serviceScope = appServiceProvider
@@ -33,8 +34,7 @@ public class RelationalConnectionTest
             .CreateScope();
         Assert.Equal(
             CoreStrings.NoEfServices,
-            Assert.Throws<InvalidOperationException>(
-                () => serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>()).Message);
+            Assert.Throws<InvalidOperationException>(() => serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>()).Message);
     }
 
     [ConditionalFact]
@@ -61,8 +61,7 @@ public class RelationalConnectionTest
         new EntityFrameworkServicesBuilder(serviceCollection).TryAddCoreServices();
 
         var appServiceProvider = serviceCollection
-            .AddDbContext<ConstructorTestContext1A>(
-                (p, b) => b.UseInternalServiceProvider(p))
+            .AddDbContext<ConstructorTestContext1A>((p, b) => b.UseInternalServiceProvider(p))
             .BuildServiceProvider(validateScopes: true);
 
         using var serviceScope = appServiceProvider
@@ -671,9 +670,7 @@ public class RelationalConnectionTest
         Assert.Equal(0, connection.DbConnections.Count);
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public async Task Connection_is_opened_and_closed_by_using_transaction(bool async)
     {
         using var connection = new FakeRelationalConnection(
@@ -706,9 +703,7 @@ public class RelationalConnectionTest
         Assert.Equal(1, dbConnection.CloseCount);
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public async Task Transaction_can_begin_with_isolation_level(bool async)
     {
         using var connection = new FakeRelationalConnection(
@@ -805,9 +800,7 @@ public class RelationalConnectionTest
         Assert.Null(connection.CurrentTransaction);
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public async Task Commit_calls_Commit_on_DbTransaction(bool async)
     {
         using var connection = new FakeRelationalConnection(
@@ -841,9 +834,7 @@ public class RelationalConnectionTest
         Assert.Null(connection.CurrentTransaction);
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public async Task Rollback_calls_Rollback_on_DbTransaction(bool async)
     {
         using var connection = new FakeRelationalConnection(
@@ -901,10 +892,9 @@ public class RelationalConnectionTest
 
     [ConditionalFact]
     public void Throws_if_create_new_connection_with_CommandTimeout_negative()
-        => Assert.Throws<InvalidOperationException>(
-            () => new FakeRelationalOptionsExtension()
-                .WithConnectionString("Database=FrodoLives")
-                .WithCommandTimeout(-1));
+        => Assert.Throws<InvalidOperationException>(() => new FakeRelationalOptionsExtension()
+            .WithConnectionString("Database=FrodoLives")
+            .WithCommandTimeout(-1));
 
     [ConditionalFact]
     public void Can_set_CommandTimeout()
@@ -931,26 +921,23 @@ public class RelationalConnectionTest
     {
         using var connection = new FakeRelationalConnection(
             CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives")));
-        Assert.Throws<ArgumentException>(
-            () => connection.CommandTimeout = -1);
+        Assert.Throws<ArgumentException>(() => connection.CommandTimeout = -1);
     }
 
     [ConditionalFact]
     public void Throws_if_no_relational_store_configured()
         => Assert.Equal(
             RelationalStrings.NoProviderConfigured,
-            Assert.Throws<InvalidOperationException>(
-                () => new FakeRelationalConnection(CreateOptions())).Message);
+            Assert.Throws<InvalidOperationException>(() => new FakeRelationalConnection(CreateOptions())).Message);
 
     [ConditionalFact]
     public void Throws_if_multiple_relational_stores_configured()
         => Assert.Equal(
             RelationalStrings.MultipleProvidersConfigured,
-            Assert.Throws<InvalidOperationException>(
-                () => new FakeRelationalConnection(
-                    CreateOptions(
-                        new FakeRelationalOptionsExtension(),
-                        new AnotherFakeRelationalOptionsExtension()))).Message);
+            Assert.Throws<InvalidOperationException>(() => new FakeRelationalConnection(
+                CreateOptions(
+                    new FakeRelationalOptionsExtension(),
+                    new AnotherFakeRelationalOptionsExtension()))).Message);
 
     private class AnotherFakeRelationalOptionsExtension : RelationalOptionsExtension
     {
@@ -1012,8 +999,7 @@ public class RelationalConnectionTest
 
         Assert.Equal(
             RelationalStrings.NoActiveTransaction,
-            Assert.Throws<InvalidOperationException>(
-                () => connection.CommitTransaction()).Message);
+            Assert.Throws<InvalidOperationException>(() => connection.CommitTransaction()).Message);
     }
 
     [ConditionalFact]
@@ -1025,8 +1011,7 @@ public class RelationalConnectionTest
 
         Assert.Equal(
             RelationalStrings.NoActiveTransaction,
-            Assert.Throws<InvalidOperationException>(
-                () => connection.RollbackTransaction()).Message);
+            Assert.Throws<InvalidOperationException>(() => connection.RollbackTransaction()).Message);
     }
 
     [ConditionalFact]
@@ -1097,6 +1082,79 @@ public class RelationalConnectionTest
                 Assert.Same(connection.DbConnection, eventData.Connection);
                 Assert.True(eventData.IsAsync);
             });
+    }
+
+    [ConditionalFact]
+    public void HandleTransactionCompleted_with_concurrent_ClearTransactions_is_thread_safe()
+    {
+        // This test verifies the fix for the race condition where HandleTransactionCompleted
+        // could be called on a different thread while ClearTransactions is executing.
+        var exceptions = new List<Exception>();
+        for (var i = 0; i < Environment.ProcessorCount; i++)
+        {
+            var connection = new FakeRelationalConnection(
+                CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=ConcurrencyTest")));
+
+            using var scope = new TransactionScope();
+            connection.Open();
+
+            var random = new Random();
+            var resetFirst = random.Next(0, 1) == 0;
+            var tasks = new Task[2];
+            tasks[0] = Task.Run(async () =>
+            {
+                try
+                {
+                    // Small delay to increase chance of race condition
+                    await Task.Yield();
+
+                    if (resetFirst)
+                    {
+                        ((IResettableService)connection).ResetState();
+                    }
+                    else
+                    {
+                        scope.Complete();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    lock (exceptions)
+                    {
+                        exceptions.Add(ex);
+                    }
+                }
+            });
+
+            tasks[1] = Task.Run(async () =>
+            {
+                try
+                {
+                    // Small delay to increase chance of race condition
+                    await Task.Yield();
+
+                    if (resetFirst)
+                    {
+                        scope.Complete();
+                    }
+                    else
+                    {
+                        ((IResettableService)connection).ResetState();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    lock (exceptions)
+                    {
+                        exceptions.Add(ex);
+                    }
+                }
+            });
+
+            Task.WaitAll(tasks, TimeSpan.FromSeconds(10));
+        }
+
+        Assert.Empty(exceptions);
     }
 
     private static IDbContextOptions CreateOptions(params RelationalOptionsExtension[] optionsExtensions)

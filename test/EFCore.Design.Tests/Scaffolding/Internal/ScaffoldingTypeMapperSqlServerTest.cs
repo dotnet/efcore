@@ -10,9 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 
 public class ScaffoldingTypeMapperSqlServerTest
 {
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public void Maps_int_column(bool isKeyOrIndex)
     {
         var mapping = CreateMapper().FindMapping("int", isKeyOrIndex, rowVersion: false);
@@ -20,9 +18,7 @@ public class ScaffoldingTypeMapperSqlServerTest
         AssertMapping<int>(mapping, inferred: true, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public void Maps_bigint_column(bool isKeyOrIndex)
     {
         var mapping = CreateMapper().FindMapping("bigint", isKeyOrIndex, rowVersion: false);
@@ -30,9 +26,7 @@ public class ScaffoldingTypeMapperSqlServerTest
         AssertMapping<long>(mapping, inferred: true, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public void Maps_default_decimal_column(bool isKeyOrIndex)
     {
         var mapping = CreateMapper().FindMapping("decimal(18,2)", isKeyOrIndex, rowVersion: false);
@@ -41,9 +35,7 @@ public class ScaffoldingTypeMapperSqlServerTest
             mapping, inferred: true, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public void Maps_non_default_decimal_column(bool isKeyOrIndex)
     {
         var mapping = CreateMapper().FindMapping("decimal(14,3)", isKeyOrIndex, rowVersion: false);
@@ -51,9 +43,7 @@ public class ScaffoldingTypeMapperSqlServerTest
         AssertMapping<decimal>(mapping, inferred: true, maxLength: null, unicode: null, fixedLength: null, precision: 14, scale: 3);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public void Maps_numeric_column(bool isKeyOrIndex)
     {
         var mapping = CreateMapper().FindMapping("numeric(17,4)", isKeyOrIndex, rowVersion: false);
@@ -62,9 +52,7 @@ public class ScaffoldingTypeMapperSqlServerTest
             mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public void Maps_bit_column(bool isKeyOrIndex)
     {
         var mapping = CreateMapper().FindMapping("bit", isKeyOrIndex, rowVersion: false);
@@ -72,9 +60,7 @@ public class ScaffoldingTypeMapperSqlServerTest
         AssertMapping<bool>(mapping, inferred: true, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public void Maps_datetime_column(bool isKeyOrIndex)
     {
         var mapping = CreateMapper().FindMapping("datetime", isKeyOrIndex, rowVersion: false);
@@ -83,9 +69,7 @@ public class ScaffoldingTypeMapperSqlServerTest
             mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public void Maps_datetime2_column(bool isKeyOrIndex)
     {
         var mapping = CreateMapper().FindMapping("datetime2", isKeyOrIndex, rowVersion: false);
