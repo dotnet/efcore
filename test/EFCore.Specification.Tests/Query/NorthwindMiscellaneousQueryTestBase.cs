@@ -1848,6 +1848,38 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture>(TFixture fix
                 select new { c, e },
             assertOrder: true);
 
+    // DefaultIfEmpty() over empty set followed by Select() to a non-nullable type - should throw "Nullable object must have a value".
+    // (same happens for DefaultIfEmpty().Select() at the toplevel without SelectMany)
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))] // #35950
+    public virtual Task SelectMany_correlated_with_DefaultIfEmpty_and_Select_value_type_in_selector_throws(bool async)
+        => Assert.ThrowsAsync<InvalidOperationException>(
+            () => AssertQuery(
+                async,
+                ss =>
+                    from c in ss.Set<Customer>()
+                    from o in c.Orders
+                        .Where(x => x.CustomerID == "NONEXISTENT") // Produce empty set for DefaultIfEmpty
+                        .DefaultIfEmpty()
+                        .Select(x => x.OrderID)
+                    select o));
+
+    // DefaultIfEmpty() after Select() to a non-nullable type - should add a COALESCE to the CLR default (0 here).
+    // Note that within the SelectMany selector, DIE is lifted out (and the INNER JOIN/CROSS APPLY is converted to
+    // LEFT JOIN/OUTER APPLY). But the COALESCE must still be applied.
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))] // #35950
+    public virtual Task SelectMany_correlated_with_Select_value_type_and_DefaultIfEmpty_in_selector(bool async)
+        => AssertQuery(
+            async,
+            ss =>
+                from c in ss.Set<Customer>()
+                from o in c.Orders
+                    .Where(x => x.CustomerID == "NONEXISTENT") // Produce empty set for DefaultIfEmpty
+                    .Take(2)
+                    .OrderBy(x => true)
+                    .Select(x => x.OrderID)
+                    .DefaultIfEmpty()
+                select o);
+
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task SelectMany_correlated_subquery_hard(bool async)
         => AssertQuery(
@@ -3582,7 +3614,7 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture>(TFixture fix
             assertOrder: true);
 
     private static IEnumerable<TElement> ClientDefaultIfEmpty<TElement>(IEnumerable<TElement> source)
-        => source?.Count() == 0 ? [default(TElement)] : source;
+        => source?.Count() == 0 ? [default] : source;
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Complex_query_with_repeated_query_model_compiles_correctly(bool async)

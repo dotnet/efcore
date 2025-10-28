@@ -62,26 +62,20 @@ public class SqlServerDatabaseFacadeExtensionsTest
     [ConditionalFact]
     public void Setting_CommandTimeout_to_negative_value_throws()
     {
-        Assert.Throws<InvalidOperationException>(
-            () => new DbContextOptionsBuilder().UseSqlServer(
-                "No=LoveyDovey",
-                b => b.CommandTimeout(-55)));
+        Assert.Throws<InvalidOperationException>(() => new DbContextOptionsBuilder().UseSqlServer(
+            "No=LoveyDovey",
+            b => b.CommandTimeout(-55)));
 
         using var context = new TimeoutContext();
         Assert.Null(context.Database.GetCommandTimeout());
 
-        Assert.Throws<ArgumentException>(
-            () => context.Database.SetCommandTimeout(-3));
-        Assert.Throws<ArgumentException>(
-            () => context.Database.SetCommandTimeout(TimeSpan.FromSeconds(-3)));
+        Assert.Throws<ArgumentException>(() => context.Database.SetCommandTimeout(-3));
+        Assert.Throws<ArgumentException>(() => context.Database.SetCommandTimeout(TimeSpan.FromSeconds(-3)));
 
-        Assert.Throws<ArgumentException>(
-            () => context.Database.SetCommandTimeout(-99));
-        Assert.Throws<ArgumentException>(
-            () => context.Database.SetCommandTimeout(TimeSpan.FromSeconds(-99)));
+        Assert.Throws<ArgumentException>(() => context.Database.SetCommandTimeout(-99));
+        Assert.Throws<ArgumentException>(() => context.Database.SetCommandTimeout(TimeSpan.FromSeconds(-99)));
 
-        Assert.Throws<ArgumentException>(
-            () => context.Database.SetCommandTimeout(TimeSpan.FromSeconds(uint.MaxValue)));
+        Assert.Throws<ArgumentException>(() => context.Database.SetCommandTimeout(TimeSpan.FromSeconds(uint.MaxValue)));
     }
 
     public class TimeoutContext : DbContext
@@ -136,11 +130,10 @@ public class SqlServerDatabaseFacadeExtensionsTest
         using var context = new SqlServerUseInOnConfiguringContext();
         Assert.Equal(
             CoreStrings.RecursiveOnConfiguring,
-            Assert.Throws<InvalidOperationException>(
-                () =>
-                {
-                    var _ = context.Model; // Trigger context initialization
-                }).Message);
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                var _ = context.Model; // Trigger context initialization
+            }).Message);
     }
 
     [ConditionalFact]
@@ -184,11 +177,10 @@ public class SqlServerDatabaseFacadeExtensionsTest
                 .UseSqlServer("Database=Maltesers").Options);
         Assert.Equal(
             CoreStrings.RecursiveOnConfiguring,
-            Assert.Throws<InvalidOperationException>(
-                () =>
-                {
-                    var _ = context.Model; // Trigger context initialization
-                }).Message);
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                var _ = context.Model; // Trigger context initialization
+            }).Message);
     }
 
     [ConditionalFact]

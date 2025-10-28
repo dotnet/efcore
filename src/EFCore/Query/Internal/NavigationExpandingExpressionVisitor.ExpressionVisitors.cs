@@ -48,7 +48,7 @@ public partial class NavigationExpandingExpressionVisitor
         protected override Expression VisitMember(MemberExpression memberExpression)
         {
             var innerExpression = Visit(memberExpression.Expression);
-            return TryExpandRelationship(innerExpression, MemberIdentity.Create(memberExpression.Member))
+            return TryExpandRelationship(innerExpression, MemberIdentity.Create(memberExpression.Member), memberExpression)
                 ?? memberExpression.Update(innerExpression);
         }
 
@@ -57,21 +57,21 @@ public partial class NavigationExpandingExpressionVisitor
             if (methodCallExpression.TryGetEFPropertyArguments(out var source, out var navigationName))
             {
                 source = Visit(source);
-                return TryExpandRelationship(source, MemberIdentity.Create(navigationName))
+                return TryExpandRelationship(source, MemberIdentity.Create(navigationName), methodCallExpression)
                     ?? methodCallExpression.Update(null, [source, methodCallExpression.Arguments[1]]);
             }
 
             if (methodCallExpression.TryGetIndexerArguments(Model, out source, out navigationName))
             {
                 source = Visit(source);
-                return TryExpandRelationship(source, MemberIdentity.Create(navigationName))
+                return TryExpandRelationship(source, MemberIdentity.Create(navigationName), methodCallExpression)
                     ?? methodCallExpression.Update(source, [methodCallExpression.Arguments[0]]);
             }
 
             return base.VisitMethodCall(methodCallExpression);
         }
 
-        private Expression? TryExpandRelationship(Expression? root, MemberIdentity memberIdentity)
+        private Expression? TryExpandRelationship(Expression? root, MemberIdentity memberIdentity, Expression originalExpression)
         {
             if (root == null)
             {
@@ -130,7 +130,7 @@ public partial class NavigationExpandingExpressionVisitor
                         : null;
                 if (complexProperty is not null)
                 {
-                    return new ComplexPropertyReference(root, complexProperty);
+                    return new ComplexPropertyReference(root, complexProperty, originalExpression);
                 }
 
                 var property = memberIdentity.MemberInfo != null
@@ -1020,8 +1020,14 @@ public partial class NavigationExpandingExpressionVisitor
                     return Visit(queryablePropertyReference.Parent).CreateEFPropertyExpression(queryablePropertyReference.Property);
 
                 case ComplexPropertyReference complexPropertyReference:
-                    return Visit(complexPropertyReference.Parent).CreateEFPropertyExpression(
-                        complexPropertyReference.Property, makeNullable: false);
+                    return complexPropertyReference.OriginalExpression switch
+                    {
+                        MemberExpression e
+                            => e.Update(Visit(complexPropertyReference.Parent)),
+                        MethodCallExpression e when e.Method.IsEFPropertyMethod()
+                            => e.Update(@object: null, [Visit(complexPropertyReference.Parent), e.Arguments[1]]),
+                        _ => throw new UnreachableException()
+                    };
 
                 case IncludeExpression includeExpression:
                     var entityExpression = Visit(includeExpression.EntityExpression);

@@ -1474,10 +1474,9 @@ CROSS APPLY (
         SelectMany_with_collection_being_correlated_subquery_which_references_non_mapped_properties_from_inner_and_outer_entity(
             bool async)
     {
-        await AssertUnableToTranslateEFProperty(
-            () => base
-                .SelectMany_with_collection_being_correlated_subquery_which_references_non_mapped_properties_from_inner_and_outer_entity(
-                    async));
+        await AssertUnableToTranslateEFProperty(() => base
+            .SelectMany_with_collection_being_correlated_subquery_which_references_non_mapped_properties_from_inner_and_outer_entity(
+                async));
 
         AssertSql();
     }
@@ -2252,8 +2251,8 @@ ORDER BY [o0].[OrderDate], [o0].[CustomerID]
         // Identifier set for Distinct. Issue #24440.
         Assert.Equal(
             RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Correlated_collection_after_distinct_with_complex_projection_not_containing_original_identifier(async)))
+            (await Assert.ThrowsAsync<InvalidOperationException>(()
+                => base.Correlated_collection_after_distinct_with_complex_projection_not_containing_original_identifier(async)))
             .Message);
 
         AssertSql();

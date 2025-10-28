@@ -33,6 +33,7 @@ public abstract class ComplexTypeQueryFixtureBase : SharedStoreFixtureBase<Poola
 
             cb.ComplexProperty(c => c.ShippingAddress, sab => sab.ComplexProperty(sa => sa.Country));
             cb.ComplexProperty(c => c.BillingAddress, sab => sab.ComplexProperty(sa => sa.Country));
+            cb.ComplexProperty(c => c.OptionalAddress, sab => sab.ComplexProperty(sa => sa.Country));
         });
 
         modelBuilder.Entity<CustomerGroup>(cgb =>

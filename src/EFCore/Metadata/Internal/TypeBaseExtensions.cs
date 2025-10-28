@@ -44,8 +44,7 @@ public static class TypeBaseExtensions
 
         return !property.DeclaringType.IsAssignableFrom(structuralType)
             && (!((IRuntimeTypeBase)property.DeclaringType).ContainingEntryType.IsAssignableFrom(structuralType)
-                || (property.DeclaringType is IComplexType complexType
-                    && complexType.ComplexProperty.IsCollection))
+                || property.DeclaringType is IComplexType { ComplexProperty.IsCollection: true })
             && structuralType.ClrType != typeof(object) // For testing
                 ? throw new InvalidOperationException(
                     CoreStrings.PropertyDoesNotBelong(property.Name, property.DeclaringType.DisplayName(), structuralType.DisplayName()))

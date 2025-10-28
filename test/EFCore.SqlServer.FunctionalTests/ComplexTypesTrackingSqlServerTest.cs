@@ -216,6 +216,7 @@ public class ComplexTypesTrackingProxiesSqlServerTest(
     public override void Can_handle_collection_with_mixed_null_and_duplicate_elements(bool trackFromQuery)
     {
     }
+
     // Issue #36175: Complex types with notification change tracking are not supported
     public override void Can_detect_changes_to_record_collection_elements(bool trackFromQuery)
     {

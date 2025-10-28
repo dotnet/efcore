@@ -17,8 +17,7 @@ public abstract class InheritanceBulkUpdatesRelationalTestBase<TFixture> : Inher
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Delete_where_keyless_entity_mapped_to_sql_query(bool async)
         => AssertTranslationFailed(
             RelationalStrings.ExecuteOperationOnKeylessEntityTypeWithUnsupportedOperator("ExecuteDelete", "EagleQuery"),
@@ -27,8 +26,7 @@ public abstract class InheritanceBulkUpdatesRelationalTestBase<TFixture> : Inher
                 ss => ss.Set<EagleQuery>().Where(e => e.CountryId > 0),
                 rowsAffectedCount: 1));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Update_where_keyless_entity_mapped_to_sql_query(bool async)
         => AssertTranslationFailed(
             RelationalStrings.ExecuteOperationOnKeylessEntityTypeWithUnsupportedOperator("ExecuteUpdate", "EagleQuery"),
@@ -40,9 +38,12 @@ public abstract class InheritanceBulkUpdatesRelationalTestBase<TFixture> : Inher
                 rowsAffectedCount: 1));
 
     protected static async Task AssertTranslationFailed(string details, Func<Task> query)
-        => Assert.Contains(
-            CoreStrings.NonQueryTranslationFailedWithDetails("", details)[21..],
-            (await Assert.ThrowsAsync<InvalidOperationException>(query)).Message);
+    {
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(query);
+        Assert.StartsWith(CoreStrings.NonQueryTranslationFailed("")[0..^1], exception.Message);
+        var innerException = Assert.IsType<InvalidOperationException>(exception.InnerException);
+        Assert.Equal(details, innerException.Message);
+    }
 
     protected virtual void ClearLog()
         => Fixture.TestSqlLoggerFactory.Clear();

@@ -1327,16 +1327,27 @@ public abstract class NorthwindWhereQueryTestBase<TFixture>(TFixture fixture) : 
                 .Select(c => c.CustomerID));
     }
 
+    private readonly string customerId = "ALFKI";
+
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Two_parameters_with_same_name_get_uniquified(bool async)
     {
-        var i = 10;
+        var customerId = "ANATR";
 
-        // i+1 and i+2 each get parameterized using the same parameter name (since they're complex expressions).
-        // This exercises that query parameters are properly uniquified.
         return AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => (c.CustomerID + (i + 1)) + (c.CustomerID + (i + 2)) == "ALFKI11ALFKI12"));
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == customerId || c.CustomerID == this.customerId));
+    }
+
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Two_parameters_with_same_case_insensitive_name_get_uniquified(bool async)
+    {
+        var customerID = "ANATR";
+
+        // Note the parameter names differ only by case (customerID vs. customerId)
+        return AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == customerID || c.CustomerID == customerId));
     }
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]

@@ -13,14 +13,12 @@ public abstract class NorthwindWhereQueryRelationalTestBase<TFixture>(TFixture f
     public override Task Where_bool_client_side_negated(bool async)
         => AssertTranslationFailed(() => base.Where_bool_client_side_negated(async));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task EF_MultipleParameters_with_non_evaluatable_argument_throws(bool async)
     {
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
-            () => AssertQuery(
-                async,
-                ss => ss.Set<Customer>().Where(c => c.Orders == EF.MultipleParameters(c.Orders))));
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.Orders == EF.MultipleParameters(c.Orders))));
 
         Assert.Equal(CoreStrings.EFMethodWithNonEvaluatableArgument("EF.MultipleParameters<T>"), exception.Message);
     }

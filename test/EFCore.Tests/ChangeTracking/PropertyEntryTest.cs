@@ -69,7 +69,12 @@ public class PropertyEntryTest
 
         using (var context = new UserContext())
         {
-            var disconnectedEntity = new User { Id = id, Name = "", LongName = "NewLongName" };
+            var disconnectedEntity = new User
+            {
+                Id = id,
+                Name = "",
+                LongName = "NewLongName"
+            };
             var trackedEntity = context.Find<User>(id)!;
 
             Assert.Equal("A", trackedEntity.Name);
@@ -124,12 +129,11 @@ public class PropertyEntryTest
                 .UseInMemoryDatabase(GetType().FullName!);
 
         protected internal override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<User>(
-                b =>
-                {
-                    b.Property(e => e.Name).IsRequired();
-                    b.Property(e => e.LongName).IsRequired();
-                });
+            => modelBuilder.Entity<User>(b =>
+            {
+                b.Property(e => e.Name).IsRequired();
+                b.Property(e => e.LongName).IsRequired();
+            });
     }
 
     [ConditionalFact]
@@ -152,7 +156,12 @@ public class PropertyEntryTest
         using (var context = new UserContext())
         {
             var user = context.Update(
-                new User { Id = id, Name = "A1", LongName = "B1" }).Entity;
+                new User
+                {
+                    Id = id,
+                    Name = "A1",
+                    LongName = "B1"
+                }).Entity;
 
             user.Name = "A2";
             user.LongName = "B2";
@@ -452,15 +461,11 @@ public class PropertyEntryTest
         Assert.True(new PropertyEntry(entry, entry.EntityType.FindProperty("RequiredPrimate")!).IsModified);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Deleted)]
+    [ConditionalTheory, InlineData(EntityState.Added), InlineData(EntityState.Deleted)]
     public void Can_set_and_clear_modified_on_Added_or_Deleted_entity(EntityState initialState)
         => Can_set_and_clear_modified_on_Added_or_Deleted_entity_helper<Wotty>(initialState);
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Deleted)]
+    [ConditionalTheory, InlineData(EntityState.Added), InlineData(EntityState.Deleted)]
     public void Can_set_and_clear_modified_on_Added_or_Deleted_entity_with_object_field(EntityState initialState)
         => Can_set_and_clear_modified_on_Added_or_Deleted_entity_helper<ObjectWotty>(initialState);
 
@@ -494,15 +499,11 @@ public class PropertyEntryTest
         Assert.False(new PropertyEntry(entry, entry.EntityType.FindProperty("RequiredPrimate")!).IsModified);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Detached)]
-    [InlineData(EntityState.Unchanged)]
+    [ConditionalTheory, InlineData(EntityState.Detached), InlineData(EntityState.Unchanged)]
     public void Can_set_and_clear_modified_on_Unchanged_or_Detached_entity(EntityState initialState)
         => Can_set_and_clear_modified_on_Unchanged_or_Detached_entity_helper<Wotty>(initialState);
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Detached)]
-    [InlineData(EntityState.Unchanged)]
+    [ConditionalTheory, InlineData(EntityState.Detached), InlineData(EntityState.Unchanged)]
     public void Can_set_and_clear_modified_on_Unchanged_or_Detached_entity_with_object_field(EntityState initialState)
         => Can_set_and_clear_modified_on_Unchanged_or_Detached_entity_helper<ObjectWotty>(initialState);
 
@@ -4665,29 +4666,25 @@ public class PropertyEntryTest
 
         builder.HasChangeTrackingStrategy(fullNotificationStrategy);
 
-        builder.Entity<Wotty>(
-            b =>
-            {
-                b.Property(e => e.RequiredPrimate).IsRequired();
-                b.HasChangeTrackingStrategy(ChangeTrackingStrategy.Snapshot);
-            });
+        builder.Entity<Wotty>(b =>
+        {
+            b.Property(e => e.RequiredPrimate).IsRequired();
+            b.HasChangeTrackingStrategy(ChangeTrackingStrategy.Snapshot);
+        });
 
-        builder.Entity<ObjectWotty>(
-            b =>
-            {
-                b.Property(e => e.RequiredPrimate).IsRequired();
-                b.HasChangeTrackingStrategy(ChangeTrackingStrategy.Snapshot);
-            });
+        builder.Entity<ObjectWotty>(b =>
+        {
+            b.Property(e => e.RequiredPrimate).IsRequired();
+            b.HasChangeTrackingStrategy(ChangeTrackingStrategy.Snapshot);
+        });
 
-        builder.Entity<NotifyingWotty>(
-            b => b.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangedNotifications));
+        builder.Entity<NotifyingWotty>(b => b.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangedNotifications));
 
-        builder.Entity<FullyNotifyingWotty>(
-            b =>
-            {
-                b.HasChangeTrackingStrategy(fullNotificationStrategy);
-                b.Property(e => e.ConcurrentPrimate).IsConcurrencyToken();
-            });
+        builder.Entity<FullyNotifyingWotty>(b =>
+        {
+            b.HasChangeTrackingStrategy(fullNotificationStrategy);
+            b.Property(e => e.ConcurrentPrimate).IsConcurrencyToken();
+        });
 
         return finalize ? builder.Model.FinalizeModel() : (IModel)builder.Model;
     }
@@ -4709,77 +4706,76 @@ public class PropertyEntryTest
                 .UseInMemoryDatabase(GetType().FullName!);
 
         protected internal override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<Yogurt>(
-                b =>
-                {
-                    b.ComplexProperty(
-                        e => e.Culture, b =>
-                        {
-                            b.ComplexProperty(
-                                e => e.License, b =>
-                                {
-                                    b.ComplexProperty(e => e.Tag);
-                                    b.ComplexProperty(e => e.Tog);
-                                });
-                            b.ComplexProperty(
-                                e => e.Manufacturer, b =>
-                                {
-                                    b.ComplexProperty(e => e.Tag);
-                                    b.ComplexProperty(e => e.Tog);
-                                });
-                        });
+            => modelBuilder.Entity<Yogurt>(b =>
+            {
+                b.ComplexProperty(
+                    e => e.Culture, b =>
+                    {
+                        b.ComplexProperty(
+                            e => e.License, b =>
+                            {
+                                b.ComplexProperty(e => e.Tag);
+                                b.ComplexProperty(e => e.Tog);
+                            });
+                        b.ComplexProperty(
+                            e => e.Manufacturer, b =>
+                            {
+                                b.ComplexProperty(e => e.Tag);
+                                b.ComplexProperty(e => e.Tog);
+                            });
+                    });
 
-                    b.ComplexProperty(
-                        e => e.Milk, b =>
-                        {
-                            b.ComplexProperty(
-                                e => e.License, b =>
-                                {
-                                    b.ComplexProperty(e => e.Tag);
-                                    b.ComplexProperty(e => e.Tog);
-                                });
-                            b.ComplexProperty(
-                                e => e.Manufacturer, b =>
-                                {
-                                    b.ComplexProperty(e => e.Tag);
-                                    b.ComplexProperty(e => e.Tog);
-                                });
-                        });
+                b.ComplexProperty(
+                    e => e.Milk, b =>
+                    {
+                        b.ComplexProperty(
+                            e => e.License, b =>
+                            {
+                                b.ComplexProperty(e => e.Tag);
+                                b.ComplexProperty(e => e.Tog);
+                            });
+                        b.ComplexProperty(
+                            e => e.Manufacturer, b =>
+                            {
+                                b.ComplexProperty(e => e.Tag);
+                                b.ComplexProperty(e => e.Tog);
+                            });
+                    });
 
-                    b.ComplexProperty(
-                        e => e.FieldCulture, b =>
-                        {
-                            b.ComplexProperty(
-                                e => e.License, b =>
-                                {
-                                    b.ComplexProperty(e => e.Tag);
-                                    b.ComplexProperty(e => e.Tog);
-                                });
-                            b.ComplexProperty(
-                                e => e.Manufacturer, b =>
-                                {
-                                    b.ComplexProperty(e => e.Tag);
-                                    b.ComplexProperty(e => e.Tog);
-                                });
-                        });
+                b.ComplexProperty(
+                    e => e.FieldCulture, b =>
+                    {
+                        b.ComplexProperty(
+                            e => e.License, b =>
+                            {
+                                b.ComplexProperty(e => e.Tag);
+                                b.ComplexProperty(e => e.Tog);
+                            });
+                        b.ComplexProperty(
+                            e => e.Manufacturer, b =>
+                            {
+                                b.ComplexProperty(e => e.Tag);
+                                b.ComplexProperty(e => e.Tog);
+                            });
+                    });
 
-                    b.ComplexProperty(
-                        e => e.FieldMilk, b =>
-                        {
-                            b.ComplexProperty(
-                                e => e.License, b =>
-                                {
-                                    b.ComplexProperty(e => e.Tag);
-                                    b.ComplexProperty(e => e.Tog);
-                                });
-                            b.ComplexProperty(
-                                e => e.Manufacturer, b =>
-                                {
-                                    b.ComplexProperty(e => e.Tag);
-                                    b.ComplexProperty(e => e.Tog);
-                                });
-                        });
-                });
+                b.ComplexProperty(
+                    e => e.FieldMilk, b =>
+                    {
+                        b.ComplexProperty(
+                            e => e.License, b =>
+                            {
+                                b.ComplexProperty(e => e.Tag);
+                                b.ComplexProperty(e => e.Tog);
+                            });
+                        b.ComplexProperty(
+                            e => e.Manufacturer, b =>
+                            {
+                                b.ComplexProperty(e => e.Tag);
+                                b.ComplexProperty(e => e.Tog);
+                            });
+                    });
+            });
     }
 
     private class PrimateContext(ChangeTrackingStrategy fullNotificationStrategy = ChangeTrackingStrategy.ChangingAndChangedNotifications)

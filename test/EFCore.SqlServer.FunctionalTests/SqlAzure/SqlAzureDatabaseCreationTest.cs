@@ -35,7 +35,7 @@ public class SqlAzureDatabaseCreationTest
             => optionsBuilder.UseSqlServer(_connectionString, b => b.ApplyConfiguration());
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.HasPerformanceLevelSql("ELASTIC_POOL ( name = unicornhack )");
+            => modelBuilder.HasPerformanceLevelSql($"ELASTIC_POOL ( name = {TestEnvironment.ElasticPoolName} )");
     }
 
     [ConditionalFact]

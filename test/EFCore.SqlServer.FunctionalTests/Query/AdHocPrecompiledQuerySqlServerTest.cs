@@ -84,7 +84,7 @@ FROM [NonPublicEntities] AS [n]
         await base.Projecting_expression_requiring_converter_without_closure_works();
 
         AssertSql(
-"""
+            """
 SELECT [b].[AudiobookDate]
 FROM [Books] AS [b]
 """);
@@ -95,7 +95,7 @@ FROM [Books] AS [b]
         await base.Projecting_entity_with_property_requiring_converter_with_closure_works();
 
         AssertSql(
-"""
+            """
 SELECT [b].[Id], [b].[AudiobookDate], [b].[Name], [b].[PublishDate]
 FROM [Books] AS [b]
 """);

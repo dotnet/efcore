@@ -70,10 +70,14 @@ public class SqlServerConnectionTest
             .Options;
 
         using var connection = new SqlServerConnection(CreateDependencies(options));
-        Assert.StartsWith("""Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=SqlServerConnectionTest;Application Name="EFCore/""", connection.ConnectionString);
+        Assert.StartsWith(
+            """Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=SqlServerConnectionTest;Application Name="EFCore/""",
+            connection.ConnectionString);
 
         connection.ConnectionString = """Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=SomeOtherDatabase""";
-        Assert.StartsWith("""Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=SomeOtherDatabase;Application Name="EFCore/""", connection.ConnectionString);
+        Assert.StartsWith(
+            """Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=SomeOtherDatabase;Application Name="EFCore/""",
+            connection.ConnectionString);
     }
 
     [ConditionalFact]
@@ -84,10 +88,13 @@ public class SqlServerConnectionTest
             .Options;
 
         using var connection = new SqlServerConnection(CreateDependencies(options));
-        Assert.Equal("""Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=SqlServerConnectionTest;Application Name=foo""", connection.ConnectionString);
+        Assert.Equal(
+            """Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=SqlServerConnectionTest;Application Name=foo""",
+            connection.ConnectionString);
 
         connection.ConnectionString = """Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=SomeOtherDatabase;Application Name=foo""";
-        Assert.Equal("""Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=SomeOtherDatabase;Application Name=foo""", connection.ConnectionString);
+        Assert.Equal(
+            """Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=SomeOtherDatabase;Application Name=foo""", connection.ConnectionString);
     }
 
     [ConditionalFact]

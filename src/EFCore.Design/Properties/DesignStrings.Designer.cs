@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 name, characters);
 
         /// <summary>
-        ///     Cannot scaffold sequence '{sequenceName}' because it uses type '{typeName}' which is unsupported.
+        ///     Sequence '{sequenceName}' cannot be scaffolded because it uses type '{typeName}' which is unsupported.
         /// </summary>
         public static string BadSequenceType(object? sequenceName, object? typeName)
             => string.Format(
@@ -439,6 +439,22 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 assembly, migrationsAssembly);
 
         /// <summary>
+        ///     MSBuild Workspace diagnostics:{diagnostics}
+        /// </summary>
+        public static string MSBuildWorkspaceDiagnostics(object? diagnostics)
+            => string.Format(
+                GetString("MSBuildWorkspaceDiagnostics", nameof(diagnostics)),
+                diagnostics);
+
+        /// <summary>
+        ///     MSBuild Workspace failure: {kind} - {message}
+        /// </summary>
+        public static string MSBuildWorkspaceFailure(object? kind, object? message)
+            => string.Format(
+                GetString("MSBuildWorkspaceFailure", nameof(kind), nameof(message)),
+                kind, message);
+
+        /// <summary>
         ///     The annotation '{annotationName}' was specified twice with potentially different values. Specifying the same annotation multiple times for different providers is no longer supported. Review the generated Migration to ensure it is correct and, if necessary, edit the Migration to fix any issues.
         /// </summary>
         public static string MultipleAnnotationConflict(object? annotationName)
@@ -551,7 +567,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 file);
 
         /// <summary>
-        ///     The column '{columnName}' would normally be mapped to a non-nullable bool property, but it has a default constraint. Such a column is mapped to a nullable bool property to allow a difference between setting the property to false and invoking the default constraint. See https://go.microsoft.com/fwlink/?linkid=851278 for details.
+        ///     The column '{columnName}' would normally be mapped to a non-nullable bool property, but it has a default constraint. Such a column is mapped to a nullable bool property to allow a difference between setting the property to 'false' and invoking the default constraint. See https://go.microsoft.com/fwlink/?linkid=851278 for details.
         /// </summary>
         public static string NonNullableBoooleanColumnHasDefaultConstraint(object? columnName)
             => string.Format(
@@ -639,7 +655,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 tableName, columnNames);
 
         /// <summary>
-        ///     Metadata model returned should not be null. Provider: {providerTypeName}.
+        ///     Metadata model returned should not be 'null'. Provider: {providerTypeName}.
         /// </summary>
         public static string ProviderReturnedNullModel(object? providerTypeName)
             => string.Format(
@@ -657,6 +673,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static string QueryPrecompilationErrors
             => GetString("QueryPrecompilationErrors");
+
+        /// <summary>
+        ///     Failed to load project for query precompilation. Project: {project}. Error: {error}
+        /// </summary>
+        public static string QueryPrecompilationProjectLoadFailed(object? project, object? error)
+            => string.Format(
+                GetString("QueryPrecompilationProjectLoadFailed", nameof(project), nameof(error)),
+                project, error);
 
         /// <summary>
         ///     No files were generated in directory '{outputDirectoryName}'. The following file(s) already exist(s) and must be made writeable to continue: {readOnlyFiles}.
@@ -725,7 +749,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("SensitiveInformationWarning");
 
         /// <summary>
-        ///     Sequence name cannot be null or empty. Entity Framework cannot model a sequence that does not have a name.
+        ///     Sequence name cannot be 'null' or empty. Entity Framework cannot model a sequence that does not have a name.
         /// </summary>
         public static string SequencesRequireName
             => GetString("SequencesRequireName");
@@ -747,7 +771,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 indexName, columnNames);
 
         /// <summary>
-        ///     Unable to translate type '{type}'
+        ///     Unable to translate type '{type}'.
         /// </summary>
         public static string UnableToTranslateType(object? type)
             => string.Format(

@@ -290,7 +290,7 @@ public class RuntimeModel : RuntimeAnnotatableBase, IRuntimeModel
         => _clrTypeNameMap.GetOrAdd(type, t => t.DisplayName());
 
     private PropertyInfo? FindIndexerPropertyInfo([DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type)
-        => _indexerPropertyInfoMap.GetOrAdd(type, type.FindIndexerProperty());
+        => _indexerPropertyInfoMap.GetOrAdd(type, static t => t.FindIndexerProperty());
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

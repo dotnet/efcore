@@ -2199,10 +2199,7 @@ public abstract class ComplexNavigationsCollectionsQueryTestBase<TFixture>(TFixt
             {
                 l1.Id,
                 Collection = l1.Maybe(x => x.OneToOne_Optional_FK1.Maybe(xx => xx.OneToMany_Optional2.Select(l3
-                    => new
-                    {
-                        ChildId = (int)l3.MaybeScalar(xxx => xxx.Id), ParentName = l1.OneToOne_Optional_FK1.Maybe(xxx => xxx.Name)
-                    })))
+                    => new { ChildId = (int)l3.MaybeScalar(xxx => xxx.Id), ParentName = l1.OneToOne_Optional_FK1.Maybe(xxx => xxx.Name) })))
             }),
             elementSorter: e => e.Id,
             elementAsserter: (e, a) =>

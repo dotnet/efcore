@@ -20,8 +20,7 @@ public class AdHocVectorSearchCosmosTest(NonSharedFixture fixture) : NonSharedMo
     [ConditionalFact]
     public async Task Validate_composite_vector_index_throws()
     {
-        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
-            () => InitializeAsync<ContextCompositeVectorIndex>())).Message;
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(() => InitializeAsync<ContextCompositeVectorIndex>())).Message;
 
         Assert.Equal(
             CosmosStrings.CompositeVectorIndex(
@@ -60,8 +59,8 @@ public class AdHocVectorSearchCosmosTest(NonSharedFixture fixture) : NonSharedMo
     [ConditionalFact]
     public async Task Validate_vector_property_on_collection_navigation_container_creation()
     {
-        var message = (await Assert.ThrowsAsync<NotSupportedException>(
-            () => InitializeAsync<ContextVectorPropertyOnCollectionNavigation>())).Message;
+        var message =
+            (await Assert.ThrowsAsync<NotSupportedException>(() => InitializeAsync<ContextVectorPropertyOnCollectionNavigation>())).Message;
 
         Assert.Equal(
             CosmosStrings.CreatingContainerWithFullTextOrVectorOnCollectionNotSupported("/Collection"),
@@ -89,11 +88,12 @@ public class AdHocVectorSearchCosmosTest(NonSharedFixture fixture) : NonSharedMo
             {
                 b.ToContainer("Entities");
                 b.HasPartitionKey(x => x.PartitionKey);
-                b.OwnsMany(x => x.Collection, bb =>
-                {
-                    bb.Property(x => x.Vector).IsVectorProperty(DistanceFunction.Cosine, 5);
-                    bb.HasIndex(x => x.Vector).IsVectorIndex(VectorIndexType.QuantizedFlat);
-                });
+                b.OwnsMany(
+                    x => x.Collection, bb =>
+                    {
+                        bb.Property(x => x.Vector).IsVectorProperty(DistanceFunction.Cosine, 5);
+                        bb.HasIndex(x => x.Vector).IsVectorIndex(VectorIndexType.QuantizedFlat);
+                    });
             });
     }
 

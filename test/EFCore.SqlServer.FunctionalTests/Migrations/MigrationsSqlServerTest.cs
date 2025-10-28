@@ -215,8 +215,7 @@ CREATE TABLE [People] (
 """);
     }
 
-    [ConditionalFact]
-    [SqlServerCondition(SqlServerCondition.SupportsMemoryOptimized)]
+    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsMemoryOptimized)]
     public virtual async Task Create_memory_optimized_table()
     {
         await Test(
@@ -281,8 +280,7 @@ CREATE TABLE [People] (
 """);
     }
 
-    [ConditionalFact]
-    [SqlServerCondition(SqlServerCondition.SupportsMemoryOptimized)]
+    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsMemoryOptimized)]
     public virtual async Task Create_memory_optimized_temporal_table()
     {
         await Test(
@@ -601,16 +599,10 @@ ALTER TABLE [People] ADD [Birthday] datetime2 NOT NULL DEFAULT '2015-04-12T17:05
 """);
     }
 
-    [ConditionalTheory]
-    [InlineData(0, "", 1234567)]
-    [InlineData(1, ".1", 1234567)]
-    [InlineData(2, ".12", 1234567)]
-    [InlineData(3, ".123", 1234567)]
-    [InlineData(4, ".1234", 1234567)]
-    [InlineData(5, ".12345", 1234567)]
-    [InlineData(6, ".123456", 1234567)]
-    [InlineData(7, ".1234567", 1234567)]
-    [InlineData(7, ".1200000", 1200000)] //should this really output trailing zeros?
+    [ConditionalTheory, InlineData(0, "", 1234567), InlineData(1, ".1", 1234567), InlineData(2, ".12", 1234567),
+     InlineData(3, ".123", 1234567), InlineData(4, ".1234", 1234567), InlineData(5, ".12345", 1234567), InlineData(6, ".123456", 1234567),
+     InlineData(7, ".1234567", 1234567), InlineData(7, ".1200000", 1200000)]
+    //should this really output trailing zeros?
     public async Task Add_column_with_defaultValue_datetime_with_explicit_precision(int precision, string fractionalSeconds, int ticksToAdd)
     {
         await Test(
@@ -632,16 +624,10 @@ ALTER TABLE [People] ADD [Birthday] datetime2({precision}) NOT NULL DEFAULT '201
 """);
     }
 
-    [ConditionalTheory]
-    [InlineData(0, "", 1234567)]
-    [InlineData(1, ".1", 1234567)]
-    [InlineData(2, ".12", 1234567)]
-    [InlineData(3, ".123", 1234567)]
-    [InlineData(4, ".1234", 1234567)]
-    [InlineData(5, ".12345", 1234567)]
-    [InlineData(6, ".123456", 1234567)]
-    [InlineData(7, ".1234567", 1234567)]
-    [InlineData(7, ".1200000", 1200000)] //should this really output trailing zeros?
+    [ConditionalTheory, InlineData(0, "", 1234567), InlineData(1, ".1", 1234567), InlineData(2, ".12", 1234567),
+     InlineData(3, ".123", 1234567), InlineData(4, ".1234", 1234567), InlineData(5, ".12345", 1234567), InlineData(6, ".123456", 1234567),
+     InlineData(7, ".1234567", 1234567), InlineData(7, ".1200000", 1200000)]
+    //should this really output trailing zeros?
     public async Task Add_column_with_defaultValue_datetimeoffset_with_explicit_precision(
         int precision,
         string fractionalSeconds,
@@ -666,16 +652,9 @@ ALTER TABLE [People] ADD [Birthday] datetimeoffset({precision}) NOT NULL DEFAULT
 """);
     }
 
-    [ConditionalTheory]
-    [InlineData(0, "", 1234567)]
-    [InlineData(1, ".1", 1234567)]
-    [InlineData(2, ".12", 1234567)]
-    [InlineData(3, ".123", 1234567)]
-    [InlineData(4, ".1234", 1234567)]
-    [InlineData(5, ".12345", 1234567)]
-    [InlineData(6, ".123456", 1234567)]
-    [InlineData(7, ".1234567", 1234567)]
-    [InlineData(7, ".12", 1200000)]
+    [ConditionalTheory, InlineData(0, "", 1234567), InlineData(1, ".1", 1234567), InlineData(2, ".12", 1234567),
+     InlineData(3, ".123", 1234567), InlineData(4, ".1234", 1234567), InlineData(5, ".12345", 1234567), InlineData(6, ".123456", 1234567),
+     InlineData(7, ".1234567", 1234567), InlineData(7, ".12", 1200000)]
     public async Task Add_column_with_defaultValue_time_with_explicit_precision(int precision, string fractionalSeconds, int ticksToAdd)
     {
         await Test(
@@ -1603,8 +1582,7 @@ CREATE INDEX [IX_People_SomeColumn] ON [People] ([SomeColumn]) INCLUDE ([SomeOth
 """);
     }
 
-    [ConditionalFact]
-    [SqlServerCondition(SqlServerCondition.SupportsMemoryOptimized)]
+    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsMemoryOptimized)]
     public virtual async Task Alter_column_memoryOptimized_with_index()
     {
         await Test(
@@ -2387,8 +2365,8 @@ CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], 
 """);
     }
 
-    [ConditionalFact(Skip = "#19668, Online index operations can only be performed in Enterprise edition of SQL Server")]
-    [SqlServerCondition(SqlServerCondition.SupportsOnlineIndexes)]
+    [ConditionalFact(Skip = "#19668, Online index operations can only be performed in Enterprise edition of SQL Server"),
+     SqlServerCondition(SqlServerCondition.SupportsOnlineIndexes)]
     public virtual async Task Create_index_unique_with_include_and_filter_online()
     {
         await Test(
@@ -2435,8 +2413,8 @@ CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], 
 """);
     }
 
-    [ConditionalFact(Skip = "#19668, Online index operations can only be performed in Enterprise edition of SQL Server")]
-    [SqlServerCondition(SqlServerCondition.SupportsOnlineIndexes)]
+    [ConditionalFact(Skip = "#19668, Online index operations can only be performed in Enterprise edition of SQL Server"),
+     SqlServerCondition(SqlServerCondition.SupportsOnlineIndexes)]
     public virtual async Task Create_index_unique_with_include_filter_online_and_fillfactor()
     {
         await Test(
@@ -2579,10 +2557,8 @@ CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], 
 """);
     }
 
-    [ConditionalTheory]
-    [InlineData(DataCompressionType.None, "NONE")]
-    [InlineData(DataCompressionType.Row, "ROW")]
-    [InlineData(DataCompressionType.Page, "PAGE")]
+    [ConditionalTheory, InlineData(DataCompressionType.None, "NONE"), InlineData(DataCompressionType.Row, "ROW"),
+     InlineData(DataCompressionType.Page, "PAGE")]
     public virtual async Task Create_index_unique_with_include_sortintempdb_and_datacompression(
         DataCompressionType dataCompression,
         string dataCompressionSql)
@@ -2632,8 +2608,7 @@ CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], 
 """);
     }
 
-    [ConditionalFact]
-    [SqlServerCondition(SqlServerCondition.SupportsMemoryOptimized)]
+    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsMemoryOptimized)]
     public virtual async Task Create_index_memoryOptimized_unique_nullable()
     {
         await Test(
@@ -2671,8 +2646,7 @@ ALTER TABLE [People] ADD INDEX [IX_People_Name] NONCLUSTERED ([Name]);
 """);
     }
 
-    [ConditionalFact]
-    [SqlServerCondition(SqlServerCondition.SupportsMemoryOptimized)]
+    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsMemoryOptimized)]
     public virtual async Task Create_index_memoryOptimized_unique_nullable_with_filter()
     {
         await Test(
@@ -2711,8 +2685,7 @@ ALTER TABLE [People] ADD INDEX [IX_People_Name] NONCLUSTERED ([Name]);
 """);
     }
 
-    [ConditionalFact]
-    [SqlServerCondition(SqlServerCondition.SupportsMemoryOptimized)]
+    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsMemoryOptimized)]
     public virtual async Task Create_index_memoryOptimized_unique_nonclustered_not_nullable()
     {
         await Test(

@@ -358,7 +358,8 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
 
                 var companyEntry = context.Entry(company);
                 var employeesProperty = companyEntry.ComplexCollection(c => c.Employees);
-                Assert.Equal(employeesProperty.CurrentValue,
+                Assert.Equal(
+                    employeesProperty.CurrentValue,
                     employeesProperty.GetInfrastructure().GetOriginalValue(employeesProperty.Metadata));
                 company.Employees = null;
 
@@ -463,18 +464,19 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
             {
                 var company = await context.Companies.OrderBy(c => c.Id).FirstAsync();
 
-                company.Employees!.Add(new Employee
-                {
-                    Name = "Employee No Phone",
-                    PhoneNumbers = [], // Empty collection
-                    Address = new Address
+                company.Employees!.Add(
+                    new Employee
                     {
-                        Street = "456 No Phone St",
-                        City = "Quiet City",
-                        PostalCode = "00000",
-                        Country = "USA"
-                    }
-                });
+                        Name = "Employee No Phone",
+                        PhoneNumbers = [], // Empty collection
+                        Address = new Address
+                        {
+                            Street = "456 No Phone St",
+                            City = "Quiet City",
+                            PostalCode = "00000",
+                            Country = "USA"
+                        }
+                    });
 
                 ClearLog();
                 await context.SaveChangesAsync();
@@ -630,33 +632,35 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
         protected override bool ShouldLogCategory(string logCategory)
             => logCategory == DbLoggerCategory.Update.Name;
 
-        protected override Type ContextType => typeof(ComplexCollectionJsonContext);
+        protected override Type ContextType
+            => typeof(ComplexCollectionJsonContext);
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
-        {
-            modelBuilder.Entity<CompanyWithComplexCollections>(b =>
+            => modelBuilder.Entity<CompanyWithComplexCollections>(b =>
             {
                 b.Property(x => x.Id).ValueGeneratedNever();
 
-                b.ComplexCollection(x => x.Contacts, cb =>
-                {
-                    cb.ToJson();
-                    cb.PrimitiveCollection(c => c.PhoneNumbers);
-                });
+                b.ComplexCollection(
+                    x => x.Contacts, cb =>
+                    {
+                        cb.ToJson();
+                        cb.PrimitiveCollection(c => c.PhoneNumbers);
+                    });
 
-                b.ComplexCollection(x => x.Employees, cb =>
-                {
-                    cb.ToJson();
-                    cb.PrimitiveCollection(e => e.PhoneNumbers);
-                    cb.ComplexProperty(e => e.Address);
-                });
+                b.ComplexCollection(
+                    x => x.Employees, cb =>
+                    {
+                        cb.ToJson();
+                        cb.PrimitiveCollection(e => e.PhoneNumbers);
+                        cb.ComplexProperty(e => e.Address);
+                    });
 
-                b.ComplexProperty(x => x.Department, cb =>
-                {
-                    cb.ToJson();
-                });
+                b.ComplexProperty(
+                    x => x.Department, cb =>
+                    {
+                        cb.ToJson();
+                    });
             });
-        }
 
         protected override Task SeedAsync(DbContext context)
         {
@@ -666,16 +670,8 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                 Name = "Test Company",
                 Contacts =
                 [
-                    new Contact
-                    {
-                        Name = "First Contact",
-                        PhoneNumbers = ["555-1234", "555-5678"]
-                    },
-                    new Contact
-                    {
-                        Name = "Second Contact",
-                        PhoneNumbers = ["555-9876", "555-5432"]
-                    }
+                    new Contact { Name = "First Contact", PhoneNumbers = ["555-1234", "555-5678"] },
+                    new Contact { Name = "Second Contact", PhoneNumbers = ["555-9876", "555-5432"] }
                 ],
                 Employees =
                 [
@@ -692,11 +688,7 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                         }
                     }
                 ],
-                Department = new Department
-                {
-                    Name = "Initial Department",
-                    Budget = 10000.00m
-                }
+                Department = new Department { Name = "Initial Department", Budget = 10000.00m }
             };
 
             context.Add(company);

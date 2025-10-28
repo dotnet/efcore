@@ -554,9 +554,16 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
             if (shaperExpression is ProjectionBindingExpression projectionBindingExpression
                 && selectExpression.GetProjection(projectionBindingExpression) is ColumnExpression projectionColumn)
             {
+                // If the inner expression happens to itself be a JsonScalarExpression, simply append the two paths to avoid creating
+                // JSON_VALUE within JSON_VALUE.
+                var (json, path) = jsonArrayColumn is JsonScalarExpression innerJsonScalarExpression
+                    ? (innerJsonScalarExpression.Json,
+                        innerJsonScalarExpression.Path.Append(new(translatedIndex)).ToArray())
+                    : (jsonArrayColumn, [new(translatedIndex)]);
+
                 SqlExpression translation = new JsonScalarExpression(
-                    jsonArrayColumn,
-                    [new PathSegment(translatedIndex)],
+                    json,
+                    path,
                     projectionColumn.Type,
                     projectionColumn.TypeMapping,
                     projectionColumn.IsNullable);
@@ -586,19 +593,123 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    protected override bool TrySerializeScalarToJson(
+        JsonScalarExpression target,
+        SqlExpression value,
+        [NotNullWhen(true)] out SqlExpression? jsonValue)
+    {
+        var providerClrType = (value.TypeMapping!.Converter?.ProviderClrType ?? value.Type).UnwrapNullableType();
+
+        // SQLite has no bool type, so if we simply sent the bool as-is, we'd get 1/0 in the JSON document.
+        // To get an actual unquoted true/false value, we pass "true"/"false" string through the json() minifier, which does this.
+        // See https://sqlite.org/forum/info/91d09974c3754ea6.
+        if (providerClrType == typeof(bool))
+        {
+            jsonValue = _sqlExpressionFactory.Function(
+                "json",
+                [
+                    value is SqlConstantExpression { Value: bool constant }
+                        ? _sqlExpressionFactory.Constant(constant ? "true" : "false")
+                        : _sqlExpressionFactory.Case(
+                        [
+                            new CaseWhenClause(
+                                _sqlExpressionFactory.Equal(value, _sqlExpressionFactory.Constant(true)),
+                                _sqlExpressionFactory.Constant("true")),
+                            new CaseWhenClause(
+                                _sqlExpressionFactory.Equal(value, _sqlExpressionFactory.Constant(false)),
+                                _sqlExpressionFactory.Constant("false"))
+                        ],
+                        elseResult: _sqlExpressionFactory.Constant("null"))
+                ],
+                nullable: true,
+                argumentsPropagateNullability: [true],
+                typeof(string),
+                _typeMappingSource.FindMapping(typeof(string)));
+
+            return true;
+        }
+
+        if (providerClrType == typeof(ulong))
+        {
+            // See #36689
+            throw new InvalidOperationException(SqliteStrings.ExecuteUpdateJsonPartialUpdateDoesNotSupportUlong);
+        }
+
+#pragma warning disable EF9002 // TrySerializeScalarToJson is experimental
+        return base.TrySerializeScalarToJson(target, value, out jsonValue);
+#pragma warning restore EF9002
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override SqlExpression? GenerateJsonPartialUpdateSetter(
+        Expression target,
+        SqlExpression value,
+        ref SqlExpression? existingSetterValue)
+    {
+        var (jsonColumn, path, isJsonScalar) = target switch
+        {
+            JsonScalarExpression { TypeMapping.ElementTypeMapping: null } j => ((ColumnExpression)j.Json, j.Path, true),
+            JsonScalarExpression { TypeMapping.ElementTypeMapping: not null } j => ((ColumnExpression)j.Json, j.Path, false),
+            JsonQueryExpression j => (j.JsonColumn, j.Path, false),
+
+            _ => throw new UnreachableException(),
+        };
+
+        var jsonSet = _sqlExpressionFactory.Function(
+            "json_set",
+            arguments: [
+                existingSetterValue ?? jsonColumn,
+                // Hack: Rendering of JSONPATH strings happens in value generation. We can have a special expression for modify to hold the
+                // IReadOnlyList<PathSegment> (just like Json{Scalar,Query}Expression), but instead we do the slight hack of packaging it
+                // as a constant argument; it will be unpacked and handled in SQL generation.
+                _sqlExpressionFactory.Constant(path, RelationalTypeMapping.NullMapping),
+                // json_set by default assumes text and escapes it.
+                // In order to set a JSON fragment (for nested JSON objects), we need to wrap the JSON text with json(), which makes
+                // json_set understand that it's JSON content and prevents escaping.
+                isJsonScalar
+                    ? value
+                    : _sqlExpressionFactory.Function("json", [value], nullable: true, argumentsPropagateNullability: [true], typeof(string), value.TypeMapping)
+            ],
+            nullable: true,
+            argumentsPropagateNullability: [true, true, true],
+            typeof(string),
+            jsonColumn.TypeMapping);
+
+        if (existingSetterValue is null)
+        {
+            return jsonSet;
+        }
+        else
+        {
+            existingSetterValue = jsonSet;
+            return null;
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     protected override bool IsNaturallyOrdered(SelectExpression selectExpression)
     {
         return selectExpression is
+        {
+            Tables: [var mainTable, ..],
+            Orderings:
+            [
             {
-                Tables: [var mainTable, ..],
-                Orderings:
-                [
-                    {
-                        Expression: ColumnExpression { Name: JsonEachKeyColumnName } orderingColumn,
-                        IsAscending: true
-                    }
-                ]
+                Expression: ColumnExpression { Name: JsonEachKeyColumnName } orderingColumn,
+                IsAscending: true
             }
+            ]
+        }
             && orderingColumn.TableAlias == mainTable.Alias
             && IsJsonEachKeyColumn(selectExpression, orderingColumn);
 

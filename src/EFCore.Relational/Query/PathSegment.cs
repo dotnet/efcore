@@ -31,7 +31,7 @@ public readonly struct PathSegment : IRelationalQuotableExpression
     /// <summary>
     ///     Creates a new <see cref="PathSegment" /> struct representing JSON array element access.
     /// </summary>
-    /// <param name="arrayIndex"><see langword="abstract" />An index of an element which is being accessed in the JSON array.</param>
+    /// <param name="arrayIndex">An index of an element which is being accessed in the JSON array.</param>
     public PathSegment(SqlExpression arrayIndex)
     {
         ArrayIndex = arrayIndex;

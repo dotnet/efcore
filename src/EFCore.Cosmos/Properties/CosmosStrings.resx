@@ -199,10 +199,10 @@
     <value>A FromSqlExpression has an invalid arguments expression type '{expressionType}' or value type '{valueType}'.</value>
   </data>
   <data name="InvalidResourceId" xml:space="preserve">
-    <value>Unable to generate a valid 'id' value to execute a 'ReadItem' query. This usually happens when the value provided for one of the properties is 'null' or an empty string. Please supply a value that's not 'null' or an empty string.</value>
+    <value>Unable to generate a valid 'id' value to execute a 'ReadItem' query. This usually happens when the value provided for one of the properties is 'null' or an empty string. Provide a value that's not 'null' or an empty string.</value>
   </data>
   <data name="IsDiscriminatorMappingCompleteMismatch" xml:space="preserve">
-    <value>The IsDiscriminatorMappingComplete setting was configured to '{isDiscriminatorMappingComplete1}' on '{entityType1}', but on '{entityType2}' it was configured to '{isDiscriminatorMappingComplete2}'. All entity types mapped to the same container '{container}' must be configured with the same IsDiscriminatorMappingComplete value.</value>
+    <value>The IsDiscriminatorMappingComplete setting was configured to '{isDiscriminatorMappingComplete1}' on '{entityType1}', but on '{entityType2}' it was configured to '{isDiscriminatorMappingComplete2}'. All entity types mapped to the same container '{container}' must be configured with the same 'IsDiscriminatorMappingComplete' value.</value>
   </data>
   <data name="JsonPropertyCollision" xml:space="preserve">
     <value>Both properties '{property1}' and '{property2}' on entity type '{entityType}' are mapped to '{storeName}'. Map one of the properties to a different JSON property.</value>
@@ -229,6 +229,10 @@
   <data name="LogExecutedReplaceItem" xml:space="preserve">
     <value>Executed ReplaceItem ({elapsed} ms, {charge} RU) ActivityId='{activityId}', Container='{container}', Id='{id}', Partition='{partitionKey}'</value>
     <comment>Information CosmosEventId.ExecutedReplaceItem string string string string string string?</comment>
+  </data>
+  <data name="LogExecutedTransactionalBatch" xml:space="preserve">
+    <value>Executed TransactionalBatch ({elapsed} ms, {charge} RU) ActivityId='{activityId}', Container='{container}', Partition='{partitionKey}', DocumentIds='{documentIds}'</value>
+    <comment>Information CosmosEventId.ExecutedTransactionalBatch string string string string string string?</comment>
   </data>
   <data name="LogExecutingReadItem" xml:space="preserve">
     <value>Reading resource '{resourceId}' item from container '{containerId}' in partition '{partitionKey}'.</value>
@@ -339,6 +343,12 @@
   </data>
   <data name="ReverseAfterSkipTakeNotSupported" xml:space="preserve">
     <value>Reversing the ordering is not supported when limit or offset are already applied.</value>
+  </data>
+  <data name="SaveChangesAutoTransactionBehaviorAlwaysAtomicity" xml:space="preserve">
+    <value>When using AutoTransactionBehavior.Always with the Cosmos DB provider, all changed entities in a SaveChanges call must be in the same collection and partition and not exceed 100 entities to ensure atomicity.</value>
+  </data>
+  <data name="SaveChangesAutoTransactionBehaviorAlwaysTriggerAtomicity" xml:space="preserve">
+    <value>When using AutoTransactionBehavior.Always with the Cosmos DB provider, only 1 entity can be saved at a time when using pre- or post- triggers to ensure atomicity.</value>
   </data>
   <data name="SingleFirstOrDefaultNotSupportedOnNonNullableQueries" xml:space="preserve">
     <value>SingleOrDefault and FirstOrDefault cannot be used Cosmos SQL does not allow Offset without Limit. Consider specifying a 'Take' operation on the query.</value>

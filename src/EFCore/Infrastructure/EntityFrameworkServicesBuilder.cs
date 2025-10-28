@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 ///         Framework services.
 ///     </para>
 ///     <para>
-///         Relational providers should use 'EntityFrameworkRelationalServicesBuilder instead.
+///         Relational providers should use 'EntityFrameworkRelationalServicesBuilder' instead.
 ///     </para>
 ///     <para>
 ///         Entity Framework ensures that services are registered with the appropriate scope. In some cases a provider

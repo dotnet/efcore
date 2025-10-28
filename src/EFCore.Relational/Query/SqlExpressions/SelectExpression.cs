@@ -2527,7 +2527,20 @@ public sealed partial class SelectExpression : TableExpressionBase
         _tables.Add(dummySelectExpression);
         _tables.Add(joinTable);
 
+        MakeProjectionNullable(sqlExpressionFactory);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public void MakeProjectionNullable(ISqlExpressionFactory sqlExpressionFactory)
+    {
         // Go over all projected columns and make them nullable; for non-nullable value types, add a SQL COALESCE as well.
+
         var projectionMapping = new Dictionary<ProjectionMember, Expression>();
         foreach (var (projectionMember, projection) in _projectionMapping)
         {
@@ -2885,14 +2898,14 @@ public sealed partial class SelectExpression : TableExpressionBase
                     complexType.GetJsonPropertyName()
                     ?? throw new UnreachableException($"No JSON property name for complex property {complexProperty.Name}"),
                     tableAlias,
-                    complexProperty.ClrType,
+                    complexProperty.ClrType.UnwrapNullableType(),
                     typeMapping: containerColumn.StoreTypeMapping,
                     isComplexTypeNullable)
                 : new ColumnExpression(
                     containerColumn.Name,
                     tableAlias,
                     containerColumn,
-                    complexProperty.ClrType,
+                    complexProperty.ClrType.UnwrapNullableType(),
                     containerColumn.StoreTypeMapping,
                     isComplexTypeNullable);
 

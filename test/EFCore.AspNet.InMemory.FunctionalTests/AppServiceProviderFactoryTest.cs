@@ -3,6 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
 namespace Microsoft.EntityFrameworkCore;
 
@@ -57,6 +58,7 @@ public class AppServiceProviderFactoryTest
     }
 
     [ConditionalFact]
+    [PlatformSkipCondition(TestUtilities.Xunit.TestPlatform.Mac)]
     public void Create_with_no_builder_method()
     {
         var factory = new TestAppServiceProviderFactory(
@@ -84,9 +86,7 @@ public class AppServiceProviderFactoryTest
     private class ProgramWithNoHostBuilder;
 
     private static void ValidateEnvironmentAndArgs(string[] args)
-    {
-        Assert.Equal(args, new[] { "arg1" });
-    }
+        => Assert.Equal(args, new[] { "arg1" });
 
     private static ServiceProvider BuildTestServiceProvider()
         => new ServiceCollection()

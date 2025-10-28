@@ -1415,8 +1415,7 @@ WHERE (((c["$type"] = "Order") AND (c["CustomerID"] = "QUICK")) AND (c["OrderDat
 
     public override async Task Where_navigation_contains(bool async)
     {
-        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
-            () => base.Where_navigation_contains(async))).Message;
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Where_navigation_contains(async))).Message;
 
         Assert.Equal(
             CosmosStrings.NonEmbeddedIncludeNotSupported(
@@ -1530,13 +1529,39 @@ WHERE ((c["$type"] = "Product") AND (true ? false : true))
         AssertSql();
     }
 
-    public override async Task Two_parameters_with_same_name_get_uniquified(bool async)
-    {
-        // Concat with conversion, issue #34963.
-        await AssertTranslationFailed(() => base.Using_same_parameter_twice_in_query_generates_one_sql_parameter(async));
+    public override Task Two_parameters_with_same_name_get_uniquified(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Two_parameters_with_same_name_get_uniquified(async);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+@customerId='ANATR'
+@customerId0='ALFKI'
+
+SELECT VALUE c
+FROM root c
+WHERE ((c["id"] = @customerId) OR (c["id"] = @customerId0))
+""");
+            });
+
+    public override Task Two_parameters_with_same_case_insensitive_name_get_uniquified(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Two_parameters_with_same_case_insensitive_name_get_uniquified(async);
+
+                AssertSql(
+                    """
+@customerID='ANATR'
+@customerId='ALFKI'
+
+SELECT VALUE c
+FROM root c
+WHERE ((c["id"] = @customerID) OR (c["id"] = @customerId))
+""");
+            });
 
     public override async Task Where_Queryable_ToList_Count(bool async)
     {
@@ -2314,24 +2339,23 @@ WHERE (c["id"] = @entity_equality_customer_CustomerID)
     public override async Task EF_Constant(bool async)
     {
         // #34327
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
-            () => base.EF_Constant(async));
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.EF_Constant(async));
         Assert.Equal(CoreStrings.EFConstantNotSupported, exception.Message);
     }
 
     public override async Task EF_Constant_with_subtree(bool async)
     {
         // #34327
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
-            () => base.EF_Constant_with_subtree(async));
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.EF_Constant_with_subtree(async));
         Assert.Equal(CoreStrings.EFConstantNotSupported, exception.Message);
     }
 
     public override async Task EF_Constant_does_not_parameterized_as_part_of_bigger_subtree(bool async)
     {
         // #34327
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
-            () => base.EF_Constant_does_not_parameterized_as_part_of_bigger_subtree(async));
+        var exception =
+            await Assert.ThrowsAsync<InvalidOperationException>(()
+                => base.EF_Constant_does_not_parameterized_as_part_of_bigger_subtree(async));
         Assert.Equal(CoreStrings.EFConstantNotSupported, exception.Message);
     }
 

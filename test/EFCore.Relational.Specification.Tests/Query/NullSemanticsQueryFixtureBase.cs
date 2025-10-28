@@ -123,23 +123,21 @@ public abstract class NullSemanticsQueryFixtureBase : SharedStoreFixtureBase<Nul
 
         modelBuilder.HasDbFunction(
             typeof(NullSemanticsQueryFixtureBase).GetMethod(nameof(Cases))!,
-            b => b.HasTranslation(
-                args => new CaseExpression(
-                [
-                    new CaseWhenClause(args[0], args[1]),
-                    new CaseWhenClause(args[2], args[3]),
-                    new CaseWhenClause(args[4], args[5])
-                ])));
+            b => b.HasTranslation(args => new CaseExpression(
+            [
+                new CaseWhenClause(args[0], args[1]),
+                new CaseWhenClause(args[2], args[3]),
+                new CaseWhenClause(args[4], args[5])
+            ])));
 
         modelBuilder.HasDbFunction(
             typeof(NullSemanticsQueryFixtureBase).GetMethod(nameof(BoolSwitch))!,
-            b => b.HasTranslation(
-                args => new CaseExpression(
-                    operand: args[0],
-                    [
-                        new CaseWhenClause(new SqlConstantExpression(true, typeMapping: args[0].TypeMapping), args[1]),
-                        new CaseWhenClause(new SqlConstantExpression(false, typeMapping: args[0].TypeMapping), args[2])
-                    ])));
+            b => b.HasTranslation(args => new CaseExpression(
+                operand: args[0],
+                [
+                    new CaseWhenClause(new SqlConstantExpression(true, typeMapping: args[0].TypeMapping), args[1]),
+                    new CaseWhenClause(new SqlConstantExpression(false, typeMapping: args[0].TypeMapping), args[2])
+                ])));
     }
 
     public static int? Cases(bool c1, int v1, bool c2, int v2, bool c3, int v3)

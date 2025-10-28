@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Transactions;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
@@ -14,13 +15,13 @@ public class FakeRelationalConnection(IDbContextOptions options = null)
             new DiagnosticsLogger<DbLoggerCategory.Database.Transaction>(
                 new LoggerFactory(),
                 new LoggingOptions(),
-                new ListDiagnosticSource(new List<Tuple<string, object>>()),
+                new ListDiagnosticSource([]),
                 new TestRelationalLoggingDefinitions(),
                 new NullDbContextLogger()),
             new RelationalConnectionDiagnosticsLogger(
                 new LoggerFactory(),
                 new LoggingOptions(),
-                new ListDiagnosticSource(new List<Tuple<string, object>>()),
+                new ListDiagnosticSource([]),
                 new TestRelationalLoggingDefinitions(),
                 new NullDbContextLogger(),
                 CreateOptions()),
@@ -69,6 +70,11 @@ public class FakeRelationalConnection(IDbContextOptions options = null)
 
     public List<Tuple<string, object>> ConnectionDiagnosticEvents
         => ((ListDiagnosticSource)Dependencies.ConnectionLogger.DiagnosticSource).DiagnosticList;
+
+    protected override bool SupportsAmbientTransactions => true;
+
+    protected override void ConnectionEnlistTransaction(Transaction transaction)
+    { }
 
     protected override DbConnection CreateDbConnection()
     {

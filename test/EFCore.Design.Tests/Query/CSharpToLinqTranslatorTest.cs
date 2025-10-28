@@ -44,32 +44,20 @@ public class CSharpToLinqTranslatorTest
             () => "foo" as string,
             """ "foo" as string""");
 
-    [Theory]
-    [InlineData("1 + 2", ExpressionType.Add)]
-    [InlineData("1 - 2", ExpressionType.Subtract)]
-    [InlineData("1 * 2", ExpressionType.Multiply)]
-    [InlineData("1 / 2", ExpressionType.Divide)]
-    [InlineData("1 % 2", ExpressionType.Modulo)]
-    [InlineData("1 & 2", ExpressionType.And)]
-    [InlineData("1 | 2", ExpressionType.Or)]
-    [InlineData("1 ^ 2", ExpressionType.ExclusiveOr)]
-    [InlineData("1 >> 2", ExpressionType.RightShift)]
-    [InlineData("1 << 2", ExpressionType.LeftShift)]
-    [InlineData("1 < 2", ExpressionType.LessThan)]
-    [InlineData("1 <= 2", ExpressionType.LessThanOrEqual)]
-    [InlineData("1 > 2", ExpressionType.GreaterThan)]
-    [InlineData("1 >= 2", ExpressionType.GreaterThanOrEqual)]
-    [InlineData("1 == 2", ExpressionType.Equal)]
-    [InlineData("1 != 2", ExpressionType.NotEqual)]
+    [Theory, InlineData("1 + 2", ExpressionType.Add), InlineData("1 - 2", ExpressionType.Subtract),
+     InlineData("1 * 2", ExpressionType.Multiply), InlineData("1 / 2", ExpressionType.Divide), InlineData("1 % 2", ExpressionType.Modulo),
+     InlineData("1 & 2", ExpressionType.And), InlineData("1 | 2", ExpressionType.Or), InlineData("1 ^ 2", ExpressionType.ExclusiveOr),
+     InlineData("1 >> 2", ExpressionType.RightShift), InlineData("1 << 2", ExpressionType.LeftShift),
+     InlineData("1 < 2", ExpressionType.LessThan), InlineData("1 <= 2", ExpressionType.LessThanOrEqual),
+     InlineData("1 > 2", ExpressionType.GreaterThan), InlineData("1 >= 2", ExpressionType.GreaterThanOrEqual),
+     InlineData("1 == 2", ExpressionType.Equal), InlineData("1 != 2", ExpressionType.NotEqual)]
     public void Binary_int(string code, ExpressionType binaryType)
         => AssertExpression(
             MakeBinary(binaryType, Constant(1), Constant(2)),
             code);
 
-    [Theory]
-    [InlineData("true && false", ExpressionType.AndAlso)]
-    [InlineData("true || false", ExpressionType.OrElse)]
-    [InlineData("true ^ false", ExpressionType.ExclusiveOr)]
+    [Theory, InlineData("true && false", ExpressionType.AndAlso), InlineData("true || false", ExpressionType.OrElse),
+     InlineData("true ^ false", ExpressionType.ExclusiveOr)]
     public void Binary_bool(string code, ExpressionType binaryType)
         => AssertExpression(
             Lambda<Func<bool>>(
@@ -263,18 +251,11 @@ public class CSharpToLinqTranslatorTest
             () => SomeGenericType<int>.SomeGenericFunction<string>(1, "foo"),
             """CSharpToLinqTranslatorTest.SomeGenericType<int>.SomeGenericFunction<string>(1, "foo")""");
 
-    [Theory]
-    [InlineData(
-        """
+    [Theory, InlineData(
+         """
         "hello"
-        """, "hello")]
-    [InlineData("1", 1)]
-    [InlineData("1L", 1L)]
-    [InlineData("1U", 1U)]
-    [InlineData("1UL", 1UL)]
-    [InlineData("1.5D", 1.5)]
-    [InlineData("1.5F", 1.5F)]
-    [InlineData("true", true)]
+        """, "hello"), InlineData("1", 1), InlineData("1L", 1L), InlineData("1U", 1U), InlineData("1UL", 1UL), InlineData("1.5D", 1.5),
+     InlineData("1.5F", 1.5F), InlineData("true", true)]
     public void Literal(string csharpLiteral, object expectedValue)
         => AssertExpression(
             Constant(expectedValue),
@@ -370,10 +351,8 @@ public class CSharpToLinqTranslatorTest
             () => 1,
             "(1)");
 
-    [Theory]
-    [InlineData("+8", 8, ExpressionType.UnaryPlus)]
-    [InlineData("-8", 8, ExpressionType.Negate)]
-    [InlineData("~8", 8, ExpressionType.Not)]
+    [Theory, InlineData("+8", 8, ExpressionType.UnaryPlus), InlineData("-8", 8, ExpressionType.Negate),
+     InlineData("~8", 8, ExpressionType.Not)]
     public void PrefixUnary(string code, object operandValue, ExpressionType expectedNodeType)
         => AssertExpression(
             MakeUnary(expectedNodeType, Constant(8), typeof(int)),
@@ -448,7 +427,7 @@ _ = {code};
 
         var compilation = CSharpCompilation.Create(
             "TestCompilation",
-            syntaxTrees: new[] { syntaxTree },
+            syntaxTrees: [syntaxTree],
             references: MetadataReferences);
 
         var diagnostics = compilation.GetDiagnostics()

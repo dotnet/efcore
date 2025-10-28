@@ -1,7 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
+
 
 // ReSharper disable InconsistentNaming
 
@@ -47,20 +47,22 @@ public partial class RelationalModelValidatorTest
     {
         var modelBuilder = CreateConventionModelBuilder();
 
-        modelBuilder.Entity<WithReadOnlyCollection>(
-            eb =>
-            {
-                eb.Property(e => e.Id);
-                eb.ComplexCollection(e => e.Tags,
-                    cb =>
-                    {
-                        cb.ToJson();
-                        cb.Property(p => p.Key).IsRequired();
-                    });
-            });
+        modelBuilder.Entity<WithReadOnlyCollection>(eb =>
+        {
+            eb.Property(e => e.Id);
+            eb.ComplexCollection(
+                e => e.Tags,
+                cb =>
+                {
+                    cb.ToJson();
+                    cb.Property(p => p.Key).IsRequired();
+                });
+        });
 
         VerifyError(
-            CoreStrings.NonListCollection(nameof(WithReadOnlyCollection), nameof(WithReadOnlyCollection.Tags), "IReadOnlyCollection<JsonbField>", "IList<JsonbField>"),
+            CoreStrings.NonListCollection(
+                nameof(WithReadOnlyCollection), nameof(WithReadOnlyCollection.Tags), "IReadOnlyCollection<JsonbField>",
+                "IList<JsonbField>"),
             modelBuilder);
     }
 
@@ -84,7 +86,7 @@ public partial class RelationalModelValidatorTest
     protected class ComplexCollectionEntity
     {
         public int Id { get; set; }
-        public List<ComplexTag> Tags { get; set; } = new();
+        public List<ComplexTag> Tags { get; set; } = [];
     }
 
     protected class ComplexTag

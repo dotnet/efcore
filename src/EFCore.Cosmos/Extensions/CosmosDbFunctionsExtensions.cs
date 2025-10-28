@@ -99,6 +99,16 @@ public static class CosmosDbFunctionsExtensions
     public static double Rrf(this DbFunctions _, params double[] scores)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Rrf)));
 
+    /// <summary>
+    ///     Combines scores provided by two or more specified functions.
+    /// </summary>
+    /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
+    /// <param name="scores">Scoring function calls to be combined.</param>
+    /// <param name="weights">An array of numbers defining an importance weight for each scoring function.</param>
+    /// <returns>The combined score.</returns>
+    public static double Rrf(this DbFunctions _, double[] scores, double[] weights)
+        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Rrf)));
+
     #region VectorDistance
 
     /// <summary>

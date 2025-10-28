@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
@@ -235,6 +236,16 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
     {
         var method = methodCallExpression.Method;
+
+        if (method.DeclaringType == typeof(RelationalQueryableMethodTranslatingExpressionVisitor)
+            && method.IsGenericMethod
+            && method.GetGenericMethodDefinition() == _fakeDefaultIfEmptyMethodInfo.Value
+            && Visit(methodCallExpression.Arguments[0]) is ShapedQueryExpression source)
+        {
+            ((SelectExpression)source.QueryExpression).MakeProjectionNullable(_sqlExpressionFactory);
+            return source.UpdateShaperExpression(MarkShaperNullable(source.ShaperExpression));
+        }
+
         var translated = base.VisitMethodCall(methodCallExpression);
 
         // For Contains over a collection parameter, if the provider hasn't implemented TranslateCollection (e.g. OPENJSON on SQL
@@ -578,7 +589,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             }
 
             // Otherwise, attempt to translate as Any since that passes through Where predicate translation. This will e.g. take care of
-            // entity , which e.g. does entity equality/containment for entities with composite keys.
+            // entity, which e.g. does entity equality/containment for entities with composite keys.
             var anyLambdaParameter = Expression.Parameter(item.Type, "p");
             var anyLambda = Expression.Lambda(
                 Infrastructure.ExpressionExtensions.CreateEqualsExpression(anyLambdaParameter, item),
@@ -1214,7 +1225,10 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
                 && methodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.DefaultIfEmptyWithoutArgument)
             {
                 _defaultIfEmpty = true;
-                return Visit(methodCallExpression.Arguments[0]);
+
+                return Expression.Call(
+                    _fakeDefaultIfEmptyMethodInfo.Value.MakeGenericMethod(methodCallExpression.Method.GetGenericArguments()[0]),
+                    Visit(methodCallExpression.Arguments[0]));
             }
 
             if (!SupportsLiftingDefaultIfEmpty(methodCallExpression.Method))
@@ -1814,7 +1828,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
 
                 if (TryGetJsonQueryExpression(shaper, out var jsonQueryExpression))
                 {
-                    var newJsonQueryExpression = jsonQueryExpression.BindRelationship(navigation);
+                    var newJsonQueryExpression = jsonQueryExpression.BindStructuralProperty(navigation);
 
                     Debug.Assert(!navigation.IsOnDependent, "JSON navigations should always be from principal do dependent");
 
@@ -2323,6 +2337,13 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
 
         return new ShapedQueryExpression(selectExpression, shaperExpression);
     }
+
+    private static IQueryable<TSource?> FakeDefaultIfEmpty<TSource>(IQueryable<TSource> source)
+        => throw new UnreachableException();
+
+    private static readonly Lazy<MethodInfo> _fakeDefaultIfEmptyMethodInfo = new(
+        () => typeof(RelationalQueryableMethodTranslatingExpressionVisitor)
+            .GetMethod(nameof(FakeDefaultIfEmpty), BindingFlags.NonPublic | BindingFlags.Static)!);
 
     /// <summary>
     ///     This visitor has been obsoleted; Extend RelationalTypeMappingPostprocessor instead, and invoke it from

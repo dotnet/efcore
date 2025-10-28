@@ -11,14 +11,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
 public class TestSqlLoggerFactory : ListLoggerFactory
 {
-    private readonly bool _proceduralQueryGeneration = false;
-
     private const string FileNewLine = @"
 ";
 
     private static readonly string _eol = Environment.NewLine;
 
-    private static readonly object _queryBaselineFileLock = new();
     private static readonly ConcurrentDictionary<string, QueryBaselineRewritingFileInfo> _queryBaselineRewritingFileInfos = new();
 
     public TestSqlLoggerFactory()
@@ -47,11 +44,6 @@ public class TestSqlLoggerFactory : ListLoggerFactory
 
     public void AssertBaseline(string[] expected, bool assertOrder = true, bool forUpdate = false)
     {
-        if (_proceduralQueryGeneration)
-        {
-            return;
-        }
-
         var offset = forUpdate ? 1 : 0;
         var count = SqlStatements.Count - offset - offset;
         try
@@ -88,16 +80,6 @@ public class TestSqlLoggerFactory : ListLoggerFactory
             var fileName = parts[1][..^5];
             var lineNumber = int.Parse(parts[2]);
 
-            var currentDirectory = Directory.GetCurrentDirectory();
-            var logFile = currentDirectory.Substring(
-                    0,
-                    currentDirectory.LastIndexOf(
-                        $"{Path.DirectorySeparatorChar}artifacts{Path.DirectorySeparatorChar}",
-                        StringComparison.Ordinal)
-                    + 1)
-                + "QueryBaseline.txt";
-
-            var testInfo = testName + " : " + lineNumber + FileNewLine;
             const string indent = FileNewLine + "                ";
 
             if (Environment.GetEnvironmentVariable("EF_TEST_REWRITE_BASELINES")?.ToUpper() is "1" or "TRUE")
@@ -121,13 +103,6 @@ public class TestSqlLoggerFactory : ListLoggerFactory
 
             Logger.TestOutputHelper?.WriteLine("---- New Baseline -------------------------------------------------------------------");
             Logger.TestOutputHelper?.WriteLine(newBaseLine);
-
-            var contents = testInfo + newBaseLine + FileNewLine + "--------------------" + FileNewLine;
-
-            lock (_queryBaselineFileLock)
-            {
-                File.AppendAllText(logFile, contents);
-            }
 
             throw;
         }
@@ -323,9 +298,9 @@ public class TestSqlLoggerFactory : ListLoggerFactory
             TState state,
             Exception? exception)
         {
-            if ((eventId.Id == RelationalEventId.CommandExecuted.Id
-                    || eventId.Id == RelationalEventId.CommandError.Id
-                    || eventId.Id == RelationalEventId.CommandExecuting.Id))
+            if (eventId.Id == RelationalEventId.CommandExecuted.Id
+                || eventId.Id == RelationalEventId.CommandError.Id
+                || eventId.Id == RelationalEventId.CommandExecuting.Id)
             {
                 if (_shouldLogCommands)
                 {
@@ -347,30 +322,21 @@ public class TestSqlLoggerFactory : ListLoggerFactory
 
                         _stringBuilder.Clear();
 
-                        var inQuotes = false;
-                        var inCurlies = false;
                         for (var i = 0; i < parameters.Length; i++)
                         {
                             var c = parameters[i];
-                            switch (c)
+                            if (c == ','
+                                && TryGetChar(parameters, i + 1, out var nextChar1) && nextChar1 == ' '
+                                && TryGetChar(parameters, i - 1, out var prevChar1)
+                                && (prevChar1 == '\'' || prevChar1 == ')'
+                                    // handles NULL (matching only 'LL' as "good enough")
+                                    || (prevChar1 == 'L' && TryGetChar(parameters, i - 2, out var prevChar2) && prevChar2 == 'L')))
                             {
-                                case '\'':
-                                    inQuotes = !inQuotes;
-                                    goto default;
-                                case '{':
-                                    inCurlies = true;
-                                    goto default;
-                                case '}':
-                                    inCurlies = false;
-                                    goto default;
-                                case ',' when parameters[i + 1] == ' ' && !inQuotes && !inCurlies:
-                                    _stringBuilder.Append(_eol);
-                                    i++;
-                                    continue;
-                                default:
-                                    _stringBuilder.Append(c);
-                                    continue;
+                                _stringBuilder.Append(_eol);
+                                i++;
+                                continue;
                             }
+                            _stringBuilder.Append(c);
                         }
 
                         _stringBuilder.Append(_eol).Append(_eol);
@@ -383,6 +349,17 @@ public class TestSqlLoggerFactory : ListLoggerFactory
             else
             {
                 base.UnsafeLog(logLevel, eventId, message, state, exception);
+            }
+
+            static bool TryGetChar(string s, int index, out char c)
+            {
+                if (index < 0 || index >= s.Length)
+                {
+                    c = default;
+                    return false;
+                }
+                c = s[index];
+                return true;
             }
         }
     }
@@ -397,7 +374,7 @@ public class TestSqlLoggerFactory : ListLoggerFactory
         ///     Contains information on which lines in the file where we've already performed baseline rewriting; we use this to
         ///     avoid processing the same line twice (e.g. when a test is a theory that's executed multiple times).
         /// </summary>
-        public readonly HashSet<int> ProcessedLines = new();
+        public readonly HashSet<int> ProcessedLines = [];
 
         /// <summary>
         ///     Contains information on where previous baseline rewriting caused line numbers to shift; this is used in adjusting line
