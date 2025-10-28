@@ -119,6 +119,701 @@ public class Product
 - **Database**: Usually stored as JSON columns
 - **Use Case**: Tags, categories, simple lists
 
+### 2.3 EF Core Model Definition Examples
+
+#### **Example 1: Using Data Annotations**
+
+Data Annotations provide a declarative way to configure your model directly on entity classes using attributes.
+
+```csharp
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+// Blog entity with Data Annotations
+[Table("Blogs")] // Override default table name
+[Index(nameof(Url), IsUnique = true)] // Create unique index on Url
+public class Blog
+{
+    [Key] // Explicitly mark as primary key
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public int BlogId { get; set; }
+    
+    [Required] // NOT NULL constraint
+    [MaxLength(200)] // VARCHAR(200)
+    [Column("BlogTitle")] // Override column name
+    public string Title { get; set; } = "";
+    
+    [Required]
+    [Url] // URL validation attribute
+    [MaxLength(500)]
+    public string Url { get; set; } = "";
+    
+    [Column(TypeName = "decimal(18,2)")] // Specify exact SQL type
+    public decimal Rating { get; set; }
+    
+    [NotMapped] // Exclude from database
+    public string DisplayName => $"{Title} ({Url})";
+    
+    // Navigation property for one-to-many relationship
+    public List<Post> Posts { get; set; } = [];
+    
+    // Complex type (EF Core 8+)
+    public BlogSettings Settings { get; set; } = new();
+}
+
+// Post entity with foreign key configuration
+[Table("Posts")]
+public class Post
+{
+    [Key]
+    public int PostId { get; set; }
+    
+    [Required]
+    [MaxLength(100)]
+    public string Title { get; set; } = "";
+    
+    [Column(TypeName = "ntext")] // Large text field
+    public string Content { get; set; } = "";
+    
+    [DataType(DataType.Date)]
+    public DateTime PublishedDate { get; set; }
+    
+    // Foreign key property
+    [ForeignKey(nameof(Blog))]
+    public int BlogId { get; set; }
+    
+    // Navigation property back to Blog
+    public Blog Blog { get; set; } = null!;
+    
+    // Many-to-many navigation
+    public List<Tag> Tags { get; set; } = [];
+}
+
+// Tag entity for many-to-many relationship
+public class Tag
+{
+    [Key]
+    public int TagId { get; set; }
+    
+    [Required]
+    [MaxLength(50)]
+    public string Name { get; set; } = "";
+    
+    // Many-to-many navigation
+    public List<Post> Posts { get; set; } = [];
+}
+
+// Complex type for blog settings
+[ComplexType] // EF Core 8+ complex type
+public class BlogSettings
+{
+    [Required]
+    [MaxLength(50)]
+    public string Theme { get; set; } = "Default";
+    
+    public bool AllowComments { get; set; } = true;
+    
+    [Range(1, 100)]
+    public int PostsPerPage { get; set; } = 10;
+    
+    // Primitive collection (stored as JSON)
+    public List<string> Categories { get; set; } = [];
+}
+
+// User entity with owned type
+public class User
+{
+    [Key]
+    public int UserId { get; set; }
+    
+    [Required]
+    [MaxLength(100)]
+    public string Name { get; set; } = "";
+    
+    [Required]
+    [EmailAddress]
+    [MaxLength(255)]
+    public string Email { get; set; } = "";
+    
+    // Owned type - will be stored in same table
+    [Owned]
+    public Address Address { get; set; } = new();
+}
+
+// Owned type (no separate table)
+[Owned]
+public class Address
+{
+    [MaxLength(100)]
+    public string Street { get; set; } = "";
+    
+    [MaxLength(50)]
+    public string City { get; set; } = "";
+    
+    [MaxLength(20)]
+    public string ZipCode { get; set; } = "";
+    
+    [MaxLength(50)]
+    public string Country { get; set; } = "";
+}
+
+// DbContext with Data Annotations approach
+public class BloggingContext : DbContext
+{
+    public DbSet<Blog> Blogs { get; set; } = null!;
+    public DbSet<Post> Posts { get; set; } = null!;
+    public DbSet<Tag> Tags { get; set; } = null!;
+    public DbSet<User> Users { get; set; } = null!;
+    
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        optionsBuilder.UseSqlServer("Server=.;Database=BloggingDB;Trusted_Connection=true;");
+    }
+    
+    // Minimal configuration - most done via annotations
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        // Configure many-to-many relationship join table
+        modelBuilder.Entity<Post>()
+            .HasMany(p => p.Tags)
+            .WithMany(t => t.Posts)
+            .UsingEntity(j => j.ToTable("PostTags"));
+    }
+}
+```
+
+#### **Example 2: Using OnModelCreating Fluent API**
+
+The Fluent API provides more comprehensive configuration options and is preferred for complex scenarios.
+
+```csharp
+// Clean entity classes without attributes
+public class Blog
+{
+    public int BlogId { get; set; }
+    public string Title { get; set; } = "";
+    public string Url { get; set; } = "";
+    public decimal Rating { get; set; }
+    public DateTime CreatedDate { get; set; }
+    public DateTime? LastUpdated { get; set; }
+    
+    // Shadow property will be configured in OnModelCreating
+    // public string CreatedBy { get; set; } // This will be a shadow property
+    
+    // Navigation properties
+    public List<Post> Posts { get; set; } = [];
+    public BlogMetadata Metadata { get; set; } = null!; // One-to-one
+    public User Owner { get; set; } = null!; // Many-to-one
+    
+    // Complex type
+    public BlogSettings Settings { get; set; } = new();
+}
+
+public class Post
+{
+    public int PostId { get; set; }
+    public string Title { get; set; } = "";
+    public string Content { get; set; } = "";
+    public DateTime PublishedDate { get; set; }
+    public PostStatus Status { get; set; }
+    
+    // Foreign keys (can be shadow properties too)
+    public int BlogId { get; set; }
+    public int? AuthorId { get; set; }
+    
+    // Navigation properties
+    public Blog Blog { get; set; } = null!;
+    public User? Author { get; set; }
+    public List<Comment> Comments { get; set; } = [];
+    public List<Tag> Tags { get; set; } = [];
+    
+    // Primitive collections
+    public List<string> Keywords { get; set; } = [];
+    public List<int> ViewCounts { get; set; } = [];
+}
+
+public class Comment
+{
+    public int CommentId { get; set; }
+    public string Content { get; set; } = "";
+    public DateTime CreatedDate { get; set; }
+    public bool IsApproved { get; set; }
+    
+    public int PostId { get; set; }
+    public Post Post { get; set; } = null!;
+    
+    // Self-referencing relationship for reply threads
+    public int? ParentCommentId { get; set; }
+    public Comment? ParentComment { get; set; }
+    public List<Comment> Replies { get; set; } = [];
+}
+
+public class Tag
+{
+    public int TagId { get; set; }
+    public string Name { get; set; } = "";
+    public string Color { get; set; } = "";
+    public List<Post> Posts { get; set; } = [];
+}
+
+public class User
+{
+    public int UserId { get; set; }
+    public string Name { get; set; } = "";
+    public string Email { get; set; } = "";
+    public UserRole Role { get; set; }
+    public List<Blog> OwnedBlogs { get; set; } = [];
+    public List<Post> AuthoredPosts { get; set; } = [];
+    
+    // Owned type
+    public ContactInfo ContactInfo { get; set; } = new();
+}
+
+// One-to-one related entity
+public class BlogMetadata
+{
+    public int BlogId { get; set; } // Same as Blog's PK
+    public string Description { get; set; } = "";
+    public string Keywords { get; set; } = "";
+    public string SeoTitle { get; set; } = "";
+    public Blog Blog { get; set; } = null!;
+}
+
+// Complex type (EF Core 8+)
+public class BlogSettings
+{
+    public string Theme { get; set; } = "Default";
+    public bool AllowComments { get; set; } = true;
+    public int PostsPerPage { get; set; } = 10;
+    public List<string> AllowedFileTypes { get; set; } = [];
+    public NotificationSettings Notifications { get; set; } = new();
+}
+
+// Nested complex type
+public class NotificationSettings
+{
+    public bool EmailNotifications { get; set; } = true;
+    public bool PushNotifications { get; set; } = false;
+    public int NotificationFrequency { get; set; } = 1; // Daily
+}
+
+// Owned type
+public class ContactInfo
+{
+    public string Phone { get; set; } = "";
+    public string Website { get; set; } = "";
+    public Address Address { get; set; } = new();
+    public List<SocialMediaAccount> SocialAccounts { get; set; } = [];
+}
+
+public class Address
+{
+    public string Street { get; set; } = "";
+    public string City { get; set; } = "";
+    public string State { get; set; } = "";
+    public string ZipCode { get; set; } = "";
+    public string Country { get; set; } = "";
+}
+
+public class SocialMediaAccount
+{
+    public string Platform { get; set; } = "";
+    public string Username { get; set; } = "";
+    public string Url { get; set; } = "";
+}
+
+// Enums
+public enum PostStatus
+{
+    Draft = 0,
+    Published = 1,
+    Archived = 2,
+    Deleted = 3
+}
+
+public enum UserRole
+{
+    Reader = 0,
+    Author = 1,
+    Editor = 2,
+    Admin = 3
+}
+
+// DbContext with comprehensive Fluent API configuration
+public class BloggingContext : DbContext
+{
+    public DbSet<Blog> Blogs { get; set; } = null!;
+    public DbSet<Post> Posts { get; set; } = null!;
+    public DbSet<Comment> Comments { get; set; } = null!;
+    public DbSet<Tag> Tags { get; set; } = null!;
+    public DbSet<User> Users { get; set; } = null!;
+    public DbSet<BlogMetadata> BlogMetadata { get; set; } = null!;
+    
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        optionsBuilder.UseSqlServer("Server=.;Database=BloggingFluentDB;Trusted_Connection=true;");
+    }
+    
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        ConfigureBlogEntity(modelBuilder);
+        ConfigurePostEntity(modelBuilder);
+        ConfigureCommentEntity(modelBuilder);
+        ConfigureTagEntity(modelBuilder);
+        ConfigureUserEntity(modelBuilder);
+        ConfigureBlogMetadataEntity(modelBuilder);
+        ConfigureRelationships(modelBuilder);
+        ConfigureIndexesAndConstraints(modelBuilder);
+        ConfigureGlobalFilters(modelBuilder);
+    }
+    
+    private void ConfigureBlogEntity(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Blog>(entity =>
+        {
+            // Table configuration
+            entity.ToTable("Blogs");
+            
+            // Primary key
+            entity.HasKey(b => b.BlogId);
+            
+            // Property configurations
+            entity.Property(b => b.Title)
+                .IsRequired()
+                .HasMaxLength(200)
+                .HasColumnName("BlogTitle");
+            
+            entity.Property(b => b.Url)
+                .IsRequired()
+                .HasMaxLength(500);
+            
+            entity.Property(b => b.Rating)
+                .HasColumnType("decimal(3,2)")
+                .HasDefaultValue(0.0m);
+            
+            entity.Property(b => b.CreatedDate)
+                .HasDefaultValueSql("GETUTCDATE()");
+            
+            entity.Property(b => b.LastUpdated)
+                .IsConcurrencyToken(); // Optimistic concurrency
+            
+            // Shadow property
+            entity.Property<string>("CreatedBy")
+                .HasMaxLength(100)
+                .IsRequired();
+            
+            // Computed column
+            entity.Property<string>("FullDescription")
+                .HasComputedColumnSql("[Title] + ' - ' + [Url]");
+            
+            // Complex type configuration (EF Core 8+)
+            entity.ComplexProperty(b => b.Settings, settings =>
+            {
+                settings.Property(s => s.Theme)
+                    .HasMaxLength(50)
+                    .HasDefaultValue("Default");
+                
+                settings.Property(s => s.PostsPerPage)
+                    .HasDefaultValue(10);
+                
+                // Primitive collection as JSON
+                settings.Property(s => s.AllowedFileTypes)
+                    .HasConversion(
+                        v => string.Join(',', v),
+                        v => v.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList())
+                    .HasColumnName("AllowedFileTypesJson");
+                
+                // Nested complex type
+                settings.ComplexProperty(s => s.Notifications, notif =>
+                {
+                    notif.Property(n => n.EmailNotifications)
+                        .HasDefaultValue(true);
+                    
+                    notif.Property(n => n.NotificationFrequency)
+                        .HasDefaultValue(1);
+                });
+            });
+        });
+    }
+    
+    private void ConfigurePostEntity(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Post>(entity =>
+        {
+            entity.ToTable("Posts");
+            
+            entity.HasKey(p => p.PostId);
+            
+            entity.Property(p => p.Title)
+                .IsRequired()
+                .HasMaxLength(100);
+            
+            entity.Property(p => p.Content)
+                .HasColumnType("ntext");
+            
+            entity.Property(p => p.Status)
+                .HasConversion<string>() // Store enum as string
+                .HasMaxLength(20);
+            
+            entity.Property(p => p.PublishedDate)
+                .HasColumnType("date");
+            
+            // Primitive collections stored as JSON
+            entity.Property(p => p.Keywords)
+                .HasConversion(
+                    v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+                    v => JsonSerializer.Deserialize<List<string>>(v, (JsonSerializerOptions?)null) ?? [])
+                .HasColumnType("nvarchar(max)");
+            
+            entity.Property(p => p.ViewCounts)
+                .HasConversion(
+                    v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+                    v => JsonSerializer.Deserialize<List<int>>(v, (JsonSerializerOptions?)null) ?? [])
+                .HasColumnType("nvarchar(max)");
+        });
+    }
+    
+    private void ConfigureCommentEntity(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Comment>(entity =>
+        {
+            entity.ToTable("Comments");
+            
+            entity.HasKey(c => c.CommentId);
+            
+            entity.Property(c => c.Content)
+                .IsRequired()
+                .HasMaxLength(1000);
+            
+            entity.Property(c => c.CreatedDate)
+                .HasDefaultValueSql("GETUTCDATE()");
+            
+            entity.Property(c => c.IsApproved)
+                .HasDefaultValue(false);
+            
+            // Self-referencing relationship
+            entity.HasOne(c => c.ParentComment)
+                .WithMany(c => c.Replies)
+                .HasForeignKey(c => c.ParentCommentId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+    }
+    
+    private void ConfigureTagEntity(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Tag>(entity =>
+        {
+            entity.ToTable("Tags");
+            
+            entity.HasKey(t => t.TagId);
+            
+            entity.Property(t => t.Name)
+                .IsRequired()
+                .HasMaxLength(50);
+            
+            entity.Property(t => t.Color)
+                .HasMaxLength(7)
+                .HasDefaultValue("#000000");
+        });
+    }
+    
+    private void ConfigureUserEntity(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.ToTable("Users");
+            
+            entity.HasKey(u => u.UserId);
+            
+            entity.Property(u => u.Name)
+                .IsRequired()
+                .HasMaxLength(100);
+            
+            entity.Property(u => u.Email)
+                .IsRequired()
+                .HasMaxLength(255);
+            
+            entity.Property(u => u.Role)
+                .HasConversion<int>(); // Store enum as int
+            
+            // Owned type configuration
+            entity.OwnsOne(u => u.ContactInfo, contactInfo =>
+            {
+                contactInfo.Property(ci => ci.Phone)
+                    .HasMaxLength(20);
+                
+                contactInfo.Property(ci => ci.Website)
+                    .HasMaxLength(200);
+                
+                // Nested owned type
+                contactInfo.OwnsOne(ci => ci.Address, address =>
+                {
+                    address.Property(a => a.Street).HasMaxLength(100);
+                    address.Property(a => a.City).HasMaxLength(50);
+                    address.Property(a => a.State).HasMaxLength(50);
+                    address.Property(a => a.ZipCode).HasMaxLength(20);
+                    address.Property(a => a.Country).HasMaxLength(50);
+                });
+                
+                // Owned collection
+                contactInfo.OwnsMany(ci => ci.SocialAccounts, socialAccount =>
+                {
+                    socialAccount.WithOwner();
+                    socialAccount.Property(sa => sa.Platform).HasMaxLength(50);
+                    socialAccount.Property(sa => sa.Username).HasMaxLength(100);
+                    socialAccount.Property(sa => sa.Url).HasMaxLength(200);
+                });
+            });
+        });
+    }
+    
+    private void ConfigureBlogMetadataEntity(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<BlogMetadata>(entity =>
+        {
+            entity.ToTable("BlogMetadata");
+            
+            entity.HasKey(bm => bm.BlogId);
+            
+            entity.Property(bm => bm.Description)
+                .HasMaxLength(500);
+            
+            entity.Property(bm => bm.Keywords)
+                .HasMaxLength(200);
+            
+            entity.Property(bm => bm.SeoTitle)
+                .HasMaxLength(100);
+        });
+    }
+    
+    private void ConfigureRelationships(ModelBuilder modelBuilder)
+    {
+        // Blog -> Posts (One-to-Many)
+        modelBuilder.Entity<Blog>()
+            .HasMany(b => b.Posts)
+            .WithOne(p => p.Blog)
+            .HasForeignKey(p => p.BlogId)
+            .OnDelete(DeleteBehavior.Cascade);
+        
+        // Blog -> BlogMetadata (One-to-One)
+        modelBuilder.Entity<Blog>()
+            .HasOne(b => b.Metadata)
+            .WithOne(bm => bm.Blog)
+            .HasForeignKey<BlogMetadata>(bm => bm.BlogId)
+            .OnDelete(DeleteBehavior.Cascade);
+        
+        // User -> Blogs (One-to-Many)
+        modelBuilder.Entity<User>()
+            .HasMany(u => u.OwnedBlogs)
+            .WithOne(b => b.Owner)
+            .HasForeignKey("OwnerId") // Shadow property
+            .OnDelete(DeleteBehavior.Restrict);
+        
+        // User -> Posts (One-to-Many, optional)
+        modelBuilder.Entity<User>()
+            .HasMany(u => u.AuthoredPosts)
+            .WithOne(p => p.Author)
+            .HasForeignKey(p => p.AuthorId)
+            .OnDelete(DeleteBehavior.SetNull);
+        
+        // Post -> Comments (One-to-Many)
+        modelBuilder.Entity<Post>()
+            .HasMany(p => p.Comments)
+            .WithOne(c => c.Post)
+            .HasForeignKey(c => c.PostId)
+            .OnDelete(DeleteBehavior.Cascade);
+        
+        // Post <-> Tags (Many-to-Many)
+        modelBuilder.Entity<Post>()
+            .HasMany(p => p.Tags)
+            .WithMany(t => t.Posts)
+            .UsingEntity<Dictionary<string, object>>(
+                "PostTag",
+                j => j.HasOne<Tag>().WithMany().HasForeignKey("TagId"),
+                j => j.HasOne<Post>().WithMany().HasForeignKey("PostId"),
+                j =>
+                {
+                    j.HasKey("PostId", "TagId");
+                    j.ToTable("PostTags");
+                });
+    }
+    
+    private void ConfigureIndexesAndConstraints(ModelBuilder modelBuilder)
+    {
+        // Unique constraints
+        modelBuilder.Entity<Blog>()
+            .HasIndex(b => b.Url)
+            .IsUnique()
+            .HasDatabaseName("IX_Blogs_Url_Unique");
+        
+        modelBuilder.Entity<User>()
+            .HasIndex(u => u.Email)
+            .IsUnique();
+        
+        modelBuilder.Entity<Tag>()
+            .HasIndex(t => t.Name)
+            .IsUnique();
+        
+        // Composite indexes
+        modelBuilder.Entity<Post>()
+            .HasIndex(p => new { p.BlogId, p.PublishedDate })
+            .HasDatabaseName("IX_Posts_Blog_PublishedDate");
+        
+        modelBuilder.Entity<Comment>()
+            .HasIndex(c => new { c.PostId, c.CreatedDate })
+            .HasDatabaseName("IX_Comments_Post_Created");
+        
+        // Filtered index (SQL Server specific)
+        modelBuilder.Entity<Post>()
+            .HasIndex(p => p.PublishedDate)
+            .HasFilter("[Status] = 'Published'")
+            .HasDatabaseName("IX_Posts_PublishedDate_Published");
+    }
+    
+    private void ConfigureGlobalFilters(ModelBuilder modelBuilder)
+    {
+        // Soft delete filter for posts
+        modelBuilder.Entity<Post>()
+            .HasQueryFilter(p => p.Status != PostStatus.Deleted);
+        
+        // Approved comments only filter
+        modelBuilder.Entity<Comment>()
+            .HasQueryFilter(c => c.IsApproved);
+    }
+}
+```
+
+#### **Key Differences Between Approaches**
+
+| Aspect | Data Annotations | Fluent API (OnModelCreating) |
+|--------|------------------|------------------------------|
+| **Location** | On entity classes | In DbContext.OnModelCreating |
+| **Readability** | Easy to see configuration with entities | Configuration separated from entities |
+| **Capabilities** | Limited to common scenarios | Full EF Core configuration power |
+| **Maintenance** | Can clutter entity classes | Centralized in one location |
+| **Complex Scenarios** | Not suitable for advanced configurations | Handles any EF Core feature |
+| **Team Preference** | Good for simple models | Preferred for complex applications |
+
+#### **When to Use Which Approach**
+
+**Use Data Annotations when:**
+- Working with simple models
+- Team prefers seeing configuration near properties
+- Using basic features (required, max length, foreign keys)
+- Rapid prototyping
+
+**Use Fluent API when:**
+- Building complex models with advanced relationships
+- Need full control over database schema
+- Configuring indexes, constraints, computed columns
+- Working with shadow properties, owned types, complex types
+- Team prefers separation of concerns
+
+**Hybrid Approach (Recommended):**
+- Use Data Annotations for basic property validation
+- Use Fluent API for complex relationships and advanced features
+- Keep entity classes clean and focused on domain logic
+
 ### 2.3 Relationship Patterns
 
 #### **One-to-Many**
