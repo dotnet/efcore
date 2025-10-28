@@ -218,7 +218,6 @@ public class CosmosSingletonOptions : ICosmosSingletonOptions
                 || MaxRequestsPerTcpConnection != cosmosOptions.MaxRequestsPerTcpConnection
                 || HttpClientFactory != cosmosOptions.HttpClientFactory
                 || EnableBulkExecution != cosmosOptions.EnableBulkExecution
-
             ))
         {
             throw new InvalidOperationException(
