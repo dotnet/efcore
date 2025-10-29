@@ -20,6 +20,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 /// </summary>
 public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQueryableMethodTranslatingExpressionVisitor
 {
+    private static readonly bool UseOldBehavior37016 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37016", out var enabled) && enabled;
+
     private readonly SqlServerQueryCompilationContext _queryCompilationContext;
     private readonly IRelationalTypeMappingSource _typeMappingSource;
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
@@ -377,7 +380,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                 } selectExpression
                     when TranslateExpression(index) is { } translatedIndex
                     && _sqlServerSingletonOptions.SupportsJsonFunctions
-                    && TryTranslate(selectExpression, valuesParameter, translatedIndex, out var result):
+                    && TryTranslate(selectExpression, valuesParameter, path: null, translatedIndex, out var result):
                     return result;
 
                 // Index on JSON array
@@ -406,7 +409,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                 } selectExpression
                     when orderingTableAlias == openJsonExpression.Alias
                     && TranslateExpression(index) is { } translatedIndex
-                    && TryTranslate(selectExpression, jsonArrayColumn, translatedIndex, out var result):
+                    && TryTranslate(selectExpression, jsonArrayColumn, openJsonExpression.Path, translatedIndex, out var result):
                     return result;
             }
         }
@@ -415,7 +418,8 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
 
         bool TryTranslate(
             SelectExpression selectExpression,
-            SqlExpression jsonArrayColumn,
+            SqlExpression jsonColumn,
+            IReadOnlyList<PathSegment>? path,
             SqlExpression translatedIndex,
             [NotNullWhen(true)] out ShapedQueryExpression? result)
         {
@@ -441,16 +445,22 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                 return false;
             }
 
-            // If the inner expression happens to itself be a JsonScalarExpression, simply append the two paths to avoid creating
+            // If the inner expression happens to itself be a JsonScalarExpression, simply append the paths to avoid creating
             // JSON_VALUE within JSON_VALUE.
-            var (json, path) = jsonArrayColumn is JsonScalarExpression innerJsonScalarExpression
-                ? (innerJsonScalarExpression.Json,
-                    innerJsonScalarExpression.Path.Append(new(translatedIndex)).ToArray())
-                : (jsonArrayColumn, [new(translatedIndex)]);
+            var (json, newPath) = jsonColumn is JsonScalarExpression innerJsonScalarExpression
+                ? (innerJsonScalarExpression.Json, new List<PathSegment>(innerJsonScalarExpression.Path))
+                : (jsonColumn, []);
+
+            if (!UseOldBehavior37016 && path is not null)
+            {
+                newPath.AddRange(path);
+            }
+
+            newPath.Add(new(translatedIndex));
 
             var translation = new JsonScalarExpression(
                 json,
-                path,
+                newPath,
                 projection.Type,
                 projection.TypeMapping,
                 projectionColumn.IsNullable);
