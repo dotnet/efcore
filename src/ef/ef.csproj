@@ -28,6 +28,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Permit targeting `netcoreapp2.0`, see https://github.com/dotnet/efcore/issues/34654 -->
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-7mfr-774f-w5r9" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="Generators\BundleProgramGenerator.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>BundleProgramGenerator.cs</LastGenOutput>

@@ -82,13 +82,12 @@ extends:
               os: windows
             timeoutInMinutes: 180
             variables:
-              - _AdditionalBuildArgs: ''
               - _InternalBuildArgs: ''
               # Rely on task Arcade injects, not auto-injected build step.
               - skipComponentGovernanceDetection: true
               - ${{ if notin(variables['Build.Reason'], 'PullRequest') }}:
                 - _SignType: real
-                - _InternalBuildArgs: /p:DotNetSignType=$(_SignType) /p:TeamName=$(_TeamName) /p:DotNetPublishUsingPipelines=$(_PublishUsingPipelines) /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
+                - _InternalBuildArgs: /p:NuGetAudit=false /p:DotNetSignType=$(_SignType) /p:TeamName=$(_TeamName) /p:DotNetPublishUsingPipelines=$(_PublishUsingPipelines) /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
               # Ignore test and infrastructure code.
               - Codeql.SourceRoot: src
               # CodeQL3000 needs this plumbed along as a variable to enable TSA.
@@ -118,7 +117,7 @@ extends:
                 env:
                   Token: $(dn-bot-dnceng-artifact-feeds-rw)
               - template: /eng/common/templates-official/steps/enable-internal-runtimes.yml
-              - script: eng\common\cibuild.cmd -configuration $(_BuildConfig) -prepareMachine $(_InternalBuildArgs) $(_InternalRuntimeDownloadArgs) $(_AdditionalBuildArgs)
+              - script: eng\common\cibuild.cmd -configuration $(_BuildConfig) -prepareMachine $(_InternalBuildArgs) $(_InternalRuntimeDownloadArgs)
                 env:
                   Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
                 displayName: Build
@@ -146,7 +145,7 @@ extends:
                 env:
                   Token: $(dn-bot-dnceng-artifact-feeds-rw)
               - template: /eng/common/templates-official/steps/enable-internal-runtimes.yml
-              - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine $(_InternalRuntimeDownloadArgs)
+              - script: eng/common/cibuild.sh --configuration $(_BuildConfig) -p:NuGetAudit=false --prepareMachine $(_InternalRuntimeDownloadArgs)
                 env:
                   Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
                   # Work-around for https://github.com/dotnet/runtime/issues/70758
@@ -188,7 +187,7 @@ extends:
                 env:
                   Token: $(dn-bot-dnceng-artifact-feeds-rw)
               - template: /eng/common/templates-official/steps/enable-internal-runtimes.yml
-              - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine $(_InternalRuntimeDownloadArgs)
+              - script: eng/common/cibuild.sh --configuration $(_BuildConfig) -p:NuGetAudit=false --prepareMachine $(_InternalRuntimeDownloadArgs)
                 displayName: Build
             templateContext:
               outputs:
@@ -239,7 +238,7 @@ extends:
                   permissions: rl
               - script: restore.cmd -ci /p:configuration=$(_BuildConfig) $(_InternalRuntimeDownloadArgs)
                 displayName: Restore packages
-              - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /bl:$(Build.SourcesDirectory)/artifacts/log/$(_BuildConfig)/SendToHelix.binlog $(_InternalRuntimeDownloadArgs)
+              - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /p:NuGetAudit=false /bl:$(Build.SourcesDirectory)/artifacts/log/$(_BuildConfig)/SendToHelix.binlog $(_InternalRuntimeDownloadArgs)
                 displayName: Send job to helix
                 env:
                   HelixAccessToken: $(_HelixAccessToken)

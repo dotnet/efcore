@@ -18,7 +18,9 @@ public static class CSharpAnalyzerVerifier<TAnalyzer>
     where TAnalyzer : DiagnosticAnalyzer, new()
 {
     public static DiagnosticResult Diagnostic(string diagnosticId)
+#pragma warning disable CS0618 // Type or member is obsolete
         => CSharpAnalyzerVerifier<TAnalyzer, XUnitVerifier>.Diagnostic(diagnosticId);
+#pragma warning restore CS0618 // Type or member is obsolete
 
     public static Task VerifyAnalyzerAsync(string source, params DiagnosticResult[] expected)
     {
@@ -27,7 +29,9 @@ public static class CSharpAnalyzerVerifier<TAnalyzer>
         return test.RunAsync();
     }
 
+#pragma warning disable CS0618 // Type or member is obsolete
     public class Test : CSharpAnalyzerTest<TAnalyzer, XUnitVerifier>
+#pragma warning restore CS0618 // Type or member is obsolete
     {
         protected override CompilationOptions CreateCompilationOptions()
         {

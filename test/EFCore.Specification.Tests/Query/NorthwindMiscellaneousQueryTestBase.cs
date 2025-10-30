@@ -5696,7 +5696,7 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
 
         return AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => data.Contains(someVariable + "SomeConstant")));
+            ss => ss.Set<Customer>().Where(c => ((IEnumerable<string>)data).Contains(someVariable + "SomeConstant")));
     }
 
     [ConditionalTheory]
