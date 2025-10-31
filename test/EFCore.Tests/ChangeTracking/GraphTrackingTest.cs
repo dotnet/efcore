@@ -384,6 +384,68 @@ public class GraphTrackingTest
         Assert.Equal(EntityState.Added, context.Entry(reminders[1]).State);
     }
 
+    [ConditionalFact]
+    public void Can_reattach_graph_with_client_generated_keys()
+    {
+        using var context = new GuidKeyContext();
+        var foo = new FooGuid { Name = "Foo1" };
+        var bar1 = new BarGuid { Name = "Bar1", Foo = foo };
+        var bar2 = new BarGuid { Name = "Bar2", Foo = foo, RelatedBar = bar1 };
+
+        var fooEntry = context.Foos.Add(foo);
+        var bar1Entry = context.Bars.Add(bar1);
+        var bar2Entry = context.Bars.Add(bar2);
+
+        fooEntry.State = EntityState.Detached;
+        bar1Entry.State = EntityState.Detached;
+        bar2Entry.State = EntityState.Detached;
+
+        // bar2.RelatedBar is null, since EF removes the navigation when detaching entities in 'Added' state
+
+        fooEntry.State = EntityState.Added;
+        fooEntry.DetectChanges();
+
+        bar2Entry.State = EntityState.Added;
+        bar2.RelatedBar = bar1; // Manually restore the navigation
+        bar2Entry.DetectChanges();
+
+        // This should not throw
+        bar1Entry.State = EntityState.Added;
+        bar1Entry.DetectChanges();
+
+        Assert.Equal(EntityState.Added, context.Entry(foo).State);
+        Assert.Equal(EntityState.Added, context.Entry(bar1).State);
+        Assert.Equal(EntityState.Added, context.Entry(bar2).State);
+    }
+
+    private class GuidKeyContext : DbContext
+    {
+        protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            => optionsBuilder
+                .UseInMemoryDatabase(nameof(GuidKeyContext))
+                .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider);
+
+        public DbSet<FooGuid> Foos => Set<FooGuid>();
+        public DbSet<BarGuid> Bars => Set<BarGuid>();
+    }
+
+    private class FooGuid
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; }
+        public ICollection<BarGuid> Bars { get; set; } = new HashSet<BarGuid>();
+    }
+
+    private class BarGuid
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; }
+        public FooGuid Foo { get; set; }
+        public Guid FooId { get; set; }
+        public BarGuid RelatedBar { get; set; }
+        public Guid? RelatedBarId { get; set; }
+    }
+
     private class AggregateContext : DbContext
     {
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
