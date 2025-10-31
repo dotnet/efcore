@@ -20,9 +20,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 /// </summary>
 public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQueryableMethodTranslatingExpressionVisitor
 {
-    private static readonly bool UseOldBehavior37016 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37016", out var enabled) && enabled;
-
     private readonly SqlServerQueryCompilationContext _queryCompilationContext;
     private readonly IRelationalTypeMappingSource _typeMappingSource;
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
