@@ -11,6 +11,9 @@ namespace Microsoft.EntityFrameworkCore.Query;
 /// <inheritdoc />
 public partial class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMethodTranslatingExpressionVisitor
 {
+    private static readonly bool UseOldBehavior37016 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37016", out var enabled) && enabled;
+
     private const string SqlQuerySingleColumnAlias = "Value";
 
     private readonly RelationalSqlTranslatingExpressionVisitor _sqlTranslator;
@@ -1945,12 +1948,19 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             }
 
             source = source.UnwrapTypeConversion(out var convertedType);
-            if (source is not StructuralTypeShaperExpression shaper)
+
+            var type = source switch
+            {
+                StructuralTypeShaperExpression shaper => shaper.StructuralType,
+                JsonQueryExpression jsonQuery when !UseOldBehavior37016 => jsonQuery.StructuralType,
+                _ => null
+            };
+
+            if (type is null)
             {
                 return null;
             }
 
-            var type = shaper.StructuralType;
             if (convertedType != null)
             {
                 Check.DebugAssert(
@@ -1969,22 +1979,65 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             var property = type.FindProperty(memberName);
             if (property?.IsPrimitiveCollection is true)
             {
-                return source.CreateEFPropertyExpression(property);
+                return source!.CreateEFPropertyExpression(property);
             }
 
             // See comments on indexing-related hacks in VisitMethodCall above
-            if (_bindComplexProperties
-                && type.FindComplexProperty(memberName) is { IsCollection: true } complexProperty)
+            if (UseOldBehavior37016)
             {
-                Check.DebugAssert(complexProperty.ComplexType.IsMappedToJson());
-
-                if (queryableTranslator._sqlTranslator.TryBindMember(
-                        queryableTranslator._sqlTranslator.Visit(source), MemberIdentity.Create(memberName),
-                        out var translatedExpression, out _)
-                    && translatedExpression is CollectionResultExpression { QueryExpression: JsonQueryExpression jsonQuery })
+                if (_bindComplexProperties && type.FindComplexProperty(memberName) is { IsCollection: true } complexProperty)
                 {
-                    return jsonQuery;
+                    Check.DebugAssert(complexProperty.ComplexType.IsMappedToJson());
+
+                    if (queryableTranslator._sqlTranslator.TryBindMember(
+                            queryableTranslator._sqlTranslator.Visit(source), MemberIdentity.Create(memberName),
+                            out var translatedExpression, out _)
+                        && translatedExpression is CollectionResultExpression { QueryExpression: JsonQueryExpression jsonQuery })
+                    {
+                        return jsonQuery;
+                    }
                 }
+            }
+            else if (_bindComplexProperties && type.FindComplexProperty(memberName) is IComplexProperty complexProperty)
+            {
+                Expression? translatedExpression;
+
+                if (source is JsonQueryExpression jsonSource)
+                {
+                    translatedExpression = jsonSource.BindStructuralProperty(complexProperty);
+                }
+                else if (!queryableTranslator._sqlTranslator.TryBindMember(
+                    queryableTranslator._sqlTranslator.Visit(source), MemberIdentity.Create(memberName),
+                    out translatedExpression, out _))
+                {
+                    return null;
+                }
+
+                // Hack: when returning a StructuralTypeShaperExpression, _sqlTranslator returns it wrapped by a
+                // StructuralTypeReferenceExpression, which is supposed to be a private wrapper only within the SQL translator.
+                // Call TranslateProjection to unwrap it (need to look into getting rid StructuralTypeReferenceExpression altogether).
+                if (translatedExpression is not JsonQueryExpression and not CollectionResultExpression)
+                {
+                    if (queryableTranslator._sqlTranslator.TranslateProjection(translatedExpression) is { } unwrappedTarget)
+                    {
+                        translatedExpression = unwrappedTarget;
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+
+                return complexProperty switch
+                {
+                    { IsCollection: false } when translatedExpression is StructuralTypeShaperExpression { ValueBufferExpression: JsonQueryExpression jsonQuery }
+                        => jsonQuery,
+                    { IsCollection: true } when translatedExpression is CollectionResultExpression { QueryExpression: JsonQueryExpression jsonQuery }
+                        => jsonQuery,
+                    { IsCollection: true } when translatedExpression is JsonQueryExpression jsonQuery
+                        => jsonQuery,
+                    _ => null
+                };
             }
 
             return null;
