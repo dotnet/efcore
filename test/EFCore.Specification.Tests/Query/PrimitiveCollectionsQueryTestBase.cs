@@ -586,7 +586,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
 
         return AssertQuery(
             async,
-            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => ints.Concat(c.Ints).Count() == 2));
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => ((IEnumerable<int>)ints).Concat(c.Ints).Count() == 2));
     }
 
     [ConditionalTheory]
