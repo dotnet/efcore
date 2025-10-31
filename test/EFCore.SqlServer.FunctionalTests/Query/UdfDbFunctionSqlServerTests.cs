@@ -969,6 +969,18 @@ ORDER BY [c].[FirstName]
 """);
     }
 
+    public override void TVF_backing_entity_type_with_complextype_mapped_to_view()
+    {
+        base.TVF_backing_entity_type_with_complextype_mapped_to_view();
+
+        AssertSql(
+            """
+SELECT [m].[Id], [m].[GpsCoordinates_Latitude], [m].[GpsCoordinates_Longitude]
+FROM [MapLocations] AS [m]
+ORDER BY [m].[Id]
+""");
+    }
+
     public override void Udf_with_argument_being_comparison_to_null_parameter()
     {
         base.Udf_with_argument_being_comparison_to_null_parameter();
