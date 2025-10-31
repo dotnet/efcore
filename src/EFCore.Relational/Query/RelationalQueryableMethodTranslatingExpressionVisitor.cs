@@ -11,9 +11,6 @@ namespace Microsoft.EntityFrameworkCore.Query;
 /// <inheritdoc />
 public partial class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMethodTranslatingExpressionVisitor
 {
-    private static readonly bool UseOldBehavior37016 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37016", out var enabled) && enabled;
-
     private const string SqlQuerySingleColumnAlias = "Value";
 
     private readonly RelationalSqlTranslatingExpressionVisitor _sqlTranslator;
