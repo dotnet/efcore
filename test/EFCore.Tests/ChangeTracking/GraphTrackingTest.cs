@@ -400,7 +400,9 @@ public class GraphTrackingTest
         bar1Entry.State = EntityState.Detached;
         bar2Entry.State = EntityState.Detached;
 
-        // bar2.RelatedBar is null, since EF removes the navigation when detaching entities in 'Added' state
+        // When detaching entities in Added state, EF Core automatically nulls out navigations
+        // to maintain consistency (since Added entities don't exist in the database yet).
+        // This means bar2.RelatedBar is now null and needs to be manually restored.
 
         fooEntry.State = EntityState.Added;
         fooEntry.DetectChanges();
