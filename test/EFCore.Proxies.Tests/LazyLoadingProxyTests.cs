@@ -120,6 +120,124 @@ public class LazyLoadingProxyTests
             Assert.Throws<InvalidOperationException>(() => phone.Texts).Message);
     }
 
+    [ConditionalFact]
+    public void Does_not_hang_when_accessing_navigation_on_detached_entity_after_context_disposal()
+    {
+        var serviceProvider = new ServiceCollection()
+            .AddEntityFrameworkInMemoryDatabase()
+            .AddEntityFrameworkProxies()
+            .AddDbContext<JammieDodgerContext>((p, b) =>
+                b.UseInMemoryDatabase("JammieDetached")
+                    .UseInternalServiceProvider(p)
+                    .UseLazyLoadingProxies())
+            .BuildServiceProvider(validateScopes: true);
+
+        using (var scope = serviceProvider.CreateScope())
+        {
+            var context = scope.ServiceProvider.GetService<JammieDodgerContext>();
+            context.Add(new Phone());
+            context.SaveChanges();
+        }
+
+        Phone phone;
+        using (var scope = serviceProvider.CreateScope())
+        {
+            var context = scope.ServiceProvider.GetService<JammieDodgerContext>();
+            phone = context.Set<Phone>().Single();
+            
+            // Detach the entity before disposing the context
+            context.Entry(phone).State = EntityState.Detached;
+        }
+
+        // This should not hang - accessing the navigation should either throw or return null
+        // without causing CLR corruption. The issue described a hang/freeze at the branch evaluation,
+        // not an exception. If this test completes without timing out, it means we don't reproduce
+        // the hang described in the issue.
+        var texts = phone.Texts;
+        
+        // If we reach here without hanging, the test passes. The navigation is expected to be null
+        // for a detached entity since lazy loading won't work.
+        Assert.Null(texts);
+    }
+
+    [ConditionalFact]
+    public void Does_not_hang_when_enumerating_navigation_on_detached_entity_after_context_disposal()
+    {
+        var serviceProvider = new ServiceCollection()
+            .AddEntityFrameworkInMemoryDatabase()
+            .AddEntityFrameworkProxies()
+            .AddDbContext<JammieDodgerContext>((p, b) =>
+                b.UseInMemoryDatabase("JammieDetachedEnumerate")
+                    .UseInternalServiceProvider(p)
+                    .UseLazyLoadingProxies())
+            .BuildServiceProvider(validateScopes: true);
+
+        using (var scope = serviceProvider.CreateScope())
+        {
+            var context = scope.ServiceProvider.GetService<JammieDodgerContext>();
+            var phone = new Phone();
+            context.Add(phone);
+            context.SaveChanges();
+        }
+
+        Phone phone2;
+        using (var scope = serviceProvider.CreateScope())
+        {
+            var context = scope.ServiceProvider.GetService<JammieDodgerContext>();
+            phone2 = context.Set<Phone>().Single();
+            
+            // Detach the entity before disposing the context
+            context.Entry(phone2).State = EntityState.Detached;
+        }
+
+        // Try to enumerate the collection - this might trigger different codepaths
+        // than just accessing the property
+        var count = 0;
+        if (phone2.Texts != null)
+        {
+            foreach (var text in phone2.Texts)
+            {
+                count++;
+            }
+        }
+        
+        Assert.Equal(0, count);
+    }
+
+    [ConditionalFact]
+    public void Does_not_hang_when_accessing_navigation_on_entity_with_disposed_context_not_detached()
+    {
+        // This test is similar to Throws_when_context_is_disposed but focuses on ensuring
+        // we don't hang, even if an exception is thrown
+        var serviceProvider = new ServiceCollection()
+            .AddEntityFrameworkInMemoryDatabase()
+            .AddEntityFrameworkProxies()
+            .AddDbContext<JammieDodgerContext>((p, b) =>
+                b.UseInMemoryDatabase("JammieNotDetached")
+                    .UseInternalServiceProvider(p)
+                    .UseLazyLoadingProxies()
+                    .ConfigureWarnings(w => w.Throw(CoreEventId.LazyLoadOnDisposedContextWarning)))
+            .BuildServiceProvider(validateScopes: true);
+
+        using (var scope = serviceProvider.CreateScope())
+        {
+            var context = scope.ServiceProvider.GetService<JammieDodgerContext>();
+            context.Add(new Phone());
+            context.SaveChanges();
+        }
+
+        Phone phone;
+        using (var scope = serviceProvider.CreateScope())
+        {
+            var context = scope.ServiceProvider.GetService<JammieDodgerContext>();
+            phone = context.Set<Phone>().Single();
+            // Note: NOT detaching the entity
+        }
+
+        // Should throw an exception, not hang
+        Assert.Throws<InvalidOperationException>(() => phone.Texts);
+    }
+
     private class LazyContextIgnoreVirtuals<TEntity>() : TestContext<TEntity>(
         dbName: "LazyLoadingContext", useLazyLoading: true, useChangeDetection: false, ignoreNonVirtualNavigations: true)
         where TEntity : class;
