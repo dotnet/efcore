@@ -67,6 +67,8 @@ extends:
         enabled: true
     customBuildTags:
     - ES365AIMigrationTooling
+     settings:
+      networkIsolationPolicy: Permissive,CFSClean
     stages:
     - stage: build
       displayName: Build
