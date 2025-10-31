@@ -477,8 +477,8 @@ public class CosmosTransactionalBatchTest(NonSharedFixture fixture) : NonSharedM
         await context.SaveChangesAsync();
 
         // Total document size will be: 2_097_510. Total request size will be: 2_098_548
-        // Normally 2MiB is 2_097_152, but cosmos appears to allow ~1Kib (1396 bytes) extra
-        var str = new string('x', 2_095_235);
+        // Normally, the limit is 2MiB (2_097_152), but Cosmos appears to allow ~1Kib (1396 bytes) extra
+        var str = new string('x', 2_095_234);
         customer.Name = str;
 
         if (oneByteOver)
@@ -498,7 +498,6 @@ public class CosmosTransactionalBatchTest(NonSharedFixture fixture) : NonSharedM
     }
 
     [ConditionalTheory, InlineData(true), InlineData(false)]
-    [CosmosCondition(CosmosCondition.IsNotEmulator)]
     public virtual async Task SaveChanges_transaction_behaviour_always_update_entities_payload_can_be_exactly_cosmos_limit_and_throws_when_1byte_over(bool oneByteOver)
     {
         var contextFactory = await InitializeAsync<TransactionalBatchContext>();
@@ -514,8 +513,8 @@ public class CosmosTransactionalBatchTest(NonSharedFixture fixture) : NonSharedM
 
         await context.SaveChangesAsync();
 
-        customer1.Name = new string('x', 1097589);
-        customer2.Name = new string('x', 1097590);
+        customer1.Name = new string('x', 1097582);
+        customer2.Name = new string('x', 1097583);
 
         if (oneByteOver)
         {
@@ -530,7 +529,6 @@ public class CosmosTransactionalBatchTest(NonSharedFixture fixture) : NonSharedM
     }
 
     [ConditionalTheory, InlineData(true), InlineData(false)]
-    [CosmosCondition(CosmosCondition.IsNotEmulator)]
     public virtual async Task SaveChanges_id_counts_double_toward_request_size_on_update(bool oneByteOver)
     {
         var contextFactory = await InitializeAsync<TransactionalBatchContext>();
@@ -546,8 +544,8 @@ public class CosmosTransactionalBatchTest(NonSharedFixture fixture) : NonSharedM
 
         await context.SaveChangesAsync();
 
-        customer1.Name = new string('x', 1097590 + 1_022 * 2);
-        customer2.Name = new string('x', 1097590);
+        customer1.Name = new string('x', 1097581 + (1_024 - customer1.Id.Length) * 2);
+        customer2.Name = new string('x', 1097581 + (1_024 - customer2.Id.Length) * 2);
 
         if (oneByteOver)
         {
@@ -562,7 +560,6 @@ public class CosmosTransactionalBatchTest(NonSharedFixture fixture) : NonSharedM
     }
 
     [ConditionalTheory, InlineData(true), InlineData(false)]
-    [CosmosCondition(CosmosCondition.IsNotEmulator)]
     public virtual async Task SaveChanges_transaction_behaviour_always_create_entities_payload_can_be_exactly_cosmos_limit_and_throws_when_1byte_over(bool oneByteOver)
     {
         var contextFactory = await InitializeAsync<TransactionalBatchContext>();
@@ -570,8 +567,8 @@ public class CosmosTransactionalBatchTest(NonSharedFixture fixture) : NonSharedM
         using var context = contextFactory.CreateContext();
         context.Database.AutoTransactionBehavior = AutoTransactionBehavior.Always;
 
-        var customer1 = new Customer { Id = new string('x', 1_023), Name = new string('x', 1098848), PartitionKey = new string('x', 1_023) };
-        var customer2 = new Customer { Id = new string('y', 1_023), Name = new string('x', 1098848), PartitionKey = new string('x', 1_023) };
+        var customer1 = new Customer { Id = new string('x', 1_023), Name = new string('x', 1098841), PartitionKey = new string('x', 1_023) };
+        var customer2 = new Customer { Id = new string('y', 1_023), Name = new string('x', 1098841), PartitionKey = new string('x', 1_023) };
         if (oneByteOver)
         {
             customer1.Name += 'x';
@@ -591,7 +588,6 @@ public class CosmosTransactionalBatchTest(NonSharedFixture fixture) : NonSharedM
     }
 
     [ConditionalTheory, InlineData(true), InlineData(false)]
-    [CosmosCondition(CosmosCondition.IsNotEmulator)]
     public virtual async Task SaveChanges_id_does_not_count_double_toward_request_size_on_create(bool oneByteOver)
     {
         var contextFactory = await InitializeAsync<TransactionalBatchContext>();
@@ -599,8 +595,8 @@ public class CosmosTransactionalBatchTest(NonSharedFixture fixture) : NonSharedM
         using var context = contextFactory.CreateContext();
         context.Database.AutoTransactionBehavior = AutoTransactionBehavior.Always;
 
-        var customer1 = new Customer { Id = new string('x', 1), Name = new string('x', 1098848 + 1_022), PartitionKey = new string('x', 1_023) };
-        var customer2 = new Customer { Id = new string('y', 1_023), Name = new string('x', 1098848), PartitionKey = new string('x', 1_023) };
+        var customer1 = new Customer { Id = new string('x', 1), Name = new string('x', 1098841 + 1_022), PartitionKey = new string('x', 1_023) };
+        var customer2 = new Customer { Id = new string('y', 1_023), Name = new string('x', 1098841), PartitionKey = new string('x', 1_023) };
         if (oneByteOver)
         {
             customer1.Name += 'x';
