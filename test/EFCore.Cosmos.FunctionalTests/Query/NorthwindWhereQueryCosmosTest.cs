@@ -1699,6 +1699,22 @@ WHERE ((c["id"] = @customerID) OR (c["id"] = @customerId))
         AssertSql();
     }
 
+    public override async Task Where_Queryable_not_null_check_with_Contains(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Where_Queryable_not_null_check_with_Contains(async));
+
+        AssertSql();
+    }
+
+    public override async Task Where_Queryable_null_check_with_Contains(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Where_Queryable_null_check_with_Contains(async));
+
+        AssertSql();
+    }
+
     public override Task Where_list_object_contains_over_value_type(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
