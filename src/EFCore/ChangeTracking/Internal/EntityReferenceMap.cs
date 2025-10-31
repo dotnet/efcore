@@ -62,29 +62,33 @@ public class EntityReferenceMap
                 Remove(mapKey, entityType, oldState.Value);
             }
 
-            switch (state)
+            if (!oldState.HasValue
+                || state != EntityState.Detached)
             {
-                case EntityState.Detached:
-                    _detachedReferenceMap ??= new Dictionary<object, InternalEntityEntry>(ReferenceEqualityComparer.Instance);
-                    _detachedReferenceMap[mapKey] = entry;
-                    break;
-                case EntityState.Unchanged:
-                    _unchangedReferenceMap ??=
-                        new Dictionary<object, InternalEntityEntry>(ReferenceEqualityComparer.Instance);
-                    _unchangedReferenceMap[mapKey] = entry;
-                    break;
-                case EntityState.Deleted:
-                    _deletedReferenceMap ??= new Dictionary<object, InternalEntityEntry>(ReferenceEqualityComparer.Instance);
-                    _deletedReferenceMap[mapKey] = entry;
-                    break;
-                case EntityState.Modified:
-                    _modifiedReferenceMap ??= new Dictionary<object, InternalEntityEntry>(ReferenceEqualityComparer.Instance);
-                    _modifiedReferenceMap[mapKey] = entry;
-                    break;
-                case EntityState.Added:
-                    _addedReferenceMap ??= new Dictionary<object, InternalEntityEntry>(ReferenceEqualityComparer.Instance);
-                    _addedReferenceMap[mapKey] = entry;
-                    break;
+                switch (state)
+                {
+                    case EntityState.Detached:
+                        _detachedReferenceMap ??= new Dictionary<object, InternalEntityEntry>(ReferenceEqualityComparer.Instance);
+                        _detachedReferenceMap[mapKey] = entry;
+                        break;
+                    case EntityState.Unchanged:
+                        _unchangedReferenceMap ??=
+                            new Dictionary<object, InternalEntityEntry>(ReferenceEqualityComparer.Instance);
+                        _unchangedReferenceMap[mapKey] = entry;
+                        break;
+                    case EntityState.Deleted:
+                        _deletedReferenceMap ??= new Dictionary<object, InternalEntityEntry>(ReferenceEqualityComparer.Instance);
+                        _deletedReferenceMap[mapKey] = entry;
+                        break;
+                    case EntityState.Modified:
+                        _modifiedReferenceMap ??= new Dictionary<object, InternalEntityEntry>(ReferenceEqualityComparer.Instance);
+                        _modifiedReferenceMap[mapKey] = entry;
+                        break;
+                    case EntityState.Added:
+                        _addedReferenceMap ??= new Dictionary<object, InternalEntityEntry>(ReferenceEqualityComparer.Instance);
+                        _addedReferenceMap[mapKey] = entry;
+                        break;
+                }
             }
         }
     }

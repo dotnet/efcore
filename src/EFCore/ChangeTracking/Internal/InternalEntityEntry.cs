@@ -204,6 +204,18 @@ public sealed partial class InternalEntityEntry : InternalEntryBase, IUpdateEntr
 
         if (EntityState == EntityState.Detached)
         {
+            // Check if this entity is already being tracked by a different entry
+            // This can happen when the entity was detached and then re-tracked through
+            // navigation fixup before the user manually set its state
+            var existingEntry = StateManager.TryGetEntry(Entity, EntityType);
+            if (existingEntry != null && existingEntry != this)
+            {
+                // The entity is already tracked by a different entry.
+                // Update the state of the existing entry instead of trying to track this stale entry.
+                existingEntry.SetEntityState(newState);
+                return;
+            }
+            
             StateManager.StartTracking(this);
         }
     }
