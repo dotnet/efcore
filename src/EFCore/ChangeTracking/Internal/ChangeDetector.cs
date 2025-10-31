@@ -283,7 +283,7 @@ public class ChangeDetector : IChangeDetector
             }
         }
 
-        foreach (var complexProperty in entry.StructuralType.GetComplexProperties())
+        foreach (var complexProperty in entry.StructuralType.GetFlattenedComplexProperties())
         {
             if (complexProperty.IsCollection)
             {
