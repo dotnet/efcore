@@ -120,6 +120,14 @@ public class LazyLoadingProxyTests
             Assert.Throws<InvalidOperationException>(() => phone.Texts).Message);
     }
 
+    /// <summary>
+    /// Tests that accessing a navigation property on a detached entity after context disposal
+    /// does not hang. This test is related to issue #XXXXX where a user reported CLR hangs
+    /// when accessing navigation properties on detached entities.
+    /// 
+    /// The current implementation correctly handles this scenario by checking the _detached
+    /// flag in LazyLoader.ShouldLoad() before attempting to access the disposed context.
+    /// </summary>
     [ConditionalFact]
     public void Does_not_hang_when_accessing_navigation_on_detached_entity_after_context_disposal()
     {
@@ -160,6 +168,11 @@ public class LazyLoadingProxyTests
         Assert.Null(texts);
     }
 
+    /// <summary>
+    /// Tests that enumerating a navigation collection on a detached entity after context disposal
+    /// does not hang. This is a variation of the detached entity test that specifically exercises
+    /// the enumeration codepath.
+    /// </summary>
     [ConditionalFact]
     public void Does_not_hang_when_enumerating_navigation_on_detached_entity_after_context_disposal()
     {
@@ -204,6 +217,11 @@ public class LazyLoadingProxyTests
         Assert.Equal(0, count);
     }
 
+    /// <summary>
+    /// Tests that accessing a navigation on a non-detached entity with a disposed context
+    /// throws an exception rather than hanging. This verifies that even when the detached
+    /// flag is not set, the system handles the disposed context gracefully.
+    /// </summary>
     [ConditionalFact]
     public void Does_not_hang_when_accessing_navigation_on_entity_with_disposed_context_not_detached()
     {
@@ -398,6 +416,11 @@ public class LazyLoadingProxyTests
         public virtual Child Child { get; set; }
     }
 
+    /// <summary>
+    /// Tests that accessing multiple navigation properties on a detached entity with a complex
+    /// object graph does not hang. This ensures the fix works correctly even with multiple
+    /// navigations and different navigation types (collection and reference).
+    /// </summary>
     [ConditionalFact]
     public void Does_not_hang_with_complex_navigation_graph_after_detach()
     {
