@@ -357,9 +357,6 @@
   <data name="SaveChangesAutoTransactionBehaviorAlwaysTriggerAtomicity" xml:space="preserve">
     <value>When using AutoTransactionBehavior.Always with the Cosmos DB provider, only 1 entity can be saved at a time when using pre- or post- triggers to ensure atomicity.</value>
   </data>
-  <data name="SessionTokenCanNotBeWhiteSpace" xml:space="preserve">
-    <value>Session token can not be white space.</value>
-  </data>
   <data name="SingleFirstOrDefaultNotSupportedOnNonNullableQueries" xml:space="preserve">
     <value>SingleOrDefault and FirstOrDefault cannot be used Cosmos SQL does not allow Offset without Limit. Consider specifying a 'Take' operation on the query.</value>
   </data>
