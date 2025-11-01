@@ -9,8 +9,9 @@ namespace Microsoft.EntityFrameworkCore;
 /// <summary>
 /// Tests for lazy-loading proxy functionality.
 /// 
-/// NOTE: Tests added related to issue #XXXXX about potential CLR hangs when accessing
-/// navigation properties on detached entities after context disposal:
+/// NOTE: Tests added related to a reported issue about potential CLR hangs when accessing
+/// navigation properties on detached entities after context disposal (EF Core 8.0.4).
+/// See: https://github.com/dotnet/efcore/issues/[issue-number] (user report of nondeterministic hangs)
 /// 
 /// - Does_not_hang_when_accessing_navigation_on_detached_entity_after_context_disposal
 /// - Does_not_hang_when_enumerating_navigation_on_detached_entity_after_context_disposal
@@ -147,7 +148,7 @@ public class LazyLoadingProxyTests
 
     /// <summary>
     /// Tests that accessing a navigation property on a detached entity after context disposal
-    /// does not hang. This test is related to issue #XXXXX where a user reported CLR hangs
+    /// does not hang. This test addresses a user report of CLR hangs (EF Core 8.0.4)
     /// when accessing navigation properties on detached entities.
     /// 
     /// The current implementation correctly handles this scenario by checking the _detached
