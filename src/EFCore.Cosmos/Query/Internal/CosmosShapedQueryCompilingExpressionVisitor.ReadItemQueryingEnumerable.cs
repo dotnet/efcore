@@ -6,6 +6,7 @@
 using System.Collections;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Storage;
 using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
@@ -49,7 +50,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             _queryLogger = _cosmosQueryContext.QueryLogger;
             _standAloneStateManager = standAloneStateManager;
             _threadSafetyChecksEnabled = threadSafetyChecksEnabled;
-
             _cosmosContainer = rootEntityType.GetContainer()
                 ?? throw new UnreachableException("Root entity type without a Cosmos container.");
             _cosmosPartitionKey = GeneratePartitionKey(
@@ -161,7 +161,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     _item = _cosmosQueryContext.CosmosClient.ExecuteReadItem(
                         _cosmosContainer,
                         _cosmosPartitionKey,
-                        resourceId);
+                        resourceId,
+                        _cosmosQueryContext.SessionTokenStorage);
 
                     return ShapeResult();
                 }
@@ -202,6 +203,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                             _cosmosContainer,
                             _cosmosPartitionKey,
                             resourceId,
+                            _cosmosQueryContext.SessionTokenStorage,
                             _cancellationToken)
                         .ConfigureAwait(false);
 

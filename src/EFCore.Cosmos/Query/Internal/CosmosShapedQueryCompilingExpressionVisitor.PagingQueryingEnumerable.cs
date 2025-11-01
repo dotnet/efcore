@@ -4,6 +4,7 @@
 #nullable disable
 
 using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Storage;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Newtonsoft.Json.Linq;
 
@@ -63,7 +64,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             _maxItemCountParameterName = maxItemCountParameterName;
             _continuationTokenParameterName = continuationTokenParameterName;
             _responseContinuationTokenLimitInKbParameterName = responseContinuationTokenLimitInKbParameterName;
-
             _cosmosContainer = rootEntityType.GetContainer()
                 ?? throw new UnreachableException("Root entity type without a Cosmos container.");
             _cosmosPartitionKey = GeneratePartitionKey(
@@ -95,7 +95,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             private readonly CancellationToken _cancellationToken;
             private readonly IConcurrencyDetector _concurrencyDetector;
             private readonly IExceptionDetector _exceptionDetector;
-
             private bool _hasExecuted;
             private bool _isDisposed;
 
@@ -155,6 +154,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         queryRequestOptions.PartitionKey = _cosmosPartitionKey;
                     }
 
+                    queryRequestOptions.SessionToken = _cosmosQueryContext.SessionTokenStorage.GetSessionToken(_cosmosContainer);
+
                     var cosmosClient = _cosmosQueryContext.CosmosClient;
                     _commandLogger.ExecutingSqlQuery(_cosmosContainer, _cosmosPartitionKey, sqlQuery);
                     _cosmosQueryContext.InitializeStateManager(_standAloneStateManager);
@@ -165,7 +166,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     {
                         queryRequestOptions.MaxItemCount = maxItemCount;
                         using var feedIterator = cosmosClient.CreateQuery(
-                            _cosmosContainer, sqlQuery, continuationToken, queryRequestOptions);
+                            _cosmosContainer, sqlQuery, _cosmosQueryContext.SessionTokenStorage, continuationToken, queryRequestOptions);
 
                         using var responseMessage = await feedIterator.ReadNextAsync(_cancellationToken).ConfigureAwait(false);
 

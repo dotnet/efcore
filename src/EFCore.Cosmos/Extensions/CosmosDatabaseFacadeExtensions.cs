@@ -25,6 +25,79 @@ public static class CosmosDatabaseFacadeExtensions
     public static CosmosClient GetCosmosClient(this DatabaseFacade databaseFacade)
         => GetService<ISingletonCosmosClientWrapper>(databaseFacade).Client;
 
+    /// <summary>
+    ///     Gets the composite session token for the default container for this <see cref="DbContext" />.
+    /// </summary>
+    /// <remarks>Use this when using only 1 container in the same <see cref="DbContext"/>.</remarks>
+    /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
+    /// <returns>The session token for the default container in the context, or <see langword="null"/> if none present.</returns>
+    public static string? GetSessionToken(this DatabaseFacade databaseFacade)
+        => GetSessionTokenStorage(databaseFacade).GetSessionToken();
+
+    /// <summary>
+    ///     Gets a dictionary that contains the composite session token per container for this <see cref="DbContext" />.
+    /// </summary>
+    /// <remarks>Use this when using multiple containers in the same <see cref="DbContext"/>.</remarks>
+    /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
+    /// <returns>The session token dictionary.</returns>
+    public static IReadOnlyDictionary<string, string> GetSessionTokens(this DatabaseFacade databaseFacade)
+        => GetSessionTokenStorage(databaseFacade).ToDictionary();
+
+    /// <summary>
+    ///     Appends the composite session token for the default container for this <see cref="DbContext" />.
+    /// </summary>
+    /// <remarks>Use this when using only 1 container in the same <see cref="DbContext"/>.</remarks>
+    /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
+    /// <param name="sessionToken">The session token to append.</param>
+    public static void AppendSessionToken(this DatabaseFacade databaseFacade, string sessionToken)
+        => GetSessionTokenStorage(databaseFacade).AppendSessionToken(sessionToken);
+
+    /// <summary>
+    ///     Appends the composite sessions token per container for this <see cref="DbContext" /> with the tokens specified in <paramref name="sessionTokens"/>.
+    /// </summary>
+    /// <remarks>Use this when using multiple containers in the same <see cref="DbContext"/>.</remarks>
+    /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
+    /// <param name="sessionTokens">The session tokens to append per container.</param>
+    public static void AppendSessionTokens(this DatabaseFacade databaseFacade, IReadOnlyDictionary<string, string> sessionTokens)
+    {
+        var sessionTokenStorage = GetSessionTokenStorage(databaseFacade);
+
+        var containerNames = GetContainerNames(databaseFacade.GetService<IModel>());
+        foreach (var sessionToken in sessionTokens)
+        {
+            if (!containerNames.Contains(sessionToken.Key))
+            {
+                throw new InvalidOperationException(CosmosStrings.ContainerNameDoesNotExist(sessionToken.Key));
+            }
+        }
+
+        sessionTokenStorage.AppendSessionTokens(sessionTokens);
+    }
+
+    private static HashSet<string> GetContainerNames(IModel model)
+        => model.GetEntityTypes()
+            .Where(et => et.FindPrimaryKey() != null)
+            .Select(et => et.GetContainer())
+            .Where(container => container != null)
+            .Distinct()!
+            .ToHashSet()!;
+
+    private static SessionTokenStorage GetSessionTokenStorage(DatabaseFacade databaseFacade)
+    {
+        var db = GetService<IDatabase>(databaseFacade);
+        if (db is not CosmosDatabaseWrapper dbWrapper)
+        {
+            throw new InvalidOperationException(CosmosStrings.CosmosNotInUse);
+        }
+
+        if (dbWrapper.SessionTokenStorage is not SessionTokenStorage sts)
+        {
+            throw new InvalidOperationException(CosmosStrings.EnableManualSessionTokenManagement);
+        }
+
+        return sts;
+    }
+
     private static TService GetService<TService>(IInfrastructure<IServiceProvider> databaseFacade)
         where TService : class
     {
