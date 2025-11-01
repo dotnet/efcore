@@ -374,4 +374,75 @@ public class LazyLoadingProxyTests
     {
         public int Id { get; set; }
     }
+
+    // Additional entities for more complex lazy loading scenarios
+    public class Parent
+    {
+        public int Id { get; set; }
+        public virtual ICollection<Child> Children { get; set; }
+        public virtual Parent RelatedParent { get; set; }
+    }
+
+    public class Child
+    {
+        public int Id { get; set; }
+        public int ParentId { get; set; }
+        public virtual Parent Parent { get; set; }
+        public virtual ICollection<GrandChild> GrandChildren { get; set; }
+    }
+
+    public class GrandChild
+    {
+        public int Id { get; set; }
+        public int ChildId { get; set; }
+        public virtual Child Child { get; set; }
+    }
+
+    [ConditionalFact]
+    public void Does_not_hang_with_complex_navigation_graph_after_detach()
+    {
+        var serviceProvider = new ServiceCollection()
+            .AddEntityFrameworkInMemoryDatabase()
+            .AddEntityFrameworkProxies()
+            .AddDbContext<ComplexGraphContext>((p, b) =>
+                b.UseInMemoryDatabase("ComplexGraph")
+                    .UseInternalServiceProvider(p)
+                    .UseLazyLoadingProxies())
+            .BuildServiceProvider(validateScopes: true);
+
+        using (var scope = serviceProvider.CreateScope())
+        {
+            var context = scope.ServiceProvider.GetService<ComplexGraphContext>();
+            var parent = new Parent { Id = 1 };
+            context.Add(parent);
+            context.SaveChanges();
+        }
+
+        Parent parent2;
+        using (var scope = serviceProvider.CreateScope())
+        {
+            var context = scope.ServiceProvider.GetService<ComplexGraphContext>();
+            parent2 = context.Set<Parent>().First();
+            
+            // Detach before disposal
+            context.Entry(parent2).State = EntityState.Detached;
+        }
+
+        // Try accessing multiple navigation properties
+        var children = parent2.Children;
+        var relatedParent = parent2.RelatedParent;
+        
+        Assert.Null(children);
+        Assert.Null(relatedParent);
+    }
+
+    private class ComplexGraphContext(DbContextOptions options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Parent>().HasMany(p => p.Children).WithOne(c => c.Parent).HasForeignKey(c => c.ParentId);
+            modelBuilder.Entity<Child>().HasMany(c => c.GrandChildren).WithOne(g => g.Child).HasForeignKey(g => g.ChildId);
+            modelBuilder.Entity<Parent>().HasOne(p => p.RelatedParent).WithOne().HasForeignKey<Parent>("RelatedParentId");
+        }
+    }
 }
