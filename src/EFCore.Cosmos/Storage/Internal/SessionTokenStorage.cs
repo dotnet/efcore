@@ -92,10 +92,12 @@ public class SessionTokenStorage : ISessionTokenStorage
         ref var compositeSessionToken = ref CollectionsMarshal.GetValueRefOrAddDefault(_containerSessionTokens, containerName, out var exists);
         if (!exists)
         {
-            compositeSessionToken = new();
+            compositeSessionToken = new(sessionToken);
         }
-
-        compositeSessionToken!.Add(sessionToken);
+        else
+        {
+            compositeSessionToken!.Add(sessionToken);
+        }
     }
 
     /// <summary>
@@ -105,12 +107,7 @@ public class SessionTokenStorage : ISessionTokenStorage
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual void Clear()
-    {
-        foreach (var key in _containerSessionTokens.Keys)
-        {
-            _containerSessionTokens[key] = new CompositeSessionToken();
-        }
-    }
+        => _containerSessionTokens.Clear();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -118,13 +115,16 @@ public class SessionTokenStorage : ISessionTokenStorage
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IReadOnlyDictionary<string, string?> ToDictionary() => _containerSessionTokens.ToDictionary(x => x.Key, x => x.Value.ConvertToString());
+    public virtual IReadOnlyDictionary<string, string> ToDictionary() => _containerSessionTokens.ToDictionary(x => x.Key, x => x.Value.ConvertToString());
 
     private sealed class CompositeSessionToken
     {
         private string? _string;
         private bool _isChanged;
         private readonly HashSet<string> _tokens = new();
+
+        public CompositeSessionToken(string token)
+            => Add(token);
 
         public void Add(string token)
         {
@@ -137,7 +137,7 @@ public class SessionTokenStorage : ISessionTokenStorage
             }
         }
 
-        public string? ConvertToString()
+        public string ConvertToString()
         {
             if (_isChanged)
             {
@@ -145,7 +145,7 @@ public class SessionTokenStorage : ISessionTokenStorage
                 _string = string.Join(",", _tokens);
             }
 
-            return _string;
+            return _string!;
         }
     }
 }

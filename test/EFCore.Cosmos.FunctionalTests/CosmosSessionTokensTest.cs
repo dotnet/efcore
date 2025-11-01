@@ -46,7 +46,7 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
         var contextFactory = await InitializeAsync<CosmosSessionTokenContext>();
 
         using var context = contextFactory.CreateContext();
-        IReadOnlyDictionary<string, string?> sessionTokens;
+        IReadOnlyDictionary<string, string> sessionTokens;
         context.Database.AppendSessionToken("0:-1#231");
         sessionTokens = context.Database.GetSessionTokens();
 
@@ -61,7 +61,7 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
         var contextFactory = await InitializeAsync<CosmosSessionTokenContext>();
 
         using var context = contextFactory.CreateContext();
-        IReadOnlyDictionary<string, string?> sessionTokens;
+        IReadOnlyDictionary<string, string> sessionTokens;
 
         context.Database.AppendSessionTokens(new Dictionary<string, string> { { OtherContainerName, "0:-1#123" }, { nameof(CosmosSessionTokenContext), "0:-1#231" } });
         sessionTokens = context.Database.GetSessionTokens();
