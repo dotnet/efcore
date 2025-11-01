@@ -618,6 +618,79 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
 
     #endregion
 
+    #region HasJsonPropertyName
+
+    [ConditionalFact]
+    public virtual async Task HasJsonPropertyName()
+    {
+        var contextFactory = await InitializeAsync<Context37009>(
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            onModelCreating: m => m.Entity<Context37009.Entity>().ComplexProperty(e => e.Json, b =>
+            {
+                b.ToJson();
+
+                b.Property(j => j.String).HasJsonPropertyName("string");
+
+                b.ComplexProperty(j => j.Nested, b =>
+                {
+                    b.HasJsonPropertyName("nested");
+                    b.Property(x => x.Int).HasJsonPropertyName("int");
+                });
+
+                b.ComplexCollection(a => a.NestedCollection, b =>
+                {
+                    b.HasJsonPropertyName("nested_collection");
+                    b.Property(x => x.Int).HasJsonPropertyName("int");
+                });
+            }),
+            seed: context =>
+            {
+                context.Set<Context37009.Entity>().Add(new Context37009.Entity
+                {
+                    Json = new Context37009.JsonComplexType
+                    {
+                        String = "foo",
+                        Nested = new Context37009.JsonNestedType { Int = 1 },
+                        NestedCollection = [new Context37009.JsonNestedType { Int = 2 }]
+                    }
+                });
+
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateContext();
+
+        Assert.Equal(1, await context.Set<Context37009.Entity>().CountAsync(e => e.Json.String == "foo"));
+        Assert.Equal(1, await context.Set<Context37009.Entity>().CountAsync(e => e.Json.Nested.Int == 1));
+        Assert.Equal(1, await context.Set<Context37009.Entity>().CountAsync(e => e.Json.NestedCollection.Any(x => x.Int == 2)));
+    }
+
+    protected class Context37009(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Entity> Entities { get; set; }
+
+        public class Entity
+        {
+            public int Id { get; set; }
+            public JsonComplexType Json { get; set; }
+        }
+
+        public class JsonComplexType
+        {
+            public string String { get; set; }
+
+            public JsonNestedType Nested { get; set; }
+            public List<JsonNestedType> NestedCollection { get; set; }
+        }
+
+        public class JsonNestedType
+        {
+            public int Int { get; set; }
+        }
+    }
+
+    #endregion HasJsonPropertyName
+
     protected TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ListLoggerFactory;
 
