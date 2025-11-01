@@ -3,7 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
-using Microsoft.EntityFrameworkCore.Cosmos.Storage;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 
 // ReSharper disable once CheckNamespace
@@ -42,7 +41,7 @@ public static class CosmosDatabaseFacadeExtensions
     /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
     /// <returns>The session token dictionary.</returns>
     public static IReadOnlyDictionary<string, string?> GetSessionTokens(this DatabaseFacade databaseFacade)
-        => GetSessionTokenStorage(databaseFacade);
+        => GetSessionTokenStorage(databaseFacade).ToDictionary();
 
     /// <summary>
     /// Appends the composite session token for the default container for this <see cref="DbContext" />.
@@ -60,7 +59,28 @@ public static class CosmosDatabaseFacadeExtensions
     /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
     /// <param name="sessionTokens">The session tokens to append per container.</param>
     public static void AppendSessionTokens(this DatabaseFacade databaseFacade, IReadOnlyDictionary<string, string> sessionTokens)
-        => GetSessionTokenStorage(databaseFacade).AppendSessionTokens(sessionTokens);
+    {
+        var sessionTokenStorage = GetSessionTokenStorage(databaseFacade);
+
+        var containerNames = GetContainerNames(databaseFacade.GetService<IModel>());
+        foreach (var sessionToken in sessionTokens)
+        {
+            if (!containerNames.Contains(sessionToken.Key))
+            {
+                throw new InvalidOperationException(CosmosStrings.ContainerNameDoesNotExist(sessionToken.Key));
+            }
+        }
+
+        sessionTokenStorage.AppendSessionTokens(sessionTokens);
+    }
+
+    private static HashSet<string> GetContainerNames(IModel model)
+        => model.GetEntityTypes()
+            .Where(et => et.FindPrimaryKey() != null)
+            .Select(et => et.GetContainer())
+            .Where(container => container != null)
+            .Distinct()!
+            .ToHashSet()!;
 
     private static SessionTokenStorage GetSessionTokenStorage(DatabaseFacade databaseFacade)
     {

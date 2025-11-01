@@ -1,10 +1,7 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Collections;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
@@ -15,9 +12,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SessionTokenStorage : ISessionTokenStorage, IReadOnlyDictionary<string, string?>
+public class SessionTokenStorage : ISessionTokenStorage
 {
-    private readonly Dictionary<string, CompositeSessionToken> _containerSessionTokens;
+    private readonly Dictionary<string, CompositeSessionToken> _containerSessionTokens = new();
     private readonly string _defaultContainerName;
 
     /// <summary>
@@ -28,11 +25,7 @@ public class SessionTokenStorage : ISessionTokenStorage, IReadOnlyDictionary<str
     /// </summary>
     public SessionTokenStorage(DbContext dbContext)
     {
-        var defaultContainerName = (string)dbContext.Model.GetAnnotation(CosmosAnnotationNames.ContainerName).Value!;
-        var containerNames = (HashSet<string>)dbContext.Model.GetAnnotation(CosmosAnnotationNames.ContainerNames).Value!;
-
-        _defaultContainerName = defaultContainerName;
-        _containerSessionTokens = containerNames.ToDictionary(containerName => containerName, _ => new CompositeSessionToken());
+        _defaultContainerName = (string)dbContext.Model.GetAnnotation(CosmosAnnotationNames.ContainerName).Value!;
     }
 
     /// <summary>
@@ -64,7 +57,7 @@ public class SessionTokenStorage : ISessionTokenStorage, IReadOnlyDictionary<str
 
         if (!_containerSessionTokens.TryGetValue(containerName, out var value))
         {
-            throw new ArgumentException(CosmosStrings.ContainerNameDoesNotExist(containerName), nameof(containerName));
+            return null;
         }
 
         return value.ConvertToString();
@@ -81,7 +74,6 @@ public class SessionTokenStorage : ISessionTokenStorage, IReadOnlyDictionary<str
         ArgumentNullException.ThrowIfNull(sessionTokens, nameof(sessionTokens));
         foreach (var (containerName, sessionToken) in sessionTokens)
         {
-            // @TODO: null checks?
             AppendSessionToken(containerName, sessionToken);
         }
     }
@@ -97,43 +89,13 @@ public class SessionTokenStorage : ISessionTokenStorage, IReadOnlyDictionary<str
         ArgumentNullException.ThrowIfNullOrWhiteSpace(containerName, nameof(containerName));
         ArgumentNullException.ThrowIfNullOrWhiteSpace(sessionToken, nameof(sessionToken));
 
-        if (!_containerSessionTokens.TryGetValue(containerName, out var compositeSessionToken))
+        ref var compositeSessionToken = ref CollectionsMarshal.GetValueRefOrAddDefault(_containerSessionTokens, containerName, out var exists);
+        if (!exists)
         {
-            throw new ArgumentException(CosmosStrings.ContainerNameDoesNotExist(containerName), nameof(containerName));
+            compositeSessionToken = new();
         }
 
-        compositeSessionToken.Add(sessionToken);
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual void SetSessionToken(string containerName, string? sessionToken)
-    {
-        ArgumentNullException.ThrowIfNullOrWhiteSpace(containerName, nameof(containerName));
-        if (sessionToken is not null && string.IsNullOrWhiteSpace(sessionToken))
-        {
-            throw new ArgumentException(CosmosStrings.SessionTokenCanNotBeWhiteSpace, nameof(sessionToken));
-        }
-
-        ref var compositeSessionToken = ref CollectionsMarshal.GetValueRefOrNullRef(_containerSessionTokens, containerName);
-
-        if (Unsafe.IsNullRef(ref compositeSessionToken))
-        {
-            throw new ArgumentException(CosmosStrings.ContainerNameDoesNotExist(containerName), nameof(containerName));
-        }
-
-        compositeSessionToken = new CompositeSessionToken();
-
-        if (sessionToken is null)
-        {
-            return;
-        }
-
-        compositeSessionToken.Add(sessionToken);
+        compositeSessionToken!.Add(sessionToken);
     }
 
     /// <summary>
@@ -149,6 +111,14 @@ public class SessionTokenStorage : ISessionTokenStorage, IReadOnlyDictionary<str
             _containerSessionTokens[key] = new CompositeSessionToken();
         }
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual IReadOnlyDictionary<string, string?> ToDictionary() => _containerSessionTokens.ToDictionary(x => x.Key, x => x.Value.ConvertToString());
 
     private sealed class CompositeSessionToken
     {
@@ -178,26 +148,4 @@ public class SessionTokenStorage : ISessionTokenStorage, IReadOnlyDictionary<str
             return _string;
         }
     }
-
-
-    #region IReadOnlyDictionary
-    IEnumerable<string> IReadOnlyDictionary<string, string?>.Keys => _containerSessionTokens.Keys;
-
-    IEnumerable<string?> IReadOnlyDictionary<string, string?>.Values => _containerSessionTokens.Values.Select(v => v.ConvertToString());
-
-    int IReadOnlyCollection<KeyValuePair<string, string?>>.Count => _containerSessionTokens.Count;
-
-    string? IReadOnlyDictionary<string, string?>.this[string key] => _containerSessionTokens[key].ConvertToString();
-
-    bool IReadOnlyDictionary<string, string?>.ContainsKey(string key) => _containerSessionTokens.ContainsKey(key);
-
-    bool IReadOnlyDictionary<string, string?>.TryGetValue(string key, out string? value)
-        => _containerSessionTokens.TryGetValue(key, out var compositeSessionToken) ?
-            (value = compositeSessionToken.ConvertToString()) != null
-          : (value = null) == null;
-
-    IEnumerator<KeyValuePair<string, string?>> IEnumerable<KeyValuePair<string, string?>>.GetEnumerator() => _containerSessionTokens.Select(x => new KeyValuePair<string, string?>(x.Key, x.Value.ConvertToString())).GetEnumerator();
-
-    IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<KeyValuePair<string, string?>>)this).GetEnumerator();
-    #endregion
 }

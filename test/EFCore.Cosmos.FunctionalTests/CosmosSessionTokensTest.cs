@@ -31,13 +31,13 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
     }
 
     [ConditionalFact]
-    public virtual async Task AppendSessionToken_ThrowsForNonExistentContainer()
+    public virtual async Task AppendSessionTokens_throws_for_non_existent_container()
     {
         var contextFactory = await InitializeAsync<CosmosSessionTokenContext>();
 
         using var context = contextFactory.CreateContext();
-        var exception = Assert.Throws<ArgumentException>(() => context.Database.AppendSessionTokens(new Dictionary<string, string> { { OtherContainerName, "0:-1#231"}, { "Not the container name", "0:-1#231" } }));
-        Assert.Equal(CosmosStrings.ContainerNameDoesNotExist("Not the container name") + " (Parameter 'containerName')", exception.Message);
+        var exception = Assert.Throws<InvalidOperationException>(() => context.Database.AppendSessionTokens(new Dictionary<string, string> { { OtherContainerName, "0:-1#231"}, { "Not the container name", "0:-1#231" } }));
+        Assert.Equal(CosmosStrings.ContainerNameDoesNotExist("Not the container name"), exception.Message);
     }
 
     [ConditionalFact]
@@ -68,8 +68,6 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
 
         Assert.Equal("0:-1#123", sessionTokens[OtherContainerName]);
         Assert.Equal("0:-1#231", sessionTokens[nameof(CosmosSessionTokenContext)]);
-        Assert.Equal(nameof(CosmosSessionTokenContext), sessionTokens.First().Key);
-        Assert.Equal(sessionTokens[nameof(CosmosSessionTokenContext)], sessionTokens.First().Value);
     }
 
     [ConditionalFact]
@@ -154,16 +152,21 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
     }
 
     [ConditionalFact]
-    public virtual async Task GetSessionToken_no_token_returns_null()
+    public virtual async Task GetSessionTokens_no_token_returns_empty()
     {
         var contextFactory = await InitializeAsync<CosmosSessionTokenContext>();
         using var context = contextFactory.CreateContext();
         var sessionTokens = context.Database.GetSessionTokens();
-        Assert.Equal(2, sessionTokens.Count);
-        Assert.Equal(nameof(CosmosSessionTokenContext), sessionTokens.First().Key);
-        Assert.Null(sessionTokens.First().Value);
-        Assert.Equal(OtherContainerName, sessionTokens.Last().Key);
-        Assert.Null(sessionTokens.Last().Value);
+        Assert.Equal(0, sessionTokens.Count);
+    }
+
+    [ConditionalFact]
+    public virtual async Task GetSessionToken_no_token_returns_null()
+    {
+        var contextFactory = await InitializeAsync<CosmosSessionTokenContext>();
+        using var context = contextFactory.CreateContext();
+        var sessionToken = context.Database.GetSessionToken();
+        Assert.Null(sessionToken);
     }
 
     [ConditionalTheory, InlineData(true), InlineData(false)]
@@ -303,16 +306,8 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
 
         using var newContext = contextFactory.CreateContext();
         Assert.Same(newContext, contextCopy);
-        if (async) // @TODO: Maybe even no if here?
-        {
-            await newContext.Customers.ToListAsync();
-            await newContext.OtherContainerCustomers.ToListAsync();
-        }
-        else
-        {
-            newContext.Customers.ToList();
-            newContext.OtherContainerCustomers.ToList();
-        }
+        await newContext.Customers.ToListAsync();
+        await newContext.OtherContainerCustomers.ToListAsync();
     }
 
     [ConditionalTheory, InlineData(true), InlineData(false)]
@@ -476,7 +471,7 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
             _ = context.OtherContainerCustomers.ToList();
         }
 
-        var initialTokens = context.Database.GetSessionTokens().ToDictionary(); // Make a copy
+        var initialTokens = context.Database.GetSessionTokens();
 
         using var otherContext = contextFactory.CreateContext();
         otherContext.Customers.Add(new Customer { Id = "1", PartitionKey = "1" });
@@ -530,7 +525,7 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
             _ = context.OtherContainerCustomers.ToList();
         }
 
-        var initialTokens = context.Database.GetSessionTokens().ToDictionary(); // Make a copy
+        var initialTokens = context.Database.GetSessionTokens();
 
         if (async)
         {
@@ -560,7 +555,7 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
         await context.Customers.ToPageAsync(1, null);
         await context.OtherContainerCustomers.ToPageAsync(1, null);
 
-        var initialTokens = context.Database.GetSessionTokens().ToDictionary(); // Make a copy
+        var initialTokens = context.Database.GetSessionTokens();
 
         using var otherContext = contextFactory.CreateContext();
         otherContext.Customers.Add(new Customer { Id = "1", PartitionKey = "1" });
@@ -600,7 +595,7 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
             _ = context.OtherContainerCustomers.ToList();
         }
 
-        var initialTokens = context.Database.GetSessionTokens().ToDictionary(); // Make a copy
+        var initialTokens = context.Database.GetSessionTokens();
 
         using var otherContext = contextFactory.CreateContext();
         otherContext.Customers.Add(new Customer { Id = "1", PartitionKey = "1" });
@@ -654,7 +649,7 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
             _ = context.OtherContainerCustomers.ToList();
         }
 
-        var initialTokens = context.Database.GetSessionTokens().ToDictionary(); // Make a copy
+        var initialTokens = context.Database.GetSessionTokens();
 
         using var otherContext = contextFactory.CreateContext();
         otherContext.Customers.Add(new Customer { Id = "1", PartitionKey = "1" });
@@ -775,7 +770,7 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
             context.SaveChanges();
         }
 
-        var initialTokens = context.Database.GetSessionTokens().ToDictionary();
+        var initialTokens = context.Database.GetSessionTokens();
 
         context.Customers.Add(new Customer { Id = "2", PartitionKey = "1" });
         context.OtherContainerCustomers.Add(new OtherContainerCustomer { Id = "2", PartitionKey = "1" });
@@ -829,7 +824,7 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
             context.SaveChanges();
         }
 
-        var initialTokens = context.Database.GetSessionTokens().ToDictionary();
+        var initialTokens = context.Database.GetSessionTokens();
 
         if (defaultContainer)
         {
@@ -878,7 +873,7 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
             context.SaveChanges();
         }
 
-        var initialTokens = context.Database.GetSessionTokens().ToDictionary();
+        var initialTokens = context.Database.GetSessionTokens();
 
         context.Customers.Remove(customer);
         context.OtherContainerCustomers.Remove(otherContainerCustomer);
@@ -933,7 +928,7 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
         }
 
         context.ChangeTracker.Clear();
-        var initialTokens = context.Database.GetSessionTokens().ToDictionary();
+        var initialTokens = context.Database.GetSessionTokens();
 
         if (defaultContainer)
         {
@@ -982,7 +977,7 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
             context.SaveChanges();
         }
 
-        var initialTokens = context.Database.GetSessionTokens().ToDictionary();
+        var initialTokens = context.Database.GetSessionTokens();
 
         customer.Name = "updated";
         otherContainerCustomer.Name = "updated";
@@ -1037,7 +1032,7 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
         }
 
         context.ChangeTracker.Clear();
-        var initialTokens = context.Database.GetSessionTokens().ToDictionary();
+        var initialTokens = context.Database.GetSessionTokens();
 
         if (defaultContainer)
         {
@@ -1085,10 +1080,15 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
         var sessionTokens = context.Database.GetSessionTokens();
         // Only way we can test this is by setting a session token that will fail the request if used..
         // Only way to do this for a write is to set an invalid session token..
-        var internalDictionary = sessionTokens.GetType().GetField("_containerSessionTokens", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(sessionTokens)!;
-        var internalComposite = internalDictionary.GetType().GetProperty("Item", BindingFlags.Public | BindingFlags.Instance)!.GetValue(internalDictionary, new object[] { defaultContainer ? nameof(CosmosSessionTokenContext) : OtherContainerName })!;
-        internalComposite.GetType().GetField("_string", BindingFlags.NonPublic | BindingFlags.Instance)!.SetValue(internalComposite, "invalidtoken");
-        internalComposite.GetType().GetField("_isChanged", BindingFlags.NonPublic | BindingFlags.Instance)!.SetValue(internalComposite, false);
+
+        if (defaultContainer)
+        {
+            context.Database.AppendSessionToken("invalidtoken");
+        }
+        else
+        {
+            context.Database.AppendSessionTokens(new Dictionary<string, string> { { OtherContainerName, "invalidtoken" } });
+        }
 
         if (defaultContainer)
         {
@@ -1135,10 +1135,14 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
         var sessionTokens = context.Database.GetSessionTokens();
         // Only way we can test this is by setting a session token that will fail the request if used..
         // Only way to do this for a write is to set an invalid session token..
-        var internalDictionary = sessionTokens.GetType().GetField("_containerSessionTokens", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(sessionTokens)!;
-        var internalComposite = internalDictionary.GetType().GetProperty("Item", BindingFlags.Public | BindingFlags.Instance)!.GetValue(internalDictionary, new object[] { defaultContainer ? nameof(CosmosSessionTokenContext) : OtherContainerName })!;
-        internalComposite.GetType().GetField("_string", BindingFlags.NonPublic | BindingFlags.Instance)!.SetValue(internalComposite, "invalidtoken");
-        internalComposite.GetType().GetField("_isChanged", BindingFlags.NonPublic | BindingFlags.Instance)!.SetValue(internalComposite, false);
+        if (defaultContainer)
+        {
+            context.Database.AppendSessionToken("invalidtoken");
+        }
+        else
+        {
+            context.Database.AppendSessionTokens(new Dictionary<string, string> { { OtherContainerName, "invalidtoken" } });
+        }
 
         if (defaultContainer)
         {
@@ -1185,10 +1189,14 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
         var sessionTokens = context.Database.GetSessionTokens();
         // Only way we can test this is by setting a session token that will fail the request if used..
         // Only way to do this for a write is to set an invalid session token..
-        var internalDictionary = sessionTokens.GetType().GetField("_containerSessionTokens", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(sessionTokens)!;
-        var internalComposite = internalDictionary.GetType().GetProperty("Item", BindingFlags.Public | BindingFlags.Instance)!.GetValue(internalDictionary, new object[] { defaultContainer ? nameof(CosmosSessionTokenContext) : OtherContainerName })!;
-        internalComposite.GetType().GetField("_string", BindingFlags.NonPublic | BindingFlags.Instance)!.SetValue(internalComposite, "invalidtoken");
-        internalComposite.GetType().GetField("_isChanged", BindingFlags.NonPublic | BindingFlags.Instance)!.SetValue(internalComposite, false);
+        if (defaultContainer)
+        {
+            context.Database.AppendSessionToken("invalidtoken");
+        }
+        else
+        {
+            context.Database.AppendSessionTokens(new Dictionary<string, string> { { OtherContainerName, "invalidtoken" } });
+        }
 
         if (defaultContainer)
         {

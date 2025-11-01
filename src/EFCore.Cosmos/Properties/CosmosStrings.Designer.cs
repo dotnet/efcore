@@ -166,7 +166,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 propertyType, structuralType, property, elementType);
 
         /// <summary>
-        ///     Enable manual session token management using CosmosDbContextOptionsBuilder.ManualSessionTokenManagementEnabled to use this method.
+        ///     Enable manual session token management using 'options.ManualSessionTokenManagementEnabled' to use this method.
         /// </summary>
         public static string EnableManualSessionTokenManagement
             => GetString("EnableManualSessionTokenManagement");
