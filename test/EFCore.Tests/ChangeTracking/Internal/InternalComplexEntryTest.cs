@@ -707,7 +707,7 @@ public class InternalComplexEntryTest
         {
             Items =
             [
-                new NestedItem { Name = "bar" },
+                new NestedItem { Name = "bar1" },
                 new NestedItem { Name = "baz" },
                 new NestedItem { Name = "new-bar" }
             ]
@@ -717,6 +717,13 @@ public class InternalComplexEntryTest
         changeDetector.DetectChanges(stateManager);
 
         Assert.Equal(EntityState.Modified, entityEntry.EntityState);
+
+        var nestedJson = new EntityEntry<BlogWithNested>(entityEntry).ComplexProperty(b => b.NestedJson);
+        var items = nestedJson.ComplexCollection(j => j.Items);
+        Assert.Equal(3, items.CurrentValue!.Count);
+        Assert.Equal(EntityState.Modified, items[0].State);
+        Assert.Equal(EntityState.Unchanged, items[1].State);
+        Assert.Equal(EntityState.Added, items[2].State);
     }
 
     private static IModel CreateModel()
