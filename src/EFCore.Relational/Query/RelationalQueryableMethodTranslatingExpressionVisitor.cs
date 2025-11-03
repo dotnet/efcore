@@ -11,9 +11,6 @@ namespace Microsoft.EntityFrameworkCore.Query;
 /// <inheritdoc />
 public partial class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMethodTranslatingExpressionVisitor
 {
-    private static readonly bool UseOldBehavior37016 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37016", out var enabled) && enabled;
-
     private const string SqlQuerySingleColumnAlias = "Value";
 
     private readonly RelationalSqlTranslatingExpressionVisitor _sqlTranslator;
@@ -1952,7 +1949,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             var type = source switch
             {
                 StructuralTypeShaperExpression shaper => shaper.StructuralType,
-                JsonQueryExpression jsonQuery when !UseOldBehavior37016 => jsonQuery.StructuralType,
+                JsonQueryExpression jsonQuery => jsonQuery.StructuralType,
                 _ => null
             };
 
@@ -1983,22 +1980,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             }
 
             // See comments on indexing-related hacks in VisitMethodCall above
-            if (UseOldBehavior37016)
-            {
-                if (_bindComplexProperties && type.FindComplexProperty(memberName) is { IsCollection: true } complexProperty)
-                {
-                    Check.DebugAssert(complexProperty.ComplexType.IsMappedToJson());
-
-                    if (queryableTranslator._sqlTranslator.TryBindMember(
-                            queryableTranslator._sqlTranslator.Visit(source), MemberIdentity.Create(memberName),
-                            out var translatedExpression, out _)
-                        && translatedExpression is CollectionResultExpression { QueryExpression: JsonQueryExpression jsonQuery })
-                    {
-                        return jsonQuery;
-                    }
-                }
-            }
-            else if (_bindComplexProperties && type.FindComplexProperty(memberName) is IComplexProperty complexProperty)
+            if (_bindComplexProperties && type.FindComplexProperty(memberName) is IComplexProperty complexProperty)
             {
                 Expression? translatedExpression;
 

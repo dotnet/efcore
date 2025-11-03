@@ -3,7 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Types.Numeric;
 
-public class ByteTypeTest(ByteTypeTest.ByteTypeFixture fixture) : TypeTestBase<byte, ByteTypeTest.ByteTypeFixture>(fixture)
+public class CosmosByteTypeTest(CosmosByteTypeTest.ByteTypeFixture fixture)
+    : TypeTestBase<byte, CosmosByteTypeTest.ByteTypeFixture>(fixture)
 {
     public class ByteTypeFixture : CosmosTypeFixtureBase<byte>
     {
@@ -14,7 +15,8 @@ public class ByteTypeTest(ByteTypeTest.ByteTypeFixture fixture) : TypeTestBase<b
     }
 }
 
-public class ShortTypeTest(ShortTypeTest.ShortTypeFixture fixture) : TypeTestBase<short, ShortTypeTest.ShortTypeFixture>(fixture)
+public class CosmosShortTypeTest(CosmosShortTypeTest.ShortTypeFixture fixture)
+    : TypeTestBase<short, CosmosShortTypeTest.ShortTypeFixture>(fixture)
 {
     public class ShortTypeFixture : CosmosTypeFixtureBase<short>
     {
@@ -25,7 +27,7 @@ public class ShortTypeTest(ShortTypeTest.ShortTypeFixture fixture) : TypeTestBas
     }
 }
 
-public class IntTypeTest(IntTypeTest.IntTypeFixture fixture) : TypeTestBase<int, IntTypeTest.IntTypeFixture>(fixture)
+public class CosmosIntTypeTest(CosmosIntTypeTest.IntTypeFixture fixture) : TypeTestBase<int, CosmosIntTypeTest.IntTypeFixture>(fixture)
 {
     public class IntTypeFixture : CosmosTypeFixtureBase<int>
     {
@@ -36,7 +38,8 @@ public class IntTypeTest(IntTypeTest.IntTypeFixture fixture) : TypeTestBase<int,
     }
 }
 
-public class LongTypeTest(LongTypeTest.LongTypeFixture fixture) : TypeTestBase<long, LongTypeTest.LongTypeFixture>(fixture)
+public class CosmosLongTypeTest(CosmosLongTypeTest.LongTypeFixture fixture)
+    : TypeTestBase<long, CosmosLongTypeTest.LongTypeFixture>(fixture)
 {
     public class LongTypeFixture : CosmosTypeFixtureBase<long>
     {
@@ -47,7 +50,8 @@ public class LongTypeTest(LongTypeTest.LongTypeFixture fixture) : TypeTestBase<l
     }
 }
 
-public class DecimalTypeTest(DecimalTypeTest.DecimalTypeFixture fixture) : TypeTestBase<decimal, DecimalTypeTest.DecimalTypeFixture>(fixture)
+public class CosmosDecimalTypeTest(CosmosDecimalTypeTest.DecimalTypeFixture fixture)
+    : TypeTestBase<decimal, CosmosDecimalTypeTest.DecimalTypeFixture>(fixture)
 {
     public class DecimalTypeFixture : CosmosTypeFixtureBase<decimal>
     {
@@ -58,7 +62,8 @@ public class DecimalTypeTest(DecimalTypeTest.DecimalTypeFixture fixture) : TypeT
     }
 }
 
-public class DoubleTypeTest(DoubleTypeTest.DoubleTypeFixture fixture) : TypeTestBase<double, DoubleTypeTest.DoubleTypeFixture>(fixture)
+public class CosmosDoubleTypeTest(CosmosDoubleTypeTest.DoubleTypeFixture fixture)
+    : TypeTestBase<double, CosmosDoubleTypeTest.DoubleTypeFixture>(fixture)
 {
     public class DoubleTypeFixture : CosmosTypeFixtureBase<double>
     {
@@ -69,7 +74,8 @@ public class DoubleTypeTest(DoubleTypeTest.DoubleTypeFixture fixture) : TypeTest
     }
 }
 
-public class FloatTypeTest(FloatTypeTest.FloatTypeFixture fixture) : TypeTestBase<float, FloatTypeTest.FloatTypeFixture>(fixture)
+public class CosmosFloatTypeTest(CosmosFloatTypeTest.FloatTypeFixture fixture)
+    : TypeTestBase<float, CosmosFloatTypeTest.FloatTypeFixture>(fixture)
 {
     public class FloatTypeFixture : CosmosTypeFixtureBase<float>
     {
