@@ -470,18 +470,10 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                             // Note that we assume exactly one column with the given name mapped to the entity (despite entity splitting).
                             // See #36647 and #36646 about improving this.
                             var containerColumnName = complexType.GetContainerColumnName();
-                            if (containerColumnName == null)
-                            {
-                                //todo
-                                targetColumnModel = null;
-                            }
-                            else
-                            {
-                                targetColumnModel = complexType.ContainingEntityType.GetTableMappings()
+                            targetColumnModel = complexType.ContainingEntityType.GetTableMappings()
                                 .SelectMany(m => m.Table.Columns)
                                 .Where(c => c.Name == containerColumnName)
                                 .SingleOrDefault();
-                            }
                             break;
                         }
 
