@@ -231,6 +231,19 @@ FROM [Blogs] AS [b]
         AssertSql();
     }
 
+    public override async Task Update_complex_type_property_with_view_mapping(bool async)
+    {
+        await base.Update_complex_type_property_with_view_mapping(async);
+
+        AssertSql(
+            """
+@p='6'
+
+UPDATE "Blogs" AS "b"
+SET "ComplexThing_Prop1" = @p
+""");
+    }
+
     private void AssertSql(params string[] expected)
         => TestSqlLoggerFactory.AssertBaseline(expected);
 

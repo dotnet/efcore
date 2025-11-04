@@ -276,10 +276,10 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                     Arguments:
                     [
                         MethodCallExpression
-                        {
-                            Method: { Name: nameof(Queryable.AsQueryable), IsGenericMethod: true } asQueryableMethod,
-                            Arguments: [var elementAtSource]
-                        },
+                    {
+                        Method: { Name: nameof(Queryable.AsQueryable), IsGenericMethod: true } asQueryableMethod,
+                        Arguments: [var elementAtSource]
+                    },
                         _
                     ]
                 } methodCall
@@ -294,23 +294,23 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                 default:
                     throw new InvalidOperationException(RelationalStrings.InvalidPropertyInSetProperty(propertySelector.Print()));
 
-                bool TryTranslateMemberAccess(
-                    Expression expression,
-                    [NotNullWhen(true)] out Expression? translation,
-                    [NotNullWhen(true)] out IPropertyBase? property)
-                {
-                    if (IsMemberAccess(expression, QueryCompilationContext.Model, out var baseExpression, out var member)
-                        && _sqlTranslator.TryBindMember(_sqlTranslator.Visit(baseExpression), member, out var target, out var targetProperty))
+                    bool TryTranslateMemberAccess(
+                        Expression expression,
+                        [NotNullWhen(true)] out Expression? translation,
+                        [NotNullWhen(true)] out IPropertyBase? property)
                     {
-                        translation = target;
-                        property = targetProperty;
-                        return true;
-                    }
+                        if (IsMemberAccess(expression, QueryCompilationContext.Model, out var baseExpression, out var member)
+                            && _sqlTranslator.TryBindMember(_sqlTranslator.Visit(baseExpression), member, out var target, out var targetProperty))
+                        {
+                            translation = target;
+                            property = targetProperty;
+                            return true;
+                        }
 
-                    translation = null;
-                    property = null;
-                    return false;
-                }
+                        translation = null;
+                        property = null;
+                        return false;
+                    }
             }
 
             if (targetProperty.DeclaringType is IEntityType entityType && entityType.IsMappedToJson())
@@ -470,11 +470,18 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                             // Note that we assume exactly one column with the given name mapped to the entity (despite entity splitting).
                             // See #36647 and #36646 about improving this.
                             var containerColumnName = complexType.GetContainerColumnName();
-                            targetColumnModel = complexType.ContainingEntityType.GetTableMappings()
+                            if (containerColumnName == null)
+                            {
+                                //todo
+                                targetColumnModel = null;
+                            }
+                            else
+                            {
+                                targetColumnModel = complexType.ContainingEntityType.GetTableMappings()
                                 .SelectMany(m => m.Table.Columns)
                                 .Where(c => c.Name == containerColumnName)
-                                .Single();
-
+                                .SingleOrDefault();
+                            }
                             break;
                         }
 
@@ -510,14 +517,22 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
             void ProcessComplexType(StructuralTypeShaperExpression shaperExpression, Expression valueExpression)
             {
                 if (shaperExpression.StructuralType is not IComplexType complexType
-                    || shaperExpression.ValueBufferExpression is not StructuralTypeProjectionExpression projection)
+                || shaperExpression.ValueBufferExpression is not StructuralTypeProjectionExpression projection)
                 {
                     throw new UnreachableException();
                 }
 
                 foreach (var property in complexType.GetProperties())
                 {
+                    // If the entity is also mapped to a view, the SelectExpression will refer to the view instead, since
+                    // translation happens with the assumption that we're querying, not deleting.
+                    // For this case, we must replace the TableExpression in the SelectExpression - referring to the view - with the
+                    // one that refers to the mutable table.
+
+                    targetProperty = property;
                     var column = projection.BindProperty(property);
+                    ProcessColumn(column);
+
                     CheckColumnOnSameTable(column, propertySelector);
 
                     var rewrittenValueSelector = CreatePropertyAccessExpression(valueExpression, property);
