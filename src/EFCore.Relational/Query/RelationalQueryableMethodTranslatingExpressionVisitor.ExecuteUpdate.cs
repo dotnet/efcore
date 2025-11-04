@@ -276,10 +276,10 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                     Arguments:
                     [
                         MethodCallExpression
-                    {
-                        Method: { Name: nameof(Queryable.AsQueryable), IsGenericMethod: true } asQueryableMethod,
-                        Arguments: [var elementAtSource]
-                    },
+                        {
+                            Method: { Name: nameof(Queryable.AsQueryable), IsGenericMethod: true } asQueryableMethod,
+                            Arguments: [var elementAtSource]
+                        },
                         _
                     ]
                 } methodCall
@@ -516,11 +516,6 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
 
                 foreach (var property in complexType.GetProperties())
                 {
-                    // If the entity is also mapped to a view, the SelectExpression will refer to the view instead, since
-                    // translation happens with the assumption that we're querying, not deleting.
-                    // For this case, we must replace the TableExpression in the SelectExpression - referring to the view - with the
-                    // one that refers to the mutable table.
-
                     targetProperty = property;
                     var column = projection.BindProperty(property);
                     ProcessColumn(column);
