@@ -47,7 +47,9 @@ extends:
   parameters:
     featureFlags:
       autoBaseline: false
+      usePrefastVersion3: true
       autoEnableRoslynWithNewRuleset: false
+      binskimScanAllExtensions: true
     sdl:
       sourceAnalysisPool:
         name: NetCore1ESPool-Svc-Internal
@@ -57,6 +59,8 @@ extends:
         baselineFile: $(Build.SourcesDirectory)\.config\guardian\.gdnbaselines
       binskim:
         scanOutputDirectoryOnly: true
+        analyzeTargetGlob: +:f|**/Microsoft.EntityFrameworkCore*.dll;+:f|**/Microsoft.Data.Sqlite*.dll;+:f|**/ef.exe;+:f|**/dotnet-ef.exe;-:f|**/shims/**/*.exe;
+        preReleaseVersion: '4.3.1'
     customBuildTags:
     - ES365AIMigrationTooling
     stages:
@@ -152,6 +156,9 @@ extends:
                   COMPlus_EnableWriteXorExecute: 0
                 displayName: Build
             templateContext:
+              sdl:
+                binskim:
+                  prereleaseVersion: ' '
               outputs:
               - output: pipelineArtifact
                 displayName: Upload TestResults
@@ -190,6 +197,9 @@ extends:
               - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine $(_InternalRuntimeDownloadArgs)
                 displayName: Build
             templateContext:
+              sdl:
+                binskim:
+                  prereleaseVersion: ' '
               outputs:
               - output: pipelineArtifact
                 displayName: Upload TestResults
