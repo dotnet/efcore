@@ -301,6 +301,11 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
             annotations.Remove(RelationalAnnotationNames.ContainerColumnType);
         }
 
+        GenerateSimpleFluentApiCall(
+            annotations,
+            RelationalAnnotationNames.JsonPropertyName, nameof(RelationalComplexPropertyBuilderExtensions.HasJsonPropertyName),
+            methodCallCodeFragments);
+
         methodCallCodeFragments.AddRange(GenerateFluentApiCallsHelper(complexType, annotations, GenerateFluentApi));
 
         return methodCallCodeFragments;
@@ -396,11 +401,6 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
         IDictionary<string, IAnnotation> annotations)
     {
         var methodCallCodeFragments = new List<MethodCallCodeFragment>();
-
-        GenerateSimpleFluentApiCall(
-            annotations,
-            RelationalAnnotationNames.JsonPropertyName, nameof(RelationalComplexPropertyBuilderExtensions.HasJsonPropertyName),
-            methodCallCodeFragments);
 
         methodCallCodeFragments.AddRange(GenerateFluentApiCallsHelper(complexProperty, annotations, GenerateFluentApi));
 

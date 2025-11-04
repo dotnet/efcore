@@ -2,134 +2,178 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Text;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
-namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
+namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
+
+/// <summary>
+///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+///     any release. You should only use it directly in your code with extreme caution and knowing that
+///     doing so can result in application failures when updating to a new Entity Framework Core release.
+/// </summary>
+public class CosmosTransactionalBatchWrapper : ICosmosTransactionalBatchWrapper
 {
+    private const int OperationSerializationOverheadOverEstimateInBytes = 200;
+    private const int MaxSize = 2_097_152; // 2MiB
+
+    private long _size;
+
+    private readonly TransactionalBatch _transactionalBatch;
+    private readonly string _collectionId;
+    private readonly PartitionKey _partitionKeyValue;
+    private readonly bool _checkSize;
+    private readonly bool? _enableContentResponseOnWrite;
+    private readonly List<CosmosTransactionalBatchEntry> _entries = new();
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class CosmosTransactionalBatchWrapper : ICosmosTransactionalBatchWrapper
+    public CosmosTransactionalBatchWrapper(
+        TransactionalBatch transactionalBatch,
+        string collectionId,
+        PartitionKey partitionKeyValue,
+        bool checkSize,
+        bool? enableContentResponseOnWrite)
     {
-        private readonly TransactionalBatch _transactionalBatch;
-        private readonly string _collectionId;
-        private readonly PartitionKey _partitionKeyValue;
-        private readonly bool? _enableContentResponseOnWrite;
-        private readonly List<CosmosTransactionalBatchEntry> _entries = new();
+        _transactionalBatch = transactionalBatch;
+        _collectionId = collectionId;
+        _partitionKeyValue = partitionKeyValue;
+        _checkSize = checkSize;
+        _enableContentResponseOnWrite = enableContentResponseOnWrite;
+    }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public CosmosTransactionalBatchWrapper(TransactionalBatch transactionalBatch, string collectionId, PartitionKey partitionKeyValue, bool? enableContentResponseOnWrite)
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public IReadOnlyList<CosmosTransactionalBatchEntry> Entries => _entries;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public PartitionKey PartitionKeyValue => _partitionKeyValue;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public string CollectionId => _collectionId;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public bool CreateItem(string id, Stream stream, IUpdateEntry updateEntry)
+    {
+        var itemRequestOptions = CreateItemRequestOptions(updateEntry, _enableContentResponseOnWrite, out var itemRequestOptionsLength);
+
+        if (_checkSize)
         {
-            _transactionalBatch = transactionalBatch;
-            _collectionId = collectionId;
-            _partitionKeyValue = partitionKeyValue;
-            _enableContentResponseOnWrite = enableContentResponseOnWrite;
+            var size = stream.Length + itemRequestOptionsLength + OperationSerializationOverheadOverEstimateInBytes;
+
+            if (_size + size > MaxSize && _size != 0)
+            {
+                return false;
+            }
+            _size += size;
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public IReadOnlyList<CosmosTransactionalBatchEntry> Entries => _entries;
+        _transactionalBatch.CreateItemStream(stream, itemRequestOptions);
+        _entries.Add(new CosmosTransactionalBatchEntry(updateEntry, CosmosCudOperation.Create, id));
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public PartitionKey PartitionKeyValue => _partitionKeyValue;
+        return true;
+    }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public string CollectionId => _collectionId;
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public bool ReplaceItem(string documentId, Stream stream, IUpdateEntry updateEntry)
+    {
+        var itemRequestOptions = CreateItemRequestOptions(updateEntry, _enableContentResponseOnWrite, out var itemRequestOptionsLength);
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public void CreateItem(JToken document, IUpdateEntry updateEntry)
+        if (_checkSize)
         {
-            // stream is disposed by TransactionalBatch.ExecuteAsync
-            var stream = new MemoryStream();
-            using var writer = new StreamWriter(stream, new UTF8Encoding(), bufferSize: 1024, leaveOpen: true);
+            var size = stream.Length + itemRequestOptionsLength + OperationSerializationOverheadOverEstimateInBytes + Encoding.UTF8.GetByteCount(documentId);
 
-            using var jsonWriter = new JsonTextWriter(writer);
-            CosmosClientWrapper.Serializer.Serialize(jsonWriter, document);
-            jsonWriter.Flush();
-
-            var itemRequestOptions = CreateItemRequestOptions(updateEntry, _enableContentResponseOnWrite);
-            _transactionalBatch.CreateItemStream(stream, itemRequestOptions);
-            _entries.Add(new CosmosTransactionalBatchEntry(updateEntry, CosmosCudOperation.Create, document["id"]!.ToString()));
+            if (_size + size > MaxSize && _size != 0)
+            {
+                return false;
+            }
+            _size += size;
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public void ReplaceItem(string documentId, JToken document, IUpdateEntry updateEntry)
+        _transactionalBatch.ReplaceItemStream(documentId, stream, itemRequestOptions);
+        _entries.Add(new CosmosTransactionalBatchEntry(updateEntry, CosmosCudOperation.Update, documentId));
+
+        return true;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public bool DeleteItem(string documentId, IUpdateEntry updateEntry)
+    {
+        var itemRequestOptions = CreateItemRequestOptions(updateEntry, _enableContentResponseOnWrite, out var itemRequestOptionsLength);
+
+        if (_checkSize)
         {
-            // stream is disposed by TransactionalBatch.ExecuteAsync
-            var stream = new MemoryStream();
-            var writer = new StreamWriter(stream, new UTF8Encoding(), bufferSize: 1024, leaveOpen: true);
-            using var _ = writer;
-            using var jsonWriter = new JsonTextWriter(writer);
-            CosmosClientWrapper.Serializer.Serialize(jsonWriter, document);
-            jsonWriter.Flush();
+            var size = itemRequestOptionsLength + OperationSerializationOverheadOverEstimateInBytes + Encoding.UTF8.GetByteCount(documentId);
 
-            var itemRequestOptions = CreateItemRequestOptions(updateEntry, _enableContentResponseOnWrite);
-
-            _transactionalBatch.ReplaceItemStream(documentId, stream, itemRequestOptions);
-            _entries.Add(new CosmosTransactionalBatchEntry(updateEntry, CosmosCudOperation.Update, document["id"]!.ToString()));
+            if (_size + size > MaxSize && _size != 0)
+            {
+                return false;
+            }
+            _size += size;
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public void DeleteItem(string documentId, IUpdateEntry updateEntry)
+        _transactionalBatch.DeleteItem(documentId, itemRequestOptions);
+        _entries.Add(new CosmosTransactionalBatchEntry(updateEntry, CosmosCudOperation.Delete, documentId));
+
+        return true;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public TransactionalBatch GetTransactionalBatch() => _transactionalBatch;
+
+    private TransactionalBatchItemRequestOptions? CreateItemRequestOptions(IUpdateEntry entry, bool? enableContentResponseOnWrite, out int size)
+    {
+        var helper = RequestOptionsHelper.Create(entry, enableContentResponseOnWrite);
+        size = 0;
+
+        if (helper == null)
         {
-            var itemRequestOptions = CreateItemRequestOptions(updateEntry, _enableContentResponseOnWrite);
-            _transactionalBatch.DeleteItem(documentId, itemRequestOptions);
-            _entries.Add(new CosmosTransactionalBatchEntry(updateEntry, CosmosCudOperation.Delete, documentId));
+            return null;
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public TransactionalBatch GetTransactionalBatch() => _transactionalBatch;
-
-        private static TransactionalBatchItemRequestOptions? CreateItemRequestOptions(IUpdateEntry entry, bool? enableContentResponseOnWrite)
+        if (_checkSize && helper.IfMatchEtag != null)
         {
-            var helper = RequestOptionsHelper.Create(entry, enableContentResponseOnWrite);
-
-            return helper == null
-                ? null
-                : new TransactionalBatchItemRequestOptions { IfMatchEtag = helper.IfMatchEtag, EnableContentResponseOnWrite = helper.EnableContentResponseOnWrite };
+            size += helper.IfMatchEtag.Length;
         }
+
+        // EnableContentResponseOnWrite is a header so no request body size for that.
+        return new TransactionalBatchItemRequestOptions { IfMatchEtag = helper.IfMatchEtag, EnableContentResponseOnWrite = helper.EnableContentResponseOnWrite };
     }
 }

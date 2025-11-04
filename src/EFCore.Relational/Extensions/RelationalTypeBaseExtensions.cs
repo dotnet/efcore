@@ -464,12 +464,53 @@ public static class RelationalTypeBaseExtensions
     ///     <see langword="null" /> is returned for entities that are not mapped to a JSON column.
     /// </returns>
     public static string? GetJsonPropertyName(this IReadOnlyTypeBase typeBase)
-        => (string?)typeBase.FindAnnotation(RelationalAnnotationNames.JsonPropertyName)?.Value
-            ?? (!typeBase.IsMappedToJson()
-                ? null
-                : typeBase is IReadOnlyEntityType entityType
-                    ? entityType.FindOwnership()!.GetNavigation(pointsToPrincipal: false)!.Name
-                    : ((IReadOnlyComplexType)typeBase).ComplexProperty.Name);
+    {
+        var annotation = typeBase.FindAnnotation(RelationalAnnotationNames.JsonPropertyName);
+        if (annotation != null)
+        {
+            return (string?)annotation.Value;
+        }
+
+        return typeBase.FindAnnotation(RelationalAnnotationNames.ContainerColumnName) != null || !typeBase.IsMappedToJson()
+            ? null
+            : typeBase is IReadOnlyEntityType entityType
+                ? entityType.FindOwnership()!.GetNavigation(pointsToPrincipal: false)!.Name
+                : ((IReadOnlyComplexType)typeBase).ComplexProperty.Name;
+    }
+
+    /// <summary>
+    ///     Sets the value of JSON property name used for the given type mapped to a JSON column.
+    /// </summary>
+    /// <param name="typeBase">The type.</param>
+    /// <param name="name">The name to be used.</param>
+    public static void SetJsonPropertyName(this IMutableTypeBase typeBase, string? name)
+        => typeBase.SetOrRemoveAnnotation(
+            RelationalAnnotationNames.JsonPropertyName,
+            Check.NullButNotEmpty(name));
+
+    /// <summary>
+    ///     Sets the value of JSON property name used for the given type mapped to a JSON column.
+    /// </summary>
+    /// <param name="typeBase">The type.</param>
+    /// <param name="name">The name to be used.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    public static string? SetJsonPropertyName(
+        this IConventionTypeBase typeBase,
+        string? name,
+        bool fromDataAnnotation = false)
+        => (string?)typeBase.SetOrRemoveAnnotation(
+            RelationalAnnotationNames.JsonPropertyName,
+            Check.NullButNotEmpty(name),
+            fromDataAnnotation)?.Value;
+
+    /// <summary>
+    ///     Gets the <see cref="ConfigurationSource" /> for the JSON property name for a given type.
+    /// </summary>
+    /// <param name="typeBase">The type.</param>
+    /// <returns>The <see cref="ConfigurationSource" /> for the JSON property name for a given type.</returns>
+    public static ConfigurationSource? GetJsonPropertyNameConfigurationSource(this IConventionTypeBase typeBase)
+        => typeBase.FindAnnotation(RelationalAnnotationNames.JsonPropertyName)?.GetConfigurationSource();
 
     #endregion
 }

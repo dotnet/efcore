@@ -914,6 +914,16 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
             var nestedCol3 = complexCollectionProperty1.ComplexType.FindComplexProperty("Collection1")!;
             Assert.Equal("CustomNestedCollection3", nestedCol3.GetJsonPropertyName());
+
+            // Verify that no complex properties have the JsonPropertyName annotation directly
+            foreach (var complexProperty in entityType.GetComplexProperties())
+            {
+                Assert.Null(complexProperty.FindAnnotation(RelationalAnnotationNames.JsonPropertyName));
+                foreach (var nestedComplexProperty in complexProperty.ComplexType.GetComplexProperties())
+                {
+                    Assert.Null(nestedComplexProperty.FindAnnotation(RelationalAnnotationNames.JsonPropertyName));
+                }
+            }
         }
 
         [ConditionalFact]
