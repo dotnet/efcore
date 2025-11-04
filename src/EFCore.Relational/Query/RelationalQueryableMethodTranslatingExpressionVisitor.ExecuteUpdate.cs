@@ -300,7 +300,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                     [NotNullWhen(true)] out IPropertyBase? property)
                 {
                     if (IsMemberAccess(expression, QueryCompilationContext.Model, out var baseExpression, out var member)
-                        && _sqlTranslator.TryBindMember(_sqlTranslator.Visit(baseExpression), member, out var target, out var targetProperty, forUpdate: true))
+                        && _sqlTranslator.TryBindMember(_sqlTranslator.Visit(baseExpression), member, out var target, out var targetProperty))
                     {
                         translation = target;
                         property = targetProperty;
@@ -540,7 +540,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                             RelationalStrings.ExecuteUpdateOverJsonIsNotSupported(complexProperty.ComplexType.DisplayName()));
                     }
 
-                    var nestedShaperExpression = (StructuralTypeShaperExpression)projection.BindComplexProperty(complexProperty, forUpdate: true);
+                    var nestedShaperExpression = (StructuralTypeShaperExpression)projection.BindComplexProperty(complexProperty);
                     var nestedValueExpression = CreateComplexPropertyAccessExpression(valueExpression, complexProperty);
                     ProcessComplexType(nestedShaperExpression, nestedValueExpression);
                 }
@@ -635,7 +635,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                                 StructuralType: IComplexType,
                                 ValueBufferExpression: StructuralTypeProjectionExpression projection
                             }
-                                => projection.BindComplexProperty(complexProperty, forUpdate: true),
+                                => projection.BindComplexProperty(complexProperty),
 
                             _ => throw new UnreachableException()
                         };
