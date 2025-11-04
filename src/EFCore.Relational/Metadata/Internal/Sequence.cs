@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Globalization;
-using System.Text;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -132,7 +131,7 @@ public class Sequence : ConventionAnnotatable, IMutableSequence, IConventionSequ
     public static IEnumerable<ISequence> GetSequences(IReadOnlyModel model)
         => ((Dictionary<(string, string?), ISequence>?)model[RelationalAnnotationNames.Sequences])
             ?.OrderBy(t => t.Key).Select(t => t.Value)
-            ?? Enumerable.Empty<ISequence>();
+            ?? [];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -483,7 +482,7 @@ public class Sequence : ConventionAnnotatable, IMutableSequence, IConventionSequ
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public static IReadOnlyCollection<Type> SupportedTypes { get; }
-        = new[] { typeof(byte), typeof(long), typeof(int), typeof(short), typeof(decimal) };
+        = [typeof(byte), typeof(long), typeof(int), typeof(short), typeof(decimal)];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -756,29 +755,16 @@ public class Sequence : ConventionAnnotatable, IMutableSequence, IConventionSequ
             => value == null ? null : long.Parse(value, CultureInfo.InvariantCulture);
 
         private static Type AsType(string value)
-            => value == nameof(Int64)
-                ? typeof(long)
-                : value == nameof(Int32)
-                    ? typeof(int)
-                    : value == nameof(Int16)
-                        ? typeof(short)
-                        : value == nameof(Decimal)
-                            ? typeof(decimal)
-                            : typeof(byte);
+            => value switch
+            {
+                nameof(Int64) => typeof(long),
+                nameof(Int32) => typeof(int),
+                nameof(Int16) => typeof(short),
+                nameof(Decimal) => typeof(decimal),
+                _ => typeof(byte)
+            };
 
         private static bool AsBool(string? value)
             => value != null && bool.Parse(value);
-
-        private static void EscapeAndQuote(StringBuilder builder, object? value)
-        {
-            builder.Append('\'');
-
-            if (value != null)
-            {
-                builder.Append(value.ToString()!.Replace("'", "''"));
-            }
-
-            builder.Append('\'');
-        }
     }
 }

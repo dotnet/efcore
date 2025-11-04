@@ -7,6 +7,8 @@ namespace Microsoft.EntityFrameworkCore.Tools;
 
 internal interface IOperationExecutor : IDisposable
 {
+    string? EFCoreVersion { get; }
+
     IDictionary AddMigration(string name, string? outputDir, string? contextType, string? @namespace);
     IDictionary RemoveMigration(string? contextType, bool force);
     IEnumerable<IDictionary> GetMigrations(string? contextType, string? connectionString, bool noConnect);
@@ -14,6 +16,7 @@ internal interface IOperationExecutor : IDisposable
     IDictionary GetContextInfo(string? name);
     void UpdateDatabase(string? migration, string? connectionString, string? contextType);
     IEnumerable<IDictionary> GetContextTypes();
+
     IEnumerable<string> OptimizeContext(
         string? outputDir,
         string? modelNamespace,

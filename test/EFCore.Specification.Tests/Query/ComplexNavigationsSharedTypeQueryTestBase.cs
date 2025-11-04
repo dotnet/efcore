@@ -11,26 +11,26 @@ public abstract class ComplexNavigationsSharedTypeQueryTestBase<TFixture>(TFixtu
         => AssertTranslationFailed(() => base.Join_navigation_self_ref(async));
 
     public override Task Join_condition_optimizations_applied_correctly_when_anonymous_type_with_multiple_properties(bool async)
-        => AssertUnableToTranslateEFProperty(
-            () => base.Join_condition_optimizations_applied_correctly_when_anonymous_type_with_multiple_properties(async));
+        => AssertUnableToTranslateEFProperty(()
+            => base.Join_condition_optimizations_applied_correctly_when_anonymous_type_with_multiple_properties(async));
 
     public override Task Join_condition_optimizations_applied_correctly_when_anonymous_type_with_single_property(bool async)
-        => AssertUnableToTranslateEFProperty(
-            () => base.Join_condition_optimizations_applied_correctly_when_anonymous_type_with_single_property(async));
+        => AssertUnableToTranslateEFProperty(()
+            => base.Join_condition_optimizations_applied_correctly_when_anonymous_type_with_single_property(async));
 
     public override Task Multiple_SelectMany_with_nested_navigations_and_explicit_DefaultIfEmpty_joined_together(bool async)
-        => AssertTranslationFailed(
-            () => base.Multiple_SelectMany_with_nested_navigations_and_explicit_DefaultIfEmpty_joined_together(async));
+        => AssertTranslationFailed(()
+            => base.Multiple_SelectMany_with_nested_navigations_and_explicit_DefaultIfEmpty_joined_together(async));
 
     public override Task SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany(
         bool async)
-        => AssertTranslationFailed(
-            () => base.SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany(async));
+        => AssertTranslationFailed(()
+            => base.SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany(async));
 
     public override Task SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany2(
         bool async)
-        => AssertTranslationFailed(
-            () => base.SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany2(async));
+        => AssertTranslationFailed(()
+            => base.SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany2(async));
 
     public override Task SelectMany_with_nested_navigations_and_additional_joins_outside_of_SelectMany(bool async)
         => AssertTranslationFailed(() => base.SelectMany_with_nested_navigations_and_additional_joins_outside_of_SelectMany(async));

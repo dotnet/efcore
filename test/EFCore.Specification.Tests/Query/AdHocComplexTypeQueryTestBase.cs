@@ -1,10 +1,13 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace Microsoft.EntityFrameworkCore.Query;
 
 // ReSharper disable ClassNeverInstantiated.Local
-public abstract class AdHocComplexTypeQueryTestBase : NonSharedModelTestBase
+public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
+    : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
     #region 33449
 
@@ -75,6 +78,147 @@ public abstract class AdHocComplexTypeQueryTestBase : NonSharedModelTestBase
     }
 
     #endregion 33449
+
+    #region 34749
+
+    [ConditionalFact]
+    public virtual async Task Projecting_complex_property_does_not_auto_include_owned_types()
+    {
+        var contextFactory = await InitializeAsync<Context34749>();
+
+        await using var context = contextFactory.CreateContext();
+
+        _ = await context.Set<Context34749.EntityType>().Select(x => x.Complex).ToListAsync();
+    }
+
+    private class Context34749(DbContextOptions options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<EntityType>(b =>
+            {
+                b.ComplexProperty(x => x.Complex);
+                b.OwnsOne(x => x.OwnedReference);
+            });
+
+        public class EntityType
+        {
+            public int Id { get; set; }
+            public string? Name { get; set; }
+            public OwnedType OwnedReference { get; set; } = null!;
+            public ComplexType Complex { get; set; } = null!;
+        }
+
+        public class ComplexType
+        {
+            public int Number { get; set; }
+            public string? Name { get; set; }
+        }
+
+        public class OwnedType
+        {
+            public string? Foo { get; set; }
+            public int Bar { get; set; }
+        }
+    }
+
+    #endregion
+
+    #region ShadowDiscriminator
+
+    [ConditionalFact]
+    public virtual async Task Optional_complex_type_with_discriminator()
+    {
+        var contextFactory = await InitializeAsync<ContextShadowDiscriminator>(
+            seed: context =>
+            {
+                context.AddRange(
+                    new ContextShadowDiscriminator.EntityType
+                    {
+                        AllOptionalsComplexType = new ContextShadowDiscriminator.AllOptionalsComplexType { OptionalProperty = "Non-null" }
+                    },
+                    new ContextShadowDiscriminator.EntityType
+                    {
+                        AllOptionalsComplexType = new ContextShadowDiscriminator.AllOptionalsComplexType { OptionalProperty = null }
+                    },
+                    new ContextShadowDiscriminator.EntityType
+                    {
+                        AllOptionalsComplexType = null
+                    }
+                    );
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateContext();
+
+        var complexTypeNull = await context.Set<ContextShadowDiscriminator.EntityType>().SingleAsync(b => b.AllOptionalsComplexType == null);
+        Assert.Null(complexTypeNull.AllOptionalsComplexType);
+
+        complexTypeNull.AllOptionalsComplexType = new ContextShadowDiscriminator.AllOptionalsComplexType { OptionalProperty = "New thing" };
+        await context.SaveChangesAsync();
+    }
+
+    private class ContextShadowDiscriminator(DbContextOptions options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<EntityType>()
+                .ComplexProperty(b => b.AllOptionalsComplexType, x => x.HasDiscriminator());
+
+        public class EntityType
+        {
+            public int Id { get; set; }
+            public AllOptionalsComplexType? AllOptionalsComplexType { get; set; }
+        }
+
+        public class AllOptionalsComplexType
+        {
+            public string? OptionalProperty { get; set; }
+        }
+    }
+
+    #endregion ShadowDiscriminator
+
+    #region 36837
+
+    [ConditionalFact]
+    public virtual async Task Complex_type_equality_with_non_default_type_mapping()
+    {
+        var contextFactory = await InitializeAsync<Context36837>(
+            seed: context =>
+            {
+                context.AddRange(
+                    new Context36837.EntityType
+                    {
+                        ComplexThing = new Context36837.ComplexThing { DateTime = new DateTime(2020, 1, 1) }
+                    });
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateContext();
+
+        var count = await context.Set<Context36837.EntityType>()
+            .CountAsync(b => b.ComplexThing == new Context36837.ComplexThing { DateTime = new DateTime(2020, 1, 1, 1, 1, 1, 999, 999) });
+        Assert.Equal(0, count);
+    }
+
+    private class Context36837(DbContextOptions options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<EntityType>().ComplexProperty(b => b.ComplexThing);
+
+        public class EntityType
+        {
+            public int Id { get; set; }
+            public ComplexThing ComplexThing { get; set; } = null!;
+        }
+
+        public class ComplexThing
+        {
+            [Column(TypeName = "datetime")] // Non-default type mapping
+            public DateTime DateTime { get; set; }
+        }
+    }
+
+    #endregion 36837
 
     protected override string StoreName
         => "AdHocComplexTypeQueryTest";

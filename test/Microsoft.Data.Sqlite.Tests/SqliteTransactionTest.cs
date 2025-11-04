@@ -13,9 +13,7 @@ namespace Microsoft.Data.Sqlite;
 
 public class SqliteTransactionTest
 {
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public async Task SqliteTransaction_Dispose_does_not_leave_orphaned_transaction(bool async) // Issue #25119
     {
         using var connection = new FakeConnection("Data Source=:memory:");
@@ -74,14 +72,14 @@ public class SqliteTransactionTest
         await AddNewTable("Table2");
 
 #if NET5_0_OR_GREATER
-            if (async)
-            {
-                await transaction2.DisposeAsync();
-            }
-            else
-            {
-                transaction2.Dispose();
-            }
+        if (async)
+        {
+            await transaction2.DisposeAsync();
+        }
+        else
+        {
+            transaction2.Dispose();
+        }
 #else
         transaction2.Dispose();
 #endif
@@ -112,6 +110,7 @@ public class SqliteTransactionTest
 
         [AllowNull]
         public override string CommandText { get => realCommand.CommandText; set => realCommand.CommandText = value; }
+
         public override int CommandTimeout { get => realCommand.CommandTimeout; set => realCommand.CommandTimeout = value; }
         public override CommandType CommandType { get => realCommand.CommandType; set => realCommand.CommandType = value; }
         public override bool DesignTimeVisible { get => realCommand.DesignTimeVisible; set => realCommand.DesignTimeVisible = value; }
@@ -139,7 +138,8 @@ public class SqliteTransactionTest
         public override SqliteCommand CreateCommand()
             => new FakeCommand(this, base.CreateCommand());
 
-        public new SqliteTransaction? Transaction => base.Transaction;
+        public new SqliteTransaction? Transaction
+            => base.Transaction;
     }
 
     [Fact]
@@ -166,9 +166,7 @@ public class SqliteTransactionTest
         }
     }
 
-    [Theory]
-    [InlineData(IsolationLevel.Chaos)]
-    [InlineData(IsolationLevel.Snapshot)]
+    [Theory, InlineData(IsolationLevel.Chaos), InlineData(IsolationLevel.Snapshot)]
     public void Ctor_throws_when_invalid_isolation_level(IsolationLevel isolationLevel)
     {
         using var connection = new SqliteConnection("Data Source=:memory:");
@@ -204,8 +202,7 @@ public class SqliteTransactionTest
 
             connection2.DefaultTimeout = 1;
 
-            var ex = Assert.Throws<SqliteException>(
-                () => connection2.ExecuteScalar<long>("SELECT * FROM Data;"));
+            var ex = Assert.Throws<SqliteException>(() => connection2.ExecuteScalar<long>("SELECT * FROM Data;"));
 
             Assert.Equal(SQLITE_LOCKED, ex.SqliteErrorCode);
             Assert.Equal(SQLITE_LOCKED_SHAREDCACHE, ex.SqliteExtendedErrorCode);
@@ -230,14 +227,13 @@ public class SqliteTransactionTest
 
             connection2.DefaultTimeout = 1;
 
-            var ex = Assert.Throws<SqliteException>(
-                () =>
+            var ex = Assert.Throws<SqliteException>(() =>
+            {
+                using (connection2.BeginTransaction(IsolationLevel.Serializable))
                 {
-                    using (connection2.BeginTransaction(IsolationLevel.Serializable))
-                    {
-                        connection2.ExecuteScalar<long>("SELECT * FROM Data;");
-                    }
-                });
+                    connection2.ExecuteScalar<long>("SELECT * FROM Data;");
+                }
+            });
 
             Assert.Equal(SQLITE_LOCKED, ex.SqliteErrorCode);
             Assert.Equal(SQLITE_LOCKED_SHAREDCACHE, ex.SqliteExtendedErrorCode);
@@ -279,10 +275,8 @@ public class SqliteTransactionTest
         Assert.Equal(IsolationLevel.Serializable, transaction.IsolationLevel);
     }
 
-    [Theory]
-    [InlineData(IsolationLevel.ReadUncommitted)]
-    [InlineData(IsolationLevel.ReadCommitted)]
-    [InlineData(IsolationLevel.RepeatableRead)]
+    [Theory, InlineData(IsolationLevel.ReadUncommitted), InlineData(IsolationLevel.ReadCommitted),
+     InlineData(IsolationLevel.RepeatableRead)]
     public void IsolationLevel_is_increased_when_unsupported(IsolationLevel isolationLevel)
     {
         using var connection = new SqliteConnection("Data Source=:memory:");
