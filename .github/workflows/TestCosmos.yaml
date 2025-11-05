@@ -21,18 +21,12 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Restore
-        run: restore.cmd
-        shell: cmd
-
+        
       - name: Build
-        run: build.cmd /p:Projects=${{ github.workspace }}\test\EFCore.Cosmos.FunctionalTests\EFCore.Cosmos.FunctionalTests.csproj
+        run: build.cmd -test /p:Projects=${{ github.workspace }}\test\EFCore.Cosmos.FunctionalTests\EFCore.Cosmos.FunctionalTests.csproj
         shell: cmd
-
-      - name: Test on Cosmos
-        run: test.cmd /p:Projects=${{ github.workspace }}\test\EFCore.Cosmos.FunctionalTests\EFCore.Cosmos.FunctionalTests.csproj
-        shell: cmd
+        env:
+           Test__Cosmos__SkipConnectionCheck: true
 
       - name: Publish Test Results
         uses: actions/upload-artifact@v4
