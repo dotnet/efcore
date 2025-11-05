@@ -760,11 +760,11 @@ namespace TestNamespace
                 valueTypeEnumerable.TypeMapping = InMemoryTypeMapping.Default.Clone(
                     comparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
                         bool (byte v1, byte v2) => v1 == v2,
-                        int (byte v) => ((int)(v)),
+                        int (byte v) => ((int)v),
                         byte (byte v) => v)),
                     keyComparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
                         bool (byte v1, byte v2) => v1 == v2,
-                        int (byte v) => ((int)(v)),
+                        int (byte v) => ((int)v),
                         byte (byte v) => v)),
                     providerValueComparer: new ValueComparer<string>(
                         bool (string v1, string v2) => v1 == v2,
@@ -777,15 +777,15 @@ namespace TestNamespace
                     elementMapping: InMemoryTypeMapping.Default.Clone(
                         comparer: new ValueComparer<byte>(
                             bool (byte v1, byte v2) => v1 == v2,
-                            int (byte v) => ((int)(v)),
+                            int (byte v) => ((int)v),
                             byte (byte v) => v),
                         keyComparer: new ValueComparer<byte>(
                             bool (byte v1, byte v2) => v1 == v2,
-                            int (byte v) => ((int)(v)),
+                            int (byte v) => ((int)v),
                             byte (byte v) => v),
                         providerValueComparer: new ValueComparer<byte>(
                             bool (byte v1, byte v2) => v1 == v2,
-                            int (byte v) => ((int)(v)),
+                            int (byte v) => ((int)v),
                             byte (byte v) => v),
                         clrType: typeof(byte),
                         jsonValueReaderWriter: JsonByteReaderWriter.Instance));
@@ -849,11 +849,11 @@ namespace TestNamespace
                 valueTypeIList.TypeMapping = InMemoryTypeMapping.Default.Clone(
                     comparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
                         bool (byte v1, byte v2) => v1 == v2,
-                        int (byte v) => ((int)(v)),
+                        int (byte v) => ((int)v),
                         byte (byte v) => v)),
                     keyComparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
                         bool (byte v1, byte v2) => v1 == v2,
-                        int (byte v) => ((int)(v)),
+                        int (byte v) => ((int)v),
                         byte (byte v) => v)),
                     providerValueComparer: new ValueComparer<string>(
                         bool (string v1, string v2) => v1 == v2,
@@ -866,15 +866,15 @@ namespace TestNamespace
                     elementMapping: InMemoryTypeMapping.Default.Clone(
                         comparer: new ValueComparer<byte>(
                             bool (byte v1, byte v2) => v1 == v2,
-                            int (byte v) => ((int)(v)),
+                            int (byte v) => ((int)v),
                             byte (byte v) => v),
                         keyComparer: new ValueComparer<byte>(
                             bool (byte v1, byte v2) => v1 == v2,
-                            int (byte v) => ((int)(v)),
+                            int (byte v) => ((int)v),
                             byte (byte v) => v),
                         providerValueComparer: new ValueComparer<byte>(
                             bool (byte v1, byte v2) => v1 == v2,
-                            int (byte v) => ((int)(v)),
+                            int (byte v) => ((int)v),
                             byte (byte v) => v),
                         clrType: typeof(byte),
                         jsonValueReaderWriter: JsonByteReaderWriter.Instance));
@@ -938,11 +938,11 @@ namespace TestNamespace
                 valueTypeList.TypeMapping = InMemoryTypeMapping.Default.Clone(
                     comparer: new ListOfValueTypesComparer<List<short>, short>(new ValueComparer<short>(
                         bool (short v1, short v2) => v1 == v2,
-                        int (short v) => ((int)(v)),
+                        int (short v) => ((int)v),
                         short (short v) => v)),
                     keyComparer: new ListOfValueTypesComparer<List<short>, short>(new ValueComparer<short>(
                         bool (short v1, short v2) => v1 == v2,
-                        int (short v) => ((int)(v)),
+                        int (short v) => ((int)v),
                         short (short v) => v)),
                     providerValueComparer: new ValueComparer<string>(
                         bool (string v1, string v2) => v1 == v2,
@@ -955,15 +955,15 @@ namespace TestNamespace
                     elementMapping: InMemoryTypeMapping.Default.Clone(
                         comparer: new ValueComparer<short>(
                             bool (short v1, short v2) => v1 == v2,
-                            int (short v) => ((int)(v)),
+                            int (short v) => ((int)v),
                             short (short v) => v),
                         keyComparer: new ValueComparer<short>(
                             bool (short v1, short v2) => v1 == v2,
-                            int (short v) => ((int)(v)),
+                            int (short v) => ((int)v),
                             short (short v) => v),
                         providerValueComparer: new ValueComparer<short>(
                             bool (short v1, short v2) => v1 == v2,
-                            int (short v) => ((int)(v)),
+                            int (short v) => ((int)v),
                             short (short v) => v),
                         clrType: typeof(short),
                         jsonValueReaderWriter: JsonInt16ReaderWriter.Instance));
@@ -1167,15 +1167,15 @@ namespace TestNamespace
                         storeGenerationIndex: -1);
                     enum1.TypeMapping = InMemoryTypeMapping.Default.Clone(
                         comparer: new ValueComparer<CompiledModelTestBase.AnEnum>(
-                            bool (CompiledModelTestBase.AnEnum v1, CompiledModelTestBase.AnEnum v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                            bool (CompiledModelTestBase.AnEnum v1, CompiledModelTestBase.AnEnum v2) => object.Equals(((object)v1), ((object)v2)),
                             int (CompiledModelTestBase.AnEnum v) => ((object)v).GetHashCode(),
                             CompiledModelTestBase.AnEnum (CompiledModelTestBase.AnEnum v) => v),
                         keyComparer: new ValueComparer<CompiledModelTestBase.AnEnum>(
-                            bool (CompiledModelTestBase.AnEnum v1, CompiledModelTestBase.AnEnum v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                            bool (CompiledModelTestBase.AnEnum v1, CompiledModelTestBase.AnEnum v2) => object.Equals(((object)v1), ((object)v2)),
                             int (CompiledModelTestBase.AnEnum v) => ((object)v).GetHashCode(),
                             CompiledModelTestBase.AnEnum (CompiledModelTestBase.AnEnum v) => v),
                         providerValueComparer: new ValueComparer<CompiledModelTestBase.AnEnum>(
-                            bool (CompiledModelTestBase.AnEnum v1, CompiledModelTestBase.AnEnum v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                            bool (CompiledModelTestBase.AnEnum v1, CompiledModelTestBase.AnEnum v2) => object.Equals(((object)v1), ((object)v2)),
                             int (CompiledModelTestBase.AnEnum v) => ((object)v).GetHashCode(),
                             CompiledModelTestBase.AnEnum (CompiledModelTestBase.AnEnum v) => v),
                         clrType: typeof(CompiledModelTestBase.AnEnum),
@@ -1202,11 +1202,11 @@ namespace TestNamespace
                             }
 
                             var level2 = OwnedTypeUnsafeAccessors.Principal(level1);
-                            PrincipalBaseUnsafeAccessors.Enum2(level2) = (value == null ? value : ((CompiledModelTestBase.AnEnum? )(((CompiledModelTestBase.AnEnum)(value)))));
+                            PrincipalBaseUnsafeAccessors.Enum2(level2) = (value == null ? value : ((CompiledModelTestBase.AnEnum? )(((CompiledModelTestBase.AnEnum)value))));
                         },
                         CompiledModelTestBase.PrincipalBase (CompiledModelTestBase.PrincipalBase instance, CompiledModelTestBase.AnEnum? value) =>
                         {
-                            PrincipalBaseUnsafeAccessors.Enum2(instance) = (value == null ? value : ((CompiledModelTestBase.AnEnum? )(((CompiledModelTestBase.AnEnum)(value)))));
+                            PrincipalBaseUnsafeAccessors.Enum2(instance) = (value == null ? value : ((CompiledModelTestBase.AnEnum? )(((CompiledModelTestBase.AnEnum)value))));
                             return instance;
                         });
                     enum2.SetMaterializationSetter(
@@ -1219,11 +1219,11 @@ namespace TestNamespace
                             }
 
                             var level2 = OwnedTypeUnsafeAccessors.Principal(level1);
-                            PrincipalBaseUnsafeAccessors.Enum2(level2) = (value == null ? value : ((CompiledModelTestBase.AnEnum? )(((CompiledModelTestBase.AnEnum)(value)))));
+                            PrincipalBaseUnsafeAccessors.Enum2(level2) = (value == null ? value : ((CompiledModelTestBase.AnEnum? )(((CompiledModelTestBase.AnEnum)value))));
                         },
                         CompiledModelTestBase.PrincipalBase (CompiledModelTestBase.PrincipalBase instance, CompiledModelTestBase.AnEnum? value) =>
                         {
-                            PrincipalBaseUnsafeAccessors.Enum2(instance) = (value == null ? value : ((CompiledModelTestBase.AnEnum? )(((CompiledModelTestBase.AnEnum)(value)))));
+                            PrincipalBaseUnsafeAccessors.Enum2(instance) = (value == null ? value : ((CompiledModelTestBase.AnEnum? )(((CompiledModelTestBase.AnEnum)value))));
                             return instance;
                         });
                     enum2.SetAccessors(
@@ -1239,15 +1239,15 @@ namespace TestNamespace
                         storeGenerationIndex: -1);
                     enum2.TypeMapping = InMemoryTypeMapping.Default.Clone(
                         comparer: new ValueComparer<CompiledModelTestBase.AnEnum>(
-                            bool (CompiledModelTestBase.AnEnum v1, CompiledModelTestBase.AnEnum v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                            bool (CompiledModelTestBase.AnEnum v1, CompiledModelTestBase.AnEnum v2) => object.Equals(((object)v1), ((object)v2)),
                             int (CompiledModelTestBase.AnEnum v) => ((object)v).GetHashCode(),
                             CompiledModelTestBase.AnEnum (CompiledModelTestBase.AnEnum v) => v),
                         keyComparer: new ValueComparer<CompiledModelTestBase.AnEnum>(
-                            bool (CompiledModelTestBase.AnEnum v1, CompiledModelTestBase.AnEnum v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                            bool (CompiledModelTestBase.AnEnum v1, CompiledModelTestBase.AnEnum v2) => object.Equals(((object)v1), ((object)v2)),
                             int (CompiledModelTestBase.AnEnum v) => ((object)v).GetHashCode(),
                             CompiledModelTestBase.AnEnum (CompiledModelTestBase.AnEnum v) => v),
                         providerValueComparer: new ValueComparer<CompiledModelTestBase.AnEnum>(
-                            bool (CompiledModelTestBase.AnEnum v1, CompiledModelTestBase.AnEnum v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                            bool (CompiledModelTestBase.AnEnum v1, CompiledModelTestBase.AnEnum v2) => object.Equals(((object)v1), ((object)v2)),
                             int (CompiledModelTestBase.AnEnum v) => ((object)v).GetHashCode(),
                             CompiledModelTestBase.AnEnum (CompiledModelTestBase.AnEnum v) => v),
                         clrType: typeof(CompiledModelTestBase.AnEnum),
@@ -1313,15 +1313,15 @@ namespace TestNamespace
                         storeGenerationIndex: -1);
                     flagsEnum1.TypeMapping = InMemoryTypeMapping.Default.Clone(
                         comparer: new ValueComparer<CompiledModelTestBase.AFlagsEnum>(
-                            bool (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                            bool (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals(((object)v1), ((object)v2)),
                             int (CompiledModelTestBase.AFlagsEnum v) => ((object)v).GetHashCode(),
                             CompiledModelTestBase.AFlagsEnum (CompiledModelTestBase.AFlagsEnum v) => v),
                         keyComparer: new ValueComparer<CompiledModelTestBase.AFlagsEnum>(
-                            bool (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                            bool (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals(((object)v1), ((object)v2)),
                             int (CompiledModelTestBase.AFlagsEnum v) => ((object)v).GetHashCode(),
                             CompiledModelTestBase.AFlagsEnum (CompiledModelTestBase.AFlagsEnum v) => v),
                         providerValueComparer: new ValueComparer<CompiledModelTestBase.AFlagsEnum>(
-                            bool (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                            bool (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals(((object)v1), ((object)v2)),
                             int (CompiledModelTestBase.AFlagsEnum v) => ((object)v).GetHashCode(),
                             CompiledModelTestBase.AFlagsEnum (CompiledModelTestBase.AFlagsEnum v) => v),
                         clrType: typeof(CompiledModelTestBase.AFlagsEnum),
@@ -1385,15 +1385,15 @@ namespace TestNamespace
                         storeGenerationIndex: -1);
                     flagsEnum2.TypeMapping = InMemoryTypeMapping.Default.Clone(
                         comparer: new ValueComparer<CompiledModelTestBase.AFlagsEnum>(
-                            bool (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                            bool (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals(((object)v1), ((object)v2)),
                             int (CompiledModelTestBase.AFlagsEnum v) => ((object)v).GetHashCode(),
                             CompiledModelTestBase.AFlagsEnum (CompiledModelTestBase.AFlagsEnum v) => v),
                         keyComparer: new ValueComparer<CompiledModelTestBase.AFlagsEnum>(
-                            bool (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                            bool (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals(((object)v1), ((object)v2)),
                             int (CompiledModelTestBase.AFlagsEnum v) => ((object)v).GetHashCode(),
                             CompiledModelTestBase.AFlagsEnum (CompiledModelTestBase.AFlagsEnum v) => v),
                         providerValueComparer: new ValueComparer<CompiledModelTestBase.AFlagsEnum>(
-                            bool (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                            bool (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals(((object)v1), ((object)v2)),
                             int (CompiledModelTestBase.AFlagsEnum v) => ((object)v).GetHashCode(),
                             CompiledModelTestBase.AFlagsEnum (CompiledModelTestBase.AFlagsEnum v) => v),
                         clrType: typeof(CompiledModelTestBase.AFlagsEnum),
@@ -2015,11 +2015,11 @@ namespace TestNamespace
                     valueTypeEnumerable.TypeMapping = InMemoryTypeMapping.Default.Clone(
                         comparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
                             bool (byte v1, byte v2) => v1 == v2,
-                            int (byte v) => ((int)(v)),
+                            int (byte v) => ((int)v),
                             byte (byte v) => v)),
                         keyComparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
                             bool (byte v1, byte v2) => v1 == v2,
-                            int (byte v) => ((int)(v)),
+                            int (byte v) => ((int)v),
                             byte (byte v) => v)),
                         providerValueComparer: new ValueComparer<string>(
                             bool (string v1, string v2) => v1 == v2,
@@ -2032,15 +2032,15 @@ namespace TestNamespace
                         elementMapping: InMemoryTypeMapping.Default.Clone(
                             comparer: new ValueComparer<byte>(
                                 bool (byte v1, byte v2) => v1 == v2,
-                                int (byte v) => ((int)(v)),
+                                int (byte v) => ((int)v),
                                 byte (byte v) => v),
                             keyComparer: new ValueComparer<byte>(
                                 bool (byte v1, byte v2) => v1 == v2,
-                                int (byte v) => ((int)(v)),
+                                int (byte v) => ((int)v),
                                 byte (byte v) => v),
                             providerValueComparer: new ValueComparer<byte>(
                                 bool (byte v1, byte v2) => v1 == v2,
-                                int (byte v) => ((int)(v)),
+                                int (byte v) => ((int)v),
                                 byte (byte v) => v),
                             clrType: typeof(byte),
                             jsonValueReaderWriter: JsonByteReaderWriter.Instance));
@@ -2106,11 +2106,11 @@ namespace TestNamespace
                     valueTypeIList.TypeMapping = InMemoryTypeMapping.Default.Clone(
                         comparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
                             bool (byte v1, byte v2) => v1 == v2,
-                            int (byte v) => ((int)(v)),
+                            int (byte v) => ((int)v),
                             byte (byte v) => v)),
                         keyComparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
                             bool (byte v1, byte v2) => v1 == v2,
-                            int (byte v) => ((int)(v)),
+                            int (byte v) => ((int)v),
                             byte (byte v) => v)),
                         providerValueComparer: new ValueComparer<string>(
                             bool (string v1, string v2) => v1 == v2,
@@ -2123,15 +2123,15 @@ namespace TestNamespace
                         elementMapping: InMemoryTypeMapping.Default.Clone(
                             comparer: new ValueComparer<byte>(
                                 bool (byte v1, byte v2) => v1 == v2,
-                                int (byte v) => ((int)(v)),
+                                int (byte v) => ((int)v),
                                 byte (byte v) => v),
                             keyComparer: new ValueComparer<byte>(
                                 bool (byte v1, byte v2) => v1 == v2,
-                                int (byte v) => ((int)(v)),
+                                int (byte v) => ((int)v),
                                 byte (byte v) => v),
                             providerValueComparer: new ValueComparer<byte>(
                                 bool (byte v1, byte v2) => v1 == v2,
-                                int (byte v) => ((int)(v)),
+                                int (byte v) => ((int)v),
                                 byte (byte v) => v),
                             clrType: typeof(byte),
                             jsonValueReaderWriter: JsonByteReaderWriter.Instance));
@@ -2197,11 +2197,11 @@ namespace TestNamespace
                     valueTypeList.TypeMapping = InMemoryTypeMapping.Default.Clone(
                         comparer: new ListOfValueTypesComparer<List<short>, short>(new ValueComparer<short>(
                             bool (short v1, short v2) => v1 == v2,
-                            int (short v) => ((int)(v)),
+                            int (short v) => ((int)v),
                             short (short v) => v)),
                         keyComparer: new ListOfValueTypesComparer<List<short>, short>(new ValueComparer<short>(
                             bool (short v1, short v2) => v1 == v2,
-                            int (short v) => ((int)(v)),
+                            int (short v) => ((int)v),
                             short (short v) => v)),
                         providerValueComparer: new ValueComparer<string>(
                             bool (string v1, string v2) => v1 == v2,
@@ -2214,15 +2214,15 @@ namespace TestNamespace
                         elementMapping: InMemoryTypeMapping.Default.Clone(
                             comparer: new ValueComparer<short>(
                                 bool (short v1, short v2) => v1 == v2,
-                                int (short v) => ((int)(v)),
+                                int (short v) => ((int)v),
                                 short (short v) => v),
                             keyComparer: new ValueComparer<short>(
                                 bool (short v1, short v2) => v1 == v2,
-                                int (short v) => ((int)(v)),
+                                int (short v) => ((int)v),
                                 short (short v) => v),
                             providerValueComparer: new ValueComparer<short>(
                                 bool (short v1, short v2) => v1 == v2,
-                                int (short v) => ((int)(v)),
+                                int (short v) => ((int)v),
                                 short (short v) => v),
                             clrType: typeof(short),
                             jsonValueReaderWriter: JsonInt16ReaderWriter.Instance));

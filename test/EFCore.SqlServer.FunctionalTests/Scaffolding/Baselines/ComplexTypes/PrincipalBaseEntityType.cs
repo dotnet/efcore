@@ -66,7 +66,7 @@ namespace TestNamespace
                 long? (IInternalEntry entry) => (entry.FlaggedAsStoreGenerated(0) ? entry.ReadStoreGeneratedValue<long?>(0) : (entry.FlaggedAsTemporary(0) && !(PrincipalBaseUnsafeAccessors.Id(((CompiledModelTestBase.PrincipalBase)(entry.Entity))).HasValue) ? entry.ReadTemporaryValue<long?>(0) : PrincipalBaseUnsafeAccessors.Id(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))),
                 long? (IInternalEntry entry) => PrincipalBaseUnsafeAccessors.Id(((CompiledModelTestBase.PrincipalBase)(entry.Entity))),
                 long? (IInternalEntry entry) => entry.ReadOriginalValue<long?>(id, 0),
-                long? (IInternalEntry entry) => ((InternalEntityEntry)(entry)).ReadRelationshipSnapshotValue<long?>(id, 0));
+                long? (IInternalEntry entry) => ((InternalEntityEntry)entry).ReadRelationshipSnapshotValue<long?>(id, 0));
             id.SetPropertyIndexes(
                 index: 0,
                 originalValueIndex: 0,
@@ -161,11 +161,11 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             enum1.TypeMapping = IntTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.AnEnum>(
-                    bool (CompiledModelTestBase.AnEnum v1, CompiledModelTestBase.AnEnum v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.AnEnum v1, CompiledModelTestBase.AnEnum v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.AnEnum v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.AnEnum (CompiledModelTestBase.AnEnum v) => v),
                 keyComparer: new ValueComparer<CompiledModelTestBase.AnEnum>(
-                    bool (CompiledModelTestBase.AnEnum v1, CompiledModelTestBase.AnEnum v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.AnEnum v1, CompiledModelTestBase.AnEnum v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.AnEnum v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.AnEnum (CompiledModelTestBase.AnEnum v) => v),
                 providerValueComparer: new ValueComparer<int>(
@@ -173,13 +173,13 @@ namespace TestNamespace
                     int (int v) => v,
                     int (int v) => v),
                 converter: new ValueConverter<CompiledModelTestBase.AnEnum, int>(
-                    int (CompiledModelTestBase.AnEnum value) => ((int)(value)),
-                    CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)(value))),
+                    int (CompiledModelTestBase.AnEnum value) => ((int)value),
+                    CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.AnEnum, int>(
                     JsonInt32ReaderWriter.Instance,
                     new ValueConverter<CompiledModelTestBase.AnEnum, int>(
-                        int (CompiledModelTestBase.AnEnum value) => ((int)(value)),
-                        CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)(value)))));
+                        int (CompiledModelTestBase.AnEnum value) => ((int)value),
+                        CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value))));
             enum1.SetSentinelFromProviderValue(0);
             enum1.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
@@ -195,13 +195,13 @@ namespace TestNamespace
             enum2.SetSetter(
                 CompiledModelTestBase.PrincipalBase (CompiledModelTestBase.PrincipalBase instance, CompiledModelTestBase.AnEnum? value) =>
                 {
-                    PrincipalBaseUnsafeAccessors.Enum2(instance) = (value == null ? value : ((CompiledModelTestBase.AnEnum? )(((CompiledModelTestBase.AnEnum)(value)))));
+                    PrincipalBaseUnsafeAccessors.Enum2(instance) = (value == null ? value : ((CompiledModelTestBase.AnEnum? )(((CompiledModelTestBase.AnEnum)value))));
                     return instance;
                 });
             enum2.SetMaterializationSetter(
                 CompiledModelTestBase.PrincipalBase (CompiledModelTestBase.PrincipalBase instance, CompiledModelTestBase.AnEnum? value) =>
                 {
-                    PrincipalBaseUnsafeAccessors.Enum2(instance) = (value == null ? value : ((CompiledModelTestBase.AnEnum? )(((CompiledModelTestBase.AnEnum)(value)))));
+                    PrincipalBaseUnsafeAccessors.Enum2(instance) = (value == null ? value : ((CompiledModelTestBase.AnEnum? )(((CompiledModelTestBase.AnEnum)value))));
                     return instance;
                 });
             enum2.SetAccessors(
@@ -217,11 +217,11 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             enum2.TypeMapping = IntTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.AnEnum>(
-                    bool (CompiledModelTestBase.AnEnum v1, CompiledModelTestBase.AnEnum v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.AnEnum v1, CompiledModelTestBase.AnEnum v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.AnEnum v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.AnEnum (CompiledModelTestBase.AnEnum v) => v),
                 keyComparer: new ValueComparer<CompiledModelTestBase.AnEnum>(
-                    bool (CompiledModelTestBase.AnEnum v1, CompiledModelTestBase.AnEnum v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.AnEnum v1, CompiledModelTestBase.AnEnum v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.AnEnum v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.AnEnum (CompiledModelTestBase.AnEnum v) => v),
                 providerValueComparer: new ValueComparer<int>(
@@ -229,13 +229,13 @@ namespace TestNamespace
                     int (int v) => v,
                     int (int v) => v),
                 converter: new ValueConverter<CompiledModelTestBase.AnEnum, int>(
-                    int (CompiledModelTestBase.AnEnum value) => ((int)(value)),
-                    CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)(value))),
+                    int (CompiledModelTestBase.AnEnum value) => ((int)value),
+                    CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.AnEnum, int>(
                     JsonInt32ReaderWriter.Instance,
                     new ValueConverter<CompiledModelTestBase.AnEnum, int>(
-                        int (CompiledModelTestBase.AnEnum value) => ((int)(value)),
-                        CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)(value)))));
+                        int (CompiledModelTestBase.AnEnum value) => ((int)value),
+                        CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value))));
             enum2.SetComparer(new NullableValueComparer<CompiledModelTestBase.AnEnum>(enum2.TypeMapping.Comparer));
             enum2.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.AnEnum>(enum2.TypeMapping.KeyComparer));
             enum2.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
@@ -273,11 +273,11 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             flagsEnum1.TypeMapping = IntTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.AFlagsEnum>(
-                    bool (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.AFlagsEnum v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.AFlagsEnum (CompiledModelTestBase.AFlagsEnum v) => v),
                 keyComparer: new ValueComparer<CompiledModelTestBase.AFlagsEnum>(
-                    bool (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.AFlagsEnum v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.AFlagsEnum (CompiledModelTestBase.AFlagsEnum v) => v),
                 providerValueComparer: new ValueComparer<int>(
@@ -285,13 +285,13 @@ namespace TestNamespace
                     int (int v) => v,
                     int (int v) => v),
                 converter: new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(
-                    int (CompiledModelTestBase.AFlagsEnum value) => ((int)(value)),
-                    CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)(value))),
+                    int (CompiledModelTestBase.AFlagsEnum value) => ((int)value),
+                    CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.AFlagsEnum, int>(
                     JsonInt32ReaderWriter.Instance,
                     new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(
-                        int (CompiledModelTestBase.AFlagsEnum value) => ((int)(value)),
-                        CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)(value)))));
+                        int (CompiledModelTestBase.AFlagsEnum value) => ((int)value),
+                        CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value))));
             flagsEnum1.SetSentinelFromProviderValue(0);
             flagsEnum1.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
@@ -328,11 +328,11 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             flagsEnum2.TypeMapping = IntTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.AFlagsEnum>(
-                    bool (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.AFlagsEnum v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.AFlagsEnum (CompiledModelTestBase.AFlagsEnum v) => v),
                 keyComparer: new ValueComparer<CompiledModelTestBase.AFlagsEnum>(
-                    bool (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.AFlagsEnum v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.AFlagsEnum (CompiledModelTestBase.AFlagsEnum v) => v),
                 providerValueComparer: new ValueComparer<int>(
@@ -340,13 +340,13 @@ namespace TestNamespace
                     int (int v) => v,
                     int (int v) => v),
                 converter: new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(
-                    int (CompiledModelTestBase.AFlagsEnum value) => ((int)(value)),
-                    CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)(value))),
+                    int (CompiledModelTestBase.AFlagsEnum value) => ((int)value),
+                    CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.AFlagsEnum, int>(
                     JsonInt32ReaderWriter.Instance,
                     new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(
-                        int (CompiledModelTestBase.AFlagsEnum value) => ((int)(value)),
-                        CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)(value)))));
+                        int (CompiledModelTestBase.AFlagsEnum value) => ((int)value),
+                        CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value))));
             flagsEnum2.SetSentinelFromProviderValue(0);
             flagsEnum2.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
@@ -358,7 +358,7 @@ namespace TestNamespace
                 long? (IInternalEntry entry) => (entry.FlaggedAsStoreGenerated(6) ? entry.ReadStoreGeneratedValue<long?>(1) : (entry.FlaggedAsTemporary(6) && !(entry.ReadShadowValue<long?>(1).HasValue) ? entry.ReadTemporaryValue<long?>(1) : entry.ReadShadowValue<long?>(1))),
                 long? (IInternalEntry entry) => entry.ReadShadowValue<long?>(1),
                 long? (IInternalEntry entry) => entry.ReadOriginalValue<long?>(principalBaseId, 6),
-                long? (IInternalEntry entry) => ((InternalEntityEntry)(entry)).ReadRelationshipSnapshotValue<long?>(principalBaseId, 1));
+                long? (IInternalEntry entry) => ((InternalEntityEntry)entry).ReadRelationshipSnapshotValue<long?>(principalBaseId, 1));
             principalBaseId.SetPropertyIndexes(
                 index: 6,
                 originalValueIndex: 6,
@@ -825,11 +825,11 @@ namespace TestNamespace
             valueTypeEnumerable.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
                     bool (byte v1, byte v2) => v1 == v2,
-                    int (byte v) => ((int)(v)),
+                    int (byte v) => ((int)v),
                     byte (byte v) => v)),
                 keyComparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
                     bool (byte v1, byte v2) => v1 == v2,
-                    int (byte v) => ((int)(v)),
+                    int (byte v) => ((int)v),
                     byte (byte v) => v)),
                 providerValueComparer: new ValueComparer<string>(
                     bool (string v1, string v2) => v1 == v2,
@@ -847,15 +847,15 @@ namespace TestNamespace
                 elementMapping: SqlServerByteTypeMapping.Default.Clone(
                     comparer: new ValueComparer<byte>(
                         bool (byte v1, byte v2) => v1 == v2,
-                        int (byte v) => ((int)(v)),
+                        int (byte v) => ((int)v),
                         byte (byte v) => v),
                     keyComparer: new ValueComparer<byte>(
                         bool (byte v1, byte v2) => v1 == v2,
-                        int (byte v) => ((int)(v)),
+                        int (byte v) => ((int)v),
                         byte (byte v) => v),
                     providerValueComparer: new ValueComparer<byte>(
                         bool (byte v1, byte v2) => v1 == v2,
-                        int (byte v) => ((int)(v)),
+                        int (byte v) => ((int)v),
                         byte (byte v) => v)));
             var valueTypeEnumerableElementType = valueTypeEnumerable.SetElementType(typeof(byte));
             valueTypeEnumerableElementType.TypeMapping = valueTypeEnumerable.TypeMapping.ElementTypeMapping;
@@ -896,11 +896,11 @@ namespace TestNamespace
             valueTypeIList.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
                     bool (byte v1, byte v2) => v1 == v2,
-                    int (byte v) => ((int)(v)),
+                    int (byte v) => ((int)v),
                     byte (byte v) => v)),
                 keyComparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
                     bool (byte v1, byte v2) => v1 == v2,
-                    int (byte v) => ((int)(v)),
+                    int (byte v) => ((int)v),
                     byte (byte v) => v)),
                 providerValueComparer: new ValueComparer<string>(
                     bool (string v1, string v2) => v1 == v2,
@@ -918,15 +918,15 @@ namespace TestNamespace
                 elementMapping: SqlServerByteTypeMapping.Default.Clone(
                     comparer: new ValueComparer<byte>(
                         bool (byte v1, byte v2) => v1 == v2,
-                        int (byte v) => ((int)(v)),
+                        int (byte v) => ((int)v),
                         byte (byte v) => v),
                     keyComparer: new ValueComparer<byte>(
                         bool (byte v1, byte v2) => v1 == v2,
-                        int (byte v) => ((int)(v)),
+                        int (byte v) => ((int)v),
                         byte (byte v) => v),
                     providerValueComparer: new ValueComparer<byte>(
                         bool (byte v1, byte v2) => v1 == v2,
-                        int (byte v) => ((int)(v)),
+                        int (byte v) => ((int)v),
                         byte (byte v) => v)));
             var valueTypeIListElementType = valueTypeIList.SetElementType(typeof(byte));
             valueTypeIListElementType.TypeMapping = valueTypeIList.TypeMapping.ElementTypeMapping;
@@ -967,11 +967,11 @@ namespace TestNamespace
             valueTypeList.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListOfValueTypesComparer<List<short>, short>(new ValueComparer<short>(
                     bool (short v1, short v2) => v1 == v2,
-                    int (short v) => ((int)(v)),
+                    int (short v) => ((int)v),
                     short (short v) => v)),
                 keyComparer: new ListOfValueTypesComparer<List<short>, short>(new ValueComparer<short>(
                     bool (short v1, short v2) => v1 == v2,
-                    int (short v) => ((int)(v)),
+                    int (short v) => ((int)v),
                     short (short v) => v)),
                 providerValueComparer: new ValueComparer<string>(
                     bool (string v1, string v2) => v1 == v2,
@@ -989,15 +989,15 @@ namespace TestNamespace
                 elementMapping: SqlServerShortTypeMapping.Default.Clone(
                     comparer: new ValueComparer<short>(
                         bool (short v1, short v2) => v1 == v2,
-                        int (short v) => ((int)(v)),
+                        int (short v) => ((int)v),
                         short (short v) => v),
                     keyComparer: new ValueComparer<short>(
                         bool (short v1, short v2) => v1 == v2,
-                        int (short v) => ((int)(v)),
+                        int (short v) => ((int)v),
                         short (short v) => v),
                     providerValueComparer: new ValueComparer<short>(
                         bool (short v1, short v2) => v1 == v2,
-                        int (short v) => ((int)(v)),
+                        int (short v) => ((int)v),
                         short (short v) => v)));
             var valueTypeListElementType = valueTypeList.SetElementType(typeof(short));
             valueTypeListElementType.TypeMapping = valueTypeList.TypeMapping.ElementTypeMapping;
@@ -1706,11 +1706,11 @@ namespace TestNamespace
                 valueTypeEnumerable.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                     comparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
                         bool (byte v1, byte v2) => v1 == v2,
-                        int (byte v) => ((int)(v)),
+                        int (byte v) => ((int)v),
                         byte (byte v) => v)),
                     keyComparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
                         bool (byte v1, byte v2) => v1 == v2,
-                        int (byte v) => ((int)(v)),
+                        int (byte v) => ((int)v),
                         byte (byte v) => v)),
                     providerValueComparer: new ValueComparer<string>(
                         bool (string v1, string v2) => v1 == v2,
@@ -1728,15 +1728,15 @@ namespace TestNamespace
                     elementMapping: SqlServerByteTypeMapping.Default.Clone(
                         comparer: new ValueComparer<byte>(
                             bool (byte v1, byte v2) => v1 == v2,
-                            int (byte v) => ((int)(v)),
+                            int (byte v) => ((int)v),
                             byte (byte v) => v),
                         keyComparer: new ValueComparer<byte>(
                             bool (byte v1, byte v2) => v1 == v2,
-                            int (byte v) => ((int)(v)),
+                            int (byte v) => ((int)v),
                             byte (byte v) => v),
                         providerValueComparer: new ValueComparer<byte>(
                             bool (byte v1, byte v2) => v1 == v2,
-                            int (byte v) => ((int)(v)),
+                            int (byte v) => ((int)v),
                             byte (byte v) => v)));
                 var valueTypeEnumerableElementType = valueTypeEnumerable.SetElementType(typeof(byte));
                 valueTypeEnumerableElementType.TypeMapping = valueTypeEnumerable.TypeMapping.ElementTypeMapping;
@@ -1789,11 +1789,11 @@ namespace TestNamespace
                 valueTypeIList.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                     comparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
                         bool (byte v1, byte v2) => v1 == v2,
-                        int (byte v) => ((int)(v)),
+                        int (byte v) => ((int)v),
                         byte (byte v) => v)),
                     keyComparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
                         bool (byte v1, byte v2) => v1 == v2,
-                        int (byte v) => ((int)(v)),
+                        int (byte v) => ((int)v),
                         byte (byte v) => v)),
                     providerValueComparer: new ValueComparer<string>(
                         bool (string v1, string v2) => v1 == v2,
@@ -1811,15 +1811,15 @@ namespace TestNamespace
                     elementMapping: SqlServerByteTypeMapping.Default.Clone(
                         comparer: new ValueComparer<byte>(
                             bool (byte v1, byte v2) => v1 == v2,
-                            int (byte v) => ((int)(v)),
+                            int (byte v) => ((int)v),
                             byte (byte v) => v),
                         keyComparer: new ValueComparer<byte>(
                             bool (byte v1, byte v2) => v1 == v2,
-                            int (byte v) => ((int)(v)),
+                            int (byte v) => ((int)v),
                             byte (byte v) => v),
                         providerValueComparer: new ValueComparer<byte>(
                             bool (byte v1, byte v2) => v1 == v2,
-                            int (byte v) => ((int)(v)),
+                            int (byte v) => ((int)v),
                             byte (byte v) => v)));
                 var valueTypeIListElementType = valueTypeIList.SetElementType(typeof(byte));
                 valueTypeIListElementType.TypeMapping = valueTypeIList.TypeMapping.ElementTypeMapping;
@@ -1872,11 +1872,11 @@ namespace TestNamespace
                 valueTypeList.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                     comparer: new ListOfValueTypesComparer<List<short>, short>(new ValueComparer<short>(
                         bool (short v1, short v2) => v1 == v2,
-                        int (short v) => ((int)(v)),
+                        int (short v) => ((int)v),
                         short (short v) => v)),
                     keyComparer: new ListOfValueTypesComparer<List<short>, short>(new ValueComparer<short>(
                         bool (short v1, short v2) => v1 == v2,
-                        int (short v) => ((int)(v)),
+                        int (short v) => ((int)v),
                         short (short v) => v)),
                     providerValueComparer: new ValueComparer<string>(
                         bool (string v1, string v2) => v1 == v2,
@@ -1894,15 +1894,15 @@ namespace TestNamespace
                     elementMapping: SqlServerShortTypeMapping.Default.Clone(
                         comparer: new ValueComparer<short>(
                             bool (short v1, short v2) => v1 == v2,
-                            int (short v) => ((int)(v)),
+                            int (short v) => ((int)v),
                             short (short v) => v),
                         keyComparer: new ValueComparer<short>(
                             bool (short v1, short v2) => v1 == v2,
-                            int (short v) => ((int)(v)),
+                            int (short v) => ((int)v),
                             short (short v) => v),
                         providerValueComparer: new ValueComparer<short>(
                             bool (short v1, short v2) => v1 == v2,
-                            int (short v) => ((int)(v)),
+                            int (short v) => ((int)v),
                             short (short v) => v)));
                 var valueTypeListElementType = valueTypeList.SetElementType(typeof(short));
                 valueTypeListElementType.TypeMapping = valueTypeList.TypeMapping.ElementTypeMapping;
@@ -2081,11 +2081,11 @@ namespace TestNamespace
                         storeGenerationIndex: -1);
                     enum1.TypeMapping = IntTypeMapping.Default.Clone(
                         comparer: new ValueComparer<CompiledModelTestBase.AnEnum>(
-                            bool (CompiledModelTestBase.AnEnum v1, CompiledModelTestBase.AnEnum v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                            bool (CompiledModelTestBase.AnEnum v1, CompiledModelTestBase.AnEnum v2) => object.Equals(((object)v1), ((object)v2)),
                             int (CompiledModelTestBase.AnEnum v) => ((object)v).GetHashCode(),
                             CompiledModelTestBase.AnEnum (CompiledModelTestBase.AnEnum v) => v),
                         keyComparer: new ValueComparer<CompiledModelTestBase.AnEnum>(
-                            bool (CompiledModelTestBase.AnEnum v1, CompiledModelTestBase.AnEnum v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                            bool (CompiledModelTestBase.AnEnum v1, CompiledModelTestBase.AnEnum v2) => object.Equals(((object)v1), ((object)v2)),
                             int (CompiledModelTestBase.AnEnum v) => ((object)v).GetHashCode(),
                             CompiledModelTestBase.AnEnum (CompiledModelTestBase.AnEnum v) => v),
                         providerValueComparer: new ValueComparer<int>(
@@ -2093,13 +2093,13 @@ namespace TestNamespace
                             int (int v) => v,
                             int (int v) => v),
                         converter: new ValueConverter<CompiledModelTestBase.AnEnum, int>(
-                            int (CompiledModelTestBase.AnEnum value) => ((int)(value)),
-                            CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)(value))),
+                            int (CompiledModelTestBase.AnEnum value) => ((int)value),
+                            CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value)),
                         jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.AnEnum, int>(
                             JsonInt32ReaderWriter.Instance,
                             new ValueConverter<CompiledModelTestBase.AnEnum, int>(
-                                int (CompiledModelTestBase.AnEnum value) => ((int)(value)),
-                                CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)(value)))));
+                                int (CompiledModelTestBase.AnEnum value) => ((int)value),
+                                CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value))));
                     enum1.SetSentinelFromProviderValue(0);
                     enum1.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
@@ -2119,11 +2119,11 @@ namespace TestNamespace
                         {
                             var level1 = PrincipalBaseUnsafeAccessors._ownedField(entity);
                             var level2 = OwnedTypeUnsafeAccessors.Principal(level1);
-                            PrincipalBaseUnsafeAccessors.Enum2(level2) = (value == null ? value : ((CompiledModelTestBase.AnEnum? )(((CompiledModelTestBase.AnEnum)(value)))));
+                            PrincipalBaseUnsafeAccessors.Enum2(level2) = (value == null ? value : ((CompiledModelTestBase.AnEnum? )(((CompiledModelTestBase.AnEnum)value))));
                         },
                         CompiledModelTestBase.PrincipalBase (CompiledModelTestBase.PrincipalBase instance, CompiledModelTestBase.AnEnum? value) =>
                         {
-                            PrincipalBaseUnsafeAccessors.Enum2(instance) = (value == null ? value : ((CompiledModelTestBase.AnEnum? )(((CompiledModelTestBase.AnEnum)(value)))));
+                            PrincipalBaseUnsafeAccessors.Enum2(instance) = (value == null ? value : ((CompiledModelTestBase.AnEnum? )(((CompiledModelTestBase.AnEnum)value))));
                             return instance;
                         });
                     enum2.SetMaterializationSetter(
@@ -2131,11 +2131,11 @@ namespace TestNamespace
                         {
                             var level1 = PrincipalBaseUnsafeAccessors._ownedField(entity);
                             var level2 = OwnedTypeUnsafeAccessors.Principal(level1);
-                            PrincipalBaseUnsafeAccessors.Enum2(level2) = (value == null ? value : ((CompiledModelTestBase.AnEnum? )(((CompiledModelTestBase.AnEnum)(value)))));
+                            PrincipalBaseUnsafeAccessors.Enum2(level2) = (value == null ? value : ((CompiledModelTestBase.AnEnum? )(((CompiledModelTestBase.AnEnum)value))));
                         },
                         CompiledModelTestBase.PrincipalBase (CompiledModelTestBase.PrincipalBase instance, CompiledModelTestBase.AnEnum? value) =>
                         {
-                            PrincipalBaseUnsafeAccessors.Enum2(instance) = (value == null ? value : ((CompiledModelTestBase.AnEnum? )(((CompiledModelTestBase.AnEnum)(value)))));
+                            PrincipalBaseUnsafeAccessors.Enum2(instance) = (value == null ? value : ((CompiledModelTestBase.AnEnum? )(((CompiledModelTestBase.AnEnum)value))));
                             return instance;
                         });
                     enum2.SetAccessors(
@@ -2151,11 +2151,11 @@ namespace TestNamespace
                         storeGenerationIndex: -1);
                     enum2.TypeMapping = IntTypeMapping.Default.Clone(
                         comparer: new ValueComparer<CompiledModelTestBase.AnEnum>(
-                            bool (CompiledModelTestBase.AnEnum v1, CompiledModelTestBase.AnEnum v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                            bool (CompiledModelTestBase.AnEnum v1, CompiledModelTestBase.AnEnum v2) => object.Equals(((object)v1), ((object)v2)),
                             int (CompiledModelTestBase.AnEnum v) => ((object)v).GetHashCode(),
                             CompiledModelTestBase.AnEnum (CompiledModelTestBase.AnEnum v) => v),
                         keyComparer: new ValueComparer<CompiledModelTestBase.AnEnum>(
-                            bool (CompiledModelTestBase.AnEnum v1, CompiledModelTestBase.AnEnum v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                            bool (CompiledModelTestBase.AnEnum v1, CompiledModelTestBase.AnEnum v2) => object.Equals(((object)v1), ((object)v2)),
                             int (CompiledModelTestBase.AnEnum v) => ((object)v).GetHashCode(),
                             CompiledModelTestBase.AnEnum (CompiledModelTestBase.AnEnum v) => v),
                         providerValueComparer: new ValueComparer<int>(
@@ -2163,13 +2163,13 @@ namespace TestNamespace
                             int (int v) => v,
                             int (int v) => v),
                         converter: new ValueConverter<CompiledModelTestBase.AnEnum, int>(
-                            int (CompiledModelTestBase.AnEnum value) => ((int)(value)),
-                            CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)(value))),
+                            int (CompiledModelTestBase.AnEnum value) => ((int)value),
+                            CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value)),
                         jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.AnEnum, int>(
                             JsonInt32ReaderWriter.Instance,
                             new ValueConverter<CompiledModelTestBase.AnEnum, int>(
-                                int (CompiledModelTestBase.AnEnum value) => ((int)(value)),
-                                CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)(value)))));
+                                int (CompiledModelTestBase.AnEnum value) => ((int)value),
+                                CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value))));
                     enum2.SetComparer(new NullableValueComparer<CompiledModelTestBase.AnEnum>(enum2.TypeMapping.Comparer));
                     enum2.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.AnEnum>(enum2.TypeMapping.KeyComparer));
                     enum2.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
@@ -2221,11 +2221,11 @@ namespace TestNamespace
                         storeGenerationIndex: -1);
                     flagsEnum1.TypeMapping = IntTypeMapping.Default.Clone(
                         comparer: new ValueComparer<CompiledModelTestBase.AFlagsEnum>(
-                            bool (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                            bool (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals(((object)v1), ((object)v2)),
                             int (CompiledModelTestBase.AFlagsEnum v) => ((object)v).GetHashCode(),
                             CompiledModelTestBase.AFlagsEnum (CompiledModelTestBase.AFlagsEnum v) => v),
                         keyComparer: new ValueComparer<CompiledModelTestBase.AFlagsEnum>(
-                            bool (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                            bool (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals(((object)v1), ((object)v2)),
                             int (CompiledModelTestBase.AFlagsEnum v) => ((object)v).GetHashCode(),
                             CompiledModelTestBase.AFlagsEnum (CompiledModelTestBase.AFlagsEnum v) => v),
                         providerValueComparer: new ValueComparer<int>(
@@ -2233,13 +2233,13 @@ namespace TestNamespace
                             int (int v) => v,
                             int (int v) => v),
                         converter: new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(
-                            int (CompiledModelTestBase.AFlagsEnum value) => ((int)(value)),
-                            CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)(value))),
+                            int (CompiledModelTestBase.AFlagsEnum value) => ((int)value),
+                            CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value)),
                         jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.AFlagsEnum, int>(
                             JsonInt32ReaderWriter.Instance,
                             new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(
-                                int (CompiledModelTestBase.AFlagsEnum value) => ((int)(value)),
-                                CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)(value)))));
+                                int (CompiledModelTestBase.AFlagsEnum value) => ((int)value),
+                                CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value))));
                     flagsEnum1.SetSentinelFromProviderValue(0);
                     flagsEnum1.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
@@ -2290,11 +2290,11 @@ namespace TestNamespace
                         storeGenerationIndex: -1);
                     flagsEnum2.TypeMapping = IntTypeMapping.Default.Clone(
                         comparer: new ValueComparer<CompiledModelTestBase.AFlagsEnum>(
-                            bool (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                            bool (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals(((object)v1), ((object)v2)),
                             int (CompiledModelTestBase.AFlagsEnum v) => ((object)v).GetHashCode(),
                             CompiledModelTestBase.AFlagsEnum (CompiledModelTestBase.AFlagsEnum v) => v),
                         keyComparer: new ValueComparer<CompiledModelTestBase.AFlagsEnum>(
-                            bool (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                            bool (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals(((object)v1), ((object)v2)),
                             int (CompiledModelTestBase.AFlagsEnum v) => ((object)v).GetHashCode(),
                             CompiledModelTestBase.AFlagsEnum (CompiledModelTestBase.AFlagsEnum v) => v),
                         providerValueComparer: new ValueComparer<int>(
@@ -2302,13 +2302,13 @@ namespace TestNamespace
                             int (int v) => v,
                             int (int v) => v),
                         converter: new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(
-                            int (CompiledModelTestBase.AFlagsEnum value) => ((int)(value)),
-                            CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)(value))),
+                            int (CompiledModelTestBase.AFlagsEnum value) => ((int)value),
+                            CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value)),
                         jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.AFlagsEnum, int>(
                             JsonInt32ReaderWriter.Instance,
                             new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(
-                                int (CompiledModelTestBase.AFlagsEnum value) => ((int)(value)),
-                                CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)(value)))));
+                                int (CompiledModelTestBase.AFlagsEnum value) => ((int)value),
+                                CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value))));
                     flagsEnum2.SetSentinelFromProviderValue(0);
                     flagsEnum2.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
@@ -2901,11 +2901,11 @@ namespace TestNamespace
                     valueTypeEnumerable.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                         comparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
                             bool (byte v1, byte v2) => v1 == v2,
-                            int (byte v) => ((int)(v)),
+                            int (byte v) => ((int)v),
                             byte (byte v) => v)),
                         keyComparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
                             bool (byte v1, byte v2) => v1 == v2,
-                            int (byte v) => ((int)(v)),
+                            int (byte v) => ((int)v),
                             byte (byte v) => v)),
                         providerValueComparer: new ValueComparer<string>(
                             bool (string v1, string v2) => v1 == v2,
@@ -2923,15 +2923,15 @@ namespace TestNamespace
                         elementMapping: SqlServerByteTypeMapping.Default.Clone(
                             comparer: new ValueComparer<byte>(
                                 bool (byte v1, byte v2) => v1 == v2,
-                                int (byte v) => ((int)(v)),
+                                int (byte v) => ((int)v),
                                 byte (byte v) => v),
                             keyComparer: new ValueComparer<byte>(
                                 bool (byte v1, byte v2) => v1 == v2,
-                                int (byte v) => ((int)(v)),
+                                int (byte v) => ((int)v),
                                 byte (byte v) => v),
                             providerValueComparer: new ValueComparer<byte>(
                                 bool (byte v1, byte v2) => v1 == v2,
-                                int (byte v) => ((int)(v)),
+                                int (byte v) => ((int)v),
                                 byte (byte v) => v)));
                     var valueTypeEnumerableElementType = valueTypeEnumerable.SetElementType(typeof(byte));
                     valueTypeEnumerableElementType.TypeMapping = valueTypeEnumerable.TypeMapping.ElementTypeMapping;
@@ -2986,11 +2986,11 @@ namespace TestNamespace
                     valueTypeIList.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                         comparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
                             bool (byte v1, byte v2) => v1 == v2,
-                            int (byte v) => ((int)(v)),
+                            int (byte v) => ((int)v),
                             byte (byte v) => v)),
                         keyComparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
                             bool (byte v1, byte v2) => v1 == v2,
-                            int (byte v) => ((int)(v)),
+                            int (byte v) => ((int)v),
                             byte (byte v) => v)),
                         providerValueComparer: new ValueComparer<string>(
                             bool (string v1, string v2) => v1 == v2,
@@ -3008,15 +3008,15 @@ namespace TestNamespace
                         elementMapping: SqlServerByteTypeMapping.Default.Clone(
                             comparer: new ValueComparer<byte>(
                                 bool (byte v1, byte v2) => v1 == v2,
-                                int (byte v) => ((int)(v)),
+                                int (byte v) => ((int)v),
                                 byte (byte v) => v),
                             keyComparer: new ValueComparer<byte>(
                                 bool (byte v1, byte v2) => v1 == v2,
-                                int (byte v) => ((int)(v)),
+                                int (byte v) => ((int)v),
                                 byte (byte v) => v),
                             providerValueComparer: new ValueComparer<byte>(
                                 bool (byte v1, byte v2) => v1 == v2,
-                                int (byte v) => ((int)(v)),
+                                int (byte v) => ((int)v),
                                 byte (byte v) => v)));
                     var valueTypeIListElementType = valueTypeIList.SetElementType(typeof(byte));
                     valueTypeIListElementType.TypeMapping = valueTypeIList.TypeMapping.ElementTypeMapping;
@@ -3071,11 +3071,11 @@ namespace TestNamespace
                     valueTypeList.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                         comparer: new ListOfValueTypesComparer<List<short>, short>(new ValueComparer<short>(
                             bool (short v1, short v2) => v1 == v2,
-                            int (short v) => ((int)(v)),
+                            int (short v) => ((int)v),
                             short (short v) => v)),
                         keyComparer: new ListOfValueTypesComparer<List<short>, short>(new ValueComparer<short>(
                             bool (short v1, short v2) => v1 == v2,
-                            int (short v) => ((int)(v)),
+                            int (short v) => ((int)v),
                             short (short v) => v)),
                         providerValueComparer: new ValueComparer<string>(
                             bool (string v1, string v2) => v1 == v2,
@@ -3093,15 +3093,15 @@ namespace TestNamespace
                         elementMapping: SqlServerShortTypeMapping.Default.Clone(
                             comparer: new ValueComparer<short>(
                                 bool (short v1, short v2) => v1 == v2,
-                                int (short v) => ((int)(v)),
+                                int (short v) => ((int)v),
                                 short (short v) => v),
                             keyComparer: new ValueComparer<short>(
                                 bool (short v1, short v2) => v1 == v2,
-                                int (short v) => ((int)(v)),
+                                int (short v) => ((int)v),
                                 short (short v) => v),
                             providerValueComparer: new ValueComparer<short>(
                                 bool (short v1, short v2) => v1 == v2,
-                                int (short v) => ((int)(v)),
+                                int (short v) => ((int)v),
                                 short (short v) => v)));
                     var valueTypeListElementType = valueTypeList.SetElementType(typeof(short));
                     valueTypeListElementType.TypeMapping = valueTypeList.TypeMapping.ElementTypeMapping;
@@ -3159,8 +3159,8 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             deriveds.SetCollectionAccessor<CompiledModelTestBase.PrincipalBase, ICollection<CompiledModelTestBase.PrincipalBase>, CompiledModelTestBase.PrincipalBase>(
                 ICollection<CompiledModelTestBase.PrincipalBase> (CompiledModelTestBase.PrincipalBase entity) => PrincipalBaseUnsafeAccessors.Deriveds(entity),
-                (CompiledModelTestBase.PrincipalBase entity, ICollection<CompiledModelTestBase.PrincipalBase> collection) => PrincipalBaseUnsafeAccessors.Deriveds(entity) = ((ICollection<CompiledModelTestBase.PrincipalBase>)(collection)),
-                (CompiledModelTestBase.PrincipalBase entity, ICollection<CompiledModelTestBase.PrincipalBase> collection) => PrincipalBaseUnsafeAccessors.Deriveds(entity) = ((ICollection<CompiledModelTestBase.PrincipalBase>)(collection)),
+                (CompiledModelTestBase.PrincipalBase entity, ICollection<CompiledModelTestBase.PrincipalBase> collection) => PrincipalBaseUnsafeAccessors.Deriveds(entity) = ((ICollection<CompiledModelTestBase.PrincipalBase>)collection),
+                (CompiledModelTestBase.PrincipalBase entity, ICollection<CompiledModelTestBase.PrincipalBase> collection) => PrincipalBaseUnsafeAccessors.Deriveds(entity) = ((ICollection<CompiledModelTestBase.PrincipalBase>)collection),
                 ICollection<CompiledModelTestBase.PrincipalBase> (CompiledModelTestBase.PrincipalBase entity, Action<CompiledModelTestBase.PrincipalBase, ICollection<CompiledModelTestBase.PrincipalBase>> setter) => ClrCollectionAccessorFactory.CreateAndSetHashSet<CompiledModelTestBase.PrincipalBase, ICollection<CompiledModelTestBase.PrincipalBase>, CompiledModelTestBase.PrincipalBase>(entity, setter),
                 ICollection<CompiledModelTestBase.PrincipalBase> () => ((ICollection<CompiledModelTestBase.PrincipalBase>)(((ICollection<CompiledModelTestBase.PrincipalBase>)(new HashSet<CompiledModelTestBase.PrincipalBase>(ReferenceEqualityComparer.Instance))))));
             return runtimeForeignKey;

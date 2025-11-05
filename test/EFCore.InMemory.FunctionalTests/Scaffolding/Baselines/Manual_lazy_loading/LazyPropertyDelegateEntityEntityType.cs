@@ -59,7 +59,7 @@ namespace TestNamespace
                 int (IInternalEntry entry) => (entry.FlaggedAsStoreGenerated(0) ? entry.ReadStoreGeneratedValue<int>(0) : (entry.FlaggedAsTemporary(0) && LazyPropertyDelegateEntityUnsafeAccessors.Id(((CompiledModelInMemoryTest.LazyPropertyDelegateEntity)(entry.Entity))) == 0 ? entry.ReadTemporaryValue<int>(0) : LazyPropertyDelegateEntityUnsafeAccessors.Id(((CompiledModelInMemoryTest.LazyPropertyDelegateEntity)(entry.Entity))))),
                 int (IInternalEntry entry) => LazyPropertyDelegateEntityUnsafeAccessors.Id(((CompiledModelInMemoryTest.LazyPropertyDelegateEntity)(entry.Entity))),
                 int (IInternalEntry entry) => entry.ReadOriginalValue<int>(id, 0),
-                int (IInternalEntry entry) => ((InternalEntityEntry)(entry)).ReadRelationshipSnapshotValue<int>(id, 0));
+                int (IInternalEntry entry) => ((InternalEntityEntry)entry).ReadRelationshipSnapshotValue<int>(id, 0));
             id.SetPropertyIndexes(
                 index: 0,
                 originalValueIndex: 0,
@@ -108,7 +108,7 @@ namespace TestNamespace
                 int (IInternalEntry entry) => (entry.FlaggedAsStoreGenerated(1) ? entry.ReadStoreGeneratedValue<int>(1) : (entry.FlaggedAsTemporary(1) && LazyPropertyDelegateEntityUnsafeAccessors.LazyConstructorEntityId(((CompiledModelInMemoryTest.LazyPropertyDelegateEntity)(entry.Entity))) == 0 ? entry.ReadTemporaryValue<int>(1) : LazyPropertyDelegateEntityUnsafeAccessors.LazyConstructorEntityId(((CompiledModelInMemoryTest.LazyPropertyDelegateEntity)(entry.Entity))))),
                 int (IInternalEntry entry) => LazyPropertyDelegateEntityUnsafeAccessors.LazyConstructorEntityId(((CompiledModelInMemoryTest.LazyPropertyDelegateEntity)(entry.Entity))),
                 int (IInternalEntry entry) => entry.ReadOriginalValue<int>(lazyConstructorEntityId, 1),
-                int (IInternalEntry entry) => ((InternalEntityEntry)(entry)).ReadRelationshipSnapshotValue<int>(lazyConstructorEntityId, 1));
+                int (IInternalEntry entry) => ((InternalEntityEntry)entry).ReadRelationshipSnapshotValue<int>(lazyConstructorEntityId, 1));
             lazyConstructorEntityId.SetPropertyIndexes(
                 index: 1,
                 originalValueIndex: 1,

@@ -54,7 +54,7 @@ namespace TestNamespace
                 int (IInternalEntry entry) => DependentBaseUnsafeAccessors<int>.Id(((CompiledModelTestBase.DependentDerived<int>)(entry.Entity))),
                 int (IInternalEntry entry) => DependentBaseUnsafeAccessors<int>.Id(((CompiledModelTestBase.DependentDerived<int>)(entry.Entity))),
                 int (IInternalEntry entry) => entry.ReadOriginalValue<int>(id, 0),
-                int (IInternalEntry entry) => ((InternalEntityEntry)(entry)).ReadRelationshipSnapshotValue<int>(id, 0));
+                int (IInternalEntry entry) => ((InternalEntityEntry)entry).ReadRelationshipSnapshotValue<int>(id, 0));
             id.SetPropertyIndexes(
                 index: 0,
                 originalValueIndex: 0,
