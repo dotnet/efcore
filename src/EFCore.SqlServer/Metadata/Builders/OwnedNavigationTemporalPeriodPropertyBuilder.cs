@@ -22,9 +22,7 @@ public class OwnedNavigationTemporalPeriodPropertyBuilder
     [EntityFrameworkInternal]
     public OwnedNavigationTemporalPeriodPropertyBuilder(
         PropertyBuilder propertyBuilder)
-    {
-        _propertyBuilder = propertyBuilder;
-    }
+        => _propertyBuilder = propertyBuilder;
 
     /// <summary>
     ///     Configures the column name the period property maps to.

@@ -19,16 +19,14 @@ public class DiscriminatorConvention :
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
     public DiscriminatorConvention(ProviderConventionSetBuilderDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Dependencies for this service.
     /// </summary>
     protected virtual ProviderConventionSetBuilderDependencies Dependencies { get; }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public virtual void ProcessEntityTypeBaseTypeChanged(
         IConventionEntityTypeBuilder entityTypeBuilder,
         IConventionEntityType? newBaseType,
@@ -75,7 +73,7 @@ public class DiscriminatorConvention :
         }
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public virtual void ProcessDiscriminatorPropertySet(
         IConventionEntityTypeBuilder entityTypeBuilder,
         string? name,
@@ -86,14 +84,14 @@ public class DiscriminatorConvention :
             return;
         }
 
-        var discriminator = entityTypeBuilder.HasDiscriminator(typeof(string));
+        var discriminator = entityTypeBuilder.HasDiscriminator(name, typeof(string));
         if (discriminator != null)
         {
             SetDefaultDiscriminatorValues(entityTypeBuilder.Metadata.GetDerivedTypesInclusive(), discriminator);
         }
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public virtual void ProcessEntityTypeRemoved(
         IConventionModelBuilder modelBuilder,
         IConventionEntityType entityType,
