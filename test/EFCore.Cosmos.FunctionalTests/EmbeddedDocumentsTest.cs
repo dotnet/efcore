@@ -100,6 +100,7 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
     }
 
     [ConditionalTheory, InlineData(false), InlineData(true)]
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public virtual async Task Can_manipulate_embedded_collections(bool useIds)
     {
         var options = await Fixture.CreateOptions(seed: false);

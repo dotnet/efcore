@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.EntityFrameworkCore;
 
+[CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
 public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixture) : IClassFixture<CosmosSessionTokensTest.CosmosFixture>
 {
     private const string DatabaseName = nameof(CosmosSessionTokensTest);
@@ -601,6 +602,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
         }
     }
 
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public class CosmosNonSharedSessionTokenTests(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
     {
         protected override ITestStoreFactory NonSharedTestStoreFactory

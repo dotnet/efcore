@@ -38,6 +38,16 @@ jobs:
           --health-retries=30
           --health-timeout=5s
 
+      cosmosdb:
+        image: mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:vnext-preview
+        ports:
+          - 8081:8081
+        env:
+          PROTOCOL: https
+          ENABLE_EXPLORER: "false"
+
     steps:
-      - name: Export connection string for the agent's session
-        run: echo 'Test__SqlServer__DefaultConnection=Server=localhost;Database=test;User=SA;Password=PLACEHOLDERPass$$w0rd;Connect Timeout=60;ConnectRetryCount=0;Trust Server Certificate=true' >> "$GITHUB_ENV"
+      - name: Export environment variables the agent's session
+        run: |
+          echo 'Test__SqlServer__DefaultConnection=Server=localhost;Database=master;User=SA;Password=PLACEHOLDERPass$$w0rd;Connect Timeout=60;ConnectRetryCount=0;Trust Server Certificate=true' >> "$GITHUB_ENV"
+          echo 'Test__Cosmos__EmulatorType=linux' >> "$GITHUB_ENV"

@@ -63,6 +63,7 @@ ORDER BY c["Id"]
             });
 
     [ConditionalTheory]
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Navigation_rewrite_on_owned_collection_with_composition(bool async)
     {
         // Always throws for sync.
@@ -668,6 +669,7 @@ WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);
             });
 
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Can_OrderBy_indexer_properties(bool async)
     {
         // Always throws for sync.
@@ -689,6 +691,7 @@ ORDER BY c["Name"], c["Id"]
         }
     }
 
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Can_OrderBy_indexer_properties_converted(bool async)
     {
         // Always throws for sync.
@@ -710,6 +713,7 @@ ORDER BY c["Name"], c["Id"]
         }
     }
 
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Can_OrderBy_owned_indexer_properties(bool async)
     {
         // Always throws for sync.
@@ -731,6 +735,7 @@ ORDER BY c["PersonAddress"]["ZipCode"], c["Id"]
         }
     }
 
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Can_OrderBy_owned_indexer_properties_converted(bool async)
     {
         // Always throws for sync.
@@ -805,6 +810,7 @@ WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
             () => base.Indexer_property_is_pushdown_into_subquery(async),
             CosmosStrings.NonCorrelatedSubqueriesNotSupported);
 
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override Task Can_query_indexer_property_on_owned_collection(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>
@@ -844,6 +850,7 @@ WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND ((
         AssertSql();
     }
 
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Ordering_by_identifying_projection(bool async)
     {
         // Always throws for sync.
@@ -1228,6 +1235,7 @@ WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND ((c["O
             });
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task OrderBy_ElementAt_over_owned_collection(bool async)
     {
         // Always throws for sync.
