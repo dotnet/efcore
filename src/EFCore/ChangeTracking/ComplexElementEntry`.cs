@@ -124,7 +124,7 @@ public class ComplexElementEntry<TEntity, TComplexProperty> : ComplexElementEntr
     /// </param>
     /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
     public virtual ComplexCollectionEntry<TEntity, TElement> ComplexCollection<TElement>(
-        Expression<Func<TEntity, IEnumerable<TElement>?>> propertyExpression)
+        Expression<Func<TComplexProperty, IEnumerable<TElement>?>> propertyExpression)
         where TElement : notnull
     {
         Check.NotNull(propertyExpression, nameof(propertyExpression));
