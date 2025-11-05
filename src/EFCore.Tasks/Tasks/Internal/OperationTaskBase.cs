@@ -82,6 +82,11 @@ public abstract class OperationTaskBase : ToolTask
     public bool Nullable { get; set; }
 
     /// <summary>
+    ///     Runtime copy local items for dependency resolution.
+    /// </summary>
+    public ITaskItem[]? RuntimeCopyLocalItems { get; set; }
+
+    /// <summary>
     ///     The additional arguments to pass to the dotnet-ef command.
     /// </summary>
     protected List<string> AdditionalArguments { get; } = [];
