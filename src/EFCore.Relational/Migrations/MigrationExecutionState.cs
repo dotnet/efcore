@@ -19,7 +19,7 @@ public sealed class MigrationExecutionState
     public string? CurrentMigrationId { get; set; }
 
     /// <summary>
-    ///    Indicates whether any migration operation was performed.
+    ///     Indicates whether any migration operation was performed.
     /// </summary>
     public bool AnyOperationPerformed { get; set; }
 

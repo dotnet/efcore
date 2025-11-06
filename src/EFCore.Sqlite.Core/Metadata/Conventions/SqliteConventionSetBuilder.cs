@@ -45,6 +45,8 @@ public class SqliteConventionSetBuilder : RelationalConventionSetBuilder
 
         conventionSet.Replace<SharedTableConvention>(new SqliteSharedTableConvention(Dependencies, RelationalDependencies));
         conventionSet.Replace<RuntimeModelConvention>(new SqliteRuntimeModelConvention(Dependencies, RelationalDependencies));
+        conventionSet.Replace<ValueGenerationConvention>(new SqliteValueGenerationConvention(Dependencies, RelationalDependencies));
+        conventionSet.Replace<StoreGenerationConvention>(new SqliteStoreGenerationConvention(Dependencies, RelationalDependencies));
 
         return conventionSet;
     }
@@ -84,10 +86,9 @@ public class SqliteConventionSetBuilder : RelationalConventionSetBuilder
     {
         var serviceProvider = new ServiceCollection()
             .AddEntityFrameworkSqlite()
-            .AddDbContext<DbContext>(
-                (p, o) =>
-                    o.UseSqlite("Filename=_.db")
-                        .UseInternalServiceProvider(p))
+            .AddDbContext<DbContext>((p, o) =>
+                o.UseSqlite("Filename=_.db")
+                    .UseInternalServiceProvider(p))
             .BuildServiceProvider();
         return serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope();
     }

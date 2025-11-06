@@ -36,8 +36,7 @@ public class TemporalOwnedQuerySqlServerTest : OwnedQueryRelationalTestBase<
         return rewriter.Visit(serverQueryExpression);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Navigation_on_owned_entity_mapped_to_same_table_works_with_all_temporal_methods(bool async)
     {
         var context = CreateContext();
@@ -88,13 +87,12 @@ FROM [OwnedPerson] FOR SYSTEM_TIME BETWEEN '1990-01-01T00:00:00.0000000' AND '22
 """);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Navigation_on_owned_entity_mapped_to_different_table_fails_for_non_asof(bool async)
     {
         var context = CreateContext();
-        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
-            () => context.Set<Star>().TemporalAll().Select(x => x.Planets.ToList()).ToListAsync())).Message;
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(()
+            => context.Set<Star>().TemporalAll().Select(x => x.Planets.ToList()).ToListAsync())).Message;
 
         Assert.Equal(SqlServerStrings.TemporalNavigationExpansionOnlySupportedForAsOf("AsOf"), message);
     }
@@ -210,11 +208,11 @@ ORDER BY [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
 
         AssertSql(
             """
-@__p_0='5'
+@p='5'
 
 SELECT [o3].[Id], [o3].[Discriminator], [o3].[Name], [o3].[PeriodEnd], [o3].[PeriodStart], [s].[ClientId], [s].[Id], [s].[OrderDate], [s].[PeriodEnd], [s].[PeriodStart], [s].[OrderClientId], [s].[OrderId], [s].[Id0], [s].[Detail], [s].[PeriodEnd0], [s].[PeriodStart0], [o3].[PersonAddress_AddressLine], [o3].[PeriodEnd0], [o3].[PeriodStart0], [o3].[PersonAddress_PlaceType], [o3].[PersonAddress_ZipCode], [o3].[PersonAddress_Country_Name], [o3].[PersonAddress_Country_PlanetId], [o3].[BranchAddress_BranchName], [o3].[BranchAddress_PlaceType], [o3].[BranchAddress_Country_Name], [o3].[BranchAddress_Country_PlanetId], [o3].[LeafBAddress_LeafBType], [o3].[LeafBAddress_PlaceType], [o3].[LeafBAddress_Country_Name], [o3].[LeafBAddress_Country_PlanetId], [o3].[LeafAAddress_LeafType], [o3].[LeafAAddress_PlaceType], [o3].[LeafAAddress_Country_Name], [o3].[LeafAAddress_Country_PlanetId]
 FROM (
-    SELECT TOP(@__p_0) [o0].[Id], [o0].[Discriminator], [o0].[Name], [o0].[PeriodEnd], [o0].[PeriodStart], [o0].[PersonAddress_AddressLine], [o0].[PeriodEnd0], [o0].[PeriodStart0], [o0].[PersonAddress_PlaceType], [o0].[PersonAddress_ZipCode], [o0].[PersonAddress_Country_Name], [o0].[PersonAddress_Country_PlanetId], [o0].[BranchAddress_BranchName], [o0].[BranchAddress_PlaceType], [o0].[BranchAddress_Country_Name], [o0].[BranchAddress_Country_PlanetId], [o0].[LeafBAddress_LeafBType], [o0].[LeafBAddress_PlaceType], [o0].[LeafBAddress_Country_Name], [o0].[LeafBAddress_Country_PlanetId], [o0].[LeafAAddress_LeafType], [o0].[LeafAAddress_PlaceType], [o0].[LeafAAddress_Country_Name], [o0].[LeafAAddress_Country_PlanetId]
+    SELECT TOP(@p) [o0].[Id], [o0].[Discriminator], [o0].[Name], [o0].[PeriodEnd], [o0].[PeriodStart], [o0].[PersonAddress_AddressLine], [o0].[PeriodEnd0], [o0].[PeriodStart0], [o0].[PersonAddress_PlaceType], [o0].[PersonAddress_ZipCode], [o0].[PersonAddress_Country_Name], [o0].[PersonAddress_Country_PlanetId], [o0].[BranchAddress_BranchName], [o0].[BranchAddress_PlaceType], [o0].[BranchAddress_Country_Name], [o0].[BranchAddress_Country_PlanetId], [o0].[LeafBAddress_LeafBType], [o0].[LeafBAddress_PlaceType], [o0].[LeafBAddress_Country_Name], [o0].[LeafBAddress_Country_PlanetId], [o0].[LeafAAddress_LeafType], [o0].[LeafAAddress_PlaceType], [o0].[LeafAAddress_Country_Name], [o0].[LeafAAddress_Country_PlanetId]
     FROM (
         SELECT DISTINCT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_AddressLine], [o].[PeriodEnd] AS [PeriodEnd0], [o].[PeriodStart] AS [PeriodStart0], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
         FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
@@ -273,10 +271,10 @@ LEFT JOIN (
     FROM [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1]
     LEFT JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o2] ON [o1].[ClientId] = [o2].[OrderClientId] AND [o1].[Id] = [o2].[OrderId]
 ) AS [s] ON [o].[Id] = [s].[ClientId]
-WHERE (
-    SELECT COUNT(*)
+WHERE EXISTS (
+    SELECT 1
     FROM [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0]
-    WHERE [o].[Id] = [o0].[ClientId]) > 0
+    WHERE [o].[Id] = [o0].[ClientId])
 ORDER BY [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
 """);
     }
@@ -287,7 +285,7 @@ ORDER BY [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
 
         AssertSql(
             """
-SELECT COALESCE((
+SELECT ISNULL((
     SELECT TOP(1) CAST([o0].[Id] ^ 42 AS bit)
     FROM [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0]
     WHERE [o].[Id] = [o0].[ClientId]
@@ -556,14 +554,14 @@ ORDER BY [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
 
         AssertSql(
             """
-@__p_0='1'
+@p='1'
 
 SELECT [o2].[Id], [o2].[Discriminator], [o2].[Name], [o2].[PeriodEnd], [o2].[PeriodStart], [s].[ClientId], [s].[Id], [s].[OrderDate], [s].[PeriodEnd], [s].[PeriodStart], [s].[OrderClientId], [s].[OrderId], [s].[Id0], [s].[Detail], [s].[PeriodEnd0], [s].[PeriodStart0], [o2].[PersonAddress_AddressLine], [o2].[PeriodEnd0], [o2].[PeriodStart0], [o2].[PersonAddress_PlaceType], [o2].[PersonAddress_ZipCode], [o2].[PersonAddress_Country_Name], [o2].[PersonAddress_Country_PlanetId], [o2].[BranchAddress_BranchName], [o2].[BranchAddress_PlaceType], [o2].[BranchAddress_Country_Name], [o2].[BranchAddress_Country_PlanetId], [o2].[LeafBAddress_LeafBType], [o2].[LeafBAddress_PlaceType], [o2].[LeafBAddress_Country_Name], [o2].[LeafBAddress_Country_PlanetId], [o2].[LeafAAddress_LeafType], [o2].[LeafAAddress_PlaceType], [o2].[LeafAAddress_Country_Name], [o2].[LeafAAddress_Country_PlanetId]
 FROM (
     SELECT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_AddressLine], [o].[PeriodEnd] AS [PeriodEnd0], [o].[PeriodStart] AS [PeriodStart0], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
     FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
     ORDER BY [o].[Id]
-    OFFSET @__p_0 ROWS
+    OFFSET @p ROWS
 ) AS [o2]
 LEFT JOIN (
     SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o0].[PeriodEnd], [o0].[PeriodStart], [o1].[OrderClientId], [o1].[OrderId], [o1].[Id] AS [Id0], [o1].[Detail], [o1].[PeriodEnd] AS [PeriodEnd0], [o1].[PeriodStart] AS [PeriodStart0]
@@ -580,11 +578,11 @@ ORDER BY [o2].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
 
         AssertSql(
             """
-@__p_0='2'
+@p='2'
 
 SELECT [o2].[Id], [o2].[Discriminator], [o2].[Name], [o2].[PeriodEnd], [o2].[PeriodStart], [s].[ClientId], [s].[Id], [s].[OrderDate], [s].[PeriodEnd], [s].[PeriodStart], [s].[OrderClientId], [s].[OrderId], [s].[Id0], [s].[Detail], [s].[PeriodEnd0], [s].[PeriodStart0], [o2].[PersonAddress_AddressLine], [o2].[PeriodEnd0], [o2].[PeriodStart0], [o2].[PersonAddress_PlaceType], [o2].[PersonAddress_ZipCode], [o2].[PersonAddress_Country_Name], [o2].[PersonAddress_Country_PlanetId], [o2].[BranchAddress_BranchName], [o2].[BranchAddress_PlaceType], [o2].[BranchAddress_Country_Name], [o2].[BranchAddress_Country_PlanetId], [o2].[LeafBAddress_LeafBType], [o2].[LeafBAddress_PlaceType], [o2].[LeafBAddress_Country_Name], [o2].[LeafBAddress_Country_PlanetId], [o2].[LeafAAddress_LeafType], [o2].[LeafAAddress_PlaceType], [o2].[LeafAAddress_Country_Name], [o2].[LeafAAddress_Country_PlanetId]
 FROM (
-    SELECT TOP(@__p_0) [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_AddressLine], [o].[PeriodEnd] AS [PeriodEnd0], [o].[PeriodStart] AS [PeriodStart0], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
+    SELECT TOP(@p) [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_AddressLine], [o].[PeriodEnd] AS [PeriodEnd0], [o].[PeriodStart] AS [PeriodStart0], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
     FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
     ORDER BY [o].[Id]
 ) AS [o2]
@@ -603,15 +601,15 @@ ORDER BY [o2].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
 
         AssertSql(
             """
-@__p_0='1'
-@__p_1='2'
+@p='1'
+@p0='2'
 
 SELECT [o2].[Id], [o2].[Discriminator], [o2].[Name], [o2].[PeriodEnd], [o2].[PeriodStart], [s].[ClientId], [s].[Id], [s].[OrderDate], [s].[PeriodEnd], [s].[PeriodStart], [s].[OrderClientId], [s].[OrderId], [s].[Id0], [s].[Detail], [s].[PeriodEnd0], [s].[PeriodStart0], [o2].[PersonAddress_AddressLine], [o2].[PeriodEnd0], [o2].[PeriodStart0], [o2].[PersonAddress_PlaceType], [o2].[PersonAddress_ZipCode], [o2].[PersonAddress_Country_Name], [o2].[PersonAddress_Country_PlanetId], [o2].[BranchAddress_BranchName], [o2].[BranchAddress_PlaceType], [o2].[BranchAddress_Country_Name], [o2].[BranchAddress_Country_PlanetId], [o2].[LeafBAddress_LeafBType], [o2].[LeafBAddress_PlaceType], [o2].[LeafBAddress_Country_Name], [o2].[LeafBAddress_Country_PlanetId], [o2].[LeafAAddress_LeafType], [o2].[LeafAAddress_PlaceType], [o2].[LeafAAddress_Country_Name], [o2].[LeafAAddress_Country_PlanetId]
 FROM (
     SELECT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_AddressLine], [o].[PeriodEnd] AS [PeriodEnd0], [o].[PeriodStart] AS [PeriodStart0], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
     FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
     ORDER BY [o].[Id]
-    OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+    OFFSET @p ROWS FETCH NEXT @p0 ROWS ONLY
 ) AS [o2]
 LEFT JOIN (
     SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o0].[PeriodEnd], [o0].[PeriodStart], [o1].[OrderClientId], [o1].[OrderId], [o1].[Id] AS [Id0], [o1].[Detail], [o1].[PeriodEnd] AS [PeriodEnd0], [o1].[PeriodStart] AS [PeriodStart0]
@@ -628,14 +626,14 @@ ORDER BY [o2].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
 
         AssertSql(
             """
-@__p_0='1'
+@p='1'
 
 SELECT [o2].[Id], [o2].[Discriminator], [o2].[Name], [o2].[PeriodEnd], [o2].[PeriodStart], [s].[ClientId], [s].[Id], [s].[OrderDate], [s].[PeriodEnd], [s].[PeriodStart], [s].[OrderClientId], [s].[OrderId], [s].[Id0], [s].[Detail], [s].[PeriodEnd0], [s].[PeriodStart0], [o2].[PersonAddress_AddressLine], [o2].[PeriodEnd0], [o2].[PeriodStart0], [o2].[PersonAddress_PlaceType], [o2].[PersonAddress_ZipCode], [o2].[PersonAddress_Country_Name], [o2].[PersonAddress_Country_PlanetId], [o2].[BranchAddress_BranchName], [o2].[BranchAddress_PlaceType], [o2].[BranchAddress_Country_Name], [o2].[BranchAddress_Country_PlanetId], [o2].[LeafBAddress_LeafBType], [o2].[LeafBAddress_PlaceType], [o2].[LeafBAddress_Country_Name], [o2].[LeafBAddress_Country_PlanetId], [o2].[LeafAAddress_LeafType], [o2].[LeafAAddress_PlaceType], [o2].[LeafAAddress_Country_Name], [o2].[LeafAAddress_Country_PlanetId]
 FROM (
     SELECT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_AddressLine], [o].[PeriodEnd] AS [PeriodEnd0], [o].[PeriodStart] AS [PeriodStart0], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
     FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
     ORDER BY [o].[Id]
-    OFFSET @__p_0 ROWS
+    OFFSET @p ROWS
 ) AS [o2]
 LEFT JOIN (
     SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o0].[PeriodEnd], [o0].[PeriodStart], [o1].[OrderClientId], [o1].[OrderId], [o1].[Id] AS [Id0], [o1].[Detail], [o1].[PeriodEnd] AS [PeriodEnd0], [o1].[PeriodStart] AS [PeriodStart0]
@@ -652,11 +650,11 @@ ORDER BY [o2].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
 
         AssertSql(
             """
-@__p_0='2'
+@p='2'
 
 SELECT [o2].[Id], [o2].[Discriminator], [o2].[Name], [o2].[PeriodEnd], [o2].[PeriodStart], [s].[ClientId], [s].[Id], [s].[OrderDate], [s].[PeriodEnd], [s].[PeriodStart], [s].[OrderClientId], [s].[OrderId], [s].[Id0], [s].[Detail], [s].[PeriodEnd0], [s].[PeriodStart0], [o2].[PersonAddress_AddressLine], [o2].[PeriodEnd0], [o2].[PeriodStart0], [o2].[PersonAddress_PlaceType], [o2].[PersonAddress_ZipCode], [o2].[PersonAddress_Country_Name], [o2].[PersonAddress_Country_PlanetId], [o2].[BranchAddress_BranchName], [o2].[BranchAddress_PlaceType], [o2].[BranchAddress_Country_Name], [o2].[BranchAddress_Country_PlanetId], [o2].[LeafBAddress_LeafBType], [o2].[LeafBAddress_PlaceType], [o2].[LeafBAddress_Country_Name], [o2].[LeafBAddress_Country_PlanetId], [o2].[LeafAAddress_LeafType], [o2].[LeafAAddress_PlaceType], [o2].[LeafAAddress_Country_Name], [o2].[LeafAAddress_Country_PlanetId]
 FROM (
-    SELECT TOP(@__p_0) [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_AddressLine], [o].[PeriodEnd] AS [PeriodEnd0], [o].[PeriodStart] AS [PeriodStart0], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
+    SELECT TOP(@p) [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_AddressLine], [o].[PeriodEnd] AS [PeriodEnd0], [o].[PeriodStart] AS [PeriodStart0], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
     FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
     ORDER BY [o].[Id]
 ) AS [o2]
@@ -675,15 +673,15 @@ ORDER BY [o2].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
 
         AssertSql(
             """
-@__p_0='1'
-@__p_1='2'
+@p='1'
+@p0='2'
 
 SELECT [o2].[Id], [o2].[Discriminator], [o2].[Name], [o2].[PeriodEnd], [o2].[PeriodStart], [s].[ClientId], [s].[Id], [s].[OrderDate], [s].[PeriodEnd], [s].[PeriodStart], [s].[OrderClientId], [s].[OrderId], [s].[Id0], [s].[Detail], [s].[PeriodEnd0], [s].[PeriodStart0], [o2].[PersonAddress_AddressLine], [o2].[PeriodEnd0], [o2].[PeriodStart0], [o2].[PersonAddress_PlaceType], [o2].[PersonAddress_ZipCode], [o2].[PersonAddress_Country_Name], [o2].[PersonAddress_Country_PlanetId], [o2].[BranchAddress_BranchName], [o2].[BranchAddress_PlaceType], [o2].[BranchAddress_Country_Name], [o2].[BranchAddress_Country_PlanetId], [o2].[LeafBAddress_LeafBType], [o2].[LeafBAddress_PlaceType], [o2].[LeafBAddress_Country_Name], [o2].[LeafBAddress_Country_PlanetId], [o2].[LeafAAddress_LeafType], [o2].[LeafAAddress_PlaceType], [o2].[LeafAAddress_Country_Name], [o2].[LeafAAddress_Country_PlanetId]
 FROM (
     SELECT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_AddressLine], [o].[PeriodEnd] AS [PeriodEnd0], [o].[PeriodStart] AS [PeriodStart0], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
     FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
     ORDER BY [o].[Id]
-    OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+    OFFSET @p ROWS FETCH NEXT @p0 ROWS ONLY
 ) AS [o2]
 LEFT JOIN (
     SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o0].[PeriodEnd], [o0].[PeriodStart], [o1].[OrderClientId], [o1].[OrderId], [o1].[Id] AS [Id0], [o1].[Detail], [o1].[PeriodEnd] AS [PeriodEnd0], [o1].[PeriodStart] AS [PeriodStart0]
@@ -1098,9 +1096,9 @@ ORDER BY [o].[Id], [o1].[ClientId], [o1].[Id]
 
         AssertSql(
             """
-@__p_0='5'
+@p='5'
 
-SELECT TOP(@__p_0) [o0].[Id], [o0].[Discriminator], [o0].[Name], [o0].[PeriodEnd], [o0].[PeriodStart], [o0].[PersonAddress_AddressLine], [o0].[PeriodEnd0], [o0].[PeriodStart0], [o0].[PersonAddress_PlaceType], [o0].[PersonAddress_ZipCode], [o0].[PersonAddress_Country_Name], [o0].[PersonAddress_Country_PlanetId], [o0].[BranchAddress_BranchName], [o0].[BranchAddress_PlaceType], [o0].[BranchAddress_Country_Name], [o0].[BranchAddress_Country_PlanetId], [o0].[LeafBAddress_LeafBType], [o0].[LeafBAddress_PlaceType], [o0].[LeafBAddress_Country_Name], [o0].[LeafBAddress_Country_PlanetId], [o0].[LeafAAddress_LeafType], [o0].[LeafAAddress_PlaceType], [o0].[LeafAAddress_Country_Name], [o0].[LeafAAddress_Country_PlanetId]
+SELECT TOP(@p) [o0].[Id], [o0].[Discriminator], [o0].[Name], [o0].[PeriodEnd], [o0].[PeriodStart], [o0].[PersonAddress_AddressLine], [o0].[PeriodEnd0], [o0].[PeriodStart0], [o0].[PersonAddress_PlaceType], [o0].[PersonAddress_ZipCode], [o0].[PersonAddress_Country_Name], [o0].[PersonAddress_Country_PlanetId], [o0].[BranchAddress_BranchName], [o0].[BranchAddress_PlaceType], [o0].[BranchAddress_Country_Name], [o0].[BranchAddress_Country_PlanetId], [o0].[LeafBAddress_LeafBType], [o0].[LeafBAddress_PlaceType], [o0].[LeafBAddress_Country_Name], [o0].[LeafBAddress_Country_PlanetId], [o0].[LeafAAddress_LeafType], [o0].[LeafAAddress_PlaceType], [o0].[LeafAAddress_Country_Name], [o0].[LeafAAddress_Country_PlanetId]
 FROM (
     SELECT DISTINCT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_AddressLine], [o].[PeriodEnd] AS [PeriodEnd0], [o].[PeriodStart] AS [PeriodStart0], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
     FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
@@ -1109,11 +1107,11 @@ ORDER BY [o0].[Id]
 """,
             //
             """
-@__p_0='5'
+@p='5'
 
 SELECT [o2].[ClientId], [o2].[Id], [o2].[OrderDate], [o2].[PeriodEnd], [o2].[PeriodStart], [o5].[Id]
 FROM (
-    SELECT TOP(@__p_0) [o0].[Id]
+    SELECT TOP(@p) [o0].[Id]
     FROM (
         SELECT DISTINCT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_AddressLine], [o].[PeriodEnd] AS [PeriodEnd0], [o].[PeriodStart] AS [PeriodStart0], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
         FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
@@ -1125,11 +1123,11 @@ ORDER BY [o5].[Id], [o2].[ClientId], [o2].[Id]
 """,
             //
             """
-@__p_0='5'
+@p='5'
 
 SELECT [o4].[OrderClientId], [o4].[OrderId], [o4].[Id], [o4].[Detail], [o4].[PeriodEnd], [o4].[PeriodStart], [o5].[Id], [o2].[ClientId], [o2].[Id]
 FROM (
-    SELECT TOP(@__p_0) [o0].[Id]
+    SELECT TOP(@p) [o0].[Id]
     FROM (
         SELECT DISTINCT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_AddressLine], [o].[PeriodEnd] AS [PeriodEnd0], [o].[PeriodStart] AS [PeriodStart0], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
         FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
@@ -1514,445 +1512,407 @@ GROUP BY [o].[Id]
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
-            modelBuilder.Entity<OwnedPerson>(
-                eb =>
+            modelBuilder.Entity<OwnedPerson>(eb =>
+            {
+                eb.ToTable(tb => tb.IsTemporal(ttb =>
                 {
-                    eb.ToTable(
-                        tb => tb.IsTemporal(
-                            ttb =>
+                    ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
+                    ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
+                }));
+                eb.IndexerProperty<string>("Name");
+                var ownedPerson = new OwnedPerson { Id = 1 };
+                ownedPerson["Name"] = "Mona Cy";
+                eb.HasData(ownedPerson);
+
+                eb.OwnsOne(
+                    p => p.PersonAddress, ab =>
+                    {
+                        ab.ToTable(tb => tb.IsTemporal(ttb =>
+                        {
+                            ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
+                            ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
+                        }));
+                        ab.IndexerProperty<string>("AddressLine");
+                        ab.IndexerProperty(typeof(int), "ZipCode");
+                        ab.HasData(
+                            new
                             {
-                                ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
-                                ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
-                            }));
-                    eb.IndexerProperty<string>("Name");
-                    var ownedPerson = new OwnedPerson { Id = 1 };
-                    ownedPerson["Name"] = "Mona Cy";
-                    eb.HasData(ownedPerson);
-
-                    eb.OwnsOne(
-                        p => p.PersonAddress, ab =>
-                        {
-                            ab.ToTable(
-                                tb => tb.IsTemporal(
-                                    ttb =>
-                                    {
-                                        ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
-                                        ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
-                                    }));
-                            ab.IndexerProperty<string>("AddressLine");
-                            ab.IndexerProperty(typeof(int), "ZipCode");
-                            ab.HasData(
-                                new
-                                {
-                                    OwnedPersonId = 1,
-                                    PlaceType = "Land",
-                                    AddressLine = "804 S. Lakeshore Road",
-                                    ZipCode = 38654
-                                },
-                                new
-                                {
-                                    OwnedPersonId = 2,
-                                    PlaceType = "Land",
-                                    AddressLine = "7 Church Dr.",
-                                    ZipCode = 28655
-                                },
-                                new
-                                {
-                                    OwnedPersonId = 3,
-                                    PlaceType = "Land",
-                                    AddressLine = "72 Hickory Rd.",
-                                    ZipCode = 07728
-                                },
-                                new
-                                {
-                                    OwnedPersonId = 4,
-                                    PlaceType = "Land",
-                                    AddressLine = "28 Strawberry St.",
-                                    ZipCode = 19053
-                                });
-
-                            ab.OwnsOne(
-                                a => a.Country, cb =>
-                                {
-                                    cb.ToTable(
-                                        tb => tb.IsTemporal(
-                                            ttb =>
-                                            {
-                                                ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
-                                                ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
-                                            }));
-                                    cb.HasData(
-                                        new
-                                        {
-                                            OwnedAddressOwnedPersonId = 1,
-                                            PlanetId = 1,
-                                            Name = "USA"
-                                        },
-                                        new
-                                        {
-                                            OwnedAddressOwnedPersonId = 2,
-                                            PlanetId = 1,
-                                            Name = "USA"
-                                        },
-                                        new
-                                        {
-                                            OwnedAddressOwnedPersonId = 3,
-                                            PlanetId = 1,
-                                            Name = "USA"
-                                        },
-                                        new
-                                        {
-                                            OwnedAddressOwnedPersonId = 4,
-                                            PlanetId = 1,
-                                            Name = "USA"
-                                        });
-
-                                    cb.HasOne(cc => cc.Planet).WithMany().HasForeignKey(ee => ee.PlanetId)
-                                        .OnDelete(DeleteBehavior.Restrict);
-                                });
-                        });
-
-                    eb.OwnsMany(
-                        p => p.Orders, ob =>
-                        {
-                            ob.ToTable(
-                                tb => tb.IsTemporal(
-                                    ttb =>
-                                    {
-                                        ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
-                                        ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
-                                    }));
-                            ob.IndexerProperty<DateTime>("OrderDate");
-                            ob.HasData(
-                                new
-                                {
-                                    Id = -10,
-                                    ClientId = 1,
-                                    OrderDate = Convert.ToDateTime("2018-07-11 10:01:41")
-                                },
-                                new
-                                {
-                                    Id = -11,
-                                    ClientId = 1,
-                                    OrderDate = Convert.ToDateTime("2015-03-03 04:37:59")
-                                },
-                                new
-                                {
-                                    Id = -20,
-                                    ClientId = 2,
-                                    OrderDate = Convert.ToDateTime("2015-05-25 20:35:48")
-                                },
-                                new
-                                {
-                                    Id = -30,
-                                    ClientId = 3,
-                                    OrderDate = Convert.ToDateTime("2014-11-10 04:32:42")
-                                },
-                                new
-                                {
-                                    Id = -40,
-                                    ClientId = 4,
-                                    OrderDate = Convert.ToDateTime("2016-04-25 19:23:56")
-                                }
-                            );
-
-                            ob.OwnsMany(
-                                e => e.Details, odb =>
-                                {
-                                    odb.ToTable(
-                                        tb => tb.IsTemporal(
-                                            ttb =>
-                                            {
-                                                ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
-                                                ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
-                                            }));
-                                    odb.HasData(
-                                        new
-                                        {
-                                            Id = -100,
-                                            OrderId = -10,
-                                            OrderClientId = 1,
-                                            Detail = "Discounted Order"
-                                        },
-                                        new
-                                        {
-                                            Id = -101,
-                                            OrderId = -10,
-                                            OrderClientId = 1,
-                                            Detail = "Full Price Order"
-                                        },
-                                        new
-                                        {
-                                            Id = -200,
-                                            OrderId = -20,
-                                            OrderClientId = 2,
-                                            Detail = "Internal Order"
-                                        },
-                                        new
-                                        {
-                                            Id = -300,
-                                            OrderId = -30,
-                                            OrderClientId = 3,
-                                            Detail = "Bulk Order"
-                                        });
-                                });
-                        });
-                });
-
-            modelBuilder.Entity<Branch>(
-                eb =>
-                {
-                    eb.HasData(new { Id = 2, Name = "Antigonus Mitul" });
-
-                    eb.OwnsOne(
-                        p => p.BranchAddress, ab =>
-                        {
-                            ab.ToTable(
-                                tb => tb.IsTemporal(
-                                    ttb =>
-                                    {
-                                        ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
-                                        ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
-                                    }));
-                            ab.IndexerProperty<string>("BranchName").IsRequired();
-                            ab.HasData(
-                                new
-                                {
-                                    BranchId = 2,
-                                    PlaceType = "Land",
-                                    BranchName = "BranchA"
-                                },
-                                new
-                                {
-                                    BranchId = 3,
-                                    PlaceType = "Land",
-                                    BranchName = "BranchB"
-                                });
-
-                            ab.OwnsOne(
-                                a => a.Country, cb =>
-                                {
-                                    cb.ToTable(
-                                        tb => tb.IsTemporal(
-                                            ttb =>
-                                            {
-                                                ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
-                                                ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
-                                            }));
-                                    cb.HasData(
-                                        new
-                                        {
-                                            OwnedAddressBranchId = 2,
-                                            PlanetId = 1,
-                                            Name = "Canada"
-                                        },
-                                        new
-                                        {
-                                            OwnedAddressBranchId = 3,
-                                            PlanetId = 1,
-                                            Name = "Canada"
-                                        });
-                                });
-                        });
-                });
-
-            modelBuilder.Entity<LeafA>(
-                eb =>
-                {
-                    var leafA = new LeafA { Id = 3 };
-                    leafA["Name"] = "Madalena Morana";
-                    eb.HasData(leafA);
-
-                    eb.OwnsOne(
-                        p => p.LeafAAddress, ab =>
-                        {
-                            ab.ToTable(
-                                tb => tb.IsTemporal(
-                                    ttb =>
-                                    {
-                                        ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
-                                        ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
-                                    }));
-                            ab.IndexerProperty<int>("LeafType");
-
-                            ab.HasData(
-                                new
-                                {
-                                    LeafAId = 3,
-                                    PlaceType = "Land",
-                                    LeafType = 1
-                                });
-
-                            ab.OwnsOne(
-                                a => a.Country, cb =>
-                                {
-                                    cb.ToTable(
-                                        tb => tb.IsTemporal(
-                                            ttb =>
-                                            {
-                                                ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
-                                                ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
-                                            }));
-                                    cb.HasOne(c => c.Planet).WithMany().HasForeignKey(c => c.PlanetId)
-                                        .OnDelete(DeleteBehavior.Restrict);
-
-                                    cb.HasData(
-                                        new
-                                        {
-                                            OwnedAddressLeafAId = 3,
-                                            PlanetId = 1,
-                                            Name = "Mexico"
-                                        });
-                                });
-                        });
-                });
-
-            modelBuilder.Entity<LeafB>(
-                eb =>
-                {
-                    var leafB = new LeafB { Id = 4 };
-                    leafB["Name"] = "Vanda Waldemar";
-                    eb.HasData(leafB);
-
-                    eb.OwnsOne(
-                        p => p.LeafBAddress, ab =>
-                        {
-                            ab.ToTable(
-                                tb => tb.IsTemporal(
-                                    ttb =>
-                                    {
-                                        ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
-                                        ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
-                                    }));
-                            ab.IndexerProperty<string>("LeafBType").IsRequired();
-                            ab.HasData(
-                                new
-                                {
-                                    LeafBId = 4,
-                                    PlaceType = "Land",
-                                    LeafBType = "Green"
-                                });
-
-                            ab.OwnsOne(
-                                a => a.Country, cb =>
-                                {
-                                    cb.ToTable(
-                                        tb => tb.IsTemporal(
-                                            ttb =>
-                                            {
-                                                ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
-                                                ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
-                                            }));
-                                    cb.HasOne(c => c.Planet).WithMany().HasForeignKey(c => c.PlanetId)
-                                        .OnDelete(DeleteBehavior.Restrict);
-
-                                    cb.HasData(
-                                        new
-                                        {
-                                            OwnedAddressLeafBId = 4,
-                                            PlanetId = 1,
-                                            Name = "Panama"
-                                        });
-                                });
-                        });
-                });
-
-            modelBuilder.Entity<Planet>(
-                pb =>
-                {
-                    pb.ToTable(tb => tb.IsTemporal());
-                    pb.HasData(
-                        new Planet
-                        {
-                            Id = 1,
-                            StarId = 1,
-                            Name = "Earth"
-                        });
-                });
-
-            modelBuilder.Entity<Moon>(
-                mb =>
-                {
-                    mb.ToTable(tb => tb.IsTemporal());
-                    mb.HasData(
-                        new Moon
-                        {
-                            Id = 1,
-                            PlanetId = 1,
-                            Diameter = 3474
-                        });
-                });
-
-            modelBuilder.Entity<Star>(
-                sb =>
-                {
-                    sb.ToTable(
-                        tb => tb.IsTemporal(
-                            ttb =>
+                                OwnedPersonId = 1,
+                                PlaceType = "Land",
+                                AddressLine = "804 S. Lakeshore Road",
+                                ZipCode = 38654
+                            },
+                            new
                             {
-                                ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
-                                ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
-                            }));
-                    sb.HasData(new Star { Id = 1, Name = "Sol" });
-                    sb.OwnsMany(
-                        s => s.Composition, ob =>
-                        {
-                            ob.ToTable(
-                                tb => tb.IsTemporal(
-                                    ttb =>
-                                    {
-                                        ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
-                                        ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
-                                    }));
-                            ob.HasKey(e => e.Id);
-                            ob.HasData(
-                                new
-                                {
-                                    Id = "H",
-                                    Name = "Hydrogen",
-                                    StarId = 1
-                                },
-                                new
-                                {
-                                    Id = "He",
-                                    Name = "Helium",
-                                    StarId = 1
-                                });
-                        });
-                });
-
-            modelBuilder.Entity<Barton>(
-                b =>
-                {
-                    b.ToTable(
-                        tb => tb.IsTemporal(
-                            ttb =>
+                                OwnedPersonId = 2,
+                                PlaceType = "Land",
+                                AddressLine = "7 Church Dr.",
+                                ZipCode = 28655
+                            },
+                            new
                             {
-                                ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
-                                ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
-                            }));
-                    b.OwnsOne(
-                        e => e.Throned, b =>
-                        {
-                            b.ToTable(
-                                tb => tb.IsTemporal(
-                                    ttb =>
-                                    {
-                                        ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
-                                        ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
-                                    }));
-                            b.HasData(
-                                new
+                                OwnedPersonId = 3,
+                                PlaceType = "Land",
+                                AddressLine = "72 Hickory Rd.",
+                                ZipCode = 07728
+                            },
+                            new
+                            {
+                                OwnedPersonId = 4,
+                                PlaceType = "Land",
+                                AddressLine = "28 Strawberry St.",
+                                ZipCode = 19053
+                            });
+
+                        ab.OwnsOne(
+                            a => a.Country, cb =>
+                            {
+                                cb.ToTable(tb => tb.IsTemporal(ttb =>
                                 {
-                                    BartonId = 1,
-                                    Property = "Property",
-                                    Value = 42
-                                });
-                        });
-                    b.HasData(
-                        new Barton { Id = 1, Simple = "Simple" },
-                        new Barton { Id = 2, Simple = "Not" });
-                });
+                                    ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
+                                    ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
+                                }));
+                                cb.HasData(
+                                    new
+                                    {
+                                        OwnedAddressOwnedPersonId = 1,
+                                        PlanetId = 1,
+                                        Name = "USA"
+                                    },
+                                    new
+                                    {
+                                        OwnedAddressOwnedPersonId = 2,
+                                        PlanetId = 1,
+                                        Name = "USA"
+                                    },
+                                    new
+                                    {
+                                        OwnedAddressOwnedPersonId = 3,
+                                        PlanetId = 1,
+                                        Name = "USA"
+                                    },
+                                    new
+                                    {
+                                        OwnedAddressOwnedPersonId = 4,
+                                        PlanetId = 1,
+                                        Name = "USA"
+                                    });
+
+                                cb.HasOne(cc => cc.Planet).WithMany().HasForeignKey(ee => ee.PlanetId)
+                                    .OnDelete(DeleteBehavior.Restrict);
+                            });
+                    });
+
+                eb.OwnsMany(
+                    p => p.Orders, ob =>
+                    {
+                        ob.ToTable(tb => tb.IsTemporal(ttb =>
+                        {
+                            ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
+                            ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
+                        }));
+                        ob.IndexerProperty<DateTime>("OrderDate");
+                        ob.HasData(
+                            new
+                            {
+                                Id = -10,
+                                ClientId = 1,
+                                OrderDate = Convert.ToDateTime("2018-07-11 10:01:41")
+                            },
+                            new
+                            {
+                                Id = -11,
+                                ClientId = 1,
+                                OrderDate = Convert.ToDateTime("2015-03-03 04:37:59")
+                            },
+                            new
+                            {
+                                Id = -20,
+                                ClientId = 2,
+                                OrderDate = Convert.ToDateTime("2015-05-25 20:35:48")
+                            },
+                            new
+                            {
+                                Id = -30,
+                                ClientId = 3,
+                                OrderDate = Convert.ToDateTime("2014-11-10 04:32:42")
+                            },
+                            new
+                            {
+                                Id = -40,
+                                ClientId = 4,
+                                OrderDate = Convert.ToDateTime("2016-04-25 19:23:56")
+                            }
+                        );
+
+                        ob.OwnsMany(
+                            e => e.Details, odb =>
+                            {
+                                odb.ToTable(tb => tb.IsTemporal(ttb =>
+                                {
+                                    ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
+                                    ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
+                                }));
+                                odb.HasData(
+                                    new
+                                    {
+                                        Id = -100,
+                                        OrderId = -10,
+                                        OrderClientId = 1,
+                                        Detail = "Discounted Order"
+                                    },
+                                    new
+                                    {
+                                        Id = -101,
+                                        OrderId = -10,
+                                        OrderClientId = 1,
+                                        Detail = "Full Price Order"
+                                    },
+                                    new
+                                    {
+                                        Id = -200,
+                                        OrderId = -20,
+                                        OrderClientId = 2,
+                                        Detail = "Internal Order"
+                                    },
+                                    new
+                                    {
+                                        Id = -300,
+                                        OrderId = -30,
+                                        OrderClientId = 3,
+                                        Detail = "Bulk Order"
+                                    });
+                            });
+                    });
+            });
+
+            modelBuilder.Entity<Branch>(eb =>
+            {
+                eb.HasData(new { Id = 2, Name = "Antigonus Mitul" });
+
+                eb.OwnsOne(
+                    p => p.BranchAddress, ab =>
+                    {
+                        ab.ToTable(tb => tb.IsTemporal(ttb =>
+                        {
+                            ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
+                            ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
+                        }));
+                        ab.IndexerProperty<string>("BranchName").IsRequired();
+                        ab.HasData(
+                            new
+                            {
+                                BranchId = 2,
+                                PlaceType = "Land",
+                                BranchName = "BranchA"
+                            },
+                            new
+                            {
+                                BranchId = 3,
+                                PlaceType = "Land",
+                                BranchName = "BranchB"
+                            });
+
+                        ab.OwnsOne(
+                            a => a.Country, cb =>
+                            {
+                                cb.ToTable(tb => tb.IsTemporal(ttb =>
+                                {
+                                    ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
+                                    ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
+                                }));
+                                cb.HasData(
+                                    new
+                                    {
+                                        OwnedAddressBranchId = 2,
+                                        PlanetId = 1,
+                                        Name = "Canada"
+                                    },
+                                    new
+                                    {
+                                        OwnedAddressBranchId = 3,
+                                        PlanetId = 1,
+                                        Name = "Canada"
+                                    });
+                            });
+                    });
+            });
+
+            modelBuilder.Entity<LeafA>(eb =>
+            {
+                var leafA = new LeafA { Id = 3 };
+                leafA["Name"] = "Madalena Morana";
+                eb.HasData(leafA);
+
+                eb.OwnsOne(
+                    p => p.LeafAAddress, ab =>
+                    {
+                        ab.ToTable(tb => tb.IsTemporal(ttb =>
+                        {
+                            ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
+                            ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
+                        }));
+                        ab.IndexerProperty<int>("LeafType");
+
+                        ab.HasData(
+                            new
+                            {
+                                LeafAId = 3,
+                                PlaceType = "Land",
+                                LeafType = 1
+                            });
+
+                        ab.OwnsOne(
+                            a => a.Country, cb =>
+                            {
+                                cb.ToTable(tb => tb.IsTemporal(ttb =>
+                                {
+                                    ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
+                                    ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
+                                }));
+                                cb.HasOne(c => c.Planet).WithMany().HasForeignKey(c => c.PlanetId)
+                                    .OnDelete(DeleteBehavior.Restrict);
+
+                                cb.HasData(
+                                    new
+                                    {
+                                        OwnedAddressLeafAId = 3,
+                                        PlanetId = 1,
+                                        Name = "Mexico"
+                                    });
+                            });
+                    });
+            });
+
+            modelBuilder.Entity<LeafB>(eb =>
+            {
+                var leafB = new LeafB { Id = 4 };
+                leafB["Name"] = "Vanda Waldemar";
+                eb.HasData(leafB);
+
+                eb.OwnsOne(
+                    p => p.LeafBAddress, ab =>
+                    {
+                        ab.ToTable(tb => tb.IsTemporal(ttb =>
+                        {
+                            ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
+                            ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
+                        }));
+                        ab.IndexerProperty<string>("LeafBType").IsRequired();
+                        ab.HasData(
+                            new
+                            {
+                                LeafBId = 4,
+                                PlaceType = "Land",
+                                LeafBType = "Green"
+                            });
+
+                        ab.OwnsOne(
+                            a => a.Country, cb =>
+                            {
+                                cb.ToTable(tb => tb.IsTemporal(ttb =>
+                                {
+                                    ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
+                                    ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
+                                }));
+                                cb.HasOne(c => c.Planet).WithMany().HasForeignKey(c => c.PlanetId)
+                                    .OnDelete(DeleteBehavior.Restrict);
+
+                                cb.HasData(
+                                    new
+                                    {
+                                        OwnedAddressLeafBId = 4,
+                                        PlanetId = 1,
+                                        Name = "Panama"
+                                    });
+                            });
+                    });
+            });
+
+            modelBuilder.Entity<Planet>(pb =>
+            {
+                pb.ToTable(tb => tb.IsTemporal());
+                pb.HasData(
+                    new Planet
+                    {
+                        Id = 1,
+                        StarId = 1,
+                        Name = "Earth"
+                    });
+            });
+
+            modelBuilder.Entity<Moon>(mb =>
+            {
+                mb.ToTable(tb => tb.IsTemporal());
+                mb.HasData(
+                    new Moon
+                    {
+                        Id = 1,
+                        PlanetId = 1,
+                        Diameter = 3474
+                    });
+            });
+
+            modelBuilder.Entity<Star>(sb =>
+            {
+                sb.ToTable(tb => tb.IsTemporal(ttb =>
+                {
+                    ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
+                    ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
+                }));
+                sb.HasData(new Star { Id = 1, Name = "Sol" });
+                sb.OwnsMany(
+                    s => s.Composition, ob =>
+                    {
+                        ob.ToTable(tb => tb.IsTemporal(ttb =>
+                        {
+                            ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
+                            ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
+                        }));
+                        ob.HasKey(e => e.Id);
+                        ob.HasData(
+                            new
+                            {
+                                Id = "H",
+                                Name = "Hydrogen",
+                                StarId = 1
+                            },
+                            new
+                            {
+                                Id = "He",
+                                Name = "Helium",
+                                StarId = 1
+                            });
+                    });
+            });
+
+            modelBuilder.Entity<Barton>(b =>
+            {
+                b.ToTable(tb => tb.IsTemporal(ttb =>
+                {
+                    ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
+                    ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
+                }));
+                b.OwnsOne(
+                    e => e.Throned, b =>
+                    {
+                        b.ToTable(tb => tb.IsTemporal(ttb =>
+                        {
+                            ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
+                            ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
+                        }));
+                        b.HasData(
+                            new
+                            {
+                                BartonId = 1,
+                                Property = "Property",
+                                Value = 42
+                            });
+                    });
+                b.HasData(
+                    new Barton { Id = 1, Simple = "Simple" },
+                    new Barton { Id = 2, Simple = "Not" });
+            });
 
             modelBuilder.Entity<Fink>()
                 .ToTable(tb => tb.IsTemporal())
