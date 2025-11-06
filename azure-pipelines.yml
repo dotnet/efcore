@@ -82,7 +82,6 @@ extends:
               os: windows
             timeoutInMinutes: 180
             variables:
-              - _AdditionalBuildArgs: ''
               - _InternalBuildArgs: ''
               # Rely on task Arcade injects, not auto-injected build step.
               - skipComponentGovernanceDetection: true
@@ -118,7 +117,7 @@ extends:
                 env:
                   Token: $(dn-bot-dnceng-artifact-feeds-rw)
               - template: /eng/common/templates-official/steps/enable-internal-runtimes.yml
-              - script: eng\common\cibuild.cmd -configuration $(_BuildConfig) -prepareMachine $(_InternalBuildArgs) $(_InternalRuntimeDownloadArgs) $(_AdditionalBuildArgs)
+              - script: eng\common\cibuild.cmd -configuration $(_BuildConfig) -prepareMachine $(_InternalBuildArgs) $(_InternalRuntimeDownloadArgs)
                 env:
                   Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
                 displayName: Build
