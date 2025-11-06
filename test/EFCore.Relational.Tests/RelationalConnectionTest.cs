@@ -1119,8 +1119,8 @@ public class RelationalConnectionTest
                 }
                 catch (ObjectDisposedException)
                 {
-                    // ObjectDisposedException from scope.Complete() is expected when ResetState()
-                    // clears transactions concurrently. This is a test-only scenario and not a bug
+                    // ObjectDisposedException is expected in this test when scope.Complete() and
+                    // ResetState() execute concurrently. This is a test-only scenario and not a bug
                     // in EF Core's transaction handling.
                 }
                 catch (Exception ex)
@@ -1150,8 +1150,8 @@ public class RelationalConnectionTest
                 }
                 catch (ObjectDisposedException)
                 {
-                    // ObjectDisposedException from scope.Complete() is expected when ResetState()
-                    // clears transactions concurrently. This is a test-only scenario and not a bug
+                    // ObjectDisposedException is expected in this test when scope.Complete() and
+                    // ResetState() execute concurrently. This is a test-only scenario and not a bug
                     // in EF Core's transaction handling.
                 }
                 catch (Exception ex)
