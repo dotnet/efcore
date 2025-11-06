@@ -131,7 +131,7 @@ extends:
           - job: macOS
             pool:
               name: Azure Pipelines
-              image: macOS-13
+              image: macOS-15
               os: macOS
             variables:
               # Rely on task Arcade injects, not auto-injected build step.
