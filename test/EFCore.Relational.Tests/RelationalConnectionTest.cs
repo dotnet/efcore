@@ -1095,33 +1095,23 @@ public class RelationalConnectionTest
             var connection = new FakeRelationalConnection(
                 CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=ConcurrencyTest")));
 
-            using var scope = new TransactionScope();
-            connection.Open();
+            using (var scope = new TransactionScope())
+            {
+                connection.Open();
+                scope.Complete();
+            }
+            // At this point, the TransactionCompleted event might be about to fire on a background thread
 
-            var random = new Random();
-            var resetFirst = random.Next(0, 1) == 0;
-            var tasks = new Task[2];
-            tasks[0] = Task.Run(async () =>
+            // Now test the race between the event handler and ClearTransactions
+            var task = Task.Run(async () =>
             {
                 try
                 {
-                    // Small delay to increase chance of race condition
-                    await Task.Yield();
+                    // Small delay to allow TransactionCompleted event to potentially fire
+                    await Task.Delay(1);
 
-                    if (resetFirst)
-                    {
-                        ((IResettableService)connection).ResetState();
-                    }
-                    else
-                    {
-                        scope.Complete();
-                    }
-                }
-                catch (ObjectDisposedException)
-                {
-                    // ObjectDisposedException is expected in this test when scope.Complete() and
-                    // ResetState() execute concurrently. This is a test-only scenario and not a bug
-                    // in EF Core's transaction handling.
+                    // ResetState calls ClearTransactions which might race with HandleTransactionCompleted
+                    ((IResettableService)connection).ResetState();
                 }
                 catch (Exception ex)
                 {
@@ -1132,38 +1122,7 @@ public class RelationalConnectionTest
                 }
             });
 
-            tasks[1] = Task.Run(async () =>
-            {
-                try
-                {
-                    // Small delay to increase chance of race condition
-                    await Task.Yield();
-
-                    if (resetFirst)
-                    {
-                        scope.Complete();
-                    }
-                    else
-                    {
-                        ((IResettableService)connection).ResetState();
-                    }
-                }
-                catch (ObjectDisposedException)
-                {
-                    // ObjectDisposedException is expected in this test when scope.Complete() and
-                    // ResetState() execute concurrently. This is a test-only scenario and not a bug
-                    // in EF Core's transaction handling.
-                }
-                catch (Exception ex)
-                {
-                    lock (exceptions)
-                    {
-                        exceptions.Add(ex);
-                    }
-                }
-            });
-
-            Task.WaitAll(tasks, TimeSpan.FromSeconds(10));
+            Task.WaitAll(new[] { task }, TimeSpan.FromSeconds(10));
         }
 
         Assert.Empty(exceptions);
