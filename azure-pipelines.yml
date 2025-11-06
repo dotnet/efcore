@@ -44,7 +44,8 @@ extends:
     featureFlags:
       autoBaseline: false
       usePrefastVersion3: true
-      autoEnableRoslynWithNewRuleset: false  
+      autoEnableRoslynWithNewRuleset: false
+      binskimScanAllExtensions: true
     sdl:
       createAdoIssuesForJustificationsForDisablement: false
       sourceAnalysisPool:
@@ -55,12 +56,12 @@ extends:
         baselineFile: $(Build.SourcesDirectory)\.config\guardian\.gdnbaselines
       binskim:
         scanOutputDirectoryOnly: true
-        analyzeTargetGlob: '+:f|artifacts/bin/**/Microsoft.EntityFrameworkCore*.dll;+:f|artifacts/bin/**/Microsoft.Data.Sqlite*.dll;+:f|artifacts/bin/**/ef.exe;+:f|artifacts/bin/**/dotnet-ef.exe;-:f|artifacts/bin/**/shims/**/*.exe;'
+        analyzeTargetGlob: +:f|**/Microsoft.EntityFrameworkCore*.dll;+:f|**/Microsoft.Data.Sqlite*.dll;+:f|**/ef.exe;+:f|**/dotnet-ef.exe;-:f|**/shims/**/*.exe;
         preReleaseVersion: '4.3.1'
       env:
-        GDN_EXTRACT_TOOLS: "binskim"
+        GDN_EXTRACT_TOOLS: 'binskim'
         GDN_EXTRACT_TARGETS: true
-        GDN_EXTRACT_FILTER: "f|**\\*.zip;f|**\\*.nupkg;f|**\\*.vsix;f|**\\*.cspkg;f|**\\*.sfpkg;f|**\\*.package"
+        GDN_EXTRACT_FILTER: 'f|**/*.zip;f|**/*.nupkg;f|**/*.vsix;f|**/*.cspkg;f|**/*.sfpkg;f|**/*.package'
       policheck:
         enabled: true
       tsa:
