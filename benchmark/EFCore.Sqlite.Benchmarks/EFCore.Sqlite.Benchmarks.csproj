@@ -17,10 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Update="AdventureWorks2014.db">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

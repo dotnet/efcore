@@ -1501,7 +1501,7 @@ WHERE (
 
         AssertSql(
             """
-@__ints_0='[11,111]' (Size = 8)
+@__p_0='[11,111]' (Size = 8)
 
 SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
 FROM "PrimitiveCollectionsEntity" AS "p"
@@ -1509,10 +1509,10 @@ WHERE (
     SELECT COUNT(*)
     FROM (
         SELECT 1
-        FROM json_each(@__ints_0) AS "i"
+        FROM json_each(@__p_0) AS "p0"
         UNION ALL
         SELECT 1
-        FROM json_each("p"."Ints") AS "i0"
+        FROM json_each("p"."Ints") AS "i"
     ) AS "u") = 2
 """);
     }

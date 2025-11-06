@@ -1519,7 +1519,7 @@ WHERE (
 
         AssertSql(
             """
-@__ints_0='[11,111]' (Size = 4000)
+@__p_0='[11,111]' (Size = 4000)
 
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
 FROM [PrimitiveCollectionsEntity] AS [p]
@@ -1527,10 +1527,10 @@ WHERE (
     SELECT COUNT(*)
     FROM (
         SELECT 1 AS empty
-        FROM OPENJSON(@__ints_0) AS [i]
+        FROM OPENJSON(@__p_0) AS [p0]
         UNION ALL
         SELECT 1 AS empty
-        FROM OPENJSON([p].[Ints]) AS [i0]
+        FROM OPENJSON([p].[Ints]) AS [i]
     ) AS [u]) = 2
 """);
     }
