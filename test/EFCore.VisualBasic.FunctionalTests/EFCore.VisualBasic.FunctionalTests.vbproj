@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
     <AssemblyName>Microsoft.EntityFrameworkCore.VisualBasic.FunctionalTests</AssemblyName>
     <SkipTests Condition="'$(OS)' != 'Windows_NT' AND '$(Test__SqlServer__DefaultConnection)' == ''">True</SkipTests>
     <LangVersion>latest</LangVersion>

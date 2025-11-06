@@ -21,9 +21,7 @@ public class TemporalPeriodPropertyBuilder : IInfrastructure<PropertyBuilder>
     /// </summary>
     [EntityFrameworkInternal]
     public TemporalPeriodPropertyBuilder(PropertyBuilder propertyBuilder)
-    {
-        _propertyBuilder = propertyBuilder;
-    }
+        => _propertyBuilder = propertyBuilder;
 
     /// <summary>
     ///     Configures the column name the period property maps to.
