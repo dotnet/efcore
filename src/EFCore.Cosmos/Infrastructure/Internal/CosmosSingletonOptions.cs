@@ -157,7 +157,7 @@ public class CosmosSingletonOptions : ICosmosSingletonOptions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool EnableManualSessionTokenManagement { get; private set; }
+    public virtual SessionTokenManagementMode SessionTokenManagementMode { get; private set; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -186,7 +186,7 @@ public class CosmosSingletonOptions : ICosmosSingletonOptions
             MaxTcpConnectionsPerEndpoint = cosmosOptions.MaxTcpConnectionsPerEndpoint;
             MaxRequestsPerTcpConnection = cosmosOptions.MaxRequestsPerTcpConnection;
             HttpClientFactory = cosmosOptions.HttpClientFactory;
-            EnableManualSessionTokenManagement = cosmosOptions.EnableManualSessionTokenManagement;
+            SessionTokenManagementMode = cosmosOptions.SessionTokenManagementMode;
         }
     }
 
@@ -217,7 +217,7 @@ public class CosmosSingletonOptions : ICosmosSingletonOptions
                 || MaxTcpConnectionsPerEndpoint != cosmosOptions.MaxTcpConnectionsPerEndpoint
                 || MaxRequestsPerTcpConnection != cosmosOptions.MaxRequestsPerTcpConnection
                 || HttpClientFactory != cosmosOptions.HttpClientFactory
-                || EnableManualSessionTokenManagement != cosmosOptions.EnableManualSessionTokenManagement
+                || SessionTokenManagementMode != cosmosOptions.SessionTokenManagementMode
             ))
         {
             throw new InvalidOperationException(

@@ -2,34 +2,82 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.Azure.Cosmos;
+using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
+public abstract class CosmosSessionTokensTestBase(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
-    private const string OtherContainerName = "Other";
-    protected override string StoreName
-        => "CosmosSessionTokensTest";
+    protected const string OtherContainerName = "Other";
 
     protected override ITestStoreFactory TestStoreFactory
         => CosmosTestStoreFactory.Instance;
 
+    protected override string StoreName => nameof(CosmosSessionTokensTestBase);
+
+    protected abstract SessionTokenManagementMode Mode { get; }
+
     protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder) => base.AddOptions(builder).ConfigureWarnings(x => x.Ignore(CosmosEventId.SyncNotSupported));
 
-    protected override TestStore CreateTestStore() => CosmosTestStore.Create(StoreName, (c) => c.ManualSessionTokenManagementEnabled());
+    protected override TestStore CreateTestStore() => CosmosTestStore.Create(StoreName, (c) => c.SessionTokenManagementMode(Mode));
 
-    [ConditionalFact]
-    public virtual async Task GetSessionTokens_throws_if_not_enabled()
+    public class CosmosSessionTokenContext(DbContextOptions options) : PoolableDbContext(options)
     {
-        var contextFactory = await InitializeAsync<CosmosSessionTokenContext>(createTestStore: () => CosmosTestStore.Create(StoreName));
+        public DbSet<Customer> Customers { get; set; } = null!;
+        public DbSet<OtherContainerCustomer> OtherContainerCustomers { get; set; } = null!;
 
-        using var context = contextFactory.CreateContext();
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            builder.Entity<Customer>(
+                b =>
+                {
+                    b.HasKey(c => c.Id);
+                    b.Property(c => c.ETag).IsETagConcurrency();
+                    b.OwnsMany(x => x.Children);
+                    b.HasPartitionKey(c => c.PartitionKey);
+                });
 
-        var exception = Assert.Throws<InvalidOperationException>(() => context.Database.GetSessionTokens());
-        Assert.Equal(CosmosStrings.EnableManualSessionTokenManagement, exception.Message);
+            builder.Entity<OtherContainerCustomer>(
+                b =>
+                {
+                    b.HasKey(c => c.Id);
+                    b.HasPartitionKey(c => c.PartitionKey);
+                    b.ToContainer(OtherContainerName);
+                });
+        }
     }
 
+    public class Customer
+    {
+        public string? Id { get; set; }
+
+        public string? Name { get; set; }
+
+        public string? ETag { get; set; }
+
+        public string? PartitionKey { get; set; }
+
+        public ICollection<DummyChild> Children { get; } = new HashSet<DummyChild>();
+    }
+
+    public class DummyChild
+    {
+        public string? Id { get; init; }
+    }
+
+    public class OtherContainerCustomer
+    {
+        public string? Id { get; set; }
+
+        public string? Name { get; set; }
+
+        public string? PartitionKey { get; set; }
+    }
+}
+
+public abstract class CosmosSessionTokensNonFullyAutomaticTestBase(NonSharedFixture fixture) : CosmosSessionTokensTestBase(fixture)
+{
     [ConditionalFact]
     public virtual async Task AppendSessionTokens_throws_for_non_existent_container()
     {
@@ -93,7 +141,7 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
     public virtual async Task AppendSessionTokens_append_token_already_present_does_not_add_token()
     {
         var contextFactory = await InitializeAsync<CosmosSessionTokenContext>();
-        
+
         using var context = contextFactory.CreateContext();
         context.Add(new Customer { Id = "1", PartitionKey = "1" });
         context.Add(new OtherContainerCustomer { Id = "1", PartitionKey = "1" });
@@ -152,6 +200,86 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
     }
 
     [ConditionalFact]
+    public virtual async Task UseSessionToken_sets_tokens()
+    {
+        var contextFactory = await InitializeAsync<CosmosSessionTokenContext>();
+
+        using var context = contextFactory.CreateContext();
+
+        var sessionTokens = context.Database.GetSessionTokens();
+        var newToken = "0:-1#123,1:-1#456";
+        var overwrite = "0:-1#123";
+
+        context.Database.UseSessionToken(newToken);
+        context.Database.UseSessionToken(overwrite);
+
+        var updatedToken = context.Database.GetSessionToken();
+        Assert.Equal(overwrite, updatedToken);
+    }
+
+    [ConditionalFact]
+    public virtual async Task UseSessionToken_multiple_tokens_splits_tokens()
+    {
+        var contextFactory = await InitializeAsync<CosmosSessionTokenContext>();
+
+        using var context = contextFactory.CreateContext();
+
+        var sessionTokens = context.Database.GetSessionTokens();
+        var newToken = "0:-1#123,1:-1#456";
+        var appendix = "0:-1#123";
+
+        context.Database.UseSessionToken(newToken);
+        context.Database.AppendSessionToken(appendix);
+
+        var updatedToken = context.Database.GetSessionToken();
+        Assert.Equal(newToken, updatedToken);
+    }
+
+    [ConditionalFact]
+    public virtual async Task UseSessionTokens_sets_tokens()
+    {
+        var contextFactory = await InitializeAsync<CosmosSessionTokenContext>();
+
+        using var context = contextFactory.CreateContext();
+
+        var sessionTokens = context.Database.GetSessionTokens();
+        var newToken = "0:-1#123,1:-1#456";
+        var overwrite = "0:-1#123";
+
+        context.Database.UseSessionTokens(new Dictionary<string, string> { { OtherContainerName, newToken }, { nameof(CosmosSessionTokenContext), newToken } });
+        context.Database.UseSessionTokens(new Dictionary<string, string> { { OtherContainerName, overwrite }, { nameof(CosmosSessionTokenContext), overwrite } });
+
+        var updatedTokens = context.Database.GetSessionTokens();
+
+        foreach (var pair in updatedTokens)
+        {
+            Assert.Equal(overwrite, pair.Value);
+        }
+    }
+
+    [ConditionalFact]
+    public virtual async Task UseSessionTokens_multiple_tokens_splits_tokens()
+    {
+        var contextFactory = await InitializeAsync<CosmosSessionTokenContext>();
+
+        using var context = contextFactory.CreateContext();
+
+        var sessionTokens = context.Database.GetSessionTokens();
+        var newToken = "0:-1#123,1:-1#456";
+        var appendix = "0:-1#123";
+
+        context.Database.UseSessionTokens(new Dictionary<string, string> { { OtherContainerName, newToken }, { nameof(CosmosSessionTokenContext), newToken } });
+        context.Database.AppendSessionTokens(new Dictionary<string, string> { { OtherContainerName, appendix }, { nameof(CosmosSessionTokenContext), appendix } });
+
+        var updatedTokens = context.Database.GetSessionTokens();
+
+        foreach (var pair in updatedTokens)
+        {
+            Assert.Equal(newToken, pair.Value);
+        }
+    }
+
+    [ConditionalFact]
     public virtual async Task GetSessionTokens_no_token_returns_empty()
     {
         var contextFactory = await InitializeAsync<CosmosSessionTokenContext>();
@@ -190,8 +318,7 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
         var sessionTokens = context.Database.GetSessionTokens();
 
         // Only way we can test this is by setting a session token that will fail the request if used..
-        // This will take a couple of seconds to fail
-        var newTokens = sessionTokens.ToDictionary(x => x.Key, x => x.Value!.Substring(0, x.Value.IndexOf('#') + 1) + int.MaxValue);
+        var newTokens = sessionTokens.ToDictionary(x => x.Key, x => "invalidtoken");
 
         context.Database.AppendSessionTokens(newTokens);
         
@@ -209,8 +336,8 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
             ex2 = Assert.Throws<CosmosException>(() => context.OtherContainerCustomers.ToList());
         }
 
-        Assert.Contains("The read session is not available for the input session token.", ex1.ResponseBody);
-        Assert.Contains("The read session is not available for the input session token.", ex2.ResponseBody);
+        Assert.Contains("The session token provided 'invalidtoken' is invalid", ex1.ResponseBody);
+        Assert.Contains("The session token provided 'invalidtoken' is invalid", ex2.ResponseBody);
     }
 
     [ConditionalTheory, InlineData(true), InlineData(false)]
@@ -234,8 +361,7 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
         var sessionTokens = context.Database.GetSessionTokens();
 
         // Only way we can test this is by setting a session token that will fail the request if used..
-        // This will take a couple of seconds to fail
-        var newTokens = sessionTokens.ToDictionary(x => x.Key, x => x.Value!.Substring(0, x.Value.IndexOf('#') + 1) + int.MaxValue);
+        var newTokens = sessionTokens.ToDictionary(x => x.Key, x => "invalidtoken");
 
         context.Database.AppendSessionTokens(newTokens);
 
@@ -287,8 +413,7 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
             var sessionTokens = context.Database.GetSessionTokens();
 
             // Only way we can test this is by setting a session token that will fail the request if used..
-            // This will take a couple of seconds to fail
-            var newTokens = sessionTokens.ToDictionary(x => x.Key, x => x.Value!.Substring(0, x.Value.IndexOf('#') + 1) + int.MaxValue);
+            var newTokens = sessionTokens.ToDictionary(x => x.Key, x => "invalidtoken");
 
             context.Database.AppendSessionTokens(newTokens);
 
@@ -331,16 +456,15 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
         var sessionTokens = context.Database.GetSessionTokens();
 
         // Only way we can test this is by setting a session token that will fail the request if used..
-        // This will take a couple of seconds to fail
-        var newTokens = sessionTokens.ToDictionary(x => x.Key, x => x.Value!.Substring(0, x.Value.IndexOf('#') + 1) + int.MaxValue);
+        var newTokens = sessionTokens.ToDictionary(x => x.Key, x => "invalidtoken");
 
         context.Database.AppendSessionTokens(newTokens);
 
         var ex1 = await Assert.ThrowsAsync<CosmosException>(() => context.Customers.ToPageAsync(1, null));
         var ex2 = await Assert.ThrowsAsync<CosmosException>(() => context.OtherContainerCustomers.ToPageAsync(1, null));
 
-        Assert.Contains("The read session is not available for the input session token.", ex1.ResponseBody);
-        Assert.Contains("The read session is not available for the input session token.", ex2.ResponseBody);
+        Assert.Contains("The session token provided 'invalidtoken' is invalid", ex1.ResponseBody);
+        Assert.Contains("The session token provided 'invalidtoken' is invalid", ex2.ResponseBody);
 
     }
 
@@ -365,8 +489,7 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
         var sessionTokens = context.Database.GetSessionTokens();
 
         // Only way we can test this is by setting a session token that will fail the request if used..
-        // This will take a couple of seconds to fail
-        var newTokens = sessionTokens.ToDictionary(x => x.Key, x => x.Value!.Substring(0, x.Value.IndexOf('#') + 1) + int.MaxValue);
+        var newTokens = sessionTokens.ToDictionary(x => x.Key, x => "invalidtoken");
 
         context.Database.AppendSessionTokens(newTokens);
 
@@ -383,8 +506,8 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
             ex2 = Assert.Throws<CosmosException>(() => context.OtherContainerCustomers.Select(x => new { x.Id, x.PartitionKey }).ToList());
         }
 
-        Assert.Contains("The read session is not available for the input session token.", ex1.ResponseBody);
-        Assert.Contains("The read session is not available for the input session token.", ex2.ResponseBody);
+        Assert.Contains("The session token provided 'invalidtoken' is invalid", ex1.ResponseBody);
+        Assert.Contains("The session token provided 'invalidtoken' is invalid", ex2.ResponseBody);
 
     }
 
@@ -409,8 +532,7 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
         var sessionTokens = context.Database.GetSessionTokens();
 
         // Only way we can test this is by setting a session token that will fail the request if used..
-        // This will take a couple of seconds to fail
-        var newTokens = sessionTokens.ToDictionary(x => x.Key, x => x.Value!.Substring(0, x.Value.IndexOf('#') + 1) + int.MaxValue);
+        var newTokens = sessionTokens.ToDictionary(x => x.Key, x => "invalidtoken");
 
         context.Database.AppendSessionTokens(newTokens);
 
@@ -427,8 +549,8 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
             ex2 = Assert.Throws<CosmosException>(() => context.OtherContainerCustomers.FirstOrDefault(x => x.Id == "1" && x.PartitionKey == "1"));
         }
 
-        Assert.Contains("The read session is not available for the input session token.", ex1.ResponseBody);
-        Assert.Contains("The read session is not available for the input session token.", ex2.ResponseBody);
+        Assert.Contains("The session token provided 'invalidtoken' is invalid", ex1.ResponseBody);
+        Assert.Contains("The session token provided 'invalidtoken' is invalid", ex2.ResponseBody);
 
     }
 
@@ -1218,58 +1340,5 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
         }
 
         Assert.Contains("The session token provided 'invalidtoken' is invalid.", ((CosmosException)ex.InnerException!).ResponseBody);
-    }
-
-    public class CosmosSessionTokenContext(DbContextOptions options) : PoolableDbContext(options)
-    {
-        public DbSet<Customer> Customers { get; set; } = null!;
-        public DbSet<OtherContainerCustomer> OtherContainerCustomers { get; set; } = null!;
-
-        protected override void OnModelCreating(ModelBuilder builder)
-        {
-            builder.Entity<Customer>(
-                b =>
-                {
-                    b.HasKey(c => c.Id);
-                    b.Property(c => c.ETag).IsETagConcurrency();
-                    b.OwnsMany(x => x.Children);
-                    b.HasPartitionKey(c => c.PartitionKey);
-                });
-
-            builder.Entity<OtherContainerCustomer>(
-                b =>
-                {
-                    b.HasKey(c => c.Id);
-                    b.HasPartitionKey(c => c.PartitionKey);
-                    b.ToContainer(OtherContainerName);
-                });
-        }
-    }
-
-    public class Customer
-    {
-        public string? Id { get; set; }
-
-        public string? Name { get; set; }
-
-        public string? ETag { get; set; }
-
-        public string? PartitionKey { get; set; }
-
-        public ICollection<DummyChild> Children { get; } = new HashSet<DummyChild>();
-    }
-
-    public class DummyChild
-    {
-        public string? Id { get; init; }
-    }
-
-    public class OtherContainerCustomer
-    {
-        public string? Id { get; set; }
-
-        public string? Name { get; set; }
-
-        public string? PartitionKey { get; set; }
     }
 }

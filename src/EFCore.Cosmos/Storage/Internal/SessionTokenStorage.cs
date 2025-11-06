@@ -2,7 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Runtime.InteropServices;
-using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 
@@ -14,8 +14,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 /// </summary>
 public class SessionTokenStorage : ISessionTokenStorage
 {
-    private readonly Dictionary<string, CompositeSessionToken> _containerSessionTokens = new();
+    private bool _useSessionTokens = false;
+
+    private Dictionary<string, CompositeSessionToken> _containerSessionTokens = new();
     private readonly string _defaultContainerName;
+    private readonly SessionTokenManagementMode _mode;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -23,9 +26,12 @@ public class SessionTokenStorage : ISessionTokenStorage
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public SessionTokenStorage(DbContext dbContext)
+    public SessionTokenStorage(string defaultContainerName, SessionTokenManagementMode mode)
     {
-        _defaultContainerName = (string)dbContext.Model.GetAnnotation(CosmosAnnotationNames.ContainerName).Value!;
+        Debug.Assert(mode != SessionTokenManagementMode.FullyAutomatic, $"Use {nameof(NullSessionTokenStorage)} instead.");
+
+        _defaultContainerName = defaultContainerName;
+        _mode = mode;
     }
 
     /// <summary>
@@ -34,7 +40,11 @@ public class SessionTokenStorage : ISessionTokenStorage
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual string? GetSessionToken() => GetSessionToken(_defaultContainerName);
+    public void SetSessionTokens(IReadOnlyDictionary<string, string> sessionTokens)
+    {
+        _useSessionTokens = true;
+        _containerSessionTokens = sessionTokens.ToDictionary(x => x.Key, x => new CompositeSessionToken(x.Value));
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -42,8 +52,54 @@ public class SessionTokenStorage : ISessionTokenStorage
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void AppendSessionToken(string sessionToken)
-        => AppendSessionToken(_defaultContainerName, sessionToken);
+    public void AppendSessionTokens(IReadOnlyDictionary<string, string> sessionTokens)
+    {
+        _useSessionTokens = true;
+        foreach (var sessionToken in sessionTokens)
+        {
+            TrackSessionToken(sessionToken.Key, sessionToken.Value);
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void AppendDefaultContainerSessionToken(string sessionToken)
+    {
+        _useSessionTokens = true;
+        TrackSessionToken(_defaultContainerName, sessionToken);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void SetDefaultContainerSessionToken(string sessionToken)
+    {
+        _useSessionTokens = true;
+        _containerSessionTokens[_defaultContainerName] = new CompositeSessionToken(sessionToken);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual IReadOnlyDictionary<string, string> GetTrackedTokens() => _containerSessionTokens.ToDictionary(x => x.Key, x => x.Value.ConvertToString());
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual string? GetDefaultContainerTrackedToken() => _containerSessionTokens.GetValueOrDefault(_defaultContainerName)?.ConvertToString();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -55,8 +111,18 @@ public class SessionTokenStorage : ISessionTokenStorage
     {
         ArgumentNullException.ThrowIfNullOrWhiteSpace(containerName, nameof(containerName));
 
+        if (_mode == SessionTokenManagementMode.SemiAutomatic && !_useSessionTokens)
+        {
+            return null;
+        }
+
         if (!_containerSessionTokens.TryGetValue(containerName, out var value))
         {
+            if (_mode == SessionTokenManagementMode.EnforcedManual)
+            {
+                throw new InvalidOperationException();
+            }
+
             return null;
         }
 
@@ -69,22 +135,7 @@ public class SessionTokenStorage : ISessionTokenStorage
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void AppendSessionTokens(IReadOnlyDictionary<string, string> sessionTokens)
-    {
-        ArgumentNullException.ThrowIfNull(sessionTokens, nameof(sessionTokens));
-        foreach (var (containerName, sessionToken) in sessionTokens)
-        {
-            AppendSessionToken(containerName, sessionToken);
-        }
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual void AppendSessionToken(string containerName, string sessionToken)
+    public virtual void TrackSessionToken(string containerName, string sessionToken)
     {
         ArgumentNullException.ThrowIfNullOrWhiteSpace(containerName, nameof(containerName));
         ArgumentNullException.ThrowIfNullOrWhiteSpace(sessionToken, nameof(sessionToken));
@@ -107,15 +158,10 @@ public class SessionTokenStorage : ISessionTokenStorage
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual void Clear()
-        => _containerSessionTokens.Clear();
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual IReadOnlyDictionary<string, string> ToDictionary() => _containerSessionTokens.ToDictionary(x => x.Key, x => x.Value.ConvertToString());
+    {
+        _useSessionTokens = false;
+        _containerSessionTokens.Clear();
+    }
 
     private sealed class CompositeSessionToken
     {

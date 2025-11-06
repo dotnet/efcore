@@ -3,6 +3,7 @@
 
 using System.ComponentModel;
 using System.Net;
+using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure;
@@ -213,20 +214,20 @@ public class CosmosDbContextOptionsBuilder : ICosmosDbContextOptionsBuilderInfra
 
 
     /// <summary>
-    ///     Sets the boolean to track and manage session tokens for requests made to Cosmos DB
-    ///     and being able to access them via the <see cref="CosmosDatabaseFacadeExtensions.GetSessionTokens(DatabaseFacade)"/> and <see cref="CosmosDatabaseFacadeExtensions.AppendSessionTokens(DatabaseFacade, IReadOnlyDictionary{string, string})"/> methods.
-    ///     This is only relevant when your application needs to manage session tokens manually.
+    ///     Sets the <see cref="Cosmos.Infrastructure.SessionTokenManagementMode"/> to use.
+    ///     By default, <see cref="SessionTokenManagementMode.FullyAutomatic"/> will be used.
+    ///     Any other mode is only relevant when your application needs to manage session tokens manually.
     ///     For example: If you're using a round-robin load balancer that doesn't maintain session affinity between requests.
-    ///     Enabling manual session token management can break session consistency when not handled properly.
+    ///     Manual session token management can break session consistency when not handled properly.
     ///     See <see href="https://learn.microsoft.com/en-us/azure/cosmos-db/nosql/how-to-manage-consistency?tabs=portal%2Cdotnetv2%2Capi-async#utilize-session-tokens">Utilize session tokens</see> for more details.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
     ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
     /// </remarks>
-    /// <param name="enabled"><see langword="true" /> to track and manually manage session tokens in EF.</param>
-    public virtual CosmosDbContextOptionsBuilder ManualSessionTokenManagementEnabled(bool enabled = true)
-        => WithOption(e => e.ManualSessionTokenManagementEnabled(enabled));
+    /// <param name="mode">The <see cref="Cosmos.Infrastructure.SessionTokenManagementMode"/> to use.</param>
+    public virtual CosmosDbContextOptionsBuilder SessionTokenManagementMode(SessionTokenManagementMode mode)
+        => WithOption(e => e.WithSessionTokenManagementMode(mode));
 
     /// <summary>
     ///     Sets an option by cloning the extension used to store the settings. This ensures the builder

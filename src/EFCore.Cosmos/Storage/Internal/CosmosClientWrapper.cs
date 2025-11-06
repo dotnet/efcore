@@ -786,7 +786,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
 
         if (!string.IsNullOrWhiteSpace(response.Headers.Session))
         {
-            sessionTokenStorage.AppendSessionToken(containerId, response.Headers.Session);
+            sessionTokenStorage.TrackSessionToken(containerId, response.Headers.Session);
         }
 
         ProcessResponse(entry, response.Headers.ETag, response.Content);
@@ -796,7 +796,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
     {
         if (!string.IsNullOrWhiteSpace(batchResponse.Headers.Session))
         {
-            sessionTokenStorage.AppendSessionToken(containerId, batchResponse.Headers.Session);
+            sessionTokenStorage.TrackSessionToken(containerId, batchResponse.Headers.Session);
         }
 
         for (var i = 0; i < batchResponse.Count; i++)
@@ -951,7 +951,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
 
         if (!string.IsNullOrWhiteSpace(response.Headers.Session))
         {
-            sessionTokenStorage.AppendSessionToken(containerId, response.Headers.Session);
+            sessionTokenStorage.TrackSessionToken(containerId, response.Headers.Session);
         }
 
         return response;
@@ -1370,7 +1370,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             var response = await _inner.ReadNextAsync(cancellationToken).ConfigureAwait(false);
             if (!string.IsNullOrWhiteSpace(response.Headers.Session))
             {
-                _sessionTokenStorage.AppendSessionToken(_containerName, response.Headers.Session);
+                _sessionTokenStorage.TrackSessionToken(_containerName, response.Headers.Session);
             }
             return response;
         }

@@ -32,7 +32,7 @@ public static class CosmosDatabaseFacadeExtensions
     /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
     /// <returns>The session token for the default container in the context, or <see langword="null"/> if none present.</returns>
     public static string? GetSessionToken(this DatabaseFacade databaseFacade)
-        => GetSessionTokenStorage(databaseFacade).GetSessionToken();
+        => GetSessionTokenStorage(databaseFacade).GetDefaultContainerTrackedToken();
 
     /// <summary>
     ///     Gets a dictionary that contains the composite session token per container for this <see cref="DbContext" />.
@@ -41,7 +41,16 @@ public static class CosmosDatabaseFacadeExtensions
     /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
     /// <returns>The session token dictionary.</returns>
     public static IReadOnlyDictionary<string, string> GetSessionTokens(this DatabaseFacade databaseFacade)
-        => GetSessionTokenStorage(databaseFacade).ToDictionary();
+        => GetSessionTokenStorage(databaseFacade).GetTrackedTokens();
+
+    /// <summary>
+    ///     Sets the composite session token for the default container for this <see cref="DbContext" />.
+    /// </summary>
+    /// <remarks>Use this when using only 1 container in the same <see cref="DbContext"/>.</remarks>
+    /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
+    /// <param name="sessionToken">The session token to set.</param>
+    public static void UseSessionToken(this DatabaseFacade databaseFacade, string sessionToken)
+        => GetSessionTokenStorage(databaseFacade).SetDefaultContainerSessionToken(sessionToken);
 
     /// <summary>
     ///     Appends the composite session token for the default container for this <see cref="DbContext" />.
@@ -50,7 +59,20 @@ public static class CosmosDatabaseFacadeExtensions
     /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
     /// <param name="sessionToken">The session token to append.</param>
     public static void AppendSessionToken(this DatabaseFacade databaseFacade, string sessionToken)
-        => GetSessionTokenStorage(databaseFacade).AppendSessionToken(sessionToken);
+        => GetSessionTokenStorage(databaseFacade).AppendDefaultContainerSessionToken(sessionToken);
+
+    /// <summary>
+    ///     Sets the composite sessions token per container for this <see cref="DbContext" /> with the tokens specified in <paramref name="sessionTokens"/>.
+    /// </summary>
+    /// <remarks>Use this when using multiple containers in the same <see cref="DbContext"/>.</remarks>
+    /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
+    /// <param name="sessionTokens">The session tokens to set per container.</param>
+    public static void UseSessionTokens(this DatabaseFacade databaseFacade, IReadOnlyDictionary<string, string> sessionTokens)
+    {
+        var sessionTokenStorage = GetSessionTokenStorage(databaseFacade, sessionTokens);
+
+        sessionTokenStorage.SetSessionTokens(sessionTokens);
+    }
 
     /// <summary>
     ///     Appends the composite sessions token per container for this <see cref="DbContext" /> with the tokens specified in <paramref name="sessionTokens"/>.
@@ -60,16 +82,7 @@ public static class CosmosDatabaseFacadeExtensions
     /// <param name="sessionTokens">The session tokens to append per container.</param>
     public static void AppendSessionTokens(this DatabaseFacade databaseFacade, IReadOnlyDictionary<string, string> sessionTokens)
     {
-        var sessionTokenStorage = GetSessionTokenStorage(databaseFacade);
-
-        var containerNames = GetContainerNames(databaseFacade.GetService<IModel>());
-        foreach (var sessionToken in sessionTokens)
-        {
-            if (!containerNames.Contains(sessionToken.Key))
-            {
-                throw new InvalidOperationException(CosmosStrings.ContainerNameDoesNotExist(sessionToken.Key));
-            }
-        }
+        var sessionTokenStorage = GetSessionTokenStorage(databaseFacade, sessionTokens);
 
         sessionTokenStorage.AppendSessionTokens(sessionTokens);
     }
@@ -82,7 +95,7 @@ public static class CosmosDatabaseFacadeExtensions
             .Distinct()!
             .ToHashSet()!;
 
-    private static SessionTokenStorage GetSessionTokenStorage(DatabaseFacade databaseFacade)
+    private static SessionTokenStorage GetSessionTokenStorage(DatabaseFacade databaseFacade, IReadOnlyDictionary<string, string>? sessionTokens = null)
     {
         var db = GetService<IDatabase>(databaseFacade);
         if (db is not CosmosDatabaseWrapper dbWrapper)
@@ -93,6 +106,18 @@ public static class CosmosDatabaseFacadeExtensions
         if (dbWrapper.SessionTokenStorage is not SessionTokenStorage sts)
         {
             throw new InvalidOperationException(CosmosStrings.EnableManualSessionTokenManagement);
+        }
+
+        if (sessionTokens != null)
+        {
+            var containerNames = GetContainerNames(databaseFacade.GetService<IModel>());
+            foreach (var sessionToken in sessionTokens)
+            {
+                if (!containerNames.Contains(sessionToken.Key))
+                {
+                    throw new InvalidOperationException(CosmosStrings.ContainerNameDoesNotExist(sessionToken.Key));
+                }
+            }
         }
 
         return sts;
