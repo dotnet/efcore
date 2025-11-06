@@ -1,13 +1,14 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-namespace Microsoft.EntityFrameworkCore;
-
 using Microsoft.CodeAnalysis.Testing;
+
+namespace Microsoft.EntityFrameworkCore;
 
 using Verify = CSharpAnalyzerVerifier<StringsUsageInRawQueriesDiagnosticAnalyzer>;
 
-public class StringConcatenationInRawQueriesAnalyzerTests
+//Issue #37106
+internal class StringConcatenationInRawQueriesAnalyzerTests
 {
     public static readonly TheoryData<string> DoNotReportData =
     [
