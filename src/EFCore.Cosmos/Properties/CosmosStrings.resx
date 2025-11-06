@@ -250,10 +250,6 @@
     <value>The key property '{entityType}.{property}' is not configured to generate values and has the CLR default or sentinel value while saving a new entity to the database. The Azure Cosmos DB database provider for EF Core does not generate key values by default. This means key values must be explicitly set before saving new entities. See https://aka.ms/ef-cosmos-keys for more information.</value>
     <comment>Warning CosmosEventId.PrimaryKeyValueNotSet string string</comment>
   </data>
-  <data name="LogSyncNotSupported" xml:space="preserve">
-    <value>Azure Cosmos DB does not support synchronous I/O. Make sure to use and correctly await only async methods when using Entity Framework Core to access Azure Cosmos DB. See https://aka.ms/ef-cosmos-nosync for more information.</value>
-    <comment>Error CosmosEventId.SyncNotSupported</comment>
-  </data>
   <data name="MissingOrderingInSelectExpression" xml:space="preserve">
     <value>'Reverse' could not be translated to the server because there is no ordering on the server side.</value>
   </data>
@@ -352,6 +348,9 @@
   </data>
   <data name="SingleFirstOrDefaultNotSupportedOnNonNullableQueries" xml:space="preserve">
     <value>SingleOrDefault and FirstOrDefault cannot be used Cosmos SQL does not allow Offset without Limit. Consider specifying a 'Take' operation on the query.</value>
+  </data>
+  <data name="SyncNotSupported" xml:space="preserve">
+    <value>Azure Cosmos DB does not support synchronous I/O. Make sure to use and correctly await only async methods when using Entity Framework Core to access Azure Cosmos DB.</value>
   </data>
   <data name="ThroughputMismatch" xml:space="preserve">
     <value>The provisioned throughput was configured to '{throughput1}' on '{entityType1}', but on '{entityType2}' it was configured to '{throughput2}'. All entity types mapped to the same container '{container}' must be configured with the same provisioned throughput.</value>

@@ -52,8 +52,6 @@ public static class CosmosDbContextOptionsExtensions
         Check.NotNull(optionsBuilder);
         Check.NotNull(cosmosOptionsAction);
 
-        ConfigureWarnings(optionsBuilder);
-
         cosmosOptionsAction.Invoke(new CosmosDbContextOptionsBuilder(optionsBuilder));
 
         return optionsBuilder;
@@ -119,8 +117,6 @@ public static class CosmosDbContextOptionsExtensions
             .WithAccountEndpoint(accountEndpoint)
             .WithAccountKey(accountKey)
             .WithDatabaseName(databaseName);
-
-        ConfigureWarnings(optionsBuilder);
 
         ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
 
@@ -190,8 +186,6 @@ public static class CosmosDbContextOptionsExtensions
             .WithTokenCredential(tokenCredential)
             .WithDatabaseName(databaseName);
 
-        ConfigureWarnings(optionsBuilder);
-
         ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
 
         cosmosOptionsAction?.Invoke(new CosmosDbContextOptionsBuilder(optionsBuilder));
@@ -253,25 +247,10 @@ public static class CosmosDbContextOptionsExtensions
             .WithConnectionString(connectionString)
             .WithDatabaseName(databaseName);
 
-        ConfigureWarnings(optionsBuilder);
-
         ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
 
         cosmosOptionsAction?.Invoke(new CosmosDbContextOptionsBuilder(optionsBuilder));
 
         return optionsBuilder;
-    }
-
-    private static void ConfigureWarnings(DbContextOptionsBuilder optionsBuilder)
-    {
-        var coreOptionsExtension
-            = optionsBuilder.Options.FindExtension<CoreOptionsExtension>()
-            ?? new CoreOptionsExtension();
-
-        coreOptionsExtension = coreOptionsExtension.WithWarningsConfiguration(
-            coreOptionsExtension.WarningsConfiguration.TryWithExplicit(
-                CosmosEventId.SyncNotSupported, WarningBehavior.Throw));
-
-        ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(coreOptionsExtension);
     }
 }
