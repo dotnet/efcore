@@ -122,7 +122,8 @@ public static class CosmosServiceCollectionExtensions
                 .TryAddScoped<ISqlExpressionFactory, SqlExpressionFactory>()
                 .TryAddScoped<IMemberTranslatorProvider, CosmosMemberTranslatorProvider>()
                 .TryAddScoped<IMethodCallTranslatorProvider, CosmosMethodCallTranslatorProvider>()
-                .TryAddScoped<ICosmosClientWrapper, CosmosClientWrapper>());
+                .TryAddScoped<ICosmosClientWrapper, CosmosClientWrapper>()
+                .TryAddScoped<ISessionTokenStorageFactory, SessionTokenStorageFactory>());
 
         builder.TryAddCoreServices();
 

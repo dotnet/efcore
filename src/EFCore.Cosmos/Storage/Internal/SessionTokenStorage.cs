@@ -1,7 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Runtime.InteropServices;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
@@ -14,10 +13,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 /// </summary>
 public class SessionTokenStorage : ISessionTokenStorage
 {
-    private bool _useSessionTokens = false;
-
-    private Dictionary<string, CompositeSessionToken> _containerSessionTokens = new();
+    private readonly Dictionary<string, CompositeSessionToken> _containerSessionTokens;
     private readonly string _defaultContainerName;
+    private readonly HashSet<string> _containerNames;
     private readonly SessionTokenManagementMode _mode;
 
     /// <summary>
@@ -26,12 +24,14 @@ public class SessionTokenStorage : ISessionTokenStorage
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public SessionTokenStorage(string defaultContainerName, SessionTokenManagementMode mode)
+    public SessionTokenStorage(string defaultContainerName, HashSet<string> containerNames, SessionTokenManagementMode mode)
     {
-        Debug.Assert(mode != SessionTokenManagementMode.FullyAutomatic, $"Use {nameof(NullSessionTokenStorage)} instead.");
-
+        Debug.Assert(containerNames.Contains(defaultContainerName));
         _defaultContainerName = defaultContainerName;
+        _containerNames = containerNames;
         _mode = mode;
+
+        _containerSessionTokens = containerNames.ToDictionary(x => x, x => new CompositeSessionToken());
     }
 
     /// <summary>
@@ -40,24 +40,37 @@ public class SessionTokenStorage : ISessionTokenStorage
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public void SetSessionTokens(IReadOnlyDictionary<string, string> sessionTokens)
+    public virtual void SetSessionTokens(IReadOnlyDictionary<string, string?> sessionTokens)
     {
-        _useSessionTokens = true;
-        _containerSessionTokens = sessionTokens.ToDictionary(x => x.Key, x => new CompositeSessionToken(x.Value));
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public void AppendSessionTokens(IReadOnlyDictionary<string, string> sessionTokens)
-    {
-        _useSessionTokens = true;
+        CheckMode();
         foreach (var sessionToken in sessionTokens)
         {
-            TrackSessionToken(sessionToken.Key, sessionToken.Value);
+            if (!_containerNames.Contains(sessionToken.Key))
+            {
+                throw new InvalidOperationException("invalid container name");
+            }
+
+            _containerSessionTokens[sessionToken.Key] = new CompositeSessionToken(sessionToken.Value, true);
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void AppendSessionTokens(IReadOnlyDictionary<string, string> sessionTokens)
+    {
+        CheckMode();
+        foreach (var sessionToken in sessionTokens)
+        {
+            if (!_containerNames.Contains(sessionToken.Key))
+            {
+                throw new InvalidOperationException("invalid container name");
+            }
+
+            _containerSessionTokens[sessionToken.Key].Add(sessionToken.Value, true);
         }
     }
 
@@ -69,8 +82,9 @@ public class SessionTokenStorage : ISessionTokenStorage
     /// </summary>
     public virtual void AppendDefaultContainerSessionToken(string sessionToken)
     {
-        _useSessionTokens = true;
-        TrackSessionToken(_defaultContainerName, sessionToken);
+        ArgumentException.ThrowIfNullOrWhiteSpace(sessionToken, nameof(sessionToken));
+        CheckMode();
+        _containerSessionTokens[_defaultContainerName].Add(sessionToken, true);
     }
 
     /// <summary>
@@ -79,10 +93,10 @@ public class SessionTokenStorage : ISessionTokenStorage
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void SetDefaultContainerSessionToken(string sessionToken)
+    public virtual void SetDefaultContainerSessionToken(string? sessionToken)
     {
-        _useSessionTokens = true;
-        _containerSessionTokens[_defaultContainerName] = new CompositeSessionToken(sessionToken);
+        CheckMode();
+        _containerSessionTokens[_defaultContainerName] = new CompositeSessionToken(sessionToken, true);
     }
 
     /// <summary>
@@ -91,7 +105,11 @@ public class SessionTokenStorage : ISessionTokenStorage
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IReadOnlyDictionary<string, string> GetTrackedTokens() => _containerSessionTokens.ToDictionary(x => x.Key, x => x.Value.ConvertToString());
+    public virtual IReadOnlyDictionary<string, string?> GetTrackedTokens()
+    {
+        CheckMode();
+        return _containerSessionTokens.ToDictionary(x => x.Key, x => x.Value.ConvertToString());
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -99,7 +117,11 @@ public class SessionTokenStorage : ISessionTokenStorage
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual string? GetDefaultContainerTrackedToken() => _containerSessionTokens.GetValueOrDefault(_defaultContainerName)?.ConvertToString();
+    public virtual string? GetDefaultContainerTrackedToken()
+    {
+        CheckMode();
+        return _containerSessionTokens[_defaultContainerName].ConvertToString();
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -111,22 +133,19 @@ public class SessionTokenStorage : ISessionTokenStorage
     {
         ArgumentNullException.ThrowIfNullOrWhiteSpace(containerName, nameof(containerName));
 
-        if (_mode == SessionTokenManagementMode.SemiAutomatic && !_useSessionTokens)
+        if (_mode == SessionTokenManagementMode.FullyAutomatic)
         {
             return null;
         }
 
-        if (!_containerSessionTokens.TryGetValue(containerName, out var value))
-        {
-            if (_mode == SessionTokenManagementMode.EnforcedManual)
-            {
-                throw new InvalidOperationException();
-            }
+        var sessionToken = _containerSessionTokens[containerName];
 
-            return null;
+        if (!sessionToken.IsSet && _mode == SessionTokenManagementMode.EnforcedManual)
+        {
+            throw new InvalidOperationException("No session token set for container while EnforcedManual");
         }
 
-        return value.ConvertToString();
+        return sessionToken.ConvertToString();
     }
 
     /// <summary>
@@ -140,15 +159,12 @@ public class SessionTokenStorage : ISessionTokenStorage
         ArgumentNullException.ThrowIfNullOrWhiteSpace(containerName, nameof(containerName));
         ArgumentNullException.ThrowIfNullOrWhiteSpace(sessionToken, nameof(sessionToken));
 
-        ref var compositeSessionToken = ref CollectionsMarshal.GetValueRefOrAddDefault(_containerSessionTokens, containerName, out var exists);
-        if (!exists)
+        if (_mode == SessionTokenManagementMode.FullyAutomatic)
         {
-            compositeSessionToken = new(sessionToken);
+            return;
         }
-        else
-        {
-            compositeSessionToken!.Add(sessionToken);
-        }
+
+        _containerSessionTokens[containerName].Add(sessionToken);
     }
 
     /// <summary>
@@ -159,8 +175,18 @@ public class SessionTokenStorage : ISessionTokenStorage
     /// </summary>
     public virtual void Clear()
     {
-        _useSessionTokens = false;
-        _containerSessionTokens.Clear();
+        foreach (var key in _containerSessionTokens.Keys)
+        {
+            _containerSessionTokens[key] = new CompositeSessionToken();
+        }
+    }
+
+    private void CheckMode()
+    {
+        if (_mode == SessionTokenManagementMode.FullyAutomatic)
+        {
+            throw new InvalidOperationException("Can't use session tokens with FullyAutomatic");
+        }
     }
 
     private sealed class CompositeSessionToken
@@ -169,11 +195,30 @@ public class SessionTokenStorage : ISessionTokenStorage
         private bool _isChanged;
         private readonly HashSet<string> _tokens = new();
 
-        public CompositeSessionToken(string token)
-            => Add(token);
-
-        public void Add(string token)
+        public CompositeSessionToken(string? token, bool isSet = false)
         {
+            if (token != null)
+            {
+                Add(token);
+            }
+            IsSet = isSet;
+        }
+
+        public CompositeSessionToken()
+        {
+        }
+
+        public bool IsSet { get; private set; }
+
+        public void Add(string token, bool isSet = false)
+        {
+            IsSet = IsSet || isSet;
+
+            if (token == null)
+            {
+                return;
+            }
+
             foreach (var tokenPart in token.Split(','))
             {
                 if (_tokens.Add(tokenPart))
@@ -183,15 +228,15 @@ public class SessionTokenStorage : ISessionTokenStorage
             }
         }
 
-        public string ConvertToString()
+        public string? ConvertToString()
         {
             if (_isChanged)
             {
                 _isChanged = false;
-                _string = string.Join(",", _tokens);
+                _string = IsSet && _tokens.Count == 0 ? null : string.Join(",", _tokens);
             }
 
-            return _string!;
+            return _string;
         }
     }
 }

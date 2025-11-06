@@ -28,7 +28,7 @@ public class NullSessionTokenStorage : ISessionTokenStorage
     public string? GetSessionToken(string containerName) => null;
 
     /// <inheritdoc/>
-    public IReadOnlyDictionary<string, string> GetTrackedTokens() => null!;
+    public IReadOnlyDictionary<string, string?> GetTrackedTokens() => null!;
 
     /// <inheritdoc/>
     public void TrackSessionToken(string containerName, string sessionToken) {}
@@ -37,5 +37,5 @@ public class NullSessionTokenStorage : ISessionTokenStorage
     public void SetDefaultContainerSessionToken(string sessionToken) {}
 
     /// <inheritdoc/>
-    public void SetSessionTokens(IReadOnlyDictionary<string, string> sessionTokens) {}
+    public void SetSessionTokens(IReadOnlyDictionary<string, string?> sessionTokens) {}
 }
