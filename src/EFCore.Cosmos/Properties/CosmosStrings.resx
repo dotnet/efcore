@@ -264,6 +264,10 @@
   <data name="MissingOrderingInSelectExpression" xml:space="preserve">
     <value>'Reverse' could not be translated to the server because there is no ordering on the server side.</value>
   </data>
+  <data name="MissingSessionTokenEnforceManual" xml:space="preserve">
+    <value>No session token has been set for container: {container}. While using EnforceManual you must always set a session token for any container used.</value>
+    <comment>string</comment>
+  </data>
   <data name="MultipleRootEntityTypesReferencedInQuery" xml:space="preserve">
     <value>Root entity type '{entityType1}' is referenced by the query, but '{entityType2}' is already being referenced. A query can only reference a single root entity type.</value>
   </data>

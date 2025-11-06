@@ -276,6 +276,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => GetString("MissingOrderingInSelectExpression");
 
         /// <summary>
+        ///     No session token has been set for container: {container}. While using EnforceManual you must always set a session token for any container used.
+        /// </summary>
+        public static string MissingSessionTokenEnforceManual(object? container)
+            => string.Format(
+                GetString("MissingSessionTokenEnforceManual", nameof(container)),
+                container);
+
+        /// <summary>
         ///     Root entity type '{entityType1}' is referenced by the query, but '{entityType2}' is already being referenced. A query can only reference a single root entity type.
         /// </summary>
         public static string MultipleRootEntityTypesReferencedInQuery(object? entityType1, object? entityType2)

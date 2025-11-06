@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure;
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 
@@ -47,7 +48,7 @@ public class SessionTokenStorage : ISessionTokenStorage
         {
             if (!_containerNames.Contains(sessionToken.Key))
             {
-                throw new InvalidOperationException("invalid container name");
+                throw new InvalidOperationException(CosmosStrings.ContainerNameDoesNotExist(sessionToken.Key));
             }
 
             _containerSessionTokens[sessionToken.Key] = new CompositeSessionToken(sessionToken.Value, true);
@@ -67,7 +68,7 @@ public class SessionTokenStorage : ISessionTokenStorage
         {
             if (!_containerNames.Contains(sessionToken.Key))
             {
-                throw new InvalidOperationException("invalid container name");
+                throw new InvalidOperationException(CosmosStrings.ContainerNameDoesNotExist("bad"));
             }
 
             _containerSessionTokens[sessionToken.Key].Add(sessionToken.Value, true);
@@ -142,7 +143,7 @@ public class SessionTokenStorage : ISessionTokenStorage
 
         if (!sessionToken.IsSet && _mode == SessionTokenManagementMode.EnforcedManual)
         {
-            throw new InvalidOperationException("No session token set for container while EnforcedManual");
+            throw new InvalidOperationException(CosmosStrings.MissingSessionTokenEnforceManual(containerName));
         }
 
         return sessionToken.ConvertToString();
@@ -185,7 +186,7 @@ public class SessionTokenStorage : ISessionTokenStorage
     {
         if (_mode == SessionTokenManagementMode.FullyAutomatic)
         {
-            throw new InvalidOperationException("Can't use session tokens with FullyAutomatic");
+            throw new InvalidOperationException(CosmosStrings.EnableManualSessionTokenManagement);
         }
     }
 

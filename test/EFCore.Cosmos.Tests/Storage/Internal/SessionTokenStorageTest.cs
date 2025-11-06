@@ -4,6 +4,7 @@
 #nullable enable
 
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure;
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 
@@ -68,7 +69,7 @@ public class SessionTokenStorageTest
         var storage = CreateStorage(mode);
         var ex = Assert.Throws<InvalidOperationException>(() =>
             storage.SetSessionTokens(new Dictionary<string, string?> { { "bad", "A" } }));
-        Assert.Equal("invalid container name", ex.Message);
+        Assert.Equal(CosmosStrings.ContainerNameDoesNotExist("bad"), ex.Message);
     }
 
     [ConditionalTheory]
@@ -103,7 +104,7 @@ public class SessionTokenStorageTest
         var storage = CreateStorage(mode);
         var ex = Assert.Throws<InvalidOperationException>(() =>
             storage.AppendSessionTokens(new Dictionary<string, string> { { "bad", "A" } }));
-        Assert.Equal("invalid container name", ex.Message);
+        Assert.Equal(CosmosStrings.ContainerNameDoesNotExist("bad"), ex.Message);
     }
 
     [ConditionalTheory]
@@ -443,7 +444,7 @@ public class SessionTokenStorageTest
         var storage = CreateStorage(SessionTokenManagementMode.FullyAutomatic);
         var ex = Assert.Throws<InvalidOperationException>(() =>
             storage.SetSessionTokens(new Dictionary<string, string?>()));
-        Assert.Equal("Can't use session tokens with FullyAutomatic", ex.Message);
+        Assert.Equal(CosmosStrings.EnableManualSessionTokenManagement, ex.Message);
     }
 
     [ConditionalFact]
@@ -451,7 +452,7 @@ public class SessionTokenStorageTest
     {
         var storage = CreateStorage(SessionTokenManagementMode.FullyAutomatic);
         var ex = Assert.Throws<InvalidOperationException>(() => storage.GetTrackedTokens());
-        Assert.Equal("Can't use session tokens with FullyAutomatic", ex.Message);
+        Assert.Equal(CosmosStrings.EnableManualSessionTokenManagement, ex.Message);
     }
 
     [ConditionalFact]
@@ -460,7 +461,7 @@ public class SessionTokenStorageTest
         var storage = CreateStorage(SessionTokenManagementMode.FullyAutomatic);
         var ex = Assert.Throws<InvalidOperationException>(() =>
             storage.AppendSessionTokens(new Dictionary<string, string>()));
-        Assert.Equal("Can't use session tokens with FullyAutomatic", ex.Message);
+        Assert.Equal(CosmosStrings.EnableManualSessionTokenManagement, ex.Message);
     }
 
     [ConditionalFact]
@@ -469,7 +470,7 @@ public class SessionTokenStorageTest
         var storage = CreateStorage(SessionTokenManagementMode.FullyAutomatic);
         var ex = Assert.Throws<InvalidOperationException>(() =>
             storage.SetDefaultContainerSessionToken(null));
-        Assert.Equal("Can't use session tokens with FullyAutomatic", ex.Message);
+        Assert.Equal(CosmosStrings.EnableManualSessionTokenManagement, ex.Message);
     }
 
     [ConditionalFact]
@@ -478,7 +479,7 @@ public class SessionTokenStorageTest
         var storage = CreateStorage(SessionTokenManagementMode.FullyAutomatic);
         var ex = Assert.Throws<InvalidOperationException>(() =>
             storage.AppendDefaultContainerSessionToken("A"));
-        Assert.Equal("Can't use session tokens with FullyAutomatic", ex.Message);
+        Assert.Equal(CosmosStrings.EnableManualSessionTokenManagement, ex.Message);
     }
 
     [ConditionalFact]
@@ -487,7 +488,7 @@ public class SessionTokenStorageTest
         var storage = CreateStorage(SessionTokenManagementMode.FullyAutomatic);
         var ex = Assert.Throws<InvalidOperationException>(() =>
             storage.GetDefaultContainerTrackedToken());
-        Assert.Equal("Can't use session tokens with FullyAutomatic", ex.Message);
+        Assert.Equal(CosmosStrings.EnableManualSessionTokenManagement, ex.Message);
     }
 
     [ConditionalFact]
@@ -519,7 +520,7 @@ public class SessionTokenStorageTest
         var storage = CreateStorage(SessionTokenManagementMode.EnforcedManual);
         var ex = Assert.Throws<InvalidOperationException>(() =>
             storage.GetSessionToken(_defaultContainerName));
-        Assert.Contains("No session token set for container while EnforcedManual", ex.Message);
+        Assert.Contains(CosmosStrings.MissingSessionTokenEnforceManual(_defaultContainerName), ex.Message);
     }
 
     [ConditionalFact]
@@ -539,7 +540,7 @@ public class SessionTokenStorageTest
         storage.Clear();
         var ex = Assert.Throws<InvalidOperationException>(() =>
             storage.GetSessionToken(_defaultContainerName));
-        Assert.Contains("No session token set for container while EnforcedManual", ex.Message);
+        Assert.Contains(CosmosStrings.MissingSessionTokenEnforceManual(_defaultContainerName), ex.Message);
     }
 
     [ConditionalFact]
@@ -575,7 +576,7 @@ public class SessionTokenStorageTest
 
         Assert.Equal("A", storage.GetSessionToken(_defaultContainerName));
         var ex = Assert.Throws<InvalidOperationException>(() => storage.GetSessionToken("other"));
-        Assert.Contains("No session token set for container while EnforcedManual", ex.Message);
+        Assert.Contains(CosmosStrings.MissingSessionTokenEnforceManual("other"), ex.Message);
     }
 
     [ConditionalFact]
@@ -584,7 +585,7 @@ public class SessionTokenStorageTest
         var storage = CreateStorage(SessionTokenManagementMode.EnforcedManual);
         storage.TrackSessionToken(_defaultContainerName, "A");
         var ex = Assert.Throws<InvalidOperationException>(() => storage.GetSessionToken(_defaultContainerName));
-        Assert.Contains("No session token set for container while EnforcedManual", ex.Message);
+        Assert.Contains(CosmosStrings.MissingSessionTokenEnforceManual(_defaultContainerName), ex.Message);
     }
 
     [ConditionalFact]
