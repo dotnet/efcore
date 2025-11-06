@@ -55,6 +55,10 @@
     <NoWarn>$(NoWarn.Replace(';1591', ''))</NoWarn>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <NuGetAuditLevel>moderate</NuGetAuditLevel>
+  </PropertyGroup>
+
   <ItemGroup>
     <AdditionalFiles Include="$(MSBuildThisFileDirectory)stylecop.json" />
   </ItemGroup>

@@ -6,6 +6,7 @@
     <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)..\rulesets\EFCore.test.ruleset</CodeAnalysisRuleSet>
     <LangVersion>preview</LangVersion>
     <DefaultNetCoreTargetFramework>net9.0</DefaultNetCoreTargetFramework>
+    <NuGetAudit>false</NuGetAudit>
   </PropertyGroup>
 
 </Project>

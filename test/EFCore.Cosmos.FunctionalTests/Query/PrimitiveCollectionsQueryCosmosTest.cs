@@ -1553,11 +1553,11 @@ ORDER BY c["Id"]
 
                 AssertSql(
                     """
-@__ints_0='[11,111]'
+@__p_0='[11,111]'
 
 SELECT VALUE c
 FROM root c
-WHERE (ARRAY_LENGTH(ARRAY_CONCAT(@__ints_0, c["Ints"])) = 2)
+WHERE (ARRAY_LENGTH(ARRAY_CONCAT(@__p_0, c["Ints"])) = 2)
 """);
             });
 
