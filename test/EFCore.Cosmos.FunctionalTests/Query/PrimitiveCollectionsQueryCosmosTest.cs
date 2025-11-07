@@ -1370,11 +1370,11 @@ ORDER BY c["Id"]
 
         AssertSql(
             """
-@ints='[11,111]'
+@p='[11,111]'
 
 SELECT VALUE c
 FROM root c
-WHERE (ARRAY_LENGTH(ARRAY_CONCAT(@ints, c["Ints"])) = 2)
+WHERE (ARRAY_LENGTH(ARRAY_CONCAT(@p, c["Ints"])) = 2)
 """);
     }
 
