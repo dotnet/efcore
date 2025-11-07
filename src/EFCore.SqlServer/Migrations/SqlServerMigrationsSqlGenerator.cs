@@ -363,7 +363,9 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             || !Equals(operation.DefaultValue, oldDefaultValue)
             || operation.DefaultValueSql != oldDefaultValueSql)
         {
-            DropDefaultConstraint(operation.Schema, operation.Table, operation.Name, builder);
+            var oldDefaultConstraintName = operation.OldColumn[RelationalAnnotationNames.DefaultConstraintName] as string;
+
+            DropDefaultConstraint(operation.Schema, operation.Table, operation.Name, oldDefaultConstraintName, builder);
             (oldDefaultValue, oldDefaultValueSql) = (null, null);
         }
 
@@ -379,11 +381,9 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             }
             else
             {
-                Check.DebugAssert(operation.DefaultValue is not null, "operation.DefaultValue is not null");
+                Check.DebugAssert(operation.DefaultValue is not null);
 
-                var typeMapping = (columnType != null
-                        ? Dependencies.TypeMappingSource.FindMapping(operation.DefaultValue.GetType(), columnType)
-                        : null)
+                var typeMapping = Dependencies.TypeMappingSource.FindMapping(operation.DefaultValue.GetType(), columnType)
                     ?? Dependencies.TypeMappingSource.GetMappingForValue(operation.DefaultValue);
 
                 defaultValueSql = typeMapping.GenerateSqlLiteral(operation.DefaultValue);
@@ -442,9 +442,8 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                 OldColumn = operation.OldColumn
             };
             definitionOperation.AddAnnotations(
-                operation.GetAnnotations().Where(
-                    a => a.Name != SqlServerAnnotationNames.ValueGenerationStrategy
-                        && a.Name != SqlServerAnnotationNames.Identity));
+                operation.GetAnnotations().Where(a => a.Name != SqlServerAnnotationNames.ValueGenerationStrategy
+                    && a.Name != SqlServerAnnotationNames.Identity));
 
             ColumnDefinition(
                 operation.Schema,
@@ -459,11 +458,13 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
         if (!Equals(operation.DefaultValue, oldDefaultValue) || operation.DefaultValueSql != oldDefaultValueSql)
         {
+            var defaultConstraintName = operation[RelationalAnnotationNames.DefaultConstraintName] as string;
+
             builder
                 .Append("ALTER TABLE ")
                 .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
                 .Append(" ADD");
-            DefaultValue(operation.DefaultValue, operation.DefaultValueSql, operation.ColumnType, builder);
+            DefaultValue(operation.DefaultValue, operation.DefaultValueSql, operation.ColumnType, defaultConstraintName, builder);
             builder
                 .Append(" FOR ")
                 .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name))
@@ -655,12 +656,12 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
                 var schemaVariable = Uniquify("@historyTableSchema");
                 builder
-                    .AppendLine($"DECLARE {schemaVariable} sysname = SCHEMA_NAME()")
+                    .AppendLine($"DECLARE {schemaVariable} nvarchar(max) = QUOTENAME(SCHEMA_NAME())")
                     .Append("EXEC(N'")
                     .Append(execBody);
 
                 historyTable = Dependencies.SqlGenerationHelper.DelimitIdentifier(historyTableName!);
-                tableCreationOptions.Add($"SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + {schemaVariable} + N'].{historyTable})");
+                tableCreationOptions.Add($"SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + {schemaVariable} + N'.{historyTable})");
             }
             else
             {
@@ -1118,8 +1119,8 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             var dbVariable = Uniquify("@db_name");
             builder
                 .AppendLine("BEGIN")
-                .AppendLine($"DECLARE {dbVariable} nvarchar(max) = DB_NAME();")
-                .AppendLine($"EXEC(N'ALTER DATABASE [' + {dbVariable} + '] MODIFY ( ")
+                .AppendLine($"DECLARE {dbVariable} nvarchar(max) = QUOTENAME(DB_NAME());")
+                .AppendLine($"EXEC(N'ALTER DATABASE ' + {dbVariable} + ' MODIFY ( ")
                 .Append(editionOptions.Replace("'", "''"))
                 .AppendLine(" );');")
                 .AppendLine("END")
@@ -1131,7 +1132,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             var dbVariable = Uniquify("@db_name");
             builder
                 .AppendLine("BEGIN")
-                .AppendLine($"DECLARE {dbVariable} nvarchar(max) = DB_NAME();");
+                .AppendLine($"DECLARE {dbVariable} nvarchar(max) = QUOTENAME(DB_NAME());");
 
             var collation = operation.Collation;
             if (operation.Collation == null)
@@ -1142,7 +1143,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             }
 
             builder
-                .AppendLine($"EXEC(N'ALTER DATABASE [' + {dbVariable} + '] COLLATE {collation};');")
+                .AppendLine($"EXEC(N'ALTER DATABASE ' + {dbVariable} + ' COLLATE {collation};');")
                 .AppendLine("END")
                 .AppendLine();
         }
@@ -1183,8 +1184,8 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                 {
                     builder
                         .AppendLine("BEGIN")
-                        .AppendLine($"SET @fg_name = {dbVariable} + N'_MODFG';")
-                        .AppendLine("EXEC(N'ALTER DATABASE CURRENT ADD FILEGROUP [' + @fg_name + '] CONTAINS MEMORY_OPTIMIZED_DATA;');")
+                        .AppendLine($"SET @fg_name = QUOTENAME({dbVariable} + N'_MODFG');")
+                        .AppendLine("EXEC(N'ALTER DATABASE CURRENT ADD FILEGROUP ' + @fg_name + ' CONTAINS MEMORY_OPTIMIZED_DATA;');")
                         .AppendLine("END");
                 }
 
@@ -1210,7 +1211,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                     builder
                         .AppendLine("ALTER DATABASE CURRENT")
                         .AppendLine("ADD FILE (NAME=''' + @filename + ''', filename=''' + @new_path + ''')")
-                        .AppendLine("TO FILEGROUP [' + @fg_name + '];')");
+                        .AppendLine("TO FILEGROUP ' + @fg_name + ';')");
                 }
 
                 builder.AppendLine("END");
@@ -1352,7 +1353,9 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         MigrationCommandListBuilder builder,
         bool terminate = true)
     {
-        DropDefaultConstraint(operation.Schema, operation.Table, operation.Name, builder);
+        var defaultConstraintName = operation[RelationalAnnotationNames.DefaultConstraintName] as string;
+
+        DropDefaultConstraint(operation.Schema, operation.Table, operation.Name, defaultConstraintName, builder);
         base.Generate(operation, model, builder, terminate: false);
 
         if (terminate)
@@ -1399,11 +1402,13 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             .Replace("\\\r\n", "")
             .Split(["\r\n", "\n"], StringSplitOptions.None);
 
+        var quoted = false;
         var batchBuilder = new StringBuilder();
         foreach (var line in preBatched)
         {
             var trimmed = line.TrimStart();
-            if (trimmed.StartsWith("GO", StringComparison.OrdinalIgnoreCase)
+            if (!quoted
+                && trimmed.StartsWith("GO", StringComparison.OrdinalIgnoreCase)
                 && (trimmed.Length == 2
                     || char.IsWhiteSpace(trimmed[2])))
             {
@@ -1411,7 +1416,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                 batchBuilder.Clear();
 
                 var count = trimmed.Length >= 4
-                    && int.TryParse(trimmed.Substring(3), out var specifiedCount)
+                    && int.TryParse(trimmed.AsSpan(3), out var specifiedCount)
                         ? specifiedCount
                         : 1;
 
@@ -1422,6 +1427,34 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             }
             else
             {
+                var commentStart = false;
+                foreach (var c in trimmed)
+                {
+                    switch (c)
+                    {
+                        case '\'':
+                            quoted = !quoted;
+                            commentStart = false;
+                            break;
+                        case '-':
+                            if (!quoted)
+                            {
+                                if (commentStart)
+                                {
+                                    goto LineEnd;
+                                }
+
+                                commentStart = true;
+                            }
+
+                            break;
+                        default:
+                            commentStart = false;
+                            break;
+                    }
+                }
+
+                LineEnd:
                 batchBuilder.AppendLine(line);
             }
         }
@@ -1517,6 +1550,32 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
     protected override void Generate(UpdateDataOperation operation, IModel? model, MigrationCommandListBuilder builder)
         => GenerateExecWhenIdempotent(builder, b => base.Generate(operation, model, b));
 
+    /// <summary>
+    ///     Generates a SQL fragment for the named default constraint of a column.
+    /// </summary>
+    /// <param name="defaultValue">The default value for the column.</param>
+    /// <param name="defaultValueSql">The SQL expression to use for the column's default constraint.</param>
+    /// <param name="columnType">Store/database type of the column.</param>
+    /// <param name="builder">The command builder to use to add the SQL fragment.</param>
+    /// <param name="constraintName">The constraint name to use to add the SQL fragment.</param>
+    protected virtual void DefaultValue(
+        object? defaultValue,
+        string? defaultValueSql,
+        string? columnType,
+        string? constraintName,
+        MigrationCommandListBuilder builder)
+    {
+        if (constraintName != null && (defaultValue != null || defaultValueSql != null))
+        {
+            builder
+                .Append(" CONSTRAINT [")
+                .Append(constraintName)
+                .Append("]");
+        }
+
+        base.DefaultValue(defaultValue, defaultValueSql, columnType, builder);
+    }
+
     /// <inheritdoc />
     protected override void SequenceOptions(
         string? schema,
@@ -1579,7 +1638,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             return;
         }
 
-        var columnType = operation.ColumnType ?? GetColumnType(schema, table, name, operation, model)!;
+        var columnType = operation.ColumnType ?? GetColumnType(schema, table, name, operation, model);
         builder
             .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(name))
             .Append(" ")
@@ -1609,11 +1668,13 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
         builder.Append(operation.IsNullable ? " NULL" : " NOT NULL");
 
+        var defaultConstraintName = operation[RelationalAnnotationNames.DefaultConstraintName] as string;
+
         if (!string.Equals(columnType, "rowversion", StringComparison.OrdinalIgnoreCase)
             && !string.Equals(columnType, "timestamp", StringComparison.OrdinalIgnoreCase))
         {
             // rowversion/timestamp columns cannot have default values, but also don't need them when adding a new column.
-            DefaultValue(operation.DefaultValue, operation.DefaultValueSql, columnType, builder);
+            DefaultValue(operation.DefaultValue, operation.DefaultValueSql, columnType, defaultConstraintName, builder);
         }
 
         var identity = operation[SqlServerAnnotationNames.Identity] as string;
@@ -1734,12 +1795,12 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
             var schemaVariable = Uniquify("@defaultSchema");
             builder
-                .AppendLine($"DECLARE {schemaVariable} sysname = SCHEMA_NAME();")
+                .AppendLine($"DECLARE {schemaVariable} nvarchar(max) = QUOTENAME(SCHEMA_NAME());")
                 .Append("EXEC(")
-                .Append($"N'ALTER SCHEMA [' + {schemaVariable} + ")
+                .Append($"N'ALTER SCHEMA ' + {schemaVariable} + ")
                 .Append(
                     stringTypeMapping.GenerateSqlLiteral(
-                        "] TRANSFER " + Dependencies.SqlGenerationHelper.DelimitIdentifier(name, schema) + ";"))
+                        " TRANSFER " + Dependencies.SqlGenerationHelper.DelimitIdentifier(name, schema) + ";"))
                 .AppendLine(");");
         }
         else
@@ -1893,13 +1954,28 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
     /// <param name="schema">The schema that contains the table.</param>
     /// <param name="tableName">The table that contains the column.</param>
     /// <param name="columnName">The column.</param>
+    /// <param name="defaultConstraintName">The name of the default constraint.</param>
     /// <param name="builder">The command builder to use to add the SQL fragment.</param>
     protected virtual void DropDefaultConstraint(
         string? schema,
         string tableName,
         string columnName,
+        string? defaultConstraintName,
         MigrationCommandListBuilder builder)
     {
+        if (defaultConstraintName != null)
+        {
+            builder
+                .Append("ALTER TABLE ")
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(tableName, schema))
+                .Append(" DROP CONSTRAINT [")
+                .Append(defaultConstraintName)
+                .Append("]")
+                .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+
+            return;
+        }
+
         var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
 
         var variable = Uniquify("@var");
@@ -1907,10 +1983,10 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         builder
             .Append("DECLARE ")
             .Append(variable)
-            .AppendLine(" sysname;")
+            .AppendLine(" nvarchar(max);")
             .Append("SELECT ")
             .Append(variable)
-            .AppendLine(" = [d].[name]")
+            .AppendLine(" = QUOTENAME([d].[name])")
             .AppendLine("FROM [sys].[default_constraints] [d]")
             .AppendLine(
                 "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]")
@@ -1926,10 +2002,10 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             .Append(" IS NOT NULL EXEC(")
             .Append(
                 stringTypeMapping.GenerateSqlLiteral(
-                    "ALTER TABLE " + Dependencies.SqlGenerationHelper.DelimitIdentifier(tableName, schema) + " DROP CONSTRAINT ["))
+                    "ALTER TABLE " + Dependencies.SqlGenerationHelper.DelimitIdentifier(tableName, schema) + " DROP CONSTRAINT "))
             .Append(" + ")
             .Append(variable)
-            .Append(" + ']")
+            .Append(" + '")
             .Append(Dependencies.SqlGenerationHelper.StatementTerminator)
             .Append("')")
             .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
@@ -3040,7 +3116,12 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                         var changeToSparse = alterColumnOperation.OldColumn[SqlServerAnnotationNames.Sparse] as bool? != true
                             && alterColumnOperation[SqlServerAnnotationNames.Sparse] as bool? == true;
 
-                        if (changeToNonNullable || changeToSparse)
+                        // for alter column removing default value we also need to disable versioning
+                        // because the default constraint needs to be removed from both main and history tables
+                        var removingDefaultValue = (alterColumnOperation.OldColumn.DefaultValue is not null || alterColumnOperation.OldColumn.DefaultValueSql is not null)
+                            && alterColumnOperation.DefaultValue is null && alterColumnOperation.DefaultValueSql is null;
+
+                        if (changeToNonNullable || changeToSparse || removingDefaultValue)
                         {
                             DisableVersioning(
                                 tableName!,
@@ -3194,7 +3275,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             {
                 schemaVariable = Uniquify("@historyTableSchema");
                 // need to run command using EXEC to inject default schema
-                stringBuilder.AppendLine($"DECLARE {schemaVariable} sysname = SCHEMA_NAME()");
+                stringBuilder.AppendLine($"DECLARE {schemaVariable} nvarchar(max) = QUOTENAME(SCHEMA_NAME())");
                 stringBuilder.Append("EXEC(N'");
             }
 
@@ -3213,7 +3294,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             else
             {
                 stringBuilder.AppendLine(
-                    $" SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + {schemaVariable} + '].{historyTable}))')");
+                    $" SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + {schemaVariable} + '.{historyTable}))')");
             }
 
             operations.Add(

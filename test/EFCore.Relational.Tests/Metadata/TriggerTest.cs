@@ -55,8 +55,7 @@ public class TriggerTest
 
         Assert.Equal(
             CoreStrings.DuplicateTrigger("SomeTrigger", entityType.DisplayName(), entityType.DisplayName()),
-            Assert.Throws<InvalidOperationException>(
-                () => entityType.AddTrigger("SomeTrigger")).Message);
+            Assert.Throws<InvalidOperationException>(() => entityType.AddTrigger("SomeTrigger")).Message);
     }
 
     [ConditionalFact]

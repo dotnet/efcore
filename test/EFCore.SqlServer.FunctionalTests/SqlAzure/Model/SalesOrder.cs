@@ -35,14 +35,12 @@ public class SalesOrder
     public string PurchaseOrderNumber { get; set; }
     public byte RevisionNumber { get; set; }
 
-    [Required]
-    [MaxLength(25)]
+    [Required, MaxLength(25)]
     public string SalesOrderNumber { get; set; }
 
     public DateTime? ShipDate { get; set; }
 
-    [Required]
-    [MaxLength(50)]
+    [Required, MaxLength(50)]
     public string ShipMethod { get; set; }
 
     public int? ShipToAddressID { get; set; }
@@ -55,8 +53,7 @@ public class SalesOrder
     [InverseProperty("SalesOrder")]
     public virtual ICollection<SalesOrderDetail> Details { get; set; }
 
-    [ForeignKey("CustomerID")]
-    [InverseProperty("Orders")]
+    [ForeignKey("CustomerID"), InverseProperty("Orders")]
     public virtual Customer Customer { get; set; }
 
     [ForeignKey("BillToAddressID")]

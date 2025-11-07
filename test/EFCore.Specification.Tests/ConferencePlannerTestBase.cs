@@ -24,209 +24,199 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
 
     [ConditionalFact]
     public virtual async Task AttendeesController_Get()
-        => await ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                var controller = new AttendeesController(context);
+        => await ExecuteWithStrategyInTransactionAsync(async context =>
+        {
+            var controller = new AttendeesController(context);
 
-                var attendee = await controller.Get("RainbowDash");
+            var attendee = await controller.Get("RainbowDash");
 
-                Assert.Equal("Rainbow", attendee.FirstName);
-                Assert.Equal("Dash", attendee.LastName);
-                Assert.Equal("RainbowDash", attendee.UserName);
-                Assert.Equal("sonicrainboom@sample.com", attendee.EmailAddress);
+            Assert.Equal("Rainbow", attendee.FirstName);
+            Assert.Equal("Dash", attendee.LastName);
+            Assert.Equal("RainbowDash", attendee.UserName);
+            Assert.Equal("sonicrainboom@sample.com", attendee.EmailAddress);
 
-                var sessions = attendee.Sessions;
+            var sessions = attendee.Sessions;
 
-                Assert.Equal(21, sessions.Count);
-                Assert.All(sessions, s => Assert.NotEmpty(s.Title));
-            });
+            Assert.Equal(21, sessions.Count);
+            Assert.All(sessions, s => Assert.NotEmpty(s.Title));
+        });
 
     [ConditionalFact]
     public virtual async Task AttendeesController_GetSessions()
-        => await ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                var controller = new AttendeesController(context);
+        => await ExecuteWithStrategyInTransactionAsync(async context =>
+        {
+            var controller = new AttendeesController(context);
 
-                var sessions = await controller.GetSessions("Princess");
+            var sessions = await controller.GetSessions("Princess");
 
-                Assert.Equal(21, sessions.Count);
-                Assert.All(sessions, s => Assert.NotEmpty(s.Abstract));
-                Assert.All(sessions, s => Assert.NotEmpty(s.Speakers));
-                Assert.All(sessions, s => Assert.NotNull(s.Track));
-            });
+            Assert.Equal(21, sessions.Count);
+            Assert.All(sessions, s => Assert.NotEmpty(s.Abstract));
+            Assert.All(sessions, s => Assert.NotEmpty(s.Speakers));
+            Assert.All(sessions, s => Assert.NotNull(s.Track));
+        });
 
     [ConditionalFact]
     public virtual async Task AttendeesController_Post_with_new_attendee()
-        => await ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                var controller = new AttendeesController(context);
+        => await ExecuteWithStrategyInTransactionAsync(async context =>
+        {
+            var controller = new AttendeesController(context);
 
-                var result = await controller.Post(
-                    new Attendee
-                    {
-                        EmailAddress = "discord@sample.com",
-                        FirstName = "",
-                        LastName = "Discord",
-                        UserName = "Discord!"
-                    });
+            var result = await controller.Post(
+                new Attendee
+                {
+                    EmailAddress = "discord@sample.com",
+                    FirstName = "",
+                    LastName = "Discord",
+                    UserName = "Discord!"
+                });
 
-                Assert.NotEqual(default, result.Id);
-                Assert.Equal("discord@sample.com", result.EmailAddress);
-                Assert.Equal("", result.FirstName);
-                Assert.Equal("Discord", result.LastName);
-                Assert.Equal("Discord!", result.UserName);
-                Assert.Null(result.Sessions);
-            });
+            Assert.NotEqual(default, result.Id);
+            Assert.Equal("discord@sample.com", result.EmailAddress);
+            Assert.Equal("", result.FirstName);
+            Assert.Equal("Discord", result.LastName);
+            Assert.Equal("Discord!", result.UserName);
+            Assert.Null(result.Sessions);
+        });
 
     [ConditionalFact]
     public virtual async Task AttendeesController_Post_with_existing_attendee()
-        => await ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                var controller = new AttendeesController(context);
+        => await ExecuteWithStrategyInTransactionAsync(async context =>
+        {
+            var controller = new AttendeesController(context);
 
-                var result = await controller.Post(
-                    new Attendee
-                    {
-                        EmailAddress = "pinkie@sample.com",
-                        FirstName = "Pinkie",
-                        LastName = "Pie",
-                        UserName = "Pinks"
-                    });
+            var result = await controller.Post(
+                new Attendee
+                {
+                    EmailAddress = "pinkie@sample.com",
+                    FirstName = "Pinkie",
+                    LastName = "Pie",
+                    UserName = "Pinks"
+                });
 
-                Assert.Null(result);
-            });
+            Assert.Null(result);
+        });
 
     [ConditionalFact]
     public virtual async Task AttendeesController_AddSession()
-        => await ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                var controller = new AttendeesController(context);
+        => await ExecuteWithStrategyInTransactionAsync(async context =>
+        {
+            var controller = new AttendeesController(context);
 
-                var pinky = context.Attendees.Single(a => a.UserName == "Pinks");
+            var pinky = context.Attendees.Single(a => a.UserName == "Pinks");
 
-                var pinkySessions = context.Sessions
+            var pinkySessions = context.Sessions
+                .AsNoTracking()
+                .Where(s => s.SessionAttendees.Any(e => e.Attendee.UserName == "Pinks"))
+                .ToList();
+
+            var session = context.Sessions.AsNoTracking().Single(e => e.Title == "Hidden gems in .NET Core 3");
+
+            Assert.Equal(21, pinkySessions.Count);
+
+            var result = (AttendeeResponse)await controller.AddSession("Pinks", session.Id);
+
+            Assert.Equal(22, result.Sessions.Count);
+            Assert.Contains(session.Id, result.Sessions.Select(s => s.Id));
+
+            Assert.Equal(pinky.Id, result.Id);
+            Assert.Equal(pinky.UserName, result.UserName);
+            Assert.Equal(pinky.FirstName, result.FirstName);
+            Assert.Equal(pinky.LastName, result.LastName);
+            Assert.Equal(pinky.EmailAddress, result.EmailAddress);
+
+            var existingSessionIds = pinkySessions.Select(s => s.Id).ToList();
+            var newSessionIds = result.Sessions.Select(r => r.Id).ToHashSet();
+            Assert.All(existingSessionIds, i => newSessionIds.Contains(i));
+
+            Assert.Equal(
+                result.Sessions.Select(r => r.Id).OrderBy(i => i).ToList(),
+                context.Sessions
                     .AsNoTracking()
                     .Where(s => s.SessionAttendees.Any(e => e.Attendee.UserName == "Pinks"))
-                    .ToList();
-
-                var session = context.Sessions.AsNoTracking().Single(e => e.Title == "Hidden gems in .NET Core 3");
-
-                Assert.Equal(21, pinkySessions.Count);
-
-                var result = (AttendeeResponse)await controller.AddSession("Pinks", session.Id);
-
-                Assert.Equal(22, result.Sessions.Count);
-                Assert.Contains(session.Id, result.Sessions.Select(s => s.Id));
-
-                Assert.Equal(pinky.Id, result.Id);
-                Assert.Equal(pinky.UserName, result.UserName);
-                Assert.Equal(pinky.FirstName, result.FirstName);
-                Assert.Equal(pinky.LastName, result.LastName);
-                Assert.Equal(pinky.EmailAddress, result.EmailAddress);
-
-                var existingSessionIds = pinkySessions.Select(s => s.Id).ToList();
-                var newSessionIds = result.Sessions.Select(r => r.Id).ToHashSet();
-                Assert.All(existingSessionIds, i => newSessionIds.Contains(i));
-
-                Assert.Equal(
-                    result.Sessions.Select(r => r.Id).OrderBy(i => i).ToList(),
-                    context.Sessions
-                        .AsNoTracking()
-                        .Where(s => s.SessionAttendees.Any(e => e.Attendee.UserName == "Pinks"))
-                        .Select(s => s.Id)
-                        .OrderBy(i => i)
-                        .ToList());
-            });
+                    .Select(s => s.Id)
+                    .OrderBy(i => i)
+                    .ToList());
+        });
 
     [ConditionalFact]
     public virtual async Task AttendeesController_AddSession_bad_session()
-        => await ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                var controller = new AttendeesController(context);
+        => await ExecuteWithStrategyInTransactionAsync(async context =>
+        {
+            var controller = new AttendeesController(context);
 
-                var result = (string)await controller.AddSession("Pinks", -777);
+            var result = (string)await controller.AddSession("Pinks", -777);
 
-                Assert.Equal("No session", result);
-            });
+            Assert.Equal("No session", result);
+        });
 
     [ConditionalFact]
     public virtual async Task AttendeesController_AddSession_bad_attendee()
-        => await ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                var controller = new AttendeesController(context);
+        => await ExecuteWithStrategyInTransactionAsync(async context =>
+        {
+            var controller = new AttendeesController(context);
 
-                var session = context.Sessions.AsNoTracking().Single(e => e.Title == "Hidden gems in .NET Core 3");
+            var session = context.Sessions.AsNoTracking().Single(e => e.Title == "Hidden gems in .NET Core 3");
 
-                var result = (string)await controller.AddSession("The Stig", session.Id);
+            var result = (string)await controller.AddSession("The Stig", session.Id);
 
-                Assert.Equal("No attendee", result);
-            });
+            Assert.Equal("No attendee", result);
+        });
 
     [ConditionalFact]
     public virtual async Task AttendeesController_RemoveSession()
-        => await ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                var controller = new AttendeesController(context);
+        => await ExecuteWithStrategyInTransactionAsync(async context =>
+        {
+            var controller = new AttendeesController(context);
 
-                var beforeRemove = context.Sessions
-                    .AsNoTracking()
-                    .Where(s => s.SessionAttendees.Any(e => e.Attendee.UserName == "Pinks"))
-                    .OrderBy(e => e.Id)
-                    .Select(e => e.Id)
-                    .ToList();
+            var beforeRemove = context.Sessions
+                .AsNoTracking()
+                .Where(s => s.SessionAttendees.Any(e => e.Attendee.UserName == "Pinks"))
+                .OrderBy(e => e.Id)
+                .Select(e => e.Id)
+                .ToList();
 
-                Assert.Equal(21, beforeRemove.Count);
+            Assert.Equal(21, beforeRemove.Count);
 
-                var sessionId = beforeRemove.First();
-                var result = await controller.RemoveSession("Pinks", sessionId);
+            var sessionId = beforeRemove.First();
+            var result = await controller.RemoveSession("Pinks", sessionId);
 
-                Assert.Equal("Success", result);
+            Assert.Equal("Success", result);
 
-                var afterRemove = context.Sessions
-                    .AsNoTracking()
-                    .Where(s => s.SessionAttendees.Any(e => e.Attendee.UserName == "Pinks"))
-                    .OrderBy(e => e.Id)
-                    .Select(e => e.Id)
-                    .ToList();
+            var afterRemove = context.Sessions
+                .AsNoTracking()
+                .Where(s => s.SessionAttendees.Any(e => e.Attendee.UserName == "Pinks"))
+                .OrderBy(e => e.Id)
+                .Select(e => e.Id)
+                .ToList();
 
-                Assert.Equal(20, afterRemove.Count);
-                Assert.DoesNotContain(sessionId, afterRemove);
-                Assert.All(afterRemove, s => Assert.Contains(s, beforeRemove));
-            });
+            Assert.Equal(20, afterRemove.Count);
+            Assert.DoesNotContain(sessionId, afterRemove);
+            Assert.All(afterRemove, s => Assert.Contains(s, beforeRemove));
+        });
 
     [ConditionalFact]
     public virtual async Task AttendeesController_RemoveSession_bad_session()
-        => await ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                var controller = new AttendeesController(context);
+        => await ExecuteWithStrategyInTransactionAsync(async context =>
+        {
+            var controller = new AttendeesController(context);
 
-                var result = await controller.RemoveSession("Pinks", -777);
+            var result = await controller.RemoveSession("Pinks", -777);
 
-                Assert.Equal("No session", result);
-            });
+            Assert.Equal("No session", result);
+        });
 
     [ConditionalFact]
     public virtual async Task AttendeesController_RemoveSession_bad_attendee()
-        => await ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                var controller = new AttendeesController(context);
+        => await ExecuteWithStrategyInTransactionAsync(async context =>
+        {
+            var controller = new AttendeesController(context);
 
-                var session = context.Sessions.AsNoTracking().Single(e => e.Title == "Hidden gems in .NET Core 3");
+            var session = context.Sessions.AsNoTracking().Single(e => e.Title == "Hidden gems in .NET Core 3");
 
-                var result = await controller.RemoveSession("The Stig", session.Id);
+            var result = await controller.RemoveSession("The Stig", session.Id);
 
-                Assert.Equal("No attendee", result);
-            });
+            Assert.Equal("No attendee", result);
+        });
 
     protected class AttendeesController(ApplicationDbContext db)
     {
@@ -330,37 +320,33 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
         }
     }
 
-    [ConditionalTheory]
-    [InlineData("ran", 5, 1)]
-    [InlineData("Scott", 1, 0)]
-    [InlineData("C#", 3, 3)]
+    [ConditionalTheory, InlineData("ran", 5, 1), InlineData("Scott", 1, 0), InlineData("C#", 3, 3)]
     public virtual async Task SearchController_Search(
         string searchTerm,
         int totalCount,
         int sessionCount)
-        => await ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                var controller = new SearchController(context);
+        => await ExecuteWithStrategyInTransactionAsync(async context =>
+        {
+            var controller = new SearchController(context);
 
-                var results = await controller.Search(
-                    new SearchTerm { Query = searchTerm });
+            var results = await controller.Search(
+                new SearchTerm { Query = searchTerm });
 
-                Assert.Equal(totalCount, results.Count);
+            Assert.Equal(totalCount, results.Count);
 
-                var sessions = results.Where(r => r.Type == SearchResultType.Session).Select(r => r.Session).ToList();
-                var speakers = results.Where(r => r.Type == SearchResultType.Speaker).Select(r => r.Speaker).ToList();
+            var sessions = results.Where(r => r.Type == SearchResultType.Session).Select(r => r.Session).ToList();
+            var speakers = results.Where(r => r.Type == SearchResultType.Speaker).Select(r => r.Speaker).ToList();
 
-                Assert.Equal(sessionCount, sessions.Count);
-                Assert.Equal(totalCount - sessionCount, speakers.Count);
+            Assert.Equal(sessionCount, sessions.Count);
+            Assert.Equal(totalCount - sessionCount, speakers.Count);
 
-                Assert.All(sessions, s => Assert.NotEqual(default, s.Id));
-                Assert.All(sessions, s => Assert.NotEmpty(s.Speakers));
-                Assert.All(sessions, s => Assert.NotNull(s.Track));
+            Assert.All(sessions, s => Assert.NotEqual(default, s.Id));
+            Assert.All(sessions, s => Assert.NotEmpty(s.Speakers));
+            Assert.All(sessions, s => Assert.NotNull(s.Track));
 
-                Assert.All(speakers, s => Assert.NotEqual(default, s.Id));
-                Assert.All(speakers, s => Assert.NotEmpty(s.Sessions));
-            });
+            Assert.All(speakers, s => Assert.NotEqual(default, s.Id));
+            Assert.All(speakers, s => Assert.NotEmpty(s.Sessions));
+        });
 
     protected class SearchController(ApplicationDbContext db)
     {
@@ -373,26 +359,24 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
                 .Include(s => s.Track)
                 .Include(s => s.SessionSpeakers)
                 .ThenInclude(ss => ss.Speaker)
-                .Where(
-                    s =>
-                        s.Title.Contains(query) || s.Track.Name.Contains(query)
+                .Where(s =>
+                    s.Title.Contains(query) || s.Track.Name.Contains(query)
                 )
                 .ToListAsync();
 
             var speakerResults = await _db.Speakers
                 .Include(s => s.SessionSpeakers)
                 .ThenInclude(ss => ss.Session)
-                .Where(
-                    s =>
-                        s.Name.Contains(query) || s.Bio.Contains(query) || s.WebSite.Contains(query)
+                .Where(s =>
+                    s.Name.Contains(query) || s.Bio.Contains(query) || s.WebSite.Contains(query)
                 )
                 .ToListAsync();
 
-            var results = sessionResults.Select(
-                    session => new SearchResult { Type = SearchResultType.Session, Session = session.MapSessionResponse() })
+            var results = sessionResults.Select(session
+                    => new SearchResult { Type = SearchResultType.Session, Session = session.MapSessionResponse() })
                 .Concat(
-                    speakerResults.Select(
-                        speaker => new SearchResult { Type = SearchResultType.Speaker, Speaker = speaker.MapSpeakerResponse() }));
+                    speakerResults.Select(speaker
+                        => new SearchResult { Type = SearchResultType.Speaker, Speaker = speaker.MapSpeakerResponse() }));
 
             return results.ToList();
         }
@@ -400,145 +384,137 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
 
     [ConditionalFact]
     public virtual async Task SessionsController_Get()
-        => await ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                var controller = new SessionsController(context);
+        => await ExecuteWithStrategyInTransactionAsync(async context =>
+        {
+            var controller = new SessionsController(context);
 
-                var results = await controller.Get();
+            var results = await controller.Get();
 
-                Assert.Equal(57, results.Count);
+            Assert.Equal(57, results.Count);
 
-                Assert.All(results, s => Assert.NotEqual(default, s.Id));
-                Assert.All(results, s => Assert.NotEmpty(s.Speakers));
-                Assert.All(results, s => Assert.NotNull(s.Track));
-            });
+            Assert.All(results, s => Assert.NotEqual(default, s.Id));
+            Assert.All(results, s => Assert.NotEmpty(s.Speakers));
+            Assert.All(results, s => Assert.NotNull(s.Track));
+        });
 
     [ConditionalFact]
     public virtual async Task SessionsController_Get_with_ID()
-        => await ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                var session = context.Sessions.AsNoTracking().Single(e => e.Title.StartsWith("C# and Rust: combining "));
+        => await ExecuteWithStrategyInTransactionAsync(async context =>
+        {
+            var session = context.Sessions.AsNoTracking().Single(e => e.Title.StartsWith("C# and Rust: combining "));
 
-                var controller = new SessionsController(context);
+            var controller = new SessionsController(context);
 
-                var result = await controller.Get(session.Id);
+            var result = await controller.Get(session.Id);
 
-                Assert.Equal(session.Id, result.Id);
-                Assert.NotEmpty(result.Speakers);
-                Assert.NotNull(result.Track);
-            });
+            Assert.Equal(session.Id, result.Id);
+            Assert.NotEmpty(result.Speakers);
+            Assert.NotNull(result.Track);
+        });
 
     [ConditionalFact]
     public virtual async Task SessionsController_Get_with_bad_ID()
-        => await ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                var controller = new SessionsController(context);
+        => await ExecuteWithStrategyInTransactionAsync(async context =>
+        {
+            var controller = new SessionsController(context);
 
-                var result = await controller.Get(-777);
+            var result = await controller.Get(-777);
 
-                Assert.Null(result);
-            });
+            Assert.Null(result);
+        });
 
     [ConditionalFact]
     public virtual async Task SessionsController_Post()
-        => await ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                var track = context.Tracks.AsNoTracking().OrderBy(e => e.Id).First();
+        => await ExecuteWithStrategyInTransactionAsync(async context =>
+        {
+            var track = context.Tracks.AsNoTracking().OrderBy(e => e.Id).First();
 
-                var controller = new SessionsController(context);
+            var controller = new SessionsController(context);
 
-                var result = await controller.Post(
-                    new Session
-                    {
-                        Abstract = "Pandas eat bamboo all dat.",
-                        Title = "Pandas!",
-                        StartTime = DateTimeOffset.Now,
-                        EndTime = DateTimeOffset.Now.AddHours(1),
-                        TrackId = track.Id
-                    });
+            var result = await controller.Post(
+                new Session
+                {
+                    Abstract = "Pandas eat bamboo all dat.",
+                    Title = "Pandas!",
+                    StartTime = DateTimeOffset.Now,
+                    EndTime = DateTimeOffset.Now.AddHours(1),
+                    TrackId = track.Id
+                });
 
-                var newSession = context.Sessions.AsNoTracking().Single(e => e.Title == "Pandas!");
+            var newSession = context.Sessions.AsNoTracking().Single(e => e.Title == "Pandas!");
 
-                Assert.Equal(newSession.Id, result.Id);
-                Assert.Null(result.Speakers);
-                Assert.NotNull(result.Track);
-                Assert.Equal(track.Id, result.Track.Id);
-            });
+            Assert.Equal(newSession.Id, result.Id);
+            Assert.Null(result.Speakers);
+            Assert.NotNull(result.Track);
+            Assert.Equal(track.Id, result.Track.Id);
+        });
 
     [ConditionalFact]
     public virtual async Task SessionsController_Put()
-        => await ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                var session = context.Sessions.AsNoTracking().Single(e => e.Title.StartsWith("C# and Rust: combining "));
+        => await ExecuteWithStrategyInTransactionAsync(async context =>
+        {
+            var session = context.Sessions.AsNoTracking().Single(e => e.Title.StartsWith("C# and Rust: combining "));
 
-                var controller = new SessionsController(context);
+            var controller = new SessionsController(context);
 
-                var result = await controller.Put(
-                    session.Id,
-                    new Session
-                    {
-                        Id = session.Id,
-                        Abstract = session.Abstract,
-                        Title = session.Title.Replace("C#", "F#"),
-                        StartTime = session.StartTime,
-                        EndTime = session.EndTime,
-                        TrackId = session.TrackId
-                    });
+            var result = await controller.Put(
+                session.Id,
+                new Session
+                {
+                    Id = session.Id,
+                    Abstract = session.Abstract,
+                    Title = session.Title.Replace("C#", "F#"),
+                    StartTime = session.StartTime,
+                    EndTime = session.EndTime,
+                    TrackId = session.TrackId
+                });
 
-                Assert.Equal("Success", result);
+            Assert.Equal("Success", result);
 
-                var updatedSession = context.Sessions.AsNoTracking().Single(e => e.Id == session.Id);
+            var updatedSession = context.Sessions.AsNoTracking().Single(e => e.Id == session.Id);
 
-                Assert.Equal(session.Id, updatedSession.Id);
-                Assert.StartsWith("F# and Rust: combining ", updatedSession.Title);
-            });
+            Assert.Equal(session.Id, updatedSession.Id);
+            Assert.StartsWith("F# and Rust: combining ", updatedSession.Title);
+        });
 
     [ConditionalFact]
     public virtual async Task SessionsController_Put_with_bad_ID()
-        => await ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                var controller = new SessionsController(context);
+        => await ExecuteWithStrategyInTransactionAsync(async context =>
+        {
+            var controller = new SessionsController(context);
 
-                var result = await controller.Put(-777, new Session());
+            var result = await controller.Put(-777, new Session());
 
-                Assert.Equal("Not found", result);
-            });
+            Assert.Equal("Not found", result);
+        });
 
     [ConditionalFact]
     public virtual async Task SessionsController_Delete()
-        => await ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                var session = context.Sessions.AsNoTracking().Single(e => e.Title.StartsWith("C# and Rust: combining "));
+        => await ExecuteWithStrategyInTransactionAsync(async context =>
+        {
+            var session = context.Sessions.AsNoTracking().Single(e => e.Title.StartsWith("C# and Rust: combining "));
 
-                var controller = new SessionsController(context);
+            var controller = new SessionsController(context);
 
-                var result = await controller.Delete(session.Id);
+            var result = await controller.Delete(session.Id);
 
-                Assert.Equal(session.Id, result.Id);
-                Assert.Null(result.Speakers);
-                Assert.NotNull(result.Track);
+            Assert.Equal(session.Id, result.Id);
+            Assert.Null(result.Speakers);
+            Assert.NotNull(result.Track);
 
-                Assert.Null(context.Sessions.AsNoTracking().SingleOrDefault(e => e.Id == session.Id));
-            });
+            Assert.Null(context.Sessions.AsNoTracking().SingleOrDefault(e => e.Id == session.Id));
+        });
 
     [ConditionalFact]
     public virtual async Task SessionsController_Delete_with_bad_ID()
-        => await ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                var controller = new SessionsController(context);
+        => await ExecuteWithStrategyInTransactionAsync(async context =>
+        {
+            var controller = new SessionsController(context);
 
-                var result = await controller.Delete(-777);
+            var result = await controller.Delete(-777);
 
-                Assert.Null(result);
-            });
+            Assert.Null(result);
+        });
 
     protected class SessionsController(ApplicationDbContext db)
     {
@@ -619,45 +595,42 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
 
     [ConditionalFact]
     public virtual async Task SpeakersController_GetSpeakers()
-        => await ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                var controller = new SpeakersController(context);
+        => await ExecuteWithStrategyInTransactionAsync(async context =>
+        {
+            var controller = new SpeakersController(context);
 
-                var results = await controller.GetSpeakers();
+            var results = await controller.GetSpeakers();
 
-                Assert.Equal(70, results.Count);
+            Assert.Equal(70, results.Count);
 
-                Assert.All(results, s => Assert.NotEqual(default, s.Id));
-                Assert.All(results, s => Assert.NotEmpty(s.Sessions));
-            });
+            Assert.All(results, s => Assert.NotEqual(default, s.Id));
+            Assert.All(results, s => Assert.NotEmpty(s.Sessions));
+        });
 
     [ConditionalFact]
     public virtual async Task SpeakersController_GetSpeaker_with_ID()
-        => await ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                var speaker = context.Speakers.AsNoTracking().Single(e => e.Name == "Julie Lerman");
+        => await ExecuteWithStrategyInTransactionAsync(async context =>
+        {
+            var speaker = context.Speakers.AsNoTracking().Single(e => e.Name == "Julie Lerman");
 
-                var controller = new SpeakersController(context);
+            var controller = new SpeakersController(context);
 
-                var result = await controller.GetSpeaker(speaker.Id);
+            var result = await controller.GetSpeaker(speaker.Id);
 
-                Assert.Equal(speaker.Id, result.Id);
-                Assert.NotEmpty(result.Sessions);
-            });
+            Assert.Equal(speaker.Id, result.Id);
+            Assert.NotEmpty(result.Sessions);
+        });
 
     [ConditionalFact]
     public virtual async Task SpeakersController_GetSpeaker_with_bad_ID()
-        => await ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                var controller = new SpeakersController(context);
+        => await ExecuteWithStrategyInTransactionAsync(async context =>
+        {
+            var controller = new SpeakersController(context);
 
-                var result = await controller.GetSpeaker(-777);
+            var result = await controller.GetSpeaker(-777);
 
-                Assert.Null(result);
-            });
+            Assert.Null(result);
+        });
 
     protected class SpeakersController(ApplicationDbContext db)
     {
@@ -812,8 +785,8 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
                             EndTime = sessionJson.GetProperty("endsAt").GetDateTime()
                         };
 
-                        session.SessionSpeakers = sessionSpeakers.Select(
-                            s => new SessionSpeaker { Session = session, Speaker = s }).ToList();
+                        session.SessionSpeakers =
+                            sessionSpeakers.Select(s => new SessionSpeaker { Session = session, Speaker = s }).ToList();
 
                         var trackName = track.Name;
                         var attendees = trackName.Contains("1") ? attendees1
@@ -821,8 +794,7 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
                             : trackName.Contains("3") ? attendees3
                             : attendees1.Concat(attendees2).Concat(attendees3).ToList();
 
-                        session.SessionAttendees = attendees.Select(
-                            a => new SessionAttendee { Session = session, Attendee = a }).ToList();
+                        session.SessionAttendees = attendees.Select(a => new SessionAttendee { Session = session, Attendee = a }).ToList();
 
                         track.Sessions.Add(session);
                     }
