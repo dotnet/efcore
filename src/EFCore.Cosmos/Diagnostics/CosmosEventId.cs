@@ -25,7 +25,8 @@ public static class CosmosEventId
     private enum Id
     {
         // Database events
-        SyncNotSupported = CoreEventId.ProviderBaseId, // No longer supported, we fully removed sync I/O
+        [Obsolete("Synchronous I/O has been fully removed and now always throws.")]
+        SyncNotSupported = CoreEventId.ProviderBaseId,
 
         // Command events
         ExecutingSqlQuery = CoreEventId.ProviderBaseId + 100,

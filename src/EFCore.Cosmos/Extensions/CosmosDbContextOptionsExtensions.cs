@@ -253,4 +253,13 @@ public static class CosmosDbContextOptionsExtensions
 
         return optionsBuilder;
     }
+
+    private static void ConfigureWarnings(DbContextOptionsBuilder optionsBuilder)
+    {
+        var coreOptionsExtension
+            = optionsBuilder.Options.FindExtension<CoreOptionsExtension>()
+            ?? new CoreOptionsExtension();
+
+        ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(coreOptionsExtension);
+    }
 }
