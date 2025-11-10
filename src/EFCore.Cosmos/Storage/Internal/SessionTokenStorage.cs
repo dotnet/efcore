@@ -18,6 +18,7 @@ public class SessionTokenStorage : ISessionTokenStorage
     private readonly string _defaultContainerName;
     private readonly HashSet<string> _containerNames;
     private readonly SessionTokenManagementMode _mode;
+    private readonly string? _defaultToken;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -31,8 +32,9 @@ public class SessionTokenStorage : ISessionTokenStorage
         _defaultContainerName = defaultContainerName;
         _containerNames = containerNames;
         _mode = mode;
+        _defaultToken = _mode == SessionTokenManagementMode.Manual || _mode == SessionTokenManagementMode.EnforcedManual ? "" : null;
 
-        _containerSessionTokens = containerNames.ToDictionary(x => x, x => new CompositeSessionToken());
+        _containerSessionTokens = containerNames.ToDictionary(x => x, x => new CompositeSessionToken(_defaultToken));
     }
 
     /// <summary>
@@ -186,7 +188,7 @@ public class SessionTokenStorage : ISessionTokenStorage
     {
         foreach (var key in _containerSessionTokens.Keys)
         {
-            _containerSessionTokens[key] = new CompositeSessionToken();
+            _containerSessionTokens[key] = new CompositeSessionToken(_defaultToken);
         }
     }
 
@@ -211,10 +213,6 @@ public class SessionTokenStorage : ISessionTokenStorage
                 Add(token);
             }
             IsSet = isSet;
-        }
-
-        public CompositeSessionToken()
-        {
         }
 
         public bool IsSet { get; private set; }

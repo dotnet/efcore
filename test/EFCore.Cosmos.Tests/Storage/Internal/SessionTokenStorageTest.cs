@@ -31,7 +31,14 @@ public class SessionTokenStorageTest
         AssertDefault(storage, "A");
         if (mode != SessionTokenManagementMode.EnforcedManual)
         {
-            AssertOther(storage, null);
+            if (mode == SessionTokenManagementMode.Manual)
+            {
+                AssertOther(storage, "");
+            }
+            else
+            {
+                AssertOther(storage, null);
+            }
         }
     }
 
@@ -47,7 +54,14 @@ public class SessionTokenStorageTest
 
         if (mode != SessionTokenManagementMode.EnforcedManual)
         {
-            AssertDefault(storage, null);
+            if (mode == SessionTokenManagementMode.Manual)
+            {
+                AssertDefault(storage, "");
+            }
+            else
+            {
+                AssertDefault(storage, null);
+            }
         }
         AssertOther(storage, "A");
     }
@@ -157,7 +171,14 @@ public class SessionTokenStorageTest
 
         if (mode != SessionTokenManagementMode.EnforcedManual)
         {
-            AssertOther(storage, null);
+            if (mode == SessionTokenManagementMode.Manual)
+            {
+                AssertOther(storage, "");
+            }
+            else
+            {
+                AssertOther(storage, null);
+            }
         }
     }
 
@@ -175,7 +196,14 @@ public class SessionTokenStorageTest
 
         if (mode != SessionTokenManagementMode.EnforcedManual)
         {
-            AssertOther(storage, null);
+            if (mode == SessionTokenManagementMode.Manual)
+            {
+                AssertOther(storage, "");
+            }
+            else
+            {
+                AssertOther(storage, null);
+            }
         }
     }
 
@@ -192,7 +220,14 @@ public class SessionTokenStorageTest
         AssertDefault(storage, "B");
         if (mode != SessionTokenManagementMode.EnforcedManual)
         {
-            AssertOther(storage, null);
+            if (mode == SessionTokenManagementMode.Manual)
+            {
+                AssertOther(storage, "");
+            }
+            else
+            {
+                AssertOther(storage, null);
+            }
         }
     }
 
@@ -209,7 +244,14 @@ public class SessionTokenStorageTest
 
         if (mode != SessionTokenManagementMode.EnforcedManual)
         {
-            AssertOther(storage, null);
+            if (mode == SessionTokenManagementMode.Manual)
+            {
+                AssertOther(storage, "");
+            }
+            else
+            {
+                AssertOther(storage, null);
+            }
         }
     }
 
@@ -227,7 +269,14 @@ public class SessionTokenStorageTest
 
         if (mode != SessionTokenManagementMode.EnforcedManual)
         {
-            AssertOther(storage, null);
+            if (mode == SessionTokenManagementMode.Manual)
+            {
+                AssertOther(storage, "");
+            }
+            else
+            {
+                AssertOther(storage, null);
+            }
         }
     }
 
@@ -244,7 +293,14 @@ public class SessionTokenStorageTest
         AssertDefault(storage, "A");
         if (mode != SessionTokenManagementMode.EnforcedManual)
         {
-            AssertOther(storage, null);
+            if (mode == SessionTokenManagementMode.Manual)
+            {
+                AssertOther(storage, "");
+            }
+            else
+            {
+                AssertOther(storage, null);
+            }
         }
     }
 
@@ -261,7 +317,14 @@ public class SessionTokenStorageTest
         AssertDefault(storage, "A,B");
         if (mode != SessionTokenManagementMode.EnforcedManual)
         {
-            AssertOther(storage, null);
+            if (mode == SessionTokenManagementMode.Manual)
+            {
+                AssertOther(storage, "");
+            }
+            else
+            {
+                AssertOther(storage, null);
+            }
         }
     }
 
@@ -278,7 +341,14 @@ public class SessionTokenStorageTest
         AssertDefault(storage, "A");
         if (mode != SessionTokenManagementMode.EnforcedManual)
         {
-            AssertOther(storage, null);
+            if (mode == SessionTokenManagementMode.Manual)
+            {
+                AssertOther(storage, "");
+            }
+            else
+            {
+                AssertOther(storage, null);
+            }
         }
     }
 
@@ -315,7 +385,14 @@ public class SessionTokenStorageTest
 
         if (mode != SessionTokenManagementMode.EnforcedManual)
         {
-            AssertDefault(storage, null);
+            if (mode == SessionTokenManagementMode.Manual)
+            {
+                AssertDefault(storage, "");
+            }
+            else
+            {
+                AssertDefault(storage, null);
+            }
         }
         AssertOther(storage, "B");
     }
@@ -490,9 +567,16 @@ public class SessionTokenStorageTest
         }
         else if (mode != SessionTokenManagementMode.EnforcedManual)
         {
-            
-            AssertDefaultUsed(storage, null);
-            AssertOtherUsed(storage, null);
+            if (mode == SessionTokenManagementMode.Manual)
+            {
+                AssertDefaultUsed(storage, "");
+                AssertOtherUsed(storage, "");
+            }
+            else
+            {
+                AssertDefaultUsed(storage, null);
+                AssertOtherUsed(storage, null);
+            }
         }
     }
 
@@ -520,10 +604,18 @@ public class SessionTokenStorageTest
             AssertDefaultUsed(storage, "A,B");
             AssertOtherUsed(storage, "A,C");
         }
-        else if(mode != SessionTokenManagementMode.EnforcedManual)
+        else if (mode != SessionTokenManagementMode.EnforcedManual)
         {
-            AssertDefaultUsed(storage, null);
-            AssertOtherUsed(storage, null);
+            if (mode == SessionTokenManagementMode.Manual)
+            {
+                AssertDefaultUsed(storage, "");
+                AssertOtherUsed(storage, "");
+            }
+            else
+            {
+                AssertDefaultUsed(storage, null);
+                AssertOtherUsed(storage, null);
+            }
         }
     }
 
@@ -588,11 +680,11 @@ public class SessionTokenStorageTest
     }
 
     // ================================================================
-    // SEMI-AUTOMATIC MODE SPECIFIC TESTS
+    // SEMI-AUTOMATIC SPECIFIC TESTS
     // ================================================================
 
     [ConditionalFact]
-    public virtual void SemiAutomatic_WhenTrackingToken_SetsButDoesntUseToken()
+    public virtual void SemiAutomatic_WhenTrackingToken_SetsButDoesnotUseToken()
     {
         var storage = CreateStorage(SessionTokenManagementMode.SemiAutomatic);
         storage.TrackSessionToken(_defaultContainerName, "A");
@@ -607,6 +699,39 @@ public class SessionTokenStorageTest
         storage.TrackSessionToken(_defaultContainerName, "A");
         storage.AppendDefaultContainerSessionToken("A");
         AssertDefault(storage, "A");
+    }
+
+    // ================================================================
+    // MANUAL SPECIFIC TESTS
+    // ================================================================
+
+    [ConditionalFact]
+    public virtual void Manual_Constructor_AllContainersHaveEmptyString()
+    {
+        var storage = CreateStorage(SessionTokenManagementMode.Manual);
+
+        var tokens = storage.GetTrackedTokens();
+        Assert.True(tokens[_defaultContainerName] == "");
+        Assert.True(tokens[_otherContainerName] == "");
+        Assert.True(storage.GetDefaultContainerTrackedToken() == "");
+        Assert.True(storage.GetSessionToken(_defaultContainerName) == "");
+        Assert.True(storage.GetSessionToken(_otherContainerName) == "");
+    }
+
+    [ConditionalFact]
+    public virtual void Manual_Clear_ResetsAllContainersToEmptyString()
+    {
+        var storage = CreateStorage(SessionTokenManagementMode.Manual);
+
+        storage.AppendSessionTokens(new Dictionary<string, string> { { _defaultContainerName, "A" }, { _otherContainerName, "B" } });
+        storage.Clear();
+
+        var tokens = storage.GetTrackedTokens();
+        Assert.True(tokens[_defaultContainerName] == "");
+        Assert.True(tokens[_otherContainerName] == "");
+        Assert.True(storage.GetDefaultContainerTrackedToken() == "");
+        Assert.True(storage.GetSessionToken(_defaultContainerName) == "");
+        Assert.True(storage.GetSessionToken(_otherContainerName) == "");
     }
 
     // ================================================================
@@ -631,20 +756,33 @@ public class SessionTokenStorageTest
     [InlineData(SessionTokenManagementMode.SemiAutomatic)]
     [InlineData(SessionTokenManagementMode.Manual)]
     [InlineData(SessionTokenManagementMode.EnforcedManual)]
-    public virtual void Clear_WhenClearingSetTokens_ResetsAllContainersToNull(SessionTokenManagementMode mode)
+    public virtual void Clear_WhenClearingSetTokens_ResetsAllContainers(SessionTokenManagementMode mode)
     {
         var storage = CreateStorage(mode);
 
         storage.AppendSessionTokens(new Dictionary<string, string> { { _defaultContainerName, "A" }, { _otherContainerName, "B" } });
         storage.Clear();
-
+        
         var tokens = storage.GetTrackedTokens();
-        Assert.Null(tokens[_defaultContainerName]);
-        Assert.Null(tokens[_otherContainerName]);
-        Assert.Null(storage.GetDefaultContainerTrackedToken());
 
-        if (mode != SessionTokenManagementMode.EnforcedManual)
+        if (mode == SessionTokenManagementMode.Manual || mode == SessionTokenManagementMode.EnforcedManual)
         {
+            Assert.True(tokens[_defaultContainerName] == "");
+            Assert.True(tokens[_otherContainerName] == "");
+            Assert.True(storage.GetDefaultContainerTrackedToken() == "");
+
+            if (mode != SessionTokenManagementMode.EnforcedManual)
+            {
+                Assert.True(storage.GetSessionToken(_defaultContainerName) == "");
+                Assert.True(storage.GetSessionToken(_otherContainerName) == "");
+            }
+        }
+        else
+        {
+            Assert.Null(tokens[_defaultContainerName]);
+            Assert.Null(tokens[_otherContainerName]);
+            Assert.Null(storage.GetDefaultContainerTrackedToken());
+
             Assert.Null(storage.GetSessionToken(_defaultContainerName));
             Assert.Null(storage.GetSessionToken(_otherContainerName));
         }
@@ -654,7 +792,7 @@ public class SessionTokenStorageTest
     [InlineData(SessionTokenManagementMode.SemiAutomatic)]
     [InlineData(SessionTokenManagementMode.Manual)]
     [InlineData(SessionTokenManagementMode.EnforcedManual)]
-    public virtual void Clear_WhenClearingTrackedTokens_ResetsAllContainersToNull(SessionTokenManagementMode mode)
+    public virtual void Clear_WhenClearingTrackedTokens_ResetsAllContainers(SessionTokenManagementMode mode)
     {
         var storage = CreateStorage(mode);
 
@@ -663,12 +801,25 @@ public class SessionTokenStorageTest
         storage.Clear();
 
         var tokens = storage.GetTrackedTokens();
-        Assert.Null(tokens[_defaultContainerName]);
-        Assert.Null(tokens[_otherContainerName]);
-        Assert.Null(storage.GetDefaultContainerTrackedToken());
 
-        if (mode != SessionTokenManagementMode.EnforcedManual)
+        if (mode == SessionTokenManagementMode.Manual || mode == SessionTokenManagementMode.EnforcedManual)
         {
+            Assert.True(tokens[_defaultContainerName] == "");
+            Assert.True(tokens[_otherContainerName] == "");
+            Assert.True(storage.GetDefaultContainerTrackedToken() == "");
+
+            if (mode != SessionTokenManagementMode.EnforcedManual)
+            {
+                Assert.True(storage.GetSessionToken(_defaultContainerName) == "");
+                Assert.True(storage.GetSessionToken(_otherContainerName) == "");
+            }
+        }
+        else
+        {
+            Assert.Null(tokens[_defaultContainerName]);
+            Assert.Null(tokens[_otherContainerName]);
+            Assert.Null(storage.GetDefaultContainerTrackedToken());
+
             Assert.Null(storage.GetSessionToken(_defaultContainerName));
             Assert.Null(storage.GetSessionToken(_otherContainerName));
         }
@@ -777,23 +928,17 @@ public class SessionTokenStorageTest
         });
     }
 
-    [ConditionalTheory]
-    [InlineData(SessionTokenManagementMode.SemiAutomatic)]
-    [InlineData(SessionTokenManagementMode.Manual)]
-    [InlineData(SessionTokenManagementMode.EnforcedManual)]
-    public virtual void Constructor_WhenInitializing_AllContainersStartWithNullTokens(SessionTokenManagementMode mode)
+    [ConditionalFact]
+    public virtual void Constructor_WhenInitializing_AllContainersStartWithNullTokens()
     {
-        var storage = CreateStorage(mode);
+        var storage = CreateStorage(SessionTokenManagementMode.SemiAutomatic);
 
         var tokens = storage.GetTrackedTokens();
         Assert.Null(tokens[_defaultContainerName]);
         Assert.Null(tokens[_otherContainerName]);
         Assert.Null(storage.GetDefaultContainerTrackedToken());
-        if (mode != SessionTokenManagementMode.EnforcedManual)
-        {
-            Assert.Null(storage.GetSessionToken(_defaultContainerName));
-            Assert.Null(storage.GetSessionToken(_otherContainerName));
-        }
+        Assert.Null(storage.GetSessionToken(_defaultContainerName));
+        Assert.Null(storage.GetSessionToken(_otherContainerName));
     }
 
     [ConditionalTheory]
@@ -809,7 +954,14 @@ public class SessionTokenStorageTest
         var snapshot2 = storage.GetTrackedTokens();
 
         Assert.NotSame(snapshot, snapshot2);
-        Assert.Null(snapshot[_defaultContainerName]);
+        if (mode == SessionTokenManagementMode.Manual || mode == SessionTokenManagementMode.EnforcedManual)
+        {
+            Assert.True(snapshot[_defaultContainerName] == "");
+        }
+        else
+        {
+            Assert.Null(snapshot[_defaultContainerName]);
+        }
         Assert.Equal("A", snapshot2[_defaultContainerName]);
     }
 
