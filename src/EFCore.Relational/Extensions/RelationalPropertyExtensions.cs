@@ -970,7 +970,7 @@ public static class RelationalPropertyExtensions
 
         if (annotation != null)
         {
-            return annotation.Value;
+            return (bool?)annotation.Value;
         }
 
         defaultValue = property.ClrType.GetDefaultValue();
