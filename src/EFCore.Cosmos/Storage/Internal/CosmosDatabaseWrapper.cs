@@ -44,7 +44,7 @@ public class CosmosDatabaseWrapper : Database, IResettableService
     {
         _currentDbContext = currentDbContext;
         _cosmosClient = cosmosClient;
-        SessionTokenStorage = sessionTokenStorageFactory.Create();
+        SessionTokenStorage = sessionTokenStorageFactory.Create(currentDbContext.Context);
 
         if (loggingOptions.IsSensitiveDataLoggingEnabled)
         {

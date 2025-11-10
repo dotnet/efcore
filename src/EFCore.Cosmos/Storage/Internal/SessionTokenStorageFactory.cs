@@ -15,8 +15,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 /// </summary>
 public class SessionTokenStorageFactory : ISessionTokenStorageFactory
 {
-    private readonly string _defaultContainerName;
-    private readonly HashSet<string> _containerNames;
+    private string? _defaultContainerName;
+    private HashSet<string>? _containerNames;
     private readonly SessionTokenManagementMode _mode;
 
     /// <summary>
@@ -25,10 +25,8 @@ public class SessionTokenStorageFactory : ISessionTokenStorageFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public SessionTokenStorageFactory(ICurrentDbContext currentDbContext, ICosmosSingletonOptions options)
+    public SessionTokenStorageFactory(ICosmosSingletonOptions options)
     {
-        _defaultContainerName = (string)currentDbContext.Context.Model.GetAnnotation(CosmosAnnotationNames.ContainerName).Value!;
-        _containerNames = new HashSet<string>([_defaultContainerName, ..GetContainerNames(currentDbContext.Context.Model)]);
         _mode = options.SessionTokenManagementMode;
     }
 
@@ -38,10 +36,11 @@ public class SessionTokenStorageFactory : ISessionTokenStorageFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public ISessionTokenStorage Create()
-        => _mode == SessionTokenManagementMode.FullyAutomatic ?
-                        new NullSessionTokenStorage() :
-                        new SessionTokenStorage(_defaultContainerName, _containerNames, _mode);
+    public ISessionTokenStorage Create(DbContext dbContext)
+        => new SessionTokenStorage(
+            _defaultContainerName ??= (string)dbContext.Model.GetAnnotation(CosmosAnnotationNames.ContainerName).Value!,
+            _containerNames ??= new HashSet<string>([_defaultContainerName, ..GetContainerNames(dbContext.Model)]),
+            _mode);
 
 
     private static IEnumerable<string> GetContainerNames(IModel model)

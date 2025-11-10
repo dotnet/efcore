@@ -141,9 +141,17 @@ public class SessionTokenStorage : ISessionTokenStorage
 
         var sessionToken = _containerSessionTokens[containerName];
 
-        if (!sessionToken.IsSet && _mode == SessionTokenManagementMode.EnforcedManual)
+        if (!sessionToken.IsSet)
         {
-            throw new InvalidOperationException(CosmosStrings.MissingSessionTokenEnforceManual(containerName));
+            if (_mode == SessionTokenManagementMode.EnforcedManual)
+            {
+                throw new InvalidOperationException(CosmosStrings.MissingSessionTokenEnforceManual(containerName));
+            }
+
+            if (_mode == SessionTokenManagementMode.SemiAutomatic)
+            {
+                return null;
+            }
         }
 
         return sessionToken.ConvertToString();
@@ -215,13 +223,18 @@ public class SessionTokenStorage : ISessionTokenStorage
         {
             IsSet = IsSet || isSet;
 
-            if (token == null)
+            if (token == string.Empty && _tokens.Count == 0)
             {
-                return;
+                _string = "";
             }
 
             foreach (var tokenPart in token.Split(','))
             {
+                if (string.IsNullOrEmpty(tokenPart))
+                {
+                    continue;
+                }
+
                 if (_tokens.Add(tokenPart))
                 {
                     _isChanged = true;
@@ -234,7 +247,14 @@ public class SessionTokenStorage : ISessionTokenStorage
             if (_isChanged)
             {
                 _isChanged = false;
-                _string = IsSet && _tokens.Count == 0 ? null : string.Join(",", _tokens);
+                if (_tokens.Count == 0)
+                {
+                    _string = null;
+                }
+                else
+                {
+                    _string = string.Join(",", _tokens);
+                }
             }
 
             return _string;

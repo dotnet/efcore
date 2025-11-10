@@ -16,43 +16,53 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
 
     protected override string StoreName => nameof(CosmosSessionTokensTest);
 
+    private bool _mock = true;
     protected override IServiceCollection AddServices(IServiceCollection serviceCollection)
-        => base.AddServices(serviceCollection).Replace(ServiceDescriptor.Singleton<ISessionTokenStorageFactory, TestSessionTokenStorageFactory>());
+    {
+        var services = base.AddServices(serviceCollection);
+
+        return _mock
+            ? services.Replace(ServiceDescriptor.Singleton<ISessionTokenStorageFactory, TestSessionTokenStorageFactory>())
+            : services;
+    }
+
+    protected override TestStore CreateTestStore() => CosmosTestStore.Create(StoreName, (cfg) => cfg.SessionTokenManagementMode(Cosmos.Infrastructure.SessionTokenManagementMode.SemiAutomatic));
 
     private static TestSessionTokenStorage _sessionTokenStorage = null!;
 
-    private class TestSessionTokenStorageFactory : ISessionTokenStorageFactory
+    [ConditionalFact]
+    public virtual async Task Can_use_session_tokens_no_mock()
     {
-        public ISessionTokenStorage Create()
-            => _sessionTokenStorage = new();
+        _mock = false;
+        var contextFactory = await InitializeAsync<CosmosSessionTokenContext>();
+        using var context = contextFactory.CreateContext();
+
+        context.Customers.Add(new Customer { Id = "1", PartitionKey = "1" });
+        context.OtherContainerCustomers.Add(new OtherContainerCustomer { Id = "1", PartitionKey = "1" });
+
+        await context.SaveChangesAsync();
+
+        var sessionTokens = context.Database.GetSessionTokens();
+
+        Assert.NotNull(sessionTokens[nameof(CosmosSessionTokenContext)]);
+        Assert.NotNull(sessionTokens[OtherContainerName]);
+
+        // Only way we can test this is by setting a session token that will fail the request if used..
+        // This will take a couple of seconds to fail
+        var newTokens = sessionTokens.ToDictionary(x => x.Key, x => x.Value!.Substring(0, x.Value.IndexOf('#') + 1) + int.MaxValue);
+        context.Database.UseSessionTokens(newTokens!);
+
+        var exes = new List<CosmosException>()
+        {
+            await Assert.ThrowsAsync<CosmosException>(() => context.Customers.ToListAsync()),
+            await Assert.ThrowsAsync<CosmosException>(() => context.OtherContainerCustomers.ToListAsync())
+        };
+
+        foreach (var ex in exes)
+        {
+            Assert.Contains("The read session is not available for the input session token.", ex.ResponseBody);
+        }
     }
-
-    private class TestSessionTokenStorage : ISessionTokenStorage
-    {
-        public Dictionary<string, string?> SessionTokens { get; set; } = new() { { nameof(CosmosSessionTokenContext), null }, { OtherContainerName, null } };
-
-        public List<string> AppendDefaultContainerSessionTokenCalls { get; set; } = new();
-        public List<IReadOnlyDictionary<string, string>> AppendSessionTokensCalls { get; set; } = new();
-        public List<string> SetDefaultContainerSessionTokenCalls { get; set; } = new();
-
-        public List<IReadOnlyDictionary<string, string?>> SetSessionTokensCalls { get; set; } = new();
-        public List<(string containerName, string sessionToken)> TrackSessionTokenCalls { get; set; } = new();
-        public bool ClearCalled { get; set; }
-
-
-
-        public void AppendDefaultContainerSessionToken(string sessionToken) => AppendDefaultContainerSessionTokenCalls.Add(sessionToken);
-
-        public void AppendSessionTokens(IReadOnlyDictionary<string, string> sessionTokens) => AppendSessionTokensCalls.Add(sessionTokens);
-        public void Clear() => ClearCalled = true;
-        public string? GetDefaultContainerTrackedToken() => SessionTokens.FirstOrDefault().Value;
-        public string? GetSessionToken(string containerName) => SessionTokens[containerName];
-        public IReadOnlyDictionary<string, string?> GetTrackedTokens() => SessionTokens;
-        public void SetDefaultContainerSessionToken(string sessionToken) => SetDefaultContainerSessionTokenCalls.Add(sessionToken);
-        public void SetSessionTokens(IReadOnlyDictionary<string, string?> sessionTokens) => SetSessionTokensCalls.Add(sessionTokens);
-        public void TrackSessionToken(string containerName, string sessionToken) => TrackSessionTokenCalls.Add((containerName, sessionToken));
-    }
-
 
     [ConditionalFact]
     public virtual async Task AppendSessionToken_uses_AppendDefaultContainerSessionToken()
@@ -133,14 +143,38 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
     [ConditionalFact]
     public virtual async Task New_context_does_not_use_same_SessionTokenStorage()
     {
+        _mock = false;
         var contextFactory = await InitializeAsync<CosmosSessionTokenContext>();
         using var context = contextFactory.CreateContext();
-
-        var oldSessionTokenStorage = _sessionTokenStorage;
+        context.Database.UseSessionToken("A");
 
         using var newContext = contextFactory.CreateContext();
         Assert.NotSame(context, newContext);
-        Assert.NotSame(oldSessionTokenStorage, _sessionTokenStorage);
+        Assert.Null(newContext.Database.GetSessionToken());
+        Assert.Equal("A", context.Database.GetSessionToken());
+        Assert.NotSame(((CosmosDatabaseWrapper)context.GetService<IDatabase>()).SessionTokenStorage, ((CosmosDatabaseWrapper)newContext.GetService<IDatabase>()).SessionTokenStorage);
+    }
+
+    [ConditionalFact]
+    public virtual async Task Pooled_context_uses_same_SessionTokenStorage()
+    {
+        _mock = false;
+
+        var contextFactory = await InitializeAsync<CosmosSessionTokenContext>();
+        DbContext contextCopy;
+        ISessionTokenStorage sessionTokenStorageCopy;
+        using (var context = contextFactory.CreateContext())
+        {
+            contextCopy = context;
+            context.Database.UseSessionToken("A");
+            sessionTokenStorageCopy = ((CosmosDatabaseWrapper)context.GetService<IDatabase>()).SessionTokenStorage;
+        }
+        
+        using var newContext = contextFactory.CreateContext();
+
+        Assert.Same(newContext, contextCopy);
+        Assert.Same(sessionTokenStorageCopy, ((CosmosDatabaseWrapper)newContext.GetService<IDatabase>()).SessionTokenStorage);
+        Assert.Null(newContext.Database.GetSessionToken());
     }
 
     [ConditionalFact]
@@ -152,13 +186,14 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
         using (var context = contextFactory.CreateContext())
         {
             contextCopy = context;
-            sessionTokenStorageCopy = _sessionTokenStorage;
-            Assert.False(_sessionTokenStorage.ClearCalled);
+            sessionTokenStorageCopy = ((CosmosDatabaseWrapper)context.GetService<IDatabase>()).SessionTokenStorage;
+            _sessionTokenStorage.ClearCalled = false;
         }
-        
+
         using var newContext = contextFactory.CreateContext();
+
         Assert.Same(newContext, contextCopy);
-        Assert.Same(_sessionTokenStorage, sessionTokenStorageCopy);
+        Assert.Same(sessionTokenStorageCopy, ((CosmosDatabaseWrapper)newContext.GetService<IDatabase>()).SessionTokenStorage);
         Assert.True(_sessionTokenStorage.ClearCalled);
     }
 
@@ -643,6 +678,39 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
 
         Assert.Contains("The session token provided 'invalidtoken' is invalid.", ((CosmosException)ex.InnerException!).ResponseBody);
     }
+
+    private class TestSessionTokenStorageFactory : ISessionTokenStorageFactory
+    {
+        public ISessionTokenStorage Create(DbContext _)
+            => _sessionTokenStorage = new();
+    }
+
+    private class TestSessionTokenStorage : ISessionTokenStorage
+    {
+        public Dictionary<string, string?> SessionTokens { get; set; } = new() { { nameof(CosmosSessionTokenContext), null }, { OtherContainerName, null } };
+
+        public List<string> AppendDefaultContainerSessionTokenCalls { get; set; } = new();
+        public List<IReadOnlyDictionary<string, string>> AppendSessionTokensCalls { get; set; } = new();
+        public List<string> SetDefaultContainerSessionTokenCalls { get; set; } = new();
+
+        public List<IReadOnlyDictionary<string, string?>> SetSessionTokensCalls { get; set; } = new();
+        public List<(string containerName, string sessionToken)> TrackSessionTokenCalls { get; set; } = new();
+        public bool ClearCalled { get; set; }
+
+
+
+        public void AppendDefaultContainerSessionToken(string sessionToken) => AppendDefaultContainerSessionTokenCalls.Add(sessionToken);
+
+        public void AppendSessionTokens(IReadOnlyDictionary<string, string> sessionTokens) => AppendSessionTokensCalls.Add(sessionTokens);
+        public void Clear() => ClearCalled = true;
+        public string? GetDefaultContainerTrackedToken() => SessionTokens.FirstOrDefault().Value;
+        public string? GetSessionToken(string containerName) => SessionTokens[containerName];
+        public IReadOnlyDictionary<string, string?> GetTrackedTokens() => SessionTokens;
+        public void SetDefaultContainerSessionToken(string sessionToken) => SetDefaultContainerSessionTokenCalls.Add(sessionToken);
+        public void SetSessionTokens(IReadOnlyDictionary<string, string?> sessionTokens) => SetSessionTokensCalls.Add(sessionTokens);
+        public void TrackSessionToken(string containerName, string sessionToken) => TrackSessionTokenCalls.Add((containerName, sessionToken));
+    }
+
 
     public class CosmosSessionTokenContext(DbContextOptions options) : PoolableDbContext(options)
     {
