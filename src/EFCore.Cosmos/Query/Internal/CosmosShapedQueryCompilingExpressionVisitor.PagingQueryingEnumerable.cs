@@ -4,7 +4,6 @@
 #nullable disable
 
 using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
-using Microsoft.EntityFrameworkCore.Cosmos.Storage;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Newtonsoft.Json.Linq;
 
@@ -63,6 +62,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             _threadSafetyChecksEnabled = threadSafetyChecksEnabled;
             _maxItemCountParameterName = maxItemCountParameterName;
             _continuationTokenParameterName = continuationTokenParameterName;
+
             _responseContinuationTokenLimitInKbParameterName = responseContinuationTokenLimitInKbParameterName;
             _cosmosContainer = rootEntityType.GetContainer()
                 ?? throw new UnreachableException("Root entity type without a Cosmos container.");
@@ -95,6 +95,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             private readonly CancellationToken _cancellationToken;
             private readonly IConcurrencyDetector _concurrencyDetector;
             private readonly IExceptionDetector _exceptionDetector;
+
             private bool _hasExecuted;
             private bool _isDisposed;
 

@@ -5,7 +5,6 @@
 
 using System.Collections;
 using System.Text;
-using Microsoft.EntityFrameworkCore.Cosmos.Storage;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Newtonsoft.Json.Linq;
@@ -115,7 +114,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             private readonly IConcurrencyDetector _concurrencyDetector;
             private readonly IExceptionDetector _exceptionDetector;
 
-
             private IAsyncEnumerator<JToken> _enumerator;
 
             public AsyncEnumerator(QueryingEnumerable<T> queryingEnumerable, CancellationToken cancellationToken)
@@ -129,7 +127,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 _queryLogger = queryingEnumerable._queryLogger;
                 _standAloneStateManager = queryingEnumerable._standAloneStateManager;
                 _exceptionDetector = _cosmosQueryContext.ExceptionDetector;
-
                 _cancellationToken = cancellationToken;
 
                 _concurrencyDetector = queryingEnumerable._threadSafetyChecksEnabled

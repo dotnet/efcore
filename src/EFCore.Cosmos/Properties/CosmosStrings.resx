@@ -176,7 +176,7 @@
     <value>The property '{propertyType} {structuralType}.{property}' has element type '{elementType}', which requires a value converter. Elements types requiring value converters are not currently supported with the Azure Cosmos DB database provider.</value>
   </data>
   <data name="EnableManualSessionTokenManagement" xml:space="preserve">
-    <value>Enable manual session token management using 'options.ManualSessionTokenManagementEnabled' to use this method.</value>
+    <value>Enable manual session token management using 'options.SessionTokenManagementMode' to use this method.</value>
   </data>
   <data name="ETagNonStringStoreType" xml:space="preserve">
     <value>The type of the etag property '{property}' on '{entityType}' is '{propertyType}'. All etag properties must be strings or have a string value converter.</value>
