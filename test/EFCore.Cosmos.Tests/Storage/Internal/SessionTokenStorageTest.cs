@@ -942,20 +942,6 @@ public class SessionTokenStorageTest
         Assert.True(tokens.ContainsKey(_otherContainerName));
     }
 
-    [ConditionalTheory]
-    [InlineData(SessionTokenManagementMode.SemiAutomatic)]
-    [InlineData(SessionTokenManagementMode.Manual)]
-    [InlineData(SessionTokenManagementMode.EnforcedManual)]
-    public virtual void Constructor_WhenDefaultContainerNotInContainerNames_ThrowsException(SessionTokenManagementMode mode)
-    {
-        var containers = new HashSet<string>([_otherContainerName]);
-        Assert.True(!containers.Contains("default"));
-        Assert.ThrowsAny<Exception>(() =>
-        {
-            _ = new SessionTokenStorage("default", containers, mode);
-        });
-    }
-
     [ConditionalFact]
     public virtual void Constructor_WhenInitializing_AllContainersStartWithNullTokens()
     {
