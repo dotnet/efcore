@@ -832,7 +832,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
     {
         int[] ints = [11, 111];
 
-        return AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => ints.Concat(c.Ints).Count() == 2));
+        return AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => ((IEnumerable<int>)ints).Concat(c.Ints).Count() == 2));
     }
 
     [ConditionalFact] // #33582

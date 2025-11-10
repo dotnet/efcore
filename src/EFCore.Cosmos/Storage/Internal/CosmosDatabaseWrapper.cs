@@ -66,72 +66,6 @@ public class CosmosDatabaseWrapper : Database, IResettableService
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override int SaveChanges(IList<IUpdateEntry> entries)
-    {
-        if (entries.Count == 0)
-        {
-            return 0;
-        }
-
-        var rowsAffected = 0;
-        var groups = CreateSaveGroups(entries);
-
-        foreach (var write in groups.SingleUpdateEntries)
-        {
-            if (Save(write))
-            {
-                rowsAffected++;
-            }
-        }
-
-        foreach (var batch in groups.BatchableUpdateEntries)
-        {
-            if (batch.UpdateEntries.Count == 1 && _currentDbContext.Context.Database.AutoTransactionBehavior != AutoTransactionBehavior.Always)
-            {
-                if (Save(batch.UpdateEntries[0]))
-                {
-                    rowsAffected++;
-                }
-
-                continue;
-            }
-
-            foreach (var transaction in CreateTransactions(batch))
-            {
-                try
-                {
-                    var response = _cosmosClient.ExecuteTransactionalBatch(transaction, SessionTokenStorage);
-                    if (!response.IsSuccess)
-                    {
-                        var exception = WrapUpdateException(response.Exception, response.ErroredEntries);
-                        if (exception is not DbUpdateConcurrencyException
-                            || !Dependencies.Logger.OptimisticConcurrencyException(
-                                    transaction.Entries.First().Entry.Context, transaction.Entries.Select(x => x.Entry).ToArray(), (DbUpdateConcurrencyException)exception, null)
-                                .IsSuppressed)
-                        {
-                            throw exception;
-                        }
-                    }
-                }
-                catch (Exception ex) when (ex is not DbUpdateException and not OperationCanceledException)
-                {
-                    var exception = WrapUpdateException(ex, transaction.Entries.Select(x => x.Entry).ToArray());
-                    throw exception;
-                }
-
-                rowsAffected += transaction.Entries.Count;
-            }
-        }
-
-        return rowsAffected;
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
     public override async Task<int> SaveChangesAsync(
         IList<IUpdateEntry> entries,
         CancellationToken cancellationToken = default)
@@ -286,7 +220,7 @@ public class CosmosDatabaseWrapper : Database, IResettableService
                 SingleUpdateEntries = []
             };
         }
-        
+
         var batches = CreateBatches(entriesWithoutTriggers);
 
         return new SaveGroups
@@ -417,7 +351,7 @@ public class CosmosDatabaseWrapper : Database, IResettableService
                                 Dependencies.Logger.PrimaryKeyValueNotSet(primaryKey.Properties[0]);
                             }
                         }
-                        catch(InvalidOperationException ex)
+                        catch (InvalidOperationException ex)
                         {
                             throw WrapUpdateException(ex, [entry]);
                         }
@@ -520,47 +454,6 @@ public class CosmosDatabaseWrapper : Database, IResettableService
             CosmosCudOperation.Delete => transaction.DeleteItem(id, updateEntry.Entry),
             _ => throw new UnreachableException(),
         };
-    }
-
-    private bool Save(CosmosUpdateEntry updateEntry)
-    {
-        try
-        {
-            return updateEntry.Operation switch
-            {
-                CosmosCudOperation.Create => _cosmosClient.CreateItem(
-                                    updateEntry.CollectionId,
-                                    updateEntry.Document!,
-                                    updateEntry.Entry,
-                                    SessionTokenStorage),
-                CosmosCudOperation.Update => _cosmosClient.ReplaceItem(
-                                    updateEntry.CollectionId,
-                                    updateEntry.DocumentSource.GetId(updateEntry.Entry.SharedIdentityEntry ?? updateEntry.Entry),
-                                    updateEntry.Document!,
-                                    updateEntry.Entry,
-                                    SessionTokenStorage),
-                CosmosCudOperation.Delete => _cosmosClient.DeleteItem(
-                                    updateEntry.CollectionId,
-                                    updateEntry.DocumentSource.GetId(updateEntry.Entry),
-                                    updateEntry.Entry,
-                                    SessionTokenStorage),
-                _ => throw new UnreachableException(),
-            };
-        }
-        catch (Exception ex) when (ex is not DbUpdateException and not UnreachableException and not OperationCanceledException)
-        {
-            var errorEntries = new[] { updateEntry.Entry };
-            var exception = WrapUpdateException(ex, errorEntries);
-
-            if (exception is not DbUpdateConcurrencyException
-                || !Dependencies.Logger.OptimisticConcurrencyException(
-                        updateEntry.Entry.Context, errorEntries, (DbUpdateConcurrencyException)exception, null).IsSuppressed)
-            {
-                throw exception;
-            }
-
-            return false;
-        }
     }
 
     private async Task<bool> SaveAsync(CosmosUpdateEntry updateEntry, CancellationToken cancellationToken)
@@ -683,7 +576,7 @@ public class CosmosDatabaseWrapper : Database, IResettableService
     private sealed class SaveGroups
     {
         public required IEnumerable<CosmosUpdateEntry> SingleUpdateEntries { get; init; }
-        
+
         public required IEnumerable<(Grouping Key, List<CosmosUpdateEntry> UpdateEntries)> BatchableUpdateEntries { get; init; }
     }
 
@@ -697,4 +590,13 @@ public class CosmosDatabaseWrapper : Database, IResettableService
     }
 
     private sealed record Grouping(string ContainerId, PartitionKey PartitionKeyValue);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override int SaveChanges(IList<IUpdateEntry> entries)
+        => throw new InvalidOperationException(CosmosStrings.SyncNotSupported);
 }

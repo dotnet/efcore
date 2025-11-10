@@ -5122,7 +5122,7 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture>(TFixture fix
 
         return AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => data.Contains(someVariable + "SomeConstant")));
+            ss => ss.Set<Customer>().Where(c => ((IEnumerable<string>)data).Contains(someVariable + "SomeConstant")));
     }
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]

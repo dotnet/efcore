@@ -361,6 +361,24 @@ public class CosmosTransactionalBatchTest(NonSharedFixture fixture) : NonSharedM
     }
 
     [ConditionalFact]
+    public virtual async Task SaveChanges_transaction_behaviour_always_payload_exactly_2_mib()
+    {
+        var contextFactory = await InitializeAsync<TransactionalBatchContext>();
+
+        using var context = contextFactory.CreateContext();
+        context.Database.AutoTransactionBehavior = AutoTransactionBehavior.Always;
+
+        context.Customers.Add(new Customer { Id = "1", Name = new string('x', 1048291), PartitionKey = "1" });
+        context.Customers.Add(new Customer { Id = "2", Name = new string('x', 1048291), PartitionKey = "1" });
+
+        await context.SaveChangesAsync();
+
+        using var assertContext = contextFactory.CreateContext();
+        var customersCount = await assertContext.Customers.CountAsync();
+        Assert.Equal(2, customersCount);
+    }
+
+    [ConditionalFact]
     public virtual async Task SaveChanges_transaction_behaviour_always_payload_larger_than_cosmos_limit_throws()
     {
         var contextFactory = await InitializeAsync<TransactionalBatchContext>();
@@ -381,13 +399,75 @@ public class CosmosTransactionalBatchTest(NonSharedFixture fixture) : NonSharedM
         Assert.Equal(0, customersCount);
     }
 
-    // The tests below will fail if the cosmos db sdk is updated and the serialization logic for transactional batches has changed
+    private const int nameLengthToExceed2MiBWithSpecialCharIdOnUpdate = 1046358;
 
     [ConditionalTheory, InlineData(true), InlineData(false)]
+    public virtual async Task SaveChanges_update_id_contains_special_chars_which_makes_request_larger_than_2_mib_splits_into_2_batches(bool isIdSpecialChar)
+    {
+        var contextFactory = await InitializeAsync<TransactionalBatchContext>();
+
+        using var context = contextFactory.CreateContext();
+
+        var id1 = isIdSpecialChar ? new string('€', 341) : new string('x', 341);
+        var id2 = isIdSpecialChar ? new string('Ω', 341) : new string('y', 341);
+
+        var customer1 = new Customer { Id = id1, PartitionKey = new string('€', 341) };
+        var customer2 = new Customer { Id = id2, PartitionKey = new string('€', 341) };
+
+        context.Customers.Add(customer1);
+        context.Customers.Add(customer2);
+
+        await context.SaveChangesAsync();
+        ListLoggerFactory.Clear();
+
+        customer1.Name = new string('x', nameLengthToExceed2MiBWithSpecialCharIdOnUpdate);
+        customer2.Name = new string('x', nameLengthToExceed2MiBWithSpecialCharIdOnUpdate);
+
+        await context.SaveChangesAsync();
+        using var assertContext = contextFactory.CreateContext();
+        Assert.Equal(2, (await context.Customers.ToListAsync()).Count);
+
+        // The id being a special character should make the difference whether this fits in 1 batch.
+        if (isIdSpecialChar)
+        {
+            Assert.Equal(2, ListLoggerFactory.Log.Count(x => x.Id == CosmosEventId.ExecutedTransactionalBatch));
+        }
+        else
+        {
+            Assert.Equal(1, ListLoggerFactory.Log.Count(x => x.Id == CosmosEventId.ExecutedTransactionalBatch));
+        }
+    }
+
+    [ConditionalTheory, InlineData(true), InlineData(false)]
+    public virtual async Task SaveChanges_create_id_contains_special_chars_which_would_make_request_larger_than_2_mib_on_update_does_not_split_into_2_batches_for_create(bool isIdSpecialChar)
+    {
+        var contextFactory = await InitializeAsync<TransactionalBatchContext>();
+
+        using var context = contextFactory.CreateContext();
+
+        var id1 = isIdSpecialChar ? new string('€', 341) : new string('x', 341);
+        var id2 = isIdSpecialChar ? new string('Ω', 341) : new string('y', 341);
+
+        var customer1 = new Customer { Id = id1, Name = new string('x', nameLengthToExceed2MiBWithSpecialCharIdOnUpdate), PartitionKey = new string('€', 341) };
+        var customer2 = new Customer { Id = id2, Name = new string('x', nameLengthToExceed2MiBWithSpecialCharIdOnUpdate), PartitionKey = new string('€', 341) };
+
+        context.Customers.Add(customer1);
+        context.Customers.Add(customer2);
+
+        await context.SaveChangesAsync();
+        using var assertContext = contextFactory.CreateContext();
+        Assert.Equal(2, (await context.Customers.ToListAsync()).Count);
+
+        // The id being a special character should not make the difference whether this fits in 1 batch, as id is duplicated in the payload on create.
+        Assert.Equal(1, ListLoggerFactory.Log.Count(x => x.Id == CosmosEventId.ExecutedTransactionalBatch));
+    }
+
+    [ConditionalTheory, InlineData(true), InlineData(false)]
+    [CosmosCondition(CosmosCondition.IsNotEmulator)]
     public virtual async Task SaveChanges_transaction_behaviour_always_single_entity_payload_can_be_exactly_cosmos_limit_and_throws_when_1byte_over(bool oneByteOver)
     {
         var contextFactory = await InitializeAsync<TransactionalBatchContext>();
-        
+
         using var context = contextFactory.CreateContext();
         context.Database.AutoTransactionBehavior = AutoTransactionBehavior.Always;
 
@@ -396,10 +476,10 @@ public class CosmosTransactionalBatchTest(NonSharedFixture fixture) : NonSharedM
         context.Customers.Add(customer);
         await context.SaveChangesAsync();
 
-        // Total document size will be: 2_097_503. Total request size will be: 2_098_541
-        // Normally 2MiB is 2_097_152, but cosmos appears to allow ~1Kib (1389 bytes) extra
-        var str = new string('x', 2_095_228);
-        customer.Name = str; 
+        // Total document size will be: 2_097_510. Total request size will be: 2_098_548
+        // Normally, the limit is 2MiB (2_097_152), but Cosmos appears to allow ~1Kib (1396 bytes) extra
+        var str = new string('x', 2_095_234);
+        customer.Name = str;
 
         if (oneByteOver)
         {
@@ -414,43 +494,6 @@ public class CosmosTransactionalBatchTest(NonSharedFixture fixture) : NonSharedM
             using var assertContext = contextFactory.CreateContext();
             var dbCustomer = await assertContext.Customers.FirstAsync();
             Assert.Equal(dbCustomer.Name, str);
-        }
-    }
-
-    [ConditionalTheory, InlineData(true), InlineData(false)]
-    public virtual async Task SaveChanges_update_id_contains_special_chars_which_makes_request_larger_than_2_mib_splits_into_2_batches(bool isIdSpecialChar)
-    {
-        var contextFactory = await InitializeAsync<TransactionalBatchContext>();
-
-        using var context = contextFactory.CreateContext();
-
-        string id1 = isIdSpecialChar ? new string('€', 341) : new string('x', 341);
-        string id2 = isIdSpecialChar ? new string('Ω', 341) : new string('y', 341);
-
-        var customer1 = new Customer { Id = id1, PartitionKey = new string('€', 341) };
-        var customer2 = new Customer { Id = id2, PartitionKey = new string('€', 341) };
-
-        context.Customers.Add(customer1);
-        context.Customers.Add(customer2);
-
-        await context.SaveChangesAsync();
-        ListLoggerFactory.Clear();
-
-        customer1.Name = new string('x', 1046358);
-        customer2.Name = new string('x', 1046358);
-
-        await context.SaveChangesAsync();
-        using var assertContext = contextFactory.CreateContext();
-        Assert.Equal(2, (await context.Customers.ToListAsync()).Count);
-
-        // The id being a special character should make the difference whether this fits in 1 batch.
-        if (isIdSpecialChar)
-        {
-            Assert.Equal(2, ListLoggerFactory.Log.Count(x => x.Id == CosmosEventId.ExecutedTransactionalBatch));
-        }
-        else
-        {
-            Assert.Equal(1, ListLoggerFactory.Log.Count(x => x.Id == CosmosEventId.ExecutedTransactionalBatch));
         }
     }
 
@@ -495,14 +538,14 @@ public class CosmosTransactionalBatchTest(NonSharedFixture fixture) : NonSharedM
 
         var customer1 = new Customer { Id = new string('x', 1), PartitionKey = new string('x', 1_023) };
         var customer2 = new Customer { Id = new string('y', 1_023), PartitionKey = new string('x', 1_023) };
-        
+
         context.Customers.Add(customer1);
         context.Customers.Add(customer2);
 
         await context.SaveChangesAsync();
 
-        customer1.Name = new string('x', 1097582 + 1_022 * 2 + 1);
-        customer2.Name = new string('x', 1097583);
+        customer1.Name = new string('x', 1097581 + (1_024 - customer1.Id.Length) * 2);
+        customer2.Name = new string('x', 1097581 + (1_024 - customer2.Id.Length) * 2);
 
         if (oneByteOver)
         {
