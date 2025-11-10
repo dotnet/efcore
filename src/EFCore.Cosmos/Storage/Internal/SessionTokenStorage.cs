@@ -245,14 +245,7 @@ public class SessionTokenStorage : ISessionTokenStorage
             if (_isChanged)
             {
                 _isChanged = false;
-                if (_tokens.Count == 0)
-                {
-                    _string = null;
-                }
-                else
-                {
-                    _string = string.Join(",", _tokens);
-                }
+                _string = string.Join(",", _tokens);
             }
 
             return _string;
