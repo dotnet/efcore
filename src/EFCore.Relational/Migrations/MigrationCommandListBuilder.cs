@@ -100,6 +100,18 @@ public class MigrationCommandListBuilder
     }
 
     /// <summary>
+    ///     Appends the given string to the command being built, and then starts a new line.
+    /// </summary>
+    /// <param name="value">The string to append.</param>
+    /// <returns>This builder so that additional calls can be chained.</returns>
+    public virtual MigrationCommandListBuilder AppendLine(FormattableString value)
+    {
+        _commandBuilder.AppendLine(value);
+
+        return this;
+    }
+
+    /// <summary>
     ///     Appends the given object to the command being built as multiple lines of text. That is,
     ///     each line in the passed string is added as a line to the command being built.
     ///     This results in the lines having the correct indentation.

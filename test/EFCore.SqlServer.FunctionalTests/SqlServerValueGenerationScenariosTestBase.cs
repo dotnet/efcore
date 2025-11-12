@@ -34,7 +34,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
     [ConditionalFact]
     public async Task Insert_with_Identity_column()
     {
-        using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
+        await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
         using (var context = new BlogContextIdentity(testStore.Name, OnModelCreating))
         {
             context.Database.EnsureCreatedResiliently();
@@ -58,8 +58,8 @@ public abstract class SqlServerValueGenerationScenariosTestBase
     [ConditionalFact]
     public async Task Insert_with_sequence_HiLo()
     {
-        using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
-        using (var context = new BlogContextHiLo(testStore.Name, OnModelCreating))
+        await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
+        await using (var context = new BlogContextHiLo(testStore.Name, OnModelCreating))
         {
             context.Database.EnsureCreatedResiliently();
 
@@ -68,7 +68,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
             context.SaveChanges();
         }
 
-        using (var context = new BlogContextHiLo(testStore.Name, OnModelCreating))
+        await using (var context = new BlogContextHiLo(testStore.Name, OnModelCreating))
         {
             var blogs = context.Blogs.OrderBy(e => e.Id).ToList();
 
@@ -87,21 +87,19 @@ public abstract class SqlServerValueGenerationScenariosTestBase
 
             modelBuilder.UseHiLo();
 
-            modelBuilder.Entity<Blog>(
-                eb =>
-                {
-                    eb.HasAlternateKey(
-                        b => new { b.OtherId });
-                    eb.Property(b => b.OtherId).ValueGeneratedOnAdd();
-                });
+            modelBuilder.Entity<Blog>(eb =>
+            {
+                eb.HasAlternateKey(b => new { b.OtherId });
+                eb.Property(b => b.OtherId).ValueGeneratedOnAdd();
+            });
         }
     }
 
     [ConditionalFact]
     public async Task Insert_with_key_sequence()
     {
-        using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
-        using (var context = new BlogContextKeySequence(testStore.Name, OnModelCreating))
+        await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
+        await using (var context = new BlogContextKeySequence(testStore.Name, OnModelCreating))
         {
             context.Database.EnsureCreatedResiliently();
 
@@ -110,7 +108,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
             context.SaveChanges();
         }
 
-        using (var context = new BlogContextKeySequence(testStore.Name, OnModelCreating))
+        await using (var context = new BlogContextKeySequence(testStore.Name, OnModelCreating))
         {
             var blogs = context.Blogs.OrderBy(e => e.Id).ToList();
 
@@ -129,21 +127,19 @@ public abstract class SqlServerValueGenerationScenariosTestBase
 
             modelBuilder.UseKeySequences();
 
-            modelBuilder.Entity<Blog>(
-                eb =>
-                {
-                    eb.HasAlternateKey(
-                        b => new { b.OtherId });
-                    eb.Property(b => b.OtherId).ValueGeneratedOnAdd();
-                });
+            modelBuilder.Entity<Blog>(eb =>
+            {
+                eb.HasAlternateKey(b => new { b.OtherId });
+                eb.Property(b => b.OtherId).ValueGeneratedOnAdd();
+            });
         }
     }
 
     [ConditionalFact]
     public async Task Insert_with_non_key_sequence()
     {
-        using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
-        using (var context = new BlogContextNonKeySequence(testStore.Name, OnModelCreating))
+        await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
+        await using (var context = new BlogContextNonKeySequence(testStore.Name, OnModelCreating))
         {
             context.Database.EnsureCreatedResiliently();
 
@@ -152,7 +148,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
             context.SaveChanges();
         }
 
-        using (var context = new BlogContextNonKeySequence(testStore.Name, OnModelCreating))
+        await using (var context = new BlogContextNonKeySequence(testStore.Name, OnModelCreating))
         {
             var blogs = context.Blogs.OrderBy(e => e.Id).ToList();
 
@@ -169,20 +165,19 @@ public abstract class SqlServerValueGenerationScenariosTestBase
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Blog>(
-                eb =>
-                {
-                    eb.Property(b => b.OtherId).UseSequence();
-                    eb.Property(b => b.OtherId).ValueGeneratedOnAdd();
-                });
+            modelBuilder.Entity<Blog>(eb =>
+            {
+                eb.Property(b => b.OtherId).UseSequence();
+                eb.Property(b => b.OtherId).ValueGeneratedOnAdd();
+            });
         }
     }
 
     [ConditionalFact]
     public async Task Insert_with_default_value_from_sequence()
     {
-        using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
-        using (var context = new BlogContextDefaultValue(testStore.Name, OnModelCreating))
+        await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
+        await using (var context = new BlogContextDefaultValue(testStore.Name, OnModelCreating))
         {
             context.Database.EnsureCreatedResiliently();
 
@@ -191,7 +186,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
             context.SaveChanges();
         }
 
-        using (var context = new BlogContextDefaultValue(testStore.Name, OnModelCreating))
+        await using (var context = new BlogContextDefaultValue(testStore.Name, OnModelCreating))
         {
             var blogs = context.Blogs.OrderBy(e => e.Id).ToList();
 
@@ -199,14 +194,14 @@ public abstract class SqlServerValueGenerationScenariosTestBase
             Assert.Equal(1, blogs[1].Id);
         }
 
-        using (var context = new BlogContextDefaultValueNoMigrations(testStore.Name, OnModelCreating))
+        await using (var context = new BlogContextDefaultValueNoMigrations(testStore.Name, OnModelCreating))
         {
             context.AddRange(CreateBlog("One Unicorn"), CreateBlog("Two Unicorns"));
 
             context.SaveChanges();
         }
 
-        using (var context = new BlogContextDefaultValueNoMigrations(testStore.Name, OnModelCreating))
+        await using (var context = new BlogContextDefaultValueNoMigrations(testStore.Name, OnModelCreating))
         {
             var blogs = context.Blogs.OrderBy(e => e.Id).ToList();
 
@@ -251,8 +246,8 @@ public abstract class SqlServerValueGenerationScenariosTestBase
     [ConditionalFact]
     public async Task Insert_with_default_string_value_from_sequence()
     {
-        using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
-        using (var context = new BlogContextStringDefaultValue(testStore.Name, OnModelCreating, StringSentinel))
+        await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
+        await using (var context = new BlogContextStringDefaultValue(testStore.Name, OnModelCreating, StringSentinel))
         {
             context.Database.EnsureCreatedResiliently();
 
@@ -263,7 +258,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
             context.SaveChanges();
         }
 
-        using (var context = new BlogContextStringDefaultValue(testStore.Name, OnModelCreating, StringSentinel))
+        await using (var context = new BlogContextStringDefaultValue(testStore.Name, OnModelCreating, StringSentinel))
         {
             var blogs = context.StringyBlogs.OrderBy(e => e.Id).ToList();
 
@@ -304,8 +299,8 @@ public abstract class SqlServerValueGenerationScenariosTestBase
     [ConditionalFact]
     public async Task Insert_with_key_default_value_from_sequence()
     {
-        using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
-        using (var context = new BlogContextKeyColumnWithDefaultValue(testStore.Name, OnModelCreating))
+        await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
+        await using (var context = new BlogContextKeyColumnWithDefaultValue(testStore.Name, OnModelCreating))
         {
             context.Database.EnsureCreatedResiliently();
 
@@ -314,7 +309,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
             context.SaveChanges();
         }
 
-        using (var context = new BlogContextKeyColumnWithDefaultValue(testStore.Name, OnModelCreating))
+        await using (var context = new BlogContextKeyColumnWithDefaultValue(testStore.Name, OnModelCreating))
         {
             var blogs = context.Blogs.OrderBy(e => e.Id).ToList();
 
@@ -345,8 +340,8 @@ public abstract class SqlServerValueGenerationScenariosTestBase
     [ConditionalFact]
     public async Task Insert_uint_to_Identity_column_using_value_converter()
     {
-        using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
-        using (var context = new BlogContextUIntToIdentityUsingValueConverter(testStore.Name, OnModelCreating, UIntSentinel))
+        await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
+        await using (var context = new BlogContextUIntToIdentityUsingValueConverter(testStore.Name, OnModelCreating, UIntSentinel))
         {
             context.Database.EnsureCreatedResiliently();
 
@@ -357,7 +352,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
             context.SaveChanges();
         }
 
-        using (var context = new BlogContextUIntToIdentityUsingValueConverter(testStore.Name, OnModelCreating, UIntSentinel))
+        await using (var context = new BlogContextUIntToIdentityUsingValueConverter(testStore.Name, OnModelCreating, UIntSentinel))
         {
             var blogs = context.UnsignedBlogs.OrderBy(e => e.Id).ToList();
 
@@ -394,8 +389,8 @@ public abstract class SqlServerValueGenerationScenariosTestBase
     [ConditionalFact]
     public async Task Insert_int_enum_to_Identity_column()
     {
-        using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
-        using (var context = new BlogContextIntEnumToIdentity(testStore.Name, OnModelCreating, IntKeySentinel))
+        await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
+        await using (var context = new BlogContextIntEnumToIdentity(testStore.Name, OnModelCreating, IntKeySentinel))
         {
             context.Database.EnsureCreatedResiliently();
 
@@ -406,7 +401,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
             context.SaveChanges();
         }
 
-        using (var context = new BlogContextIntEnumToIdentity(testStore.Name, OnModelCreating, IntKeySentinel))
+        await using (var context = new BlogContextIntEnumToIdentity(testStore.Name, OnModelCreating, IntKeySentinel))
         {
             var blogs = context.EnumBlogs.OrderBy(e => e.Id).ToList();
 
@@ -450,8 +445,8 @@ public abstract class SqlServerValueGenerationScenariosTestBase
     [ConditionalFact]
     public async Task Insert_ulong_enum_to_Identity_column()
     {
-        using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
-        using (var context = new BlogContextULongEnumToIdentity(testStore.Name, OnModelCreating, ULongKeySentinel))
+        await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
+        await using (var context = new BlogContextULongEnumToIdentity(testStore.Name, OnModelCreating, ULongKeySentinel))
         {
             context.Database.EnsureCreatedResiliently();
 
@@ -462,7 +457,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
             context.SaveChanges();
         }
 
-        using (var context = new BlogContextULongEnumToIdentity(testStore.Name, OnModelCreating, ULongKeySentinel))
+        await using (var context = new BlogContextULongEnumToIdentity(testStore.Name, OnModelCreating, ULongKeySentinel))
         {
             var blogs = context.EnumBlogs.OrderBy(e => e.Id).ToList();
 
@@ -505,8 +500,8 @@ public abstract class SqlServerValueGenerationScenariosTestBase
     [ConditionalFact]
     public async Task Insert_string_to_Identity_column_using_value_converter()
     {
-        using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
-        using (var context = new BlogContextStringToIdentityUsingValueConverter(testStore.Name, OnModelCreating, StringSentinel))
+        await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
+        await using (var context = new BlogContextStringToIdentityUsingValueConverter(testStore.Name, OnModelCreating, StringSentinel))
         {
             context.Database.EnsureCreatedResiliently();
 
@@ -517,7 +512,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
             context.SaveChanges();
         }
 
-        using (var context = new BlogContextStringToIdentityUsingValueConverter(testStore.Name, OnModelCreating, StringSentinel))
+        await using (var context = new BlogContextStringToIdentityUsingValueConverter(testStore.Name, OnModelCreating, StringSentinel))
         {
             var blogs = context.StringyBlogs.OrderBy(e => e.Id).ToList();
 
@@ -555,8 +550,8 @@ public abstract class SqlServerValueGenerationScenariosTestBase
     [ConditionalFact]
     public async Task Insert_with_explicit_non_default_keys()
     {
-        using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
-        using (var context = new BlogContextNoKeyGeneration(testStore.Name, OnModelCreating))
+        await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
+        await using (var context = new BlogContextNoKeyGeneration(testStore.Name, OnModelCreating))
         {
             context.Database.EnsureCreatedResiliently();
 
@@ -566,7 +561,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
             context.SaveChanges();
         }
 
-        using (var context = new BlogContextNoKeyGeneration(testStore.Name, OnModelCreating))
+        await using (var context = new BlogContextNoKeyGeneration(testStore.Name, OnModelCreating))
         {
             var blogs = context.Blogs.OrderBy(e => e.Id).ToList();
 
@@ -592,8 +587,8 @@ public abstract class SqlServerValueGenerationScenariosTestBase
     [ConditionalFact]
     public async Task Insert_with_explicit_with_default_keys()
     {
-        using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
-        using (var context = new BlogContextNoKeyGenerationNullableKey(testStore.Name, OnModelCreating, NullableIntSentinel))
+        await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
+        await using (var context = new BlogContextNoKeyGenerationNullableKey(testStore.Name, OnModelCreating, NullableIntSentinel))
         {
             context.Database.EnsureCreatedResiliently();
 
@@ -604,7 +599,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
             context.SaveChanges();
         }
 
-        using (var context = new BlogContextNoKeyGenerationNullableKey(testStore.Name, OnModelCreating, NullableIntSentinel))
+        await using (var context = new BlogContextNoKeyGenerationNullableKey(testStore.Name, OnModelCreating, NullableIntSentinel))
         {
             var blogs = context.NullableKeyBlogs.OrderBy(e => e.Id).ToList();
 
@@ -633,9 +628,9 @@ public abstract class SqlServerValueGenerationScenariosTestBase
     [ConditionalFact]
     public async Task Insert_with_non_key_default_value()
     {
-        using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
+        await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
 
-        using (var context = new BlogContextNonKeyDefaultValue(testStore.Name, OnModelCreating))
+        await using (var context = new BlogContextNonKeyDefaultValue(testStore.Name, OnModelCreating))
         {
             context.Database.EnsureCreatedResiliently();
 
@@ -666,7 +661,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
             Assert.Equal(111, blogs[1].NeedsConverter.Value);
         }
 
-        using (var context = new BlogContextNonKeyDefaultValue(testStore.Name, OnModelCreating))
+        await using (var context = new BlogContextNonKeyDefaultValue(testStore.Name, OnModelCreating))
         {
             var blogs = context.Blogs.OrderBy(e => e.Name).ToList();
             Assert.Equal(3, blogs.Count);
@@ -686,7 +681,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
             context.SaveChanges();
         }
 
-        using (var context = new BlogContextNonKeyDefaultValue(testStore.Name, OnModelCreating))
+        await using (var context = new BlogContextNonKeyDefaultValue(testStore.Name, OnModelCreating))
         {
             var blogs = context.Blogs.OrderBy(e => e.Name).ToList();
             Assert.Equal(3, blogs.Count);
@@ -699,13 +694,12 @@ public abstract class SqlServerValueGenerationScenariosTestBase
         }
     }
 
-    [ConditionalFact]
-    [SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
+    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
     public async Task Insert_with_non_key_default_spatial_value()
     {
-        using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
+        await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
 
-        using (var context = new BlogContextNonKeyDefaultSpatialValue(testStore.Name, OnModelCreating))
+        await using (var context = new BlogContextNonKeyDefaultSpatialValue(testStore.Name, OnModelCreating))
         {
             context.Database.EnsureCreatedResiliently();
 
@@ -735,7 +729,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
             Assert.Equal(3, point.Y);
         }
 
-        using (var context = new BlogContextNonKeyDefaultSpatialValue(testStore.Name, OnModelCreating))
+        await using (var context = new BlogContextNonKeyDefaultSpatialValue(testStore.Name, OnModelCreating))
         {
             var blogs = context.SpatialBlogs.OrderBy(e => e.Name).ToList();
             Assert.Equal(3, blogs.Count);
@@ -754,7 +748,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
             context.SaveChanges();
         }
 
-        using (var context = new BlogContextNonKeyDefaultSpatialValue(testStore.Name, OnModelCreating))
+        await using (var context = new BlogContextNonKeyDefaultSpatialValue(testStore.Name, OnModelCreating))
         {
             var blogs = context.SpatialBlogs.OrderBy(e => e.Name).ToList();
             Assert.Equal(3, blogs.Count);
@@ -776,20 +770,19 @@ public abstract class SqlServerValueGenerationScenariosTestBase
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Blog>(
-                b =>
-                {
-                    b.Property(e => e.CreatedOn).HasDefaultValueSql("getdate()");
+            modelBuilder.Entity<Blog>(b =>
+            {
+                b.Property(e => e.CreatedOn).HasDefaultValueSql("getdate()");
 
-                    b.HasData(
-                        new Blog
-                        {
-                            Id = 9979,
-                            Name = "W Unicorns",
-                            CreatedOn = new DateTime(1974, 8, 3, 0, 10, 0),
-                            NeedsConverter = new NeedsConverter(111),
-                        });
-                });
+                b.HasData(
+                    new Blog
+                    {
+                        Id = 9979,
+                        Name = "W Unicorns",
+                        CreatedOn = new DateTime(1974, 8, 3, 0, 10, 0),
+                        NeedsConverter = new NeedsConverter(111),
+                    });
+            });
         }
     }
 
@@ -800,28 +793,28 @@ public abstract class SqlServerValueGenerationScenariosTestBase
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<BlogWithSpatial>(
-                b =>
-                {
-                    b.Property(e => e.GeometryCollection).HasDefaultValue(GeometryFactory.CreateGeometryCollection());
+            modelBuilder.Entity<BlogWithSpatial>(b =>
+            {
+                b.Property(e => e.GeometryCollection).HasDefaultValue(GeometryFactory.CreateGeometryCollection());
 
-                    b.HasData(
-                        new BlogWithSpatial
-                        {
-                            Id = 9979,
-                            Name = "W Unicorns",
-                            GeometryCollection = GeometryFactory.CreateGeometryCollection(
-                                [GeometryFactory.CreatePoint(new Coordinate(1, 2))])
-                        });
-                });
+                b.HasData(
+                    new BlogWithSpatial
+                    {
+                        Id = 9979,
+                        Name = "W Unicorns",
+                        GeometryCollection = GeometryFactory.CreateGeometryCollection(
+                            [GeometryFactory.CreatePoint(new Coordinate(1, 2))])
+                    });
+            });
         }
     }
 
     [ConditionalFact]
     public async Task Insert_with_non_key_default_value_readonly()
     {
-        using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
-        using (var context = new BlogContextNonKeyReadOnlyDefaultValue(testStore.Name, OnModelCreating, IntSentinel, DateTimeSentinel))
+        await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
+        await using (var context = new BlogContextNonKeyReadOnlyDefaultValue(
+                         testStore.Name, OnModelCreating, IntSentinel, DateTimeSentinel))
         {
             context.Database.EnsureCreatedResiliently();
 
@@ -846,7 +839,8 @@ public abstract class SqlServerValueGenerationScenariosTestBase
 
         DateTime dateTime0;
 
-        using (var context = new BlogContextNonKeyReadOnlyDefaultValue(testStore.Name, OnModelCreating, IntSentinel, DateTimeSentinel))
+        await using (var context = new BlogContextNonKeyReadOnlyDefaultValue(
+                         testStore.Name, OnModelCreating, IntSentinel, DateTimeSentinel))
         {
             var blogs = context.Blogs.OrderBy(e => e.Id).ToList();
 
@@ -861,7 +855,8 @@ public abstract class SqlServerValueGenerationScenariosTestBase
             context.SaveChanges();
         }
 
-        using (var context = new BlogContextNonKeyReadOnlyDefaultValue(testStore.Name, OnModelCreating, IntSentinel, DateTimeSentinel))
+        await using (var context = new BlogContextNonKeyReadOnlyDefaultValue(
+                         testStore.Name, OnModelCreating, IntSentinel, DateTimeSentinel))
         {
             var blogs = context.Blogs.OrderBy(e => e.Id).ToList();
 
@@ -883,22 +878,21 @@ public abstract class SqlServerValueGenerationScenariosTestBase
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Blog>(
-                b =>
-                {
-                    b.Property(e => e.Id).HasSentinel(_intSentinel);
+            modelBuilder.Entity<Blog>(b =>
+            {
+                b.Property(e => e.Id).HasSentinel(_intSentinel);
 
-                    var property = b.Property(e => e.CreatedOn).HasDefaultValueSql("getdate()").HasSentinel(_dateTimeSentinel);
-                    property.Metadata.SetBeforeSaveBehavior(PropertySaveBehavior.Throw);
-                });
+                var property = b.Property(e => e.CreatedOn).HasDefaultValueSql("getdate()").HasSentinel(_dateTimeSentinel);
+                property.Metadata.SetBeforeSaveBehavior(PropertySaveBehavior.Throw);
+            });
         }
     }
 
     [ConditionalFact]
     public async Task Insert_and_update_with_computed_column()
     {
-        using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
-        using (var context = new BlogContextComputedColumn(testStore.Name, OnModelCreating, IntSentinel, StringSentinel))
+        await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
+        await using (var context = new BlogContextComputedColumn(testStore.Name, OnModelCreating, IntSentinel, StringSentinel))
         {
             context.Database.EnsureCreatedResiliently();
 
@@ -916,7 +910,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
             Assert.Equal("One Unicorn", blog.FullName);
         }
 
-        using (var context = new BlogContextComputedColumn(testStore.Name, OnModelCreating, IntSentinel, StringSentinel))
+        await using (var context = new BlogContextComputedColumn(testStore.Name, OnModelCreating, IntSentinel, StringSentinel))
         {
             var blog = context.FullNameBlogs.Single();
 
@@ -940,19 +934,18 @@ public abstract class SqlServerValueGenerationScenariosTestBase
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<FullNameBlog>(
-                b =>
-                {
-                    b.Property(e => e.Id).HasSentinel(_intSentinel);
+            modelBuilder.Entity<FullNameBlog>(b =>
+            {
+                b.Property(e => e.Id).HasSentinel(_intSentinel);
 
-                    var property = b.Property(e => e.FullName)
-                        .HasComputedColumnSql("FirstName + ' ' + LastName")
-                        .HasSentinel(_stringSentinel)
-                        .Metadata;
+                var property = b.Property(e => e.FullName)
+                    .HasComputedColumnSql("FirstName + ' ' + LastName")
+                    .HasSentinel(_stringSentinel)
+                    .Metadata;
 
-                    property.SetBeforeSaveBehavior(PropertySaveBehavior.Throw);
-                    property.SetAfterSaveBehavior(PropertySaveBehavior.Throw);
-                });
+                property.SetBeforeSaveBehavior(PropertySaveBehavior.Throw);
+                property.SetAfterSaveBehavior(PropertySaveBehavior.Throw);
+            });
         }
     }
 
@@ -974,8 +967,8 @@ public abstract class SqlServerValueGenerationScenariosTestBase
     [ConditionalFact]
     public async Task Insert_and_update_with_computed_column_with_function()
     {
-        using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
-        using (var context = new BlogContextComputedColumnWithFunction(testStore.Name, OnModelCreating, IntSentinel, StringSentinel))
+        await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
+        await using (var context = new BlogContextComputedColumnWithFunction(testStore.Name, OnModelCreating, IntSentinel, StringSentinel))
         {
             context.Database.ExecuteSqlRaw
             (
@@ -986,7 +979,7 @@ RETURNS NVARCHAR(MAX) WITH SCHEMABINDING AS BEGIN RETURN @First + @Second END");
             context.GetService<IRelationalDatabaseCreator>().CreateTables();
         }
 
-        using (var context = new BlogContextComputedColumnWithFunction(testStore.Name, OnModelCreating, IntSentinel, StringSentinel))
+        await using (var context = new BlogContextComputedColumnWithFunction(testStore.Name, OnModelCreating, IntSentinel, StringSentinel))
         {
             var blog = context.Add(
                 new FullNameBlog
@@ -1002,7 +995,7 @@ RETURNS NVARCHAR(MAX) WITH SCHEMABINDING AS BEGIN RETURN @First + @Second END");
             Assert.Equal("OneUnicorn", blog.FullName);
         }
 
-        using (var context = new BlogContextComputedColumnWithFunction(testStore.Name, OnModelCreating, IntSentinel, StringSentinel))
+        await using (var context = new BlogContextComputedColumnWithFunction(testStore.Name, OnModelCreating, IntSentinel, StringSentinel))
         {
             var blog = context.FullNameBlogs.Single();
 
@@ -1029,19 +1022,18 @@ RETURNS NVARCHAR(MAX) WITH SCHEMABINDING AS BEGIN RETURN @First + @Second END");
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<FullNameBlog>(
-                b =>
-                {
-                    b.Property(e => e.Id).HasSentinel(_intSentinel);
+            modelBuilder.Entity<FullNameBlog>(b =>
+            {
+                b.Property(e => e.Id).HasSentinel(_intSentinel);
 
-                    var property = modelBuilder.Entity<FullNameBlog>()
-                        .Property(e => e.FullName)
-                        .HasComputedColumnSql("[dbo].[GetFullName]([FirstName], [LastName])")
-                        .HasSentinel(_stringSentinel)
-                        .Metadata;
+                var property = modelBuilder.Entity<FullNameBlog>()
+                    .Property(e => e.FullName)
+                    .HasComputedColumnSql("[dbo].[GetFullName]([FirstName], [LastName])")
+                    .HasSentinel(_stringSentinel)
+                    .Metadata;
 
-                    property.SetAfterSaveBehavior(PropertySaveBehavior.Throw);
-                });
+                property.SetAfterSaveBehavior(PropertySaveBehavior.Throw);
+            });
         }
     }
 
@@ -1136,16 +1128,18 @@ END");
                 DatabaseName, OnModelCreating, IntSentinel, StringSentinel);
             context.Database.ExecuteSqlRaw("ALTER TABLE dbo.FullNameBlogs DROP COLUMN FullName;");
             context.Database.ExecuteSqlRaw("DROP FUNCTION [dbo].[GetFullName];");
-            testStore?.Dispose();
+            if (testStore is not null)
+            {
+                await testStore.DisposeAsync();
+            }
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public async Task Insert_with_computed_column_with_function_without_metadata_configuration(bool async)
     {
-        using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
-        using (var context = new BlogContextComputedColumn(testStore.Name, OnModelCreating, IntSentinel, StringSentinel))
+        await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
+        await using (var context = new BlogContextComputedColumn(testStore.Name, OnModelCreating, IntSentinel, StringSentinel))
         {
             context.GetService<IRelationalDatabaseCreator>().CreateTables();
 
@@ -1165,7 +1159,7 @@ END");
 
         try
         {
-            using (var context = new BlogContextComputedColumn(testStore.Name, OnModelCreating, IntSentinel, StringSentinel))
+            await using (var context = new BlogContextComputedColumn(testStore.Name, OnModelCreating, IntSentinel, StringSentinel))
             {
                 await context.AddAsync(new FullNameBlog { Id = IntSentinel, FullName = StringSentinel });
 
@@ -1181,21 +1175,20 @@ END");
         }
         finally
         {
-            using var context = new BlogContextComputedColumnWithTriggerMetadata(
+            await using var context = new BlogContextComputedColumnWithTriggerMetadata(
                 testStore.Name, OnModelCreating, IntSentinel, StringSentinel);
             context.Database.ExecuteSqlRaw("ALTER TABLE dbo.FullNameBlogs DROP COLUMN FullName;");
             context.Database.ExecuteSqlRaw("DROP FUNCTION [dbo].[GetFullName];");
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public async Task Insert_with_trigger_without_metadata_configuration(bool async)
     {
         // Execute an insert against a table which has a trigger, but which haven't identified as such in our metadata.
         // This causes a specialized exception to be thrown, directing users to the relevant docs.
-        using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
-        using (var context = new BlogContextComputedColumn(testStore.Name, OnModelCreating, IntSentinel, StringSentinel))
+        await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
+        await using (var context = new BlogContextComputedColumn(testStore.Name, OnModelCreating, IntSentinel, StringSentinel))
         {
             context.GetService<IRelationalDatabaseCreator>().CreateTables();
 
@@ -1211,7 +1204,7 @@ END");
 
         try
         {
-            using (var context = new BlogContextComputedColumn(testStore.Name, OnModelCreating, IntSentinel, StringSentinel))
+            await using (var context = new BlogContextComputedColumn(testStore.Name, OnModelCreating, IntSentinel, StringSentinel))
             {
                 await context.AddAsync(new FullNameBlog { Id = IntSentinel, FullName = StringSentinel });
 
@@ -1227,7 +1220,7 @@ END");
         }
         finally
         {
-            using var context = new BlogContextComputedColumn(testStore.Name, OnModelCreating, IntSentinel, StringSentinel);
+            await using var context = new BlogContextComputedColumn(testStore.Name, OnModelCreating, IntSentinel, StringSentinel);
             context.Database.ExecuteSqlRaw("DROP TRIGGER [FullNameBlogs_Trigger]");
         }
     }
@@ -1235,9 +1228,9 @@ END");
     [ConditionalFact]
     public async Task Insert_with_client_generated_GUID_key()
     {
-        using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
+        await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
         Guid afterSave;
-        using (var context = new BlogContextClientGuidKey(testStore.Name, OnModelCreating, GuidSentinel))
+        await using (var context = new BlogContextClientGuidKey(testStore.Name, OnModelCreating, GuidSentinel))
         {
             context.Database.EnsureCreatedResiliently();
 
@@ -1264,7 +1257,7 @@ END");
             Assert.Equal(beforeSaveNotId, afterSaveNotId);
         }
 
-        using (var context = new BlogContextClientGuidKey(testStore.Name, OnModelCreating, GuidSentinel))
+        await using (var context = new BlogContextClientGuidKey(testStore.Name, OnModelCreating, GuidSentinel))
         {
             Assert.Equal(afterSave, context.GuidBlogs.Single().Id);
         }
@@ -1279,22 +1272,20 @@ END");
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<GuidBlog>(
-                eb =>
-                {
-                    eb.HasAlternateKey(e => e.NotId);
-                    eb.Property(e => e.NotId).ValueGeneratedOnAdd().HasSentinel(_sentinel);
-                    eb.Property(e => e.Id).HasSentinel(_sentinel);
-                });
+            modelBuilder.Entity<GuidBlog>(eb =>
+            {
+                eb.HasAlternateKey(e => e.NotId);
+                eb.Property(e => e.NotId).ValueGeneratedOnAdd().HasSentinel(_sentinel);
+                eb.Property(e => e.Id).HasSentinel(_sentinel);
+            });
         }
     }
 
-    [ConditionalFact]
-    [SqlServerCondition(SqlServerCondition.IsNotSqlAzure)]
+    [ConditionalFact, SqlServerCondition(SqlServerCondition.IsNotAzureSql)]
     public async Task Insert_with_ValueGeneratedOnAdd_GUID_nonkey_property_throws()
     {
-        using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
-        using var context = new BlogContextClientGuidNonKey(testStore.Name, OnModelCreating, GuidSentinel);
+        await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
+        await using var context = new BlogContextClientGuidNonKey(testStore.Name, OnModelCreating, GuidSentinel);
         context.Database.EnsureCreatedResiliently();
 
         var blog = context.Add(
@@ -1321,21 +1312,20 @@ END");
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<GuidBlog>(
-                b =>
-                {
-                    b.Property(e => e.Id).HasSentinel(_sentinel);
-                    b.Property(e => e.NotId).ValueGeneratedOnAdd().HasSentinel(_sentinel);
-                });
+            modelBuilder.Entity<GuidBlog>(b =>
+            {
+                b.Property(e => e.Id).HasSentinel(_sentinel);
+                b.Property(e => e.NotId).ValueGeneratedOnAdd().HasSentinel(_sentinel);
+            });
         }
     }
 
     [ConditionalFact]
     public async Task Insert_with_server_generated_GUID_key()
     {
-        using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
+        await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
         Guid afterSave;
-        using (var context = new BlogContextServerGuidKey(testStore.Name, OnModelCreating, GuidSentinel))
+        await using (var context = new BlogContextServerGuidKey(testStore.Name, OnModelCreating, GuidSentinel))
         {
             context.Database.EnsureCreatedResiliently();
 
@@ -1364,7 +1354,7 @@ END");
             Assert.NotEqual(beforeSaveNotId, afterSaveNotId);
         }
 
-        using (var context = new BlogContextServerGuidKey(testStore.Name, OnModelCreating, GuidSentinel))
+        await using (var context = new BlogContextServerGuidKey(testStore.Name, OnModelCreating, GuidSentinel))
         {
             Assert.Equal(afterSave, context.GuidBlogs.Single().Id);
         }
@@ -1380,12 +1370,11 @@ END");
             base.OnModelCreating(modelBuilder);
 
             modelBuilder
-                .Entity<GuidBlog>(
-                    eb =>
-                    {
-                        eb.Property(e => e.Id).HasDefaultValueSql("newsequentialid()").HasSentinel(_sentinel);
-                        eb.Property(e => e.NotId).HasDefaultValueSql("newsequentialid()").HasSentinel(_sentinel);
-                    });
+                .Entity<GuidBlog>(eb =>
+                {
+                    eb.Property(e => e.Id).HasDefaultValueSql("newsequentialid()").HasSentinel(_sentinel);
+                    eb.Property(e => e.NotId).HasDefaultValueSql("newsequentialid()").HasSentinel(_sentinel);
+                });
         }
     }
 
@@ -1393,8 +1382,8 @@ END");
     [ConditionalFact]
     public async Task Insert_with_explicit_non_default_keys_by_default()
     {
-        using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
-        using var context = new BlogContext(testStore.Name, OnModelCreating);
+        await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
+        await using var context = new BlogContext(testStore.Name, OnModelCreating);
         context.Database.EnsureCreatedResiliently();
 
         context.AddRange(
@@ -1410,8 +1399,8 @@ END");
     [ConditionalFact]
     public async Task Insert_with_explicit_default_keys()
     {
-        using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
-        using var context = new BlogContext(testStore.Name, OnModelCreating);
+        await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
+        await using var context = new BlogContext(testStore.Name, OnModelCreating);
         context.Database.EnsureCreatedResiliently();
 
         context.AddRange(
@@ -1430,8 +1419,8 @@ END");
     [ConditionalFact]
     public async Task Insert_with_implicit_default_keys()
     {
-        using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
-        using (var context = new BlogContextSpecifyKeysUsingDefault(testStore.Name, OnModelCreating, IntSentinel))
+        await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
+        await using (var context = new BlogContextSpecifyKeysUsingDefault(testStore.Name, OnModelCreating, IntSentinel))
         {
             context.Database.EnsureCreatedResiliently();
 
@@ -1441,7 +1430,7 @@ END");
             context.SaveChanges();
         }
 
-        using (var context = new BlogContextSpecifyKeysUsingDefault(testStore.Name, OnModelCreating, IntSentinel))
+        await using (var context = new BlogContextSpecifyKeysUsingDefault(testStore.Name, OnModelCreating, IntSentinel))
         {
             var blogs = context.Blogs.OrderBy(e => e.Id).ToList();
 
@@ -1470,8 +1459,8 @@ END");
     [ConditionalFact]
     public async Task Insert_explicit_value_throws_when_readonly_sequence_before_save()
     {
-        using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
-        using var context = new BlogContextReadOnlySequenceKeyColumnWithDefaultValue(testStore.Name, OnModelCreating, IntSentinel);
+        await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
+        await using var context = new BlogContextReadOnlySequenceKeyColumnWithDefaultValue(testStore.Name, OnModelCreating, IntSentinel);
         context.Database.EnsureCreatedResiliently();
 
         context.AddRange(
@@ -1508,8 +1497,8 @@ END");
     [ConditionalFact]
     public async Task Insert_explicit_value_throws_when_readonly_before_save()
     {
-        using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
-        using var context = new BlogContextNonKeyReadOnlyDefaultValue(testStore.Name, OnModelCreating, IntSentinel, DateTimeSentinel);
+        await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
+        await using var context = new BlogContextNonKeyReadOnlyDefaultValue(testStore.Name, OnModelCreating, IntSentinel, DateTimeSentinel);
         context.Database.EnsureCreatedResiliently();
 
         context.AddRange(
@@ -1536,8 +1525,8 @@ END");
     [ConditionalFact]
     public async Task Insert_explicit_value_into_computed_column()
     {
-        using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
-        using var context = new BlogContextComputedColumn(testStore.Name, OnModelCreating, IntSentinel, StringSentinel);
+        await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
+        await using var context = new BlogContextComputedColumn(testStore.Name, OnModelCreating, IntSentinel, StringSentinel);
         context.Database.EnsureCreatedResiliently();
 
         context.Add(
@@ -1559,8 +1548,8 @@ END");
     [ConditionalFact]
     public async Task Update_explicit_value_in_computed_column()
     {
-        using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
-        using (var context = new BlogContextComputedColumn(testStore.Name, OnModelCreating, IntSentinel, StringSentinel))
+        await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
+        await using (var context = new BlogContextComputedColumn(testStore.Name, OnModelCreating, IntSentinel, StringSentinel))
         {
             context.Database.EnsureCreatedResiliently();
 
@@ -1576,7 +1565,7 @@ END");
             context.SaveChanges();
         }
 
-        using (var context = new BlogContextComputedColumn(testStore.Name, OnModelCreating, IntSentinel, StringSentinel))
+        await using (var context = new BlogContextComputedColumn(testStore.Name, OnModelCreating, IntSentinel, StringSentinel))
         {
             var blog = context.FullNameBlogs.Single();
 
@@ -1594,8 +1583,8 @@ END");
     [ConditionalFact]
     public async Task Resolve_concurrency()
     {
-        using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
-        using var context = new BlogContextConcurrencyWithRowversion(testStore.Name, OnModelCreating, IntSentinel, TimestampSentinel);
+        await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
+        await using var context = new BlogContextConcurrencyWithRowversion(testStore.Name, OnModelCreating, IntSentinel, TimestampSentinel);
         context.Database.EnsureCreatedResiliently();
 
         var blog = context.Add(
@@ -1608,7 +1597,8 @@ END");
 
         context.SaveChanges();
 
-        using var innerContext = new BlogContextConcurrencyWithRowversion(testStore.Name, OnModelCreating, IntSentinel, TimestampSentinel);
+        await using var innerContext = new BlogContextConcurrencyWithRowversion(
+            testStore.Name, OnModelCreating, IntSentinel, TimestampSentinel);
         var updatedBlog = innerContext.ConcurrentBlogs.Single();
         updatedBlog.Name = "One Pegasus";
         innerContext.SaveChanges();
@@ -1646,15 +1636,14 @@ END");
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<ConcurrentBlog>(
-                b =>
-                {
-                    b.Property(e => e.Id).HasSentinel(_intSentinel);
-                    b.Property(e => e.Timestamp)
-                        .ValueGeneratedOnAddOrUpdate()
-                        .IsConcurrencyToken()
-                        .HasSentinel(_timestampSentinel);
-                });
+            modelBuilder.Entity<ConcurrentBlog>(b =>
+            {
+                b.Property(e => e.Id).HasSentinel(_intSentinel);
+                b.Property(e => e.Timestamp)
+                    .ValueGeneratedOnAddOrUpdate()
+                    .IsConcurrencyToken()
+                    .HasSentinel(_timestampSentinel);
+            });
         }
     }
 
@@ -1764,5 +1753,5 @@ END");
                     b => b.UseNetTopologySuite().ApplyConfiguration());
     }
 
-    public static IEnumerable<object[]> IsAsyncData = new object[][] { [false], [true] };
+    public static readonly IEnumerable<object[]> IsAsyncData = [[false], [true]];
 }

@@ -31,6 +31,11 @@ public abstract class OperationTaskBase : ToolTask
     public ITaskItem? StartupAssembly { get; set; }
 
     /// <summary>
+    ///     The location of Microsoft.EntityFrameworkCore.Design.dll
+    /// </summary>
+    public ITaskItem? DesignAssembly { get; set; }
+
+    /// <summary>
     ///     The target framework moniker.
     /// </summary>
     [Required]
@@ -188,13 +193,18 @@ public abstract class OperationTaskBase : ToolTask
             args.Add(runtimeFrameworkVersion);
         }
 
+#if NET472
+#elif NET10_0
+#else
+#error Target framework needs to be updated here
+#endif
         args.Add(
             Path.Combine(
                 Path.GetDirectoryName(typeof(OperationTaskBase).Assembly.Location)!,
                 "..",
                 "..",
                 "tools",
-                "netcoreapp2.0",
+                "net10.0",
                 "ef.dll"));
 
         args.AddRange(AdditionalArguments);
@@ -205,6 +215,12 @@ public abstract class OperationTaskBase : ToolTask
         {
             args.Add("--startup-assembly");
             args.Add(Path.ChangeExtension(StartupAssembly.ItemSpec, ".dll"));
+        }
+
+        if (DesignAssembly != null)
+        {
+            args.Add("--design-assembly");
+            args.Add(DesignAssembly.ItemSpec);
         }
 
         if (Project != null)
