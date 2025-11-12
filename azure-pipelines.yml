@@ -18,6 +18,12 @@ resources:
 extends:
   template: v1/1ES.Official.PipelineTemplate.yml@1ESPipelineTemplates
   parameters:
+    sdl:
+      createAdoIssuesForJustificationsForDisablement: false
+      sourceAnalysisPool:
+        name: $(DncEngInternalBuildPool)
+        image: 1es-windows-2022
+        os: windows
     stages:
     - stage: build
       displayName: Build
