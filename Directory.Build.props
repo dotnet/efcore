@@ -51,8 +51,9 @@
     <NoWarn>$(NoWarn.Replace(';1591', ''))</NoWarn>
   </PropertyGroup>
 
+  <!-- TODO: Re-enable NuGet Audit and fix alerts: https://github.com/dotnet/efcore/issues/37034 -->
   <PropertyGroup>
-    <NuGetAuditLevel>moderate</NuGetAuditLevel>
+    <NuGetAudit>false</NuGetAudit>
   </PropertyGroup>
 
   <ItemGroup>
