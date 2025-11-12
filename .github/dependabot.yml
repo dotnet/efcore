@@ -20,8 +20,8 @@ updates:
       - dependency-name: mod_spatialite
       - dependency-name: Mono.TextTemplating
       - dependency-name: NetTopologySuite*
-      - dependency-name: Newtonsoft.Json      
-      - dependency-name: OpenTelemetry.Exporter.InMemory      
+      - dependency-name: Newtonsoft.Json
+      - dependency-name: OpenTelemetry.Exporter.InMemory
       - dependency-name: SQLitePCLRaw*
     ignore:
       # Infrastructure
