@@ -7,7 +7,15 @@ using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.Migrations;
 
-public class SqliteMigrationsSqlGeneratorTest : MigrationsSqlGeneratorTestBase
+#nullable disable
+
+public class SqliteMigrationsSqlGeneratorTest() : MigrationsSqlGeneratorTestBase(
+    SqliteTestHelpers.Instance,
+    new ServiceCollection().AddEntityFrameworkSqliteNetTopologySuite(),
+    SqliteTestHelpers.Instance.AddProviderOptions(
+        ((IRelationalDbContextOptionsBuilderInfrastructure)
+            new SqliteDbContextOptionsBuilder(new DbContextOptionsBuilder()).UseNetTopologySuite())
+        .OptionsBuilder).Options)
 {
     [ConditionalFact]
     public virtual void It_lifts_foreign_key_additions()
@@ -31,8 +39,8 @@ public class SqliteMigrationsSqlGeneratorTest : MigrationsSqlGeneratorTestBase
             {
                 Table = "Pie",
                 PrincipalTable = "Flavor",
-                Columns = new[] { "FlavorId" },
-                PrincipalColumns = new[] { "Id" }
+                Columns = ["FlavorId"],
+                PrincipalColumns = ["Id"]
             });
 
         AssertSql(
@@ -138,15 +146,15 @@ CREATE TABLE "TestLineBreaks" (
                         IsNullable = true
                     }
                 },
-                PrimaryKey = new AddPrimaryKeyOperation { Name = pkName, Columns = new[] { "Id" } },
-                UniqueConstraints = { new AddUniqueConstraintOperation { Columns = new[] { "SSN" } } },
+                PrimaryKey = new AddPrimaryKeyOperation { Name = pkName, Columns = ["Id"] },
+                UniqueConstraints = { new AddUniqueConstraintOperation { Columns = ["SSN"] } },
                 ForeignKeys =
                 {
                     new AddForeignKeyOperation
                     {
-                        Columns = new[] { "EmployerId" },
+                        Columns = ["EmployerId"],
                         PrincipalTable = "Companies",
-                        PrincipalColumns = new[] { "Id" }
+                        PrincipalColumns = ["Id"]
                     }
                 }
             });
@@ -367,7 +375,7 @@ ALTER TABLE "People" RENAME TO "Person";
                         ["Autoincrement"] = true
                     }
                 },
-                PrimaryKey = new AddPrimaryKeyOperation { Columns = new[] { "Id" } }
+                PrimaryKey = new AddPrimaryKeyOperation { Columns = ["Id"] }
             });
 
         AssertSql(
@@ -695,7 +703,7 @@ SELECT changes();
                 {
                     Table = "Blogs",
                     Name = "PK_Blogs",
-                    Columns = new[] { "Id" }
+                    Columns = ["Id"]
                 }));
 
         Assert.Equal(SqliteStrings.InvalidMigrationOperation("AddPrimaryKeyOperation"), ex.Message);
@@ -710,7 +718,7 @@ SELECT changes();
                 {
                     Table = "Blogs",
                     Name = "AK_Blogs_Uri",
-                    Columns = new[] { "Uri" }
+                    Columns = ["Uri"]
                 }));
 
         Assert.Equal(SqliteStrings.InvalidMigrationOperation("AddUniqueConstraintOperation"), ex.Message);
@@ -1174,16 +1182,5 @@ GO
 
 PRAGMA foreign_keys = 1;
 """);
-    }
-
-    public SqliteMigrationsSqlGeneratorTest()
-        : base(
-            SqliteTestHelpers.Instance,
-            new ServiceCollection().AddEntityFrameworkSqliteNetTopologySuite(),
-            SqliteTestHelpers.Instance.AddProviderOptions(
-                ((IRelationalDbContextOptionsBuilderInfrastructure)
-                    new SqliteDbContextOptionsBuilder(new DbContextOptionsBuilder()).UseNetTopologySuite())
-                .OptionsBuilder).Options)
-    {
     }
 }

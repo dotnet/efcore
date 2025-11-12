@@ -25,9 +25,7 @@ public class MigrationAssemblyEventData : MigratorEventData
         IMigrator migrator,
         IMigrationsAssembly migrationsAssembly)
         : base(eventDefinition, messageGenerator, migrator)
-    {
-        MigrationsAssembly = migrationsAssembly;
-    }
+        => MigrationsAssembly = migrationsAssembly;
 
     /// <summary>
     ///     The <see cref="IMigrationsAssembly" /> in use.
