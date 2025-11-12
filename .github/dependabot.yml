@@ -1,8 +1,4 @@
 version: 2
-registries:
-  nuget.org:
-    type: nuget-feed
-    url: https://api.nuget.org/v3/index.json
 updates:
   - package-ecosystem: nuget
     directory: /
@@ -10,10 +6,10 @@ updates:
       interval: weekly
     allow:
       - dependency-name: Azure.Identity
+      - dependency-name: Azure.ResourceManager.CosmosDB
       - dependency-name: Castle.Core
       - dependency-name: Grpc.AspNetCore
       - dependency-name: Humanizer.Core
-      - dependency-name: IdentityServer4.EntityFramework
       - dependency-name: Microsoft.AspNetCore.Identity.EntityFrameworkCore
       - dependency-name: Microsoft.AspNetCore.OData
       - dependency-name: Microsoft.Azure.Cosmos
@@ -24,17 +20,28 @@ updates:
       - dependency-name: mod_spatialite
       - dependency-name: Mono.TextTemplating
       - dependency-name: NetTopologySuite*
-      - dependency-name: Newtonsoft.Json
+      - dependency-name: Newtonsoft.Json      
+      - dependency-name: OpenTelemetry.Exporter.InMemory      
       - dependency-name: SQLitePCLRaw*
     ignore:
+      # Infrastructure
+      - dependency-name: Microsoft.DotNet.Arcade.Sdk
+      - dependency-name: Microsoft.DotNet.Helix.Sdk
       # Affects minimum required Visual Studio version
-      - dependency-name: Microsoft.CodeAnalysis.CSharp*
+      - dependency-name: Microsoft.CodeAnalysis.*
+      - dependency-name: Microsoft.Build.*
       # New analyzer rules would need to be disabled
       - dependency-name: DotNetAnalyzers.DocumentationAnalyzers
       - dependency-name: StyleCop.Analyzers
-      # Testing infrastructure should be intentionally updated
+      # Benchmarking infrastructure should be intentionally updated
       - dependency-name: BenchmarkDotNet
     labels:
       - area-infrastructure
-      - 'type-dependency update :arrow_up_small:'
     registries: '*'
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    labels:
+      - area-infrastructure
