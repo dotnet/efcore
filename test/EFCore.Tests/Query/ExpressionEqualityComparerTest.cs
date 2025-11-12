@@ -107,6 +107,42 @@ public class ExpressionEqualityComparerTest
         Assert.NotEqual(expressionComparer.GetHashCode(e1), expressionComparer.GetHashCode(e3));
     }
 
+    [ConditionalFact]
+    public void Collection_constant_expressions_are_compared_correctly()
+    {
+        var expressionComparer = ExpressionEqualityComparer.Instance;
+
+        var e1 = Constant(new List<string> { "value1", "value2" });
+        var e2 = Constant(new List<string> { "value1", "value2" });
+        var e3 = Constant(new List<string> { "value1", "value3" });
+        var e4 = Constant(new List<string> { "value2", "value1" });
+
+        Assert.True(expressionComparer.Equals(e1, e2));
+        Assert.False(expressionComparer.Equals(e1, e3));
+        Assert.False(expressionComparer.Equals(e1, e4));
+
+        Assert.Equal(expressionComparer.GetHashCode(e1), expressionComparer.GetHashCode(e2));
+        Assert.NotEqual(expressionComparer.GetHashCode(e1), expressionComparer.GetHashCode(e3));
+        Assert.NotEqual(expressionComparer.GetHashCode(e1), expressionComparer.GetHashCode(e4));
+    }
+
+    [ConditionalFact]
+    public void Sorted_collection_constant_expressions_with_different_insertion_order_are_equal()
+    {
+        var expressionComparer = ExpressionEqualityComparer.Instance;
+
+        // Test sorted collections with elements in different order
+        var e1 = Constant(new SortedSet<string> { "value2", "value1", "value3" });
+        var e2 = Constant(new SortedSet<string> { "value1", "value3", "value2" });
+        var e3 = Constant(new SortedSet<string> { "value1", "value2", "value4" });
+
+        Assert.True(expressionComparer.Equals(e1, e2));
+        Assert.False(expressionComparer.Equals(e1, e3));
+
+        Assert.Equal(expressionComparer.GetHashCode(e1), expressionComparer.GetHashCode(e2));
+        Assert.NotEqual(expressionComparer.GetHashCode(e1), expressionComparer.GetHashCode(e3));
+    }
+
     [ConditionalFact] // #30697
     public void Lambda_parameters_names_are_taken_into_account()
     {
