@@ -149,7 +149,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         EntityFrameworkMetricsData.ReportQueryExecuting();
 
                         _enumerator = _cosmosQueryContext.CosmosClient
-                            .ExecuteSqlQueryAsync(_cosmosContainer, _cosmosPartitionKey, sqlQuery)
+                            .ExecuteSqlQueryAsync(_cosmosContainer, _cosmosPartitionKey, sqlQuery, _cosmosQueryContext.SessionTokenStorage)
                             .GetAsyncEnumerator(_cancellationToken);
                         _cosmosQueryContext.InitializeStateManager(_standAloneStateManager);
                     }
