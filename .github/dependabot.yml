@@ -5,6 +5,10 @@ updates:
     open-pull-requests-limit: 5
     schedule:
       interval: "weekly"
+    ignore:
+      # Infrastructure SDKs are updated through a different mechanism
+      - dependency-name: Microsoft.DotNet.Arcade.Sdk
+      - dependency-name: Microsoft.DotNet.Helix.Sdk
     labels:
       - "area-infrastructure"
 
