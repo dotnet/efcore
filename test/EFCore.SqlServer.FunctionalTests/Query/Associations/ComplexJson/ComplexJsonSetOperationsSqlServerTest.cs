@@ -72,7 +72,7 @@ FROM [RootEntity] AS [r]
             AssertSql(
                 """
 SELECT (
-    SELECT COALESCE(SUM([s].[value]), 0)
+    SELECT ISNULL(SUM([s].[value]), 0)
     FROM (
         SELECT [a].[NestedCollection] AS [NestedCollection]
         FROM OPENJSON([r].[AssociateCollection], '$') WITH (
@@ -89,7 +89,7 @@ SELECT (
         WHERE [a0].[String] = N'foo'
     ) AS [u]
     OUTER APPLY (
-        SELECT COALESCE(SUM([n].[Int]), 0) AS [value]
+        SELECT ISNULL(SUM([n].[Int]), 0) AS [value]
         FROM OPENJSON([u].[NestedCollection], '$') WITH ([Int] int '$.Int') AS [n]
     ) AS [s])
 FROM [RootEntity] AS [r]
