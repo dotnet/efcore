@@ -1,6 +1,7 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -17,12 +18,23 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
 
     #region Model
 
+    [ComplexType]
+    public class Phone
+    {
+        public Phone(int code, int number)
+        {
+            Code = code;
+            Number = number;
+        }
+
+        public int Code { get; set; }
+        public int Number { get; set; }
+    }
     public class Customer
     {
         public int Id { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
-
         public List<Order> Orders { get; set; }
         public List<Address> Addresses { get; set; }
     }
@@ -92,6 +104,31 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         public int? AmountSold { get; set; }
     }
 
+    [ComplexType]
+    public class ComplexGpsCoordinates
+    {
+        public ComplexGpsCoordinates(double latitude, double longitude)
+        {
+            Latitude = latitude;
+            Longitude = longitude;
+        }
+
+        public double Latitude { get; set; }
+        public double Longitude { get; set; }
+    }
+
+    public class MapLocation
+    {
+        public int Id { get; set; }
+        public ComplexGpsCoordinates GpsCoordinates { get; set; }
+    }
+
+    public class MapLocationData
+    {
+        public int Id { get; set; }
+        public ComplexGpsCoordinates GpsCoordinates { get; set; }
+    }
+
     public class CustomerData
     {
         public int Id { get; set; }
@@ -107,6 +144,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         public DbSet<Order> Orders { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<Address> Addresses { get; set; }
+        public DbSet<MapLocation> MapLocations { get; set; }
 
         #endregion
 
@@ -355,6 +393,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
             modelBuilder.Entity<OrderByYear>().HasNoKey();
             modelBuilder.Entity<TopSellingProduct>().HasNoKey().ToFunction("GetTopTwoSellingProducts");
             modelBuilder.Entity<CustomerData>().ToView("Customers");
+            modelBuilder.Entity<MapLocationData>().ToView("MapLocations");
         }
     }
 
@@ -520,11 +559,22 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
                 ]
             };
 
+            var location1 = new MapLocation
+            {
+                GpsCoordinates = new ComplexGpsCoordinates(1.0, 2.0),
+            };
+
+            var location2 = new MapLocation
+            {
+                GpsCoordinates = new ComplexGpsCoordinates(1.0, 2.0),
+            };
+
             ((UDFSqlContext)context).Products.AddRange(product1, product2, product3, product4, product5);
             ((UDFSqlContext)context).Addresses.AddRange(
                 address11, address12, address21, address31, address32, address41, address42, address43);
             ((UDFSqlContext)context).Customers.AddRange(customer1, customer2, customer3, customer4);
             ((UDFSqlContext)context).Orders.AddRange(order11, order12, order13, order21, order22, order31);
+            ((UDFSqlContext)context).MapLocations.AddRange(location1, location2);
         }
     }
 
@@ -2179,6 +2229,19 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
                              select t).ToList();
 
             Assert.Equal(4, customers.Count);
+        }
+    }
+
+    [ConditionalFact]
+    public virtual void TVF_backing_entity_type_with_complextype_mapped_to_view()
+    {
+        using (var context = CreateContext())
+        {
+            var locations = (from t in context.Set<MapLocationData>()
+                             orderby t.Id
+                             select t).ToList();
+
+            Assert.Equal(2, locations.Count);
         }
     }
 
