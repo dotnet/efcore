@@ -106,6 +106,7 @@ For Publish:
                        TargetNamespace="$(EFTargetNamespace)"
                        Language="$(Language)"
                        Nullable="$(EFNullable)"
+                       RuntimeCopyLocalItems="@(RuntimeCopyLocalItems)"
                        OutputDir="$(EFOutputDir)"
                        Project="$(MSBuildProjectFullPath)"
                        ProjectDir="$(MSBuildProjectDirectory)"

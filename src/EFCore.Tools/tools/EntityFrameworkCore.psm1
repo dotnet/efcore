@@ -1338,6 +1338,24 @@ function EF($project, $startupProject, $params, $applicationArgs, [switch] $skip
         $params += '--design-assembly', $designReference.FullPath
     }
 
+    $msbuildWorkspacesItem = $references.Items.RuntimeCopyLocalItems | ? { 
+        $_.Filename -eq 'Microsoft.CodeAnalysis.Workspaces.MSBuild' 
+    } | Select-Object -First 1
+
+    if ($msbuildWorkspacesItem -ne $null -and $msbuildWorkspacesItem.CopyLocal -eq 'true')
+    {
+        $itemDirectory = [IO.Path]::GetDirectoryName($msbuildWorkspacesItem.FullPath)
+        if ($itemDirectory)
+        {
+            $contentFilesPath = [IO.Path]::GetFullPath([IO.Path]::Combine($itemDirectory, '..', '..', 'contentFiles', 'any', 'any'))
+            
+            if ([IO.Directory]::Exists($contentFilesPath))
+            {
+                Copy-Item "$contentFilesPath\*" $targetDir -Recurse -ErrorAction SilentlyContinue
+            }
+        }
+    }
+
     $arguments = ToArguments $params
     if ($applicationArgs)
     {

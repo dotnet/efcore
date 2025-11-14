@@ -58,7 +58,7 @@
   <ItemGroup>
     <PackageReference Include="Humanizer.Core" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" PrivateAssets="analyzers;build" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" />
     <PackageReference Include="Microsoft.Extensions.DependencyModel" />
     <PackageReference Include="Microsoft.Extensions.HostFactoryResolver.Sources" PrivateAssets="All" />
     <PackageReference Include="Mono.TextTemplating" />

@@ -90,10 +90,15 @@ internal class Project
 
         var metadata = JsonSerializer.Deserialize<ProjectMetadata>(output.ToString())!;
 
-        var designAssembly = metadata.Items["RuntimeCopyLocalItems"]
+        var runtimeCopyLocalItems = metadata.Items["RuntimeCopyLocalItems"];
+
+        var designAssembly = runtimeCopyLocalItems
             .Select(i => i["FullPath"])
             .FirstOrDefault(i => i.Contains("Microsoft.EntityFrameworkCore.Design", StringComparison.InvariantCulture));
         var properties = metadata.Properties;
+
+        var outputPath = Path.GetFullPath(Path.Combine(properties[nameof(ProjectDir)]!, properties[nameof(OutputPath)]!));
+        CopyBuildHost(runtimeCopyLocalItems, outputPath);
 
         var platformTarget = properties[nameof(PlatformTarget)];
         if (platformTarget.Length == 0)
@@ -124,6 +129,50 @@ internal class Project
     {
         public Dictionary<string, string> Properties { get; set; } = null!;
         public Dictionary<string, Dictionary<string, string>[]> Items { get; set; } = null!;
+    }
+
+    private static void CopyBuildHost(
+        Dictionary<string, string>[] runtimeCopyLocalItems,
+        string targetDir)
+    {
+        var msbuildWorkspacesItem = runtimeCopyLocalItems.FirstOrDefault(item =>
+            string.Equals(item["Filename"], "Microsoft.CodeAnalysis.Workspaces.MSBuild", StringComparison.OrdinalIgnoreCase));
+
+        if (msbuildWorkspacesItem == null
+            || !msbuildWorkspacesItem.TryGetValue("CopyLocal", out var copyLocal)
+            || !string.Equals(copyLocal, "true", StringComparison.OrdinalIgnoreCase)
+            || !msbuildWorkspacesItem.TryGetValue("FullPath", out var fullPath)
+            || string.IsNullOrEmpty(fullPath))
+        {
+            return;
+        }
+
+        var contentFilesPath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(fullPath)!, "..", "..", "contentFiles", "any", "any"));
+            CopyDirectoryRecursive(contentFilesPath, targetDir);
+    }
+
+    private static void CopyDirectoryRecursive(string sourceDir, string targetDir)
+    {
+        var directory = new DirectoryInfo(sourceDir);
+        if (!directory.Exists)
+        {
+            return;
+        }
+
+        Directory.CreateDirectory(targetDir);
+        foreach (var file in directory.GetFiles())
+        {
+            var filePath = Path.Combine(targetDir, file.Name);
+            if (!File.Exists(filePath))
+            {
+                file.CopyTo(filePath, overwrite: false);
+            }
+        }
+
+        foreach (var subDir in directory.GetDirectories())
+        {
+            CopyDirectoryRecursive(subDir.FullName, Path.Combine(targetDir, subDir.Name));
+        }
     }
 
     public void Build(IEnumerable<string>? additionalArgs)
