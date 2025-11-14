@@ -910,6 +910,24 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 GetString("WritingSnapshot", nameof(file)),
                 file);
 
+        /// <summary>
+        ///     Backing field for property could not be inferred.
+        /// </summary>
+        public static string CompiledModelBackingFieldNotFound(object? entityType, object? propertyName)
+            => string.Format(
+                GetString("CompiledModelBackingFieldNotFound", nameof(entityType)),
+                entityType,
+                propertyName);
+
+        /// <summary>
+        ///     Unsafe accessor for property could not be generated.
+        /// </summary>
+        public static string CompiledModelUnsafeAccessorNull(object? entityType, object? propertyName)
+            => string.Format(
+                GetString("CompiledModelUnsafeAccessorNull", nameof(entityType)),
+                entityType,
+                propertyName);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name)!;
