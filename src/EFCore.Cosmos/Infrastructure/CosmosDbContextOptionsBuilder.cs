@@ -4,6 +4,7 @@
 using System.ComponentModel;
 using System.Net;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
+using static System.Net.WebRequestMethods;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
@@ -210,6 +211,22 @@ public class CosmosDbContextOptionsBuilder : ICosmosDbContextOptionsBuilderInfra
     /// <param name="enabled"><see langword="false" /> to have null resource</param>
     public virtual CosmosDbContextOptionsBuilder ContentResponseOnWriteEnabled(bool enabled = true)
         => WithOption(e => e.ContentResponseOnWriteEnabled(Check.NotNull(enabled)));
+
+    /// <summary>
+    ///     Sets the boolean to enable the <see href="https://learn.microsoft.com/en-us/azure/cosmos-db/bulk-executor-overview">Cosmos DB SDK bulk execution feature</see>.
+    ///     Enabling this feature can improve throughput for small write operations but may increase latency.
+    ///     It is recommended only for high-throughput, non-latency-sensitive scenarios.
+    ///     Because <see href="https://learn.microsoft.com/en-us/azure/cosmos-db/nosql/transactional-batch">Transactional Batches</see> cannot be executed in bulk mode,
+    ///     any operations batched by EF will not use bulk execution. To ensure operations are executed in bulk, consider disabling batching by setting <see cref="AutoTransactionBehavior.Never"/>.
+    ///     For more information, see <see href="https://learn.microsoft.com/en-us/ef/core/providers/cosmos/saving">Saving Data - Azure Cosmos DB Provider</see>.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
+    /// </remarks>
+    /// <param name="enabled"><see langword="true" /> to enable the Cosmos DB SDK bulk feature.</param>
+    public virtual CosmosDbContextOptionsBuilder BulkExecutionEnabled(bool enabled = true)
+        => WithOption(e => e.BulkExecutionEnabled(enabled));
 
     /// <summary>
     ///     Sets an option by cloning the extension used to store the settings. This ensures the builder

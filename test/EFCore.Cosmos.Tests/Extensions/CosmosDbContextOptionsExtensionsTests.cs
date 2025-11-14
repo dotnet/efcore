@@ -65,6 +65,7 @@ public class CosmosDbContextOptionsExtensionsTests
         Test(o => o.MaxTcpConnectionsPerEndpoint(3), o => Assert.Equal(3, o.MaxTcpConnectionsPerEndpoint));
         Test(o => o.LimitToEndpoint(), o => Assert.True(o.LimitToEndpoint));
         Test(o => o.ContentResponseOnWriteEnabled(), o => Assert.True(o.EnableContentResponseOnWrite));
+        Test(o => o.BulkExecutionEnabled(), o => Assert.True(o.EnableBulkExecution));
 
         var webProxy = new WebProxy();
         Test(o => o.WebProxy(webProxy), o => Assert.Same(webProxy, o.WebProxy));

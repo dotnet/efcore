@@ -88,6 +88,11 @@ public class SingletonCosmosClientWrapper : ISingletonCosmosClientWrapper
             configuration.HttpClientFactory = options.HttpClientFactory;
         }
 
+        if (options.EnableBulkExecution != null)
+        {
+            configuration.AllowBulkExecution = options.EnableBulkExecution.Value;
+        }
+
         _client = options switch
         {
             { ConnectionString: not null and not "" } => new CosmosClient(options.ConnectionString, configuration),
