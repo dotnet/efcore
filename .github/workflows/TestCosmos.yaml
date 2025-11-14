@@ -20,7 +20,7 @@ jobs:
           Start-CosmosDbEmulator -Timeout 540 -NoUI -NoTelemetry -NoFirewall -EnablePreview
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         
       - name: Build
         run: build.cmd -test /p:Projects=${{ github.workspace }}\test\EFCore.Cosmos.FunctionalTests\EFCore.Cosmos.FunctionalTests.csproj
@@ -29,7 +29,7 @@ jobs:
            Test__Cosmos__SkipConnectionCheck: true
 
       - name: Publish Test Results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: always()
         with:
           name: test-results
