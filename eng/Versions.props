@@ -4,7 +4,7 @@
     <VersionPrefix>10.0.1</VersionPrefix>
 	<PreReleaseVersionLabel>servicing</PreReleaseVersionLabel>
     <PreReleaseVersionIteration></PreReleaseVersionIteration>
-    <IncludeSourceRevisionInInformationalVersion>False</IncludeSourceRevisionInInformationalVersion>	
+    <IncludeSourceRevisionInInformationalVersion>False</IncludeSourceRevisionInInformationalVersion>
     <IsServicingBuild Condition="'$(PreReleaseVersionLabel)' == 'servicing'">true</IsServicingBuild>
     <!--
         When StabilizePackageVersion is set to 'true', this branch will produce stable outputs for 'Shipping' packages
