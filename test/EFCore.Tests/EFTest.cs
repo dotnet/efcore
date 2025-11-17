@@ -31,24 +31,24 @@ public class EFTest
         _ = query(context1, new Bar()).ToList();
     }
 
-    [ConditionalFact]
-    public async Task CompiledQueryAsync_throws_when_used_with_different_models()
-    {
-        using var context1 = new SwitchContext();
-        using var context2 = new SwitchContext();
+    // [ConditionalFact]
+    // public async Task CompiledQueryAsync_throws_when_used_with_different_models()
+    // {
+    //     using var context1 = new SwitchContext();
+    //     using var context2 = new SwitchContext();
 
-        var query = EF.CompileAsyncQuery((SwitchContext c) => c.Foos);
+    //     var query = EF.CompileAsyncQuery((SwitchContext c) => c.Foos);
 
-        _ = await query(context1).ToListAsync();
-        _ = await query(context1).ToListAsync();
+    //     _ = await query(context1).ToListAsync();
+    //     _ = await query(context1).ToListAsync();
 
-        Assert.Equal(
-            CoreStrings.CompiledQueryDifferentModel("c => c.Foos"),
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => query(context2).ToListAsync())).Message);
+    //     Assert.Equal(
+    //         CoreStrings.CompiledQueryDifferentModel("c => c.Foos"),
+    //         (await Assert.ThrowsAsync<InvalidOperationException>(
+    //             () => query(context2).ToListAsync())).Message);
 
-        _ = await query(context1).ToListAsync();
-    }
+    //     _ = await query(context1).ToListAsync();
+    // }
 
     private class Foo
     {

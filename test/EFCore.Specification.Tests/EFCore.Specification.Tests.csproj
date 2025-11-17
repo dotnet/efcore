@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <Description>Shared test suite for Entity Framework Core database providers.</Description>
-    <TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <AssemblyName>Microsoft.EntityFrameworkCore.Specification.Tests</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>

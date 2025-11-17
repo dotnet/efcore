@@ -125,18 +125,18 @@ internal static class EnumerableExtensions
         return false;
     }
 
-    public static async Task<List<TSource>> ToListAsync<TSource>(
-        this IAsyncEnumerable<TSource> source,
-        CancellationToken cancellationToken = default)
-    {
-        var list = new List<TSource>();
-        await foreach (var element in source.WithCancellation(cancellationToken).ConfigureAwait(false))
-        {
-            list.Add(element);
-        }
+    // public static async Task<List<TSource>> ToListAsync<TSource>(
+    //     this IAsyncEnumerable<TSource> source,
+    //     CancellationToken cancellationToken = default)
+    // {
+    //     var list = new List<TSource>();
+    //     await foreach (var element in source.WithCancellation(cancellationToken).ConfigureAwait(false))
+    //     {
+    //         list.Add(element);
+    //     }
 
-        return list;
-    }
+    //     return list;
+    // }
 
     public static List<TSource> ToList<TSource>(this IEnumerable source)
         => source.OfType<TSource>().ToList();
