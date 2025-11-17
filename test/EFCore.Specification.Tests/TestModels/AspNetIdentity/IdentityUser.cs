@@ -13,7 +13,5 @@ public class IdentityUser : IdentityUser<string>
 
     public IdentityUser(string userName)
         : this()
-    {
-        UserName = userName;
-    }
+        => UserName = userName;
 }
