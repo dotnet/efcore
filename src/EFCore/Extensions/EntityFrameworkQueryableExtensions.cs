@@ -3396,7 +3396,7 @@ public static class EntityFrameworkQueryableExtensions
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>The total number of rows updated in the database.</returns>
     [DynamicDependency(
-        "ExecuteUpdate``1(System.Linq.IQueryable{``1},System.Collections.Generic.IReadOnlyList{ITuple})",
+        "ExecuteUpdate``1(System.Linq.IQueryable{``0},System.Collections.Generic.IReadOnlyList{System.Runtime.CompilerServices.ITuple})",
         typeof(EntityFrameworkQueryableExtensions))]
     public static Task<int> ExecuteUpdateAsync<TSource>(
         this IQueryable<TSource> source,
