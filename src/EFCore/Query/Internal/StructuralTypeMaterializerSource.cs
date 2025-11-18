@@ -31,6 +31,9 @@ public class StructuralTypeMaterializerSource : IStructuralTypeMaterializerSourc
         = typeof(StructuralTypeMaterializerSource).GetMethod(
             nameof(PopulateList), BindingFlags.Public | BindingFlags.Static)!;
 
+    private static readonly bool UseOldBehavior37162 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37162", out var enabled37162) && enabled37162;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -103,7 +106,7 @@ public class StructuralTypeMaterializerSource : IStructuralTypeMaterializerSourc
             || structuralType is not IEntityType
             ? properties.Count == 0 && blockExpressions.Count == 0
                 ? constructorExpression
-                : CreateMaterializeExpression(blockExpressions, instanceVariable, constructorExpression, getValueBufferExpression, properties, bindingInfo)
+                : CreateMaterializeExpression(blockExpressions, instanceVariable, constructorExpression, getValueBufferExpression, properties, bindingInfo, parameters.IsNullable)
             : CreateInterceptionMaterializeExpression(
                 structuralType,
                 properties,
@@ -112,11 +115,12 @@ public class StructuralTypeMaterializerSource : IStructuralTypeMaterializerSourc
                 constructorExpression,
                 getValueBufferExpression,
                 instanceVariable,
-                blockExpressions);
+                blockExpressions,
+                parameters.IsNullable);
 
         return structuralType is IComplexType complexType
             && ReadComplexTypeDirectly(complexType)
-            && parameters.ClrType.IsNullableType()
+            && (UseOldBehavior37162 ? parameters.ClrType.IsNullableType() : parameters.IsNullable)
             ? HandleNullableComplexTypeMaterialization(
                 complexType,
                 parameters.ClrType,
@@ -180,7 +184,8 @@ public class StructuralTypeMaterializerSource : IStructuralTypeMaterializerSourc
         ParameterBindingInfo bindingInfo,
         Expression instanceVariable,
         MethodCallExpression getValueBufferExpression,
-        List<Expression> blockExpressions)
+        List<Expression> blockExpressions,
+        bool nullable)
     {
         if (property is IComplexProperty cp && !ReadComplexTypeDirectly(cp.ComplexType))
         {
@@ -202,7 +207,7 @@ public class StructuralTypeMaterializerSource : IStructuralTypeMaterializerSourc
 
             IComplexProperty complexProperty
                 => CreateMaterializeExpression(
-                    new StructuralTypeMaterializerSourceParameters(complexProperty.ComplexType, "complexType", complexProperty.ClrType, QueryTrackingBehavior: null),
+                    new StructuralTypeMaterializerSourceParameters(complexProperty.ComplexType, "complexType", complexProperty.ClrType, nullable || complexProperty.IsNullable, QueryTrackingBehavior: null),
                     bindingInfo.MaterializationContextExpression),
 
             _ => throw new UnreachableException()
@@ -258,11 +263,12 @@ public class StructuralTypeMaterializerSource : IStructuralTypeMaterializerSourc
         ParameterBindingInfo bindingInfo,
         Expression instanceVariable,
         MethodCallExpression getValueBufferExpression,
-        List<Expression> blockExpressions)
+        List<Expression> blockExpressions,
+        bool nullable)
     {
         foreach (var property in properties)
         {
-            AddInitializeExpression(property, bindingInfo, instanceVariable, getValueBufferExpression, blockExpressions);
+            AddInitializeExpression(property, bindingInfo, instanceVariable, getValueBufferExpression, blockExpressions, nullable);
         }
     }
 
@@ -350,11 +356,12 @@ public class StructuralTypeMaterializerSource : IStructuralTypeMaterializerSourc
         Expression constructorExpression,
         MethodCallExpression getValueBufferExpression,
         HashSet<IPropertyBase> properties,
-        ParameterBindingInfo bindingInfo)
+        ParameterBindingInfo bindingInfo,
+        bool nullable)
     {
         blockExpressions.Add(Assign(instanceVariable, constructorExpression));
 
-        AddInitializeExpressions(properties, bindingInfo, instanceVariable, getValueBufferExpression, blockExpressions);
+        AddInitializeExpressions(properties, bindingInfo, instanceVariable, getValueBufferExpression, blockExpressions, nullable);
 
         if (bindingInfo.StructuralType is IEntityType)
         {
@@ -374,7 +381,8 @@ public class StructuralTypeMaterializerSource : IStructuralTypeMaterializerSourc
         Expression constructorExpression,
         MethodCallExpression getValueBufferExpression,
         ParameterExpression instanceVariable,
-        List<Expression> blockExpressions)
+        List<Expression> blockExpressions,
+        bool nullable)
     {
         // Something like:
         // Dictionary<IPropertyBase, (object, Func<MaterializationContext, object?>)> accessorFactory = CreateAccessors()
@@ -456,7 +464,7 @@ public class StructuralTypeMaterializerSource : IStructuralTypeMaterializerSourc
                                 instanceVariable,
                                 Default(typeof(InterceptionResult))),
                             IsSuppressedProperty)),
-                    CreateInitializeExpression()));
+                    CreateInitializeExpression(nullable)));
         blockExpressions.Add(
             Assign(
                 instanceVariable,
@@ -527,11 +535,11 @@ public class StructuralTypeMaterializerSource : IStructuralTypeMaterializerSourc
             return Block([dictionaryVariable], snapshotBlockExpressions);
         }
 
-        BlockExpression CreateInitializeExpression()
+        BlockExpression CreateInitializeExpression(bool nullable)
         {
             var initializeBlockExpressions = new List<Expression>();
 
-            AddInitializeExpressions(properties, bindingInfo, instanceVariable, getValueBufferExpression, initializeBlockExpressions);
+            AddInitializeExpressions(properties, bindingInfo, instanceVariable, getValueBufferExpression, initializeBlockExpressions, nullable);
 
             if (bindingInfo.StructuralType is IEntityType)
             {
@@ -553,9 +561,12 @@ public class StructuralTypeMaterializerSource : IStructuralTypeMaterializerSourc
         var materializationContextParameter
             = Parameter(typeof(MaterializationContext), "materializationContext");
 
+        // GetMaterializer only gets called from the model/change tracking, and not from the materializer;
+        // all such usages assume non-nullable materialization (i.e. no checking of scalar properties is needed
+        // for complex types)
         return Lambda<Func<MaterializationContext, object>>(
                 ((IStructuralTypeMaterializerSource)this).CreateMaterializeExpression(
-                    new StructuralTypeMaterializerSourceParameters(entityType, "instance", entityType.ClrType, null), materializationContextParameter),
+                    new StructuralTypeMaterializerSourceParameters(entityType, "instance", entityType.ClrType, IsNullable: false, null), materializationContextParameter),
                 materializationContextParameter)
             .Compile();
     }
@@ -570,9 +581,12 @@ public class StructuralTypeMaterializerSource : IStructuralTypeMaterializerSourc
     {
         var materializationContextParameter = Parameter(typeof(MaterializationContext), "materializationContext");
 
+        // GetMaterializer only gets called from the model/change tracking, and not from the materializer;
+        // all such usages assume non-nullable materialization (i.e. no checking of scalar properties is needed
+        // for complex types)
         return Lambda<Func<MaterializationContext, object>>(
                 ((IStructuralTypeMaterializerSource)this).CreateMaterializeExpression(
-                    new StructuralTypeMaterializerSourceParameters(complexType, "instance", complexType.ClrType, null), materializationContextParameter),
+                    new StructuralTypeMaterializerSourceParameters(complexType, "instance", complexType.ClrType, IsNullable: false, null), materializationContextParameter),
                 materializationContextParameter)
             .Compile();
     }
@@ -622,11 +636,16 @@ public class StructuralTypeMaterializerSource : IStructuralTypeMaterializerSourc
     public virtual Func<MaterializationContext, object> GetEmptyMaterializer(
         ITypeBase entityType, InstantiationBinding binding, List<IServiceProperty> serviceProperties)
     {
+        // GetEmptyMaterializer only gets called from the model/change tracking, and not from the materializer;
+        // all such usages assume non-nullable materialization (i.e. no checking of scalar properties is needed
+        // for complex types)
+        var nullable = false;
+
         binding = ModifyBindings(entityType, binding);
 
         var materializationContextExpression = Parameter(typeof(MaterializationContext), "mc");
         var bindingInfo = new ParameterBindingInfo(
-            new StructuralTypeMaterializerSourceParameters(entityType, "instance", entityType.ClrType, null), materializationContextExpression);
+            new StructuralTypeMaterializerSourceParameters(entityType, "instance", entityType.ClrType, nullable, null), materializationContextExpression);
 
         var blockExpressions = new List<Expression>();
         var instanceVariable = Variable(binding.RuntimeType, "instance");
@@ -648,7 +667,7 @@ public class StructuralTypeMaterializerSource : IStructuralTypeMaterializerSourc
                     ? properties.Count == 0 && blockExpressions.Count == 0
                         ? constructorExpression
                         : CreateMaterializeExpression(
-                            blockExpressions, instanceVariable, constructorExpression, getValueBufferExpression, properties, bindingInfo)
+                            blockExpressions, instanceVariable, constructorExpression, getValueBufferExpression, properties, bindingInfo, nullable)
                     : CreateInterceptionMaterializeExpression(
                         entityType,
                         [],
@@ -657,7 +676,8 @@ public class StructuralTypeMaterializerSource : IStructuralTypeMaterializerSourc
                         constructorExpression,
                         getValueBufferExpression,
                         instanceVariable,
-                        blockExpressions),
+                        blockExpressions,
+                        nullable),
                 materializationContextExpression)
             .Compile();
     }
