@@ -299,32 +299,27 @@ stages:
             name: NetCore1ESPool-Publishing-Internal
             demands: ImageOverride -equals windows.vs2019.amd64
       steps:
-      - template: /eng/common/core-templates/post-build/setup-maestro-vars.yml
-        parameters:
-          BARBuildId: ${{ parameters.BARBuildId }}
-          PromoteToChannelIds: ${{ parameters.PromoteToChannelIds }}
-          is1ESPipeline: ${{ parameters.is1ESPipeline }}
+        - template: /eng/common/core-templates/post-build/setup-maestro-vars.yml
+          parameters:
+            BARBuildId: ${{ parameters.BARBuildId }}
+            PromoteToChannelIds: ${{ parameters.PromoteToChannelIds }}
+            is1ESPipeline: ${{ parameters.is1ESPipeline }}
 
-      - task: NuGetAuthenticate@1 # Populate internal runtime variables.
+        - task: NuGetAuthenticate@1
 
-      - template: /eng/common/templates/steps/enable-internal-sources.yml
-        parameters:
-          legacyCredential: $(dn-bot-dnceng-artifact-feeds-rw)
+        # Darc is targeting 8.0, so make sure it's installed
+        - task: UseDotNet@2
+          inputs:
+            version: 8.0.x
 
-      - template: /eng/common/templates/steps/enable-internal-runtimes.yml
-
-      - task: UseDotNet@2
-        inputs:
-          version: 8.0.x
-
-      - task: AzureCLI@2
-        displayName: Publish Using Darc
-        inputs:
-          azureSubscription: "Darc: Maestro Production"
-          scriptType: ps
-          scriptLocation: scriptPath
-          scriptPath: $(System.DefaultWorkingDirectory)/eng/common/post-build/publish-using-darc.ps1
-          arguments: >
+        - task: AzureCLI@2
+          displayName: Publish Using Darc
+          inputs:
+            azureSubscription: "Darc: Maestro Production"
+            scriptType: ps
+            scriptLocation: scriptPath
+            scriptPath: $(System.DefaultWorkingDirectory)/eng/common/post-build/publish-using-darc.ps1
+            arguments: >
               -BuildId $(BARBuildId)
               -PublishingInfraVersion ${{ parameters.publishingInfraVersion }}
               -AzdoToken '$(System.AccessToken)'
