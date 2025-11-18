@@ -1095,20 +1095,17 @@ public class RelationalConnectionTest
             var connection = new FakeRelationalConnection(
                 CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=ConcurrencyTest")));
 
-            using (var scope = new TransactionScope())
-            {
-                connection.Open();
-                scope.Complete();
-            }
-            // At this point, the TransactionCompleted event might be about to fire on a background thread
+            var scope = new TransactionScope();
+            connection.Open();
+            scope.Complete();
 
-            // Now test the race between the event handler and ClearTransactions
-            var task = Task.Run(async () =>
+            // Start the reset task first, which will yield and then try to reset
+            var resetTask = Task.Run(async () =>
             {
                 try
                 {
-                    // Small delay to allow TransactionCompleted event to potentially fire
-                    await Task.Delay(1);
+                    // Small delay to increase chance of race condition with HandleTransactionCompleted
+                    await Task.Yield();
 
                     // ResetState calls ClearTransactions which might race with HandleTransactionCompleted
                     ((IResettableService)connection).ResetState();
@@ -1122,7 +1119,12 @@ public class RelationalConnectionTest
                 }
             });
 
-            Task.WaitAll(new[] { task }, TimeSpan.FromSeconds(10));
+            // Dispose the scope on the main thread, which will trigger the TransactionCompleted event
+            // The event handler (HandleTransactionCompleted) may execute on a different thread and race
+            // with the ClearTransactions call in resetTask
+            scope.Dispose();
+
+            Task.WaitAll(new[] { resetTask }, TimeSpan.FromSeconds(10));
         }
 
         Assert.Empty(exceptions);
