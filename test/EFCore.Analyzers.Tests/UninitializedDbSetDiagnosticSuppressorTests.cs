@@ -7,7 +7,8 @@ namespace Microsoft.EntityFrameworkCore;
 
 using VerifyCS = CSharpAnalyzerVerifier<UninitializedDbSetDiagnosticSuppressor>;
 
-public class UninitializedDbSetDiagnosticSuppressorTests
+//Issue #37106
+internal class UninitializedDbSetDiagnosticSuppressorTests
 {
     [ConditionalFact]
     public Task DbSet_property_on_DbContext_is_suppressed()

@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public class AdHocQuerySplittingQuerySqliteTest : AdHocQuerySplittingQueryTestBase
+public class AdHocQuerySplittingQuerySqliteTest(NonSharedFixture fixture) : AdHocQuerySplittingQueryTestBase(fixture)
 {
     protected override ITestStoreFactory TestStoreFactory
         => SqliteTestStoreFactory.Instance;

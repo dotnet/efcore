@@ -51,7 +51,7 @@ public class JsonEachExpression : TableValuedFunctionExpression
         string alias,
         SqlExpression jsonExpression,
         IReadOnlyList<PathSegment>? path = null)
-        : base(alias, "json_each", schema: null, builtIn: true, new[] { jsonExpression })
+        : base(alias, "json_each", schema: null, builtIn: true, [jsonExpression])
         => Path = path;
 
     /// <summary>

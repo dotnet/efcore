@@ -19,7 +19,6 @@ internal class RootCommand : CommandBase
     private CommandOption? _framework;
     private CommandOption? _configuration;
     private CommandOption? _runtime;
-    private CommandOption? _msbuildprojectextensionspath;
     private CommandOption? _noBuild;
     private CommandOption? _help;
     private IList<string>? _args;
@@ -38,7 +37,6 @@ internal class RootCommand : CommandBase
         _framework = options.Framework;
         _configuration = options.Configuration;
         _runtime = options.Runtime;
-        _msbuildprojectextensionspath = options.MSBuildProjectExtensionsPath;
         _noBuild = options.NoBuild;
 
         command.VersionOption("--version", GetVersion);
@@ -68,10 +66,9 @@ internal class RootCommand : CommandBase
         Reporter.WriteVerbose(Resources.UsingProject(projectFile));
         Reporter.WriteVerbose(Resources.UsingStartupProject(startupProjectFile));
 
-        var project = Project.FromFile(projectFile, _msbuildprojectextensionspath!.Value());
+        var project = Project.FromFile(projectFile);
         var startupProject = Project.FromFile(
             startupProjectFile,
-            _msbuildprojectextensionspath.Value(),
             _framework!.Value(),
             _configuration!.Value(),
             _runtime!.Value());
@@ -94,7 +91,8 @@ internal class RootCommand : CommandBase
             Path.GetDirectoryName(typeof(Program).Assembly.Location)!,
             "tools");
 
-        var targetDir = Path.GetFullPath(Path.Combine(startupProject.ProjectDir!, startupProject.OutputPath!));
+        var targetDir = Path.GetFullPath(Path.Combine(startupProject.ProjectDir!, startupProject.OutputPath!))
+            .Replace('\\', Path.DirectorySeparatorChar);
         var targetPath = Path.Combine(targetDir, project.TargetFileName!);
         var startupTargetPath = Path.Combine(targetDir, startupProject.TargetFileName!);
         var depsFile = Path.Combine(
@@ -170,7 +168,10 @@ internal class RootCommand : CommandBase
                 args.Add(startupProject.RuntimeFrameworkVersion);
             }
 
-            args.Add(Path.Combine(toolsPath, "netcoreapp2.0", "any", "ef.dll"));
+#if !NET10_0
+#error Target framework needs to be updated here, as well as in Microsoft.EntityFrameworkCore.Tasks.props and EntityFrameworkCore.psm1
+#endif
+            args.Add(Path.Combine(toolsPath, "net10.0", "any", "ef.dll"));
         }
         else if (targetFramework.Identifier == ".NETStandard")
         {
@@ -199,6 +200,13 @@ internal class RootCommand : CommandBase
         args.Add(project.Language!);
         args.Add("--framework");
         args.Add(startupProject.TargetFramework!);
+
+        var designAssembly = startupProject.DesignAssembly;
+        if (!string.IsNullOrEmpty(designAssembly))
+        {
+            args.Add("--design-assembly");
+            args.Add(designAssembly);
+        }
 
         if (_configuration.HasValue())
         {

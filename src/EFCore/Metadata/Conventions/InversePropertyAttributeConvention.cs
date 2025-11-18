@@ -79,13 +79,11 @@ public class InversePropertyAttributeConvention :
         var targetClrType = targetEntityType.ClrType;
         var navigationCandidates = Dependencies.MemberClassifier.GetNavigationCandidates(targetEntityType, useAttributes: true);
         var inverseNavigationPropertyInfo = targetEntityType.GetRuntimeProperties().Values
-                .FirstOrDefault(
-                    p => string.Equals(p.GetSimpleMemberName(), attribute.Property, StringComparison.Ordinal)
-                        && navigationCandidates.ContainsKey(p))
+                .FirstOrDefault(p => string.Equals(p.GetSimpleMemberName(), attribute.Property, StringComparison.Ordinal)
+                    && navigationCandidates.ContainsKey(p))
             ?? targetEntityType.GetRuntimeProperties().Values
-                .FirstOrDefault(
-                    p => string.Equals(p.GetSimpleMemberName(), attribute.Property, StringComparison.OrdinalIgnoreCase)
-                        && navigationCandidates.ContainsKey(p));
+                .FirstOrDefault(p => string.Equals(p.GetSimpleMemberName(), attribute.Property, StringComparison.OrdinalIgnoreCase)
+                    && navigationCandidates.ContainsKey(p));
 
         if (inverseNavigationPropertyInfo == null
             || !navigationCandidates[inverseNavigationPropertyInfo].Type.IsAssignableFrom(entityType.ClrType))
@@ -255,7 +253,7 @@ public class InversePropertyAttributeConvention :
 
         if (ambiguousInverse != null)
         {
-            if (entityType.FindSkipNavigation(navigationMemberInfo) is IConventionSkipNavigation existingSkipNavigation)
+            if (entityType.FindSkipNavigation(navigationMemberInfo) is { } existingSkipNavigation)
             {
                 var existingSkipNavigationInverse = existingSkipNavigation.Inverse;
                 var inverseSkipNavigation = targetEntityType.FindSkipNavigation(inverseNavigationMemberInfo);
@@ -582,12 +580,11 @@ public class InversePropertyAttributeConvention :
                     if (ambiguousInverse != null)
                     {
                         Dependencies.Logger.MultipleInversePropertiesSameTargetWarning(
-                            new[]
-                            {
+                            [
                                 Tuple.Create<MemberInfo?, Type>(
                                     memberInfo, conventionEntityType.ClrType),
                                 Tuple.Create<MemberInfo?, Type>(ambiguousInverse.Value.Item1, ambiguousInverse.Value.Item2.ClrType)
-                            },
+                            ],
                             navigation,
                             entityType.ClrType);
                         break;

@@ -1,19 +1,24 @@
 {
   "sdk": {
-    "version": "9.0.112",
+    "version": "10.0.100-rc.2.25502.107",
     "allowPrerelease": true,
-    "rollForward": "latestMajor"
+    "rollForward": "latestMajor",
+    "paths": [
+      ".dotnet",
+      "$host$"
+    ],
+    "errorMessage": "The required .NET SDK wasn't found. Please run ./restore.sh or .\\restore.cmd to install it."
   },
   "tools": {
-    "dotnet": "9.0.112",
+    "dotnet": "10.0.100-rc.2.25502.107",
     "runtimes": {
       "dotnet": [
-        "$(MicrosoftNETCoreBrowserDebugHostTransportVersion)"
+        "$(MicrosoftNETCorePlatformsVersion)"
       ]
     }
   },
   "msbuild-sdks": {
-    "Microsoft.DotNet.Arcade.Sdk": "9.0.0-beta.25562.4",
-    "Microsoft.DotNet.Helix.Sdk": "9.0.0-beta.25562.4"
+    "Microsoft.DotNet.Arcade.Sdk": "10.0.0-beta.25563.104",
+    "Microsoft.DotNet.Helix.Sdk": "10.0.0-beta.25563.104"
   }
 }

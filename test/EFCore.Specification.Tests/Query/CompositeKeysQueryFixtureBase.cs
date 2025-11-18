@@ -367,10 +367,9 @@ public abstract class CompositeKeysQueryFixtureBase : SharedStoreFixtureBase<Com
         => CompositeKeysData.SeedAsync(context);
 
     public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-        => base.AddOptions(builder).ConfigureWarnings(
-            c => c
-                .Log(CoreEventId.PossibleUnintendedCollectionNavigationNullComparisonWarning)
-                .Log(CoreEventId.RowLimitingOperationWithoutOrderByWarning));
+        => base.AddOptions(builder).ConfigureWarnings(c => c
+            .Log(CoreEventId.PossibleUnintendedCollectionNavigationNullComparisonWarning)
+            .Log(CoreEventId.RowLimitingOperationWithoutOrderByWarning));
 
     public override CompositeKeysContext CreateContext()
     {

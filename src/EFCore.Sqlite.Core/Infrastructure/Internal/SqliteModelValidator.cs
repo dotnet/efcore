@@ -141,12 +141,11 @@ public class SqliteModelValidator : RelationalModelValidator
         if (!entityType.IsMappedToJson()
             && key.IsPrimaryKey()
             && keyProperties.Count(p => p.ClrType.UnwrapNullableType().IsInteger()) > 1
-            && keyProperties.Any(
-                p => p.ValueGenerated == ValueGenerated.OnAdd
-                    && p.ClrType.UnwrapNullableType().IsInteger()
-                    && !p.TryGetDefaultValue(out _)
-                    && p.GetDefaultValueSql() == null
-                    && !p.IsForeignKey()))
+            && keyProperties.Any(p => p.ValueGenerated == ValueGenerated.OnAdd
+                && p.ClrType.UnwrapNullableType().IsInteger()
+                && !p.TryGetDefaultValue(out _)
+                && p.GetDefaultValueSql() == null
+                && !p.IsForeignKey()))
         {
             logger.CompositeKeyWithValueGeneration(key);
         }
