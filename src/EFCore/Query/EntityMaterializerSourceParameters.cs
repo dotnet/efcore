@@ -8,7 +8,15 @@ namespace Microsoft.EntityFrameworkCore.Query;
 /// </summary>
 /// <param name="StructuralType">The entity or complex type being materialized.</param>
 /// <param name="InstanceName">The name of the instance being materialized.</param>
-/// <param name="ClrType">CLR type of the result.</param>
+/// <param name="ClrType">
+///     CLR type of the result.
+///     Note that this differs from <see cref="IReadOnlyTypeBase.ClrType "/> on <paramref name="StructuralType" />
+///     when a nullable value type is being projected out.
+/// </param>
+/// <param name="IsNullable">
+///     Whether the type being materialized is nullable.
+///     A complex type may be non-nullable even if its CLR type is nullable (i.e. a class), based on model configuration.
+/// </param>
 /// <param name="QueryTrackingBehavior">
 ///     The query tracking behavior, or <see langword="null" /> if this materialization is not from a query.
 /// </param>
@@ -16,6 +24,7 @@ public readonly record struct StructuralTypeMaterializerSourceParameters(
     ITypeBase StructuralType,
     string InstanceName,
     Type ClrType,
+    bool IsNullable,
     QueryTrackingBehavior? QueryTrackingBehavior);
 
 /// <summary>

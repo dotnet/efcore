@@ -220,6 +220,54 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
 
     #endregion 36837
 
+    #region 37162
+
+    [ConditionalFact]
+    public virtual async Task Non_optional_complex_type_with_all_nullable_properties()
+    {
+        var contextFactory = await InitializeAsync<Context37162>(
+            seed: context =>
+            {
+                context.Add(
+                    new Context37162.EntityType
+                    {
+                        NonOptionalComplexType = new Context37162.ComplexTypeWithAllNulls
+                        {
+                            // All properties are null
+                        }
+                    });
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateContext();
+
+        var entity = await context.Set<Context37162.EntityType>().SingleAsync();
+
+        Assert.NotNull(entity.NonOptionalComplexType);
+        Assert.Null(entity.NonOptionalComplexType.NullableString);
+        Assert.Null(entity.NonOptionalComplexType.NullableDateTime);
+    }
+
+    private class Context37162(DbContextOptions options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<EntityType>().ComplexProperty(b => b.NonOptionalComplexType);
+
+        public class EntityType
+        {
+            public int Id { get; set; }
+            public ComplexTypeWithAllNulls NonOptionalComplexType { get; set; } = null!;
+        }
+
+        public class ComplexTypeWithAllNulls
+        {
+            public string? NullableString { get; set; }
+            public DateTime? NullableDateTime { get; set; }
+        }
+    }
+
+    #endregion 37162
+
     protected override string StoreName
         => "AdHocComplexTypeQueryTest";
 }
