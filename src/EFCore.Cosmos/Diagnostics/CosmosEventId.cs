@@ -25,6 +25,7 @@ public static class CosmosEventId
     private enum Id
     {
         // Database events
+        [Obsolete("Synchronous I/O has been fully removed and now always throws.")]
         SyncNotSupported = CoreEventId.ProviderBaseId,
 
         // Command events
@@ -35,6 +36,7 @@ public static class CosmosEventId
         ExecutedCreateItem,
         ExecutedReplaceItem,
         ExecutedDeleteItem,
+        ExecutedTransactionalBatch,
 
         // Update events
         PrimaryKeyValueNotSet = CoreEventId.ProviderBaseId + 200,
@@ -42,19 +44,6 @@ public static class CosmosEventId
         // Model validation events
         NoPartitionKeyDefined = CoreEventId.ProviderBaseId + 600,
     }
-
-    private static readonly string DatabasePrefix = DbLoggerCategory.Database.Name + ".";
-
-    /// <summary>
-    ///     Azure Cosmos DB does not support synchronous I/O. Make sure to use and correctly await only async
-    ///     methods when using Entity Framework Core to access Azure Cosmos DB.
-    ///     See https://aka.ms/ef-cosmos-nosync for more information.
-    /// </summary>
-    /// <remarks>
-    ///     This event is in the <see cref="DbLoggerCategory.Database" /> category.
-    /// </remarks>
-    public static readonly EventId SyncNotSupported
-        = new((int)Id.SyncNotSupported, DatabasePrefix + Id.SyncNotSupported);
 
     private static readonly string CommandPrefix = DbLoggerCategory.Database.Command.Name + ".";
 
@@ -113,6 +102,20 @@ public static class CosmosEventId
     /// </remarks>
     public static readonly EventId ExecutedReadItem
         = new((int)Id.ExecutedReadItem, CommandPrefix + Id.ExecutedReadItem);
+
+    /// <summary>
+    ///     TransactionalBatch was executed.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This event is in the <see cref="DbLoggerCategory.Database.Command" /> category.
+    ///     </para>
+    ///     <para>
+    ///         This event uses the <see cref="CosmosTransactionalBatchExecutedEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///     </para>
+    /// </remarks>
+    public static readonly EventId ExecutedTransactionalBatch
+        = new((int)Id.ExecutedTransactionalBatch, CommandPrefix + Id.ExecutedTransactionalBatch);
 
     /// <summary>
     ///     CreateItem was executed.
