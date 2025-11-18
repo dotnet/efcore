@@ -18,6 +18,9 @@ public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
 {
     private const int MaxParameterCount = 2100;
 
+    private static readonly bool UseOldBehavior37151 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37151", out var enabled) && enabled;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -291,7 +294,8 @@ public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
             <= 750 => 50,
             <= 2000 => 100,
             <= 2070 => 10, // try not to over-pad as we approach that limit
-            <= MaxParameterCount => 0, // just don't pad between 2070 and 2100, to minimize the crazy
+            <= MaxParameterCount when UseOldBehavior37151 => 0,
+            <= MaxParameterCount => 1, // just don't pad between 2070 and 2100, to minimize the crazy
             _ => 200,
         };
 

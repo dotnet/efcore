@@ -2265,6 +2265,16 @@ WHERE (
     }
 
     [ConditionalFact]
+    public virtual async Task Parameter_collection_of_ints_Contains_int_2071_values()
+    {
+        var ints = Enumerable.Repeat(10, 2071).ToArray();
+        await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => ints.Contains(c.Int)));
+
+        // check that 2071 parameter is the last one (and no error happened)
+        Assert.Contains("@ints2071)", Fixture.TestSqlLoggerFactory.SqlStatements[0], StringComparison.Ordinal);
+    }
+
+    [ConditionalFact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
