@@ -2710,8 +2710,8 @@ public static class EntityFrameworkQueryableExtensions
                 Expression.Call(
                     instance: null,
                     method: IgnoreNamedQueryFiltersMethodInfo.MakeGenericMethod(typeof(TEntity)),
-                    // converting the collection to a sorted set to ensure cache is hit even when order of keys differs
-                    arguments: [source.Expression, Expression.Constant(new SortedSet<string>(filterKeys))]))
+                    // converting the collection to an array if it isn't already one to ensure consistent caching
+                    arguments: [source.Expression, Expression.Constant(filterKeys is string[] ? filterKeys : filterKeys.ToArray())]))
             : source;
 
     #endregion

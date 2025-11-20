@@ -53,7 +53,10 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
         _ = context.Entities
             .IgnoreQueryFilters(["NameFilter", "ActiveFilter"])
             .ToList();
-        Assert.Equal(1, cacheLog.Count);
+
+        // #37212 - ExpressionEqualityComparer doesn't support collections besides an array,
+        // therefore we can't implement caching for different order of ignored filters
+        Assert.Equal(2, cacheLog.Count);
     }
 
     [ConditionalFact]

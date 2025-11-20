@@ -76,13 +76,6 @@ public sealed class ExpressionEqualityComparer : IEqualityComparer<Expression?>
                             hash.Add(structuralEquatable.GetHashCode(StructuralComparisons.StructuralEqualityComparer));
                             break;
 
-                        case IEnumerable enumerable when constantExpression.Value is not string:
-                            foreach (var item in enumerable)
-                            {
-                                hash.Add(item);
-                            }
-                            break;
-
                         default:
                             hash.Add(constantExpression.Value);
                             break;
@@ -375,48 +368,8 @@ public sealed class ExpressionEqualityComparer : IEqualityComparer<Expression?>
         {
             var (v1, v2) = (a.Value, b.Value);
 
-            if (Equals(v1, v2))
-            {
-                return true;
-            }
-
-            if (v1 is IStructuralEquatable array1)
-            {
-                return array1.Equals(v2, StructuralComparisons.StructuralEqualityComparer);
-            }
-
-            // Handle collections that don't implement IStructuralEquatable
-            if (v1 is IEnumerable enumerable1 && v1 is not string
-                && v2 is IEnumerable enumerable2 && v2 is not string)
-            {
-                return SequenceEqual(enumerable1, enumerable2);
-            }
-
-            return false;
-        }
-
-        private static bool SequenceEqual(IEnumerable x, IEnumerable y)
-        {
-            var xEnumerator = x.GetEnumerator();
-            var yEnumerator = y.GetEnumerator();
-
-            try
-            {
-                while (xEnumerator.MoveNext())
-                {
-                    if (!yEnumerator.MoveNext() || !Equals(xEnumerator.Current, yEnumerator.Current))
-                    {
-                        return false;
-                    }
-                }
-
-                return !yEnumerator.MoveNext();
-            }
-            finally
-            {
-                (xEnumerator as IDisposable)?.Dispose();
-                (yEnumerator as IDisposable)?.Dispose();
-            }
+            return Equals(v1, v2)
+                || (v1 is IStructuralEquatable array1 && array1.Equals(v2, StructuralComparisons.StructuralEqualityComparer));
         }
 
         private bool CompareGoto(GotoExpression a, GotoExpression b)
