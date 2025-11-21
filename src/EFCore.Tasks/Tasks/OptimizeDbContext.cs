@@ -80,6 +80,8 @@ public class OptimizeDbContext : OperationTaskBase
             if (PrecompileQueries)
             {
                 AdditionalArguments.Add("--precompile-queries");
+
+                CopyBuildHost();
             }
 
             AdditionalArguments.Add("--nativeaot");
@@ -105,5 +107,49 @@ public class OptimizeDbContext : OperationTaskBase
         }
 
         return !Log.HasLoggedErrors;
+    }
+
+    private void CopyBuildHost()
+    {
+        var msbuildWorkspacesItem = RuntimeCopyLocalItems?.FirstOrDefault(item =>
+            string.Equals(item.GetMetadata("Filename"), "Microsoft.CodeAnalysis.Workspaces.MSBuild", StringComparison.OrdinalIgnoreCase));
+        if (msbuildWorkspacesItem == null
+            || !string.Equals(msbuildWorkspacesItem.GetMetadata("CopyLocal"), "true", StringComparison.OrdinalIgnoreCase)
+            || msbuildWorkspacesItem.GetMetadata("FullPath") is not { } fullPath
+            || string.IsNullOrEmpty(fullPath)
+            || Path.GetDirectoryName(fullPath) is not { } itemDirectory
+            || string.IsNullOrEmpty(itemDirectory))
+        {
+            return;
+        }
+
+        var contentFilesPath = Path.GetFullPath(Path.Combine(itemDirectory, "..", "..", "contentFiles", "any", "any"));
+        var targetDir = Path.GetDirectoryName(Path.GetFullPath(Assembly.ItemSpec))!;
+
+        CopyDirectoryRecursive(contentFilesPath, targetDir);
+    }
+
+    private static void CopyDirectoryRecursive(string sourceDir, string targetDir)
+    {
+        var directory = new DirectoryInfo(sourceDir);
+        if (!directory.Exists)
+        {
+            return;
+        }
+
+        Directory.CreateDirectory(targetDir);
+        foreach (var file in directory.GetFiles())
+        {
+            var filePath = Path.Combine(targetDir, file.Name);
+            if (!File.Exists(filePath))
+            {
+                file.CopyTo(filePath, overwrite: false);
+            }
+        }
+
+        foreach (var subDir in directory.GetDirectories())
+        {
+            CopyDirectoryRecursive(subDir.FullName, Path.Combine(targetDir, subDir.Name));
+        }
     }
 }

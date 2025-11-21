@@ -44,7 +44,7 @@ namespace TestNamespace
                 int (IInternalEntry entry) => entry.ReadShadowValue<int>(0),
                 int (IInternalEntry entry) => entry.ReadShadowValue<int>(0),
                 int (IInternalEntry entry) => entry.ReadOriginalValue<int>(id, 0),
-                int (IInternalEntry entry) => ((InternalEntityEntry)(entry)).ReadRelationshipSnapshotValue<int>(id, 0));
+                int (IInternalEntry entry) => ((InternalEntityEntry)entry).ReadRelationshipSnapshotValue<int>(id, 0));
             id.SetPropertyIndexes(
                 index: 0,
                 originalValueIndex: 0,
@@ -77,7 +77,7 @@ namespace TestNamespace
                 long? (IInternalEntry entry) => entry.ReadShadowValue<long?>(1),
                 long? (IInternalEntry entry) => entry.ReadShadowValue<long?>(1),
                 long? (IInternalEntry entry) => entry.ReadOriginalValue<long?>(partitionId, 1),
-                long? (IInternalEntry entry) => ((InternalEntityEntry)(entry)).ReadRelationshipSnapshotValue<long?>(partitionId, 1));
+                long? (IInternalEntry entry) => ((InternalEntityEntry)entry).ReadRelationshipSnapshotValue<long?>(partitionId, 1));
             partitionId.SetPropertyIndexes(
                 index: 1,
                 originalValueIndex: 1,
@@ -98,12 +98,12 @@ namespace TestNamespace
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new ValueConverter<long, string>(
-                    string (long v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)(v))),
+                    string (long v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)v)),
                     long (string v) => long.Parse(v, NumberStyles.Any, CultureInfo.InvariantCulture)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<long, string>(
                     JsonStringReaderWriter.Instance,
                     new ValueConverter<long, string>(
-                        string (long v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)(v))),
+                        string (long v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)v)),
                         long (string v) => long.Parse(v, NumberStyles.Any, CultureInfo.InvariantCulture))));
             partitionId.SetCurrentValueComparer(new EntryCurrentValueComparer<long?>(partitionId));
             partitionId.SetComparer(new NullableValueComparer<long>(partitionId.TypeMapping.Comparer));
@@ -143,12 +143,12 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             blob.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<byte[]>(
-                    bool (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
+                    bool (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
                     int (byte[] v) => ((object)v).GetHashCode(),
                     byte[] (byte[] v) => v),
                 keyComparer: new ValueComparer<byte[]>(
-                    bool (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     byte[] (byte[] source) => source.ToArray()),
                 providerValueComparer: new ValueComparer<string>(
                     bool (string v1, string v2) => v1 == v2,
@@ -188,8 +188,8 @@ namespace TestNamespace
                     int (ReadOnlyMemory<byte> v) => ((object)v).GetHashCode(),
                     ReadOnlyMemory<byte> (ReadOnlyMemory<byte> v) => v),
                 providerValueComparer: new ValueComparer<byte[]>(
-                    bool (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     byte[] (byte[] source) => source.ToArray()),
                 converter: new ValueConverter<ReadOnlyMemory<byte>, byte[]>(
                     byte[] (ReadOnlyMemory<byte> v) => ReadOnlyMemoryConverter<byte>.ToArray(v),

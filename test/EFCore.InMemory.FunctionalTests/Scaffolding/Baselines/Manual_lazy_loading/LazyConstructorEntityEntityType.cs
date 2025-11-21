@@ -57,7 +57,7 @@ namespace TestNamespace
                 int (IInternalEntry entry) => (entry.FlaggedAsStoreGenerated(0) ? entry.ReadStoreGeneratedValue<int>(0) : (entry.FlaggedAsTemporary(0) && LazyConstructorEntityUnsafeAccessors.Id(((CompiledModelInMemoryTest.LazyConstructorEntity)(entry.Entity))) == 0 ? entry.ReadTemporaryValue<int>(0) : LazyConstructorEntityUnsafeAccessors.Id(((CompiledModelInMemoryTest.LazyConstructorEntity)(entry.Entity))))),
                 int (IInternalEntry entry) => LazyConstructorEntityUnsafeAccessors.Id(((CompiledModelInMemoryTest.LazyConstructorEntity)(entry.Entity))),
                 int (IInternalEntry entry) => entry.ReadOriginalValue<int>(id, 0),
-                int (IInternalEntry entry) => ((InternalEntityEntry)(entry)).ReadRelationshipSnapshotValue<int>(id, 0));
+                int (IInternalEntry entry) => ((InternalEntityEntry)entry).ReadRelationshipSnapshotValue<int>(id, 0));
             id.SetPropertyIndexes(
                 index: 0,
                 originalValueIndex: 0,

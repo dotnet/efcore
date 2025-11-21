@@ -119,15 +119,15 @@ private static extern ref int UnsafeAccessor_Microsoft_EntityFrameworkCore_Query
             $"""AccessPrivateField(blog) {op} Three""", new Dictionary<object, string> { { 3, "Three" } },
             new Dictionary<MemberInfo, QualifiedName> { { BlogPrivateField, new QualifiedName("AccessPrivateField", "") } });
 
-    [Theory, InlineData(ExpressionType.Negate, "-(i)"), InlineData(ExpressionType.NegateChecked, "-(i)"),
-     InlineData(ExpressionType.Not, "~(i)"), InlineData(ExpressionType.OnesComplement, "~(i)"), InlineData(ExpressionType.UnaryPlus, "+i"),
+    [Theory, InlineData(ExpressionType.Negate, "-i"), InlineData(ExpressionType.NegateChecked, "-i"),
+     InlineData(ExpressionType.Not, "~i"), InlineData(ExpressionType.OnesComplement, "~i"), InlineData(ExpressionType.UnaryPlus, "+i"),
      InlineData(ExpressionType.Increment, "i + 1"), InlineData(ExpressionType.Decrement, "i - 1")]
     public void Unary_expression_int(ExpressionType expressionType, string expected)
         => AssertExpression(
             MakeUnary(expressionType, Parameter(typeof(int), "i"), typeof(int)),
             expected);
 
-    [Theory, InlineData(ExpressionType.Not, "!(b)"), InlineData(ExpressionType.IsFalse, "!(b)"), InlineData(ExpressionType.IsTrue, "b")]
+    [Theory, InlineData(ExpressionType.Not, "!b"), InlineData(ExpressionType.IsFalse, "!b"), InlineData(ExpressionType.IsTrue, "b")]
     public void Unary_expression_bool(ExpressionType expressionType, string expected)
         => AssertExpression(
             MakeUnary(expressionType, Parameter(typeof(bool), "b"), typeof(bool)),
@@ -163,7 +163,7 @@ private static extern ref int UnsafeAccessor_Microsoft_EntityFrameworkCore_Query
             Convert(
                 Parameter(typeof(object), "i"),
                 typeof(string)),
-            "((string)(i))");
+            "((string)i)");
 
     [Fact]
     public void Unary_Throw()
