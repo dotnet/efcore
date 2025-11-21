@@ -1095,27 +1095,20 @@ public class RelationalConnectionTest
             var connection = new FakeRelationalConnection(
                 CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=ConcurrencyTest")));
 
-            using var scope = new TransactionScope();
+            var scope = new TransactionScope();
             connection.Open();
+            scope.Complete();
 
-            var random = new Random();
-            var resetFirst = random.Next(0, 1) == 0;
-            var tasks = new Task[2];
-            tasks[0] = Task.Run(async () =>
+            // Start the reset task first, which will yield and then try to reset
+            var resetTask = Task.Run(async () =>
             {
                 try
                 {
-                    // Small delay to increase chance of race condition
+                    // Small delay to increase chance of race condition with HandleTransactionCompleted
                     await Task.Yield();
 
-                    if (resetFirst)
-                    {
-                        ((IResettableService)connection).ResetState();
-                    }
-                    else
-                    {
-                        scope.Complete();
-                    }
+                    // ResetState calls ClearTransactions which might race with HandleTransactionCompleted
+                    ((IResettableService)connection).ResetState();
                 }
                 catch (Exception ex)
                 {
@@ -1126,32 +1119,12 @@ public class RelationalConnectionTest
                 }
             });
 
-            tasks[1] = Task.Run(async () =>
-            {
-                try
-                {
-                    // Small delay to increase chance of race condition
-                    await Task.Yield();
+            // Dispose the scope on the main thread, which will trigger the TransactionCompleted event
+            // The event handler (HandleTransactionCompleted) may execute on a different thread and race
+            // with the ClearTransactions call in resetTask
+            scope.Dispose();
 
-                    if (resetFirst)
-                    {
-                        scope.Complete();
-                    }
-                    else
-                    {
-                        ((IResettableService)connection).ResetState();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    lock (exceptions)
-                    {
-                        exceptions.Add(ex);
-                    }
-                }
-            });
-
-            Task.WaitAll(tasks, TimeSpan.FromSeconds(10));
+            Task.WaitAll(new[] { resetTask }, TimeSpan.FromSeconds(10));
         }
 
         Assert.Empty(exceptions);
