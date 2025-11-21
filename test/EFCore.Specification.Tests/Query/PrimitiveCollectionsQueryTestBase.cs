@@ -535,6 +535,62 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
     }
 
     [ConditionalFact]
+    public virtual Task Parameter_collection_Count_with_huge_number_of_values_over_5_operations()
+    {
+        if (NumberOfValuesForHugeParameterCollectionTests is null)
+        {
+            return Task.CompletedTask;
+        }
+
+        var extra1 = Enumerable.Range(1000, (int)NumberOfValuesForHugeParameterCollectionTests / 5);
+        var extra2 = Enumerable.Range(1000, (int)NumberOfValuesForHugeParameterCollectionTests / 5);
+        var extra3 = Enumerable.Range(1000, (int)NumberOfValuesForHugeParameterCollectionTests / 5);
+        var extra4 = Enumerable.Range(1000, (int)NumberOfValuesForHugeParameterCollectionTests / 5);
+        var extra5 = Enumerable.Range(1000, (int)NumberOfValuesForHugeParameterCollectionTests / 5);
+        var ids = new[] { 2, 999 };
+
+
+        return AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>()
+            .Where(c => ids.Count(i => i > c.Id) > 0)
+            .Where(c => extra1.Count(i => i > c.Id) > 0)
+            .Where(c => extra2.Count(i => i > c.Id) > 0)
+            .Where(c => extra3.Count(i => i > c.Id) > 0)
+            .Where(c => extra4.Count(i => i > c.Id) > 0)
+            .Where(c => extra5.Count(i => i > c.Id) > 0));
+    }
+
+    [ConditionalFact]
+    public virtual async Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations()
+    {
+        if (NumberOfValuesForHugeParameterCollectionTests is null)
+        {
+            return;
+        }
+
+        var extra1 = Enumerable.Range(1000, (int)NumberOfValuesForHugeParameterCollectionTests / 5);
+        var extra2 = Enumerable.Range(1000, (int)NumberOfValuesForHugeParameterCollectionTests / 5);
+        var extra3 = Enumerable.Range(1000, (int)NumberOfValuesForHugeParameterCollectionTests / 5);
+        var extra4 = Enumerable.Range(1000, (int)NumberOfValuesForHugeParameterCollectionTests / 5);
+        var extra5 = (IEnumerable<int>?)null;
+        var ints = new[] { 10, 999 };
+
+        await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>()
+            .Where(c => ints.Contains(c.Int))
+            .Where(c => extra1.Contains(c.Int))
+            .Where(c => extra2.Contains(c.Int))
+            .Where(c => extra3.Contains(c.Int))
+            .Where(c => extra4.Contains(c.Int))
+            .Where(c => extra5!.Contains(c.Int)));
+        await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>()
+            .Where(c => !ints.Contains(c.Int))
+            .Where(c => !extra1.Contains(c.Int))
+            .Where(c => !extra2.Contains(c.Int))
+            .Where(c => !extra3.Contains(c.Int))
+            .Where(c => !extra4.Contains(c.Int))
+            .Where(c => !extra5!.Contains(c.Int)));
+    }
+
+    [ConditionalFact]
     public virtual async Task Static_readonly_collection_List_of_ints_Contains_int()
     {
         await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => StaticReadonlyList.Contains(c.Int)));

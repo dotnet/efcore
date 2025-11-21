@@ -52,6 +52,9 @@ public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
     /// </summary>
     public override Expression Process(Expression queryExpression, ParametersCacheDecorator parametersDecorator)
     {
+        var counterVisitor = new ParametersCounter(parametersDecorator);
+        counterVisitor.Visit(queryExpression);
+        var count = counterVisitor.Count;
         var result = base.Process(queryExpression, parametersDecorator);
         _openJsonAliasCounter = 0;
         return result;
@@ -367,4 +370,58 @@ public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
         return false;
     }
 #pragma warning restore EF1001
+}
+
+/// <summary>
+/// Foo
+/// </summary>
+public class ParametersCounter(ParametersCacheDecorator parametersDecorator) : ExpressionVisitor
+{
+    /// <summary>
+    /// Foo
+    /// </summary>
+    public int Count { get; private set; } = 0;
+
+    /// <summary>
+    /// Foo
+    /// </summary>
+    protected override Expression VisitExtension(Expression node)
+        => node switch
+        {
+            SqlParameterExpression sqlParameterExpression
+                => ProcessParameter(sqlParameterExpression),
+
+            ValuesExpression valuesExpression when valuesExpression.ValuesParameter is { } valuesParameter
+                => ProcessCollectionParameter(valuesParameter),
+
+            _ => base.VisitExtension(node)
+        };
+
+    private SqlParameterExpression ProcessParameter(SqlParameterExpression sqlParameterExpression)
+    {
+        var parameters = parametersDecorator.GetAndDisableCaching();
+        var parameter = parameters[sqlParameterExpression.Name];
+        switch (parameter)
+        {
+            case IEnumerable enumerable:
+                Count += enumerable.Cast<object>().Count();
+                break;
+            default:
+                Count++;
+                break;
+        }
+        return sqlParameterExpression;
+    }
+
+    private SqlParameterExpression ProcessCollectionParameter(SqlParameterExpression valuesParameter)
+    {
+        //((IEnumerable?)queryParameters[valuesParameter.Name])?.Cast<object>().ToList() ?? []
+        var parameters = parametersDecorator.GetAndDisableCaching();
+        var parameter = parameters[valuesParameter.Name];
+        if (parameter is IEnumerable enumerable)
+        {
+            Count += enumerable.Cast<object>().Count();
+        }
+        return valuesParameter;
+    }
 }
