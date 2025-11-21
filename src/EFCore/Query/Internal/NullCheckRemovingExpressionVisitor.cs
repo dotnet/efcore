@@ -24,7 +24,9 @@ public class NullCheckRemovingExpressionVisitor : ExpressionVisitor
     {
         var visitedExpression = base.VisitBinary(binaryExpression);
 
-        return TryOptimizeConditionalEquality(visitedExpression) ?? visitedExpression;
+        return TryOptimizeConditionalEquality(visitedExpression)
+            ?? TryOptimizeQueryableNullCheck(visitedExpression)
+            ?? visitedExpression;
     }
 
     /// <summary>
@@ -109,6 +111,34 @@ public class NullCheckRemovingExpressionVisitor : ExpressionVisitor
                 return Expression.OrElse(
                     conditionalExpression.Test,
                     Expression.Equal(conditionalExpression.IfFalse, comparedExpression));
+            }
+        }
+
+        return null;
+    }
+
+    private static Expression? TryOptimizeQueryableNullCheck(Expression expression)
+    {
+        // Optimize IQueryable/DbSet null checks:
+        // * IQueryable != null => true
+        // * IQueryable == null => false
+        if (expression is BinaryExpression
+            {
+                NodeType: ExpressionType.Equal or ExpressionType.NotEqual
+            } binaryExpression)
+        {
+            var isLeftNull = IsNullConstant(binaryExpression.Left);
+            var isRightNull = IsNullConstant(binaryExpression.Right);
+
+            if (isLeftNull != isRightNull)
+            {
+                var nonNullExpression = isLeftNull ? binaryExpression.Right : binaryExpression.Left;
+
+                if (nonNullExpression.Type.IsAssignableTo(typeof(IQueryable)))
+                {
+                    var result = binaryExpression.NodeType == ExpressionType.NotEqual;
+                    return Expression.Constant(result);
+                }
             }
         }
 
