@@ -70,7 +70,7 @@ public class SessionTokenStorage : ISessionTokenStorage
         {
             if (!_containerNames.Contains(sessionToken.Key))
             {
-                throw new InvalidOperationException(CosmosStrings.ContainerNameDoesNotExist("bad"));
+                throw new InvalidOperationException(CosmosStrings.ContainerNameDoesNotExist(sessionToken.Key));
             }
 
             _containerSessionTokens[sessionToken.Key].Add(sessionToken.Value, true);
