@@ -69,7 +69,7 @@ public static class CosmosDatabaseFacadeExtensions
     /// <param name="sessionTokens">The session tokens to set per container.</param>
     public static void UseSessionTokens(this DatabaseFacade databaseFacade, IReadOnlyDictionary<string, string?> sessionTokens)
     {
-        var sessionTokenStorage = GetSessionTokenStorage(databaseFacade, sessionTokens);
+        var sessionTokenStorage = GetSessionTokenStorage(databaseFacade);
 
         sessionTokenStorage.SetSessionTokens(sessionTokens);
     }
@@ -82,12 +82,12 @@ public static class CosmosDatabaseFacadeExtensions
     /// <param name="sessionTokens">The session tokens to append per container.</param>
     public static void AppendSessionTokens(this DatabaseFacade databaseFacade, IReadOnlyDictionary<string, string> sessionTokens)
     {
-        var sessionTokenStorage = GetSessionTokenStorage(databaseFacade, (IReadOnlyDictionary<string, string?>)sessionTokens);
+        var sessionTokenStorage = GetSessionTokenStorage(databaseFacade);
 
         sessionTokenStorage.AppendSessionTokens(sessionTokens);
     }
 
-    private static ISessionTokenStorage GetSessionTokenStorage(DatabaseFacade databaseFacade, IReadOnlyDictionary<string, string?>? sessionTokens = null)
+    private static ISessionTokenStorage GetSessionTokenStorage(DatabaseFacade databaseFacade)
     {
         var db = GetService<IDatabase>(databaseFacade);
         if (db is not CosmosDatabaseWrapper dbWrapper)
