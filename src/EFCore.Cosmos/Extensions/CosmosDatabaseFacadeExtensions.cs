@@ -53,15 +53,6 @@ public static class CosmosDatabaseFacadeExtensions
         => GetSessionTokenStorage(databaseFacade).SetDefaultContainerSessionToken(sessionToken);
 
     /// <summary>
-    ///     Appends the composite session token for the default container for this <see cref="DbContext" />.
-    /// </summary>
-    /// <remarks>Use this when using only 1 container in the same <see cref="DbContext"/>.</remarks>
-    /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
-    /// <param name="sessionToken">The session token to append.</param>
-    public static void AppendSessionToken(this DatabaseFacade databaseFacade, string sessionToken)
-        => GetSessionTokenStorage(databaseFacade).AppendDefaultContainerSessionToken(sessionToken);
-
-    /// <summary>
     ///     Sets the composite sessions token per container for this <see cref="DbContext" /> with the tokens specified in <paramref name="sessionTokens"/>.
     /// </summary>
     /// <remarks>Use this when using multiple containers in the same <see cref="DbContext"/>.</remarks>
@@ -73,6 +64,15 @@ public static class CosmosDatabaseFacadeExtensions
 
         sessionTokenStorage.SetSessionTokens(sessionTokens);
     }
+
+    /// <summary>
+    ///     Appends the composite session token for the default container for this <see cref="DbContext" />.
+    /// </summary>
+    /// <remarks>Use this when using only 1 container in the same <see cref="DbContext"/>.</remarks>
+    /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
+    /// <param name="sessionToken">The session token to append.</param>
+    public static void AppendSessionToken(this DatabaseFacade databaseFacade, string sessionToken)
+        => GetSessionTokenStorage(databaseFacade).AppendDefaultContainerSessionToken(sessionToken);
 
     /// <summary>
     ///     Appends the composite sessions token per container for this <see cref="DbContext" /> with the tokens specified in <paramref name="sessionTokens"/>.
