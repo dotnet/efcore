@@ -166,7 +166,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 propertyType, structuralType, property, elementType);
 
         /// <summary>
-        ///     Enable manual session token management using 'options.SessionTokenManagementMode' to use this method.
+        ///     Disable automatic session token management using 'options.SessionTokenManagementMode' to use this method.
         /// </summary>
         public static string EnableManualSessionTokenManagement
             => GetString("EnableManualSessionTokenManagement");
@@ -276,7 +276,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => GetString("MissingOrderingInSelectExpression");
 
         /// <summary>
-        ///     No session token has been set for container: {container}. While using EnforceManual you must always set a session token for any container used.
+        ///     No session token has been set for container: '{container}'. While using 'EnforceManual' mode you must always set a session token for any container used on every context instance.
         /// </summary>
         public static string MissingSessionTokenEnforceManual(object? container)
             => string.Format(
