@@ -159,6 +159,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                             _cosmosContainer,
                             _cosmosPartitionKey,
                             resourceId,
+                            _cosmosQueryContext.SessionTokenStorage,
                             _cancellationToken)
                         .ConfigureAwait(false);
 

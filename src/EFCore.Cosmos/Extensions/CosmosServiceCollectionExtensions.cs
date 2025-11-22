@@ -97,6 +97,7 @@ public static class CosmosServiceCollectionExtensions
             .TryAdd<LoggingDefinitions, CosmosLoggingDefinitions>()
             .TryAdd<IDatabaseProvider, DatabaseProvider<CosmosOptionsExtension>>()
             .TryAdd<IDatabase, CosmosDatabaseWrapper>()
+            .TryAdd<IResettableService, CosmosDatabaseWrapper>(sp => (CosmosDatabaseWrapper)sp.GetRequiredService<IDatabase>())
             .TryAdd<IExecutionStrategyFactory, CosmosExecutionStrategyFactory>()
             .TryAdd<IDbContextTransactionManager, CosmosTransactionManager>()
             .TryAdd<IModelValidator, CosmosModelValidator>()
@@ -121,7 +122,8 @@ public static class CosmosServiceCollectionExtensions
                 .TryAddScoped<ISqlExpressionFactory, SqlExpressionFactory>()
                 .TryAddScoped<IMemberTranslatorProvider, CosmosMemberTranslatorProvider>()
                 .TryAddScoped<IMethodCallTranslatorProvider, CosmosMethodCallTranslatorProvider>()
-                .TryAddScoped<ICosmosClientWrapper, CosmosClientWrapper>());
+                .TryAddScoped<ICosmosClientWrapper, CosmosClientWrapper>()
+                .TryAddSingleton<ISessionTokenStorageFactory, SessionTokenStorageFactory>());
 
         builder.TryAddCoreServices();
 
