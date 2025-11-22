@@ -186,7 +186,6 @@ public class CosmosSingletonOptions : ICosmosSingletonOptions
             MaxTcpConnectionsPerEndpoint = cosmosOptions.MaxTcpConnectionsPerEndpoint;
             MaxRequestsPerTcpConnection = cosmosOptions.MaxRequestsPerTcpConnection;
             HttpClientFactory = cosmosOptions.HttpClientFactory;
-            SessionTokenManagementMode = cosmosOptions.SessionTokenManagementMode;
         }
     }
 
@@ -217,7 +216,6 @@ public class CosmosSingletonOptions : ICosmosSingletonOptions
                 || MaxTcpConnectionsPerEndpoint != cosmosOptions.MaxTcpConnectionsPerEndpoint
                 || MaxRequestsPerTcpConnection != cosmosOptions.MaxRequestsPerTcpConnection
                 || HttpClientFactory != cosmosOptions.HttpClientFactory
-                || SessionTokenManagementMode != cosmosOptions.SessionTokenManagementMode
             ))
         {
             throw new InvalidOperationException(
