@@ -14,10 +14,6 @@ public class SessionTokenStorageTest
     private readonly string _otherContainerName = "other";
     private readonly HashSet<string> _containerNames = new(["default", "other"]);
 
-    // ================================================================
-    // FUNCTIONAL TESTS - SET AND RETRIEVE
-    // ================================================================
-
     [ConditionalTheory]
     [InlineData(SessionTokenManagementMode.SemiAutomatic)]
     [InlineData(SessionTokenManagementMode.Manual)]
@@ -542,10 +538,6 @@ public class SessionTokenStorageTest
         AssertOther(storage, "");
     }
 
-    // ================================================================
-    // TRACK
-    // ================================================================
-
     [ConditionalTheory]
     [InlineData(SessionTokenManagementMode.SemiAutomatic)]
     [InlineData(SessionTokenManagementMode.Manual)]
@@ -619,10 +611,6 @@ public class SessionTokenStorageTest
         }
     }
 
-    // ================================================================
-    // ENFORCED MANUAL MODE TESTS
-    // ================================================================
-
     [ConditionalFact]
     public virtual void EnforcedManual_WhenGettingTokenBeforeSet_ThrowsInvalidOperationException()
     {
@@ -679,10 +667,6 @@ public class SessionTokenStorageTest
         Assert.Contains(CosmosStrings.MissingSessionTokenEnforceManual(_otherContainerName), ex.Message);
     }
 
-    // ================================================================
-    // SEMI-AUTOMATIC SPECIFIC TESTS
-    // ================================================================
-
     [ConditionalFact]
     public virtual void SemiAutomatic_WhenTrackingToken_SetsButDoesnotUseToken()
     {
@@ -700,10 +684,6 @@ public class SessionTokenStorageTest
         storage.AppendDefaultContainerSessionToken("A");
         AssertDefault(storage, "A");
     }
-
-    // ================================================================
-    // MANUAL SPECIFIC TESTS
-    // ================================================================
 
     [ConditionalFact]
     public virtual void Manual_TrackedToken_UsesToken()
@@ -756,10 +736,6 @@ public class SessionTokenStorageTest
             Assert.True(storage.GetSessionToken(_otherContainerName) == "");
         }
     }
-
-    // ================================================================
-    // CLEAR
-    // ================================================================
 
     [ConditionalTheory]
     [InlineData(SessionTokenManagementMode.SemiAutomatic)]
@@ -924,10 +900,6 @@ public class SessionTokenStorageTest
         AssertOtherTracked(storage, "D");
     }
 
-    // ================================================================
-    // INITIALIZATION AND CONTAINER MANAGEMENT TESTS
-    // ================================================================
-
     [ConditionalTheory]
     [InlineData(SessionTokenManagementMode.SemiAutomatic)]
     [InlineData(SessionTokenManagementMode.Manual)]
@@ -978,10 +950,6 @@ public class SessionTokenStorageTest
         }
         Assert.Equal("A", snapshot2[_defaultContainerName]);
     }
-
-    // ================================================================
-    // FULLY AUTOMATIC MODE SPECIFIC TESTS
-    // ================================================================
 
     [ConditionalFact]
     public virtual void FullyAutomatic_WhenCallingSetSessionTokens_ThrowsInvalidOperationException()
@@ -1054,10 +1022,6 @@ public class SessionTokenStorageTest
         Assert.Null(storage.GetSessionToken(_defaultContainerName));
         Assert.Null(storage.GetSessionToken(_otherContainerName));
     }
-
-    // ================================================================
-    // Argument exceptions
-    // ================================================================
 
     [ConditionalTheory]
     [InlineData(SessionTokenManagementMode.FullyAutomatic)]
