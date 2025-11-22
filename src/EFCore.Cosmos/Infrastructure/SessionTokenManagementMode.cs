@@ -33,7 +33,7 @@ public enum SessionTokenManagementMode
     Manual,
 
     /// <summary>
-    ///     Same as <see cref="Manual"/>, but will throw an exception if <see cref="CosmosDatabaseFacadeExtensions.UseSessionTokens(DatabaseFacade, IReadOnlyDictionary{string, string?})"/> was not invoked before executong a read.
+    ///     Same as <see cref="Manual"/>, but will throw an exception if <see cref="CosmosDatabaseFacadeExtensions.UseSessionTokens(DatabaseFacade, IReadOnlyDictionary{string, string?})"/> was not invoked before executing a read.
     /// </summary>
     EnforcedManual
 }
