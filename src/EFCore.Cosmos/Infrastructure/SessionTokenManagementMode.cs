@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure;
 ///     Defines the behaviour of EF regarding the management of Cosmos DB session tokens.
 /// </summary>
 /// <remarks>
-///     See <see href="https://docs.azure.cn/en-us/cosmos-db/consistency-levels#session-consistency">Consistency level choices</see> for more info.
+///     See <see href="https://aka.ms/efcore-docs-cosmos-session">Cosmos session consistency</see> for more info.
 /// </remarks>
 public enum SessionTokenManagementMode
 {
@@ -15,9 +15,6 @@ public enum SessionTokenManagementMode
     ///     The default mode.
     ///     Uses the underlying Cosmos DB SDK automatic session token management.
     ///     EF will not track or parse session tokens returned from Cosmos DB. <see cref="CosmosDatabaseFacadeExtensions.UseSessionTokens(DatabaseFacade, IReadOnlyDictionary{string, string?})"/> and <see cref="CosmosDatabaseFacadeExtensions.GetSessionTokens(DatabaseFacade)"/> methods will throw when invoked.
-    ///     Use this mode when every request for the same user will land on the same instance of your app.
-    ///     This means you either have 1 application instance, or maintain session affinity between requests.
-    ///     Otherwhise, use of one of the other modes is required to guarantee session consistency between requests.
     /// </summary>
     FullyAutomatic,
 
