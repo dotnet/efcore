@@ -65,6 +65,52 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
     }
 
     [ConditionalFact]
+    public virtual async Task ReadItem_does_not_exist_returns_null()
+    {
+        _mock = false;
+        var contextFactory = await InitializeAsync<CosmosSessionTokenContext>();
+        using var context = contextFactory.CreateContext();
+
+        var result = await context.Customers.FirstOrDefaultAsync(x => x.Id == "nonexistent" && x.PartitionKey == "nonexistent");
+
+        Assert.Null(result);
+    }
+
+    [ConditionalFact]
+    public virtual async Task Read_item_session_not_found_does_not_return_null()
+    {
+        _mock = false;
+        var contextFactory = await InitializeAsync<CosmosSessionTokenContext>();
+        using var context = contextFactory.CreateContext();
+
+        context.Customers.Add(new Customer { Id = "1", PartitionKey = "1" });
+        context.OtherContainerCustomers.Add(new OtherContainerCustomer { Id = "1", PartitionKey = "1" });
+
+        await context.SaveChangesAsync();
+
+        var sessionTokens = context.Database.GetSessionTokens();
+
+        Assert.NotNull(sessionTokens[nameof(CosmosSessionTokenContext)]);
+        Assert.NotNull(sessionTokens[OtherContainerName]);
+
+        // Only way we can test this is by setting a session token that will fail the request if used..
+        // This will take a couple of seconds to fail
+        var newTokens = sessionTokens.ToDictionary(x => x.Key, x => x.Value!.Substring(0, x.Value.IndexOf('#') + 1) + int.MaxValue);
+        context.Database.UseSessionTokens(newTokens!);
+
+        var exes = new List<CosmosException>()
+        {
+            await Assert.ThrowsAsync<CosmosException>(() => context.Customers.FirstOrDefaultAsync(x => x.Id == "1" && x.PartitionKey == "1")),
+            await Assert.ThrowsAsync<CosmosException>(() => context.OtherContainerCustomers.FirstOrDefaultAsync(x => x.Id == "1" && x.PartitionKey == "1"))
+        };
+
+        foreach (var ex in exes)
+        {
+            Assert.Contains("The read session is not available for the input session token.", ex.ResponseBody);
+        }
+    }
+
+    [ConditionalFact]
     public virtual async Task AppendSessionToken_uses_AppendDefaultContainerSessionToken()
     {
         var contextFactory = await InitializeAsync<CosmosSessionTokenContext>();
