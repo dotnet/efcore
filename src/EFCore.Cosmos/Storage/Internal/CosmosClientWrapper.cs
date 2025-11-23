@@ -768,16 +768,17 @@ public class CosmosClientWrapper : ICosmosClientWrapper
 
     private static JObject? JObjectFromReadItemResponseMessage(ResponseMessage responseMessage)
     {
-        const int resourceNotFoundSubStatusCode = 0;
+        if (responseMessage.StatusCode == HttpStatusCode.NotFound)
+        {
+            const string subStatusCodeHeaderName = "x-ms-substatus";
+            // We get no sub-status code if document not found, other not found errors (like session or container) have a sub status code
+            if (!responseMessage.Headers.TryGetValue(subStatusCodeHeaderName, out var _))
+            {
+                return null;
+            }
+        }
 
-        try
-        {
-            responseMessage.EnsureSuccessStatusCode();
-        }
-        catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.NotFound && ex.SubStatusCode == resourceNotFoundSubStatusCode)
-        {
-            return null;
-        }
+        responseMessage.EnsureSuccessStatusCode();
 
         var responseStream = responseMessage.Content;
         using var reader = new StreamReader(responseStream);
