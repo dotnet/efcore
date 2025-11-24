@@ -4,6 +4,7 @@
 using System.Collections;
 using System.ComponentModel.Design;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 
@@ -54,10 +55,14 @@ public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
     /// </summary>
     public override Expression Process(Expression queryExpression, ParametersCacheDecorator parametersDecorator)
     {
-        var counterVisitor = new ParametersCounter(parametersDecorator, CollectionParameterTranslationMode);
-        counterVisitor.Visit(queryExpression);
-        _parametersCount = counterVisitor.Count;
-        _parametersCount = 0;
+        var parametersCounter = new ParametersCounter(
+            parametersDecorator,
+            CollectionParameterTranslationMode,
+#pragma warning disable EF1001
+            (count, elementTypeMapping) => CalculatePadding(count, CalculateParameterBucketSize(count, elementTypeMapping)));
+#pragma warning restore EF1001
+        parametersCounter.Visit(queryExpression);
+        _parametersCount = parametersCounter.Count;
 
         var result = base.Process(queryExpression, parametersDecorator);
         _openJsonAliasCounter = 0;
@@ -379,7 +384,10 @@ public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
 /// <summary>
 /// Foo
 /// </summary>
-public class ParametersCounter(ParametersCacheDecorator parametersDecorator, ParameterTranslationMode collectionParameterTranslationMode) : ExpressionVisitor
+public class ParametersCounter(
+    ParametersCacheDecorator parametersDecorator,
+    ParameterTranslationMode collectionParameterTranslationMode,
+    Func<int, RelationalTypeMapping, int> bucketizationPadding) : ExpressionVisitor
 {
     /// <summary>
     /// Foo
@@ -392,49 +400,55 @@ public class ParametersCounter(ParametersCacheDecorator parametersDecorator, Par
     /// Foo
     /// </summary>
     protected override Expression VisitExtension(Expression node)
-        => node switch
+    {
+        switch (node)
         {
-            ValuesExpression valuesExpression when valuesExpression.ValuesParameter is { } valuesParameter
-                => ProcessCollectionParameter(valuesParameter),
+            case ValuesExpression valuesExpression when valuesExpression.ValuesParameter is { } valuesParameter:
+                ProcessCollectionParameter(valuesParameter, false);
+                break;
 
-            InExpression inExpression when inExpression.ValuesParameter is { } valuesParameter
-                => ProcessCollectionParameter(valuesParameter),
+            case InExpression inExpression when inExpression.ValuesParameter is { } valuesParameter:
+                ProcessCollectionParameter(valuesParameter, true);
+                break;
 
-            SqlParameterExpression sqlParameterExpression
-                => ProcessParameter(sqlParameterExpression),
+            case SqlParameterExpression sqlParameterExpression:
+                ProcessParameter(sqlParameterExpression);
+                break;
+        }
+        return base.VisitExtension(node);
+    }
 
-            _ => base.VisitExtension(node)
-        };
-
-    private SqlParameterExpression ProcessParameter(SqlParameterExpression sqlParameterExpression)
+    private void ProcessParameter(SqlParameterExpression sqlParameterExpression)
     {
         if (!_visitedParameters.Add(sqlParameterExpression))
         {
-            return sqlParameterExpression;
+            return;
         }
 
         Count++;
-        return sqlParameterExpression;
     }
 
-    private SqlParameterExpression ProcessCollectionParameter(SqlParameterExpression sqlParameterExpression)
+    private void ProcessCollectionParameter(SqlParameterExpression sqlParameterExpression, bool bucketization)
     {
         if (!_visitedParameters.Add(sqlParameterExpression))
         {
-            return sqlParameterExpression;
+            return;
         }
 
         if ((sqlParameterExpression.TranslationMode ?? collectionParameterTranslationMode) is ParameterTranslationMode.MultipleParameters)
         {
-//JIRI: Handle bucketization
             var parameters = parametersDecorator.GetAndDisableCaching();
             var count = ((IEnumerable?)parameters[sqlParameterExpression.Name])?.Cast<object>().Count() ?? 0;
             Count += count;
-            return sqlParameterExpression;
+            if (bucketization)
+            {
+                var elementTypeMapping = (RelationalTypeMapping)sqlParameterExpression.TypeMapping!.ElementTypeMapping!;
+                Count += bucketizationPadding(count, elementTypeMapping);
+            }
         }
         else
         {
-            return ProcessParameter(sqlParameterExpression);
+            ProcessParameter(sqlParameterExpression);
         }
     }
 }

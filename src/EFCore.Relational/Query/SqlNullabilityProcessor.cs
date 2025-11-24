@@ -892,7 +892,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                 if (translationMode is ParameterTranslationMode.MultipleParameters)
                 {
                     var padFactor = CalculateParameterBucketSize(values.Count, elementTypeMapping);
-                    var padding = (padFactor - (values.Count % padFactor)) % padFactor;
+                    var padding = CalculatePadding(values.Count, padFactor);
                     for (var i = 0; i < padding; i++)
                     {
                         // Create parameter for value if we didn't create it yet,
@@ -1552,6 +1552,13 @@ public class SqlNullabilityProcessor : ExpressionVisitor
             <= 2000 => 100,
             _ => 200,
         };
+
+    /// <summary>
+    /// Foo
+    /// </summary>
+    [EntityFrameworkInternal]
+    protected virtual int CalculatePadding(int count, int padFactor)
+        => (padFactor - (count % padFactor)) % padFactor;
 
     // Note that we can check parameter values for null since we cache by the parameter nullability; but we cannot do the same for bool.
     private bool IsNull(SqlExpression? expression)
