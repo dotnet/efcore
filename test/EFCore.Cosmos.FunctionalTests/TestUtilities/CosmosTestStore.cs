@@ -241,7 +241,7 @@ public class CosmosTestStore : TestStore
                                                     document["$type"] = entityName;
 
                                                     await cosmosClient.CreateItemAsync(
-                                                        containerName!, document, new FakeUpdateEntry()).ConfigureAwait(false);
+                                                        containerName!, document, new FakeUpdateEntry(), new NullSessionTokenStorage()).ConfigureAwait(false);
                                                 }
                                                 else if (reader.TokenType == JsonToken.EndObject)
                                                 {

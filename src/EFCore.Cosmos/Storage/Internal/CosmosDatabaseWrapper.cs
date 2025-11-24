@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class CosmosDatabaseWrapper : Database
+public class CosmosDatabaseWrapper : Database, IResettableService
 {
     private readonly Dictionary<IEntityType, DocumentSource> _documentCollections = new();
 
@@ -38,17 +38,27 @@ public class CosmosDatabaseWrapper : Database
         DatabaseDependencies dependencies,
         ICurrentDbContext currentDbContext,
         ICosmosClientWrapper cosmosClient,
+        ISessionTokenStorageFactory sessionTokenStorageFactory,
         ILoggingOptions loggingOptions)
         : base(dependencies)
     {
         _currentDbContext = currentDbContext;
         _cosmosClient = cosmosClient;
+        SessionTokenStorage = sessionTokenStorageFactory.Create(currentDbContext.Context);
 
         if (loggingOptions.IsSensitiveDataLoggingEnabled)
         {
             _sensitiveLoggingEnabled = true;
         }
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual ISessionTokenStorage SessionTokenStorage { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -92,7 +102,7 @@ public class CosmosDatabaseWrapper : Database
             {
                 try
                 {
-                    var response = await _cosmosClient.ExecuteTransactionalBatchAsync(transaction, cancellationToken).ConfigureAwait(false);
+                    var response = await _cosmosClient.ExecuteTransactionalBatchAsync(transaction, SessionTokenStorage, cancellationToken).ConfigureAwait(false);
                     if (!response.IsSuccess)
                     {
                         var exception = WrapUpdateException(response.Exception, response.ErroredEntries);
@@ -456,17 +466,20 @@ public class CosmosDatabaseWrapper : Database
                                     updateEntry.CollectionId,
                                     updateEntry.Document!,
                                     updateEntry.Entry,
+                                    SessionTokenStorage,
                                     cancellationToken).ConfigureAwait(false),
                 CosmosCudOperation.Update => await _cosmosClient.ReplaceItemAsync(
                                     updateEntry.CollectionId,
                                     updateEntry.DocumentSource.GetId(updateEntry.Entry.SharedIdentityEntry ?? updateEntry.Entry),
                                     updateEntry.Document!,
                                     updateEntry.Entry,
+                                    SessionTokenStorage,
                                     cancellationToken).ConfigureAwait(false),
                 CosmosCudOperation.Delete => await _cosmosClient.DeleteItemAsync(
                                     updateEntry.CollectionId,
                                     updateEntry.DocumentSource.GetId(updateEntry.Entry),
                                     updateEntry.Entry,
+                                    SessionTokenStorage,
                                     cancellationToken).ConfigureAwait(false),
                 _ => throw new UnreachableException(),
             };
@@ -547,6 +560,17 @@ public class CosmosDatabaseWrapper : Database
                 => new DbUpdateException(CosmosStrings.UpdateConflict(id), exception, entries),
             _ => new DbUpdateException(CosmosStrings.UpdateStoreException(id), exception, entries)
         };
+    }
+
+    void IResettableService.ResetState()
+    {
+        SessionTokenStorage.Clear();
+    }
+
+    Task IResettableService.ResetStateAsync(CancellationToken cancellationToken)
+    {
+        ((IResettableService)this).ResetState();
+        return Task.CompletedTask;
     }
 
     private sealed class SaveGroups

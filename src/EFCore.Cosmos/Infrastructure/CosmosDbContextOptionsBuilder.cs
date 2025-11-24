@@ -3,6 +3,7 @@
 
 using System.ComponentModel;
 using System.Net;
+using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure;
@@ -210,6 +211,23 @@ public class CosmosDbContextOptionsBuilder : ICosmosDbContextOptionsBuilderInfra
     /// <param name="enabled"><see langword="false" /> to have null resource</param>
     public virtual CosmosDbContextOptionsBuilder ContentResponseOnWriteEnabled(bool enabled = true)
         => WithOption(e => e.ContentResponseOnWriteEnabled(Check.NotNull(enabled)));
+
+
+    /// <summary>
+    ///     Sets the <see cref="Cosmos.Infrastructure.SessionTokenManagementMode"/> to use.
+    ///     By default, <see cref="SessionTokenManagementMode.FullyAutomatic"/> will be used.
+    ///     Any other mode is only relevant when your application needs to manage session tokens manually.
+    ///     For example: If you're using a round-robin load balancer that doesn't maintain session affinity between requests.
+    ///     Manual session token management can break session consistency when not handled properly.
+    ///     See <see href="https://learn.microsoft.com/en-us/azure/cosmos-db/nosql/how-to-manage-consistency?tabs=portal%2Cdotnetv2%2Capi-async#utilize-session-tokens">Utilize session tokens</see> for more details.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
+    /// </remarks>
+    /// <param name="mode">The <see cref="Cosmos.Infrastructure.SessionTokenManagementMode"/> to use.</param>
+    public virtual CosmosDbContextOptionsBuilder SessionTokenManagementMode(SessionTokenManagementMode mode)
+        => WithOption(e => e.WithSessionTokenManagementMode(mode));
 
     /// <summary>
     ///     Sets an option by cloning the extension used to store the settings. This ensures the builder

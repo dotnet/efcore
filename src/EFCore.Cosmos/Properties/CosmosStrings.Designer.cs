@@ -98,6 +98,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 entityType, container, property);
 
         /// <summary>
+        ///     The container with the name '{containerName}' does not exist.
+        /// </summary>
+        public static string ContainerNameDoesNotExist(object? containerName)
+            => string.Format(
+                GetString("ContainerNameDoesNotExist", nameof(containerName)),
+                containerName);
+
+        /// <summary>
         ///     An Azure Cosmos DB container name is defined on entity type '{entityType}', which inherits from '{baseEntityType}'. Container names must be defined on the root entity type of a hierarchy.
         /// </summary>
         public static string ContainerNotOnRoot(object? entityType, object? baseEntityType)
@@ -156,6 +164,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => string.Format(
                 GetString("ElementWithValueConverter", nameof(propertyType), nameof(structuralType), nameof(property), nameof(elementType)),
                 propertyType, structuralType, property, elementType);
+
+        /// <summary>
+        ///     Disable automatic session token management using 'options.SessionTokenManagementMode' to use this method.
+        /// </summary>
+        public static string EnableManualSessionTokenManagement
+            => GetString("EnableManualSessionTokenManagement");
 
         /// <summary>
         ///     The type of the etag property '{property}' on '{entityType}' is '{propertyType}'. All etag properties must be strings or have a string value converter.
@@ -260,6 +274,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
         /// </summary>
         public static string MissingOrderingInSelectExpression
             => GetString("MissingOrderingInSelectExpression");
+
+        /// <summary>
+        ///     No session token has been set for container: '{container}'. While using 'EnforceManual' mode you must always set a session token for any container used on every context instance.
+        /// </summary>
+        public static string MissingSessionTokenEnforceManual(object? container)
+            => string.Format(
+                GetString("MissingSessionTokenEnforceManual", nameof(container)),
+                container);
 
         /// <summary>
         ///     Root entity type '{entityType1}' is referenced by the query, but '{entityType2}' is already being referenced. A query can only reference a single root entity type.
