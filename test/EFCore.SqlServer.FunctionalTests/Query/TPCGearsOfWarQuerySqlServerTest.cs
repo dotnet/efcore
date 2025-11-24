@@ -10941,6 +10941,60 @@ LEFT JOIN (
 """);
     }
 
+    public override async Task DefaultIfEmpty_top_level_over_column_with_nullable_value_type(bool async)
+    {
+        await base.DefaultIfEmpty_top_level_over_column_with_nullable_value_type(async);
+
+        AssertSql(
+            """
+SELECT [m0].[Rating]
+FROM (
+    SELECT 1 AS empty
+) AS [e]
+LEFT JOIN (
+    SELECT [m].[Rating]
+    FROM [Missions] AS [m]
+    WHERE [m].[Id] = -1
+) AS [m0] ON 1 = 1
+""");
+    }
+
+    public override async Task DefaultIfEmpty_top_level_over_arbitrary_expression_with_nullable_value_type(bool async)
+    {
+        await base.DefaultIfEmpty_top_level_over_arbitrary_expression_with_nullable_value_type(async);
+
+        AssertSql(
+            """
+SELECT [m0].[c]
+FROM (
+    SELECT 1 AS empty
+) AS [e]
+LEFT JOIN (
+    SELECT [m].[Rating] + 2.0E0 AS [c]
+    FROM [Missions] AS [m]
+    WHERE [m].[Id] = -1
+) AS [m0] ON 1 = 1
+""");
+    }
+
+    public override async Task DefaultIfEmpty_top_level_over_arbitrary_expression_with_non_nullable_value_type(bool async)
+    {
+        await base.DefaultIfEmpty_top_level_over_arbitrary_expression_with_non_nullable_value_type(async);
+
+        AssertSql(
+            """
+SELECT COALESCE([m0].[c], 0)
+FROM (
+    SELECT 1 AS empty
+) AS [e]
+LEFT JOIN (
+    SELECT [m].[Id] + 2 AS [c]
+    FROM [Missions] AS [m]
+    WHERE [m].[Id] = -1
+) AS [m0] ON 1 = 1
+""");
+    }
+
     public override async Task Project_entity_and_collection_element(bool async)
     {
         await base.Project_entity_and_collection_element(async);
