@@ -1138,6 +1138,42 @@ public class SessionTokenStorageTest
         Assert.Throws<ArgumentException>(() => storage.GetSessionToken(""));
     }
 
+    [ConditionalTheory]
+    [InlineData(SessionTokenManagementMode.SemiAutomatic)]
+    [InlineData(SessionTokenManagementMode.Manual)]
+    [InlineData(SessionTokenManagementMode.EnforcedManual)]
+    public virtual void SetDefaultContainerSessionToken_NotInUse_ThrowsInvalidOperationException(SessionTokenManagementMode mode)
+    {
+        var storage = new SessionTokenStorage("bad", _containerNames, mode);
+        var ex = Assert.Throws<InvalidOperationException>(() =>
+            storage.SetDefaultContainerSessionToken("A"));
+        Assert.Equal(CosmosStrings.ContainerNameDoesNotExist("bad"), ex.Message);
+    }
+
+    [ConditionalTheory]
+    [InlineData(SessionTokenManagementMode.SemiAutomatic)]
+    [InlineData(SessionTokenManagementMode.Manual)]
+    [InlineData(SessionTokenManagementMode.EnforcedManual)]
+    public virtual void AppendDefaultContainerSessionToken_NotInUse_ThrowsInvalidOperationException(SessionTokenManagementMode mode)
+    {
+        var storage = new SessionTokenStorage("bad", _containerNames, mode);
+        var ex = Assert.Throws<InvalidOperationException>(() =>
+            storage.AppendDefaultContainerSessionToken("A"));
+        Assert.Equal(CosmosStrings.ContainerNameDoesNotExist("bad"), ex.Message);
+    }
+
+    [ConditionalTheory]
+    [InlineData(SessionTokenManagementMode.SemiAutomatic)]
+    [InlineData(SessionTokenManagementMode.Manual)]
+    [InlineData(SessionTokenManagementMode.EnforcedManual)]
+    public virtual void GetDefaultContainerTrackedToken_NotInUse_ThrowsInvalidOperationException(SessionTokenManagementMode mode)
+    {
+        var storage = new SessionTokenStorage("bad", _containerNames, mode);
+        var ex = Assert.Throws<InvalidOperationException>(() =>
+            storage.GetDefaultContainerTrackedToken());
+        Assert.Equal(CosmosStrings.ContainerNameDoesNotExist("bad"), ex.Message);
+    }
+
 
     private SessionTokenStorage CreateStorage(SessionTokenManagementMode mode)
         => new(_defaultContainerName, _containerNames, mode);

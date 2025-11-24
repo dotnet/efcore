@@ -29,7 +29,6 @@ public class SessionTokenStorage : ISessionTokenStorage
     /// </summary>
     public SessionTokenStorage(string defaultContainerName, HashSet<string> containerNames, SessionTokenManagementMode mode)
     {
-        Debug.Assert(containerNames.Contains(defaultContainerName));
         _defaultContainerName = defaultContainerName;
         _mode = mode;
         _defaultToken = _mode == SessionTokenManagementMode.Manual || _mode == SessionTokenManagementMode.EnforcedManual ? "" : null;
@@ -89,7 +88,12 @@ public class SessionTokenStorage : ISessionTokenStorage
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(sessionToken, nameof(sessionToken));
         CheckMode();
-        _containerSessionTokens[_defaultContainerName].Add(sessionToken, true);
+        ref var containerSessionToken = ref CollectionsMarshal.GetValueRefOrNullRef(_containerSessionTokens, _defaultContainerName);
+        if (Unsafe.IsNullRef(ref containerSessionToken))
+        {
+            throw new InvalidOperationException(CosmosStrings.ContainerNameDoesNotExist(_defaultContainerName));
+        }
+        containerSessionToken.Add(sessionToken, true);
     }
 
     /// <summary>
@@ -101,7 +105,12 @@ public class SessionTokenStorage : ISessionTokenStorage
     public virtual void SetDefaultContainerSessionToken(string? sessionToken)
     {
         CheckMode();
-        _containerSessionTokens[_defaultContainerName] = new CompositeSessionToken(sessionToken, true);
+        ref var containerSessionToken = ref CollectionsMarshal.GetValueRefOrNullRef(_containerSessionTokens, _defaultContainerName);
+        if (Unsafe.IsNullRef(ref containerSessionToken))
+        {
+            throw new InvalidOperationException(CosmosStrings.ContainerNameDoesNotExist(_defaultContainerName));
+        }
+        containerSessionToken = new CompositeSessionToken(sessionToken, true);
     }
 
     /// <summary>
@@ -125,7 +134,12 @@ public class SessionTokenStorage : ISessionTokenStorage
     public virtual string? GetDefaultContainerTrackedToken()
     {
         CheckMode();
-        return _containerSessionTokens[_defaultContainerName].ConvertToString();
+        ref var containerSessionToken = ref CollectionsMarshal.GetValueRefOrNullRef(_containerSessionTokens, _defaultContainerName);
+        if (Unsafe.IsNullRef(ref containerSessionToken))
+        {
+            throw new InvalidOperationException(CosmosStrings.ContainerNameDoesNotExist(_defaultContainerName));
+        }
+        return containerSessionToken.ConvertToString();
     }
 
     /// <summary>
