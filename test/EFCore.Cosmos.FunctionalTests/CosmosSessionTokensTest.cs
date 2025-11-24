@@ -111,6 +111,62 @@ public class CosmosSessionTokensTest(NonSharedFixture fixture) : NonSharedModelT
     }
 
     [ConditionalFact]
+    public virtual async Task Different_contexts_do_not_share_DefaultContainer_name()
+    {
+        var services = new ServiceCollection();
+
+        var connectionString = TestEnvironment.ConnectionString;
+        services.AddDbContext<TestContext>(cfg => cfg.UseCosmos(connectionString, "test", opts => opts.SessionTokenManagementMode(Cosmos.Infrastructure.SessionTokenManagementMode.SemiAutomatic)), ServiceLifetime.Transient);
+        services.AddDbContext<Test2Context>(cfg => cfg.UseCosmos(connectionString, "test2", opts => opts.SessionTokenManagementMode(Cosmos.Infrastructure.SessionTokenManagementMode.SemiAutomatic)), ServiceLifetime.Transient);
+
+        var provider = services.BuildServiceProvider();
+
+        var testContext = provider.GetRequiredService<TestContext>();
+        var test2Context = provider.GetRequiredService<Test2Context>();
+
+        var testSessionTokensDefaultContainer = testContext.Database.GetSessionTokens().Keys.Single();
+        var test2SessionTokensDefaultContainer = test2Context.Database.GetSessionTokens().Keys.Single();
+
+        Assert.NotEqual(testSessionTokensDefaultContainer, test2SessionTokensDefaultContainer);
+    }
+
+    public class TestEntity
+    {
+        public Guid Id { get; set; }
+    }
+
+    private class TestContext : DbContext
+    {
+        public TestContext(DbContextOptions<TestContext> options) : base(options)
+        {
+        }
+
+        public DbSet<TestEntity> TestEntities { get; } = null!;
+
+        protected TestContext()
+        {
+        }
+    }
+
+    public class Test2Entity
+    {
+        public Guid Id { get; set; }
+    }
+
+    private class Test2Context : DbContext
+    {
+        public Test2Context(DbContextOptions<Test2Context> options) : base(options)
+        {
+        }
+
+        public DbSet<Test2Entity> Test2Entities { get; } = null!;
+
+        protected Test2Context()
+        {
+        }
+    }
+
+    [ConditionalFact]
     public virtual async Task AppendSessionToken_uses_AppendDefaultContainerSessionToken()
     {
         var contextFactory = await InitializeAsync<CosmosSessionTokenContext>();
