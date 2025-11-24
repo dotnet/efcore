@@ -772,7 +772,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         {
             const string subStatusCodeHeaderName = "x-ms-substatus";
             // We get no sub-status code if document not found, other not found errors (like session or container) have a sub status code
-            if (!responseMessage.Headers.TryGetValue(subStatusCodeHeaderName, out var _))
+            if (!responseMessage.Headers.TryGetValue(subStatusCodeHeaderName, out var subStatusCode) || string.IsNullOrWhiteSpace(subStatusCode) || subStatusCode == "0")
             {
                 return null;
             }
