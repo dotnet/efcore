@@ -56,7 +56,7 @@ namespace TestNamespace
                 byte? (IInternalEntry entry) => DependentBaseUnsafeAccessors<byte?>.Id(((CompiledModelTestBase.DependentBase<byte?>)(entry.Entity))),
                 byte? (IInternalEntry entry) => DependentBaseUnsafeAccessors<byte?>.Id(((CompiledModelTestBase.DependentBase<byte?>)(entry.Entity))),
                 byte? (IInternalEntry entry) => entry.ReadOriginalValue<byte?>(id, 0),
-                byte? (IInternalEntry entry) => ((InternalEntityEntry)(entry)).ReadRelationshipSnapshotValue<byte?>(id, 0));
+                byte? (IInternalEntry entry) => ((InternalEntityEntry)entry).ReadRelationshipSnapshotValue<byte?>(id, 0));
             id.SetPropertyIndexes(
                 index: 0,
                 originalValueIndex: 0,
@@ -66,15 +66,15 @@ namespace TestNamespace
             id.TypeMapping = SqlServerByteTypeMapping.Default.Clone(
                 comparer: new ValueComparer<byte>(
                     bool (byte v1, byte v2) => v1 == v2,
-                    int (byte v) => ((int)(v)),
+                    int (byte v) => ((int)v),
                     byte (byte v) => v),
                 keyComparer: new ValueComparer<byte>(
                     bool (byte v1, byte v2) => v1 == v2,
-                    int (byte v) => ((int)(v)),
+                    int (byte v) => ((int)v),
                     byte (byte v) => v),
                 providerValueComparer: new ValueComparer<byte>(
                     bool (byte v1, byte v2) => v1 == v2,
-                    int (byte v) => ((int)(v)),
+                    int (byte v) => ((int)v),
                     byte (byte v) => v));
             id.SetCurrentValueComparer(new EntryCurrentValueComparer<byte?>(id));
             id.SetComparer(new NullableValueComparer<byte>(id.TypeMapping.Comparer));
@@ -89,7 +89,7 @@ namespace TestNamespace
                 long? (IInternalEntry entry) => (entry.FlaggedAsStoreGenerated(1) ? entry.ReadStoreGeneratedValue<long?>(0) : (entry.FlaggedAsTemporary(1) && !(entry.ReadShadowValue<long?>(0).HasValue) ? entry.ReadTemporaryValue<long?>(0) : entry.ReadShadowValue<long?>(0))),
                 long? (IInternalEntry entry) => entry.ReadShadowValue<long?>(0),
                 long? (IInternalEntry entry) => entry.ReadOriginalValue<long?>(principalId, 1),
-                long? (IInternalEntry entry) => ((InternalEntityEntry)(entry)).ReadRelationshipSnapshotValue<long?>(principalId, 1));
+                long? (IInternalEntry entry) => ((InternalEntityEntry)entry).ReadRelationshipSnapshotValue<long?>(principalId, 1));
             principalId.SetPropertyIndexes(
                 index: 1,
                 originalValueIndex: 1,

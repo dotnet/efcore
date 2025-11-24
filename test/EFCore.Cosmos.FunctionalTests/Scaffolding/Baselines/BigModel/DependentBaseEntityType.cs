@@ -47,7 +47,7 @@ namespace TestNamespace
                 long (IInternalEntry entry) => (entry.FlaggedAsStoreGenerated(0) ? entry.ReadStoreGeneratedValue<long>(0) : (entry.FlaggedAsTemporary(0) && entry.ReadShadowValue<long>(0) == 0L ? entry.ReadTemporaryValue<long>(0) : entry.ReadShadowValue<long>(0))),
                 long (IInternalEntry entry) => entry.ReadShadowValue<long>(0),
                 long (IInternalEntry entry) => entry.ReadOriginalValue<long>(principalId, 0),
-                long (IInternalEntry entry) => ((InternalEntityEntry)(entry)).ReadRelationshipSnapshotValue<long>(principalId, 0));
+                long (IInternalEntry entry) => ((InternalEntityEntry)entry).ReadRelationshipSnapshotValue<long>(principalId, 0));
             principalId.SetPropertyIndexes(
                 index: 0,
                 originalValueIndex: 0,
@@ -79,7 +79,7 @@ namespace TestNamespace
                 Guid (IInternalEntry entry) => (entry.FlaggedAsStoreGenerated(1) ? entry.ReadStoreGeneratedValue<Guid>(1) : (entry.FlaggedAsTemporary(1) && entry.ReadShadowValue<Guid>(1) == new Guid("00000000-0000-0000-0000-000000000000") ? entry.ReadTemporaryValue<Guid>(1) : entry.ReadShadowValue<Guid>(1))),
                 Guid (IInternalEntry entry) => entry.ReadShadowValue<Guid>(1),
                 Guid (IInternalEntry entry) => entry.ReadOriginalValue<Guid>(principalAlternateId, 1),
-                Guid (IInternalEntry entry) => ((InternalEntityEntry)(entry)).ReadRelationshipSnapshotValue<Guid>(principalAlternateId, 1));
+                Guid (IInternalEntry entry) => ((InternalEntityEntry)entry).ReadRelationshipSnapshotValue<Guid>(principalAlternateId, 1));
             principalAlternateId.SetPropertyIndexes(
                 index: 1,
                 originalValueIndex: 1,
@@ -128,11 +128,11 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             enumDiscriminator.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum1>(
-                    bool (CompiledModelTestBase.Enum1 v1, CompiledModelTestBase.Enum1 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.Enum1 v1, CompiledModelTestBase.Enum1 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.Enum1 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum1 (CompiledModelTestBase.Enum1 v) => v),
                 keyComparer: new ValueComparer<CompiledModelTestBase.Enum1>(
-                    bool (CompiledModelTestBase.Enum1 v1, CompiledModelTestBase.Enum1 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.Enum1 v1, CompiledModelTestBase.Enum1 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.Enum1 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum1 (CompiledModelTestBase.Enum1 v) => v),
                 providerValueComparer: new ValueComparer<int>(
@@ -140,13 +140,13 @@ namespace TestNamespace
                     int (int v) => v,
                     int (int v) => v),
                 converter: new ValueConverter<CompiledModelTestBase.Enum1, int>(
-                    int (CompiledModelTestBase.Enum1 value) => ((int)(value)),
-                    CompiledModelTestBase.Enum1 (int value) => ((CompiledModelTestBase.Enum1)(value))),
+                    int (CompiledModelTestBase.Enum1 value) => ((int)value),
+                    CompiledModelTestBase.Enum1 (int value) => ((CompiledModelTestBase.Enum1)value)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum1, int>(
                     JsonInt32ReaderWriter.Instance,
                     new ValueConverter<CompiledModelTestBase.Enum1, int>(
-                        int (CompiledModelTestBase.Enum1 value) => ((int)(value)),
-                        CompiledModelTestBase.Enum1 (int value) => ((CompiledModelTestBase.Enum1)(value)))));
+                        int (CompiledModelTestBase.Enum1 value) => ((int)value),
+                        CompiledModelTestBase.Enum1 (int value) => ((CompiledModelTestBase.Enum1)value))));
             enumDiscriminator.SetSentinelFromProviderValue(0);
 
             var id = runtimeEntityType.AddProperty(
@@ -184,15 +184,15 @@ namespace TestNamespace
             id.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<byte>(
                     bool (byte v1, byte v2) => v1 == v2,
-                    int (byte v) => ((int)(v)),
+                    int (byte v) => ((int)v),
                     byte (byte v) => v),
                 keyComparer: new ValueComparer<byte>(
                     bool (byte v1, byte v2) => v1 == v2,
-                    int (byte v) => ((int)(v)),
+                    int (byte v) => ((int)v),
                     byte (byte v) => v),
                 providerValueComparer: new ValueComparer<byte>(
                     bool (byte v1, byte v2) => v1 == v2,
-                    int (byte v) => ((int)(v)),
+                    int (byte v) => ((int)v),
                     byte (byte v) => v),
                 clrType: typeof(byte),
                 jsonValueReaderWriter: JsonByteReaderWriter.Instance);

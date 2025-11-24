@@ -67,7 +67,7 @@ namespace TestNamespace
                 CompiledModelTestBase.ManyTypesId (IInternalEntry entry) => ManyTypesUnsafeAccessors.Id(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 CompiledModelTestBase.ManyTypesId (IInternalEntry entry) => ManyTypesUnsafeAccessors.Id(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
                 CompiledModelTestBase.ManyTypesId (IInternalEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.ManyTypesId>(id, 0),
-                CompiledModelTestBase.ManyTypesId (IInternalEntry entry) => ((InternalEntityEntry)(entry)).ReadRelationshipSnapshotValue<CompiledModelTestBase.ManyTypesId>(id, 0));
+                CompiledModelTestBase.ManyTypesId (IInternalEntry entry) => ((InternalEntityEntry)entry).ReadRelationshipSnapshotValue<CompiledModelTestBase.ManyTypesId>(id, 0));
             id.SetPropertyIndexes(
                 index: 0,
                 originalValueIndex: 0,
@@ -215,12 +215,12 @@ namespace TestNamespace
                     int (bool v) => ((object)v).GetHashCode(),
                     bool (bool v) => v)),
                 keyComparer: new ValueComparer<bool[]>(
-                    bool (bool[] v1, bool[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (bool[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (bool[] v1, bool[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (bool[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     bool[] (bool[] source) => source.ToArray()),
                 providerValueComparer: new ValueComparer<bool[]>(
-                    bool (bool[] v1, bool[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (bool[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (bool[] v1, bool[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (bool[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     bool[] (bool[] source) => source.ToArray()),
                 clrType: typeof(bool[]),
                 jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<bool[], bool>(
@@ -280,12 +280,12 @@ namespace TestNamespace
                     int (bool v) => ((object)v).GetHashCode(),
                     bool (bool v) => v)))),
                 keyComparer: new ValueComparer<bool[][]>(
-                    bool (bool[][] v1, bool[][] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (bool[][] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (bool[][] v1, bool[][] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (bool[][] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     bool[][] (bool[][] source) => source.ToArray()),
                 providerValueComparer: new ValueComparer<bool[][]>(
-                    bool (bool[][] v1, bool[][] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (bool[][] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (bool[][] v1, bool[][] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (bool[][] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     bool[][] (bool[][] source) => source.ToArray()),
                 clrType: typeof(bool[][]),
                 jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<bool[][], bool[]>(
@@ -297,12 +297,12 @@ namespace TestNamespace
                         int (bool v) => ((object)v).GetHashCode(),
                         bool (bool v) => v)),
                     keyComparer: new ValueComparer<bool[]>(
-                        bool (bool[] v1, bool[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                        int (bool[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                        bool (bool[] v1, bool[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                        int (bool[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                         bool[] (bool[] source) => source.ToArray()),
                     providerValueComparer: new ValueComparer<bool[]>(
-                        bool (bool[] v1, bool[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                        int (bool[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                        bool (bool[] v1, bool[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                        int (bool[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                         bool[] (bool[] source) => source.ToArray()),
                     clrType: typeof(bool[]),
                     jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<bool[], bool>(
@@ -336,13 +336,13 @@ namespace TestNamespace
             boolReadOnlyCollection.SetSetter(
                 CompiledModelTestBase.ManyTypes (CompiledModelTestBase.ManyTypes instance, IReadOnlyCollection<bool> value) =>
                 {
-                    ManyTypesUnsafeAccessors._boolReadOnlyCollection(instance) = ((List<bool>)(value));
+                    ManyTypesUnsafeAccessors._boolReadOnlyCollection(instance) = ((List<bool>)value);
                     return instance;
                 });
             boolReadOnlyCollection.SetMaterializationSetter(
                 CompiledModelTestBase.ManyTypes (CompiledModelTestBase.ManyTypes instance, IReadOnlyCollection<bool> value) =>
                 {
-                    ManyTypesUnsafeAccessors._boolReadOnlyCollection(instance) = ((List<bool>)(value));
+                    ManyTypesUnsafeAccessors._boolReadOnlyCollection(instance) = ((List<bool>)value);
                     return instance;
                 });
             boolReadOnlyCollection.SetAccessors(
@@ -486,7 +486,7 @@ namespace TestNamespace
                     bool (bool v) => v),
                 providerValueComparer: new ValueComparer<byte>(
                     bool (byte v1, byte v2) => v1 == v2,
-                    int (byte v) => ((int)(v)),
+                    int (byte v) => ((int)v),
                     byte (byte v) => v),
                 converter: new ValueConverter<bool, byte>(
                     byte (bool v) => ((byte)((v ? 1 : 0))),
@@ -541,7 +541,7 @@ namespace TestNamespace
                     bool (bool v) => v),
                 providerValueComparer: new ValueComparer<short>(
                     bool (short v1, short v2) => v1 == v2,
-                    int (short v) => ((int)(v)),
+                    int (short v) => ((int)v),
                     short (short v) => v),
                 converter: new ValueConverter<bool, short>(
                     short (bool v) => ((short)((v ? 1 : 0))),
@@ -586,12 +586,12 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             bytes.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<byte[]>(
-                    bool (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
+                    bool (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
                     int (byte[] v) => ((object)v).GetHashCode(),
                     byte[] (byte[] v) => v),
                 keyComparer: new ValueComparer<byte[]>(
-                    bool (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     byte[] (byte[] source) => source.ToArray()),
                 providerValueComparer: new ValueComparer<string>(
                     bool (string v1, string v2) => v1 == v2,
@@ -641,12 +641,12 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             bytesToStringConverterProperty.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<byte[]>(
-                    bool (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
+                    bool (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
                     int (byte[] v) => ((object)v).GetHashCode(),
                     byte[] (byte[] v) => v),
                 keyComparer: new ValueComparer<byte[]>(
-                    bool (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     byte[] (byte[] source) => source.ToArray()),
                 providerValueComparer: new ValueComparer<string>(
                     bool (string v1, string v2) => v1 == v2,
@@ -707,13 +707,13 @@ namespace TestNamespace
                     int (decimal v) => ((object)v).GetHashCode(),
                     decimal (decimal v) => v),
                 converter: new ValueConverter<int, decimal>(
-                    decimal (int v) => ((decimal)(v)),
-                    int (decimal v) => ((int)(v))),
+                    decimal (int v) => ((decimal)v),
+                    int (decimal v) => ((int)v)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<int, decimal>(
                     JsonDecimalReaderWriter.Instance,
                     new ValueConverter<int, decimal>(
-                        decimal (int v) => ((decimal)(v)),
-                        int (decimal v) => ((int)(v)))));
+                        decimal (int v) => ((decimal)v),
+                        int (decimal v) => ((int)v))));
             castingConverterProperty.SetSentinelFromProviderValue(0m);
 
             var @char = runtimeEntityType.AddProperty(
@@ -751,15 +751,15 @@ namespace TestNamespace
             @char.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<char>(
                     bool (char v1, char v2) => v1 == v2,
-                    int (char v) => ((int)(v)),
+                    int (char v) => ((int)v),
                     char (char v) => v),
                 keyComparer: new ValueComparer<char>(
                     bool (char v1, char v2) => v1 == v2,
-                    int (char v) => ((int)(v)),
+                    int (char v) => ((int)v),
                     char (char v) => v),
                 providerValueComparer: new ValueComparer<char>(
                     bool (char v1, char v2) => v1 == v2,
-                    int (char v) => ((int)(v)),
+                    int (char v) => ((int)v),
                     char (char v) => v),
                 clrType: typeof(char),
                 jsonValueReaderWriter: JsonCharReaderWriter.Instance);
@@ -798,15 +798,15 @@ namespace TestNamespace
             charArray.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ListOfValueTypesComparer<char[], char>(new ValueComparer<char>(
                     bool (char v1, char v2) => v1 == v2,
-                    int (char v) => ((int)(v)),
+                    int (char v) => ((int)v),
                     char (char v) => v)),
                 keyComparer: new ValueComparer<char[]>(
-                    bool (char[] v1, char[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (char[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (char[] v1, char[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (char[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     char[] (char[] source) => source.ToArray()),
                 providerValueComparer: new ValueComparer<char[]>(
-                    bool (char[] v1, char[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (char[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (char[] v1, char[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (char[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     char[] (char[] source) => source.ToArray()),
                 clrType: typeof(char[]),
                 jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<char[], char>(
@@ -814,15 +814,15 @@ namespace TestNamespace
                 elementMapping: CosmosTypeMapping.Default.Clone(
                     comparer: new ValueComparer<char>(
                         bool (char v1, char v2) => v1 == v2,
-                        int (char v) => ((int)(v)),
+                        int (char v) => ((int)v),
                         char (char v) => v),
                     keyComparer: new ValueComparer<char>(
                         bool (char v1, char v2) => v1 == v2,
-                        int (char v) => ((int)(v)),
+                        int (char v) => ((int)v),
                         char (char v) => v),
                     providerValueComparer: new ValueComparer<char>(
                         bool (char v1, char v2) => v1 == v2,
-                        int (char v) => ((int)(v)),
+                        int (char v) => ((int)v),
                         char (char v) => v),
                     clrType: typeof(char),
                     jsonValueReaderWriter: JsonCharReaderWriter.Instance));
@@ -863,15 +863,15 @@ namespace TestNamespace
             charNestedCollection.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ListOfReferenceTypesComparer<char[][], char[]>(new ConvertingValueComparer<char[], IEnumerable<char>>(new ListOfValueTypesComparer<char[], char>(new ValueComparer<char>(
                     bool (char v1, char v2) => v1 == v2,
-                    int (char v) => ((int)(v)),
+                    int (char v) => ((int)v),
                     char (char v) => v)))),
                 keyComparer: new ValueComparer<char[][]>(
-                    bool (char[][] v1, char[][] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (char[][] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (char[][] v1, char[][] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (char[][] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     char[][] (char[][] source) => source.ToArray()),
                 providerValueComparer: new ValueComparer<char[][]>(
-                    bool (char[][] v1, char[][] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (char[][] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (char[][] v1, char[][] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (char[][] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     char[][] (char[][] source) => source.ToArray()),
                 clrType: typeof(char[][]),
                 jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<char[][], char[]>(
@@ -880,15 +880,15 @@ namespace TestNamespace
                 elementMapping: CosmosTypeMapping.Default.Clone(
                     comparer: new ListOfValueTypesComparer<char[], char>(new ValueComparer<char>(
                         bool (char v1, char v2) => v1 == v2,
-                        int (char v) => ((int)(v)),
+                        int (char v) => ((int)v),
                         char (char v) => v)),
                     keyComparer: new ValueComparer<char[]>(
-                        bool (char[] v1, char[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                        int (char[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                        bool (char[] v1, char[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                        int (char[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                         char[] (char[] source) => source.ToArray()),
                     providerValueComparer: new ValueComparer<char[]>(
-                        bool (char[] v1, char[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                        int (char[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                        bool (char[] v1, char[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                        int (char[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                         char[] (char[] source) => source.ToArray()),
                     clrType: typeof(char[]),
                     jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<char[], char>(
@@ -896,15 +896,15 @@ namespace TestNamespace
                     elementMapping: CosmosTypeMapping.Default.Clone(
                         comparer: new ValueComparer<char>(
                             bool (char v1, char v2) => v1 == v2,
-                            int (char v) => ((int)(v)),
+                            int (char v) => ((int)v),
                             char (char v) => v),
                         keyComparer: new ValueComparer<char>(
                             bool (char v1, char v2) => v1 == v2,
-                            int (char v) => ((int)(v)),
+                            int (char v) => ((int)v),
                             char (char v) => v),
                         providerValueComparer: new ValueComparer<char>(
                             bool (char v1, char v2) => v1 == v2,
-                            int (char v) => ((int)(v)),
+                            int (char v) => ((int)v),
                             char (char v) => v),
                         clrType: typeof(char),
                         jsonValueReaderWriter: JsonCharReaderWriter.Instance)));
@@ -946,23 +946,23 @@ namespace TestNamespace
             charToStringConverterProperty.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<char>(
                     bool (char v1, char v2) => v1 == v2,
-                    int (char v) => ((int)(v)),
+                    int (char v) => ((int)v),
                     char (char v) => v),
                 keyComparer: new ValueComparer<char>(
                     bool (char v1, char v2) => v1 == v2,
-                    int (char v) => ((int)(v)),
+                    int (char v) => ((int)v),
                     char (char v) => v),
                 providerValueComparer: new ValueComparer<string>(
                     bool (string v1, string v2) => v1 == v2,
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new ValueConverter<char, string>(
-                    string (char v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)(v))),
+                    string (char v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)v)),
                     char (string v) => (v.Length < 1 ? '\0' : v[0])),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<char, string>(
                     JsonStringReaderWriter.Instance,
                     new ValueConverter<char, string>(
-                        string (char v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)(v))),
+                        string (char v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)v)),
                         char (string v) => (v.Length < 1 ? '\0' : v[0]))));
             charToStringConverterProperty.SetSentinelFromProviderValue("\0");
 
@@ -1525,12 +1525,12 @@ namespace TestNamespace
                     int (decimal v) => ((object)v).GetHashCode(),
                     decimal (decimal v) => v)),
                 keyComparer: new ValueComparer<decimal[]>(
-                    bool (decimal[] v1, decimal[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (decimal[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (decimal[] v1, decimal[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (decimal[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     decimal[] (decimal[] source) => source.ToArray()),
                 providerValueComparer: new ValueComparer<decimal[]>(
-                    bool (decimal[] v1, decimal[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (decimal[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (decimal[] v1, decimal[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (decimal[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     decimal[] (decimal[] source) => source.ToArray()),
                 clrType: typeof(decimal[]),
                 jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<decimal[], decimal>(
@@ -1654,12 +1654,12 @@ namespace TestNamespace
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new ValueConverter<decimal, string>(
-                    string (decimal v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)(v))),
+                    string (decimal v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)v)),
                     decimal (string v) => decimal.Parse(v, NumberStyles.Any, CultureInfo.InvariantCulture)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<decimal, string>(
                     JsonStringReaderWriter.Instance,
                     new ValueConverter<decimal, string>(
-                        string (decimal v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)(v))),
+                        string (decimal v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)v)),
                         decimal (string v) => decimal.Parse(v, NumberStyles.Any, CultureInfo.InvariantCulture))));
             decimalNumberToStringConverterProperty.SetSentinelFromProviderValue("0");
 
@@ -1748,12 +1748,12 @@ namespace TestNamespace
                     int (double v) => ((object)v).GetHashCode(),
                     double (double v) => v)),
                 keyComparer: new ValueComparer<double[]>(
-                    bool (double[] v1, double[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (double[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (double[] v1, double[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (double[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     double[] (double[] source) => source.ToArray()),
                 providerValueComparer: new ValueComparer<double[]>(
-                    bool (double[] v1, double[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (double[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (double[] v1, double[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (double[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     double[] (double[] source) => source.ToArray()),
                 clrType: typeof(double[]),
                 jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<double[], double>(
@@ -1877,12 +1877,12 @@ namespace TestNamespace
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new ValueConverter<double, string>(
-                    string (double v) => string.Format(CultureInfo.InvariantCulture, "{0:R}", ((object)(v))),
+                    string (double v) => string.Format(CultureInfo.InvariantCulture, "{0:R}", ((object)v)),
                     double (string v) => double.Parse(v, NumberStyles.Any, CultureInfo.InvariantCulture)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<double, string>(
                     JsonStringReaderWriter.Instance,
                     new ValueConverter<double, string>(
-                        string (double v) => string.Format(CultureInfo.InvariantCulture, "{0:R}", ((object)(v))),
+                        string (double v) => string.Format(CultureInfo.InvariantCulture, "{0:R}", ((object)v)),
                         double (string v) => double.Parse(v, NumberStyles.Any, CultureInfo.InvariantCulture))));
             doubleNumberToStringConverterProperty.SetSentinelFromProviderValue("0");
 
@@ -1919,25 +1919,25 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             enum16.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum16>(
-                    bool (CompiledModelTestBase.Enum16 v1, CompiledModelTestBase.Enum16 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.Enum16 v1, CompiledModelTestBase.Enum16 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.Enum16 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum16 (CompiledModelTestBase.Enum16 v) => v),
                 keyComparer: new ValueComparer<CompiledModelTestBase.Enum16>(
-                    bool (CompiledModelTestBase.Enum16 v1, CompiledModelTestBase.Enum16 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.Enum16 v1, CompiledModelTestBase.Enum16 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.Enum16 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum16 (CompiledModelTestBase.Enum16 v) => v),
                 providerValueComparer: new ValueComparer<short>(
                     bool (short v1, short v2) => v1 == v2,
-                    int (short v) => ((int)(v)),
+                    int (short v) => ((int)v),
                     short (short v) => v),
                 converter: new ValueConverter<CompiledModelTestBase.Enum16, short>(
-                    short (CompiledModelTestBase.Enum16 value) => ((short)(value)),
-                    CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)(value))),
+                    short (CompiledModelTestBase.Enum16 value) => ((short)value),
+                    CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum16, short>(
                     JsonInt16ReaderWriter.Instance,
                     new ValueConverter<CompiledModelTestBase.Enum16, short>(
-                        short (CompiledModelTestBase.Enum16 value) => ((short)(value)),
-                        CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)(value)))));
+                        short (CompiledModelTestBase.Enum16 value) => ((short)value),
+                        CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value))));
             enum16.SetSentinelFromProviderValue((short)0);
 
             var enum16AsString = runtimeEntityType.AddProperty(
@@ -1974,11 +1974,11 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             enum16AsString.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum16>(
-                    bool (CompiledModelTestBase.Enum16 v1, CompiledModelTestBase.Enum16 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.Enum16 v1, CompiledModelTestBase.Enum16 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.Enum16 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum16 (CompiledModelTestBase.Enum16 v) => v),
                 keyComparer: new ValueComparer<CompiledModelTestBase.Enum16>(
-                    bool (CompiledModelTestBase.Enum16 v1, CompiledModelTestBase.Enum16 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.Enum16 v1, CompiledModelTestBase.Enum16 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.Enum16 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum16 (CompiledModelTestBase.Enum16 v) => v),
                 providerValueComparer: new ValueComparer<string>(
@@ -2028,11 +2028,11 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             enum32.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum32>(
-                    bool (CompiledModelTestBase.Enum32 v1, CompiledModelTestBase.Enum32 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.Enum32 v1, CompiledModelTestBase.Enum32 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum32 (CompiledModelTestBase.Enum32 v) => v),
                 keyComparer: new ValueComparer<CompiledModelTestBase.Enum32>(
-                    bool (CompiledModelTestBase.Enum32 v1, CompiledModelTestBase.Enum32 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.Enum32 v1, CompiledModelTestBase.Enum32 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum32 (CompiledModelTestBase.Enum32 v) => v),
                 providerValueComparer: new ValueComparer<int>(
@@ -2040,13 +2040,13 @@ namespace TestNamespace
                     int (int v) => v,
                     int (int v) => v),
                 converter: new ValueConverter<CompiledModelTestBase.Enum32, int>(
-                    int (CompiledModelTestBase.Enum32 value) => ((int)(value)),
-                    CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)(value))),
+                    int (CompiledModelTestBase.Enum32 value) => ((int)value),
+                    CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum32, int>(
                     JsonInt32ReaderWriter.Instance,
                     new ValueConverter<CompiledModelTestBase.Enum32, int>(
-                        int (CompiledModelTestBase.Enum32 value) => ((int)(value)),
-                        CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)(value)))));
+                        int (CompiledModelTestBase.Enum32 value) => ((int)value),
+                        CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value))));
             enum32.SetSentinelFromProviderValue(0);
 
             var enum32AsString = runtimeEntityType.AddProperty(
@@ -2083,11 +2083,11 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             enum32AsString.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum32>(
-                    bool (CompiledModelTestBase.Enum32 v1, CompiledModelTestBase.Enum32 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.Enum32 v1, CompiledModelTestBase.Enum32 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum32 (CompiledModelTestBase.Enum32 v) => v),
                 keyComparer: new ValueComparer<CompiledModelTestBase.Enum32>(
-                    bool (CompiledModelTestBase.Enum32 v1, CompiledModelTestBase.Enum32 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.Enum32 v1, CompiledModelTestBase.Enum32 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum32 (CompiledModelTestBase.Enum32 v) => v),
                 providerValueComparer: new ValueComparer<string>(
@@ -2137,11 +2137,11 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             enum64.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum64>(
-                    bool (CompiledModelTestBase.Enum64 v1, CompiledModelTestBase.Enum64 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.Enum64 v1, CompiledModelTestBase.Enum64 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.Enum64 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum64 (CompiledModelTestBase.Enum64 v) => v),
                 keyComparer: new ValueComparer<CompiledModelTestBase.Enum64>(
-                    bool (CompiledModelTestBase.Enum64 v1, CompiledModelTestBase.Enum64 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.Enum64 v1, CompiledModelTestBase.Enum64 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.Enum64 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum64 (CompiledModelTestBase.Enum64 v) => v),
                 providerValueComparer: new ValueComparer<long>(
@@ -2149,13 +2149,13 @@ namespace TestNamespace
                     int (long v) => ((object)v).GetHashCode(),
                     long (long v) => v),
                 converter: new ValueConverter<CompiledModelTestBase.Enum64, long>(
-                    long (CompiledModelTestBase.Enum64 value) => ((long)(value)),
-                    CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)(value))),
+                    long (CompiledModelTestBase.Enum64 value) => ((long)value),
+                    CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum64, long>(
                     JsonInt64ReaderWriter.Instance,
                     new ValueConverter<CompiledModelTestBase.Enum64, long>(
-                        long (CompiledModelTestBase.Enum64 value) => ((long)(value)),
-                        CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)(value)))));
+                        long (CompiledModelTestBase.Enum64 value) => ((long)value),
+                        CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value))));
             enum64.SetSentinelFromProviderValue(0L);
 
             var enum64AsString = runtimeEntityType.AddProperty(
@@ -2192,11 +2192,11 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             enum64AsString.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum64>(
-                    bool (CompiledModelTestBase.Enum64 v1, CompiledModelTestBase.Enum64 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.Enum64 v1, CompiledModelTestBase.Enum64 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.Enum64 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum64 (CompiledModelTestBase.Enum64 v) => v),
                 keyComparer: new ValueComparer<CompiledModelTestBase.Enum64>(
-                    bool (CompiledModelTestBase.Enum64 v1, CompiledModelTestBase.Enum64 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.Enum64 v1, CompiledModelTestBase.Enum64 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.Enum64 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum64 (CompiledModelTestBase.Enum64 v) => v),
                 providerValueComparer: new ValueComparer<string>(
@@ -2246,25 +2246,25 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             enum8.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum8>(
-                    bool (CompiledModelTestBase.Enum8 v1, CompiledModelTestBase.Enum8 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.Enum8 v1, CompiledModelTestBase.Enum8 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.Enum8 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum8 (CompiledModelTestBase.Enum8 v) => v),
                 keyComparer: new ValueComparer<CompiledModelTestBase.Enum8>(
-                    bool (CompiledModelTestBase.Enum8 v1, CompiledModelTestBase.Enum8 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.Enum8 v1, CompiledModelTestBase.Enum8 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.Enum8 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum8 (CompiledModelTestBase.Enum8 v) => v),
                 providerValueComparer: new ValueComparer<sbyte>(
                     bool (sbyte v1, sbyte v2) => v1 == v2,
-                    int (sbyte v) => ((int)(v)),
+                    int (sbyte v) => ((int)v),
                     sbyte (sbyte v) => v),
                 converter: new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(
-                    sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)(value)),
-                    CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)(value))),
+                    sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value),
+                    CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum8, sbyte>(
                     JsonSByteReaderWriter.Instance,
                     new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(
-                        sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)(value)),
-                        CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)(value)))));
+                        sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value),
+                        CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value))));
             enum8.SetSentinelFromProviderValue((sbyte)0);
 
             var enum8AsString = runtimeEntityType.AddProperty(
@@ -2301,11 +2301,11 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             enum8AsString.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum8>(
-                    bool (CompiledModelTestBase.Enum8 v1, CompiledModelTestBase.Enum8 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.Enum8 v1, CompiledModelTestBase.Enum8 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.Enum8 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum8 (CompiledModelTestBase.Enum8 v) => v),
                 keyComparer: new ValueComparer<CompiledModelTestBase.Enum8>(
-                    bool (CompiledModelTestBase.Enum8 v1, CompiledModelTestBase.Enum8 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.Enum8 v1, CompiledModelTestBase.Enum8 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.Enum8 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum8 (CompiledModelTestBase.Enum8 v) => v),
                 providerValueComparer: new ValueComparer<string>(
@@ -2356,11 +2356,11 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             enumToNumberConverterProperty.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum32>(
-                    bool (CompiledModelTestBase.Enum32 v1, CompiledModelTestBase.Enum32 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.Enum32 v1, CompiledModelTestBase.Enum32 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum32 (CompiledModelTestBase.Enum32 v) => v),
                 keyComparer: new ValueComparer<CompiledModelTestBase.Enum32>(
-                    bool (CompiledModelTestBase.Enum32 v1, CompiledModelTestBase.Enum32 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.Enum32 v1, CompiledModelTestBase.Enum32 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum32 (CompiledModelTestBase.Enum32 v) => v),
                 providerValueComparer: new ValueComparer<int>(
@@ -2368,13 +2368,13 @@ namespace TestNamespace
                     int (int v) => v,
                     int (int v) => v),
                 converter: new ValueConverter<CompiledModelTestBase.Enum32, int>(
-                    int (CompiledModelTestBase.Enum32 value) => ((int)(value)),
-                    CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)(value))),
+                    int (CompiledModelTestBase.Enum32 value) => ((int)value),
+                    CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum32, int>(
                     JsonInt32ReaderWriter.Instance,
                     new ValueConverter<CompiledModelTestBase.Enum32, int>(
-                        int (CompiledModelTestBase.Enum32 value) => ((int)(value)),
-                        CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)(value)))));
+                        int (CompiledModelTestBase.Enum32 value) => ((int)value),
+                        CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value))));
             enumToNumberConverterProperty.SetSentinelFromProviderValue(0);
 
             var enumToStringConverterProperty = runtimeEntityType.AddProperty(
@@ -2411,11 +2411,11 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             enumToStringConverterProperty.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum32>(
-                    bool (CompiledModelTestBase.Enum32 v1, CompiledModelTestBase.Enum32 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.Enum32 v1, CompiledModelTestBase.Enum32 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum32 (CompiledModelTestBase.Enum32 v) => v),
                 keyComparer: new ValueComparer<CompiledModelTestBase.Enum32>(
-                    bool (CompiledModelTestBase.Enum32 v1, CompiledModelTestBase.Enum32 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.Enum32 v1, CompiledModelTestBase.Enum32 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum32 (CompiledModelTestBase.Enum32 v) => v),
                 providerValueComparer: new ValueComparer<string>(
@@ -2465,25 +2465,25 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             enumU16.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU16>(
-                    bool (CompiledModelTestBase.EnumU16 v1, CompiledModelTestBase.EnumU16 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.EnumU16 v1, CompiledModelTestBase.EnumU16 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.EnumU16 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU16 (CompiledModelTestBase.EnumU16 v) => v),
                 keyComparer: new ValueComparer<CompiledModelTestBase.EnumU16>(
-                    bool (CompiledModelTestBase.EnumU16 v1, CompiledModelTestBase.EnumU16 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.EnumU16 v1, CompiledModelTestBase.EnumU16 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.EnumU16 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU16 (CompiledModelTestBase.EnumU16 v) => v),
                 providerValueComparer: new ValueComparer<ushort>(
                     bool (ushort v1, ushort v2) => v1 == v2,
-                    int (ushort v) => ((int)(v)),
+                    int (ushort v) => ((int)v),
                     ushort (ushort v) => v),
                 converter: new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(
-                    ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)(value)),
-                    CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)(value))),
+                    ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value),
+                    CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU16, ushort>(
                     JsonUInt16ReaderWriter.Instance,
                     new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(
-                        ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)(value)),
-                        CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)(value)))));
+                        ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value),
+                        CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value))));
             enumU16.SetSentinelFromProviderValue((ushort)0);
 
             var enumU16AsString = runtimeEntityType.AddProperty(
@@ -2520,11 +2520,11 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             enumU16AsString.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU16>(
-                    bool (CompiledModelTestBase.EnumU16 v1, CompiledModelTestBase.EnumU16 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.EnumU16 v1, CompiledModelTestBase.EnumU16 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.EnumU16 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU16 (CompiledModelTestBase.EnumU16 v) => v),
                 keyComparer: new ValueComparer<CompiledModelTestBase.EnumU16>(
-                    bool (CompiledModelTestBase.EnumU16 v1, CompiledModelTestBase.EnumU16 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.EnumU16 v1, CompiledModelTestBase.EnumU16 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.EnumU16 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU16 (CompiledModelTestBase.EnumU16 v) => v),
                 providerValueComparer: new ValueComparer<string>(
@@ -2574,25 +2574,25 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             enumU32.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU32>(
-                    bool (CompiledModelTestBase.EnumU32 v1, CompiledModelTestBase.EnumU32 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.EnumU32 v1, CompiledModelTestBase.EnumU32 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.EnumU32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU32 (CompiledModelTestBase.EnumU32 v) => v),
                 keyComparer: new ValueComparer<CompiledModelTestBase.EnumU32>(
-                    bool (CompiledModelTestBase.EnumU32 v1, CompiledModelTestBase.EnumU32 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.EnumU32 v1, CompiledModelTestBase.EnumU32 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.EnumU32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU32 (CompiledModelTestBase.EnumU32 v) => v),
                 providerValueComparer: new ValueComparer<uint>(
                     bool (uint v1, uint v2) => v1 == v2,
-                    int (uint v) => ((int)(v)),
+                    int (uint v) => ((int)v),
                     uint (uint v) => v),
                 converter: new ValueConverter<CompiledModelTestBase.EnumU32, uint>(
-                    uint (CompiledModelTestBase.EnumU32 value) => ((uint)(value)),
-                    CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)(value))),
+                    uint (CompiledModelTestBase.EnumU32 value) => ((uint)value),
+                    CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU32, uint>(
                     JsonUInt32ReaderWriter.Instance,
                     new ValueConverter<CompiledModelTestBase.EnumU32, uint>(
-                        uint (CompiledModelTestBase.EnumU32 value) => ((uint)(value)),
-                        CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)(value)))));
+                        uint (CompiledModelTestBase.EnumU32 value) => ((uint)value),
+                        CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value))));
             enumU32.SetSentinelFromProviderValue(0u);
 
             var enumU32AsString = runtimeEntityType.AddProperty(
@@ -2629,11 +2629,11 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             enumU32AsString.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU32>(
-                    bool (CompiledModelTestBase.EnumU32 v1, CompiledModelTestBase.EnumU32 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.EnumU32 v1, CompiledModelTestBase.EnumU32 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.EnumU32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU32 (CompiledModelTestBase.EnumU32 v) => v),
                 keyComparer: new ValueComparer<CompiledModelTestBase.EnumU32>(
-                    bool (CompiledModelTestBase.EnumU32 v1, CompiledModelTestBase.EnumU32 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.EnumU32 v1, CompiledModelTestBase.EnumU32 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.EnumU32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU32 (CompiledModelTestBase.EnumU32 v) => v),
                 providerValueComparer: new ValueComparer<string>(
@@ -2683,11 +2683,11 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             enumU64.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU64>(
-                    bool (CompiledModelTestBase.EnumU64 v1, CompiledModelTestBase.EnumU64 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.EnumU64 v1, CompiledModelTestBase.EnumU64 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.EnumU64 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU64 (CompiledModelTestBase.EnumU64 v) => v),
                 keyComparer: new ValueComparer<CompiledModelTestBase.EnumU64>(
-                    bool (CompiledModelTestBase.EnumU64 v1, CompiledModelTestBase.EnumU64 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.EnumU64 v1, CompiledModelTestBase.EnumU64 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.EnumU64 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU64 (CompiledModelTestBase.EnumU64 v) => v),
                 providerValueComparer: new ValueComparer<ulong>(
@@ -2695,13 +2695,13 @@ namespace TestNamespace
                     int (ulong v) => ((object)v).GetHashCode(),
                     ulong (ulong v) => v),
                 converter: new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(
-                    ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)(value)),
-                    CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)(value))),
+                    ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value),
+                    CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU64, ulong>(
                     JsonUInt64ReaderWriter.Instance,
                     new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(
-                        ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)(value)),
-                        CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)(value)))));
+                        ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value),
+                        CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value))));
             enumU64.SetSentinelFromProviderValue(0ul);
 
             var enumU64AsString = runtimeEntityType.AddProperty(
@@ -2738,11 +2738,11 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             enumU64AsString.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU64>(
-                    bool (CompiledModelTestBase.EnumU64 v1, CompiledModelTestBase.EnumU64 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.EnumU64 v1, CompiledModelTestBase.EnumU64 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.EnumU64 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU64 (CompiledModelTestBase.EnumU64 v) => v),
                 keyComparer: new ValueComparer<CompiledModelTestBase.EnumU64>(
-                    bool (CompiledModelTestBase.EnumU64 v1, CompiledModelTestBase.EnumU64 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.EnumU64 v1, CompiledModelTestBase.EnumU64 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.EnumU64 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU64 (CompiledModelTestBase.EnumU64 v) => v),
                 providerValueComparer: new ValueComparer<string>(
@@ -2792,25 +2792,25 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             enumU8.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU8>(
-                    bool (CompiledModelTestBase.EnumU8 v1, CompiledModelTestBase.EnumU8 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.EnumU8 v1, CompiledModelTestBase.EnumU8 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.EnumU8 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU8 (CompiledModelTestBase.EnumU8 v) => v),
                 keyComparer: new ValueComparer<CompiledModelTestBase.EnumU8>(
-                    bool (CompiledModelTestBase.EnumU8 v1, CompiledModelTestBase.EnumU8 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.EnumU8 v1, CompiledModelTestBase.EnumU8 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.EnumU8 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU8 (CompiledModelTestBase.EnumU8 v) => v),
                 providerValueComparer: new ValueComparer<byte>(
                     bool (byte v1, byte v2) => v1 == v2,
-                    int (byte v) => ((int)(v)),
+                    int (byte v) => ((int)v),
                     byte (byte v) => v),
                 converter: new ValueConverter<CompiledModelTestBase.EnumU8, byte>(
-                    byte (CompiledModelTestBase.EnumU8 value) => ((byte)(value)),
-                    CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)(value))),
+                    byte (CompiledModelTestBase.EnumU8 value) => ((byte)value),
+                    CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU8, byte>(
                     JsonByteReaderWriter.Instance,
                     new ValueConverter<CompiledModelTestBase.EnumU8, byte>(
-                        byte (CompiledModelTestBase.EnumU8 value) => ((byte)(value)),
-                        CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)(value)))));
+                        byte (CompiledModelTestBase.EnumU8 value) => ((byte)value),
+                        CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value))));
             enumU8.SetSentinelFromProviderValue((byte)0);
 
             var enumU8AsString = runtimeEntityType.AddProperty(
@@ -2847,11 +2847,11 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             enumU8AsString.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU8>(
-                    bool (CompiledModelTestBase.EnumU8 v1, CompiledModelTestBase.EnumU8 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.EnumU8 v1, CompiledModelTestBase.EnumU8 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.EnumU8 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU8 (CompiledModelTestBase.EnumU8 v) => v),
                 keyComparer: new ValueComparer<CompiledModelTestBase.EnumU8>(
-                    bool (CompiledModelTestBase.EnumU8 v1, CompiledModelTestBase.EnumU8 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.EnumU8 v1, CompiledModelTestBase.EnumU8 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.EnumU8 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU8 (CompiledModelTestBase.EnumU8 v) => v),
                 providerValueComparer: new ValueComparer<string>(
@@ -2953,12 +2953,12 @@ namespace TestNamespace
                     int (float v) => ((object)v).GetHashCode(),
                     float (float v) => v)),
                 keyComparer: new ValueComparer<float[]>(
-                    bool (float[] v1, float[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (float[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (float[] v1, float[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (float[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     float[] (float[] source) => source.ToArray()),
                 providerValueComparer: new ValueComparer<float[]>(
-                    bool (float[] v1, float[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (float[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (float[] v1, float[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (float[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     float[] (float[] source) => source.ToArray()),
                 clrType: typeof(float[]),
                 jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<float[], float>(
@@ -3341,15 +3341,15 @@ namespace TestNamespace
             int16.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<short>(
                     bool (short v1, short v2) => v1 == v2,
-                    int (short v) => ((int)(v)),
+                    int (short v) => ((int)v),
                     short (short v) => v),
                 keyComparer: new ValueComparer<short>(
                     bool (short v1, short v2) => v1 == v2,
-                    int (short v) => ((int)(v)),
+                    int (short v) => ((int)v),
                     short (short v) => v),
                 providerValueComparer: new ValueComparer<short>(
                     bool (short v1, short v2) => v1 == v2,
-                    int (short v) => ((int)(v)),
+                    int (short v) => ((int)v),
                     short (short v) => v),
                 clrType: typeof(short),
                 jsonValueReaderWriter: JsonInt16ReaderWriter.Instance);
@@ -3388,15 +3388,15 @@ namespace TestNamespace
             int16Array.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ListOfValueTypesComparer<short[], short>(new ValueComparer<short>(
                     bool (short v1, short v2) => v1 == v2,
-                    int (short v) => ((int)(v)),
+                    int (short v) => ((int)v),
                     short (short v) => v)),
                 keyComparer: new ValueComparer<short[]>(
-                    bool (short[] v1, short[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (short[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (short[] v1, short[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (short[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     short[] (short[] source) => source.ToArray()),
                 providerValueComparer: new ValueComparer<short[]>(
-                    bool (short[] v1, short[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (short[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (short[] v1, short[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (short[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     short[] (short[] source) => source.ToArray()),
                 clrType: typeof(short[]),
                 jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<short[], short>(
@@ -3404,15 +3404,15 @@ namespace TestNamespace
                 elementMapping: CosmosTypeMapping.Default.Clone(
                     comparer: new ValueComparer<short>(
                         bool (short v1, short v2) => v1 == v2,
-                        int (short v) => ((int)(v)),
+                        int (short v) => ((int)v),
                         short (short v) => v),
                     keyComparer: new ValueComparer<short>(
                         bool (short v1, short v2) => v1 == v2,
-                        int (short v) => ((int)(v)),
+                        int (short v) => ((int)v),
                         short (short v) => v),
                     providerValueComparer: new ValueComparer<short>(
                         bool (short v1, short v2) => v1 == v2,
-                        int (short v) => ((int)(v)),
+                        int (short v) => ((int)v),
                         short (short v) => v),
                     clrType: typeof(short),
                     jsonValueReaderWriter: JsonInt16ReaderWriter.Instance));
@@ -3504,12 +3504,12 @@ namespace TestNamespace
                     int (int v) => v,
                     int (int v) => v)),
                 keyComparer: new ValueComparer<int[]>(
-                    bool (int[] v1, int[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (int[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (int[] v1, int[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (int[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     int[] (int[] source) => source.ToArray()),
                 providerValueComparer: new ValueComparer<int[]>(
-                    bool (int[] v1, int[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (int[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (int[] v1, int[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (int[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     int[] (int[] source) => source.ToArray()),
                 clrType: typeof(int[]),
                 jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<int[], int>(
@@ -3569,12 +3569,12 @@ namespace TestNamespace
                     int (int v) => v,
                     int (int v) => v)))),
                 keyComparer: new ValueComparer<int[][]>(
-                    bool (int[][] v1, int[][] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (int[][] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (int[][] v1, int[][] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (int[][] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     int[][] (int[][] source) => source.ToArray()),
                 providerValueComparer: new ValueComparer<int[][]>(
-                    bool (int[][] v1, int[][] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (int[][] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (int[][] v1, int[][] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (int[][] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     int[][] (int[][] source) => source.ToArray()),
                 clrType: typeof(int[][]),
                 jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<int[][], int[]>(
@@ -3586,12 +3586,12 @@ namespace TestNamespace
                         int (int v) => v,
                         int (int v) => v)),
                     keyComparer: new ValueComparer<int[]>(
-                        bool (int[] v1, int[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                        int (int[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                        bool (int[] v1, int[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                        int (int[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                         int[] (int[] source) => source.ToArray()),
                     providerValueComparer: new ValueComparer<int[]>(
-                        bool (int[] v1, int[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                        int (int[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                        bool (int[] v1, int[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                        int (int[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                         int[] (int[] source) => source.ToArray()),
                     clrType: typeof(int[]),
                     jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<int[], int>(
@@ -3625,13 +3625,13 @@ namespace TestNamespace
             int32ReadOnlyCollection.SetSetter(
                 CompiledModelTestBase.ManyTypes (CompiledModelTestBase.ManyTypes instance, IReadOnlyCollection<int> value) =>
                 {
-                    ManyTypesUnsafeAccessors._int32ReadOnlyCollection(instance) = ((List<int>)(value));
+                    ManyTypesUnsafeAccessors._int32ReadOnlyCollection(instance) = ((List<int>)value);
                     return instance;
                 });
             int32ReadOnlyCollection.SetMaterializationSetter(
                 CompiledModelTestBase.ManyTypes (CompiledModelTestBase.ManyTypes instance, IReadOnlyCollection<int> value) =>
                 {
-                    ManyTypesUnsafeAccessors._int32ReadOnlyCollection(instance) = ((List<int>)(value));
+                    ManyTypesUnsafeAccessors._int32ReadOnlyCollection(instance) = ((List<int>)value);
                     return instance;
                 });
             int32ReadOnlyCollection.SetAccessors(
@@ -3764,12 +3764,12 @@ namespace TestNamespace
                     int (long v) => ((object)v).GetHashCode(),
                     long (long v) => v)),
                 keyComparer: new ValueComparer<long[]>(
-                    bool (long[] v1, long[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (long[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (long[] v1, long[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (long[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     long[] (long[] source) => source.ToArray()),
                 providerValueComparer: new ValueComparer<long[]>(
-                    bool (long[] v1, long[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (long[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (long[] v1, long[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (long[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     long[] (long[] source) => source.ToArray()),
                 clrType: typeof(long[]),
                 jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<long[], long>(
@@ -3829,12 +3829,12 @@ namespace TestNamespace
                     int (long v) => ((object)v).GetHashCode(),
                     long (long v) => v)))))),
                 keyComparer: new ValueComparer<IList<long[]>[]>(
-                    bool (IList<long[]>[] v1, IList<long[]>[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (IList<long[]>[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (IList<long[]>[] v1, IList<long[]>[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (IList<long[]>[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     IList<long[]>[] (IList<long[]>[] source) => source.ToArray()),
                 providerValueComparer: new ValueComparer<IList<long[]>[]>(
-                    bool (IList<long[]>[] v1, IList<long[]>[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (IList<long[]>[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (IList<long[]>[] v1, IList<long[]>[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (IList<long[]>[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     IList<long[]>[] (IList<long[]>[] source) => source.ToArray()),
                 clrType: typeof(IList<long[]>[]),
                 jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<IList<long[]>[], IList<long[]>>(
@@ -3864,12 +3864,12 @@ namespace TestNamespace
                             int (long v) => ((object)v).GetHashCode(),
                             long (long v) => v)),
                         keyComparer: new ValueComparer<long[]>(
-                            bool (long[] v1, long[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                            int (long[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                            bool (long[] v1, long[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                            int (long[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                             long[] (long[] source) => source.ToArray()),
                         providerValueComparer: new ValueComparer<long[]>(
-                            bool (long[] v1, long[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                            int (long[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                            bool (long[] v1, long[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                            int (long[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                             long[] (long[] source) => source.ToArray()),
                         clrType: typeof(long[]),
                         jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<long[], long>(
@@ -3927,15 +3927,15 @@ namespace TestNamespace
             int8.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<sbyte>(
                     bool (sbyte v1, sbyte v2) => v1 == v2,
-                    int (sbyte v) => ((int)(v)),
+                    int (sbyte v) => ((int)v),
                     sbyte (sbyte v) => v),
                 keyComparer: new ValueComparer<sbyte>(
                     bool (sbyte v1, sbyte v2) => v1 == v2,
-                    int (sbyte v) => ((int)(v)),
+                    int (sbyte v) => ((int)v),
                     sbyte (sbyte v) => v),
                 providerValueComparer: new ValueComparer<sbyte>(
                     bool (sbyte v1, sbyte v2) => v1 == v2,
-                    int (sbyte v) => ((int)(v)),
+                    int (sbyte v) => ((int)v),
                     sbyte (sbyte v) => v),
                 clrType: typeof(sbyte),
                 jsonValueReaderWriter: JsonSByteReaderWriter.Instance);
@@ -3974,15 +3974,15 @@ namespace TestNamespace
             int8Array.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ListOfValueTypesComparer<sbyte[], sbyte>(new ValueComparer<sbyte>(
                     bool (sbyte v1, sbyte v2) => v1 == v2,
-                    int (sbyte v) => ((int)(v)),
+                    int (sbyte v) => ((int)v),
                     sbyte (sbyte v) => v)),
                 keyComparer: new ValueComparer<sbyte[]>(
-                    bool (sbyte[] v1, sbyte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (sbyte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (sbyte[] v1, sbyte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (sbyte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     sbyte[] (sbyte[] source) => source.ToArray()),
                 providerValueComparer: new ValueComparer<sbyte[]>(
-                    bool (sbyte[] v1, sbyte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (sbyte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (sbyte[] v1, sbyte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (sbyte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     sbyte[] (sbyte[] source) => source.ToArray()),
                 clrType: typeof(sbyte[]),
                 jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<sbyte[], sbyte>(
@@ -3990,15 +3990,15 @@ namespace TestNamespace
                 elementMapping: CosmosTypeMapping.Default.Clone(
                     comparer: new ValueComparer<sbyte>(
                         bool (sbyte v1, sbyte v2) => v1 == v2,
-                        int (sbyte v) => ((int)(v)),
+                        int (sbyte v) => ((int)v),
                         sbyte (sbyte v) => v),
                     keyComparer: new ValueComparer<sbyte>(
                         bool (sbyte v1, sbyte v2) => v1 == v2,
-                        int (sbyte v) => ((int)(v)),
+                        int (sbyte v) => ((int)v),
                         sbyte (sbyte v) => v),
                     providerValueComparer: new ValueComparer<sbyte>(
                         bool (sbyte v1, sbyte v2) => v1 == v2,
-                        int (sbyte v) => ((int)(v)),
+                        int (sbyte v) => ((int)v),
                         sbyte (sbyte v) => v),
                     clrType: typeof(sbyte),
                     jsonValueReaderWriter: JsonSByteReaderWriter.Instance));
@@ -4039,15 +4039,15 @@ namespace TestNamespace
             int8NestedCollection.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ListOfReferenceTypesComparer<sbyte[][][], sbyte[][]>(new ConvertingValueComparer<sbyte[][], object>(new ListOfReferenceTypesComparer<sbyte[][], sbyte[]>(new ConvertingValueComparer<sbyte[], IEnumerable<sbyte>>(new ListOfValueTypesComparer<sbyte[], sbyte>(new ValueComparer<sbyte>(
                     bool (sbyte v1, sbyte v2) => v1 == v2,
-                    int (sbyte v) => ((int)(v)),
+                    int (sbyte v) => ((int)v),
                     sbyte (sbyte v) => v)))))),
                 keyComparer: new ValueComparer<sbyte[][][]>(
-                    bool (sbyte[][][] v1, sbyte[][][] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (sbyte[][][] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (sbyte[][][] v1, sbyte[][][] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (sbyte[][][] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     sbyte[][][] (sbyte[][][] source) => source.ToArray()),
                 providerValueComparer: new ValueComparer<sbyte[][][]>(
-                    bool (sbyte[][][] v1, sbyte[][][] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (sbyte[][][] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (sbyte[][][] v1, sbyte[][][] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (sbyte[][][] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     sbyte[][][] (sbyte[][][] source) => source.ToArray()),
                 clrType: typeof(sbyte[][][]),
                 jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<sbyte[][][], sbyte[][]>(
@@ -4057,15 +4057,15 @@ namespace TestNamespace
                 elementMapping: CosmosTypeMapping.Default.Clone(
                     comparer: new ListOfReferenceTypesComparer<sbyte[][], sbyte[]>(new ConvertingValueComparer<sbyte[], IEnumerable<sbyte>>(new ListOfValueTypesComparer<sbyte[], sbyte>(new ValueComparer<sbyte>(
                         bool (sbyte v1, sbyte v2) => v1 == v2,
-                        int (sbyte v) => ((int)(v)),
+                        int (sbyte v) => ((int)v),
                         sbyte (sbyte v) => v)))),
                     keyComparer: new ValueComparer<sbyte[][]>(
-                        bool (sbyte[][] v1, sbyte[][] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                        int (sbyte[][] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                        bool (sbyte[][] v1, sbyte[][] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                        int (sbyte[][] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                         sbyte[][] (sbyte[][] source) => source.ToArray()),
                     providerValueComparer: new ValueComparer<sbyte[][]>(
-                        bool (sbyte[][] v1, sbyte[][] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                        int (sbyte[][] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                        bool (sbyte[][] v1, sbyte[][] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                        int (sbyte[][] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                         sbyte[][] (sbyte[][] source) => source.ToArray()),
                     clrType: typeof(sbyte[][]),
                     jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<sbyte[][], sbyte[]>(
@@ -4074,15 +4074,15 @@ namespace TestNamespace
                     elementMapping: CosmosTypeMapping.Default.Clone(
                         comparer: new ListOfValueTypesComparer<sbyte[], sbyte>(new ValueComparer<sbyte>(
                             bool (sbyte v1, sbyte v2) => v1 == v2,
-                            int (sbyte v) => ((int)(v)),
+                            int (sbyte v) => ((int)v),
                             sbyte (sbyte v) => v)),
                         keyComparer: new ValueComparer<sbyte[]>(
-                            bool (sbyte[] v1, sbyte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                            int (sbyte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                            bool (sbyte[] v1, sbyte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                            int (sbyte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                             sbyte[] (sbyte[] source) => source.ToArray()),
                         providerValueComparer: new ValueComparer<sbyte[]>(
-                            bool (sbyte[] v1, sbyte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                            int (sbyte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                            bool (sbyte[] v1, sbyte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                            int (sbyte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                             sbyte[] (sbyte[] source) => source.ToArray()),
                         clrType: typeof(sbyte[]),
                         jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<sbyte[], sbyte>(
@@ -4090,15 +4090,15 @@ namespace TestNamespace
                         elementMapping: CosmosTypeMapping.Default.Clone(
                             comparer: new ValueComparer<sbyte>(
                                 bool (sbyte v1, sbyte v2) => v1 == v2,
-                                int (sbyte v) => ((int)(v)),
+                                int (sbyte v) => ((int)v),
                                 sbyte (sbyte v) => v),
                             keyComparer: new ValueComparer<sbyte>(
                                 bool (sbyte v1, sbyte v2) => v1 == v2,
-                                int (sbyte v) => ((int)(v)),
+                                int (sbyte v) => ((int)v),
                                 sbyte (sbyte v) => v),
                             providerValueComparer: new ValueComparer<sbyte>(
                                 bool (sbyte v1, sbyte v2) => v1 == v2,
-                                int (sbyte v) => ((int)(v)),
+                                int (sbyte v) => ((int)v),
                                 sbyte (sbyte v) => v),
                             clrType: typeof(sbyte),
                             jsonValueReaderWriter: JsonSByteReaderWriter.Instance))));
@@ -4206,12 +4206,12 @@ namespace TestNamespace
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new ValueConverter<int, string>(
-                    string (int v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)(v))),
+                    string (int v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)v)),
                     int (string v) => int.Parse(v, NumberStyles.Any, CultureInfo.InvariantCulture)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<int, string>(
                     JsonStringReaderWriter.Instance,
                     new ValueConverter<int, string>(
-                        string (int v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)(v))),
+                        string (int v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)v)),
                         int (string v) => int.Parse(v, NumberStyles.Any, CultureInfo.InvariantCulture))));
             intNumberToStringConverterProperty.SetSentinelFromProviderValue("0");
 
@@ -4251,11 +4251,11 @@ namespace TestNamespace
             nullIntToNullStringConverterProperty.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<int?>(
                     bool (int? v1, int? v2) => v1 == v2,
-                    int (int? v) => ((int)(v)),
+                    int (int? v) => ((int)v),
                     int? (int? v) => v),
                 keyComparer: new ValueComparer<int?>(
                     bool (int? v1, int? v2) => v1 == v2,
-                    int (int? v) => ((int)(v)),
+                    int (int? v) => ((int)v),
                     int? (int? v) => v),
                 providerValueComparer: new ValueComparer<string>(
                     bool (string v1, string v2) => v1 == v2,
@@ -4359,12 +4359,12 @@ namespace TestNamespace
                     int (bool v) => ((object)v).GetHashCode(),
                     bool (bool v) => v))),
                 keyComparer: new ValueComparer<bool?[]>(
-                    bool (bool? [] v1, bool? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (bool? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (bool? [] v1, bool? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (bool? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     bool? [] (bool? [] source) => source.ToArray()),
                 providerValueComparer: new ValueComparer<bool?[]>(
-                    bool (bool? [] v1, bool? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (bool? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (bool? [] v1, bool? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (bool? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     bool? [] (bool? [] source) => source.ToArray()),
                 clrType: typeof(bool?[]),
                 jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<bool?[], bool>(
@@ -4423,12 +4423,12 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             nullableBytes.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<byte[]>(
-                    bool (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
+                    bool (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
                     int (byte[] v) => ((object)v).GetHashCode(),
                     byte[] (byte[] v) => v),
                 keyComparer: new ValueComparer<byte[]>(
-                    bool (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     byte[] (byte[] source) => source.ToArray()),
                 providerValueComparer: new ValueComparer<string>(
                     bool (string v1, string v2) => v1 == v2,
@@ -4478,15 +4478,15 @@ namespace TestNamespace
             nullableChar.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<char>(
                     bool (char v1, char v2) => v1 == v2,
-                    int (char v) => ((int)(v)),
+                    int (char v) => ((int)v),
                     char (char v) => v),
                 keyComparer: new ValueComparer<char>(
                     bool (char v1, char v2) => v1 == v2,
-                    int (char v) => ((int)(v)),
+                    int (char v) => ((int)v),
                     char (char v) => v),
                 providerValueComparer: new ValueComparer<char>(
                     bool (char v1, char v2) => v1 == v2,
-                    int (char v) => ((int)(v)),
+                    int (char v) => ((int)v),
                     char (char v) => v),
                 clrType: typeof(char),
                 jsonValueReaderWriter: JsonCharReaderWriter.Instance);
@@ -4527,15 +4527,15 @@ namespace TestNamespace
             nullableCharArray.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ListOfNullableValueTypesComparer<char?[], char>(new NullableValueComparer<char>(new ValueComparer<char>(
                     bool (char v1, char v2) => v1 == v2,
-                    int (char v) => ((int)(v)),
+                    int (char v) => ((int)v),
                     char (char v) => v))),
                 keyComparer: new ValueComparer<char?[]>(
-                    bool (char? [] v1, char? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (char? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (char? [] v1, char? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (char? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     char? [] (char? [] source) => source.ToArray()),
                 providerValueComparer: new ValueComparer<char?[]>(
-                    bool (char? [] v1, char? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (char? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (char? [] v1, char? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (char? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     char? [] (char? [] source) => source.ToArray()),
                 clrType: typeof(char?[]),
                 jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<char?[], char>(
@@ -4543,15 +4543,15 @@ namespace TestNamespace
                 elementMapping: CosmosTypeMapping.Default.Clone(
                     comparer: new ValueComparer<char>(
                         bool (char v1, char v2) => v1 == v2,
-                        int (char v) => ((int)(v)),
+                        int (char v) => ((int)v),
                         char (char v) => v),
                     keyComparer: new ValueComparer<char>(
                         bool (char v1, char v2) => v1 == v2,
-                        int (char v) => ((int)(v)),
+                        int (char v) => ((int)v),
                         char (char v) => v),
                     providerValueComparer: new ValueComparer<char>(
                         bool (char v1, char v2) => v1 == v2,
-                        int (char v) => ((int)(v)),
+                        int (char v) => ((int)v),
                         char (char v) => v),
                     clrType: typeof(char),
                     jsonValueReaderWriter: JsonCharReaderWriter.Instance));
@@ -4747,12 +4747,12 @@ namespace TestNamespace
                     int (decimal v) => ((object)v).GetHashCode(),
                     decimal (decimal v) => v))),
                 keyComparer: new ValueComparer<decimal?[]>(
-                    bool (decimal? [] v1, decimal? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (decimal? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (decimal? [] v1, decimal? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (decimal? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     decimal? [] (decimal? [] source) => source.ToArray()),
                 providerValueComparer: new ValueComparer<decimal?[]>(
-                    bool (decimal? [] v1, decimal? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (decimal? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (decimal? [] v1, decimal? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (decimal? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     decimal? [] (decimal? [] source) => source.ToArray()),
                 clrType: typeof(decimal?[]),
                 jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<decimal?[], decimal>(
@@ -4864,12 +4864,12 @@ namespace TestNamespace
                     int (double v) => ((object)v).GetHashCode(),
                     double (double v) => v))),
                 keyComparer: new ValueComparer<double?[]>(
-                    bool (double? [] v1, double? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (double? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (double? [] v1, double? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (double? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     double? [] (double? [] source) => source.ToArray()),
                 providerValueComparer: new ValueComparer<double?[]>(
-                    bool (double? [] v1, double? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (double? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (double? [] v1, double? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (double? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     double? [] (double? [] source) => source.ToArray()),
                 clrType: typeof(double?[]),
                 jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<double?[], double>(
@@ -4906,13 +4906,13 @@ namespace TestNamespace
             nullableEnum16.SetSetter(
                 CompiledModelTestBase.ManyTypes (CompiledModelTestBase.ManyTypes instance, CompiledModelTestBase.Enum16? value) =>
                 {
-                    ManyTypesUnsafeAccessors.NullableEnum16(instance) = (value == null ? value : ((CompiledModelTestBase.Enum16? )(((CompiledModelTestBase.Enum16)(value)))));
+                    ManyTypesUnsafeAccessors.NullableEnum16(instance) = (value == null ? value : ((CompiledModelTestBase.Enum16? )(((CompiledModelTestBase.Enum16)value))));
                     return instance;
                 });
             nullableEnum16.SetMaterializationSetter(
                 CompiledModelTestBase.ManyTypes (CompiledModelTestBase.ManyTypes instance, CompiledModelTestBase.Enum16? value) =>
                 {
-                    ManyTypesUnsafeAccessors.NullableEnum16(instance) = (value == null ? value : ((CompiledModelTestBase.Enum16? )(((CompiledModelTestBase.Enum16)(value)))));
+                    ManyTypesUnsafeAccessors.NullableEnum16(instance) = (value == null ? value : ((CompiledModelTestBase.Enum16? )(((CompiledModelTestBase.Enum16)value))));
                     return instance;
                 });
             nullableEnum16.SetAccessors(
@@ -4928,25 +4928,25 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             nullableEnum16.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum16>(
-                    bool (CompiledModelTestBase.Enum16 v1, CompiledModelTestBase.Enum16 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.Enum16 v1, CompiledModelTestBase.Enum16 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.Enum16 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum16 (CompiledModelTestBase.Enum16 v) => v),
                 keyComparer: new ValueComparer<CompiledModelTestBase.Enum16>(
-                    bool (CompiledModelTestBase.Enum16 v1, CompiledModelTestBase.Enum16 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.Enum16 v1, CompiledModelTestBase.Enum16 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.Enum16 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum16 (CompiledModelTestBase.Enum16 v) => v),
                 providerValueComparer: new ValueComparer<short>(
                     bool (short v1, short v2) => v1 == v2,
-                    int (short v) => ((int)(v)),
+                    int (short v) => ((int)v),
                     short (short v) => v),
                 converter: new ValueConverter<CompiledModelTestBase.Enum16, short>(
-                    short (CompiledModelTestBase.Enum16 value) => ((short)(value)),
-                    CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)(value))),
+                    short (CompiledModelTestBase.Enum16 value) => ((short)value),
+                    CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum16, short>(
                     JsonInt16ReaderWriter.Instance,
                     new ValueConverter<CompiledModelTestBase.Enum16, short>(
-                        short (CompiledModelTestBase.Enum16 value) => ((short)(value)),
-                        CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)(value)))));
+                        short (CompiledModelTestBase.Enum16 value) => ((short)value),
+                        CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value))));
             nullableEnum16.SetComparer(new NullableValueComparer<CompiledModelTestBase.Enum16>(nullableEnum16.TypeMapping.Comparer));
             nullableEnum16.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.Enum16>(nullableEnum16.TypeMapping.KeyComparer));
 
@@ -4962,13 +4962,13 @@ namespace TestNamespace
             nullableEnum16AsString.SetSetter(
                 CompiledModelTestBase.ManyTypes (CompiledModelTestBase.ManyTypes instance, CompiledModelTestBase.Enum16? value) =>
                 {
-                    ManyTypesUnsafeAccessors.NullableEnum16AsString(instance) = (value == null ? value : ((CompiledModelTestBase.Enum16? )(((CompiledModelTestBase.Enum16)(value)))));
+                    ManyTypesUnsafeAccessors.NullableEnum16AsString(instance) = (value == null ? value : ((CompiledModelTestBase.Enum16? )(((CompiledModelTestBase.Enum16)value))));
                     return instance;
                 });
             nullableEnum16AsString.SetMaterializationSetter(
                 CompiledModelTestBase.ManyTypes (CompiledModelTestBase.ManyTypes instance, CompiledModelTestBase.Enum16? value) =>
                 {
-                    ManyTypesUnsafeAccessors.NullableEnum16AsString(instance) = (value == null ? value : ((CompiledModelTestBase.Enum16? )(((CompiledModelTestBase.Enum16)(value)))));
+                    ManyTypesUnsafeAccessors.NullableEnum16AsString(instance) = (value == null ? value : ((CompiledModelTestBase.Enum16? )(((CompiledModelTestBase.Enum16)value))));
                     return instance;
                 });
             nullableEnum16AsString.SetAccessors(
@@ -4984,25 +4984,25 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             nullableEnum16AsString.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum16>(
-                    bool (CompiledModelTestBase.Enum16 v1, CompiledModelTestBase.Enum16 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.Enum16 v1, CompiledModelTestBase.Enum16 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.Enum16 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum16 (CompiledModelTestBase.Enum16 v) => v),
                 keyComparer: new ValueComparer<CompiledModelTestBase.Enum16>(
-                    bool (CompiledModelTestBase.Enum16 v1, CompiledModelTestBase.Enum16 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.Enum16 v1, CompiledModelTestBase.Enum16 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.Enum16 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum16 (CompiledModelTestBase.Enum16 v) => v),
                 providerValueComparer: new ValueComparer<short>(
                     bool (short v1, short v2) => v1 == v2,
-                    int (short v) => ((int)(v)),
+                    int (short v) => ((int)v),
                     short (short v) => v),
                 converter: new ValueConverter<CompiledModelTestBase.Enum16, short>(
-                    short (CompiledModelTestBase.Enum16 value) => ((short)(value)),
-                    CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)(value))),
+                    short (CompiledModelTestBase.Enum16 value) => ((short)value),
+                    CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum16, short>(
                     JsonInt16ReaderWriter.Instance,
                     new ValueConverter<CompiledModelTestBase.Enum16, short>(
-                        short (CompiledModelTestBase.Enum16 value) => ((short)(value)),
-                        CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)(value)))));
+                        short (CompiledModelTestBase.Enum16 value) => ((short)value),
+                        CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)value))));
             nullableEnum16AsString.SetComparer(new NullableValueComparer<CompiledModelTestBase.Enum16>(nullableEnum16AsString.TypeMapping.Comparer));
             nullableEnum16AsString.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.Enum16>(nullableEnum16AsString.TypeMapping.KeyComparer));
 
@@ -5018,13 +5018,13 @@ namespace TestNamespace
             nullableEnum32.SetSetter(
                 CompiledModelTestBase.ManyTypes (CompiledModelTestBase.ManyTypes instance, CompiledModelTestBase.Enum32? value) =>
                 {
-                    ManyTypesUnsafeAccessors.NullableEnum32(instance) = (value == null ? value : ((CompiledModelTestBase.Enum32? )(((CompiledModelTestBase.Enum32)(value)))));
+                    ManyTypesUnsafeAccessors.NullableEnum32(instance) = (value == null ? value : ((CompiledModelTestBase.Enum32? )(((CompiledModelTestBase.Enum32)value))));
                     return instance;
                 });
             nullableEnum32.SetMaterializationSetter(
                 CompiledModelTestBase.ManyTypes (CompiledModelTestBase.ManyTypes instance, CompiledModelTestBase.Enum32? value) =>
                 {
-                    ManyTypesUnsafeAccessors.NullableEnum32(instance) = (value == null ? value : ((CompiledModelTestBase.Enum32? )(((CompiledModelTestBase.Enum32)(value)))));
+                    ManyTypesUnsafeAccessors.NullableEnum32(instance) = (value == null ? value : ((CompiledModelTestBase.Enum32? )(((CompiledModelTestBase.Enum32)value))));
                     return instance;
                 });
             nullableEnum32.SetAccessors(
@@ -5040,11 +5040,11 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             nullableEnum32.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum32>(
-                    bool (CompiledModelTestBase.Enum32 v1, CompiledModelTestBase.Enum32 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.Enum32 v1, CompiledModelTestBase.Enum32 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum32 (CompiledModelTestBase.Enum32 v) => v),
                 keyComparer: new ValueComparer<CompiledModelTestBase.Enum32>(
-                    bool (CompiledModelTestBase.Enum32 v1, CompiledModelTestBase.Enum32 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.Enum32 v1, CompiledModelTestBase.Enum32 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum32 (CompiledModelTestBase.Enum32 v) => v),
                 providerValueComparer: new ValueComparer<int>(
@@ -5052,13 +5052,13 @@ namespace TestNamespace
                     int (int v) => v,
                     int (int v) => v),
                 converter: new ValueConverter<CompiledModelTestBase.Enum32, int>(
-                    int (CompiledModelTestBase.Enum32 value) => ((int)(value)),
-                    CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)(value))),
+                    int (CompiledModelTestBase.Enum32 value) => ((int)value),
+                    CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum32, int>(
                     JsonInt32ReaderWriter.Instance,
                     new ValueConverter<CompiledModelTestBase.Enum32, int>(
-                        int (CompiledModelTestBase.Enum32 value) => ((int)(value)),
-                        CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)(value)))));
+                        int (CompiledModelTestBase.Enum32 value) => ((int)value),
+                        CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value))));
             nullableEnum32.SetComparer(new NullableValueComparer<CompiledModelTestBase.Enum32>(nullableEnum32.TypeMapping.Comparer));
             nullableEnum32.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.Enum32>(nullableEnum32.TypeMapping.KeyComparer));
 
@@ -5074,13 +5074,13 @@ namespace TestNamespace
             nullableEnum32AsString.SetSetter(
                 CompiledModelTestBase.ManyTypes (CompiledModelTestBase.ManyTypes instance, CompiledModelTestBase.Enum32? value) =>
                 {
-                    ManyTypesUnsafeAccessors.NullableEnum32AsString(instance) = (value == null ? value : ((CompiledModelTestBase.Enum32? )(((CompiledModelTestBase.Enum32)(value)))));
+                    ManyTypesUnsafeAccessors.NullableEnum32AsString(instance) = (value == null ? value : ((CompiledModelTestBase.Enum32? )(((CompiledModelTestBase.Enum32)value))));
                     return instance;
                 });
             nullableEnum32AsString.SetMaterializationSetter(
                 CompiledModelTestBase.ManyTypes (CompiledModelTestBase.ManyTypes instance, CompiledModelTestBase.Enum32? value) =>
                 {
-                    ManyTypesUnsafeAccessors.NullableEnum32AsString(instance) = (value == null ? value : ((CompiledModelTestBase.Enum32? )(((CompiledModelTestBase.Enum32)(value)))));
+                    ManyTypesUnsafeAccessors.NullableEnum32AsString(instance) = (value == null ? value : ((CompiledModelTestBase.Enum32? )(((CompiledModelTestBase.Enum32)value))));
                     return instance;
                 });
             nullableEnum32AsString.SetAccessors(
@@ -5096,11 +5096,11 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             nullableEnum32AsString.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum32>(
-                    bool (CompiledModelTestBase.Enum32 v1, CompiledModelTestBase.Enum32 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.Enum32 v1, CompiledModelTestBase.Enum32 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum32 (CompiledModelTestBase.Enum32 v) => v),
                 keyComparer: new ValueComparer<CompiledModelTestBase.Enum32>(
-                    bool (CompiledModelTestBase.Enum32 v1, CompiledModelTestBase.Enum32 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.Enum32 v1, CompiledModelTestBase.Enum32 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum32 (CompiledModelTestBase.Enum32 v) => v),
                 providerValueComparer: new ValueComparer<int>(
@@ -5108,13 +5108,13 @@ namespace TestNamespace
                     int (int v) => v,
                     int (int v) => v),
                 converter: new ValueConverter<CompiledModelTestBase.Enum32, int>(
-                    int (CompiledModelTestBase.Enum32 value) => ((int)(value)),
-                    CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)(value))),
+                    int (CompiledModelTestBase.Enum32 value) => ((int)value),
+                    CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum32, int>(
                     JsonInt32ReaderWriter.Instance,
                     new ValueConverter<CompiledModelTestBase.Enum32, int>(
-                        int (CompiledModelTestBase.Enum32 value) => ((int)(value)),
-                        CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)(value)))));
+                        int (CompiledModelTestBase.Enum32 value) => ((int)value),
+                        CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)value))));
             nullableEnum32AsString.SetComparer(new NullableValueComparer<CompiledModelTestBase.Enum32>(nullableEnum32AsString.TypeMapping.Comparer));
             nullableEnum32AsString.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.Enum32>(nullableEnum32AsString.TypeMapping.KeyComparer));
 
@@ -5130,13 +5130,13 @@ namespace TestNamespace
             nullableEnum64.SetSetter(
                 CompiledModelTestBase.ManyTypes (CompiledModelTestBase.ManyTypes instance, CompiledModelTestBase.Enum64? value) =>
                 {
-                    ManyTypesUnsafeAccessors.NullableEnum64(instance) = (value == null ? value : ((CompiledModelTestBase.Enum64? )(((CompiledModelTestBase.Enum64)(value)))));
+                    ManyTypesUnsafeAccessors.NullableEnum64(instance) = (value == null ? value : ((CompiledModelTestBase.Enum64? )(((CompiledModelTestBase.Enum64)value))));
                     return instance;
                 });
             nullableEnum64.SetMaterializationSetter(
                 CompiledModelTestBase.ManyTypes (CompiledModelTestBase.ManyTypes instance, CompiledModelTestBase.Enum64? value) =>
                 {
-                    ManyTypesUnsafeAccessors.NullableEnum64(instance) = (value == null ? value : ((CompiledModelTestBase.Enum64? )(((CompiledModelTestBase.Enum64)(value)))));
+                    ManyTypesUnsafeAccessors.NullableEnum64(instance) = (value == null ? value : ((CompiledModelTestBase.Enum64? )(((CompiledModelTestBase.Enum64)value))));
                     return instance;
                 });
             nullableEnum64.SetAccessors(
@@ -5152,11 +5152,11 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             nullableEnum64.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum64>(
-                    bool (CompiledModelTestBase.Enum64 v1, CompiledModelTestBase.Enum64 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.Enum64 v1, CompiledModelTestBase.Enum64 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.Enum64 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum64 (CompiledModelTestBase.Enum64 v) => v),
                 keyComparer: new ValueComparer<CompiledModelTestBase.Enum64>(
-                    bool (CompiledModelTestBase.Enum64 v1, CompiledModelTestBase.Enum64 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.Enum64 v1, CompiledModelTestBase.Enum64 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.Enum64 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum64 (CompiledModelTestBase.Enum64 v) => v),
                 providerValueComparer: new ValueComparer<long>(
@@ -5164,13 +5164,13 @@ namespace TestNamespace
                     int (long v) => ((object)v).GetHashCode(),
                     long (long v) => v),
                 converter: new ValueConverter<CompiledModelTestBase.Enum64, long>(
-                    long (CompiledModelTestBase.Enum64 value) => ((long)(value)),
-                    CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)(value))),
+                    long (CompiledModelTestBase.Enum64 value) => ((long)value),
+                    CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum64, long>(
                     JsonInt64ReaderWriter.Instance,
                     new ValueConverter<CompiledModelTestBase.Enum64, long>(
-                        long (CompiledModelTestBase.Enum64 value) => ((long)(value)),
-                        CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)(value)))));
+                        long (CompiledModelTestBase.Enum64 value) => ((long)value),
+                        CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value))));
             nullableEnum64.SetComparer(new NullableValueComparer<CompiledModelTestBase.Enum64>(nullableEnum64.TypeMapping.Comparer));
             nullableEnum64.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.Enum64>(nullableEnum64.TypeMapping.KeyComparer));
 
@@ -5186,13 +5186,13 @@ namespace TestNamespace
             nullableEnum64AsString.SetSetter(
                 CompiledModelTestBase.ManyTypes (CompiledModelTestBase.ManyTypes instance, CompiledModelTestBase.Enum64? value) =>
                 {
-                    ManyTypesUnsafeAccessors.NullableEnum64AsString(instance) = (value == null ? value : ((CompiledModelTestBase.Enum64? )(((CompiledModelTestBase.Enum64)(value)))));
+                    ManyTypesUnsafeAccessors.NullableEnum64AsString(instance) = (value == null ? value : ((CompiledModelTestBase.Enum64? )(((CompiledModelTestBase.Enum64)value))));
                     return instance;
                 });
             nullableEnum64AsString.SetMaterializationSetter(
                 CompiledModelTestBase.ManyTypes (CompiledModelTestBase.ManyTypes instance, CompiledModelTestBase.Enum64? value) =>
                 {
-                    ManyTypesUnsafeAccessors.NullableEnum64AsString(instance) = (value == null ? value : ((CompiledModelTestBase.Enum64? )(((CompiledModelTestBase.Enum64)(value)))));
+                    ManyTypesUnsafeAccessors.NullableEnum64AsString(instance) = (value == null ? value : ((CompiledModelTestBase.Enum64? )(((CompiledModelTestBase.Enum64)value))));
                     return instance;
                 });
             nullableEnum64AsString.SetAccessors(
@@ -5208,11 +5208,11 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             nullableEnum64AsString.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum64>(
-                    bool (CompiledModelTestBase.Enum64 v1, CompiledModelTestBase.Enum64 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.Enum64 v1, CompiledModelTestBase.Enum64 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.Enum64 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum64 (CompiledModelTestBase.Enum64 v) => v),
                 keyComparer: new ValueComparer<CompiledModelTestBase.Enum64>(
-                    bool (CompiledModelTestBase.Enum64 v1, CompiledModelTestBase.Enum64 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.Enum64 v1, CompiledModelTestBase.Enum64 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.Enum64 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum64 (CompiledModelTestBase.Enum64 v) => v),
                 providerValueComparer: new ValueComparer<long>(
@@ -5220,13 +5220,13 @@ namespace TestNamespace
                     int (long v) => ((object)v).GetHashCode(),
                     long (long v) => v),
                 converter: new ValueConverter<CompiledModelTestBase.Enum64, long>(
-                    long (CompiledModelTestBase.Enum64 value) => ((long)(value)),
-                    CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)(value))),
+                    long (CompiledModelTestBase.Enum64 value) => ((long)value),
+                    CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum64, long>(
                     JsonInt64ReaderWriter.Instance,
                     new ValueConverter<CompiledModelTestBase.Enum64, long>(
-                        long (CompiledModelTestBase.Enum64 value) => ((long)(value)),
-                        CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)(value)))));
+                        long (CompiledModelTestBase.Enum64 value) => ((long)value),
+                        CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)value))));
             nullableEnum64AsString.SetComparer(new NullableValueComparer<CompiledModelTestBase.Enum64>(nullableEnum64AsString.TypeMapping.Comparer));
             nullableEnum64AsString.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.Enum64>(nullableEnum64AsString.TypeMapping.KeyComparer));
 
@@ -5242,13 +5242,13 @@ namespace TestNamespace
             nullableEnum8.SetSetter(
                 CompiledModelTestBase.ManyTypes (CompiledModelTestBase.ManyTypes instance, CompiledModelTestBase.Enum8? value) =>
                 {
-                    ManyTypesUnsafeAccessors.NullableEnum8(instance) = (value == null ? value : ((CompiledModelTestBase.Enum8? )(((CompiledModelTestBase.Enum8)(value)))));
+                    ManyTypesUnsafeAccessors.NullableEnum8(instance) = (value == null ? value : ((CompiledModelTestBase.Enum8? )(((CompiledModelTestBase.Enum8)value))));
                     return instance;
                 });
             nullableEnum8.SetMaterializationSetter(
                 CompiledModelTestBase.ManyTypes (CompiledModelTestBase.ManyTypes instance, CompiledModelTestBase.Enum8? value) =>
                 {
-                    ManyTypesUnsafeAccessors.NullableEnum8(instance) = (value == null ? value : ((CompiledModelTestBase.Enum8? )(((CompiledModelTestBase.Enum8)(value)))));
+                    ManyTypesUnsafeAccessors.NullableEnum8(instance) = (value == null ? value : ((CompiledModelTestBase.Enum8? )(((CompiledModelTestBase.Enum8)value))));
                     return instance;
                 });
             nullableEnum8.SetAccessors(
@@ -5264,25 +5264,25 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             nullableEnum8.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum8>(
-                    bool (CompiledModelTestBase.Enum8 v1, CompiledModelTestBase.Enum8 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.Enum8 v1, CompiledModelTestBase.Enum8 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.Enum8 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum8 (CompiledModelTestBase.Enum8 v) => v),
                 keyComparer: new ValueComparer<CompiledModelTestBase.Enum8>(
-                    bool (CompiledModelTestBase.Enum8 v1, CompiledModelTestBase.Enum8 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.Enum8 v1, CompiledModelTestBase.Enum8 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.Enum8 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum8 (CompiledModelTestBase.Enum8 v) => v),
                 providerValueComparer: new ValueComparer<sbyte>(
                     bool (sbyte v1, sbyte v2) => v1 == v2,
-                    int (sbyte v) => ((int)(v)),
+                    int (sbyte v) => ((int)v),
                     sbyte (sbyte v) => v),
                 converter: new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(
-                    sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)(value)),
-                    CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)(value))),
+                    sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value),
+                    CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum8, sbyte>(
                     JsonSByteReaderWriter.Instance,
                     new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(
-                        sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)(value)),
-                        CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)(value)))));
+                        sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value),
+                        CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value))));
             nullableEnum8.SetComparer(new NullableValueComparer<CompiledModelTestBase.Enum8>(nullableEnum8.TypeMapping.Comparer));
             nullableEnum8.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.Enum8>(nullableEnum8.TypeMapping.KeyComparer));
 
@@ -5298,13 +5298,13 @@ namespace TestNamespace
             nullableEnum8AsString.SetSetter(
                 CompiledModelTestBase.ManyTypes (CompiledModelTestBase.ManyTypes instance, CompiledModelTestBase.Enum8? value) =>
                 {
-                    ManyTypesUnsafeAccessors.NullableEnum8AsString(instance) = (value == null ? value : ((CompiledModelTestBase.Enum8? )(((CompiledModelTestBase.Enum8)(value)))));
+                    ManyTypesUnsafeAccessors.NullableEnum8AsString(instance) = (value == null ? value : ((CompiledModelTestBase.Enum8? )(((CompiledModelTestBase.Enum8)value))));
                     return instance;
                 });
             nullableEnum8AsString.SetMaterializationSetter(
                 CompiledModelTestBase.ManyTypes (CompiledModelTestBase.ManyTypes instance, CompiledModelTestBase.Enum8? value) =>
                 {
-                    ManyTypesUnsafeAccessors.NullableEnum8AsString(instance) = (value == null ? value : ((CompiledModelTestBase.Enum8? )(((CompiledModelTestBase.Enum8)(value)))));
+                    ManyTypesUnsafeAccessors.NullableEnum8AsString(instance) = (value == null ? value : ((CompiledModelTestBase.Enum8? )(((CompiledModelTestBase.Enum8)value))));
                     return instance;
                 });
             nullableEnum8AsString.SetAccessors(
@@ -5320,25 +5320,25 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             nullableEnum8AsString.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum8>(
-                    bool (CompiledModelTestBase.Enum8 v1, CompiledModelTestBase.Enum8 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.Enum8 v1, CompiledModelTestBase.Enum8 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.Enum8 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum8 (CompiledModelTestBase.Enum8 v) => v),
                 keyComparer: new ValueComparer<CompiledModelTestBase.Enum8>(
-                    bool (CompiledModelTestBase.Enum8 v1, CompiledModelTestBase.Enum8 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.Enum8 v1, CompiledModelTestBase.Enum8 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.Enum8 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum8 (CompiledModelTestBase.Enum8 v) => v),
                 providerValueComparer: new ValueComparer<sbyte>(
                     bool (sbyte v1, sbyte v2) => v1 == v2,
-                    int (sbyte v) => ((int)(v)),
+                    int (sbyte v) => ((int)v),
                     sbyte (sbyte v) => v),
                 converter: new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(
-                    sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)(value)),
-                    CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)(value))),
+                    sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value),
+                    CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum8, sbyte>(
                     JsonSByteReaderWriter.Instance,
                     new ValueConverter<CompiledModelTestBase.Enum8, sbyte>(
-                        sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)(value)),
-                        CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)(value)))));
+                        sbyte (CompiledModelTestBase.Enum8 value) => ((sbyte)value),
+                        CompiledModelTestBase.Enum8 (sbyte value) => ((CompiledModelTestBase.Enum8)value))));
             nullableEnum8AsString.SetComparer(new NullableValueComparer<CompiledModelTestBase.Enum8>(nullableEnum8AsString.TypeMapping.Comparer));
             nullableEnum8AsString.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.Enum8>(nullableEnum8AsString.TypeMapping.KeyComparer));
 
@@ -5354,13 +5354,13 @@ namespace TestNamespace
             nullableEnumU16.SetSetter(
                 CompiledModelTestBase.ManyTypes (CompiledModelTestBase.ManyTypes instance, CompiledModelTestBase.EnumU16? value) =>
                 {
-                    ManyTypesUnsafeAccessors.NullableEnumU16(instance) = (value == null ? value : ((CompiledModelTestBase.EnumU16? )(((CompiledModelTestBase.EnumU16)(value)))));
+                    ManyTypesUnsafeAccessors.NullableEnumU16(instance) = (value == null ? value : ((CompiledModelTestBase.EnumU16? )(((CompiledModelTestBase.EnumU16)value))));
                     return instance;
                 });
             nullableEnumU16.SetMaterializationSetter(
                 CompiledModelTestBase.ManyTypes (CompiledModelTestBase.ManyTypes instance, CompiledModelTestBase.EnumU16? value) =>
                 {
-                    ManyTypesUnsafeAccessors.NullableEnumU16(instance) = (value == null ? value : ((CompiledModelTestBase.EnumU16? )(((CompiledModelTestBase.EnumU16)(value)))));
+                    ManyTypesUnsafeAccessors.NullableEnumU16(instance) = (value == null ? value : ((CompiledModelTestBase.EnumU16? )(((CompiledModelTestBase.EnumU16)value))));
                     return instance;
                 });
             nullableEnumU16.SetAccessors(
@@ -5376,25 +5376,25 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             nullableEnumU16.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU16>(
-                    bool (CompiledModelTestBase.EnumU16 v1, CompiledModelTestBase.EnumU16 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.EnumU16 v1, CompiledModelTestBase.EnumU16 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.EnumU16 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU16 (CompiledModelTestBase.EnumU16 v) => v),
                 keyComparer: new ValueComparer<CompiledModelTestBase.EnumU16>(
-                    bool (CompiledModelTestBase.EnumU16 v1, CompiledModelTestBase.EnumU16 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.EnumU16 v1, CompiledModelTestBase.EnumU16 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.EnumU16 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU16 (CompiledModelTestBase.EnumU16 v) => v),
                 providerValueComparer: new ValueComparer<ushort>(
                     bool (ushort v1, ushort v2) => v1 == v2,
-                    int (ushort v) => ((int)(v)),
+                    int (ushort v) => ((int)v),
                     ushort (ushort v) => v),
                 converter: new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(
-                    ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)(value)),
-                    CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)(value))),
+                    ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value),
+                    CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU16, ushort>(
                     JsonUInt16ReaderWriter.Instance,
                     new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(
-                        ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)(value)),
-                        CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)(value)))));
+                        ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value),
+                        CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value))));
             nullableEnumU16.SetComparer(new NullableValueComparer<CompiledModelTestBase.EnumU16>(nullableEnumU16.TypeMapping.Comparer));
             nullableEnumU16.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.EnumU16>(nullableEnumU16.TypeMapping.KeyComparer));
 
@@ -5410,13 +5410,13 @@ namespace TestNamespace
             nullableEnumU16AsString.SetSetter(
                 CompiledModelTestBase.ManyTypes (CompiledModelTestBase.ManyTypes instance, CompiledModelTestBase.EnumU16? value) =>
                 {
-                    ManyTypesUnsafeAccessors.NullableEnumU16AsString(instance) = (value == null ? value : ((CompiledModelTestBase.EnumU16? )(((CompiledModelTestBase.EnumU16)(value)))));
+                    ManyTypesUnsafeAccessors.NullableEnumU16AsString(instance) = (value == null ? value : ((CompiledModelTestBase.EnumU16? )(((CompiledModelTestBase.EnumU16)value))));
                     return instance;
                 });
             nullableEnumU16AsString.SetMaterializationSetter(
                 CompiledModelTestBase.ManyTypes (CompiledModelTestBase.ManyTypes instance, CompiledModelTestBase.EnumU16? value) =>
                 {
-                    ManyTypesUnsafeAccessors.NullableEnumU16AsString(instance) = (value == null ? value : ((CompiledModelTestBase.EnumU16? )(((CompiledModelTestBase.EnumU16)(value)))));
+                    ManyTypesUnsafeAccessors.NullableEnumU16AsString(instance) = (value == null ? value : ((CompiledModelTestBase.EnumU16? )(((CompiledModelTestBase.EnumU16)value))));
                     return instance;
                 });
             nullableEnumU16AsString.SetAccessors(
@@ -5432,25 +5432,25 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             nullableEnumU16AsString.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU16>(
-                    bool (CompiledModelTestBase.EnumU16 v1, CompiledModelTestBase.EnumU16 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.EnumU16 v1, CompiledModelTestBase.EnumU16 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.EnumU16 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU16 (CompiledModelTestBase.EnumU16 v) => v),
                 keyComparer: new ValueComparer<CompiledModelTestBase.EnumU16>(
-                    bool (CompiledModelTestBase.EnumU16 v1, CompiledModelTestBase.EnumU16 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.EnumU16 v1, CompiledModelTestBase.EnumU16 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.EnumU16 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU16 (CompiledModelTestBase.EnumU16 v) => v),
                 providerValueComparer: new ValueComparer<ushort>(
                     bool (ushort v1, ushort v2) => v1 == v2,
-                    int (ushort v) => ((int)(v)),
+                    int (ushort v) => ((int)v),
                     ushort (ushort v) => v),
                 converter: new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(
-                    ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)(value)),
-                    CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)(value))),
+                    ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value),
+                    CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU16, ushort>(
                     JsonUInt16ReaderWriter.Instance,
                     new ValueConverter<CompiledModelTestBase.EnumU16, ushort>(
-                        ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)(value)),
-                        CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)(value)))));
+                        ushort (CompiledModelTestBase.EnumU16 value) => ((ushort)value),
+                        CompiledModelTestBase.EnumU16 (ushort value) => ((CompiledModelTestBase.EnumU16)value))));
             nullableEnumU16AsString.SetComparer(new NullableValueComparer<CompiledModelTestBase.EnumU16>(nullableEnumU16AsString.TypeMapping.Comparer));
             nullableEnumU16AsString.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.EnumU16>(nullableEnumU16AsString.TypeMapping.KeyComparer));
 
@@ -5466,13 +5466,13 @@ namespace TestNamespace
             nullableEnumU32.SetSetter(
                 CompiledModelTestBase.ManyTypes (CompiledModelTestBase.ManyTypes instance, CompiledModelTestBase.EnumU32? value) =>
                 {
-                    ManyTypesUnsafeAccessors.NullableEnumU32(instance) = (value == null ? value : ((CompiledModelTestBase.EnumU32? )(((CompiledModelTestBase.EnumU32)(value)))));
+                    ManyTypesUnsafeAccessors.NullableEnumU32(instance) = (value == null ? value : ((CompiledModelTestBase.EnumU32? )(((CompiledModelTestBase.EnumU32)value))));
                     return instance;
                 });
             nullableEnumU32.SetMaterializationSetter(
                 CompiledModelTestBase.ManyTypes (CompiledModelTestBase.ManyTypes instance, CompiledModelTestBase.EnumU32? value) =>
                 {
-                    ManyTypesUnsafeAccessors.NullableEnumU32(instance) = (value == null ? value : ((CompiledModelTestBase.EnumU32? )(((CompiledModelTestBase.EnumU32)(value)))));
+                    ManyTypesUnsafeAccessors.NullableEnumU32(instance) = (value == null ? value : ((CompiledModelTestBase.EnumU32? )(((CompiledModelTestBase.EnumU32)value))));
                     return instance;
                 });
             nullableEnumU32.SetAccessors(
@@ -5488,25 +5488,25 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             nullableEnumU32.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU32>(
-                    bool (CompiledModelTestBase.EnumU32 v1, CompiledModelTestBase.EnumU32 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.EnumU32 v1, CompiledModelTestBase.EnumU32 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.EnumU32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU32 (CompiledModelTestBase.EnumU32 v) => v),
                 keyComparer: new ValueComparer<CompiledModelTestBase.EnumU32>(
-                    bool (CompiledModelTestBase.EnumU32 v1, CompiledModelTestBase.EnumU32 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.EnumU32 v1, CompiledModelTestBase.EnumU32 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.EnumU32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU32 (CompiledModelTestBase.EnumU32 v) => v),
                 providerValueComparer: new ValueComparer<uint>(
                     bool (uint v1, uint v2) => v1 == v2,
-                    int (uint v) => ((int)(v)),
+                    int (uint v) => ((int)v),
                     uint (uint v) => v),
                 converter: new ValueConverter<CompiledModelTestBase.EnumU32, uint>(
-                    uint (CompiledModelTestBase.EnumU32 value) => ((uint)(value)),
-                    CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)(value))),
+                    uint (CompiledModelTestBase.EnumU32 value) => ((uint)value),
+                    CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU32, uint>(
                     JsonUInt32ReaderWriter.Instance,
                     new ValueConverter<CompiledModelTestBase.EnumU32, uint>(
-                        uint (CompiledModelTestBase.EnumU32 value) => ((uint)(value)),
-                        CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)(value)))));
+                        uint (CompiledModelTestBase.EnumU32 value) => ((uint)value),
+                        CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value))));
             nullableEnumU32.SetComparer(new NullableValueComparer<CompiledModelTestBase.EnumU32>(nullableEnumU32.TypeMapping.Comparer));
             nullableEnumU32.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.EnumU32>(nullableEnumU32.TypeMapping.KeyComparer));
 
@@ -5522,13 +5522,13 @@ namespace TestNamespace
             nullableEnumU32AsString.SetSetter(
                 CompiledModelTestBase.ManyTypes (CompiledModelTestBase.ManyTypes instance, CompiledModelTestBase.EnumU32? value) =>
                 {
-                    ManyTypesUnsafeAccessors.NullableEnumU32AsString(instance) = (value == null ? value : ((CompiledModelTestBase.EnumU32? )(((CompiledModelTestBase.EnumU32)(value)))));
+                    ManyTypesUnsafeAccessors.NullableEnumU32AsString(instance) = (value == null ? value : ((CompiledModelTestBase.EnumU32? )(((CompiledModelTestBase.EnumU32)value))));
                     return instance;
                 });
             nullableEnumU32AsString.SetMaterializationSetter(
                 CompiledModelTestBase.ManyTypes (CompiledModelTestBase.ManyTypes instance, CompiledModelTestBase.EnumU32? value) =>
                 {
-                    ManyTypesUnsafeAccessors.NullableEnumU32AsString(instance) = (value == null ? value : ((CompiledModelTestBase.EnumU32? )(((CompiledModelTestBase.EnumU32)(value)))));
+                    ManyTypesUnsafeAccessors.NullableEnumU32AsString(instance) = (value == null ? value : ((CompiledModelTestBase.EnumU32? )(((CompiledModelTestBase.EnumU32)value))));
                     return instance;
                 });
             nullableEnumU32AsString.SetAccessors(
@@ -5544,25 +5544,25 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             nullableEnumU32AsString.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU32>(
-                    bool (CompiledModelTestBase.EnumU32 v1, CompiledModelTestBase.EnumU32 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.EnumU32 v1, CompiledModelTestBase.EnumU32 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.EnumU32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU32 (CompiledModelTestBase.EnumU32 v) => v),
                 keyComparer: new ValueComparer<CompiledModelTestBase.EnumU32>(
-                    bool (CompiledModelTestBase.EnumU32 v1, CompiledModelTestBase.EnumU32 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.EnumU32 v1, CompiledModelTestBase.EnumU32 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.EnumU32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU32 (CompiledModelTestBase.EnumU32 v) => v),
                 providerValueComparer: new ValueComparer<uint>(
                     bool (uint v1, uint v2) => v1 == v2,
-                    int (uint v) => ((int)(v)),
+                    int (uint v) => ((int)v),
                     uint (uint v) => v),
                 converter: new ValueConverter<CompiledModelTestBase.EnumU32, uint>(
-                    uint (CompiledModelTestBase.EnumU32 value) => ((uint)(value)),
-                    CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)(value))),
+                    uint (CompiledModelTestBase.EnumU32 value) => ((uint)value),
+                    CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU32, uint>(
                     JsonUInt32ReaderWriter.Instance,
                     new ValueConverter<CompiledModelTestBase.EnumU32, uint>(
-                        uint (CompiledModelTestBase.EnumU32 value) => ((uint)(value)),
-                        CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)(value)))));
+                        uint (CompiledModelTestBase.EnumU32 value) => ((uint)value),
+                        CompiledModelTestBase.EnumU32 (uint value) => ((CompiledModelTestBase.EnumU32)value))));
             nullableEnumU32AsString.SetComparer(new NullableValueComparer<CompiledModelTestBase.EnumU32>(nullableEnumU32AsString.TypeMapping.Comparer));
             nullableEnumU32AsString.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.EnumU32>(nullableEnumU32AsString.TypeMapping.KeyComparer));
 
@@ -5578,13 +5578,13 @@ namespace TestNamespace
             nullableEnumU64.SetSetter(
                 CompiledModelTestBase.ManyTypes (CompiledModelTestBase.ManyTypes instance, CompiledModelTestBase.EnumU64? value) =>
                 {
-                    ManyTypesUnsafeAccessors.NullableEnumU64(instance) = (value == null ? value : ((CompiledModelTestBase.EnumU64? )(((CompiledModelTestBase.EnumU64)(value)))));
+                    ManyTypesUnsafeAccessors.NullableEnumU64(instance) = (value == null ? value : ((CompiledModelTestBase.EnumU64? )(((CompiledModelTestBase.EnumU64)value))));
                     return instance;
                 });
             nullableEnumU64.SetMaterializationSetter(
                 CompiledModelTestBase.ManyTypes (CompiledModelTestBase.ManyTypes instance, CompiledModelTestBase.EnumU64? value) =>
                 {
-                    ManyTypesUnsafeAccessors.NullableEnumU64(instance) = (value == null ? value : ((CompiledModelTestBase.EnumU64? )(((CompiledModelTestBase.EnumU64)(value)))));
+                    ManyTypesUnsafeAccessors.NullableEnumU64(instance) = (value == null ? value : ((CompiledModelTestBase.EnumU64? )(((CompiledModelTestBase.EnumU64)value))));
                     return instance;
                 });
             nullableEnumU64.SetAccessors(
@@ -5600,11 +5600,11 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             nullableEnumU64.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU64>(
-                    bool (CompiledModelTestBase.EnumU64 v1, CompiledModelTestBase.EnumU64 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.EnumU64 v1, CompiledModelTestBase.EnumU64 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.EnumU64 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU64 (CompiledModelTestBase.EnumU64 v) => v),
                 keyComparer: new ValueComparer<CompiledModelTestBase.EnumU64>(
-                    bool (CompiledModelTestBase.EnumU64 v1, CompiledModelTestBase.EnumU64 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.EnumU64 v1, CompiledModelTestBase.EnumU64 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.EnumU64 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU64 (CompiledModelTestBase.EnumU64 v) => v),
                 providerValueComparer: new ValueComparer<ulong>(
@@ -5612,13 +5612,13 @@ namespace TestNamespace
                     int (ulong v) => ((object)v).GetHashCode(),
                     ulong (ulong v) => v),
                 converter: new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(
-                    ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)(value)),
-                    CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)(value))),
+                    ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value),
+                    CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU64, ulong>(
                     JsonUInt64ReaderWriter.Instance,
                     new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(
-                        ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)(value)),
-                        CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)(value)))));
+                        ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value),
+                        CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value))));
             nullableEnumU64.SetComparer(new NullableValueComparer<CompiledModelTestBase.EnumU64>(nullableEnumU64.TypeMapping.Comparer));
             nullableEnumU64.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.EnumU64>(nullableEnumU64.TypeMapping.KeyComparer));
 
@@ -5634,13 +5634,13 @@ namespace TestNamespace
             nullableEnumU64AsString.SetSetter(
                 CompiledModelTestBase.ManyTypes (CompiledModelTestBase.ManyTypes instance, CompiledModelTestBase.EnumU64? value) =>
                 {
-                    ManyTypesUnsafeAccessors.NullableEnumU64AsString(instance) = (value == null ? value : ((CompiledModelTestBase.EnumU64? )(((CompiledModelTestBase.EnumU64)(value)))));
+                    ManyTypesUnsafeAccessors.NullableEnumU64AsString(instance) = (value == null ? value : ((CompiledModelTestBase.EnumU64? )(((CompiledModelTestBase.EnumU64)value))));
                     return instance;
                 });
             nullableEnumU64AsString.SetMaterializationSetter(
                 CompiledModelTestBase.ManyTypes (CompiledModelTestBase.ManyTypes instance, CompiledModelTestBase.EnumU64? value) =>
                 {
-                    ManyTypesUnsafeAccessors.NullableEnumU64AsString(instance) = (value == null ? value : ((CompiledModelTestBase.EnumU64? )(((CompiledModelTestBase.EnumU64)(value)))));
+                    ManyTypesUnsafeAccessors.NullableEnumU64AsString(instance) = (value == null ? value : ((CompiledModelTestBase.EnumU64? )(((CompiledModelTestBase.EnumU64)value))));
                     return instance;
                 });
             nullableEnumU64AsString.SetAccessors(
@@ -5656,11 +5656,11 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             nullableEnumU64AsString.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU64>(
-                    bool (CompiledModelTestBase.EnumU64 v1, CompiledModelTestBase.EnumU64 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.EnumU64 v1, CompiledModelTestBase.EnumU64 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.EnumU64 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU64 (CompiledModelTestBase.EnumU64 v) => v),
                 keyComparer: new ValueComparer<CompiledModelTestBase.EnumU64>(
-                    bool (CompiledModelTestBase.EnumU64 v1, CompiledModelTestBase.EnumU64 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.EnumU64 v1, CompiledModelTestBase.EnumU64 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.EnumU64 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU64 (CompiledModelTestBase.EnumU64 v) => v),
                 providerValueComparer: new ValueComparer<ulong>(
@@ -5668,13 +5668,13 @@ namespace TestNamespace
                     int (ulong v) => ((object)v).GetHashCode(),
                     ulong (ulong v) => v),
                 converter: new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(
-                    ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)(value)),
-                    CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)(value))),
+                    ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value),
+                    CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU64, ulong>(
                     JsonUInt64ReaderWriter.Instance,
                     new ValueConverter<CompiledModelTestBase.EnumU64, ulong>(
-                        ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)(value)),
-                        CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)(value)))));
+                        ulong (CompiledModelTestBase.EnumU64 value) => ((ulong)value),
+                        CompiledModelTestBase.EnumU64 (ulong value) => ((CompiledModelTestBase.EnumU64)value))));
             nullableEnumU64AsString.SetComparer(new NullableValueComparer<CompiledModelTestBase.EnumU64>(nullableEnumU64AsString.TypeMapping.Comparer));
             nullableEnumU64AsString.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.EnumU64>(nullableEnumU64AsString.TypeMapping.KeyComparer));
 
@@ -5690,13 +5690,13 @@ namespace TestNamespace
             nullableEnumU8.SetSetter(
                 CompiledModelTestBase.ManyTypes (CompiledModelTestBase.ManyTypes instance, CompiledModelTestBase.EnumU8? value) =>
                 {
-                    ManyTypesUnsafeAccessors.NullableEnumU8(instance) = (value == null ? value : ((CompiledModelTestBase.EnumU8? )(((CompiledModelTestBase.EnumU8)(value)))));
+                    ManyTypesUnsafeAccessors.NullableEnumU8(instance) = (value == null ? value : ((CompiledModelTestBase.EnumU8? )(((CompiledModelTestBase.EnumU8)value))));
                     return instance;
                 });
             nullableEnumU8.SetMaterializationSetter(
                 CompiledModelTestBase.ManyTypes (CompiledModelTestBase.ManyTypes instance, CompiledModelTestBase.EnumU8? value) =>
                 {
-                    ManyTypesUnsafeAccessors.NullableEnumU8(instance) = (value == null ? value : ((CompiledModelTestBase.EnumU8? )(((CompiledModelTestBase.EnumU8)(value)))));
+                    ManyTypesUnsafeAccessors.NullableEnumU8(instance) = (value == null ? value : ((CompiledModelTestBase.EnumU8? )(((CompiledModelTestBase.EnumU8)value))));
                     return instance;
                 });
             nullableEnumU8.SetAccessors(
@@ -5712,25 +5712,25 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             nullableEnumU8.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU8>(
-                    bool (CompiledModelTestBase.EnumU8 v1, CompiledModelTestBase.EnumU8 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.EnumU8 v1, CompiledModelTestBase.EnumU8 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.EnumU8 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU8 (CompiledModelTestBase.EnumU8 v) => v),
                 keyComparer: new ValueComparer<CompiledModelTestBase.EnumU8>(
-                    bool (CompiledModelTestBase.EnumU8 v1, CompiledModelTestBase.EnumU8 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.EnumU8 v1, CompiledModelTestBase.EnumU8 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.EnumU8 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU8 (CompiledModelTestBase.EnumU8 v) => v),
                 providerValueComparer: new ValueComparer<byte>(
                     bool (byte v1, byte v2) => v1 == v2,
-                    int (byte v) => ((int)(v)),
+                    int (byte v) => ((int)v),
                     byte (byte v) => v),
                 converter: new ValueConverter<CompiledModelTestBase.EnumU8, byte>(
-                    byte (CompiledModelTestBase.EnumU8 value) => ((byte)(value)),
-                    CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)(value))),
+                    byte (CompiledModelTestBase.EnumU8 value) => ((byte)value),
+                    CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU8, byte>(
                     JsonByteReaderWriter.Instance,
                     new ValueConverter<CompiledModelTestBase.EnumU8, byte>(
-                        byte (CompiledModelTestBase.EnumU8 value) => ((byte)(value)),
-                        CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)(value)))));
+                        byte (CompiledModelTestBase.EnumU8 value) => ((byte)value),
+                        CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value))));
             nullableEnumU8.SetComparer(new NullableValueComparer<CompiledModelTestBase.EnumU8>(nullableEnumU8.TypeMapping.Comparer));
             nullableEnumU8.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.EnumU8>(nullableEnumU8.TypeMapping.KeyComparer));
 
@@ -5746,13 +5746,13 @@ namespace TestNamespace
             nullableEnumU8AsString.SetSetter(
                 CompiledModelTestBase.ManyTypes (CompiledModelTestBase.ManyTypes instance, CompiledModelTestBase.EnumU8? value) =>
                 {
-                    ManyTypesUnsafeAccessors.NullableEnumU8AsString(instance) = (value == null ? value : ((CompiledModelTestBase.EnumU8? )(((CompiledModelTestBase.EnumU8)(value)))));
+                    ManyTypesUnsafeAccessors.NullableEnumU8AsString(instance) = (value == null ? value : ((CompiledModelTestBase.EnumU8? )(((CompiledModelTestBase.EnumU8)value))));
                     return instance;
                 });
             nullableEnumU8AsString.SetMaterializationSetter(
                 CompiledModelTestBase.ManyTypes (CompiledModelTestBase.ManyTypes instance, CompiledModelTestBase.EnumU8? value) =>
                 {
-                    ManyTypesUnsafeAccessors.NullableEnumU8AsString(instance) = (value == null ? value : ((CompiledModelTestBase.EnumU8? )(((CompiledModelTestBase.EnumU8)(value)))));
+                    ManyTypesUnsafeAccessors.NullableEnumU8AsString(instance) = (value == null ? value : ((CompiledModelTestBase.EnumU8? )(((CompiledModelTestBase.EnumU8)value))));
                     return instance;
                 });
             nullableEnumU8AsString.SetAccessors(
@@ -5768,25 +5768,25 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             nullableEnumU8AsString.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU8>(
-                    bool (CompiledModelTestBase.EnumU8 v1, CompiledModelTestBase.EnumU8 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.EnumU8 v1, CompiledModelTestBase.EnumU8 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.EnumU8 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU8 (CompiledModelTestBase.EnumU8 v) => v),
                 keyComparer: new ValueComparer<CompiledModelTestBase.EnumU8>(
-                    bool (CompiledModelTestBase.EnumU8 v1, CompiledModelTestBase.EnumU8 v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.EnumU8 v1, CompiledModelTestBase.EnumU8 v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.EnumU8 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU8 (CompiledModelTestBase.EnumU8 v) => v),
                 providerValueComparer: new ValueComparer<byte>(
                     bool (byte v1, byte v2) => v1 == v2,
-                    int (byte v) => ((int)(v)),
+                    int (byte v) => ((int)v),
                     byte (byte v) => v),
                 converter: new ValueConverter<CompiledModelTestBase.EnumU8, byte>(
-                    byte (CompiledModelTestBase.EnumU8 value) => ((byte)(value)),
-                    CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)(value))),
+                    byte (CompiledModelTestBase.EnumU8 value) => ((byte)value),
+                    CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU8, byte>(
                     JsonByteReaderWriter.Instance,
                     new ValueConverter<CompiledModelTestBase.EnumU8, byte>(
-                        byte (CompiledModelTestBase.EnumU8 value) => ((byte)(value)),
-                        CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)(value)))));
+                        byte (CompiledModelTestBase.EnumU8 value) => ((byte)value),
+                        CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)value))));
             nullableEnumU8AsString.SetComparer(new NullableValueComparer<CompiledModelTestBase.EnumU8>(nullableEnumU8AsString.TypeMapping.Comparer));
             nullableEnumU8AsString.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.EnumU8>(nullableEnumU8AsString.TypeMapping.KeyComparer));
 
@@ -5877,12 +5877,12 @@ namespace TestNamespace
                     int (float v) => ((object)v).GetHashCode(),
                     float (float v) => v))),
                 keyComparer: new ValueComparer<float?[]>(
-                    bool (float? [] v1, float? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (float? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (float? [] v1, float? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (float? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     float? [] (float? [] source) => source.ToArray()),
                 providerValueComparer: new ValueComparer<float?[]>(
-                    bool (float? [] v1, float? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (float? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (float? [] v1, float? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (float? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     float? [] (float? [] source) => source.ToArray()),
                 clrType: typeof(float?[]),
                 jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<float?[], float>(
@@ -6052,15 +6052,15 @@ namespace TestNamespace
             nullableInt16.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<short>(
                     bool (short v1, short v2) => v1 == v2,
-                    int (short v) => ((int)(v)),
+                    int (short v) => ((int)v),
                     short (short v) => v),
                 keyComparer: new ValueComparer<short>(
                     bool (short v1, short v2) => v1 == v2,
-                    int (short v) => ((int)(v)),
+                    int (short v) => ((int)v),
                     short (short v) => v),
                 providerValueComparer: new ValueComparer<short>(
                     bool (short v1, short v2) => v1 == v2,
-                    int (short v) => ((int)(v)),
+                    int (short v) => ((int)v),
                     short (short v) => v),
                 clrType: typeof(short),
                 jsonValueReaderWriter: JsonInt16ReaderWriter.Instance);
@@ -6101,15 +6101,15 @@ namespace TestNamespace
             nullableInt16Array.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ListOfNullableValueTypesComparer<short?[], short>(new NullableValueComparer<short>(new ValueComparer<short>(
                     bool (short v1, short v2) => v1 == v2,
-                    int (short v) => ((int)(v)),
+                    int (short v) => ((int)v),
                     short (short v) => v))),
                 keyComparer: new ValueComparer<short?[]>(
-                    bool (short? [] v1, short? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (short? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (short? [] v1, short? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (short? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     short? [] (short? [] source) => source.ToArray()),
                 providerValueComparer: new ValueComparer<short?[]>(
-                    bool (short? [] v1, short? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (short? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (short? [] v1, short? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (short? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     short? [] (short? [] source) => source.ToArray()),
                 clrType: typeof(short?[]),
                 jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<short?[], short>(
@@ -6117,15 +6117,15 @@ namespace TestNamespace
                 elementMapping: CosmosTypeMapping.Default.Clone(
                     comparer: new ValueComparer<short>(
                         bool (short v1, short v2) => v1 == v2,
-                        int (short v) => ((int)(v)),
+                        int (short v) => ((int)v),
                         short (short v) => v),
                     keyComparer: new ValueComparer<short>(
                         bool (short v1, short v2) => v1 == v2,
-                        int (short v) => ((int)(v)),
+                        int (short v) => ((int)v),
                         short (short v) => v),
                     providerValueComparer: new ValueComparer<short>(
                         bool (short v1, short v2) => v1 == v2,
-                        int (short v) => ((int)(v)),
+                        int (short v) => ((int)v),
                         short (short v) => v),
                     clrType: typeof(short),
                     jsonValueReaderWriter: JsonInt16ReaderWriter.Instance));
@@ -6221,12 +6221,12 @@ namespace TestNamespace
                     int (int v) => v,
                     int (int v) => v))),
                 keyComparer: new ValueComparer<int?[]>(
-                    bool (int? [] v1, int? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (int? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (int? [] v1, int? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (int? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     int? [] (int? [] source) => source.ToArray()),
                 providerValueComparer: new ValueComparer<int?[]>(
-                    bool (int? [] v1, int? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (int? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (int? [] v1, int? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (int? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     int? [] (int? [] source) => source.ToArray()),
                 clrType: typeof(int?[]),
                 jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<int?[], int>(
@@ -6288,12 +6288,12 @@ namespace TestNamespace
                     int (int v) => v,
                     int (int v) => v))))),
                 keyComparer: new ValueComparer<int?[][]>(
-                    bool (int? [][] v1, int? [][] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (int? [][] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (int? [][] v1, int? [][] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (int? [][] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     int? [][] (int? [][] source) => source.ToArray()),
                 providerValueComparer: new ValueComparer<int?[][]>(
-                    bool (int? [][] v1, int? [][] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (int? [][] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (int? [][] v1, int? [][] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (int? [][] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     int? [][] (int? [][] source) => source.ToArray()),
                 clrType: typeof(int?[][]),
                 jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<int?[][], int?[]>(
@@ -6305,12 +6305,12 @@ namespace TestNamespace
                         int (int v) => v,
                         int (int v) => v))),
                     keyComparer: new ValueComparer<int?[]>(
-                        bool (int? [] v1, int? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                        int (int? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                        bool (int? [] v1, int? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                        int (int? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                         int? [] (int? [] source) => source.ToArray()),
                     providerValueComparer: new ValueComparer<int?[]>(
-                        bool (int? [] v1, int? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                        int (int? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                        bool (int? [] v1, int? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                        int (int? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                         int? [] (int? [] source) => source.ToArray()),
                     clrType: typeof(int?[]),
                     jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<int?[], int>(
@@ -6420,12 +6420,12 @@ namespace TestNamespace
                     int (long v) => ((object)v).GetHashCode(),
                     long (long v) => v))),
                 keyComparer: new ValueComparer<long?[]>(
-                    bool (long? [] v1, long? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (long? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (long? [] v1, long? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (long? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     long? [] (long? [] source) => source.ToArray()),
                 providerValueComparer: new ValueComparer<long?[]>(
-                    bool (long? [] v1, long? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (long? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (long? [] v1, long? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (long? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     long? [] (long? [] source) => source.ToArray()),
                 clrType: typeof(long?[]),
                 jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<long?[], long>(
@@ -6505,12 +6505,12 @@ namespace TestNamespace
                         int (long v) => ((object)v).GetHashCode(),
                         long (long v) => v))))),
                     keyComparer: new ValueComparer<long?[][]>(
-                        bool (long? [][] v1, long? [][] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                        int (long? [][] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                        bool (long? [][] v1, long? [][] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                        int (long? [][] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                         long? [][] (long? [][] source) => source.ToArray()),
                     providerValueComparer: new ValueComparer<long?[][]>(
-                        bool (long? [][] v1, long? [][] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                        int (long? [][] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                        bool (long? [][] v1, long? [][] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                        int (long? [][] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                         long? [][] (long? [][] source) => source.ToArray()),
                     clrType: typeof(long?[][]),
                     jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<long?[][], long?[]>(
@@ -6522,12 +6522,12 @@ namespace TestNamespace
                             int (long v) => ((object)v).GetHashCode(),
                             long (long v) => v))),
                         keyComparer: new ValueComparer<long?[]>(
-                            bool (long? [] v1, long? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                            int (long? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                            bool (long? [] v1, long? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                            int (long? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                             long? [] (long? [] source) => source.ToArray()),
                         providerValueComparer: new ValueComparer<long?[]>(
-                            bool (long? [] v1, long? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                            int (long? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                            bool (long? [] v1, long? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                            int (long? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                             long? [] (long? [] source) => source.ToArray()),
                         clrType: typeof(long?[]),
                         jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<long?[], long>(
@@ -6585,15 +6585,15 @@ namespace TestNamespace
             nullableInt8.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<sbyte>(
                     bool (sbyte v1, sbyte v2) => v1 == v2,
-                    int (sbyte v) => ((int)(v)),
+                    int (sbyte v) => ((int)v),
                     sbyte (sbyte v) => v),
                 keyComparer: new ValueComparer<sbyte>(
                     bool (sbyte v1, sbyte v2) => v1 == v2,
-                    int (sbyte v) => ((int)(v)),
+                    int (sbyte v) => ((int)v),
                     sbyte (sbyte v) => v),
                 providerValueComparer: new ValueComparer<sbyte>(
                     bool (sbyte v1, sbyte v2) => v1 == v2,
-                    int (sbyte v) => ((int)(v)),
+                    int (sbyte v) => ((int)v),
                     sbyte (sbyte v) => v),
                 clrType: typeof(sbyte),
                 jsonValueReaderWriter: JsonSByteReaderWriter.Instance);
@@ -6634,15 +6634,15 @@ namespace TestNamespace
             nullableInt8Array.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ListOfNullableValueTypesComparer<sbyte?[], sbyte>(new NullableValueComparer<sbyte>(new ValueComparer<sbyte>(
                     bool (sbyte v1, sbyte v2) => v1 == v2,
-                    int (sbyte v) => ((int)(v)),
+                    int (sbyte v) => ((int)v),
                     sbyte (sbyte v) => v))),
                 keyComparer: new ValueComparer<sbyte?[]>(
-                    bool (sbyte? [] v1, sbyte? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (sbyte? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (sbyte? [] v1, sbyte? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (sbyte? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     sbyte? [] (sbyte? [] source) => source.ToArray()),
                 providerValueComparer: new ValueComparer<sbyte?[]>(
-                    bool (sbyte? [] v1, sbyte? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (sbyte? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (sbyte? [] v1, sbyte? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (sbyte? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     sbyte? [] (sbyte? [] source) => source.ToArray()),
                 clrType: typeof(sbyte?[]),
                 jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<sbyte?[], sbyte>(
@@ -6650,15 +6650,15 @@ namespace TestNamespace
                 elementMapping: CosmosTypeMapping.Default.Clone(
                     comparer: new ValueComparer<sbyte>(
                         bool (sbyte v1, sbyte v2) => v1 == v2,
-                        int (sbyte v) => ((int)(v)),
+                        int (sbyte v) => ((int)v),
                         sbyte (sbyte v) => v),
                     keyComparer: new ValueComparer<sbyte>(
                         bool (sbyte v1, sbyte v2) => v1 == v2,
-                        int (sbyte v) => ((int)(v)),
+                        int (sbyte v) => ((int)v),
                         sbyte (sbyte v) => v),
                     providerValueComparer: new ValueComparer<sbyte>(
                         bool (sbyte v1, sbyte v2) => v1 == v2,
-                        int (sbyte v) => ((int)(v)),
+                        int (sbyte v) => ((int)v),
                         sbyte (sbyte v) => v),
                     clrType: typeof(sbyte),
                     jsonValueReaderWriter: JsonSByteReaderWriter.Instance));
@@ -6806,12 +6806,12 @@ namespace TestNamespace
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v)),
                 keyComparer: new ValueComparer<string[]>(
-                    bool (string[] v1, string[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (string[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (string[] v1, string[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (string[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     string[] (string[] source) => source.ToArray()),
                 providerValueComparer: new ValueComparer<string[]>(
-                    bool (string[] v1, string[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (string[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (string[] v1, string[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (string[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     string[] (string[] source) => source.ToArray()),
                 clrType: typeof(string[]),
                 jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<string[], string>(
@@ -6872,12 +6872,12 @@ namespace TestNamespace
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v)))),
                 keyComparer: new ValueComparer<string[][]>(
-                    bool (string[][] v1, string[][] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (string[][] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (string[][] v1, string[][] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (string[][] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     string[][] (string[][] source) => source.ToArray()),
                 providerValueComparer: new ValueComparer<string[][]>(
-                    bool (string[][] v1, string[][] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (string[][] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (string[][] v1, string[][] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (string[][] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     string[][] (string[][] source) => source.ToArray()),
                 clrType: typeof(string[][]),
                 jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<string[][], string[]>(
@@ -6889,12 +6889,12 @@ namespace TestNamespace
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v)),
                     keyComparer: new ValueComparer<string[]>(
-                        bool (string[] v1, string[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                        int (string[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                        bool (string[] v1, string[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                        int (string[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                         string[] (string[] source) => source.ToArray()),
                     providerValueComparer: new ValueComparer<string[]>(
-                        bool (string[] v1, string[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                        int (string[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                        bool (string[] v1, string[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                        int (string[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                         string[] (string[] source) => source.ToArray()),
                     clrType: typeof(string[]),
                     jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<string[], string>(
@@ -7052,15 +7052,15 @@ namespace TestNamespace
             nullableUInt16.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<ushort>(
                     bool (ushort v1, ushort v2) => v1 == v2,
-                    int (ushort v) => ((int)(v)),
+                    int (ushort v) => ((int)v),
                     ushort (ushort v) => v),
                 keyComparer: new ValueComparer<ushort>(
                     bool (ushort v1, ushort v2) => v1 == v2,
-                    int (ushort v) => ((int)(v)),
+                    int (ushort v) => ((int)v),
                     ushort (ushort v) => v),
                 providerValueComparer: new ValueComparer<ushort>(
                     bool (ushort v1, ushort v2) => v1 == v2,
-                    int (ushort v) => ((int)(v)),
+                    int (ushort v) => ((int)v),
                     ushort (ushort v) => v),
                 clrType: typeof(ushort),
                 jsonValueReaderWriter: JsonUInt16ReaderWriter.Instance);
@@ -7101,15 +7101,15 @@ namespace TestNamespace
             nullableUInt16Array.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ListOfNullableValueTypesComparer<ushort?[], ushort>(new NullableValueComparer<ushort>(new ValueComparer<ushort>(
                     bool (ushort v1, ushort v2) => v1 == v2,
-                    int (ushort v) => ((int)(v)),
+                    int (ushort v) => ((int)v),
                     ushort (ushort v) => v))),
                 keyComparer: new ValueComparer<ushort?[]>(
-                    bool (ushort? [] v1, ushort? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (ushort? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (ushort? [] v1, ushort? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (ushort? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     ushort? [] (ushort? [] source) => source.ToArray()),
                 providerValueComparer: new ValueComparer<ushort?[]>(
-                    bool (ushort? [] v1, ushort? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (ushort? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (ushort? [] v1, ushort? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (ushort? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     ushort? [] (ushort? [] source) => source.ToArray()),
                 clrType: typeof(ushort?[]),
                 jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<ushort?[], ushort>(
@@ -7117,15 +7117,15 @@ namespace TestNamespace
                 elementMapping: CosmosTypeMapping.Default.Clone(
                     comparer: new ValueComparer<ushort>(
                         bool (ushort v1, ushort v2) => v1 == v2,
-                        int (ushort v) => ((int)(v)),
+                        int (ushort v) => ((int)v),
                         ushort (ushort v) => v),
                     keyComparer: new ValueComparer<ushort>(
                         bool (ushort v1, ushort v2) => v1 == v2,
-                        int (ushort v) => ((int)(v)),
+                        int (ushort v) => ((int)v),
                         ushort (ushort v) => v),
                     providerValueComparer: new ValueComparer<ushort>(
                         bool (ushort v1, ushort v2) => v1 == v2,
-                        int (ushort v) => ((int)(v)),
+                        int (ushort v) => ((int)v),
                         ushort (ushort v) => v),
                     clrType: typeof(ushort),
                     jsonValueReaderWriter: JsonUInt16ReaderWriter.Instance));
@@ -7169,15 +7169,15 @@ namespace TestNamespace
             nullableUInt32.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<uint>(
                     bool (uint v1, uint v2) => v1 == v2,
-                    int (uint v) => ((int)(v)),
+                    int (uint v) => ((int)v),
                     uint (uint v) => v),
                 keyComparer: new ValueComparer<uint>(
                     bool (uint v1, uint v2) => v1 == v2,
-                    int (uint v) => ((int)(v)),
+                    int (uint v) => ((int)v),
                     uint (uint v) => v),
                 providerValueComparer: new ValueComparer<uint>(
                     bool (uint v1, uint v2) => v1 == v2,
-                    int (uint v) => ((int)(v)),
+                    int (uint v) => ((int)v),
                     uint (uint v) => v),
                 clrType: typeof(uint),
                 jsonValueReaderWriter: JsonUInt32ReaderWriter.Instance);
@@ -7218,15 +7218,15 @@ namespace TestNamespace
             nullableUInt32Array.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ListOfNullableValueTypesComparer<uint?[], uint>(new NullableValueComparer<uint>(new ValueComparer<uint>(
                     bool (uint v1, uint v2) => v1 == v2,
-                    int (uint v) => ((int)(v)),
+                    int (uint v) => ((int)v),
                     uint (uint v) => v))),
                 keyComparer: new ValueComparer<uint?[]>(
-                    bool (uint? [] v1, uint? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (uint? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (uint? [] v1, uint? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (uint? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     uint? [] (uint? [] source) => source.ToArray()),
                 providerValueComparer: new ValueComparer<uint?[]>(
-                    bool (uint? [] v1, uint? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (uint? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (uint? [] v1, uint? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (uint? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     uint? [] (uint? [] source) => source.ToArray()),
                 clrType: typeof(uint?[]),
                 jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<uint?[], uint>(
@@ -7234,15 +7234,15 @@ namespace TestNamespace
                 elementMapping: CosmosTypeMapping.Default.Clone(
                     comparer: new ValueComparer<uint>(
                         bool (uint v1, uint v2) => v1 == v2,
-                        int (uint v) => ((int)(v)),
+                        int (uint v) => ((int)v),
                         uint (uint v) => v),
                     keyComparer: new ValueComparer<uint>(
                         bool (uint v1, uint v2) => v1 == v2,
-                        int (uint v) => ((int)(v)),
+                        int (uint v) => ((int)v),
                         uint (uint v) => v),
                     providerValueComparer: new ValueComparer<uint>(
                         bool (uint v1, uint v2) => v1 == v2,
-                        int (uint v) => ((int)(v)),
+                        int (uint v) => ((int)v),
                         uint (uint v) => v),
                     clrType: typeof(uint),
                     jsonValueReaderWriter: JsonUInt32ReaderWriter.Instance));
@@ -7338,12 +7338,12 @@ namespace TestNamespace
                     int (ulong v) => ((object)v).GetHashCode(),
                     ulong (ulong v) => v))),
                 keyComparer: new ValueComparer<ulong?[]>(
-                    bool (ulong? [] v1, ulong? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (ulong? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (ulong? [] v1, ulong? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (ulong? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     ulong? [] (ulong? [] source) => source.ToArray()),
                 providerValueComparer: new ValueComparer<ulong?[]>(
-                    bool (ulong? [] v1, ulong? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (ulong? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (ulong? [] v1, ulong? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (ulong? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     ulong? [] (ulong? [] source) => source.ToArray()),
                 clrType: typeof(ulong?[]),
                 jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<ulong?[], ulong>(
@@ -7403,15 +7403,15 @@ namespace TestNamespace
             nullableUInt8.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<byte>(
                     bool (byte v1, byte v2) => v1 == v2,
-                    int (byte v) => ((int)(v)),
+                    int (byte v) => ((int)v),
                     byte (byte v) => v),
                 keyComparer: new ValueComparer<byte>(
                     bool (byte v1, byte v2) => v1 == v2,
-                    int (byte v) => ((int)(v)),
+                    int (byte v) => ((int)v),
                     byte (byte v) => v),
                 providerValueComparer: new ValueComparer<byte>(
                     bool (byte v1, byte v2) => v1 == v2,
-                    int (byte v) => ((int)(v)),
+                    int (byte v) => ((int)v),
                     byte (byte v) => v),
                 clrType: typeof(byte),
                 jsonValueReaderWriter: JsonByteReaderWriter.Instance);
@@ -7452,15 +7452,15 @@ namespace TestNamespace
             nullableUInt8Array.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ListOfNullableValueTypesComparer<byte?[], byte>(new NullableValueComparer<byte>(new ValueComparer<byte>(
                     bool (byte v1, byte v2) => v1 == v2,
-                    int (byte v) => ((int)(v)),
+                    int (byte v) => ((int)v),
                     byte (byte v) => v))),
                 keyComparer: new ValueComparer<byte?[]>(
-                    bool (byte? [] v1, byte? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (byte? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (byte? [] v1, byte? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (byte? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     byte? [] (byte? [] source) => source.ToArray()),
                 providerValueComparer: new ValueComparer<byte?[]>(
-                    bool (byte? [] v1, byte? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (byte? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (byte? [] v1, byte? [] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (byte? [] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     byte? [] (byte? [] source) => source.ToArray()),
                 clrType: typeof(byte?[]),
                 jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<byte?[], byte>(
@@ -7468,15 +7468,15 @@ namespace TestNamespace
                 elementMapping: CosmosTypeMapping.Default.Clone(
                     comparer: new ValueComparer<byte>(
                         bool (byte v1, byte v2) => v1 == v2,
-                        int (byte v) => ((int)(v)),
+                        int (byte v) => ((int)v),
                         byte (byte v) => v),
                     keyComparer: new ValueComparer<byte>(
                         bool (byte v1, byte v2) => v1 == v2,
-                        int (byte v) => ((int)(v)),
+                        int (byte v) => ((int)v),
                         byte (byte v) => v),
                     providerValueComparer: new ValueComparer<byte>(
                         bool (byte v1, byte v2) => v1 == v2,
-                        int (byte v) => ((int)(v)),
+                        int (byte v) => ((int)v),
                         byte (byte v) => v),
                     clrType: typeof(byte),
                     jsonValueReaderWriter: JsonByteReaderWriter.Instance));
@@ -7784,12 +7784,12 @@ namespace TestNamespace
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v)),
                 keyComparer: new ValueComparer<string[]>(
-                    bool (string[] v1, string[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (string[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (string[] v1, string[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (string[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     string[] (string[] source) => source.ToArray()),
                 providerValueComparer: new ValueComparer<string[]>(
-                    bool (string[] v1, string[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (string[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (string[] v1, string[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (string[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     string[] (string[] source) => source.ToArray()),
                 clrType: typeof(string[]),
                 jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<string[], string>(
@@ -7849,12 +7849,12 @@ namespace TestNamespace
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v)))),
                 keyComparer: new ValueComparer<string[][]>(
-                    bool (string[][] v1, string[][] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (string[][] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (string[][] v1, string[][] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (string[][] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     string[][] (string[][] source) => source.ToArray()),
                 providerValueComparer: new ValueComparer<string[][]>(
-                    bool (string[][] v1, string[][] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (string[][] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (string[][] v1, string[][] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (string[][] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     string[][] (string[][] source) => source.ToArray()),
                 clrType: typeof(string[][]),
                 jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<string[][], string[]>(
@@ -7866,12 +7866,12 @@ namespace TestNamespace
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v)),
                     keyComparer: new ValueComparer<string[]>(
-                        bool (string[] v1, string[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                        int (string[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                        bool (string[] v1, string[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                        int (string[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                         string[] (string[] source) => source.ToArray()),
                     providerValueComparer: new ValueComparer<string[]>(
-                        bool (string[] v1, string[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                        int (string[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                        bool (string[] v1, string[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                        int (string[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                         string[] (string[] source) => source.ToArray()),
                     clrType: typeof(string[]),
                     jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<string[], string>(
@@ -7905,13 +7905,13 @@ namespace TestNamespace
             stringReadOnlyCollection.SetSetter(
                 CompiledModelTestBase.ManyTypes (CompiledModelTestBase.ManyTypes instance, IReadOnlyCollection<string> value) =>
                 {
-                    ManyTypesUnsafeAccessors._stringReadOnlyCollection(instance) = ((List<string>)(value));
+                    ManyTypesUnsafeAccessors._stringReadOnlyCollection(instance) = ((List<string>)value);
                     return instance;
                 });
             stringReadOnlyCollection.SetMaterializationSetter(
                 CompiledModelTestBase.ManyTypes (CompiledModelTestBase.ManyTypes instance, IReadOnlyCollection<string> value) =>
                 {
-                    ManyTypesUnsafeAccessors._stringReadOnlyCollection(instance) = ((List<string>)(value));
+                    ManyTypesUnsafeAccessors._stringReadOnlyCollection(instance) = ((List<string>)value);
                     return instance;
                 });
             stringReadOnlyCollection.SetAccessors(
@@ -8110,16 +8110,16 @@ namespace TestNamespace
                     string (string v) => v),
                 providerValueComparer: new ValueComparer<char>(
                     bool (char v1, char v2) => v1 == v2,
-                    int (char v) => ((int)(v)),
+                    int (char v) => ((int)v),
                     char (char v) => v),
                 converter: new ValueConverter<string, char>(
                     char (string v) => (v.Length < 1 ? '\0' : v[0]),
-                    string (char v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)(v)))),
+                    string (char v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)v))),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<string, char>(
                     JsonCharReaderWriter.Instance,
                     new ValueConverter<string, char>(
                         char (string v) => (v.Length < 1 ? '\0' : v[0]),
-                        string (char v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)(v))))));
+                        string (char v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)v)))));
 
             var stringToDateOnlyConverterProperty = runtimeEntityType.AddProperty(
                 "StringToDateOnlyConverterProperty",
@@ -8330,12 +8330,12 @@ namespace TestNamespace
                     decimal (decimal v) => v),
                 converter: new ValueConverter<string, decimal>(
                     decimal (string v) => decimal.Parse(v, NumberStyles.Any, CultureInfo.InvariantCulture),
-                    string (decimal v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)(v)))),
+                    string (decimal v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)v))),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<string, decimal>(
                     JsonDecimalReaderWriter.Instance,
                     new ValueConverter<string, decimal>(
                         decimal (string v) => decimal.Parse(v, NumberStyles.Any, CultureInfo.InvariantCulture),
-                        string (decimal v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)(v))))));
+                        string (decimal v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)v)))));
 
             var stringToDoubleNumberConverterProperty = runtimeEntityType.AddProperty(
                 "StringToDoubleNumberConverterProperty",
@@ -8384,12 +8384,12 @@ namespace TestNamespace
                     double (double v) => v),
                 converter: new ValueConverter<string, double>(
                     double (string v) => double.Parse(v, NumberStyles.Any, CultureInfo.InvariantCulture),
-                    string (double v) => string.Format(CultureInfo.InvariantCulture, "{0:R}", ((object)(v)))),
+                    string (double v) => string.Format(CultureInfo.InvariantCulture, "{0:R}", ((object)v))),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<string, double>(
                     JsonDoubleReaderWriter.Instance,
                     new ValueConverter<string, double>(
                         double (string v) => double.Parse(v, NumberStyles.Any, CultureInfo.InvariantCulture),
-                        string (double v) => string.Format(CultureInfo.InvariantCulture, "{0:R}", ((object)(v))))));
+                        string (double v) => string.Format(CultureInfo.InvariantCulture, "{0:R}", ((object)v)))));
 
             var stringToEnumConverterProperty = runtimeEntityType.AddProperty(
                 "StringToEnumConverterProperty",
@@ -8434,16 +8434,16 @@ namespace TestNamespace
                     string (string v) => v),
                 providerValueComparer: new ValueComparer<uint>(
                     bool (uint v1, uint v2) => v1 == v2,
-                    int (uint v) => ((int)(v)),
+                    int (uint v) => ((int)v),
                     uint (uint v) => v),
                 converter: new ValueConverter<string, uint>(
                     uint (string v) => ((uint)(StringEnumConverter<string, CompiledModelTestBase.EnumU32, CompiledModelTestBase.EnumU32>.ConvertToEnum(v))),
-                    string (uint value) => ((object)((CompiledModelTestBase.EnumU32)(value))).ToString()),
+                    string (uint value) => ((object)((CompiledModelTestBase.EnumU32)value)).ToString()),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<string, uint>(
                     JsonUInt32ReaderWriter.Instance,
                     new ValueConverter<string, uint>(
                         uint (string v) => ((uint)(StringEnumConverter<string, CompiledModelTestBase.EnumU32, CompiledModelTestBase.EnumU32>.ConvertToEnum(v))),
-                        string (uint value) => ((object)((CompiledModelTestBase.EnumU32)(value))).ToString())));
+                        string (uint value) => ((object)((CompiledModelTestBase.EnumU32)value)).ToString())));
 
             var stringToGuidConverterProperty = runtimeEntityType.AddProperty(
                 "StringToGuidConverterProperty",
@@ -8539,12 +8539,12 @@ namespace TestNamespace
                     int (int v) => v),
                 converter: new ValueConverter<string, int>(
                     int (string v) => int.Parse(v, NumberStyles.Any, CultureInfo.InvariantCulture),
-                    string (int v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)(v)))),
+                    string (int v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)v))),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<string, int>(
                     JsonInt32ReaderWriter.Instance,
                     new ValueConverter<string, int>(
                         int (string v) => int.Parse(v, NumberStyles.Any, CultureInfo.InvariantCulture),
-                        string (int v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)(v))))));
+                        string (int v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)v)))));
 
             var stringToTimeOnlyConverterProperty = runtimeEntityType.AddProperty(
                 "StringToTimeOnlyConverterProperty",
@@ -8593,12 +8593,12 @@ namespace TestNamespace
                     TimeOnly (TimeOnly v) => v),
                 converter: new ValueConverter<string, TimeOnly>(
                     TimeOnly (string v) => TimeOnly.Parse(v, CultureInfo.InvariantCulture, DateTimeStyles.None),
-                    string (TimeOnly v) => (v.Ticks % 10000000L == 0L ? string.Format(CultureInfo.InvariantCulture, "{0:HH\\:mm\\:ss}", ((object)(v))) : v.ToString("o"))),
+                    string (TimeOnly v) => (v.Ticks % 10000000L == 0L ? string.Format(CultureInfo.InvariantCulture, "{0:HH\\:mm\\:ss}", ((object)v)) : v.ToString("o"))),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<string, TimeOnly>(
                     JsonTimeOnlyReaderWriter.Instance,
                     new ValueConverter<string, TimeOnly>(
                         TimeOnly (string v) => TimeOnly.Parse(v, CultureInfo.InvariantCulture, DateTimeStyles.None),
-                        string (TimeOnly v) => (v.Ticks % 10000000L == 0L ? string.Format(CultureInfo.InvariantCulture, "{0:HH\\:mm\\:ss}", ((object)(v))) : v.ToString("o")))));
+                        string (TimeOnly v) => (v.Ticks % 10000000L == 0L ? string.Format(CultureInfo.InvariantCulture, "{0:HH\\:mm\\:ss}", ((object)v)) : v.ToString("o")))));
 
             var stringToTimeSpanConverterProperty = runtimeEntityType.AddProperty(
                 "StringToTimeSpanConverterProperty",
@@ -8802,12 +8802,12 @@ namespace TestNamespace
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new ValueConverter<TimeOnly, string>(
-                    string (TimeOnly v) => (v.Ticks % 10000000L == 0L ? string.Format(CultureInfo.InvariantCulture, "{0:HH\\:mm\\:ss}", ((object)(v))) : v.ToString("o")),
+                    string (TimeOnly v) => (v.Ticks % 10000000L == 0L ? string.Format(CultureInfo.InvariantCulture, "{0:HH\\:mm\\:ss}", ((object)v)) : v.ToString("o")),
                     TimeOnly (string v) => TimeOnly.Parse(v, CultureInfo.InvariantCulture, DateTimeStyles.None)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<TimeOnly, string>(
                     JsonStringReaderWriter.Instance,
                     new ValueConverter<TimeOnly, string>(
-                        string (TimeOnly v) => (v.Ticks % 10000000L == 0L ? string.Format(CultureInfo.InvariantCulture, "{0:HH\\:mm\\:ss}", ((object)(v))) : v.ToString("o")),
+                        string (TimeOnly v) => (v.Ticks % 10000000L == 0L ? string.Format(CultureInfo.InvariantCulture, "{0:HH\\:mm\\:ss}", ((object)v)) : v.ToString("o")),
                         TimeOnly (string v) => TimeOnly.Parse(v, CultureInfo.InvariantCulture, DateTimeStyles.None))));
             timeOnlyToStringConverterProperty.SetSentinelFromProviderValue("00:00:00");
 
@@ -9059,15 +9059,15 @@ namespace TestNamespace
             uInt16.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<ushort>(
                     bool (ushort v1, ushort v2) => v1 == v2,
-                    int (ushort v) => ((int)(v)),
+                    int (ushort v) => ((int)v),
                     ushort (ushort v) => v),
                 keyComparer: new ValueComparer<ushort>(
                     bool (ushort v1, ushort v2) => v1 == v2,
-                    int (ushort v) => ((int)(v)),
+                    int (ushort v) => ((int)v),
                     ushort (ushort v) => v),
                 providerValueComparer: new ValueComparer<ushort>(
                     bool (ushort v1, ushort v2) => v1 == v2,
-                    int (ushort v) => ((int)(v)),
+                    int (ushort v) => ((int)v),
                     ushort (ushort v) => v),
                 clrType: typeof(ushort),
                 jsonValueReaderWriter: JsonUInt16ReaderWriter.Instance);
@@ -9106,15 +9106,15 @@ namespace TestNamespace
             uInt16Array.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ListOfValueTypesComparer<ushort[], ushort>(new ValueComparer<ushort>(
                     bool (ushort v1, ushort v2) => v1 == v2,
-                    int (ushort v) => ((int)(v)),
+                    int (ushort v) => ((int)v),
                     ushort (ushort v) => v)),
                 keyComparer: new ValueComparer<ushort[]>(
-                    bool (ushort[] v1, ushort[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (ushort[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (ushort[] v1, ushort[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (ushort[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     ushort[] (ushort[] source) => source.ToArray()),
                 providerValueComparer: new ValueComparer<ushort[]>(
-                    bool (ushort[] v1, ushort[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (ushort[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (ushort[] v1, ushort[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (ushort[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     ushort[] (ushort[] source) => source.ToArray()),
                 clrType: typeof(ushort[]),
                 jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<ushort[], ushort>(
@@ -9122,15 +9122,15 @@ namespace TestNamespace
                 elementMapping: CosmosTypeMapping.Default.Clone(
                     comparer: new ValueComparer<ushort>(
                         bool (ushort v1, ushort v2) => v1 == v2,
-                        int (ushort v) => ((int)(v)),
+                        int (ushort v) => ((int)v),
                         ushort (ushort v) => v),
                     keyComparer: new ValueComparer<ushort>(
                         bool (ushort v1, ushort v2) => v1 == v2,
-                        int (ushort v) => ((int)(v)),
+                        int (ushort v) => ((int)v),
                         ushort (ushort v) => v),
                     providerValueComparer: new ValueComparer<ushort>(
                         bool (ushort v1, ushort v2) => v1 == v2,
-                        int (ushort v) => ((int)(v)),
+                        int (ushort v) => ((int)v),
                         ushort (ushort v) => v),
                     clrType: typeof(ushort),
                     jsonValueReaderWriter: JsonUInt16ReaderWriter.Instance));
@@ -9172,15 +9172,15 @@ namespace TestNamespace
             uInt32.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<uint>(
                     bool (uint v1, uint v2) => v1 == v2,
-                    int (uint v) => ((int)(v)),
+                    int (uint v) => ((int)v),
                     uint (uint v) => v),
                 keyComparer: new ValueComparer<uint>(
                     bool (uint v1, uint v2) => v1 == v2,
-                    int (uint v) => ((int)(v)),
+                    int (uint v) => ((int)v),
                     uint (uint v) => v),
                 providerValueComparer: new ValueComparer<uint>(
                     bool (uint v1, uint v2) => v1 == v2,
-                    int (uint v) => ((int)(v)),
+                    int (uint v) => ((int)v),
                     uint (uint v) => v),
                 clrType: typeof(uint),
                 jsonValueReaderWriter: JsonUInt32ReaderWriter.Instance);
@@ -9219,15 +9219,15 @@ namespace TestNamespace
             uInt32Array.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ListOfValueTypesComparer<uint[], uint>(new ValueComparer<uint>(
                     bool (uint v1, uint v2) => v1 == v2,
-                    int (uint v) => ((int)(v)),
+                    int (uint v) => ((int)v),
                     uint (uint v) => v)),
                 keyComparer: new ValueComparer<uint[]>(
-                    bool (uint[] v1, uint[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (uint[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (uint[] v1, uint[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (uint[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     uint[] (uint[] source) => source.ToArray()),
                 providerValueComparer: new ValueComparer<uint[]>(
-                    bool (uint[] v1, uint[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (uint[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (uint[] v1, uint[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (uint[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     uint[] (uint[] source) => source.ToArray()),
                 clrType: typeof(uint[]),
                 jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<uint[], uint>(
@@ -9235,15 +9235,15 @@ namespace TestNamespace
                 elementMapping: CosmosTypeMapping.Default.Clone(
                     comparer: new ValueComparer<uint>(
                         bool (uint v1, uint v2) => v1 == v2,
-                        int (uint v) => ((int)(v)),
+                        int (uint v) => ((int)v),
                         uint (uint v) => v),
                     keyComparer: new ValueComparer<uint>(
                         bool (uint v1, uint v2) => v1 == v2,
-                        int (uint v) => ((int)(v)),
+                        int (uint v) => ((int)v),
                         uint (uint v) => v),
                     providerValueComparer: new ValueComparer<uint>(
                         bool (uint v1, uint v2) => v1 == v2,
-                        int (uint v) => ((int)(v)),
+                        int (uint v) => ((int)v),
                         uint (uint v) => v),
                     clrType: typeof(uint),
                     jsonValueReaderWriter: JsonUInt32ReaderWriter.Instance));
@@ -9335,12 +9335,12 @@ namespace TestNamespace
                     int (ulong v) => ((object)v).GetHashCode(),
                     ulong (ulong v) => v)),
                 keyComparer: new ValueComparer<ulong[]>(
-                    bool (ulong[] v1, ulong[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (ulong[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (ulong[] v1, ulong[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (ulong[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     ulong[] (ulong[] source) => source.ToArray()),
                 providerValueComparer: new ValueComparer<ulong[]>(
-                    bool (ulong[] v1, ulong[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (ulong[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (ulong[] v1, ulong[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (ulong[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     ulong[] (ulong[] source) => source.ToArray()),
                 clrType: typeof(ulong[]),
                 jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<ulong[], ulong>(
@@ -9398,15 +9398,15 @@ namespace TestNamespace
             uInt8.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<byte>(
                     bool (byte v1, byte v2) => v1 == v2,
-                    int (byte v) => ((int)(v)),
+                    int (byte v) => ((int)v),
                     byte (byte v) => v),
                 keyComparer: new ValueComparer<byte>(
                     bool (byte v1, byte v2) => v1 == v2,
-                    int (byte v) => ((int)(v)),
+                    int (byte v) => ((int)v),
                     byte (byte v) => v),
                 providerValueComparer: new ValueComparer<byte>(
                     bool (byte v1, byte v2) => v1 == v2,
-                    int (byte v) => ((int)(v)),
+                    int (byte v) => ((int)v),
                     byte (byte v) => v),
                 clrType: typeof(byte),
                 jsonValueReaderWriter: JsonByteReaderWriter.Instance);
@@ -9444,12 +9444,12 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             uInt8Array.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<byte[]>(
-                    bool (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
+                    bool (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
                     int (byte[] v) => ((object)v).GetHashCode(),
                     byte[] (byte[] v) => v),
                 keyComparer: new ValueComparer<byte[]>(
-                    bool (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     byte[] (byte[] source) => source.ToArray()),
                 providerValueComparer: new ValueComparer<string>(
                     bool (string v1, string v2) => v1 == v2,
@@ -9475,13 +9475,13 @@ namespace TestNamespace
             uInt8ReadOnlyCollection.SetSetter(
                 CompiledModelTestBase.ManyTypes (CompiledModelTestBase.ManyTypes instance, IReadOnlyCollection<byte> value) =>
                 {
-                    ManyTypesUnsafeAccessors._uInt8ReadOnlyCollection(instance) = ((List<byte>)(value));
+                    ManyTypesUnsafeAccessors._uInt8ReadOnlyCollection(instance) = ((List<byte>)value);
                     return instance;
                 });
             uInt8ReadOnlyCollection.SetMaterializationSetter(
                 CompiledModelTestBase.ManyTypes (CompiledModelTestBase.ManyTypes instance, IReadOnlyCollection<byte> value) =>
                 {
-                    ManyTypesUnsafeAccessors._uInt8ReadOnlyCollection(instance) = ((List<byte>)(value));
+                    ManyTypesUnsafeAccessors._uInt8ReadOnlyCollection(instance) = ((List<byte>)value);
                     return instance;
                 });
             uInt8ReadOnlyCollection.SetAccessors(
@@ -9498,7 +9498,7 @@ namespace TestNamespace
             uInt8ReadOnlyCollection.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
                     bool (byte v1, byte v2) => v1 == v2,
-                    int (byte v) => ((int)(v)),
+                    int (byte v) => ((int)v),
                     byte (byte v) => v)),
                 keyComparer: new ValueComparer<IReadOnlyCollection<byte>>(
                     bool (IReadOnlyCollection<byte> v1, IReadOnlyCollection<byte> v2) => object.Equals(v1, v2),
@@ -9514,15 +9514,15 @@ namespace TestNamespace
                 elementMapping: CosmosTypeMapping.Default.Clone(
                     comparer: new ValueComparer<byte>(
                         bool (byte v1, byte v2) => v1 == v2,
-                        int (byte v) => ((int)(v)),
+                        int (byte v) => ((int)v),
                         byte (byte v) => v),
                     keyComparer: new ValueComparer<byte>(
                         bool (byte v1, byte v2) => v1 == v2,
-                        int (byte v) => ((int)(v)),
+                        int (byte v) => ((int)v),
                         byte (byte v) => v),
                     providerValueComparer: new ValueComparer<byte>(
                         bool (byte v1, byte v2) => v1 == v2,
-                        int (byte v) => ((int)(v)),
+                        int (byte v) => ((int)v),
                         byte (byte v) => v),
                     clrType: typeof(byte),
                     jsonValueReaderWriter: JsonByteReaderWriter.Instance));
