@@ -35,6 +35,31 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
     }
 
     [ConditionalFact]
+    public virtual async Task Named_query_filters_caching()
+    {
+        var cacheLog = new List<string>();
+        var contextFactory = await InitializeAsync<Context8576_NamedFilters>(seed: c => c.SeedAsync(), onConfiguring: builder =>
+        {
+            builder.EnableSensitiveDataLogging();
+            builder.LogTo(cacheLog.Add, filter: (eventid, _) => eventid.Name == CoreEventId.QueryCompilationStarting.Name);
+        });
+        using var context = contextFactory.CreateContext();
+        _ = context.Entities
+            .IgnoreQueryFilters(["ActiveFilter", "NameFilter"])
+            .ToList();
+        _ = context.Entities
+            .IgnoreQueryFilters(["ActiveFilter", "NameFilter"])
+            .ToList();
+        _ = context.Entities
+            .IgnoreQueryFilters(["NameFilter", "ActiveFilter"])
+            .ToList();
+
+        // #37212 - ExpressionEqualityComparer doesn't support collections besides an array,
+        // therefore we can't implement caching for different order of ignored filters
+        Assert.Equal(2, cacheLog.Count);
+    }
+
+    [ConditionalFact]
     public virtual async Task Named_query_filters_ignore_all()
     {
         var contextFactory = await InitializeAsync<Context8576_NamedFilters>(seed: c => c.SeedAsync());
