@@ -122,8 +122,9 @@ jobs:
 
     # Populate internal runtime variables.
     - template: /eng/common/templates/steps/enable-internal-sources.yml
-      parameters:
-        legacyCredential: $(dn-bot-dnceng-artifact-feeds-rw)
+      ${{ if eq(variables['System.TeamProject'], 'DevDiv') }}:
+        parameters:
+            legacyCredential: $(dn-bot-dnceng-artifact-feeds-rw)
 
     - template: /eng/common/templates/steps/enable-internal-runtimes.yml
 
@@ -190,11 +191,6 @@ jobs:
           PromoteToChannelIds: ${{ parameters.PromoteToChannelIds }}
           is1ESPipeline: ${{ parameters.is1ESPipeline }}
           
-      # Darc is targeting 8.0, so make sure it's installed
-      - task: UseDotNet@2
-        inputs:
-          version: 8.0.x
-
       # Darc is targeting 8.0, so make sure it's installed
       - task: UseDotNet@2
         inputs:
