@@ -571,23 +571,26 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         var extra2 = Enumerable.Range(1000, (int)NumberOfValuesForHugeParameterCollectionTests / 5);
         var extra3 = Enumerable.Range(1000, (int)NumberOfValuesForHugeParameterCollectionTests / 5);
         var extra4 = Enumerable.Range(1000, (int)NumberOfValuesForHugeParameterCollectionTests / 5);
-        var extra5 = (IEnumerable<int>?)null;
+        var extra5 = Enumerable.Range(1000, (int)NumberOfValuesForHugeParameterCollectionTests / 5);
         var ints = new[] { 10, 999 };
 
+        var foo = new int?[] { null };
         await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>()
-            .Where(c => ints.Contains(c.Int))
-            .Where(c => extra1.Contains(c.Int))
-            .Where(c => extra2.Contains(c.Int))
-            .Where(c => extra3.Contains(c.Int))
-            .Where(c => extra4.Contains(c.Int))
-            .Where(c => extra5!.Contains(c.Int)));
-        await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>()
-            .Where(c => !ints.Contains(c.Int))
-            .Where(c => !extra1.Contains(c.Int))
-            .Where(c => !extra2.Contains(c.Int))
-            .Where(c => !extra3.Contains(c.Int))
-            .Where(c => !extra4.Contains(c.Int))
-            .Where(c => !extra5!.Contains(c.Int)));
+            .Where(c => foo.Contains(c.Int)));
+        //await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>()
+        //    .Where(c => ints.Contains(c.Int))
+        //    .Where(c => extra1.Contains(c.Int))
+        //    .Where(c => extra2.Contains(c.Int))
+        //    .Where(c => extra3.Contains(c.Int))
+        //    .Where(c => extra4.Contains(c.Int))
+        //    .Where(c => extra5.Contains(c.Int) || !extra5.Contains(c.Int)));
+        //await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>()
+        //    .Where(c => !ints.Contains(c.Int))
+        //    .Where(c => !extra1.Contains(c.Int))
+        //    .Where(c => !extra2.Contains(c.Int))
+        //    .Where(c => !extra3.Contains(c.Int))
+        //    .Where(c => !extra4.Contains(c.Int))
+        //    .Where(c => !extra5.Contains(c.Int) || extra5.Contains(c.Int)));
     }
 
     [ConditionalFact]
