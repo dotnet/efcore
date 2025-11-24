@@ -458,7 +458,7 @@ public class SqliteMigrationsSqlGenerator : MigrationsSqlGenerator
         if (rebuilds.Any())
         {
             operations.Add(
-                new SqlOperation { Sql = "PRAGMA foreign_keys = 0;", SuppressTransaction = true });
+                new SqlOperation { Sql = "PRAGMA defer_foreign_keys = 1;" });
         }
 
         foreach (var ((table, schema), _) in rebuilds)
@@ -473,12 +473,6 @@ public class SqliteMigrationsSqlGenerator : MigrationsSqlGenerator
                     NewName = table,
                     NewSchema = schema
                 });
-        }
-
-        if (rebuilds.Any())
-        {
-            operations.Add(
-                new SqlOperation { Sql = "PRAGMA foreign_keys = 1;", SuppressTransaction = true });
         }
 
         foreach (var index in indexesToRebuild)

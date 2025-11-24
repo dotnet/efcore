@@ -3,8 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Types.Miscellaneous;
 
-public class BoolTypeTest(BoolTypeTest.BoolTypeFixture fixture)
-    : TypeTestBase<bool, BoolTypeTest.BoolTypeFixture>(fixture)
+public class CosmosBoolTypeTest(CosmosBoolTypeTest.BoolTypeFixture fixture)
+    : TypeTestBase<bool, CosmosBoolTypeTest.BoolTypeFixture>(fixture)
 {
     public class BoolTypeFixture : CosmosTypeFixtureBase<bool>
     {
@@ -15,8 +15,8 @@ public class BoolTypeTest(BoolTypeTest.BoolTypeFixture fixture)
     }
 }
 
-public class StringTypeTest(StringTypeTest.StringTypeFixture fixture)
-    : TypeTestBase<string, StringTypeTest.StringTypeFixture>(fixture)
+public class CosmosStringTypeTest(CosmosStringTypeTest.StringTypeFixture fixture)
+    : TypeTestBase<string, CosmosStringTypeTest.StringTypeFixture>(fixture)
 {
     public class StringTypeFixture : CosmosTypeFixtureBase<string>
     {
@@ -27,8 +27,8 @@ public class StringTypeTest(StringTypeTest.StringTypeFixture fixture)
     }
 }
 
-public class GuidTypeTest(GuidTypeTest.GuidTypeFixture fixture)
-    : TypeTestBase<Guid, GuidTypeTest.GuidTypeFixture>(fixture)
+public class CosmosGuidTypeTest(CosmosGuidTypeTest.GuidTypeFixture fixture)
+    : TypeTestBase<Guid, CosmosGuidTypeTest.GuidTypeFixture>(fixture)
 {
     public class GuidTypeFixture : CosmosTypeFixtureBase<Guid>
     {
@@ -39,8 +39,8 @@ public class GuidTypeTest(GuidTypeTest.GuidTypeFixture fixture)
     }
 }
 
-public class ByteArrayTypeTest(ByteArrayTypeTest.ByteArrayTypeFixture fixture)
-    : TypeTestBase<byte[], ByteArrayTypeTest.ByteArrayTypeFixture>(fixture)
+public class CosmosByteArrayTypeTest(CosmosByteArrayTypeTest.ByteArrayTypeFixture fixture)
+    : TypeTestBase<byte[], CosmosByteArrayTypeTest.ByteArrayTypeFixture>(fixture)
 {
     public class ByteArrayTypeFixture : CosmosTypeFixtureBase<byte[]>
     {

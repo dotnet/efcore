@@ -12,19 +12,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
 /// </remarks>
-public abstract class NonNullableConventionBase
+public abstract class NonNullableConventionBase(ProviderConventionSetBuilderDependencies dependencies)
 {
-    /// <summary>
-    ///     Creates a new instance of <see cref="NonNullableConventionBase" />.
-    /// </summary>
-    /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
-    protected NonNullableConventionBase(ProviderConventionSetBuilderDependencies dependencies)
-        => Dependencies = dependencies;
-
     /// <summary>
     ///     Dependencies for this service.
     /// </summary>
-    protected virtual ProviderConventionSetBuilderDependencies Dependencies { get; }
+    protected virtual ProviderConventionSetBuilderDependencies Dependencies { get; } = dependencies;
 
     /// <summary>
     ///     Returns a value indicating whether the member type is a non-nullable reference type.
