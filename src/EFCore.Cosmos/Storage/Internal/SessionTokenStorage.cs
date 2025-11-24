@@ -1,6 +1,8 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
@@ -16,7 +18,6 @@ public class SessionTokenStorage : ISessionTokenStorage
 {
     private readonly Dictionary<string, CompositeSessionToken> _containerSessionTokens;
     private readonly string _defaultContainerName;
-    private readonly HashSet<string> _containerNames;
     private readonly SessionTokenManagementMode _mode;
     private readonly string? _defaultToken;
 
@@ -30,7 +31,6 @@ public class SessionTokenStorage : ISessionTokenStorage
     {
         Debug.Assert(containerNames.Contains(defaultContainerName));
         _defaultContainerName = defaultContainerName;
-        _containerNames = containerNames;
         _mode = mode;
         _defaultToken = _mode == SessionTokenManagementMode.Manual || _mode == SessionTokenManagementMode.EnforcedManual ? "" : null;
 
@@ -48,12 +48,13 @@ public class SessionTokenStorage : ISessionTokenStorage
         CheckMode();
         foreach (var sessionToken in sessionTokens)
         {
-            if (!_containerNames.Contains(sessionToken.Key))
+            ref var containerSessionToken = ref CollectionsMarshal.GetValueRefOrNullRef(_containerSessionTokens, sessionToken.Key);
+            if (Unsafe.IsNullRef(ref containerSessionToken))
             {
                 throw new InvalidOperationException(CosmosStrings.ContainerNameDoesNotExist(sessionToken.Key));
             }
 
-            _containerSessionTokens[sessionToken.Key] = new CompositeSessionToken(sessionToken.Value, true);
+            containerSessionToken = new CompositeSessionToken(sessionToken.Value, true);
         }
     }
 
@@ -68,12 +69,13 @@ public class SessionTokenStorage : ISessionTokenStorage
         CheckMode();
         foreach (var sessionToken in sessionTokens)
         {
-            if (!_containerNames.Contains(sessionToken.Key))
+            ref var containerSessionToken = ref CollectionsMarshal.GetValueRefOrNullRef(_containerSessionTokens, sessionToken.Key);
+            if (Unsafe.IsNullRef(ref containerSessionToken))
             {
                 throw new InvalidOperationException(CosmosStrings.ContainerNameDoesNotExist(sessionToken.Key));
             }
 
-            _containerSessionTokens[sessionToken.Key].Add(sessionToken.Value, true);
+            containerSessionToken.Add(sessionToken.Value, true);
         }
     }
 
