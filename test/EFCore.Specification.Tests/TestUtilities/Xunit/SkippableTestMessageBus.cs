@@ -1,12 +1,13 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Linq;
-using global::Xunit.Sdk;
+using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
+/// <summary>
+/// Allows skipping tests by throwing SkipException.
+/// </summary>
 public class SkippableTestMessageBus : IMessageBus
 {
     private readonly IMessageBus _inner;
@@ -72,10 +73,6 @@ public class SkippableTestMessageBus : IMessageBus
         return _inner.QueueMessage(message);
     }
 
-    /// <summary>
-    /// The bulk of the clean-up code is implemented in Dispose(bool).
-    /// </summary>
-    /// <param name="disposing">If the managed resources should be disposed.</param>
     protected virtual void Dispose(bool disposing)
     {
         if (_isDisposed)
@@ -85,7 +82,6 @@ public class SkippableTestMessageBus : IMessageBus
 
         if (disposing)
         {
-            // free managed resources
             _inner.Dispose();
         }
 

@@ -5,7 +5,6 @@ using System.ComponentModel;
 using System.Net;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
-using static System.Net.WebRequestMethods;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure;
 

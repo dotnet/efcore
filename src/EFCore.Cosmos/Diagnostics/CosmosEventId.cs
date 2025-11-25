@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics;
-
 namespace Microsoft.EntityFrameworkCore.Diagnostics;
 
 /// <summary>
@@ -207,7 +205,7 @@ public static class CosmosEventId
     ///         This event is in the <see cref="DbLoggerCategory.Update" /> category.
     ///     </para>
     ///     <para>
-    ///         This event uses the <see cref="BulkExecutionWithTransactionalBatchEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///         This event uses the <see cref="Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.BulkExecutionWithTransactionalBatchEventData" /> payload when used with a <see cref="DiagnosticSource" />.
     ///     </para>
     /// </remarks>
     public static readonly EventId BulkExecutionWithTransactionalBatch = MakeUpdateId(Id.BulkExecutionWithTransactionalBatch);
