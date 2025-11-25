@@ -800,7 +800,7 @@ public class RelationalModel : Annotatable, IRelationalModel
             || viewMappings.Count == 0)
         {
             viewMappings.Add(viewMapping);
-            if(entityType is IEntityType)
+            if (entityType is IEntityType)
             {
                 view.EntityTypeMappings.Add(viewMapping);
             }
