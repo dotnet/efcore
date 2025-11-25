@@ -674,6 +674,31 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             = new ResourceManager("Microsoft.EntityFrameworkCore.Cosmos.Properties.CosmosStrings", typeof(CosmosResources).Assembly);
 
         /// <summary>
+        ///     Transactional batches will skip bulk execution. Use DatabaseFacade.AutoTransactionBehavior = AutoTransactionBehavior.Never to leverage bulk execution. If batching was intended, ignore this warning using DbContextOptionsBuilder.ConfigureWarnings(w =&gt; w.Ignore(CosmosEventId.BulkExecutionWithTransactionalBatch)).
+        /// </summary>
+        public static EventDefinition LogBulkExecutionWithTransactionalBatch(IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.CosmosLoggingDefinitions)logger.Definitions).LogBulkExecutionWithTransactionalBatch;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((Diagnostics.Internal.CosmosLoggingDefinitions)logger.Definitions).LogBulkExecutionWithTransactionalBatch,
+                    logger,
+                    static logger => new EventDefinition(
+                        logger.Options,
+                        CosmosEventId.BulkExecutionWithTransactionalBatch,
+                        LogLevel.Warning,
+                        "CosmosEventId.BulkExecutionWithTransactionalBatch",
+                        level => LoggerMessage.Define(
+                            level,
+                            CosmosEventId.BulkExecutionWithTransactionalBatch,
+                            _resourceManager.GetString("LogBulkExecutionWithTransactionalBatch")!)));
+            }
+
+            return (EventDefinition)definition;
+        }
+
+        /// <summary>
         ///     Executed CreateItem ({elapsed} ms, {charge} RU) ActivityId='{activityId}', Container='{container}', Id='{id}', Partition='{partitionKey}'
         /// </summary>
         public static EventDefinition<string, string, string, string, string, string?> LogExecutedCreateItem(IDiagnosticsLogger logger)

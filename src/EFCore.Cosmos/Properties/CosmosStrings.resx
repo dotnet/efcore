@@ -217,6 +217,10 @@
   <data name="LimitOffsetNotSupportedInSubqueries" xml:space="preserve">
     <value>The query requires use of LIMIT and OFFSET in a subquery, which is unsupported by Cosmos.</value>
   </data>
+  <data name="LogBulkExecutionWithTransactionalBatch" xml:space="preserve">
+    <value>Transactional batches will skip bulk execution. Use DatabaseFacade.AutoTransactionBehavior = AutoTransactionBehavior.Never to leverage bulk execution. If batching was intended, ignore this warning using DbContextOptionsBuilder.ConfigureWarnings(w =&gt; w.Ignore(CosmosEventId.BulkExecutionWithTransactionalBatch)).</value>
+    <comment>Warning CosmosEventId.BulkExecutionWithTransactionalBatch</comment>
+  </data>
   <data name="LogExecutedCreateItem" xml:space="preserve">
     <value>Executed CreateItem ({elapsed} ms, {charge} RU) ActivityId='{activityId}', Container='{container}', Id='{id}', Partition='{partitionKey}'</value>
     <comment>Information CosmosEventId.ExecutedCreateItem string string string string string string?</comment>

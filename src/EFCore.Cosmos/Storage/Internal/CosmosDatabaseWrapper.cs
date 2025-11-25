@@ -26,7 +26,7 @@ public class CosmosDatabaseWrapper : Database, IResettableService
 
     private readonly ICosmosClientWrapper _cosmosClient;
     private readonly bool _sensitiveLoggingEnabled;
-    private readonly bool? _bulkExecutionEnabled;
+    private readonly bool _bulkExecutionEnabled;
 
     private readonly ICurrentDbContext _currentDbContext;
 
@@ -47,7 +47,7 @@ public class CosmosDatabaseWrapper : Database, IResettableService
     {
         _currentDbContext = currentDbContext;
         _cosmosClient = cosmosClient;
-        _bulkExecutionEnabled = cosmosSingletonOptions.EnableBulkExecution;
+        _bulkExecutionEnabled = cosmosSingletonOptions.EnableBulkExecution == true;
         SessionTokenStorage = sessionTokenStorageFactory.Create(currentDbContext.Context);
 
         if (loggingOptions.IsSensitiveDataLoggingEnabled)
@@ -153,6 +153,18 @@ public class CosmosDatabaseWrapper : Database, IResettableService
 
     private SaveGroups CreateSaveGroups(IList<IUpdateEntry> entries)
     {
+        if (_bulkExecutionEnabled == true && _currentDbContext.Context.Database.AutoTransactionBehavior != AutoTransactionBehavior.Never)
+        {
+            try
+            {
+                Dependencies.Logger.BulkExecutionWithTransactionalBatch(_currentDbContext.Context.Database.AutoTransactionBehavior);
+            }
+            catch (InvalidOperationException ex)
+            {
+                throw WrapUpdateException(ex, entries.AsReadOnly());
+            }
+        }
+
         var count = entries.Count;
         var rootEntriesToSave = new HashSet<IUpdateEntry>();
 
