@@ -1542,8 +1542,8 @@ WHERE (
 
         AssertSql(
             """
-@ints1='11'
-@ints2='111'
+@p1='11'
+@p2='111'
 
 SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."NullableWrappedId", "p"."NullableWrappedIdWithNullableComparer", "p"."String", "p"."Strings", "p"."WrappedId"
 FROM "PrimitiveCollectionsEntity" AS "p"
@@ -1552,11 +1552,11 @@ WHERE (
     FROM (
         SELECT * FROM (
             SELECT 1
-            FROM (SELECT @ints1 AS "Value" UNION ALL VALUES (@ints2)) AS "i"
+            FROM (SELECT @p1 AS "Value" UNION ALL VALUES (@p2)) AS "p0"
         )
         UNION ALL
         SELECT 1
-        FROM json_each("p"."Ints") AS "i0"
+        FROM json_each("p"."Ints") AS "i"
     ) AS "u") = 2
 """);
     }

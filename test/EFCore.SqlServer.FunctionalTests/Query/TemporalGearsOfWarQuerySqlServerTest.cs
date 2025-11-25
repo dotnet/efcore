@@ -2918,7 +2918,7 @@ FROM [Weapons] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [w]
 
 SELECT [c].[Name], [c].[Location], [c].[Nation], [c].[PeriodEnd], [c].[PeriodStart]
 FROM [Cities] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [c]
-WHERE [c].[Nation] = @place OR [c].[Location] = @place0 OR [c].[Location] = @place
+WHERE [c].[Nation] = @place OR [c].[Location] = @place0 OR [c].[Location] = @place0
 """);
     }
 

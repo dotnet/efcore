@@ -674,6 +674,58 @@ public class InternalComplexEntryTest
         Assert.Equal(CoreStrings.ComplexCollectionEntryOrdinalInvalid(5, "Blog", "Tags", 1), ex.Message);
     }
 
+    [ConditionalFact]
+    public void DetectChanges_detects_changes_in_nested_complex_collections()
+    {
+        var model = CreateModelWithNestedComplexCollections();
+        var entityType = model.FindEntityType(typeof(BlogWithNested))!;
+
+        var serviceProvider = InMemoryTestHelpers.Instance.CreateContextServices(model);
+        var stateManager = serviceProvider.GetRequiredService<IStateManager>();
+        var changeDetector = serviceProvider.GetRequiredService<IChangeDetector>();
+
+        var blog = new BlogWithNested
+        {
+            NestedJson = new NestedJson
+            {
+                Item = new NestedItem { Name = "foo" },
+                Items =
+                [
+                    new NestedItem { Name = "bar" },
+                    new NestedItem { Name = "baz" }
+                ]
+            }
+        };
+
+        var entityEntry = stateManager.GetOrCreateEntry(blog);
+        entityEntry.SetEntityState(EntityState.Unchanged);
+
+        Assert.Equal(EntityState.Unchanged, entityEntry.EntityState);
+
+        // Replace the NestedJson with a new instance that has a modified Items collection
+        blog.NestedJson = blog.NestedJson with
+        {
+            Items =
+            [
+                new NestedItem { Name = "bar1" },
+                new NestedItem { Name = "baz" },
+                new NestedItem { Name = "new-bar" }
+            ]
+        };
+
+        // DetectChanges should detect the change in the nested complex collection
+        changeDetector.DetectChanges(stateManager);
+
+        Assert.Equal(EntityState.Modified, entityEntry.EntityState);
+
+        var nestedJson = new EntityEntry<BlogWithNested>(entityEntry).ComplexProperty(b => b.NestedJson);
+        var items = nestedJson.ComplexCollection(j => j.Items);
+        Assert.Equal(3, items.CurrentValue!.Count);
+        Assert.Equal(EntityState.Modified, items[0].State);
+        Assert.Equal(EntityState.Unchanged, items[1].State);
+        Assert.Equal(EntityState.Added, items[2].State);
+    }
+
     private static IModel CreateModel()
     {
         var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
@@ -683,6 +735,22 @@ public class InternalComplexEntryTest
             eb.ComplexProperty(e => e.Details);
             eb.ComplexCollection(e => e.Tags);
             eb.ComplexCollection(e => e.OtherTags);
+        });
+
+        return modelBuilder.FinalizeModel();
+    }
+
+    private static IModel CreateModelWithNestedComplexCollections()
+    {
+        var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+
+        modelBuilder.Entity<BlogWithNested>(eb =>
+        {
+            eb.ComplexProperty(e => e.NestedJson, b =>
+            {
+                b.ComplexProperty(a => a.Item);
+                b.ComplexCollection(a => a.Items);
+            });
         });
 
         return modelBuilder.FinalizeModel();
@@ -713,5 +781,23 @@ public class InternalComplexEntryTest
     {
         public string Name { get; set; } = "";
         public string Description { get; set; } = "";
+    }
+
+    private class BlogWithNested
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = "";
+        public NestedJson NestedJson { get; set; } = new();
+    }
+
+    private record NestedJson
+    {
+        public NestedItem Item { get; init; } = new();
+        public List<NestedItem> Items { get; init; } = [];
+    }
+
+    private record NestedItem
+    {
+        public string Name { get; init; } = "";
     }
 }

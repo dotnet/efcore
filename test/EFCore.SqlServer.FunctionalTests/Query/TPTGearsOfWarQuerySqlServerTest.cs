@@ -9201,7 +9201,7 @@ WHERE [g].[HasSoulPatch] = CAST(1 AS bit) AND [g].[HasSoulPatch] IN (@values1, @
 
 SELECT [c].[Name], [c].[Location], [c].[Nation]
 FROM [Cities] AS [c]
-WHERE [c].[Nation] = @place OR [c].[Location] = @place0 OR [c].[Location] = @place
+WHERE [c].[Nation] = @place OR [c].[Location] = @place0 OR [c].[Location] = @place0
 """);
     }
 

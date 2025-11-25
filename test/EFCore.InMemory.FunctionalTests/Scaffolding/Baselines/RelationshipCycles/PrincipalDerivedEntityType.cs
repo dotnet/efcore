@@ -77,8 +77,8 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             deriveds.SetCollectionAccessor<CompiledModelTestBase.PrincipalBase, ICollection<CompiledModelTestBase.PrincipalBase>, CompiledModelTestBase.PrincipalBase>(
                 ICollection<CompiledModelTestBase.PrincipalBase> (CompiledModelTestBase.PrincipalBase entity) => PrincipalBaseUnsafeAccessors.Deriveds(entity),
-                (CompiledModelTestBase.PrincipalBase entity, ICollection<CompiledModelTestBase.PrincipalBase> collection) => PrincipalBaseUnsafeAccessors.Deriveds(entity) = ((ICollection<CompiledModelTestBase.PrincipalBase>)(collection)),
-                (CompiledModelTestBase.PrincipalBase entity, ICollection<CompiledModelTestBase.PrincipalBase> collection) => PrincipalBaseUnsafeAccessors.Deriveds(entity) = ((ICollection<CompiledModelTestBase.PrincipalBase>)(collection)),
+                (CompiledModelTestBase.PrincipalBase entity, ICollection<CompiledModelTestBase.PrincipalBase> collection) => PrincipalBaseUnsafeAccessors.Deriveds(entity) = ((ICollection<CompiledModelTestBase.PrincipalBase>)collection),
+                (CompiledModelTestBase.PrincipalBase entity, ICollection<CompiledModelTestBase.PrincipalBase> collection) => PrincipalBaseUnsafeAccessors.Deriveds(entity) = ((ICollection<CompiledModelTestBase.PrincipalBase>)collection),
                 ICollection<CompiledModelTestBase.PrincipalBase> (CompiledModelTestBase.PrincipalBase entity, Action<CompiledModelTestBase.PrincipalBase, ICollection<CompiledModelTestBase.PrincipalBase>> setter) => ClrCollectionAccessorFactory.CreateAndSetHashSet<CompiledModelTestBase.PrincipalBase, ICollection<CompiledModelTestBase.PrincipalBase>, CompiledModelTestBase.PrincipalBase>(entity, setter),
                 ICollection<CompiledModelTestBase.PrincipalBase> () => ((ICollection<CompiledModelTestBase.PrincipalBase>)(((ICollection<CompiledModelTestBase.PrincipalBase>)(new HashSet<CompiledModelTestBase.PrincipalBase>(ReferenceEqualityComparer.Instance))))));
             return runtimeForeignKey;

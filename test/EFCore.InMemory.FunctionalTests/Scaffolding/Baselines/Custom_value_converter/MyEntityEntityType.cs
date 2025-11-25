@@ -44,13 +44,13 @@ namespace TestNamespace
             id.SetSetter(
                 Dictionary<string, object> (Dictionary<string, object> instance, int value) =>
                 {
-                    instance["Id"] = ((object)(value));
+                    instance["Id"] = ((object)value);
                     return instance;
                 });
             id.SetMaterializationSetter(
                 Dictionary<string, object> (Dictionary<string, object> instance, int value) =>
                 {
-                    instance["Id"] = ((object)(value));
+                    instance["Id"] = ((object)value);
                     return instance;
                 });
             id.SetAccessors(
@@ -70,7 +70,7 @@ namespace TestNamespace
                             else
                             {
                                 var nullableValue = (((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("Id") ? ((Dictionary<string, object>)(entry.Entity))["Id"] : null);
-                                return (nullableValue == null ? default(int) : ((int)(nullableValue)));
+                                return (nullableValue == null ? default(int) : ((int)nullableValue));
                             }
                         }
                     }
@@ -78,10 +78,10 @@ namespace TestNamespace
                 int (IInternalEntry entry) =>
                 {
                     var nullableValue = (((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("Id") ? ((Dictionary<string, object>)(entry.Entity))["Id"] : null);
-                    return (nullableValue == null ? default(int) : ((int)(nullableValue)));
+                    return (nullableValue == null ? default(int) : ((int)nullableValue));
                 },
                 int (IInternalEntry entry) => entry.ReadOriginalValue<int>(id, 0),
-                int (IInternalEntry entry) => ((InternalEntityEntry)(entry)).ReadRelationshipSnapshotValue<int>(id, 0));
+                int (IInternalEntry entry) => ((InternalEntityEntry)entry).ReadRelationshipSnapshotValue<int>(id, 0));
             id.SetPropertyIndexes(
                 index: 0,
                 originalValueIndex: 0,

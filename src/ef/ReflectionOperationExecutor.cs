@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Tools.Properties;
+
 #if NET
 using System.Runtime.Loader;
 #endif
@@ -58,18 +59,13 @@ internal class ReflectionOperationExecutor : OperationExecutorBase
         AppDomain.CurrentDomain.AssemblyResolve += ResolveAssembly;
 
 #if NET
-        _commandsAssembly = AssemblyLoadContext.LoadFromAssemblyName(new AssemblyName(DesignAssemblyName));
+        _commandsAssembly = DesignAssemblyPath != null
+            ? AssemblyLoadContext.LoadFromAssemblyPath(DesignAssemblyPath)
+            : AssemblyLoadContext.LoadFromAssemblyName(new AssemblyName(DesignAssemblyName));
 #else
-        if (DesignAssemblyPath != null)
-        {
-            var assemblyPath = Path.GetDirectoryName(DesignAssemblyPath);
-            assemblyPath = Path.Combine(assemblyPath, DesignAssemblyName + ".dll");
-            _commandsAssembly = Assembly.LoadFrom(assemblyPath);
-        }
-        else
-        {
-            _commandsAssembly = Assembly.Load(DesignAssemblyName);
-        }
+        _commandsAssembly = DesignAssemblyPath != null
+            ? Assembly.LoadFrom(DesignAssemblyPath)
+            : Assembly.Load(DesignAssemblyName);
 #endif
         var reportHandlerType = _commandsAssembly.GetType(ReportHandlerTypeName, throwOnError: true, ignoreCase: false)!;
 
@@ -109,16 +105,12 @@ internal class ReflectionOperationExecutor : OperationExecutorBase
                 return _assemblyLoadContext;
             }
 
-            if (DesignAssemblyPath != null)
+            AssemblyLoadContext.Default.Resolving += (context, name) =>
             {
-                AssemblyLoadContext.Default.Resolving += (context, name) =>
-                {
-                    var assemblyPath = Path.GetDirectoryName(DesignAssemblyPath)!;
-                    assemblyPath = Path.Combine(assemblyPath, name.Name + ".dll");
-                    return File.Exists(assemblyPath) ? context.LoadFromAssemblyPath(assemblyPath) : null;
-                };
-                _assemblyLoadContext = AssemblyLoadContext.Default;
-            }
+                var assemblyPath = Path.Combine(AppBasePath, name.Name + ".dll");
+                return File.Exists(assemblyPath) ? context.LoadFromAssemblyPath(assemblyPath) : null;
+            };
+            _assemblyLoadContext = AssemblyLoadContext.Default;
 
             return AssemblyLoadContext.Default;
         }
@@ -136,18 +128,13 @@ internal class ReflectionOperationExecutor : OperationExecutorBase
 
             Assembly? assembly = null;
 #if NET
-            assembly = AssemblyLoadContext.LoadFromAssemblyName(new AssemblyName(DesignAssemblyName));
+            assembly = DesignAssemblyPath != null
+                ? AssemblyLoadContext.LoadFromAssemblyPath(DesignAssemblyPath)
+                : AssemblyLoadContext.LoadFromAssemblyName(new AssemblyName(DesignAssemblyName));
 #else
-            if (DesignAssemblyPath != null)
-            {
-                var assemblyPath = Path.GetDirectoryName(DesignAssemblyPath);
-                assemblyPath = Path.Combine(assemblyPath, DesignAssemblyName + ".dll");
-                assembly = Assembly.LoadFrom(assemblyPath);
-            }
-            else
-            {
-                assembly = Assembly.Load(DesignAssemblyName);
-            }
+            assembly = DesignAssemblyPath != null
+                ? Assembly.LoadFrom(DesignAssemblyPath)
+                : Assembly.Load(DesignAssemblyName);
 #endif
             _efcoreVersion = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
                 ?.InformationalVersion;
