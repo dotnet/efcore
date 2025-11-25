@@ -194,7 +194,9 @@ public class CosmosDatabaseWrapper : Database, IResettableService
 
         var cosmosUpdateEntries = rootEntriesToSave.Select(x => CreateCosmosUpdateEntry(x)!).Where(x => x != null).ToList();
 
-        if (_currentDbContext.Context.Database.AutoTransactionBehavior == AutoTransactionBehavior.Never || (cosmosUpdateEntries.Count <= 1 && _currentDbContext.Context.Database.AutoTransactionBehavior != AutoTransactionBehavior.Always))
+        if (cosmosUpdateEntries.Count == 0 ||
+            _currentDbContext.Context.Database.AutoTransactionBehavior == AutoTransactionBehavior.Never ||
+            (cosmosUpdateEntries.Count <= 1 && _currentDbContext.Context.Database.AutoTransactionBehavior != AutoTransactionBehavior.Always))
         {
             return new SaveGroups
             {
