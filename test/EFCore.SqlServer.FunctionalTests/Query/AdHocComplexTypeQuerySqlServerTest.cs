@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class AdHocComplexTypeQuerySqlServerTest(NonSharedFixture fixture) : AdHocComplexTypeQueryTestBase(fixture)
+public class AdHocComplexTypeQuerySqlServerTest(NonSharedFixture fixture) : AdHocComplexTypeQueryRelationalTestBase(fixture)
 {
     public override async Task Complex_type_equals_parameter_with_nested_types_with_property_of_same_name()
     {
