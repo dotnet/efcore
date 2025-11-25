@@ -29,6 +29,55 @@ public class CosmosBulkExecutionTest(CosmosBulkExecutionTest.CosmosFixture fixtu
         Assert.Equal(CosmosEventId.ExecutedTransactionalBatch, Fixture.ListLoggerFactory.Log[3].Id);
     }
 
+    public class EndToEndTest(NonSharedFixture fixture) : EndToEndCosmosTest(fixture), IClassFixture<NonSharedFixture>
+    {
+        protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            => base.AddOptions(builder).UseCosmos(x => x.BulkExecutionEnabled()).ConfigureWarnings(x => x.Ignore(CosmosEventId.BulkExecutionWithTransactionalBatch));
+    }
+
+    public class EndToEndTestNever(NonSharedFixture fixture) : EndToEndCosmosTest(fixture), IClassFixture<NonSharedFixture>
+    {
+        protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            => base.AddOptions(builder).UseCosmos(x => x.BulkExecutionEnabled());
+
+        protected override TContext CreateContext<TContext>(ContextFactory<TContext> factory, bool transactionalBatch)
+        {
+            var context = base.CreateContext(factory, transactionalBatch);
+            if (!transactionalBatch)
+            {
+                context.Database.AutoTransactionBehavior = AutoTransactionBehavior.Never;
+            }
+            else
+            {
+                throw Xunit.Sdk.SkipException.ForSkip("Only AutoTransactionBehavior.Never is tested.");
+            }
+            return context;
+        }
+    }
+
+    public class ConcurrencyTest(ConcurrencyTest.ConcurrencyFicture fixture) : CosmosConcurrencyTest(fixture), IClassFixture<ConcurrencyTest.ConcurrencyFicture>
+    {
+        public class ConcurrencyFicture : CosmosConcurrencyTest.CosmosFixture
+        {
+            public override ConcurrencyContext CreateContext()
+            {
+                var context = base.CreateContext();
+                context.Database.AutoTransactionBehavior = AutoTransactionBehavior.Never;
+                return context;
+            }
+
+            public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+                => base.AddOptions(builder).UseCosmos(x => x.BulkExecutionEnabled());
+        }
+
+        protected override ConcurrencyContext CreateContext(DbContextOptions options)   
+        {
+            var context = base.CreateContext();
+            context.Database.AutoTransactionBehavior = AutoTransactionBehavior.Never;
+            return context;
+        }
+    }
+
     public class WarningTest(ThrowingFixture fixture) : IClassFixture<ThrowingFixture>
     {
         [ConditionalFact]
