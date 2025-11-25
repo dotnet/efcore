@@ -3,7 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class AdHocComplexTypeQuerySqliteTest(NonSharedFixture fixture) : AdHocComplexTypeQueryTestBase(fixture)
+public class AdHocComplexTypeQuerySqliteTest(NonSharedFixture fixture) : AdHocComplexTypeQueryRelationalTestBase(fixture)
 {
     protected override ITestStoreFactory TestStoreFactory
         => SqliteTestStoreFactory.Instance;
