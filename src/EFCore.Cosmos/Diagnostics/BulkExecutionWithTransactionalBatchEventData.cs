@@ -28,5 +28,5 @@ public class BulkExecutionWithTransactionalBatchEventData : EventData
     /// <summary>
     ///     The AutoTransactionBehaviour that was used.
     /// </summary>
-    public AutoTransactionBehavior AutoTransactionBehavior { get; }
+    public virtual AutoTransactionBehavior AutoTransactionBehavior { get; }
 }
