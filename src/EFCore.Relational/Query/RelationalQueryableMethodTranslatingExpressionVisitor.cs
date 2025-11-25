@@ -245,7 +245,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             && method.GetGenericMethodDefinition() == _fakeDefaultIfEmptyMethodInfo.Value
             && Visit(methodCallExpression.Arguments[0]) is ShapedQueryExpression source)
         {
-            ((SelectExpression)source.QueryExpression).MakeProjectionNullable(_sqlExpressionFactory);
+            ((SelectExpression)source.QueryExpression).MakeProjectionNullable(_sqlExpressionFactory, source.ShaperExpression.Type.IsNullableType());
             return source.UpdateShaperExpression(MarkShaperNullable(source.ShaperExpression));
         }
 
@@ -645,7 +645,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     {
         if (defaultValue == null)
         {
-            ((SelectExpression)source.QueryExpression).ApplyDefaultIfEmpty(_sqlExpressionFactory);
+            ((SelectExpression)source.QueryExpression).ApplyDefaultIfEmpty(_sqlExpressionFactory, source.ShaperExpression.Type.IsNullableType());
             return source.UpdateShaperExpression(MarkShaperNullable(source.ShaperExpression));
         }
 

@@ -53,6 +53,9 @@ public sealed partial class SelectExpression : TableExpressionBase
 
     private static ConstructorInfo? _quotingConstructor;
 
+    private static readonly bool UseOldBehavior37178 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37178", out var enabled) && enabled;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -2500,6 +2503,26 @@ public sealed partial class SelectExpression : TableExpressionBase
     /// </summary>
     /// <param name="sqlExpressionFactory">A factory to use for generating required sql expressions.</param>
     public void ApplyDefaultIfEmpty(ISqlExpressionFactory sqlExpressionFactory)
+        => ApplyDefaultIfEmpty(sqlExpressionFactory, shaperNullable: null);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public void ApplyDefaultIfEmpty(ISqlExpressionFactory sqlExpressionFactory, bool shaperNullable)
+        => ApplyDefaultIfEmpty(sqlExpressionFactory, (bool?)shaperNullable);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public void ApplyDefaultIfEmpty(ISqlExpressionFactory sqlExpressionFactory, bool? shaperNullable)
     {
         var nullSqlExpression = sqlExpressionFactory.ApplyDefaultTypeMapping(
             new SqlConstantExpression(null, typeof(string), null));
@@ -2527,7 +2550,7 @@ public sealed partial class SelectExpression : TableExpressionBase
         _tables.Add(dummySelectExpression);
         _tables.Add(joinTable);
 
-        MakeProjectionNullable(sqlExpressionFactory);
+        MakeProjectionNullable(sqlExpressionFactory, shaperNullable);
     }
 
     /// <summary>
@@ -2537,7 +2560,17 @@ public sealed partial class SelectExpression : TableExpressionBase
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public void MakeProjectionNullable(ISqlExpressionFactory sqlExpressionFactory)
+    public void MakeProjectionNullable(ISqlExpressionFactory sqlExpressionFactory, bool shaperNullable)
+        => MakeProjectionNullable(sqlExpressionFactory, (bool?)shaperNullable);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public void MakeProjectionNullable(ISqlExpressionFactory sqlExpressionFactory, bool? shaperNullable)
     {
         // Go over all projected columns and make them nullable; for non-nullable value types, add a SQL COALESCE as well.
 
@@ -2551,7 +2584,13 @@ public sealed partial class SelectExpression : TableExpressionBase
                 var p => p
             };
 
-            if (newProjection is SqlExpression { Type: var type } newSqlProjection && !type.IsNullableType())
+            // The DefaultIfEmpty translation integrates the original source query as a LEFT JOIN, causing null to be returned when no
+            // rows matched (the default case). If the projected type is nullable that's perfect as-is, but if it's a non-nullable value
+            // type, we need to apply a COALESCE to get the CLR default instead.
+            // Note that the projections observed above in _projectionMapping don't contain accurate nullability information,
+            // since SQL expressions get Nullable<T> stripped out. So we instead flow the shaper nullability into here.
+            if (newProjection is SqlExpression { Type: var type } newSqlProjection
+                && (UseOldBehavior37178 || shaperNullable is null ? !type.IsNullableType() : shaperNullable is false))
             {
                 newProjection = sqlExpressionFactory.Coalesce(
                     newSqlProjection,
