@@ -194,7 +194,7 @@ public class CosmosDatabaseWrapper : Database, IResettableService
 
         var cosmosUpdateEntries = rootEntriesToSave.Select(x => CreateCosmosUpdateEntry(x)!).Where(x => x != null).ToList();
 
-        if (cosmosUpdateEntries.Count <= 1 || _currentDbContext.Context.Database.AutoTransactionBehavior == AutoTransactionBehavior.Never)
+        if (_currentDbContext.Context.Database.AutoTransactionBehavior == AutoTransactionBehavior.Never || (cosmosUpdateEntries.Count <= 1 && _currentDbContext.Context.Database.AutoTransactionBehavior != AutoTransactionBehavior.Always))
         {
             return new SaveGroups
             {
@@ -253,6 +253,7 @@ public class CosmosDatabaseWrapper : Database, IResettableService
         
         var batches = CreateBatches(batchableEntries);
 
+        // For bulk it is important that single writes are always classified as singleUpdateEntries so that they will be executed in parallel
         if (_bulkExecutionEnabled == true && _currentDbContext.Context.Database.AutoTransactionBehavior != AutoTransactionBehavior.Always)
         {
             for (var i = batches.Count - 1; i >= 0; i--)
