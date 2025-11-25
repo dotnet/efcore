@@ -520,8 +520,6 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                     var column = projection.BindProperty(property);
                     ProcessColumn(column);
 
-                    CheckColumnOnSameTable(column, propertySelector);
-
                     var rewrittenValueSelector = CreatePropertyAccessExpression(valueExpression, property);
                     var translatedValueSelector = TranslateScalarSetterValueSelector(
                         source, rewrittenValueSelector, column.Type, column.TypeMapping!);
