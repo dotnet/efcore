@@ -108,20 +108,30 @@ public abstract class NonSharedModelBulkUpdatesRelationalTestBase(NonSharedFixtu
             rowsAffectedCount: 1);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))] // #34677, #34706
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))] // #34677
     public virtual async Task Update_complex_type_with_view_mapping(bool async)
     {
         var contextFactory = await InitializeAsync<Context34677>(seed: async context => await context.Seed());
 
-        // #34706
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => AssertUpdate(
+        await AssertUpdate(
             async,
             contextFactory.CreateContext,
             ss => ss.Foos,
             s => s.SetProperty(f => f.ComplexThing, new Context34677.ComplexThing { Prop1 = 3, Prop2 = 4 }),
-            rowsAffectedCount: 1));
+            rowsAffectedCount: 1);
+    }
 
-        Assert.IsType<KeyNotFoundException>(exception.InnerException);
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))] // #34677
+    public virtual async Task Update_complex_type_property_with_view_mapping(bool async)
+    {
+        var contextFactory = await InitializeAsync<Context34677>(seed: async context => await context.Seed());
+
+        await AssertUpdate(
+            async,
+            contextFactory.CreateContext,
+            ss => ss.Foos,
+            s => s.SetProperty(f => f.ComplexThing.Prop1, 6),
+            rowsAffectedCount: 1);
     }
 
     protected class Context34677(DbContextOptions options) : DbContext(options)
