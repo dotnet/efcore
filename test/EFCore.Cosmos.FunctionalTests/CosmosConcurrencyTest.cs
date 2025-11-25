@@ -236,7 +236,7 @@ public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture) 
         => Fixture.CreateContext();
 
     protected virtual ConcurrencyContext CreateContext(DbContextOptions options)
-        => CreateContext(options);
+        => new ConcurrencyContext(options);
 
     public class CosmosFixture : SharedStoreFixtureBase<ConcurrencyContext>
     {
