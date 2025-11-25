@@ -57,7 +57,7 @@ namespace TestNamespace
                 long? (IInternalEntry entry) => (entry.FlaggedAsStoreGenerated(0) ? entry.ReadStoreGeneratedValue<long?>(0) : (entry.FlaggedAsTemporary(0) && !(DependentBaseUnsafeAccessors<long?>.Id(((CompiledModelTestBase.DependentBase<long?>)(entry.Entity))).HasValue) ? entry.ReadTemporaryValue<long?>(0) : DependentBaseUnsafeAccessors<long?>.Id(((CompiledModelTestBase.DependentBase<long?>)(entry.Entity))))),
                 long? (IInternalEntry entry) => DependentBaseUnsafeAccessors<long?>.Id(((CompiledModelTestBase.DependentBase<long?>)(entry.Entity))),
                 long? (IInternalEntry entry) => entry.ReadOriginalValue<long?>(id, 0),
-                long? (IInternalEntry entry) => ((InternalEntityEntry)(entry)).ReadRelationshipSnapshotValue<long?>(id, 0));
+                long? (IInternalEntry entry) => ((InternalEntityEntry)entry).ReadRelationshipSnapshotValue<long?>(id, 0));
             id.SetPropertyIndexes(
                 index: 0,
                 originalValueIndex: 0,
@@ -92,7 +92,7 @@ namespace TestNamespace
                 long (IInternalEntry entry) => (entry.FlaggedAsStoreGenerated(1) ? entry.ReadStoreGeneratedValue<long>(1) : (entry.FlaggedAsTemporary(1) && entry.ReadShadowValue<long>(0) == 0L ? entry.ReadTemporaryValue<long>(1) : entry.ReadShadowValue<long>(0))),
                 long (IInternalEntry entry) => entry.ReadShadowValue<long>(0),
                 long (IInternalEntry entry) => entry.ReadOriginalValue<long>(principalId, 1),
-                long (IInternalEntry entry) => ((InternalEntityEntry)(entry)).ReadRelationshipSnapshotValue<long>(principalId, 1));
+                long (IInternalEntry entry) => ((InternalEntityEntry)entry).ReadRelationshipSnapshotValue<long>(principalId, 1));
             principalId.SetPropertyIndexes(
                 index: 1,
                 originalValueIndex: 1,

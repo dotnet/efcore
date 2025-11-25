@@ -3,7 +3,7 @@
   <Import Project="Version.Details.props" />
 
   <PropertyGroup Label="Version settings">
-    <VersionPrefix>10.0.1</VersionPrefix>
+    <VersionPrefix>10.0.2</VersionPrefix>
     <PreReleaseVersionLabel>servicing</PreReleaseVersionLabel>
     <PreReleaseVersionIteration></PreReleaseVersionIteration>
     <!-- Allowed values: '', 'prerelease', 'release'. Set to 'release' when stabilizing. -->
@@ -15,32 +15,15 @@
     <!-- Arcade features -->
     <UsingToolXliff>false</UsingToolXliff>
   </PropertyGroup>
-
   <PropertyGroup Label="MSBuild and Roslyn" Condition="'$(PreReleaseVersionLabel)' == 'servicing'">
-    <!-- For MSBuild and Roslyn packages use the previous stable version until the current stable build is released. -->
-    <MicrosoftBuildFrameworkVersion>17.14.28</MicrosoftBuildFrameworkVersion>
-    <MicrosoftBuildUtilitiesCoreVersion>17.14.28</MicrosoftBuildUtilitiesCoreVersion>
-    <MicrosoftBuildTasksCoreVersion>17.14.28</MicrosoftBuildTasksCoreVersion>
-    <MicrosoftCodeAnalysisCSharpVersion>4.14.0</MicrosoftCodeAnalysisCSharpVersion>
-    <MicrosoftCodeAnalysisCSharpWorkspacesVersion>4.14.0</MicrosoftCodeAnalysisCSharpWorkspacesVersion>
-    <MicrosoftCodeAnalysisWorkspacesMSBuildVersion>4.14.0</MicrosoftCodeAnalysisWorkspacesMSBuildVersion>
-  </PropertyGroup>
-
-  <!-- Revert once roslyn publishes 5.0.0 packages
-  <PropertyGroup Label="MSBuild and Roslyn" Condition="'$(PreReleaseVersionLabel)' == 'servicing'">
-    <MicrosoftBuildFrameworkVersion>17.15.0</MicrosoftBuildFrameworkVersion>
-    <MicrosoftBuildUtilitiesCoreVersion>17.15.0</MicrosoftBuildUtilitiesCoreVersion>
-    <MicrosoftBuildTasksCoreVersion>17.15.0</MicrosoftBuildTasksCoreVersion>
+    <!-- Use the current stable builds for MSBuild and Roslyn packages, next version (non-servicing) will use the preview builds -->
+    <MicrosoftBuildFrameworkVersion>18.0.2</MicrosoftBuildFrameworkVersion>
+    <MicrosoftBuildUtilitiesCoreVersion>18.0.2</MicrosoftBuildUtilitiesCoreVersion>
+    <MicrosoftBuildTasksCoreVersion>18.0.2</MicrosoftBuildTasksCoreVersion>
     <MicrosoftCodeAnalysisCSharpVersion>5.0.0</MicrosoftCodeAnalysisCSharpVersion>
     <MicrosoftCodeAnalysisCSharpWorkspacesVersion>5.0.0</MicrosoftCodeAnalysisCSharpWorkspacesVersion>
     <MicrosoftCodeAnalysisWorkspacesMSBuildVersion>5.0.0</MicrosoftCodeAnalysisWorkspacesMSBuildVersion>
-  </PropertyGroup> -->
-
-  <PropertyGroup Label="Analyzers">
-    <StyleCopAnalyzersVersion>1.1.118</StyleCopAnalyzersVersion>
-    <DotNetAnalyzersDocumentationAnalyzersVersion>1.0.0-beta.59</DotNetAnalyzersDocumentationAnalyzersVersion>
   </PropertyGroup>
-
   <PropertyGroup Label="Test dependencies">
     <MicrosoftCodeAnalysisAnalyzerTestingVersion>1.1.3-beta1.24423.1</MicrosoftCodeAnalysisAnalyzerTestingVersion>
     <MicrosoftCodeAnalysisCSharpTestingVersion>1.1.3-beta1.24352.1</MicrosoftCodeAnalysisCSharpTestingVersion>
@@ -49,5 +32,8 @@
     <OpenTelemetryExporterInMemoryVersion>1.12.0</OpenTelemetryExporterInMemoryVersion>
     <SQLitePCLRawVersion>3.0.2</SQLitePCLRawVersion>
   </PropertyGroup>
-
+  <PropertyGroup Label="Analyzers">
+    <StyleCopAnalyzersVersion>1.1.118</StyleCopAnalyzersVersion>
+    <DotNetAnalyzersDocumentationAnalyzersVersion>1.0.0-beta.59</DotNetAnalyzersDocumentationAnalyzersVersion>
+  </PropertyGroup>
 </Project>
