@@ -1125,8 +1125,11 @@ public class RelationalConnectionTest
             connection.Open();
 
             // Start the reset task first
-            var resetTask = Task.Run(() =>
+            var resetTask = Task.Run(async () =>
             {
+                // Small delay to increase chance of race condition
+                await Task.Yield();
+
                 // ResetState calls ClearTransactions which might race with HandleTransactionCompleted
                 ((IResettableService)connection).ResetState();
             });
