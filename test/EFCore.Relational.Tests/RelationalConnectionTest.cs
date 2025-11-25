@@ -1085,7 +1085,7 @@ public class RelationalConnectionTest
     }
 
     [ConditionalFact]
-    public void HandleTransactionCompleted_with_concurrent_ClearTransactions_is_thread_safe()
+    public async Task HandleTransactionCompleted_with_concurrent_ClearTransactions_is_thread_safe()
     {
         // This test verifies the fix for the race condition where HandleTransactionCompleted
         // could be called on a different thread while ClearTransactions is executing.
@@ -1101,11 +1101,8 @@ public class RelationalConnectionTest
             scope.Complete();
 
             // Start the reset task first, which will yield and then try to reset
-            var resetTask = Task.Run(async () =>
+            var resetTask = Task.Run(() =>
             {
-                // Small delay to increase chance of race condition with HandleTransactionCompleted
-                await Task.Yield();
-
                 // ResetState calls ClearTransactions which might race with HandleTransactionCompleted
                 ((IResettableService)connection).ResetState();
             });
@@ -1115,7 +1112,7 @@ public class RelationalConnectionTest
             // with the ClearTransactions call in resetTask
             scope.Dispose();
 
-            resetTask.Wait(TimeSpan.FromSeconds(10));
+            await resetTask;
         }
 
         // Test with ResetState() before scope.Complete()
@@ -1128,11 +1125,8 @@ public class RelationalConnectionTest
             connection.Open();
 
             // Start the reset task first
-            var resetTask = Task.Run(async () =>
+            var resetTask = Task.Run(() =>
             {
-                // Small delay to increase chance of race condition
-                await Task.Yield();
-
                 // ResetState calls ClearTransactions which might race with HandleTransactionCompleted
                 ((IResettableService)connection).ResetState();
             });
@@ -1141,7 +1135,7 @@ public class RelationalConnectionTest
             scope.Complete();
             scope.Dispose();
 
-            resetTask.Wait(TimeSpan.FromSeconds(10));
+            await resetTask;
         }
     }
 
