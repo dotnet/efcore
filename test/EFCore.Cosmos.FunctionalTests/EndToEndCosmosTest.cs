@@ -855,7 +855,7 @@ public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBa
             PartitionKey2 = 3.15m
         };
 
-        await using (var context = contextFactory.CreateContext())
+        await using (var context = CreateContext(contextFactory, false))
         {
             Assert.Null(
                 context.Model.FindEntityType(typeof(CustomerWithResourceId))!
@@ -874,7 +874,7 @@ public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBa
             await context.SaveChangesAsync();
         }
 
-        await using (var context = contextFactory.CreateContext())
+        await using (var context = CreateContext(contextFactory, false))
         {
             var customerFromStore = await context.Set<CustomerWithResourceId>()
                 .FindAsync(pk1, 3.15m, "42");
@@ -890,7 +890,7 @@ public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBa
             await context.SaveChangesAsync();
         }
 
-        await using (var context = contextFactory.CreateContext())
+        await using (var context = CreateContext(contextFactory, false))
         {
             var customerFromStore = await context.Set<CustomerWithResourceId>()
                 .WithPartitionKey(pk1, 3.15m)
@@ -937,7 +937,7 @@ public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBa
             PartitionKey3 = true
         };
 
-        await using (var context = contextFactory.CreateContext())
+        await using (var context = CreateContext(contextFactory, false))
         {
             await context.AddAsync(customer);
             await context.AddAsync(
@@ -953,7 +953,7 @@ public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBa
             await context.SaveChangesAsync();
         }
 
-        await using (var context = contextFactory.CreateContext())
+        await using (var context = CreateContext(contextFactory, false))
         {
             var customerFromStore = await context.Set<Customer>()
                 .FindAsync(pk1, 42, "One", true);
@@ -969,7 +969,7 @@ public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBa
             await context.SaveChangesAsync();
         }
 
-        await using (var context = contextFactory.CreateContext())
+        await using (var context = CreateContext(contextFactory, false))
         {
             var customerFromStore = await context.Set<Customer>()
                 .WithPartitionKey(pk1, "One", true)
@@ -999,7 +999,7 @@ public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBa
             PartitionKey3 = true
         };
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = CreateContext(contextFactory, false))
         {
             var customerEntry = context.Entry(customer);
             customerEntry.Property(CosmosJsonIdConvention.DefaultIdPropertyName).CurrentValue = "42";
@@ -1008,7 +1008,7 @@ public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBa
             await context.SaveChangesAsync();
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = CreateContext(contextFactory, false))
         {
             var customerFromStore = await context.Set<Customer>()
                 .FindAsync(pk1, "One", true, 42);
@@ -1029,7 +1029,7 @@ ReadItem([1.0,"One",true], 42)
             await context.SaveChangesAsync();
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = CreateContext(contextFactory, false))
         {
             var customerFromStore = await context.Set<Customer>()
                 .WithPartitionKey(pk1, "One", true)
@@ -1059,7 +1059,7 @@ ReadItem([1.0,"One",true], 42)
             PartitionKey3 = true
         };
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = CreateContext(contextFactory, false))
         {
             await context.Database.EnsureCreatedAsync();
 
@@ -1068,7 +1068,7 @@ ReadItem([1.0,"One",true], 42)
             await context.SaveChangesAsync();
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = CreateContext(contextFactory, false))
         {
             var customerFromStore = await context.Set<Customer>().FindAsync(42);
 
@@ -1087,14 +1087,14 @@ ReadItem([1.0,"One",true], 42)
 
         var customer = new CustomerNoPartitionKey { Id = 42, Name = "Theon" };
 
-        await using (var context = contextFactory.CreateContext())
+        await using (var context = CreateContext(contextFactory, false))
         {
             await context.AddAsync(customer);
 
             await context.SaveChangesAsync();
         }
 
-        await using (var context = contextFactory.CreateContext())
+        await using (var context = CreateContext(contextFactory, false))
         {
             var customerFromStore = await context.Set<CustomerNoPartitionKey>().FindAsync(42);
 
@@ -1111,14 +1111,14 @@ ReadItem([1.0,"One",true], 42)
 
         var customer = new CustomerGuid { Id = Guid.NewGuid(), Name = "Theon" };
 
-        await using (var context = contextFactory.CreateContext())
+        await using (var context = CreateContext(contextFactory, false))
         {
             await context.AddAsync(customer);
 
             await context.SaveChangesAsync();
         }
 
-        await using (var context = contextFactory.CreateContext())
+        await using (var context = CreateContext(contextFactory, false))
         {
             var customerFromStore = await context.Set<CustomerGuid>().FindAsync(customer.Id);
 
@@ -1135,14 +1135,14 @@ ReadItem([1.0,"One",true], 42)
 
         var customer = new CustomerWithResourceId { id = "42", Name = "Theon" };
 
-        await using (var context = contextFactory.CreateContext())
+        await using (var context = CreateContext(contextFactory, false))
         {
             await context.AddAsync(customer);
 
             await context.SaveChangesAsync();
         }
 
-        await using (var context = contextFactory.CreateContext())
+        await using (var context = CreateContext(contextFactory, false))
         {
             var customerFromStore = await context.Set<CustomerWithResourceId>().FindAsync("42");
 
@@ -1497,7 +1497,7 @@ OFFSET 0 LIMIT 1
     {
         var contextFactory = await InitializeAsync<PartitionKeyContextPrimaryKey>(shouldLogCategory: _ => true);
 
-        using var context = contextFactory.CreateContext();
+        using var context = CreateContext(contextFactory, false);
 
         await Assert.ThrowsAnyAsync<Exception>(async () =>
         {
@@ -1606,7 +1606,7 @@ OFFSET 0 LIMIT 1
             },
             onConfiguring: o => o.ConfigureWarnings(w => w.Log(CosmosEventId.NoPartitionKeyDefined)));
 
-        using var context = contextFactory.CreateContext();
+        using var context = CreateContext(contextFactory, false);
 
         var entry = await context.AddAsync(new NonStringDiscriminator { Id = 1 });
         await context.SaveChangesAsync();
@@ -1671,7 +1671,7 @@ OFFSET 0 LIMIT 1
 """);
     }
 
-    private TContext CreateContext<TContext>(ContextFactory<TContext> factory, bool transactionalBatch)
+    protected virtual TContext CreateContext<TContext>(ContextFactory<TContext> factory, bool transactionalBatch)
         where TContext : DbContext
     {
         var context = factory.CreateContext();

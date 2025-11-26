@@ -40,6 +40,7 @@ public static class CosmosEventId
 
         // Update events
         PrimaryKeyValueNotSet = CoreEventId.ProviderBaseId + 200,
+        BulkExecutionWithTransactionalBatch,
 
         // Model validation events
         NoPartitionKeyDefined = CoreEventId.ProviderBaseId + 600,
@@ -193,4 +194,19 @@ public static class CosmosEventId
     ///     </para>
     /// </remarks>
     public static readonly EventId PrimaryKeyValueNotSet = MakeUpdateId(Id.PrimaryKeyValueNotSet);
+
+    /// <summary>
+    ///     SaveChanges was invoked with both bulk execution and batching being enabled. Transactional batches can not be run in bulk thus they
+    ///     will skip bulk execution. Use AutoTransactionBehavior.Never to leverage bulk execution. If batching was intended, suppress this warning
+    ///     using <c>DbContextOptionsBuilder.ConfigureWarnings(w => w.Ignore(CosmosEventId.BulkExecutionWithTransactionalBatch))</c>
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This event is in the <see cref="DbLoggerCategory.Update" /> category.
+    ///     </para>
+    ///     <para>
+    ///         This event uses the <see cref="Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.AutoTransactionBehaviorEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///     </para>
+    /// </remarks>
+    public static readonly EventId BulkExecutionWithTransactionalBatch = MakeUpdateId(Id.BulkExecutionWithTransactionalBatch);
 }

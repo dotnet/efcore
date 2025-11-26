@@ -5,6 +5,7 @@ using System.Net;
 using System.Runtime.InteropServices;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Update.Internal;
@@ -25,6 +26,7 @@ public class CosmosDatabaseWrapper : Database, IResettableService
 
     private readonly ICosmosClientWrapper _cosmosClient;
     private readonly bool _sensitiveLoggingEnabled;
+    private readonly bool _bulkExecutionEnabled;
 
     private readonly ICurrentDbContext _currentDbContext;
 
@@ -38,12 +40,14 @@ public class CosmosDatabaseWrapper : Database, IResettableService
         DatabaseDependencies dependencies,
         ICurrentDbContext currentDbContext,
         ICosmosClientWrapper cosmosClient,
+        ICosmosSingletonOptions cosmosSingletonOptions,
         ISessionTokenStorageFactory sessionTokenStorageFactory,
         ILoggingOptions loggingOptions)
         : base(dependencies)
     {
         _currentDbContext = currentDbContext;
         _cosmosClient = cosmosClient;
+        _bulkExecutionEnabled = cosmosSingletonOptions.EnableBulkExecution == true;
         SessionTokenStorage = sessionTokenStorageFactory.Create(currentDbContext.Context);
 
         if (loggingOptions.IsSensitiveDataLoggingEnabled)
@@ -78,11 +82,30 @@ public class CosmosDatabaseWrapper : Database, IResettableService
         var rowsAffected = 0;
         var groups = CreateSaveGroups(entries);
 
-        foreach (var write in groups.SingleUpdateEntries)
+        if (_bulkExecutionEnabled)
         {
-            if (await SaveAsync(write, cancellationToken).ConfigureAwait(false))
+            var tasks = new List<Task<bool>>();
+            foreach (var write in groups.SingleUpdateEntries)
             {
-                rowsAffected++;
+                tasks.Add(SaveAsync(write, cancellationToken));
+            }
+            var results = await Task.WhenAll(tasks).ConfigureAwait(false);
+            foreach (var result in results)
+            {
+                if (result)
+                {
+                    rowsAffected++;
+                }
+            }
+        }
+        else
+        {
+            foreach (var write in groups.SingleUpdateEntries)
+            {
+                if (await SaveAsync(write, cancellationToken).ConfigureAwait(false))
+                {
+                    rowsAffected++;
+                }
             }
         }
 
@@ -130,6 +153,11 @@ public class CosmosDatabaseWrapper : Database, IResettableService
 
     private SaveGroups CreateSaveGroups(IList<IUpdateEntry> entries)
     {
+        if (_bulkExecutionEnabled && _currentDbContext.Context.Database.AutoTransactionBehavior != AutoTransactionBehavior.Never)
+        {
+            Dependencies.Logger.BulkExecutionWithTransactionalBatch(_currentDbContext.Context.Database.AutoTransactionBehavior);
+        }
+
         var count = entries.Count;
         var rootEntriesToSave = new HashSet<IUpdateEntry>();
 
@@ -157,9 +185,11 @@ public class CosmosDatabaseWrapper : Database, IResettableService
             rootEntriesToSave.Add(entry);
         }
 
-        var cosmosUpdateEntries = rootEntriesToSave.Select(x => CreateCosmosUpdateEntry(x)!).Where(x => x != null);
+        var cosmosUpdateEntries = rootEntriesToSave.Select(x => CreateCosmosUpdateEntry(x)!).Where(x => x != null).ToList();
 
-        if (_currentDbContext.Context.Database.AutoTransactionBehavior == AutoTransactionBehavior.Never)
+        if (cosmosUpdateEntries.Count == 0 ||
+            _currentDbContext.Context.Database.AutoTransactionBehavior == AutoTransactionBehavior.Never ||
+            (cosmosUpdateEntries.Count <= 1 && _currentDbContext.Context.Database.AutoTransactionBehavior != AutoTransactionBehavior.Always))
         {
             return new SaveGroups
             {
@@ -168,28 +198,23 @@ public class CosmosDatabaseWrapper : Database, IResettableService
             };
         }
 
-        var entriesWithTriggers = new List<CosmosUpdateEntry>();
-        var entriesWithoutTriggers = new List<CosmosUpdateEntry>();
+        var singleUpdateEntries = new List<CosmosUpdateEntry>();
+        var batchableEntries = new List<CosmosUpdateEntry>();
         foreach (var entry in cosmosUpdateEntries)
         {
             if (entry.Entry.EntityType.GetTriggers().Any())
             {
-                entriesWithTriggers.Add(entry);
+                singleUpdateEntries.Add(entry);
             }
             else
             {
-                entriesWithoutTriggers.Add(entry);
+                batchableEntries.Add(entry);
             }
-        }
-
-        if (entriesWithTriggers.Count == 0 && entriesWithoutTriggers.Count == 0)
-        {
-            return new SaveGroups { BatchableUpdateEntries = [], SingleUpdateEntries = entriesWithTriggers };
         }
 
         if (_currentDbContext.Context.Database.AutoTransactionBehavior == AutoTransactionBehavior.Always)
         {
-            if (entriesWithTriggers.Count >= 1)
+            if (singleUpdateEntries.Count >= 1)
             {
                 if (rootEntriesToSave.Count >= 2)
                 {
@@ -200,14 +225,14 @@ public class CosmosDatabaseWrapper : Database, IResettableService
                 return new SaveGroups
                 {
                     BatchableUpdateEntries = [],
-                    SingleUpdateEntries = entriesWithTriggers
+                    SingleUpdateEntries = singleUpdateEntries
                 };
             }
 
-            var firstEntry = entriesWithoutTriggers[0];
+            var firstEntry = batchableEntries[0];
             var key = new Grouping(firstEntry.CollectionId, _cosmosClient.GetPartitionKeyValue(firstEntry.Entry));
-            if (entriesWithoutTriggers.Count > 100 ||
-                !entriesWithoutTriggers.All(entry =>
+            if (batchableEntries.Count > 100 ||
+                !batchableEntries.All(entry =>
                     entry.CollectionId == key.ContainerId &&
                     _cosmosClient.GetPartitionKeyValue(entry.Entry) == key.PartitionKeyValue))
             {
@@ -216,17 +241,31 @@ public class CosmosDatabaseWrapper : Database, IResettableService
 
             return new SaveGroups
             {
-                BatchableUpdateEntries = [(key, entriesWithoutTriggers)],
+                BatchableUpdateEntries = [(key, batchableEntries)],
                 SingleUpdateEntries = []
             };
         }
+        
+        var batches = CreateBatches(batchableEntries);
 
-        var batches = CreateBatches(entriesWithoutTriggers);
+        // For bulk it is important that single writes are always classified as singleUpdateEntries so that they will be executed in parallel
+        if (_bulkExecutionEnabled && _currentDbContext.Context.Database.AutoTransactionBehavior != AutoTransactionBehavior.Always)
+        {
+            for (var i = batches.Count - 1; i >= 0; i--)
+            {
+                var batch = batches[i];
+                if (batch.UpdateEntries.Count == 1)
+                {
+                    batches.RemoveAt(i);
+                    singleUpdateEntries.Add(batch.UpdateEntries[0]);
+                }
+            }
+        }
 
         return new SaveGroups
         {
             BatchableUpdateEntries = batches,
-            SingleUpdateEntries = entriesWithTriggers
+            SingleUpdateEntries = singleUpdateEntries
         };
     }
 
