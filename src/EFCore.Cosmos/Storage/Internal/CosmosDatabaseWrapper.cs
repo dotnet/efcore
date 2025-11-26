@@ -153,16 +153,9 @@ public class CosmosDatabaseWrapper : Database, IResettableService
 
     private SaveGroups CreateSaveGroups(IList<IUpdateEntry> entries)
     {
-        if (_bulkExecutionEnabled == true && _currentDbContext.Context.Database.AutoTransactionBehavior != AutoTransactionBehavior.Never)
+        if (_bulkExecutionEnabled && _currentDbContext.Context.Database.AutoTransactionBehavior != AutoTransactionBehavior.Never)
         {
-            try
-            {
-                Dependencies.Logger.BulkExecutionWithTransactionalBatch(_currentDbContext.Context.Database.AutoTransactionBehavior);
-            }
-            catch (InvalidOperationException ex)
-            {
-                throw WrapUpdateException(ex, entries.AsReadOnly());
-            }
+            Dependencies.Logger.BulkExecutionWithTransactionalBatch(_currentDbContext.Context.Database.AutoTransactionBehavior);
         }
 
         var count = entries.Count;

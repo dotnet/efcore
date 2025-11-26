@@ -566,7 +566,7 @@ public static class CosmosLoggerExtensions
 
         if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
         {
-            var eventData = new BulkExecutionWithTransactionalBatchEventData(
+            var eventData = new AutoTransactionBehaviorEventData(
                 definition,
                 (d, b) => ((EventDefinition)d).GenerateMessage(),
                 autoTransactionBehavior);

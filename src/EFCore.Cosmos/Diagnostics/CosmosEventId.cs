@@ -205,7 +205,7 @@ public static class CosmosEventId
     ///         This event is in the <see cref="DbLoggerCategory.Update" /> category.
     ///     </para>
     ///     <para>
-    ///         This event uses the <see cref="Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.BulkExecutionWithTransactionalBatchEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///         This event uses the <see cref="Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.AutoTransactionBehaviorEventData" /> payload when used with a <see cref="DiagnosticSource" />.
     ///     </para>
     /// </remarks>
     public static readonly EventId BulkExecutionWithTransactionalBatch = MakeUpdateId(Id.BulkExecutionWithTransactionalBatch);
