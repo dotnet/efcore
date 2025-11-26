@@ -197,7 +197,7 @@ public static class CosmosEventId
 
     /// <summary>
     ///     SaveChanges was invoked with both bulk execution and batching being enabled. Transactional batches can not be run in bulk thus they
-    ///     will skip bulk execution. Use AutoTransactionBehavior.Never to leverage bulk execution. If batching was intended, supress this warning
+    ///     will skip bulk execution. Use AutoTransactionBehavior.Never to leverage bulk execution. If batching was intended, suppress this warning
     ///     using <c>DbContextOptionsBuilder.ConfigureWarnings(w => w.Ignore(CosmosEventId.BulkExecutionWithTransactionalBatch))</c>
     /// </summary>
     /// <remarks>

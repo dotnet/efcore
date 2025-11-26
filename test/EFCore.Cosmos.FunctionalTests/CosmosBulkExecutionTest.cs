@@ -55,9 +55,9 @@ public class CosmosBulkExecutionTest(CosmosBulkExecutionTest.CosmosFixture fixtu
         }
     }
 
-    public class ConcurrencyTest(ConcurrencyTest.ConcurrencyFicture fixture) : CosmosConcurrencyTest(fixture), IClassFixture<ConcurrencyTest.ConcurrencyFicture>
+    public class ConcurrencyTest(ConcurrencyTest.ConcurrencyFixture fixture) : CosmosConcurrencyTest(fixture), IClassFixture<ConcurrencyTest.ConcurrencyFixture>
     {
-        public class ConcurrencyFicture : CosmosConcurrencyTest.CosmosFixture
+        public class ConcurrencyFixture : CosmosConcurrencyTest.CosmosFixture
         {
             public override ConcurrencyContext CreateContext()
             {
@@ -70,9 +70,9 @@ public class CosmosBulkExecutionTest(CosmosBulkExecutionTest.CosmosFixture fixtu
                 => base.AddOptions(builder).UseCosmos(x => x.BulkExecutionEnabled());
         }
 
-        protected override ConcurrencyContext CreateContext(DbContextOptions options)   
+        protected override ConcurrencyContext CreateContext(DbContextOptions options)
         {
-            var context = base.CreateContext();
+            var context = base.CreateContext(options);
             context.Database.AutoTransactionBehavior = AutoTransactionBehavior.Never;
             return context;
         }
@@ -142,7 +142,7 @@ public class CosmosBulkExecutionTest(CosmosBulkExecutionTest.CosmosFixture fixtu
         [ConditionalFact]
         public async Task Trigger_Throws()
         {
-            var contextFactory = await InitializeAsync<CosmosBulkExecutionContext>(onModelCreating: (b) => b.Entity<Customer>().HasTrigger(StoreName, Azure.Cosmos.Scripts.TriggerType.Post, Azure.Cosmos.Scripts.TriggerOperation.Create),onConfiguring: (cfg) => cfg.UseCosmos(c => c.BulkExecutionEnabled()));
+            var contextFactory = await InitializeAsync<CosmosBulkExecutionContext>(onModelCreating: (b) => b.Entity<Customer>().HasTrigger(StoreName, Azure.Cosmos.Scripts.TriggerType.Post, Azure.Cosmos.Scripts.TriggerOperation.Create), onConfiguring: (cfg) => cfg.UseCosmos(c => c.BulkExecutionEnabled()));
             using var context = contextFactory.CreateContext();
             context.Database.AutoTransactionBehavior = AutoTransactionBehavior.Never;
             context.Add(new Customer());

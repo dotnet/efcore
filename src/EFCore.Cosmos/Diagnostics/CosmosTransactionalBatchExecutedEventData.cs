@@ -4,7 +4,7 @@
 namespace Microsoft.EntityFrameworkCore.Diagnostics;
 
 /// <summary>
-///     A <see cref="DiagnosticSource" /> event payload class for Cosmos transcational batch executed events.
+///     A <see cref="DiagnosticSource" /> event payload class for Cosmos transactional batch executed events.
 /// </summary>
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see> for more information and examples.
