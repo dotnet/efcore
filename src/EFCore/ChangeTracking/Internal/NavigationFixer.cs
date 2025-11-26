@@ -1356,6 +1356,28 @@ public class NavigationFixer : INavigationFixer
         if (dependentEntry.EntityState == EntityState.Deleted
             && principalEntry.EntityState is EntityState.Unchanged or EntityState.Modified)
         {
+            // For owned entities in collections, if the foreign key properties are part of the primary key,
+            // changing the parent means the primary key changes, so we need to treat this as
+            // a new entity (Added) rather than a modified entity
+            var entityType = dependentEntry.EntityType;
+            var ownership = entityType.FindOwnership();
+            if (ownership != null)
+            {
+                // Only apply this logic to owned entities in collection navigations
+                var principalToDependent = ownership.PrincipalToDependent;
+                if (principalToDependent != null && principalToDependent.IsCollection)
+                {
+                    // Check if any ownership foreign key properties are part of the primary key
+                    var keyProperties = entityType.FindPrimaryKey()?.Properties ?? Array.Empty<IProperty>();
+                    var ownershipFKProperties = ownership.Properties;
+                    if (keyProperties.Any(p => ownershipFKProperties.Contains(p)))
+                    {
+                        dependentEntry.SetEntityState(EntityState.Added);
+                        return;
+                    }
+                }
+            }
+
             dependentEntry.SetEntityState(EntityState.Modified);
         }
     }
