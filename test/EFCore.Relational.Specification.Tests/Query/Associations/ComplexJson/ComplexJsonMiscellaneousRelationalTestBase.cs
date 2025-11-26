@@ -15,6 +15,10 @@ public abstract class ComplexJsonMiscellaneousRelationalTestBase<TFixture> : Com
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
+    [ConditionalFact]
+    public virtual Task FromSql_on_root()
+        => RelationalAssociationsTests.FromSql_on_root(this, Fixture);
+
     protected void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 }
