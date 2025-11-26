@@ -12,7 +12,7 @@ public class CosmosBulkExecutionTest(NonSharedFixture fixture) : NonSharedModelT
     [ConditionalFact]
     public virtual async Task DoesNotBatchSingleBatchableWrite()
     {
-        var contextFactory = await InitializeAsync<CosmosBulkExecutionContext>(onConfiguring: (cfg) => cfg.UseCosmos(c => c.BulkExecutionEnabled()));
+        var contextFactory = await InitializeAsync<CosmosBulkExecutionContext>(onConfiguring: (cfg) => cfg.UseCosmos(c => c.BulkExecutionEnabled()).ConfigureWarnings(x => x.Ignore(CosmosEventId.BulkExecutionWithTransactionalBatch)));
         using var context = contextFactory.CreateContext();
 
         context.Add(new Customer() { PartitionKey = "4" });
