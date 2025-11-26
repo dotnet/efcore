@@ -107,7 +107,7 @@ FROM [Customers] AS [c]
 
         AssertSql(
             """
-SELECT COALESCE(SUM([o].[OrderID]), 0)
+SELECT ISNULL(SUM([o].[OrderID]), 0)
 FROM [Orders] AS [o]
 WHERE [o].[OrderID] = 42
 """);
@@ -155,7 +155,7 @@ WHERE [o].[OrderID] = 10248
 
         AssertSql(
             """
-SELECT AVG(CAST(COALESCE([o0].[OrderID], 0) AS float))
+SELECT AVG(CAST(ISNULL([o0].[OrderID], 0) AS float))
 FROM (
     SELECT 1 AS empty
 ) AS [e]
@@ -173,7 +173,7 @@ LEFT JOIN (
 
         AssertSql(
             """
-SELECT MAX(COALESCE([o0].[OrderID], 0))
+SELECT MAX(ISNULL([o0].[OrderID], 0))
 FROM (
     SELECT 1 AS empty
 ) AS [e]
@@ -191,7 +191,7 @@ LEFT JOIN (
 
         AssertSql(
             """
-SELECT MIN(COALESCE([o0].[OrderID], 0))
+SELECT MIN(ISNULL([o0].[OrderID], 0))
 FROM (
     SELECT 1 AS empty
 ) AS [e]
@@ -209,7 +209,7 @@ LEFT JOIN (
 
         AssertSql(
             """
-SELECT COALESCE(SUM([o].[OrderID]), 0)
+SELECT ISNULL(SUM([o].[OrderID]), 0)
 FROM [Orders] AS [o]
 WHERE [o].[OrderID] < 0
 """);
@@ -221,7 +221,7 @@ WHERE [o].[OrderID] < 0
 
         AssertSql(
             """
-SELECT COALESCE(SUM([p].[SupplierID]), 0)
+SELECT ISNULL(SUM([p].[SupplierID]), 0)
 FROM [Products] AS [p]
 """);
     }
@@ -232,7 +232,7 @@ FROM [Products] AS [p]
 
         AssertSql(
             """
-SELECT COALESCE(SUM([o].[OrderID]), 0)
+SELECT ISNULL(SUM([o].[OrderID]), 0)
 FROM [Orders] AS [o]
 WHERE [o].[OrderID] = 42
 """);
@@ -629,7 +629,7 @@ END
 
         AssertSql(
             """
-SELECT COALESCE(SUM([o].[OrderID]), 0)
+SELECT ISNULL(SUM([o].[OrderID]), 0)
 FROM [Orders] AS [o]
 """);
     }
@@ -640,7 +640,7 @@ FROM [Orders] AS [o]
 
         AssertSql(
             """
-SELECT COALESCE(SUM([o].[OrderID] * 2), 0)
+SELECT ISNULL(SUM([o].[OrderID] * 2), 0)
 FROM [Orders] AS [o]
 """);
     }
@@ -651,7 +651,7 @@ FROM [Orders] AS [o]
 
         AssertSql(
             """
-SELECT COALESCE(SUM([o].[OrderID]), 0)
+SELECT ISNULL(SUM([o].[OrderID]), 0)
 FROM [Orders] AS [o]
 """);
     }
@@ -662,7 +662,7 @@ FROM [Orders] AS [o]
 
         AssertSql(
             """
-SELECT COALESCE(SUM([o].[OrderID] + [o].[OrderID]), 0)
+SELECT ISNULL(SUM([o].[OrderID] + [o].[OrderID]), 0)
 FROM [Orders] AS [o]
 """);
     }
@@ -673,7 +673,7 @@ FROM [Orders] AS [o]
 
         AssertSql(
             """
-SELECT COALESCE(SUM(CAST([o].[Quantity] AS decimal(18,2)) / 2.09), 0.0)
+SELECT ISNULL(SUM(CAST([o].[Quantity] AS decimal(18,2)) / 2.09), 0.0)
 FROM [Order Details] AS [o]
 """);
     }
@@ -684,7 +684,7 @@ FROM [Order Details] AS [o]
 
         AssertSql(
             """
-SELECT COALESCE(SUM(CAST([o].[Quantity] AS decimal(18,2)) / 2.0), 0.0)
+SELECT ISNULL(SUM(CAST([o].[Quantity] AS decimal(18,2)) / 2.0), 0.0)
 FROM [Order Details] AS [o]
 """);
     }
@@ -695,7 +695,7 @@ FROM [Order Details] AS [o]
 
         AssertSql(
             """
-SELECT COALESCE(SUM(COALESCE([p].[UnitPrice], 0.0)), 0.0)
+SELECT ISNULL(SUM(ISNULL([p].[UnitPrice], 0.0)), 0.0)
 FROM [Products] AS [p]
 WHERE [p].[ProductID] < 40
 """);
@@ -708,10 +708,10 @@ WHERE [p].[ProductID] < 40
         // #34256: rewrite query to avoid "Cannot perform an aggregate function on an expression containing an aggregate or a subquery"
         AssertSql(
             """
-SELECT COALESCE(SUM([s].[value]), 0)
+SELECT ISNULL(SUM([s].[value]), 0)
 FROM [Customers] AS [c]
 OUTER APPLY (
-    SELECT COALESCE(SUM([o].[OrderID]), 0) AS [value]
+    SELECT ISNULL(SUM([o].[OrderID]), 0) AS [value]
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]
 ) AS [s]
@@ -725,14 +725,14 @@ OUTER APPLY (
         // #34256: rewrite query to avoid "Cannot perform an aggregate function on an expression containing an aggregate or a subquery"
         AssertSql(
             """
-SELECT COALESCE(SUM([s0].[value]), 0)
+SELECT ISNULL(SUM([s0].[value]), 0)
 FROM [Customers] AS [c]
 OUTER APPLY (
-    SELECT COALESCE(SUM([s].[value]), 0) AS [value]
+    SELECT ISNULL(SUM([s].[value]), 0) AS [value]
     FROM [Orders] AS [o]
     OUTER APPLY (
         SELECT 5 + (
-            SELECT COALESCE(SUM([o0].[ProductID]), 0)
+            SELECT ISNULL(SUM([o0].[ProductID]), 0)
             FROM [Order Details] AS [o0]
             WHERE [o].[OrderID] = [o0].[OrderID]) AS [value]
     ) AS [s]
@@ -748,10 +748,10 @@ OUTER APPLY (
         // #34256: rewrite query to avoid "Cannot perform an aggregate function on an expression containing an aggregate or a subquery"
         AssertSql(
             """
-SELECT COALESCE(SUM([s0].[value]), 0)
+SELECT ISNULL(SUM([s0].[value]), 0)
 FROM [Customers] AS [c]
 OUTER APPLY (
-    SELECT COALESCE(SUM([s].[value]), 0) AS [value]
+    SELECT ISNULL(SUM([s].[value]), 0) AS [value]
     FROM [Orders] AS [o]
     OUTER APPLY (
         SELECT 5 + (
@@ -771,7 +771,7 @@ OUTER APPLY (
         // #34256: rewrite query to avoid "Cannot perform an aggregate function on an expression containing an aggregate or a subquery"
         AssertSql(
             """
-SELECT COALESCE(SUM([s].[OrderID]), 0)
+SELECT ISNULL(SUM([s].[OrderID]), 0)
 FROM [Customers] AS [c]
 OUTER APPLY (
     SELECT TOP(1) [o].[OrderID]
@@ -788,7 +788,7 @@ OUTER APPLY (
         // #34256: rewrite query to avoid "Cannot perform an aggregate function on an expression containing an aggregate or a subquery"
         AssertSql(
             """
-SELECT COALESCE(SUM([s].[value]), 0)
+SELECT ISNULL(SUM([s].[value]), 0)
 FROM [Customers] AS [c]
 OUTER APPLY (
     SELECT CASE
@@ -828,7 +828,7 @@ CROSS JOIN (
 
         AssertSql(
             """
-SELECT CAST(COALESCE(SUM([o].[Discount]), 0.0E0) AS real)
+SELECT CAST(ISNULL(SUM([o].[Discount]), 0.0E0) AS real)
 FROM [Order Details] AS [o]
 WHERE [o].[ProductID] = 1
 """);
@@ -841,7 +841,7 @@ WHERE [o].[ProductID] = 1
         AssertSql(
             """
 SELECT [o].[OrderID], (
-    SELECT CAST(COALESCE(SUM([o0].[Discount]), 0.0E0) AS real)
+    SELECT CAST(ISNULL(SUM([o0].[Discount]), 0.0E0) AS real)
     FROM [Order Details] AS [o0]
     WHERE [o].[OrderID] = [o0].[OrderID]) AS [Sum]
 FROM [Orders] AS [o]
@@ -921,7 +921,7 @@ FROM [Order Details] AS [o]
 
         AssertSql(
             """
-SELECT AVG(COALESCE([p].[UnitPrice], 0.0))
+SELECT AVG(ISNULL([p].[UnitPrice], 0.0))
 FROM [Products] AS [p]
 WHERE [p].[ProductID] < 40
 """);
@@ -938,7 +938,7 @@ SELECT AVG([s].[value])
 FROM [Customers] AS [c]
 OUTER APPLY (
     SELECT CAST((
-        SELECT COALESCE(SUM([o].[OrderID]), 0)
+        SELECT ISNULL(SUM([o].[OrderID]), 0)
         FROM [Orders] AS [o]
         WHERE [c].[CustomerID] = [o].[CustomerID]) AS float) AS [value]
 ) AS [s]
@@ -1081,7 +1081,7 @@ FROM [Orders] AS [o]
 
         AssertSql(
             """
-SELECT MIN(COALESCE([p].[UnitPrice], 0.0))
+SELECT MIN(ISNULL([p].[UnitPrice], 0.0))
 FROM [Products] AS [p]
 WHERE [p].[ProductID] < 40
 """);
@@ -1097,7 +1097,7 @@ WHERE [p].[ProductID] < 40
 SELECT MIN([s].[value])
 FROM [Customers] AS [c]
 OUTER APPLY (
-    SELECT COALESCE(SUM([o].[OrderID]), 0) AS [value]
+    SELECT ISNULL(SUM([o].[OrderID]), 0) AS [value]
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]
 ) AS [s]
@@ -1190,7 +1190,7 @@ FROM [Orders] AS [o]
 
         AssertSql(
             """
-SELECT MAX(COALESCE([p].[UnitPrice], 0.0))
+SELECT MAX(ISNULL([p].[UnitPrice], 0.0))
 FROM [Products] AS [p]
 WHERE [p].[ProductID] < 40
 """);
@@ -1206,7 +1206,7 @@ WHERE [p].[ProductID] < 40
 SELECT MAX([s].[value])
 FROM [Customers] AS [c]
 OUTER APPLY (
-    SELECT COALESCE(SUM([o].[OrderID]), 0) AS [value]
+    SELECT ISNULL(SUM([o].[OrderID]), 0) AS [value]
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]
 ) AS [s]
@@ -1262,7 +1262,7 @@ OUTER APPLY (
     FROM [Orders] AS [o]
     OUTER APPLY (
         SELECT 5 + (
-            SELECT COALESCE(SUM([o0].[ProductID]), 0)
+            SELECT ISNULL(SUM([o0].[ProductID]), 0)
             FROM [Order Details] AS [o0]
             WHERE [o].[OrderID] = [o0].[OrderID]) AS [value]
     ) AS [s]
@@ -2842,7 +2842,7 @@ WHERE [c].[CustomerID] LIKE N'F%' AND (
 
         AssertSql(
             """
-SELECT COALESCE(SUM(CAST([o].[OrderID] AS bigint)), CAST(0 AS bigint))
+SELECT ISNULL(SUM(CAST([o].[OrderID] AS bigint)), CAST(0 AS bigint))
 FROM [Orders] AS [o]
 """);
     }
@@ -3085,7 +3085,7 @@ ORDER BY [c].[CustomerID] DESC
 
         AssertSql(
             """
-SELECT COALESCE(SUM(CAST([o].[Discount] AS decimal(18,2))), 0.0)
+SELECT ISNULL(SUM(CAST([o].[Discount] AS decimal(18,2))), 0.0)
 FROM [Order Details] AS [o]
 """);
     }

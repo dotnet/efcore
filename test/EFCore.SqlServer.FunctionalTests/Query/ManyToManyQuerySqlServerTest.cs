@@ -200,7 +200,7 @@ INNER JOIN (
 
         AssertSql(
             """
-SELECT COALESCE(SUM([s].[Key1]), 0)
+SELECT ISNULL(SUM([s].[Key1]), 0)
 FROM [EntityRoots] AS [e]
 INNER JOIN (
     SELECT [e1].[Key1], [e0].[RootSkipSharedId]
@@ -263,7 +263,7 @@ FROM [EntityThrees] AS [e]
         AssertSql(
             """
 SELECT (
-    SELECT COALESCE(SUM([e1].[Id]), 0)
+    SELECT ISNULL(SUM([e1].[Id]), 0)
     FROM [EntityOneEntityTwo] AS [e0]
     INNER JOIN [EntityOnes] AS [e1] ON [e0].[OneSkipSharedId] = [e1].[Id]
     WHERE [e].[Id] = [e0].[TwoSkipSharedId])
