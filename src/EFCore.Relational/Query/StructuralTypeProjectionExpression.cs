@@ -20,6 +20,9 @@ public class StructuralTypeProjectionExpression : Expression
     private readonly Dictionary<INavigation, StructuralTypeShaperExpression> _ownedNavigationMap;
     private Dictionary<IComplexProperty, Expression>? _complexPropertyCache;
 
+    private static readonly bool UseOldBehavior37205 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37205", out var enabled) && enabled;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -202,6 +205,11 @@ public class StructuralTypeProjectionExpression : Expression
                 if (complexShaper is StructuralTypeShaperExpression nonCollectionComplexShaper)
                 {
                     complexPropertyCache[complexProperty] = nonCollectionComplexShaper.MakeNullable();
+                }
+
+                if (!UseOldBehavior37205 && complexShaper is CollectionResultExpression collectionComplexShaper)
+                {
+                    complexPropertyCache[complexProperty] = collectionComplexShaper;
                 }
             }
         }
