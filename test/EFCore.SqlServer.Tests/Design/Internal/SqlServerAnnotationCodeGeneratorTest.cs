@@ -365,6 +365,33 @@ public class SqlServerAnnotationCodeGeneratorTest
     }
 
     [ConditionalFact]
+    public void GenerateFluentApi_IProperty_with_DefaultConstraintName_and_no_DefaultValue_does_not_throw()
+    {
+        // Reproduces https://github.com/dotnet/efcore/issues/37175
+        // When a property has a named default constraint but no DefaultValue or DefaultValueSql annotation,
+        // GenerateFluentApiCalls should not throw a NullReferenceException
+        var generator = CreateGenerator();
+        var modelBuilder = SqlServerConventionSetBuilder.CreateModelBuilder();
+        modelBuilder.Entity("Post", x => x.Property<int>("Id"));
+        var property = modelBuilder.Model.FindEntityType("Post")!.FindProperty("Id")!;
+
+        // Create annotations dictionary with only DefaultConstraintName (simulating the scenario where
+        // DefaultValue was already removed but DefaultConstraintName wasn't)
+        var constraintNameAnnotation = RelationalAnnotationNames.DefaultConstraintName;
+        var annotations = new Dictionary<string, IAnnotation>
+        {
+            { constraintNameAnnotation, new Annotation(constraintNameAnnotation, "DF_Post_Id") }
+        };
+
+        // This should not throw - it should simply skip generating code for the constraint name
+        // since there's no default value to associate with it
+        var result = generator.GenerateFluentApiCalls((IProperty)property, annotations);
+
+        // No method calls should be generated for the constraint name alone
+        Assert.Empty(result);
+    }
+
+    [ConditionalFact]
     public void GenerateFluentApi_IModel_works_with_DatabaseMaxSize()
     {
         var generator = CreateGenerator();
