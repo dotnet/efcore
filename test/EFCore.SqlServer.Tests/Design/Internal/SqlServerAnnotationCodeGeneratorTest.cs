@@ -377,9 +377,10 @@ public class SqlServerAnnotationCodeGeneratorTest
 
         // Create annotations dictionary with only DefaultConstraintName (simulating the scenario where
         // DefaultValue was already removed but DefaultConstraintName wasn't)
+        var constraintNameAnnotation = RelationalAnnotationNames.DefaultConstraintName;
         var annotations = new Dictionary<string, IAnnotation>
         {
-            { RelationalAnnotationNames.DefaultConstraintName, new Annotation(RelationalAnnotationNames.DefaultConstraintName, "DF_Post_Id") }
+            { constraintNameAnnotation, new Annotation(constraintNameAnnotation, "DF_Post_Id") }
         };
 
         // This should not throw - it should simply skip generating code for the constraint name
