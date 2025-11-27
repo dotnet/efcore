@@ -25,9 +25,6 @@ namespace Microsoft.EntityFrameworkCore;
          + "from user code - so it's never trimmed.")]
 public static class EntityFrameworkQueryableExtensions
 {
-    private static readonly bool UseOldBehavior37112 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37112", out var enabled) && enabled;
-
     /// <summary>
     ///     Generates a string representation of the query used. This string may not be suitable for direct execution and is intended only
     ///     for use in debugging.
