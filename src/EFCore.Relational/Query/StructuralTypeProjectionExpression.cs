@@ -202,15 +202,13 @@ public class StructuralTypeProjectionExpression : Expression
             complexPropertyCache = new Dictionary<IComplexProperty, Expression>();
             foreach (var (complexProperty, complexShaper) in _complexPropertyCache)
             {
-                if (complexShaper is StructuralTypeShaperExpression nonCollectionComplexShaper)
+                complexPropertyCache[complexProperty] = complexShaper switch
                 {
-                    complexPropertyCache[complexProperty] = nonCollectionComplexShaper.MakeNullable();
-                }
+                    StructuralTypeShaperExpression s => s.MakeNullable(),
+                    CollectionResultExpression c => c,
 
-                if (!UseOldBehavior37205 && complexShaper is CollectionResultExpression collectionComplexShaper)
-                {
-                    complexPropertyCache[complexProperty] = collectionComplexShaper;
-                }
+                    _ => throw new UnreachableException()
+                };
             }
         }
 
