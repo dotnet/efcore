@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
 using Xunit.Sdk;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable UnusedAutoPropertyAccessor.Local
@@ -2022,7 +2023,7 @@ namespace RootNamespace
 
                     b.ToTable("BaseEntity", "DefaultSchema");
 
-                    b.HasDiscriminator().HasValue("BaseEntity");
+                    b.HasDiscriminator<string>("Discriminator").HasValue("BaseEntity");
 
                     b.UseTphMappingStrategy();
                 });
@@ -2354,7 +2355,7 @@ namespace RootNamespace
 
                     b.ToTable("BaseEntity", "DefaultSchema");
 
-                    b.HasDiscriminator().HasValue("BaseEntity");
+                    b.HasDiscriminator<string>("Discriminator").HasValue("BaseEntity");
 
                     b.UseTphMappingStrategy();
                 });
@@ -2425,7 +2426,7 @@ namespace RootNamespace
 
                     b.ToTable("BaseEntity", "DefaultSchema");
 
-                    b.HasDiscriminator().IsComplete(true).HasValue("BaseEntity");
+                    b.HasDiscriminator<string>("Discriminator").IsComplete(true).HasValue("BaseEntity");
 
                     b.UseTphMappingStrategy();
                 });
@@ -2500,7 +2501,7 @@ namespace RootNamespace
 
                     b.ToTable("BaseEntityWithStructDiscriminator", "DefaultSchema");
 
-                    b.HasDiscriminator().IsComplete(true).HasValue("Base");
+                    b.HasDiscriminator<string>("Discriminator").IsComplete(true).HasValue("Base");
 
                     b.UseTphMappingStrategy();
                 });
@@ -2527,13 +2528,18 @@ namespace RootNamespace
 """),
             o =>
             {
+                var baseEntityType = o.FindEntityType(typeof(BaseEntityWithStructDiscriminator));
                 Assert.Equal(
                     "Discriminator",
-                    o.FindEntityType(typeof(BaseEntityWithStructDiscriminator))[CoreAnnotationNames.DiscriminatorProperty]);
+                    baseEntityType[CoreAnnotationNames.DiscriminatorProperty]);
 
                 Assert.Equal(
                     "Base",
-                    o.FindEntityType(typeof(BaseEntityWithStructDiscriminator))[CoreAnnotationNames.DiscriminatorValue]);
+                    baseEntityType[CoreAnnotationNames.DiscriminatorValue]);
+
+                var discriminatorProperty = baseEntityType.FindDiscriminatorProperty();
+                Assert.Equal(typeof(string), discriminatorProperty.ClrType);
+                Assert.Equal("Discriminator", discriminatorProperty.Name);
 
                 Assert.Equal(
                     "Another",
@@ -3373,6 +3379,55 @@ namespace RootNamespace
                 var discriminatorProperty = model.GetEntityTypes().First().FindDiscriminatorProperty();
                 Assert.Equal(typeof(string), discriminatorProperty.ClrType);
                 Assert.False(discriminatorProperty.IsNullable);
+            });
+
+    [ConditionalFact]
+    public virtual void Discriminator_with_non_string_default_name_is_stored_in_snapshot()
+        => Test(
+            builder =>
+            {
+                builder.Entity<DerivedType>().HasBaseType<BaseType>();
+                builder.Entity<BaseType>()
+                    .Ignore(b => b.Navigation)
+                    .HasDiscriminator<int>("Discriminator")
+                    .HasValue<BaseType>(0)
+                    .HasValue<DerivedType>(1);
+            },
+            AddBoilerPlate(
+                GetHeading()
+                + """
+            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+BaseType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Discriminator")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("BaseType", "DefaultSchema");
+
+                    b.HasDiscriminator<int>("Discriminator").HasValue(0);
+
+                    b.UseTphMappingStrategy();
+                });
+
+            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+DerivedType", b =>
+                {
+                    b.HasBaseType("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+BaseType");
+
+                    b.HasDiscriminator().HasValue(1);
+                });
+"""),
+            model =>
+            {
+                var discriminatorProperty = model.FindEntityType(typeof(BaseType))!.FindDiscriminatorProperty();
+                Assert.Equal(typeof(int), discriminatorProperty.ClrType);
+                Assert.Equal("Discriminator", discriminatorProperty.Name);
             });
 
     [ConditionalFact]
@@ -4939,7 +4994,7 @@ namespace RootNamespace
 
                     b.ToTable("BarBase", "DefaultSchema");
 
-                    b.HasDiscriminator().HasValue("BarBase");
+                    b.HasDiscriminator<string>("Discriminator").HasValue("BarBase");
 
                     b.UseTphMappingStrategy();
                 });
@@ -5155,7 +5210,7 @@ namespace RootNamespace
 
                     b.ToTable("BaseEntity", "DefaultSchema");
 
-                    b.HasDiscriminator().HasValue("BaseEntity");
+                    b.HasDiscriminator<string>("Discriminator").HasValue("BaseEntity");
 
                     b.UseTphMappingStrategy();
                 });
@@ -7718,7 +7773,7 @@ namespace RootNamespace
 
                     b.ToTable("BaseType", "DefaultSchema");
 
-                    b.HasDiscriminator().HasValue("BaseType");
+                    b.HasDiscriminator<string>("Discriminator").HasValue("BaseType");
 
                     b.UseTphMappingStrategy();
                 });
