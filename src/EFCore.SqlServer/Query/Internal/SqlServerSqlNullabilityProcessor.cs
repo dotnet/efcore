@@ -2,7 +2,9 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
+using System.ComponentModel.Design;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 
@@ -30,6 +32,7 @@ public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
     private readonly ISqlServerSingletonOptions _sqlServerSingletonOptions;
 
     private int _openJsonAliasCounter;
+    private int _parametersCount;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -52,6 +55,15 @@ public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
     /// </summary>
     public override Expression Process(Expression queryExpression, ParametersCacheDecorator parametersDecorator)
     {
+        var parametersCounter = new ParametersCounter(
+            parametersDecorator,
+            CollectionParameterTranslationMode,
+#pragma warning disable EF1001
+            (count, elementTypeMapping) => CalculatePadding(count, CalculateParameterBucketSize(count, elementTypeMapping)));
+#pragma warning restore EF1001
+        parametersCounter.Visit(queryExpression);
+        _parametersCount = parametersCounter.Count;
+
         var result = base.Process(queryExpression, parametersDecorator);
         _openJsonAliasCounter = 0;
         return result;
@@ -303,14 +315,14 @@ public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
         out List<SqlExpression>? constantsResult,
         out bool? containsNulls)
     {
-        var parameters = ParametersDecorator.GetAndDisableCaching();
-        var values = ((IEnumerable?)parameters[valuesParameter.Name])?.Cast<object>().ToList() ?? [];
-
         // SQL Server has limit on number of parameters in a query.
         // If we're over that limit, we switch to using single parameter
         // and processing it through JSON functions.
-        if (values.Count > MaxParameterCount)
+        if (_parametersCount > MaxParameterCount)
         {
+            var parameters = ParametersDecorator.GetAndDisableCaching();
+            var values = ((IEnumerable?)parameters[valuesParameter.Name])?.Cast<object>().ToList() ?? [];
+
             if (_sqlServerSingletonOptions.SupportsJsonFunctions)
             {
                 var openJsonExpression = new SqlServerOpenJsonExpression(
@@ -367,4 +379,76 @@ public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
         return false;
     }
 #pragma warning restore EF1001
+}
+
+/// <summary>
+/// Foo
+/// </summary>
+public class ParametersCounter(
+    ParametersCacheDecorator parametersDecorator,
+    ParameterTranslationMode collectionParameterTranslationMode,
+    Func<int, RelationalTypeMapping, int> bucketizationPadding) : ExpressionVisitor
+{
+    /// <summary>
+    /// Foo
+    /// </summary>
+    public int Count { get; private set; } = 0;
+
+    private readonly HashSet<SqlParameterExpression> _visitedParameters = new();
+
+    /// <summary>
+    /// Foo
+    /// </summary>
+    protected override Expression VisitExtension(Expression node)
+    {
+        switch (node)
+        {
+            case ValuesExpression valuesExpression when valuesExpression.ValuesParameter is { } valuesParameter:
+                ProcessCollectionParameter(valuesParameter, false);
+                break;
+
+            case InExpression inExpression when inExpression.ValuesParameter is { } valuesParameter:
+                ProcessCollectionParameter(valuesParameter, true);
+                break;
+
+            case SqlParameterExpression sqlParameterExpression:
+                ProcessParameter(sqlParameterExpression);
+                break;
+        }
+        return base.VisitExtension(node);
+    }
+
+    private void ProcessParameter(SqlParameterExpression sqlParameterExpression)
+    {
+        if (!_visitedParameters.Add(sqlParameterExpression))
+        {
+            return;
+        }
+
+        Count++;
+    }
+
+    private void ProcessCollectionParameter(SqlParameterExpression sqlParameterExpression, bool bucketization)
+    {
+        if (!_visitedParameters.Add(sqlParameterExpression))
+        {
+            return;
+        }
+
+        if ((sqlParameterExpression.TranslationMode ?? collectionParameterTranslationMode) is ParameterTranslationMode.MultipleParameters)
+        {
+            var parameters = parametersDecorator.GetAndDisableCaching();
+            var count = ((IEnumerable?)parameters[sqlParameterExpression.Name])?.Cast<object>().Count() ?? 0;
+            Count += count;
+            if (bucketization)
+            {
+                var elementTypeMapping = (RelationalTypeMapping)sqlParameterExpression.TypeMapping!.ElementTypeMapping!;
+                Count += bucketizationPadding(count, elementTypeMapping);
+            }
+        }
+        else
+        {
+            ProcessParameter(sqlParameterExpression);
+        }
+    }
 }
