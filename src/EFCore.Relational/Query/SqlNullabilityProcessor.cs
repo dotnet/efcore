@@ -1858,11 +1858,12 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         {
             // We're looking at a parameter beyond its simple nullability, so we can't use the SQL cache for this query.
             var parameters = ParametersDecorator.GetAndDisableCaching();
-            if (parameters[collectionParameter.Name] is not IList values)
+            if (parameters[collectionParameter.Name] is not IEnumerable enumerable)
             {
-                throw new UnreachableException($"Parameter '{collectionParameter.Name}' is not an IList.");
+                throw new UnreachableException($"Parameter '{collectionParameter.Name}' is not an IEnumerable.");
             }
 
+            var values = enumerable.Cast<object?>().ToList();
             IList? processedValues = null;
 
             for (var i = 0; i < values.Count; i++)

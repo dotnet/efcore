@@ -467,6 +467,20 @@ WHERE ARRAY_CONTAINS(@p, c["Id"])
 """);
     }
 
+    public override async Task Inline_collection_Contains_with_IEnumerable_EF_Parameter()
+    {
+        await base.Inline_collection_Contains_with_IEnumerable_EF_Parameter();
+
+        AssertSql(
+            """
+@Select='["10","a","aa"]'
+
+SELECT VALUE c
+FROM root c
+WHERE ARRAY_CONTAINS(@Select, c["NullableString"])
+""");
+    }
+
     public override async Task Inline_collection_Count_with_column_predicate_with_EF_Parameter()
     {
         await base.Inline_collection_Count_with_column_predicate_with_EF_Parameter();

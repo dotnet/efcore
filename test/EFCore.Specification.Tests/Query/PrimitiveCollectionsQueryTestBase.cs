@@ -235,6 +235,16 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new[] { 2, 999, 1000 }.Contains(c.Id)));
 
     [ConditionalFact]
+    public virtual Task Inline_collection_Contains_with_IEnumerable_EF_Parameter()
+    {
+        List<string?> data = ["10", "a", "aa",];
+
+        return AssertQuery(
+                ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => EF.Parameter(data.Select(x => x)).Contains(c.NullableString)),
+                ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => data.Select(x => x).Contains(c.NullableString)));
+    }
+
+    [ConditionalFact]
     public virtual Task Inline_collection_Count_with_column_predicate_with_EF_Parameter()
         => AssertQuery(
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => EF.Parameter(new[] { 2, 999, 1000 }).Count(i => i > c.Id) == 2),
