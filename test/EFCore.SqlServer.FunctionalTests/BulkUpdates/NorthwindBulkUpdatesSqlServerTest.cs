@@ -1623,6 +1623,34 @@ WHERE [p].[Discontinued] = CAST(1 AS bit) AND [o0].[OrderDate] > '1990-01-01T00:
 """);
     }
 
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    public override async Task Update_with_PK_pushdown_and_join_and_multiple_setters(bool async)
+    {
+        await base.Update_with_PK_pushdown_and_join_and_multiple_setters(async);
+
+        AssertExecuteUpdateSql(
+            """
+@p='1'
+@p1='10' (DbType = Currency)
+
+UPDATE [o2]
+SET [o2].[Quantity] = CAST(@p AS smallint),
+    [o2].[UnitPrice] = @p1
+FROM [Order Details] AS [o2]
+INNER JOIN (
+    SELECT [o1].[OrderID], [o1].[ProductID]
+    FROM (
+        SELECT [o].[OrderID], [o].[ProductID]
+        FROM [Order Details] AS [o]
+        ORDER BY [o].[OrderID]
+        OFFSET @p ROWS
+    ) AS [o1]
+    INNER JOIN [Orders] AS [o0] ON [o1].[OrderID] = [o0].[OrderID]
+    WHERE [o0].[CustomerID] = N'ALFKI'
+) AS [s] ON [o2].[OrderID] = [s].[OrderID] AND [o2].[ProductID] = [s].[ProductID]
+""");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

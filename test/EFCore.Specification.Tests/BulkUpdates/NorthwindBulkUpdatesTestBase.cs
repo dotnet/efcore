@@ -951,4 +951,26 @@ public abstract class NorthwindBulkUpdatesTestBase<TFixture>(TFixture fixture) :
             s => s.SetProperty(od => od.Quantity, 1),
             rowsAffectedCount: 228,
             (b, a) => Assert.All(a, od => Assert.Equal(1, od.Quantity)));
+
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))] // #37247
+    public virtual Task Update_with_PK_pushdown_and_join_and_multiple_setters(bool async)
+        => AssertUpdate(
+            async,
+            ss => ss
+                .Set<OrderDetail>()
+                // Not natively supported by UPDATE, so triggers PK subquery
+                .OrderBy(od => od.OrderID)
+                .Skip(1)
+                // Triggers JOIN with a pending selector for transparent identifier (Outer, Inner)
+                .Where(od => od.Order.CustomerID == "ALFKI"),
+            e => e,
+            s => s
+                .SetProperty(od => od.Quantity, 1)
+                .SetProperty(od => od.UnitPrice, 10),
+            rowsAffectedCount: 12,
+            (b, a) => Assert.All(a, od =>
+            {
+                Assert.Equal(1, od.Quantity);
+                Assert.Equal(10, od.UnitPrice);
+            }));
 }
