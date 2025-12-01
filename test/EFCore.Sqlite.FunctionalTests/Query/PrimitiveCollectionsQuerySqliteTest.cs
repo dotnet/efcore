@@ -848,6 +848,10 @@ WHERE (
         => base.Parameter_collection_Count_with_huge_number_of_values_over_5_operations();
 
     // nothing to test here
+    public override Task Parameter_collection_Count_with_huge_number_of_values_over_5_operations_forced_constants()
+        => base.Parameter_collection_Count_with_huge_number_of_values_over_5_operations_forced_constants();
+
+    // nothing to test here
     public override Task Parameter_collection_Count_with_huge_number_of_values_over_5_operations_same_parameter()
         => base.Parameter_collection_Count_with_huge_number_of_values_over_5_operations_same_parameter();
 
@@ -862,6 +866,10 @@ WHERE (
     // nothing to test here
     public override Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations_same_parameter()
         => base.Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations_same_parameter();
+
+    // nothing to test here
+    public override Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations_forced_constants()
+        => base.Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations_forced_constants();
 
     public override async Task Static_readonly_collection_List_of_ints_Contains_int()
     {
