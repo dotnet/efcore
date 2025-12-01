@@ -1554,8 +1554,10 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         };
 
     /// <summary>
-    /// Foo
+    /// Calculates the number of padding parameters needed to align the total count to the nearest bucket size.
     /// </summary>
+    /// <param name="count">Number of value parameters.</param>
+    /// <param name="padFactor">Padding factor.</param>
     [EntityFrameworkInternal]
     protected virtual int CalculatePadding(int count, int padFactor)
         => (padFactor - (count % padFactor)) % padFactor;
