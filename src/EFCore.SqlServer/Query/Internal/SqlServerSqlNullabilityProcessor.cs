@@ -32,7 +32,7 @@ public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
     private readonly ISqlServerSingletonOptions _sqlServerSingletonOptions;
 
     private int _openJsonAliasCounter;
-    private int _parametersCount;
+    private int _totalParameterCount;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -62,7 +62,7 @@ public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
             (count, elementTypeMapping) => CalculatePadding(count, CalculateParameterBucketSize(count, elementTypeMapping)));
 #pragma warning restore EF1001
         parametersCounter.Visit(queryExpression);
-        _parametersCount = parametersCounter.Count;
+        _totalParameterCount = parametersCounter.Count;
 
         var result = base.Process(queryExpression, parametersDecorator);
         _openJsonAliasCounter = 0;
@@ -318,7 +318,7 @@ public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
         // SQL Server has limit on number of parameters in a query.
         // If we're over that limit, we switch to using single parameter
         // and processing it through JSON functions.
-        if (_parametersCount > MaxParameterCount)
+        if (_totalParameterCount > MaxParameterCount)
         {
             var parameters = ParametersDecorator.GetAndDisableCaching();
             var values = ((IEnumerable?)parameters[valuesParameter.Name])?.Cast<object>().ToList() ?? [];
@@ -403,11 +403,11 @@ public class ParametersCounter(
     {
         switch (node)
         {
-            case ValuesExpression valuesExpression when valuesExpression.ValuesParameter is { } valuesParameter:
+            case ValuesExpression { ValuesParameter: { } valuesParameter }:
                 ProcessCollectionParameter(valuesParameter, false);
                 break;
 
-            case InExpression inExpression when inExpression.ValuesParameter is { } valuesParameter:
+            case InExpression { ValuesParameter: { } valuesParameter }:
                 ProcessCollectionParameter(valuesParameter, true);
                 break;
 
@@ -425,7 +425,11 @@ public class ParametersCounter(
             return;
         }
 
-        Count++;
+        if ((sqlParameterExpression.TranslationMode ?? collectionParameterTranslationMode) is not ParameterTranslationMode.Constant)
+        {
+            Count++;
+        }
+
     }
 
     private void ProcessCollectionParameter(SqlParameterExpression sqlParameterExpression, bool bucketization)
@@ -440,6 +444,7 @@ public class ParametersCounter(
             var parameters = parametersDecorator.GetAndDisableCaching();
             var count = ((IEnumerable?)parameters[sqlParameterExpression.Name])?.Cast<object>().Count() ?? 0;
             Count += count;
+
             if (bucketization)
             {
                 var elementTypeMapping = (RelationalTypeMapping)sqlParameterExpression.TypeMapping!.ElementTypeMapping!;
