@@ -736,6 +736,13 @@ namespace System.Runtime.CompilerServices
 
                         if (parameterType == typeof(CancellationToken))
                         {
+                            // Set the cancellation token on the query context
+                            if (!declaredQueryContextVariable)
+                            {
+                                code.AppendLine("var queryContext = precompiledQueryContext.QueryContext;");
+                                declaredQueryContextVariable = true;
+                            }
+                            code.AppendLine($"queryContext.CancellationToken = {parameterName};");
                             continue;
                         }
 
