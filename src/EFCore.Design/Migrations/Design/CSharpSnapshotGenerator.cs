@@ -421,10 +421,24 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         string entityTypeBuilderName,
         IEnumerable<IProperty> properties,
         IndentedStringBuilder stringBuilder)
+        => GenerateProperties(entityTypeBuilderName, properties, stringBuilder, isInComplexCollection: false);
+
+    /// <summary>
+    ///     Generates code for <see cref="IProperty" /> objects.
+    /// </summary>
+    /// <param name="entityTypeBuilderName">The name of the builder variable.</param>
+    /// <param name="properties">The properties.</param>
+    /// <param name="stringBuilder">The builder code is added to.</param>
+    /// <param name="isInComplexCollection">Whether the properties are in a complex collection.</param>
+    protected virtual void GenerateProperties(
+        string entityTypeBuilderName,
+        IEnumerable<IProperty> properties,
+        IndentedStringBuilder stringBuilder,
+        bool isInComplexCollection)
     {
         foreach (var property in properties)
         {
-            GenerateProperty(entityTypeBuilderName, property, stringBuilder);
+            GenerateProperty(entityTypeBuilderName, property, stringBuilder, isInComplexCollection);
         }
     }
 
@@ -438,6 +452,20 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         string entityTypeBuilderName,
         IProperty property,
         IndentedStringBuilder stringBuilder)
+        => GenerateProperty(entityTypeBuilderName, property, stringBuilder, isInComplexCollection: false);
+
+    /// <summary>
+    ///     Generates code for an <see cref="IProperty" />.
+    /// </summary>
+    /// <param name="entityTypeBuilderName">The name of the builder variable.</param>
+    /// <param name="property">The property.</param>
+    /// <param name="stringBuilder">The builder code is added to.</param>
+    /// <param name="isInComplexCollection">Whether the property is in a complex collection.</param>
+    protected virtual void GenerateProperty(
+        string entityTypeBuilderName,
+        IProperty property,
+        IndentedStringBuilder stringBuilder,
+        bool isInComplexCollection)
     {
         var clrType = (FindValueConverter(property)?.ProviderClrType ?? property.ClrType)
             .MakeNullable(property.IsNullable);
@@ -452,7 +480,8 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         // Note that GenerateAnnotations below does the corresponding decrement
         stringBuilder.IncrementIndent();
 
-        if (property.IsConcurrencyToken)
+        // ComplexCollectionTypePropertyBuilder doesn't have IsConcurrencyToken method
+        if (!isInComplexCollection && property.IsConcurrencyToken)
         {
             stringBuilder
                 .AppendLine()
@@ -466,7 +495,8 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                 .Append(".IsRequired()");
         }
 
-        if (property.ValueGenerated != ValueGenerated.Never)
+        // ComplexCollectionTypePropertyBuilder doesn't have ValueGenerated* methods
+        if (!isInComplexCollection && property.ValueGenerated != ValueGenerated.Never)
         {
             stringBuilder
                 .AppendLine()
@@ -480,7 +510,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                                 : ".ValueGeneratedOnAddOrUpdate()");
         }
 
-        GeneratePropertyAnnotations(propertyBuilderName, property, stringBuilder);
+        GeneratePropertyAnnotations(propertyBuilderName, property, stringBuilder, isInComplexCollection);
     }
 
     /// <summary>
@@ -493,13 +523,32 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         string propertyBuilderName,
         IProperty property,
         IndentedStringBuilder stringBuilder)
+        => GeneratePropertyAnnotations(propertyBuilderName, property, stringBuilder, isInComplexCollection: false);
+
+    /// <summary>
+    ///     Generates code for the annotations on an <see cref="IProperty" />.
+    /// </summary>
+    /// <param name="propertyBuilderName">The name of the builder variable.</param>
+    /// <param name="property">The property.</param>
+    /// <param name="stringBuilder">The builder code is added to.</param>
+    /// <param name="isInComplexCollection">Whether the property is in a complex collection.</param>
+    protected virtual void GeneratePropertyAnnotations(
+        string propertyBuilderName,
+        IProperty property,
+        IndentedStringBuilder stringBuilder,
+        bool isInComplexCollection)
     {
         var annotations = Dependencies.AnnotationCodeGenerator
             .FilterIgnoredAnnotations(property.GetAnnotations())
             .ToDictionary(a => a.Name, a => a);
 
-        GenerateFluentApiForMaxLength(property, stringBuilder);
-        GenerateFluentApiForPrecisionAndScale(property, stringBuilder);
+        // ComplexCollectionTypePropertyBuilder doesn't have HasMaxLength or HasPrecision methods
+        if (!isInComplexCollection)
+        {
+            GenerateFluentApiForMaxLength(property, stringBuilder);
+            GenerateFluentApiForPrecisionAndScale(property, stringBuilder);
+        }
+
         GenerateFluentApiForIsUnicode(property, stringBuilder);
 
         if (!annotations.ContainsKey(RelationalAnnotationNames.ColumnType)
@@ -594,7 +643,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                         .AppendLine(".IsRequired();");
                 }
 
-                GenerateProperties(complexTypeBuilderName, complexType.GetDeclaredProperties(), stringBuilder);
+                GenerateProperties(complexTypeBuilderName, complexType.GetDeclaredProperties(), stringBuilder, complexProperty.IsCollection);
 
                 GenerateComplexProperties(complexTypeBuilderName, complexType.GetDeclaredComplexProperties(), stringBuilder);
 
