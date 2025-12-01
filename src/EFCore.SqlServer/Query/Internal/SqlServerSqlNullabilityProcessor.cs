@@ -397,7 +397,7 @@ public class ParametersCounter(
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public int Count { get; private set; } = 0;
+    public virtual int Count { get; private set; } = 0;
 
     private readonly HashSet<SqlParameterExpression> _visitedParameters = new();
 
