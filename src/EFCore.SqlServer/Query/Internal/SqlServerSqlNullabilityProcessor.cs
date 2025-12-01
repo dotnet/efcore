@@ -423,7 +423,7 @@ public class ParametersCounter(
 
     private void ProcessParameter(SqlParameterExpression sqlParameterExpression)
     {
-        if (!_visitedParameters.Add(sqlParameterExpression))
+        if (_visitedParameters.Contains(sqlParameterExpression))
         {
             return;
         }
@@ -433,11 +433,12 @@ public class ParametersCounter(
             Count++;
         }
 
+        _visitedParameters.Add(sqlParameterExpression);
     }
 
     private void ProcessCollectionParameter(SqlParameterExpression sqlParameterExpression, bool bucketization)
     {
-        if (!_visitedParameters.Add(sqlParameterExpression))
+        if (_visitedParameters.Contains(sqlParameterExpression))
         {
             return;
         }
@@ -458,5 +459,7 @@ public class ParametersCounter(
         {
             ProcessParameter(sqlParameterExpression);
         }
+
+        _visitedParameters.Add(sqlParameterExpression);
     }
 }
