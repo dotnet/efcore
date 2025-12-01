@@ -520,21 +520,6 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
     }
 
     [ConditionalFact]
-    public virtual async Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values()
-    {
-        if (NumberOfValuesForHugeParameterCollectionTests is null)
-        {
-            return;
-        }
-
-        var extra = Enumerable.Range(1000, (int)NumberOfValuesForHugeParameterCollectionTests);
-        var ints = new[] { 10, 999 }.Concat(extra).ToArray();
-
-        await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => ints.Contains(c.Int)));
-        await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !ints.Contains(c.Int)));
-    }
-
-    [ConditionalFact]
     public virtual Task Parameter_collection_Count_with_huge_number_of_values_over_5_operations()
     {
         if (NumberOfValuesForHugeParameterCollectionTests is null)
@@ -578,6 +563,21 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
             .Where(c => extra.Count(i => i > c.Id) > 0)
             .Where(c => extra.Count(i => i > c.Id) > 0)
             .Where(c => extra.Count(i => i > c.Id) > 0));
+    }
+
+    [ConditionalFact]
+    public virtual async Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values()
+    {
+        if (NumberOfValuesForHugeParameterCollectionTests is null)
+        {
+            return;
+        }
+
+        var extra = Enumerable.Range(1000, (int)NumberOfValuesForHugeParameterCollectionTests);
+        var ints = new[] { 10, 999 }.Concat(extra).ToArray();
+
+        await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => ints.Contains(c.Int)));
+        await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !ints.Contains(c.Int)));
     }
 
     [ConditionalFact]
