@@ -399,7 +399,14 @@ public class ParametersCounter(
     [EntityFrameworkInternal]
     public virtual int Count { get; private set; }
 
-    private readonly HashSet<SqlParameterExpression> _visitedParameters = new();
+    private readonly HashSet<SqlParameterExpression> _visitedParameters =
+        new(EqualityComparer<SqlParameterExpression>.Create(
+            (lhs, rhs) =>
+                ReferenceEquals(lhs, rhs)
+                || (lhs is not null && rhs is not null
+                    && lhs.InvariantName == rhs.InvariantName
+                    && lhs.TranslationMode == rhs.TranslationMode),
+            x => HashCode.Combine(x.InvariantName, x.TranslationMode)));
 
     /// <inheritdoc/>
     protected override Expression VisitExtension(Expression node)
@@ -415,52 +422,41 @@ public class ParametersCounter(
                 break;
 
             case SqlParameterExpression sqlParameterExpression:
-                ProcessParameter(sqlParameterExpression);
+                if (_visitedParameters.Add(sqlParameterExpression))
+                {
+                    Count++;
+                }
                 break;
         }
 
         return base.VisitExtension(node);
     }
 
-    private void ProcessParameter(SqlParameterExpression sqlParameterExpression)
-    {
-        if (_visitedParameters.Contains(sqlParameterExpression))
-        {
-            return;
-        }
-
-        if ((sqlParameterExpression.TranslationMode ?? collectionParameterTranslationMode) is not ParameterTranslationMode.Constant)
-        {
-            Count++;
-        }
-
-        _visitedParameters.Add(sqlParameterExpression);
-    }
-
     private void ProcessCollectionParameter(SqlParameterExpression sqlParameterExpression, bool bucketization)
     {
-        if (_visitedParameters.Contains(sqlParameterExpression))
+        if (!_visitedParameters.Add(sqlParameterExpression))
         {
             return;
         }
 
-        if ((sqlParameterExpression.TranslationMode ?? collectionParameterTranslationMode) is ParameterTranslationMode.MultipleParameters)
+        switch (sqlParameterExpression.TranslationMode ?? collectionParameterTranslationMode)
         {
-            var parameters = parametersDecorator.GetAndDisableCaching();
-            var count = ((IEnumerable?)parameters[sqlParameterExpression.Name])?.Cast<object>().Count() ?? 0;
-            Count += count;
+            case ParameterTranslationMode.MultipleParameters:
+                var parameters = parametersDecorator.GetAndDisableCaching();
+                var count = ((IEnumerable?)parameters[sqlParameterExpression.Name])?.Cast<object>().Count() ?? 0;
+                Count += count;
 
-            if (bucketization)
-            {
-                var elementTypeMapping = (RelationalTypeMapping)sqlParameterExpression.TypeMapping!.ElementTypeMapping!;
-                Count += bucketizationPadding(count, elementTypeMapping);
-            }
-        }
-        else
-        {
-            ProcessParameter(sqlParameterExpression);
-        }
+                if (bucketization)
+                {
+                    var elementTypeMapping = (RelationalTypeMapping)sqlParameterExpression.TypeMapping!.ElementTypeMapping!;
+                    Count += bucketizationPadding(count, elementTypeMapping);
+                }
 
-        _visitedParameters.Add(sqlParameterExpression);
+                break;
+
+            case not ParameterTranslationMode.Parameter:
+                Count++;
+                break;
+        }
     }
 }
