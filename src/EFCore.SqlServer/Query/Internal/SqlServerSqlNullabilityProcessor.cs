@@ -470,9 +470,15 @@ public class ParametersCounter(
 
                 break;
 
-            case not ParameterTranslationMode.Parameter:
+            case ParameterTranslationMode.Parameter:
                 Count++;
                 break;
+
+            case ParameterTranslationMode.Constant:
+                break;
+
+            default:
+                throw new UnreachableException();
         }
     }
 }
