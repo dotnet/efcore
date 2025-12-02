@@ -6278,10 +6278,16 @@ namespace RootNamespace
                                     bbb.ComplexCollection(x => x.Properties, bbbb =>
                                     {
                                         bbbb.HasJsonPropertyName("JsonProps");
-                                        // Set MaxLength directly on the model to simulate convention behavior
-                                        // This should NOT appear in snapshot because ComplexCollectionTypePropertyBuilder
-                                        // doesn't support HasMaxLength
-                                        bbbb.Metadata.ComplexType.FindProperty("Name")!.SetMaxLength(100);
+                                        // Set annotations directly on the model to simulate convention behavior
+                                        // These should NOT appear in snapshot because ComplexCollectionTypePropertyBuilder
+                                        // doesn't support these methods
+                                        var complexType = bbbb.Metadata.ComplexType;
+                                        var nameProperty = (IMutableProperty)complexType.FindProperty("Name")!;
+                                        nameProperty.SetMaxLength(100);
+                                        nameProperty.SetPrecision(10);
+                                        nameProperty.SetScale(2);
+                                        nameProperty.IsConcurrencyToken = true;
+                                        nameProperty.ValueGenerated = ValueGenerated.OnAdd;
                                     });
                                 });
                         });

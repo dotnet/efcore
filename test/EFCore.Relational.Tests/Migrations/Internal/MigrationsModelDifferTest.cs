@@ -9952,14 +9952,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 var valueProperty = complexProperty.ComplexType.FindProperty("Value")!;
                 ((IMutableProperty)valueProperty).SetMaxLength(255);
             },
-            target =>
-            {
-                // Target model also has MaxLength set (same as source)
-                var entity = target.Model.FindEntityType("Entity");
-                var complexProperty = entity!.FindComplexProperty("ComplexCollection")!;
-                var valueProperty = complexProperty.ComplexType.FindProperty("Value")!;
-                ((IMutableProperty)valueProperty).SetMaxLength(255);
-            },
+            target => { },
             Assert.Empty);
 
     protected class MyJsonComplex
