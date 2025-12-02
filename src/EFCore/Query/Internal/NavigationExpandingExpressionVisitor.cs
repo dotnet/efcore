@@ -58,6 +58,9 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
 
     private readonly Dictionary<string, object?> _parameters = new();
 
+    private static readonly bool UseOldBehavior37247 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37247", out var enabled) && enabled;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -1063,6 +1066,17 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
     private Expression ProcessExecuteUpdate(NavigationExpansionExpression source, MethodInfo method, Expression setters)
     {
         source = (NavigationExpansionExpression)_pendingSelectorExpandingExpressionVisitor.Visit(source);
+
+        if (!UseOldBehavior37247)
+        {
+            // Apply any pending selector before processing the ExecuteUpdate setters; this adds a Select() (if necessary) before
+            // ExecuteUpdate, to avoid the pending selector flowing into each setter lambda and making it more complicated.
+            var newStructure = SnapshotExpression(source.PendingSelector);
+            var queryable = Reduce(source);
+            var navigationTree = new NavigationTreeExpression(newStructure);
+            var parameterName = source.CurrentParameter.Name ?? GetParameterName("e");
+            source = new NavigationExpansionExpression(queryable, navigationTree, navigationTree, parameterName);
+        }
 
         NewArrayExpression settersArray;
         switch (setters)

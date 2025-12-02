@@ -1530,6 +1530,34 @@ WHERE "c"."CustomerID" LIKE 'F%'
 """);
     }
 
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    public override async Task Update_with_PK_pushdown_and_join_and_multiple_setters(bool async)
+    {
+        await base.Update_with_PK_pushdown_and_join_and_multiple_setters(async);
+
+        AssertExecuteUpdateSql(
+            """
+@p='1'
+@p1='10'
+
+UPDATE "Order Details" AS "o2"
+SET "Quantity" = CAST(@p AS INTEGER),
+    "UnitPrice" = @p1
+FROM (
+    SELECT "o1"."OrderID", "o1"."ProductID"
+    FROM (
+        SELECT "o"."OrderID", "o"."ProductID"
+        FROM "Order Details" AS "o"
+        ORDER BY "o"."OrderID"
+        LIMIT -1 OFFSET @p
+    ) AS "o1"
+    INNER JOIN "Orders" AS "o0" ON "o1"."OrderID" = "o0"."OrderID"
+    WHERE "o0"."CustomerID" = 'ALFKI'
+) AS "s"
+WHERE "o2"."OrderID" = "s"."OrderID" AND "o2"."ProductID" = "s"."ProductID"
+""");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
