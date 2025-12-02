@@ -5,7 +5,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Translations.Temporal;
 
 public class TimeSpanTranslationsCosmosTest : TimeSpanTranslationsTestBase<BasicTypesQueryCosmosFixture>
 {
-    public TimeSpanTranslationsCosmosTest(BasicTypesQueryCosmosFixture fixture, ITestOutputHelper testOutputHelper) : base(fixture)
+    public TimeSpanTranslationsCosmosTest(BasicTypesQueryCosmosFixture fixture, ITestOutputHelper testOutputHelper)
+        : base(fixture)
     {
         Fixture.TestSqlLoggerFactory.Clear();
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);

@@ -5,7 +5,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Translations;
 
 public class EnumTranslationsCosmosTest : EnumTranslationsTestBase<BasicTypesQueryCosmosFixture>
 {
-    public EnumTranslationsCosmosTest(BasicTypesQueryCosmosFixture fixture, ITestOutputHelper testOutputHelper) : base(fixture)
+    public EnumTranslationsCosmosTest(BasicTypesQueryCosmosFixture fixture, ITestOutputHelper testOutputHelper)
+        : base(fixture)
     {
         Fixture.TestSqlLoggerFactory.Clear();
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
@@ -31,7 +32,7 @@ WHERE (c["Enum"] = 0)
 
         AssertSql(
             """
-@basicEnum=?
+@basicEnum='0'
 
 SELECT VALUE c
 FROM root c
@@ -57,7 +58,7 @@ WHERE (c["Enum"] = 0)
 
         AssertSql(
             """
-@basicEnum=?
+@basicEnum='0'
 
 SELECT VALUE c
 FROM root c
@@ -83,7 +84,7 @@ WHERE (c["Enum"] = null)
 
         AssertSql(
             """
-@basicEnum=?
+@basicEnum=null
 
 SELECT VALUE c
 FROM root c
@@ -97,7 +98,7 @@ WHERE (c["Enum"] = @basicEnum)
 
         AssertSql(
             """
-@basicEnum=?
+@basicEnum='0'
 
 SELECT VALUE c
 FROM root c
@@ -168,7 +169,7 @@ WHERE ((c["FlagsEnum"] & null) > 0)
 
         AssertSql(
             """
-@flagsEnum=?
+@flagsEnum='8'
 
 SELECT VALUE c
 FROM root c
@@ -182,7 +183,7 @@ WHERE ((c["FlagsEnum"] & @flagsEnum) > 0)
 
         AssertSql(
             """
-@flagsEnum=?
+@flagsEnum='8'
 
 SELECT VALUE c
 FROM root c
@@ -190,7 +191,7 @@ WHERE ((c["FlagsEnum"] & @flagsEnum) > 0)
 """,
             //
             """
-@flagsEnum=?
+@flagsEnum=null
 
 SELECT VALUE c
 FROM root c

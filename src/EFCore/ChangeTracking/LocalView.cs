@@ -5,7 +5,6 @@ using System.Collections;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 
@@ -61,7 +60,6 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     private readonly DbContext _context;
     private readonly IEntityType _entityType;
     private int _countChanges;
-    private IEntityFinder<TEntity>? _finder;
     private int? _count;
     private bool _triggeringStateManagerChange;
     private bool _triggeringObservableChange;
@@ -176,7 +174,7 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     }
 
     /// <summary>
-    ///     Returns an <see cref="IEnumerator{T}" /> for all tracked entities of type <typeparamref name="TEntity"/>
+    ///     Returns an <see cref="IEnumerator{T}" /> for all tracked entities of type <typeparamref name="TEntity" />
     ///     that are not marked as deleted.
     /// </summary>
     /// <returns>An enumerator for the collection.</returns>
@@ -184,7 +182,7 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
         => _context.GetDependencies().StateManager.GetNonDeletedEntities<TEntity>().GetEnumerator();
 
     /// <summary>
-    ///     Returns an <see cref="IEnumerator{T}" /> for all tracked entities of type <typeparamref name="TEntity"/>
+    ///     Returns an <see cref="IEnumerator{T}" /> for all tracked entities of type <typeparamref name="TEntity" />
     ///     that are not marked as deleted.
     /// </summary>
     /// <returns>An enumerator for the collection.</returns>
@@ -237,7 +235,7 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     }
 
     /// <summary>
-    ///     Marks all entities of type <typeparamref name="TEntity"/> being tracked by the <see cref="DbContext" />
+    ///     Marks all entities of type <typeparamref name="TEntity" /> being tracked by the <see cref="DbContext" />
     ///     as <see cref="EntityState.Deleted" />.
     /// </summary>
     /// <remarks>
@@ -280,7 +278,7 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     }
 
     /// <summary>
-    ///     Copies to an array all entities of type <typeparamref name="TEntity"/> that are being tracked and are
+    ///     Copies to an array all entities of type <typeparamref name="TEntity" /> that are being tracked and are
     ///     not marked as Deleted.
     /// </summary>
     /// <remarks>
@@ -382,7 +380,7 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     }
 
     /// <summary>
-    ///     The number of entities of type <typeparamref name="TEntity"/> that are being tracked and are not marked
+    ///     The number of entities of type <typeparamref name="TEntity" /> that are being tracked and are not marked
     ///     as Deleted.
     /// </summary>
     /// <remarks>
@@ -856,6 +854,7 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
         return property;
     }
 
+    [field: AllowNull, MaybeNull]
     private IEntityFinder<TEntity> Finder
-        => _finder ??= (IEntityFinder<TEntity>)_context.GetDependencies().EntityFinderFactory.Create(_entityType);
+        => field ??= (IEntityFinder<TEntity>)_context.GetDependencies().EntityFinderFactory.Create(_entityType);
 }

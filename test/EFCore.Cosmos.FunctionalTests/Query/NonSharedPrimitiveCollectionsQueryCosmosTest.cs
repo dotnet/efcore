@@ -370,8 +370,7 @@ WHERE (c["$type"] = "TestEntityWithOwned")
         => CosmosTestStoreFactory.Instance;
 
     protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-        => base.AddOptions(builder).ConfigureWarnings(
-            w => w.Ignore(CosmosEventId.NoPartitionKeyDefined));
+        => base.AddOptions(builder).ConfigureWarnings(w => w.Ignore(CosmosEventId.NoPartitionKeyDefined));
 
     protected TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ListLoggerFactory;

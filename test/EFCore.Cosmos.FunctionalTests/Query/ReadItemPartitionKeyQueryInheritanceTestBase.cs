@@ -152,11 +152,10 @@ public abstract class ReadItemPartitionKeyQueryInheritanceTestBase<TFixture> : R
         return AssertQuery(
             async: true,
             ss => ss.Set<DerivedHierarchicalPartitionKeyEntity>()
-                .Where(
-                    e => e.Id == Guid.Parse("316C846C-787F-44B9-AADF-272F1658C5FF")
-                        && e.PartitionKey1 == "PK1"
-                        && e.PartitionKey2 == partitionKey2
-                        && e.PartitionKey3));
+                .Where(e => e.Id == Guid.Parse("316C846C-787F-44B9-AADF-272F1658C5FF")
+                    && e.PartitionKey1 == "PK1"
+                    && e.PartitionKey2 == partitionKey2
+                    && e.PartitionKey3));
     }
 
     [ConditionalFact]
@@ -190,8 +189,8 @@ public abstract class ReadItemPartitionKeyQueryInheritanceTestBase<TFixture> : R
 
         return AssertQuery(
             async: true,
-            ss => ss.Set<DerivedSinglePartitionKeyEntity>().Where(
-                e => e.Id == Guid.Parse("188D3253-81BE-4A87-B58F-A2BD07E6B98C") && e.PartitionKey == partitionKey));
+            ss => ss.Set<DerivedSinglePartitionKeyEntity>().Where(e
+                => e.Id == Guid.Parse("188D3253-81BE-4A87-B58F-A2BD07E6B98C") && e.PartitionKey == partitionKey));
     }
 
     [ConditionalFact]
@@ -211,8 +210,8 @@ public abstract class ReadItemPartitionKeyQueryInheritanceTestBase<TFixture> : R
 
         return AssertSingle(
             async: true,
-            ss => ss.Set<DerivedSinglePartitionKeyEntity>().Where(
-                e => e.Id == Guid.Parse("188D3253-81BE-4A87-B58F-A2BD07E6B98C") && e.PartitionKey == partitionKey));
+            ss => ss.Set<DerivedSinglePartitionKeyEntity>().Where(e
+                => e.Id == Guid.Parse("188D3253-81BE-4A87-B58F-A2BD07E6B98C") && e.PartitionKey == partitionKey));
     }
 
     [ConditionalFact]
@@ -242,9 +241,9 @@ public abstract class ReadItemPartitionKeyQueryInheritanceTestBase<TFixture> : R
     public virtual Task ReadItem_with_EF_Property_leaf()
         => AssertQuery(
             async: true,
-            ss => ss.Set<DerivedSinglePartitionKeyEntity>().Where(
-                e => EF.Property<Guid>(e, nameof(DerivedSinglePartitionKeyEntity.Id)) == Guid.Parse("188D3253-81BE-4A87-B58F-A2BD07E6B98C")
-                    && EF.Property<string>(e, nameof(DerivedSinglePartitionKeyEntity.PartitionKey)) == "PK1"));
+            ss => ss.Set<DerivedSinglePartitionKeyEntity>().Where(e
+                => EF.Property<Guid>(e, nameof(DerivedSinglePartitionKeyEntity.Id)) == Guid.Parse("188D3253-81BE-4A87-B58F-A2BD07E6B98C")
+                && EF.Property<string>(e, nameof(DerivedSinglePartitionKeyEntity.PartitionKey)) == "PK1"));
 
     [ConditionalFact]
     public virtual Task ReadItem_with_WithPartitionKey_leaf()
@@ -269,7 +268,10 @@ public abstract class ReadItemPartitionKeyQueryInheritanceTestBase<TFixture> : R
 
         return AssertQuery(
             async: true,
-            ss => ss.Set<DerivedSinglePartitionKeyEntity>().Where(e => e.Id == Guid.Parse("188D3253-81BE-4A87-B58F-A2BD07E6B98C") && e.Id == Guid.Parse("11F8D1FD-7472-46F5-9E20-16AF42B3B8D1") && e.PartitionKey == partitionKey),
+            ss => ss.Set<DerivedSinglePartitionKeyEntity>().Where(e
+                => e.Id == Guid.Parse("188D3253-81BE-4A87-B58F-A2BD07E6B98C")
+                && e.Id == Guid.Parse("11F8D1FD-7472-46F5-9E20-16AF42B3B8D1")
+                && e.PartitionKey == partitionKey),
             assertEmpty: true);
     }
 
@@ -309,8 +311,8 @@ public abstract class ReadItemPartitionKeyQueryInheritanceTestBase<TFixture> : R
     public virtual Task ReadItem_with_AsNoTracking_leaf()
         => AssertQuery(
             async: true,
-            ss => ss.Set<DerivedSinglePartitionKeyEntity>().AsNoTracking().Where(
-                e => e.Id == Guid.Parse("188D3253-81BE-4A87-B58F-A2BD07E6B98C") && e.PartitionKey == "PK1"));
+            ss => ss.Set<DerivedSinglePartitionKeyEntity>().AsNoTracking().Where(e
+                => e.Id == Guid.Parse("188D3253-81BE-4A87-B58F-A2BD07E6B98C") && e.PartitionKey == "PK1"));
 
     [ConditionalFact]
     public virtual Task ReadItem_with_AsNoTrackingWithIdentityResolution_leaf()
@@ -327,10 +329,9 @@ public abstract class ReadItemPartitionKeyQueryInheritanceTestBase<TFixture> : R
         return AssertSingle(
             async: true,
             ss => ss.Set<DerivedSinglePartitionKeyEntity>()
-                .Where(
-                    e => e.Id == Guid.Parse("188D3253-81BE-4A87-B58F-A2BD07E6B98C")
-                        && EF.Property<string>(e, "$type") == nameof(DerivedSinglePartitionKeyEntity)
-                        && e.PartitionKey == partitionKey),
+                .Where(e => e.Id == Guid.Parse("188D3253-81BE-4A87-B58F-A2BD07E6B98C")
+                    && EF.Property<string>(e, "$type") == nameof(DerivedSinglePartitionKeyEntity)
+                    && e.PartitionKey == partitionKey),
             ss => ss.Set<DerivedSinglePartitionKeyEntity>()
                 .Where(e => e.Id == Guid.Parse("188D3253-81BE-4A87-B58F-A2BD07E6B98C") && e.PartitionKey == partitionKey));
     }
@@ -343,10 +344,9 @@ public abstract class ReadItemPartitionKeyQueryInheritanceTestBase<TFixture> : R
         return AssertQuery(
             async: true,
             ss => ss.Set<DerivedSinglePartitionKeyEntity>()
-                .Where(
-                    e => e.Id == Guid.Parse("188D3253-81BE-4A87-B58F-A2BD07E6B98C")
-                        && EF.Property<string>(e, "$type") == nameof(SinglePartitionKeyEntity)
-                        && e.PartitionKey == partitionKey),
+                .Where(e => e.Id == Guid.Parse("188D3253-81BE-4A87-B58F-A2BD07E6B98C")
+                    && EF.Property<string>(e, "$type") == nameof(SinglePartitionKeyEntity)
+                    && e.PartitionKey == partitionKey),
             ss => ss.Set<DerivedSinglePartitionKeyEntity>().Where(e => false),
             assertEmpty: true);
     }
@@ -360,11 +360,10 @@ public abstract class ReadItemPartitionKeyQueryInheritanceTestBase<TFixture> : R
         return AssertSingle(
             async: true,
             ss => ss.Set<DerivedSinglePartitionKeyEntity>()
-                .Where(
-                    e => e.Id == Guid.Parse("188D3253-81BE-4A87-B58F-A2BD07E6B98C")
-                        && EF.Property<string>(e, "$type") == discriminator
-                        && e.PartitionKey == partitionKey),
-            ss => ss.Set<DerivedSinglePartitionKeyEntity>().Where(
-                e => e.Id == Guid.Parse("188D3253-81BE-4A87-B58F-A2BD07E6B98C") && e.PartitionKey == partitionKey));
+                .Where(e => e.Id == Guid.Parse("188D3253-81BE-4A87-B58F-A2BD07E6B98C")
+                    && EF.Property<string>(e, "$type") == discriminator
+                    && e.PartitionKey == partitionKey),
+            ss => ss.Set<DerivedSinglePartitionKeyEntity>().Where(e
+                => e.Id == Guid.Parse("188D3253-81BE-4A87-B58F-A2BD07E6B98C") && e.PartitionKey == partitionKey));
     }
 }

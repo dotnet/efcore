@@ -346,8 +346,7 @@ public class RelationalCommandTest
         Assert.Equal(expectedCount, fakeDbConnection.CloseCount);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public async Task Can_ExecuteReader_multiple_times(bool async)
     {
         var diagnosticEvents = new List<Tuple<string, object>>();
@@ -439,51 +438,44 @@ public class RelationalCommandTest
         => new()
         {
             {
-                new CommandAction(
-                    (connection, command, parameterValues, logger)
-                        => command.ExecuteNonQuery(
-                            new RelationalCommandParameterObject(connection, parameterValues, null, null, logger))),
+                new CommandAction((connection, command, parameterValues, logger)
+                    => command.ExecuteNonQuery(
+                        new RelationalCommandParameterObject(connection, parameterValues, null, null, logger))),
                 DbCommandMethod.ExecuteNonQuery, false
             },
             {
-                new CommandAction(
-                    (connection, command, parameterValues, logger)
-                        => command.ExecuteScalar(
-                            new RelationalCommandParameterObject(connection, parameterValues, null, null, logger))),
+                new CommandAction((connection, command, parameterValues, logger)
+                    => command.ExecuteScalar(
+                        new RelationalCommandParameterObject(connection, parameterValues, null, null, logger))),
                 DbCommandMethod.ExecuteScalar, false
             },
             {
-                new CommandAction(
-                    (connection, command, parameterValues, logger)
-                        => command.ExecuteReader(
-                            new RelationalCommandParameterObject(connection, parameterValues, null, null, logger))),
+                new CommandAction((connection, command, parameterValues, logger)
+                    => command.ExecuteReader(
+                        new RelationalCommandParameterObject(connection, parameterValues, null, null, logger))),
                 DbCommandMethod.ExecuteReader, false
             },
             {
-                new CommandFunc(
-                    (connection, command, parameterValues, logger)
-                        => command.ExecuteNonQueryAsync(
-                            new RelationalCommandParameterObject(connection, parameterValues, null, null, logger))),
+                new CommandFunc((connection, command, parameterValues, logger)
+                    => command.ExecuteNonQueryAsync(
+                        new RelationalCommandParameterObject(connection, parameterValues, null, null, logger))),
                 DbCommandMethod.ExecuteNonQuery, true
             },
             {
-                new CommandFunc(
-                    (connection, command, parameterValues, logger)
-                        => command.ExecuteScalarAsync(
-                            new RelationalCommandParameterObject(connection, parameterValues, null, null, logger))),
+                new CommandFunc((connection, command, parameterValues, logger)
+                    => command.ExecuteScalarAsync(
+                        new RelationalCommandParameterObject(connection, parameterValues, null, null, logger))),
                 DbCommandMethod.ExecuteScalar, true
             },
             {
-                new CommandFunc(
-                    (connection, command, parameterValues, logger)
-                        => command.ExecuteReaderAsync(
-                            new RelationalCommandParameterObject(connection, parameterValues, null, null, logger))),
+                new CommandFunc((connection, command, parameterValues, logger)
+                    => command.ExecuteReaderAsync(
+                        new RelationalCommandParameterObject(connection, parameterValues, null, null, logger))),
                 DbCommandMethod.ExecuteReader, true
             }
         };
 
-    [ConditionalTheory]
-    [MemberData(nameof(CommandActions))]
+    [ConditionalTheory, MemberData(nameof(CommandActions))]
     public async Task Throws_when_parameters_are_configured_and_parameter_values_is_null(
         Delegate commandDelegate,
         DbCommandMethod _,
@@ -492,35 +484,32 @@ public class RelationalCommandTest
         var fakeConnection = CreateConnection();
 
         var relationalCommand = CreateRelationalCommand(
-            parameters: new[]
-            {
+            parameters:
+            [
                 new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false),
                 new TypeMappedRelationalParameter(
                     "SecondInvariant", "SecondParameter", new LongTypeMapping("long"), true),
                 new TypeMappedRelationalParameter("ThirdInvariant", "ThirdParameter", RelationalTypeMapping.NullMapping, null)
-            });
+            ]);
 
         if (async)
         {
             Assert.Equal(
                 RelationalStrings.MissingParameterValue("FirstInvariant"),
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    async ()
-                        => await ((CommandFunc)commandDelegate)(fakeConnection, relationalCommand, null, null))).Message);
+                (await Assert.ThrowsAsync<InvalidOperationException>(async ()
+                    => await ((CommandFunc)commandDelegate)(fakeConnection, relationalCommand, null, null))).Message);
         }
         else
         {
             Assert.Equal(
                 RelationalStrings.MissingParameterValue("FirstInvariant"),
-                Assert.Throws<InvalidOperationException>(
-                        ()
-                            => ((CommandAction)commandDelegate)(fakeConnection, relationalCommand, null, null))
+                Assert.Throws<InvalidOperationException>(()
+                        => ((CommandAction)commandDelegate)(fakeConnection, relationalCommand, null, null))
                     .Message);
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(CommandActions))]
+    [ConditionalTheory, MemberData(nameof(CommandActions))]
     public async Task Throws_when_parameters_are_configured_and_value_is_missing(
         Delegate commandDelegate,
         DbCommandMethod _,
@@ -529,13 +518,13 @@ public class RelationalCommandTest
         var fakeConnection = CreateConnection();
 
         var relationalCommand = CreateRelationalCommand(
-            parameters: new[]
-            {
+            parameters:
+            [
                 new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false),
                 new TypeMappedRelationalParameter(
                     "SecondInvariant", "SecondParameter", new LongTypeMapping("long"), true),
                 new TypeMappedRelationalParameter("ThirdInvariant", "ThirdParameter", RelationalTypeMapping.NullMapping, null)
-            });
+            ]);
 
         var parameterValues = new Dictionary<string, object> { { "FirstInvariant", 17 }, { "SecondInvariant", 18L } };
 
@@ -543,23 +532,20 @@ public class RelationalCommandTest
         {
             Assert.Equal(
                 RelationalStrings.MissingParameterValue("ThirdInvariant"),
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    async ()
-                        => await ((CommandFunc)commandDelegate)(fakeConnection, relationalCommand, parameterValues, null))).Message);
+                (await Assert.ThrowsAsync<InvalidOperationException>(async ()
+                    => await ((CommandFunc)commandDelegate)(fakeConnection, relationalCommand, parameterValues, null))).Message);
         }
         else
         {
             Assert.Equal(
                 RelationalStrings.MissingParameterValue("ThirdInvariant"),
-                Assert.Throws<InvalidOperationException>(
-                        ()
-                            => ((CommandAction)commandDelegate)(fakeConnection, relationalCommand, parameterValues, null))
+                Assert.Throws<InvalidOperationException>(()
+                        => ((CommandAction)commandDelegate)(fakeConnection, relationalCommand, parameterValues, null))
                     .Message);
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(CommandActions))]
+    [ConditionalTheory, MemberData(nameof(CommandActions))]
     public async Task Configures_DbCommand_with_type_mapped_parameters(
         Delegate commandDelegate,
         DbCommandMethod _,
@@ -568,13 +554,13 @@ public class RelationalCommandTest
         var fakeConnection = CreateConnection();
 
         var relationalCommand = CreateRelationalCommand(
-            parameters: new[]
-            {
+            parameters:
+            [
                 new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false),
                 new TypeMappedRelationalParameter(
                     "SecondInvariant", "SecondParameter", new LongTypeMapping("long"), true),
                 new TypeMappedRelationalParameter("ThirdInvariant", "ThirdParameter", RelationalTypeMapping.NullMapping, null)
-            });
+            ]);
 
         var parameterValues = new Dictionary<string, object>
         {
@@ -621,8 +607,7 @@ public class RelationalCommandTest
         Assert.Equal(FakeDbParameter.DefaultDbType, parameter.DbType);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(CommandActions))]
+    [ConditionalTheory, MemberData(nameof(CommandActions))]
     public async Task Configures_DbCommand_with_composite_parameters(
         Delegate commandDelegate,
         DbCommandMethod _,
@@ -631,19 +616,18 @@ public class RelationalCommandTest
         var fakeConnection = CreateConnection();
 
         var relationalCommand = CreateRelationalCommand(
-            parameters: new[]
-            {
+            parameters:
+            [
                 new CompositeRelationalParameter(
                     "CompositeInvariant",
-                    new[]
-                    {
+                    [
                         new TypeMappedRelationalParameter(
                             "FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false),
                         new TypeMappedRelationalParameter(
                             "SecondInvariant", "SecondParameter", new LongTypeMapping("long"), true),
                         new TypeMappedRelationalParameter("ThirdInvariant", "ThirdParameter", RelationalTypeMapping.NullMapping, null)
-                    })
-            });
+                    ])
+            ]);
 
         var parameterValues = new Dictionary<string, object> { { "CompositeInvariant", new object[] { 17, 18L, null } } };
 
@@ -685,8 +669,7 @@ public class RelationalCommandTest
         Assert.Equal(FakeDbParameter.DefaultDbType, parameter.DbType);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(CommandActions))]
+    [ConditionalTheory, MemberData(nameof(CommandActions))]
     public async Task Throws_when_composite_parameters_are_configured_and_value_is_missing(
         Delegate commandDelegate,
         DbCommandMethod _,
@@ -695,19 +678,18 @@ public class RelationalCommandTest
         var fakeConnection = CreateConnection();
 
         var relationalCommand = CreateRelationalCommand(
-            parameters: new[]
-            {
+            parameters:
+            [
                 new CompositeRelationalParameter(
                     "CompositeInvariant",
-                    new[]
-                    {
+                    [
                         new TypeMappedRelationalParameter(
                             "FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false),
                         new TypeMappedRelationalParameter(
                             "SecondInvariant", "SecondParameter", new LongTypeMapping("long"), true),
                         new TypeMappedRelationalParameter("ThirdInvariant", "ThirdParameter", RelationalTypeMapping.NullMapping, null)
-                    })
-            });
+                    ])
+            ]);
 
         var parameterValues = new Dictionary<string, object> { { "CompositeInvariant", new object[] { 17, 18L } } };
 
@@ -715,23 +697,20 @@ public class RelationalCommandTest
         {
             Assert.Equal(
                 RelationalStrings.MissingParameterValue("ThirdInvariant"),
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    async ()
-                        => await ((CommandFunc)commandDelegate)(fakeConnection, relationalCommand, parameterValues, null))).Message);
+                (await Assert.ThrowsAsync<InvalidOperationException>(async ()
+                    => await ((CommandFunc)commandDelegate)(fakeConnection, relationalCommand, parameterValues, null))).Message);
         }
         else
         {
             Assert.Equal(
                 RelationalStrings.MissingParameterValue("ThirdInvariant"),
-                Assert.Throws<InvalidOperationException>(
-                        ()
-                            => ((CommandAction)commandDelegate)(fakeConnection, relationalCommand, parameterValues, null))
+                Assert.Throws<InvalidOperationException>(()
+                        => ((CommandAction)commandDelegate)(fakeConnection, relationalCommand, parameterValues, null))
                     .Message);
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(CommandActions))]
+    [ConditionalTheory, MemberData(nameof(CommandActions))]
     public async Task Throws_when_composite_parameters_are_configured_and_value_is_not_object_array(
         Delegate commandDelegate,
         DbCommandMethod _,
@@ -740,16 +719,15 @@ public class RelationalCommandTest
         var fakeConnection = CreateConnection();
 
         var relationalCommand = CreateRelationalCommand(
-            parameters: new[]
-            {
+            parameters:
+            [
                 new CompositeRelationalParameter(
                     "CompositeInvariant",
-                    new[]
-                    {
+                    [
                         new TypeMappedRelationalParameter(
                             "FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false)
-                    })
-            });
+                    ])
+            ]);
 
         var parameterValues = new Dictionary<string, object> { { "CompositeInvariant", 17 } };
 
@@ -757,23 +735,20 @@ public class RelationalCommandTest
         {
             Assert.Equal(
                 RelationalStrings.ParameterNotObjectArray("CompositeInvariant"),
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    async ()
-                        => await ((CommandFunc)commandDelegate)(fakeConnection, relationalCommand, parameterValues, null))).Message);
+                (await Assert.ThrowsAsync<InvalidOperationException>(async ()
+                    => await ((CommandFunc)commandDelegate)(fakeConnection, relationalCommand, parameterValues, null))).Message);
         }
         else
         {
             Assert.Equal(
                 RelationalStrings.ParameterNotObjectArray("CompositeInvariant"),
-                Assert.Throws<InvalidOperationException>(
-                        ()
-                            => ((CommandAction)commandDelegate)(fakeConnection, relationalCommand, parameterValues, null))
+                Assert.Throws<InvalidOperationException>(()
+                        => ((CommandAction)commandDelegate)(fakeConnection, relationalCommand, parameterValues, null))
                     .Message);
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(CommandActions))]
+    [ConditionalTheory, MemberData(nameof(CommandActions))]
     public async Task Disposes_command_on_exception(
         Delegate commandDelegate,
         DbCommandMethod _,
@@ -801,23 +776,19 @@ public class RelationalCommandTest
 
         if (async)
         {
-            await Assert.ThrowsAsync<InvalidOperationException>(
-                async ()
-                    => await ((CommandFunc)commandDelegate)(fakeConnection, relationalCommand, null, null));
+            await Assert.ThrowsAsync<InvalidOperationException>(async ()
+                => await ((CommandFunc)commandDelegate)(fakeConnection, relationalCommand, null, null));
         }
         else
         {
-            Assert.Throws<InvalidOperationException>(
-                ()
-                    => ((CommandAction)commandDelegate)(fakeConnection, relationalCommand, null, null));
+            Assert.Throws<InvalidOperationException>(()
+                => ((CommandAction)commandDelegate)(fakeConnection, relationalCommand, null, null));
         }
 
         Assert.Equal(1, fakeDbConnection.DbCommands[0].DisposeCount);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public async Task Disposes_command_on_exception_in_reader(bool async)
     {
         var fakeDbConnection = new FakeDbConnection(
@@ -834,15 +805,13 @@ public class RelationalCommandTest
 
         if (async)
         {
-            await Assert.ThrowsAsync<InvalidOperationException>(
-                async () => await relationalCommand.ExecuteReaderAsync(
-                    new RelationalCommandParameterObject(fakeConnection, null, null, null, null)));
+            await Assert.ThrowsAsync<InvalidOperationException>(async () => await relationalCommand.ExecuteReaderAsync(
+                new RelationalCommandParameterObject(fakeConnection, null, null, null, null)));
         }
         else
         {
-            Assert.Throws<InvalidOperationException>(
-                () => relationalCommand.ExecuteReader(
-                    new RelationalCommandParameterObject(fakeConnection, null, null, null, null)));
+            Assert.Throws<InvalidOperationException>(() => relationalCommand.ExecuteReader(
+                new RelationalCommandParameterObject(fakeConnection, null, null, null, null)));
         }
 
         Assert.Equal(1, fakeDbConnection.DbCommands[0].DisposeCount);
@@ -881,8 +850,7 @@ public class RelationalCommandTest
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(CommandActions))]
+    [ConditionalTheory, MemberData(nameof(CommandActions))]
     public async Task Closes_managed_connections_on_exception(
         Delegate commandDelegate,
         DbCommandMethod _,
@@ -910,17 +878,15 @@ public class RelationalCommandTest
 
         if (async)
         {
-            await Assert.ThrowsAsync<InvalidOperationException>(
-                async ()
-                    => await ((CommandFunc)commandDelegate)(fakeConnection, relationalCommand, null, null));
+            await Assert.ThrowsAsync<InvalidOperationException>(async ()
+                => await ((CommandFunc)commandDelegate)(fakeConnection, relationalCommand, null, null));
 
             Assert.Equal(1, fakeDbConnection.OpenAsyncCount);
         }
         else
         {
-            Assert.Throws<InvalidOperationException>(
-                ()
-                    => ((CommandAction)commandDelegate)(fakeConnection, relationalCommand, null, null));
+            Assert.Throws<InvalidOperationException>(()
+                => ((CommandAction)commandDelegate)(fakeConnection, relationalCommand, null, null));
 
             Assert.Equal(1, fakeDbConnection.OpenCount);
         }
@@ -928,8 +894,7 @@ public class RelationalCommandTest
         Assert.Equal(1, fakeDbConnection.CloseCount);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(CommandActions))]
+    [ConditionalTheory, MemberData(nameof(CommandActions))]
     public async Task Does_not_close_unmanaged_connections_on_exception(
         Delegate commandDelegate,
         DbCommandMethod _,
@@ -957,17 +922,15 @@ public class RelationalCommandTest
 
         if (async)
         {
-            await Assert.ThrowsAsync<InvalidOperationException>(
-                async ()
-                    => await ((CommandFunc)commandDelegate)(fakeConnection, relationalCommand, null, null));
+            await Assert.ThrowsAsync<InvalidOperationException>(async ()
+                => await ((CommandFunc)commandDelegate)(fakeConnection, relationalCommand, null, null));
 
             Assert.Equal(1, fakeDbConnection.OpenAsyncCount);
         }
         else
         {
-            Assert.Throws<InvalidOperationException>(
-                ()
-                    => ((CommandAction)commandDelegate)(fakeConnection, relationalCommand, null, null));
+            Assert.Throws<InvalidOperationException>(()
+                => ((CommandAction)commandDelegate)(fakeConnection, relationalCommand, null, null));
 
             Assert.Equal(1, fakeDbConnection.OpenCount);
         }
@@ -975,8 +938,7 @@ public class RelationalCommandTest
         Assert.Equal(1, fakeDbConnection.CloseCount);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(CommandActions))]
+    [ConditionalTheory, MemberData(nameof(CommandActions))]
     public async Task Logs_commands_without_parameter_values(
         Delegate commandDelegate,
         DbCommandMethod _,
@@ -999,11 +961,11 @@ public class RelationalCommandTest
         var relationalCommand = CreateRelationalCommand(
             commandText: "Logged Command",
             logCommandText: "Logged Command2",
-            parameters: new[]
-            {
+            parameters:
+            [
                 new TypeMappedRelationalParameter(
                     "FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false)
-            });
+            ]);
 
         var parameterValues = new Dictionary<string, object> { { "FirstInvariant", 17 } };
 
@@ -1032,8 +994,7 @@ public class RelationalCommandTest
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(CommandActions))]
+    [ConditionalTheory, MemberData(nameof(CommandActions))]
     public async Task Logs_commands_parameter_values(
         Delegate commandDelegate,
         DbCommandMethod _,
@@ -1058,11 +1019,11 @@ public class RelationalCommandTest
         var relationalCommand = CreateRelationalCommand(
             commandText: "Logged Command",
             logCommandText: "Logged Command2",
-            parameters: new[]
-            {
+            parameters:
+            [
                 new TypeMappedRelationalParameter(
                     "FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false)
-            });
+            ]);
 
         var parameterValues = new Dictionary<string, object> { { "FirstInvariant", 17 } };
 
@@ -1095,8 +1056,7 @@ public class RelationalCommandTest
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(CommandActions))]
+    [ConditionalTheory, MemberData(nameof(CommandActions))]
     public async Task Reports_command_diagnostic(
         Delegate commandDelegate,
         DbCommandMethod diagnosticName,
@@ -1117,11 +1077,11 @@ public class RelationalCommandTest
             CreateOptions());
 
         var relationalCommand = CreateRelationalCommand(
-            parameters: new[]
-            {
+            parameters:
+            [
                 new TypeMappedRelationalParameter(
                     "FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false)
-            });
+            ]);
 
         var parameterValues = new Dictionary<string, object> { { "FirstInvariant", 17 } };
 
@@ -1154,8 +1114,7 @@ public class RelationalCommandTest
         Assert.Equal(async, afterData.IsAsync);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(CommandActions))]
+    [ConditionalTheory, MemberData(nameof(CommandActions))]
     public async Task Reports_command_diagnostic_on_exception(
         Delegate commandDelegate,
         DbCommandMethod diagnosticName,
@@ -1190,25 +1149,23 @@ public class RelationalCommandTest
             CreateOptions());
 
         var relationalCommand = CreateRelationalCommand(
-            parameters: new[]
-            {
+            parameters:
+            [
                 new TypeMappedRelationalParameter(
                     "FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false)
-            });
+            ]);
 
         var parameterValues = new Dictionary<string, object> { { "FirstInvariant", 17 } };
 
         if (async)
         {
-            await Assert.ThrowsAsync<InvalidOperationException>(
-                async ()
-                    => await ((CommandFunc)commandDelegate)(fakeConnection, relationalCommand, parameterValues, logger));
+            await Assert.ThrowsAsync<InvalidOperationException>(async ()
+                => await ((CommandFunc)commandDelegate)(fakeConnection, relationalCommand, parameterValues, logger));
         }
         else
         {
-            Assert.Throws<InvalidOperationException>(
-                ()
-                    => ((CommandAction)commandDelegate)(fakeConnection, relationalCommand, parameterValues, logger));
+            Assert.Throws<InvalidOperationException>(()
+                => ((CommandAction)commandDelegate)(fakeConnection, relationalCommand, parameterValues, logger));
         }
 
         Assert.Equal(5, diagnostic.Count);
@@ -1233,8 +1190,7 @@ public class RelationalCommandTest
         Assert.Equal(exception, afterData.Exception);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(CommandActions))]
+    [ConditionalTheory, MemberData(nameof(CommandActions))]
     public async Task Reports_command_diagnostic_on_cancellation(
         Delegate commandDelegate,
         DbCommandMethod diagnosticName,
@@ -1269,25 +1225,23 @@ public class RelationalCommandTest
             CreateOptions());
 
         var relationalCommand = CreateRelationalCommand(
-            parameters: new[]
-            {
+            parameters:
+            [
                 new TypeMappedRelationalParameter(
                     "FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false)
-            });
+            ]);
 
         var parameterValues = new Dictionary<string, object> { { "FirstInvariant", 17 } };
 
         if (async)
         {
-            await Assert.ThrowsAsync<OperationCanceledException>(
-                async ()
-                    => await ((CommandFunc)commandDelegate)(fakeConnection, relationalCommand, parameterValues, logger));
+            await Assert.ThrowsAsync<OperationCanceledException>(async ()
+                => await ((CommandFunc)commandDelegate)(fakeConnection, relationalCommand, parameterValues, logger));
         }
         else
         {
-            Assert.Throws<OperationCanceledException>(
-                ()
-                    => ((CommandAction)commandDelegate)(fakeConnection, relationalCommand, parameterValues, logger));
+            Assert.Throws<OperationCanceledException>(()
+                => ((CommandAction)commandDelegate)(fakeConnection, relationalCommand, parameterValues, logger));
         }
 
         Assert.Equal(5, diagnostic.Count);

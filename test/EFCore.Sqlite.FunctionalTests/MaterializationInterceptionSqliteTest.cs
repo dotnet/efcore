@@ -11,8 +11,8 @@ public class MaterializationInterceptionSqliteTest(NonSharedFixture fixture) :
     public override async Task Intercept_query_materialization_with_owned_types_projecting_collection(bool async, bool usePooling)
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Intercept_query_materialization_with_owned_types_projecting_collection(async, usePooling)))
+            (await Assert.ThrowsAsync<InvalidOperationException>(()
+                => base.Intercept_query_materialization_with_owned_types_projecting_collection(async, usePooling)))
             .Message);
 
     public class SqliteLibraryContext(DbContextOptions options) : LibraryContext(options)

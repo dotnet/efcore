@@ -49,8 +49,9 @@ ORDER BY VectorDistance(c["SinglesArray"], @p)
 
         var booksFromStore = await context
             .Set<Book>()
-            .Select(
-                e => EF.Functions.VectorDistance(e.SinglesArray, inputVector, useBruteForce: false, new() { DistanceFunction = DistanceFunction.DotProduct }))
+            .Select(e => EF.Functions.VectorDistance(
+                e.SinglesArray, inputVector, useBruteForce: false,
+                new VectorDistanceOptions { DistanceFunction = DistanceFunction.DotProduct }))
             .ToListAsync();
 
         Assert.Equal(3, booksFromStore.Count);
@@ -164,7 +165,9 @@ ORDER BY VectorDistance(c["SinglesArray"], @p, true)
 
         var booksFromStore = await context
             .Set<Book>()
-            .OrderBy(e => EF.Functions.VectorDistance(e.SinglesArray, inputVector, useBruteForce: true, new() { DistanceFunction = DistanceFunction.DotProduct }))
+            .OrderBy(e => EF.Functions.VectorDistance(
+                e.SinglesArray, inputVector, useBruteForce: true,
+                new VectorDistanceOptions { DistanceFunction = DistanceFunction.DotProduct }))
             .ToListAsync();
 
         Assert.Equal(3, booksFromStore.Count);
@@ -186,7 +189,9 @@ ORDER BY VectorDistance(c["SinglesArray"], @p, true, { 'distanceFunction': 'dotp
 
         var booksFromStore = await context
             .Set<Book>()
-            .OrderBy(e => EF.Functions.VectorDistance(e.SinglesArray, inputVector, useBruteForce: null, new() { DistanceFunction = DistanceFunction.DotProduct }))
+            .OrderBy(e => EF.Functions.VectorDistance(
+                e.SinglesArray, inputVector, useBruteForce: null,
+                new VectorDistanceOptions { DistanceFunction = DistanceFunction.DotProduct }))
             .ToListAsync();
 
         Assert.Equal(3, booksFromStore.Count);
@@ -208,7 +213,9 @@ ORDER BY VectorDistance(c["SinglesArray"], @p, false, { 'distanceFunction': 'dot
 
         var booksFromStore = await context
             .Set<Book>()
-            .OrderBy(e => EF.Functions.VectorDistance(e.SinglesArray, inputVector, useBruteForce: false, new() { DataType = "float32", DistanceFunction = DistanceFunction.DotProduct }))
+            .OrderBy(e => EF.Functions.VectorDistance(
+                e.SinglesArray, inputVector, useBruteForce: false,
+                new VectorDistanceOptions { DataType = "float32", DistanceFunction = DistanceFunction.DotProduct }))
             .ToListAsync();
 
         Assert.Equal(3, booksFromStore.Count);
@@ -232,15 +239,14 @@ ORDER BY VectorDistance(c["SinglesArray"], @p, false, { 'distanceFunction': 'dot
 
         var booksFromStore = await context
             .Set<Book>()
-            .Select(
-                e => EF.Functions.VectorDistance(e.OwnedReference.NestedOwned.NestedSingles, inputVector))
+            .Select(e => EF.Functions.VectorDistance(e.OwnedReference.NestedOwned.NestedSingles, inputVector))
             .ToListAsync();
 
         Assert.Equal(3, booksFromStore.Count);
         Assert.All(booksFromStore, s => Assert.NotEqual(0.0, s));
 
         AssertSql(
-"""
+            """
 @inputVector='[0.33,-0.52,0.45,-0.67,0.89,-0.34,0.86,-0.78,0.86,-0.78]'
 
 SELECT VALUE VectorDistance(c["OwnedReference"]["NestedOwned"]["NestedSingles"], @inputVector)
@@ -265,7 +271,7 @@ FROM root c
         Assert.Equal(3, booksFromStore.Count);
 
         AssertSql(
-"""
+            """
 @p='[2,1,4,6,5,2,5,7,3,1]'
 @p0='[0.33,-0.52,0.45,-0.67,0.89,-0.34,0.86,-0.78]'
 
@@ -283,19 +289,17 @@ ORDER BY RANK RRF(VectorDistance(c["BytesArray"], @p), VectorDistance(c["Singles
 
         Assert.Equal(
             CosmosStrings.VectorSearchRequiresVector,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                async () => await context
-                    .Set<Book>()
-                    .OrderBy(e => EF.Functions.VectorDistance(e.Isbn, inputVector))
-                    .ToListAsync())).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(async () => await context
+                .Set<Book>()
+                .OrderBy(e => EF.Functions.VectorDistance(e.Isbn, inputVector))
+                .ToListAsync())).Message);
 
         Assert.Equal(
             CosmosStrings.VectorSearchRequiresVector,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                async () => await context
-                    .Set<Book>()
-                    .OrderBy(e => EF.Functions.VectorDistance(inputVector, e.Isbn))
-                    .ToListAsync())).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(async () => await context
+                .Set<Book>()
+                .OrderBy(e => EF.Functions.VectorDistance(inputVector, e.Isbn))
+                .ToListAsync())).Message);
     }
 
     [ConditionalFact]
@@ -316,18 +320,17 @@ ORDER BY RANK RRF(VectorDistance(c["BytesArray"], @p), VectorDistance(c["Singles
 
         Assert.Equal(
             CoreStrings.ArgumentNotConstant("useBruteForce", nameof(CosmosDbFunctionsExtensions.VectorDistance)),
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                async () => await context
-                    .Set<Book>()
-                    .OrderBy(e => EF.Functions.VectorDistance(e.OwnedReference.NestedOwned.NestedSingles, inputVector, e.IsPublished))
-                    .ToListAsync())).Message);
-
-        await Assert.ThrowsAsync<InvalidOperationException>(
-            async () => await context
+            (await Assert.ThrowsAsync<InvalidOperationException>(async () => await context
                 .Set<Book>()
-                .OrderBy(
-                    e => EF.Functions.VectorDistance(e.OwnedReference.NestedOwned.NestedSingles, inputVector, useBruteForce: false, new() { DistanceFunction = e.DistanceFunction }))
-                .ToListAsync());
+                .OrderBy(e => EF.Functions.VectorDistance(e.OwnedReference.NestedOwned.NestedSingles, inputVector, e.IsPublished))
+                .ToListAsync())).Message);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(async () => await context
+            .Set<Book>()
+            .OrderBy(e => EF.Functions.VectorDistance(
+                e.OwnedReference.NestedOwned.NestedSingles, inputVector, useBruteForce: false,
+                new VectorDistanceOptions { DistanceFunction = e.DistanceFunction }))
+            .ToListAsync());
     }
 
     private class Book
@@ -383,40 +386,42 @@ ORDER BY RANK RRF(VectorDistance(c["BytesArray"], @p), VectorDistance(c["Singles
             => "VectorSearchTest";
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
-            => modelBuilder.Entity<Book>(
-                b =>
-                {
-                    b.Property(e => e.Id).ValueGeneratedOnAdd();
-                    b.HasKey(e => e.Id);
-                    b.HasPartitionKey(e => e.Publisher);
+            => modelBuilder.Entity<Book>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedOnAdd();
+                b.HasKey(e => e.Id);
+                b.HasPartitionKey(e => e.Publisher);
 
-                    b.HasIndex(e => e.Bytes).IsVectorIndex(VectorIndexType.Flat);
-                    b.HasIndex(e => e.SBytes).IsVectorIndex(VectorIndexType.Flat);
-                    b.HasIndex(e => e.BytesArray).IsVectorIndex(VectorIndexType.Flat);
-                    b.HasIndex(e => e.SinglesArray).IsVectorIndex(VectorIndexType.Flat);
+                b.HasIndex(e => e.Bytes).IsVectorIndex(VectorIndexType.Flat);
+                b.HasIndex(e => e.SBytes).IsVectorIndex(VectorIndexType.Flat);
+                b.HasIndex(e => e.BytesArray).IsVectorIndex(VectorIndexType.Flat);
+                b.HasIndex(e => e.SinglesArray).IsVectorIndex(VectorIndexType.Flat);
 
-                    b.Property(e => e.Bytes).IsVectorProperty(DistanceFunction.Cosine, 10);
-                    b.Property(e => e.SBytes).IsVectorProperty(DistanceFunction.DotProduct, 10);
-                    b.Property(e => e.BytesArray).IsVectorProperty(DistanceFunction.Cosine, 10);
-                    b.Property(e => e.SinglesArray).IsVectorProperty(DistanceFunction.Cosine, 10);
+                b.Property(e => e.Bytes).IsVectorProperty(DistanceFunction.Cosine, 10);
+                b.Property(e => e.SBytes).IsVectorProperty(DistanceFunction.DotProduct, 10);
+                b.Property(e => e.BytesArray).IsVectorProperty(DistanceFunction.Cosine, 10);
+                b.Property(e => e.SinglesArray).IsVectorProperty(DistanceFunction.Cosine, 10);
 
-                    b.OwnsOne(x => x.OwnedReference, bb =>
+                b.OwnsOne(
+                    x => x.OwnedReference, bb =>
                     {
-                        bb.OwnsOne(x => x.NestedOwned, bbb =>
-                        {
-                            bbb.HasIndex(x => x.NestedSingles).IsVectorIndex(VectorIndexType.Flat);
-                            bbb.Property(x => x.NestedSingles).IsVectorProperty(DistanceFunction.Cosine, 10);
-                        });
+                        bb.OwnsOne(
+                            x => x.NestedOwned, bbb =>
+                            {
+                                bbb.HasIndex(x => x.NestedSingles).IsVectorIndex(VectorIndexType.Flat);
+                                bbb.Property(x => x.NestedSingles).IsVectorProperty(DistanceFunction.Cosine, 10);
+                            });
 
                         bb.OwnsMany(x => x.NestedOwnedCollection, bbb => bbb.Ignore(x => x.NestedSingles));
                     });
 
-                    b.OwnsMany(x => x.OwnedCollection, bb =>
+                b.OwnsMany(
+                    x => x.OwnedCollection, bb =>
                     {
                         bb.OwnsOne(x => x.NestedOwned, bbb => bbb.Ignore(x => x.NestedSingles));
                         bb.OwnsMany(x => x.NestedOwnedCollection, bbb => bbb.Ignore(x => x.NestedSingles));
                     });
-                });
+            });
 
         protected override Task SeedAsync(PoolableDbContext context)
         {
@@ -436,11 +441,12 @@ ORDER BY RANK RRF(VectorDistance(c["BytesArray"], @p), VectorDistance(c["Singles
                     NestedOwned = new Owned2
                     {
                         Prop = "7",
-                        NestedSingles = new ReadOnlyMemory<float>([0.33f, -0.52f, 0.45f, -0.67f, 0.89f, -0.34f, 0.86f, -0.78f, 0.86f, -0.78f])
+                        NestedSingles =
+                            new ReadOnlyMemory<float>([0.33f, -0.52f, 0.45f, -0.67f, 0.89f, -0.34f, 0.86f, -0.78f, 0.86f, -0.78f])
                     },
-                    NestedOwnedCollection = new List<Owned2> { new() { Prop = "71" }, new() { Prop = "72" } }
+                    NestedOwnedCollection = [new() { Prop = "71" }, new() { Prop = "72" }]
                 },
-                OwnedCollection = new List<Owned1> { new() { Prop = 71 }, new() { Prop = 72 } }
+                OwnedCollection = [new() { Prop = 71 }, new() { Prop = 72 }]
             };
 
             var book2 = new Book
@@ -459,11 +465,12 @@ ORDER BY RANK RRF(VectorDistance(c["BytesArray"], @p), VectorDistance(c["Singles
                     NestedOwned = new Owned2
                     {
                         Prop = "7",
-                        NestedSingles = new ReadOnlyMemory<float>([0.33f, -0.52f, 0.45f, -0.67f, 0.89f, -0.34f, 0.86f, -0.78f, 0.86f, -0.78f])
+                        NestedSingles =
+                            new ReadOnlyMemory<float>([0.33f, -0.52f, 0.45f, -0.67f, 0.89f, -0.34f, 0.86f, -0.78f, 0.86f, -0.78f])
                     },
-                    NestedOwnedCollection = new List<Owned2> { new() { Prop = "71" }, new() { Prop = "72" } }
+                    NestedOwnedCollection = [new() { Prop = "71" }, new() { Prop = "72" }]
                 },
-                OwnedCollection = new List<Owned1> { new() { Prop = 71 }, new() { Prop = 72 } }
+                OwnedCollection = [new() { Prop = 71 }, new() { Prop = 72 }]
             };
 
             var book3 = new Book
@@ -482,11 +489,12 @@ ORDER BY RANK RRF(VectorDistance(c["BytesArray"], @p), VectorDistance(c["Singles
                     NestedOwned = new Owned2
                     {
                         Prop = "7",
-                        NestedSingles = new ReadOnlyMemory<float>([0.33f, -0.52f, 0.45f, -0.67f, 0.89f, -0.34f, 0.86f, -0.78f, 0.86f, -0.78f]),
+                        NestedSingles =
+                            new ReadOnlyMemory<float>([0.33f, -0.52f, 0.45f, -0.67f, 0.89f, -0.34f, 0.86f, -0.78f, 0.86f, -0.78f]),
                     },
-                    NestedOwnedCollection = new List<Owned2> { new() { Prop = "71" }, new() { Prop = "72" } }
+                    NestedOwnedCollection = [new() { Prop = "71" }, new() { Prop = "72" }]
                 },
-                OwnedCollection = new List<Owned1> { new() { Prop = 71 }, new() { Prop = 72 } }
+                OwnedCollection = [new() { Prop = 71 }, new() { Prop = 72 }]
             };
 
             context.AddRange(book1, book2, book3);

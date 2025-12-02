@@ -251,12 +251,12 @@ public class SharedTableConvention : IModelFinalizingConvention
 #pragma warning disable EF1001 // Internal EF Core API usage.
             var identifyingMemberInfo = property.GetIdentifyingMemberInfo();
             var isInheritedSharedMember = identifyingMemberInfo != null
-                    && ((declaringEntityType != null && identifyingMemberInfo.DeclaringType != type.ClrType)
-                        || (declaringEntityType == null
-                            && otherProperty.DeclaringType is IConventionComplexType otherDeclaringComplexType
-                            && ((IConventionComplexType)property.DeclaringType).ComplexProperty.GetIdentifyingMemberInfo()
-                            .IsSameAs(otherDeclaringComplexType.ComplexProperty.GetIdentifyingMemberInfo())))
-                    && identifyingMemberInfo.IsSameAs(otherProperty.GetIdentifyingMemberInfo());
+                && ((declaringEntityType != null && identifyingMemberInfo.DeclaringType != type.ClrType)
+                    || (declaringEntityType == null
+                        && otherProperty.DeclaringType is IConventionComplexType otherDeclaringComplexType
+                        && ((IConventionComplexType)property.DeclaringType).ComplexProperty.GetIdentifyingMemberInfo()
+                        .IsSameAs(otherDeclaringComplexType.ComplexProperty.GetIdentifyingMemberInfo())))
+                && identifyingMemberInfo.IsSameAs(otherProperty.GetIdentifyingMemberInfo());
 #pragma warning restore EF1001 // Internal EF Core API usage.
             if (isInheritedSharedMember
                 || (property.IsPrimaryKey() && otherProperty.IsPrimaryKey())
@@ -692,14 +692,16 @@ public class SharedTableConvention : IModelFinalizingConvention
                 continue;
             }
 
-            var newConstraintName = TryUniquifyDefaultConstraint(property, constraintName, storeObject.Schema, defaultConstraints, storeObject, maxLength);
+            var newConstraintName = TryUniquifyDefaultConstraint(
+                property, constraintName, storeObject.Schema, defaultConstraints, storeObject, maxLength);
             if (newConstraintName != null)
             {
                 defaultConstraints[(newConstraintName, storeObject.Schema)] = (property, storeObject);
                 continue;
             }
 
-            var newOtherConstraintName = TryUniquifyDefaultConstraint(otherProperty, constraintName, storeObject.Schema, defaultConstraints, otherStoreObject, maxLength);
+            var newOtherConstraintName = TryUniquifyDefaultConstraint(
+                otherProperty, constraintName, storeObject.Schema, defaultConstraints, otherStoreObject, maxLength);
             if (newOtherConstraintName != null)
             {
                 defaultConstraints[(constraintName, storeObject.Schema)] = (property, storeObject);
@@ -742,11 +744,9 @@ public class SharedTableConvention : IModelFinalizingConvention
                 throw new InvalidOperationException(
                     RelationalStrings.ImplicitDefaultNamesNotSupportedForTpcWhenNamesClash(constraintName));
             }
-            else
-            {
-                throw new InvalidOperationException(
-                    RelationalStrings.ExplicitDefaultConstraintNamesNotSupportedForTpc(constraintName));
-            }
+
+            throw new InvalidOperationException(
+                RelationalStrings.ExplicitDefaultConstraintNamesNotSupportedForTpc(constraintName));
         }
 
         if (property.Builder.CanSetAnnotation(RelationalAnnotationNames.DefaultConstraintName, null))

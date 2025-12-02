@@ -1,7 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.Data.SqlTypes;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
@@ -18,12 +17,11 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     {
         var modelBuilder = CreateConventionModelBuilder();
 
-        modelBuilder.Entity<WithNestedCollection>(
-            eb =>
-            {
-                eb.Property(e => e.Id);
-                eb.PrimitiveCollection(e => e.SomeStrings);
-            });
+        modelBuilder.Entity<WithNestedCollection>(eb =>
+        {
+            eb.Property(e => e.Id);
+            eb.PrimitiveCollection(e => e.SomeStrings);
+        });
 
         VerifyError(
             RelationalStrings.NestedCollectionsNotSupported(
@@ -82,12 +80,11 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     {
         var modelBuilder = CreateConventionModelBuilder();
 
-        modelBuilder.Entity<Animal>(
-            b =>
-            {
-                b.UseTpcMappingStrategy();
-                b.Property(e => e.Id).ValueGeneratedOnAdd();
-            });
+        modelBuilder.Entity<Animal>(b =>
+        {
+            b.UseTpcMappingStrategy();
+            b.Property(e => e.Id).ValueGeneratedOnAdd();
+        });
 
         modelBuilder.Entity<Cat>();
 
@@ -103,11 +100,10 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     {
         var modelBuilder = CreateConventionModelBuilder();
 
-        modelBuilder.Entity<Animal>(
-            b =>
-            {
-                b.Property(e => e.Name).UseIdentityColumn();
-            });
+        modelBuilder.Entity<Animal>(b =>
+        {
+            b.Property(e => e.Name).UseIdentityColumn();
+        });
 
         VerifyError(
             SqlServerStrings.IdentityBadType(nameof(LivingBeing.Name), nameof(Animal), "string"),
@@ -119,11 +115,10 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     {
         var modelBuilder = CreateConventionModelBuilder();
 
-        modelBuilder.Entity<Animal>(
-            b =>
-            {
-                b.Property(e => e.Name).UseSequence();
-            });
+        modelBuilder.Entity<Animal>(b =>
+        {
+            b.Property(e => e.Name).UseSequence();
+        });
 
         VerifyError(
             SqlServerStrings.SequenceBadType(nameof(LivingBeing.Name), nameof(Animal), "string"),
@@ -135,11 +130,10 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     {
         var modelBuilder = CreateConventionModelBuilder();
 
-        modelBuilder.Entity<Animal>(
-            b =>
-            {
-                b.Property(e => e.Name).UseHiLo();
-            });
+        modelBuilder.Entity<Animal>(b =>
+        {
+            b.Property(e => e.Name).UseHiLo();
+        });
 
         VerifyError(
             SqlServerStrings.SequenceBadType(nameof(LivingBeing.Name), nameof(Animal), "string"),
@@ -151,16 +145,14 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     {
         var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Animal>().Property(a => a.Id).ValueGeneratedNever();
-        modelBuilder.Entity<Cat>(
-            cb =>
-            {
-                cb.Property(c => c.Identity).UseIdentityColumn(2, 3).HasColumnName(nameof(Cat.Identity));
-            });
-        modelBuilder.Entity<Dog>(
-            db =>
-            {
-                db.Property(d => d.Identity).UseIdentityColumn(2, 3).HasColumnName(nameof(Dog.Identity));
-            });
+        modelBuilder.Entity<Cat>(cb =>
+        {
+            cb.Property(c => c.Identity).UseIdentityColumn(2, 3).HasColumnName(nameof(Cat.Identity));
+        });
+        modelBuilder.Entity<Dog>(db =>
+        {
+            db.Property(d => d.Identity).UseIdentityColumn(2, 3).HasColumnName(nameof(Dog.Identity));
+        });
 
         Validate(modelBuilder);
     }
@@ -170,16 +162,14 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     {
         var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Animal>();
-        modelBuilder.Entity<Cat>(
-            cb =>
-            {
-                cb.Property(c => c.Identity).UseIdentityColumn().HasColumnName(nameof(Cat.Identity));
-            });
-        modelBuilder.Entity<Dog>(
-            db =>
-            {
-                db.Property(d => d.Identity).UseIdentityColumn(2).HasColumnName(nameof(Dog.Identity));
-            });
+        modelBuilder.Entity<Cat>(cb =>
+        {
+            cb.Property(c => c.Identity).UseIdentityColumn().HasColumnName(nameof(Cat.Identity));
+        });
+        modelBuilder.Entity<Dog>(db =>
+        {
+            db.Property(d => d.Identity).UseIdentityColumn(2).HasColumnName(nameof(Dog.Identity));
+        });
 
         VerifyError(
             SqlServerStrings.DuplicateColumnIdentitySeedMismatch(
@@ -192,16 +182,14 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     {
         var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Animal>();
-        modelBuilder.Entity<Cat>(
-            cb =>
-            {
-                cb.Property(c => c.Identity).UseIdentityColumn().HasColumnName(nameof(Cat.Identity));
-            });
-        modelBuilder.Entity<Dog>(
-            db =>
-            {
-                db.Property(d => d.Identity).UseIdentityColumn(increment: 2).HasColumnName(nameof(Dog.Identity));
-            });
+        modelBuilder.Entity<Cat>(cb =>
+        {
+            cb.Property(c => c.Identity).UseIdentityColumn().HasColumnName(nameof(Cat.Identity));
+        });
+        modelBuilder.Entity<Dog>(db =>
+        {
+            db.Property(d => d.Identity).UseIdentityColumn(increment: 2).HasColumnName(nameof(Dog.Identity));
+        });
 
         VerifyError(
             SqlServerStrings.DuplicateColumnIdentityIncrementMismatch(
@@ -224,19 +212,17 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     public virtual void Passes_for_duplicate_column_names_with_HiLoSequence()
     {
         var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<Cat>(
-            cb =>
-            {
-                cb.ToTable("Animal");
-                cb.Property(c => c.Id).UseHiLo();
-            });
-        modelBuilder.Entity<Dog>(
-            db =>
-            {
-                db.ToTable("Animal");
-                db.Property(d => d.Id).UseHiLo();
-                db.HasOne<Cat>().WithOne().HasForeignKey<Dog>(d => d.Id);
-            });
+        modelBuilder.Entity<Cat>(cb =>
+        {
+            cb.ToTable("Animal");
+            cb.Property(c => c.Id).UseHiLo();
+        });
+        modelBuilder.Entity<Dog>(db =>
+        {
+            db.ToTable("Animal");
+            db.Property(d => d.Id).UseHiLo();
+            db.HasOne<Cat>().WithOne().HasForeignKey<Dog>(d => d.Id);
+        });
 
         Validate(modelBuilder);
     }
@@ -245,19 +231,17 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     public virtual void Detects_duplicate_column_names_with_different_HiLoSequence_name()
     {
         var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<Cat>(
-            cb =>
-            {
-                cb.ToTable("Animal");
-                cb.Property(c => c.Id).UseHiLo("foo");
-            });
-        modelBuilder.Entity<Dog>(
-            db =>
-            {
-                db.ToTable("Animal");
-                db.Property(d => d.Id).UseHiLo();
-                db.HasOne<Cat>().WithOne().HasForeignKey<Dog>(d => d.Id);
-            });
+        modelBuilder.Entity<Cat>(cb =>
+        {
+            cb.ToTable("Animal");
+            cb.Property(c => c.Id).UseHiLo("foo");
+        });
+        modelBuilder.Entity<Dog>(db =>
+        {
+            db.ToTable("Animal");
+            db.Property(d => d.Id).UseHiLo();
+            db.HasOne<Cat>().WithOne().HasForeignKey<Dog>(d => d.Id);
+        });
 
         VerifyError(
             SqlServerStrings.DuplicateColumnSequenceMismatch(
@@ -269,19 +253,17 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     public virtual void Detects_duplicate_column_name_with_different_HiLoSequence_schema()
     {
         var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<Cat>(
-            cb =>
-            {
-                cb.ToTable("Animal");
-                cb.Property(c => c.Id).UseHiLo("foo", "dbo");
-            });
-        modelBuilder.Entity<Dog>(
-            db =>
-            {
-                db.ToTable("Animal");
-                db.Property(d => d.Id).UseHiLo("foo", "dba");
-                db.HasOne<Cat>().WithOne().HasForeignKey<Dog>(d => d.Id);
-            });
+        modelBuilder.Entity<Cat>(cb =>
+        {
+            cb.ToTable("Animal");
+            cb.Property(c => c.Id).UseHiLo("foo", "dbo");
+        });
+        modelBuilder.Entity<Dog>(db =>
+        {
+            db.ToTable("Animal");
+            db.Property(d => d.Id).UseHiLo("foo", "dba");
+            db.HasOne<Cat>().WithOne().HasForeignKey<Dog>(d => d.Id);
+        });
 
         VerifyError(
             SqlServerStrings.DuplicateColumnSequenceMismatch(
@@ -294,19 +276,17 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     {
         var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Animal>();
-        modelBuilder.Entity<Cat>(
-            cb =>
-            {
-                cb.ToTable("Animal");
-                cb.Property(c => c.Id).UseSequence();
-            });
-        modelBuilder.Entity<Dog>(
-            db =>
-            {
-                db.ToTable("Animal");
-                db.Property(d => d.Id).UseSequence();
-                db.HasOne<Cat>().WithOne().HasForeignKey<Dog>(d => d.Id);
-            });
+        modelBuilder.Entity<Cat>(cb =>
+        {
+            cb.ToTable("Animal");
+            cb.Property(c => c.Id).UseSequence();
+        });
+        modelBuilder.Entity<Dog>(db =>
+        {
+            db.ToTable("Animal");
+            db.Property(d => d.Id).UseSequence();
+            db.HasOne<Cat>().WithOne().HasForeignKey<Dog>(d => d.Id);
+        });
 
         Validate(modelBuilder);
     }
@@ -315,19 +295,17 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     public virtual void Detects_duplicate_column_names_with_different_KeySequence_name()
     {
         var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<Cat>(
-            cb =>
-            {
-                cb.ToTable("Animal");
-                cb.Property(c => c.Id).HasColumnName("Id").UseSequence("foo");
-            });
-        modelBuilder.Entity<Dog>(
-            db =>
-            {
-                db.ToTable("Animal");
-                db.Property(d => d.Id).HasColumnName("Id").UseSequence("bar");
-                db.HasOne<Cat>().WithOne().HasForeignKey<Dog>(d => d.Id);
-            });
+        modelBuilder.Entity<Cat>(cb =>
+        {
+            cb.ToTable("Animal");
+            cb.Property(c => c.Id).HasColumnName("Id").UseSequence("foo");
+        });
+        modelBuilder.Entity<Dog>(db =>
+        {
+            db.ToTable("Animal");
+            db.Property(d => d.Id).HasColumnName("Id").UseSequence("bar");
+            db.HasOne<Cat>().WithOne().HasForeignKey<Dog>(d => d.Id);
+        });
 
         VerifyError(
             RelationalStrings.DuplicateColumnNameDefaultSqlMismatch(
@@ -341,19 +319,17 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     public virtual void Detects_duplicate_column_name_with_different_KeySequence_schema()
     {
         var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<Cat>(
-            cb =>
-            {
-                cb.ToTable("Animal");
-                cb.Property(c => c.Id).UseSequence("foo", "dbo");
-            });
-        modelBuilder.Entity<Dog>(
-            db =>
-            {
-                db.ToTable("Animal");
-                db.Property(d => d.Id).UseSequence("foo", "dba");
-                db.HasOne<Cat>().WithOne().HasForeignKey<Dog>(d => d.Id);
-            });
+        modelBuilder.Entity<Cat>(cb =>
+        {
+            cb.ToTable("Animal");
+            cb.Property(c => c.Id).UseSequence("foo", "dbo");
+        });
+        modelBuilder.Entity<Dog>(db =>
+        {
+            db.ToTable("Animal");
+            db.Property(d => d.Id).UseSequence("foo", "dba");
+            db.HasOne<Cat>().WithOne().HasForeignKey<Dog>(d => d.Id);
+        });
 
         VerifyError(
             RelationalStrings.DuplicateColumnNameDefaultSqlMismatch(
@@ -368,17 +344,15 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     {
         var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Animal>();
-        modelBuilder.Entity<Cat>(
-            cb =>
-            {
-                cb.Property(c => c.Id).ValueGeneratedNever();
-                cb.Property(c => c.Identity).UseIdentityColumn().HasColumnName(nameof(Cat.Identity));
-            });
-        modelBuilder.Entity<Dog>(
-            db =>
-            {
-                db.Property(d => d.Identity).UseHiLo().HasColumnName(nameof(Dog.Identity));
-            });
+        modelBuilder.Entity<Cat>(cb =>
+        {
+            cb.Property(c => c.Id).ValueGeneratedNever();
+            cb.Property(c => c.Identity).UseIdentityColumn().HasColumnName(nameof(Cat.Identity));
+        });
+        modelBuilder.Entity<Dog>(db =>
+        {
+            db.Property(d => d.Identity).UseHiLo().HasColumnName(nameof(Dog.Identity));
+        });
 
         VerifyError(
             SqlServerStrings.DuplicateColumnNameValueGenerationStrategyMismatch(
@@ -391,18 +365,16 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     {
         var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Animal>();
-        modelBuilder.Entity<Cat>(
-            cb =>
-            {
-                cb.ToTable("Animal");
-                cb.Property(c => c.Breed).HasColumnName(nameof(Cat.Breed)).IsSparse();
-            });
-        modelBuilder.Entity<Dog>(
-            db =>
-            {
-                db.ToTable("Animal");
-                db.Property(d => d.Breed).HasColumnName(nameof(Dog.Breed));
-            });
+        modelBuilder.Entity<Cat>(cb =>
+        {
+            cb.ToTable("Animal");
+            cb.Property(c => c.Breed).HasColumnName(nameof(Cat.Breed)).IsSparse();
+        });
+        modelBuilder.Entity<Dog>(db =>
+        {
+            db.ToTable("Animal");
+            db.Property(d => d.Breed).HasColumnName(nameof(Dog.Breed));
+        });
 
         VerifyError(
             SqlServerStrings.DuplicateColumnSparsenessMismatch(
@@ -784,10 +756,8 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         Validate(modelBuilder);
     }
 
-    [ConditionalTheory]
-    [InlineData("DefaultValue", "DefaultValueSql")]
-    [InlineData("DefaultValue", "ComputedColumnSql")]
-    [InlineData("DefaultValueSql", "ComputedColumnSql")]
+    [ConditionalTheory, InlineData("DefaultValue", "DefaultValueSql"), InlineData("DefaultValue", "ComputedColumnSql"),
+     InlineData("DefaultValueSql", "ComputedColumnSql")]
     public void Metadata_throws_when_setting_conflicting_serverGenerated_values(string firstConfiguration, string secondConfiguration)
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -802,11 +772,10 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalTheory]
-    [InlineData(SqlServerValueGenerationStrategy.IdentityColumn, "DefaultValueSql")]
-    [InlineData(SqlServerValueGenerationStrategy.IdentityColumn, "ComputedColumnSql")]
-    [InlineData(SqlServerValueGenerationStrategy.SequenceHiLo, "DefaultValueSql")]
-    [InlineData(SqlServerValueGenerationStrategy.SequenceHiLo, "ComputedColumnSql")]
+    [ConditionalTheory, InlineData(SqlServerValueGenerationStrategy.IdentityColumn, "DefaultValueSql"),
+     InlineData(SqlServerValueGenerationStrategy.IdentityColumn, "ComputedColumnSql"),
+     InlineData(SqlServerValueGenerationStrategy.SequenceHiLo, "DefaultValueSql"),
+     InlineData(SqlServerValueGenerationStrategy.SequenceHiLo, "ComputedColumnSql")]
     public void SqlServerValueGenerationStrategy_warns_when_setting_conflicting_value_generation_strategies(
         SqlServerValueGenerationStrategy sqlServerValueGenerationStrategy,
         string conflictingValueGenerationStrategy)
@@ -824,9 +793,8 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalTheory]
-    [InlineData(SqlServerValueGenerationStrategy.IdentityColumn)]
-    [InlineData(SqlServerValueGenerationStrategy.SequenceHiLo)]
+    [ConditionalTheory, InlineData(SqlServerValueGenerationStrategy.IdentityColumn),
+     InlineData(SqlServerValueGenerationStrategy.SequenceHiLo)]
     public void SqlServerValueGenerationStrategy_warns_when_setting_conflicting_DefaultValue(
         SqlServerValueGenerationStrategy sqlServerValueGenerationStrategy)
     {
@@ -903,8 +871,8 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         modelBuilder.UseNamedDefaultConstraints();
         modelBuilder.Entity<Animal>().UseTpcMappingStrategy();
 
-        Assert.Throws<ArgumentException>(
-            () => modelBuilder.Entity<Animal>().Property(x => x.Name).HasDefaultValue("Miauo", defaultConstraintName: ""));
+        Assert.Throws<ArgumentException>(()
+            => modelBuilder.Entity<Animal>().Property(x => x.Name).HasDefaultValue("Miauo", defaultConstraintName: ""));
     }
 
     [ConditionalFact]
@@ -914,8 +882,8 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         modelBuilder.UseNamedDefaultConstraints();
         modelBuilder.Entity<Animal>().UseTpcMappingStrategy();
 
-        Assert.Throws<ArgumentException>(
-            () => modelBuilder.Entity<Animal>().Property(x => x.Name).HasDefaultValueSql("Miauo", defaultConstraintName: ""));
+        Assert.Throws<ArgumentException>(()
+            => modelBuilder.Entity<Animal>().Property(x => x.Name).HasDefaultValueSql("Miauo", defaultConstraintName: ""));
     }
 
     [ConditionalFact]
@@ -1019,10 +987,8 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     public void Temporal_all_properties_mapped_to_period_column_must_have_value_generated_OnAddOrUpdate()
     {
         var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<Dog>().ToTable(
-            tb => tb.IsTemporal(
-                ttb =>
-                    ttb.HasPeriodStart("Start").HasColumnName("StartColumn").GetInfrastructure().ValueGeneratedNever()));
+        modelBuilder.Entity<Dog>().ToTable(tb => tb.IsTemporal(ttb =>
+            ttb.HasPeriodStart("Start").HasColumnName("StartColumn").GetInfrastructure().ValueGeneratedNever()));
 
         VerifyError(
             SqlServerStrings.TemporalPropertyMappedToPeriodColumnMustBeValueGeneratedOnAddOrUpdate(
@@ -1078,13 +1044,11 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     public void Temporal_table_with_explicit_precision_on_period_columns_passes_validation()
     {
         var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<Human>().ToTable(
-            tb => tb.IsTemporal(
-                ttb =>
-                {
-                    ttb.HasPeriodStart("Start").HasPrecision(2);
-                    ttb.HasPeriodEnd("End").HasPrecision(2);
-                }));
+        modelBuilder.Entity<Human>().ToTable(tb => tb.IsTemporal(ttb =>
+        {
+            ttb.HasPeriodStart("Start").HasPrecision(2);
+            ttb.HasPeriodEnd("End").HasPrecision(2);
+        }));
 
         Validate(modelBuilder);
 
@@ -1098,25 +1062,20 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     public void Temporal_table_with_owned_with_explicit_precision_on_period_columns_passes_validation()
     {
         var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<Owner>(
-            b =>
+        modelBuilder.Entity<Owner>(b =>
+        {
+            b.ToTable(tb => tb.IsTemporal(ttb =>
             {
-                b.ToTable(
-                    tb => tb.IsTemporal(
-                        ttb =>
-                        {
-                            ttb.HasPeriodStart("Start").HasColumnName("Start").HasPrecision(2);
-                            ttb.HasPeriodEnd("End").HasColumnName("End").HasPrecision(2);
-                        }));
-                b.OwnsOne(x => x.Owned).ToTable(
-                    tb =>
-                        tb.IsTemporal(
-                            ttb =>
-                            {
-                                ttb.HasPeriodStart("Start").HasColumnName("Start").HasPrecision(2);
-                                ttb.HasPeriodEnd("End").HasColumnName("End").HasPrecision(2);
-                            }));
-            });
+                ttb.HasPeriodStart("Start").HasColumnName("Start").HasPrecision(2);
+                ttb.HasPeriodEnd("End").HasColumnName("End").HasPrecision(2);
+            }));
+            b.OwnsOne(x => x.Owned).ToTable(tb =>
+                tb.IsTemporal(ttb =>
+                {
+                    ttb.HasPeriodStart("Start").HasColumnName("Start").HasPrecision(2);
+                    ttb.HasPeriodEnd("End").HasColumnName("End").HasPrecision(2);
+                }));
+        });
 
         Validate(modelBuilder);
 
@@ -1150,11 +1109,12 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     {
         var modelBuilder = CreateConventionModelBuilder();
 
-        modelBuilder.Entity<VectorInsideJsonEntity>().OwnsOne(v => v.VectorContainer, n =>
-        {
-            n.ToJson();
-            n.Property(v => v.Vector).HasMaxLength(3);
-        });
+        modelBuilder.Entity<VectorInsideJsonEntity>().OwnsOne(
+            v => v.VectorContainer, n =>
+            {
+                n.ToJson();
+                n.Property(v => v.Vector).HasMaxLength(3);
+            });
 
         VerifyError(
             SqlServerStrings.VectorPropertiesNotSupportedInJson(nameof(VectorContainer), nameof(VectorContainer.Vector)),

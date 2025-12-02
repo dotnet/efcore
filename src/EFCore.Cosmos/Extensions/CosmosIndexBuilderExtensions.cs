@@ -103,7 +103,8 @@ public static class CosmosIndexBuilderExtensions
 
     /// <summary>
     ///     Configures the index as a full-text index.
-    ///     See <see href="https://learn.microsoft.com/azure/cosmos-db/gen-ai/full-text-search">Full-text search in Azure Cosmos DB for NoSQL</see> for more information.
+    ///     See <see href="https://learn.microsoft.com/azure/cosmos-db/gen-ai/full-text-search">Full-text search in Azure Cosmos DB for NoSQL</see>
+    ///     for more information.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
@@ -121,7 +122,8 @@ public static class CosmosIndexBuilderExtensions
 
     /// <summary>
     ///     Configures the index as a full-text index.
-    ///     See <see href="https://learn.microsoft.com/azure/cosmos-db/gen-ai/full-text-search">Full-text search in Azure Cosmos DB for NoSQL</see> for more information.
+    ///     See <see href="https://learn.microsoft.com/azure/cosmos-db/gen-ai/full-text-search">Full-text search in Azure Cosmos DB for NoSQL</see>
+    ///     for more information.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
@@ -137,7 +139,8 @@ public static class CosmosIndexBuilderExtensions
 
     /// <summary>
     ///     Configures the index as a full-text index.
-    ///     See <see href="https://learn.microsoft.com/azure/cosmos-db/gen-ai/full-text-search">Full-text search in Azure Cosmos DB for NoSQL</see> for more information.
+    ///     See <see href="https://learn.microsoft.com/azure/cosmos-db/gen-ai/full-text-search">Full-text search in Azure Cosmos DB for NoSQL</see>
+    ///     for more information.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and

@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 /// </remarks>
 public abstract class PropertyValues
 {
-    private IReadOnlyList<IComplexProperty>? _complexCollectionProperties;
+    private readonly IReadOnlyList<IComplexProperty> _complexCollectionProperties;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -36,7 +36,13 @@ public abstract class PropertyValues
     /// </summary>
     [EntityFrameworkInternal]
     protected PropertyValues(InternalEntryBase internalEntry)
-        => InternalEntry = internalEntry;
+    {
+        InternalEntry = internalEntry;
+        _complexCollectionProperties = [.. internalEntry.StructuralType.GetFlattenedComplexProperties().Where(p => p.IsCollection)];
+        Check.DebugAssert(
+            _complexCollectionProperties.Select((p, i) => p.GetIndex() == i).All(e => e),
+            "Complex collection properties indices are not sequential.");
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -145,17 +151,7 @@ public abstract class PropertyValues
     public virtual IReadOnlyList<IComplexProperty> ComplexCollectionProperties
     {
         [DebuggerStepThrough]
-        get
-        {
-            if (_complexCollectionProperties == null)
-            {
-                _complexCollectionProperties = [.. StructuralType.GetFlattenedComplexProperties().Where(p => p.IsCollection)];
-                Check.DebugAssert(
-                    _complexCollectionProperties.Select((p, i) => p.GetIndex() == i).All(e => e),
-                    "Complex collection properties indices are not sequential.");
-            }
-            return _complexCollectionProperties;
-        }
+        get => _complexCollectionProperties;
     }
 
     /// <summary>
@@ -230,7 +226,7 @@ public abstract class PropertyValues
     /// <typeparam name="TValue">The type of the property.</typeparam>
     /// <param name="propertyName">The property name.</param>
     /// <param name="value">The property value if any.</param>
-    /// <returns>True if the property exists, otherwise false.</returns>
+    /// <returns><see langword="true" /> if the property exists, otherwise <see langword="false" />.</returns>
     public virtual bool TryGetValue<TValue>(string propertyName, out TValue value)
     {
         var property = Properties.FirstOrDefault(p => p.Name == propertyName);

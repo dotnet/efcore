@@ -145,10 +145,9 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
                     GroupBy: []
                 }
                 && selectExpression.Projection.Count == s.Source1.Projection.Count
-                && selectExpression.Projection.Select(
-                        (pe, index) => pe.Expression is ColumnExpression column
-                            && column.TableAlias == s.Alias
-                            && column.Name == s.Source1.Projection[index].Alias)
+                && selectExpression.Projection.Select((pe, index) => pe.Expression is ColumnExpression column
+                        && column.TableAlias == s.Alias
+                        && column.Name == s.Source1.Projection[index].Alias)
                     .All(e => e))
             {
                 setOperation = s;
@@ -209,51 +208,66 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
         {
             Sql.Append(", ");
 
-            // Note the difference with the JSONPATH rendering in VisitJsonScalar below, where we take advantage of SQLite's ->> operator
-            // (we can't do that here).
-            Sql.Append("'$");
-
-            var inJsonpathString = true;
-
-            for (var i = 0; i < path.Count; i++)
-            {
-                switch (path[i])
-                {
-                    case { PropertyName: string propertyName }:
-                        Sql.Append(".").Append(propertyName);
-                        break;
-
-                    case { ArrayIndex: SqlExpression arrayIndex }:
-                        Sql.Append("[");
-
-                        if (arrayIndex is SqlConstantExpression)
-                        {
-                            Visit(arrayIndex);
-                        }
-                        else
-                        {
-                            Sql.Append("' || ");
-                            Visit(arrayIndex);
-                            Sql.Append(" || '");
-                        }
-
-                        Sql.Append("]");
-                        break;
-
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-            }
-
-            if (inJsonpathString)
-            {
-                Sql.Append("'");
-            }
+            GenerateJsonPath(path);
         }
 
         Sql.Append(")");
 
         Sql.Append(AliasSeparator).Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(jsonEachExpression.Alias));
+    }
+
+    private void GenerateJsonPath(IReadOnlyList<PathSegment> path)
+    {
+        Sql.Append("'$");
+
+        for (var i = 0; i < path.Count; i++)
+        {
+            switch (path[i])
+            {
+                case { PropertyName: { } propertyName }:
+                    Sql.Append(".").Append(propertyName);
+                    break;
+
+                case { ArrayIndex: { } arrayIndex }:
+                    Sql.Append("[");
+
+                    if (arrayIndex is SqlConstantExpression)
+                    {
+                        Visit(arrayIndex);
+                    }
+                    else
+                    {
+                        Sql.Append("' || ");
+                        Visit(arrayIndex);
+                        Sql.Append(" || '");
+                    }
+
+                    Sql.Append("]");
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        Sql.Append("'");
+    }
+
+    /// <summary>
+    ///     Generates SQL for a constant.
+    /// </summary>
+    /// <param name="sqlConstantExpression">The <see cref="SqlConstantExpression" /> for which to generate SQL.</param>
+    protected override Expression VisitSqlConstant(SqlConstantExpression sqlConstantExpression)
+    {
+        // Certain JSON functions (e.g. json_set()) accept a JSONPATH argument - this is (currently) flown here as a SqlConstantExpression
+        // over IReadOnlyList<PathSegment>. Render that to a string here.
+        if (sqlConstantExpression is { Value: IReadOnlyList<PathSegment> path })
+        {
+            GenerateJsonPath(path);
+            return sqlConstantExpression;
+        }
+
+        return base.VisitSqlConstant(sqlConstantExpression);
     }
 
     /// <summary>
@@ -277,12 +291,14 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
 
         for (var i = 0; i < path.Count; i++)
         {
+            // Note that we don't use GenerateJsonPath() to generate the JSONPATH string here, since we take advantage of SQLite's ->> operator
+            // for JsonScalarExpression.
             var pathSegment = path[i];
             var isLast = i == path.Count - 1;
 
             switch (pathSegment)
             {
-                case { PropertyName: string propertyName }:
+                case { PropertyName: { } propertyName }:
                     if (inJsonpathString)
                     {
                         Sql.Append(".").Append(Dependencies.SqlGenerationHelper.DelimitJsonPathElement(propertyName));
@@ -335,7 +351,7 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
 
                     Sql.Append(" ->> ");
 
-                    Check.DebugAssert(pathSegment.ArrayIndex is not null, "pathSegment.ArrayIndex is not null");
+                    Check.DebugAssert(pathSegment.ArrayIndex is not null);
 
                     var requiresParentheses = RequiresParentheses(jsonScalarExpression, pathSegment.ArrayIndex);
                     if (requiresParentheses)

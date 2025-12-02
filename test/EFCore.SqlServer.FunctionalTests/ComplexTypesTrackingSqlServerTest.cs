@@ -216,6 +216,7 @@ public class ComplexTypesTrackingProxiesSqlServerTest(
     public override void Can_handle_collection_with_mixed_null_and_duplicate_elements(bool trackFromQuery)
     {
     }
+
     // Issue #36175: Complex types with notification change tracking are not supported
     public override void Can_detect_changes_to_record_collection_elements(bool trackFromQuery)
     {
@@ -315,6 +316,25 @@ public class ComplexTypesTrackingProxiesSqlServerTest(
 
     // Issue #36175: Complex types with notification change tracking are not supported
     public override void Can_handle_empty_nested_teams_in_complex_type_collections(bool trackFromQuery)
+    {
+    }
+
+    // Issue #36175: Complex types with notification change tracking are not supported
+    public override void Can_mark_complex_property_bag_collection_properties_modified(bool trackFromQuery)
+    {
+    }
+
+    // Issue #36175: Complex types with notification change tracking are not supported
+    public override void Can_read_original_values_for_properties_of_complex_property_bag_collections(bool trackFromQuery)
+    {
+    }
+
+    // Issue #36175: Complex types with notification change tracking are not supported
+    public override Task Can_track_entity_with_complex_property_bag_collections(EntityState state, bool async)
+        => Task.CompletedTask;
+
+    // Issue #36175: Complex types with notification change tracking are not supported
+    public override void Can_write_original_values_for_properties_of_complex_property_bag_collections(bool trackFromQuery)
     {
     }
 

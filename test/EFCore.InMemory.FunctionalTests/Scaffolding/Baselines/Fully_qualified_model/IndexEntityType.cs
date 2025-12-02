@@ -55,7 +55,7 @@ namespace Scaffolding
                 Guid (IInternalEntry entry) => (entry.FlaggedAsStoreGenerated(0) ? entry.ReadStoreGeneratedValue<Guid>(0) : (entry.FlaggedAsTemporary(0) && IndexUnsafeAccessors.Id(((CompiledModelInMemoryTest.Index)(entry.Entity))) == new Guid("00000000-0000-0000-0000-000000000000") ? entry.ReadTemporaryValue<Guid>(0) : IndexUnsafeAccessors.Id(((CompiledModelInMemoryTest.Index)(entry.Entity))))),
                 Guid (IInternalEntry entry) => IndexUnsafeAccessors.Id(((CompiledModelInMemoryTest.Index)(entry.Entity))),
                 Guid (IInternalEntry entry) => entry.ReadOriginalValue<Guid>(id, 0),
-                Guid (IInternalEntry entry) => ((InternalEntityEntry)(entry)).ReadRelationshipSnapshotValue<Guid>(id, 0));
+                Guid (IInternalEntry entry) => ((InternalEntityEntry)entry).ReadRelationshipSnapshotValue<Guid>(id, 0));
             id.SetPropertyIndexes(
                 index: 0,
                 originalValueIndex: 0,

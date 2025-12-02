@@ -28,7 +28,7 @@ public class IndexAttributeConventionTest
         var indexProperties = new List<string> { propABuilder.Metadata.Name, propBBuilder.Metadata.Name };
         var indexBuilder = entityBuilder.HasIndex(indexProperties, "IndexOnAAndB", ConfigurationSource.Convention);
         indexBuilder.IsUnique(false, ConfigurationSource.Convention);
-        indexBuilder.IsDescending(new[] { false, true }, ConfigurationSource.Convention);
+        indexBuilder.IsDescending([false, true], ConfigurationSource.Convention);
 
         RunConvention(entityBuilder);
         RunConvention(modelBuilder);
@@ -39,7 +39,7 @@ public class IndexAttributeConventionTest
 
         Assert.True(index.IsUnique);
         Assert.Equal(ConfigurationSource.DataAnnotation, index.GetIsUniqueConfigurationSource());
-        Assert.Equal(new[] { true, false }, index.IsDescending);
+        Assert.Equal([true, false], index.IsDescending);
         Assert.Equal(ConfigurationSource.DataAnnotation, index.GetIsDescendingConfigurationSource());
         Assert.Collection(
             index.Properties,
@@ -64,7 +64,7 @@ public class IndexAttributeConventionTest
         Assert.Equal("IndexOnAAndB", index.Name);
         Assert.False(index.IsUnique);
         Assert.Equal(ConfigurationSource.Explicit, index.GetIsUniqueConfigurationSource());
-        Assert.Equal(new[] { false, true }, index.IsDescending);
+        Assert.Equal([false, true], index.IsDescending);
         Assert.Equal(ConfigurationSource.Explicit, index.GetIsDescendingConfigurationSource());
         Assert.Collection(
             index.Properties,
@@ -79,22 +79,18 @@ public class IndexAttributeConventionTest
 
         Assert.Equal(
             $"{AbstractionsStrings.CollectionArgumentIsEmpty} (Parameter 'propertyNames')",
-            Assert.Throws<ArgumentException>(
-                () => modelBuilder.Entity<EntityWithInvalidEmptyIndex>()).Message);
+            Assert.Throws<ArgumentException>(() => modelBuilder.Entity<EntityWithInvalidEmptyIndex>()).Message);
     }
 
-    [InlineData(typeof(EntityWithInvalidNullIndexProperty))]
-    [InlineData(typeof(EntityWithInvalidEmptyIndexProperty))]
-    [InlineData(typeof(EntityWithInvalidWhiteSpaceIndexProperty))]
-    [ConditionalTheory]
+    [InlineData(typeof(EntityWithInvalidNullIndexProperty)), InlineData(typeof(EntityWithInvalidEmptyIndexProperty)),
+     InlineData(typeof(EntityWithInvalidWhiteSpaceIndexProperty)), ConditionalTheory]
     public void IndexAttribute_properties_cannot_include_whitespace(Type entityTypeWithInvalidIndex)
     {
         var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
 
         Assert.Equal(
             $"{AbstractionsStrings.CollectionArgumentHasEmptyElements} (Parameter 'additionalPropertyNames')",
-            Assert.Throws<ArgumentException>(
-                () => modelBuilder.Entity(entityTypeWithInvalidIndex)).Message);
+            Assert.Throws<ArgumentException>(() => modelBuilder.Entity(entityTypeWithInvalidIndex)).Message);
     }
 
     [ConditionalFact]
@@ -174,8 +170,7 @@ public class IndexAttributeConventionTest
                 nameof(EntityUnnamedIndexWithIgnoredProperty),
                 "{'A', 'B'}",
                 "B"),
-            Assert.Throws<InvalidOperationException>(
-                () => modelBuilder.Model.FinalizeModel()).Message);
+            Assert.Throws<InvalidOperationException>(() => modelBuilder.Model.FinalizeModel()).Message);
     }
 
     [ConditionalFact]
@@ -190,8 +185,7 @@ public class IndexAttributeConventionTest
                 nameof(EntityIndexWithIgnoredProperty),
                 "{'A', 'B'}",
                 "B"),
-            Assert.Throws<InvalidOperationException>(
-                () => modelBuilder.Model.FinalizeModel()).Message);
+            Assert.Throws<InvalidOperationException>(() => modelBuilder.Model.FinalizeModel()).Message);
     }
 
     [ConditionalFact]
@@ -205,8 +199,7 @@ public class IndexAttributeConventionTest
                 nameof(EntityUnnamedIndexWithNonExistentProperty),
                 "{'A', 'DoesNotExist'}",
                 "DoesNotExist"),
-            Assert.Throws<InvalidOperationException>(
-                () => modelBuilder.Model.FinalizeModel()).Message);
+            Assert.Throws<InvalidOperationException>(() => modelBuilder.Model.FinalizeModel()).Message);
     }
 
     [ConditionalFact]
@@ -221,8 +214,7 @@ public class IndexAttributeConventionTest
                 nameof(EntityIndexWithNonExistentProperty),
                 "{'A', 'DoesNotExist'}",
                 "DoesNotExist"),
-            Assert.Throws<InvalidOperationException>(
-                () => modelBuilder.Model.FinalizeModel()).Message);
+            Assert.Throws<InvalidOperationException>(() => modelBuilder.Model.FinalizeModel()).Message);
     }
 
     [ConditionalFact]
@@ -342,8 +334,8 @@ public class IndexAttributeConventionTest
         public int B { get; set; }
     }
 
-    [Index(nameof(A), nameof(B), Name = "IndexOnAAndB", IsUnique = true)]
-    [Index(nameof(B), nameof(C), Name = "IndexOnBAndC", IsUnique = false, AllDescending = true)]
+    [Index(nameof(A), nameof(B), Name = "IndexOnAAndB", IsUnique = true),
+     Index(nameof(B), nameof(C), Name = "IndexOnBAndC", IsUnique = false, AllDescending = true)]
     private class EntityWithTwoIndexes
     {
         public int Id { get; set; }
@@ -352,8 +344,7 @@ public class IndexAttributeConventionTest
         public int C { get; set; }
     }
 
-    [Index(nameof(A), nameof(B), Name = "IndexOnAAndB", IsUnique = true)]
-    [NotMapped]
+    [Index(nameof(A), nameof(B), Name = "IndexOnAAndB", IsUnique = true), NotMapped]
     private class BaseUnmappedEntityWithIndex
     {
         public int Id { get; set; }

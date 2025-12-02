@@ -21,9 +21,8 @@ public class BadDataSqliteTest(BadDataSqliteTest.BadDataSqliteFixture fixture) :
         using var context = CreateContext("bad int");
         Assert.Equal(
             CoreStrings.ErrorMaterializingPropertyInvalidCast("Product", "ProductID", typeof(int), typeof(string)),
-            Assert.Throws<InvalidOperationException>(
-                () =>
-                    context.Set<Product>().Where(p => p.ProductID != 1).ToList()).Message);
+            Assert.Throws<InvalidOperationException>(() =>
+                context.Set<Product>().Where(p => p.ProductID != 1).ToList()).Message);
     }
 
     [ConditionalFact]
@@ -32,9 +31,8 @@ public class BadDataSqliteTest(BadDataSqliteTest.BadDataSqliteFixture fixture) :
         using var context = CreateContext(null, true);
         Assert.Equal(
             RelationalStrings.ErrorMaterializingPropertyNullReference("Product", "ProductID", typeof(int)),
-            Assert.Throws<InvalidOperationException>(
-                () =>
-                    context.Set<Product>().Where(p => p.ProductID != 2).ToList()).Message);
+            Assert.Throws<InvalidOperationException>(() =>
+                context.Set<Product>().Where(p => p.ProductID != 2).ToList()).Message);
     }
 
     [ConditionalFact]
@@ -43,9 +41,8 @@ public class BadDataSqliteTest(BadDataSqliteTest.BadDataSqliteFixture fixture) :
         using var context = CreateContext(1, true, 1);
         Assert.Equal(
             CoreStrings.ErrorMaterializingPropertyInvalidCast("Product", "ProductName", typeof(string), typeof(int)),
-            Assert.Throws<InvalidOperationException>(
-                () =>
-                    context.Set<Product>().Where(p => p.ProductID != 3).ToList()).Message);
+            Assert.Throws<InvalidOperationException>(() =>
+                context.Set<Product>().Where(p => p.ProductID != 3).ToList()).Message);
     }
 
     [ConditionalFact]
@@ -54,11 +51,10 @@ public class BadDataSqliteTest(BadDataSqliteTest.BadDataSqliteFixture fixture) :
         using var context = CreateContext(1);
         Assert.Equal(
             RelationalStrings.ErrorMaterializingValueInvalidCast(typeof(string), typeof(int)),
-            Assert.Throws<InvalidOperationException>(
-                () =>
-                    context.Set<Product>().Where(p => p.ProductID != 4)
-                        .Select(p => p.ProductName)
-                        .ToList()).Message);
+            Assert.Throws<InvalidOperationException>(() =>
+                context.Set<Product>().Where(p => p.ProductID != 4)
+                    .Select(p => p.ProductName)
+                    .ToList()).Message);
     }
 
     [ConditionalFact]
@@ -67,12 +63,11 @@ public class BadDataSqliteTest(BadDataSqliteTest.BadDataSqliteFixture fixture) :
         using var context = CreateContext("bad int");
         Assert.Equal(
             CoreStrings.ErrorMaterializingPropertyInvalidCast("Product", "ProductID", typeof(int), typeof(string)),
-            Assert.Throws<InvalidOperationException>(
-                () =>
-                    context.Set<Product>()
-                        .Where(p => p.ProductID != 5)
-                        .AsNoTracking()
-                        .ToList()).Message);
+            Assert.Throws<InvalidOperationException>(() =>
+                context.Set<Product>()
+                    .Where(p => p.ProductID != 5)
+                    .AsNoTracking()
+                    .ToList()).Message);
     }
 
     [ConditionalFact]
@@ -81,9 +76,8 @@ public class BadDataSqliteTest(BadDataSqliteTest.BadDataSqliteFixture fixture) :
         using var context = CreateContext(1, null);
         Assert.Equal(
             RelationalStrings.ErrorMaterializingPropertyNullReference("Product", "Discontinued", typeof(bool)),
-            Assert.Throws<InvalidOperationException>(
-                () =>
-                    context.Set<Product>().Where(p => p.ProductID != 6).ToList()).Message);
+            Assert.Throws<InvalidOperationException>(() =>
+                context.Set<Product>().Where(p => p.ProductID != 6).ToList()).Message);
     }
 
     [ConditionalFact]
@@ -92,12 +86,11 @@ public class BadDataSqliteTest(BadDataSqliteTest.BadDataSqliteFixture fixture) :
         using var context = CreateContext([null]);
         Assert.Equal(
             RelationalStrings.ErrorMaterializingValueNullReference(typeof(bool)),
-            Assert.Throws<InvalidOperationException>(
-                () =>
-                    context.Set<Product>()
-                        .Where(p => p.ProductID != 7)
-                        .Select(p => p.Discontinued)
-                        .ToList()).Message);
+            Assert.Throws<InvalidOperationException>(() =>
+                context.Set<Product>()
+                    .Where(p => p.ProductID != 7)
+                    .Select(p => p.Discontinued)
+                    .ToList()).Message);
     }
 
     [ConditionalFact]
@@ -106,12 +99,11 @@ public class BadDataSqliteTest(BadDataSqliteTest.BadDataSqliteFixture fixture) :
         using var context = CreateContext(null, true);
         Assert.Equal(
             RelationalStrings.ErrorMaterializingPropertyNullReference("Product", "ProductID", typeof(int)),
-            Assert.Throws<InvalidOperationException>(
-                () =>
-                    context.Set<Product>()
-                        .Where(p => p.ProductID != 8)
-                        .AsNoTracking()
-                        .ToList()).Message);
+            Assert.Throws<InvalidOperationException>(() =>
+                context.Set<Product>()
+                    .Where(p => p.ProductID != 8)
+                    .AsNoTracking()
+                    .ToList()).Message);
     }
 
     // ReSharper disable once ClassNeverInstantiated.Local

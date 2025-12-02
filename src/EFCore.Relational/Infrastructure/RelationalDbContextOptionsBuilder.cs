@@ -154,8 +154,7 @@ public abstract class RelationalDbContextOptionsBuilder<TBuilder, TExtension> : 
     /// <param name="getExecutionStrategy">A function that returns a new instance of an execution strategy.</param>
     public virtual TBuilder ExecutionStrategy(
         Func<ExecutionStrategyDependencies, IExecutionStrategy> getExecutionStrategy)
-        => WithOption(
-            e => (TExtension)e.WithExecutionStrategyFactory(Check.NotNull(getExecutionStrategy)));
+        => WithOption(e => (TExtension)e.WithExecutionStrategyFactory(Check.NotNull(getExecutionStrategy)));
 
     /// <summary>
     ///     Configures the context to translate parameterized collections to inline constants.
@@ -191,7 +190,8 @@ public abstract class RelationalDbContextOptionsBuilder<TBuilder, TExtension> : 
     ///         <c>WHERE [b].[Id] IN (@ids1, @ids2, @ids3)</c>.
     ///     </para>
     ///     <para>
-    ///         <see cref="TranslateParameterizedCollectionsToParameters" /> instructs EF to translate the collection to a single array-like parameter:
+    ///         <see cref="TranslateParameterizedCollectionsToParameters" /> instructs EF to translate the collection to a single array-like
+    ///         parameter:
     ///         <c>WHERE [b].[Id] IN (SELECT [i].[value] FROM OPENJSON(@ids) ...)</c>.
     ///     </para>
     ///     <para>

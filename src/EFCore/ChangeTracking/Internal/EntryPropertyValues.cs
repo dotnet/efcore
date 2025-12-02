@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
@@ -155,7 +154,8 @@ public abstract class EntryPropertyValues : PropertyValues
                     var item = dtoList[i];
                     if (item != null)
                     {
-                        SetValuesFromDto(GetComplexCollectionEntry(entry, complexProperty, i), (IRuntimeComplexType)complexProperty.ComplexType, item);
+                        SetValuesFromDto(
+                            GetComplexCollectionEntry(entry, complexProperty, i), (IRuntimeComplexType)complexProperty.ComplexType, item);
                     }
                 }
             }
@@ -219,7 +219,8 @@ public abstract class EntryPropertyValues : PropertyValues
                     continue;
                 }
 
-                var nestedCollection = (IList)((IRuntimePropertyBase)nestedComplexProperty).GetIndexedCollectionAccessor().Create(nestedList.Count);
+                var nestedCollection = (IList)((IRuntimePropertyBase)nestedComplexProperty).GetIndexedCollectionAccessor()
+                    .Create(nestedList.Count);
                 for (var i = 0; i < nestedList.Count; i++)
                 {
                     var nestedDtoItem = nestedList[i];
@@ -229,7 +230,8 @@ public abstract class EntryPropertyValues : PropertyValues
                     }
                     else
                     {
-                        var nestedComplexObject = CreateComplexObjectFromDto((IRuntimeComplexType)nestedComplexProperty.ComplexType, nestedDtoItem);
+                        var nestedComplexObject = CreateComplexObjectFromDto(
+                            (IRuntimeComplexType)nestedComplexProperty.ComplexType, nestedDtoItem);
                         nestedCollection.Add(nestedComplexObject);
                     }
                 }
@@ -314,11 +316,14 @@ public abstract class EntryPropertyValues : PropertyValues
         }
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public override void SetValues<TProperty>(IDictionary<string, TProperty> values)
         => SetValuesFromDictionary(InternalEntry, (IRuntimeTypeBase)StructuralType, Check.NotNull(values));
 
-    private void SetValuesFromDictionary<TProperty>(InternalEntryBase entry, IRuntimeTypeBase structuralType, IDictionary<string, TProperty> values)
+    private void SetValuesFromDictionary<TProperty>(
+        InternalEntryBase entry,
+        IRuntimeTypeBase structuralType,
+        IDictionary<string, TProperty> values)
     {
         foreach (var property in structuralType.GetProperties())
         {
@@ -341,13 +346,15 @@ public abstract class EntryPropertyValues : PropertyValues
                 if (complexValue != null && dictionaryList == null)
                 {
                     throw new InvalidOperationException(
-                        CoreStrings.ComplexCollectionValueNotDictionaryList(complexProperty.Name, complexValue.GetType().ShortDisplayName()));
+                        CoreStrings.ComplexCollectionValueNotDictionaryList(
+                            complexProperty.Name, complexValue.GetType().ShortDisplayName()));
                 }
 
                 IList? complexList = null;
                 if (dictionaryList != null)
                 {
-                    complexList = (IList)((IRuntimePropertyBase)complexProperty).GetIndexedCollectionAccessor().Create(dictionaryList.Count);
+                    complexList = (IList)((IRuntimePropertyBase)complexProperty).GetIndexedCollectionAccessor()
+                        .Create(dictionaryList.Count);
                     for (var i = 0; i < dictionaryList.Count; i++)
                     {
                         var item = dictionaryList[i];
@@ -355,8 +362,10 @@ public abstract class EntryPropertyValues : PropertyValues
                         if (item != null && itemDict == null)
                         {
                             throw new InvalidOperationException(
-                                CoreStrings.ComplexCollectionValueNotDictionaryList(complexProperty.Name, item.GetType().ShortDisplayName()));
+                                CoreStrings.ComplexCollectionValueNotDictionaryList(
+                                    complexProperty.Name, item.GetType().ShortDisplayName()));
                         }
+
                         complexList.Add(CreateComplexObjectFromDictionary((IRuntimeComplexType)complexProperty.ComplexType, itemDict));
                     }
                 }
@@ -416,12 +425,12 @@ public abstract class EntryPropertyValues : PropertyValues
     {
         get
         {
-            if (StructuralType.FindProperty(propertyName) is IProperty property)
+            if (StructuralType.FindProperty(propertyName) is { } property)
             {
                 return GetValueInternal(InternalEntry, property);
             }
 
-            if (StructuralType.FindComplexProperty(propertyName) is IComplexProperty complexProperty)
+            if (StructuralType.FindComplexProperty(propertyName) is { } complexProperty)
             {
                 return GetValueInternal(InternalEntry, complexProperty);
             }
@@ -431,13 +440,13 @@ public abstract class EntryPropertyValues : PropertyValues
         }
         set
         {
-            if (StructuralType.FindProperty(propertyName) is IProperty property)
+            if (StructuralType.FindProperty(propertyName) is { } property)
             {
                 SetValueInternal(InternalEntry, property, value);
                 return;
             }
 
-            if (StructuralType.FindComplexProperty(propertyName) is IComplexProperty complexProperty)
+            if (StructuralType.FindComplexProperty(propertyName) is { } complexProperty)
             {
                 SetValueInternal(InternalEntry, complexProperty, value);
                 return;
@@ -491,7 +500,9 @@ public abstract class EntryPropertyValues : PropertyValues
     /// <summary>
     ///     Creates a complex object from a dictionary of property values using EF's property accessors.
     /// </summary>
-    private object? CreateComplexObjectFromDictionary<TProperty>(IRuntimeComplexType complexType, IDictionary<string, TProperty>? dictionary)
+    private object? CreateComplexObjectFromDictionary<TProperty>(
+        IRuntimeComplexType complexType,
+        IDictionary<string, TProperty>? dictionary)
     {
         if (dictionary == null)
         {
@@ -522,20 +533,22 @@ public abstract class EntryPropertyValues : PropertyValues
             {
                 if (nestedComplexProperty.IsCollection && nestedValue is IList nestedList)
                 {
-                    var nestedCollection = (IList)((IRuntimePropertyBase)nestedComplexProperty).GetIndexedCollectionAccessor().Create(nestedList.Count);
+                    var nestedCollection = (IList)((IRuntimePropertyBase)nestedComplexProperty).GetIndexedCollectionAccessor()
+                        .Create(nestedList.Count);
 
                     foreach (var nestedItem in nestedList)
                     {
-                        nestedCollection.Add(nestedItem switch
-                        {
-                            null => null,
-                            IDictionary<string, TProperty> nestedItemDict
-                                => CreateComplexObjectFromDictionary(
-                                    (IRuntimeComplexType)nestedComplexProperty.ComplexType, nestedItemDict),
-                            _ => throw new InvalidOperationException(
-                                CoreStrings.ComplexCollectionValueNotDictionaryList(
-                                    nestedComplexProperty.Name, nestedList.GetType().ShortDisplayName()))
-                        });
+                        nestedCollection.Add(
+                            nestedItem switch
+                            {
+                                null => null,
+                                IDictionary<string, TProperty> nestedItemDict
+                                    => CreateComplexObjectFromDictionary(
+                                        (IRuntimeComplexType)nestedComplexProperty.ComplexType, nestedItemDict),
+                                _ => throw new InvalidOperationException(
+                                    CoreStrings.ComplexCollectionValueNotDictionaryList(
+                                        nestedComplexProperty.Name, nestedList.GetType().ShortDisplayName()))
+                            });
                     }
 
                     var propertyInfo = nestedComplexProperty.PropertyInfo;
@@ -547,19 +560,22 @@ public abstract class EntryPropertyValues : PropertyValues
                 else if (nestedComplexProperty.IsCollection && nestedValue != null)
                 {
                     throw new InvalidOperationException(
-                        CoreStrings.ComplexCollectionValueNotDictionaryList(nestedComplexProperty.Name, nestedValue.GetType().ShortDisplayName()));
+                        CoreStrings.ComplexCollectionValueNotDictionaryList(
+                            nestedComplexProperty.Name, nestedValue.GetType().ShortDisplayName()));
                 }
                 else if (!nestedComplexProperty.IsCollection)
                 {
                     object? nestedComplexObject = null;
                     if (nestedValue is IDictionary<string, TProperty> nestedDict)
                     {
-                        nestedComplexObject = CreateComplexObjectFromDictionary((IRuntimeComplexType)nestedComplexProperty.ComplexType, nestedDict);
+                        nestedComplexObject = CreateComplexObjectFromDictionary(
+                            (IRuntimeComplexType)nestedComplexProperty.ComplexType, nestedDict);
                     }
                     else if (nestedValue != null)
                     {
                         throw new InvalidOperationException(
-                            CoreStrings.ComplexPropertyValueNotDictionary(nestedComplexProperty.Name, nestedValue.GetType().ShortDisplayName()));
+                            CoreStrings.ComplexPropertyValueNotDictionary(
+                                nestedComplexProperty.Name, nestedValue.GetType().ShortDisplayName()));
                     }
 
                     var propertyInfo = nestedComplexProperty.PropertyInfo;

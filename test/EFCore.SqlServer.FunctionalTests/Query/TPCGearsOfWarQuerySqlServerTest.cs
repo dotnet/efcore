@@ -2421,7 +2421,8 @@ WHERE [c].[Location] = @value
         AssertSql(
             """
 @cities1='Unknown' (Size = 100) (DbType = AnsiString)
-@cities2='Jacinto's location' (Size = 100) (DbType = AnsiString), @cities3='Ephyra's location' (Size = 100) (DbType = AnsiString)
+@cities2='Jacinto's location' (Size = 100) (DbType = AnsiString)
+@cities3='Ephyra's location' (Size = 100) (DbType = AnsiString)
 
 SELECT [c].[Name], [c].[Location], [c].[Nation]
 FROM [Cities] AS [c]
@@ -9986,8 +9987,7 @@ WHERE @rank = [u].[Rank]
 """);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public async Task DataLength_function_for_string_parameter(bool async)
     {
         await AssertQueryScalar(
@@ -10884,11 +10884,12 @@ WHERE [u].[HasSoulPatch] = CAST(1 AS bit) AND [u].[HasSoulPatch] IN (@values1, @
 
         AssertSql(
             """
-@place='Ephyra's location' (Size = 4000), @place0='Ephyra's location' (Size = 100) (DbType = AnsiString)
+@place='Ephyra's location' (Size = 4000)
+@place0='Ephyra's location' (Size = 100) (DbType = AnsiString)
 
 SELECT [c].[Name], [c].[Location], [c].[Nation]
 FROM [Cities] AS [c]
-WHERE [c].[Nation] = @place OR [c].[Location] = @place0 OR [c].[Location] = @place
+WHERE [c].[Nation] = @place OR [c].[Location] = @place0 OR [c].[Location] = @place0
 """);
     }
 
@@ -10937,6 +10938,60 @@ LEFT JOIN (
     FROM [Weapons] AS [w]
     WHERE [w].[Id] > @prm
 ) AS [w0] ON [u].[FullName] = [w0].[OwnerFullName]
+""");
+    }
+
+    public override async Task DefaultIfEmpty_top_level_over_column_with_nullable_value_type(bool async)
+    {
+        await base.DefaultIfEmpty_top_level_over_column_with_nullable_value_type(async);
+
+        AssertSql(
+            """
+SELECT [m0].[Rating]
+FROM (
+    SELECT 1 AS empty
+) AS [e]
+LEFT JOIN (
+    SELECT [m].[Rating]
+    FROM [Missions] AS [m]
+    WHERE [m].[Id] = -1
+) AS [m0] ON 1 = 1
+""");
+    }
+
+    public override async Task DefaultIfEmpty_top_level_over_arbitrary_expression_with_nullable_value_type(bool async)
+    {
+        await base.DefaultIfEmpty_top_level_over_arbitrary_expression_with_nullable_value_type(async);
+
+        AssertSql(
+            """
+SELECT [m0].[c]
+FROM (
+    SELECT 1 AS empty
+) AS [e]
+LEFT JOIN (
+    SELECT [m].[Rating] + 2.0E0 AS [c]
+    FROM [Missions] AS [m]
+    WHERE [m].[Id] = -1
+) AS [m0] ON 1 = 1
+""");
+    }
+
+    public override async Task DefaultIfEmpty_top_level_over_arbitrary_expression_with_non_nullable_value_type(bool async)
+    {
+        await base.DefaultIfEmpty_top_level_over_arbitrary_expression_with_non_nullable_value_type(async);
+
+        AssertSql(
+            """
+SELECT COALESCE([m0].[c], 0)
+FROM (
+    SELECT 1 AS empty
+) AS [e]
+LEFT JOIN (
+    SELECT [m].[Id] + 2 AS [c]
+    FROM [Missions] AS [m]
+    WHERE [m].[Id] = -1
+) AS [m0] ON 1 = 1
 """);
     }
 
@@ -12227,7 +12282,8 @@ END IN (@numbers1, @numbers2)
 
         AssertSql(
             """
-@weapons1='Marcus' Lancer' (Size = 4000), @weapons2='Dom's Gnasher' (Size = 4000)
+@weapons1='Marcus' Lancer' (Size = 4000)
+@weapons2='Dom's Gnasher' (Size = 4000)
 
 SELECT [u].[Nickname], [u].[SquadId], [u].[AssignedCityName], [u].[CityOfBirthName], [u].[FullName], [u].[HasSoulPatch], [u].[LeaderNickname], [u].[LeaderSquadId], [u].[Rank], [u].[Discriminator]
 FROM (

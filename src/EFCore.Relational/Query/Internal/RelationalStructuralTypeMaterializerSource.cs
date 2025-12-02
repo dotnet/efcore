@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-
 namespace Microsoft.EntityFrameworkCore.Query.Internal;
 
 #pragma warning disable EF1001 // StructuralTypeMaterializerSource is pubternal
@@ -20,5 +19,6 @@ public class RelationalStructuralTypeMaterializerSource(StructuralTypeMaterializ
     ///     since they're not simply e.g. DbDataReader.GetFieldValue calls.
     ///     So they're handled afterwards in the shaper, and need to be skipped.
     /// </summary>
-    protected override bool ReadComplexTypeDirectly(IComplexType complexType) => !complexType.IsMappedToJson();
+    protected override bool ReadComplexTypeDirectly(IComplexType complexType)
+        => !complexType.IsMappedToJson();
 }

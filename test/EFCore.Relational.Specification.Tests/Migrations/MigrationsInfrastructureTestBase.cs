@@ -364,7 +364,8 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
         await GiveMeSomeTimeAsync(db);
         await db.GetService<IRelationalDatabaseCreator>().CreateAsync();
 
-        await SetAndExecuteSqlAsync(migrator.GenerateScript(fromMigration: Migration.InitialDatabase, toMigration: Migration.InitialDatabase));
+        await SetAndExecuteSqlAsync(
+            migrator.GenerateScript(fromMigration: Migration.InitialDatabase, toMigration: Migration.InitialDatabase));
     }
 
     [ConditionalFact]
@@ -380,9 +381,10 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
 
         await SetAndExecuteSqlAsync(migrator.GenerateScript());
 
-        await SetAndExecuteSqlAsync(migrator.GenerateScript(
-            fromMigration: "Migration7",
-            toMigration: Migration.InitialDatabase),
+        await SetAndExecuteSqlAsync(
+            migrator.GenerateScript(
+                fromMigration: "Migration7",
+                toMigration: Migration.InitialDatabase),
             append: true);
     }
 
@@ -399,10 +401,11 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
 
         await SetAndExecuteSqlAsync(migrator.GenerateScript(options: MigrationsSqlGenerationOptions.NoTransactions));
 
-        await SetAndExecuteSqlAsync(migrator.GenerateScript(
-            fromMigration: "Migration7",
-            toMigration: Migration.InitialDatabase,
-            MigrationsSqlGenerationOptions.NoTransactions),
+        await SetAndExecuteSqlAsync(
+            migrator.GenerateScript(
+                fromMigration: "Migration7",
+                toMigration: Migration.InitialDatabase,
+                MigrationsSqlGenerationOptions.NoTransactions),
             append: true);
     }
 
@@ -417,16 +420,19 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
 
         await db.GetService<IRelationalDatabaseCreator>().CreateAsync();
 
-        await ExecuteSqlAsync(migrator.GenerateScript(
-            toMigration: "00000000000001_Migration1"));
+        await ExecuteSqlAsync(
+            migrator.GenerateScript(
+                toMigration: "00000000000001_Migration1"));
 
-        await SetAndExecuteSqlAsync(migrator.GenerateScript(
-            fromMigration: "00000000000001_Migration1",
-            toMigration: "00000000000002_Migration2"));
+        await SetAndExecuteSqlAsync(
+            migrator.GenerateScript(
+                fromMigration: "00000000000001_Migration1",
+                toMigration: "00000000000002_Migration2"));
 
-        await SetAndExecuteSqlAsync(migrator.GenerateScript(
-            fromMigration: "00000000000002_Migration2",
-            toMigration: "00000000000001_Migration1"),
+        await SetAndExecuteSqlAsync(
+            migrator.GenerateScript(
+                fromMigration: "00000000000002_Migration2",
+                toMigration: "00000000000001_Migration1"),
             append: true);
     }
 
@@ -441,16 +447,19 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
 
         await db.GetService<IRelationalDatabaseCreator>().CreateAsync();
 
-        await ExecuteSqlAsync(migrator.GenerateScript(
-            toMigration: "Migration1"));
+        await ExecuteSqlAsync(
+            migrator.GenerateScript(
+                toMigration: "Migration1"));
 
-        await SetAndExecuteSqlAsync(migrator.GenerateScript(
-            fromMigration: "Migration1",
-            toMigration: "Migration2"));
+        await SetAndExecuteSqlAsync(
+            migrator.GenerateScript(
+                fromMigration: "Migration1",
+                toMigration: "Migration2"));
 
-        await SetAndExecuteSqlAsync(migrator.GenerateScript(
-            fromMigration: "Migration2",
-            toMigration: "Migration1"),
+        await SetAndExecuteSqlAsync(
+            migrator.GenerateScript(
+                fromMigration: "Migration2",
+                toMigration: "Migration1"),
             append: true);
     }
 
@@ -465,14 +474,16 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
 
         await db.GetService<IRelationalDatabaseCreator>().CreateAsync();
 
-        await SetAndExecuteSqlAsync(migrator.GenerateScript(
-            toMigration: "Migration2",
-            options: MigrationsSqlGenerationOptions.Idempotent));
+        await SetAndExecuteSqlAsync(
+            migrator.GenerateScript(
+                toMigration: "Migration2",
+                options: MigrationsSqlGenerationOptions.Idempotent));
 
-        await SetAndExecuteSqlAsync(migrator.GenerateScript(
-            fromMigration: "Migration2",
-            toMigration: Migration.InitialDatabase,
-            MigrationsSqlGenerationOptions.Idempotent),
+        await SetAndExecuteSqlAsync(
+            migrator.GenerateScript(
+                fromMigration: "Migration2",
+                toMigration: Migration.InitialDatabase,
+                MigrationsSqlGenerationOptions.Idempotent),
             append: true);
     }
 
@@ -487,14 +498,16 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
 
         await db.GetService<IRelationalDatabaseCreator>().CreateAsync();
 
-        await SetAndExecuteSqlAsync(migrator.GenerateScript(
-            toMigration: "Migration2",
-            options: MigrationsSqlGenerationOptions.Idempotent | MigrationsSqlGenerationOptions.NoTransactions));
+        await SetAndExecuteSqlAsync(
+            migrator.GenerateScript(
+                toMigration: "Migration2",
+                options: MigrationsSqlGenerationOptions.Idempotent | MigrationsSqlGenerationOptions.NoTransactions));
 
-        await SetAndExecuteSqlAsync(migrator.GenerateScript(
-            fromMigration: "Migration2",
-            toMigration: Migration.InitialDatabase,
-            MigrationsSqlGenerationOptions.Idempotent | MigrationsSqlGenerationOptions.NoTransactions),
+        await SetAndExecuteSqlAsync(
+            migrator.GenerateScript(
+                fromMigration: "Migration2",
+                toMigration: Migration.InitialDatabase,
+                MigrationsSqlGenerationOptions.Idempotent | MigrationsSqlGenerationOptions.NoTransactions),
             append: true);
     }
 
@@ -596,22 +609,19 @@ public abstract class MigrationsInfrastructureFixtureBase
 
     public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
         => base.AddOptions(builder)
-            .UseSeeding(
-                (context, migrated) =>
-                {
-                    SeedCallCount++;
-                })
-            .UseAsyncSeeding(
-                (context, migrated, token) =>
-                {
-                    SeedAsyncCallCount++;
-                    return Task.CompletedTask;
-                })
-            .ConfigureWarnings(
-                e => e
-                    .Log(RelationalEventId.PendingModelChangesWarning)
-                    .Log(RelationalEventId.NonTransactionalMigrationOperationWarning)
-                    .Log(RelationalEventId.MigrationsUserTransactionWarning)
+            .UseSeeding((context, migrated) =>
+            {
+                SeedCallCount++;
+            })
+            .UseAsyncSeeding((context, migrated, token) =>
+            {
+                SeedAsyncCallCount++;
+                return Task.CompletedTask;
+            })
+            .ConfigureWarnings(e => e
+                .Log(RelationalEventId.PendingModelChangesWarning)
+                .Log(RelationalEventId.NonTransactionalMigrationOperationWarning)
+                .Log(RelationalEventId.MigrationsUserTransactionWarning)
             );
 
     protected override bool ShouldLogCategory(string logCategory)
@@ -624,8 +634,7 @@ public abstract class MigrationsInfrastructureFixtureBase
         public string Description { get; set; }
     }
 
-    [DbContext(typeof(MigrationsContext))]
-    [Migration("00000000000001_Migration1")]
+    [DbContext(typeof(MigrationsContext)), Migration("00000000000001_Migration1")]
     private class Migration1 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -650,8 +659,7 @@ public abstract class MigrationsInfrastructureFixtureBase
             => migrationBuilder.DropTable("Table1");
     }
 
-    [DbContext(typeof(MigrationsContext))]
-    [Migration("00000000000002_Migration2")]
+    [DbContext(typeof(MigrationsContext)), Migration("00000000000002_Migration2")]
     private class Migration2 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -667,8 +675,7 @@ public abstract class MigrationsInfrastructureFixtureBase
                 newName: "Foo");
     }
 
-    [DbContext(typeof(MigrationsContext))]
-    [Migration("00000000000003_Migration3")]
+    [DbContext(typeof(MigrationsContext)), Migration("00000000000003_Migration3")]
     private class Migration3 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -685,8 +692,7 @@ public abstract class MigrationsInfrastructureFixtureBase
         }
     }
 
-    [DbContext(typeof(MigrationsContext))]
-    [Migration("00000000000004_Migration4")]
+    [DbContext(typeof(MigrationsContext)), Migration("00000000000004_Migration4")]
     private class Migration4 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -731,8 +737,7 @@ public abstract class MigrationsInfrastructureFixtureBase
         }
     }
 
-    [DbContext(typeof(MigrationsContext))]
-    [Migration("00000000000005_Migration5")]
+    [DbContext(typeof(MigrationsContext)), Migration("00000000000005_Migration5")]
     private class Migration5 : Migration
     {
         public const string TestValue = """
@@ -754,8 +759,7 @@ public abstract class MigrationsInfrastructureFixtureBase
         }
     }
 
-    [DbContext(typeof(MigrationsContext))]
-    [Migration("00000000000006_Migration6")]
+    [DbContext(typeof(MigrationsContext)), Migration("00000000000006_Migration6")]
     private class Migration6 : Migration
     {
         public const string TestValue = """
@@ -778,8 +782,7 @@ public abstract class MigrationsInfrastructureFixtureBase
         }
     }
 
-    [DbContext(typeof(MigrationsContext))]
-    [Migration("00000000000007_Migration7")]
+    [DbContext(typeof(MigrationsContext)), Migration("00000000000007_Migration7")]
     private class Migration7 : Migration
     {
         public const string TestValue = """

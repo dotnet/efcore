@@ -32,8 +32,6 @@ public class ForeignKey : ConventionAnnotatable, IMutableForeignKey, IConvention
     private ConfigurationSource? _isOwnershipConfigurationSource;
     private ConfigurationSource? _dependentToPrincipalConfigurationSource;
     private ConfigurationSource? _principalToDependentConfigurationSource;
-    private IDependentKeyValueFactory? _dependentKeyValueFactory;
-    private Func<IDependentsMap>? _dependentsMapFactory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -945,23 +943,24 @@ public class ForeignKey : ConventionAnnotatable, IMutableForeignKey, IConvention
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    [field: AllowNull, MaybeNull]
     public virtual IDependentKeyValueFactory DependentKeyValueFactory
     {
         get
         {
-            if (_dependentKeyValueFactory == null)
+            if (field == null)
             {
                 EnsureReadOnly();
             }
 
-            return _dependentKeyValueFactory!;
+            return field!;
         }
 
         set
         {
             EnsureReadOnly();
 
-            _dependentKeyValueFactory = value;
+            field = value;
         }
     }
 
@@ -972,23 +971,24 @@ public class ForeignKey : ConventionAnnotatable, IMutableForeignKey, IConvention
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    [field: AllowNull, MaybeNull]
     public virtual Func<IDependentsMap> DependentsMapFactory
     {
         get
         {
-            if (_dependentsMapFactory == null)
+            if (field == null)
             {
                 EnsureReadOnly();
             }
 
-            return _dependentsMapFactory!;
+            return field!;
         }
 
         set
         {
             EnsureReadOnly();
 
-            _dependentsMapFactory = value;
+            field = value;
         }
     }
 

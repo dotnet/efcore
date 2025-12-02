@@ -57,7 +57,9 @@ public abstract class SnapshotFactoryFactory
             var index = GetPropertyIndex(propertyBase);
             if (index >= 0)
             {
-                Check.DebugAssert(propertyBases[index] == null, $"Both {propertyBase.Name} and {propertyBases[index]?.Name} have the same index {index}.");
+                Check.DebugAssert(
+                    propertyBases[index] == null,
+                    $"Both {propertyBase.Name} and {propertyBases[index]?.Name} have the same index {index}.");
 
                 types[index] = (propertyBase as IProperty)?.ClrType ?? typeof(object);
                 propertyBases[index] = propertyBase;
@@ -65,7 +67,8 @@ public abstract class SnapshotFactoryFactory
             }
         }
 
-        Check.DebugAssert(actualCount == count,
+        Check.DebugAssert(
+            actualCount == count,
             $"Count of snapshottable properties {actualCount} for {structuralType.DisplayName()} does not match expected count {count}.");
 
         Expression constructorExpression;
@@ -117,7 +120,8 @@ public abstract class SnapshotFactoryFactory
             ? null
             : Expression.Variable(clrType, "structuralType");
 
-        Check.DebugAssert(structuralTypeVariable != null || count == 0,
+        Check.DebugAssert(
+            structuralTypeVariable != null || count == 0,
             "If there are any properties then the entity parameter must be used");
         var indicesExpression = parameter == null || !parameter.Type.IsAssignableTo(typeof(IInternalEntry))
             ? (Expression)Expression.Property(null, typeof(ReadOnlySpan<int>), nameof(ReadOnlySpan<>.Empty))
@@ -166,8 +170,7 @@ public abstract class SnapshotFactoryFactory
                             structuralTypeVariable,
                             (IRuntimeTypeBase)propertyBases[0]!.DeclaringType switch
                             {
-                                IComplexType declaringComplexType when declaringComplexType.ComplexProperty.IsCollection
-                                    => PropertyAccessorsFactory.CreateComplexCollectionElementAccess(
+                                IComplexType { ComplexProperty.IsCollection: true } declaringComplexType => PropertyAccessorsFactory.CreateComplexCollectionElementAccess(
                                         declaringComplexType.ComplexProperty,
                                         Expression.Convert(
                                             Expression.Property(parameter!, nameof(IInternalEntry.Entity)),
@@ -204,7 +207,6 @@ public abstract class SnapshotFactoryFactory
                     ? Expression.Call(
                         null,
                         SnapshotComplexCollectionMethod,
-
                         expression.Type.IsAssignableTo(typeof(IList))
                             ? expression
                             : Expression.Convert(expression, typeof(IList)),
@@ -216,10 +218,11 @@ public abstract class SnapshotFactoryFactory
                             ? expression
                             : Expression.Convert(expression, typeof(IEnumerable)));
             }
+
             return expression;
         }
 
-        if (GetValueComparer(property) is not ValueComparer comparer)
+        if (GetValueComparer(property) is not { } comparer)
         {
             return expression;
         }
@@ -339,11 +342,13 @@ public abstract class SnapshotFactoryFactory
         {
             return null;
         }
+
         var snapshot = new HashSet<object>(ReferenceEqualityComparer.Instance);
         foreach (var item in collection)
         {
             snapshot.Add(item);
         }
+
         return snapshot;
     }
 
@@ -369,6 +374,7 @@ public abstract class SnapshotFactoryFactory
             // We need to preserve the original reference, these are only used to find moved items, not modified properties on them
             snapshot.Add(item);
         }
+
         return snapshot;
     }
 }

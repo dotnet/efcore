@@ -43,10 +43,10 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     LambdaExpression? GetQueryFilter();
 
     /// <summary>
-    /// Retrieves the query filter associated with the specified key.
+    ///     Retrieves the query filter associated with the specified key.
     /// </summary>
     /// <param name="filterKey">The key identifying the query filter to retrieve.</param>
-    /// <returns>The <see cref="IQueryFilter"/> associated with the specified key.</returns>
+    /// <returns>The <see cref="IQueryFilter" /> associated with the specified key.</returns>
     IQueryFilter? FindDeclaredQueryFilter(string? filterKey);
 
     /// <summary>
@@ -283,7 +283,7 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     /// <param name="property">The property to find the foreign keys on.</param>
     /// <returns>The foreign keys.</returns>
     IEnumerable<IReadOnlyForeignKey> FindForeignKeys(IReadOnlyProperty property)
-        => FindForeignKeys(new[] { property });
+        => FindForeignKeys([property]);
 
     /// <summary>
     ///     Gets the foreign keys defined on the given properties. Only foreign keys that are defined on exactly the specified
@@ -309,7 +309,7 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
         IReadOnlyProperty property,
         IReadOnlyKey principalKey,
         IReadOnlyEntityType principalEntityType)
-        => FindForeignKey(new[] { property }, principalKey, principalEntityType);
+        => FindForeignKey([property], principalKey, principalEntityType);
 
     /// <summary>
     ///     Gets the foreign keys declared on this entity type using the given properties.
@@ -548,7 +548,7 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     /// <param name="property">The property to find the index on.</param>
     /// <returns>The index, or <see langword="null" /> if none is found.</returns>
     IReadOnlyIndex? FindIndex(IReadOnlyProperty property)
-        => FindIndex(new[] { property });
+        => FindIndex([property]);
 
     /// <summary>
     ///     Gets all indexes declared on this entity type.
@@ -607,7 +607,7 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     IEnumerable<IReadOnlyServiceProperty> GetDerivedServiceProperties();
 
     /// <summary>
-    ///     Checks whether or not this entity type has any <see cref="IServiceProperty" /> defined.
+    ///     Checks whether this entity type has any <see cref="IServiceProperty" /> defined.
     /// </summary>
     /// <returns><see langword="true" /> if there are any service properties defined on this entity type or base types.</returns>
     bool HasServiceProperties();
@@ -638,7 +638,7 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     /// </summary>
     /// <returns>The triggers defined on this entity type.</returns>
     IEnumerable<IReadOnlyTrigger> GetTriggers()
-        => (BaseType?.GetTriggers() ?? Enumerable.Empty<IReadOnlyTrigger>()).Concat(GetDeclaredTriggers());
+        => (BaseType?.GetTriggers() ?? []).Concat(GetDeclaredTriggers());
 
     /// <summary>
     ///     Gets the <see cref="PropertyAccessMode" /> being used for navigations of this entity type.

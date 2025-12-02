@@ -5,7 +5,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Translations;
 
 public class StringTranslationsCosmosTest : StringTranslationsTestBase<BasicTypesQueryCosmosFixture>
 {
-    public StringTranslationsCosmosTest(BasicTypesQueryCosmosFixture fixture, ITestOutputHelper testOutputHelper) : base(fixture)
+    public StringTranslationsCosmosTest(BasicTypesQueryCosmosFixture fixture, ITestOutputHelper testOutputHelper)
+        : base(fixture)
     {
         Fixture.TestSqlLoggerFactory.Clear();
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
@@ -181,7 +182,7 @@ WHERE (INDEX_OF(c["String"], "") = 0)
 
         AssertSql(
             """
-@pattern=?
+@pattern='eattl'
 
 SELECT VALUE c
 FROM root c
@@ -195,7 +196,7 @@ WHERE (INDEX_OF(c["String"], @pattern) = 1)
 
         AssertSql(
             """
-@pattern=?
+@pattern='e'
 
 SELECT VALUE c
 FROM root c
@@ -233,7 +234,7 @@ WHERE ((LENGTH(c["String"]) > 2) AND (INDEX_OF(c["String"], "e", 2) = 6))
 
         AssertSql(
             """
-@start=?
+@start='2'
 
 SELECT VALUE c
 FROM root c
@@ -247,7 +248,7 @@ WHERE ((LENGTH(c["String"]) > 2) AND (INDEX_OF(c["String"], "e", @start) = 6))
 
         AssertSql(
             """
-@start=?
+@start='2'
 
 SELECT VALUE c
 FROM root c
@@ -355,7 +356,7 @@ WHERE ((LENGTH(c["String"]) >= 1) AND (SUBSTRING(c["String"], 1, LENGTH(c["Strin
 
         AssertSql(
             """
-@start=?
+@start='2'
 
 SELECT VALUE c
 FROM root c
@@ -393,7 +394,7 @@ WHERE ((LENGTH(c["String"]) >= 2) AND (SUBSTRING(c["String"], 2, 0) = ""))
 
         AssertSql(
             """
-@start=?
+@start='2'
 
 SELECT VALUE c
 FROM root c
@@ -475,7 +476,7 @@ WHERE STARTSWITH(c["String"], "S")
 
         AssertSql(
             """
-@pattern=?
+@pattern='Se'
 
 SELECT VALUE c
 FROM root c
@@ -489,7 +490,7 @@ WHERE STARTSWITH(c["String"], @pattern)
 
         AssertSql(
             """
-@pattern=?
+@pattern='S'
 
 SELECT VALUE c
 FROM root c
@@ -574,7 +575,7 @@ WHERE ENDSWITH(c["String"], "e")
 
         AssertSql(
             """
-@pattern=?
+@pattern='le'
 
 SELECT VALUE c
 FROM root c
@@ -588,7 +589,7 @@ WHERE ENDSWITH(c["String"], @pattern)
 
         AssertSql(
             """
-@pattern=?
+@pattern='e'
 
 SELECT VALUE c
 FROM root c
@@ -750,7 +751,7 @@ WHERE CONTAINS(c["String"], "     ")
 
         AssertSql(
             """
-@pattern=?
+@pattern='     '
 
 SELECT VALUE c
 FROM root c
@@ -881,7 +882,7 @@ WHERE (TRIM(c["String"]) = "Boston")
 
         AssertSql(
             """
-ReadItem(?, ?)
+ReadItem([1.0], 1)
 """);
     }
 
@@ -932,7 +933,7 @@ ReadItem(?, ?)
 
         AssertSql(
             """
-ReadItem(?, ?)
+ReadItem([1.0], 1)
 """);
     }
 
@@ -1004,7 +1005,7 @@ WHERE ((c["String"] || "Boston") = "SeattleBoston")
 
         AssertSql(
             """
-@i=?
+@i='A'
 
 SELECT VALUE c
 FROM root c
@@ -1051,7 +1052,7 @@ WHERE ((@i || c["String"]) = "ASeattle")
 
         AssertSql(
             """
-@i=?
+@i='A'
 
 SELECT VALUE c
 FROM root c
@@ -1065,8 +1066,8 @@ WHERE ((@i || c["String"]) = "ASeattle")
 
         AssertSql(
             """
-@i=?
-@j=?
+@i='A'
+@j='B'
 
 SELECT VALUE c
 FROM root c
@@ -1080,9 +1081,9 @@ WHERE ((@i || (@j || c["String"])) = "ABSeattle")
 
         AssertSql(
             """
-@i=?
-@j=?
-@k=?
+@i='A'
+@j='B'
+@k='C'
 
 SELECT VALUE c
 FROM root c

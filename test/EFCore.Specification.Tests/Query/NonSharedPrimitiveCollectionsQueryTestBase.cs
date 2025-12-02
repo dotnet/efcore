@@ -5,7 +5,8 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 using static Expression;
 
-public abstract class NonSharedPrimitiveCollectionsQueryTestBase(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
+public abstract class NonSharedPrimitiveCollectionsQueryTestBase(NonSharedFixture fixture)
+    : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
     #region Support for specific element types
 
@@ -98,9 +99,8 @@ public abstract class NonSharedPrimitiveCollectionsQueryTestBase(NonSharedFixtur
     [ConditionalFact]
     public virtual async Task Multidimensional_array_is_not_supported()
     {
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
-            () => InitializeAsync<TestContext>(
-                onModelCreating: mb => mb.Entity<TestEntity>().Property(typeof(int[,]), "MultidimensionalArray")));
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => InitializeAsync<TestContext>(
+            onModelCreating: mb => mb.Entity<TestEntity>().Property(typeof(int[,]), "MultidimensionalArray")));
         Assert.Equal(CoreStrings.PropertyNotMapped("int[,]", "TestEntity", "MultidimensionalArray"), exception.Message);
     }
 
@@ -181,8 +181,8 @@ public abstract class NonSharedPrimitiveCollectionsQueryTestBase(NonSharedFixtur
         await using var context = contextFactory.CreateContext();
 
         var result = await context.Set<TestEntity>()
-            .SingleAsync(
-                m => new IntWrapper[] { new(1), new(8) }.Count(i => i == EF.Property<IntWrapper>(m, "PropertyWithValueConverter")) == 1);
+            .SingleAsync(m
+                => new IntWrapper[] { new(1), new(8) }.Count(i => i == EF.Property<IntWrapper>(m, "PropertyWithValueConverter")) == 1);
         Assert.Equal(1, result.Id);
     }
 
@@ -214,12 +214,11 @@ public abstract class NonSharedPrimitiveCollectionsQueryTestBase(NonSharedFixtur
     public virtual async Task Project_collection_from_entity_type_with_owned()
     {
         var contextFactory = await InitializeAsync<TestContext>(
-            onModelCreating: mb => mb.Entity<TestEntityWithOwned>(
-                b =>
-                {
-                    b.Property(b => b.Id).ValueGeneratedNever();
-                    b.OwnsOne(b => b.Owned);
-                }),
+            onModelCreating: mb => mb.Entity<TestEntityWithOwned>(b =>
+            {
+                b.Property(b => b.Id).ValueGeneratedNever();
+                b.OwnsOne(b => b.Owned);
+            }),
             seed: context =>
             {
                 context.AddRange(

@@ -797,7 +797,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 else
                 {
                     replaceExpression = isNonNullableScalar
-                        ? Expression.Convert(
+                        ? Convert(
                             Default(originalBodyType),
                             type)
                         : Default(type);
@@ -820,7 +820,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     jTokenExpression,
                     (isNonNullableScalar
                         ? typeMapping?.ClrType
-                        : typeMapping?.ClrType.MakeNullable()) ?? type);
+                        : typeMapping?.ClrType.MakeNullable())
+                    ?? type);
 
                 if (valueExpression.Type != type)
                 {

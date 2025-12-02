@@ -10,9 +10,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration;
 
 public class SqlServerValueGeneratorSelectorTest
 {
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public void Returns_built_in_generators_for_types_setup_for_value_generation(bool useTry)
     {
         AssertGenerator<TemporaryIntValueGenerator>("Id", useTry: useTry);
@@ -33,13 +31,12 @@ public class SqlServerValueGeneratorSelectorTest
     private void AssertGenerator<TExpected>(string propertyName, bool useHiLo = false, bool useKeySequence = false, bool useTry = true)
     {
         var builder = SqlServerTestHelpers.Instance.CreateConventionBuilder();
-        builder.Entity<AnEntity>(
-            b =>
-            {
-                b.Property(e => e.Custom).HasValueGenerator<CustomValueGenerator>();
-                b.Property(propertyName).ValueGeneratedOnAdd();
-                b.HasKey(propertyName);
-            });
+        builder.Entity<AnEntity>(b =>
+        {
+            b.Property(e => e.Custom).HasValueGenerator<CustomValueGenerator>();
+            b.Property(propertyName).ValueGeneratedOnAdd();
+            b.HasKey(propertyName);
+        });
 
         if (useHiLo)
         {
@@ -80,18 +77,15 @@ public class SqlServerValueGeneratorSelectorTest
         return generator;
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public void Returns_temp_guid_generator_when_default_sql_set(bool useTry)
     {
         var builder = SqlServerTestHelpers.Instance.CreateConventionBuilder();
-        builder.Entity<AnEntity>(
-            b =>
-            {
-                b.Property(e => e.Guid).HasDefaultValueSql("newid()");
-                b.HasKey(e => e.Guid);
-            });
+        builder.Entity<AnEntity>(b =>
+        {
+            b.Property(e => e.Guid).HasDefaultValueSql("newid()");
+            b.HasKey(e => e.Guid);
+        });
         var model = builder.FinalizeModel();
         var entityType = model.FindEntityType(typeof(AnEntity))!;
 
@@ -102,18 +96,15 @@ public class SqlServerValueGeneratorSelectorTest
         Assert.IsType<TemporaryGuidValueGenerator>(generator);
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public void Returns_temp_string_generator_when_default_sql_set(bool useTry)
     {
         var builder = SqlServerTestHelpers.Instance.CreateConventionBuilder();
-        builder.Entity<AnEntity>(
-            b =>
-            {
-                b.Property(e => e.String).ValueGeneratedOnAdd().HasDefaultValueSql("Foo");
-                b.HasKey(e => e.String);
-            });
+        builder.Entity<AnEntity>(b =>
+        {
+            b.Property(e => e.String).ValueGeneratedOnAdd().HasDefaultValueSql("Foo");
+            b.HasKey(e => e.String);
+        });
         var model = builder.FinalizeModel();
         var entityType = model.FindEntityType(typeof(AnEntity))!;
 
@@ -126,18 +117,15 @@ public class SqlServerValueGeneratorSelectorTest
         Assert.True(generator.GeneratesTemporaryValues);
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public void Returns_temp_binary_generator_when_default_sql_set(bool useTry)
     {
         var builder = SqlServerTestHelpers.Instance.CreateConventionBuilder();
-        builder.Entity<AnEntity>(
-            b =>
-            {
-                b.HasKey(e => e.Binary);
-                b.Property(e => e.Binary).HasDefaultValueSql("Foo").ValueGeneratedOnAdd();
-            });
+        builder.Entity<AnEntity>(b =>
+        {
+            b.HasKey(e => e.Binary);
+            b.Property(e => e.Binary).HasDefaultValueSql("Foo").ValueGeneratedOnAdd();
+        });
         var model = builder.FinalizeModel();
         var entityType = model.FindEntityType(typeof(AnEntity))!;
 
@@ -150,9 +138,7 @@ public class SqlServerValueGeneratorSelectorTest
         Assert.True(generator.GeneratesTemporaryValues);
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public void Returns_sequence_value_generators_when_configured_for_model(bool useTry)
     {
         AssertGenerator<SqlServerSequenceHiLoValueGenerator<int>>("Id", useHiLo: true, useTry: useTry);
@@ -170,9 +156,7 @@ public class SqlServerValueGeneratorSelectorTest
         AssertGenerator<BinaryValueGenerator>("Binary", useHiLo: true, useTry: useTry);
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public void Returns_built_in_generators_for_types_setup_for_value_generation_even_with_key_sequences(bool useTry)
     {
         AssertGenerator<TemporaryIntValueGenerator>("Id", useKeySequence: true, useTry: useTry);
@@ -194,12 +178,11 @@ public class SqlServerValueGeneratorSelectorTest
     public void Throws_for_unsupported_combinations()
     {
         var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
-        builder.Entity<AnEntity>(
-            b =>
-            {
-                b.Property(e => e.TimeSpan).ValueGeneratedOnAdd();
-                b.HasKey(e => e.TimeSpan);
-            });
+        builder.Entity<AnEntity>(b =>
+        {
+            b.Property(e => e.TimeSpan).ValueGeneratedOnAdd();
+            b.HasKey(e => e.TimeSpan);
+        });
         var model = builder.FinalizeModel();
         var entityType = model.FindEntityType(typeof(AnEntity));
 
@@ -216,12 +199,11 @@ public class SqlServerValueGeneratorSelectorTest
     public void Returns_null_for_unsupported_combinations()
     {
         var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
-        builder.Entity<AnEntity>(
-            b =>
-            {
-                b.Property(e => e.TimeSpan).ValueGeneratedOnAdd();
-                b.HasKey(e => e.TimeSpan);
-            });
+        builder.Entity<AnEntity>(b =>
+        {
+            b.Property(e => e.TimeSpan).ValueGeneratedOnAdd();
+            b.HasKey(e => e.TimeSpan);
+        });
         var model = builder.FinalizeModel();
         var entityType = model.FindEntityType(typeof(AnEntity))!;
 
@@ -231,9 +213,7 @@ public class SqlServerValueGeneratorSelectorTest
         Assert.Null(valueGenerator);
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public void Returns_generator_configured_on_model_when_property_is_identity(bool useTry)
     {
         var builder = SqlServerTestHelpers.Instance.CreateConventionBuilder();

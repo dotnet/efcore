@@ -91,7 +91,8 @@ internal class RootCommand : CommandBase
             Path.GetDirectoryName(typeof(Program).Assembly.Location)!,
             "tools");
 
-        var targetDir = Path.GetFullPath(Path.Combine(startupProject.ProjectDir!, startupProject.OutputPath!));
+        var targetDir = Path.GetFullPath(Path.Combine(startupProject.ProjectDir!, startupProject.OutputPath!))
+            .Replace('\\', Path.DirectorySeparatorChar);
         var targetPath = Path.Combine(targetDir, project.TargetFileName!);
         var startupTargetPath = Path.Combine(targetDir, startupProject.TargetFileName!);
         var depsFile = Path.Combine(
@@ -167,10 +168,10 @@ internal class RootCommand : CommandBase
                 args.Add(startupProject.RuntimeFrameworkVersion);
             }
 
-#if !NET10_0
+#if !NET8_0
 #error Target framework needs to be updated here, as well as in Microsoft.EntityFrameworkCore.Tasks.props and EntityFrameworkCore.psm1
 #endif
-            args.Add(Path.Combine(toolsPath, "net10.0", "any", "ef.dll"));
+            args.Add(Path.Combine(toolsPath, "net8.0", "any", "ef.dll"));
         }
         else if (targetFramework.Identifier == ".NETStandard")
         {

@@ -15,7 +15,6 @@ namespace Microsoft.EntityFrameworkCore;
 /// </remarks>
 public static class CosmosTriggerBuilderExtensions
 {
-
     /// <summary>
     ///     Configures the Cosmos DB trigger type for this trigger.
     /// </summary>

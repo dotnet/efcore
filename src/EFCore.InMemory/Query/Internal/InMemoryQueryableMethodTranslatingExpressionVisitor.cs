@@ -383,8 +383,8 @@ public class InMemoryQueryableMethodTranslatingExpressionVisitor : QueryableMeth
             var original2 = resultSelector.Parameters[1];
 
             var newResultSelectorBody = new ReplacingExpressionVisitor(
-                new Expression[] { original1, original2 },
-                new[] { groupByShaper.KeySelector, groupByShaper }).Visit(resultSelector.Body);
+                [original1, original2],
+                [groupByShaper.KeySelector, groupByShaper]).Visit(resultSelector.Body);
 
             newResultSelectorBody = ExpandSharedTypeEntities(inMemoryQueryExpression, newResultSelectorBody);
             var newShaper = _projectionBindingExpressionVisitor.Translate(inMemoryQueryExpression, newResultSelectorBody);
@@ -1162,12 +1162,14 @@ public class InMemoryQueryableMethodTranslatingExpressionVisitor : QueryableMeth
         {
             // Fold member access into conditional, i.e. transform
             // (test ? expr1 : expr2).Member -> (test ? expr1.Member : expr2.Member)
-            if (memberExpression.Expression is ConditionalExpression cond) {
-                return Visit(Expression.Condition(
-                    cond.Test,
-                    Expression.MakeMemberAccess(cond.IfTrue, memberExpression.Member),
-                    Expression.MakeMemberAccess(cond.IfFalse, memberExpression.Member)
-                ));
+            if (memberExpression.Expression is ConditionalExpression cond)
+            {
+                return Visit(
+                    Expression.Condition(
+                        cond.Test,
+                        Expression.MakeMemberAccess(cond.IfTrue, memberExpression.Member),
+                        Expression.MakeMemberAccess(cond.IfFalse, memberExpression.Member)
+                    ));
             }
 
             var innerExpression = Visit(memberExpression.Expression);
@@ -1183,7 +1185,7 @@ public class InMemoryQueryableMethodTranslatingExpressionVisitor : QueryableMeth
                 source = Visit(source);
 
                 return TryExpand(source, MemberIdentity.Create(navigationName))
-                    ?? methodCallExpression.Update(null!, new[] { source, methodCallExpression.Arguments[1] });
+                    ?? methodCallExpression.Update(null!, [source, methodCallExpression.Arguments[1]]);
             }
 
             return base.VisitMethodCall(methodCallExpression);
@@ -1264,13 +1266,12 @@ public class InMemoryQueryableMethodTranslatingExpressionVisitor : QueryableMeth
                     ? Expression.AndAlso(
                         outerKey is NewArrayExpression newArrayExpression
                             ? newArrayExpression.Expressions
-                                .Select(
-                                    e =>
-                                    {
-                                        var left = (e as UnaryExpression)?.Operand ?? e;
+                                .Select(e =>
+                                {
+                                    var left = (e as UnaryExpression)?.Operand ?? e;
 
-                                        return Expression.NotEqual(left, Expression.Constant(null, left.Type));
-                                    })
+                                    return Expression.NotEqual(left, Expression.Constant(null, left.Type));
+                                })
                                 .Aggregate((l, r) => Expression.AndAlso(l, r))
                             : Expression.NotEqual(outerKey, Expression.Constant(null, outerKey.Type)),
                         keyComparison)
@@ -1341,7 +1342,7 @@ public class InMemoryQueryableMethodTranslatingExpressionVisitor : QueryableMeth
         var replacement2 = AccessField(transparentIdentifierType, transparentIdentifierParameter, "Inner");
         var newResultSelector = Expression.Lambda(
             new ReplacingExpressionVisitor(
-                    new[] { original1, original2 }, new[] { replacement1, replacement2 })
+                    [original1, original2], [replacement1, replacement2])
                 .Visit(resultSelector.Body),
             transparentIdentifierParameter);
 

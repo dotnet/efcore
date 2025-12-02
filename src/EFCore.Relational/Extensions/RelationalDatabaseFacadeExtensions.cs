@@ -403,7 +403,7 @@ public static class RelationalDatabaseFacadeExtensions
     public static IQueryable<TResult> SqlQueryRaw<TResult>(
         this DatabaseFacade databaseFacade,
         [NotParameterized] string sql,
-        params object[] parameters)
+        params object?[] parameters)
     {
         Check.NotNull(sql);
         Check.NotNull(parameters);
@@ -561,7 +561,7 @@ public static class RelationalDatabaseFacadeExtensions
         this DatabaseFacade databaseFacade,
         string sql,
         CancellationToken cancellationToken = default)
-        => ExecuteSqlRawAsync(databaseFacade, sql, Enumerable.Empty<object>(), cancellationToken);
+        => ExecuteSqlRawAsync(databaseFacade, sql, parameters: [], cancellationToken);
 
     /// <summary>
     ///     Executes the given SQL against the database and returns the number of rows affected.
@@ -601,7 +601,7 @@ public static class RelationalDatabaseFacadeExtensions
     public static Task<int> ExecuteSqlRawAsync(
         this DatabaseFacade databaseFacade,
         string sql,
-        params object[] parameters)
+        params object?[] parameters)
         => ExecuteSqlRawAsync(databaseFacade, sql, (IEnumerable<object>)parameters);
 
     /// <summary>
@@ -644,7 +644,7 @@ public static class RelationalDatabaseFacadeExtensions
     public static async Task<int> ExecuteSqlRawAsync(
         this DatabaseFacade databaseFacade,
         string sql,
-        IEnumerable<object> parameters,
+        IEnumerable<object?> parameters,
         CancellationToken cancellationToken = default)
     {
         Check.NotNull(sql);

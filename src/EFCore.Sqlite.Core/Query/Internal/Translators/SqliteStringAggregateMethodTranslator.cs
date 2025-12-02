@@ -83,13 +83,12 @@ public class SqliteStringAggregateMethodTranslator : IAggregateMethodCallTransla
         return _sqlExpressionFactory.Coalesce(
             _sqlExpressionFactory.Function(
                 "group_concat",
-                new[]
-                {
+                [
                     sqlExpression,
                     _sqlExpressionFactory.ApplyTypeMapping(
                         method == StringJoinMethod ? arguments[0] : _sqlExpressionFactory.Constant(string.Empty, typeof(string)),
                         sqlExpression.TypeMapping)
-                },
+                ],
                 nullable: true,
                 argumentsPropagateNullability: Statics.FalseArrays[2],
                 typeof(string)),

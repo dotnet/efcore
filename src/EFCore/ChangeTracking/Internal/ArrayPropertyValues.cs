@@ -41,11 +41,6 @@ public class ArrayPropertyValues : PropertyValues
         var structuralObject = StructuralType.GetOrCreateMaterializer(MaterializerSource)(
             new MaterializationContext(new ValueBuffer(_values), InternalEntry.Context));
 
-        if (_complexCollectionValues == null)
-        {
-            return structuralObject;
-        }
-
         for (var i = 0; i < _complexCollectionValues.Length; i++)
         {
             var propertyValuesList = _complexCollectionValues[i];
@@ -54,9 +49,9 @@ public class ArrayPropertyValues : PropertyValues
                 continue;
             }
 
-
             var complexProperty = ComplexCollectionProperties[i];
-            Check.DebugAssert(!complexProperty.IsShadowProperty(),
+            Check.DebugAssert(
+                !complexProperty.IsShadowProperty(),
                 $"Shadow complex property {complexProperty.Name} is not supported. Issue #31243");
             var list = (IList)((IRuntimeComplexProperty)complexProperty).GetIndexedCollectionAccessor().Create(propertyValuesList.Count);
             structuralObject = ((IRuntimeComplexProperty)complexProperty).GetSetter().SetClrValue(structuralObject, list);
@@ -138,21 +133,21 @@ public class ArrayPropertyValues : PropertyValues
         Array.Copy(_values, copies, _values.Length);
 
         var clone = new ArrayPropertyValues(InternalEntry, copies);
-        if (_complexCollectionValues != null)
+        for (var i = 0; i < _complexCollectionValues.Length; i++)
         {
-            for (var i = 0; i < _complexCollectionValues.Length; i++)
+            var list = _complexCollectionValues[i];
+            if (list == null)
             {
-                var list = _complexCollectionValues[i];
-                if (list != null)
-                {
-                    var clonedList = new List<ArrayPropertyValues?>();
-                    foreach (var propertyValues in list)
-                    {
-                        clonedList.Add((ArrayPropertyValues?)propertyValues?.Clone());
-                    }
-                    clone._complexCollectionValues[i] = clonedList;
-                }
+                continue;
             }
+
+            var clonedList = new List<ArrayPropertyValues?>();
+            foreach (var propertyValues in list)
+            {
+                clonedList.Add((ArrayPropertyValues?)propertyValues?.Clone());
+            }
+
+            clone._complexCollectionValues[i] = clonedList;
         }
 
         return clone;
@@ -190,12 +185,12 @@ public class ArrayPropertyValues : PropertyValues
     {
         get
         {
-            if (StructuralType.FindProperty(propertyName) is IProperty property)
+            if (StructuralType.FindProperty(propertyName) is { } property)
             {
                 return _values[property.GetIndex()];
             }
 
-            if (StructuralType.FindComplexProperty(propertyName) is IComplexProperty complexProperty)
+            if (StructuralType.FindComplexProperty(propertyName) is { } complexProperty)
             {
                 return this[complexProperty];
             }
@@ -205,33 +200,31 @@ public class ArrayPropertyValues : PropertyValues
         }
         set
         {
-            if (StructuralType.FindProperty(propertyName) is IProperty property)
+            if (StructuralType.FindProperty(propertyName) is { } property)
             {
                 SetValue(property.GetIndex(), value);
                 return;
             }
 
-            if (StructuralType.FindComplexProperty(propertyName) is IComplexProperty complexProperty)
+            if (StructuralType.FindComplexProperty(propertyName) is { } complexProperty)
             {
                 CheckCollection(complexProperty);
 
-                if (value is null)
+                switch (value)
                 {
-                    _complexCollectionValues[complexProperty.GetIndex()] = null;
-                }
-                else if (value is List<ArrayPropertyValues?> propertyValuesList)
-                {
-                    _complexCollectionValues[complexProperty.GetIndex()] = propertyValuesList;
-                }
-                else if (value is IList complexCollection)
-                {
-                    this[complexProperty] = complexCollection;
-                }
-                else
-                {
-                    throw new InvalidOperationException(
-                        CoreStrings.ComplexPropertyValueNotList(
-                            complexProperty.Name, complexProperty.ClrType, value.GetType().ShortDisplayName()));
+                    case null:
+                        _complexCollectionValues[complexProperty.GetIndex()] = null;
+                        break;
+                    case List<ArrayPropertyValues?> propertyValuesList:
+                        _complexCollectionValues[complexProperty.GetIndex()] = propertyValuesList;
+                        break;
+                    case IList complexCollection:
+                        this[complexProperty] = complexCollection;
+                        break;
+                    default:
+                        throw new InvalidOperationException(
+                            CoreStrings.ComplexPropertyValueNotList(
+                                complexProperty.Name, complexProperty.ClrType, value.GetType().ShortDisplayName()));
                 }
             }
 
@@ -269,7 +262,8 @@ public class ArrayPropertyValues : PropertyValues
                 return null;
             }
 
-            var complexObjectsList = (IList)((IRuntimePropertyBase)complexProperty).GetIndexedCollectionAccessor().Create(propertyValuesList.Count);
+            var complexObjectsList = (IList)((IRuntimePropertyBase)complexProperty).GetIndexedCollectionAccessor()
+                .Create(propertyValuesList.Count);
             foreach (var propertyValues in propertyValuesList)
             {
                 complexObjectsList.Add(propertyValues?.ToObject());
@@ -281,7 +275,7 @@ public class ArrayPropertyValues : PropertyValues
         set => SetComplexCollectionValue(CheckCollection(complexProperty), GetComplexCollectionPropertyValues(complexProperty, value));
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public override void SetValues<TProperty>(IDictionary<string, TProperty> values)
         => SetValuesFromDictionary((IRuntimeTypeBase)StructuralType, Check.NotNull(values));
 
@@ -308,10 +302,12 @@ public class ArrayPropertyValues : PropertyValues
                 if (complexValue != null && dictionaryList == null)
                 {
                     throw new InvalidOperationException(
-                        CoreStrings.ComplexCollectionValueNotDictionaryList(complexProperty.Name, complexValue.GetType().ShortDisplayName()));
+                        CoreStrings.ComplexCollectionValueNotDictionaryList(
+                            complexProperty.Name, complexValue.GetType().ShortDisplayName()));
                 }
 
-                SetComplexCollectionValue(complexProperty, CreatePropertyValuesFromDictionaryList<TProperty>(complexProperty, dictionaryList));
+                SetComplexCollectionValue(
+                    complexProperty, CreatePropertyValuesFromDictionaryList<TProperty>(complexProperty, dictionaryList));
             }
             else
             {
@@ -330,7 +326,9 @@ public class ArrayPropertyValues : PropertyValues
         }
     }
 
-    private List<ArrayPropertyValues?>? CreatePropertyValuesFromDictionaryList<TProperty>(IComplexProperty complexProperty, IList? collection)
+    private List<ArrayPropertyValues?>? CreatePropertyValuesFromDictionaryList<TProperty>(
+        IComplexProperty complexProperty,
+        IList? collection)
     {
         if (collection == null)
         {
@@ -387,7 +385,8 @@ public class ArrayPropertyValues : PropertyValues
     private void SetValue(int index, object? value)
     {
         var property = Properties[index];
-        Check.DebugAssert(index == property.GetIndex(),
+        Check.DebugAssert(
+            index == property.GetIndex(),
             $"Property index {property.GetIndex()} does not match the index {index} for the property {property.Name} in the structural type {StructuralType.DisplayName()}");
 
         if (value != null)
@@ -428,9 +427,7 @@ public class ArrayPropertyValues : PropertyValues
     /// </summary>
     [EntityFrameworkInternal]
     internal void SetComplexCollectionValue(IComplexProperty complexProperty, List<ArrayPropertyValues?>? propertyValuesList)
-    {
-        _complexCollectionValues[complexProperty.GetIndex()] = propertyValuesList;
-    }
+        => _complexCollectionValues[complexProperty.GetIndex()] = propertyValuesList;
 
     private List<ArrayPropertyValues?>? GetComplexCollectionPropertyValues(IComplexProperty complexProperty, IList? collection)
     {
@@ -449,7 +446,8 @@ public class ArrayPropertyValues : PropertyValues
             }
             else
             {
-                var complexPropertyValues = CreateComplexPropertyValues(item,
+                var complexPropertyValues = CreateComplexPropertyValues(
+                    item,
                     new InternalComplexEntry((IRuntimeComplexType)complexProperty.ComplexType, InternalEntry, i));
                 propertyValuesList.Add(complexPropertyValues);
             }

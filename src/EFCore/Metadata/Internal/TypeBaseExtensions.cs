@@ -27,7 +27,7 @@ public static class TypeBaseExtensions
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public static string ShortNameChain(this IReadOnlyTypeBase structuralType)
-        => (structuralType is IReadOnlyComplexType complexType) && (complexType.ComplexProperty is IReadOnlyComplexProperty complexProperty)
+        => (structuralType is IReadOnlyComplexType { ComplexProperty: var complexProperty })
             ? complexProperty.DeclaringType.ShortNameChain() + (complexProperty.IsCollection ? "[]" : ".") + structuralType.ShortName()
             : structuralType.ShortName();
 
@@ -44,11 +44,10 @@ public static class TypeBaseExtensions
 
         return !property.DeclaringType.IsAssignableFrom(structuralType)
             && (!((IRuntimeTypeBase)property.DeclaringType).ContainingEntryType.IsAssignableFrom(structuralType)
-                || (property.DeclaringType is IComplexType complexType
-                        && complexType.ComplexProperty.IsCollection))
+                || property.DeclaringType is IComplexType { ComplexProperty.IsCollection: true })
             && structuralType.ClrType != typeof(object) // For testing
-            ? throw new InvalidOperationException(
-                CoreStrings.PropertyDoesNotBelong(property.Name, property.DeclaringType.DisplayName(), structuralType.DisplayName()))
-            : property;
+                ? throw new InvalidOperationException(
+                    CoreStrings.PropertyDoesNotBelong(property.Name, property.DeclaringType.DisplayName(), structuralType.DisplayName()))
+                : property;
     }
 }

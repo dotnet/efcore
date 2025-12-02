@@ -111,7 +111,7 @@ public static class RelationalKeyExtensions
         key.DeclaringEntityType.Model.EnsureRelationalModel();
         return (IEnumerable<IUniqueConstraint>?)key.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.UniqueConstraintMappings)
-            ?? Enumerable.Empty<IUniqueConstraint>();
+            ?? [];
     }
 
     /// <summary>

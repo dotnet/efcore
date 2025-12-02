@@ -68,7 +68,7 @@ public class SqlServerStatisticsAggregateMethodTranslator : IAggregateMethodCall
         return SqlServerExpression.AggregateFunction(
             _sqlExpressionFactory,
             functionName,
-            new[] { sqlExpression },
+            [sqlExpression],
             source,
             enumerableArgumentIndex: 0,
             nullable: true,

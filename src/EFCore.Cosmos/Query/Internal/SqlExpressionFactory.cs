@@ -198,11 +198,11 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
         CoreTypeMapping? valuesTypeMapping = null;
         switch (inExpression)
         {
-            case { ValuesParameter: SqlParameterExpression parameter }:
+            case { ValuesParameter: { } parameter }:
                 valuesTypeMapping = parameter.TypeMapping;
                 break;
 
-            case { Values: IReadOnlyList<SqlExpression> values }:
+            case { Values: { } values }:
                 // Note: there could be conflicting type mappings inside the values; we take the first.
                 foreach (var value in values)
                 {
@@ -228,11 +228,11 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
 
         switch (inExpression)
         {
-            case { ValuesParameter: SqlParameterExpression parameter }:
+            case { ValuesParameter: { } parameter }:
                 inExpression = inExpression.Update(item, (SqlParameterExpression)ApplyTypeMapping(parameter, item.TypeMapping));
                 break;
 
-            case { Values: IReadOnlyList<SqlExpression> values }:
+            case { Values: { } values }:
                 SqlExpression[]? newValues = null;
 
                 if (missingTypeMappingInValues)

@@ -33,9 +33,7 @@ public class ComplexElementEntry : IInfrastructure<InternalComplexEntry>
     /// </summary>
     [EntityFrameworkInternal]
     public ComplexElementEntry(InternalComplexEntry internalEntry)
-    {
-        InternalEntry = internalEntry;
-    }
+        => InternalEntry = internalEntry;
 
     /// <summary>
     ///     Gets or sets a value indicating whether any of the properties of the complex type have been modified
@@ -85,7 +83,8 @@ public class ComplexElementEntry : IInfrastructure<InternalComplexEntry>
     /// <summary>
     ///     Gets the metadata that describes the facets of this property and how it maps to the database.
     /// </summary>
-    public virtual IComplexProperty Metadata => InternalEntry.ComplexProperty;
+    public virtual IComplexProperty Metadata
+        => InternalEntry.ComplexProperty;
 
     /// <summary>
     ///     Gets or sets the value currently assigned to this property. If the current value is set using this property,
@@ -273,7 +272,8 @@ public class ComplexElementEntry : IInfrastructure<InternalComplexEntry>
     ///     examples.
     /// </remarks>
     public virtual IEnumerable<ComplexCollectionEntry> ComplexCollections
-        => Metadata.ComplexType.GetComplexProperties().Where(p => p.IsCollection).Select(property => new ComplexCollectionEntry(InternalEntry, property));
+        => Metadata.ComplexType.GetComplexProperties().Where(p => p.IsCollection)
+            .Select(property => new ComplexCollectionEntry(InternalEntry, property));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

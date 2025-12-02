@@ -8,8 +8,7 @@ public class OwnedEntityQueryInMemoryTest(NonSharedFixture fixture) : OwnedEntit
     protected override ITestStoreFactory TestStoreFactory
         => InMemoryTestStoreFactory.Instance;
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Expand_owned_navigation_as_optional_always(bool async)
     {
         var contextFactory = await InitializeAsync<MyContext>(seed: c => c.SeedAsync());
@@ -61,8 +60,7 @@ public class OwnedEntityQueryInMemoryTest(NonSharedFixture fixture) : OwnedEntit
     }
 #nullable disable
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Owned_references_on_same_level_expanded_at_different_times_around_take(bool async)
     {
         var contextFactory = await InitializeAsync<MyContext26592>(seed: c => c.SeedAsync());
@@ -71,8 +69,7 @@ public class OwnedEntityQueryInMemoryTest(NonSharedFixture fixture) : OwnedEntit
         await base.Owned_references_on_same_level_expanded_at_different_times_around_take_helper(context, async);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Owned_references_on_same_level_nested_expanded_at_different_times_around_take(bool async)
     {
         var contextFactory = await InitializeAsync<MyContext26592>(seed: c => c.SeedAsync());

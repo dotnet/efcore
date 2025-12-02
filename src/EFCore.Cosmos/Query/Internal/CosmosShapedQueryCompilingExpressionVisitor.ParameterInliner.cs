@@ -27,13 +27,13 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                     switch (inExpression)
                     {
-                        case { Values: IReadOnlyList<SqlExpression> values2 }:
+                        case { Values: { } values2 }:
                             values = values2;
                             break;
 
                         // TODO: IN with subquery (return immediately, nothing to do here)
 
-                        case { ValuesParameter: SqlParameterExpression valuesParameter }:
+                        case { ValuesParameter: { } valuesParameter }:
                         {
                             var typeMapping = valuesParameter.TypeMapping;
                             var mutableValues = new List<SqlExpression>();
@@ -57,7 +57,11 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                 // Converts Offset and Limit parameters to constants when ORDER BY RANK is detected in the SelectExpression (i.e. we order by scoring function)
                 // Cosmos only supports constants in Offset and Limit for this scenario currently (ORDER BY RANK limitation)
-                case SelectExpression { Orderings: [{ Expression: SqlFunctionExpression { IsScoringFunction: true } }], Limit: var limit, Offset: var offset } hybridSearch
+                case SelectExpression
+                    {
+                        Orderings: [{ Expression: SqlFunctionExpression { IsScoringFunction: true } }], Limit: var limit,
+                        Offset: var offset
+                    } hybridSearch
                     when limit is SqlParameterExpression || offset is SqlParameterExpression:
                 {
                     if (hybridSearch.Limit is SqlParameterExpression limitPrm)
@@ -79,15 +83,19 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     return base.VisitExtension(expression);
                 }
 
-                // Inlines array parameter of full-text functions, transforming FullTextContainsAll(x, @keywordsArray) to FullTextContainsAll(x, keyword1, keyword2)) 
+                // Inlines array parameter of full-text functions, transforming FullTextContainsAll(x, @keywordsArray) to FullTextContainsAll(x, keyword1, keyword2))
                 // we do this for FullTextContainsAll, FullTextContainsAny and FullTextScore
                 case SqlFunctionExpression
-                {
-                    Name: string name,
-                    IsScoringFunction: bool scoringFunction,
-                    Arguments: [var property, SqlParameterExpression { TypeMapping: { ElementTypeMapping: var elementTypeMapping }, Type: Type type } keywords]
-                } fullTextContainsAllAnyFunction
-                when (name is "FullTextContainsAny" or "FullTextContainsAll" or "FullTextScore") && type == typeof(string[]):
+                    {
+                        Name: { } name,
+                        IsScoringFunction: var scoringFunction,
+                        Arguments:
+                        [
+                            var property,
+                            SqlParameterExpression { TypeMapping: { ElementTypeMapping: var elementTypeMapping }, Type: { } type } keywords
+                        ]
+                    } fullTextContainsAllAnyFunction
+                    when (name is "FullTextContainsAny" or "FullTextContainsAll" or "FullTextScore") && type == typeof(string[]):
                 {
                     var keywordValues = new List<SqlExpression>();
                     foreach (var value in (IEnumerable)parametersValues[keywords.Name])

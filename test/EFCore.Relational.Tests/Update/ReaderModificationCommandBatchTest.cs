@@ -26,8 +26,7 @@ public class ReaderModificationCommandBatchTest
             "T1",
             null,
             true,
-            new[]
-            {
+            [
                 new ColumnModificationParameters(
                     entry1,
                     property1,
@@ -35,7 +34,7 @@ public class ReaderModificationCommandBatchTest
                     parameterNameGenerator.GenerateNext,
                     property1.GetTableColumnMappings().Single().TypeMapping,
                     false, true, false, false, true)
-            });
+            ]);
 
         var entry2 = CreateEntry(EntityState.Modified);
         var property2 = entry2.EntityType.FindProperty("Name")!;
@@ -43,8 +42,7 @@ public class ReaderModificationCommandBatchTest
             "T2",
             null,
             true,
-            new[]
-            {
+            [
                 new ColumnModificationParameters(
                     entry2,
                     property2,
@@ -52,7 +50,7 @@ public class ReaderModificationCommandBatchTest
                     parameterNameGenerator.GenerateNext,
                     property2.GetTableColumnMappings().Single().TypeMapping,
                     false, true, false, false, true)
-            });
+            ]);
 
         var batch = new ModificationCommandBatchFake { ShouldBeValid = true };
         Assert.True(batch.TryAddCommand(command1));
@@ -85,8 +83,7 @@ RETURNING 1;
             "T1",
             null,
             true,
-            new[]
-            {
+            [
                 new ColumnModificationParameters(
                     entry1,
                     property1,
@@ -94,7 +91,7 @@ RETURNING 1;
                     parameterNameGenerator.GenerateNext,
                     property1.GetTableColumnMappings().Single().TypeMapping,
                     false, true, false, false, true)
-            });
+            ]);
 
         var entry2 = CreateEntry(EntityState.Modified);
         var property2 = entry2.EntityType.FindProperty("Name")!;
@@ -102,8 +99,7 @@ RETURNING 1;
             "T2",
             null,
             true,
-            new[]
-            {
+            [
                 new ColumnModificationParameters(
                     entry2,
                     property2,
@@ -111,7 +107,7 @@ RETURNING 1;
                     parameterNameGenerator.GenerateNext,
                     property2.GetTableColumnMappings().Single().TypeMapping,
                     false, true, false, false, true)
-            });
+            ]);
 
         var batch = new ModificationCommandBatchFake();
         Assert.True(batch.TryAddCommand(command1));
@@ -351,9 +347,7 @@ RETURNING 1;
         Assert.Equal(42, entry[entry.EntityType.FindProperty("Id")]);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public async Task Exception_thrown_if_rows_returned_for_command_without_store_generated_values_is_not_1(bool async)
     {
         var entry = CreateEntry(EntityState.Modified);
@@ -376,9 +370,7 @@ RETURNING 1;
         Assert.Equal(RelationalStrings.UpdateConcurrencyException(1, 42), exception.Message);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public async Task Exception_thrown_if_no_rows_returned_for_command_with_store_generated_values(bool async)
     {
         var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
@@ -401,9 +393,7 @@ RETURNING 1;
         Assert.Equal(RelationalStrings.UpdateConcurrencyException(1, 0), exception.Message);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public async Task DbException_is_wrapped_with_DbUpdateException(bool async)
     {
         var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
@@ -429,9 +419,7 @@ RETURNING 1;
         Assert.Same(originalException, actualException.InnerException);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public async Task OperationCanceledException_is_not_wrapped_with_DbUpdateException(bool async)
     {
         var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
@@ -472,8 +460,7 @@ RETURNING 1;
                 "T1",
                 null,
                 true,
-                new[]
-                {
+                [
                     new ColumnModificationParameters(
                         entry,
                         property,
@@ -481,15 +468,14 @@ RETURNING 1;
                         parameterNameGenerator.GenerateNext,
                         property.GetTableColumnMappings().Single().TypeMapping,
                         false, true, false, false, true)
-                }));
+                ]));
 
         batch.TryAddCommand(
             CreateModificationCommand(
                 "T1",
                 null,
                 true,
-                new[]
-                {
+                [
                     new ColumnModificationParameters(
                         entry,
                         property,
@@ -497,7 +483,7 @@ RETURNING 1;
                         parameterNameGenerator.GenerateNext,
                         property.GetTableColumnMappings().Single().TypeMapping,
                         false, true, false, false, true)
-                }));
+                ]));
 
         batch.Complete(moreBatchesExpected: false);
 
@@ -526,8 +512,7 @@ RETURNING 1;
                 "T1",
                 null,
                 true,
-                new[]
-                {
+                [
                     new ColumnModificationParameters(
                         entry,
                         property,
@@ -536,7 +521,7 @@ RETURNING 1;
                         property.GetTableColumnMappings().Single().TypeMapping,
                         valueIsRead: false, valueIsWrite: true, columnIsKey: false, columnIsCondition: false,
                         sensitiveLoggingEnabled: true)
-                }));
+                ]));
 
         batch.Complete(moreBatchesExpected: false);
 
@@ -563,8 +548,7 @@ RETURNING 1;
                 "T1",
                 null,
                 true,
-                new[]
-                {
+                [
                     new ColumnModificationParameters(
                         entry,
                         property,
@@ -573,7 +557,7 @@ RETURNING 1;
                         property.GetTableColumnMappings().Single().TypeMapping,
                         valueIsRead: false, valueIsWrite: false, columnIsKey: false, columnIsCondition: true,
                         sensitiveLoggingEnabled: true)
-                }));
+                ]));
 
         batch.Complete(moreBatchesExpected: false);
 
@@ -600,8 +584,7 @@ RETURNING 1;
                 "T1",
                 null,
                 true,
-                new[]
-                {
+                [
                     new ColumnModificationParameters(
                         entry,
                         property,
@@ -610,7 +593,7 @@ RETURNING 1;
                         property.GetTableColumnMappings().Single().TypeMapping,
                         valueIsRead: false, valueIsWrite: true, columnIsKey: false, columnIsCondition: true,
                         sensitiveLoggingEnabled: true)
-                }));
+                ]));
 
         batch.Complete(moreBatchesExpected: false);
 
@@ -639,8 +622,7 @@ RETURNING 1;
                 "T1",
                 null,
                 true,
-                new[]
-                {
+                [
                     new ColumnModificationParameters(
                         entry,
                         property,
@@ -649,7 +631,7 @@ RETURNING 1;
                         property.GetTableColumnMappings().Single().TypeMapping,
                         valueIsRead: true, valueIsWrite: false, columnIsKey: false, columnIsCondition: false,
                         sensitiveLoggingEnabled: true)
-                }));
+                ]));
 
         batch.Complete(moreBatchesExpected: false);
 

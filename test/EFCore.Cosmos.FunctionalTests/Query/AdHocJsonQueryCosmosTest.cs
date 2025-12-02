@@ -41,8 +41,7 @@ WHERE (c["Id"] < 4)
     {
         if (async)
         {
-            await AssertTranslationFailed(
-                () => base.Project_nested_json_entity_with_missing_scalars(async));
+            await AssertTranslationFailed(() => base.Project_nested_json_entity_with_missing_scalars(async));
 
             AssertSql();
         }
@@ -166,7 +165,7 @@ WHERE (c["Id"] = 4)
         var entitiesContainer = singletonWrapper.Client.GetContainer(context.Database.GetCosmosDatabaseId(), containerId: "Entities");
 
         var missingTopLevel =
-$$"""
+            """
 {
     "Id": 2,
     "$type": "Entity",
@@ -270,7 +269,7 @@ $$"""
             CancellationToken.None);
 
         var missingNested =
-$$"""
+            """
 {
     "Id": 3,
     "$type": "Entity",
@@ -364,7 +363,7 @@ $$"""
             CancellationToken.None);
 
         var nullTopLevel =
-$$"""
+            """
 {
     "Id": 4,
     "$type": "Entity",
@@ -474,7 +473,7 @@ $$"""
             CancellationToken.None);
 
         var missingRequiredNav =
-$$"""
+            """
 {
     "Id": 5,
     "$type": "Entity",
@@ -568,7 +567,7 @@ $$"""
             CancellationToken.None);
 
         var nullRequiredNav =
-$$"""
+            """
 {
     "Id": 6,
     "$type": "Entity",
@@ -691,7 +690,7 @@ $$"""
         var entitiesContainer = singletonWrapper.Client.GetContainer(context.Database.GetCosmosDatabaseId(), containerId: "Entities");
 
         var missingNullableScalars =
-$$"""
+            """
 {
     "Id": 3,
     "$type": "MyEntity",
@@ -740,7 +739,7 @@ $$"""
         var entitiesContainer = singletonWrapper.Client.GetContainer(context.Database.GetCosmosDatabaseId(), containerId: "Entities");
 
         var complete =
-$$$$"""
+            """
 {
     "Id": 1,
     "$type": "MyEntity",
@@ -784,7 +783,7 @@ $$$$"""
             CancellationToken.None);
 
         var missingCollection =
-$$$$"""
+            """
 {
     "Id": 2,
     "$type": "MyEntity",
@@ -813,7 +812,7 @@ $$$$"""
             CancellationToken.None);
 
         var missingOptionalReference =
-$$$$"""
+            """
 {
     "Id": 3,
     "$type": "MyEntity",
@@ -851,7 +850,7 @@ $$$$"""
             CancellationToken.None);
 
         var missingRequiredReference =
-$$$$"""
+            """
 {
     "Id": 4,
     "$type": "MyEntity",
@@ -907,7 +906,7 @@ $$$$"""
         var entitiesContainer = singletonWrapper.Client.GetContainer(context.Database.GetCosmosDatabaseId(), containerId: "Reviews");
 
         var json =
-$$$$"""
+            """
 {
     "Id": 1,
     "$type": "Review",
@@ -940,11 +939,10 @@ $$$$"""
 
     #region 34960
 
-
     public override async Task Try_project_collection_but_JSON_is_entity()
     {
-        var message = (await Assert.ThrowsAsync<JsonSerializationException>(
-            () => base.Try_project_collection_but_JSON_is_entity())).Message;
+        var message = (await Assert.ThrowsAsync<JsonSerializationException>(() => base.Try_project_collection_but_JSON_is_entity()))
+            .Message;
 
         Assert.Equal(
             $"Deserialized JSON type '{typeof(JObject).FullName}' is not compatible with expected type '{typeof(JArray).FullName}'. Path 'Collection'.",
@@ -953,8 +951,8 @@ $$$$"""
 
     public override async Task Try_project_reference_but_JSON_is_collection()
     {
-        var message = (await Assert.ThrowsAsync<JsonSerializationException>(
-            () => base.Try_project_reference_but_JSON_is_collection())).Message;
+        var message = (await Assert.ThrowsAsync<JsonSerializationException>(() => base.Try_project_reference_but_JSON_is_collection()))
+            .Message;
 
         Assert.Equal(
             $"Deserialized JSON type '{typeof(JArray).FullName}' is not compatible with expected type '{typeof(JObject).FullName}'. Path 'Reference'.",
@@ -968,7 +966,7 @@ $$$$"""
         modelBuilder.Entity<Context34960.JunkEntity>().ToContainer("Junk");
     }
 
-    protected async override Task Seed34960(Context34960 context)
+    protected override async Task Seed34960(Context34960 context)
     {
         await base.Seed34960(context);
 
@@ -977,7 +975,7 @@ $$$$"""
         var entitiesContainer = singletonWrapper.Client.GetContainer(context.Database.GetCosmosDatabaseId(), containerId: "Entities");
 
         var json =
-$$$"""
+            """
 {
     "Id": 4,
     "$type": "Entity",
@@ -995,7 +993,7 @@ $$$"""
         var junkContainer = singletonWrapper.Client.GetContainer(context.Database.GetCosmosDatabaseId(), containerId: "Junk");
 
         var objectWhereCollectionShouldBe =
-$$$"""
+            """
 {
     "Id": 1,
     "$type": "JunkEntity",
@@ -1011,7 +1009,7 @@ $$$"""
             CancellationToken.None);
 
         var collectionWhereEntityShouldBe =
-$$$"""
+            """
 {
     "Id": 2,
     "$type": "JunkEntity",
@@ -1032,9 +1030,7 @@ $$$"""
     #region ArrayOfPrimitives
 
     protected override void OnModelCreatingArrayOfPrimitives(ModelBuilder modelBuilder)
-    {
-        base.OnModelCreatingArrayOfPrimitives(modelBuilder);
-    }
+        => base.OnModelCreatingArrayOfPrimitives(modelBuilder);
 
     #endregion
 
@@ -1054,7 +1050,7 @@ $$$"""
         var entitiesContainer = singletonWrapper.Client.GetContainer(context.Database.GetCosmosDatabaseId(), containerId: "Entities");
 
         var json =
-$$$"""
+            """
 {
     "Id": 1,
     "$type": "MyEntity",
@@ -1246,7 +1242,7 @@ $$$"""
         var entitiesContainer = singletonWrapper.Client.GetContainer(context.Database.GetCosmosDatabaseId(), containerId: "Entities");
 
         var json =
-$$$"""
+            """
 {
     "Id": 1,
     "$type": "MyEntity",
@@ -1297,35 +1293,36 @@ $$$"""
         base.OnModelCreatingShadowProperties(modelBuilder);
 
         modelBuilder.Entity<ContextShadowProperties.MyEntity>(b =>
-            {
-                b.ToContainer("Entities");
+        {
+            b.ToContainer("Entities");
 
-                //b.OwnsOne(x => x.Reference, b =>
-                //{
-                //    //      b.ToJson().HasColumnType(JsonColumnType);
-                //    b.Property<string>("ShadowString");
-                //});
+            //b.OwnsOne(x => x.Reference, b =>
+            //{
+            //    //      b.ToJson().HasColumnType(JsonColumnType);
+            //    b.Property<string>("ShadowString");
+            //});
 
-                b.OwnsOne(x => x.ReferenceWithCtor, b =>
+            b.OwnsOne(
+                x => x.ReferenceWithCtor, b =>
                 {
                     //    b.ToJson().HasColumnType(JsonColumnType);
                     b.Property<int>("Shadow_Int").ToJsonProperty("ShadowInt");
                 });
 
-                //b.OwnsMany(
-                //    x => x.Collection, b =>
-                //    {
-                //        //  b.ToJson().HasColumnType(JsonColumnType);
-                //        b.Property<double>("ShadowDouble");
-                //    });
+            //b.OwnsMany(
+            //    x => x.Collection, b =>
+            //    {
+            //        //  b.ToJson().HasColumnType(JsonColumnType);
+            //        b.Property<double>("ShadowDouble");
+            //    });
 
-                //b.OwnsMany(
-                //    x => x.CollectionWithCtor, b =>
-                //    {
-                //        //b.ToJson().HasColumnType(JsonColumnType);
-                //        b.Property<byte?>("ShadowNullableByte");
-                //    });
-            });
+            //b.OwnsMany(
+            //    x => x.CollectionWithCtor, b =>
+            //    {
+            //        //b.ToJson().HasColumnType(JsonColumnType);
+            //        b.Property<byte?>("ShadowNullableByte");
+            //    });
+        });
     }
 
     protected override async Task SeedShadowProperties(DbContext context)
@@ -1335,7 +1332,7 @@ $$$"""
         var entitiesContainer = singletonWrapper.Client.GetContainer(context.Database.GetCosmosDatabaseId(), containerId: "Entities");
 
         var json =
-$$$"""
+            """
 {
     "Id": 1,
     "$type": "MyEntity",
@@ -1375,9 +1372,7 @@ $$$"""
     #region LazyLoadingProxies
 
     protected override void OnModelCreatingLazyLoadingProxies(ModelBuilder modelBuilder)
-    {
-        base.OnModelCreatingLazyLoadingProxies(modelBuilder);
-    }
+        => base.OnModelCreatingLazyLoadingProxies(modelBuilder);
 
     #endregion
 
@@ -1397,7 +1392,7 @@ $$$"""
         var entitiesContainer = singletonWrapper.Client.GetContainer(context.Database.GetCosmosDatabaseId(), containerId: "Entities");
 
         var json1 =
-$$$"""
+            """
 {
     "Id": 1,
     "$type": "MyEntity",
@@ -1426,7 +1421,7 @@ $$$"""
             CancellationToken.None);
 
         var json2 =
-$$$"""
+            """
 {
     "Id": 2,
     "$type": "MyEntity",
@@ -1473,7 +1468,7 @@ $$$"""
         var entitiesContainer = singletonWrapper.Client.GetContainer(context.Database.GetCosmosDatabaseId(), containerId: "Entities");
 
         var baseline =
-$$$"""
+            """
 {
     "Id": 1,
     "$type": "Entity",
@@ -1495,7 +1490,7 @@ $$$"""
             CancellationToken.None);
 
         var duplicatedNavigations =
-$$$"""
+            """
 {
     "Id": 2,
     "$type": "Entity",
@@ -1517,7 +1512,7 @@ $$$"""
             CancellationToken.None);
 
         var duplicatedScalars =
-$$$"""
+            """
 {
     "Id": 3,
     "$type": "Entity",
@@ -1539,7 +1534,7 @@ $$$"""
             CancellationToken.None);
 
         var emptyNavs =
-$$$"""
+            """
 {
     "Id": 4,
     "$type": "Entity",
@@ -1561,7 +1556,7 @@ $$$"""
             CancellationToken.None);
 
         var emptyScalars =
-$$$"""
+            """
 {
     "Id": 5,
     "$type": "Entity",
@@ -1583,7 +1578,7 @@ $$$"""
             CancellationToken.None);
 
         var nullNavs =
-$$$"""
+            """
 {
     "Id": 10,
     "$type": "Entity",
@@ -1605,7 +1600,7 @@ $$$"""
             CancellationToken.None);
 
         var nullScalars =
-$$$"""
+            """
 {
     "Id": 11,
     "$type": "Entity",

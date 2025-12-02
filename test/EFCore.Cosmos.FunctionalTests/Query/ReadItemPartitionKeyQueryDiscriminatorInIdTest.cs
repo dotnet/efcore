@@ -557,6 +557,19 @@ WHERE (c["$type"] IN ("SharedContainerEntity2", "SharedContainerEntity2Child") A
 """);
     }
 
+    public override async Task ReadItem_for_abstract_base_type_with_shared_container()
+    {
+        // Not ReadItem because discriminator value in the JSON id is unknown
+        await base.ReadItem_for_abstract_base_type_with_shared_container();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE ((c["$type"] = "SharedContainerEntity3Child") AND (c["Id"] = 6))
+""");
+    }
+
     public override async Task ReadItem_for_child_type_with_shared_container()
     {
         await base.ReadItem_for_child_type_with_shared_container();

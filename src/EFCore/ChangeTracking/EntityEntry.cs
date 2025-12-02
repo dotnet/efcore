@@ -25,7 +25,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 public class EntityEntry : IInfrastructure<InternalEntityEntry>
 {
     private static readonly int MaxEntityState = Enum.GetValuesAsUnderlyingType<EntityState>().Cast<int>().Max();
-    private IEntityFinder? _finder;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -277,10 +276,9 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
             var entityType = InternalEntry.EntityType;
             return entityType.GetNavigations()
                 .Concat<INavigationBase>(entityType.GetSkipNavigations())
-                .Select(
-                    navigation => navigation.IsCollection
-                        ? (NavigationEntry)new CollectionEntry(InternalEntry, navigation)
-                        : new ReferenceEntry(InternalEntry, navigation));
+                .Select(navigation => navigation.IsCollection
+                    ? (NavigationEntry)new CollectionEntry(InternalEntry, navigation)
+                    : new ReferenceEntry(InternalEntry, navigation));
         }
     }
 
@@ -367,7 +365,8 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     ///     examples.
     /// </remarks>
     public virtual IEnumerable<ComplexPropertyEntry> ComplexProperties
-        => Metadata.GetComplexProperties().Where(p => !p.IsCollection).Select(property => new ComplexPropertyEntry(InternalEntry, property));
+        => Metadata.GetComplexProperties().Where(p => !p.IsCollection)
+            .Select(property => new ComplexPropertyEntry(InternalEntry, property));
 
     /// <summary>
     ///     Provides access to change tracking information and operations for a given collection property of a complex type on this entity.
@@ -409,7 +408,8 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     ///     examples.
     /// </remarks>
     public virtual IEnumerable<ComplexCollectionEntry> ComplexCollections
-        => Metadata.GetComplexProperties().Where(p => p.IsCollection).Select(property => new ComplexCollectionEntry(InternalEntry, property));
+        => Metadata.GetComplexProperties().Where(p => p.IsCollection)
+            .Select(property => new ComplexCollectionEntry(InternalEntry, property));
 
     /// <summary>
     ///     Provides access to change tracking and loading information for a reference (i.e. non-collection)
@@ -696,8 +696,9 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
         }
     }
 
+    [field: AllowNull, MaybeNull]
     private IEntityFinder Finder
-        => _finder ??= InternalEntry.StateManager.CreateEntityFinder(InternalEntry.EntityType);
+        => field ??= InternalEntry.StateManager.CreateEntityFinder(InternalEntry.EntityType);
 
     /// <summary>
     ///     Returns a string that represents the current object.

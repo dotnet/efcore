@@ -347,7 +347,9 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
                 _sqlBuilder.Append("RANK ");
             }
 
-            Check.DebugAssert(orderByScoringFunction || selectExpression.Orderings.All(x => x.Expression is not SqlFunctionExpression { IsScoringFunction: true }),
+            Check.DebugAssert(
+                orderByScoringFunction
+                || selectExpression.Orderings.All(x => x.Expression is not SqlFunctionExpression { IsScoringFunction: true }),
                 "Scoring function can only appear as first (and only) ordering, or not at all.");
 
             GenerateList(selectExpression.Orderings, e => Visit(e));

@@ -9,16 +9,16 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class CosmosTriggersTest(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
-    protected override string StoreName => "CosmosTriggersTest";
+    protected override string StoreName
+        => "CosmosTriggersTest";
 
-    protected override ITestStoreFactory TestStoreFactory => CosmosTestStoreFactory.Instance;
+    protected override ITestStoreFactory TestStoreFactory
+        => CosmosTestStoreFactory.Instance;
 
     [ConditionalFact]
     public async Task Triggers_are_executed_on_SaveChanges()
     {
-        var contextFactory = await InitializeAsync<TriggersContext>(
-            shouldLogCategory: _ => true,
-            onConfiguring: o => o.ConfigureWarnings(w => w.Log(CosmosEventId.SyncNotSupported)));
+        var contextFactory = await InitializeAsync<TriggersContext>(shouldLogCategory: _ => true);
 
         using (var context = contextFactory.CreateContext())
         {
@@ -26,7 +26,12 @@ public class CosmosTriggersTest(NonSharedFixture fixture) : NonSharedModelTestBa
 
             Assert.Empty(await context.Set<TriggerExecutionLog>().ToListAsync());
 
-            var product = new Product { Id = 1, Name = "Test Product", Price = 10.00m };
+            var product = new Product
+            {
+                Id = 1,
+                Name = "Test Product",
+                Price = 10.00m
+            };
             context.Products.Add(product);
 
             await context.SaveChangesAsync();
@@ -47,7 +52,7 @@ public class CosmosTriggersTest(NonSharedFixture fixture) : NonSharedModelTestBa
 
             Assert.Contains(logs, l => l.TriggerName == "UpdateTrigger" && l.Operation == "UPDATE");
         }
-        
+
         using (var context = contextFactory.CreateContext())
         {
             var product = await context.Products.SingleAsync();
@@ -56,7 +61,7 @@ public class CosmosTriggersTest(NonSharedFixture fixture) : NonSharedModelTestBa
             await context.SaveChangesAsync();
 
             var logs = await context.Set<TriggerExecutionLog>().Where(l => l.Operation == "DELETE").ToListAsync();
-            
+
             Assert.Contains(logs, l => l.TriggerName == "PostDeleteTrigger" && l.Operation == "DELETE");
         }
     }
@@ -68,7 +73,7 @@ public class CosmosTriggersTest(NonSharedFixture fixture) : NonSharedModelTestBa
         var cosmosClient = context.Database.GetCosmosClient();
         var databaseId = context.Database.GetCosmosDatabaseId();
         var database = cosmosClient.GetDatabase(databaseId);
-        
+
         // Get the container name from the Product entity type metadata
         var productEntityType = context.Model.FindEntityType(typeof(Product));
         var containerName = productEntityType!.GetContainer()!;
@@ -84,7 +89,7 @@ function preInsertTrigger() {
     var context = getContext();
     var request = context.getRequest();
     var doc = request.getBody();
-    
+
     // Log the trigger execution using the same partition key as the document being created
     var logEntry = {
         id: 'log_' + Math.random().toString().replace('.', ''),
@@ -95,7 +100,7 @@ function preInsertTrigger() {
         ExecutedAt: new Date().toISOString(),
         PartitionKey: doc.PartitionKey // Use the same partition key as the document
     };
-    
+
     // Create a separate document to track trigger execution
     var collection = context.getCollection();
     var accepted = collection.createDocument(collection.getSelfLink(), logEntry);
@@ -121,7 +126,7 @@ function preInsertTrigger() {
             Body = @"
 function postDeleteTrigger() {
     var context = getContext();
-    
+
     // For delete operations, we can't access the deleted document
     // So we'll just create a log entry with a timestamp-based ID
     var logEntry = {
@@ -133,7 +138,7 @@ function postDeleteTrigger() {
         ExecutedAt: new Date().toISOString(),
         PartitionKey: 'Products' // Use the same partition key as Product documents
     };
-    
+
     // Create a separate document to track trigger execution
     var collection = context.getCollection();
     var accepted = collection.createDocument(collection.getSelfLink(), logEntry);
@@ -161,7 +166,7 @@ function updateTrigger() {
     var context = getContext();
     var request = context.getRequest();
     var doc = request.getBody();
-    
+
     // Log the trigger execution using the same partition key as the document being updated
     var logEntry = {
         id: 'log_' + Math.random().toString().replace('.', ''),
@@ -172,7 +177,7 @@ function updateTrigger() {
         ExecutedAt: new Date().toISOString(),
         PartitionKey: doc.PartitionKey // Use the same partition key as the document
     };
-    
+
     // Create a separate document to track trigger execution
     var collection = context.getCollection();
     var accepted = collection.createDocument(collection.getSelfLink(), logEntry);

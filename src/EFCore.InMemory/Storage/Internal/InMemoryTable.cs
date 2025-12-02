@@ -385,7 +385,7 @@ public class InMemoryTable<TKey> : IInMemoryTable
 
     private static bool IsNullable(IComplexProperty property)
         => property.IsNullable
-            ||( property.DeclaringType is IComplexType complexType
+            || (property.DeclaringType is IComplexType complexType
                 && IsNullable(complexType.ComplexProperty));
 
     private void ThrowNullabilityErrorException(
@@ -399,14 +399,14 @@ public class InMemoryTable<TKey> : IInMemoryTable
                     nullabilityErrors.Format(),
                     entry.EntityType.DisplayName(),
                     entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey()!.Properties)),
-                new[] { entry });
+                [entry]);
         }
 
         throw new DbUpdateException(
             InMemoryStrings.NullabilityErrorException(
                 nullabilityErrors.Format(),
                 entry.EntityType.DisplayName()),
-            new[] { entry });
+            [entry]);
     }
 
     /// <summary>
@@ -432,8 +432,7 @@ public class InMemoryTable<TKey> : IInMemoryTable
                         "{"
                         + string.Join(
                             ", ",
-                            concurrencyConflicts.Select(
-                                c => c.Key.Name + ": " + Convert.ToString(c.Value, CultureInfo.InvariantCulture)))
+                            concurrencyConflicts.Select(c => c.Key.Name + ": " + Convert.ToString(c.Value, CultureInfo.InvariantCulture)))
                         + "}"),
                     entries)
                 : new DbUpdateConcurrencyException(

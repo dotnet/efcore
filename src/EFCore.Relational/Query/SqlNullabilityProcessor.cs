@@ -24,7 +24,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
     /// <summary>
-    /// Tracks parameters for collection expansion, allowing reuse.
+    ///     Tracks parameters for collection expansion, allowing reuse.
     /// </summary>
     private readonly Dictionary<SqlParameterExpression, List<SqlParameterExpression>> _collectionParameterExpansionMap;
 
@@ -112,7 +112,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                 return join.Update(newTable, newJoinPredicate);
             }
 
-            case ValuesExpression { ValuesParameter: SqlParameterExpression valuesParameter } valuesExpression:
+            case ValuesExpression { ValuesParameter: { } valuesParameter } valuesExpression:
             {
                 Check.DebugAssert(valuesParameter.TypeMapping is not null);
                 Check.DebugAssert(valuesParameter.TypeMapping.ElementTypeMapping is not null);
@@ -136,7 +136,9 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                         {
                             // Create parameter for value if we didn't create it yet,
                             // otherwise reuse it.
-                            ExpandParameterIfNeeded(valuesParameter.Name, expandedParameters, queryParameters, expandedParametersCounter, value, elementTypeMapping);
+                            ExpandParameterIfNeeded(
+                                valuesParameter.Name, expandedParameters, queryParameters, expandedParametersCounter, value,
+                                elementTypeMapping);
 
                             processedValues.Add(
                                 new RowValueExpression(
@@ -146,6 +148,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                                         intTypeMapping,
                                         ref valuesOrderingCounter)));
                         }
+
                         break;
                     }
 
@@ -174,6 +177,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                                         intTypeMapping,
                                         ref valuesOrderingCounter)));
                         }
+
                         break;
                     }
 
@@ -206,13 +210,16 @@ public class SqlNullabilityProcessor : ExpressionVisitor
 
                     return result;
 
-                case SqlBinaryExpression { OperatorType:
+                case SqlBinaryExpression
+                {
+                    OperatorType:
                     ExpressionType.AndAlso
                     or ExpressionType.NotEqual
                     or ExpressionType.GreaterThan
                     or ExpressionType.GreaterThanOrEqual
                     or ExpressionType.LessThan
-                    or ExpressionType.LessThanOrEqual } binary:
+                    or ExpressionType.LessThanOrEqual
+                } binary:
                     return Visit(binary, allowOptimizedExpansion: true, out _);
 
                 default:
@@ -227,7 +234,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
     ///     we need to add value for it.
     /// </summary>
     /// <param name="valuesExpression">Expression where to look for ordering column.</param>
-    /// <param name="expressions">Expressions for <see cref="RowValueExpression"/>.</param>
+    /// <param name="expressions">Expressions for <see cref="RowValueExpression" />.</param>
     /// <param name="intTypeMapping">Type mapping for integer.</param>
     /// <param name="counter">Counter for constants for ordering column.</param>
     /// <returns>Row value with ordering, if needed.</returns>
@@ -237,7 +244,8 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         IReadOnlyList<SqlExpression> expressions,
         IntTypeMapping intTypeMapping,
         ref int counter)
-        => RelationalQueryableMethodTranslatingExpressionVisitor.ValuesOrderingColumnName.Equals(valuesExpression.ColumnNames[0], StringComparison.Ordinal)
+        => RelationalQueryableMethodTranslatingExpressionVisitor.ValuesOrderingColumnName.Equals(
+            valuesExpression.ColumnNames[0], StringComparison.Ordinal)
             ? [_sqlExpressionFactory.Constant(counter++, intTypeMapping), .. expressions]
             : expressions;
 
@@ -812,7 +820,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
             List<SqlExpression>? processedValues = null;
             (hasNull, nullables) = (false, []);
 
-            if (inExpression.ValuesParameter is SqlParameterExpression valuesParameter)
+            if (inExpression.ValuesParameter is { } valuesParameter)
             {
                 // The InExpression has a values parameter. Expand it out, embedding its values as constants into the SQL; disable SQL
                 // caching.
@@ -841,7 +849,8 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                         {
                             // Create parameter for value if we didn't create it yet,
                             // otherwise reuse it.
-                            ExpandParameterIfNeeded(valuesParameter.Name, expandedParameters, parameters, expandedParametersCounter, value, elementTypeMapping);
+                            ExpandParameterIfNeeded(
+                                valuesParameter.Name, expandedParameters, parameters, expandedParametersCounter, value, elementTypeMapping);
 
                             processedValues.Add(expandedParameters[expandedParametersCounter++]);
 
@@ -850,7 +859,9 @@ public class SqlNullabilityProcessor : ExpressionVisitor
 
                         case ParameterTranslationMode.Constant:
                         {
-                            processedValues.Add(_sqlExpressionFactory.Constant(value, value?.GetType() ?? typeof(object), sensitive: true, elementTypeMapping));
+                            processedValues.Add(
+                                _sqlExpressionFactory.Constant(
+                                    value, value?.GetType() ?? typeof(object), sensitive: true, elementTypeMapping));
 
                             break;
                         }
@@ -886,7 +897,8 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                     {
                         // Create parameter for value if we didn't create it yet,
                         // otherwise reuse it.
-                        ExpandParameterIfNeeded(valuesParameter.Name, expandedParameters, parameters, values.Count + i, values[^1], elementTypeMapping);
+                        ExpandParameterIfNeeded(
+                            valuesParameter.Name, expandedParameters, parameters, values.Count + i, values[^1], elementTypeMapping);
 
                         processedValues.Add(expandedParameters[expandedParametersCounter++]);
                     }
@@ -1290,7 +1302,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
             );
         }
 
-        return result is SqlBinaryExpression sqlBinaryResult
+        return result is { } sqlBinaryResult
             && sqlBinaryResult.OperatorType is ExpressionType.AndAlso or ExpressionType.OrElse
                 ? _sqlExpressionFactory.MakeBinary( // invoke MakeBinary simplifications
                     sqlBinaryResult.OperatorType,
@@ -1544,7 +1556,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
     // Note that we can check parameter values for null since we cache by the parameter nullability; but we cannot do the same for bool.
     private bool IsNull(SqlExpression? expression)
         => expression is SqlConstantExpression { Value: null }
-            || expression is SqlParameterExpression { Name: string parameterName } && ParametersDecorator.IsNull(parameterName);
+            || expression is SqlParameterExpression { Name: { } parameterName } && ParametersDecorator.IsNull(parameterName);
 
     private bool IsTrue(SqlExpression? expression)
         => expression is SqlConstantExpression { Value: true };
@@ -1899,7 +1911,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
 #pragma warning restore EF1001
 
             rewrittenSelectExpression = rewrittenSelectExpression.Update(
-                new[] { rewrittenCollectionTable },
+                [rewrittenCollectionTable],
                 selectExpression.Predicate,
                 selectExpression.GroupBy,
                 selectExpression.Having,
@@ -2098,22 +2110,20 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                     // (a ?? b ?? c) == null -> a == null && b == null && c == null
                     // (a ?? b ?? c) != null -> a != null || b != null || c != null
                     return sqlFunctionExpression.Arguments
-                        .Select(
-                            a => ProcessNullNotNull(
-                                _sqlExpressionFactory.MakeUnary(
-                                    sqlUnaryExpression.OperatorType,
-                                    a,
-                                    typeof(bool),
-                                    sqlUnaryExpression.TypeMapping)!,
-                                operandNullable))
-                        .Aggregate(
-                            (l, r) => _sqlExpressionFactory.MakeBinary(
-                                sqlUnaryExpression.OperatorType == ExpressionType.Equal
-                                    ? ExpressionType.AndAlso
-                                    : ExpressionType.OrElse,
-                                l,
-                                r,
-                                sqlUnaryExpression.TypeMapping)!);
+                        .Select(a => ProcessNullNotNull(
+                            _sqlExpressionFactory.MakeUnary(
+                                sqlUnaryExpression.OperatorType,
+                                a,
+                                typeof(bool),
+                                sqlUnaryExpression.TypeMapping)!,
+                            operandNullable))
+                        .Aggregate((l, r) => _sqlExpressionFactory.MakeBinary(
+                            sqlUnaryExpression.OperatorType == ExpressionType.Equal
+                                ? ExpressionType.AndAlso
+                                : ExpressionType.OrElse,
+                            l,
+                            r,
+                            sqlUnaryExpression.TypeMapping)!);
                 }
 
                 if (!sqlFunctionExpression.IsNullable)
@@ -2150,18 +2160,16 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                 if (nullabilityPropagationElements.Count > 0)
                 {
                     var result = nullabilityPropagationElements
-                        .Select(
-                            e => ProcessNullNotNull(
-                                _sqlExpressionFactory.MakeUnary(
-                                    sqlUnaryExpression.OperatorType,
-                                    e,
-                                    sqlUnaryExpression.Type,
-                                    sqlUnaryExpression.TypeMapping)!,
-                                operandNullable))
-                        .Aggregate(
-                            (r, e) => sqlUnaryExpression.OperatorType == ExpressionType.Equal
-                                ? _sqlExpressionFactory.OrElse(r, e)
-                                : _sqlExpressionFactory.AndAlso(r, e));
+                        .Select(e => ProcessNullNotNull(
+                            _sqlExpressionFactory.MakeUnary(
+                                sqlUnaryExpression.OperatorType,
+                                e,
+                                sqlUnaryExpression.Type,
+                                sqlUnaryExpression.TypeMapping)!,
+                            operandNullable))
+                        .Aggregate((r, e) => sqlUnaryExpression.OperatorType == ExpressionType.Equal
+                            ? _sqlExpressionFactory.OrElse(r, e)
+                            : _sqlExpressionFactory.AndAlso(r, e));
 
                     return result;
                 }

@@ -55,5 +55,9 @@ public class JsonConvertedValueReaderWriter<TModel, TProvider> :
         => Expression.New(
             _constructorInfo,
             ((ICompositeJsonValueReaderWriter)this).InnerReaderWriter.ConstructorExpression,
-            ((IJsonConvertedValueReaderWriter)this).Converter.ConstructorExpression);
+            // We shouldn't quote converters, because it will create a new instance every time and
+            // it will have to compile the expression again and
+            // it will have a negative performance impact. See #36856 for more info.
+            // This means this is currently unsupported scenario for precompilation.
+            Expression.Constant(((IJsonConvertedValueReaderWriter)this).Converter));
 }

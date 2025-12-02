@@ -600,8 +600,8 @@ public class RelationalMetadataExtensionsTest
 
         Assert.Equal(
             RelationalStrings.DuplicateCheckConstraint("CK_Customer_AlternateId", entityType.DisplayName(), entityType.DisplayName()),
-            Assert.Throws<InvalidOperationException>(
-                () => entityType.AddCheckConstraint("CK_Customer_AlternateId", "AlternateId < Id")).Message);
+            Assert.Throws<InvalidOperationException>(() => entityType.AddCheckConstraint("CK_Customer_AlternateId", "AlternateId < Id"))
+                .Message);
     }
 
     [ConditionalFact]

@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata;
@@ -450,7 +449,7 @@ public interface IMutableTypeBase : IReadOnlyTypeBase, IMutableAnnotatable
     /// </summary>
     /// <param name="property">The property to remove.</param>
     /// <returns>The removed property, or <see langword="null" /> if the property was not found.</returns>
-    IMutableComplexProperty? RemoveComplexProperty(IReadOnlyProperty property);
+    IMutableComplexProperty? RemoveComplexProperty(IReadOnlyComplexProperty property);
 
     /// <summary>
     ///     Gets the members defined on this type and base types.

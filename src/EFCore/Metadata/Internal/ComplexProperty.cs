@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -18,7 +17,6 @@ public class ComplexProperty : PropertyBase, IMutableComplexProperty, IConventio
     private bool? _isNullable;
 
     // Warning: Never access these fields directly as access needs to be thread-safe
-    private IClrCollectionAccessor? _collectionAccessor;
     private bool _collectionAccessorInitialized;
 
     private ConfigurationSource? _isNullableConfigurationSource;
@@ -252,7 +250,7 @@ public class ComplexProperty : PropertyBase, IMutableComplexProperty, IConventio
     /// </summary>
     public virtual IClrCollectionAccessor? CollectionAccessor
         => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _collectionAccessor,
+            ref field,
             ref _collectionAccessorInitialized,
             this,
             static complexProperty => ClrCollectionAccessorFactory.Instance.Create(complexProperty));

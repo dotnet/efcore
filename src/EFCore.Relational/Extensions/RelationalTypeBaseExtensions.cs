@@ -1,12 +1,12 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-// ReSharper disable once CheckNamespace
-
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
+// ReSharper disable once CheckNamespace
+#pragma warning disable IDE0130 // Namespace does not match folder structure
 namespace Microsoft.EntityFrameworkCore;
+#pragma warning restore IDE0130 // Namespace does not match folder structure
 
 /// <summary>
 ///     Type extension methods for relational database metadata.
@@ -45,7 +45,7 @@ public static class RelationalTypeBaseExtensions
         typeBase.Model.EnsureRelationalModel();
         return (IEnumerable<ITableMappingBase>?)typeBase.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.DefaultMappings)
-            ?? Enumerable.Empty<ITableMappingBase>();
+            ?? [];
     }
 
     /// <summary>
@@ -58,7 +58,7 @@ public static class RelationalTypeBaseExtensions
         typeBase.Model.EnsureRelationalModel();
         return (IEnumerable<ITableMapping>?)typeBase.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.TableMappings)
-            ?? Enumerable.Empty<ITableMapping>();
+            ?? [];
     }
 
     #endregion Table mapping
@@ -91,7 +91,7 @@ public static class RelationalTypeBaseExtensions
         typeBase.Model.EnsureRelationalModel();
         return (IEnumerable<IViewMapping>?)typeBase.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.ViewMappings)
-            ?? Enumerable.Empty<IViewMapping>();
+            ?? [];
     }
 
     #endregion View mapping
@@ -116,7 +116,7 @@ public static class RelationalTypeBaseExtensions
         typeBase.Model.EnsureRelationalModel();
         return (IEnumerable<ISqlQueryMapping>?)typeBase.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.SqlQueryMappings)
-            ?? Enumerable.Empty<ISqlQueryMapping>();
+            ?? [];
     }
 
     #endregion SQL query mapping
@@ -141,7 +141,7 @@ public static class RelationalTypeBaseExtensions
         typeBase.Model.EnsureRelationalModel();
         return (IEnumerable<IFunctionMapping>?)typeBase.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.FunctionMappings)
-            ?? Enumerable.Empty<IFunctionMapping>();
+            ?? [];
     }
 
     #endregion
@@ -212,7 +212,7 @@ public static class RelationalTypeBaseExtensions
         typeBase.Model.EnsureRelationalModel();
         return (IEnumerable<IStoredProcedureMapping>?)typeBase.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.InsertStoredProcedureMappings)
-            ?? Enumerable.Empty<IStoredProcedureMapping>();
+            ?? [];
     }
 
     /// <summary>
@@ -225,7 +225,7 @@ public static class RelationalTypeBaseExtensions
         typeBase.Model.EnsureRelationalModel();
         return (IEnumerable<IStoredProcedureMapping>?)typeBase.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.DeleteStoredProcedureMappings)
-            ?? Enumerable.Empty<IStoredProcedureMapping>();
+            ?? [];
     }
 
     /// <summary>
@@ -238,7 +238,7 @@ public static class RelationalTypeBaseExtensions
         typeBase.Model.EnsureRelationalModel();
         return (IEnumerable<IStoredProcedureMapping>?)typeBase.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.UpdateStoredProcedureMappings)
-            ?? Enumerable.Empty<IStoredProcedureMapping>();
+            ?? [];
     }
 
     #endregion
@@ -374,10 +374,10 @@ public static class RelationalTypeBaseExtensions
     {
         var containerColumnName = typeBase.FindAnnotation(RelationalAnnotationNames.ContainerColumnName);
         return containerColumnName != null
-                ? (string?)containerColumnName.Value
-                : typeBase is IReadOnlyEntityType entityType
-                    ? entityType.FindOwnership()?.PrincipalEntityType.GetContainerColumnName()
-                    : ((IReadOnlyComplexType)typeBase).ComplexProperty.DeclaringType.GetContainerColumnName();
+            ? (string?)containerColumnName.Value
+            : typeBase is IReadOnlyEntityType entityType
+                ? entityType.FindOwnership()?.PrincipalEntityType.GetContainerColumnName()
+                : ((IReadOnlyComplexType)typeBase).ComplexProperty.DeclaringType.GetContainerColumnName();
     }
 
     /// <summary>
@@ -416,7 +416,7 @@ public static class RelationalTypeBaseExtensions
     /// <param name="typeBase">The type.</param>
     /// <returns>The database column type.</returns>
     public static string? GetContainerColumnType(this IReadOnlyTypeBase typeBase)
-     => typeBase.FindAnnotation(RelationalAnnotationNames.ContainerColumnType)?.Value is string columnName
+        => typeBase.FindAnnotation(RelationalAnnotationNames.ContainerColumnType)?.Value is string columnName
             ? columnName
             : typeBase is IReadOnlyEntityType entityType
                 ? entityType.FindOwnership()?.PrincipalEntityType.GetContainerColumnType()
@@ -451,7 +451,7 @@ public static class RelationalTypeBaseExtensions
     public static ConfigurationSource? GetContainerColumnTypeConfigurationSource(this IConventionTypeBase typeBase)
         => typeBase.FindAnnotation(RelationalAnnotationNames.ContainerColumnType)
             ?.GetConfigurationSource();
-            
+
     /// <summary>
     ///     Gets the value of JSON property name used for the given entity mapped to a JSON column.
     /// </summary>
@@ -464,12 +464,53 @@ public static class RelationalTypeBaseExtensions
     ///     <see langword="null" /> is returned for entities that are not mapped to a JSON column.
     /// </returns>
     public static string? GetJsonPropertyName(this IReadOnlyTypeBase typeBase)
-        => (string?)typeBase.FindAnnotation(RelationalAnnotationNames.JsonPropertyName)?.Value
-            ?? (!typeBase.IsMappedToJson()
-                ? null
-                : typeBase is IReadOnlyEntityType entityType
-                    ? entityType.FindOwnership()!.GetNavigation(pointsToPrincipal: false)!.Name
-                    : ((IReadOnlyComplexType)typeBase).ComplexProperty.Name);
+    {
+        var annotation = typeBase.FindAnnotation(RelationalAnnotationNames.JsonPropertyName);
+        if (annotation != null)
+        {
+            return (string?)annotation.Value;
+        }
+
+        return typeBase.FindAnnotation(RelationalAnnotationNames.ContainerColumnName) != null || !typeBase.IsMappedToJson()
+            ? null
+            : typeBase is IReadOnlyEntityType entityType
+                ? entityType.FindOwnership()!.GetNavigation(pointsToPrincipal: false)!.Name
+                : ((IReadOnlyComplexType)typeBase).ComplexProperty.Name;
+    }
+
+    /// <summary>
+    ///     Sets the value of JSON property name used for the given type mapped to a JSON column.
+    /// </summary>
+    /// <param name="typeBase">The type.</param>
+    /// <param name="name">The name to be used.</param>
+    public static void SetJsonPropertyName(this IMutableTypeBase typeBase, string? name)
+        => typeBase.SetOrRemoveAnnotation(
+            RelationalAnnotationNames.JsonPropertyName,
+            Check.NullButNotEmpty(name));
+
+    /// <summary>
+    ///     Sets the value of JSON property name used for the given type mapped to a JSON column.
+    /// </summary>
+    /// <param name="typeBase">The type.</param>
+    /// <param name="name">The name to be used.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    public static string? SetJsonPropertyName(
+        this IConventionTypeBase typeBase,
+        string? name,
+        bool fromDataAnnotation = false)
+        => (string?)typeBase.SetOrRemoveAnnotation(
+            RelationalAnnotationNames.JsonPropertyName,
+            Check.NullButNotEmpty(name),
+            fromDataAnnotation)?.Value;
+
+    /// <summary>
+    ///     Gets the <see cref="ConfigurationSource" /> for the JSON property name for a given type.
+    /// </summary>
+    /// <param name="typeBase">The type.</param>
+    /// <returns>The <see cref="ConfigurationSource" /> for the JSON property name for a given type.</returns>
+    public static ConfigurationSource? GetJsonPropertyNameConfigurationSource(this IConventionTypeBase typeBase)
+        => typeBase.FindAnnotation(RelationalAnnotationNames.JsonPropertyName)?.GetConfigurationSource();
 
     #endregion
 }

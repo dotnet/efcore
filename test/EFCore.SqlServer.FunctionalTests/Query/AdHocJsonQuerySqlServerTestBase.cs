@@ -53,7 +53,7 @@ WHERE [e].[Id] < 4
         await base.Project_nested_json_entity_with_missing_scalars(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[Id], JSON_QUERY([e].[OptionalReference], '$.NestedOptionalReference'), JSON_QUERY([e].[RequiredReference], '$.NestedRequiredReference'), JSON_QUERY([e].[Collection], '$[0].NestedCollection')
 FROM [Entities] AS [e]
 WHERE [e].[Id] < 4
@@ -71,7 +71,6 @@ FROM [Entities] AS [e]
 WHERE [e].[Id] = 5
 """);
     }
-
 
     public override async Task Project_missing_required_navigation(bool async)
     {
@@ -113,24 +112,54 @@ WHERE [e].[Id] = 6
     {
         await base.Project_missing_required_scalar(async);
 
-        AssertSql(
-            """
+        switch (JsonColumnType)
+        {
+            case "json":
+                AssertSql(
+                    """
+SELECT [e].[Id], JSON_VALUE([e].[RequiredReference], '$.Number' RETURNING float) AS [Number]
+FROM [Entities] AS [e]
+WHERE [e].[Id] = 2
+""");
+                break;
+            case "nvarchar(max)":
+                AssertSql(
+                    """
 SELECT [e].[Id], CAST(JSON_VALUE([e].[RequiredReference], '$.Number') AS float) AS [Number]
 FROM [Entities] AS [e]
 WHERE [e].[Id] = 2
 """);
+                break;
+            default:
+                throw new UnreachableException();
+        }
     }
 
     public override async Task Project_null_required_scalar(bool async)
     {
         await base.Project_null_required_scalar(async);
 
-        AssertSql(
-            """
+        switch (JsonColumnType)
+        {
+            case "json":
+                AssertSql(
+                    """
+SELECT [e].[Id], JSON_VALUE([e].[RequiredReference], '$.Number' RETURNING float) AS [Number]
+FROM [Entities] AS [e]
+WHERE [e].[Id] = 4
+""");
+                break;
+            case "nvarchar(max)":
+                AssertSql(
+                    """
 SELECT [e].[Id], CAST(JSON_VALUE([e].[RequiredReference], '$.Number') AS float) AS [Number]
 FROM [Entities] AS [e]
 WHERE [e].[Id] = 4
 """);
+                break;
+            default:
+                throw new UnreachableException();
+        }
     }
 
     protected override async Task Seed21006(Context21006 context)
@@ -445,37 +474,37 @@ VALUES(
 
     #region EnumLegacyValues
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Read_enum_property_with_legacy_values(bool async)
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    public abstract Task Read_enum_property_with_legacy_values(bool async);
+
+    protected virtual async Task Read_enum_property_with_legacy_values_core(bool async)
     {
         var contextFactory = await InitializeAsync<DbContext>(
             onModelCreating: BuildModelEnumLegacyValues,
             onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
             seed: SeedEnumLegacyValues);
 
-        using (var context = contextFactory.CreateContext())
+        using var context = contextFactory.CreateContext();
+
+        var query = context.Set<MyEntityEnumLegacyValues>().Select(x => new
         {
-            var query = context.Set<MyEntityEnumLegacyValues>().Select(
-                x => new
-                {
-                    x.Reference.IntEnum,
-                    x.Reference.ByteEnum,
-                    x.Reference.LongEnum,
-                    x.Reference.NullableEnum
-                });
+            x.Reference.IntEnum,
+            x.Reference.ByteEnum,
+            x.Reference.LongEnum,
+            x.Reference.NullableEnum
+        });
 
-            var exception = async
-                ? await (Assert.ThrowsAsync<SqlException>(() => query.ToListAsync()))
-                : Assert.Throws<SqlException>(() => query.ToList());
-
-            // Conversion failed when converting the nvarchar value '...' to data type int
-            Assert.Equal(245, exception.Number);
+        if (async)
+        {
+            await query.ToListAsync();
+        }
+        else
+        {
+            query.ToList();
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Read_json_entity_with_enum_properties_with_legacy_values(bool async)
     {
         var contextFactory = await InitializeAsync<DbContext>(
@@ -515,8 +544,7 @@ VALUES(
             l => l.Message == CoreResources.LogStringEnumValueInJson(testLogger).GenerateMessage(nameof(ULongEnumLegacyValues)));
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Read_json_entity_collection_with_enum_properties_with_legacy_values(bool async)
     {
         var contextFactory = await InitializeAsync<DbContext>(
@@ -574,14 +602,13 @@ N'e1')
 """);
 
     protected virtual void BuildModelEnumLegacyValues(ModelBuilder modelBuilder)
-        => modelBuilder.Entity<MyEntityEnumLegacyValues>(
-            b =>
-            {
-                b.ToTable("Entities");
-                b.Property(x => x.Id).ValueGeneratedNever();
-                b.OwnsOne(x => x.Reference, b => b.ToJson().HasColumnType(JsonColumnType));
-                b.OwnsMany(x => x.Collection, b => b.ToJson().HasColumnType(JsonColumnType));
-            });
+        => modelBuilder.Entity<MyEntityEnumLegacyValues>(b =>
+        {
+            b.ToTable("Entities");
+            b.Property(x => x.Id).ValueGeneratedNever();
+            b.OwnsOne(x => x.Reference, b => b.ToJson().HasColumnType(JsonColumnType));
+            b.OwnsMany(x => x.Collection, b => b.ToJson().HasColumnType(JsonColumnType));
+        });
 
     private class MyEntityEnumLegacyValues
     {

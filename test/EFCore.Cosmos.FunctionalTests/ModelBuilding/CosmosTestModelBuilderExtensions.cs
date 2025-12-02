@@ -92,6 +92,7 @@ public static class CosmosTestModelBuilderExtensions
 
         return builder;
     }
+
     public static ModelBuilderTest.TestEntityTypeBuilder<TEntity> UseETagConcurrency<TEntity>(
         this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder)
         where TEntity : class

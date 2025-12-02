@@ -13,51 +13,35 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration;
 
 public class SqlServerSequenceValueGeneratorTest
 {
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public async Task Generates_sequential_int_values(bool async)
         => await Generates_sequential_values<int>(async);
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public async Task Generates_sequential_long_values(bool async)
         => await Generates_sequential_values<long>(async);
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public async Task Generates_sequential_short_values(bool async)
         => await Generates_sequential_values<short>(async);
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public async Task Generates_sequential_byte_values(bool async)
         => await Generates_sequential_values<byte>(async);
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public async Task Generates_sequential_uint_values(bool async)
         => await Generates_sequential_values<uint>(async);
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public async Task Generates_sequential_ulong_values(bool async)
         => await Generates_sequential_values<ulong>(async);
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public async Task Generates_sequential_ushort_values(bool async)
         => await Generates_sequential_values<ushort>(async);
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public async Task Generates_sequential_sbyte_values(bool async)
         => await Generates_sequential_values<sbyte>(async);
 

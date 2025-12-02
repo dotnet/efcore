@@ -3,7 +3,6 @@
 
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -106,7 +105,8 @@ public sealed partial class InternalEntityEntry : InternalEntryBase, IUpdateEntr
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public IRuntimeEntityType EntityType => (IRuntimeEntityType)StructuralType;
+    public IRuntimeEntityType EntityType
+        => (IRuntimeEntityType)StructuralType;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -467,7 +467,6 @@ public sealed partial class InternalEntityEntry : InternalEntryBase, IUpdateEntr
         }
     }
 
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -489,7 +488,7 @@ public sealed partial class InternalEntityEntry : InternalEntryBase, IUpdateEntr
     }
 
     private static readonly MethodInfo ReadRelationshipSnapshotValueMethod
-        = typeof(InternalEntityEntry).GetMethod(nameof(InternalEntityEntry.ReadRelationshipSnapshotValue))!;
+        = typeof(InternalEntityEntry).GetMethod(nameof(ReadRelationshipSnapshotValue))!;
 
     [UnconditionalSuppressMessage(
         "ReflectionAnalysis", "IL2060",
@@ -677,7 +676,6 @@ public sealed partial class InternalEntityEntry : InternalEntryBase, IUpdateEntr
         base.OnPropertyChanged(propertyBase, value, setModified);
     }
 
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -764,10 +762,9 @@ public sealed partial class InternalEntityEntry : InternalEntryBase, IUpdateEntr
         }
         else
         {
-            var property = EntityType.GetFlattenedProperties().FirstOrDefault(
-                p => (EntityState != EntityState.Modified
-                        || IsModified(p))
-                    && PropertyStateData.IsPropertyFlagged(p.GetIndex(), PropertyFlag.Null));
+            var property = EntityType.GetFlattenedProperties().FirstOrDefault(p => (EntityState != EntityState.Modified
+                    || IsModified(p))
+                && PropertyStateData.IsPropertyFlagged(p.GetIndex(), PropertyFlag.Null));
 
             if (property != null)
             {
@@ -777,7 +774,7 @@ public sealed partial class InternalEntityEntry : InternalEntryBase, IUpdateEntr
                         CoreStrings.PropertyConceptualNullSensitive(
                             property.Name,
                             EntityType.DisplayName(),
-                            this.BuildOriginalValuesString(new[] { property })));
+                            this.BuildOriginalValuesString([property])));
                 }
 
                 throw new InvalidOperationException(
@@ -963,13 +960,13 @@ public sealed partial class InternalEntityEntry : InternalEntryBase, IUpdateEntr
                         this,
                         navigation,
                         eventArgs.NewItems!.OfType<object>(),
-                        Enumerable.Empty<object>());
+                        []);
                     break;
                 case NotifyCollectionChangedAction.Remove:
                     StateManager.InternalEntityEntryNotifier.NavigationCollectionChanged(
                         this,
                         navigation,
-                        Enumerable.Empty<object>(),
+                        [],
                         eventArgs.OldItems!.OfType<object>());
                     break;
                 case NotifyCollectionChangedAction.Replace:

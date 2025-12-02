@@ -1,9 +1,9 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Query.Relationships.OwnedJson;
-using Microsoft.EntityFrameworkCore.Query.Relationships.OwnedNavigations;
-using Microsoft.EntityFrameworkCore.Query.Relationships.OwnedTableSplitting;
+using Microsoft.EntityFrameworkCore.Query.Associations.OwnedJson;
+using Microsoft.EntityFrameworkCore.Query.Associations.OwnedNavigations;
+using Microsoft.EntityFrameworkCore.Query.Associations.OwnedTableSplitting;
 
 namespace Microsoft.EntityFrameworkCore;
 

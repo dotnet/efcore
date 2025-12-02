@@ -2,10 +2,13 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 // ReSharper disable once CheckNamespace
+
 namespace Microsoft.EntityFrameworkCore;
 
 /// <summary>
-///     Options to be passed to <see cref="CosmosDbFunctionsExtensions.VectorDistance(DbFunctions, ReadOnlyMemory{float}, ReadOnlyMemory{float}, bool?, VectorDistanceOptions)" />
+///     Options to be passed to
+///     <see
+///         cref="CosmosDbFunctionsExtensions.VectorDistance(DbFunctions, ReadOnlyMemory{float}, ReadOnlyMemory{float}, bool?, VectorDistanceOptions)" />
 /// </summary>
 public sealed class VectorDistanceOptions
 {

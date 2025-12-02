@@ -476,10 +476,10 @@ INNER JOIN (
 SELECT [s].[Id], [s].[CollectionInverseId], [s].[ExtraId], [s].[Name], [s].[ReferenceInverseId]
 FROM [EntityOnes] AS [e]
 LEFT JOIN (
-    SELECT [e0].[Id], [e0].[CollectionInverseId], [e0].[ExtraId], [e0].[Name], [e0].[ReferenceInverseId], [j].[OneId]
+    SELECT [e0].[Id], [e0].[CollectionInverseId], [e0].[ExtraId], [e0].[Name], [e0].[ReferenceInverseId], [j].[OneId] AS [OneId0]
     FROM [JoinOneToTwo] AS [j]
     INNER JOIN [EntityTwos] AS [e0] ON [j].[TwoId] = [e0].[Id]
-) AS [s] ON [e].[Id] = [s].[OneId]
+) AS [s] ON [e].[Id] = [s].[OneId0]
 """);
     }
 
@@ -1910,10 +1910,10 @@ ORDER BY [e].[Id], [e2].[Id]
 SELECT [s].[Id], [s].[CollectionInverseId], [s].[ExtraId], [s].[Name], [s].[ReferenceInverseId]
 FROM [EntityOnes] AS [e]
 LEFT JOIN (
-    SELECT [e0].[Id], [e0].[CollectionInverseId], [e0].[ExtraId], [e0].[Name], [e0].[ReferenceInverseId], [j].[OneId]
+    SELECT [e0].[Id], [e0].[CollectionInverseId], [e0].[ExtraId], [e0].[Name], [e0].[ReferenceInverseId], [j].[OneId] AS [OneId0], [e0].[Id] AS [Id0]
     FROM [JoinOneToTwo] AS [j]
     INNER JOIN [EntityTwos] AS [e0] ON [j].[TwoId] = [e0].[Id]
-) AS [s] ON [e].[Id] = [s].[OneId] AND [e].[Id] <> [s].[Id]
+) AS [s] ON [e].[Id] = [s].[OneId0] AND [e].[Id] <> [s].[Id0]
 """);
     }
 
@@ -2281,10 +2281,10 @@ INNER JOIN (
 SELECT [s].[Id], [s].[CollectionInverseId], [s].[ExtraId], [s].[Name], [s].[ReferenceInverseId]
 FROM [UnidirectionalEntityOnes] AS [u]
 LEFT JOIN (
-    SELECT [u1].[Id], [u1].[CollectionInverseId], [u1].[ExtraId], [u1].[Name], [u1].[ReferenceInverseId], [u0].[OneId]
+    SELECT [u1].[Id], [u1].[CollectionInverseId], [u1].[ExtraId], [u1].[Name], [u1].[ReferenceInverseId], [u0].[OneId] AS [OneId0]
     FROM [UnidirectionalJoinOneToTwo] AS [u0]
     INNER JOIN [UnidirectionalEntityTwos] AS [u1] ON [u0].[TwoId] = [u1].[Id]
-) AS [s] ON [u].[Id] = [s].[OneId]
+) AS [s] ON [u].[Id] = [s].[OneId0]
 """);
     }
 
@@ -2643,10 +2643,10 @@ ORDER BY [e].[Id], [s].[OneId], [s].[TwoId], [s].[Id], [s].[Id0]
 SELECT [s].[Id], [s].[CollectionInverseId], [s].[ExtraId], [s].[Name], [s].[ReferenceInverseId]
 FROM [UnidirectionalEntityOnes] AS [u]
 LEFT JOIN (
-    SELECT [u1].[Id], [u1].[CollectionInverseId], [u1].[ExtraId], [u1].[Name], [u1].[ReferenceInverseId], [u0].[OneId]
+    SELECT [u1].[Id], [u1].[CollectionInverseId], [u1].[ExtraId], [u1].[Name], [u1].[ReferenceInverseId], [u0].[OneId] AS [OneId0], [u1].[Id] AS [Id0]
     FROM [UnidirectionalJoinOneToTwo] AS [u0]
     INNER JOIN [UnidirectionalEntityTwos] AS [u1] ON [u0].[TwoId] = [u1].[Id]
-) AS [s] ON [u].[Id] = [s].[OneId] AND [u].[Id] <> [s].[Id]
+) AS [s] ON [u].[Id] = [s].[OneId0] AND [u].[Id] <> [s].[Id0]
 """);
     }
 
