@@ -1958,11 +1958,11 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
                 {
                     x.Property<int>("Id");
                     x.HasKey("Id");
-                    x.ComplexProperty<BlogDetails>(
-                        "Details", d =>
+                    x.ComplexProperty(
+                        typeof(Dictionary<string, object>), "Details", d =>
                         {
-                            d.Property(e => e.Author);
-                            d.Property(e => e.Viewers);
+                            d.Property<string>("Author");
+                            d.Property<int>("Viewers");
                             d.ToJson();
                         });
                 }),
@@ -1972,11 +1972,11 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
                 {
                     x.Property<int>("Id");
                     x.HasKey("Id");
-                    x.ComplexProperty<BlogDetails>(
-                        "Details", d =>
+                    x.ComplexProperty(
+                        typeof(Dictionary<string, object>), "Details", d =>
                         {
-                            d.Property(e => e.Author);
-                            d.Property(e => e.Viewers);
+                            d.Property<string>("Author");
+                            d.Property<int>("Viewers");
                             d.ToJson().HasColumnType("json");
                         });
                 }),
@@ -2000,10 +2000,4 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
                 Assert.Equal("nvarchar(max)", operation.ColumnType);
                 Assert.Equal("json", operation.OldColumn.ColumnType);
             });
-
-    private class BlogDetails
-    {
-        public string Author { get; set; } = "";
-        public int Viewers { get; set; }
-    }
 }
