@@ -1,27 +1,6 @@
 variables:
-  - name: _BuildConfig
-    value: Release
-  - name: _TeamName
-    value: AspNetCore
-  - name: DOTNET_SKIP_FIRST_TIME_EXPERIENCE
-    value: true
   - name: _PublishUsingPipelines
     value: false
-  - ${{ if or(startswith(variables['Build.SourceBranch'], 'refs/heads/release/'), startswith(variables['Build.SourceBranch'], 'refs/heads/internal/release/'), eq(variables['Build.Reason'], 'Manual')) }}:
-    - name: PostBuildSign
-      value: false
-  - ${{ else }}:
-    - name: PostBuildSign
-      value: true
-  - group: DotNet-HelixApi-Access
-  - name: _InternalRuntimeDownloadArgs
-    value: /p:DotNetRuntimeSourceFeed=https://ci.dot.net/internal /p:DotNetRuntimeSourceFeedKey=$(dotnetbuilds-internal-container-read-token-base64)
-  - name: LC_ALL
-    value: 'en_US.UTF-8'
-  - name: LANG
-    value: 'en_US.UTF-8'
-  - name: LANGUAGE
-    value: 'en_US.UTF-8'
   - template: /eng/common/templates-official/variables/pool-providers.yml@self
 trigger:
   batch: true
@@ -29,9 +8,7 @@ trigger:
     include:
       - main
       - release/*
-      - feature/*
-      - internal/release/*
-pr: ['*']
+pr: none
 resources:
   repositories:
   - repository: 1ESPipelineTemplates
@@ -41,82 +18,23 @@ resources:
 extends:
   template: v1/1ES.Official.PipelineTemplate.yml@1ESPipelineTemplates
   parameters:
-    featureFlags:
-      autoBaseline: false
-      usePrefastVersion3: true
-      autoEnableRoslynWithNewRuleset: false
-      binskimScanAllExtensions: true
     sdl:
       createAdoIssuesForJustificationsForDisablement: false
       sourceAnalysisPool:
         name: $(DncEngInternalBuildPool)
         image: 1es-windows-2022
         os: windows
-      baseline:
-        baselineFile: $(Build.SourcesDirectory)\.config\guardian\.gdnbaselines
-      binskim:
-        scanOutputDirectoryOnly: true
-        analyzeTargetGlob: +:f|**/Microsoft.EntityFrameworkCore*.dll;+:f|**/Microsoft.Data.Sqlite*.dll;+:f|**/ef.exe;+:f|**/dotnet-ef.exe;-:f|**/shims/**/*.exe;
-        preReleaseVersion: '4.3.1'
-      env:
-        GDN_EXTRACT_TOOLS: 'binskim'
-        GDN_EXTRACT_TARGETS: true
-        GDN_EXTRACT_FILTER: 'f|**/*.zip;f|**/*.nupkg;f|**/*.vsix;f|**/*.cspkg;f|**/*.sfpkg;f|**/*.package'
-      policheck:
-        enabled: true
-      tsa:
-        enabled: true
-    customBuildTags:
-    - ES365AIMigrationTooling
+    settings:
+      networkIsolationPolicy: Permissive,CFSClean
     stages:
     - stage: build
       displayName: Build
       jobs:
       - template: /eng/common/templates-official/jobs/jobs.yml@self
         parameters:
-          enableMicrobuild: true
           enablePublishBuildArtifacts: true
           enablePublishBuildAssets: false
           enablePublishTestResults: false
           publishAssetsImmediately: true
           isAssetlessBuild: true
           enableTelemetry: true
-          helixRepo: dotnet/efcore
-          jobs:
-          - job: Windows
-            pool:
-              name: $(DncEngInternalBuildPool)
-              demands: ImageOverride -equals 1es-windows-2022
-              os: windows
-            timeoutInMinutes: 60
-            variables:
-              - _InternalBuildArgs: ''
-              # Rely on task Arcade injects, not auto-injected build step.
-              - skipComponentGovernanceDetection: true
-              - ${{ if notin(variables['Build.Reason'], 'PullRequest') }}:
-                - _SignType: real
-                - _Sign: true  
-                - _InternalBuildArgs: /p:DotNetSignType=$(_SignType) /p:TeamName=$(_TeamName) /p:DotNetPublishUsingPipelines=$(_PublishUsingPipelines) /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
-              # Ignore test and infrastructure code.
-              - Codeql.SourceRoot: src
-              # CodeQL3000 needs this plumbed along as a variable to enable TSA.
-              - Codeql.TSAEnabled: true
-              # Default expects tsaoptions.json under SourceRoot.
-              - Codeql.TSAOptionsPath: '$(Build.SourcesDirectory)/.config/tsaoptions.json'
-            steps:
-              - task: NuGetCommand@2
-                displayName: 'Clear NuGet caches'
-                condition: succeeded()
-                inputs:
-                  command: custom
-                  arguments: 'locals all -clear'
-              - script: "echo ##vso[build.addbuildtag]daily-build"
-                condition: and(notin(variables['Build.Reason'], 'PullRequest'), ne(variables['IsFinalBuild'], 'true'))
-                displayName: 'Set CI tags'
-              - script: "echo ##vso[build.addbuildtag]release-candidate"
-                condition: and(notin(variables['Build.Reason'], 'PullRequest'), eq(variables['IsFinalBuild'], 'true'))
-                displayName: 'Set CI tags'
-              - template: /eng/common/templates-official/steps/enable-internal-sources.yml
-              - template: /eng/common/templates-official/steps/enable-internal-runtimes.yml
-              - script: eng\common\build.cmd -restore -build -sign -pack -publish -ci -configuration $(_BuildConfig) -prepareMachine $(_InternalRuntimeDownloadArgs)
-                displayName: Build
