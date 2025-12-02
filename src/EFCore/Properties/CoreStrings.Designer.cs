@@ -351,7 +351,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
-        ///     Navigation '{1_entityType}.{0_navigationName}' was not found. Please add the navigation to the entity type before configuring it.
+        ///     Navigation '{1_entityType}.{0_navigationName}' was not found. Please add the navigation to the entity type using HasOne, HasMany, or OwnsOne/OwnsMany methods before configuring it.
         /// </summary>
         public static string CanOnlyConfigureExistingNavigations(object? navigationName, object? entityType)
             => string.Format(
@@ -2884,6 +2884,18 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("ReferenceMustBeLoaded", "0_navigation", "1_entityType"),
                 navigation, entityType);
+
+        /// <summary>
+        ///     Unable to refresh query with multiple merge options!
+        /// </summary>
+        public static string RefreshMultipleMergeOptions
+            => GetString("RefreshMultipleMergeOptions");
+
+        /// <summary>
+        ///     Unable to refresh non-tracking query!
+        /// </summary>
+        public static string RefreshNonTrackingQuery
+            => GetString("RefreshNonTrackingQuery");
 
         /// <summary>
         ///     The principal and dependent ends of the relationship cannot be changed once foreign key or principal key properties have been specified. Remove the conflicting configuration.
