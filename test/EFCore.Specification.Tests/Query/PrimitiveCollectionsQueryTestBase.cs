@@ -469,6 +469,26 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
     }
 
     [ConditionalFact]
+    public virtual async Task Parameter_collection_empty_Contains()
+    {
+        int[] ints = [];
+
+        await AssertQuery(
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => ints.Contains(c.Int)),
+            assertEmpty: true);
+    }
+
+    [ConditionalFact] // #37216
+    public virtual async Task Parameter_collection_empty_Join()
+    {
+        int[] ints = [];
+
+        await AssertQuery(
+            ss => ss.Set<PrimitiveCollectionsEntity>().Join(ints, e => e.Id, i => i, (e, i) => e),
+            assertEmpty: true);
+    }
+
+    [ConditionalFact]
     public virtual Task Parameter_collection_Contains_with_EF_Constant()
     {
         var ids = new[] { 2, 999, 1000 };

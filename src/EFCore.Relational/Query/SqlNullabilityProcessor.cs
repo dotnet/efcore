@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
+using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
@@ -30,6 +31,9 @@ public class SqlNullabilityProcessor : ExpressionVisitor
     ///     Tracks parameters for collection expansion, allowing reuse.
     /// </summary>
     private readonly Dictionary<SqlParameterExpression, List<SqlParameterExpression>> _collectionParameterExpansionMap;
+
+    private static readonly bool UseOldBehavior37216 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37216", out var enabled) && enabled;
 
     /// <summary>
     ///     Creates a new instance of the <see cref="SqlNullabilityProcessor" /> class.
@@ -186,6 +190,33 @@ public class SqlNullabilityProcessor : ExpressionVisitor
 
                     default:
                         throw new UnreachableException();
+                }
+
+                // We've inlined the user-provided collection from the values parameter into the SQL VALUES expression: (VALUES (1), (2)...).
+                // However, if the collection happens to be empty, this doesn't work as VALUES does not support empty sets. We convert it
+                // to a SELECT ... WHERE false to produce an empty result set instead.
+                if (!UseOldBehavior37216 && processedValues.Count == 0)
+                {
+                    var select = new SelectExpression(
+                        valuesExpression.Alias,
+                        tables: [],
+                        predicate: new SqlConstantExpression(false, Dependencies.TypeMappingSource.FindMapping(typeof(bool))),
+                        groupBy: [],
+                        having: null,
+                        projections: valuesExpression.ColumnNames
+                            .Select(n => new ProjectionExpression(
+                                new SqlConstantExpression(value: null, elementTypeMapping.ClrType, elementTypeMapping), n))
+                            .ToList(),
+                        distinct: false,
+                        orderings: [],
+                        offset: null,
+                        limit: null,
+                        tags: ReadOnlySet<string>.Empty,
+                        annotations: null,
+                        sqlAliasManager: null!,
+                        isMutable: false);
+
+                    return select;
                 }
 
                 return valuesExpression.Update(processedValues);
