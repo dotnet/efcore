@@ -19,6 +19,9 @@ namespace Microsoft.EntityFrameworkCore.Query;
 /// </summary>
 public class SqlNullabilityProcessor : ExpressionVisitor
 {
+    private static readonly bool UseOldBehavior37204 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37204", out var enabled) && enabled;
+
     private readonly List<ColumnExpression> _nonNullableColumns;
     private readonly List<ColumnExpression> _nullValueColumns;
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
@@ -1858,9 +1861,23 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         {
             // We're looking at a parameter beyond its simple nullability, so we can't use the SQL cache for this query.
             var parameters = ParametersDecorator.GetAndDisableCaching();
-            if (parameters[collectionParameter.Name] is not IList values)
+
+            IList values;
+            if (UseOldBehavior37204)
             {
-                throw new UnreachableException($"Parameter '{collectionParameter.Name}' is not an IList.");
+                if (parameters[collectionParameter.Name] is not IList list)
+                {
+                    throw new UnreachableException($"Parameter '{collectionParameter.Name}' is not an IList.");
+                }
+                values = list;
+            }
+            else
+            {
+                if (parameters[collectionParameter.Name] is not IEnumerable enumerable)
+                {
+                    throw new UnreachableException($"Parameter '{collectionParameter.Name}' is not an IEnumerable.");
+                }
+                values = enumerable.Cast<object?>().ToList();
             }
 
             IList? processedValues = null;
