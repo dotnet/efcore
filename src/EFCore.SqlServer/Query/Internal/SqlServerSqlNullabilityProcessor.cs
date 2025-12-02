@@ -399,7 +399,7 @@ public class ParametersCounter(
     [EntityFrameworkInternal]
     public virtual int Count { get; private set; }
 
-    private readonly HashSet<SqlParameterExpression> _visitedParameters =
+    private readonly HashSet<SqlParameterExpression> _visitedSqlParameters =
         new(EqualityComparer<SqlParameterExpression>.Create(
             (lhs, rhs) =>
                 ReferenceEquals(lhs, rhs)
@@ -408,21 +408,38 @@ public class ParametersCounter(
                     && lhs.TranslationMode == rhs.TranslationMode),
             x => HashCode.Combine(x.InvariantName, x.TranslationMode)));
 
+    private readonly HashSet<QueryParameterExpression> _visitedQueryParameters =
+        new(EqualityComparer<QueryParameterExpression>.Create(
+            (lhs, rhs) =>
+                ReferenceEquals(lhs, rhs)
+                || (lhs is not null && rhs is not null
+                    && lhs.Name == rhs.Name
+                    && lhs.TranslationMode == rhs.TranslationMode),
+            x => HashCode.Combine(x.Name, x.TranslationMode)));
+
     /// <inheritdoc/>
     protected override Expression VisitExtension(Expression node)
     {
         switch (node)
         {
             case ValuesExpression { ValuesParameter: { } valuesParameter }:
-                ProcessCollectionParameter(valuesParameter, false);
+                ProcessCollectionParameter(valuesParameter, bucketization: false);
                 break;
 
             case InExpression { ValuesParameter: { } valuesParameter }:
-                ProcessCollectionParameter(valuesParameter, true);
+                ProcessCollectionParameter(valuesParameter, bucketization: true);
+                break;
+
+            case FromSqlExpression { Arguments: QueryParameterExpression queryParameter }:
+                if (_visitedQueryParameters.Add(queryParameter))
+                {
+                    var parameters = parametersDecorator.GetAndDisableCaching();
+                    Count += ((object?[])parameters[queryParameter.Name]!).Length;
+                }
                 break;
 
             case SqlParameterExpression sqlParameterExpression:
-                if (_visitedParameters.Add(sqlParameterExpression))
+                if (_visitedSqlParameters.Add(sqlParameterExpression))
                 {
                     Count++;
                 }
@@ -434,7 +451,7 @@ public class ParametersCounter(
 
     private void ProcessCollectionParameter(SqlParameterExpression sqlParameterExpression, bool bucketization)
     {
-        if (!_visitedParameters.Add(sqlParameterExpression))
+        if (!_visitedSqlParameters.Add(sqlParameterExpression))
         {
             return;
         }
@@ -443,7 +460,7 @@ public class ParametersCounter(
         {
             case ParameterTranslationMode.MultipleParameters:
                 var parameters = parametersDecorator.GetAndDisableCaching();
-                var count = ((IEnumerable?)parameters[sqlParameterExpression.Name])?.Cast<object>().Count() ?? 0;
+                var count = ((IEnumerable?)parameters[sqlParameterExpression.Name])?.Cast<object?>().Count() ?? 0;
                 Count += count;
 
                 if (bucketization)
