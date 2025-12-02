@@ -2001,7 +2001,7 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
                 Assert.Equal("json", operation.OldColumn.ColumnType);
             });
 
-    protected class BlogDetails
+    private class BlogDetails
     {
         public string Author { get; set; } = "";
         public int Viewers { get; set; }
