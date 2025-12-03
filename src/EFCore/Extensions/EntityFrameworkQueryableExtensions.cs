@@ -2710,9 +2710,7 @@ public static class EntityFrameworkQueryableExtensions
                 Expression.Call(
                     instance: null,
                     method: IgnoreNamedQueryFiltersMethodInfo.MakeGenericMethod(typeof(TEntity)),
-                    // converting the collection to an array if it isn't already one to ensure consistent caching. Fixes #37112.
-                    // #37212 may be a possible future solution providing broader capabilities around parameterizing collections.
-                    arguments: [source.Expression, Expression.Constant(filterKeys is string[] ? filterKeys : filterKeys.ToArray())]))
+                    arguments: [source.Expression, Expression.Constant(filterKeys)]))
             : source;
 
     #endregion
