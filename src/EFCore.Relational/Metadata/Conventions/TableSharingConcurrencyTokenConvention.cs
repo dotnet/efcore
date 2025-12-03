@@ -48,6 +48,11 @@ public class TableSharingConcurrencyTokenConvention : IModelFinalizingConvention
         var tableToEntityTypes = new Dictionary<StoreObjectIdentifier, List<IConventionEntityType>>();
         foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
         {
+            if (entityType.IsMappedToJson())
+            {
+                continue;
+            }
+
             var table = StoreObjectIdentifier.Create(entityType, StoreObjectType.Table);
             if (table == null)
             {

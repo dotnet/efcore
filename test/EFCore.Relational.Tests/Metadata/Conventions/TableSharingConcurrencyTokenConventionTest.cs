@@ -3,6 +3,7 @@
 
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -200,6 +201,91 @@ public class TableSharingConcurrencyTokenConventionTest
 
         var animalEntityType = model.FindEntityType(typeof(Animal));
         Assert.All(animalEntityType.GetProperties(), p => Assert.NotEqual(typeof(byte[]), p.ClrType));
+    }
+
+    [ConditionalFact]
+    public virtual void Missing_concurrency_token_property_is_not_created_for_json_mapped_owned_entity()
+    {
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
+        modelBuilder.Entity<JsonParent>(b =>
+        {
+            b.Property(e => e.Id);
+            b.HasKey(e => e.Id);
+            b.Property<byte[]>("RowVersion").IsRowVersion();
+
+            b.OwnsOne(e => e.Owned, ob =>
+            {
+                ob.ToJson();
+            });
+        });
+
+        var model = modelBuilder.FinalizeModel();
+
+        var jsonOwnedType = model.FindEntityType(typeof(JsonOwned));
+        Assert.NotNull(jsonOwnedType);
+        // The JSON-mapped owned type should not have any concurrency token shadow properties
+        Assert.DoesNotContain(jsonOwnedType.GetProperties(), p => p.Name.StartsWith("_TableSharingConcurrencyTokenConvention_"));
+    }
+
+    [ConditionalFact]
+    public virtual void Missing_concurrency_token_property_is_not_created_for_json_mapped_owned_entity_in_tph_derived_type()
+    {
+        // This test reproduces the issue from https://github.com/dotnet/efcore/issues/36614
+        // TPH inheritance with RowVersion on base class and JSON-mapped owned entity on derived class
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
+        modelBuilder.Entity<TphBase>(b =>
+        {
+            b.HasKey(e => e.Id);
+            b.Property(e => e.RowVersion).IsRowVersion();
+            b.Property(e => e.Name).HasMaxLength(100).IsRequired();
+
+            b.HasDiscriminator<string>("Type")
+                .HasValue<TphDerived>(nameof(TphDerived));
+        });
+
+        modelBuilder.Entity<TphDerived>(b =>
+        {
+            b.OwnsOne(x => x.Owned, ob =>
+            {
+                ob.ToJson();
+                ob.Property(o => o.Description).HasMaxLength(200).IsRequired();
+            });
+        });
+
+        var model = modelBuilder.FinalizeModel();
+
+        var jsonOwnedType = model.FindEntityType(typeof(TphOwnedEntity));
+        Assert.NotNull(jsonOwnedType);
+        // The JSON-mapped owned type should not have any concurrency token shadow properties
+        Assert.DoesNotContain(jsonOwnedType.GetProperties(), p => p.Name.StartsWith("_TableSharingConcurrencyTokenConvention_"));
+    }
+
+    protected class TphBase
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public byte[] RowVersion { get; set; } = [];
+    }
+
+    protected class TphDerived : TphBase
+    {
+        public TphOwnedEntity Owned { get; set; } = new();
+    }
+
+    protected class TphOwnedEntity
+    {
+        public string Description { get; set; } = "Any";
+    }
+
+    protected class JsonParent
+    {
+        public int Id { get; set; }
+        public JsonOwned Owned { get; set; } = new();
+    }
+
+    protected class JsonOwned
+    {
+        public string Description { get; set; } = "Default";
     }
 
     protected class Animal
