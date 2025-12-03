@@ -2901,7 +2901,8 @@ public sealed partial class SelectExpression : TableExpressionBase
 
         // We do not support complex type splitting, so we will only ever have a single table/view mapping to it.
         // See Issue #32853 and Issue #31248
-        var complexTypeTable = complexType.GetViewOrTableMappings().Single().Table;
+        var viewOrTableTable = complexType.GetViewOrTableMappings().Single().Table;
+        var complexTypeTable = viewOrTableTable;
 
         if (!containerProjection.TableMap.TryGetValue(complexTypeTable, out var tableAlias))
         {
@@ -2925,7 +2926,11 @@ public sealed partial class SelectExpression : TableExpressionBase
         {
             var containerColumnName = complexType.GetContainerColumnName();
             Check.DebugAssert(containerColumnName is not null, "Complex JSON type without a container column");
-            var containerColumn = complexTypeTable.FindColumn(containerColumnName);
+
+            // TODO: when the JSON column is on a FromSql() source, we use the default mappings from the relational model (see just above),
+            // but those don't yet contain complex types (#34627). We work around this here, get the column from the table mapping instead
+            // of from the default mapping.
+            var containerColumn = complexTypeTable.FindColumn(containerColumnName) ?? viewOrTableTable.FindColumn(containerColumnName);
             Check.DebugAssert(containerColumn is not null, "Complex JSON container table not found on relational table");
 
             // If the source type is a JSON complex type; since we're binding over StructuralTypeProjectionExpression - which represents a relational
