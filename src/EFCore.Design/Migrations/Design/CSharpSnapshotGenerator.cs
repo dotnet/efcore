@@ -691,6 +691,19 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
             .FilterIgnoredAnnotations(property.ComplexType.GetAnnotations())
             .ToDictionary(a => a.Name, a => a);
 
+        // Add ContainerColumnType annotation if complex type is mapped to JSON but the type annotation is missing
+        if (typeAnnotations.ContainsKey(RelationalAnnotationNames.ContainerColumnName)
+            && !typeAnnotations.ContainsKey(RelationalAnnotationNames.ContainerColumnType))
+        {
+            var typeMapping = Dependencies.RelationalTypeMappingSource.FindMapping(typeof(string));
+            if (typeMapping != null)
+            {
+                typeAnnotations[RelationalAnnotationNames.ContainerColumnType] = new Annotation(
+                    RelationalAnnotationNames.ContainerColumnType,
+                    typeMapping.StoreType);
+            }
+        }
+
         GenerateAnnotations(
             propertyBuilderName, property, stringBuilder, propertyAnnotations,
             inChainedCall: false, hasAnnotationMethodInfo: HasPropertyAnnotationMethodInfo);
@@ -890,6 +903,19 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         var annotations = Dependencies.AnnotationCodeGenerator
             .FilterIgnoredAnnotations(entityType.GetAnnotations())
             .ToDictionary(a => a.Name, a => a);
+
+        // Add ContainerColumnType annotation if entity is mapped to JSON but the type annotation is missing
+        if (annotations.ContainsKey(RelationalAnnotationNames.ContainerColumnName)
+            && !annotations.ContainsKey(RelationalAnnotationNames.ContainerColumnType))
+        {
+            var typeMapping = Dependencies.RelationalTypeMappingSource.FindMapping(typeof(string));
+            if (typeMapping != null)
+            {
+                annotations[RelationalAnnotationNames.ContainerColumnType] = new Annotation(
+                    RelationalAnnotationNames.ContainerColumnType,
+                    typeMapping.StoreType);
+            }
+        }
 
         GenerateTableMapping(entityTypeBuilderName, entityType, stringBuilder, annotations);
         GenerateSplitTableMapping(entityTypeBuilderName, entityType, stringBuilder);

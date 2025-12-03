@@ -238,32 +238,9 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
 #pragma warning disable CS0618
             annotations.Remove(RelationalAnnotationNames.ContainerColumnTypeMapping);
 #pragma warning restore CS0618
-
-            // Always generate the column type for JSON columns to ensure it's captured in the snapshot
-            if (annotations.TryGetValue(RelationalAnnotationNames.ContainerColumnType, out var containerColumnTypeAnnotation)
-                && containerColumnTypeAnnotation is { Value: string containerColumnType })
-            {
-                methodCallCodeFragments.Add(
-                    new MethodCallCodeFragment(
-                        nameof(RelationalOwnedNavigationBuilderExtensions.HasColumnType),
-                        containerColumnType));
-
-                annotations.Remove(RelationalAnnotationNames.ContainerColumnType);
-            }
-            else
-            {
-                // If no explicit column type is set, use the default from the type mapping source
-                var typeMapping = Dependencies.RelationalTypeMappingSource.FindMapping(typeof(string));
-                if (typeMapping != null)
-                {
-                    methodCallCodeFragments.Add(
-                        new MethodCallCodeFragment(
-                            nameof(RelationalOwnedNavigationBuilderExtensions.HasColumnType),
-                            typeMapping.StoreType));
-                }
-            }
         }
-        else if (annotations.TryGetValue(RelationalAnnotationNames.ContainerColumnType, out var containerColumnTypeAnnotation)
+
+        if (annotations.TryGetValue(RelationalAnnotationNames.ContainerColumnType, out var containerColumnTypeAnnotation)
             && containerColumnTypeAnnotation is { Value: string containerColumnType }
             && entityType.IsOwned())
         {
@@ -311,32 +288,9 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
 #pragma warning disable CS0618
             annotations.Remove(RelationalAnnotationNames.ContainerColumnTypeMapping);
 #pragma warning restore CS0618
-
-            // Always generate the column type for JSON columns to ensure it's captured in the snapshot
-            if (annotations.TryGetValue(RelationalAnnotationNames.ContainerColumnType, out var containerColumnTypeAnnotation)
-                && containerColumnTypeAnnotation is { Value: string containerColumnType })
-            {
-                methodCallCodeFragments.Add(
-                    new MethodCallCodeFragment(
-                        nameof(RelationalComplexPropertyBuilderExtensions.HasColumnType),
-                        containerColumnType));
-
-                annotations.Remove(RelationalAnnotationNames.ContainerColumnType);
-            }
-            else
-            {
-                // If no explicit column type is set, use the default from the type mapping source
-                var typeMapping = Dependencies.RelationalTypeMappingSource.FindMapping(typeof(string));
-                if (typeMapping != null)
-                {
-                    methodCallCodeFragments.Add(
-                        new MethodCallCodeFragment(
-                            nameof(RelationalComplexPropertyBuilderExtensions.HasColumnType),
-                            typeMapping.StoreType));
-                }
-            }
         }
-        else if (annotations.TryGetValue(RelationalAnnotationNames.ContainerColumnType, out var containerColumnTypeAnnotation)
+
+        if (annotations.TryGetValue(RelationalAnnotationNames.ContainerColumnType, out var containerColumnTypeAnnotation)
             && containerColumnTypeAnnotation is { Value: string containerColumnType })
         {
             methodCallCodeFragments.Add(
