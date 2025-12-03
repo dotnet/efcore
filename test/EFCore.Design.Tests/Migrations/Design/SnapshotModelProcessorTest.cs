@@ -74,6 +74,62 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         [ConditionalFact]
+        public void SqlServer_processes_json_container_column_type_for_version_9_snapshots()
+        {
+            var assembly = typeof(SnapshotModelProcessorTest).Assembly;
+            var snapshotModelProcessor = new DesignTimeServicesBuilder(assembly, assembly, new TestOperationReporter(), [])
+                .Build(SqlServerTestHelpers.Instance.CreateContext())
+                .CreateScope()
+                .ServiceProvider
+                .GetRequiredService<ISnapshotModelProcessor>();
+
+            Assert.IsType<SqlServerSnapshotModelProcessor>(snapshotModelProcessor);
+
+            // Create a model with version 9.0.0 that has JSON owned type without container column type
+            var modelBuilder = new ModelBuilder();
+            ((Model)modelBuilder.Model).SetProductVersion("9.0.0");
+
+            modelBuilder.Entity<BlogWithOwnedType>(b =>
+            {
+                b.HasKey(x => x.Id);
+                b.OwnsOne(x => x.OwnedEntity, bb =>
+                {
+                    bb.ToJson();
+                    bb.Ignore(x => x.Id);
+                });
+            });
+
+            var model = modelBuilder.Model;
+
+            // Verify the owned type has ContainerColumnName but no ContainerColumnType before processing
+            var ownedType = model.FindEntityType(typeof(OwnedEntity));
+            Assert.NotNull(ownedType);
+            Assert.NotNull(ownedType.FindAnnotation(RelationalAnnotationNames.ContainerColumnName));
+            Assert.Null(ownedType.FindAnnotation(RelationalAnnotationNames.ContainerColumnType));
+
+            // Process the model
+            var processedModel = snapshotModelProcessor.Process(model);
+
+            // Verify the container column type is now set to nvarchar(max)
+            var processedOwnedType = processedModel.FindEntityType(typeof(OwnedEntity));
+            Assert.NotNull(processedOwnedType);
+            Assert.Equal("nvarchar(max)", processedOwnedType.GetContainerColumnType());
+        }
+
+        private class BlogWithOwnedType
+        {
+            public int Id { get; set; }
+            public OwnedEntity OwnedEntity { get; set; }
+        }
+
+        [Owned]
+        private class OwnedEntity
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
+
+        [ConditionalFact]
         public void Warns_for_conflicting_annotations()
         {
             var model = new Model();
