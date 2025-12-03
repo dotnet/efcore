@@ -695,12 +695,13 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         if (typeAnnotations.ContainsKey(RelationalAnnotationNames.ContainerColumnName)
             && !typeAnnotations.ContainsKey(RelationalAnnotationNames.ContainerColumnType))
         {
-            var typeMapping = Dependencies.RelationalTypeMappingSource.FindMapping(typeof(string));
-            if (typeMapping != null)
+            var containerColumnType = property.ComplexType.GetContainerColumnType()
+                ?? Dependencies.RelationalTypeMappingSource.FindMapping(typeof(string))?.StoreType;
+            if (containerColumnType != null)
             {
                 typeAnnotations[RelationalAnnotationNames.ContainerColumnType] = new Annotation(
                     RelationalAnnotationNames.ContainerColumnType,
-                    typeMapping.StoreType);
+                    containerColumnType);
             }
         }
 
@@ -908,12 +909,13 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         if (annotations.ContainsKey(RelationalAnnotationNames.ContainerColumnName)
             && !annotations.ContainsKey(RelationalAnnotationNames.ContainerColumnType))
         {
-            var typeMapping = Dependencies.RelationalTypeMappingSource.FindMapping(typeof(string));
-            if (typeMapping != null)
+            var containerColumnType = entityType.GetContainerColumnType()
+                ?? Dependencies.RelationalTypeMappingSource.FindMapping(typeof(string))?.StoreType;
+            if (containerColumnType != null)
             {
                 annotations[RelationalAnnotationNames.ContainerColumnType] = new Annotation(
                     RelationalAnnotationNames.ContainerColumnType,
-                    typeMapping.StoreType);
+                    containerColumnType);
             }
         }
 
