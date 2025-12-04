@@ -83,7 +83,7 @@ namespace TestNamespace
                     IList<CompiledModelTestBase.OwnedType> (IInternalEntry entry) => entry.GetCurrentValue<IList<CompiledModelTestBase.OwnedType>>(complexProperty));
                 complexProperty.SetPropertyIndexes(
                     index: 0,
-                    originalValueIndex: 35,
+                    originalValueIndex: 36,
                     shadowIndex: -1,
                     relationshipIndex: -1,
                     storeGenerationIndex: -1);
@@ -880,7 +880,7 @@ namespace TestNamespace
                         Guid (IInternalEntry entry) => entry.GetCurrentValue<Guid>(alternateId));
                     alternateId.SetPropertyIndexes(
                         index: 8,
-                        originalValueIndex: 8,
+                        originalValueIndex: -1,
                         shadowIndex: -1,
                         relationshipIndex: -1,
                         storeGenerationIndex: -1);

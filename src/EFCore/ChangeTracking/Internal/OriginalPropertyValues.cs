@@ -97,7 +97,7 @@ public class OriginalPropertyValues : EntryPropertyValues
             values[i] = entry.GetOriginalValue(properties[i]);
         }
 
-        var cloned = new ArrayPropertyValues(entry, values);
+        var cloned = new ArrayPropertyValues(entry, values, null);
 
         foreach (var nestedComplexProperty in cloned.ComplexCollectionProperties)
         {
