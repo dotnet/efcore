@@ -70,6 +70,21 @@ public static class Uniquifier
     /// <summary>
     ///     Creates a unique identifier by appending a number to the given string.
     /// </summary>
+    /// <param name="currentIdentifier">The base identifier.</param>
+    /// <param name="otherIdentifiers">A dictionary where the identifier will be used as part of the key.</param>
+    /// <param name="maxLength">The maximum length of the identifier.</param>
+    /// <param name="uniquifier">An optional starting number for the uniquifier.</param>
+    /// <returns>A unique identifier.</returns>
+    public static string Uniquify(
+        string currentIdentifier,
+        ISet<string> otherIdentifiers,
+        int maxLength,
+        int uniquifier = 1)
+        => Uniquify(currentIdentifier, otherIdentifiers, suffix: null, maxLength, uniquifier);
+
+    /// <summary>
+    ///     Creates a unique identifier by appending a number to the given string.
+    /// </summary>
     /// <typeparam name="TKey">The type of the key that contains the identifier.</typeparam>
     /// <typeparam name="TValue">The type of the object the identifier maps to.</typeparam>
     /// <param name="currentIdentifier">The base identifier.</param>
