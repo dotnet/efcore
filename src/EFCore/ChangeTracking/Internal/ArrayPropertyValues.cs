@@ -16,6 +16,7 @@ public class ArrayPropertyValues : PropertyValues
 {
     private readonly object?[] _values;
     private readonly List<ArrayPropertyValues?>?[] _complexCollectionValues;
+    private HashSet<IComplexProperty>? _nullComplexProperties;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -36,10 +37,35 @@ public class ArrayPropertyValues : PropertyValues
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    [EntityFrameworkInternal]
+    internal void MarkComplexPropertyAsNull(IComplexProperty complexProperty)
+    {
+        _nullComplexProperties ??= [];
+        _nullComplexProperties.Add(complexProperty);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public override object ToObject()
     {
         var structuralObject = StructuralType.GetOrCreateMaterializer(MaterializerSource)(
             new MaterializationContext(new ValueBuffer(_values), InternalEntry.Context));
+
+        // Set null for nullable complex properties that were explicitly marked as null
+        if (_nullComplexProperties != null)
+        {
+            foreach (var complexProperty in _nullComplexProperties)
+            {
+                if (!complexProperty.IsShadowProperty())
+                {
+                    structuralObject = ((IRuntimeComplexProperty)complexProperty).GetSetter().SetClrValue(structuralObject, null);
+                }
+            }
+        }
 
         for (var i = 0; i < _complexCollectionValues.Length; i++)
         {
@@ -133,6 +159,16 @@ public class ArrayPropertyValues : PropertyValues
         Array.Copy(_values, copies, _values.Length);
 
         var clone = new ArrayPropertyValues(InternalEntry, copies);
+
+        // Copy null complex property tracking
+        if (_nullComplexProperties != null)
+        {
+            foreach (var complexProperty in _nullComplexProperties)
+            {
+                clone.MarkComplexPropertyAsNull(complexProperty);
+            }
+        }
+
         for (var i = 0; i < _complexCollectionValues.Length; i++)
         {
             var list = _complexCollectionValues[i];

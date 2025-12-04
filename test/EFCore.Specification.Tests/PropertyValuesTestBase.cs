@@ -3168,6 +3168,35 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
     }
 
     [ConditionalFact]
+    public virtual void Nullable_complex_property_with_null_value_returns_null_when_using_ToObject()
+    {
+        using var context = CreateContext();
+
+        // Create a product without setting Price (it's null)
+        var product = new ProductWithNullableComplexType { Name = "Test Product" };
+        context.Add(product);
+        context.SaveChanges();
+
+        context.ChangeTracker.Clear();
+
+        // Reload the product
+        var loadedProduct = context.Set<ProductWithNullableComplexType>().Single(p => p.Name == "Test Product");
+
+        // Verify the loaded entity has null Price
+        Assert.Null(loadedProduct.Price);
+
+        // Get OriginalValues and create object
+        var originalProduct = (ProductWithNullableComplexType)context.Entry(loadedProduct).OriginalValues.ToObject();
+
+        // The original value should also have null Price
+        Assert.Null(originalProduct.Price);
+
+        // Also test CurrentValues
+        var currentProduct = (ProductWithNullableComplexType)context.Entry(loadedProduct).CurrentValues.ToObject();
+        Assert.Null(currentProduct.Price);
+    }
+
+    [ConditionalFact]
     public virtual void Current_values_can_be_copied_to_object_using_ToObject()
     {
         using var context = CreateContext();
@@ -3802,6 +3831,20 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
         public int Credits { get; set; }
     }
 
+    protected class ProductWithNullableComplexType : PropertyValuesBase
+    {
+        public int Id { get; set; }
+        public required string Name { get; set; }
+        public ProductPrice? Price { get; set; }
+    }
+
+    [ComplexType]
+    protected class ProductPrice
+    {
+        public decimal Amount { get; init; }
+        public int CurrencyId { get; init; }
+    }
+
     protected DbContext CreateContext()
     {
         var context = Fixture.CreateContext();
@@ -3910,6 +3953,8 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
             modelBuilder.Entity<Customer33307>();
 
             modelBuilder.Entity<School>(b => b.ComplexCollection(e => e.Departments));
+
+            modelBuilder.Entity<ProductWithNullableComplexType>(b => b.ComplexProperty(e => e.Price));
         }
 
         protected override Task SeedAsync(PoolableDbContext context)

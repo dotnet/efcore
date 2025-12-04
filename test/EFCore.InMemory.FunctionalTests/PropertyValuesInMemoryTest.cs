@@ -8,6 +8,11 @@ namespace Microsoft.EntityFrameworkCore;
 public class PropertyValuesInMemoryTest(PropertyValuesInMemoryTest.PropertyValuesInMemoryFixture fixture)
     : PropertyValuesTestBase<PropertyValuesInMemoryTest.PropertyValuesInMemoryFixture>(fixture)
 {
+    // Nullable complex property test - InMemory provider doesn't support complex types in queries
+    public override void Nullable_complex_property_with_null_value_returns_null_when_using_ToObject()
+    {
+    }
+
     public override Task Complex_current_values_can_be_accessed_as_a_property_dictionary_using_IProperty()
         => Assert.ThrowsAsync<NullReferenceException>( // In-memory database cannot query complex types
             () => base.Complex_current_values_can_be_accessed_as_a_property_dictionary_using_IProperty());
@@ -117,6 +122,9 @@ public class PropertyValuesInMemoryTest(PropertyValuesInMemoryTest.PropertyValue
 
             // In-memory database doesn't support complex collections
             modelBuilder.Ignore<School>();
+
+            // In-memory database doesn't fully support complex types
+            modelBuilder.Ignore<ProductWithNullableComplexType>();
         }
     }
 }
