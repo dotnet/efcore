@@ -148,7 +148,7 @@ internal class Project
         }
 
         var outputString = output.ToString();
-        return !string.IsNullOrEmpty(outputString) && !outputString.IsWhiteSpace();
+        return !string.IsNullOrWhiteSpace(outputString);
     }
 
     private static void CopyBuildHost(
