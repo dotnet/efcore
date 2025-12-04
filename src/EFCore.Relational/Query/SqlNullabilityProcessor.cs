@@ -2241,7 +2241,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
     {
         if (expandedParameters.Count <= index)
         {
-            var parameterName = Uniquifier.Uniquify(valuesParameterName, parameters, int.MaxValue);
+            var parameterName = Uniquifier.Uniquify(valuesParameterName, parameters, 256, index + 1);
             parameters.Add(parameterName, value);
             var parameterExpression = new SqlParameterExpression(parameterName, value?.GetType() ?? typeof(object), typeMapping);
             expandedParameters.Add(parameterExpression);
