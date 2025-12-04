@@ -16,6 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 public partial class CosmosShapedQueryCompilingExpressionVisitor
 {
     private abstract class CosmosProjectionBindingRemovingExpressionVisitorBase(
+        IStructuralTypeMaterializerSource entityMaterializerSource,
         ParameterExpression jTokenParameter,
         bool trackQueryResults)
         : ExpressionVisitor
@@ -47,18 +48,55 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         private readonly IDictionary<Expression, ParameterExpression> _projectionBindings
             = new Dictionary<Expression, ParameterExpression>();
 
-        private readonly IDictionary<Expression, (IEntityType EntityType, Expression JObjectExpression)> _ownerMappings
-            = new Dictionary<Expression, (IEntityType, Expression)>();
+        private readonly IDictionary<Expression, (ITypeBase EntityType, Expression JObjectExpression)> _ownerMappings
+            = new Dictionary<Expression, (ITypeBase, Expression)>();
 
         private readonly IDictionary<Expression, Expression> _ordinalParameterBindings
             = new Dictionary<Expression, Expression>();
 
+        private readonly Dictionary<IComplexProperty, ParameterExpression> _complexPropertyBindings
+            = new Dictionary<IComplexProperty, ParameterExpression>();
+
         private List<IncludeExpression> _pendingIncludes
             = [];
+
+        private int _currentComplexIndex;
 
         private static readonly MethodInfo ToObjectWithSerializerMethodInfo
             = typeof(CosmosProjectionBindingRemovingExpressionVisitorBase)
                 .GetRuntimeMethods().Single(mi => mi.Name == nameof(SafeToObjectWithSerializer));
+
+        private ParameterExpression _currentJObject;
+        private ParameterExpression _currentEntityTypeParam;
+        private ITypeBase _currentStructuralType;
+        private int _currentComplexArrayIndex;
+
+        protected override Expression VisitBlock(BlockExpression node)
+        {
+            var entityTypeParam = node.Variables.FirstOrDefault(x => x.Type.IsAssignableTo(typeof(ITypeBase)));
+            if (entityTypeParam != null)
+            {
+                var previousStructuralType = _currentStructuralType;
+                var previousEntityTypeParam = _currentEntityTypeParam;
+                _currentEntityTypeParam = entityTypeParam;
+                var visited = base.VisitBlock(node);
+                _currentEntityTypeParam = previousEntityTypeParam;
+                _currentStructuralType = previousStructuralType;
+                return visited;
+            }
+
+            var jObjectParam = node.Variables.FirstOrDefault(x => x.Type == typeof(JObject));
+            if (jObjectParam != null)
+            {
+                var previousJObject = _currentJObject;
+                _currentJObject = jObjectParam;
+                var visited = base.VisitBlock(node);
+                _currentJObject = previousJObject;
+                return visited;
+            }
+
+            return base.VisitBlock(node);
+        }
 
         protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
@@ -66,6 +104,13 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             {
                 if (binaryExpression.Left is ParameterExpression parameterExpression)
                 {
+                    // @TODO: This appears to not work if there is a discriminator...
+                    if (parameterExpression == _currentEntityTypeParam && binaryExpression.Right is ConstantExpression constantExpression)
+                    {
+                        _currentStructuralType = (ITypeBase)constantExpression.Value;
+                        return binaryExpression;
+                    }
+
                     if (parameterExpression.Type == typeof(JObject)
                         || parameterExpression.Type == typeof(JArray))
                     {
@@ -138,7 +183,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                             accessExpression = objectAccessExpression.Object;
                                             storeNames.Add(objectAccessExpression.PropertyName);
                                             _ownerMappings[objectAccessExpression]
-                                                = (objectAccessExpression.Navigation.DeclaringEntityType, accessExpression);
+                                                = (objectAccessExpression.PropertyBase.DeclaringType, accessExpression);
                                         }
 
                                         valueExpression = CreateGetValueExpression(accessExpression, (string)null, typeof(JObject));
@@ -189,9 +234,121 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     }
                 }
 
-                if (binaryExpression.Left is MemberExpression { Member: FieldInfo { IsInitOnly: true } } memberExpression)
+                if (binaryExpression.Left is MemberExpression simpleMember)
                 {
-                    return memberExpression.Assign(Visit(binaryExpression.Right));
+                    if (_currentStructuralType != null)
+                    {
+                        var complexProperty = _currentStructuralType.GetComplexProperties().FirstOrDefault(x => x.GetMemberInfo(true, true) == simpleMember.Member);
+                        if (complexProperty == null)
+                        {
+                            return simpleMember.Assign(Visit(binaryExpression.Right));
+                        }
+
+                        if (complexProperty.IsCollection)
+                        {
+                            // @TODO: Just how exactly are we supposed to materialize collection of complex types here?
+                            _currentComplexArrayIndex++;
+                            var complexJArrayVariable = Variable(
+                                typeof(JArray),
+                                "complexJArray" + _currentComplexArrayIndex);
+
+                            var assignVariable2 = Assign(complexJArrayVariable,
+                                Call(
+                                    ToObjectWithSerializerMethodInfo.MakeGenericMethod(typeof(JArray)),
+                                    Call(_currentJObject, GetItemMethodInfo,
+                                        Constant(complexProperty.Name) // @TODO: Get json property name 
+                                    )
+                                )
+                            );
+
+                            var selectParameter = Parameter(typeof(JObject), "selectComplexObject" + _currentComplexArrayIndex);
+                            var temp = Parameter(typeof(MaterializationContext), "temp" + _currentComplexArrayIndex);
+                            _materializationContextBindings[temp] = selectParameter;
+                            var materializeExpression = (BlockExpression)entityMaterializerSource.CreateMaterializeExpression(
+                                new StructuralTypeMaterializerSourceParameters(complexProperty.ComplexType, "complexType", complexProperty.ClrType, false, QueryTrackingBehavior: null),
+                                temp);
+
+                            var previousCurrentJObject2 = _currentJObject;
+                            var previousStructuralType2 = _currentStructuralType;
+                            _currentJObject = selectParameter;
+                            _currentStructuralType = complexProperty.ComplexType;
+                            materializeExpression = (BlockExpression)Visit(materializeExpression);
+                            _currentJObject = previousCurrentJObject2;
+                            _currentStructuralType = previousStructuralType2;
+
+                            var select = Call(
+                                EnumerableMethods.Select.MakeGenericMethod(typeof(JObject), complexProperty.ComplexType.ClrType),
+                                Call(
+                                    EnumerableMethods.Cast.MakeGenericMethod(typeof(JObject)),
+                                    complexJArrayVariable),
+                                Lambda(materializeExpression, selectParameter));
+
+                            var populateExpression =
+                                Call(
+                                    PopulateCollectionMethodInfo.MakeGenericMethod(complexProperty.ComplexType.ClrType, complexProperty.ClrType),
+                                    Constant(complexProperty.GetCollectionAccessor()),
+                                    select
+                                );
+
+                            var newRight2 = populateExpression;
+
+                            var test = Condition(Equal(complexJArrayVariable, Constant(null, assignVariable2.Type)),
+                                binaryExpression.Right,
+                                newRight2
+                            );
+
+                            return Block(
+                                [complexJArrayVariable],
+                                [
+                                    assignVariable2,
+                                    simpleMember.Assign(test)
+                                ]
+                            );
+                        }
+
+                        _currentComplexIndex++;
+                        var complexJObjectVariable = Variable(
+                            typeof(JObject),
+                            "complexJObject" + _currentComplexIndex);
+
+                        var assignVariable = Assign(complexJObjectVariable,
+                            Call(
+                                ToObjectWithSerializerMethodInfo.MakeGenericMethod(typeof(JObject)),
+                                Call(_currentJObject, GetItemMethodInfo,
+                                    Constant(complexProperty.Name) // @TODO: Get json property name 
+                                )
+                            )
+                        );
+
+                        var previousStructuralType = _currentStructuralType;
+                        var previousCurrentJObject = _currentJObject;
+                        _currentJObject = complexJObjectVariable;
+                        _currentStructuralType = complexProperty.ComplexType;
+                        var right = Visit(binaryExpression.Right);
+                        _currentJObject = previousCurrentJObject;
+                        _currentStructuralType = previousStructuralType;
+
+                        Expression newRight;
+                        if (right is ConditionalExpression conditional)
+                        {
+                            newRight = Condition(Equal(complexJObjectVariable, Constant(null, complexJObjectVariable.Type)),
+                                conditional.IfTrue,
+                                conditional.IfFalse);
+                        }
+                        else
+                        {
+                            newRight = right;
+                        }
+
+                        return Block(
+                            [complexJObjectVariable],
+                            [
+                                assignVariable,
+                                simpleMember.Assign(newRight)
+                            ]
+                        );
+
+                    }
                 }
             }
 
@@ -288,7 +445,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     var accessExpression = objectArrayAccess.InnerProjection.Object;
                     _projectionBindings[accessExpression] = jObjectParameter;
                     _ownerMappings[accessExpression] =
-                        (objectArrayAccess.Navigation.DeclaringEntityType, objectArrayAccess.Object);
+                        (objectArrayAccess.PropertyBase.DeclaringType, objectArrayAccess.Object);
                     _ordinalParameterBindings[accessExpression] = Add(
                         ordinalParameter, Constant(1, typeof(int)));
 
@@ -631,6 +788,11 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 return _projectionBindings[jTokenExpression];
             }
 
+            if (property.DeclaringType is IComplexType c)
+            {
+                jTokenExpression = _currentJObject;// @TODO: Json name
+            }
+
             var entityType = property.DeclaringType as IEntityType;
             var ownership = entityType?.FindOwnership();
             var storeName = property.GetJsonPropertyName();
@@ -841,5 +1003,10 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
         private static T SafeToObjectWithSerializer<T>(JToken token)
             => token == null || token.Type == JTokenType.Null ? default : token.ToObject<T>(CosmosClientWrapper.Serializer);
+    }
+
+    private class ComplexPropertyExtractionExpressionVisitor : ExpressionVisitor
+    {
+        
     }
 }

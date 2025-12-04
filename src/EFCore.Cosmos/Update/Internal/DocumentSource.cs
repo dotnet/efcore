@@ -10,6 +10,9 @@ using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal;
 
+// #16707
+#pragma warning disable EF1001 // Internal EF Core API usage.
+
 /// <summary>
 ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
 ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -18,9 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal;
 /// </summary>
 public class DocumentSource
 {
-    private readonly string _containerId;
     private readonly CosmosDatabaseWrapper _database;
-    private readonly IEntityType _entityType;
+    private readonly ITypeBase _entityType;
     private readonly IProperty? _idProperty;
     private readonly IProperty? _jObjectProperty;
 
@@ -30,23 +32,13 @@ public class DocumentSource
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public DocumentSource(IEntityType entityType, CosmosDatabaseWrapper database)
+    public DocumentSource(ITypeBase entityType, CosmosDatabaseWrapper database)
     {
-        _containerId = entityType.GetContainer()!;
         _database = database;
         _entityType = entityType;
         _idProperty = entityType.GetProperties().FirstOrDefault(p => p.GetJsonPropertyName() == CosmosJsonIdConvention.IdPropertyJsonName);
         _jObjectProperty = entityType.FindProperty(CosmosPartitionKeyInPrimaryKeyConvention.JObjectPropertyName);
     }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual string GetContainerId()
-        => _containerId;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -112,30 +104,148 @@ public class DocumentSource
             }
             else if (fk.IsUnique)
             {
-#pragma warning disable EF1001 // Internal EF Core API usage.
-                // #16707
                 var dependentEntry = ((InternalEntityEntry)entry).StateManager.TryGetEntry(embeddedValue, fk.DeclaringEntityType)!;
                 document[embeddedPropertyName] = _database.GetDocumentSource(dependentEntry.EntityType).CreateDocument(dependentEntry);
-#pragma warning restore EF1001 // Internal EF Core API usage.
             }
             else
             {
                 SetTemporaryOrdinals(entry, fk, embeddedValue);
 
-#pragma warning disable EF1001 // Internal EF Core API usage.
-                // #16707
                 var stateManager = ((InternalEntityEntry)entry).StateManager;
-#pragma warning restore EF1001 // Internal EF Core API usage.
 
                 var embeddedOrdinal = 1;
                 var array = new JArray();
                 foreach (var dependent in (IEnumerable)embeddedValue)
                 {
-#pragma warning disable EF1001 // Internal EF Core API usage.
-                    // #16707
                     var dependentEntry = stateManager.TryGetEntry(dependent, fk.DeclaringEntityType)!;
                     array.Add(_database.GetDocumentSource(dependentEntry.EntityType).CreateDocument(dependentEntry, embeddedOrdinal));
-#pragma warning restore EF1001 // Internal EF Core API usage.
+                    embeddedOrdinal++;
+                }
+
+                document[embeddedPropertyName] = array;
+            }
+        }
+
+        foreach (var complexProperty in entry.EntityType.GetComplexProperties())
+        {
+            var embeddedValue = entry.GetCurrentValue(complexProperty);
+            var embeddedPropertyName = complexProperty.Name; // @TODO: Get json property name
+            if (embeddedValue == null)
+            {
+                document[embeddedPropertyName] = null;
+            }
+            else if (!complexProperty.IsCollection)
+            {
+                document[embeddedPropertyName] = _database.GetDocumentSource(complexProperty.ComplexType).CreateDocument(entry, complexProperty, embeddedValue);
+            }
+            else
+            {
+                var internalEntry = (InternalEntityEntry)entry;
+
+                var embeddedOrdinal = 0;
+                var array = new JArray();
+                foreach (var dependent in (IEnumerable)embeddedValue)
+                {
+                    var dependentEntry = internalEntry.GetComplexCollectionEntry(complexProperty, embeddedOrdinal);
+                    array.Add(_database.GetDocumentSource(dependentEntry.ComplexType).CreateDocument(dependentEntry, complexProperty, dependent));
+                    embeddedOrdinal++;
+                }
+
+                document[embeddedPropertyName] = array;
+            }
+        }
+
+        return document;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual JObject CreateDocument(IUpdateEntry entry, IComplexProperty complexProperty, object currentValue)
+    {
+        var document = new JObject();
+        foreach (var property in complexProperty.ComplexType.GetProperties())
+        {
+            var storeName = property.GetJsonPropertyName();
+            if (storeName.Length != 0)
+            {
+                document[storeName] = ConvertPropertyValue(property, entry);
+            }
+        }
+
+        foreach (var nestedComplexProperty in complexProperty.ComplexType.GetComplexProperties())
+        {
+            var embeddedValue = entry.GetCurrentValue(nestedComplexProperty);
+            var embeddedPropertyName = nestedComplexProperty.Name; // @TODO: Get json property name
+            if (embeddedValue == null)
+            {
+                document[embeddedPropertyName] = null;
+            }
+            else if (!nestedComplexProperty.IsCollection)
+            {
+                document[embeddedPropertyName] = _database.GetDocumentSource(nestedComplexProperty.ComplexType).CreateDocument(entry, nestedComplexProperty, embeddedValue);
+            }
+            else
+            {
+                var internalEntry = (InternalEntityEntry)entry;
+
+                var embeddedOrdinal = 0;
+                var array = new JArray();
+                foreach (var dependent in (IEnumerable)embeddedValue)
+                {
+                    var dependentEntry = internalEntry.GetComplexCollectionEntry(nestedComplexProperty, embeddedOrdinal);
+                    array.Add(_database.GetDocumentSource(dependentEntry.ComplexType).CreateDocument(dependentEntry, nestedComplexProperty, dependent));
+                    embeddedOrdinal++;
+                }
+
+                document[embeddedPropertyName] = array;
+            }
+        }
+
+        return document;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual JObject CreateDocument(InternalComplexEntry entry, IComplexProperty complexProperty, object currentValue)
+    {
+        var document = new JObject();
+        foreach (var property in complexProperty.ComplexType.GetProperties())
+        {
+            var storeName = property.GetJsonPropertyName();
+            if (storeName.Length != 0)
+            {
+                document[storeName] = ConvertPropertyValue(property, entry);
+            }
+        }
+
+        foreach (var nestedComplexProperty in complexProperty.ComplexType.GetComplexProperties())
+        {
+            var embeddedValue = entry.GetCurrentValue(nestedComplexProperty);
+            var embeddedPropertyName = nestedComplexProperty.Name; // @TODO: Get json property name
+            if (embeddedValue == null)
+            {
+                document[embeddedPropertyName] = null;
+            }
+            else if (!nestedComplexProperty.IsCollection)
+            {
+                document[embeddedPropertyName] = _database.GetDocumentSource(nestedComplexProperty.ComplexType).CreateDocument(entry, nestedComplexProperty, embeddedValue);
+            }
+            else
+            {
+                var embeddedOrdinal = 0;
+                var array = new JArray();
+                foreach (var dependent in (IEnumerable)embeddedValue)
+                {
+                    var dependentEntry = entry.GetComplexCollectionEntry(nestedComplexProperty, embeddedOrdinal);
+                    array.Add(_database.GetDocumentSource(dependentEntry.ComplexType).CreateDocument(dependentEntry, nestedComplexProperty, dependent));
                     embeddedOrdinal++;
                 }
 
@@ -209,10 +319,7 @@ public class DocumentSource
             }
             else if (fk.IsUnique)
             {
-#pragma warning disable EF1001 // Internal EF Core API usage.
-                // #16707
                 var embeddedEntry = ((InternalEntityEntry)entry).StateManager.TryGetEntry(embeddedValue, fk.DeclaringEntityType)!;
-#pragma warning restore EF1001 // Internal EF Core API usage.
 
                 var embeddedDocument = embeddedDocumentSource.GetCurrentDocument(embeddedEntry);
                 embeddedDocument = embeddedDocument != null
@@ -229,19 +336,13 @@ public class DocumentSource
             {
                 SetTemporaryOrdinals(entry, fk, embeddedValue);
 
-#pragma warning disable EF1001 // Internal EF Core API usage.
-                // #16707
                 var stateManager = ((InternalEntityEntry)entry).StateManager;
-#pragma warning restore EF1001 // Internal EF Core API usage.
 
                 var embeddedOrdinal = 1;
                 var array = new JArray();
                 foreach (var dependent in (IEnumerable)embeddedValue)
                 {
-#pragma warning disable EF1001 // Internal EF Core API usage.
-                    // #16707
                     var embeddedEntry = stateManager.TryGetEntry(dependent, fk.DeclaringEntityType)!;
-#pragma warning restore EF1001 // Internal EF Core API usage.
 
                     var embeddedDocument = embeddedDocumentSource.GetCurrentDocument(embeddedEntry);
                     embeddedDocument = embeddedDocument != null
@@ -269,15 +370,10 @@ public class DocumentSource
         var ordinalKeyProperty = FindOrdinalKeyProperty(fk.DeclaringEntityType);
         if (ordinalKeyProperty != null)
         {
-#pragma warning disable EF1001 // Internal EF Core API usage.
-            // #16707
             var stateManager = ((InternalEntityEntry)entry).StateManager;
-#pragma warning restore EF1001 // Internal EF Core API usage.
             var shouldSetTemporaryKeys = false;
             foreach (var dependent in (IEnumerable)embeddedValue)
             {
-#pragma warning disable EF1001 // Internal EF Core API usage.
-                // #16707
                 var embeddedEntry = stateManager.TryGetEntry(dependent, fk.DeclaringEntityType)!;
 
                 if ((int)embeddedEntry.GetCurrentValue(ordinalKeyProperty)! != embeddedOrdinal
@@ -286,7 +382,6 @@ public class DocumentSource
                     shouldSetTemporaryKeys = true;
                     break;
                 }
-#pragma warning restore EF1001 // Internal EF Core API usage.
 
                 embeddedOrdinal++;
             }
@@ -296,12 +391,9 @@ public class DocumentSource
                 var temporaryOrdinal = -1;
                 foreach (var dependent in (IEnumerable)embeddedValue)
                 {
-#pragma warning disable EF1001 // Internal EF Core API usage.
-                    // #16707
                     var embeddedEntry = stateManager.TryGetEntry(dependent, fk.DeclaringEntityType)!;
 
                     embeddedEntry.SetTemporaryValue(ordinalKeyProperty, temporaryOrdinal, setModified: false);
-#pragma warning restore EF1001 // Internal EF Core API usage.
 
                     temporaryOrdinal--;
                 }
@@ -330,4 +422,13 @@ public class DocumentSource
             ? null
             : (value as JToken) ?? JToken.FromObject(value, CosmosClientWrapper.Serializer);
     }
+
+    private static JToken? ConvertPropertyValue(IProperty property, InternalComplexEntry entry)
+    {
+        var value = entry.GetCurrentValue(property);
+        return value == null
+            ? null
+            : (value as JToken) ?? JToken.FromObject(value, CosmosClientWrapper.Serializer);
+    }
 }
+#pragma warning restore EF1001 // Internal EF Core API usage.

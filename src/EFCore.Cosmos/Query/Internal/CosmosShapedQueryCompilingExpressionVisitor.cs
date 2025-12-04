@@ -67,6 +67,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
         }
 
         shaperBody = new CosmosProjectionBindingRemovingExpressionVisitor(
+                Dependencies.EntityMaterializerSource,
                 selectExpression, jTokenParameter,
                 QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll)
             .Visit(shaperBody);

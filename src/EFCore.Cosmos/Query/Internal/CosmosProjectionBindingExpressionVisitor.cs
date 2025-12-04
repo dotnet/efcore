@@ -352,20 +352,45 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
 
         Expression NullSafeUpdate(Expression? expression)
         {
+            // @TODO: This code appears to be causing multi matiralization
+            if (expression?.Type.IsNullableType() == true && !memberExpression.Type.IsNullableType() && memberExpression.Expression is MemberExpression innerMember && innerMember.Type.IsNullableValueType() == true && memberExpression.Member.Name == nameof(Nullable<>.Value) && expression is not null)
+            {
+                var nullCheck = Expression.Not(
+                    Expression.Property(expression, nameof(Nullable<>.HasValue)));
+                return Expression.Condition(
+                        nullCheck,
+                        Expression.Default(memberExpression.Type),
+                        Expression.Property(expression, nameof(Nullable<>.Value)));
+            }
+
             Expression updatedMemberExpression = memberExpression.Update(
-                expression != null ? MatchTypes(expression, memberExpression.Expression!.Type) : expression);
+            expression != null ? MatchTypes(expression, memberExpression.Expression!.Type) : expression);
 
             if (expression?.Type.IsNullableType() == true)
             {
                 var nullableReturnType = memberExpression.Type.MakeNullable();
-                if (!memberExpression.Type.IsNullableType())
+
+                if (!updatedMemberExpression.Type.IsNullableType())
                 {
                     updatedMemberExpression = Expression.Convert(updatedMemberExpression, nullableReturnType);
                 }
 
+                Expression nullCheck;
+                if (expression.Type.IsNullableValueType())
+                {
+                    // For Nullable<T>, use HasValue property instead of equality comparison
+                    // to avoid issues with value types that don't define the == operator
+                    nullCheck = Expression.Not(
+                        Expression.Property(expression, nameof(Nullable<>.HasValue)));
+                }
+                else
+                {
+                    nullCheck = Expression.Equal(expression, Expression.Default(expression.Type));
+                }
+
                 updatedMemberExpression = Expression.Condition(
-                    Expression.Equal(expression, Expression.Default(expression.Type)),
-                    Expression.Constant(null, nullableReturnType),
+                    nullCheck,
+                    Expression.Default(nullableReturnType),
                     updatedMemberExpression);
             }
 
@@ -639,8 +664,21 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                 updatedMethodCallExpression = Expression.Convert(updatedMethodCallExpression, nullableReturnType);
             }
 
+            Expression nullCheck;
+            if (@object.Type.IsNullableValueType())
+            {
+                // For Nullable<T>, use HasValue property instead of equality comparison
+                // to avoid issues with value types that don't define the == operator
+                nullCheck = Expression.Not(
+                    Expression.Property(@object, nameof(Nullable<>.HasValue)));
+            }
+            else
+            {
+                nullCheck = Expression.Equal(@object, Expression.Constant(null, @object.Type));
+            }
+
             return Expression.Condition(
-                Expression.Equal(@object, Expression.Default(@object.Type)),
+                nullCheck,
                 Expression.Constant(null, nullableReturnType),
                 updatedMethodCallExpression);
         }
