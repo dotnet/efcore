@@ -4362,7 +4362,9 @@ namespace RootNamespace
 
                             b1.ToTable("EntityWithOneProperty", "DefaultSchema");
 
-                            b1.ToJson("EntityWithTwoProperties");
+                            b1
+                                .ToJson("EntityWithTwoProperties")
+                                .HasColumnType("nvarchar(max)");
 
                             b1.WithOwner("EntityWithOneProperty")
                                 .HasForeignKey("EntityWithOnePropertyId");
@@ -4437,6 +4439,7 @@ namespace RootNamespace
 
                 Assert.Equal(nameof(EntityWithOneProperty), ownedType1.GetTableName());
                 Assert.Equal("EntityWithTwoProperties", ownedType1.GetContainerColumnName());
+                Assert.Equal("nvarchar(max)", ownedType1.GetContainerColumnType());
 
                 var ownership2 = ownedType1.FindNavigation(nameof(EntityWithStringKey)).ForeignKey;
                 Assert.Equal("EntityWithTwoPropertiesEntityWithOnePropertyId", ownership2.Properties[0].Name);
@@ -4471,6 +4474,83 @@ namespace RootNamespace
                 Assert.Equal("__synthesizedOrdinal", ownedProperties3[1].Name);
                 Assert.Equal("Id", ownedProperties3[2].Name);
                 Assert.Equal("Name", ownedProperties3[3].Name);
+            });
+
+    [ConditionalFact]
+    public virtual void Owned_types_mapped_to_json_with_explicit_column_type_are_stored_in_snapshot()
+        => Test(
+            builder =>
+            {
+                builder.Entity<EntityWithOneProperty>(b =>
+                {
+                    b.HasKey(x => x.Id).HasName("PK_Custom");
+
+                    b.OwnsOne(
+                        x => x.EntityWithTwoProperties, bb =>
+                        {
+                            bb.ToJson().HasColumnType("json");
+                            bb.Ignore(x => x.Id);
+                            bb.Property(x => x.AlternateId).HasJsonPropertyName("NotKey");
+                            bb.WithOwner(e => e.EntityWithOneProperty);
+                        });
+                });
+            },
+            AddBoilerPlate(
+                GetHeading()
+                + """
+            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.HasKey("Id")
+                        .HasName("PK_Custom");
+
+                    b.ToTable("EntityWithOneProperty", "DefaultSchema");
+                });
+
+            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty", b =>
+                {
+                    b.OwnsOne("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithTwoProperties", "EntityWithTwoProperties", b1 =>
+                        {
+                            b1.Property<int>("EntityWithOnePropertyId")
+                                .HasColumnType("int");
+
+                            b1.Property<int>("AlternateId")
+                                .HasColumnType("int")
+                                .HasAnnotation("Relational:JsonPropertyName", "NotKey");
+
+                            b1.HasKey("EntityWithOnePropertyId");
+
+                            b1.ToTable("EntityWithOneProperty", "DefaultSchema");
+
+                            b1
+                                .ToJson("EntityWithTwoProperties")
+                                .HasColumnType("json");
+
+                            b1.WithOwner("EntityWithOneProperty")
+                                .HasForeignKey("EntityWithOnePropertyId");
+
+                            b1.Navigation("EntityWithOneProperty");
+                        });
+
+                    b.Navigation("EntityWithTwoProperties");
+                });
+""", usingSystem: false),
+            o =>
+            {
+                var entityWithOneProperty = o.FindEntityType(typeof(EntityWithOneProperty));
+                Assert.Equal("PK_Custom", entityWithOneProperty.GetKeys().Single().GetName());
+
+                var ownership1 = entityWithOneProperty.FindNavigation(nameof(EntityWithOneProperty.EntityWithTwoProperties))
+                    .ForeignKey;
+                var ownedType1 = ownership1.DeclaringEntityType;
+                Assert.Equal(nameof(EntityWithOneProperty), ownedType1.GetTableName());
+                Assert.Equal("EntityWithTwoProperties", ownedType1.GetContainerColumnName());
+                Assert.Equal("json", ownedType1.GetContainerColumnType());
             });
 
     private class Order
