@@ -318,13 +318,19 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("MultipleStartupProjects");
 
         /// <summary>
+        ///     The project targets multiple frameworks. Use the --framework option to specify which target framework to use.
+        /// </summary>
+        public static string MultipleTargetFrameworks
+            => GetString("MultipleTargetFrameworks");
+
+        /// <summary>
         ///     The namespace to use. Matches the directory by default.
         /// </summary>
         public static string NamespaceDescription
             => GetString("NamespaceDescription");
 
         /// <summary>
-        ///     Additionally generate all the code required for NativeAOT compilation and precompiled queries (experimental).
+        ///     Generate additional code in the compiled model required for NativeAOT compilation and precompiled queries (experimental).
         /// </summary>
         public static string NativeAotDescription
             => GetString("NativeAotDescription");
