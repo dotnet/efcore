@@ -2055,6 +2055,18 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
                     ("Building.Milk#Milk.Manufacturer#Manufacturer", "Rating"),
                     ("Building.Milk#Milk.Manufacturer#Manufacturer.Tag#Tag", "Text"),
                     ("Building.Milk#Milk.Manufacturer#Manufacturer.Tog#Tog", "Text"),
+                    ("Building.OptionalMilk#Milk", "Rating"),
+                    ("Building.OptionalMilk#Milk", "Species"),
+                    ("Building.OptionalMilk#Milk", "Subspecies"),
+                    ("Building.OptionalMilk#Milk", "Validation"),
+                    ("Building.OptionalMilk#Milk.License#License", "Charge"),
+                    ("Building.OptionalMilk#Milk.License#License", "Title"),
+                    ("Building.OptionalMilk#Milk.License#License.Tag#Tag", "Text"),
+                    ("Building.OptionalMilk#Milk.License#License.Tog#Tog", "Text"),
+                    ("Building.OptionalMilk#Milk.Manufacturer#Manufacturer", "Name"),
+                    ("Building.OptionalMilk#Milk.Manufacturer#Manufacturer", "Rating"),
+                    ("Building.OptionalMilk#Milk.Manufacturer#Manufacturer.Tag#Tag", "Text"),
+                    ("Building.OptionalMilk#Milk.Manufacturer#Manufacturer.Tog#Tog", "Text"),
                 ],
                 properties);
         }
@@ -3172,14 +3184,10 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
     {
         using var context = CreateContext();
         var building = context.Set<Building>().Single(b => b.Name == "Building One");
+        building.OptionalMilk = null;
 
-        Assert.Null(building.OptionalMilk);
-
-        var originalBuilding = (Building)context.Entry(building).OriginalValues.ToObject();
+        var originalBuilding = (Building)context.Entry(building).CurrentValues.ToObject();
         Assert.Null(originalBuilding.OptionalMilk);
-
-        var currentBuilding = (Building)context.Entry(building).CurrentValues.ToObject();
-        Assert.Null(currentBuilding.OptionalMilk);
     }
 
     [ConditionalFact]
@@ -3573,6 +3581,26 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
                     Rating = 8 + (tag ?? 0),
                     Species = "S1" + tag,
                     Validation = false
+                },
+                OptionalMilk = new Milk
+                {
+                    License = new License
+                    {
+                        Charge = 2.0m + (tag ?? 0),
+                        Tag = new Tag { Text = "Ta3" + tag },
+                        Title = "Ti2" + tag,
+                        Tog = new Tog { Text = "To3" + tag }
+                    },
+                    Manufacturer = new Manufacturer
+                    {
+                        Name = "M2" + tag,
+                        Rating = 9 + (tag ?? 0),
+                        Tag = new Tag { Text = "Ta4" + tag },
+                        Tog = new Tog { Text = "To4" + tag }
+                    },
+                    Rating = 10 + (tag ?? 0),
+                    Species = "S2" + tag,
+                    Validation = true
                 }
             };
 

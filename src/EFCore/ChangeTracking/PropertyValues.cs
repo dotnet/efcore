@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 public abstract class PropertyValues
 {
     private readonly IReadOnlyList<IComplexProperty> _complexCollectionProperties;
-    private readonly IReadOnlyList<IComplexProperty> _nullableComplexProperties;
+    private readonly IReadOnlyList<IComplexProperty>? _nullableComplexProperties;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -43,7 +43,8 @@ public abstract class PropertyValues
         Check.DebugAssert(
             _complexCollectionProperties.Select((p, i) => p.GetIndex() == i).All(e => e),
             "Complex collection properties indices are not sequential.");
-        _nullableComplexProperties = [.. internalEntry.StructuralType.GetFlattenedComplexProperties().Where(p => !p.IsCollection && p.IsNullable)];
+        var nullableComplexProperties = internalEntry.StructuralType.GetFlattenedComplexProperties().Where(p => !p.IsCollection && p.IsNullable).ToList();
+        _nullableComplexProperties = nullableComplexProperties.Count > 0 ? nullableComplexProperties : null;
     }
 
     /// <summary>
@@ -163,7 +164,7 @@ public abstract class PropertyValues
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    protected IReadOnlyList<IComplexProperty> NullableComplexProperties
+    protected IReadOnlyList<IComplexProperty>? NullableComplexProperties
     {
         [DebuggerStepThrough]
         get => _nullableComplexProperties;

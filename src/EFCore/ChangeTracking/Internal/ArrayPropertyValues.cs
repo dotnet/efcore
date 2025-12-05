@@ -21,7 +21,7 @@ public class ArrayPropertyValues : PropertyValues
     // This is needed because value type properties inside nullable complex types store default values (not null)
     // when the complex property is null, making it impossible to detect nullness from the values array alone.
     // The array indices correspond to NullableComplexProperties ordering.
-    private bool[]? _nullComplexPropertyFlags;
+    private readonly bool[]? _nullComplexPropertyFlags;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -29,22 +29,13 @@ public class ArrayPropertyValues : PropertyValues
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public ArrayPropertyValues(InternalEntryBase internalEntry, object?[] values)
+    public ArrayPropertyValues(InternalEntryBase internalEntry, object?[] values, bool[]? nullComplexPropertyFlags = null)
         : base(internalEntry)
     {
         _values = values;
         _complexCollectionValues = new List<ArrayPropertyValues?>?[ComplexCollectionProperties.Count];
+        _nullComplexPropertyFlags = nullComplexPropertyFlags;
     }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [EntityFrameworkInternal]
-    internal void SetNullComplexPropertyFlags(bool[] flags)
-        => _nullComplexPropertyFlags = flags;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -59,7 +50,7 @@ public class ArrayPropertyValues : PropertyValues
 
         // Set null for nullable complex properties that were explicitly marked as null.
         // Shadow properties don't have CLR members and aren't part of the materialized object.
-        if (_nullComplexPropertyFlags != null)
+        if (_nullComplexPropertyFlags != null && NullableComplexProperties != null)
         {
             for (var i = 0; i < _nullComplexPropertyFlags.Length; i++)
             {
@@ -165,15 +156,15 @@ public class ArrayPropertyValues : PropertyValues
         var copies = new object[_values.Length];
         Array.Copy(_values, copies, _values.Length);
 
-        var clone = new ArrayPropertyValues(InternalEntry, copies);
-
         // Copy null complex property tracking
+        bool[]? flagsCopy = null;
         if (_nullComplexPropertyFlags != null)
         {
-            var flagsCopy = new bool[_nullComplexPropertyFlags.Length];
+            flagsCopy = new bool[_nullComplexPropertyFlags.Length];
             Array.Copy(_nullComplexPropertyFlags, flagsCopy, _nullComplexPropertyFlags.Length);
-            clone.SetNullComplexPropertyFlags(flagsCopy);
         }
+
+        var clone = new ArrayPropertyValues(InternalEntry, copies, flagsCopy);
 
         for (var i = 0; i < _complexCollectionValues.Length; i++)
         {
