@@ -8450,7 +8450,7 @@ LEFT JOIN [LocustHighCommands] AS [l0] ON [l].[HighCommandId] = [l0].[Id]
         AssertSql(
             """
 @p='0'
-@p0='10'
+@p1='10'
 
 SELECT [s].[Nickname], [s].[SquadId], [s].[AssignedCityName], [s].[CityOfBirthName], [s].[Discriminator], [s].[FullName], [s].[HasSoulPatch], [s].[LeaderNickname], [s].[LeaderSquadId], [s].[Rank], [s].[HasSoulPatch0], [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM (
@@ -8463,7 +8463,7 @@ FROM (
         GROUP BY [g0].[HasSoulPatch]
     ) AS [g1] ON CAST(LEN([g].[Nickname]) AS int) = [g1].[c]
     ORDER BY [g].[Nickname]
-    OFFSET @p ROWS FETCH NEXT @p0 ROWS ONLY
+    OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
 ) AS [s]
 LEFT JOIN [Weapons] AS [w] ON [s].[FullName] = [w].[OwnerFullName]
 ORDER BY [s].[Nickname], [s].[SquadId], [s].[HasSoulPatch0]

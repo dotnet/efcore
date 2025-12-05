@@ -578,10 +578,10 @@ WHERE (
         AssertExecuteUpdateSql(
             """
 @p='?' (Size = 4000)
-@p0='?' (DbType = Int32)
+@p1='?' (DbType = Int32)
 
 UPDATE [r]
-SET [r].[RequiredAssociate] = JSON_MODIFY(JSON_MODIFY([r].[RequiredAssociate], '$.String', @p), '$.Int', @p0)
+SET [r].[RequiredAssociate] = JSON_MODIFY(JSON_MODIFY([r].[RequiredAssociate], '$.String', @p), '$.Int', @p1)
 FROM [RootEntity] AS [r]
 """);
     }

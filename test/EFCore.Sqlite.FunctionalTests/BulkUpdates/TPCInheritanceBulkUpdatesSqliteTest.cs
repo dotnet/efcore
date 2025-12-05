@@ -181,11 +181,11 @@ WHERE (
         AssertExecuteUpdateSql(
             """
 @p='Kiwi' (Size = 4)
-@p0='0'
+@p1='0'
 
 UPDATE "Kiwi" AS "k"
 SET "Name" = @p,
-    "FoundOn" = @p0
+    "FoundOn" = @p1
 """);
     }
 

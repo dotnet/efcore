@@ -1711,11 +1711,11 @@ WHERE CAST(@i AS nvarchar(max)) + [c].[CustomerID] + CAST(@i AS nvarchar(max)) =
         AssertSql(
             """
 @customerId='ANATR' (Size = 5) (DbType = StringFixedLength)
-@customerId0='ALFKI' (Size = 5) (DbType = StringFixedLength)
+@customerId1='ALFKI' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = @customerId OR [c].[CustomerID] = @customerId0
+WHERE [c].[CustomerID] = @customerId OR [c].[CustomerID] = @customerId1
 """);
     }
 
