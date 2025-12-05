@@ -45,16 +45,11 @@ public abstract class PropertyValues
 
         foreach (var complexProperty in internalEntry.StructuralType.GetFlattenedComplexProperties())
         {
-            if (complexProperty.IsShadowProperty())
-            {
-                continue;
-            }
-
             if (complexProperty.IsCollection)
             {
                 complexCollectionProperties.Add(complexProperty);
             }
-            else if (complexProperty.IsNullable)
+            else if (complexProperty.IsNullable && !complexProperty.IsShadowProperty())
             {
                 nullableComplexProperties.Add(complexProperty);
             }

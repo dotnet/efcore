@@ -16,11 +16,6 @@ public class ArrayPropertyValues : PropertyValues
 {
     private readonly object?[] _values;
     private readonly List<ArrayPropertyValues?>?[] _complexCollectionValues;
-
-    // Tracks nullable non-collection complex properties that should be null when materializing via ToObject().
-    // This is needed because value type properties inside nullable complex types store default values (not null)
-    // when the complex property is null, making it impossible to detect nullness from the values array alone.
-    // The array indices correspond to NullableComplexProperties ordering.
     private readonly bool[]? _nullComplexPropertyFlags;
 
     /// <summary>
@@ -48,8 +43,6 @@ public class ArrayPropertyValues : PropertyValues
         var structuralObject = StructuralType.GetOrCreateMaterializer(MaterializerSource)(
             new MaterializationContext(new ValueBuffer(_values), InternalEntry.Context));
 
-        // Set null for nullable complex properties that were explicitly marked as null.
-        // Shadow properties don't have CLR members and aren't part of the materialized object.
         if (_nullComplexPropertyFlags != null && NullableComplexProperties != null)
         {
             for (var i = 0; i < _nullComplexPropertyFlags.Length; i++)
@@ -57,10 +50,7 @@ public class ArrayPropertyValues : PropertyValues
                 if (_nullComplexPropertyFlags[i])
                 {
                     var complexProperty = NullableComplexProperties[i];
-                    if (!complexProperty.IsShadowProperty())
-                    {
-                        structuralObject = ((IRuntimeComplexProperty)complexProperty).GetSetter().SetClrValue(structuralObject, null);
-                    }
+                    structuralObject = ((IRuntimeComplexProperty)complexProperty).GetSetter().SetClrValue(structuralObject, null);
                 }
             }
         }

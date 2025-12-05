@@ -60,31 +60,38 @@ public class OriginalPropertyValues : EntryPropertyValues
     /// </summary>
     protected override object? GetValueInternal(IInternalEntry entry, IPropertyBase property)
     {
-        var originalValue = entry.GetOriginalValue(property);
-        if (property is IComplexProperty { IsCollection: true } complexProperty)
+        if (property is IComplexProperty complexProperty)
         {
-            var originalCollection = (IList?)originalValue;
-            if (originalCollection == null)
+            if (complexProperty.IsCollection)
             {
-                return null;
+                var originalCollection = (IList?)entry.GetOriginalValue(property);
+                if (originalCollection == null)
+                {
+                    return null;
+                }
+
+                // The stored original collection might contain references to the current elements,
+                // so we need to recreate it using stored values.
+                var clonedCollection = (IList)((IRuntimePropertyBase)complexProperty).GetIndexedCollectionAccessor()
+                    .Create(originalCollection.Count);
+                for (var i = 0; i < originalCollection.Count; i++)
+                {
+                    clonedCollection.Add(
+                        originalCollection[i] == null
+                            ? null
+                            : GetPropertyValues(entry.GetComplexCollectionOriginalEntry(complexProperty, i)).ToObject());
+                }
+
+                return clonedCollection;
             }
 
-            // The stored original collection might contain references to the current elements,
-            // so we need to recreate it using stored values.
-            var clonedCollection = (IList)((IRuntimePropertyBase)complexProperty).GetIndexedCollectionAccessor()
-                .Create(originalCollection.Count);
-            for (var i = 0; i < originalCollection.Count; i++)
-            {
-                clonedCollection.Add(
-                    originalCollection[i] == null
-                        ? null
-                        : GetPropertyValues(entry.GetComplexCollectionOriginalEntry(complexProperty, i)).ToObject());
-            }
-
-            return clonedCollection;
+            // For non-collection complex properties, check if original value can be tracked
+            return ((InternalEntryBase)entry).CanHaveOriginalValue(complexProperty)
+                ? entry.GetOriginalValue(complexProperty)
+                : entry[complexProperty];
         }
 
-        return originalValue;
+        return entry.GetOriginalValue(property);
     }
 
     private PropertyValues GetPropertyValues(InternalEntryBase entry)
@@ -110,17 +117,6 @@ public class OriginalPropertyValues : EntryPropertyValues
 
         return cloned;
     }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    protected override object? GetComplexPropertyValue(IInternalEntry entry, IComplexProperty complexProperty)
-        => ((InternalEntryBase)entry).CanHaveOriginalValue(complexProperty)
-            ? entry.GetOriginalValue(complexProperty)
-            : entry[complexProperty];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
