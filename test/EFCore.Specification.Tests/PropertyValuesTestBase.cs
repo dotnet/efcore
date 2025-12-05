@@ -3184,10 +3184,40 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
     {
         using var context = CreateContext();
         var building = context.Set<Building>().Single(b => b.Name == "Building One");
+
+        var originalBuilding = (Building)context.Entry(building).OriginalValues.ToObject();
+        Assert.NotNull(originalBuilding.OptionalMilk);
+
         building.OptionalMilk = null;
 
-        var originalBuilding = (Building)context.Entry(building).CurrentValues.ToObject();
-        Assert.Null(originalBuilding.OptionalMilk);
+        var currentBuilding = (Building)context.Entry(building).CurrentValues.ToObject();
+        Assert.Null(currentBuilding.OptionalMilk);
+    }
+
+    [ConditionalFact]
+    public virtual void Setting_current_values_from_cloned_values_sets_nullable_complex_property_to_null()
+    {
+        using var context = CreateContext();
+        var building = context.Set<Building>().Single(b => b.Name == "Building One");
+
+        Assert.NotNull(building.OptionalMilk);
+        building.OptionalMilk = null;
+
+        var clonedValues = context.Entry(building).CurrentValues.Clone();
+        Assert.Null(((Building)clonedValues.ToObject()).OptionalMilk);
+
+        building.OptionalMilk = new Milk
+        {
+            License = new License { Charge = 1.0m, Tag = new Tag { Text = "Ta1" }, Title = "Ti1", Tog = new Tog { Text = "To1" } },
+            Manufacturer = new Manufacturer { Name = "M1", Rating = 7, Tag = new Tag { Text = "Ta2" }, Tog = new Tog { Text = "To2" } },
+            Rating = 8,
+            Species = "S1",
+            Validation = false
+        };
+        Assert.NotNull(building.OptionalMilk);
+
+        context.Entry(building).CurrentValues.SetValues(clonedValues);
+        Assert.Null(building.OptionalMilk);
     }
 
     [ConditionalFact]

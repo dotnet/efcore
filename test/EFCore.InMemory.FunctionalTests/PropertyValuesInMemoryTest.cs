@@ -8,8 +8,12 @@ namespace Microsoft.EntityFrameworkCore;
 public class PropertyValuesInMemoryTest(PropertyValuesInMemoryTest.PropertyValuesInMemoryFixture fixture)
     : PropertyValuesTestBase<PropertyValuesInMemoryTest.PropertyValuesInMemoryFixture>(fixture)
 {
-    // Nullable complex property test - InMemory provider doesn't support complex types in queries
+    // Nullable complex property tests - InMemory provider doesn't support complex types in queries
     public override void Nullable_complex_property_with_null_value_returns_null_when_using_ToObject()
+    {
+    }
+
+    public override void Setting_current_values_from_cloned_values_sets_nullable_complex_property_to_null()
     {
     }
 

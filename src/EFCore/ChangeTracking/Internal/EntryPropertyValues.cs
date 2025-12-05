@@ -290,8 +290,7 @@ public abstract class EntryPropertyValues : PropertyValues
             flags = new bool[nullableComplexProperties.Count];
             for (var i = 0; i < nullableComplexProperties.Count; i++)
             {
-                // Use the entry's indexer to get the current complex property value
-                flags[i] = InternalEntry[nullableComplexProperties[i]] == null;
+                flags[i] = GetComplexPropertyValue(InternalEntry, nullableComplexProperties[i]) == null;
             }
         }
 
@@ -327,6 +326,19 @@ public abstract class EntryPropertyValues : PropertyValues
         foreach (var complexProperty in ComplexCollectionProperties)
         {
             SetValueInternal(InternalEntry, complexProperty, propertyValues[complexProperty]);
+        }
+
+        // Handle nullable complex properties - set to null if source has them as null
+        var nullableComplexProperties = NullableComplexProperties;
+        if (nullableComplexProperties != null)
+        {
+            for (var i = 0; i < nullableComplexProperties.Count; i++)
+            {
+                if (propertyValues.IsNullableComplexPropertyNull(i))
+                {
+                    InternalEntry[nullableComplexProperties[i]] = null;
+                }
+            }
         }
     }
 
@@ -510,6 +522,15 @@ public abstract class EntryPropertyValues : PropertyValues
     /// </summary>
     [EntityFrameworkInternal]
     protected abstract object? GetValueInternal(IInternalEntry entry, IPropertyBase property);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    protected abstract object? GetComplexPropertyValue(IInternalEntry entry, IComplexProperty complexProperty);
 
     /// <summary>
     ///     Creates a complex object from a dictionary of property values using EF's property accessors.
