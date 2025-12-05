@@ -233,17 +233,16 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
                         defaultValueAnnotation.Value,
                         defaultConstraintNameAnnotation.Value));
             }
-            else
+            else if (defaultValueSqlAnnotation != null)
             {
-                Check.DebugAssert(
-                    defaultValueSqlAnnotation != null,
-                    $"Default constraint name was set for {property.Name}, but DefaultValue and DefaultValueSql are both null.");
                 fragments.Add(
                     new MethodCallCodeFragment(
                         nameof(SqlServerPropertyBuilderExtensions.HasDefaultValueSql),
                         defaultValueSqlAnnotation.Value,
                         defaultConstraintNameAnnotation.Value));
             }
+            // If neither DefaultValue nor DefaultValueSql annotation exists (e.g., they were already removed
+            // because the default value equals the CLR default), skip generating code for the constraint name
         }
 
         var isPrimitiveCollection = property.IsPrimitiveCollection;
