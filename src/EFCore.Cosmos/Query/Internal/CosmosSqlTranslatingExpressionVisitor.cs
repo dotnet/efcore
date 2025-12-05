@@ -2,15 +2,12 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
-using System.Data.SqlTypes;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Query.Internal.Expressions;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using static Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
@@ -1102,7 +1099,15 @@ public class CosmosSqlTranslatingExpressionVisitor(
         // Null equality
         if (IsNullSqlConstantExpression(compareReference))
         {
+            // @TODO: What about .Select(x => x.somebool ? x : null).Where(x => x != null)
+            if (structuralType is IEntityType entityType1 && entityType1.IsDocumentRoot() && structuralReference.Subquery == null)
+            {
+                // Document root can never be be null
+                result = Visit(Expression.Constant(nodeType != ExpressionType.Equal));
+                return true;
+            }
             // Treat type as object for null comparison
+            // @TODO: Test subquery
             var access = new SqlObjectAccessExpression((Expression?)structuralReference.Subquery ?? structuralReference.Parameter ?? throw new UnreachableException());
             result = sqlExpressionFactory.MakeBinary(nodeType, access, sqlExpressionFactory.Constant(null, typeof(object), null)!, typeMappingSource.FindMapping(typeof(bool)))!;
             return true;
@@ -1195,7 +1200,8 @@ public class CosmosSqlTranslatingExpressionVisitor(
                                         ? Expression.AndAlso(l, r)
                                         : Expression.OrElse(l, r));
 
-            if (compareReference.Type.IsNullableType() && compareReference is not SqlConstantExpression { Value: not null })
+            if (compareReference.Type.IsNullableType() && compareReference is not SqlConstantExpression { Value: not null } &&
+                (structuralReference.EntityType is not IEntityType entityType1 || !entityType1.IsDocumentRoot())) // Document can never be null so don't compare document to null
             {
                 Expression compareNullCompareReference = compareReference;
                 if (compareReference is SqlParameterExpression sqlParameterExpression)

@@ -349,6 +349,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         );
 
                     }
+
+                    return simpleMember.Assign(Visit(binaryExpression.Right));
                 }
             }
 
