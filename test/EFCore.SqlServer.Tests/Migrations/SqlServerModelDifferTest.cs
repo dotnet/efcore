@@ -1900,4 +1900,57 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
 
                 Assert.Equal(DataCompressionType.Page, annotationValue);
             });
+
+    [ConditionalFact]
+    public void Alter_column_from_nvarchar_max_to_json_for_owned_type()
+        => Execute(
+            _ => { },
+            source => source.Entity(
+                "Blog",
+                x =>
+                {
+                    x.Property<int>("Id");
+                    x.HasKey("Id");
+                    x.OwnsOne(
+                        "Details", "Details", d =>
+                        {
+                            d.Property<string>("Author");
+                            d.Property<int>("Viewers");
+                            d.ToJson();
+                        });
+                }),
+            target => target.Entity(
+                "Blog",
+                x =>
+                {
+                    x.Property<int>("Id");
+                    x.HasKey("Id");
+                    x.OwnsOne(
+                        "Details", "Details", d =>
+                        {
+                            d.Property<string>("Author");
+                            d.Property<int>("Viewers");
+                            d.ToJson().HasColumnType("json");
+                        });
+                }),
+            upOps =>
+            {
+                Assert.Equal(1, upOps.Count);
+
+                var operation = Assert.IsType<AlterColumnOperation>(upOps[0]);
+                Assert.Equal("Blog", operation.Table);
+                Assert.Equal("Details", operation.Name);
+                Assert.Equal("json", operation.ColumnType);
+                Assert.Equal("nvarchar(max)", operation.OldColumn.ColumnType);
+            },
+            downOps =>
+            {
+                Assert.Equal(1, downOps.Count);
+
+                var operation = Assert.IsType<AlterColumnOperation>(downOps[0]);
+                Assert.Equal("Blog", operation.Table);
+                Assert.Equal("Details", operation.Name);
+                Assert.Equal("nvarchar(max)", operation.ColumnType);
+                Assert.Equal("json", operation.OldColumn.ColumnType);
+            });
 }

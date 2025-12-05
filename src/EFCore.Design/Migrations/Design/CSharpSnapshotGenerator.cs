@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Text;
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -836,6 +837,20 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         var annotations = Dependencies.AnnotationCodeGenerator
             .FilterIgnoredAnnotations(entityType.GetAnnotations())
             .ToDictionary(a => a.Name, a => a);
+
+        // Add ContainerColumnType annotation if entity is mapped to JSON but the type annotation is missing
+        if (annotations.ContainsKey(RelationalAnnotationNames.ContainerColumnName)
+            && !annotations.ContainsKey(RelationalAnnotationNames.ContainerColumnType))
+        {
+            var containerColumnType = entityType.GetContainerColumnType()
+                ?? Dependencies.RelationalTypeMappingSource.FindMapping(typeof(JsonElement))?.StoreType;
+            if (containerColumnType != null)
+            {
+                annotations[RelationalAnnotationNames.ContainerColumnType] = new Annotation(
+                    RelationalAnnotationNames.ContainerColumnType,
+                    containerColumnType);
+            }
+        }
 
         GenerateTableMapping(entityTypeBuilderName, entityType, stringBuilder, annotations);
         GenerateSplitTableMapping(entityTypeBuilderName, entityType, stringBuilder);

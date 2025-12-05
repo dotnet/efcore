@@ -607,6 +607,34 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
             async,
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Bools.Contains(true)));
 
+    // C# 14 first-class spans caused MemoryExtensions.Contains to get resolved instead of Enumerable.Contains.
+    // The following tests that the various overloads are all supported.
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Contains_on_Enumerable(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => Enumerable.Contains(new[] { 10, 999 }, c.Int)));
+
+    // C# 14 first-class spans caused MemoryExtensions.Contains to get resolved instead of Enumerable.Contains.
+    // The following tests that the various overloads are all supported.
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Contains_on_MemoryExtensions(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => MemoryExtensions.Contains(new[] { 10, 999 }, c.Int)));
+
+    // Note that we don't test EF 8/9 with .NET 10; this test is here for completeness/documentation purposes.
+#if NET10_0_OR_GREATER
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Contains_with_MemoryExtensions_with_null_comparer(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => MemoryExtensions.Contains(new[] { 10, 999 }, c.Int, comparer: null)));
+#endif
+
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Column_collection_Count_method(bool async)

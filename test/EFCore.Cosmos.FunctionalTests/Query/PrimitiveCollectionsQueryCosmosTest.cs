@@ -997,6 +997,50 @@ WHERE (ARRAY_LENGTH(c["Ints"]) = 2)
 """);
             });
 
+    public override Task Contains_on_Enumerable(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Contains_on_Enumerable(a);
+
+                AssertSql(
+                """
+SELECT VALUE c
+FROM root c
+WHERE c["Int"] IN (10, 999)
+""");
+            });
+
+    public override Task Contains_on_MemoryExtensions(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Contains_on_MemoryExtensions(a);
+
+                AssertSql(
+                """
+SELECT VALUE c
+FROM root c
+WHERE c["Int"] IN (10, 999)
+""");
+            });
+
+#if NET10_0_OR_GREATER
+    public override Task Contains_with_MemoryExtensions_with_null_comparer(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Contains_with_MemoryExtensions_with_null_comparer(a);
+
+                AssertSql(
+                """
+SELECT VALUE c
+FROM root c
+WHERE c["Int"] IN (10, 999)
+""");
+            });
+#endif
+
     public override Task Column_collection_Length(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>
