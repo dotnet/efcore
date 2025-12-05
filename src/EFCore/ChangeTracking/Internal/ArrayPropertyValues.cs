@@ -155,7 +155,6 @@ public class ArrayPropertyValues : PropertyValues
         var copies = new object[_values.Length];
         Array.Copy(_values, copies, _values.Length);
 
-        // Copy null complex property tracking
         bool[]? flagsCopy = null;
         if (_nullComplexPropertyFlags != null)
         {

@@ -60,35 +60,27 @@ public class OriginalPropertyValues : EntryPropertyValues
     /// </summary>
     protected override object? GetValueInternal(IInternalEntry entry, IPropertyBase property)
     {
-        if (property is IComplexProperty complexProperty)
+        if (property is IComplexProperty { IsCollection: true } complexProperty)
         {
-            if (complexProperty.IsCollection)
+            var originalCollection = (IList?)entry.GetOriginalValue(property);
+            if (originalCollection == null)
             {
-                var originalCollection = (IList?)entry.GetOriginalValue(property);
-                if (originalCollection == null)
-                {
-                    return null;
-                }
-
-                // The stored original collection might contain references to the current elements,
-                // so we need to recreate it using stored values.
-                var clonedCollection = (IList)((IRuntimePropertyBase)complexProperty).GetIndexedCollectionAccessor()
-                    .Create(originalCollection.Count);
-                for (var i = 0; i < originalCollection.Count; i++)
-                {
-                    clonedCollection.Add(
-                        originalCollection[i] == null
-                            ? null
-                            : GetPropertyValues(entry.GetComplexCollectionOriginalEntry(complexProperty, i)).ToObject());
-                }
-
-                return clonedCollection;
+                return null;
             }
 
-            // For non-collection complex properties, check if original value can be tracked
-            return ((InternalEntryBase)entry).CanHaveOriginalValue(complexProperty)
-                ? entry.GetOriginalValue(complexProperty)
-                : entry[complexProperty];
+            // The stored original collection might contain references to the current elements,
+            // so we need to recreate it using stored values.
+            var clonedCollection = (IList)((IRuntimePropertyBase)complexProperty).GetIndexedCollectionAccessor()
+                .Create(originalCollection.Count);
+            for (var i = 0; i < originalCollection.Count; i++)
+            {
+                clonedCollection.Add(
+                    originalCollection[i] == null
+                        ? null
+                        : GetPropertyValues(entry.GetComplexCollectionOriginalEntry(complexProperty, i)).ToObject());
+            }
+
+            return clonedCollection;
         }
 
         return entry.GetOriginalValue(property);
