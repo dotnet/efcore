@@ -246,7 +246,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                         if (complexProperty.IsCollection)
                         {
-                            // @TODO: Just how exactly are we supposed to materialize collection of complex types here?
+                            // @TODO: cleanup this code duplication with the collection shaper visit
                             _currentComplexArrayIndex++;
                             var complexJArrayVariable = Variable(
                                 typeof(JArray),
@@ -1003,10 +1003,5 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
         private static T SafeToObjectWithSerializer<T>(JToken token)
             => token == null || token.Type == JTokenType.Null ? default : token.ToObject<T>(CosmosClientWrapper.Serializer);
-    }
-
-    private class ComplexPropertyExtractionExpressionVisitor : ExpressionVisitor
-    {
-        
     }
 }

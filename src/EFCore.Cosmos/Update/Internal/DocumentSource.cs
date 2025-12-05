@@ -126,6 +126,7 @@ public class DocumentSource
             }
         }
 
+        // @TODO: refactor to avoid duplication with complex property source
         foreach (var complexProperty in entry.EntityType.GetComplexProperties())
         {
             var embeddedValue = entry.GetCurrentValue(complexProperty);
@@ -271,6 +272,7 @@ public class DocumentSource
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    // @TODO: Comlex properties
     public virtual JObject? UpdateDocument(JObject document, IUpdateEntry entry, int? ordinal)
     {
         var anyPropertyUpdated = false;
