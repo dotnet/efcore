@@ -644,8 +644,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                 .Append('.')
                 .Append("HasDiscriminator");
 
-            if (discriminatorProperty.DeclaringType == property.ComplexType
-                && discriminatorProperty.Name != "Discriminator")
+            if (discriminatorProperty.DeclaringType == property.ComplexType)
             {
                 var propertyClrType = FindValueConverter(discriminatorProperty)?.ProviderClrType
                         .MakeNullable(discriminatorProperty.IsNullable)
@@ -953,8 +952,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                     .Append('.')
                     .Append("HasDiscriminator");
 
-                if (discriminatorProperty.DeclaringType == entityType
-                    && discriminatorProperty.Name != "Discriminator")
+                if (discriminatorProperty.DeclaringType == entityType)
                 {
                     var propertyClrType = FindValueConverter(discriminatorProperty)?.ProviderClrType
                             .MakeNullable(discriminatorProperty.IsNullable)
