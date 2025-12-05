@@ -3185,13 +3185,14 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
         using var context = CreateContext();
         var building = context.Set<Building>().Single(b => b.Name == "Building One");
 
-        var originalBuilding = (Building)context.Entry(building).OriginalValues.ToObject();
-        Assert.NotNull(originalBuilding.OptionalMilk);
-
+        Assert.NotNull(building.OptionalMilk);
         building.OptionalMilk = null;
 
         var currentBuilding = (Building)context.Entry(building).CurrentValues.ToObject();
         Assert.Null(currentBuilding.OptionalMilk);
+
+        var originalBuilding = (Building)context.Entry(building).OriginalValues.ToObject();
+        Assert.NotNull(originalBuilding.OptionalMilk);
     }
 
     [ConditionalFact]
