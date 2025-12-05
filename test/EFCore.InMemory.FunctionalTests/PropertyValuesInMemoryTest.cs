@@ -118,13 +118,11 @@ public class PropertyValuesInMemoryTest(PropertyValuesInMemoryTest.PropertyValue
             {
                 b.Ignore(e => e.Culture);
                 b.Ignore(e => e.Milk);
+                b.Ignore(e => e.OptionalMilk);
             });
 
             // In-memory database doesn't support complex collections
             modelBuilder.Ignore<School>();
-
-            // In-memory database doesn't fully support complex types
-            modelBuilder.Ignore<ProductWithNullableComplexType>();
         }
     }
 }

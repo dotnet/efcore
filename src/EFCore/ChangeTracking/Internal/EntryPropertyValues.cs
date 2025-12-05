@@ -284,17 +284,18 @@ public abstract class EntryPropertyValues : PropertyValues
 
         var cloned = new ArrayPropertyValues(InternalEntry, values);
 
-        // Track null nullable complex properties (non-collection)
-        foreach (var complexProperty in StructuralType.GetFlattenedComplexProperties())
+        // Track null nullable complex properties (non-collection) using bool array
+        var nullableComplexProperties = NullableComplexProperties;
+        if (nullableComplexProperties.Count > 0)
         {
-            if (!complexProperty.IsCollection && complexProperty.IsNullable)
+            var flags = new bool[nullableComplexProperties.Count];
+            for (var i = 0; i < nullableComplexProperties.Count; i++)
             {
-                var complexValue = GetValueInternal(InternalEntry, complexProperty);
-                if (complexValue == null)
-                {
-                    cloned.MarkComplexPropertyAsNull(complexProperty);
-                }
+                // Use the entry's indexer to get the current complex property value
+                flags[i] = InternalEntry[nullableComplexProperties[i]] == null;
             }
+
+            cloned.SetNullComplexPropertyFlags(flags);
         }
 
         foreach (var complexProperty in ComplexCollectionProperties)

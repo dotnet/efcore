@@ -20,7 +20,8 @@ public class ArrayPropertyValues : PropertyValues
     // Tracks nullable non-collection complex properties that should be null when materializing via ToObject().
     // This is needed because value type properties inside nullable complex types store default values (not null)
     // when the complex property is null, making it impossible to detect nullness from the values array alone.
-    private HashSet<IComplexProperty>? _nullComplexProperties;
+    // The array indices correspond to NullableComplexProperties ordering.
+    private bool[]? _nullComplexPropertyFlags;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -42,11 +43,8 @@ public class ArrayPropertyValues : PropertyValues
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    internal void MarkComplexPropertyAsNull(IComplexProperty complexProperty)
-    {
-        _nullComplexProperties ??= [];
-        _nullComplexProperties.Add(complexProperty);
-    }
+    internal void SetNullComplexPropertyFlags(bool[] flags)
+        => _nullComplexPropertyFlags = flags;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -61,13 +59,17 @@ public class ArrayPropertyValues : PropertyValues
 
         // Set null for nullable complex properties that were explicitly marked as null.
         // Shadow properties don't have CLR members and aren't part of the materialized object.
-        if (_nullComplexProperties != null)
+        if (_nullComplexPropertyFlags != null)
         {
-            foreach (var complexProperty in _nullComplexProperties)
+            for (var i = 0; i < _nullComplexPropertyFlags.Length; i++)
             {
-                if (!complexProperty.IsShadowProperty())
+                if (_nullComplexPropertyFlags[i])
                 {
-                    structuralObject = ((IRuntimeComplexProperty)complexProperty).GetSetter().SetClrValue(structuralObject, null);
+                    var complexProperty = NullableComplexProperties[i];
+                    if (!complexProperty.IsShadowProperty())
+                    {
+                        structuralObject = ((IRuntimeComplexProperty)complexProperty).GetSetter().SetClrValue(structuralObject, null);
+                    }
                 }
             }
         }
@@ -166,12 +168,11 @@ public class ArrayPropertyValues : PropertyValues
         var clone = new ArrayPropertyValues(InternalEntry, copies);
 
         // Copy null complex property tracking
-        if (_nullComplexProperties != null)
+        if (_nullComplexPropertyFlags != null)
         {
-            foreach (var complexProperty in _nullComplexProperties)
-            {
-                clone.MarkComplexPropertyAsNull(complexProperty);
-            }
+            var flagsCopy = new bool[_nullComplexPropertyFlags.Length];
+            Array.Copy(_nullComplexPropertyFlags, flagsCopy, _nullComplexPropertyFlags.Length);
+            clone.SetNullComplexPropertyFlags(flagsCopy);
         }
 
         for (var i = 0; i < _complexCollectionValues.Length; i++)

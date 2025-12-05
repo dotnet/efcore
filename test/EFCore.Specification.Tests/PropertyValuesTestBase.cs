@@ -3171,29 +3171,15 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
     public virtual void Nullable_complex_property_with_null_value_returns_null_when_using_ToObject()
     {
         using var context = CreateContext();
+        var building = context.Set<Building>().Single(b => b.Name == "Building One");
 
-        // Create a product without setting Price (it's null)
-        var product = new ProductWithNullableComplexType { Name = "Test Product" };
-        context.Add(product);
-        context.SaveChanges();
+        Assert.Null(building.OptionalMilk);
 
-        context.ChangeTracker.Clear();
+        var originalBuilding = (Building)context.Entry(building).OriginalValues.ToObject();
+        Assert.Null(originalBuilding.OptionalMilk);
 
-        // Reload the product
-        var loadedProduct = context.Set<ProductWithNullableComplexType>().Single(p => p.Name == "Test Product");
-
-        // Verify the loaded entity has null Price
-        Assert.Null(loadedProduct.Price);
-
-        // Get OriginalValues and create object
-        var originalProduct = (ProductWithNullableComplexType)context.Entry(loadedProduct).OriginalValues.ToObject();
-
-        // The original value should also have null Price
-        Assert.Null(originalProduct.Price);
-
-        // Also test CurrentValues
-        var currentProduct = (ProductWithNullableComplexType)context.Entry(loadedProduct).CurrentValues.ToObject();
-        Assert.Null(currentProduct.Price);
+        var currentBuilding = (Building)context.Entry(building).CurrentValues.ToObject();
+        Assert.Null(currentBuilding.OptionalMilk);
     }
 
     [ConditionalFact]
@@ -3616,6 +3602,7 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
 
         public Culture Culture { get; set; }
         public required Milk Milk { get; set; }
+        public Milk? OptionalMilk { get; set; }
     }
 
     [ComplexType]
@@ -3831,20 +3818,6 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
         public int Credits { get; set; }
     }
 
-    protected class ProductWithNullableComplexType : PropertyValuesBase
-    {
-        public int Id { get; set; }
-        public required string Name { get; set; }
-        public ProductPrice? Price { get; set; }
-    }
-
-    [ComplexType]
-    protected class ProductPrice
-    {
-        public decimal Amount { get; init; }
-        public int CurrencyId { get; init; }
-    }
-
     protected DbContext CreateContext()
     {
         var context = Fixture.CreateContext();
@@ -3946,6 +3919,7 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
 
                 b.ComplexProperty(e => e.Culture);
                 b.ComplexProperty(e => e.Milk);
+                b.ComplexProperty(e => e.OptionalMilk);
             });
 
             modelBuilder.Entity<Contact33307>();
@@ -3953,8 +3927,6 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
             modelBuilder.Entity<Customer33307>();
 
             modelBuilder.Entity<School>(b => b.ComplexCollection(e => e.Departments));
-
-            modelBuilder.Entity<ProductWithNullableComplexType>(b => b.ComplexProperty(e => e.Price));
         }
 
         protected override Task SeedAsync(PoolableDbContext context)
