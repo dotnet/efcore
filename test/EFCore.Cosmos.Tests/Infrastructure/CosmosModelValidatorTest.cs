@@ -542,7 +542,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     }
 
     [ConditionalFact]
-    public virtual void Detects_complex_type_collection()
+    public virtual void Passes_on_complex_type_collection()
     {
         var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<EntityWithComplexTypeCollection>(b =>
@@ -550,10 +550,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
             b.ComplexCollection(e => e.ComplexTypes);
         });
 
-        VerifyError(
-            CosmosStrings.ComplexTypeCollectionsNotSupported(
-                nameof(ComplexTypeInCollection),
-                nameof(EntityWithComplexTypeCollection.ComplexTypes)), modelBuilder);
+        Validate(modelBuilder);
     }
 
     private class EntityWithComplexTypeCollection
