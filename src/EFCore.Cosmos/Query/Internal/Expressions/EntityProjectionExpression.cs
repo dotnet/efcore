@@ -12,10 +12,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class EntityProjectionExpression : Expression, IPrintableExpression, IAccessExpression
+public class EntityProjectionExpression : Expression, IPrintableExpression, IAccessExpression // @TODO: StructuralTypeProjectionExpression?
 {
     private readonly Dictionary<IProperty, IAccessExpression> _propertyExpressionsMap = new();
     private readonly Dictionary<INavigation, StructuralTypeShaperExpression> _navigationExpressionsMap = new();
+    private readonly Dictionary<IComplexProperty, StructuralTypeShaperExpression> _complexPropertyExpressionsMap = new();
+
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -23,10 +25,10 @@ public class EntityProjectionExpression : Expression, IPrintableExpression, IAcc
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public EntityProjectionExpression(Expression @object, IEntityType entityType)
+    public EntityProjectionExpression(Expression @object, ITypeBase type)
     {
         Object = @object;
-        EntityType = entityType;
+        EntityType = type;
         PropertyName = (@object as IAccessExpression)?.PropertyName;
     }
 
@@ -62,7 +64,7 @@ public class EntityProjectionExpression : Expression, IPrintableExpression, IAcc
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IEntityType EntityType { get; }
+    public virtual ITypeBase EntityType { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -176,6 +178,40 @@ public class EntityProjectionExpression : Expression, IPrintableExpression, IAcc
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public virtual Expression BindComplexProperty(IComplexProperty complexProperty, bool clientEval)
+    {
+        if (!EntityType.IsAssignableFrom(complexProperty.DeclaringType)
+            && !complexProperty.DeclaringType.IsAssignableFrom(EntityType))
+        {
+            throw new InvalidOperationException(
+                CosmosStrings.UnableToBindMemberToEntityProjection("navigation", complexProperty.Name, EntityType.DisplayName()));
+        }
+
+        if (!_complexPropertyExpressionsMap.TryGetValue(complexProperty, out var expression))
+        {
+            // TODO: Unify ObjectAccessExpression and ObjectArrayAccessExpression
+            expression = complexProperty.IsCollection
+                ? new StructuralTypeShaperExpression(
+                    complexProperty.ComplexType,
+                    new ObjectArrayAccessExpression(Object, complexProperty),
+                    nullable: true)
+                : new StructuralTypeShaperExpression(
+                    complexProperty.ComplexType,
+                    new EntityProjectionExpression(new ObjectAccessExpression(Object, complexProperty), complexProperty.ComplexType),
+                    nullable: complexProperty.IsNullable);
+
+            _complexPropertyExpressionsMap[complexProperty] = expression;
+        }
+
+        return expression;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public virtual Expression? BindMember(
         string name,
         Type entityType,
@@ -198,29 +234,41 @@ public class EntityProjectionExpression : Expression, IPrintableExpression, IAcc
 
     private Expression? BindMember(MemberIdentity member, Type? entityClrType, bool clientEval, out IPropertyBase? propertyBase)
     {
-        var entityType = EntityType;
+        var type = EntityType;
         if (entityClrType != null
-            && !entityClrType.IsAssignableFrom(entityType.ClrType))
+            && !entityClrType.IsAssignableFrom(type.ClrType))
         {
-            entityType = entityType.GetDerivedTypes().First(e => entityClrType.IsAssignableFrom(e.ClrType));
+            type = type.GetDerivedTypes().First(e => entityClrType.IsAssignableFrom(e.ClrType));
         }
 
         var property = member.MemberInfo == null
-            ? entityType.FindProperty(member.Name!)
-            : entityType.FindProperty(member.MemberInfo);
+            ? type.FindProperty(member.Name!)
+            : type.FindProperty(member.MemberInfo);
         if (property != null)
         {
             propertyBase = property;
             return BindProperty(property, clientEval);
         }
 
-        var navigation = member.MemberInfo == null
-            ? entityType.FindNavigation(member.Name!)
-            : entityType.FindNavigation(member.MemberInfo);
-        if (navigation != null)
+        if (type is IEntityType entityType)
         {
-            propertyBase = navigation;
-            return BindNavigation(navigation, clientEval);
+            var navigation = member.MemberInfo == null
+                ? entityType.FindNavigation(member.Name!)
+                : entityType.FindNavigation(member.MemberInfo);
+            if (navigation != null)
+            {
+                propertyBase = navigation;
+                return BindNavigation(navigation, clientEval);
+            }
+        }
+        
+        var complex = member.MemberInfo == null
+            ? type.FindComplexProperty(member.Name!)
+            : type.FindComplexProperty(member.MemberInfo);
+        if (complex != null)
+        {
+            propertyBase = complex;
+            return BindComplexProperty(complex, clientEval);
         }
 
         // Entity member not found

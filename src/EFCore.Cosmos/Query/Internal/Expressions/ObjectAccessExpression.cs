@@ -30,9 +30,32 @@ public class ObjectAccessExpression : Expression, IPrintableExpression, IAccessE
                 CosmosStrings.NavigationPropertyIsNotAnEmbeddedEntity(
                     navigation.DeclaringEntityType.DisplayName(), navigation.Name));
 
-        Navigation = navigation;
+        PropertyBase = navigation;
+        TypeBase = navigation.TargetEntityType;
         Object = @object;
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public ObjectAccessExpression(Expression @object, IComplexProperty complexProperty)
+    {
+        PropertyBase = complexProperty;
+        PropertyName = complexProperty.Name;
+        Object = @object;
+        TypeBase = complexProperty.ComplexType;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public ITypeBase TypeBase { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -50,7 +73,7 @@ public class ObjectAccessExpression : Expression, IPrintableExpression, IAccessE
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override Type Type
-        => Navigation.ClrType;
+        => PropertyBase.ClrType;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -74,7 +97,7 @@ public class ObjectAccessExpression : Expression, IPrintableExpression, IAccessE
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual INavigation Navigation { get; }
+    public virtual IPropertyBase PropertyBase { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -93,7 +116,9 @@ public class ObjectAccessExpression : Expression, IPrintableExpression, IAccessE
     /// </summary>
     public virtual ObjectAccessExpression Update(Expression outerExpression)
         => outerExpression != Object
-            ? new ObjectAccessExpression(outerExpression, Navigation)
+            ? PropertyBase is INavigation navigation
+                ? new ObjectAccessExpression(outerExpression, navigation)
+                : new ObjectAccessExpression(outerExpression, (IComplexProperty)PropertyBase)
             : this;
 
     /// <summary>
@@ -127,7 +152,7 @@ public class ObjectAccessExpression : Expression, IPrintableExpression, IAccessE
                 && Equals(objectAccessExpression));
 
     private bool Equals(ObjectAccessExpression objectAccessExpression)
-        => Navigation == objectAccessExpression.Navigation
+        => PropertyBase == objectAccessExpression.PropertyBase
             && Object.Equals(objectAccessExpression.Object);
 
     /// <summary>
@@ -137,5 +162,5 @@ public class ObjectAccessExpression : Expression, IPrintableExpression, IAccessE
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override int GetHashCode()
-        => HashCode.Combine(Navigation, Object);
+        => HashCode.Combine(PropertyBase, Object);
 }
