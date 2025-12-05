@@ -452,7 +452,11 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         // Note that GenerateAnnotations below does the corresponding decrement
         stringBuilder.IncrementIndent();
 
-        if (property.IsConcurrencyToken)
+        // ComplexCollectionTypePropertyBuilder doesn't have IsConcurrencyToken method
+        var isInComplexCollection = property.DeclaringType is IComplexType complexType
+            && complexType.ComplexProperty.IsCollection;
+
+        if (!isInComplexCollection && property.IsConcurrencyToken)
         {
             stringBuilder
                 .AppendLine()
@@ -466,7 +470,8 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                 .Append(".IsRequired()");
         }
 
-        if (property.ValueGenerated != ValueGenerated.Never)
+        // ComplexCollectionTypePropertyBuilder doesn't have ValueGenerated* methods
+        if (!isInComplexCollection && property.ValueGenerated != ValueGenerated.Never)
         {
             stringBuilder
                 .AppendLine()
@@ -498,8 +503,16 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
             .FilterIgnoredAnnotations(property.GetAnnotations())
             .ToDictionary(a => a.Name, a => a);
 
-        GenerateFluentApiForMaxLength(property, stringBuilder);
-        GenerateFluentApiForPrecisionAndScale(property, stringBuilder);
+        // ComplexCollectionTypePropertyBuilder doesn't have HasMaxLength or HasPrecision methods
+        var isInComplexCollection = property.DeclaringType is IComplexType complexType
+            && complexType.ComplexProperty.IsCollection;
+
+        if (!isInComplexCollection)
+        {
+            GenerateFluentApiForMaxLength(property, stringBuilder);
+            GenerateFluentApiForPrecisionAndScale(property, stringBuilder);
+        }
+
         GenerateFluentApiForIsUnicode(property, stringBuilder);
 
         if (!annotations.ContainsKey(RelationalAnnotationNames.ColumnType)
