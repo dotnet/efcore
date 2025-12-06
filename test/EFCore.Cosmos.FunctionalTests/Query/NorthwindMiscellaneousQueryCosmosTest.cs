@@ -167,7 +167,7 @@ WHERE (c["id"] = "ANATR")
                     """
 SELECT VALUE c["id"]
 FROM root c
-WHERE (c["id"] = null)
+WHERE false
 """);
             });
 
@@ -181,7 +181,6 @@ WHERE (c["id"] = null)
                     """
 SELECT VALUE c["id"]
 FROM root c
-WHERE (c["id"] != null)
 """);
             });
 
@@ -2883,7 +2882,7 @@ WHERE STARTSWITH(c["id"], @prefix)
                     """
 SELECT VALUE c["id"]
 FROM root c
-WHERE (STARTSWITH(c["id"], "A") AND NOT((c["id"] = null)))
+WHERE (STARTSWITH(c["id"], "A") AND NOT(false))
 ORDER BY c["id"]
 """);
             });
@@ -2929,7 +2928,7 @@ ORDER BY c["id"]
                     """
 SELECT VALUE c["id"]
 FROM root c
-WHERE (c["id"] = null)
+WHERE false
 """);
             });
 
@@ -4004,7 +4003,7 @@ FROM root c
                     """
 SELECT VALUE c["id"]
 FROM root c
-WHERE (c["id"] = null)
+WHERE false
 """);
             });
 
@@ -4113,7 +4112,7 @@ ORDER BY c["id"]
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["$type"] = "OrderDetail") AND ((c["OrderID"] != null) AND (c["ProductID"] != null)))
+WHERE (c["$type"] = "OrderDetail")
 """);
             });
 
@@ -4183,7 +4182,12 @@ FROM root c
             {
                 await base.Null_parameter_name_works(a);
 
-                AssertSql("ReadItem(None, null)");
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE false
+""");
             });
 
     public override Task Where_Property_shadow_closure(bool async)
@@ -4276,7 +4280,7 @@ FROM root c
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["$type"] = "OrderDetail") AND ((c["OrderID"] = null) OR (c["ProductID"] = null)))
+WHERE ((c["$type"] = "OrderDetail") AND false)
 """);
             });
 
