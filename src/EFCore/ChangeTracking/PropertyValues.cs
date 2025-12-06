@@ -26,7 +26,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 /// </remarks>
 public abstract class PropertyValues
 {
+    private static readonly bool UseOldBehavior37249 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37249", out var enabled) && enabled;
+
     private readonly IReadOnlyList<IComplexProperty> _complexCollectionProperties;
+    private readonly IReadOnlyList<IComplexProperty>? _nullableComplexProperties;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -38,10 +42,27 @@ public abstract class PropertyValues
     protected PropertyValues(InternalEntryBase internalEntry)
     {
         InternalEntry = internalEntry;
-        _complexCollectionProperties = [.. internalEntry.StructuralType.GetFlattenedComplexProperties().Where(p => p.IsCollection)];
+
+        var complexCollectionProperties = new List<IComplexProperty>();
+        var nullableComplexProperties = UseOldBehavior37249 ? null : new List<IComplexProperty>();
+
+        foreach (var complexProperty in internalEntry.StructuralType.GetFlattenedComplexProperties())
+        {
+            if (complexProperty.IsCollection)
+            {
+                complexCollectionProperties.Add(complexProperty);
+            }
+            else if (!UseOldBehavior37249 && complexProperty.IsNullable && !complexProperty.IsShadowProperty())
+            {
+                nullableComplexProperties!.Add(complexProperty);
+            }
+        }
+
+        _complexCollectionProperties = complexCollectionProperties;
         Check.DebugAssert(
             _complexCollectionProperties.Select((p, i) => p.GetIndex() == i).All(e => e),
             "Complex collection properties indices are not sequential.");
+        _nullableComplexProperties = nullableComplexProperties?.Count > 0 ? nullableComplexProperties : null;
     }
 
     /// <summary>
@@ -153,6 +174,29 @@ public abstract class PropertyValues
         [DebuggerStepThrough]
         get => _complexCollectionProperties;
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    protected virtual IReadOnlyList<IComplexProperty>? NullableComplexProperties
+    {
+        [DebuggerStepThrough]
+        get => _nullableComplexProperties;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual bool IsNullableComplexPropertyNull(int index)
+        => false;
 
     /// <summary>
     ///     Gets the underlying structural type for which this object is storing values.

@@ -282,7 +282,19 @@ public abstract class EntryPropertyValues : PropertyValues
             values[i] = GetValueInternal(InternalEntry, Properties[i]);
         }
 
-        var cloned = new ArrayPropertyValues(InternalEntry, values);
+        bool[]? flags = null;
+        var nullableComplexProperties = NullableComplexProperties;
+        if (nullableComplexProperties != null && nullableComplexProperties.Count > 0)
+        {
+            flags = new bool[nullableComplexProperties.Count];
+            for (var i = 0; i < nullableComplexProperties.Count; i++)
+            {
+                flags[i] = GetValueInternal(InternalEntry, nullableComplexProperties[i]) == null;
+            }
+        }
+
+        var cloned = new ArrayPropertyValues(InternalEntry, values, flags);
+
         foreach (var complexProperty in ComplexCollectionProperties)
         {
             var collection = (IList?)GetValueInternal(InternalEntry, complexProperty);
@@ -305,8 +317,27 @@ public abstract class EntryPropertyValues : PropertyValues
     {
         Check.NotNull(propertyValues);
 
+        var nullableComplexProperties = NullableComplexProperties;
+        HashSet<IComplexProperty>? nullComplexProperties = null;
+        if (nullableComplexProperties != null)
+        {
+            for (var i = 0; i < nullableComplexProperties.Count; i++)
+            {
+                if (propertyValues.IsNullableComplexPropertyNull(i))
+                {
+                    nullComplexProperties ??= [];
+                    nullComplexProperties.Add(nullableComplexProperties[i]);
+                }
+            }
+        }
+
         foreach (var property in Properties)
         {
+            if (nullComplexProperties != null && IsPropertyInNullComplexType(property, nullComplexProperties))
+            {
+                continue;
+            }
+
             SetValueInternal(InternalEntry, property, propertyValues[property]);
         }
 
@@ -314,6 +345,30 @@ public abstract class EntryPropertyValues : PropertyValues
         {
             SetValueInternal(InternalEntry, complexProperty, propertyValues[complexProperty]);
         }
+
+        if (nullComplexProperties != null)
+        {
+            foreach (var complexProperty in nullComplexProperties)
+            {
+                SetValueInternal(InternalEntry, complexProperty, null);
+            }
+        }
+    }
+
+    private static bool IsPropertyInNullComplexType(IProperty property, HashSet<IComplexProperty> nullComplexProperties)
+    {
+        var declaringType = property.DeclaringType;
+        while (declaringType is IComplexType complexType)
+        {
+            if (nullComplexProperties.Contains(complexType.ComplexProperty))
+            {
+                return true;
+            }
+
+            declaringType = complexType.ComplexProperty.DeclaringType;
+        }
+
+        return false;
     }
 
     /// <inheritdoc />
