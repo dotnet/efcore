@@ -1099,7 +1099,6 @@ public class CosmosSqlTranslatingExpressionVisitor(
         // Null equality
         if (IsNullSqlConstantExpression(compareReference))
         {
-            // @TODO: What about .Select(x => x.somebool ? x : null).Where(x => x != null)
             if (structuralType is IEntityType entityType1 && entityType1.IsDocumentRoot() && structuralReference.Subquery == null)
             {
                 // Document root can never be be null
