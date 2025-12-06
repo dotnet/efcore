@@ -60,9 +60,10 @@ public class OriginalPropertyValues : EntryPropertyValues
     /// </summary>
     protected override object? GetValueInternal(IInternalEntry entry, IPropertyBase property)
     {
+        var originalValue = entry.GetOriginalValue(property);
         if (property is IComplexProperty { IsCollection: true } complexProperty)
         {
-            var originalCollection = (IList?)entry.GetOriginalValue(property);
+            var originalCollection = (IList?)originalValue;
             if (originalCollection == null)
             {
                 return null;
@@ -83,7 +84,7 @@ public class OriginalPropertyValues : EntryPropertyValues
             return clonedCollection;
         }
 
-        return entry.GetOriginalValue(property);
+        return originalValue;
     }
 
     private PropertyValues GetPropertyValues(InternalEntryBase entry)
