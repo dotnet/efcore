@@ -21,12 +21,14 @@ public static class Uniquifier
     /// <param name="currentIdentifier">The base identifier.</param>
     /// <param name="otherIdentifiers">A dictionary where the identifier will be used as a key.</param>
     /// <param name="maxLength">The maximum length of the identifier.</param>
+    /// <param name="uniquifier">An optional starting number for the uniquifier.</param>
     /// <returns>A unique identifier.</returns>
     public static string Uniquify<T>(
         string currentIdentifier,
         IReadOnlyDictionary<string, T> otherIdentifiers,
-        int maxLength)
-        => Uniquify(currentIdentifier, otherIdentifiers, s => s, maxLength);
+        int maxLength,
+        int uniquifier = 1)
+        => Uniquify(currentIdentifier, otherIdentifiers, static s => s, maxLength, uniquifier);
 
     /// <summary>
     ///     Creates a unique identifier by appending a number to the given string.
@@ -36,13 +38,15 @@ public static class Uniquifier
     /// <param name="otherIdentifiers">A dictionary where the identifier will be used as a key.</param>
     /// <param name="suffix">An optional suffix to add after the uniquifier.</param>
     /// <param name="maxLength">The maximum length of the identifier.</param>
+    /// <param name="uniquifier">An optional starting number for the uniquifier.</param>
     /// <returns>A unique identifier.</returns>
     public static string Uniquify<T>(
         string currentIdentifier,
         IReadOnlyDictionary<string, T> otherIdentifiers,
         string? suffix,
-        int maxLength)
-        => Uniquify(currentIdentifier, otherIdentifiers, s => s, suffix, maxLength);
+        int maxLength,
+        int uniquifier = 1)
+        => Uniquify(currentIdentifier, otherIdentifiers, static s => s, suffix, maxLength, uniquifier);
 
     /// <summary>
     ///     Creates a unique identifier by appending a number to the given string.
@@ -53,13 +57,30 @@ public static class Uniquifier
     /// <param name="otherIdentifiers">A dictionary where the identifier will be used as part of the key.</param>
     /// <param name="keySelector">Creates the key object from an identifier.</param>
     /// <param name="maxLength">The maximum length of the identifier.</param>
+    /// <param name="uniquifier">An optional starting number for the uniquifier.</param>
     /// <returns>A unique identifier.</returns>
     public static string Uniquify<TKey, TValue>(
         string currentIdentifier,
         IReadOnlyDictionary<TKey, TValue> otherIdentifiers,
         Func<string, TKey> keySelector,
-        int maxLength)
-        => Uniquify(currentIdentifier, otherIdentifiers, keySelector, suffix: null, maxLength);
+        int maxLength,
+        int uniquifier = 1)
+        => Uniquify(currentIdentifier, otherIdentifiers, keySelector, suffix: null, maxLength, uniquifier);
+
+    /// <summary>
+    ///     Creates a unique identifier by appending a number to the given string.
+    /// </summary>
+    /// <param name="currentIdentifier">The base identifier.</param>
+    /// <param name="otherIdentifiers">A dictionary where the identifier will be used as part of the key.</param>
+    /// <param name="maxLength">The maximum length of the identifier.</param>
+    /// <param name="uniquifier">An optional starting number for the uniquifier.</param>
+    /// <returns>A unique identifier.</returns>
+    public static string Uniquify(
+        string currentIdentifier,
+        ISet<string> otherIdentifiers,
+        int maxLength,
+        int uniquifier = 1)
+        => Uniquify(currentIdentifier, otherIdentifiers, suffix: null, maxLength, uniquifier);
 
     /// <summary>
     ///     Creates a unique identifier by appending a number to the given string.
@@ -71,16 +92,17 @@ public static class Uniquifier
     /// <param name="suffix">An optional suffix to add after the uniquifier.</param>
     /// <param name="keySelector">Creates the key object from an identifier.</param>
     /// <param name="maxLength">The maximum length of the identifier.</param>
+    /// <param name="uniquifier">An optional starting number for the uniquifier.</param>
     /// <returns>A unique identifier.</returns>
     public static string Uniquify<TKey, TValue>(
         string currentIdentifier,
         IReadOnlyDictionary<TKey, TValue> otherIdentifiers,
         Func<string, TKey> keySelector,
         string? suffix,
-        int maxLength)
+        int maxLength,
+        int uniquifier = 1)
     {
         var finalIdentifier = Truncate(currentIdentifier, maxLength, suffix);
-        var uniquifier = 1;
         while (otherIdentifiers.ContainsKey(keySelector(finalIdentifier)))
         {
             finalIdentifier = Truncate(currentIdentifier, maxLength, suffix, uniquifier++);
@@ -96,15 +118,16 @@ public static class Uniquifier
     /// <param name="otherIdentifiers">A dictionary where the identifier will be used as part of the key.</param>
     /// <param name="suffix">An optional suffix to add after the uniquifier.</param>
     /// <param name="maxLength">The maximum length of the identifier.</param>
+    /// <param name="uniquifier">An optional starting number for the uniquifier.</param>
     /// <returns>A unique identifier.</returns>
     public static string Uniquify(
         string currentIdentifier,
         ISet<string> otherIdentifiers,
         string? suffix,
-        int maxLength)
+        int maxLength,
+        int uniquifier = 1)
     {
         var finalIdentifier = Truncate(currentIdentifier, maxLength, suffix);
-        var uniquifier = 1;
         while (otherIdentifiers.Contains(finalIdentifier))
         {
             finalIdentifier = Truncate(currentIdentifier, maxLength, suffix, uniquifier++);
@@ -120,7 +143,7 @@ public static class Uniquifier
     /// <param name="maxLength">The maximum length of the identifier.</param>
     /// <param name="uniquifier">An optional number that will be appended to the identifier.</param>
     /// <returns>The shortened identifier.</returns>
-    public static string Truncate(string identifier, int maxLength, int? uniquifier = null)
+    public static string Truncate(ReadOnlySpan<char> identifier, int maxLength, int? uniquifier = null)
         => Truncate(identifier, maxLength, null, uniquifier);
 
     /// <summary>
@@ -131,7 +154,7 @@ public static class Uniquifier
     /// <param name="suffix">An optional suffix to add after the uniquifier.</param>
     /// <param name="uniquifier">An optional number that will be appended to the identifier.</param>
     /// <returns>The shortened identifier.</returns>
-    public static string Truncate(string identifier, int maxLength, string? suffix, int? uniquifier = null)
+    public static string Truncate(ReadOnlySpan<char> identifier, int maxLength, string? suffix, int? uniquifier = null)
     {
         var uniquifierLength = GetLength(uniquifier) + (suffix?.Length ?? 0);
         var maxNameLength = maxLength - uniquifierLength;
@@ -140,25 +163,40 @@ public static class Uniquifier
             throw new ArgumentException(nameof(maxLength));
         }
 
-        var builder = new StringBuilder();
+        var buffer = maxLength <= 256
+            ? stackalloc char[maxLength]
+            : new char[maxLength < Array.MaxLength ? maxLength : Array.MaxLength];
+
+        var position = 0;
+
+        // Copy identifier (truncated if needed).
         if (identifier.Length <= maxNameLength)
         {
-            builder.Append(identifier);
+            identifier.CopyTo(buffer);
+            position = identifier.Length;
         }
         else
         {
-            builder.Append(identifier, 0, maxNameLength - 1);
-            builder.Append('~');
+            identifier[..(maxNameLength - 1)].CopyTo(buffer);
+            buffer[maxNameLength - 1] = '~';
+            position = maxNameLength;
         }
 
-        if (uniquifier != null)
+        // Append uniquifier if present.
+        if (uniquifier is not null)
         {
-            builder.Append(uniquifier.Value);
+            uniquifier.Value.TryFormat(buffer[position..], out var written);
+            position += written;
         }
 
-        builder.Append(suffix);
+        // Append suffix if present.
+        if (suffix is not null)
+        {
+            suffix.AsSpan().CopyTo(buffer[position..]);
+            position += suffix.Length;
+        }
 
-        return builder.ToString();
+        return new string(buffer[..position]);
     }
 
     private static int GetLength(int? number)
