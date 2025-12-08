@@ -21,14 +21,44 @@ public static class Uniquifier
     /// <param name="currentIdentifier">The base identifier.</param>
     /// <param name="otherIdentifiers">A dictionary where the identifier will be used as a key.</param>
     /// <param name="maxLength">The maximum length of the identifier.</param>
+    /// <returns>A unique identifier.</returns>
+    public static string Uniquify<T>(
+        string currentIdentifier,
+        IReadOnlyDictionary<string, T> otherIdentifiers,
+        int maxLength)
+        => Uniquify(currentIdentifier, otherIdentifiers, static s => s, maxLength, uniquifier: 1);
+
+    /// <summary>
+    ///     Creates a unique identifier by appending a number to the given string.
+    /// </summary>
+    /// <typeparam name="T">The type of the object the identifier maps to.</typeparam>
+    /// <param name="currentIdentifier">The base identifier.</param>
+    /// <param name="otherIdentifiers">A dictionary where the identifier will be used as a key.</param>
+    /// <param name="maxLength">The maximum length of the identifier.</param>
     /// <param name="uniquifier">An optional starting number for the uniquifier.</param>
     /// <returns>A unique identifier.</returns>
     public static string Uniquify<T>(
         string currentIdentifier,
         IReadOnlyDictionary<string, T> otherIdentifiers,
         int maxLength,
-        int uniquifier = 1)
+        int uniquifier)
         => Uniquify(currentIdentifier, otherIdentifiers, static s => s, maxLength, uniquifier);
+
+    /// <summary>
+    ///     Creates a unique identifier by appending a number to the given string.
+    /// </summary>
+    /// <typeparam name="T">The type of the object the identifier maps to.</typeparam>
+    /// <param name="currentIdentifier">The base identifier.</param>
+    /// <param name="otherIdentifiers">A dictionary where the identifier will be used as a key.</param>
+    /// <param name="suffix">An optional suffix to add after the uniquifier.</param>
+    /// <param name="maxLength">The maximum length of the identifier.</param>
+    /// <returns>A unique identifier.</returns>
+    public static string Uniquify<T>(
+        string currentIdentifier,
+        IReadOnlyDictionary<string, T> otherIdentifiers,
+        string? suffix,
+        int maxLength)
+        => Uniquify(currentIdentifier, otherIdentifiers, static s => s, suffix, maxLength, uniquifier: 1);
 
     /// <summary>
     ///     Creates a unique identifier by appending a number to the given string.
@@ -45,8 +75,25 @@ public static class Uniquifier
         IReadOnlyDictionary<string, T> otherIdentifiers,
         string? suffix,
         int maxLength,
-        int uniquifier = 1)
+        int uniquifier)
         => Uniquify(currentIdentifier, otherIdentifiers, static s => s, suffix, maxLength, uniquifier);
+
+    /// <summary>
+    ///     Creates a unique identifier by appending a number to the given string.
+    /// </summary>
+    /// <typeparam name="TKey">The type of the key that contains the identifier.</typeparam>
+    /// <typeparam name="TValue">The type of the object the identifier maps to.</typeparam>
+    /// <param name="currentIdentifier">The base identifier.</param>
+    /// <param name="otherIdentifiers">A dictionary where the identifier will be used as part of the key.</param>
+    /// <param name="keySelector">Creates the key object from an identifier.</param>
+    /// <param name="maxLength">The maximum length of the identifier.</param>
+    /// <returns>A unique identifier.</returns>
+    public static string Uniquify<TKey, TValue>(
+        string currentIdentifier,
+        IReadOnlyDictionary<TKey, TValue> otherIdentifiers,
+        Func<string, TKey> keySelector,
+        int maxLength)
+        => Uniquify(currentIdentifier, otherIdentifiers, keySelector, suffix: null, maxLength, uniquifier: 1);
 
     /// <summary>
     ///     Creates a unique identifier by appending a number to the given string.
@@ -64,8 +111,21 @@ public static class Uniquifier
         IReadOnlyDictionary<TKey, TValue> otherIdentifiers,
         Func<string, TKey> keySelector,
         int maxLength,
-        int uniquifier = 1)
+        int uniquifier)
         => Uniquify(currentIdentifier, otherIdentifiers, keySelector, suffix: null, maxLength, uniquifier);
+
+    /// <summary>
+    ///     Creates a unique identifier by appending a number to the given string.
+    /// </summary>
+    /// <param name="currentIdentifier">The base identifier.</param>
+    /// <param name="otherIdentifiers">A dictionary where the identifier will be used as part of the key.</param>
+    /// <param name="maxLength">The maximum length of the identifier.</param>
+    /// <returns>A unique identifier.</returns>
+    public static string Uniquify(
+        string currentIdentifier,
+        ISet<string> otherIdentifiers,
+        int maxLength)
+        => Uniquify(currentIdentifier, otherIdentifiers, suffix: null, maxLength, uniquifier: 1);
 
     /// <summary>
     ///     Creates a unique identifier by appending a number to the given string.
@@ -79,8 +139,27 @@ public static class Uniquifier
         string currentIdentifier,
         ISet<string> otherIdentifiers,
         int maxLength,
-        int uniquifier = 1)
+        int uniquifier)
         => Uniquify(currentIdentifier, otherIdentifiers, suffix: null, maxLength, uniquifier);
+
+    /// <summary>
+    ///     Creates a unique identifier by appending a number to the given string.
+    /// </summary>
+    /// <typeparam name="TKey">The type of the key that contains the identifier.</typeparam>
+    /// <typeparam name="TValue">The type of the object the identifier maps to.</typeparam>
+    /// <param name="currentIdentifier">The base identifier.</param>
+    /// <param name="otherIdentifiers">A dictionary where the identifier will be used as part of the key.</param>
+    /// <param name="suffix">An optional suffix to add after the uniquifier.</param>
+    /// <param name="keySelector">Creates the key object from an identifier.</param>
+    /// <param name="maxLength">The maximum length of the identifier.</param>
+    /// <returns>A unique identifier.</returns>
+    public static string Uniquify<TKey, TValue>(
+        string currentIdentifier,
+        IReadOnlyDictionary<TKey, TValue> otherIdentifiers,
+        Func<string, TKey> keySelector,
+        string? suffix,
+        int maxLength)
+        => Uniquify(currentIdentifier, otherIdentifiers, keySelector, suffix, maxLength, uniquifier: 1);
 
     /// <summary>
     ///     Creates a unique identifier by appending a number to the given string.
@@ -100,7 +179,7 @@ public static class Uniquifier
         Func<string, TKey> keySelector,
         string? suffix,
         int maxLength,
-        int uniquifier = 1)
+        int uniquifier)
     {
         var finalIdentifier = Truncate(currentIdentifier, maxLength, suffix);
         while (otherIdentifiers.ContainsKey(keySelector(finalIdentifier)))
@@ -118,6 +197,21 @@ public static class Uniquifier
     /// <param name="otherIdentifiers">A dictionary where the identifier will be used as part of the key.</param>
     /// <param name="suffix">An optional suffix to add after the uniquifier.</param>
     /// <param name="maxLength">The maximum length of the identifier.</param>
+    /// <returns>A unique identifier.</returns>
+    public static string Uniquify(
+        string currentIdentifier,
+        ISet<string> otherIdentifiers,
+        string? suffix,
+        int maxLength)
+        => Uniquify(currentIdentifier, otherIdentifiers, suffix, maxLength, uniquifier: 1);
+
+    /// <summary>
+    ///     Creates a unique identifier by appending a number to the given string.
+    /// </summary>
+    /// <param name="currentIdentifier">The base identifier.</param>
+    /// <param name="otherIdentifiers">A dictionary where the identifier will be used as part of the key.</param>
+    /// <param name="suffix">An optional suffix to add after the uniquifier.</param>
+    /// <param name="maxLength">The maximum length of the identifier.</param>
     /// <param name="uniquifier">An optional starting number for the uniquifier.</param>
     /// <returns>A unique identifier.</returns>
     public static string Uniquify(
@@ -125,7 +219,7 @@ public static class Uniquifier
         ISet<string> otherIdentifiers,
         string? suffix,
         int maxLength,
-        int uniquifier = 1)
+        int uniquifier)
     {
         var finalIdentifier = Truncate(currentIdentifier, maxLength, suffix);
         while (otherIdentifiers.Contains(finalIdentifier))
