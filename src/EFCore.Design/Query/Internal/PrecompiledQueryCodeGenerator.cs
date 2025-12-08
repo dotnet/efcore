@@ -1192,19 +1192,6 @@ namespace System.Runtime.CompilerServices
                 } methodCallExpression
                 && methodCallExpression.Method.DeclaringType.GetGenericTypeDefinition() == typeof(UpdateSettersBuilder<>))
             {
-                if (valueSelector is UnaryExpression
-                    {
-                        NodeType: ExpressionType.Quote,
-                        Operand: LambdaExpression unwrappedValueSelector
-                    })
-                {
-                    settersBuilder.SetProperty(propertySelector, unwrappedValueSelector);
-                }
-                else
-                {
-                    settersBuilder.SetProperty(propertySelector, valueSelector);
-                }
-
                 // Push to stack to process later
                 calls.Push(methodCallExpression);
                 expression = methodCallExpression.Object;
