@@ -23,6 +23,9 @@ public class SqlNullabilityProcessor : ExpressionVisitor
     private static readonly bool UseOldBehavior37204 =
         AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37204", out var enabled) && enabled;
 
+    private static readonly bool UseOldBehavior37152 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37152", out var enabled) && enabled;
+
     private readonly List<ColumnExpression> _nonNullableColumns;
     private readonly List<ColumnExpression> _nullValueColumns;
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
@@ -2241,7 +2244,9 @@ public class SqlNullabilityProcessor : ExpressionVisitor
     {
         if (expandedParameters.Count <= index)
         {
-            var parameterName = Uniquifier.Uniquify(valuesParameterName, parameters, 256, index + 1);
+            var parameterName = UseOldBehavior37152
+                ? Uniquifier.Uniquify(valuesParameterName, parameters, int.MaxValue)
+                : Uniquifier.Uniquify(valuesParameterName, parameters, 512, index + 1);
             parameters.Add(parameterName, value);
             var parameterExpression = new SqlParameterExpression(parameterName, value?.GetType() ?? typeof(object), typeMapping);
             expandedParameters.Add(parameterExpression);
