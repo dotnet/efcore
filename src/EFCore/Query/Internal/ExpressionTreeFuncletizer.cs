@@ -2105,7 +2105,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
             }
             else
             {
-                parameterName = Uniquifier.Uniquify(parameterName, _parameterNames, 512, _parameterNames.Count);
+                parameterName = Uniquifier.Uniquify(parameterName, _parameterNames, maxLength: 512, uniquifier: _parameterNames.Count);
             }
 
             _parameterNames.Add(parameterName);
