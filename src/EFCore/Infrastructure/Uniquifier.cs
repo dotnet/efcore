@@ -249,53 +249,6 @@ public static class Uniquifier
     /// <param name="uniquifier">An optional number that will be appended to the identifier.</param>
     /// <returns>The shortened identifier.</returns>
     public static string Truncate(string identifier, int maxLength, string? suffix, int? uniquifier = null)
-        => identifier.Length <= 512 && (suffix?.Length ?? 0) <= 32
-            ? TruncateSpan(identifier, maxLength, suffix, uniquifier)
-            : TruncateStringBuilder(identifier, maxLength, suffix, uniquifier);
-
-    private static string TruncateSpan(ReadOnlySpan<char> identifier, int maxLength, string? suffix, int? uniquifier = null)
-    {
-        var uniquifierLength = GetLength(uniquifier) + (suffix?.Length ?? 0);
-        var maxNameLength = maxLength - uniquifierLength;
-        if (maxNameLength <= 0)
-        {
-            throw new ArgumentException(nameof(maxLength));
-        }
-
-        Span<char> buffer = stackalloc char[Math.Min(identifier.Length, maxNameLength) + uniquifierLength];
-        int position;
-
-        // Copy identifier (truncated if needed).
-        if (identifier.Length <= maxNameLength)
-        {
-            identifier.CopyTo(buffer);
-            position = identifier.Length;
-        }
-        else
-        {
-            identifier[..(maxNameLength - 1)].CopyTo(buffer);
-            buffer[maxNameLength - 1] = '~';
-            position = maxNameLength;
-        }
-
-        // Append uniquifier if present.
-        if (uniquifier is not null)
-        {
-            uniquifier.Value.TryFormat(buffer[position..], out var written);
-            position += written;
-        }
-
-        // Append suffix if present.
-        if (suffix is not null)
-        {
-            suffix.AsSpan().CopyTo(buffer[position..]);
-            position += suffix.Length;
-        }
-
-        return new string(buffer[..position]);
-    }
-
-    private static string TruncateStringBuilder(string identifier, int maxLength, string? suffix, int? uniquifier = null)
     {
         var uniquifierLength = GetLength(uniquifier) + (suffix?.Length ?? 0);
         var maxNameLength = maxLength - uniquifierLength;
