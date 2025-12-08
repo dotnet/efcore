@@ -6,7 +6,6 @@ using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Query.Internal.Expressions;
-using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using static Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
 
@@ -31,9 +30,6 @@ public class CosmosSqlTranslatingExpressionVisitor(
 
     private static readonly MethodInfo ParameterPropertyValueExtractorMethod =
         typeof(CosmosSqlTranslatingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(ParameterPropertyValueExtractor))!;
-
-    private static readonly MethodInfo ParameterValueExtractorMethod =
-        typeof(CosmosSqlTranslatingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(ParameterValueExtractor))!;
 
     private static readonly MethodInfo ParameterListValueExtractorMethod =
         typeof(CosmosSqlTranslatingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(ParameterListValueExtractor))!;
@@ -1167,12 +1163,6 @@ public class CosmosSqlTranslatingExpressionVisitor(
     {
         var baseParameter = context.Parameters[baseParameterName];
         return baseParameter == null ? (T?)(object?)null : (T?)property.GetGetter().GetClrValue(baseParameter);
-    }
-
-    private static T? ParameterValueExtractor<T>(QueryContext context, string baseParameterName)
-    {
-        var baseParameter = context.Parameters[baseParameterName];
-        return (T?)baseParameter;
     }
 
     private static List<TProperty?>? ParameterListValueExtractor<TEntity, TProperty>(
