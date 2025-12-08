@@ -6511,6 +6511,101 @@ namespace RootNamespace
                 Assert.Equal(typeof(List<Dictionary<string, object>>), propertiesComplexCollection.ClrType);
             });
 
+    [ConditionalFact]
+    public virtual void Complex_collection_property_annotations_not_supported_by_builder_are_ignored_in_snapshot()
+        => Test(
+            builder =>
+            {
+                builder.Entity<EntityWithOneProperty>(b =>
+                {
+                    b.HasKey(x => x.Id).HasName("PK_Custom");
+
+                    b.ComplexProperty(
+                        x => x.EntityWithTwoProperties, bb =>
+                        {
+                            bb.ToJson("TwoProps").HasColumnType("json");
+                            bb.ComplexProperty(
+                                x => x.EntityWithStringKey, bbb =>
+                                {
+                                    bbb.ComplexCollection(x => x.Properties, bbbb =>
+                                    {
+                                        bbbb.HasJsonPropertyName("JsonProps");
+                                        // Set annotations directly on the model to simulate convention behavior
+                                        // These should NOT appear in snapshot because ComplexCollectionTypePropertyBuilder
+                                        // doesn't support these methods
+                                        var complexType = bbbb.Metadata.ComplexType;
+                                        var nameProperty = (IMutableProperty)complexType.FindProperty("Name")!;
+                                        nameProperty.SetMaxLength(100);
+                                        nameProperty.SetPrecision(10);
+                                        nameProperty.SetScale(2);
+                                        nameProperty.IsConcurrencyToken = true;
+                                        nameProperty.ValueGenerated = ValueGenerated.OnAdd;
+                                    });
+                                });
+                        });
+                });
+            },
+            AddBoilerPlate(
+                GetHeading()
+                + """
+            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.ComplexProperty(typeof(Dictionary<string, object>), "EntityWithTwoProperties", "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty.EntityWithTwoProperties#EntityWithTwoProperties", b1 =>
+                        {
+                            b1.Property<int>("AlternateId");
+
+                            b1.Property<int>("Id");
+
+                            b1.ComplexProperty(typeof(Dictionary<string, object>), "EntityWithStringKey", "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty.EntityWithTwoProperties#EntityWithTwoProperties.EntityWithStringKey#EntityWithStringKey", b2 =>
+                                {
+                                    b2.Property<string>("Id");
+
+                                    b2.ComplexCollection(typeof(List<Dictionary<string, object>>), "Properties", "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty.EntityWithTwoProperties#EntityWithTwoProperties.EntityWithStringKey#EntityWithStringKey.Properties#EntityWithStringProperty", b3 =>
+                                        {
+                                            b3.Property<int>("Id");
+
+                                            b3.Property<string>("Name");
+
+                                            b3.HasJsonPropertyName("JsonProps");
+                                        });
+                                });
+
+                            b1
+                                .ToJson("TwoProps")
+                                .HasColumnType("json");
+                        });
+
+                    b.HasKey("Id")
+                        .HasName("PK_Custom");
+
+                    b.ToTable("EntityWithOneProperty", "DefaultSchema");
+                });
+""", usingSystem: false, usingCollections: true),
+            o =>
+            {
+                var entityWithOneProperty = o.FindEntityType(typeof(EntityWithOneProperty));
+                var complexProperty1 = entityWithOneProperty.FindComplexProperty(nameof(EntityWithOneProperty.EntityWithTwoProperties));
+                var complexType1 = complexProperty1.ComplexType;
+                var entityWithStringKeyComplexProperty =
+                    complexType1.FindComplexProperty(nameof(EntityWithTwoProperties.EntityWithStringKey));
+                var entityWithStringKeyComplexType = entityWithStringKeyComplexProperty.ComplexType;
+
+                var propertiesComplexCollection =
+                    entityWithStringKeyComplexType.FindComplexProperty(nameof(EntityWithStringKey.Properties));
+                Assert.True(propertiesComplexCollection.IsCollection);
+
+                // MaxLength is NOT in the snapshot, so it won't be set on the model created from snapshot
+                // This verifies that the snapshot doesn't contain HasMaxLength which would cause a compile error
+                var nameProperty = propertiesComplexCollection.ComplexType.FindProperty("Name");
+                Assert.Null(nameProperty.GetMaxLength());
+            });
+
     #endregion
 
     #region HasKey
