@@ -986,8 +986,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 // In .NET 10, MemoryExtensions.Contains has an overload that accepts a third, optional comparer, in addition to the older
                 // overload that accepts two parameters only.
                 case nameof(MemoryExtensions.Contains)
-                    when !UseOldBehavior37176
-                        && methodCall.Arguments is [var spanArg, var valueArg, ..]
+                    when methodCall.Arguments is [var spanArg, var valueArg, ..]
                         && (methodCall.Arguments.Count is 2
                             || methodCall.Arguments.Count is 3
                                 && methodCall.Arguments[2] is ConstantExpression { Value: null })
@@ -1031,7 +1030,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                         NodeType: ExpressionType.Convert,
                         Operand: var unwrapped,
                         Type: { IsGenericType: true } convertType
-                    } when !UseOldBehavior37176 && convertType.GetGenericTypeDefinition() is var genericTypeDefinition
+                    } when convertType.GetGenericTypeDefinition() is var genericTypeDefinition
                         && (genericTypeDefinition == typeof(Span<>) || genericTypeDefinition == typeof(ReadOnlySpan<>)):
                     {
                         result = unwrapped;
