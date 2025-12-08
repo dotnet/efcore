@@ -249,7 +249,7 @@ public static class Uniquifier
     /// <param name="uniquifier">An optional number that will be appended to the identifier.</param>
     /// <returns>The shortened identifier.</returns>
     public static string Truncate(string identifier, int maxLength, string? suffix, int? uniquifier = null)
-        => maxLength <= 512
+        => identifier.Length <= 512 && (suffix?.Length ?? 0) <= 32
             ? TruncateSpan(identifier, maxLength, suffix, uniquifier)
             : TruncateStringBuilder(identifier, maxLength, suffix, uniquifier);
 
@@ -262,7 +262,7 @@ public static class Uniquifier
             throw new ArgumentException(nameof(maxLength));
         }
 
-        Span<char> buffer = stackalloc char[maxLength];
+        Span<char> buffer = stackalloc char[Math.Min(identifier.Length, maxNameLength) + uniquifierLength];
         int position;
 
         // Copy identifier (truncated if needed).
