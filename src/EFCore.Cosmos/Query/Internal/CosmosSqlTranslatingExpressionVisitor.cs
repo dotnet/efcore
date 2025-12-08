@@ -1088,7 +1088,7 @@ public class CosmosSqlTranslatingExpressionVisitor(
             }
 
             // Treat type as object for null comparison
-            var access = new SqlObjectAccessExpression((Expression?)entityReference.Subquery ?? entityReference.Parameter ?? throw new UnreachableException());
+            var access = new SqlObjectAccessExpression(entityReference.Object);
             result = sqlExpressionFactory.MakeBinary(nodeType, access, sqlExpressionFactory.Constant(null, typeof(object))!, typeMappingSource.FindMapping(typeof(bool)))!;
             return true;
         }
@@ -1247,6 +1247,7 @@ public class CosmosSqlTranslatingExpressionVisitor(
             EntityType = (IEntityType)structuralType;
         }
 
+        public Expression Object => (Expression?)Parameter ?? Subquery ?? throw new UnreachableException();
         public new StructuralTypeShaperExpression? Parameter { get; }
         public ShapedQueryExpression? Subquery { get; }
         public IEntityType EntityType { get; }
