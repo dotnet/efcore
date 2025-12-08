@@ -2246,7 +2246,9 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         {
             var parameterName = UseOldBehavior37152
                 ? Uniquifier.Uniquify(valuesParameterName, parameters, int.MaxValue)
+#pragma warning disable EF1001
                 : Uniquifier.Uniquify(valuesParameterName, parameters, maxLength: int.MaxValue, uniquifier: index + 1);
+#pragma warning restore EF1001
             parameters.Add(parameterName, value);
             var parameterExpression = new SqlParameterExpression(parameterName, value?.GetType() ?? typeof(object), typeMapping);
             expandedParameters.Add(parameterExpression);

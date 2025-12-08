@@ -37,6 +37,7 @@ public static class Uniquifier
     /// <param name="maxLength">The maximum length of the identifier.</param>
     /// <param name="uniquifier">An optional starting number for the uniquifier.</param>
     /// <returns>A unique identifier.</returns>
+    [EntityFrameworkInternal]
     public static string Uniquify<T>(
         string currentIdentifier,
         IReadOnlyDictionary<string, T> otherIdentifiers,
@@ -70,6 +71,7 @@ public static class Uniquifier
     /// <param name="maxLength">The maximum length of the identifier.</param>
     /// <param name="uniquifier">An optional starting number for the uniquifier.</param>
     /// <returns>A unique identifier.</returns>
+    [EntityFrameworkInternal]
     public static string Uniquify<T>(
         string currentIdentifier,
         IReadOnlyDictionary<string, T> otherIdentifiers,
@@ -106,6 +108,7 @@ public static class Uniquifier
     /// <param name="maxLength">The maximum length of the identifier.</param>
     /// <param name="uniquifier">An optional starting number for the uniquifier.</param>
     /// <returns>A unique identifier.</returns>
+    [EntityFrameworkInternal]
     public static string Uniquify<TKey, TValue>(
         string currentIdentifier,
         IReadOnlyDictionary<TKey, TValue> otherIdentifiers,
@@ -135,6 +138,7 @@ public static class Uniquifier
     /// <param name="maxLength">The maximum length of the identifier.</param>
     /// <param name="uniquifier">An optional starting number for the uniquifier.</param>
     /// <returns>A unique identifier.</returns>
+    [EntityFrameworkInternal]
     public static string Uniquify(
         string currentIdentifier,
         ISet<string> otherIdentifiers,
@@ -173,6 +177,7 @@ public static class Uniquifier
     /// <param name="maxLength">The maximum length of the identifier.</param>
     /// <param name="uniquifier">An optional starting number for the uniquifier.</param>
     /// <returns>A unique identifier.</returns>
+    [EntityFrameworkInternal]
     public static string Uniquify<TKey, TValue>(
         string currentIdentifier,
         IReadOnlyDictionary<TKey, TValue> otherIdentifiers,
@@ -214,6 +219,7 @@ public static class Uniquifier
     /// <param name="maxLength">The maximum length of the identifier.</param>
     /// <param name="uniquifier">An optional starting number for the uniquifier.</param>
     /// <returns>A unique identifier.</returns>
+    [EntityFrameworkInternal]
     public static string Uniquify(
         string currentIdentifier,
         ISet<string> otherIdentifiers,
