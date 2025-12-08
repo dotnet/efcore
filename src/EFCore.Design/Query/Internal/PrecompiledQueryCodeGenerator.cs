@@ -1170,6 +1170,11 @@ namespace System.Runtime.CompilerServices
         var settersParameter = settersLambda.Parameters.Single();
         var expression = settersLambda.Body;
 
+        // Use a Stack to reverse the order of processing.
+        // The expression tree is nested (Last Call is the Outer-most node).
+        // We want to process them First -> Last.
+        var calls = new Stack<MethodCallExpression>();
+
         while (expression != settersParameter)
         {
             if (expression is MethodCallExpression
@@ -1200,11 +1205,34 @@ namespace System.Runtime.CompilerServices
                     settersBuilder.SetProperty(propertySelector, valueSelector);
                 }
 
+                // Push to stack to process later
+                calls.Push(methodCallExpression);
                 expression = methodCallExpression.Object;
                 continue;
             }
 
             throw new InvalidOperationException(RelationalStrings.InvalidArgumentToExecuteUpdate);
+        }
+
+        // Process the stack (First-In, Last-Out) effectively reversing the tree traversal
+        // so setters are added in the order they were written in source code.
+        foreach (var methodCallExpression in calls)
+        {
+            var propertySelector = (LambdaExpression)((UnaryExpression)methodCallExpression.Arguments[0]).Operand;
+            var valueSelector = methodCallExpression.Arguments[1];
+    
+            if (valueSelector is UnaryExpression
+                {
+                    NodeType: ExpressionType.Quote,
+                    Operand: LambdaExpression unwrappedValueSelector
+                })
+            {
+                settersBuilder.SetProperty(propertySelector, unwrappedValueSelector);
+            }
+            else
+            {
+                settersBuilder.SetProperty(propertySelector, valueSelector);
+            }
         }
 
         return settersBuilder.BuildSettersExpression();
