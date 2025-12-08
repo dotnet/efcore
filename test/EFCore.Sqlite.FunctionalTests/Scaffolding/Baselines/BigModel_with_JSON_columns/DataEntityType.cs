@@ -38,11 +38,10 @@ namespace TestNamespace
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 sentinel: 0);
             id.SetAccessors(
-                int (InternalEntityEntry entry) => (entry.FlaggedAsStoreGenerated(0) ? entry.ReadStoreGeneratedValue<int>(0) : (entry.FlaggedAsTemporary(0) && entry.ReadShadowValue<int>(0) == 0 ? entry.ReadTemporaryValue<int>(0) : entry.ReadShadowValue<int>(0))),
-                int (InternalEntityEntry entry) => entry.ReadShadowValue<int>(0),
-                int (InternalEntityEntry entry) => entry.ReadOriginalValue<int>(id, 0),
-                int (InternalEntityEntry entry) => entry.ReadRelationshipSnapshotValue<int>(id, 0),
-                object (ValueBuffer valueBuffer) => valueBuffer[0]);
+                int (IInternalEntry entry) => (entry.FlaggedAsStoreGenerated(0) ? entry.ReadStoreGeneratedValue<int>(0) : (entry.FlaggedAsTemporary(0) && entry.ReadShadowValue<int>(0) == 0 ? entry.ReadTemporaryValue<int>(0) : entry.ReadShadowValue<int>(0))),
+                int (IInternalEntry entry) => entry.ReadShadowValue<int>(0),
+                int (IInternalEntry entry) => entry.ReadOriginalValue<int>(id, 0),
+                int (IInternalEntry entry) => ((InternalEntityEntry)entry).ReadRelationshipSnapshotValue<int>(id, 0));
             id.SetPropertyIndexes(
                 index: 0,
                 originalValueIndex: 0,
@@ -73,20 +72,25 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.Data).GetField("<Blob>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             blob.SetGetter(
-                byte[] (CompiledModelTestBase.Data entity) => DataUnsafeAccessors.Blob(entity),
-                bool (CompiledModelTestBase.Data entity) => DataUnsafeAccessors.Blob(entity) == null,
                 byte[] (CompiledModelTestBase.Data instance) => DataUnsafeAccessors.Blob(instance),
                 bool (CompiledModelTestBase.Data instance) => DataUnsafeAccessors.Blob(instance) == null);
             blob.SetSetter(
-                (CompiledModelTestBase.Data entity, byte[] value) => DataUnsafeAccessors.Blob(entity) = value);
+                CompiledModelTestBase.Data (CompiledModelTestBase.Data instance, byte[] value) =>
+                {
+                    DataUnsafeAccessors.Blob(instance) = value;
+                    return instance;
+                });
             blob.SetMaterializationSetter(
-                (CompiledModelTestBase.Data entity, byte[] value) => DataUnsafeAccessors.Blob(entity) = value);
+                CompiledModelTestBase.Data (CompiledModelTestBase.Data instance, byte[] value) =>
+                {
+                    DataUnsafeAccessors.Blob(instance) = value;
+                    return instance;
+                });
             blob.SetAccessors(
-                byte[] (InternalEntityEntry entry) => DataUnsafeAccessors.Blob(((CompiledModelTestBase.Data)(entry.Entity))),
-                byte[] (InternalEntityEntry entry) => DataUnsafeAccessors.Blob(((CompiledModelTestBase.Data)(entry.Entity))),
-                byte[] (InternalEntityEntry entry) => entry.ReadOriginalValue<byte[]>(blob, 1),
-                byte[] (InternalEntityEntry entry) => entry.GetCurrentValue<byte[]>(blob),
-                object (ValueBuffer valueBuffer) => valueBuffer[1]);
+                byte[] (IInternalEntry entry) => DataUnsafeAccessors.Blob(((CompiledModelTestBase.Data)(entry.Entity))),
+                byte[] (IInternalEntry entry) => DataUnsafeAccessors.Blob(((CompiledModelTestBase.Data)(entry.Entity))),
+                byte[] (IInternalEntry entry) => entry.ReadOriginalValue<byte[]>(blob, 1),
+                byte[] (IInternalEntry entry) => entry.GetCurrentValue<byte[]>(blob));
             blob.SetPropertyIndexes(
                 index: 1,
                 originalValueIndex: 1,
@@ -95,16 +99,16 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             blob.TypeMapping = SqliteByteArrayTypeMapping.Default.Clone(
                 comparer: new ValueComparer<byte[]>(
-                    bool (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
+                    bool (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
                     int (byte[] v) => ((object)v).GetHashCode(),
                     byte[] (byte[] v) => v),
                 keyComparer: new ValueComparer<byte[]>(
-                    bool (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     byte[] (byte[] source) => source.ToArray()),
                 providerValueComparer: new ValueComparer<byte[]>(
-                    bool (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     byte[] (byte[] source) => source.ToArray()));
 
             var point = runtimeEntityType.AddProperty(
@@ -112,11 +116,10 @@ namespace TestNamespace
                 typeof(Point),
                 nullable: true);
             point.SetAccessors(
-                Point (InternalEntityEntry entry) => entry.ReadShadowValue<Point>(1),
-                Point (InternalEntityEntry entry) => entry.ReadShadowValue<Point>(1),
-                Point (InternalEntityEntry entry) => entry.ReadOriginalValue<Point>(point, 2),
-                Point (InternalEntityEntry entry) => entry.GetCurrentValue<Point>(point),
-                object (ValueBuffer valueBuffer) => valueBuffer[2]);
+                Point (IInternalEntry entry) => entry.ReadShadowValue<Point>(1),
+                Point (IInternalEntry entry) => entry.ReadShadowValue<Point>(1),
+                Point (IInternalEntry entry) => entry.ReadOriginalValue<Point>(point, 2),
+                Point (IInternalEntry entry) => entry.GetCurrentValue<Point>(point));
             point.SetPropertyIndexes(
                 index: 2,
                 originalValueIndex: 2,
@@ -141,33 +144,34 @@ namespace TestNamespace
             key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateSimpleNonNullableFactory<int>(key));
             key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<int>(key));
             runtimeEntityType.SetOriginalValuesFactory(
-                ISnapshot (InternalEntityEntry source) =>
+                ISnapshot (IInternalEntry source) =>
                 {
-                    var entity = ((CompiledModelTestBase.Data)(source.Entity));
+                    var structuralType = ((CompiledModelTestBase.Data)(source.Entity));
                     return ((ISnapshot)(new Snapshot<int, byte[], Point>(((ValueComparer<int>)(((IProperty)id).GetValueComparer())).Snapshot(source.GetCurrentValue<int>(id)), (source.GetCurrentValue<byte[]>(blob) == null ? null : ((ValueComparer<byte[]>)(((IProperty)blob).GetValueComparer())).Snapshot(source.GetCurrentValue<byte[]>(blob))), (source.GetCurrentValue<Point>(point) == null ? null : ((ValueComparer<Point>)(((IProperty)point).GetValueComparer())).Snapshot(source.GetCurrentValue<Point>(point))))));
                 });
             runtimeEntityType.SetStoreGeneratedValuesFactory(
                 ISnapshot () => ((ISnapshot)(new Snapshot<int>(((ValueComparer<int>)(((IProperty)id).GetValueComparer())).Snapshot(default(int))))));
             runtimeEntityType.SetTemporaryValuesFactory(
-                ISnapshot (InternalEntityEntry source) => ((ISnapshot)(new Snapshot<int>(default(int)))));
+                ISnapshot (IInternalEntry source) => ((ISnapshot)(new Snapshot<int>(default(int)))));
             runtimeEntityType.SetShadowValuesFactory(
                 ISnapshot (IDictionary<string, object> source) => ((ISnapshot)(new Snapshot<int, Point>((source.ContainsKey("Id") ? ((int)(source["Id"])) : 0), (source.ContainsKey("Point") ? ((Point)(source["Point"])) : null)))));
             runtimeEntityType.SetEmptyShadowValuesFactory(
                 ISnapshot () => ((ISnapshot)(new Snapshot<int, Point>(default(int), default(Point)))));
             runtimeEntityType.SetRelationshipSnapshotFactory(
-                ISnapshot (InternalEntityEntry source) =>
+                ISnapshot (IInternalEntry source) =>
                 {
-                    var entity = ((CompiledModelTestBase.Data)(source.Entity));
+                    var structuralType = ((CompiledModelTestBase.Data)(source.Entity));
                     return ((ISnapshot)(new Snapshot<int>(((ValueComparer<int>)(((IProperty)id).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<int>(id)))));
                 });
-            runtimeEntityType.Counts = new PropertyCounts(
+            runtimeEntityType.SetCounts(new PropertyCounts(
                 propertyCount: 3,
                 navigationCount: 0,
                 complexPropertyCount: 0,
+                complexCollectionCount: 0,
                 originalValueCount: 3,
                 shadowCount: 2,
                 relationshipCount: 1,
-                storeGeneratedCount: 1);
+                storeGeneratedCount: 1));
             runtimeEntityType.AddAnnotation("Relational:FunctionName", null);
             runtimeEntityType.AddAnnotation("Relational:Schema", null);
             runtimeEntityType.AddAnnotation("Relational:SqlQuery", null);

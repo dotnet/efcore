@@ -2677,132 +2677,111 @@ public class StoreGeneratedInMemoryTest
 
             modelBuilder.Entity<NonStoreGenDependent>();
 
-            modelBuilder.Entity<WrappedIntClassPrincipal>(
-                entity =>
-                {
-                    entity.Property(e => e.NonKey).HasValueGenerator<WrappedIntClassValueGenerator>();
-                });
-            modelBuilder.Entity<WrappedIntStructPrincipal>(
-                entity =>
-                {
-                    entity.Property(e => e.NonKey).HasValueGenerator<WrappedIntStructValueGenerator>();
-                });
-            modelBuilder.Entity<WrappedIntRecordPrincipal>(
-                entity =>
-                {
-                    entity.Property(e => e.NonKey).HasValueGenerator<WrappedIntRecordValueGenerator>();
-                });
+            modelBuilder.Entity<WrappedIntClassPrincipal>(entity =>
+            {
+                entity.Property(e => e.NonKey).HasValueGenerator<WrappedIntClassValueGenerator>();
+            });
+            modelBuilder.Entity<WrappedIntStructPrincipal>(entity =>
+            {
+                entity.Property(e => e.NonKey).HasValueGenerator<WrappedIntStructValueGenerator>();
+            });
+            modelBuilder.Entity<WrappedIntRecordPrincipal>(entity =>
+            {
+                entity.Property(e => e.NonKey).HasValueGenerator<WrappedIntRecordValueGenerator>();
+            });
 
-            modelBuilder.Entity<LongToIntPrincipal>(
-                entity =>
-                {
-                    var keyConverter = new ValueConverter<long, int>(
-                        v => (int)v,
-                        v => v);
+            modelBuilder.Entity<LongToIntPrincipal>(entity =>
+            {
+                var keyConverter = new ValueConverter<long, int>(
+                    v => (int)v,
+                    v => v);
 
-                    entity.Property(e => e.Id).HasConversion(keyConverter);
-                });
+                entity.Property(e => e.Id).HasConversion(keyConverter);
+            });
 
-            modelBuilder.Entity<WrappedGuidClassPrincipal>(
-                entity =>
-                {
-                    entity.Property(e => e.NonKey).HasValueGenerator<WrappedGuidClassValueGenerator>();
-                });
-            modelBuilder.Entity<WrappedGuidStructPrincipal>(
-                entity =>
-                {
-                    entity.Property(e => e.NonKey).HasValueGenerator<WrappedGuidStructValueGenerator>();
-                });
-            modelBuilder.Entity<WrappedGuidRecordPrincipal>(
-                entity =>
-                {
-                    entity.Property(e => e.NonKey).HasValueGenerator<WrappedGuidRecordValueGenerator>();
-                });
+            modelBuilder.Entity<WrappedGuidClassPrincipal>(entity =>
+            {
+                entity.Property(e => e.NonKey).HasValueGenerator<WrappedGuidClassValueGenerator>();
+            });
+            modelBuilder.Entity<WrappedGuidStructPrincipal>(entity =>
+            {
+                entity.Property(e => e.NonKey).HasValueGenerator<WrappedGuidStructValueGenerator>();
+            });
+            modelBuilder.Entity<WrappedGuidRecordPrincipal>(entity =>
+            {
+                entity.Property(e => e.NonKey).HasValueGenerator<WrappedGuidRecordValueGenerator>();
+            });
 
-            modelBuilder.Entity<WrappedStringClassPrincipal>(
-                entity =>
-                {
-                    entity.Property(e => e.NonKey).HasValueGenerator<WrappedStringClassValueGenerator>();
-                });
-            modelBuilder.Entity<WrappedStringStructPrincipal>(
-                entity =>
-                {
-                    entity.Property(e => e.NonKey).HasValueGenerator<WrappedStringStructValueGenerator>();
-                });
-            modelBuilder.Entity<WrappedStringRecordPrincipal>(
-                entity =>
-                {
-                    entity.Property(e => e.NonKey).HasValueGenerator<WrappedStringRecordValueGenerator>();
-                });
+            modelBuilder.Entity<WrappedStringClassPrincipal>(entity =>
+            {
+                entity.Property(e => e.NonKey).HasValueGenerator<WrappedStringClassValueGenerator>();
+            });
+            modelBuilder.Entity<WrappedStringStructPrincipal>(entity =>
+            {
+                entity.Property(e => e.NonKey).HasValueGenerator<WrappedStringStructValueGenerator>();
+            });
+            modelBuilder.Entity<WrappedStringRecordPrincipal>(entity =>
+            {
+                entity.Property(e => e.NonKey).HasValueGenerator<WrappedStringRecordValueGenerator>();
+            });
 
-            modelBuilder.Entity<WrappedUriClassPrincipal>(
-                entity =>
-                {
-                    entity.Property(e => e.NonKey).HasValueGenerator<WrappedUriClassValueGenerator>();
-                });
-            modelBuilder.Entity<WrappedUriStructPrincipal>(
-                entity =>
-                {
-                    entity.Property(e => e.NonKey).HasValueGenerator<WrappedUriStructValueGenerator>();
-                });
-            modelBuilder.Entity<WrappedUriRecordPrincipal>(
-                entity =>
-                {
-                    entity.Property(e => e.NonKey).HasValueGenerator<WrappedUriRecordValueGenerator>();
-                });
+            modelBuilder.Entity<WrappedUriClassPrincipal>(entity =>
+            {
+                entity.Property(e => e.NonKey).HasValueGenerator<WrappedUriClassValueGenerator>();
+            });
+            modelBuilder.Entity<WrappedUriStructPrincipal>(entity =>
+            {
+                entity.Property(e => e.NonKey).HasValueGenerator<WrappedUriStructValueGenerator>();
+            });
+            modelBuilder.Entity<WrappedUriRecordPrincipal>(entity =>
+            {
+                entity.Property(e => e.NonKey).HasValueGenerator<WrappedUriRecordValueGenerator>();
+            });
 
             modelBuilder.Entity<UriPrincipal>();
             modelBuilder.Entity<EnumPrincipal>();
 
-            modelBuilder.Entity<GuidAsStringPrincipal>(
-                entity =>
-                {
-                    entity.Property(e => e.Id).HasConversion<string>();
-                });
-            modelBuilder.Entity<GuidAsStringDependentShadow>(
-                entity =>
-                {
-                    entity.Property(e => e.Id).HasConversion<string>();
-                });
-            modelBuilder.Entity<GuidAsStringDependentOptional>(
-                entity =>
-                {
-                    entity.Property(e => e.Id).HasConversion<string>();
-                    entity.Property(e => e.PrincipalId).HasConversion<string?>();
-                });
-            modelBuilder.Entity<GuidAsStringDependentRequired>(
-                entity =>
-                {
-                    entity.Property(e => e.Id).HasConversion<string>();
-                    entity.Property(e => e.PrincipalId).HasConversion<string>();
-                });
+            modelBuilder.Entity<GuidAsStringPrincipal>(entity =>
+            {
+                entity.Property(e => e.Id).HasConversion<string>();
+            });
+            modelBuilder.Entity<GuidAsStringDependentShadow>(entity =>
+            {
+                entity.Property(e => e.Id).HasConversion<string>();
+            });
+            modelBuilder.Entity<GuidAsStringDependentOptional>(entity =>
+            {
+                entity.Property(e => e.Id).HasConversion<string>();
+                entity.Property(e => e.PrincipalId).HasConversion<string?>();
+            });
+            modelBuilder.Entity<GuidAsStringDependentRequired>(entity =>
+            {
+                entity.Property(e => e.Id).HasConversion<string>();
+                entity.Property(e => e.PrincipalId).HasConversion<string>();
+            });
 
             var stringToGuidConverter = new ValueConverter<string, Guid>(
                 v => new Guid(v),
                 v => v.ToString());
 
-            modelBuilder.Entity<StringAsGuidPrincipal>(
-                entity =>
-                {
-                    entity.Property(e => e.Id).HasConversion(stringToGuidConverter);
-                });
-            modelBuilder.Entity<StringAsGuidDependentShadow>(
-                entity =>
-                {
-                    entity.Property(e => e.Id).HasConversion(stringToGuidConverter);
-                });
-            modelBuilder.Entity<StringAsGuidDependentOptional>(
-                entity =>
-                {
-                    entity.Property(e => e.Id).HasConversion(stringToGuidConverter);
-                    entity.Property(e => e.PrincipalId).HasConversion(stringToGuidConverter!);
-                });
-            modelBuilder.Entity<StringAsGuidDependentRequired>(
-                entity =>
-                {
-                    entity.Property(e => e.Id).HasConversion(stringToGuidConverter);
-                    entity.Property(e => e.PrincipalId).HasConversion(stringToGuidConverter);
-                });
+            modelBuilder.Entity<StringAsGuidPrincipal>(entity =>
+            {
+                entity.Property(e => e.Id).HasConversion(stringToGuidConverter);
+            });
+            modelBuilder.Entity<StringAsGuidDependentShadow>(entity =>
+            {
+                entity.Property(e => e.Id).HasConversion(stringToGuidConverter);
+            });
+            modelBuilder.Entity<StringAsGuidDependentOptional>(entity =>
+            {
+                entity.Property(e => e.Id).HasConversion(stringToGuidConverter);
+                entity.Property(e => e.PrincipalId).HasConversion(stringToGuidConverter!);
+            });
+            modelBuilder.Entity<StringAsGuidDependentRequired>(entity =>
+            {
+                entity.Property(e => e.Id).HasConversion(stringToGuidConverter);
+                entity.Property(e => e.PrincipalId).HasConversion(stringToGuidConverter);
+            });
         }
 
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)

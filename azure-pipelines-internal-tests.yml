@@ -1,0 +1,245 @@
+variables:
+  - name: _BuildConfig
+    value: Release
+  - name: DOTNET_SKIP_FIRST_TIME_EXPERIENCE
+    value: true
+  - name: _PublishUsingPipelines
+    value: true
+  - name: _CosmosConnectionUrl
+    value: https://localhost:8081
+  - name: _CosmosToken
+    value: C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==
+  - group: DotNet-HelixApi-Access
+  - name: _InternalRuntimeDownloadArgs
+    value: /p:DotNetRuntimeSourceFeed=https://ci.dot.net/internal /p:DotNetRuntimeSourceFeedKey=$(dotnetbuilds-internal-container-read-token-base64)
+  - name: LC_ALL
+    value: 'en_US.UTF-8'
+  - name: LANG
+    value: 'en_US.UTF-8'
+  - name: LANGUAGE
+    value: 'en_US.UTF-8'
+  - template: /eng/common/templates-official/variables/pool-providers.yml@self
+trigger:
+  batch: true
+  branches:
+    include:
+      - main
+      - release/*
+      - feature/*
+      - internal/release/*
+pr: ['*']
+resources:
+  repositories:
+  - repository: 1ESPipelineTemplates
+    type: git
+    name: 1ESPipelineTemplates/1ESPipelineTemplates
+    ref: refs/tags/release
+extends:
+  template: v1/1ES.Official.PipelineTemplate.yml@1ESPipelineTemplates
+  parameters:
+    featureFlags:
+      autoBaseline: false
+      autoEnableRoslynWithNewRuleset: false  
+    sdl:
+      createAdoIssuesForJustificationsForDisablement: false
+      sourceAnalysisPool:
+        name: $(DncEngInternalBuildPool)
+        image: 1es-windows-2022
+        os: windows
+      enabled: false
+      baseline:
+        baselineFile: $(Build.SourcesDirectory)\.config\guardian\.gdnbaselines
+      binskim:
+        enabled: false
+        justificationForDisabling: 'NonProduction'
+      policheck:
+        enabled: false
+        justificationForDisabling: 'NonProduction'
+      tsa:
+        enabled: false
+        justificationForDisabling: 'NonProduction'
+      antimalwareScan:
+        enabled: false
+        justificationForDisabling: 'NonProduction'
+      prefast:
+        enabled: false
+        justificationForDisabling: 'NonProduction'
+      codeQL:
+        compiled:
+          enabled: false
+          justificationForDisabling: 'NonProduction'
+      psscriptanalyzer:
+        enabled: false
+        justificationForDisabling: 'NonProduction'
+      credscan:
+        enabled: false
+        justificationForDisabling: 'NonProduction'
+      spmi:
+        enabled: false
+        justificationForDisabling: 'NonProduction'
+      componentgovernance:
+        enabled: false
+        justificationForDisabling: 'NonProduction'
+      eslint:
+        enabled: false
+        justificationForDisabling: 'NonProduction'
+      armory:
+        enabled: false
+        justificationForDisabling: 'NonProduction'
+    customBuildTags:
+    - ES365AIMigrationTooling
+    stages:
+    - stage: build
+      displayName: Build
+      jobs:
+      - template: /eng/common/templates-official/jobs/jobs.yml@self
+        parameters:
+          enableMicrobuild: true
+          enablePublishBuildArtifacts: true
+          enablePublishBuildAssets: false
+          enablePublishTestResults: true
+          publishAssetsImmediately: true
+          isAssetlessBuild: true
+          enableTelemetry: true
+          helixRepo: dotnet/efcore
+          jobs:
+          - job: Windows
+            pool:
+              name: $(DncEngInternalBuildPool)
+              demands: ImageOverride -equals 1es-windows-2022
+              os: windows
+            timeoutInMinutes: 180
+            variables:
+              - _InternalBuildArgs: ''
+              # Rely on task Arcade injects, not auto-injected build step.
+              - skipComponentGovernanceDetection: true
+            steps:
+              - task: NuGetCommand@2
+                displayName: 'Clear NuGet caches'
+                condition: succeeded()
+                inputs:
+                  command: custom
+                  arguments: 'locals all -clear'
+              - script: "echo ##vso[build.addbuildtag]daily-build"
+                condition: and(notin(variables['Build.Reason'], 'PullRequest'), ne(variables['IsFinalBuild'], 'true'))
+                displayName: 'Set CI tags'
+              - script: "echo ##vso[build.addbuildtag]release-candidate"
+                condition: and(notin(variables['Build.Reason'], 'PullRequest'), eq(variables['IsFinalBuild'], 'true'))
+                displayName: 'Set CI tags'
+              - powershell: SqlLocalDB start
+                displayName: Start LocalDB
+              - template: /eng/common/templates-official/steps/enable-internal-sources.yml
+              - template: /eng/common/templates-official/steps/enable-internal-runtimes.yml
+              - script: eng\common\cibuild.cmd -configuration $(_BuildConfig) -prepareMachine $(_InternalBuildArgs) $(_InternalRuntimeDownloadArgs)
+                env:
+                  Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
+                displayName: Build
+          - job: macOS
+            pool:
+              name: Azure Pipelines
+              image: macOS-15
+              os: macOS
+            variables:
+              # Rely on task Arcade injects, not auto-injected build step.
+              - skipComponentGovernanceDetection: true
+            steps:
+              - template: /eng/common/templates-official/steps/enable-internal-sources.yml
+              - template: /eng/common/templates-official/steps/enable-internal-runtimes.yml
+              - script: eng/common/build.sh --restore --build --test --pack --ci --configuration $(_BuildConfig) --prepareMachine $(_InternalRuntimeDownloadArgs)
+                env:
+                  Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
+                  # Work-around for https://github.com/dotnet/runtime/issues/70758
+                  COMPlus_EnableWriteXorExecute: 0
+                displayName: Build
+          - job: Linux
+            timeoutInMinutes: 180
+            pool:
+              name: $(DncEngInternalBuildPool)
+              demands: ImageOverride -equals 1es-ubuntu-2204
+              os: linux
+            variables:
+              - _runCounter: $[counter(variables['Build.Reason'], 0)]
+              # Rely on task Arcade injects, not auto-injected build step.
+              - skipComponentGovernanceDetection: true
+              - ${{ if notin(variables['Build.Reason'], 'PullRequest', 'Schedule') }}:
+                - _CosmosConnectionUrl: 'true'
+            steps:
+              - bash: |
+                  echo "##vso[task.setvariable variable=_CosmosConnectionUrl]https://ef-nightly-test.documents.azure.com:443/"
+                displayName: Prepare to run Cosmos tests on ef-nightly-test
+                condition: and(eq(variables['_CosmosConnectionUrl'], 'true'), or(endsWith(variables['_runCounter'], '0'), endsWith(variables['_runCounter'], '2'), endsWith(variables['_runCounter'], '4'), endsWith(variables['_runCounter'], '6'), endsWith(variables['_runCounter'], '8')))
+              - bash: |
+                  echo "##vso[task.setvariable variable=_CosmosConnectionUrl]https://ef-pr-test.documents.azure.com:443/"
+                displayName: Prepare to run Cosmos tests on ef-pr-test
+                condition: and(eq(variables['_CosmosConnectionUrl'], 'true'), or(endsWith(variables['_runCounter'], '1'), endsWith(variables['_runCounter'], '3'), endsWith(variables['_runCounter'], '5'), endsWith(variables['_runCounter'], '7'), endsWith(variables['_runCounter'], '9')))
+              - template: /eng/common/templates-official/steps/enable-internal-sources.yml
+              - template: /eng/common/templates-official/steps/enable-internal-runtimes.yml
+              - script: eng/common/build.sh --restore --build --test --pack --ci --configuration $(_BuildConfig) --prepareMachine $(_InternalRuntimeDownloadArgs)
+                displayName: Build
+              - task: AzureCLI@2
+                displayName: Run Cosmos tests
+                condition: notin(variables['Build.Reason'], 'PullRequest', 'Schedule')
+                inputs:
+                  azureSubscription: EFCosmosTesting
+                  addSpnToEnvironment: true
+                  scriptType: bash
+                  scriptLocation: 'inlineScript'
+                  inlineScript: |
+                      ./test.sh --ci --configuration $(_BuildConfig) --projects $(Build.SourcesDirectory)/test/EFCore.Cosmos.FunctionalTests/EFCore.Cosmos.FunctionalTests.csproj
+                env:
+                  Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
+                  Test__Cosmos__UseTokenCredential: true
+                  Test__Cosmos__SubscriptionId: d709b837-4a74-4aec-addc-b6e4b9b23e7e
+                  Test__Cosmos__ResourceGroup: efcosmosci
+                name: Build
+            templateContext:
+              sdl:
+                binskim:
+                  prereleaseVersion: ' '
+          - job: Helix
+            timeoutInMinutes: 180
+            pool:
+              name: $(DncEngInternalBuildPool)
+              demands: ImageOverride -equals 1es-windows-2022
+              os: windows
+            variables:
+              # Rely on task Arcade injects, not auto-injected build step.
+              - skipComponentGovernanceDetection: true
+              - name: _HelixBuildConfig
+                value: $(_BuildConfig)
+              - name: HelixTargetQueues
+                value: Windows.10.Amd64;OSX.15.Amd64;OSX.15.ARM64;Ubuntu.2204.Amd64@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-22.04-helix-sqlserver-amd64
+              - name: _HelixAccessToken
+                # Needed for internal queues
+                value: $(HelixApiAccessToken)
+            steps:
+              - task: NuGetCommand@2
+                displayName: 'Clear NuGet caches'
+                condition: succeeded()
+                inputs:
+                  command: custom
+                  arguments: 'locals all -clear'
+              - template: /eng/common/templates-official/steps/enable-internal-sources.yml
+              - template: /eng/common/templates-official/steps/enable-internal-runtimes.yml
+              - ${{ if ne(variables['System.TeamProject'], 'public') }}:
+                - template: /eng/common/core-templates/steps/get-delegation-sas.yml
+                  parameters:
+                    federatedServiceConnection: 'dotnetbuilds-internal-read'
+                    outputVariableName: 'dotnetbuilds-internal-container-read-token'
+                    expiryInHours: 1
+                    base64Encode: false
+                    storageAccount: dotnetbuilds
+                    container: internal
+                    permissions: rl
+              - script: restore.cmd -ci /p:configuration=$(_BuildConfig) $(_InternalRuntimeDownloadArgs)
+                displayName: Restore packages
+              - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /bl:$(Build.SourcesDirectory)/artifacts/log/$(_BuildConfig)/SendToHelix.binlog $(_InternalRuntimeDownloadArgs)
+                displayName: Send job to helix
+                env:
+                  HelixAccessToken: $(_HelixAccessToken)
+                  # We need to set this env var to publish helix results to Azure Dev Ops
+                  SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+                  MSSQL_SA_PASSWORD: "PLACEHOLDERPass$$w0rd"
+                  # Work-around for https://github.com/dotnet/runtime/issues/70758
+                  COMPlus_EnableWriteXorExecute: 0
+                  DotNetBuildsInternalReadSasToken: $(dotnetbuilds-internal-container-read-token)

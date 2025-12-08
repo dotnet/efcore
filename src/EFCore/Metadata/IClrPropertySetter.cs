@@ -20,9 +20,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 public interface IClrPropertySetter
 {
     /// <summary>
-    ///     Sets the value of the property.
+    ///     Sets the value of the property using the containing entity instance.
     /// </summary>
     /// <param name="instance">The entity instance.</param>
     /// <param name="value">The value to set.</param>
-    void SetClrValue(object instance, object? value);
+    void SetClrValueUsingContainingEntity(object instance, object? value)
+        => SetClrValueUsingContainingEntity(instance, [], value);
+
+    /// <summary>
+    ///     Sets the value of the property using the containing entity instance.
+    /// </summary>
+    /// <param name="instance">The entity instance.</param>
+    /// <param name="indices"> The indices corresponding to complex collections used to access the property. </param>
+    /// <param name="value">The value to set.</param>
+    void SetClrValueUsingContainingEntity(object instance, IReadOnlyList<int> indices, object? value);
+
+    /// <summary>
+    ///     Sets the value of the property directly on the entity or closest complex collection element.
+    /// </summary>
+    /// <param name="instance">The entity or complex object instance.</param>
+    /// <param name="value">The value to set.</param>
+    /// <returns>The instance with the value set.</returns>
+    object SetClrValue(object instance, object? value);
 }

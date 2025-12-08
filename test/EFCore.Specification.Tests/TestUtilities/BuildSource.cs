@@ -50,13 +50,12 @@ public class BuildSource
 
         var compilation = CSharpCompilation.Create(
             projectName,
-            Sources.Select(
-                s => SyntaxFactory.ParseSyntaxTree(
-                    text: s.Value,
-                    path: s.Key,
-                    options: new CSharpParseOptions(
-                        LanguageVersion.Latest,
-                        EmitDocumentationDiagnostics ? DocumentationMode.Diagnose : DocumentationMode.Parse))),
+            Sources.Select(s => SyntaxFactory.ParseSyntaxTree(
+                text: s.Value,
+                path: s.Key,
+                options: new CSharpParseOptions(
+                    LanguageVersion.Latest,
+                    EmitDocumentationDiagnostics ? DocumentationMode.Diagnose : DocumentationMode.Parse))),
             references,
             CreateOptions());
 
@@ -88,13 +87,12 @@ public class BuildSource
 
         var compilation = CSharpCompilation.Create(
             projectName,
-            Sources.Select(
-                s => SyntaxFactory.ParseSyntaxTree(
-                    text: s.Value,
-                    path: s.Key,
-                    options: new CSharpParseOptions(
-                        LanguageVersion.Latest,
-                        EmitDocumentationDiagnostics ? DocumentationMode.Diagnose : DocumentationMode.Parse))),
+            Sources.Select(s => SyntaxFactory.ParseSyntaxTree(
+                text: s.Value,
+                path: s.Key,
+                options: new CSharpParseOptions(
+                    LanguageVersion.Latest,
+                    EmitDocumentationDiagnostics ? DocumentationMode.Diagnose : DocumentationMode.Parse))),
             references,
             CreateOptions());
 
@@ -136,13 +134,12 @@ All diagnostics:
         var compilation = CSharpCompilation
             .Create(
                 assemblyName: Path.GetRandomFileName(),
-                Sources.Select(
-                    s => SyntaxFactory.ParseSyntaxTree(
-                        text: s.Value,
-                        path: s.Key,
-                        options: new CSharpParseOptions(
-                            LanguageVersion.Latest,
-                            EmitDocumentationDiagnostics ? DocumentationMode.Diagnose : DocumentationMode.Parse))),
+                Sources.Select(s => SyntaxFactory.ParseSyntaxTree(
+                    text: s.Value,
+                    path: s.Key,
+                    options: new CSharpParseOptions(
+                        LanguageVersion.Latest,
+                        EmitDocumentationDiagnostics ? DocumentationMode.Diagnose : DocumentationMode.Parse))),
                 References.SelectMany(r => r.References),
                 CreateOptions())
             .WithAnalyzers([new UninitializedDbSetDiagnosticSuppressor()]);
