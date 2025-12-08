@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public sealed class PropertyNameComparer : IComparer<string>
+public sealed class PropertyNameComparer : IComparer<string>, IEqualityComparer<string>
 {
     private readonly IReadOnlyEntityType? _entityType;
 
@@ -20,9 +20,7 @@ public sealed class PropertyNameComparer : IComparer<string>
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public PropertyNameComparer(IReadOnlyTypeBase typeBase)
-    {
-        _entityType = typeBase as IReadOnlyEntityType;
-    }
+        => _entityType = typeBase as IReadOnlyEntityType;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -76,4 +74,22 @@ public sealed class PropertyNameComparer : IComparer<string>
             ? -1
             : 1;
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public bool Equals(string? x, string? y)
+        => StringComparer.Ordinal.Equals(x, y);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public int GetHashCode(string obj)
+        => StringComparer.Ordinal.GetHashCode(obj);
 }

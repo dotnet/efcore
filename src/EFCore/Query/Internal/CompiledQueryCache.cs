@@ -25,9 +25,7 @@ public class CompiledQueryCache : ICompiledQueryCache
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public CompiledQueryCache(IMemoryCache memoryCache)
-    {
-        _memoryCache = memoryCache;
-    }
+        => _memoryCache = memoryCache;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -42,7 +40,7 @@ public class CompiledQueryCache : ICompiledQueryCache
         // ReSharper disable once InconsistentlySynchronizedField
         if (_memoryCache.TryGetValue(cacheKey, out Func<QueryContext, TResult>? compiledQuery))
         {
-            EntityFrameworkEventSource.Log.CompiledQueryCacheHit();
+            EntityFrameworkMetricsData.ReportCompiledQueryCacheHit();
             return compiledQuery!;
         }
 
@@ -57,11 +55,11 @@ public class CompiledQueryCache : ICompiledQueryCache
             {
                 if (_memoryCache.TryGetValue(cacheKey, out compiledQuery))
                 {
-                    EntityFrameworkEventSource.Log.CompiledQueryCacheHit();
+                    EntityFrameworkMetricsData.ReportCompiledQueryCacheHit();
                 }
                 else
                 {
-                    EntityFrameworkEventSource.Log.CompiledQueryCacheMiss();
+                    EntityFrameworkMetricsData.ReportCompiledQueryCacheMiss();
 
                     compiledQuery = compiler();
                     _memoryCache.Set(cacheKey, compiledQuery, new MemoryCacheEntryOptions { Size = 10 });

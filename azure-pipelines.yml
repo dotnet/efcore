@@ -18,7 +18,6 @@ variables:
     - name: PostBuildSign
       value: true
   - group: DotNet-HelixApi-Access
-  - group: AzureDevOps-Artifact-Feeds-Pats
   - name: _InternalRuntimeDownloadArgs
     value: /p:DotNetRuntimeSourceFeed=https://dotnetbuilds.blob.core.windows.net/internal /p:DotNetRuntimeSourceFeedKey=$(dotnetbuilds-internal-container-read-token-base64)
   - name: LC_ALL
@@ -27,6 +26,7 @@ variables:
     value: 'en_US.UTF-8'
   - name: LANGUAGE
     value: 'en_US.UTF-8'
+  - template: /eng/common/templates-official/variables/pool-providers.yml@self
 trigger:
   batch: true
   branches:
@@ -52,7 +52,7 @@ extends:
       binskimScanAllExtensions: true
     sdl:
       sourceAnalysisPool:
-        name: NetCore1ESPool-Svc-Internal
+        name: $(DncEngInternalBuildPool)
         image: 1es-windows-2022
         os: windows
       baseline:
@@ -61,6 +61,10 @@ extends:
         scanOutputDirectoryOnly: true
         analyzeTargetGlob: +:f|**/Microsoft.EntityFrameworkCore*.dll;+:f|**/Microsoft.Data.Sqlite*.dll;+:f|**/ef.exe;+:f|**/dotnet-ef.exe;-:f|**/shims/**/*.exe;
         preReleaseVersion: '4.3.1'
+      policheck:
+        enabled: true
+      tsa:
+        enabled: true
     customBuildTags:
     - ES365AIMigrationTooling
     stages:
@@ -75,13 +79,12 @@ extends:
           enablePublishTestResults: true
           enablePublishUsingPipelines: ${{ variables._PublishUsingPipelines }}
           publishAssetsImmediately: true
-          enableSourceIndex: ${{ eq(variables['Build.SourceBranch'], 'refs/heads/main') }}
           enableTelemetry: true
           helixRepo: dotnet/efcore
           jobs:
           - job: Windows
             pool:
-              name: NetCore1ESPool-Svc-Internal
+              name: $(DncEngInternalBuildPool)
               demands: ImageOverride -equals 1es-windows-2022
               os: windows
             timeoutInMinutes: 180
@@ -113,20 +116,26 @@ extends:
                 displayName: 'Set CI tags'
               - powershell: SqlLocalDB start
                 displayName: Start LocalDB
-              - task: PowerShell@2
-                displayName: Setup Private Feeds Credentials
-                inputs:
-                  filePath: $(Build.SourcesDirectory)/eng/common/SetupNugetSources.ps1
-                  arguments: -ConfigFile $(Build.SourcesDirectory)/NuGet.config -Password $Env:Token
-                env:
-                  Token: $(dn-bot-dnceng-artifact-feeds-rw)
+              - template: /eng/common/templates-official/steps/enable-internal-sources.yml
               - template: /eng/common/templates-official/steps/enable-internal-runtimes.yml
               - script: eng\common\cibuild.cmd -configuration $(_BuildConfig) -prepareMachine $(_InternalBuildArgs) $(_InternalRuntimeDownloadArgs)
                 env:
                   Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
                 displayName: Build
+              - task: CopyFiles@2
+                displayName: 'Copy binaries for publishing'
+                inputs:
+                  Contents: |
+                    artifacts/bin/**/?(*.dll|*.exe|*.pdb)
+                    !artifacts/bin/*Tests/**
+                  TargetFolder: $(Agent.TempDirectory)/BinArtifacts
             templateContext:
               outputs:
+              - output: pipelineArtifact
+                displayName: Publish binaries
+                condition: always()
+                path: $(Agent.TempDirectory)/BinArtifacts/
+                artifact: BinArtifacts
               - output: pipelineArtifact
                 displayName: Upload TestResults
                 condition: always()
@@ -141,13 +150,7 @@ extends:
               # Rely on task Arcade injects, not auto-injected build step.
               - skipComponentGovernanceDetection: true
             steps:
-              - task: Bash@3
-                displayName: Setup Private Feeds Credentials
-                inputs:
-                  filePath: $(Build.SourcesDirectory)/eng/common/SetupNugetSources.sh
-                  arguments: $(Build.SourcesDirectory)/NuGet.config $Token
-                env:
-                  Token: $(dn-bot-dnceng-artifact-feeds-rw)
+              - template: /eng/common/templates-official/steps/enable-internal-sources.yml
               - template: /eng/common/templates-official/steps/enable-internal-runtimes.yml
               - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine $(_InternalRuntimeDownloadArgs)
                 env:
@@ -166,33 +169,17 @@ extends:
                 path: artifacts/TestResults/$(_BuildConfig)/
                 artifact: $(Agent.Os)_$(Agent.JobName) TestResults
           - job: Linux
-            timeoutInMinutes: 120
+            timeoutInMinutes: 180
             pool:
-              name: NetCore1ESPool-Svc-Internal
+              name: $(DncEngInternalBuildPool)
               demands: ImageOverride -equals 1es-ubuntu-2204
               os: linux
             variables:
               - _runCounter: $[counter(variables['Build.Reason'], 0)]
               # Rely on task Arcade injects, not auto-injected build step.
               - skipComponentGovernanceDetection: true
-              - ${{ if notin(variables['Build.Reason'], 'PullRequest', 'Schedule') }}:
-                - _CosmosConnectionUrl: 'true'
             steps:
-              - bash: |
-                  echo "##vso[task.setvariable variable=_CosmosConnectionUrl]https://ef-nightly-test.documents.azure.com:443/"
-                displayName: Prepare to run Cosmos tests on ef-nightly-test
-                condition: and(eq(variables['_CosmosConnectionUrl'], 'true'), or(endsWith(variables['_runCounter'], '0'), endsWith(variables['_runCounter'], '2'), endsWith(variables['_runCounter'], '4'), endsWith(variables['_runCounter'], '6'), endsWith(variables['_runCounter'], '8')))
-              - bash: |
-                  echo "##vso[task.setvariable variable=_CosmosConnectionUrl]https://ef-pr-test.documents.azure.com:443/"
-                displayName: Prepare to run Cosmos tests on ef-pr-test
-                condition: and(eq(variables['_CosmosConnectionUrl'], 'true'), or(endsWith(variables['_runCounter'], '1'), endsWith(variables['_runCounter'], '3'), endsWith(variables['_runCounter'], '5'), endsWith(variables['_runCounter'], '7'), endsWith(variables['_runCounter'], '9')))
-              - task: Bash@3
-                displayName: Setup Private Feeds Credentials
-                inputs:
-                  filePath: $(Build.SourcesDirectory)/eng/common/SetupNugetSources.sh
-                  arguments: $(Build.SourcesDirectory)/NuGet.config $Token
-                env:
-                  Token: $(dn-bot-dnceng-artifact-feeds-rw)
+              - template: /eng/common/templates-official/steps/enable-internal-sources.yml
               - template: /eng/common/templates-official/steps/enable-internal-runtimes.yml
               - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine $(_InternalRuntimeDownloadArgs)
                 displayName: Build
@@ -209,7 +196,7 @@ extends:
           - job: Helix
             timeoutInMinutes: 180
             pool:
-              name: NetCore1ESPool-Svc-Internal
+              name: $(DncEngInternalBuildPool)
               demands: ImageOverride -equals 1es-windows-2022
               os: windows
             variables:
@@ -218,9 +205,9 @@ extends:
               - name: _HelixBuildConfig
                 value: $(_BuildConfig)
               - name: HelixTargetQueues
-                value: Windows.10.Amd64;Ubuntu.2204.Amd64@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-20.04-helix-sqlserver-amd64
+                value: Windows.10.Amd64;OSX.15.ARM64;Ubuntu.2204.Amd64@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-20.04-helix-sqlserver-amd64
               - name: _HelixAccessToken
-              # Needed for internal queues
+                # Needed for internal queues
                 value: $(HelixApiAccessToken)
             steps:
               - task: NuGetCommand@2
@@ -229,23 +216,18 @@ extends:
                 inputs:
                   command: custom
                   arguments: 'locals all -clear'
-              - task: PowerShell@2
-                displayName: Setup Private Feeds Credentials
-                inputs:
-                  filePath: $(Build.SourcesDirectory)/eng/common/SetupNugetSources.ps1
-                  arguments: -ConfigFile $(Build.SourcesDirectory)/NuGet.config -Password $Env:Token
-                env:
-                  Token: $(dn-bot-dnceng-artifact-feeds-rw)
+              - template: /eng/common/templates-official/steps/enable-internal-sources.yml
               - template: /eng/common/templates-official/steps/enable-internal-runtimes.yml
-              - template: /eng/common/templates-official/steps/get-delegation-sas.yml
-                parameters:
-                  federatedServiceConnection: 'dotnetbuilds-internal-read'
-                  outputVariableName: 'dotnetbuilds-internal-container-read-token'
-                  expiryInHours: 3
-                  base64Encode: false
-                  storageAccount: dotnetbuilds
-                  container: internal
-                  permissions: rl
+              - ${{ if ne(variables['System.TeamProject'], 'public') }}:
+                - template: /eng/common/core-templates/steps/get-delegation-sas.yml
+                  parameters:
+                    federatedServiceConnection: 'dotnetbuilds-internal-read'
+                    outputVariableName: 'dotnetbuilds-internal-container-read-token'
+                    expiryInHours: 1
+                    base64Encode: false
+                    storageAccount: dotnetbuilds
+                    container: internal
+                    permissions: rl
               - script: restore.cmd -ci /p:configuration=$(_BuildConfig) $(_InternalRuntimeDownloadArgs)
                 displayName: Restore packages
               - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /bl:$(Build.SourcesDirectory)/artifacts/log/$(_BuildConfig)/SendToHelix.binlog $(_InternalRuntimeDownloadArgs)
@@ -262,12 +244,9 @@ extends:
       - template: /eng/common/templates-official/post-build/post-build.yml@self
         parameters:
           publishingInfraVersion: 3
-          publishAssetsImmediately: true
-          # Symbol validation isn't being very reliable lately. This should be enabled back
-          # once this issue is resolved: https://github.com/dotnet/arcade/issues/2871
-          enableSymbolValidation: false
           enableSigningValidation: false
           enableNugetValidation: false
           enableSourceLinkValidation: false
+          publishAssetsImmediately: true
           SDLValidationParameters:
             enable: false

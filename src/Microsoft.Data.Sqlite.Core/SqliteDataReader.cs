@@ -687,7 +687,8 @@ namespace Microsoft.Data.Sqlite
                 schemaRow[dataTypeColumn] = GetFieldType(i);
                 var dataTypeName = GetDataTypeName(i);
                 schemaRow[dataTypeNameColumn] = dataTypeName;
-                schemaRow[isAliasedColumn] = columnName != GetName(i);
+                var isAliased = columnName != GetName(i);
+                schemaRow[isAliasedColumn] = isAliased;
                 schemaRow[isExpressionColumn] = columnName == null;
                 schemaRow[isLongColumn] = DBNull.Value;
 
@@ -706,7 +707,7 @@ namespace Microsoft.Data.Sqlite
                         command.Parameters.AddWithValue("$column", columnName);
 
                         var cnt = (long)command.ExecuteScalar()!;
-                        schemaRow[isUniqueColumn] = cnt != 0;
+                        schemaRow[isUniqueColumn] = !isAliased && cnt != 0;
 
                         command.Parameters.Clear();
                         var columnType = "typeof(\"" + columnName.Replace("\"", "\"\"") + "\")";
@@ -740,7 +741,7 @@ namespace Microsoft.Data.Sqlite
                         SqliteException.ThrowExceptionForRC(rc, _command.Connection.Handle);
 
                         schemaRow[isKeyColumn] = primaryKey != 0;
-                        schemaRow[allowDBNullColumn] = notNull == 0;
+                        schemaRow[allowDBNullColumn] = isAliased || notNull == 0;
                         schemaRow[isAutoIncrementColumn] = autoInc != 0;
                     }
                 }

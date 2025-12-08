@@ -9,6 +9,7 @@ using Azure.ResourceManager;
 using Azure.ResourceManager.CosmosDB;
 using Azure.ResourceManager.CosmosDB.Models;
 using Microsoft.Azure.Cosmos;
+using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -19,18 +20,24 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities;
 public class CosmosTestStore : TestStore
 {
     private readonly TestStoreContext _storeContext;
-    private readonly string _dataFilePath;
+    private readonly string? _dataFilePath;
     private readonly Action<CosmosDbContextOptionsBuilder> _configureCosmos;
     private bool _initialized;
 
     private static readonly Guid _runId = Guid.NewGuid();
     private static bool? _connectionAvailable;
 
-    public static CosmosTestStore Create(string name, Action<CosmosDbContextOptionsBuilder> extensionConfiguration = null)
+    public static CosmosTestStore Create(string name, Action<CosmosDbContextOptionsBuilder>? extensionConfiguration = null)
         => new(name, shared: false, extensionConfiguration: extensionConfiguration);
 
-    public static CosmosTestStore CreateInitialized(string name, Action<CosmosDbContextOptionsBuilder> extensionConfiguration = null)
-        => (CosmosTestStore)Create(name, extensionConfiguration).Initialize(null, (Func<DbContext>)null);
+    public static async Task<CosmosTestStore> CreateInitializedAsync(
+        string name,
+        Action<CosmosDbContextOptionsBuilder>? extensionConfiguration = null)
+    {
+        var testStore = Create(name, extensionConfiguration);
+        await testStore.InitializeAsync(null, (Func<DbContext>?)null).ConfigureAwait(false);
+        return testStore;
+    }
 
     public static CosmosTestStore GetOrCreate(string name)
         => new(name);
@@ -41,8 +48,8 @@ public class CosmosTestStore : TestStore
     private CosmosTestStore(
         string name,
         bool shared = true,
-        string dataFilePath = null,
-        Action<CosmosDbContextOptionsBuilder> extensionConfiguration = null)
+        string? dataFilePath = null,
+        Action<CosmosDbContextOptionsBuilder>? extensionConfiguration = null)
         : base(CreateName(name), shared)
     {
         ConnectionUri = TestEnvironment.DefaultConnection;
@@ -62,13 +69,13 @@ public class CosmosTestStore : TestStore
         if (dataFilePath != null)
         {
             _dataFilePath = Path.Combine(
-                Path.GetDirectoryName(typeof(CosmosTestStore).Assembly.Location),
+                Path.GetDirectoryName(typeof(CosmosTestStore).Assembly.Location)!,
                 dataFilePath);
         }
     }
 
     private static string CreateName(string name)
-        => TestEnvironment.IsEmulator || name == "Northwind"
+        => TestEnvironment.IsEmulator || name == "Northwind" || name == "Northwind2" || name == "Northwind3"
             ? name
             : name + _runId;
 
@@ -82,14 +89,14 @@ public class CosmosTestStore : TestStore
 
     public override DbContextOptionsBuilder AddProviderOptions(DbContextOptionsBuilder builder)
         => TestEnvironment.UseTokenCredential
-        ? builder.UseCosmos(ConnectionUri, TokenCredential, Name, _configureCosmos)
-        : builder.UseCosmos(ConnectionUri, AuthToken, Name, _configureCosmos);
+            ? builder.UseCosmos(ConnectionUri, TokenCredential, Name, _configureCosmos)
+            : builder.UseCosmos(ConnectionUri, AuthToken, Name, _configureCosmos);
 
     public static async ValueTask<bool> IsConnectionAvailableAsync()
     {
         if (_connectionAvailable == null)
         {
-            _connectionAvailable = await TryConnectAsync();
+            _connectionAvailable = await TryConnectAsync().ConfigureAwait(false);
         }
 
         return _connectionAvailable.Value;
@@ -97,10 +104,10 @@ public class CosmosTestStore : TestStore
 
     private static async Task<bool> TryConnectAsync()
     {
-        CosmosTestStore testStore = null;
+        CosmosTestStore? testStore = null;
         try
         {
-            testStore = CreateInitialized("NonExistent");
+            testStore = await CreateInitializedAsync("NonExistent").ConfigureAwait(false);
 
             return true;
         }
@@ -126,7 +133,7 @@ public class CosmosTestStore : TestStore
         {
             if (testStore != null)
             {
-                await testStore.DisposeAsync();
+                await testStore.DisposeAsync().ConfigureAwait(false);
             }
         }
     }
@@ -141,7 +148,7 @@ public class CosmosTestStore : TestStore
                 StringComparison.Ordinal),
         };
 
-    protected override void Initialize(Func<DbContext> createContext, Action<DbContext> seed, Action<DbContext> clean)
+    protected override async Task InitializeAsync(Func<DbContext> createContext, Func<DbContext, Task>? seed, Func<DbContext, Task>? clean)
     {
         _initialized = true;
 
@@ -152,23 +159,31 @@ public class CosmosTestStore : TestStore
 
         if (_dataFilePath == null)
         {
-            base.Initialize(createContext ?? (() => _storeContext), seed, clean);
+            await base.InitializeAsync(createContext ?? (() => _storeContext), seed, clean).ConfigureAwait(false);
         }
         else
         {
             using var context = createContext();
-            CreateFromFile(context).GetAwaiter().GetResult();
+            await CreateFromFile(context).ConfigureAwait(false);
         }
     }
 
     private async Task CreateFromFile(DbContext context)
     {
-        if (await EnsureCreatedAsync(context))
+        if (await EnsureCreatedAsync(context).ConfigureAwait(false))
         {
-            await context.Database.EnsureCreatedAsync();
+            if (!TestEnvironment.UseTokenCredential)
+            {
+                await context.Database.EnsureCreatedAsync().ConfigureAwait(false);
+            }
+            else
+            {
+                await CreateContainersAsync(context).ConfigureAwait(false);
+            }
+
             var cosmosClient = context.GetService<ICosmosClientWrapper>();
             var serializer = CosmosClientWrapper.Serializer;
-            using var fs = new FileStream(_dataFilePath, FileMode.Open, FileAccess.Read);
+            using var fs = new FileStream(_dataFilePath!, FileMode.Open, FileAccess.Read);
             using var sr = new StreamReader(fs);
             using var reader = new JsonTextReader(sr);
             while (reader.Read())
@@ -180,7 +195,9 @@ public class CosmosTestStore : TestStore
                     {
                         if (reader.TokenType == JsonToken.StartObject)
                         {
-                            string entityName = null;
+                            string? entityName = null;
+                            string? containerName = null;
+                            bool? discriminatorInId = null;
                             while (reader.Read())
                             {
                                 if (reader.TokenType == JsonToken.PropertyName)
@@ -191,18 +208,29 @@ public class CosmosTestStore : TestStore
                                             reader.Read();
                                             entityName = (string)reader.Value;
                                             break;
+                                        case "Container":
+                                            reader.Read();
+                                            containerName = (string)reader.Value;
+                                            break;
+                                        case "DiscriminatorInId":
+                                            reader.Read();
+                                            discriminatorInId = (bool)reader.Value;
+                                            break;
                                         case "Data":
                                             while (reader.Read())
                                             {
                                                 if (reader.TokenType == JsonToken.StartObject)
                                                 {
-                                                    var document = serializer.Deserialize<JObject>(reader);
+                                                    var document = serializer.Deserialize<JObject>(reader)!;
 
-                                                    document["id"] = $"{entityName}|{document["id"]}";
-                                                    document["Discriminator"] = entityName;
+                                                    document["id"] = discriminatorInId == true
+                                                        ? $"{entityName}|{document["id"]}"
+                                                        : $"{document["id"]}";
+
+                                                    document["$type"] = entityName;
 
                                                     await cosmosClient.CreateItemAsync(
-                                                        "NorthwindContext", document, new FakeUpdateEntry());
+                                                        containerName!, document, new FakeUpdateEntry()).ConfigureAwait(false);
                                                 }
                                                 else if (reader.TokenType == JsonToken.EndObject)
                                                 {
@@ -223,108 +251,290 @@ public class CosmosTestStore : TestStore
 
     private static readonly ArmClient _armClient = new(TestEnvironment.TokenCredential);
 
-    public override void Clean(DbContext context)
-        => CleanAsync(context).GetAwaiter().GetResult();
-
     public async Task<bool> EnsureCreatedAsync(DbContext context, CancellationToken cancellationToken = default)
     {
         if (!TestEnvironment.UseTokenCredential)
         {
             var cosmosClientWrapper = context.GetService<ICosmosClientWrapper>();
-            return await cosmosClientWrapper.CreateDatabaseIfNotExistsAsync(null, cancellationToken);
+            return await cosmosClientWrapper.CreateDatabaseIfNotExistsAsync(null, cancellationToken).ConfigureAwait(false);
         }
 
-        var databaseAccount = await GetDBAccount(cancellationToken);
+        var databaseAccount = await GetDBAccount(cancellationToken).ConfigureAwait(false);
         var collection = databaseAccount.Value.GetCosmosDBSqlDatabases();
-        var sqlDatabaseCreateUpdateOptions = new CosmosDBSqlDatabaseCreateOrUpdateContent(TestEnvironment.AzureLocation,
+        var sqlDatabaseCreateUpdateContent = new CosmosDBSqlDatabaseCreateOrUpdateContent(
+            TestEnvironment.AzureLocation,
             new CosmosDBSqlDatabaseResourceInfo(Name));
-        var databaseResponse = (await collection.CreateOrUpdateAsync(
-            WaitUntil.Completed, Name, sqlDatabaseCreateUpdateOptions, cancellationToken)).GetRawResponse();
-        return databaseResponse.Status == (int)HttpStatusCode.Created;
+        if (await collection.ExistsAsync(Name, cancellationToken))
+        {
+            return false;
+        }
+
+        var model = context.GetService<IDesignTimeModel>().Model;
+
+        var modelThrouput = model.GetThroughput();
+        if (modelThrouput == null
+            && GetContainersToCreate(model).All(c => c.Throughput == null))
+        {
+            modelThrouput = ThroughputProperties.CreateManualThroughput(400);
+        }
+
+        if (modelThrouput != null)
+        {
+            sqlDatabaseCreateUpdateContent.Options = new CosmosDBCreateUpdateConfig
+            {
+                Throughput = modelThrouput.Throughput,
+                AutoscaleMaxThroughput = modelThrouput.AutoscaleMaxThroughput
+            };
+        }
+
+        var databaseResponse = await collection.CreateOrUpdateAsync(
+            WaitUntil.Completed, Name, sqlDatabaseCreateUpdateContent, cancellationToken).ConfigureAwait(false);
+
+        return databaseResponse.GetRawResponse().Status == (int)HttpStatusCode.OK;
     }
 
     private async Task<bool> EnsureDeletedAsync(DbContext context, CancellationToken cancellationToken = default)
     {
         if (!TestEnvironment.UseTokenCredential)
         {
-            return await context.Database.EnsureDeletedAsync(cancellationToken);
+            return await context.Database.EnsureDeletedAsync(cancellationToken).ConfigureAwait(false);
         }
 
-        var databaseAccount = await GetDBAccount(cancellationToken);
-        var databaseResponse = (await databaseAccount.Value.GetCosmosDBSqlDatabase(Name, cancellationToken).Value.DeleteAsync(
-            WaitUntil.Completed, cancellationToken)).GetRawResponse();
-        return databaseResponse.Status == (int)HttpStatusCode.Created;
+        var databaseAccount = await GetDBAccount(cancellationToken).ConfigureAwait(false);
+        var collection = databaseAccount.Value.GetCosmosDBSqlDatabases();
+        var database = (await collection.GetIfExistsAsync(Name, cancellationToken).ConfigureAwait(false));
+        if (database == null
+            || !database.HasValue)
+        {
+            return false;
+        }
+
+        var databaseResponse = (await database.Value!.DeleteAsync(WaitUntil.Completed, cancellationToken).ConfigureAwait(false))
+            .GetRawResponse();
+        return databaseResponse.Status == (int)HttpStatusCode.OK;
     }
 
-    private async Task<global::Azure.Response<CosmosDBAccountResource>> GetDBAccount(CancellationToken cancellationToken)
+    private Task<global::Azure.Response<CosmosDBAccountResource>> GetDBAccount(CancellationToken cancellationToken = default)
     {
         var accountName = new Uri(ConnectionUri).Host.Split('.').First();
         var databaseAccountIdentifier = CosmosDBAccountResource.CreateResourceIdentifier(
             TestEnvironment.SubscriptionId, TestEnvironment.ResourceGroup, accountName);
-        return await _armClient.GetCosmosDBAccountResource(databaseAccountIdentifier).GetAsync(cancellationToken);
+        return _armClient.GetCosmosDBAccountResource(databaseAccountIdentifier).GetAsync(cancellationToken);
     }
 
     public override async Task CleanAsync(DbContext context)
     {
-        var created = await EnsureCreatedAsync(context);
+        var created = await EnsureCreatedAsync(context).ConfigureAwait(false);
         try
         {
             if (!created)
             {
-                var cosmosClient = context.Database.GetCosmosClient();
-                var database = cosmosClient.GetDatabase(Name);
-                var containerIterator = database.GetContainerQueryIterator<ContainerProperties>();
-                while (containerIterator.HasMoreResults)
-                {
-                    foreach (var containerProperties in await containerIterator.ReadNextAsync())
-                    {
-                        var container = database.GetContainer(containerProperties.Id);
-                        var partitionKey = containerProperties.PartitionKeyPath[1..];
-                        var itemIterator = container.GetItemQueryIterator<JObject>(
-                            new QueryDefinition("SELECT * FROM c"));
+                await DeleteContainers(context).ConfigureAwait(false);
+            }
 
-                        var items = new List<(string Id, string PartitionKey)>();
-                        while (itemIterator.HasMoreResults)
-                        {
-                            foreach (var item in await itemIterator.ReadNextAsync())
-                            {
-                                items.Add((item["id"].ToString(), item[partitionKey]?.ToString()));
-                            }
-                        }
-
-                        foreach (var item in items)
-                        {
-                            await container.DeleteItemAsync<object>(
-                                item.Id,
-                                item.PartitionKey == null ? PartitionKey.None : new PartitionKey(item.PartitionKey));
-                        }
-                    }
-                }
-
-                created = await context.Database.EnsureCreatedAsync();
+            if (!TestEnvironment.UseTokenCredential)
+            {
+                created = await context.Database.EnsureCreatedAsync().ConfigureAwait(false);
                 if (!created)
                 {
-                    var creator = (CosmosDatabaseCreator)context.GetService<IDatabaseCreator>();
-                    await creator.SeedAsync();
+                    await SeedAsync(context).ConfigureAwait(false);
                 }
             }
             else
             {
-                await context.Database.EnsureCreatedAsync();
+                await CreateContainersAsync(context).ConfigureAwait(false);
+                await SeedAsync(context).ConfigureAwait(false);
             }
         }
-        catch (Exception)
+        catch
         {
             try
             {
-                await EnsureDeletedAsync(context);
+                await EnsureDeletedAsync(context).ConfigureAwait(false);
             }
-            catch (Exception)
+            catch
             {
             }
 
             throw;
         }
+    }
+
+    private async Task CreateContainersAsync(DbContext context)
+    {
+        var databaseAccount = await GetDBAccount().ConfigureAwait(false);
+        var collection = databaseAccount.Value.GetCosmosDBSqlDatabases();
+        var database = await collection.GetAsync(Name).ConfigureAwait(false);
+        var model = context.GetService<IDesignTimeModel>().Model;
+
+        foreach (var container in GetContainersToCreate(model))
+        {
+            var resource = new CosmosDBSqlContainerResourceInfo(container.Id)
+            {
+                AnalyticalStorageTtl = container.AnalyticalStoreTimeToLiveInSeconds,
+                DefaultTtl = container.DefaultTimeToLive,
+                PartitionKey = new CosmosDBContainerPartitionKey { Version = 2 }
+            };
+
+            if (container.PartitionKeyStoreNames.Count > 1)
+            {
+                resource.PartitionKey.Kind = "MultiHash";
+            }
+
+            foreach (var partitionKey in container.PartitionKeyStoreNames)
+            {
+                resource.PartitionKey.Paths.Add("/" + partitionKey);
+            }
+
+            var content = new CosmosDBSqlContainerCreateOrUpdateContent(TestEnvironment.AzureLocation, resource);
+            if (container.Throughput != null)
+            {
+                content.Options = new CosmosDBCreateUpdateConfig
+                {
+                    AutoscaleMaxThroughput = container.Throughput.AutoscaleMaxThroughput,
+                    Throughput = container.Throughput.Throughput
+                };
+            }
+
+            await database.Value.GetCosmosDBSqlContainers().CreateOrUpdateAsync(
+                WaitUntil.Completed, container.Id, content).ConfigureAwait(false);
+        }
+    }
+
+    private static IEnumerable<Cosmos.Storage.Internal.ContainerProperties> GetContainersToCreate(IModel model)
+    {
+        var containers = new Dictionary<string, List<IEntityType>>();
+        foreach (var entityType in model.GetEntityTypes().Where(et => et.FindPrimaryKey() != null))
+        {
+            var container = entityType.GetContainer();
+            if (container == null)
+            {
+                continue;
+            }
+
+            if (!containers.TryGetValue(container, out var mappedTypes))
+            {
+                mappedTypes = [];
+                containers[container] = mappedTypes;
+            }
+
+            mappedTypes.Add(entityType);
+        }
+
+#pragma warning disable EF9103
+        foreach (var (containerName, mappedTypes) in containers)
+        {
+            IReadOnlyList<string> partitionKeyStoreNames = Array.Empty<string>();
+            int? analyticalTtl = null;
+            int? defaultTtl = null;
+            ThroughputProperties? throughput = null;
+            var indexes = new List<IIndex>();
+            var vectors = new List<(IProperty Property, CosmosVectorType VectorType)>();
+
+            foreach (var entityType in mappedTypes)
+            {
+                if (!partitionKeyStoreNames.Any())
+                {
+                    partitionKeyStoreNames = GetPartitionKeyStoreNames(entityType);
+                }
+
+                analyticalTtl ??= entityType.GetAnalyticalStoreTimeToLive();
+                defaultTtl ??= entityType.GetDefaultTimeToLive();
+                throughput ??= entityType.GetThroughput();
+                indexes.AddRange(entityType.GetIndexes());
+
+                foreach (var property in entityType.GetProperties())
+                {
+                    if (property.FindTypeMapping() is CosmosVectorTypeMapping vectorTypeMapping)
+                    {
+                        vectors.Add((property, vectorTypeMapping.VectorType));
+                    }
+                }
+            }
+#pragma warning restore EF9103
+
+            yield return new Cosmos.Storage.Internal.ContainerProperties(
+                containerName,
+                partitionKeyStoreNames,
+                analyticalTtl,
+                defaultTtl,
+                throughput,
+                indexes,
+                vectors);
+        }
+    }
+
+    private static IReadOnlyList<string> GetPartitionKeyStoreNames(IEntityType entityType)
+    {
+        var properties = entityType.GetPartitionKeyProperties();
+        return properties.Any()
+            ? properties.Select(p => p.GetJsonPropertyName()).ToList()
+            : [CosmosClientWrapper.DefaultPartitionKey];
+    }
+
+    private async Task DeleteContainers(DbContext context)
+    {
+        if (!TestEnvironment.UseTokenCredential)
+        {
+            var cosmosClient = context.Database.GetCosmosClient();
+            var database = cosmosClient.GetDatabase(Name);
+            var containerIterator = database.GetContainerQueryIterator<ContainerProperties>();
+            while (containerIterator.HasMoreResults)
+            {
+                foreach (var containerProperties in await containerIterator.ReadNextAsync().ConfigureAwait(false))
+                {
+                    var container = database.GetContainer(containerProperties.Id);
+                    var partitionKeys = containerProperties.PartitionKeyPaths.Select(p => p[1..]).ToList();
+                    var itemIterator = container.GetItemQueryIterator<JObject>(
+                        new QueryDefinition("SELECT * FROM c"));
+
+                    var items = new List<(string Id, PartitionKey PartitionKeyValue)>();
+                    while (itemIterator.HasMoreResults)
+                    {
+                        foreach (var item in await itemIterator.ReadNextAsync().ConfigureAwait(false))
+                        {
+                            var partitionKeyValue = PartitionKey.None;
+                            if (partitionKeys.Count >= 1
+                                && item[partitionKeys[0]] is not null)
+                            {
+                                var builder = new PartitionKeyBuilder();
+                                foreach (var partitionKey in partitionKeys)
+                                {
+                                    builder.Add((string?)item[partitionKey]);
+                                }
+
+                                partitionKeyValue = builder.Build();
+                            }
+
+                            items.Add((item["id"]!.ToString(), partitionKeyValue));
+                        }
+                    }
+
+                    foreach (var item in items)
+                    {
+                        await container.DeleteItemAsync<object>(item.Id, item.PartitionKeyValue).ConfigureAwait(false);
+                    }
+                }
+            }
+        }
+        else
+        {
+            var databaseAccount = await GetDBAccount().ConfigureAwait(false);
+            var collection = databaseAccount.Value.GetCosmosDBSqlDatabases();
+            var database = await collection.GetAsync(Name).ConfigureAwait(false);
+            var containers = await database.Value.GetCosmosDBSqlContainers().GetAllAsync().ToListAsync().ConfigureAwait(false);
+            foreach (var container in containers)
+            {
+                await container.DeleteAsync(WaitUntil.Completed).ConfigureAwait(false);
+            }
+        }
+    }
+
+    private static async Task SeedAsync(DbContext context)
+    {
+        var creator = (CosmosDatabaseCreator)context.GetService<IDatabaseCreator>();
+        await creator.InsertDataAsync().ConfigureAwait(false);
+        await creator.SeedDataAsync(created: true).ConfigureAwait(false);
     }
 
     public override void Dispose()
@@ -345,26 +555,22 @@ public class CosmosTestStore : TestStore
                 GetTestStoreIndex(ServiceProvider).RemoveShared(GetType().Name + Name);
             }
 
-            await EnsureDeletedAsync(_storeContext);
+            await EnsureDeletedAsync(_storeContext).ConfigureAwait(false);
         }
 
         _storeContext.Dispose();
     }
 
-    private class TestStoreContext : DbContext
+    private class TestStoreContext(CosmosTestStore testStore) : DbContext
     {
-        private readonly CosmosTestStore _testStore;
-
-        public TestStoreContext(CosmosTestStore testStore)
-        {
-            _testStore = testStore;
-        }
+        private readonly CosmosTestStore _testStore = testStore;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (TestEnvironment.UseTokenCredential)
             {
-                optionsBuilder.UseCosmos(_testStore.ConnectionUri, _testStore.TokenCredential, _testStore.Name, _testStore._configureCosmos);
+                optionsBuilder.UseCosmos(
+                    _testStore.ConnectionUri, _testStore.TokenCredential, _testStore.Name, _testStore._configureCosmos);
             }
             else
             {
@@ -386,6 +592,9 @@ public class CosmosTestStore : TestStore
         public object GetCurrentValue(IPropertyBase propertyBase)
             => throw new NotImplementedException();
 
+        public bool CanHaveOriginalValue(IPropertyBase propertyBase)
+            => throw new NotImplementedException();
+
         public TProperty GetCurrentValue<TProperty>(IPropertyBase propertyBase)
             => throw new NotImplementedException();
 
@@ -398,6 +607,12 @@ public class CosmosTestStore : TestStore
         public bool HasTemporaryValue(IProperty property)
             => throw new NotImplementedException();
 
+        public bool HasExplicitValue(IProperty property)
+            => throw new NotImplementedException();
+
+        public bool HasStoreGeneratedValue(IProperty property)
+            => throw new NotImplementedException();
+
         public bool IsModified(IProperty property)
             => throw new NotImplementedException();
 
@@ -407,13 +622,13 @@ public class CosmosTestStore : TestStore
         public DbContext Context
             => throw new NotImplementedException();
 
-        public void SetOriginalValue(IProperty property, object value)
+        public void SetOriginalValue(IProperty property, object? value)
             => throw new NotImplementedException();
 
         public void SetPropertyModified(IProperty property)
             => throw new NotImplementedException();
 
-        public void SetStoreGeneratedValue(IProperty property, object value, bool setModified = true)
+        public void SetStoreGeneratedValue(IProperty property, object? value, bool setModified = true)
             => throw new NotImplementedException();
 
         public EntityEntry ToEntityEntry()
@@ -462,7 +677,7 @@ public class CosmosTestStore : TestStore
             => throw new NotImplementedException();
 
         IReadOnlyEntityType IReadOnlyEntityType.BaseType
-            => throw new NotImplementedException();
+            => null!;
 
         IReadOnlyModel IReadOnlyTypeBase.Model
             => throw new NotImplementedException();
@@ -497,6 +712,9 @@ public class CosmosTestStore : TestStore
         public IIndex FindIndex(IReadOnlyList<IReadOnlyProperty> properties)
             => throw new NotImplementedException();
 
+        public string GetEmbeddedDiscriminatorName()
+            => throw new NotImplementedException();
+
         public PropertyInfo FindIndexerPropertyInfo()
             => throw new NotImplementedException();
 
@@ -512,7 +730,7 @@ public class CosmosTestStore : TestStore
         public IReadOnlyList<IReadOnlyProperty> FindProperties(IReadOnlyList<string> propertyNames)
             => throw new NotImplementedException();
 
-        public IProperty FindProperty(string name)
+        public IProperty? FindProperty(string name)
             => null;
 
         public IServiceProperty FindServiceProperty(string name)
@@ -608,7 +826,7 @@ public class CosmosTestStore : TestStore
         public IEnumerable<IForeignKey> GetReferencingForeignKeys()
             => throw new NotImplementedException();
 
-        public IEnumerable<IDictionary<string, object>> GetSeedData(bool providerValues = false)
+        public IEnumerable<IDictionary<string, object?>> GetSeedData(bool providerValues = false)
             => throw new NotImplementedException();
 
         public IEnumerable<IServiceProperty> GetServiceProperties()
