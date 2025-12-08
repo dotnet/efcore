@@ -143,7 +143,7 @@ public static class Uniquifier
     /// <param name="maxLength">The maximum length of the identifier.</param>
     /// <param name="uniquifier">An optional number that will be appended to the identifier.</param>
     /// <returns>The shortened identifier.</returns>
-    public static string Truncate(ReadOnlySpan<char> identifier, int maxLength, int? uniquifier = null)
+    public static string Truncate(string identifier, int maxLength, int? uniquifier = null)
         => Truncate(identifier, maxLength, null, uniquifier);
 
     /// <summary>
@@ -154,7 +154,12 @@ public static class Uniquifier
     /// <param name="suffix">An optional suffix to add after the uniquifier.</param>
     /// <param name="uniquifier">An optional number that will be appended to the identifier.</param>
     /// <returns>The shortened identifier.</returns>
-    public static string Truncate(ReadOnlySpan<char> identifier, int maxLength, string? suffix, int? uniquifier = null)
+    public static string Truncate(string identifier, int maxLength, string? suffix, int? uniquifier = null)
+        => maxLength <= 512
+            ? TruncateSpan(identifier, maxLength, suffix, uniquifier)
+            : TruncateStringBuilder(identifier, maxLength, suffix, uniquifier);
+
+    private static string TruncateSpan(ReadOnlySpan<char> identifier, int maxLength, string? suffix, int? uniquifier = null)
     {
         var uniquifierLength = GetLength(uniquifier) + (suffix?.Length ?? 0);
         var maxNameLength = maxLength - uniquifierLength;
@@ -163,11 +168,8 @@ public static class Uniquifier
             throw new ArgumentException(nameof(maxLength));
         }
 
-        var buffer = maxLength <= 256
-            ? stackalloc char[maxLength]
-            : new char[maxLength < Array.MaxLength ? maxLength : Array.MaxLength];
-
-        var position = 0;
+        Span<char> buffer = stackalloc char[maxLength];
+        int position;
 
         // Copy identifier (truncated if needed).
         if (identifier.Length <= maxNameLength)
@@ -197,6 +199,36 @@ public static class Uniquifier
         }
 
         return new string(buffer[..position]);
+    }
+
+    private static string TruncateStringBuilder(string identifier, int maxLength, string? suffix, int? uniquifier = null)
+    {
+        var uniquifierLength = GetLength(uniquifier) + (suffix?.Length ?? 0);
+        var maxNameLength = maxLength - uniquifierLength;
+        if (maxNameLength <= 0)
+        {
+            throw new ArgumentException(nameof(maxLength));
+        }
+
+        var builder = new StringBuilder();
+        if (identifier.Length <= maxNameLength)
+        {
+            builder.Append(identifier);
+        }
+        else
+        {
+            builder.Append(identifier, 0, maxNameLength - 1);
+            builder.Append('~');
+        }
+
+        if (uniquifier != null)
+        {
+            builder.Append(uniquifier.Value);
+        }
+
+        builder.Append(suffix);
+
+        return builder.ToString();
     }
 
     private static int GetLength(int? number)
