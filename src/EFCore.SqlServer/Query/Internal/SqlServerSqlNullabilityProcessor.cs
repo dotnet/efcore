@@ -319,7 +319,7 @@ public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
         if (_totalParameterCount > MaxParameterCount)
         {
             var parameters = ParametersDecorator.GetAndDisableCaching();
-            var values = ((IEnumerable?)parameters[valuesParameter.Name])?.Cast<object>().ToList() ?? [];
+            var values = ((IEnumerable?)parameters[valuesParameter.Name])?.Cast<object?>().ToList() ?? [];
 
             if (_sqlServerSingletonOptions.SupportsJsonFunctions)
             {
