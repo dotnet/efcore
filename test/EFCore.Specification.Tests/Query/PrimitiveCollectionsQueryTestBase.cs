@@ -533,6 +533,134 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
     }
 
     [ConditionalFact]
+    public virtual Task Parameter_collection_Count_with_huge_number_of_values_over_5_operations()
+    {
+        if (NumberOfValuesForHugeParameterCollectionTests is null)
+        {
+            return Task.CompletedTask;
+        }
+
+        var extra1 = Enumerable.Range(1000, (int)NumberOfValuesForHugeParameterCollectionTests / 5);
+        var extra2 = Enumerable.Range(1000, (int)NumberOfValuesForHugeParameterCollectionTests / 5);
+        var extra3 = Enumerable.Range(1000, (int)NumberOfValuesForHugeParameterCollectionTests / 5);
+        var extra4 = Enumerable.Range(1000, (int)NumberOfValuesForHugeParameterCollectionTests / 5);
+        var extra5 = Enumerable.Range(1000, (int)NumberOfValuesForHugeParameterCollectionTests / 5);
+        var ids = new[] { 2, 999 };
+
+
+        return AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>()
+            .Where(c => ids.Count(i => i > c.Id) > 0)
+            .Where(c => extra1.Count(i => i > c.Id) > 0)
+            .Where(c => extra2.Count(i => i > c.Id) > 0)
+            .Where(c => extra3.Count(i => i > c.Id) > 0)
+            .Where(c => extra4.Count(i => i > c.Id) > 0)
+            .Where(c => extra5.Count(i => i > c.Id) > 0));
+    }
+
+    [ConditionalFact]
+    public virtual Task Parameter_collection_Count_with_huge_number_of_values_over_5_operations_same_parameter()
+    {
+        if (NumberOfValuesForHugeParameterCollectionTests is null)
+        {
+            return Task.CompletedTask;
+        }
+
+        var extra = Enumerable.Range(1000, (int)NumberOfValuesForHugeParameterCollectionTests / 5);
+        var ids = new[] { 2, 999 };
+
+
+        return AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>()
+            .Where(c => ids.Count(i => i > c.Id) > 0)
+            .Where(c => extra.Count(i => i > c.Id) > 0)
+            .Where(c => extra.Count(i => i > c.Id) > 0)
+            .Where(c => extra.Count(i => i > c.Id) > 0)
+            .Where(c => extra.Count(i => i > c.Id) > 0)
+            .Where(c => extra.Count(i => i > c.Id) > 0));
+    }
+
+    [ConditionalFact]
+    public virtual Task Parameter_collection_Count_with_huge_number_of_values_over_5_operations_forced_constants()
+    {
+        if (NumberOfValuesForHugeParameterCollectionTests is null)
+        {
+            return Task.CompletedTask;
+        }
+
+        var extra1 = Enumerable.Range(1000, (int)NumberOfValuesForHugeParameterCollectionTests / 5);
+        var extra2 = Enumerable.Range(1000, (int)NumberOfValuesForHugeParameterCollectionTests / 5);
+        var extra3 = Enumerable.Range(1000, (int)NumberOfValuesForHugeParameterCollectionTests / 5);
+        var extra4 = Enumerable.Range(1000, (int)NumberOfValuesForHugeParameterCollectionTests / 5);
+        var extra5 = Enumerable.Range(1000, (int)NumberOfValuesForHugeParameterCollectionTests / 5);
+        var ids = new[] { 2, 999 };
+
+
+        return AssertQuery(
+            ss => ss.Set<PrimitiveCollectionsEntity>()
+                .Where(c => ids.Count(i => i > c.Id) > 0)
+                .Where(c => EF.Constant(extra1).Count(i => i > c.Id) > 0)
+                .Where(c => EF.Constant(extra2).Count(i => i > c.Id) > 0)
+                .Where(c => EF.Constant(extra3).Count(i => i > c.Id) > 0)
+                .Where(c => EF.Constant(extra4).Count(i => i > c.Id) > 0)
+                .Where(c => EF.Constant(extra5).Count(i => i > c.Id) > 0),
+            ss => ss.Set<PrimitiveCollectionsEntity>()
+                .Where(c => ids.Count(i => i > c.Id) > 0)
+                .Where(c => extra1.Count(i => i > c.Id) > 0)
+                .Where(c => extra2.Count(i => i > c.Id) > 0)
+                .Where(c => extra3.Count(i => i > c.Id) > 0)
+                .Where(c => extra4.Count(i => i > c.Id) > 0)
+                .Where(c => extra5.Count(i => i > c.Id) > 0));
+    }
+
+    [ConditionalFact]
+    public virtual Task Parameter_collection_Count_with_huge_number_of_values_over_5_operations_mixed_parameters_constants()
+    {
+        if (NumberOfValuesForHugeParameterCollectionTests is null)
+        {
+            return Task.CompletedTask;
+        }
+
+        var extra1 = Enumerable.Range(1000, (int)NumberOfValuesForHugeParameterCollectionTests / 5);
+        var extra2 = Enumerable.Range(1000, (int)NumberOfValuesForHugeParameterCollectionTests / 5);
+        var extra3 = Enumerable.Range(1000, (int)NumberOfValuesForHugeParameterCollectionTests / 5);
+        var extra4 = Enumerable.Range(1000, (int)NumberOfValuesForHugeParameterCollectionTests / 5);
+        var extra5 = Enumerable.Range(1000, (int)NumberOfValuesForHugeParameterCollectionTests / 5);
+        var ids = new[] { 2, 999 };
+
+
+        return AssertQuery(
+            ss => ss.Set<PrimitiveCollectionsEntity>()
+                .Where(c => ids.Count(i => i > c.Id) > 0)
+                // This is intentional. We want to "see" the constant parameters first
+                // and only then the non-constant parameters to verify the counting
+                // work as expected.
+                .Where(c => EF.Constant(extra1).Count(i => i > c.Id) > 0)
+                .Where(c => EF.Constant(extra2).Count(i => i > c.Id) > 0)
+                .Where(c => EF.Constant(extra3).Count(i => i > c.Id) > 0)
+                .Where(c => EF.Constant(extra4).Count(i => i > c.Id) > 0)
+                .Where(c => EF.Constant(extra5).Count(i => i > c.Id) > 0)
+                .Where(c => extra1.Count(i => i > c.Id) > 0)
+                .Where(c => extra2.Count(i => i > c.Id) > 0)
+                .Where(c => extra3.Count(i => i > c.Id) > 0)
+                .Where(c => extra4.Count(i => i > c.Id) > 0)
+                .Where(c => extra5.Count(i => i > c.Id) > 0),
+            ss => ss.Set<PrimitiveCollectionsEntity>()
+                .Where(c => ids.Count(i => i > c.Id) > 0)
+                // This is intentional. We want to "see" the constant parameters first
+                // and only then the non-constant parameters to verify the counting
+                // work as expected.
+                .Where(c => extra1.Count(i => i > c.Id) > 0)
+                .Where(c => extra2.Count(i => i > c.Id) > 0)
+                .Where(c => extra3.Count(i => i > c.Id) > 0)
+                .Where(c => extra4.Count(i => i > c.Id) > 0)
+                .Where(c => extra5.Count(i => i > c.Id) > 0)
+                .Where(c => extra1.Count(i => i > c.Id) > 0)
+                .Where(c => extra2.Count(i => i > c.Id) > 0)
+                .Where(c => extra3.Count(i => i > c.Id) > 0)
+                .Where(c => extra4.Count(i => i > c.Id) > 0)
+                .Where(c => extra5.Count(i => i > c.Id) > 0));
+    }
+
+    [ConditionalFact]
     public virtual async Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values()
     {
         if (NumberOfValuesForHugeParameterCollectionTests is null)
@@ -545,6 +673,184 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
 
         await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => ints.Contains(c.Int)));
         await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !ints.Contains(c.Int)));
+    }
+
+    [ConditionalFact]
+    public virtual async Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations()
+    {
+        if (NumberOfValuesForHugeParameterCollectionTests is null)
+        {
+            return;
+        }
+
+        var extra1 = Enumerable.Range(10, (int)NumberOfValuesForHugeParameterCollectionTests / 5);
+        var extra2 = Enumerable.Range(10, (int)NumberOfValuesForHugeParameterCollectionTests / 5);
+        var extra3 = Enumerable.Range(10, (int)NumberOfValuesForHugeParameterCollectionTests / 5);
+        var extra4 = Enumerable.Range(10, (int)NumberOfValuesForHugeParameterCollectionTests / 5);
+        var extra5 = Enumerable.Range(10, (int)NumberOfValuesForHugeParameterCollectionTests / 5);
+        var ints = new[] { 10, 999 };
+
+        await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>()
+            .Where(c => ints.Contains(c.Int))
+            .Where(c => extra1.Contains(c.Int))
+            .Where(c => extra2.Contains(c.Int))
+            .Where(c => extra3.Contains(c.Int))
+            .Where(c => extra4.Contains(c.Int))
+            .Where(c => extra5.Contains(c.Int)));
+        await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>()
+            .Where(c => !ints.Contains(c.Int))
+            .Where(c => !extra1.Contains(c.Int))
+            .Where(c => !extra2.Contains(c.Int))
+            .Where(c => !extra3.Contains(c.Int))
+            .Where(c => !extra4.Contains(c.Int))
+            .Where(c => !extra5.Contains(c.Int)));
+    }
+
+    [ConditionalFact]
+    public virtual async Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations_same_parameter()
+    {
+        if (NumberOfValuesForHugeParameterCollectionTests is null)
+        {
+            return;
+        }
+
+        var extra = Enumerable.Range(10, (int)NumberOfValuesForHugeParameterCollectionTests / 5);
+        var ints = new[] { 10, 999 };
+
+        await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>()
+            .Where(c => ints.Contains(c.Int))
+            .Where(c => extra.Contains(c.Int))
+            .Where(c => extra.Contains(c.Int))
+            .Where(c => extra.Contains(c.Int))
+            .Where(c => extra.Contains(c.Int))
+            .Where(c => extra.Contains(c.Int)));
+        await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>()
+            .Where(c => !ints.Contains(c.Int))
+            .Where(c => !extra.Contains(c.Int))
+            .Where(c => !extra.Contains(c.Int))
+            .Where(c => !extra.Contains(c.Int))
+            .Where(c => !extra.Contains(c.Int))
+            .Where(c => !extra.Contains(c.Int)));
+    }
+
+    [ConditionalFact]
+    public virtual async Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations_forced_constants()
+    {
+        if (NumberOfValuesForHugeParameterCollectionTests is null)
+        {
+            return;
+        }
+
+        var extra1 = Enumerable.Range(10, (int)NumberOfValuesForHugeParameterCollectionTests / 5);
+        var extra2 = Enumerable.Range(10, (int)NumberOfValuesForHugeParameterCollectionTests / 5);
+        var extra3 = Enumerable.Range(10, (int)NumberOfValuesForHugeParameterCollectionTests / 5);
+        var extra4 = Enumerable.Range(10, (int)NumberOfValuesForHugeParameterCollectionTests / 5);
+        var extra5 = Enumerable.Range(10, (int)NumberOfValuesForHugeParameterCollectionTests / 5);
+        var ints = new[] { 10, 999 };
+
+        await AssertQuery(
+            ss => ss.Set<PrimitiveCollectionsEntity>()
+                .Where(c => ints.Contains(c.Int))
+                .Where(c => EF.Constant(extra1).Contains(c.Int))
+                .Where(c => EF.Constant(extra2).Contains(c.Int))
+                .Where(c => EF.Constant(extra3).Contains(c.Int))
+                .Where(c => EF.Constant(extra4).Contains(c.Int))
+                .Where(c => EF.Constant(extra5).Contains(c.Int)),
+            ss => ss.Set<PrimitiveCollectionsEntity>()
+                .Where(c => ints.Contains(c.Int))
+                .Where(c => extra1.Contains(c.Int))
+                .Where(c => extra2.Contains(c.Int))
+                .Where(c => extra3.Contains(c.Int))
+                .Where(c => extra4.Contains(c.Int))
+                .Where(c => extra5.Contains(c.Int)));
+        await AssertQuery(
+            ss => ss.Set<PrimitiveCollectionsEntity>()
+                .Where(c => !ints.Contains(c.Int))
+                .Where(c => !EF.Constant(extra1).Contains(c.Int))
+                .Where(c => !EF.Constant(extra2).Contains(c.Int))
+                .Where(c => !EF.Constant(extra3).Contains(c.Int))
+                .Where(c => !EF.Constant(extra4).Contains(c.Int))
+                .Where(c => !EF.Constant(extra5).Contains(c.Int)),
+            ss => ss.Set<PrimitiveCollectionsEntity>()
+                .Where(c => !ints.Contains(c.Int))
+                .Where(c => !extra1.Contains(c.Int))
+                .Where(c => !extra2.Contains(c.Int))
+                .Where(c => !extra3.Contains(c.Int))
+                .Where(c => !extra4.Contains(c.Int))
+                .Where(c => !extra5.Contains(c.Int)));
+    }
+
+    [ConditionalFact]
+    public virtual async Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations_mixed_parameters_constants()
+    {
+        if (NumberOfValuesForHugeParameterCollectionTests is null)
+        {
+            return;
+        }
+
+        var extra1 = Enumerable.Range(10, (int)NumberOfValuesForHugeParameterCollectionTests / 5);
+        var extra2 = Enumerable.Range(10, (int)NumberOfValuesForHugeParameterCollectionTests / 5);
+        var extra3 = Enumerable.Range(10, (int)NumberOfValuesForHugeParameterCollectionTests / 5);
+        var extra4 = Enumerable.Range(10, (int)NumberOfValuesForHugeParameterCollectionTests / 5);
+        var extra5 = Enumerable.Range(10, (int)NumberOfValuesForHugeParameterCollectionTests / 5);
+        var ints = new[] { 10, 999 };
+
+        await AssertQuery(
+            ss => ss.Set<PrimitiveCollectionsEntity>()
+                .Where(c => ints.Contains(c.Int))
+                // This is intentional. We want to "see" the constant parameters first
+                // and only then the non-constant parameters to verify the counting
+                // work as expected.
+                .Where(c => EF.Constant(extra1).Contains(c.Int))
+                .Where(c => EF.Constant(extra2).Contains(c.Int))
+                .Where(c => EF.Constant(extra3).Contains(c.Int))
+                .Where(c => EF.Constant(extra4).Contains(c.Int))
+                .Where(c => EF.Constant(extra5).Contains(c.Int))
+                .Where(c => extra1.Contains(c.Int))
+                .Where(c => extra2.Contains(c.Int))
+                .Where(c => extra3.Contains(c.Int))
+                .Where(c => extra4.Contains(c.Int))
+                .Where(c => extra5.Contains(c.Int)),
+            ss => ss.Set<PrimitiveCollectionsEntity>()
+                .Where(c => ints.Contains(c.Int))
+                .Where(c => extra1.Contains(c.Int))
+                .Where(c => extra2.Contains(c.Int))
+                .Where(c => extra3.Contains(c.Int))
+                .Where(c => extra4.Contains(c.Int))
+                .Where(c => extra5.Contains(c.Int))
+                .Where(c => extra1.Contains(c.Int))
+                .Where(c => extra2.Contains(c.Int))
+                .Where(c => extra3.Contains(c.Int))
+                .Where(c => extra4.Contains(c.Int))
+                .Where(c => extra5.Contains(c.Int)));
+        await AssertQuery(
+            ss => ss.Set<PrimitiveCollectionsEntity>()
+                .Where(c => !ints.Contains(c.Int))
+                // This is intentional. We want to "see" the constant parameters first
+                // and only then the non-constant parameters to verify the counting
+                // work as expected.
+                .Where(c => !EF.Constant(extra1).Contains(c.Int))
+                .Where(c => !EF.Constant(extra2).Contains(c.Int))
+                .Where(c => !EF.Constant(extra3).Contains(c.Int))
+                .Where(c => !EF.Constant(extra4).Contains(c.Int))
+                .Where(c => !EF.Constant(extra5).Contains(c.Int))
+                .Where(c => !extra1.Contains(c.Int))
+                .Where(c => !extra2.Contains(c.Int))
+                .Where(c => !extra3.Contains(c.Int))
+                .Where(c => !extra4.Contains(c.Int))
+                .Where(c => !extra5.Contains(c.Int)),
+            ss => ss.Set<PrimitiveCollectionsEntity>()
+                .Where(c => !ints.Contains(c.Int))
+                .Where(c => !extra1.Contains(c.Int))
+                .Where(c => !extra2.Contains(c.Int))
+                .Where(c => !extra3.Contains(c.Int))
+                .Where(c => !extra4.Contains(c.Int))
+                .Where(c => !extra5.Contains(c.Int))
+                .Where(c => !extra1.Contains(c.Int))
+                .Where(c => !extra2.Contains(c.Int))
+                .Where(c => !extra3.Contains(c.Int))
+                .Where(c => !extra4.Contains(c.Int))
+                .Where(c => !extra5.Contains(c.Int)));
     }
 
     [ConditionalFact]
