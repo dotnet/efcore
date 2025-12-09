@@ -559,6 +559,28 @@ WHERE NOT(ARRAY_CONTAINS(@ints, c["Int"]))
 """);
     }
 
+    public override async Task Parameter_collection_FrozenSet_of_ints_Contains_int()
+    {
+        await base.Parameter_collection_FrozenSet_of_ints_Contains_int();
+
+        AssertSql(
+            """
+@ints='[10,999]'
+
+SELECT VALUE c
+FROM root c
+WHERE ARRAY_CONTAINS(@ints, c["Int"])
+""",
+            //
+            """
+@ints='[10,999]'
+
+SELECT VALUE c
+FROM root c
+WHERE NOT(ARRAY_CONTAINS(@ints, c["Int"]))
+""");
+    }
+
     public override async Task Parameter_collection_ImmutableArray_of_ints_Contains_int()
     {
         await base.Parameter_collection_ImmutableArray_of_ints_Contains_int();
@@ -874,6 +896,60 @@ WHERE ARRAY_CONTAINS(@ints, c["Int"])
     // nothing to test here
     public override Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations_mixed_parameters_constants()
         => base.Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations_mixed_parameters_constants();
+
+    public override async Task Static_readonly_collection_List_of_ints_Contains_int()
+    {
+        await base.Static_readonly_collection_List_of_ints_Contains_int();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE c["Int"] IN (10, 999)
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+WHERE c["Int"] NOT IN (10, 999)
+""");
+    }
+
+    public override async Task Static_readonly_collection_FrozenSet_of_ints_Contains_int()
+    {
+        await base.Static_readonly_collection_FrozenSet_of_ints_Contains_int();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE c["Int"] IN (10, 999)
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+WHERE c["Int"] NOT IN (10, 999)
+""");
+    }
+
+    public override async Task Static_readonly_collection_ImmutableArray_of_ints_Contains_int()
+    {
+        await base.Static_readonly_collection_ImmutableArray_of_ints_Contains_int();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE c["Int"] IN (10, 999)
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+WHERE c["Int"] NOT IN (10, 999)
+""");
+    }
 
     public override async Task Column_collection_of_ints_Contains()
     {
@@ -1590,7 +1666,7 @@ WHERE (ARRAY(
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(
             base.Parameter_collection_in_subquery_Union_column_collection_as_compiled_query);
 
-        Assert.Equal(SyncNotSupportedMessage, exception.Message);
+        Assert.Equal(CosmosStrings.SyncNotSupported, exception.Message);
 
         AssertSql();
     }
@@ -1635,7 +1711,7 @@ WHERE (ARRAY_LENGTH(SetUnion(@Skip, c["Ints"])) = 3)
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(
             base.Parameter_collection_in_subquery_Count_as_compiled_query);
 
-        Assert.Equal(SyncNotSupportedMessage, exception.Message);
+        Assert.Equal(CosmosStrings.SyncNotSupported, exception.Message);
 
         AssertSql();
     }
@@ -1649,7 +1725,7 @@ WHERE (ARRAY_LENGTH(SetUnion(@Skip, c["Ints"])) = 3)
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(
             base.Parameter_collection_in_subquery_Union_another_parameter_collection_as_compiled_query);
 
-        Assert.Equal(SyncNotSupportedMessage, exception.Message);
+        Assert.Equal(CosmosStrings.SyncNotSupported, exception.Message);
 
         AssertSql();
     }
@@ -2045,10 +2121,4 @@ WHERE ((c["Ints"][2] ?? 999) = 999)
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
-
-    private static readonly string SyncNotSupportedMessage
-        = CoreStrings.WarningAsErrorTemplate(
-            CosmosEventId.SyncNotSupported.ToString(),
-            CosmosResources.LogSyncNotSupported(new TestLogger<CosmosLoggingDefinitions>()).GenerateMessage(),
-            "CosmosEventId.SyncNotSupported");
 }
