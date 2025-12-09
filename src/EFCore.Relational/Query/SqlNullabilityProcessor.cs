@@ -119,7 +119,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                 Check.DebugAssert(valuesParameter.TypeMapping.ElementTypeMapping is not null);
                 var elementTypeMapping = (RelationalTypeMapping)valuesParameter.TypeMapping.ElementTypeMapping;
                 var queryParameters = ParametersDecorator.GetAndDisableCaching();
-                var values = ((IEnumerable?)queryParameters[valuesParameter.Name])?.Cast<object>().ToList() ?? [];
+                var values = ((IEnumerable?)queryParameters[valuesParameter.Name])?.Cast<object?>().ToList() ?? [];
 
                 var intTypeMapping = (IntTypeMapping?)Dependencies.TypeMappingSource.FindMapping(typeof(int));
                 Check.DebugAssert(intTypeMapping is not null);
@@ -854,7 +854,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                 // caching.
                 var elementTypeMapping = (RelationalTypeMapping)inExpression.ValuesParameter.TypeMapping!.ElementTypeMapping!;
                 var parameters = ParametersDecorator.GetAndDisableCaching();
-                var values = ((IEnumerable?)parameters[valuesParameter.Name])?.Cast<object>().ToList() ?? [];
+                var values = ((IEnumerable?)parameters[valuesParameter.Name])?.Cast<object?>().ToList() ?? [];
 
                 processedValues = [];
 
