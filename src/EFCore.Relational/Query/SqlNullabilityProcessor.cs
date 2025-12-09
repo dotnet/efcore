@@ -20,12 +20,6 @@ namespace Microsoft.EntityFrameworkCore.Query;
 /// </summary>
 public class SqlNullabilityProcessor : ExpressionVisitor
 {
-    private static readonly bool UseOldBehavior37204 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37204", out var enabled) && enabled;
-
-    private static readonly bool UseOldBehavior37152 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37152", out var enabled) && enabled;
-
     private readonly List<ColumnExpression> _nonNullableColumns;
     private readonly List<ColumnExpression> _nullValueColumns;
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
@@ -34,9 +28,6 @@ public class SqlNullabilityProcessor : ExpressionVisitor
     ///     Tracks parameters for collection expansion, allowing reuse.
     /// </summary>
     private readonly Dictionary<SqlParameterExpression, List<SqlParameterExpression>> _collectionParameterExpansionMap;
-
-    private static readonly bool UseOldBehavior37216 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37216", out var enabled) && enabled;
 
     /// <summary>
     ///     Creates a new instance of the <see cref="SqlNullabilityProcessor" /> class.
@@ -198,7 +189,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                 // We've inlined the user-provided collection from the values parameter into the SQL VALUES expression: (VALUES (1), (2)...).
                 // However, if the collection happens to be empty, this doesn't work as VALUES does not support empty sets. We convert it
                 // to a SELECT ... WHERE false to produce an empty result set instead.
-                if (!UseOldBehavior37216 && processedValues.Count == 0)
+                if (processedValues.Count == 0)
                 {
                     var select = new SelectExpression(
                         valuesExpression.Alias,
@@ -1904,25 +1895,12 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         {
             // We're looking at a parameter beyond its simple nullability, so we can't use the SQL cache for this query.
             var parameters = ParametersDecorator.GetAndDisableCaching();
-
-            IList values;
-            if (UseOldBehavior37204)
+            if (parameters[collectionParameter.Name] is not IEnumerable enumerable)
             {
-                if (parameters[collectionParameter.Name] is not IList list)
-                {
-                    throw new UnreachableException($"Parameter '{collectionParameter.Name}' is not an IList.");
-                }
-                values = list;
-            }
-            else
-            {
-                if (parameters[collectionParameter.Name] is not IEnumerable enumerable)
-                {
-                    throw new UnreachableException($"Parameter '{collectionParameter.Name}' is not an IEnumerable.");
-                }
-                values = enumerable.Cast<object?>().ToList();
+                throw new UnreachableException($"Parameter '{collectionParameter.Name}' is not an IEnumerable.");
             }
 
+            var values = enumerable.Cast<object?>().ToList();
             IList? processedValues = null;
 
             for (var i = 0; i < values.Count; i++)
@@ -2253,10 +2231,8 @@ public class SqlNullabilityProcessor : ExpressionVisitor
     {
         if (expandedParameters.Count <= index)
         {
-            var parameterName = UseOldBehavior37152
-                ? Uniquifier.Uniquify(valuesParameterName, parameters, int.MaxValue)
 #pragma warning disable EF1001
-                : Uniquifier.Uniquify(valuesParameterName, parameters, maxLength: int.MaxValue, uniquifier: index + 1);
+            var parameterName = Uniquifier.Uniquify(valuesParameterName, parameters, maxLength: int.MaxValue, uniquifier: index + 1);
 #pragma warning restore EF1001
             parameters.Add(parameterName, value);
             var parameterExpression = new SqlParameterExpression(parameterName, value?.GetType() ?? typeof(object), typeMapping);
