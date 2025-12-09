@@ -29,9 +29,6 @@ public class SqlNullabilityProcessor : ExpressionVisitor
     /// </summary>
     private readonly Dictionary<SqlParameterExpression, List<SqlParameterExpression>> _collectionParameterExpansionMap;
 
-    private static readonly bool UseOldBehavior37216 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37216", out var enabled) && enabled;
-
     /// <summary>
     ///     Creates a new instance of the <see cref="SqlNullabilityProcessor" /> class.
     /// </summary>
@@ -192,7 +189,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                 // We've inlined the user-provided collection from the values parameter into the SQL VALUES expression: (VALUES (1), (2)...).
                 // However, if the collection happens to be empty, this doesn't work as VALUES does not support empty sets. We convert it
                 // to a SELECT ... WHERE false to produce an empty result set instead.
-                if (!UseOldBehavior37216 && processedValues.Count == 0)
+                if (processedValues.Count == 0)
                 {
                     var select = new SelectExpression(
                         valuesExpression.Alias,
