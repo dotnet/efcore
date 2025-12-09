@@ -983,21 +983,6 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                             unwrappedSpanArg, valueArg));
                 }
 
-                // In .NET 10, MemoryExtensions.Contains has an overload that accepts a third, optional comparer, in addition to the older
-                // overload that accepts two parameters only.
-                case nameof(MemoryExtensions.Contains)
-                    when methodCall.Arguments is [var spanArg, var valueArg, ..]
-                        && (methodCall.Arguments.Count is 2
-                            || methodCall.Arguments.Count is 3
-                                && methodCall.Arguments[2] is ConstantExpression { Value: null })
-                        && TryUnwrapSpanImplicitCast(spanArg, out var unwrappedSpanArg):
-                {
-                    return Visit(
-                        Call(
-                            EnumerableMethods.Contains.MakeGenericMethod(method.GetGenericArguments()[0]),
-                            unwrappedSpanArg, valueArg));
-                }
-
                 case nameof(MemoryExtensions.SequenceEqual)
                     when methodCall.Arguments is [var spanArg, var otherArg]
                     && TryUnwrapSpanImplicitCast(spanArg, out var unwrappedSpanArg)
@@ -1012,25 +997,11 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
             {
                 switch (expression)
                 {
-                    // With newer versions of the SDK, the implicit cast is represented as a MethodCallExpression;
-                    // with older versions, it's a Convert node.
                     case MethodCallExpression
                     {
                         Method: { Name: "op_Implicit", DeclaringType: { IsGenericType: true } implicitCastDeclaringType },
                         Arguments: [var unwrapped]
                     } when implicitCastDeclaringType.GetGenericTypeDefinition() is var genericTypeDefinition
-                        && (genericTypeDefinition == typeof(Span<>) || genericTypeDefinition == typeof(ReadOnlySpan<>)):
-                    {
-                        result = unwrapped;
-                        return true;
-                    }
-
-                    case UnaryExpression
-                    {
-                        NodeType: ExpressionType.Convert,
-                        Operand: var unwrapped,
-                        Type: { IsGenericType: true } convertType
-                    } when convertType.GetGenericTypeDefinition() is var genericTypeDefinition
                         && (genericTypeDefinition == typeof(Span<>) || genericTypeDefinition == typeof(ReadOnlySpan<>)):
                     {
                         result = unwrapped;
