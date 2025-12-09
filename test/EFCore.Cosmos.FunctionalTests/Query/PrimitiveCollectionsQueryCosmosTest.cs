@@ -2018,6 +2018,42 @@ WHERE ((c["Ints"][2] ?? 999) = 999)
         AssertSql();
     }
 
+    public override async Task Contains_on_Enumerable()
+    {
+        await base.Contains_on_Enumerable();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE c["Int"] IN (10, 999)
+""");
+    }
+
+    public override async Task Contains_on_MemoryExtensions()
+    {
+        await base.Contains_on_MemoryExtensions();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE c["Int"] IN (10, 999)
+""");
+    }
+
+    public override async Task Contains_with_MemoryExtensions_with_null_comparer()
+    {
+        await base.Contains_with_MemoryExtensions_with_null_comparer();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE c["Int"] IN (10, 999)
+""");
+    }
+
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());

@@ -879,6 +879,28 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
     public virtual Task Column_collection_of_bools_Contains()
         => AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Bools.Contains(true)));
 
+    // C# 14 first-class spans caused MemoryExtensions.Contains to get resolved instead of Enumerable.Contains.
+    // The following tests that the various overloads are all supported.
+    [ConditionalFact]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Contains_on_Enumerable()
+        => AssertQuery(
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => Enumerable.Contains(new[] { 10, 999 }, c.Int)));
+
+    // C# 14 first-class spans caused MemoryExtensions.Contains to get resolved instead of Enumerable.Contains.
+    // The following tests that the various overloads are all supported.
+    [ConditionalFact]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Contains_on_MemoryExtensions()
+        => AssertQuery(
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => MemoryExtensions.Contains(new[] { 10, 999 }, c.Int)));
+
+    [ConditionalFact]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Contains_with_MemoryExtensions_with_null_comparer()
+        => AssertQuery(
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => MemoryExtensions.Contains(new[] { 10, 999 }, c.Int, comparer: null)));
+
     [ConditionalFact]
     public virtual Task Column_collection_Count_method()
         => AssertQuery(

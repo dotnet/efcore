@@ -1027,6 +1027,43 @@ WHERE CAST(1 AS bit) IN (
                 .SingleAsync());
     }
 
+    public override async Task Contains_on_Enumerable()
+    {
+        await base.Contains_on_Enumerable();
+
+        AssertSql(
+            """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE [p].[Int] IN (10, 999)
+""");
+    }
+
+
+    public override async Task Contains_on_MemoryExtensions()
+    {
+        await base.Contains_on_MemoryExtensions();
+
+        AssertSql(
+            """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE [p].[Int] IN (10, 999)
+""");
+    }
+
+    public override async Task Contains_with_MemoryExtensions_with_null_comparer()
+    {
+        await base.Contains_with_MemoryExtensions_with_null_comparer();
+
+        AssertSql(
+            """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE [p].[Int] IN (10, 999)
+""");
+    }
+
     public override async Task Column_collection_Count_method()
     {
         await base.Column_collection_Count_method();
