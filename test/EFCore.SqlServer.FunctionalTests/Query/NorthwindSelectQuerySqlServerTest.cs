@@ -418,8 +418,8 @@ ORDER BY [c].[CustomerID]
 
         AssertSql(
             """
-SELECT COALESCE((
-    SELECT TOP(1) COALESCE((
+SELECT ISNULL((
+    SELECT TOP(1) ISNULL((
         SELECT TOP(1) [o0].[ProductID]
         FROM [Order Details] AS [o0]
         WHERE [o].[OrderID] = [o0].[OrderID] AND ([o0].[OrderID] <> (
@@ -445,8 +445,8 @@ ORDER BY [c].[CustomerID]
 
         AssertSql(
             """
-SELECT COALESCE((
-    SELECT TOP(1) COALESCE((
+SELECT ISNULL((
+    SELECT TOP(1) ISNULL((
         SELECT TOP(1) [o0].[ProductID]
         FROM [Order Details] AS [o0]
         WHERE [o].[OrderID] = [o0].[OrderID] AND [o0].[OrderID] <> CAST(LEN([c].[CustomerID]) AS int)
@@ -928,7 +928,7 @@ FROM [Customers] AS [c]
 
         AssertSql(
             """
-SELECT COALESCE((
+SELECT ISNULL((
     SELECT TOP(1) [o0].[OrderID]
     FROM [Order Details] AS [o0]
     INNER JOIN [Products] AS [p] ON [o0].[ProductID] = [p].[ProductID]
@@ -1390,7 +1390,7 @@ ORDER BY [c0].[CustomerID]
 
         AssertSql(
             """
-SELECT [c].[CustomerID], COALESCE((
+SELECT [c].[CustomerID], ISNULL((
     SELECT TOP(1) [o].[OrderID]
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]
@@ -1662,7 +1662,7 @@ ORDER BY [c].[CustomerID]
 
         AssertSql(
             """
-SELECT COALESCE([o].[EmployeeID], 0)
+SELECT ISNULL([o].[EmployeeID], 0)
 FROM [Orders] AS [o]
 """);
     }
@@ -1927,7 +1927,7 @@ ORDER BY [c].[CustomerID]
 
         AssertSql(
             """
-SELECT COALESCE((
+SELECT ISNULL((
     SELECT TOP(1) [o].[OrderID]
     FROM [Orders] AS [o]
     ORDER BY [o].[OrderDate] DESC, [o].[OrderID]), 0)
@@ -2066,7 +2066,7 @@ ORDER BY [c].[CustomerID]
             """
 @p='10'
 
-SELECT TOP(@p) [c].[CustomerID] + N' ' + COALESCE([c].[City], N'') AS [Aggregate]
+SELECT TOP(@p) [c].[CustomerID] + N' ' + ISNULL(CAST([c].[City] AS nvarchar(4000)), N'') AS [Aggregate]
 FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID]
 """);
@@ -2080,7 +2080,7 @@ ORDER BY [c].[CustomerID]
             """
 @p='7'
 
-SELECT [c].[CustomerID] + N' ' + COALESCE([c].[City], N'') AS [Aggregate]
+SELECT [c].[CustomerID] + N' ' + ISNULL(CAST([c].[City] AS nvarchar(4000)), N'') AS [Aggregate]
 FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID]
 OFFSET @p ROWS
@@ -2093,7 +2093,7 @@ OFFSET @p ROWS
 
         AssertSql(
             """
-SELECT COALESCE([c0].[FirstLetter], N'') + N' ' + [c0].[Foo] AS [Aggregate]
+SELECT ISNULL([c0].[FirstLetter], N'') + N' ' + [c0].[Foo] AS [Aggregate]
 FROM (
     SELECT DISTINCT [c].[CustomerID], SUBSTRING([c].[CustomerID], 0 + 1, 1) AS [FirstLetter], N'Foo' AS [Foo]
     FROM [Customers] AS [c]
@@ -2109,7 +2109,7 @@ FROM (
             """
 @p='10'
 
-SELECT [c0].[CustomerID] + N' ' + COALESCE([c0].[City], N'') AS [Aggregate]
+SELECT [c0].[CustomerID] + N' ' + ISNULL(CAST([c0].[City] AS nvarchar(4000)), N'') AS [Aggregate]
 FROM (
     SELECT TOP(@p) [c].[CustomerID], [c].[City]
     FROM [Customers] AS [c]
@@ -2480,7 +2480,7 @@ ORDER BY [c0].[CustomerID]
 SELECT [c].[CustomerID], (
     SELECT TOP(1) [o].[OrderDate]
     FROM [Orders] AS [o]
-    WHERE [c].[CustomerID] = [o].[CustomerID] AND [o].[OrderID] < 11000), [c].[City], N'test' + COALESCE([c].[City], N'')
+    WHERE [c].[CustomerID] = [o].[CustomerID] AND [o].[OrderID] < 11000), [c].[City], N'test' + ISNULL(CAST([c].[City] AS nvarchar(4000)), N'')
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'F%'
 """);

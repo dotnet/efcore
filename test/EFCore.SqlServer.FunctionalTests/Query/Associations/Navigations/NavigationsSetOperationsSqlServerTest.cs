@@ -60,7 +60,7 @@ ORDER BY [r].[Id], [a1].[Id], [n].[Id], [n0].[Id], [a2].[Id], [n1].[Id], [n2].[I
         AssertSql(
             """
 SELECT (
-    SELECT COALESCE(SUM([s].[value]), 0)
+    SELECT ISNULL(SUM([s].[value]), 0)
     FROM (
         SELECT [a].[Id]
         FROM [AssociateType] AS [a]
@@ -71,7 +71,7 @@ SELECT (
         WHERE [r].[Id] = [a0].[CollectionRootId] AND [a0].[String] = N'foo'
     ) AS [u]
     OUTER APPLY (
-        SELECT COALESCE(SUM([n].[Int]), 0) AS [value]
+        SELECT ISNULL(SUM([n].[Int]), 0) AS [value]
         FROM [NestedAssociateType] AS [n]
         WHERE [u].[Id] = [n].[CollectionAssociateId]
     ) AS [s])

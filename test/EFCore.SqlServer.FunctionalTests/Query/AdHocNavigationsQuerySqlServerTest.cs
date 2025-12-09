@@ -337,14 +337,14 @@ ORDER BY [a].[Id], [a0].[Id], [s].[Id]
 SELECT [a].[Id], [a].[ActivityTypeId], [a].[DateTime], [a].[Points], (
     SELECT TOP(1) [c].[Id]
     FROM [CompetitionSeasons] AS [c]
-    WHERE [c].[StartDate] <= [a].[DateTime] AND [a].[DateTime] < [c].[EndDate]) AS [CompetitionSeasonId], COALESCE([a].[Points], (
+    WHERE [c].[StartDate] <= [a].[DateTime] AND [a].[DateTime] < [c].[EndDate]) AS [CompetitionSeasonId], ISNULL(ISNULL([a].[Points], (
     SELECT TOP(1) [a1].[Points]
     FROM [ActivityTypePoints] AS [a1]
     INNER JOIN [CompetitionSeasons] AS [c0] ON [a1].[CompetitionSeasonId] = [c0].[Id]
     WHERE [a0].[Id] = [a1].[ActivityTypeId] AND [c0].[Id] = (
         SELECT TOP(1) [c1].[Id]
         FROM [CompetitionSeasons] AS [c1]
-        WHERE [c1].[StartDate] <= [a].[DateTime] AND [a].[DateTime] < [c1].[EndDate])), 0) AS [Points]
+        WHERE [c1].[StartDate] <= [a].[DateTime] AND [a].[DateTime] < [c1].[EndDate]))), 0) AS [Points]
 FROM [Activities] AS [a]
 INNER JOIN [ActivityType] AS [a0] ON [a].[ActivityTypeId] = [a0].[Id]
 """);
