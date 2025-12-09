@@ -16,7 +16,23 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
 {
     private readonly IndentedStringBuilder _sqlBuilder = new();
     private IReadOnlyDictionary<string, object> _parameterValues = null!;
+
+    /// <summary>
+    ///     The Cosmos SqlParameters which will get sent in the CosmosQuery.
+    /// </summary>
     private List<SqlParameter> _sqlParameters = null!;
+
+    /// <summary>
+    ///     Lookup table from <see cref="SqlParameterExpression.Name" /> (the "original" name) to the Cosmos <see cref="SqlParameter" />,
+    ///     whose name has underdone uniquification and prefixing. This is used when the same parameter is referenced multiple times in the query.
+    /// </summary>
+    private Dictionary<string, SqlParameter> _sqlParametersByOriginalName = null!;
+
+    /// <summary>
+    ///     Contains final parameter names (prefixed, uniquified) seen so far, for uniquification purposes.
+    /// </summary>
+    private readonly HashSet<string> _prefixedParameterNames = new(StringComparer.OrdinalIgnoreCase);
+
     private ParameterNameGenerator _parameterNameGenerator = null!;
 
     /// <summary>
@@ -32,6 +48,7 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
         _sqlBuilder.Clear();
         _parameterValues = parameterValues;
         _sqlParameters = [];
+        _sqlParametersByOriginalName = [];
         _parameterNameGenerator = new ParameterNameGenerator();
 
         Visit(selectExpression);
@@ -401,7 +418,9 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
                 substitutions = new string[parameterValues.Length];
                 for (var i = 0; i < parameterValues.Length; i++)
                 {
-                    var parameterName = _parameterNameGenerator.GenerateNext();
+                    // Note that we don't go through _sqlParametersByOriginalName, since the FromSql parameters we're adding here cannot
+                    // be referenced multiple times.
+                    var parameterName = PrefixAndUniquifyParameterName("p");
                     _sqlParameters.Add(new SqlParameter(parameterName, parameterValues[i]));
                     substitutions[i] = parameterName;
                 }
@@ -677,20 +696,22 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
     /// </summary>
     protected override Expression VisitSqlParameter(SqlParameterExpression sqlParameterExpression)
     {
-        var parameterName = $"@{sqlParameterExpression.Name}";
-
-        if (_sqlParameters.All(sp => sp.Name != parameterName))
+        if (!_sqlParametersByOriginalName.TryGetValue(sqlParameterExpression.Name, out var sqlParameter))
         {
             Check.DebugAssert(sqlParameterExpression.TypeMapping is not null, "SqlParameterExpression without a type mapping.");
 
-            _sqlParameters.Add(
-                new SqlParameter(
+            var parameterName = PrefixAndUniquifyParameterName(sqlParameterExpression.Name);
+
+            sqlParameter = new SqlParameter(
                     parameterName,
                     ((CosmosTypeMapping)sqlParameterExpression.TypeMapping)
-                    .GenerateJToken(_parameterValues[sqlParameterExpression.Name])));
+                    .GenerateJToken(_parameterValues[sqlParameterExpression.Name]));
+
+            _sqlParametersByOriginalName[sqlParameterExpression.Name] = sqlParameter;
+            _sqlParameters.Add(sqlParameter);
         }
 
-        _sqlBuilder.Append(parameterName);
+        _sqlBuilder.Append(sqlParameter.Name);
 
         return sqlParameterExpression;
     }
@@ -861,6 +882,20 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
         _sqlBuilder.Append('(');
         GenerateList(arguments, e => Visit(e));
         _sqlBuilder.Append(')');
+    }
+
+    private string PrefixAndUniquifyParameterName(string originalName)
+    {
+        var i = 0;
+        var prefixedName = $"@{originalName}";
+
+        while (_prefixedParameterNames.Contains(prefixedName))
+        {
+            prefixedName = $"@{originalName + i++}";
+        }
+
+        _prefixedParameterNames.Add(prefixedName);
+        return prefixedName;
     }
 
     private sealed class ParameterNameGenerator

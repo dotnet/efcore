@@ -813,6 +813,28 @@ WHERE ARRAY_CONTAINS(@ints, c["Int"])
 """);
     }
 
+    public override async Task Parameter_collection_empty_Contains()
+    {
+        await base.Parameter_collection_empty_Contains();
+
+        AssertSql(
+            """
+@ints='[]'
+
+SELECT VALUE c
+FROM root c
+WHERE ARRAY_CONTAINS(@ints, c["Int"])
+""");
+    }
+
+    public override async Task Parameter_collection_empty_Join()
+    {
+        // Cosmos join support. Issue #16920.
+        await AssertTranslationFailed(base.Parameter_collection_empty_Join);
+
+        AssertSql();
+    }
+
     public override async Task Parameter_collection_Contains_with_EF_Constant()
     {
         // #34327

@@ -78,6 +78,13 @@ public class TableSharingConcurrencyTokenConvention : IModelFinalizingConvention
                 {
                     Check.DebugAssert(readOnlyProperties.Count != 0, $"No properties mapped to column '{concurrencyColumnName}'");
 
+                    // JSON-mapped entities don't have column names for their properties,
+                    // so we skip them as they participate in the owner's concurrency token
+                    if (entityType.IsMappedToJson())
+                    {
+                        continue;
+                    }
+
                     var foundMappedProperty = !IsConcurrencyTokenMissing(readOnlyProperties, entityType, mappedTypes)
                         || entityType.GetProperties()
                             .Any(p => p.GetColumnName(table) == concurrencyColumnName);

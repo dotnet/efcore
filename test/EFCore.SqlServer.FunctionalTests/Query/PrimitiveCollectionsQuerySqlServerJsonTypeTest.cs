@@ -1073,6 +1073,33 @@ WHERE 0 = 1
 """);
     }
 
+    public override async Task Parameter_collection_empty_Contains()
+    {
+        await base.Parameter_collection_empty_Contains();
+
+        AssertSql(
+            """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE 0 = 1
+""");
+    }
+
+    public override async Task Parameter_collection_empty_Join()
+    {
+        await base.Parameter_collection_empty_Join();
+
+        AssertSql(
+            """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+INNER JOIN (
+    SELECT NULL AS [Value]
+    WHERE 0 = 1
+) AS [p0] ON [p].[Id] = [p0].[Value]
+""");
+    }
+
     public override async Task Static_readonly_collection_List_of_ints_Contains_int()
     {
         await base.Static_readonly_collection_List_of_ints_Contains_int();
