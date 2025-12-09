@@ -789,15 +789,15 @@ FROM (
                     """
 @p='London'
 @p0='UK'
-@p00='1'
-@p1='5'
+@p1='1'
+@p2='5'
 
 SELECT VALUE s
 FROM (
     SELECT * FROM root c WHERE c["City"] = @p AND c["Country"] = @p0
 ) s
 ORDER BY s["id"]
-OFFSET @p00 LIMIT @p1
+OFFSET @p1 LIMIT @p2
 """);
             });
 

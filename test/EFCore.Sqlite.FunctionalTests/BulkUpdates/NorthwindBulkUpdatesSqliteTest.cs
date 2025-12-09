@@ -266,8 +266,8 @@ WHERE EXISTS (
         AssertSql(
             """
 @p='100'
-@p2='5'
-@p1='20'
+@p3='5'
+@p2='20'
 
 DELETE FROM "Order Details" AS "o"
 WHERE EXISTS (
@@ -280,7 +280,7 @@ WHERE EXISTS (
             WHERE "o1"."OrderID" < 10300
             LIMIT @p OFFSET @p
         ) AS "o0"
-        LIMIT @p2 OFFSET @p1
+        LIMIT @p3 OFFSET @p2
     ) AS "o2"
     WHERE "o2"."OrderID" = "o"."OrderID" AND "o2"."ProductID" = "o"."ProductID")
 """);
@@ -511,7 +511,7 @@ WHERE EXISTS (
 
         AssertSql(
             """
-@p0='100'
+@p1='100'
 @p='0'
 
 DELETE FROM "Order Details" AS "o"
@@ -523,7 +523,7 @@ WHERE EXISTS (
         FROM "Orders" AS "o2"
         WHERE "o2"."OrderID" < 10300
         ORDER BY "o2"."OrderID"
-        LIMIT @p0 OFFSET @p
+        LIMIT @p1 OFFSET @p
     ) AS "o1" ON "o0"."OrderID" = "o1"."OrderID"
     WHERE "o0"."OrderID" = "o"."OrderID" AND "o0"."ProductID" = "o"."ProductID")
 """);
@@ -535,7 +535,7 @@ WHERE EXISTS (
 
         AssertSql(
             """
-@p0='100'
+@p1='100'
 @p='0'
 
 DELETE FROM "Order Details" AS "o"
@@ -547,7 +547,7 @@ WHERE EXISTS (
         FROM "Orders" AS "o2"
         WHERE "o2"."OrderID" < 10300
         ORDER BY "o2"."OrderID"
-        LIMIT @p0 OFFSET @p
+        LIMIT @p1 OFFSET @p
     ) AS "o1" ON "o0"."OrderID" = "o1"."OrderID"
     WHERE "o0"."OrderID" < 10276 AND "o0"."OrderID" = "o"."OrderID" AND "o0"."ProductID" = "o"."ProductID")
 """);
@@ -559,7 +559,7 @@ WHERE EXISTS (
 
         AssertSql(
             """
-@p0='100'
+@p1='100'
 @p='0'
 
 DELETE FROM "Order Details" AS "o"
@@ -571,7 +571,7 @@ WHERE EXISTS (
         FROM "Orders" AS "o2"
         WHERE "o2"."OrderID" < 10300
         ORDER BY "o2"."OrderID"
-        LIMIT @p0 OFFSET @p
+        LIMIT @p1 OFFSET @p
     ) AS "o1" ON "o0"."OrderID" = "o1"."OrderID"
     WHERE "o0"."OrderID" < 10276 AND "o0"."OrderID" = "o"."OrderID" AND "o0"."ProductID" = "o"."ProductID")
 """);
@@ -614,7 +614,7 @@ WHERE EXISTS (
 
         AssertSql(
             """
-@p0='100'
+@p1='100'
 @p='0'
 
 DELETE FROM "Order Details" AS "o"
@@ -626,7 +626,7 @@ WHERE EXISTS (
         FROM "Orders" AS "o2"
         WHERE "o2"."OrderID" < 10300
         ORDER BY "o2"."OrderID"
-        LIMIT @p0 OFFSET @p
+        LIMIT @p1 OFFSET @p
     ) AS "o1" ON "o0"."OrderID" = "o1"."OrderID"
     WHERE "o0"."OrderID" < 10276 AND "o0"."OrderID" = "o"."OrderID" AND "o0"."ProductID" = "o"."ProductID")
 """);
@@ -773,11 +773,11 @@ WHERE "c"."CustomerID" LIKE 'F%'
 
         AssertExecuteUpdateSql(
             """
-@p0='Updated' (Size = 7)
+@p1='Updated' (Size = 7)
 @p='4'
 
 UPDATE "Customers" AS "c0"
-SET "ContactName" = @p0
+SET "ContactName" = @p1
 FROM (
     SELECT "c"."CustomerID"
     FROM "Customers" AS "c"
@@ -794,11 +794,11 @@ WHERE "c0"."CustomerID" = "c1"."CustomerID"
 
         AssertExecuteUpdateSql(
             """
-@p0='Updated' (Size = 7)
+@p1='Updated' (Size = 7)
 @p='4'
 
 UPDATE "Customers" AS "c0"
-SET "ContactName" = @p0
+SET "ContactName" = @p1
 FROM (
     SELECT "c"."CustomerID"
     FROM "Customers" AS "c"
@@ -815,17 +815,17 @@ WHERE "c0"."CustomerID" = "c1"."CustomerID"
 
         AssertExecuteUpdateSql(
             """
-@p1='Updated' (Size = 7)
-@p0='4'
+@p2='Updated' (Size = 7)
+@p1='4'
 @p='2'
 
 UPDATE "Customers" AS "c0"
-SET "ContactName" = @p1
+SET "ContactName" = @p2
 FROM (
     SELECT "c"."CustomerID"
     FROM "Customers" AS "c"
     WHERE "c"."CustomerID" LIKE 'F%'
-    LIMIT @p0 OFFSET @p
+    LIMIT @p1 OFFSET @p
 ) AS "c1"
 WHERE "c0"."CustomerID" = "c1"."CustomerID"
 """);
@@ -856,11 +856,11 @@ WHERE "c0"."CustomerID" = "c1"."CustomerID"
 
         AssertExecuteUpdateSql(
             """
-@p0='Updated' (Size = 7)
+@p1='Updated' (Size = 7)
 @p='4'
 
 UPDATE "Customers" AS "c0"
-SET "ContactName" = @p0
+SET "ContactName" = @p1
 FROM (
     SELECT "c"."CustomerID"
     FROM "Customers" AS "c"
@@ -878,11 +878,11 @@ WHERE "c0"."CustomerID" = "c1"."CustomerID"
 
         AssertExecuteUpdateSql(
             """
-@p0='Updated' (Size = 7)
+@p1='Updated' (Size = 7)
 @p='4'
 
 UPDATE "Customers" AS "c0"
-SET "ContactName" = @p0
+SET "ContactName" = @p1
 FROM (
     SELECT "c"."CustomerID"
     FROM "Customers" AS "c"
@@ -900,18 +900,18 @@ WHERE "c0"."CustomerID" = "c1"."CustomerID"
 
         AssertExecuteUpdateSql(
             """
-@p1='Updated' (Size = 7)
-@p0='4'
+@p2='Updated' (Size = 7)
+@p1='4'
 @p='2'
 
 UPDATE "Customers" AS "c0"
-SET "ContactName" = @p1
+SET "ContactName" = @p2
 FROM (
     SELECT "c"."CustomerID"
     FROM "Customers" AS "c"
     WHERE "c"."CustomerID" LIKE 'F%'
     ORDER BY "c"."City"
-    LIMIT @p0 OFFSET @p
+    LIMIT @p1 OFFSET @p
 ) AS "c1"
 WHERE "c0"."CustomerID" = "c1"."CustomerID"
 """);
@@ -923,12 +923,12 @@ WHERE "c0"."CustomerID" = "c1"."CustomerID"
 
         AssertExecuteUpdateSql(
             """
-@p3='Updated' (Size = 7)
-@p0='6'
+@p4='Updated' (Size = 7)
+@p1='6'
 @p='2'
 
 UPDATE "Customers" AS "c1"
-SET "ContactName" = @p3
+SET "ContactName" = @p4
 FROM (
     SELECT "c0"."CustomerID"
     FROM (
@@ -936,7 +936,7 @@ FROM (
         FROM "Customers" AS "c"
         WHERE "c"."CustomerID" LIKE 'F%'
         ORDER BY "c"."City"
-        LIMIT @p0 OFFSET @p
+        LIMIT @p1 OFFSET @p
     ) AS "c0"
     ORDER BY "c0"."City"
     LIMIT @p OFFSET @p
@@ -1538,11 +1538,11 @@ WHERE "c"."CustomerID" LIKE 'F%'
         AssertExecuteUpdateSql(
             """
 @p='1'
-@p1='10'
+@p2='10'
 
 UPDATE "Order Details" AS "o2"
 SET "Quantity" = CAST(@p AS INTEGER),
-    "UnitPrice" = @p1
+    "UnitPrice" = @p2
 FROM (
     SELECT "o1"."OrderID", "o1"."ProductID"
     FROM (

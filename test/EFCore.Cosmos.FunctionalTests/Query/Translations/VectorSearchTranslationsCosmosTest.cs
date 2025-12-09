@@ -273,11 +273,11 @@ FROM root c
         AssertSql(
             """
 @p='[2,1,4,6,5,2,5,7,3,1]'
-@p0='[0.33,-0.52,0.45,-0.67,0.89,-0.34,0.86,-0.78]'
+@p3='[0.33,-0.52,0.45,-0.67,0.89,-0.34,0.86,-0.78]'
 
 SELECT VALUE c
 FROM root c
-ORDER BY RANK RRF(VectorDistance(c["BytesArray"], @p), VectorDistance(c["SinglesArray"], @p0))
+ORDER BY RANK RRF(VectorDistance(c["BytesArray"], @p), VectorDistance(c["SinglesArray"], @p3))
 """);
     }
 
