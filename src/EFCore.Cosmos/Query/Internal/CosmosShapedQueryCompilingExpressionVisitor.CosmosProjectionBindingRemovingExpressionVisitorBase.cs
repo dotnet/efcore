@@ -41,32 +41,102 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             = typeof(IClrCollectionAccessor).GetTypeInfo()
                 .GetDeclaredMethod(nameof(IClrCollectionAccessor.GetOrCreate));
 
+        // [MaterializationContext] = CosmosQueryObject (c or c[Prop])
         private readonly IDictionary<ParameterExpression, Expression> _materializationContextBindings
             = new Dictionary<ParameterExpression, Expression>();
 
+        // [CosmosQueryObject (c or c[Prop])] = jObject
         private readonly IDictionary<Expression, ParameterExpression> _projectionBindings
             = new Dictionary<Expression, ParameterExpression>();
 
-        private readonly IDictionary<Expression, (IEntityType EntityType, Expression JObjectExpression)> _ownerMappings
-            = new Dictionary<Expression, (IEntityType, Expression)>();
+        // [CosmosQueryObject (c[Prop])] = [(OwnerType (type of c), CosmosQueryObject (c))]
+        private readonly IDictionary<Expression, (ITypeBase StructuralType, Expression JObjectExpression)> _ownerMappings // @TODO: This can stay IEntityType probably?
+            = new Dictionary<Expression, (ITypeBase, Expression)>();
+
+        // [$instance] = (OwnerType (type of c), CosmosQueryObject (c))
+        private readonly Dictionary<Expression, (ITypeBase StructuralType, Expression JObjectExpression)> _instanceMaps = new();
+
+        // [CosmosQueryObject (c or c[Prop])] = [IComplexProperty] = jObject
+        private readonly Dictionary<Expression, Dictionary<IComplexProperty, Expression>> _complexMappings = new();
+
+        // [$entry] = $materializationContext
+        private readonly Dictionary<ParameterExpression, ParameterExpression> _entryMaps = new();
 
         private readonly IDictionary<Expression, Expression> _ordinalParameterBindings
             = new Dictionary<Expression, Expression>();
 
         private List<IncludeExpression> _pendingIncludes
             = [];
-
+        private int _currentComplexIndex;
         private static readonly MethodInfo ToObjectWithSerializerMethodInfo
             = typeof(CosmosProjectionBindingRemovingExpressionVisitorBase)
                 .GetRuntimeMethods().Single(mi => mi.Name == nameof(SafeToObjectWithSerializer));
+
+        private class MaterializationContextExtractorExpressionVisitor : ExpressionVisitor
+        {
+            private ParameterExpression _materializationContextParameter;
+
+            public ParameterExpression Extract(Expression expression)
+            {
+                _materializationContextParameter = null;
+                Visit(expression);
+                return _materializationContextParameter;
+            }
+
+            protected override Expression VisitParameter(ParameterExpression node)
+            {
+                if (node.Type == typeof(MaterializationContext))
+                {
+                    _materializationContextParameter = node;
+                    return node;
+                }
+                return base.VisitParameter(node);
+            }
+        }
+
+        private readonly Dictionary<BlockExpression, (ITypeBase StructuralType, ParameterExpression jObject)?> _structuralTypeBlocks = new();
+
+        protected override Expression VisitBlock(BlockExpression node)
+        {
+            if (node.Variables.Any(x => x.Type == typeof(MaterializationContext)) &&
+                node.Variables.Any(x => x.Type == typeof(IEntityType)) &&
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                node.Variables.Any(x => x.Type == typeof(InternalEntityEntry)))
+#pragma warning restore EF1001 // Internal EF Core API usage.
+
+            {
+                _structuralTypeBlocks.Add(node, null);
+            }
+
+            return base.VisitBlock(node);
+        }
 
         protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
             if (binaryExpression.NodeType == ExpressionType.Assign)
             {
-                if (binaryExpression.Left is ParameterExpression parameterExpression)
+
+            }
+
+            if (binaryExpression.NodeType == ExpressionType.Assign)
+            {
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                var internalEntryEntityMemberInfo = (MemberInfo)typeof(IInternalEntry).GetProperty(nameof(IInternalEntry.Entity));
+#pragma warning restore EF1001 // Internal EF Core API usage.
+                if (binaryExpression.Right is MemberExpression { Expression: ParameterExpression entryParameter } entityMember && entityMember.Member == internalEntryEntityMemberInfo && entryParameter.Type.IsAssignableTo(typeof(IUpdateEntry)))
                 {
-                    if (parameterExpression.Type == typeof(JObject)
+                    var materializationContext = _entryMaps[entryParameter];
+                    var cosmosQueryObject = _materializationContextBindings[materializationContext];
+
+                    _instanceMaps[binaryExpression.Left] = (null, cosmosQueryObject);
+                }
+                else if (binaryExpression.Left is ParameterExpression parameterExpression)
+                {
+                    if (parameterExpression.Type.IsAssignableTo(typeof(IUpdateEntry)))
+                    {
+                        _entryMaps[parameterExpression] = new MaterializationContextExtractorExpressionVisitor().Extract(binaryExpression.Right);
+                    }
+                    else if (parameterExpression.Type == typeof(JObject)
                         || parameterExpression.Type == typeof(JArray))
                     {
                         string storeName = null;
@@ -189,8 +259,28 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     }
                 }
 
-                if (binaryExpression.Left is MemberExpression { Member: FieldInfo { IsInitOnly: true } } memberExpression)
+                if (binaryExpression.Left is MemberExpression memberExpression)
                 {
+                    var instance = _instanceMaps[memberExpression.Expression];
+                    var complexProperty = instance.StructuralType.GetComplexProperties().FirstOrDefault(x => x.GetMemberInfo(true, true) == memberExpression.Member);
+
+                    if (complexProperty != null)
+                    {
+                        _currentComplexIndex++;
+                        var complexJObjectVariable = Variable(
+                            typeof(JObject),
+                            "complexJObject" + _currentComplexIndex);
+
+                        var assignVariable = Assign(complexJObjectVariable,
+                            Call(
+                                ToObjectWithSerializerMethodInfo.MakeGenericMethod(typeof(JObject)),
+                                Call(instance.JObjectExpression, GetItemMethodInfo,
+                                    Constant(complexProperty.Name) // @TODO: Get json property name 
+                                )
+                            )
+                        );
+                    }
+
                     return memberExpression.Assign(Visit(binaryExpression.Right));
                 }
             }
@@ -218,6 +308,14 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 {
                     innerExpression = _materializationContextBindings[
                         (ParameterExpression)((MethodCallExpression)methodCallExpression.Arguments[0]).Object];
+                }
+
+                var declaringType = property.DeclaringType;
+                if (declaringType is IComplexType complexType)
+                {
+                    //declaringType = complexType.ComplexProperty.DeclaringType;
+                    // @TODO: Will complexMappings contain all levels of nesting? Or do we need to traverse up?
+                    innerExpression = _complexMappings[innerExpression][complexType.ComplexProperty];
                 }
 
                 return CreateGetValueExpression(innerExpression, property, methodCallExpression.Type);
@@ -631,88 +729,91 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 return _projectionBindings[jTokenExpression];
             }
 
-            var entityType = property.DeclaringType as IEntityType;
-            var ownership = entityType?.FindOwnership();
             var storeName = property.GetJsonPropertyName();
-            if (storeName.Length == 0)
+
+            if (property.DeclaringType is IEntityType entityType)
             {
-                if (entityType == null
-                    || !entityType.IsDocumentRoot())
+                var ownership = entityType.FindOwnership();
+                if (storeName.Length == 0)
                 {
-                    if (ownership is { IsUnique: false } && property.IsOrdinalKeyProperty())
+                    if (entityType == null
+                        || !entityType.IsDocumentRoot())
                     {
-                        var ordinalExpression = _ordinalParameterBindings[jTokenExpression];
-                        if (ordinalExpression.Type != type)
+                        if (ownership is { IsUnique: false } && property.IsOrdinalKeyProperty())
                         {
-                            ordinalExpression = Convert(ordinalExpression, type);
+                            var ordinalExpression = _ordinalParameterBindings[jTokenExpression];
+                            if (ordinalExpression.Type != type)
+                            {
+                                ordinalExpression = Convert(ordinalExpression, type);
+                            }
+
+                            return ordinalExpression;
                         }
 
-                        return ordinalExpression;
+                        var principalProperty = property.FindFirstPrincipal();
+                        if (principalProperty != null)
+                        {
+                            Expression ownerJObjectExpression = null;
+                            if (_ownerMappings.TryGetValue(jTokenExpression, out var ownerInfo))
+                            {
+                                Check.DebugAssert(
+                                    principalProperty.DeclaringType.IsAssignableFrom(ownerInfo.StructuralType),
+                                    $"{principalProperty.DeclaringType} is not assignable from {ownerInfo.StructuralType}");
+
+                                ownerJObjectExpression = ownerInfo.JObjectExpression;
+                            }
+                            else if (jTokenExpression is ObjectReferenceExpression objectReferenceExpression)
+                            {
+                                ownerJObjectExpression = objectReferenceExpression;
+                            }
+                            else if (jTokenExpression is ObjectAccessExpression objectAccessExpression)
+                            {
+                                ownerJObjectExpression = objectAccessExpression.Object;
+                            }
+
+                            if (ownerJObjectExpression != null)
+                            {
+                                return CreateGetValueExpression(ownerJObjectExpression, principalProperty, type);
+                            }
+                        }
                     }
 
-                    var principalProperty = property.FindFirstPrincipal();
-                    if (principalProperty != null)
+                    return Default(type);
+                }
+
+                // Workaround for old databases that didn't store the key property
+                if (ownership is { IsUnique: false }
+                    && !entityType.IsDocumentRoot()
+                    && property.ClrType == typeof(int)
+                    && !property.IsForeignKey()
+                    && property.FindContainingPrimaryKey() is { Properties.Count: > 1 }
+                    && property.GetJsonPropertyName().Length != 0
+                    && !property.IsShadowProperty())
+                {
+                    var readExpression = CreateGetValueExpression(
+                        jTokenExpression,
+                        storeName,
+                        type.MakeNullable(),
+                        property.GetTypeMapping(),
+                        isNonNullableScalar: false);
+
+                    var nonNullReadExpression = readExpression;
+                    if (nonNullReadExpression.Type != type)
                     {
-                        Expression ownerJObjectExpression = null;
-                        if (_ownerMappings.TryGetValue(jTokenExpression, out var ownerInfo))
-                        {
-                            Check.DebugAssert(
-                                principalProperty.DeclaringType.IsAssignableFrom(ownerInfo.EntityType),
-                                $"{principalProperty.DeclaringType} is not assignable from {ownerInfo.EntityType}");
-
-                            ownerJObjectExpression = ownerInfo.JObjectExpression;
-                        }
-                        else if (jTokenExpression is ObjectReferenceExpression objectReferenceExpression)
-                        {
-                            ownerJObjectExpression = objectReferenceExpression;
-                        }
-                        else if (jTokenExpression is ObjectAccessExpression objectAccessExpression)
-                        {
-                            ownerJObjectExpression = objectAccessExpression.Object;
-                        }
-
-                        if (ownerJObjectExpression != null)
-                        {
-                            return CreateGetValueExpression(ownerJObjectExpression, principalProperty, type);
-                        }
+                        nonNullReadExpression = Convert(nonNullReadExpression, type);
                     }
+
+                    var ordinalExpression = _ordinalParameterBindings[jTokenExpression];
+                    if (ordinalExpression.Type != type)
+                    {
+                        ordinalExpression = Convert(ordinalExpression, type);
+                    }
+
+                    return Condition(
+                        Equal(readExpression, Constant(null, readExpression.Type)),
+                        ordinalExpression,
+                        nonNullReadExpression);
                 }
-
-                return Default(type);
-            }
-
-            // Workaround for old databases that didn't store the key property
-            if (ownership is { IsUnique: false }
-                && !entityType.IsDocumentRoot()
-                && property.ClrType == typeof(int)
-                && !property.IsForeignKey()
-                && property.FindContainingPrimaryKey() is { Properties.Count: > 1 }
-                && property.GetJsonPropertyName().Length != 0
-                && !property.IsShadowProperty())
-            {
-                var readExpression = CreateGetValueExpression(
-                    jTokenExpression,
-                    storeName,
-                    type.MakeNullable(),
-                    property.GetTypeMapping(),
-                    isNonNullableScalar: false);
-
-                var nonNullReadExpression = readExpression;
-                if (nonNullReadExpression.Type != type)
-                {
-                    nonNullReadExpression = Convert(nonNullReadExpression, type);
-                }
-
-                var ordinalExpression = _ordinalParameterBindings[jTokenExpression];
-                if (ordinalExpression.Type != type)
-                {
-                    ordinalExpression = Convert(ordinalExpression, type);
-                }
-
-                return Condition(
-                    Equal(readExpression, Constant(null, readExpression.Type)),
-                    ordinalExpression,
-                    nonNullReadExpression);
             }
 
             return Convert(
