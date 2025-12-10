@@ -591,6 +591,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
 
         // Id will have a different type mapping here.
         // Very specific, kind of fragile, but at least something.
+        // More info efcore#37185.
         return AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>()
             .Where(c => ids.Count(i => i > c.Id) > 0)
             .Where(c => extra.Count(i => i > c.Id) > 0)
@@ -765,6 +766,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
 
         // Id will have a different type mapping here.
         // Very specific, kind of fragile, but at least something.
+        // More info efcore#37185.
         await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>()
             .Where(c => ints.Contains(c.Int))
             .Where(c => extra.Contains(c.Int))
